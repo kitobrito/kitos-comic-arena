@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: naruto-arena
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    autoDeploy: true
+    envVars:
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB
+        value: naruto-arena
+      - key: MONGODB_USERS_COLLECTION
+        value: users
+      - key: MONGODB_MATCHES_COLLECTION
+        value: matches
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRY
+        value: 7d
+      - key: SESSION_COOKIE_NAME
+        value: naruto_session
+      - key: SESSION_MAX_AGE_MS
+        value: 604800000
+      - key: CORS_ORIGIN
+        sync: false

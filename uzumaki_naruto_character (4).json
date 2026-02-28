@@ -1,0 +1,167 @@
+{
+  "name": "Uzumaki Naruto",
+  "nameHtml": "Uzumaki Naruto",
+  "description": "Uzumaki Naruto is a high-pressure momentum fighter built around aggression, combo chains, and form-shifting power spikes. He excels at snowballing fights through burst damage, state changes, and multi-turn pressure, rewarding players who maintain tempo and punish openings with relentless offense.",
+  "descriptionHtml": "Uzumaki Naruto is a high-pressure momentum fighter built around aggression, combo chains, and form-shifting power spikes. He excels at snowballing fights through burst damage, state changes, and multi-turn pressure, rewarding players who maintain tempo and punish openings with relentless offense.",
+  "url": "https://i.imgur.com/JY8WbiV.png",
+  "unlockRequirement": "No requirements",
+  "unlockRequirementHtml": "No requirements",
+  "skills": [
+    {
+      "name": "Underground Ambush",
+      "nameHtml": "Underground Ambush",
+      "description": "Naruto deals 25 damage to one enemy. This also deals 10 damage to the other enemies during 'Shadow Clones'",
+      "descriptionHtml": "\n                        \n                        \n                        \n                        \n                        \n                        Naruto deals 25 damage to one enemy. This also deals 10 damage to the other enemies during&nbsp; 'Shadow Clones'&nbsp;\n                    \n                    \n                    \n                    \n                    \n                    ",
+      "energy": [
+        "Taijutsu"
+      ],
+      "classes": [
+        "Physical",
+        "Melee",
+        "Instant"
+      ],
+      "classesHtml": "Physical, Melee, Instant",
+      "skillNotes": [],
+      "cooldown": 1,
+      "cooldownHtml": "1",
+      "url": "https://i.imgur.com/Zz5vK7k.png"
+    },
+    {
+      "name": "Kyuubi Chakra Surge",
+      "nameHtml": "Kyuubi Chakra Surge",
+      "description": "Naruto gains 1 random chakra and 20 HP then swaps this skill to 'Rasengan' until it is used. If 'Shadow Clones' is used next turn, it will last for 2 additional turns.",
+      "descriptionHtml": "\n                        \n                        \n                        \n                        \n                        \n                        Naruto gains 1 random chakra and 20 HP then swaps this skill to 'Rasengan' until it is used. If 'Shadow Clones' is used next turn, it will last for 2 additional turns.",
+      "energy": [
+        "Random"
+      ],
+      "classes": [
+        "Chakra",
+        "Instant",
+        "Unique"
+      ],
+      "classesHtml": "Chakra, Instant, Unique",
+      "skillNotes": [],
+      "cooldown": 2,
+      "cooldownHtml": "2",
+      "url": "https://i.imgur.com/7mtmZSp.png"
+    },
+    {
+      "name": "Shadow Clones",
+      "nameHtml": "Shadow Clones",
+      "description": "For 2 turns, Naruto gains 50% damage reduction from the first enemy skill each turn. This swaps to 'Explosive Thousand Years of Death' the first turn then swaps to 'Uzumaki 2k Combo' the second turn. If improved by 'Kyuubi Chakra Surge', the alternate skills will swap in the same order.",
+      "descriptionHtml": "\n                        \n                        \n                        \n                        \n                        \n                        For 2 turns, Naruto gains 50% damage reduction from the first enemy skill each turn. This swaps to 'Explosive Thousand Years of Death'&nbsp;the first turn then swaps to 'Uzumaki 2k Combo' the second turn. If improved by 'Kyuubi Chakra Surge', the alternate skills will swap in the same order.<br>\n                    \n                    \n                    \n                    \n                    \n                    ",
+      "energy": [
+        "Random"
+      ],
+      "classes": [
+        "Chakra",
+        "Instant"
+      ],
+      "classesHtml": "Chakra, Instant",
+      "skillNotes": [],
+      "cooldown": 2,
+      "cooldownHtml": "2",
+      "url": "https://i.imgur.com/SWb18ro.png"
+    },
+    {
+      "name": "Summoning: Gamabunta",
+      "nameHtml": "Summoning: Gamabunta",
+      "description": "Removes one harmful effect from Naruto. Casts 'Water Bullet' on a random enemy. For 2 turns, swaps into 'Water Bullet'.",
+      "descriptionHtml": "\n                        \n                        \n                        \n                        \n                        \n                        \n                        \n                        Removes one harmful effect from Naruto.\nCasts 'Water Bullet' on a random enemy.\nFor 2 turns, swaps into 'Water Bullet'.\n                    \n                    \n                    \n                    ",
+      "energy": [
+        "Bloodline",
+        "Ninjutsu"
+      ],
+      "classes": [
+        "Chakra",
+        "Instant",
+        "Unique"
+      ],
+      "classesHtml": "Chakra, Instant, Unique",
+      "skillNotes": [],
+      "cooldown": 5,
+      "cooldownHtml": "5",
+      "url": "https://i.imgur.com/BaAUdwf.png"
+    },
+    {
+      "name": "Explosive Thousand Years of Death",
+      "nameHtml": "Explosive Thousand Years of Death",
+      "description": "Deals 5 piercing damage to one enemy. After 1 turn, they are dealt 20 affliction damage and cannot reduce damage or become invulnerable for 2 turns.",
+      "descriptionHtml": "\n                        \n                        \n                        \n                        \n                        \n                        Deals 5 piercing damage to one enemy. After 1 turn, they are dealt 20 affliction damage and cannot reduce damage or become invulnerable for 2 turns.<br>\n                    \n                    \n                    \n                    \n                    \n                    ",
+      "energy": [
+        "Random"
+      ],
+      "classes": [
+        "Physical",
+        "Instant",
+        "Melee",
+        "Affliction"
+      ],
+      "classesHtml": "Physical, Instant, Melee, Affliction",
+      "skillNotes": [],
+      "cooldown": 0,
+      "cooldownHtml": "None",
+      "url": "https://i.imgur.com/OGbeSwO.png"
+    },
+    {
+      "name": "Rasengan",
+      "nameHtml": "Rasengan",
+      "description": "Naruto deals 15 damage to one enemy this turn and fully stuns them for 1 turn then deals 15 piercing damage next turn. Swaps to 'Kyuubi Chakra Surge'.",
+      "descriptionHtml": "\n                        \n                        \n                        \n                        \n                        \n                        Naruto deals 15 damage to one enemy this turn and fully stuns them for 1 turn then deals 15 piercing damage next turn. Swaps to 'Kyuubi Chakra Surge'.",
+      "energy": [
+        "Ninjutsu"
+      ],
+      "classes": [
+        "Chakra",
+        "Melee",
+        "Instant"
+      ],
+      "classesHtml": "Chakra, Melee, Instant",
+      "skillNotes": [],
+      "cooldown": 0,
+      "cooldownHtml": "None",
+      "url": "https://i.imgur.com/mBhZXdP.png"
+    },
+    {
+      "name": "Uzumaki 2k Barrage",
+      "nameHtml": "Uzumaki 2k Barrage&nbsp;&nbsp;",
+      "description": "Deals 24 damage to one enemy for 2 turns.",
+      "descriptionHtml": "\n                        \n                        \n                        \n                        \n                        \n                        Deals 24 damage to one enemy for 2 turns.\n                    \n                    \n                    \n                    \n                    \n                    ",
+      "energy": [
+        "Taijutsu",
+        "Random"
+      ],
+      "classes": [
+        "Physical",
+        "Instant",
+        "Melee"
+      ],
+      "classesHtml": "Physical, Instant, Melee",
+      "skillNotes": [],
+      "cooldown": 0,
+      "cooldownHtml": "None",
+      "url": "https://i.imgur.com/J8a7lIo.png"
+    },
+    {
+      "name": "Water Bullet",
+      "nameHtml": "Water Bullet",
+      "description": "Deals 35 damage to one enemy and reduces their damage by 15 for one turn.",
+      "descriptionHtml": "\n                        \n                        \n                        Deals 35 damage to one enemy and reduces their damage by 15 for one turn.\n            \n                    \n                    \n                    ",
+      "energy": [
+        "Ninjutsu",
+        "Random"
+      ],
+      "classes": [
+        "Chakra",
+        "Instant",
+        "Ranged",
+        "Unique"
+      ],
+      "classesHtml": "Chakra, Instant, Ranged, Unique",
+      "skillNotes": [],
+      "cooldown": 0,
+      "cooldownHtml": "None",
+      "url": "https://i.imgur.com/8UFKnoL.png"
+    }
+  ]
+}

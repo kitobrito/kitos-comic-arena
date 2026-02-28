@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Naruto-Arena Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&family=Petra&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="background">
+    <div class="login">
+        <p class="logintext">PLEASE ENTER YOU USERNAME AND PASSWORD BELOW TO START PLAYING</p>
+        
+        <form class="login-form" novalidate>
+                <label for="username" class="username-label">Username:</label>
+                <input type="text" id="username" name="username" class="username-input" autocomplete="username">
+                
+                <label for="password" class="password-label">Password:</label>
+                <input type="password" id="password" name="password" class="password-input" autocomplete="current-password">
+                
+                <button type="submit" class="ok-button">OK</button>
+                <div class="login-status" role="status" aria-live="polite"></div>
+        </form>
+    </div>
+</div>
+<script src="script.js"></script>
+</body>
+</html>

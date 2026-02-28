@@ -1,0 +1,1643 @@
+
+@font-face {
+    font-family: 'Franklin';
+    src: url('Franklin.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Pedra';
+    src: url('pedra.ttf') format('truetype');
+}
+
+body {
+    font-family: 'Franklin', sans-serif;
+    margin: 0;
+    padding: 0;
+    text-transform: uppercase;
+}
+
+h1, h2, h3 {
+    font-family: 'Petra', serif;
+}
+
+.background {
+    background-image: url('selectionbg.png');
+    width: 770px;
+    height: 560px;
+    position: relative;
+}
+
+.login {
+        background-image: url('loginscroll.png');
+            width: 391px;
+    height: 290px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.logintext {
+    font-family: 'Franklin';
+    font-size: 16px;
+    position: absolute;
+    top: 25px;
+    left: 50px;
+    text-align: center;
+    width: 300px;
+    left: 18%;
+}
+
+.login-form {
+    position: absolute;
+    top: 100px;
+    left: 80px;
+    width: 300px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 18px;
+    flex-wrap: wrap;
+    width: 300px;
+    gap: 10px;
+}
+
+.login-form input {
+    width: 170px;
+    height: 20px;
+}
+
+.password-input {
+    left: -1px;
+    position: relative;
+}
+
+.ok-button {
+    position: absolute;
+    top: 120px;
+    left: 100px;
+    background-color: #fbe9b8;
+    border: 1px solid #000000;
+    color: #141414;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    width: 88px;
+    height: 25px;
+    font-family: 'Pedra';
+    outline: none;
+    box-shadow: none;
+}
+
+
+.ok-buttonendturn {
+    position: absolute;
+    top: 230px;
+    left: 120px;
+    background-color: #fbe9b8;
+    border: 1px solid #000000;
+    color: #141414;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    width: 88px;
+    height: 25px;
+    font-family: 'Pedra';
+    outline: none;
+    box-shadow: none;
+}
+
+.cancel-buttonendturn {
+    position: absolute;
+    top: 230px;
+    left: 230px;
+    background-color: #fbe9b8;
+    border: 1px solid #000000;
+    color: #141414;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    width: 88px;
+    height: 25px;
+    font-family: 'Pedra';
+    outline: none;
+    box-shadow: none;
+}
+
+
+
+.ok-button:focus {
+    outline: none;
+}
+
+.ok-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.login-status {
+    flex-basis: 100%;
+    font-size: 16px;
+    color: #c41e3a;
+    min-height: 18px;
+    margin-top: 6px;
+    text-align: center
+}
+
+.login-status[data-variant="info"] {
+    color: #333333;
+}
+
+.login-status[data-variant="success"] {
+    color: #0f8a1f;
+}
+
+.selectionscroll {
+    background-image: url('selectionscroll.png');
+    width: 46px;
+    height: 239px;
+    position: absolute;
+    left: 3%;
+    top: 55%;
+        z-index: 2;
+}
+
+.selectionpage {
+    background-image: url('selectionpage.png');
+    width: 697px;
+    height: 222px;
+    position: absolute;
+    left: 7%;
+    top: 56.5%;
+    z-index: 1;
+}
+
+.slot-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(7, 50px);
+    gap: 10px;
+    left: 5.5%;
+    top: 11.5%;
+    position: relative;
+    z-index: 2;
+}
+
+.slot-item {
+    width: 50px;
+    height: 50px;
+    background-color: #d4c9a8;
+    border: 1px solid #8b7d5c;
+    box-sizing: border-box;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+}
+
+.slot-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+}
+
+.slot-image.drag-hidden {
+    visibility: hidden;
+}
+
+.player-card {
+    display: flex;
+    color: #000000;
+    font-family: 'Franklin', Arial, sans-serif;
+    font-size: 13px;
+    padding: 5px;
+    width: 280px;
+    left: 67%;
+    bottom: 67.8%;
+    position: relative;
+text-transform: uppercase;
+}
+
+.player-avatar {
+    width: 80px;
+    height: 80px;
+    border: 1px solid #000000;
+    margin-right: 10px;
+}
+
+.player-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.player-inforight {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    position:relative;
+    left: -4px;
+    top: 1px;
+}
+
+
+.player-stat {
+    margin-bottom: 2px;
+}
+
+.selected-character-slot-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 10px;
+    position: relative;
+    z-index: 3;
+}
+
+.selected-character-slot {
+    width: 50px;
+    height: 50px;
+    background-color: #c4b896;
+    border: 1px solid #8b7d5c;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Pedra', Arial, sans-serif;
+    font-size: 24px;
+    font-weight: bold;
+    color: #ebebeb;
+    position: relative;
+    bottom: 140px;
+    left: 480px;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.selected-character-slot.drag-over {
+    box-shadow: 0 0 0 2px #c41e3a inset, 0 0 6px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+}
+
+.selected-slot-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.button-container {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.game-button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    outline: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    bottom: 385px;
+    right: 30px;
+    position: relative;
+}
+
+.game-button img {
+    display: block;
+    width: 192px;
+    height: 57px;
+}
+
+.logout-button img{
+        display: block;
+    width: 118px;
+    height: 57px;
+}
+
+.game-button:hover {
+    opacity: 0.9;
+}
+
+.game-button:active {
+    opacity: 0.8;
+}
+
+.skillviewer {
+    position: absolute;
+    bottom: 280px;
+    left: 80px;
+    transition: transform 0.45s ease-in-out, opacity 0.45s ease-in-out;
+    transform-origin: left center;
+}
+
+.skillscroll {
+    z-index: 2;
+    position: relative;
+    left: 520px;
+    cursor: pointer;
+    transition: transform 0.45s ease-in-out;
+}
+
+.skillpage {
+    background-image: url('skillpage.png');
+    width: 530px;
+    height: 222px;
+    position: absolute;
+    z-index: 1;
+    top: 9px;
+    left: 10px;
+    transition: transform 0.45s ease-in-out, opacity 0.45s ease-in-out;
+}
+
+.skillviewer.collapsed {
+    transform: translateX(-700px) scaleX(0.9);
+    opacity: 0;
+    pointer-events: none;
+}
+
+.skillviewer.collapsed .skillscroll {
+    transform: translateX(-260px) rotate(-15deg) scaleX(0.7);
+}
+
+.skillviewer.collapsed .skillpage {
+    transform: translateX(-200px) scaleX(0);
+    opacity: 0;
+}
+
+.skill-card {
+    font-family: 'Franklin', Arial, sans-serif;
+    position: relative;
+    top: 12px;
+    left: 30px;
+    width: 460px;
+}
+
+.skill-header {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+}
+
+.character-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.character-name {
+    color: #ca1414;
+    font-size: 16px;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    width: 300px;
+}
+
+.character-portrait {
+    width: 75px;
+    height: 75px;
+    border: 1px solid #000;
+}
+
+.skill-images {
+    display: flex;
+    gap: 8px;
+    top: 0px;
+    position: relative;
+    margin-left: -182px;
+    max-width: 332px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    padding-bottom: 2px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(45, 21, 7, 0.65) transparent;
+    transform: scaleY(-1);
+}
+
+.skill-images > * {
+    transform: scaleY(-1);
+}
+
+.skill-images::-webkit-scrollbar {
+    height: 6px;
+}
+
+.skill-images::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.skill-images::-webkit-scrollbar-thumb {
+    background: rgba(45, 21, 7, 0.65);
+    border-radius: 999px;
+}
+
+.skill-images::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+}
+
+.skill-image {
+    width: 75px;
+    height: 75px;
+    border: 1px solid #000;
+}
+
+.skill-title-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.skill-name {
+    font-size: 16px;
+    color: #c41e3a;
+    text-transform: uppercase;
+}
+
+.energy-bar {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.energy-label {
+    font-size: 10px;
+        color: #666;
+    text-transform: uppercase;
+}
+
+.energy-pip {
+    width: 8px;
+    height: 8px;
+    border: 1px solid #000;
+    background-color: #fff;
+    margin-left: -1px;
+}
+
+.energy-pip.filled {
+    background-color: #00a651;
+}
+
+.energy-pip.filled.energy-ninjutsu {
+    background-color: #56b0ff;
+}
+
+.energy-pip.filled.energy-bloodline {
+    background-color: #e74c3c;
+}
+
+.energy-pip.filled.energy-random {
+    background-color: #000000;
+}
+
+.energy-pip.filled.energy-genjutsu {
+    background-color: #ffffff;
+}
+
+.energy-pip.filled.energy-taijutsu {
+    background-color: #0fec7a;
+}
+
+.skill-description {
+    font-size: 12px;
+    height: 60px;
+    margin-toP: -7px;
+    text-transform: uppercase;
+}
+
+.skill-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    text-transform: uppercase;
+}
+
+.skill-classes {
+    display: flex;
+    gap: 5px;
+}
+
+.classes-label,
+.cooldown-label {
+        color: #666;
+}
+
+.class-type {
+    color: #666;
+    margin-left: -2px;
+}
+
+.skill-cooldown {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.cooldown-value {
+    color: #666;
+}
+
+.cooldown-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.searching-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 5;
+    display: none;
+    align-items: center;
+    justify-content: center;
+        width: 770px;
+    height: 560px;
+}
+
+.searching-backdrop.visible {
+    display: flex;
+}
+
+.searchingscroll {
+    background: url("searchingscroll.png") no-repeat;
+    width: 391px;
+    height: 290px;
+    position: relative;
+    top: -30px;
+    left: -10px;
+    z-index: 6;
+}
+
+.searching {
+    margin-top: 50px;
+    margin-left: 125px
+}
+
+.sasukesearch {
+    margin-left: 125px
+}
+
+.sharingan {
+    position: absolute;
+    margin-top: 30px;
+    margin-left: 195px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+.cancel-button {
+    position: absolute;
+    text-transform: uppercase;
+    top: 220px;
+    left: 175px;
+    background-color: #fbe9b8;
+    border: 1px solid #000000;
+    color: #141414;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    width: 88px;
+    height: 25px;
+    font-family: 'Pedra';
+    outline: none;
+    box-shadow: none;
+}
+
+.player-infoselection {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.backgroundingame {
+    background-image: url('ingamebg.png');
+    width: 770px;
+    height: 560px;
+    position: relative;
+}
+
+.game-hud {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    font-family: 'Franklin', Arial, sans-serif;
+    text-transform: uppercase;
+    position:relative
+}
+
+.player-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    left: 77px;
+    top: -12px;
+}
+
+.player-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.player-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-direction: row;
+    position:relative;
+    left: -68px;
+    top: -13px;
+}
+
+.player-name {
+    font-size: 19px;
+    position: relative;
+    top: 7px;
+    left: 1px;
+}
+
+
+.player-name.red {
+    color: #c41e3a;
+}
+
+.player-status {
+    font-size: 16px;
+    left: 2px;
+    top: 6px;
+    position:relative;
+    color: #000;
+}
+
+.player-avatar-left,
+.player-avatar-right {
+    width: 48px;
+    height:48px;
+    border: 1px solid #000;
+}
+
+.ready-section {
+    text-align: center;
+    top: 20px;
+    left: 330px;
+}
+
+.ready-text {
+    color: #000000;
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.chakra-display {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+    margin-toP: 5px;
+    margin-left: 5px;
+}
+
+.chakra-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.chakra-box {
+    width: 8px;
+    height: 8px;
+    border: 1px solid #000;
+}
+
+.chakra-box.red {
+    background-color: #e74c3c;
+}
+
+.chakra-box.blue {
+    background-color: #3498db;
+}
+
+.chakra-box.green {
+    background-color: #2ecc71;
+}
+
+.chakra-box.white {
+    background-color: #ecf0f1;
+}
+.chakra-box.black {
+    background-color: #000;
+}
+
+.chakra-icon {
+    font-weight: bold;
+    font-size: 16px;
+    color: #000;
+}
+
+.chakra-count {
+    font-size: 13px;
+    color: #000;
+}
+
+.exchange-label {
+    font-size: 12px;
+    color: #000;
+    position:relative;
+    top: -5px;
+    left: 5px;
+}
+
+.timer-track {
+    width: 191px;
+    height: 10px;
+    background: #fff;
+    border: 1px solid #000;
+    margin-top: -8px;
+    margin-left: 8px;
+    position: relative;
+    overflow: hidden;
+}
+
+.timer-bar {
+    width: 191px;
+    height: 100%;
+    background-color: #c41e3a;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.character-card {
+    width: 75px;
+    position: relative;
+    z-index: 1;
+    
+}
+
+.character-face {
+    width: 75px;
+    height: 75px;
+    border: 1px solid #000;
+    display: block;
+}
+
+.character-card {
+    margin-left: 32px;
+    margin-top: -28px;
+}
+
+.target-overlay {
+    position: absolute;
+    top: 0;
+    left: 1px;
+    width: 75px;
+    height: 75px;
+    background: rgba(255, 215, 0, 0.35);
+    pointer-events: none;
+    animation: target-blink 1.2s ease-in-out infinite;
+    box-sizing: border-box;
+    z-index: 2;
+}
+
+@keyframes target-blink {
+    0% {
+        opacity: 0.2;
+    }
+    50% {
+        opacity: 0.9;
+    }
+    100% {
+        opacity: 0.2;
+    }
+}
+
+.health-bar-container {
+    position: relative;
+    width: 75px;
+    height: 13px;
+    top: 2px;
+    background-color: #ffffff;
+    border: 1px solid #000;
+    box-sizing: content-box;
+}
+
+.health-bar {
+    background-color: #1eee5d;
+    width: 75px;
+    height: 13px;
+    position: static;
+    transition: width 500ms ease;
+}
+
+.health-bar.hp-mid {
+    background-color: #f1d424;
+}
+
+.health-bar.hp-low {
+    background-color: #e53030;
+}
+
+.health-text {
+    position: absolute;
+    width: 75px;
+    left: 0;
+    top: 0.4px;
+    line-height: 13px;
+    text-align: center;
+    font-family: 'Franklin', Arial, sans-serif;
+    font-size: 12px;
+    color: #000000;
+    z-index: 2;
+}
+
+.player-characters {
+    gap: 53px;
+    display: flex;
+    flex-direction: column;
+}
+
+.skillholder {
+    z-index: -1;
+    position: absolute;
+    top: 19px;
+    left: 50px;
+}
+
+.skillscrollingame {
+    background-image: url('ingameskillscroll.png');
+    width: 381px;
+    height: 79px;
+    position: absolute;
+    left: 24px;
+    top: 4px;
+    gap: 6px;
+    display: flex;
+    clip-path: inset(0 0 0 0);
+    transition: clip-path 0.35s ease, left 0.35s ease;
+}
+
+.skillqueue {
+    position: relative;
+    z-index: 5;
+}
+
+.skillimage.selected-target {
+    position: relative;
+    z-index: 7;
+    transition: transform 0.35s ease, opacity 0.2s ease;
+}
+
+
+.skillscrollingame.not-turn {
+    clip-path: inset(0 0 0 80px);
+    left: -56px;
+}
+
+.skillimage {
+    width: 54px;
+    height: 54px;
+    border: 1px solid black;
+    top: 11px;
+    left: 40px;
+    position: relative;
+    transition: transform 0.35s ease, opacity 0.2s ease;
+}
+
+.skill-cooldown-badge {
+    position: absolute;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Pedra', 'Libre Franklin', serif;
+    font-size: 45px;
+    color: #000000;
+    pointer-events: none;
+    z-index: 12;
+    margin-top: 3px;
+}
+
+.skillqueue {
+    width: 55px;
+    height: 55px;
+    top: 11px;
+    left: 20px;
+    position: relative;
+}
+
+.enemy-characters {
+    gap: 53px;
+    display: flex;
+    flex-direction: column;
+    top: 92px;
+    position: absolute;
+    transform: scaleX(-1);
+    left: 661px;
+}
+
+
+.enemy-characters .health-text {
+    transform: scaleX(-1);
+}
+
+.skillinformation {
+    background-image: url('ingamebottomscroll.png');
+    width: 523px;
+    height: 134px;
+    position: absolute;
+    left: 247px;
+    top: 426px;
+}
+
+.skillviewimage {
+    width: 75px;
+    height: 75px;
+    border: 1px solid black;
+    top: 28px;
+    left: 32px;
+    position: relative;
+}
+
+.ingameskillname {
+    color: #cb0400;
+    position: absolute;
+    left: 118px;
+    top: 9px;
+}
+
+.ingameskilldescription {
+        position: absolute;
+    left: 118px;
+    top: 30px;
+    font-size: 12px;
+    max-height: 50px;
+    overflow-y: auto;
+}
+
+
+.energytext {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    right: 20px;
+    top: 27px;
+    font-size: 10px;
+}
+
+.energytext .chakra-box {
+    margin-top: -2px;
+}
+
+
+.ingameclasses {
+        position: absolute;
+    left: 118px;
+    top:88px;
+        font-size: 10px;
+}
+
+.ingamecooldown {
+        position: absolute;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    right: 20px;
+    top: 87px;
+    font-size: 10px;
+}
+
+.bottomrender {
+        width: 153px;
+        height: 155px;
+        overflow: hidden;
+        left: 125px;
+        top: 15px;
+        position: relative;
+}
+
+.render {
+    width: 153px;
+    display: block;
+    position: relative; /* Add this */
+    z-index: 2;
+}
+
+.surrenderbutton {
+    background-image: url('optionscroll.png');
+    width: 182px;
+    height: 46px;
+    position: absolute;
+    left: 30px;
+    top: 425px;
+    z-index: 1;
+}
+
+.surrenderbutton span {
+    position: relative;
+    left: 20px;
+    top: 13px;
+    font-size: 14px;
+}
+
+.endturnscroll {
+    background-image: url("searchingscroll.png");
+    width: 391px;
+    height: 290px;
+    position: absolute;
+    left: 200px;
+    top: 85px;
+    z-index: 2;
+    display: none;
+}
+
+.chakrachoose {
+    position: absolute;
+    top: 25px;
+    left: 130px;
+    text-align: center;
+    font-size: 16px;
+}
+
+.chakrachoosered {
+    color: #cb0400
+}
+
+.chakra-container {
+    display: flex;
+    gap: 20px;
+    padding: 10px;
+    font-size: 14px;
+    top: 60px;
+    left: 70px;
+    position: absolute;
+}
+
+.chakra-column {
+    display: flex;
+    flex-direction: column;
+}
+
+.chakra-columnright {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.chakra-title {
+    color: #000;
+    margin-bottom: 3px;
+    font-size: 13px;
+}
+
+.chakra-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.chakra-box {
+    width: 8px;
+    height: 8px;
+    border: 1px solid #000;
+    display: inline-block;
+}
+
+.chakra-box.red {
+    background-color: #e74c3c;
+}
+
+.chakra-box.blue {
+    background-color: #3498db;
+}
+
+.chakra-box.green {
+    background-color: #2ecc71;
+}
+
+.chakra-box.white {
+    background-color: #ecf0f1;
+}
+.chakra-box.black {
+    background-color: #000;
+}
+
+.chakra-name {
+    color: #000;
+    min-width: 60px;
+}
+
+.chakra-amount {
+    color: #000;
+    margin-left: 8px;
+}
+
+.chakra-divider {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    padding: 0 8px;
+}
+
+.chakra-buttons {
+    display: flex;
+    gap: 3px;
+    margin-left: 15px;
+}
+
+
+.minus-button,
+.plus-button {
+    background-color: transparent;
+    border: none;      
+    color: #000;
+    font-size: 18px;
+    cursor: pointer;
+    user-select: none;
+    padding: 0px 5px;
+}
+
+.minus-button {
+    top: -1px;
+    position: relative;
+}
+
+.minus-button:hover,
+.plus-button:hover {
+    opacity: 0.7;
+}
+
+
+.ChakraChooseEndTurn {
+    z-index: 5999;
+    position: absolute;
+    background-image: url('searchingscroll.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 391px;
+    height: 290px;
+    top: 100px;
+    left: 180px;
+    position: absolute;
+    visibility: hidden;
+}
+
+.exchange_chakra {
+    z-index: 5999;
+    position: absolute;
+    background-image: url('searchingscroll.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 391px;
+    height: 290px;
+    top: 100px;
+    left: 180px;
+    visibility: hidden;
+}
+
+.exchange_chakra_title {
+    position: absolute;
+    top: 34px;
+    left: 0;
+    width: 440px;
+    text-align: center;
+    font-size: 17px;
+    margin: 0;
+}
+
+.exchange_chakra_choices {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    width: 440px;
+    display: flex;
+    justify-content: center;
+    gap: 11px;
+}
+
+.exchange_chakra_choice {
+    width: 14px;
+    height: 14px;
+    border: 1px solid #00000000;
+    padding: 0;
+    background: #f3e8c9;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.exchange_chakra_choice .chakra-box {
+    width: 8px;
+    height: 8px;
+    border: 1px solid #000;
+}
+
+.exchange_chakra_choice.selected {
+    border-color: #c41e3a;
+}
+
+.exchange_chakra_subtitle {
+    position: absolute;
+    top: 84px;
+    left: 0;
+    width: 440px;
+    text-align: center;
+    font-size: 16px;
+    margin: 0;
+}
+
+.exchange_chakra_container {
+    position: absolute;
+    top: 110px;
+    left: 74px;
+    display: flex;
+    gap: 28px;
+    font-size: 14px;
+}
+
+.exchange_chakra_column {
+    display: flex;
+    flex-direction: column;
+}
+
+.exchange_chakra_row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 24px;
+}
+
+.exchange_chakra_row .chakra-name {
+    min-width: 82px;
+}
+
+.exchange_chakra_row .chakra-amount {
+    min-width: 10px;
+    text-align: right;
+    margin-left: 0;
+}
+
+.exchange_symbol {
+    display: inline-block;
+    width: 13px;
+    text-align: center;
+    font-size: 23px;
+    line-height: 1;
+    margin-left: 6px;
+    position: relative;
+    top: -1px;
+}
+
+.ok-buttonexchange {
+    position: absolute;
+    top: 230px;
+    left: 120px;
+    background-color: #fbe9b8;
+    border: 1px solid #000000;
+    color: #141414;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    width: 88px;
+    height: 25px;
+    font-family: 'Pedra';
+    outline: none;
+    box-shadow: none;
+}
+
+.cancel-buttonexchange {
+    position: absolute;
+    top: 230px;
+    left: 230px;
+    background-color: #fbe9b8;
+    border: 1px solid #000000;
+    color: #141414;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    width: 88px;
+    height: 25px;
+    font-family: 'Pedra';
+    outline: none;
+    box-shadow: none;
+}
+
+.skillorder {
+    top: 180px;
+    left: 85px;
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    min-height: 36px;
+    align-items: center;
+}
+
+
+.skillpreview {
+    width: 34px;
+    height: 34px;
+    border: 1px solid black;
+    cursor: grab;
+    background: #fff;
+}
+
+.skillpreview.dragging {
+    opacity: 0.5;
+    cursor: grabbing;
+}
+
+.surrender-confirm {
+    z-index: 5999;
+    position: absolute;
+    background-image: url('searchingscroll.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 391px;
+    height: 290px;
+    top: 100px;
+    left: 180px;
+    position: absolute;
+    visibility: hidden;
+}
+
+
+.surrender-confirm-title {
+    top: 35px;
+    left: 30px;
+    text-align: center;
+    font-size: 16px;
+    position: relative;
+}
+
+.surrender-confirm-ok {
+    position: absolute;
+    top: 230px;
+    left: 120px;
+    background-color: #fbe9b8;
+    border: 1px solid #000000;
+    color: #141414;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    width: 88px;
+    height: 25px;
+    font-family: 'Pedra';
+    outline: none;
+    box-shadow: none;
+}
+
+.surrender-confirm-cancel {
+    position: absolute;
+    top: 230px;
+    left: 230px;
+    background-color: #fbe9b8;
+    border: 1px solid #000000;
+    color: #141414;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    width: 88px;
+    height: 25px;
+    font-family: 'Pedra';
+    outline: none;
+    box-shadow: none;
+}
+
+.surrender-confirm-actions {
+    top: -60px;
+    position: relative;
+}
+
+.surrender-confirm-preview-image {
+    position: absolute;
+    top: 80px;
+    left: 122px;
+    width: auto;
+    height: auto;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.battle-end-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 7000;
+    pointer-events: none;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.battle-end-overlay.visible {
+    visibility: visible;
+    opacity: 1;
+}
+
+.battle-end-panel {
+    position: absolute;
+    top: 86px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 640px;
+    height: 320px;
+    background-image: url('endscroll.png');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    pointer-events: auto;
+}
+
+.battle-end-portrait {
+    position: absolute;
+    left: 81px;
+    top: 46px;
+    width: 236px;
+    height: 226px;
+    object-fit: cover;
+    border: 1px solid #111;
+}
+
+.battle-end-copy {
+    position: absolute;
+    left: 390px;
+    top: 48px;
+    width: 230px;
+    color: #111;
+}
+
+.battle-end-title {
+    margin: 0;
+    color: #c7262f;
+    font-family: 'Franklin', Arial, sans-serif;
+    font-size: 44px;
+    margin-top: -10px;
+    margin-left: 30px;
+}
+
+.battle-end-message {
+    margin-left: -40px;
+    font-family: 'Franklin', Arial, sans-serif;
+    font-size: 13px;
+}
+
+.battle-end-continue {
+    margin-top: 85px;
+    border: none;
+    background: transparent;
+    color: #c7262f;
+    font-family: 'Franklin', Arial, sans-serif;
+    font-size: 30px;
+    margin-left: 20px;
+    margin-top:100px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.battle-end-continue:focus {
+    outline: none;
+}
+
+.battle-end-continue:hover {
+    opacity: 0.85;
+}
+
+.skilltooltips {
+    position: absolute;
+    z-index: 20;
+    pointer-events: auto;
+    left: 85px;
+    top: 0;
+    display: flex;
+    gap: 2px;
+    align-items: center;
+}
+
+.skilltooltipimage {
+    width: 20px;
+    height: 20px;
+    border: 1px solid black;
+    position: relative;
+    cursor: help;
+}
+
+.status-tooltip-content {
+    display: none;
+    position: absolute;
+    left: 85px;
+    top: 24px;
+    min-width: 270px;
+    max-width: 320px;
+    padding: 8px 7px;
+    background: #efe8d1;
+    border: 1px solid #2d1507;
+    color: #2d1507;
+    font-size: 12px;
+}
+
+.skilltooltips.has-status:hover .status-tooltip-content {
+    display: none;
+}
+
+.status-tooltip-item + .status-tooltip-item {
+    margin-top: 6px;
+}
+
+.status-tooltip-title {
+    color: #ba2310;
+    margin-bottom: 2px;
+    font-size: 13px;
+}
+
+.status-tooltip-desc {
+    color: #2d1507;
+}
+
+.status-tooltip-desc-line {
+    color: #2d1507;
+}
+
+.status-tooltip-line-divider {
+    height: 1px;
+    background: rgba(45, 21, 7, 0.35);
+    margin: 3px 0;
+}
+
+.status-tooltip-turns {
+    margin-top: 2px;
+    color: #aa1e11;
+}
+
+.enemy-characters .status-tooltip-content {
+   transform: scaleX(-1);
+   z-index: 1200;
+   position: absolute;
+}
+
+.enemy-characters .skilltooltips {
+    z-index: 1100;
+}
+
+.enemy-characters,
+.enemy-characters .character-card {
+    overflow: visible;
+}
+
+.global-status-tooltip {
+    position: fixed;
+    left: 0;
+    top: 0;
+    min-width: 280px;
+    max-width: 280px;
+    padding: 5px 7px;
+    background: #efe8d1;
+    border: 1px solid #2d1507;
+    color: #2d1507;
+    font-size: 12px;
+    z-index: 99999;
+    pointer-events: none;
+}
+
+.energy-none {
+    font-size: 11px;
+    color: grey;
+    margin-left: -2px;
+}

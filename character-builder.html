@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Character Builder</title>
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #111111;
+      --border: #d9d9d9;
+      --input-bg: #ffffff;
+      --button-bg: #f3f3f3;
+      --button-hover: #e7e7e7;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .wrap {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 16px;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    h2 {
+      margin: 20px 0 10px;
+      font-size: 18px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .skill-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 8px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      background: var(--input-bg);
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    textarea {
+      min-height: 68px;
+      resize: vertical;
+    }
+
+    .controls {
+      margin-top: 16px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: var(--button-bg);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background: var(--button-hover);
+    }
+
+    #output {
+      margin-top: 14px;
+      width: 100%;
+      min-height: 300px;
+      font-family: Consolas, monospace;
+      white-space: pre;
+    }
+
+    @media (max-width: 800px) {
+      .grid,
+      .skill-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Character Builder (@characters.js, no effects)</h1>
+
+    <h2>Character</h2>
+    <div class="grid">
+      <label>Character ID
+        <input id="characterId" placeholder="uzumaki-naruto" />
+      </label>
+      <label>Name
+        <input id="name" placeholder="Uzumaki Naruto" />
+      </label>
+      <label>Face Picture URL
+        <input id="facePicture" placeholder="https://..." />
+      </label>
+      <label>Description
+        <textarea id="characterdeescription" placeholder="Character description"></textarea>
+      </label>
+    </div>
+
+    <h2>Skills</h2>
+    <div id="skills" class="skill-grid"></div>
+
+    <div class="controls">
+      <button id="addSkillBtn" type="button">Add Skill</button>
+      <button id="removeSkillBtn" type="button">Remove Last Skill</button>
+      <input id="importJsonInput" type="file" accept=".json,application/json" />
+      <button id="generateBtn">Generate</button>
+      <button id="copyBtn">Copy</button>
+      <button id="downloadBtn">Download .js</button>
+    </div>
+
+    <textarea id="output" placeholder="Generated character object will appear here..."></textarea>
+  </div>
+
+  <script>
+    const skillsRoot = document.getElementById('skills');
+    let skillCount = 0;
+
+    function makeSkillCard(index) {
+      const n = index + 1;
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <h3 style="margin:0 0 10px; font-size:16px;">Skill ${n}</h3>
+        <label>Skill ID
+          <input data-skill="${index}" data-field="id" placeholder="character-skill-${n}" />
+        </label>
+        <label>Name
+          <input data-skill="${index}" data-field="name" placeholder="Skill Name" />
+        </label>
+        <label>Skill Image URL
+          <input data-skill="${index}" data-field="skillimage" placeholder="https://..." />
+        </label>
+        <label>Skill Description
+          <textarea data-skill="${index}" data-field="skilldescription" placeholder="What this skill does"></textarea>
+        </label>
+        <label>Energy (comma-separated)
+          <input data-skill="${index}" data-field="energy" placeholder="Taijutsu, Random" />
+        </label>
+        <label>Target
+          <input data-skill="${index}" data-field="target" placeholder="single-enemy" />
+        </label>
+        <label>Damage (number)
+          <input data-skill="${index}" data-field="damage" type="number" value="0" />
+        </label>
+        <label>Cooldown (number)
+          <input data-skill="${index}" data-field="cooldown" type="number" value="0" />
+        </label>
+        <label>Classes (comma-separated)
+          <input data-skill="${index}" data-field="classes" placeholder="Physical, Melee, Instant" />
+        </label>
+      `;
+      return card;
+    }
+
+    function addSkillCard(prefill = null) {
+      const index = skillCount;
+      const card = makeSkillCard(index);
+      skillsRoot.appendChild(card);
+      skillCount += 1;
+
+      if (prefill) {
+        setSkill(index, prefill);
+      }
+    }
+
+    function removeLastSkillCard() {
+      if (skillCount <= 1) {
+        return;
+      }
+      skillsRoot.lastElementChild?.remove();
+      skillCount -= 1;
+    }
+
+    function ensureSkillCount(count) {
+      const target = Math.max(1, Number(count) || 1);
+      while (skillCount < target) {
+        addSkillCard();
+      }
+      while (skillCount > target) {
+        removeLastSkillCard();
+      }
+    }
+
+    function setSkill(index, skill) {
+      const set = (field, value) => {
+        const el = document.querySelector(`[data-skill="${index}"][data-field="${field}"]`);
+        if (el) {
+          el.value = value ?? '';
+        }
+      };
+
+      set('id', skill.id || '');
+      set('name', skill.name || '');
+      set('skillimage', skill.skillimage || skill.url || '');
+      set('skilldescription', skill.skilldescription || skill.description || '');
+      set('energy', Array.isArray(skill.energy) ? skill.energy.join(', ') : (skill.energy || ''));
+      set('target', skill.target || '');
+      set('damage', Number(skill.damage || 0));
+      set('cooldown', Number(skill.cooldown || 0));
+      set('classes', Array.isArray(skill.classes) ? skill.classes.join(', ') : (skill.classes || ''));
+    }
+
+    function slugify(value) {
+      return String(value || '')
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    }
+
+    function importCharacterFromJson(data) {
+      if (!data || typeof data !== 'object') {
+        return;
+      }
+
+      const characterName = data.name || '';
+      const derivedId = slugify(data.characterId || data.id || characterName);
+      document.getElementById('characterId').value = data.characterId || data.id || derivedId;
+      document.getElementById('name').value = characterName;
+      document.getElementById('facePicture').value = data.facePicture || data.url || '';
+      document.getElementById('characterdeescription').value = data.characterdeescription || data.description || '';
+
+      const skills = Array.isArray(data.skills) ? data.skills : [];
+      ensureSkillCount(skills.length || 1);
+      skills.forEach((skill, i) => {
+        const normalized = { ...skill };
+        if (!normalized.id) {
+          const skillSlug = slugify(normalized.name || `skill-${i + 1}`);
+          normalized.id = `${document.getElementById('characterId').value || 'character'}-${skillSlug}`;
+        }
+        setSkill(i, normalized);
+      });
+    }
+
+    for (let i = 0; i < 4; i += 1) {
+      addSkillCard();
+    }
+
+    function parseList(value) {
+      return value
+        .split(',')
+        .map((x) => x.trim())
+        .filter(Boolean);
+    }
+
+    function getSkill(index) {
+      const q = (field) => {
+        const el = document.querySelector(`[data-skill="${index}"][data-field="${field}"]`);
+        return el ? el.value.trim() : '';
+      };
+      return {
+        id: q('id'),
+        name: q('name'),
+        skillimage: q('skillimage'),
+        skilldescription: q('skilldescription'),
+        energy: parseList(q('energy')),
+        target: q('target'),
+        damage: Number(q('damage') || 0),
+        cooldown: Number(q('cooldown') || 0),
+        classes: parseList(q('classes'))
+      };
+    }
+
+    function buildCharacter() {
+      const characterId = document.getElementById('characterId').value.trim();
+      const skills = Array.from({ length: skillCount }, (_, i) => getSkill(i))
+        .filter((s) => s.id || s.name || s.skilldescription);
+      return {
+        id: characterId,
+        characterId,
+        name: document.getElementById('name').value.trim(),
+        facePicture: document.getElementById('facePicture').value.trim(),
+        characterdeescription: document.getElementById('characterdeescription').value.trim(),
+        skills
+      };
+    }
+
+    function toJsObjectString(obj) {
+      return JSON.stringify(obj, null, 4)
+        .replace(/"([a-zA-Z0-9_]+)":/g, '$1:')
+        .replace(/"/g, "'");
+    }
+
+    function generateOutput() {
+      const character = buildCharacter();
+      const js = `    ${toJsObjectString(character)},`;
+      document.getElementById('output').value = js;
+      return js;
+    }
+
+    document.getElementById('generateBtn').addEventListener('click', generateOutput);
+    document.getElementById('addSkillBtn').addEventListener('click', () => addSkillCard());
+    document.getElementById('removeSkillBtn').addEventListener('click', () => removeLastSkillCard());
+
+    document.getElementById('importJsonInput').addEventListener('change', async (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) {
+        return;
+      }
+
+      try {
+        const text = await file.text();
+        const data = JSON.parse(text);
+        importCharacterFromJson(data);
+        generateOutput();
+      } catch (error) {
+        alert(`Failed to import JSON: ${error.message}`);
+      } finally {
+        event.target.value = '';
+      }
+    });
+
+    document.getElementById('copyBtn').addEventListener('click', async () => {
+      const text = generateOutput();
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch {
+        const output = document.getElementById('output');
+        output.select();
+        document.execCommand('copy');
+      }
+    });
+
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+      const text = generateOutput();
+      const blob = new Blob([text + '\n'], { type: 'text/javascript' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'new-character.js';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(a.href);
+    });
+  </script>
+</body>
+</html>
