@@ -23,15 +23,35 @@
       box-sizing: border-box;
     }
 
+
+
     body {
       margin: 0;
       min-height: 100vh;
       background:
-        radial-gradient(circle at top right, rgba(90, 90, 90, 0.08), transparent 28%),
-        linear-gradient(180deg, #020202 0%, #000 100%);
+        url("https://i.postimg.cc/x11QM8NQ/476467.png"),
+        radial-gradient(circle at 12% 18%, rgba(255, 149, 0, 0.3), transparent 24%),
+        radial-gradient(circle at 88% 12%, rgba(255, 106, 0, 0.18), transparent 22%),
+        radial-gradient(circle at 50% 78%, rgba(255, 184, 77, 0.08), transparent 28%),
+        linear-gradient(145deg, #1a0700 0%, #090909 38%, #000000 68%, #2f0d00 100%);
+      background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+      background-size: 120px 120px, auto, auto, auto, auto;
+      background-position: 0 0, center, center, center, center;
       color: var(--text);
       font-family: "Outfit", system-ui, sans-serif;
+      animation: bodyPatternDrift 18s linear infinite;
     }
+
+    @keyframes bodyPatternDrift {
+      from {
+        background-position: 0 0, center, center, center, center;
+      }
+
+      to {
+        background-position: 120px 0, center, center, center, center;
+      }
+    }
+
 
     a {
       color: inherit;
@@ -44,9 +64,7 @@
       margin: 0 auto;
       display: grid;
       grid-template-columns: 235px minmax(0, 1fr) 270px;
-      background: rgba(0, 0, 0, 0.9);
-      border-left: 1px solid var(--line);
-      border-right: 1px solid var(--line);
+
     }
 
     .sidebar,
