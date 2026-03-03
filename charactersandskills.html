@@ -487,6 +487,291 @@
       box-shadow: 0 24px 48px rgba(0, 0, 0, 0.24);
     }
 
+    .character-directory {
+      display: grid;
+      gap: 18px;
+    }
+
+    .character-search-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .character-search-label {
+      margin: 0;
+      color: #f4f4f4;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .character-search-input {
+      width: min(100%, 320px);
+      height: 42px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(7, 7, 7, 0.88);
+      color: #f0f0f0;
+      padding: 0 14px;
+      font: inherit;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .character-search-input::placeholder {
+      color: #8e8e8e;
+      font-style: italic;
+    }
+
+    .character-search-input:focus {
+      border-color: #ffb84d;
+      box-shadow: 0 0 0 3px rgba(255, 184, 77, 0.12);
+    }
+
+    .character-directory-copy {
+      margin: 0;
+      color: #d8d8d8;
+      font-size: 14px;
+      line-height: 1.65;
+      max-width: 900px;
+    }
+
+    .character-directory-list {
+      display: grid;
+      gap: 0;
+    }
+
+    .character-row {
+      padding: 16px 0 12px;
+      border-bottom: 1px dotted rgba(255, 255, 255, 0.28);
+    }
+
+    .character-row-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      color: #d7e0ff;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .character-row-star {
+      color: #ff9d1e;
+      font-size: 15px;
+      line-height: 1;
+    }
+
+    .character-row-name {
+      color: #ffffff;
+    }
+
+    .character-row-body {
+      display: grid;
+      grid-template-columns: 78px minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .character-row-image {
+      width: 75px;
+      height: 75px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      object-fit: cover;
+      background: #111;
+    }
+
+    .character-row-copy {
+      display: grid;
+      gap: 10px;
+    }
+
+    .character-row-description {
+      color: #efefef;
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .character-row-link {
+      justify-self: end;
+      color: #ff9d2e;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .character-row-link:hover {
+      color: #ffc777;
+    }
+
+    .character-directory-empty {
+      padding: 18px 0 4px;
+      color: #bdbdbd;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .character-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(0, 0, 0, 0.76);
+      z-index: 1000;
+    }
+
+    .character-modal-backdrop.visible {
+      display: flex;
+    }
+
+    .character-modal {
+      width: min(980px, 100%);
+      max-height: min(88vh, 900px);
+      overflow: auto;
+      padding: 22px 18px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 14px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)),
+        #0a0a0a;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.36);
+    }
+
+    .character-modal-close-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 10px;
+    }
+
+    .character-modal-close {
+      border: 0;
+      background: transparent;
+      color: #cfcfcf;
+      font: inherit;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .character-modal-header {
+      padding-bottom: 12px;
+      border-bottom: 1px dotted rgba(255, 255, 255, 0.28);
+      margin-bottom: 16px;
+    }
+
+    .character-modal-summary {
+      display: grid;
+      grid-template-columns: 78px minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    .character-modal-image {
+      width: 75px;
+      height: 75px;
+      object-fit: cover;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: #111;
+    }
+
+    .character-modal-description {
+      margin: 0;
+      color: #efefef;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .character-modal-unlock {
+      margin: 8px 0 0;
+      color: #d9d9d9;
+      font-size: 13px;
+    }
+
+    .character-modal-skill-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px 16px;
+    }
+
+    .character-skill-card {
+      padding-bottom: 10px;
+      border-bottom: 1px dotted rgba(255, 255, 255, 0.24);
+    }
+
+    .character-skill-title {
+      margin: 0 0 8px;
+      color: #f0f0f0;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .character-skill-name {
+      color: #ff9d2e;
+      font-weight: 700;
+    }
+
+    .character-skill-body {
+      display: grid;
+      grid-template-columns: 78px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+
+    .character-skill-image {
+      width: 75px;
+      height: 75px;
+      object-fit: cover;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      background: #111;
+    }
+
+    .character-skill-description {
+      margin: 0;
+      color: #ececec;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .character-skill-meta {
+      margin-top: 8px;
+      color: #d9d9d9;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .character-skill-meta strong {
+      color: #f0f0f0;
+      font-weight: 600;
+    }
+
+    .character-energy-pips {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      vertical-align: middle;
+      margin-left: 4px;
+    }
+
+    .character-energy-pip {
+      width: 10px;
+      height: 10px;
+      border: 1px solid rgb(255, 255, 255);
+      display: inline-block;
+    }
+
+    .character-energy-pip.taijutsu { background: #2ecc71; }
+    .character-energy-pip.ninjutsu { background: #3498db; }
+    .character-energy-pip.bloodline { background: #e74c3c; }
+    .character-energy-pip.genjutsu { background: #ecf0f1; }
+    .character-energy-pip.random { background: #000000; }
+
+    .character-modal-empty {
+      color: #bdbdbd;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
     .mainsection-kicker {
       margin: 0 0 6px;
       color: #ffac38;
@@ -906,7 +1191,7 @@
         <h2 class="group-title">Home Menu</h2>
         <nav class="nav">
           <button class="play-now" type="button" id="play-now-button">Play Now</button>
-          <a class="nav-link active" href="index.html">
+          <a class="nav-link" href="index.html">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" /></svg>
             <span>Home</span>
           </a>
@@ -926,7 +1211,7 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2H20v16H8.5A2.5 2.5 0 0 0 6 20.5z" /><path d="M6 4.5V22" /><path d="M9.5 7H16" /><path d="M9.5 11H17" /></svg>
             <span>Game Manual</span>
           </a>
-          <a class="nav-link" href="charactersandskills.html">
+          <a class="nav-link active" href="charactersandskills.html">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h16" /><path d="M7.5 4v16" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg>
             <span>Characters and Skills</span>
           </a>
@@ -983,39 +1268,33 @@
 
     <main class="main">
 
-      <section class="release-panel">
-        <h2 class="release-title">Latest Character Releases</h2>
-        <div class="release-grid">
-          <div class="release-card">
-            <img class="release-face" id="release-face-1" alt="Latest character 1" />
-            <div class="release-label" id="release-label-1"></div>
-          </div>
-          <div class="release-card">
-            <img class="release-face" id="release-face-2" alt="Latest character 2" />
-            <div class="release-label" id="release-label-2"></div>
-          </div>
-          <div class="release-card">
-            <img class="release-face" id="release-face-3" alt="Latest character 3" />
-            <div class="release-label" id="release-label-3"></div>
-          </div>
-        </div>
-      </section>
-
-
       <section class="mainsection">
-        <h1 class="mainsection-kicker">First News Post</h1></h1>
-        <p class="mainsection-meta">&raquo; Saturday, February 28th, 2026 at 15:29 by <span class="byline">Lily</span></p>
-        <div class="mainsection-body">
-          <p>Welcome to the First Post of Naruto-Arena K Edition.</p>
-          <p>
-This is a passion project of Kien/Kito. Coded entirely by Lily. 
+        <div class="character-directory">
+          <div class="character-search-row">
+            <h1 class="character-search-label">Search Characters:</h1>
+            <input class="character-search-input" id="character-search-input" type="text" placeholder="Search an character..." autocomplete="off" />
+          </div>
+          <p class="character-directory-copy">
+            Naruto-Arena forces you to select 3 characters when you start a new game. This page gives you an overview of all
+            characters available in the Naruto-Arena game. Not only can you view each character's skills, you can also discuss
+            the characters by posting comments.
           </p>
-
-
+          <div class="character-directory-list" id="character-directory-list">
+            <div class="character-directory-empty">Loading characters...</div>
+          </div>
         </div>
       </section>
 
     </main>
+
+    <div class="character-modal-backdrop" id="character-modal-backdrop">
+      <div class="character-modal">
+        <div class="character-modal-close-row">
+          <button class="character-modal-close" id="character-modal-close" type="button">Close</button>
+        </div>
+        <div id="character-modal-content"></div>
+      </div>
+    </div>
 
     <aside class="aside">
       <section class="ladder">
@@ -1227,6 +1506,287 @@ This is a passion project of Kien/Kito. Coded entirely by Lily.
       </section>
     </aside>
   </div>
+  <script src="./characters.js"></script>
   <script src="./index.js" defer></script>
+  <script>
+    (function () {
+      var searchInput = document.getElementById("character-search-input");
+      var listNode = document.getElementById("character-directory-list");
+      var modalBackdrop = document.getElementById("character-modal-backdrop");
+      var modalClose = document.getElementById("character-modal-close");
+      var modalContent = document.getElementById("character-modal-content");
+      var roster = Array.isArray(window.characters)
+        ? window.characters
+        : (typeof characters !== "undefined" && Array.isArray(characters) ? characters : []);
+
+      function getVisibleSkills(character) {
+        var skills = character && Array.isArray(character.skills) ? character.skills : [];
+        return skills.filter(function (skill) {
+          return skill && !skill.hiddenFromSelectionViewer;
+        });
+      }
+
+      function getCharacterSummary(character) {
+        if (!character || typeof character !== "object") {
+          return "";
+        }
+        if (typeof character.characterdescription === "string" && character.characterdescription.trim()) {
+          return character.characterdescription.trim();
+        }
+        if (typeof character.characterdeescription === "string" && character.characterdeescription.trim()) {
+          return character.characterdeescription.trim();
+        }
+        if (Array.isArray(character.skills) && character.skills[0] && typeof character.skills[0].skilldescription === "string") {
+          return character.skills[0].skilldescription.trim();
+        }
+        return "No character description is available yet.";
+      }
+
+      function createEnergyPips(energyList) {
+        var wrapper = document.createElement("span");
+        wrapper.className = "character-energy-pips";
+        var items = Array.isArray(energyList) ? energyList : [];
+        if (!items.length) {
+          wrapper.textContent = "None";
+          return wrapper;
+        }
+        items.forEach(function (entry) {
+          var normalized = typeof entry === "string" ? entry.trim().toLowerCase() : "";
+          var pip = document.createElement("span");
+          pip.className = "character-energy-pip " + (normalized || "random");
+          pip.title = entry;
+          wrapper.appendChild(pip);
+        });
+        return wrapper;
+      }
+
+      function openCharacterModal(character) {
+        if (!modalBackdrop || !modalContent || !character) {
+          return;
+        }
+
+        var visibleSkills = getVisibleSkills(character);
+        modalContent.innerHTML = "";
+
+        var header = document.createElement("section");
+        header.className = "character-modal-header";
+
+        var title = document.createElement("div");
+        title.className = "character-row-header";
+
+        var star = document.createElement("span");
+        star.className = "character-row-star";
+        star.textContent = "✦";
+
+        var name = document.createElement("span");
+        name.className = "character-row-name";
+        name.textContent = character.name ? String(character.name) : "Unknown Character";
+
+        title.appendChild(star);
+        title.appendChild(name);
+
+        var summary = document.createElement("div");
+        summary.className = "character-modal-summary";
+
+        var image = document.createElement("img");
+        image.className = "character-modal-image";
+        image.src = character.facePicture ? String(character.facePicture) : "";
+        image.alt = character.name ? String(character.name) : "Character portrait";
+
+        var info = document.createElement("div");
+
+        var description = document.createElement("p");
+        description.className = "character-modal-description";
+        description.textContent = getCharacterSummary(character);
+
+        var unlock = document.createElement("p");
+        unlock.className = "character-modal-unlock";
+        unlock.innerHTML = "<strong>Requirement to unlock:</strong> No requirements";
+
+        info.appendChild(description);
+        info.appendChild(unlock);
+        summary.appendChild(image);
+        summary.appendChild(info);
+        header.appendChild(title);
+        header.appendChild(summary);
+        modalContent.appendChild(header);
+
+        if (!visibleSkills.length) {
+          var empty = document.createElement("div");
+          empty.className = "character-modal-empty";
+          empty.textContent = "No visible skills are available for this character.";
+          modalContent.appendChild(empty);
+        } else {
+          var grid = document.createElement("div");
+          grid.className = "character-modal-skill-grid";
+
+          visibleSkills.forEach(function (skill) {
+            var card = document.createElement("article");
+            card.className = "character-skill-card";
+
+            var skillTitle = document.createElement("p");
+            skillTitle.className = "character-skill-title";
+            skillTitle.innerHTML = "Skill: <span class=\"character-skill-name\">" + (skill.name ? String(skill.name) : "Unknown Skill") + "</span>";
+
+            var body = document.createElement("div");
+            body.className = "character-skill-body";
+
+            var skillImage = document.createElement("img");
+            skillImage.className = "character-skill-image";
+            skillImage.src = skill.skillimage ? String(skill.skillimage) : "";
+            skillImage.alt = skill.name ? String(skill.name) : "Skill image";
+
+            var copy = document.createElement("div");
+
+            var skillDescription = document.createElement("p");
+            skillDescription.className = "character-skill-description";
+            skillDescription.textContent = skill.skilldescription ? String(skill.skilldescription) : "No description available.";
+
+            var meta = document.createElement("div");
+            meta.className = "character-skill-meta";
+
+            var cooldownLine = document.createElement("div");
+            cooldownLine.innerHTML = "<strong>Cooldown:</strong> " + (skill.cooldown === 0 ? "None" : (skill.cooldown != null ? String(skill.cooldown) : "None"));
+
+            var chakraLine = document.createElement("div");
+            var chakraLabel = document.createElement("strong");
+            chakraLabel.textContent = "Chakra required:";
+            chakraLine.appendChild(chakraLabel);
+            chakraLine.appendChild(createEnergyPips(skill.energy));
+
+            var classLine = document.createElement("div");
+            classLine.innerHTML = "<strong>Classes:</strong> " + (Array.isArray(skill.classes) && skill.classes.length ? skill.classes.join(", ") : "None");
+
+            meta.appendChild(cooldownLine);
+            meta.appendChild(chakraLine);
+            meta.appendChild(classLine);
+            copy.appendChild(skillDescription);
+            copy.appendChild(meta);
+            body.appendChild(skillImage);
+            body.appendChild(copy);
+            card.appendChild(skillTitle);
+            card.appendChild(body);
+            grid.appendChild(card);
+          });
+
+          modalContent.appendChild(grid);
+        }
+
+        modalBackdrop.classList.add("visible");
+      }
+
+      function closeCharacterModal() {
+        if (!modalBackdrop) {
+          return;
+        }
+        modalBackdrop.classList.remove("visible");
+      }
+
+      function createCharacterRow(character) {
+        var row = document.createElement("article");
+        row.className = "character-row";
+
+        var header = document.createElement("div");
+        header.className = "character-row-header";
+
+        var star = document.createElement("span");
+        star.className = "character-row-star";
+        star.textContent = "✦";
+
+        var title = document.createElement("span");
+        title.className = "character-row-name";
+        title.textContent = character && character.name ? String(character.name) : "Unknown Character";
+
+        var body = document.createElement("div");
+        body.className = "character-row-body";
+
+        var image = document.createElement("img");
+        image.className = "character-row-image";
+        image.src = character && character.facePicture ? String(character.facePicture) : "";
+        image.alt = character && character.name ? String(character.name) : "Character portrait";
+
+        var copy = document.createElement("div");
+        copy.className = "character-row-copy";
+
+        var description = document.createElement("p");
+        description.className = "character-row-description";
+        description.textContent = getCharacterSummary(character);
+
+        var moreLink = document.createElement("a");
+        moreLink.className = "character-row-link";
+        moreLink.href = "#";
+        moreLink.textContent = "More about " + (character && character.name ? String(character.name) : "this character");
+        moreLink.addEventListener("click", function (event) {
+          event.preventDefault();
+          openCharacterModal(character);
+        });
+
+        header.appendChild(star);
+        header.appendChild(title);
+        copy.appendChild(description);
+        copy.appendChild(moreLink);
+        body.appendChild(image);
+        body.appendChild(copy);
+        row.appendChild(header);
+        row.appendChild(body);
+
+        return row;
+      }
+
+      function renderCharacters(filterValue) {
+        if (!listNode) {
+          return;
+        }
+
+        var query = String(filterValue || "").trim().toLowerCase();
+        var filtered = roster.filter(function (character) {
+          var name = character && character.name ? String(character.name).toLowerCase() : "";
+          return !query || name.indexOf(query) !== -1;
+        });
+
+        listNode.innerHTML = "";
+
+        if (!filtered.length) {
+          var empty = document.createElement("div");
+          empty.className = "character-directory-empty";
+          empty.textContent = "No characters matched your search.";
+          listNode.appendChild(empty);
+          return;
+        }
+
+        filtered.forEach(function (character) {
+          listNode.appendChild(createCharacterRow(character));
+        });
+      }
+
+      if (searchInput) {
+        searchInput.addEventListener("input", function () {
+          renderCharacters(searchInput.value);
+        });
+      }
+
+      if (modalClose) {
+        modalClose.addEventListener("click", function () {
+          closeCharacterModal();
+        });
+      }
+
+      if (modalBackdrop) {
+        modalBackdrop.addEventListener("click", function (event) {
+          if (event.target === modalBackdrop) {
+            closeCharacterModal();
+          }
+        });
+      }
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          closeCharacterModal();
+        }
+      });
+
+      renderCharacters("");
+    }());
+  </script>
 </body>
 </html>
