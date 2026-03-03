@@ -1,4 +1,31 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    const pageName = window.location.pathname.split('/').pop().toLowerCase();
+    const shouldUseCustomCursor = pageName === 'ingame.html' || pageName === 'selection.html';
+    const shouldUseGameClickSound = shouldUseCustomCursor;
+    if (shouldUseCustomCursor) {
+        document.body.classList.add('custom-game-cursor');
+        const setPressedCursor = () => document.body.classList.add('cursor-clicking');
+        const clearPressedCursor = () => document.body.classList.remove('cursor-clicking');
+        document.addEventListener('mousedown', setPressedCursor);
+        document.addEventListener('mouseup', clearPressedCursor);
+        document.addEventListener('mouseleave', clearPressedCursor);
+        window.addEventListener('blur', clearPressedCursor);
+    }
+    if (shouldUseGameClickSound) {
+        const clickSound = new Audio('sounds/click.mp3');
+        document.addEventListener('click', () => {
+            try {
+                clickSound.currentTime = 0;
+                const playback = clickSound.play();
+                if (playback && typeof playback.catch === 'function') {
+                    playback.catch(() => {});
+                }
+            } catch (error) {
+                // Ignore playback errors from the browser.
+            }
+        });
+    }
+
     const API_BASE_URL =
         window.NARUTO_API_BASE_URL ||
         `${window.location.protocol}//${window.location.hostname}${
@@ -78,6 +105,263 @@ document.addEventListener('DOMContentLoaded', async () => {
     const rosterSlotElements = [];
     const selectedAssignments = selectedSlots.map(() => null);
     const teamStorageKey = 'narutoSelectedTeam';
+    const defaultProfileAvatar = 'https://i.postimg.cc/3JqVcPXm/default.png';
+    const defaultLadderRankHat = 'hats/academy.png';
+    let profileCache = null;
+    let selectionClickTimer = null;
+
+    const normalizeLadderPresentation = (ladder = null) => {
+        const source = ladder && typeof ladder === 'object' ? ladder : {};
+        return {
+            rank:
+                typeof source.rank === 'string' && source.rank.trim()
+                    ? source.rank.trim()
+                    : 'Academy Student',
+            level: Number.isFinite(Number(source.level)) ? Math.max(1, Number(source.level)) : 1,
+            experiencePoints: Number.isFinite(Number(source.experiencePoints))
+                ? Math.max(0, Number(source.experiencePoints))
+                : 0,
+            ladderRank: Number.isFinite(Number(source.ladderRank))
+                ? Math.max(1, Number(source.ladderRank))
+                : null,
+            wins: Number.isFinite(Number(source.wins)) ? Math.max(0, Number(source.wins)) : 0,
+            losses: Number.isFinite(Number(source.losses)) ? Math.max(0, Number(source.losses)) : 0,
+            streak: Number.isFinite(Number(source.streak)) ? Number(source.streak) : 0,
+            rankHatUrl:
+                typeof source.rankHatUrl === 'string' && source.rankHatUrl.trim()
+                    ? source.rankHatUrl.trim()
+                    : defaultLadderRankHat,
+        };
+    };
+
+    const formatSignedNumber = (value) => {
+        const amount = Number(value) || 0;
+        return `${amount >= 0 ? '+' : ''}${amount}`;
+    };
+
+    const shouldUseWideRankHatOffset = (rankHatUrl = '') => {
+        const normalized = typeof rankHatUrl === 'string' ? rankHatUrl.trim().toLowerCase() : '';
+        return (
+            normalized.endsWith('/anbu.png') ||
+            normalized.endsWith('hats/anbu.png') ||
+            normalized.endsWith('/jinch.png') ||
+            normalized.endsWith('hats/jinch.png') ||
+            normalized.endsWith('/kage.png') ||
+            normalized.endsWith('hats/kage.png') ||
+            normalized.endsWith('/hokage.png') ||
+            normalized.endsWith('hats/hokage.png')
+        );
+    };
+
+    const applyRankHatPresentation = (elements, ladder) => {
+        const hatUrl = ladder?.rankHatUrl || defaultLadderRankHat;
+        const useWideOffset = shouldUseWideRankHatOffset(hatUrl);
+        elements.forEach((element) => {
+            if (!element) return;
+            element.src = hatUrl;
+            element.alt = `${ladder?.rank || 'Academy Student'} rank hat`;
+            element.classList.toggle('rank-hat-offset-left', useWideOffset);
+        });
+    };
+
+    const readCachedUser = () => {
+        const cachedUser = localStorage.getItem('narutoUser');
+        if (!cachedUser) return null;
+        try {
+            return JSON.parse(cachedUser);
+        } catch (error) {
+            console.warn('Unable to load stored user profile.', error);
+            return null;
+        }
+    };
+
+    const writeCachedUser = (user) => {
+        if (!user?.username) return;
+        localStorage.setItem(
+            'narutoUser',
+            JSON.stringify({
+                username: user.username,
+                avatarUrl: user.profile?.avatarUrl || defaultProfileAvatar,
+                clanAbbreviation: user.profile?.clan?.abbreviation || '',
+                ladder: normalizeLadderPresentation(user.profile?.ladder),
+            })
+        );
+    };
+
+    const applyPlayerIdentity = (options = {}) => {
+        const name = options.name || null;
+        const avatarUrl = options.avatarUrl || defaultProfileAvatar;
+        const clanAbbreviation = options.clanAbbreviation || 'None';
+        const ladder = normalizeLadderPresentation(options.ladder);
+        const nameElements = Array.from(
+            document.querySelectorAll('.player-nameselection, .player-left .player-name')
+        );
+        const avatarElements = Array.from(
+            document.querySelectorAll('.player-avatar, .player-avatar-left')
+        );
+        const statElements = Array.from(document.querySelectorAll('.player-infoselection .player-stat'));
+        const playerStatusEl = document.querySelector('.player-left .player-status');
+        const playerHatEls = Array.from(document.querySelectorAll('.player-characters .rank-hat'));
+        nameElements.forEach((element) => {
+            if (element && name) {
+                element.textContent = name;
+            }
+        });
+        avatarElements.forEach((element) => {
+            if (element) {
+                element.src = avatarUrl;
+            }
+        });
+        statElements.forEach((element) => {
+            if (!element) {
+                return;
+            }
+            const currentText =
+                typeof element.textContent === 'string' ? element.textContent.trim().toUpperCase() : '';
+            if (currentText.startsWith('CLAN:')) {
+                element.textContent = `CLAN: ${clanAbbreviation}`;
+                return;
+            }
+            if (currentText.startsWith('LEVEL:')) {
+                element.textContent = `LEVEL: ${ladder.level} (${ladder.experiencePoints.toLocaleString()} XP)`;
+                return;
+            }
+            if (currentText.startsWith('LADDERRANK:')) {
+                element.textContent = `LADDERRANK: ${ladder.ladderRank ? `#${ladder.ladderRank}` : 'Unranked'}`;
+                return;
+            }
+            if (currentText.startsWith('RATIO:')) {
+                element.textContent = `RATIO: ${ladder.wins} - ${ladder.losses} ( ${formatSignedNumber(ladder.streak)} )`;
+                return;
+            }
+            element.textContent = ladder.rank;
+        });
+        if (playerStatusEl) {
+            playerStatusEl.textContent = ladder.rank;
+        }
+        applyRankHatPresentation(playerHatEls, ladder);
+    };
+
+    const applyOpponentIdentity = (options = {}) => {
+        const avatarUrl = options.avatarUrl || defaultProfileAvatar;
+        const name = options.name || null;
+        const ladder = normalizeLadderPresentation(options.ladder);
+        const opponentAvatar = document.querySelector('.player-avatar-right');
+        const opponentNameEl = document.querySelector('.player-right .player-name');
+        const opponentStatusEl = document.querySelector('.player-right .player-status');
+        const opponentHatEls = Array.from(document.querySelectorAll('.enemy-characters .rank-hat'));
+        if (opponentAvatar) {
+            opponentAvatar.src = avatarUrl;
+        }
+        if (opponentNameEl && name) {
+            opponentNameEl.textContent = name;
+        }
+        if (opponentStatusEl) {
+            opponentStatusEl.textContent = ladder.rank;
+        }
+        applyRankHatPresentation(opponentHatEls, ladder);
+    };
+
+    const applyCustomBackgrounds = (user) => {
+        const selectionBackground = document.querySelector('.background');
+        const ingameBackground = document.querySelector('.backgroundingame');
+        const selectionUrl = user?.profile?.backgrounds?.selectionUrl || '';
+        const ingameUrl = user?.profile?.backgrounds?.ingameUrl || '';
+        if (selectionBackground) {
+            selectionBackground.style.backgroundImage = selectionUrl
+                ? `url("${selectionUrl}")`
+                : '';
+        }
+        if (ingameBackground) {
+            ingameBackground.style.backgroundImage = ingameUrl
+                ? `url("${ingameUrl}")`
+                : '';
+        }
+    };
+
+    const fetchProfile = async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/me`, {
+                credentials: 'include',
+            });
+            if (!response.ok) {
+                throw new Error('Unauthorized');
+            }
+            const data = await response.json();
+            if (data?.user?.username) {
+                profileCache = data.user;
+                writeCachedUser(data.user);
+                return data.user;
+            }
+        } catch (error) {
+            return null;
+        }
+        return null;
+    };
+
+    const hydratePlayerIdentity = async () => {
+        const cachedUser = readCachedUser();
+        if (cachedUser?.username) {
+            applyPlayerIdentity({
+                name: cachedUser.username,
+                avatarUrl: cachedUser.avatarUrl || defaultProfileAvatar,
+                clanAbbreviation: cachedUser.clanAbbreviation || 'None',
+                ladder: cachedUser.ladder,
+            });
+        } else {
+            applyPlayerIdentity({
+                avatarUrl: defaultProfileAvatar,
+                clanAbbreviation: 'None',
+                ladder: null,
+            });
+        }
+
+        const apiUser = await fetchProfile();
+        if (apiUser?.username) {
+            applyPlayerIdentity({
+                name: apiUser.username,
+                avatarUrl: apiUser.profile?.avatarUrl || defaultProfileAvatar,
+                clanAbbreviation: apiUser.profile?.clan?.abbreviation || 'None',
+                ladder: apiUser.profile?.ladder || null,
+            });
+            applyCustomBackgrounds(apiUser);
+        }
+    };
+
+    const fetchPublicProfile = async (username) => {
+        if (!username) return null;
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/api/users/${encodeURIComponent(username)}/profile`,
+                {
+                    credentials: 'include',
+                }
+            );
+            if (!response.ok) {
+                return null;
+            }
+            const data = await response.json();
+            return data?.user?.username ? data.user : null;
+        } catch (error) {
+            return null;
+        }
+    };
+
+    const hydrateOpponentIdentity = async (username) => {
+        if (!username) {
+            applyOpponentIdentity({
+                avatarUrl: defaultProfileAvatar,
+                ladder: null,
+            });
+            return;
+        }
+        const user = await fetchPublicProfile(username);
+        applyOpponentIdentity({
+            name: user?.username || username,
+            avatarUrl: user?.profile?.avatarUrl || defaultProfileAvatar,
+            ladder: user?.profile?.ladder || null,
+        });
+    };
 
     const matchIdFromUrl = new URLSearchParams(window.location.search).get('matchId');
 
@@ -87,6 +371,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         let currentPlayerUsername = null;
         let currentTurnUsername = null;
         let currentOpponentUsername = null;
+        let currentMatchMode = 'quick';
+        const startFirstSound = new Audio('sounds/start-first.mp3');
+        const secondPlayerStartSound = new Audio('sounds/yahoe.mp3');
+        const nextRoundSound = new Audio('sounds/next-round.mp3');
+        const startRoundSound = new Audio('sounds/start-round.mp3');
+        const lostSound = new Audio('sounds/lost.mp3');
+        const winSound = new Audio('sounds/win.mp3');
+        const applySkillSound = new Audio('sounds/apply-skill.mp3');
+        const deathSound = new Audio('sounds/death-sound.mp3');
+        let hasPlayedMatchEntrySound = false;
+        let hasInitializedTurnState = false;
         const playerSkillImages = Array.from(
             document.querySelectorAll('.player-characters .skillscrollingame .skillimage')
         );
@@ -146,6 +441,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         let globalStatusTooltipEl = null;
         let battleEndShown = false;
         let selectedExchangeType = 'taijutsu';
+        const playIngameSound = (audio) => {
+            if (!audio) return;
+            try {
+                audio.currentTime = 0;
+                const playback = audio.play();
+                if (playback && typeof playback.catch === 'function') {
+                    playback.catch(() => {});
+                }
+            } catch (error) {
+                // Ignore browser playback errors.
+            }
+        };
         const chakraCountEls = chakraDisplay
             ? {
                   taijutsu: chakraDisplay.querySelector('[data-chakra="taijutsu"] .chakra-count'),
@@ -229,6 +536,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!Array.isArray(units)) return null;
             return units[actorSlot] || null;
         };
+
+        await hydratePlayerIdentity();
 
         const getSkillReplacementMapFromUnit = (unit) => {
             const map = {};
@@ -792,6 +1101,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 turnExpiresAtMs = Date.now() + TURN_DURATION_MS;
             }
             currentTurnUsername = turnOwner || null;
+            const isPlayersTurn = currentPlayerUsername && currentTurnUsername
+                ? currentPlayerUsername === currentTurnUsername
+                : false;
+            if (turnChanged && hasInitializedTurnState && isPlayersTurn) {
+                playIngameSound(startRoundSound);
+            }
+            if (turnOwner && !hasInitializedTurnState) {
+                hasInitializedTurnState = true;
+            }
             if (!currentPlayerUsername || !currentTurnUsername) {
                 setSkillInteractivity(true);
                 startTimerLoop();
@@ -800,7 +1118,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 updateSkillAffordability();
                 return;
             }
-            const isPlayersTurn = currentPlayerUsername === currentTurnUsername;
             setSkillInteractivity(isPlayersTurn);
             startTimerLoop();
             updateTimerBar();
@@ -1023,9 +1340,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             }, 0);
         };
 
-        const showBattleEndOverlay = ({ didWin, opponentUsername }) => {
+        const showBattleEndOverlay = ({ didWin, opponentUsername, expDelta = null, clanExpDelta = null }) => {
             if (!battleEndOverlayEl || battleEndShown) return;
             const opponent = (opponentUsername || currentOpponentUsername || 'UNKNOWN').trim();
+            const isLadderMatch = currentMatchMode === 'ladder';
+            const normalizedExpDelta = Number.isFinite(Number(expDelta)) ? Number(expDelta) : 0;
+            const expMagnitude = Math.abs(normalizedExpDelta).toLocaleString();
+            const normalizedClanExpDelta = Math.max(0, Number(clanExpDelta) || 0);
+            const clanExpLine =
+                normalizedClanExpDelta > 0
+                    ? `<br>YOUR CLAN GAINED ${normalizedClanExpDelta.toLocaleString()} EXP`
+                    : '';
             if (battleEndPortraitEl) {
                 battleEndPortraitEl.src = didWin ? 'win.png' : 'lose.png';
                 battleEndPortraitEl.alt = didWin ? 'Victory portrait' : 'Defeated portrait';
@@ -1035,11 +1360,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (battleEndMessageEl) {
                 battleEndMessageEl.innerHTML = didWin
-                    ? `CONGRATULATIONS!<br>YOU HAVE WON A QUICK BATTLE AGAINST ${opponent}.`
-                    : `TOO BAD!<br>YOU HAVE LOST A QUICK BATTLE AGAINST ${opponent}.`;
+                    ? isLadderMatch
+                        ? `YOU WON A LADDER BATTLE AGAINST ${opponent}.<br>YOU GAINED ${expMagnitude} EXP${clanExpLine}`
+                        : currentMatchMode === 'private'
+                            ? `YOU WIN!<br>YOU WON A PRIVATE GAME AGAINST ${opponent}`
+                        : `CONGRATULATIONS!<br>YOU HAVE WON A QUICK BATTLE AGAINST ${opponent}.`
+                    : isLadderMatch
+                        ? `YOU LOST A LADDER BATTLE AGAINST ${opponent}.<br>YOU LOST ${expMagnitude} EXP`
+                        : currentMatchMode === 'private'
+                            ? `TOO BAD!<br>YOU LOST A PRIVATE GAME AGAINST ${opponent}`
+                        : `TOO BAD!<br>YOU HAVE LOST A QUICK BATTLE AGAINST ${opponent}.`;
             }
             battleEndOverlayEl.classList.add('visible');
             battleEndShown = true;
+            playIngameSound(didWin ? winSound : lostSound);
             stopMatchRealtime();
             closeEndTurnModal();
             closeExchangeModal();
@@ -1096,7 +1430,33 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!data || typeof data !== 'object') return;
             const board = data.board && typeof data.board === 'object' ? data.board : null;
             if (!board) return;
+            const previousBoard = latestBoardState;
+            const unitDiedBetweenStates = (previousUnit, nextUnit) => {
+                const prevHp = Number(previousUnit?.hp);
+                const nextHp = Number(nextUnit?.hp);
+                const wasAlive =
+                    previousUnit &&
+                    previousUnit.alive !== false &&
+                    (!Number.isFinite(prevHp) || prevHp > 0);
+                const isDead =
+                    nextUnit &&
+                    (nextUnit.alive === false || (Number.isFinite(nextHp) && nextHp <= 0));
+                return Boolean(wasAlive && isDead);
+            };
+            const detectAnyDeath = () => {
+                if (!previousBoard || typeof previousBoard !== 'object') return false;
+                return Object.keys(board).some((username) => {
+                    const nextUnits = Array.isArray(board[username]) ? board[username] : [];
+                    const prevUnits = Array.isArray(previousBoard[username]) ? previousBoard[username] : [];
+                    return nextUnits.some((nextUnit, slot) =>
+                        unitDiedBetweenStates(prevUnits[slot], nextUnit)
+                    );
+                });
+            };
             latestBoardState = board;
+            if (detectAnyDeath()) {
+                playIngameSound(deathSound);
+            }
             const playerUnits = currentPlayerUsername ? board[currentPlayerUsername] : null;
             const opponentUsername = data.opponent?.username || currentOpponentUsername;
             const opponentUnits = opponentUsername ? board[opponentUsername] : null;
@@ -1437,8 +1797,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (data.player?.username) {
                 currentPlayerUsername = data.player.username;
             }
+            if (typeof data.mode === 'string' && data.mode.trim()) {
+                currentMatchMode = data.mode.trim().toLowerCase();
+            }
             if (data.opponent?.username) {
                 currentOpponentUsername = data.opponent.username;
+                hydrateOpponentIdentity(data.opponent.username).catch(() => {});
             }
             const pool = data.chakraPools?.[currentPlayerUsername] || playerPoolState || emptyPool();
             renderChakra(pool);
@@ -1456,6 +1820,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 showBattleEndOverlay({
                     didWin,
                     opponentUsername: opponentFromResult || data.opponent?.username || currentOpponentUsername,
+                    expDelta: data.ladderResult?.expDelta,
+                    clanExpDelta: data.ladderResult?.clanExpDelta,
                 });
                 return;
             }
@@ -1466,6 +1832,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 currentOpponentUsername &&
                 (playerAlive <= 0 || opponentAlive <= 0)
             ) {
+                if (currentMatchMode === 'ladder') {
+                    return;
+                }
                 showBattleEndOverlay({
                     didWin: playerAlive > opponentAlive,
                     opponentUsername: currentOpponentUsername,
@@ -1676,6 +2045,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (!response.ok || !data?.ok) {
                         throw new Error(data?.error || 'Unable to queue skill.');
                     }
+                    playIngameSound(applySkillSound);
                     renderChakra(data.chakraPools?.[currentPlayerUsername] || emptyPool());
                     pendingTurnState = normalizePendingTurn(data.pendingTurn);
                     applyQueuedSkillVisuals();
@@ -1729,6 +2099,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (enemyNameEl && data.opponent?.username) {
                     enemyNameEl.textContent = data.opponent.username;
                     currentOpponentUsername = data.opponent.username;
+                    hydrateOpponentIdentity(data.opponent.username).catch(() => {});
                 }
 
                 const populateCard = (card, rosterIndex, isPlayer, slotIndex) => {
@@ -1854,6 +2225,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (data.player?.username) {
                     currentPlayerUsername = data.player.username;
                 }
+                if (!hasPlayedMatchEntrySound && data.player?.username && data.currentTurn) {
+                    playIngameSound(
+                        data.player.username === data.currentTurn ? startFirstSound : secondPlayerStartSound
+                    );
+                    hasPlayedMatchEntrySound = true;
+                }
                 applyMatchState(data);
                 renderDynamicSkillIcons();
             } catch (error) {
@@ -1919,6 +2296,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!response.ok || !data?.ok) {
                     throw new Error(data?.error || 'Failed to end turn.');
                 }
+                playIngameSound(nextRoundSound);
                 applyMatchState(data);
                 closeEndTurnModal();
             } catch (error) {
@@ -2094,7 +2472,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const opponentUsername = didWin
                     ? data.surrenderedBy
                     : data.winner || currentOpponentUsername;
-                showBattleEndOverlay({ didWin, opponentUsername });
+                showBattleEndOverlay({
+                    didWin,
+                    opponentUsername,
+                    expDelta: data.ladderResult?.expDelta,
+                    clanExpDelta: data.ladderResult?.clanExpDelta,
+                });
             } catch (error) {
                 console.warn('Failed to surrender.', error);
                 window.location.href = 'selection.html';
@@ -2129,54 +2512,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    let profileCache = null;
-
-    const fetchProfile = async () => {
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/me`, {
-                credentials: 'include',
-            });
-            if (!response.ok) {
-                throw new Error('Unauthorized');
-            }
-            const data = await response.json();
-            if (data?.user?.username) {
-                profileCache = data.user;
-                localStorage.setItem('narutoUser', JSON.stringify({ username: data.user.username }));
-                return data.user;
-            }
-        } catch (error) {
-            return null;
-        }
-        return null;
-    };
-
-    const hydratePlayerCard = async () => {
-        const playerName = document.querySelector('.player-nameselection, .player-name');
-        if (!playerName) return;
-
-        // Use cached username immediately for instant UI update
-        const cachedUser = localStorage.getItem('narutoUser');
-        if (cachedUser) {
-            try {
-                const user = JSON.parse(cachedUser);
-                if (user?.username) {
-                    playerName.textContent = user.username;
-                }
-            } catch (error) {
-                console.warn('Unable to load stored user profile.', error);
-            }
-        }
-
-        // Refresh from API when available
-        const apiUser = await fetchProfile();
-        if (apiUser?.username) {
-            playerName.textContent = apiUser.username;
-            localStorage.setItem('narutoUser', JSON.stringify({ username: apiUser.username }));
-        }
-    };
-
-    await hydratePlayerCard();
+    await hydratePlayerIdentity();
 
     const logoutButton = document.querySelector('.logout-button');
     const quickButton = document.querySelector('.quick-button');
@@ -2184,9 +2520,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     const privateButton = document.querySelector('.private-button');
     const searchingBackdrop = document.querySelector('.searching-backdrop');
     const searchingOverlay = document.querySelector('.searchingscroll');
+    const searchingMessage = document.querySelector('.searching');
+    const searchingSpinner = document.querySelector('.sharingan');
     const cancelSearchingButton = document.querySelector('.cancel-button');
+    const privateMatchBackdrop = document.querySelector('.private-match-backdrop');
+    const privateMatchInput = document.querySelector('.private-match-input');
+    const privateMatchError = document.querySelector('.private-match-error');
+    const privateMatchOkButton = document.querySelector('.private-match-ok');
+    const privateMatchCancelButton = document.querySelector('.private-match-cancel');
+    const defaultCancelButtonLabel = cancelSearchingButton ? cancelSearchingButton.textContent : '';
+    let activeSearchTargetUsername = '';
+    const foundMatchSound = new Audio('sounds/found-match.mp3');
+    const skillViewerOpenSound = new Audio('sounds/scroll_open.mp3');
+    const skillViewerCloseSound = new Audio('sounds/scroll_close.mp3');
     let matchmakingPoll = null;
     let isSearching = false;
+    let pendingMatchRedirect = null;
     const handleLogout = async () => {
         try {
             await fetch(`${API_BASE_URL}/api/logout`, {
@@ -2205,6 +2554,74 @@ document.addEventListener('DOMContentLoaded', async () => {
         logoutButton.addEventListener('click', handleLogout);
     }
 
+    const clearPendingMatchRedirect = () => {
+        if (!pendingMatchRedirect) return;
+        window.clearTimeout(pendingMatchRedirect);
+        pendingMatchRedirect = null;
+    };
+
+    const playOneShotSound = (audio) => {
+        if (!audio) return;
+        try {
+            audio.currentTime = 0;
+            const playback = audio.play();
+            if (playback && typeof playback.catch === 'function') {
+                playback.catch(() => {});
+            }
+        } catch (error) {
+            // Ignore autoplay/playback errors from the browser.
+        }
+    };
+
+    const setSearchingState = (state = 'searching', mode = 'quick') => {
+        if (!searchingMessage) return;
+        if (state === 'found') {
+            searchingMessage.textContent = 'Opponent found!';
+            if (searchingSpinner) {
+                searchingSpinner.src = 'found.png';
+                searchingSpinner.style.visibility = 'visible';
+                searchingSpinner.style.animation = 'none';
+            }
+            if (cancelSearchingButton) {
+                cancelSearchingButton.textContent = '';
+                cancelSearchingButton.disabled = true;
+                cancelSearchingButton.style.top = '';
+                cancelSearchingButton.style.left = '';
+                cancelSearchingButton.style.marginTop = '50px';
+                cancelSearchingButton.style.marginLeft = '125px';
+                cancelSearchingButton.style.width = '200px';
+                cancelSearchingButton.style.textAlign = 'center';
+                cancelSearchingButton.style.backgroundColor = 'transparent';
+                cancelSearchingButton.style.border = 'none';
+                cancelSearchingButton.style.pointerEvents = 'none';
+            }
+            playOneShotSound(foundMatchSound);
+            return;
+        }
+        searchingMessage.textContent =
+            mode === 'private' && activeSearchTargetUsername
+                ? `Searching for ${activeSearchTargetUsername}`
+                : 'Searching for an opponent';
+        if (searchingSpinner) {
+            searchingSpinner.src = 'sharingan.png';
+            searchingSpinner.style.visibility = 'visible';
+            searchingSpinner.style.animation = '';
+        }
+        if (cancelSearchingButton) {
+            cancelSearchingButton.textContent = defaultCancelButtonLabel || 'Cancel';
+            cancelSearchingButton.disabled = false;
+            cancelSearchingButton.style.top = '';
+            cancelSearchingButton.style.left = '';
+            cancelSearchingButton.style.marginTop = '';
+            cancelSearchingButton.style.marginLeft = '';
+            cancelSearchingButton.style.width = '';
+            cancelSearchingButton.style.textAlign = '';
+            cancelSearchingButton.style.backgroundColor = '';
+            cancelSearchingButton.style.border = '';
+            cancelSearchingButton.style.pointerEvents = '';
+        }
+    };
+
     const openSearching = () => {
         if (!searchingOverlay || !searchingBackdrop) return;
         searchingBackdrop.classList.remove('hidden');
@@ -2213,11 +2630,69 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const closeSearching = () => {
         if (!searchingOverlay || !searchingBackdrop) return;
+        clearPendingMatchRedirect();
+        setSearchingState('searching');
         searchingBackdrop.classList.add('hidden');
         searchingBackdrop.classList.remove('visible');
     };
 
     closeSearching();
+
+    const openPrivateMatchDialog = () => {
+        if (!privateMatchBackdrop) return;
+        if (privateMatchError) {
+            privateMatchError.textContent = '';
+        }
+        if (privateMatchInput) {
+            privateMatchInput.value = '';
+        }
+        privateMatchBackdrop.classList.remove('hidden');
+        privateMatchBackdrop.classList.add('visible');
+        if (privateMatchInput) {
+            window.setTimeout(() => privateMatchInput.focus(), 0);
+        }
+    };
+
+    const closePrivateMatchDialog = () => {
+        if (!privateMatchBackdrop) return;
+        privateMatchBackdrop.classList.add('hidden');
+        privateMatchBackdrop.classList.remove('visible');
+        if (privateMatchError) {
+            privateMatchError.textContent = '';
+        }
+    };
+
+    const scheduleMatchRedirect = (matchId, matchStartsAt) => {
+        if (!matchId) return;
+        clearPendingMatchRedirect();
+        const startAtMs = matchStartsAt ? new Date(matchStartsAt).getTime() : Date.now();
+        const delayMs = Math.max(0, startAtMs - Date.now());
+        pendingMatchRedirect = window.setTimeout(() => {
+            pendingMatchRedirect = null;
+            closeSearching();
+            redirectToMatch(matchId);
+        }, delayMs);
+    };
+
+    const handleMatchFound = (data = {}) => {
+        if (!data?.matchFound || !data?.matchId) return false;
+        const startAtMs = data.matchStartsAt ? new Date(data.matchStartsAt).getTime() : Date.now();
+        const shouldHold = !data.matchReady && startAtMs > Date.now();
+        if (!shouldHold) {
+            closeSearching();
+            redirectToMatch(data.matchId);
+            return true;
+        }
+        openSearching();
+        setSearchingState('found');
+        isSearching = false;
+        if (matchmakingPoll) {
+            clearInterval(matchmakingPoll);
+            matchmakingPoll = null;
+        }
+        scheduleMatchRedirect(data.matchId, data.matchStartsAt);
+        return true;
+    };
 
     const resumeMatchIfActive = async () => {
         try {
@@ -2226,7 +2701,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             const data = await response.json();
             if (data?.matchFound && data.matchId) {
-                redirectToMatch(data.matchId);
+                handleMatchFound(data);
             }
         } catch (error) {
             console.warn('Failed to resume active match.', error);
@@ -2246,11 +2721,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
                 const data = await response.json();
                 if (data?.matchFound && data.matchId) {
-                    clearInterval(matchmakingPoll);
-                    matchmakingPoll = null;
-                    isSearching = false;
-                    closeSearching();
-                    redirectToMatch(data.matchId);
+                    handleMatchFound(data);
                 }
             } catch (error) {
                 console.warn('Match status check failed:', error);
@@ -2258,35 +2729,44 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 2000);
     };
 
-    const joinMatchmaking = async () => {
+    const joinMatchmaking = async (mode = 'quick', options = {}) => {
         if (isSearching) return;
         isSearching = true;
+        activeSearchTargetUsername = mode === 'private' ? (options.targetUsername || '').trim() : '';
+        setSearchingState('searching', mode);
         openSearching();
         try {
             const response = await fetch(`${API_BASE_URL}/api/match/join`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({ team: getTeamIndices() }),
+                body: JSON.stringify({
+                    team: getTeamIndices(),
+                    mode,
+                    targetUsername: options.targetUsername || '',
+                }),
             });
             const data = await response.json();
+            if (!response.ok || !data?.ok) {
+                throw new Error(data?.error || 'Could not start matchmaking. Please try again.');
+            }
             if (data?.matchFound && data.matchId) {
-                isSearching = false;
-                closeSearching();
-                redirectToMatch(data.matchId);
+                handleMatchFound(data);
                 return;
             }
             startPollingMatch();
         } catch (error) {
             console.error('Failed to join matchmaking:', error);
             isSearching = false;
+            activeSearchTargetUsername = '';
             closeSearching();
-            alert('Could not start matchmaking. Please try again.');
+            alert(error?.message || 'Could not start matchmaking. Please try again.');
         }
     };
 
     const cancelMatchmaking = async () => {
         isSearching = false;
+        activeSearchTargetUsername = '';
         if (matchmakingPoll) {
             clearInterval(matchmakingPoll);
             matchmakingPoll = null;
@@ -2306,7 +2786,64 @@ document.addEventListener('DOMContentLoaded', async () => {
         quickButton.addEventListener('click', (event) => {
             event.preventDefault();
             persistTeamSelection();
-            joinMatchmaking();
+            joinMatchmaking('quick');
+        });
+    }
+
+    if (ladderButton) {
+        ladderButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            persistTeamSelection();
+            joinMatchmaking('ladder');
+        });
+    }
+
+    if (privateButton) {
+        privateButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            openPrivateMatchDialog();
+        });
+    }
+
+    if (privateMatchCancelButton) {
+        privateMatchCancelButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            closePrivateMatchDialog();
+        });
+    }
+
+    if (privateMatchOkButton) {
+        privateMatchOkButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            const targetUsername = privateMatchInput ? privateMatchInput.value.trim() : '';
+            if (!targetUsername) {
+                if (privateMatchError) {
+                    privateMatchError.textContent = 'Enter a username.';
+                }
+                if (privateMatchInput) {
+                    privateMatchInput.focus();
+                }
+                return;
+            }
+            closePrivateMatchDialog();
+            persistTeamSelection();
+            joinMatchmaking('private', { targetUsername });
+        });
+    }
+
+    if (privateMatchInput) {
+        privateMatchInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                if (privateMatchOkButton) {
+                    privateMatchOkButton.click();
+                }
+                return;
+            }
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                closePrivateMatchDialog();
+            }
         });
     }
 
@@ -2317,16 +2854,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    const openSkillViewer = () => {
-        if (skillViewer) {
-            skillViewer.classList.remove('collapsed');
+    const playSkillViewerSound = (audio) => {
+        if (!audio) return;
+        try {
+            audio.currentTime = 0;
+            const playback = audio.play();
+            if (playback && typeof playback.catch === 'function') {
+                playback.catch(() => {});
+            }
+        } catch (error) {
+            // Ignore autoplay/playback errors from the browser.
         }
     };
 
+    const openSkillViewer = () => {
+        if (!skillViewer || !skillViewer.classList.contains('collapsed')) return;
+        skillViewer.classList.remove('collapsed');
+        playSkillViewerSound(skillViewerOpenSound);
+    };
+
     const closeSkillViewer = () => {
-        if (skillViewer) {
-            skillViewer.classList.add('collapsed');
-        }
+        if (!skillViewer || skillViewer.classList.contains('collapsed')) return;
+        skillViewer.classList.add('collapsed');
+        playSkillViewerSound(skillViewerCloseSound);
     };
 
     if (skillViewer) {
@@ -2335,7 +2885,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (skillScroll && skillViewer) {
         skillScroll.addEventListener('click', () => {
-            skillViewer.classList.toggle('collapsed');
+            if (skillViewer.classList.contains('collapsed')) {
+                openSkillViewer();
+                return;
+            }
+            closeSkillViewer();
         });
     }
 
@@ -2726,6 +3280,36 @@ document.addEventListener('DOMContentLoaded', async () => {
         handleCharacterSelect(assignment.characterIndex, { openViewer: true });
     };
 
+    const queueSelectionPreview = (callback) => {
+        if (selectionClickTimer) {
+            clearTimeout(selectionClickTimer);
+        }
+        selectionClickTimer = window.setTimeout(() => {
+            selectionClickTimer = null;
+            callback();
+        }, 225);
+    };
+
+    const cancelSelectionPreview = () => {
+        if (!selectionClickTimer) return;
+        clearTimeout(selectionClickTimer);
+        selectionClickTimer = null;
+    };
+
+    const addRosterCharacterToSelection = (rosterIndex) => {
+        if (!Number.isInteger(rosterIndex) || !roster[rosterIndex]) return;
+        const existingSlotIndex = selectedAssignments.findIndex(
+            (assignment) => assignment?.characterIndex === rosterIndex
+        );
+        if (existingSlotIndex >= 0) return;
+        const emptySlotIndex = selectedAssignments.findIndex((assignment) => !assignment);
+        if (emptySlotIndex < 0) return;
+        clearRosterSlot(rosterIndex);
+        setSelectedSlot(emptySlotIndex, { characterIndex: rosterIndex, rosterIndex });
+        updateGameButtons();
+        persistTeamSelection();
+    };
+
     const handleRosterDragOver = (event) => {
         event.preventDefault();
         event.dataTransfer.dropEffect = 'move';
@@ -2747,12 +3331,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     selectedSlots.forEach((slot, slotIndex) => {
-        slot.addEventListener('click', () => handleSelectedSlotClick(slotIndex));
+        slot.addEventListener('click', () => {
+            queueSelectionPreview(() => handleSelectedSlotClick(slotIndex));
+        });
         slot.addEventListener('dragover', (event) => handleSelectedSlotDragOver(event, slot));
         slot.addEventListener('dragenter', (event) => handleSelectedSlotDragOver(event, slot));
         slot.addEventListener('dragleave', (event) => handleSelectedSlotDragLeave(event, slot));
         slot.addEventListener('drop', (event) => handleSelectedSlotDrop(event, slotIndex));
-        slot.addEventListener('dblclick', () => handleSelectedSlotDoubleClick(slotIndex));
+        slot.addEventListener('dblclick', () => {
+            cancelSelectionPreview();
+            handleSelectedSlotDoubleClick(slotIndex);
+        });
     });
 
     const applySavedTeam = () => {
@@ -2792,7 +3381,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             listItem.appendChild(image);
             listItem.addEventListener('click', () => {
                 if (listItem.classList.contains('slot-empty')) return;
-                handleCharacterSelect(i);
+                queueSelectionPreview(() => {
+                    if (listItem.classList.contains('slot-empty')) return;
+                    handleCharacterSelect(i);
+                });
+            });
+            listItem.addEventListener('dblclick', () => {
+                cancelSelectionPreview();
+                if (listItem.classList.contains('slot-empty')) return;
+                addRosterCharacterToSelection(i);
             });
             image.draggable = true;
             image.addEventListener('dragstart', (event) => handleSlotDragStart(event, i));

@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Naruto-Arena Clan Panel</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --line: #181818;
+      --text: #f4f4f4;
+      --accent: #ffb84d;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        url("https://i.postimg.cc/x11QM8NQ/476467.png"),
+        radial-gradient(circle at 12% 18%, rgba(255, 149, 0, 0.3), transparent 24%),
+        radial-gradient(circle at 88% 12%, rgba(255, 106, 0, 0.18), transparent 22%),
+        radial-gradient(circle at 50% 78%, rgba(255, 184, 77, 0.08), transparent 28%),
+        linear-gradient(145deg, #1a0700 0%, #090909 38%, #000000 68%, #2f0d00 100%);
+      background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat;
+      background-size: 120px 120px, auto, auto, auto, auto;
+      background-position: 0 0, center, center, center, center;
+      color: var(--text);
+      font-family: "Outfit", system-ui, sans-serif;
+      animation: bodyPatternDrift 18s linear infinite;
+    }
+
+    @keyframes bodyPatternDrift {
+      from {
+        background-position: 0 0, center, center, center, center;
+      }
+
+      to {
+        background-position: 120px 0, center, center, center, center;
+      }
+    }
+
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .app {
+      width: min(1500px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 235px minmax(0, 1fr) 270px;
+    }
+
+    .sidebar,
+    .aside {
+      padding: 18px 22px;
+      background: rgba(0, 0, 0, 0.94);
+    }
+
+    .sidebar {
+      position: relative;
+      overflow: hidden;
+      border-right: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.9) 100%),
+        var(--sidebar-backdrop, none) center/cover no-repeat,
+        rgba(0, 0, 0, 0.94);
+    }
+
+    .sidebar::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(180deg, rgba(3, 3, 3, 0.2) 0%, rgba(0, 0, 0, 0.68) 45%, rgba(0, 0, 0, 0.9) 100%),
+        radial-gradient(circle at top left, rgba(241, 117, 34, 0.12), transparent 30%);
+      pointer-events: none;
+    }
+
+    .sidebar > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .aside {
+      border-left: 1px solid var(--line);
+    }
+
+    .brand {
+      display: grid;
+      justify-items: center;
+      gap: 10px;
+      margin-bottom: 34px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    .brand-mark {
+      width: 54px;
+      max-height: 42px;
+      display: block;
+      object-fit: contain;
+    }
+
+    .brand-copy {
+      display: grid;
+      gap: 4px;
+      justify-items: center;
+      text-align: center;
+    }
+
+    .brand-name {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-tagline {
+      font-size: 11px;
+      line-height: 1.35;
+      color: #8f8f8f;
+    }
+
+    .group {
+      margin-bottom: 28px;
+    }
+
+    .group-title {
+      margin: 0 0 14px;
+      color: #f8f8f8;
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .nav {
+      display: grid;
+      gap: 6px;
+    }
+
+    .nav-link,
+    .account-action {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-height: 36px;
+      padding: 8px 0;
+      color: #d7d7d7;
+      font-size: 15px;
+      position: relative;
+      border: 0;
+      background: transparent;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .nav-link svg,
+    .account-action svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      flex: 0 0 auto;
+    }
+
+    .nav-link.active,
+    .account-action.active {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .nav-link.active::before,
+    .account-action.active::before {
+      content: "";
+      position: absolute;
+      left: -22px;
+      top: 9px;
+      bottom: 9px;
+      width: 4px;
+      border-radius: 999px;
+      background: var(--accent);
+    }
+
+    .play-now {
+      width: 100%;
+      height: 42px;
+      margin-bottom: 8px;
+      border: 0;
+      border-radius: 100px;
+      background: linear-gradient(160deg, #ffb84d 0%, #ff8c1a 100%);
+      color: #101010;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .auth-form {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .auth-description,
+    .auth-status {
+      margin: 0;
+      color: #a0a0a0;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .auth-status[data-state="error"] {
+      color: #ff8f8f;
+    }
+
+    .auth-status[data-state="success"] {
+      color: #9ce2a1;
+    }
+
+    .auth-input {
+      width: 100%;
+      height: 38px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 100px;
+      background: rgba(8, 8, 8, 0.7);
+      color: #f3f3f3;
+      padding: 0 12px;
+      font: inherit;
+      outline: none;
+    }
+
+    .auth-button {
+      width: 100%;
+      height: 40px;
+      border: 0;
+      border-radius: 100px;
+      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
+      color: #000;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .auth-switch {
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: #ffd392;
+      font: inherit;
+      font-size: 12px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .account-panel[hidden] {
+      display: none;
+    }
+
+    .account-greeting {
+      margin: 0;
+      color: #f6f6f6;
+      font-size: 15px;
+      line-height: 1.45;
+      font-weight: 500;
+    }
+
+    .account-name {
+      color: #ffd392;
+      font-weight: 700;
+    }
+
+    .account-actions {
+      display: grid;
+      gap: 6px;
+      margin-top: 14px;
+    }
+
+    .main {
+      padding: 18px 26px 26px;
+    }
+
+    .clan-shell {
+      display: grid;
+      gap: 22px;
+      border: 1px solid #171717;
+      border-radius: 14px;
+      padding: 24px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)),
+        #0a0a0a;
+      color: #e7e7e7;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.24);
+    }
+
+    .clan-summary {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .clan-avatar {
+      border: 1px solid rgb(0, 0, 0);
+
+      background: #111;
+      display: block;
+      object-fit: cover;
+    }
+
+    .clan-summary-copy {
+      min-width: 0;
+      line-height: 1.3;
+      font-size: 14px;
+      color: #c8c8c8;
+    }
+
+    .clan-summary-copy strong {
+      display: block;
+      color: #ffffff;
+      font-size: 24px;
+      font-weight: 700;
+      margin: 4px 0 8px;
+    }
+
+    .clan-summary-copy .rank {
+      color: #ffb84d;
+      font-weight: 700;
+      margin-top: 3px;
+    }
+
+    .clan-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .clan-card {
+      text-align: center;
+      display: grid;
+      justify-items: center;
+      gap: 16px;
+      min-height: 170px;
+      padding: 20px 18px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .clan-card p {
+      margin: 0;
+      max-width: 260px;
+      color: #9d9d9d;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .clan-card button {
+      min-width: 132px;
+      height: 34px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      background: #161616;
+      color: #f0f0f0;
+      font: inherit;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 0 14px;
+    }
+
+    .clan-card button:hover {
+      border-color: rgba(255, 184, 77, 0.45);
+      color: #ffcf8c;
+    }
+
+    .clan-bottom-divider {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .quick-games-list {
+      display: grid;
+      gap: 0;
+      width: 100%;
+    }
+
+    .quick-game-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 0;
+    }
+
+    #clan-invitations-list .quick-game-row + .quick-game-row,
+    #clan-member-list .quick-game-row + .quick-game-row {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    #clan-member-list .quick-game-matchup,
+    #clan-member-list .quick-game-result {
+      padding: 2px 0;
+    }
+
+    #clan-member-list .quick-game-result {
+      border-left: 1px solid rgba(255, 255, 255, 0.08);
+      padding-left: 12px;
+      text-align: right;
+    }
+
+    .quick-game-matchup,
+    .quick-game-result {
+      font-size: 13px;
+      line-height: 1.45;
+      color: #d7d7d7;
+    }
+
+    .clan-register-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 20;
+    }
+
+    .clan-register-overlay.visible {
+      display: flex;
+    }
+
+    .clan-register-modal {
+      width: min(720px, 100%);
+      border: 1px solid #171717;
+      border-radius: 14px;
+      padding: 20px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)),
+        #0a0a0a;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.34);
+      color: #e9e9e9;
+    }
+
+    .clan-register-section + .clan-register-section {
+      margin-top: 18px;
+    }
+
+    .clan-register-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+      border-bottom: 1px dotted rgba(255, 255, 255, 0.22);
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .clan-register-star {
+      color: #fd9926;
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .clan-register-copy {
+      margin: 0 0 8px;
+      color: #aaaaaa;
+      line-height: 1.45;
+    }
+
+    .clan-register-row {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+      min-height: 28px;
+      padding: 4px 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 6px;
+      margin-bottom: 4px;
+      font-size: 14px;
+    }
+
+    .clan-register-label {
+      color: #d8d8d8;
+    }
+
+    .clan-register-value {
+      color: #f4f4f4;
+      font-style: italic;
+    }
+
+    .clan-register-input,
+    .clan-register-textarea {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(15, 15, 15, 0.9);
+      color: #f2f2f2;
+      font: inherit;
+      outline: none;
+    }
+
+    .clan-register-input {
+      height: 28px;
+      padding: 0 8px;
+    }
+
+    .clan-register-textarea {
+      min-height: 112px;
+      resize: vertical;
+      padding: 10px;
+    }
+
+    .clan-register-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .clan-register-button {
+      min-width: 118px;
+      height: 38px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: #161616;
+      color: #f0f0f0;
+      font: inherit;
+      cursor: pointer;
+      padding: 0 16px;
+    }
+
+    .clan-register-button.primary {
+      border: 0;
+      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
+      color: #000;
+      font-weight: 700;
+    }
+
+    .clan-register-status {
+      min-height: 18px;
+      margin: 8px 0 0;
+      color: #d2d2d2;
+      font-size: 12px;
+      line-height: 1.4;
+      text-align: right;
+    }
+
+    .ladder,
+    .stats-panel {
+      margin-bottom: 16px;
+      padding: 14px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.015) 100%),
+        rgba(8, 8, 8, 0.9);
+      color: #f0f0f0;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 14px;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    .ladder-title,
+    .stats-title {
+      margin: 0 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #ffcf8c;
+    }
+
+    .ladder-list,
+    .stats-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .ladder-row {
+      display: grid;
+      grid-template-columns: 28px 1fr;
+      gap: 10px;
+      align-items: center;
+      padding: 8px 8px 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .ladder-row:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .ladder-rank {
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 11px;
+      font-weight: 800;
+      color: #b8b8b8;
+      line-height: 1;
+    }
+
+    .ladder-name {
+      margin-bottom: 5px;
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.2;
+      color: #f4f4f4;
+    }
+
+    .ladder-name a,
+    .stats-list a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .ladder-name a:hover,
+    .stats-list a:hover {
+      color: #ffcf8c;
+    }
+
+    .ladder-bar {
+      height: 18px;
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: #ffffff;
+      position: relative;
+      overflow: hidden;
+      border-radius: 999px;
+    }
+
+    .ladder-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
+      box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.08);
+    }
+
+    .ladder-score {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: 10px;
+      font-weight: 800;
+      color: #000000;
+      letter-spacing: 0.03em;
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+    }
+
+    .stats-group + .stats-group {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .stats-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      color: #d8d8d8;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .stats-list li {
+      padding: 7px 8px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    @media (max-width: 1180px) {
+      .app {
+        grid-template-columns: 220px minmax(0, 1fr);
+      }
+
+      .aside {
+        display: none;
+      }
+    }
+
+    @media (max-width: 860px) {
+      .app {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .nav-link.active::before,
+      .account-action.active::before {
+        left: -12px;
+      }
+
+      .clan-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .clan-register-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <img class="brand-mark" src="https://i.postimg.cc/nLym09x8/logo.png" alt="Naruto-Arena logo" />
+        <div class="brand-copy">
+          <div class="brand-name">NARUTO-ARENA</div>
+          <div class="brand-tagline">Your #1 Naruto Online Multiplayer Game</div>
+        </div>
+      </div>
+
+      <section class="group">
+        <h2 class="group-title">Home Menu</h2>
+        <nav class="nav">
+          <button class="play-now" type="button" id="play-now-button">Play Now</button>
+          <a class="nav-link" href="index.html">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" /></svg>
+            <span>Home</span>
+          </a>
+          <a class="nav-link" href="#">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg>
+            <span>Community</span>
+          </a>
+          <a class="nav-link" href="#">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" /><rect x="14" y="4" width="6" height="6" /><rect x="4" y="14" width="6" height="6" /><rect x="14" y="14" width="6" height="6" /></svg>
+            <span>Events</span>
+          </a>
+          <a class="nav-link" href="#">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.1 2.8 7.9 7 9 4.2-1.1 7-4.9 7-9V6z" /><path d="M9 12h6" /><path d="M12 9v6" /></svg>
+            <span>Ninja Missions</span>
+          </a>
+          <a class="nav-link" href="#">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2H20v16H8.5A2.5 2.5 0 0 0 6 20.5z" /><path d="M6 4.5V22" /><path d="M9.5 7H16" /><path d="M9.5 11H17" /></svg>
+            <span>Game Manual</span>
+          </a>
+        </nav>
+      </section>
+
+      <section class="group" id="auth-panel">
+        <h2 class="group-title" id="auth-title">Login</h2>
+        <div id="guest-auth-view">
+          <p class="auth-description" id="auth-description">Sign in with your Naruto-Arena account.</p>
+          <form class="auth-form" id="auth-form">
+            <input class="auth-input" type="text" name="username" placeholder="Username" autocomplete="username" required />
+            <input class="auth-input" type="password" name="password" placeholder="Password" autocomplete="current-password" required />
+            <input class="auth-input" type="password" name="confirmPassword" placeholder="Confirm Password" autocomplete="new-password" hidden />
+            <input class="auth-input" type="email" name="email" placeholder="Email" autocomplete="email" hidden />
+            <button class="auth-button" type="submit" id="auth-submit">Login</button>
+            <button class="auth-switch" type="button" id="auth-toggle">Need an account? Register</button>
+            <p class="auth-status" id="auth-status" aria-live="polite"></p>
+          </form>
+        </div>
+        <div class="account-panel" id="account-panel" hidden>
+          <p class="account-greeting">Welcome back, <span class="account-name" id="account-username">Player</span>!</p>
+          <div class="account-actions">
+            <button class="account-action" type="button" id="view-profile-button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.25" /><path d="M5 19c.9-3 3.6-4.5 7-4.5S18.1 16 19 19" /></svg>
+              <span>View Profile</span>
+            </button>
+            <button class="account-action" type="button" id="change-avatar-button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v6" /><path d="M9 6h6" /><path d="M5 21c1.2-3.2 4-4.8 7-4.8s5.8 1.6 7 4.8" /></svg>
+              <span>Change Avatar</span>
+            </button>
+            <button class="account-action active" type="button" id="clan-panel-button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V6l8-3 8 3v12l-8 3z" /><path d="M8 10h8" /><path d="M8 14h5" /></svg>
+              <span>Clan Panel</span>
+            </button>
+            <button class="account-action" type="button" id="change-backgrounds-button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2" /><path d="M4 14c2.5-3 5.5-4.5 8-4.5s5.5 1.5 8 4.5" /></svg>
+              <span>Custom Background</span>
+            </button>
+            <button class="account-action" type="button" id="reset-account-button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14" /><path d="M8 7V5h8v2" /><path d="M9 11v5" /><path d="M15 11v5" /><path d="M7 7l1 12h8l1-12" /></svg>
+              <span>Reset Account</span>
+            </button>
+            <button class="account-action" type="button" id="logout-button">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5" /><path d="M15 12H4" /><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4" /></svg>
+              <span>Log Out</span>
+            </button>
+          </div>
+          <p class="auth-status" id="account-status" aria-live="polite"></p>
+        </div>
+      </section>
+    </aside>
+
+    <main class="main">
+      <section class="clan-shell">
+        <div class="clan-summary">
+          <img class="clan-avatar" id="clan-panel-avatar" src="https://i.postimg.cc/3JqVcPXm/default.png" alt="Clan avatar" />
+          <div class="clan-summary-copy">
+            <div>Your Clan:</div>
+            <strong id="clan-panel-name">Clanless</strong>
+            <div>Your Rank:</div>
+            <div class="rank" id="clan-panel-rank">None</div>
+          </div>
+        </div>
+        <div class="clan-divider"></div>
+        <div class="clan-grid">
+          <div class="clan-card" id="clan-recruitment-card">
+            <p>The clan recruitement section let's you create wishlist for your clan and send invitations to retrive new members.</p>
+            <button type="button" id="clan-recruitment-open">Clan Recruitment</button>
+          </div>
+          <div class="clan-card" id="clan-styles-card">
+            <p>The clan Info section let's you customize few things about you clan to give you clan more identity or style.</p>
+            <button type="button" id="clan-info-open">Clan Info</button>
+          </div>
+          <div class="clan-card" id="clan-management-card">
+            <p>The clan management section lets you maintain your members. You can create clanranks and assign these to members.</p>
+            <button type="button" id="clan-management-open">Clan Management</button>
+          </div>
+          <div class="clan-card" id="clan-avatar-card">
+            <p>The clan avatar is an icon or logo which visualizes the clan, it is shown in the profile of a clan.</p>
+            <button type="button" id="clan-avatar-open">Clan Avatar</button>
+          </div>
+          <div class="clan-card" id="clan-invitations-card">
+            <p>The clan invitations sections shows all the invitations you have received from clans. Accepting invitations lets you join the clan.</p>
+            <button type="button" id="clan-invitations-open">Clan Invitations</button>
+          </div>
+          <div class="clan-card" id="clan-register-card">
+            <p>The clan register form lets you create a clan. You can only create your own clan when you are currently clanless.</p>
+            <button type="button" id="clan-register-open">Clan Register</button>
+          </div>
+          <div class="clan-card" id="leave-clan-card">
+            <p>You can always decide to leave your clan. If you leave as the Clan Leader your clan will be disbanded.</p>
+            <button type="button" id="leave-clan-open">Leave Clan</button>
+          </div>
+        </div>
+        <div class="clan-bottom-divider"></div>
+      </section>
+      <div aria-hidden="true" style="display:none;">
+        <img id="release-face-1" alt="" />
+        <img id="release-face-2" alt="" />
+        <img id="release-face-3" alt="" />
+        <div id="release-label-1"></div>
+        <div id="release-label-2"></div>
+        <div id="release-label-3"></div>
+      </div>
+    </main>
+
+    <div class="clan-register-overlay" id="clan-register-overlay">
+      <div class="clan-register-modal" role="dialog" aria-modal="true" aria-labelledby="clan-register-title">
+        <section class="clan-register-section">
+          <div class="clan-register-head" id="clan-register-title">
+            <span class="clan-register-star">✦</span>
+            <span>Creation Details</span>
+          </div>
+          <p class="clan-register-copy">The creator of the clan will be saved, which is the account you are currently logged in with.</p>
+          <div class="clan-register-row">
+            <div class="clan-register-label">Clan Creator:</div>
+            <div class="clan-register-value" id="clan-register-creator">Player</div>
+          </div>
+          <p class="clan-register-copy">The clan will have the following creation date.</p>
+          <div class="clan-register-row">
+            <div class="clan-register-label">Creation Date:</div>
+            <div class="clan-register-value" id="clan-register-date">March 1, 2026</div>
+          </div>
+        </section>
+
+        <section class="clan-register-section">
+          <div class="clan-register-head">
+            <span class="clan-register-star">✦</span>
+            <span>Clan name and abbreviation</span>
+          </div>
+          <p class="clan-register-copy">The clan name is the full name of the clan. The name can have maximum of 35 characters. The name is unique and cannot be changed after the clan has been created.</p>
+          <div class="clan-register-row">
+            <div class="clan-register-label">Clan Name:</div>
+            <div><input class="clan-register-input" id="clan-register-name" type="text" maxlength="35" /></div>
+          </div>
+          <p class="clan-register-copy">The clan abbreviation is the short name of a clan. The abbreviation can have a maximum of 4 characters. The abbreviation cannot be changed after the clan has been created.</p>
+          <div class="clan-register-row">
+            <div class="clan-register-label">Clan Abbreviation:</div>
+            <div><input class="clan-register-input" id="clan-register-abbreviation" type="text" maxlength="4" /></div>
+          </div>
+        </section>
+
+        <section class="clan-register-section">
+          <div class="clan-register-head">
+            <span class="clan-register-star">✦</span>
+            <span>Optional Clan Details</span>
+          </div>
+          <div class="clan-register-row">
+            <div class="clan-register-label">Clan Bio:</div>
+            <div><textarea class="clan-register-textarea" id="clan-register-bio" placeholder="Write something about your clan..."></textarea></div>
+          </div>
+        </section>
+
+        <div class="clan-register-actions">
+          <button class="clan-register-button" type="button" id="clan-register-cancel">Cancel</button>
+          <button class="clan-register-button primary" type="button" id="clan-register-confirm">Create Clan</button>
+        </div>
+        <p class="clan-register-status" id="clan-register-status"></p>
+      </div>
+    </div>
+
+    <div class="clan-register-overlay" id="leave-clan-overlay">
+      <div class="clan-register-modal" role="dialog" aria-modal="true" aria-labelledby="leave-clan-title">
+        <section class="clan-register-section">
+          <div class="clan-register-head" id="leave-clan-title">
+            <span class="clan-register-star">✦</span>
+            <span>Leave Clan</span>
+          </div>
+          <p class="clan-register-copy">Are you sure you want to leave your clan?</p>
+          <p class="clan-register-copy">If you are the only clan leader, the clan will be disbanded for all members.</p>
+        </section>
+
+        <div class="clan-register-actions">
+          <button class="clan-register-button" type="button" id="leave-clan-cancel">Cancel</button>
+          <button class="clan-register-button primary" type="button" id="leave-clan-confirm">Yes, Leave Clan</button>
+        </div>
+        <p class="clan-register-status" id="leave-clan-status"></p>
+      </div>
+    </div>
+
+    <div class="clan-register-overlay" id="clan-recruitment-overlay">
+      <div class="clan-register-modal" role="dialog" aria-modal="true" aria-labelledby="clan-recruitment-title">
+        <section class="clan-register-section">
+          <div class="clan-register-head" id="clan-recruitment-title">
+            <span class="clan-register-star">✦</span>
+            <span>Clan Recruitment</span>
+          </div>
+          <p class="clan-register-copy">Invite a player by username. You can also retract an active invitation sent by your clan.</p>
+          <div class="clan-register-row">
+            <div class="clan-register-label">Player Username:</div>
+            <div><input class="clan-register-input" id="clan-recruitment-username" type="text" maxlength="64" /></div>
+          </div>
+        </section>
+
+        <div class="clan-register-actions">
+          <button class="clan-register-button" type="button" id="clan-recruitment-retract">Retract Invitation</button>
+          <button class="clan-register-button primary" type="button" id="clan-recruitment-invite">Invite Player</button>
+        </div>
+        <p class="clan-register-status" id="clan-recruitment-status"></p>
+
+        <section class="clan-register-section">
+          <div class="clan-register-head">
+            <span class="clan-register-star">✦</span>
+            <span>Outstanding Invitations</span>
+          </div>
+          <div class="quick-games-list" id="clan-recruitment-list"></div>
+        </section>
+
+        <div class="clan-register-actions">
+          <button class="clan-register-button" type="button" id="clan-recruitment-close">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="clan-register-overlay" id="clan-info-overlay">
+      <div class="clan-register-modal" role="dialog" aria-modal="true" aria-labelledby="clan-info-title">
+        <section class="clan-register-section">
+          <div class="clan-register-head" id="clan-info-title">
+            <span class="clan-register-star">✦</span>
+            <span>Clan Info</span>
+          </div>
+          <p class="clan-register-copy">Update your clan name, abbreviation, and bio. Clan name and abbreviation must remain unique.</p>
+          <div class="clan-register-row">
+            <div class="clan-register-label">Clan Name:</div>
+            <div><input class="clan-register-input" id="clan-info-name" type="text" maxlength="35" /></div>
+          </div>
+          <div class="clan-register-row">
+            <div class="clan-register-label">Clan Abbreviation:</div>
+            <div><input class="clan-register-input" id="clan-info-abbreviation" type="text" maxlength="4" /></div>
+          </div>
+          <div class="clan-register-row">
+            <div class="clan-register-label">Clan Bio:</div>
+            <div><textarea class="clan-register-textarea" id="clan-info-bio" placeholder="Write something about your clan..."></textarea></div>
+          </div>
+        </section>
+
+        <div class="clan-register-actions">
+          <button class="clan-register-button" type="button" id="clan-info-cancel">Cancel</button>
+          <button class="clan-register-button primary" type="button" id="clan-info-save">Save Clan Info</button>
+        </div>
+        <p class="clan-register-status" id="clan-info-status"></p>
+      </div>
+    </div>
+
+    <div class="clan-register-overlay" id="clan-avatar-overlay">
+      <div class="clan-register-modal" role="dialog" aria-modal="true" aria-labelledby="clan-avatar-title">
+        <section class="clan-register-section">
+          <div class="clan-register-head" id="clan-avatar-title">
+            <span class="clan-register-star">✦</span>
+            <span>Clan Avatar</span>
+          </div>
+          <div class="clan-register-row">
+            <div class="clan-register-label">Current Clan Avatar:</div>
+            <div><img class="clan-avatar" id="clan-avatar-current-image" src="https://i.postimg.cc/3JqVcPXm/default.png" alt="Current clan avatar" /></div>
+          </div>
+          <div class="clan-register-row">
+            <div class="clan-register-label">Direct URL:</div>
+            <div><input class="clan-register-input" id="clan-avatar-url" type="url" maxlength="2048" /></div>
+          </div>
+          <p class="clan-register-copy">Avatars are to be 75x75 only.</p>
+        </section>
+
+        <div class="clan-register-actions">
+          <button class="clan-register-button" type="button" id="clan-avatar-cancel">Cancel</button>
+          <button class="clan-register-button primary" type="button" id="clan-avatar-save">Save Clan Avatar</button>
+        </div>
+        <p class="clan-register-status" id="clan-avatar-status"></p>
+      </div>
+    </div>
+
+    <div class="clan-register-overlay" id="clan-invitations-overlay">
+      <div class="clan-register-modal" role="dialog" aria-modal="true" aria-labelledby="clan-invitations-title">
+        <section class="clan-register-section">
+          <div class="clan-register-head" id="clan-invitations-title">
+            <span class="clan-register-star">✦</span>
+            <span>Clan Invitations</span>
+          </div>
+          <p class="clan-register-copy">Select an invitation and accept it to join that clan.</p>
+          <div class="quick-games-list" id="clan-invitations-list"></div>
+        </section>
+
+        <div class="clan-register-actions">
+          <button class="clan-register-button" type="button" id="clan-invitations-close">Close</button>
+        </div>
+        <p class="clan-register-status" id="clan-invitations-status"></p>
+      </div>
+    </div>
+
+    <div class="clan-register-overlay" id="clan-management-overlay">
+      <div class="clan-register-modal" role="dialog" aria-modal="true" aria-labelledby="clan-management-title">
+        <section class="clan-register-section">
+          <div class="clan-register-head" id="clan-management-title">
+            <span class="clan-register-star">✦</span>
+            <span>Clan Management</span>
+          </div>
+          <p class="clan-register-copy">Assign custom display names for your clan ranks. These labels are based on the built-in clan permission tiers.</p>
+          <div class="clan-register-row">
+            <div class="clan-register-label">Rank Tier:</div>
+            <div>
+              <select class="clan-register-input" id="clan-rank-tier-select">
+                <option value="clanLeader">Clan Leader</option>
+                <option value="leader">Leader</option>
+                <option value="captain">Captain</option>
+                <option value="lieutenant">Lieutenant</option>
+                <option value="member">Member</option>
+                <option value="trial">Trial</option>
+              </select>
+            </div>
+          </div>
+          <div class="clan-register-row">
+            <div class="clan-register-label">Custom Rank Name:</div>
+            <div><input class="clan-register-input" id="clan-rank-custom-name" type="text" maxlength="40" /></div>
+          </div>
+          <div class="clan-register-row">
+            <div class="clan-register-label">Existing Custom Ranks:</div>
+            <div>
+              <select class="clan-register-input" id="clan-rank-existing-select">
+                <option value="">Create New Custom Rank</option>
+              </select>
+            </div>
+          </div>
+          <div class="clan-register-actions">
+            <button class="clan-register-button primary" type="button" id="clan-rank-custom-save">Save Custom Rank Name</button>
+            <button class="clan-register-button" type="button" id="clan-rank-custom-delete">Delete Custom Rank</button>
+          </div>
+          <br>
+          <p class="clan-register-copy">Clan Leader- Can invite players, assign ranks, manage clan info and clan avatar.</p>
+          <p class="clan-register-copy">Leader- Can invite players, assign ranks, and manage clan avatar.</p>
+          <p class="clan-register-copy">Captain - Can invite players and assign ranks.</p>
+          <p class="clan-register-copy">Lieutenant - Can invite players.</p>
+          <p class="clan-register-copy">Member - No extra permissions yet.</p>
+          <p class="clan-register-copy">Trial - No extra permissions yet.</p>
+        </section>
+
+        <section class="clan-register-section">
+          <div class="clan-register-head">
+            <span class="clan-register-star">✦</span>
+            <span>Assign Member Rank</span>
+          </div>
+          <p class="clan-register-copy">Choose a clan member, including yourself, and assign them to one of the rank tiers above.</p>
+          <div class="clan-register-row">
+            <div class="clan-register-label">Member:</div>
+            <div>
+              <select class="clan-register-input" id="clan-member-select"></select>
+            </div>
+          </div>
+          <div class="clan-register-row">
+            <div class="clan-register-label">Rank Tier:</div>
+            <div>
+              <select class="clan-register-input" id="clan-member-rank-select">
+                <option value="clanLeader">Clan Leader</option>
+                <option value="leader">Leader</option>
+                <option value="captain">Captain</option>
+                <option value="lieutenant">Lieutenant</option>
+                <option value="member">Member</option>
+                <option value="trial">Trial</option>
+              </select>
+            </div>
+          </div>
+          <div class="clan-register-actions">
+            <button class="clan-register-button primary" type="button" id="clan-member-rank-assign">Assign Selected Rank</button>
+          </div>
+          <div class="quick-games-list" id="clan-member-list"></div>
+        </section>
+
+        <div class="clan-register-actions">
+          <button class="clan-register-button" type="button" id="clan-management-cancel">Close</button>
+        </div>
+        <p class="clan-register-status" id="clan-management-status"></p>
+      </div>
+    </div>
+
+    <aside class="aside">
+      <section class="ladder">
+        <h3 class="ladder-title">Top 10 Player Levels</h3>
+        <div class="ladder-list" id="sidebar-top-player-levels"></div>
+      </section>
+      <section class="ladder">
+        <h3 class="ladder-title">Top 10 Clan Levels</h3>
+        <div class="ladder-list" id="sidebar-top-clan-levels"></div>
+      </section>
+      <section class="stats-panel">
+        <div class="stats-group">
+          <h3 class="stats-title">Top 10 Winstreak</h3>
+          <ol class="stats-list" id="sidebar-top-current-streaks"></ol>
+        </div>
+        <div class="stats-group">
+          <h3 class="stats-title">Top 10 Wins</h3>
+          <ol class="stats-list" id="sidebar-top-wins"></ol>
+        </div>
+        <div class="stats-group">
+          <h3 class="stats-title">Top 20 Highest Win Streak</h3>
+          <ol class="stats-list" id="sidebar-top-highest-streaks"></ol>
+        </div>
+      </section>
+    </aside>
+  </div>
+  <script src="./index.js" defer></script>
+</body>
+</html>

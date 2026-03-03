@@ -16,6 +16,16 @@ body {
     text-transform: uppercase;
 }
 
+body.custom-game-cursor,
+body.custom-game-cursor * {
+    cursor: url('cursor.png') 0 0, auto !important;
+}
+
+body.custom-game-cursor.cursor-clicking,
+body.custom-game-cursor.cursor-clicking * {
+    cursor: url('cursor_click.png') 0 0, auto !important;
+}
+
 h1, h2, h3 {
     font-family: 'Petra', serif;
 }
@@ -227,8 +237,8 @@ text-transform: uppercase;
 }
 
 .player-avatar {
-    width: 80px;
-    height: 80px;
+    width: 75px;
+    height: 75px;
     border: 1px solid #000000;
     margin-right: 10px;
 }
@@ -236,7 +246,11 @@ text-transform: uppercase;
 .player-info {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
+    position:relative;
+        max-width: 183px;
+      min-width: 183px;
+    left: -66px;
+        align-items: flex-end;
 }
 
 .player-inforight {
@@ -577,6 +591,92 @@ text-transform: uppercase;
     display: flex;
 }
 
+.private-match-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 5;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 770px;
+    height: 560px;
+}
+
+.private-match-backdrop.visible {
+    display: flex;
+}
+
+.private-match-modal {
+    background: url("searchingscroll.png") no-repeat;
+    width: 391px;
+    height: 290px;
+    position: relative;
+    top: -30px;
+    left: -10px;
+    z-index: 6;
+}
+
+.private-match-title {
+    margin-top: 50px;
+    margin-left: 125px;
+    width: 200px;
+    text-align: center;
+}
+
+.private-match-input {
+    position: absolute;
+    top: 120px;
+    left: 120px;
+    width: 200px;
+    height: 24px;
+    padding: 2px 6px;
+    font-family: 'Franklin', Arial, sans-serif;
+    font-size: 14px;
+    text-transform: none;
+    box-sizing: border-box;
+    text-align: center;
+}
+
+.private-match-error {
+    position: absolute;
+    top: 136px;
+    left: 48px;
+    width: 295px;
+    min-height: 18px;
+    margin: 0;
+    color: #c41e3a;
+    font-size: 12px;
+    text-align: center;
+    text-transform: none;
+}
+
+.private-match-ok,
+.private-match-cancel {
+    position: absolute;
+    top: 215px;
+    background-color: #fbe9b8;
+    border: 1px solid #000000;
+    color: #141414;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    width: 88px;
+    height: 25px;
+    font-family: 'Pedra';
+    outline: none;
+    box-shadow: none;
+}
+
+.private-match-ok {
+    left: 120px;
+}
+
+.private-match-cancel {
+    left: 230px;
+}
+
 .searchingscroll {
     background: url("searchingscroll.png") no-repeat;
     width: 391px;
@@ -589,7 +689,9 @@ text-transform: uppercase;
 
 .searching {
     margin-top: 50px;
-    margin-left: 125px
+    margin-left: 125px;
+    width: 200px;
+    text-align: center;
 }
 
 .sasukesearch {
@@ -674,7 +776,10 @@ text-transform: uppercase;
     flex-direction: row;
     position:relative;
     left: -68px;
-    top: -13px;
+    top: -12px;
+            max-width: 183px;
+      min-width: 183px;
+    left: -61px;
 }
 
 .player-name {
@@ -702,6 +807,11 @@ text-transform: uppercase;
     width: 48px;
     height:48px;
     border: 1px solid #000;
+}
+
+.player-avatar-left {
+    left: 126px;
+    position: absolute
 }
 
 .ready-section {
@@ -880,8 +990,10 @@ text-transform: uppercase;
 }
 
 .player-characters {
-    gap: 53px;
+    gap: 56px;
     display: flex;
+    position:relative;
+    left: -2px;
     flex-direction: column;
 }
 
@@ -1037,7 +1149,7 @@ text-transform: uppercase;
 
 .bottomrender {
         width: 153px;
-        height: 155px;
+        height: 149px;
         overflow: hidden;
         left: 125px;
         top: 15px;
@@ -1530,7 +1642,11 @@ text-transform: uppercase;
     margin-top:100px;
     cursor: pointer;
     padding: 0;
+    position: absolute;
+    top: 100px;
 }
+
+
 
 .battle-end-continue:focus {
     outline: none;
@@ -1640,4 +1756,16 @@ text-transform: uppercase;
     font-size: 11px;
     color: grey;
     margin-left: -2px;
+}
+
+.rank-hat {
+    position: absolute;
+    left: -22px;
+    top: -22px;
+    z-index: 99999;
+}
+
+.rank-hat.rank-hat-offset-left {
+    left: -33px;
+    z-index: 99999;
 }

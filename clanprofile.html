@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Naruto-Arena Home</title>
+  <title>Naruto-Arena Clan Profile</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -549,6 +549,256 @@
       color: #fff;
     }
 
+    .clan-profile-layout {
+      display: grid;
+      gap: 18px;
+    }
+
+    .clan-profile-panel {
+      padding: 18px;
+      border-radius: 18px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.015) 100%),
+        rgba(5, 5, 5, 0.96);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+
+    .clan-profile-header {
+      display: grid;
+      grid-template-columns: 75px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .clan-profile-avatar {
+      width: 75px;
+      height: 75px;
+      display: block;
+      object-fit: cover;
+      box-sizing: content-box;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .clan-profile-block-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding-bottom: 4px;
+      border-bottom: 1px dotted rgba(255, 255, 255, 0.28);
+      color: #ffffff;
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .clan-profile-star {
+      color: #ff8c1a;
+      font-size: 13px;
+    }
+
+    .clan-profile-info-table {
+      display: grid;
+      gap: 3px;
+    }
+
+    .clan-profile-info-row {
+      display: grid;
+      grid-template-columns: 140px minmax(0, 1fr);
+      gap: 10px;
+      min-height: 26px;
+      align-items: center;
+      padding: 3px 8px;
+      background: rgba(255, 255, 255, 0.04);
+      font-size: 14px;
+    }
+
+    .clan-profile-label {
+      color: #e6e6e6;
+    }
+
+    .clan-profile-value {
+      color: #f5f5f5;
+      min-width: 0;
+      word-break: break-word;
+    }
+
+    .clan-profile-value.accent {
+      color: #ff8c1a;
+      font-weight: 700;
+    }
+
+    .clan-profile-bio {
+      min-height: 84px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.03);
+      color: #e2e2e2;
+      font-size: 14px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .clan-profile-level-meter {
+      position: relative;
+      width: 100%;
+      max-width: 180px;
+      height: 18px;
+      overflow: hidden;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: #ffffff;
+    }
+
+    .clan-profile-level-fill {
+      position: absolute;
+      inset: 0 auto 0 0;
+      height: 100%;
+      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
+      box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.08);
+    }
+
+    .clan-profile-level-score {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: #000000;
+      font-size: 11px;
+      font-weight: 800;
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.6);
+    }
+
+    .clan-profile-member-list {
+      display: grid;
+      gap: 18px;
+    }
+
+    .clan-profile-member-heading {
+      margin: 0;
+      color: #f4f4f4;
+      font-size: 28px;
+      font-weight: 700;
+    }
+
+    .clan-profile-member-group {
+      display: grid;
+      gap: 8px;
+    }
+
+    .clan-profile-member-rank {
+      margin: 0;
+      color: #ffb84d;
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .clan-profile-member-table {
+      display: grid;
+      gap: 0;
+    }
+
+    .clan-profile-member-row {
+      display: grid;
+      grid-template-columns: 160px minmax(0, 1fr) 180px;
+      align-items: center;
+      gap: 0;
+      border-top: 1px dotted rgba(255, 255, 255, 0.22);
+      padding: 6px 0;
+    }
+
+    .clan-profile-member-row:last-child {
+      border-bottom: 1px dotted rgba(255, 255, 255, 0.22);
+    }
+
+    .clan-profile-member-row-header {
+      color: #d9d9d9;
+      font-size: 13px;
+      font-weight: 700;
+      padding-top: 0;
+    }
+
+    .clan-profile-member-cell {
+      min-width: 0;
+      padding: 0 8px;
+      color: #ededed;
+      font-size: 14px;
+      word-break: break-word;
+    }
+
+    .clan-profile-member-cell a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .clan-profile-member-cell a:hover {
+      color: #ffcf8c;
+    }
+
+    .clan-profile-member-card {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 8px;
+      align-items: center;
+      padding: 0 8px;
+    }
+
+    .clan-profile-member-avatar {
+      width: 26px;
+      height: 26px;
+      display: block;
+      object-fit: cover;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-sizing: content-box;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .clan-profile-member-level {
+      position: relative;
+      height: 16px;
+      overflow: hidden;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: #ffffff;
+    }
+
+    .clan-profile-member-level-fill {
+      position: absolute;
+      inset: 0 auto 0 0;
+      height: 100%;
+      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
+    }
+
+    .clan-profile-member-level-score {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: 10px;
+      font-weight: 800;
+      color: #000000;
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.6);
+    }
+
+    .clan-profile-member-date {
+      color: #c9c9c9;
+      font-style: italic;
+    }
+
+    .clan-profile-empty,
+    .clan-profile-status {
+      min-height: 18px;
+      margin: 0;
+      color: #d2d2d2;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .clan-profile-status[data-state="error"] {
+      color: #ff8f8f;
+    }
+
     .slider-dots {
       display: flex;
       justify-content: center;
@@ -707,7 +957,7 @@
       height: 18px;
       width: 100%;
       border: 1px solid rgba(255, 255, 255, 0.05);
-      background: #ffffff;
+      background: #171717;
       position: relative;
       overflow: hidden;
       border-radius: 999px;
@@ -726,7 +976,7 @@
       place-items: center;
       font-size: 10px;
       font-weight: 800;
-      color: #000000;
+      color: #fff;
       letter-spacing: 0.03em;
       text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
     }
@@ -979,37 +1229,98 @@
 
     <main class="main">
 
-      <section class="release-panel">
-        <h2 class="release-title">Latest Character Releases</h2>
-        <div class="release-grid">
-          <div class="release-card">
-            <img class="release-face" id="release-face-1" alt="Latest character 1" />
-            <div class="release-label" id="release-label-1"></div>
+      <div class="clan-profile-layout">
+        <section class="clan-profile-panel">
+          <div class="clan-profile-header">
+            <img
+              class="clan-profile-avatar"
+              id="clan-profile-avatar-image"
+              src="https://i.postimg.cc/3JqVcPXm/default.png"
+              alt="Clan avatar"
+            />
+            <div class="clan-profile-block">
+              <div class="clan-profile-block-head">
+                <span class="clan-profile-star">✦</span>
+                <span>Clan information</span>
+              </div>
+              <div class="clan-profile-info-table">
+                <div class="clan-profile-info-row">
+                  <div class="clan-profile-label">Clan name:</div>
+                  <div class="clan-profile-value accent" id="clan-profile-name">No clan selected</div>
+                </div>
+                <div class="clan-profile-info-row">
+                  <div class="clan-profile-label">Abbreviation:</div>
+                  <div class="clan-profile-value" id="clan-profile-abbreviation">-</div>
+                </div>
+                <div class="clan-profile-info-row">
+                  <div class="clan-profile-label">Creator of Clan:</div>
+                  <div class="clan-profile-value" id="clan-profile-creator">-</div>
+                </div>
+                <div class="clan-profile-info-row">
+                  <div class="clan-profile-label">Registered on:</div>
+                  <div class="clan-profile-value" id="clan-profile-registered-on">-</div>
+                </div>
+              </div>
+            </div>
           </div>
-          <div class="release-card">
-            <img class="release-face" id="release-face-2" alt="Latest character 2" />
-            <div class="release-label" id="release-label-2"></div>
+        </section>
+
+        <section class="clan-profile-panel">
+          <div class="clan-profile-block-head">
+            <span class="clan-profile-star">✦</span>
+            <span>Clan Biography</span>
           </div>
-          <div class="release-card">
-            <img class="release-face" id="release-face-3" alt="Latest character 3" />
-            <div class="release-label" id="release-label-3"></div>
+          <div class="clan-profile-bio" id="clan-profile-biography">No clan biography available.</div>
+        </section>
+
+        <section class="clan-profile-panel">
+          <div class="clan-profile-block-head">
+            <span class="clan-profile-star">✦</span>
+            <span>Clan Ladder</span>
           </div>
-        </div>
-      </section>
+          <div class="clan-profile-info-table">
+            <div class="clan-profile-info-row">
+              <div class="clan-profile-label">Level:</div>
+              <div class="clan-profile-value">
+                <div class="clan-profile-level-meter">
+                  <div class="clan-profile-level-fill" id="clan-profile-level-fill" style="width: 1%;"></div>
+                  <div class="clan-profile-level-score" id="clan-profile-level">1</div>
+                </div>
+              </div>
+            </div>
+            <div class="clan-profile-info-row">
+              <div class="clan-profile-label">Experience Points:</div>
+              <div class="clan-profile-value" id="clan-profile-experience-points">0 xp</div>
+            </div>
+            <div class="clan-profile-info-row">
+              <div class="clan-profile-label">Clan EXP:</div>
+              <div class="clan-profile-value" id="clan-profile-clan-experience-points">0 xp</div>
+            </div>
+            <div class="clan-profile-info-row">
+              <div class="clan-profile-label">Ladder Rank:</div>
+              <div class="clan-profile-value" id="clan-profile-ladder-rank">Not Ranked</div>
+            </div>
+            <div class="clan-profile-info-row">
+              <div class="clan-profile-label">Wins:</div>
+              <div class="clan-profile-value" id="clan-profile-wins">0</div>
+            </div>
+            <div class="clan-profile-info-row">
+              <div class="clan-profile-label">Losses:</div>
+              <div class="clan-profile-value" id="clan-profile-losses">0</div>
+            </div>
+            <div class="clan-profile-info-row">
+              <div class="clan-profile-label">Win percentage:</div>
+              <div class="clan-profile-value" id="clan-profile-win-percentage">0.00 %</div>
+            </div>
+          </div>
+        </section>
 
-
-      <section class="mainsection">
-        <h1 class="mainsection-kicker">First News Post</h1></h1>
-        <p class="mainsection-meta">&raquo; Saturday, February 28th, 2026 at 15:29 by <span class="byline">Lily</span></p>
-        <div class="mainsection-body">
-          <p>Welcome to the First Post of Naruto-Arena K Edition.</p>
-          <p>
-This is a passion project of Kien/Kito. Coded entirely by Lily. 
-          </p>
-
-
-        </div>
-      </section>
+        <section class="clan-profile-panel">
+          <h2 class="clan-profile-member-heading">Memberlist</h2>
+          <div class="clan-profile-member-list" id="clan-profile-member-list"></div>
+          <p class="clan-profile-status" id="clan-profile-status" aria-live="polite"></p>
+        </section>
+      </div>
 
     </main>
 
