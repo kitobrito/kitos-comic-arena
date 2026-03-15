@@ -1242,8 +1242,6 @@ const characters = [
                             "harmful": true,
                             "cannotBeEvaded": true,
                             "uniqueEnemyMarkFromSource": true,
-                            "bonusDamageFromSourceSkillsFlat": 10,
-                            "bonusDamageFromSourceCharacterId": "aburame-shino",
                             "cannotEvadeFromSourceCharacterId": "aburame-shino",
                             "ignoreInvulnerabilityFromSourceCharacterId": "aburame-shino",
                             "tooltipText": "Marked by Female Bug: Shino's skills are improved on this enemy, they will also ignore invulnerability and cannot be evaded."
@@ -1271,29 +1269,24 @@ const characters = [
                 ],
                 "effects": [
                     {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "condition": {
-                            "statusId": "aburame_shino_female_bug",
-                            "scope": "target",
-                            "conditionalAmount": 10
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true,
-                            "afflictionDamage": true
-                        }
-                    },
-                    {
                         "type": "apply_status",
                         "statusId": "aburame_shino_infestation_perma_debuff",
                         "duration": 99,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
+                            "infiniteDuration": true,
+                            "mergeNumericAddKeys": [
+                                "turnEndDamage",
+                                "NonAfflictionDamageDebuff"
+                            ],
+                            "turnEndDamage": 5,
+                            "afflictionDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
                             "NonAfflictionDamageDebuff": 5,
-                            "tooltipText": "This character deals 5 less non-affliction damage."
+                            "tooltipTextTemplate": "This character takes {turnEndDamage} permanent affliction damage and deals {NonAfflictionDamageDebuff} less non-affliction damage."
                         }
                     },
                     {
@@ -1307,8 +1300,18 @@ const characters = [
                         },
                         "metadata": {
                             "harmful": true,
+                            "infiniteDuration": true,
+                            "mergeNumericAddKeys": [
+                                "turnEndDamage",
+                                "NonAfflictionDamageDebuff"
+                            ],
+                            "turnEndDamage": 5,
+                            "afflictionDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
                             "NonAfflictionDamageDebuff": 5,
-                            "tooltipText": "This character deals 5 less non-affliction damage."
+                            "tooltipTextTemplate": "This character takes {turnEndDamage} permanent affliction damage and deals {NonAfflictionDamageDebuff} less non-affliction damage."
                         }
                     }
                 ]
@@ -7057,11 +7060,19 @@ const characters = [
                     {
                         "type": "damage",
                         "amount": 20,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "target",
                         "condition": {
                             "statusId": "konohamaru_unsteady_shuriken_bonus",
                             "scope": "self",
-                            "conditionalAmount": 25,
                             "consumeOnMatch": true
+                        },
+                        "metadata": {
+                            "ignoreSourceNonAfflictionDamageBonus": true
                         }
                     },
                     {

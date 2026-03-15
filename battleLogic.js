@@ -603,6 +603,18 @@ const doesEffectConditionMatch = ({ condition, actorState, targetState, actorUni
     return true;
 };
 
+const isConditionalDamageOverrideOnly = (condition) => {
+    if (!condition || typeof condition !== 'object') return false;
+    if (!Number.isFinite(condition?.conditionalAmount)) return false;
+    const recognizedKeys = new Set([
+        'statusId',
+        'scope',
+        'conditionalAmount',
+        'consumeOnMatch',
+    ]);
+    return Object.keys(condition).every((key) => recognizedKeys.has(key));
+};
+
 const applyStatus = ({
     targetState,
     statusId,
@@ -2509,8 +2521,15 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     }
                     const condition = effect?.condition;
                     if (condition) {
-                        if (!doesEffectConditionMatch({ condition, actorState, targetState, actorUnit, targetUnit: recipient.unit })) return;
-                        if (condition.consumeOnMatch && condition.statusId) {
+                        const conditionMatches = doesEffectConditionMatch({
+                            condition,
+                            actorState,
+                            targetState,
+                            actorUnit,
+                            targetUnit: recipient.unit,
+                        });
+                        if (!conditionMatches && !isConditionalDamageOverrideOnly(condition)) return;
+                        if (conditionMatches && condition.consumeOnMatch && condition.statusId) {
                             const scope = condition.scope === 'target' ? 'target' : 'self';
                             const scopedState = scope === 'target' ? targetState : actorState;
                             consumeStatus(scopedState, condition.statusId);
@@ -3558,7 +3577,7 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
         const units = match.board?.[username] || [];
     units.forEach((unit, unitSlot) => {
         const actorState = ensureUnitStateShape(unit);
-        const endedByControl = new Set();
+        const endedOngoingStatuses = new Set();
         const pendingExpireStatuses = [];
         actorState.statuses.forEach((status) => {
                 if (!status || (status.remainingTurns || 0) <= 0) return;
@@ -3572,6 +3591,10 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                         ? match.board?.[status.sourceUsername]?.[Number(status.sourceSlot)] || null
                         : null;
                 const sourceState = sourceUnit ? ensureUnitStateShape(sourceUnit) : null;
+                const sourceDead =
+                    Boolean(status?.sourceUsername) &&
+                    Number.isInteger(status?.sourceSlot) &&
+                    (!sourceUnit || sourceUnit.alive === false);
                 const sourceStunned = sourceState
                     ? Boolean(getStatusMetadataTotals(sourceState).cannotUseSkills)
                     : false;
@@ -3588,9 +3611,17 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                     ? Number(getStatusMetadataTotals(sourceState).nonAfflictionDamageDebuffFlat) || 0
                     : 0;
                 const targetInvulnerable = isUnitInvulnerable(unit);
+                if (
+                    (ongoingClass === 'control' || ongoingClass === 'action') &&
+                    sourceDead &&
+                    status?.id
+                ) {
+                    endedOngoingStatuses.add(status.id);
+                    return;
+                }
                 if (ongoingClass === 'control' && (sourceStunned || targetInvulnerable)) {
                     if (status?.id) {
-                        endedByControl.add(status.id);
+                        endedOngoingStatuses.add(status.id);
                     }
                     return;
                 }
@@ -3947,7 +3978,7 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
             actorState.statuses = actorState.statuses
                 .map((status) => {
                     if (!status || (status.remainingTurns || 0) <= 0) return null;
-                    if (status?.id && endedByControl.has(status.id)) return null;
+                    if (status?.id && endedOngoingStatuses.has(status.id)) return null;
                     const remaining = Number(status?.remainingTurns) || 0;
                     if (remaining >= 99 || Boolean(status?.metadata?.infiniteDuration)) {
                         if (status.fresh) {

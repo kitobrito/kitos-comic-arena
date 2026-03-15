@@ -841,6 +841,68 @@ document.addEventListener('DOMContentLoaded', async () => {
             return totalPool(leftover) >= random;
         };
 
+        const getPendingReservationState = (excludedActorSlot = null) => {
+            const pending = normalizePendingTurn(pendingTurnState);
+            const remainingPool = normalizePool(playerPoolState);
+            const randomAssignments = normalizePool(pending.randomAssignments);
+            let totalQueuedRandom = 0;
+            let excludedQueuedRandom = 0;
+
+            Object.values(pending.queuedByActorSlot || {}).forEach((queued) => {
+                const queuedActorSlot = Number.parseInt(queued?.actorSlot, 10);
+                const queuedRequiredRandom = Math.max(0, Number(queued?.requiredRandom) || 0);
+                totalQueuedRandom += queuedRequiredRandom;
+                if (Number.isInteger(excludedActorSlot) && queuedActorSlot === excludedActorSlot) {
+                    excludedQueuedRandom += queuedRequiredRandom;
+                    return;
+                }
+                const reservedSpecific =
+                    queued?.reservedSpecific && typeof queued.reservedSpecific === 'object'
+                        ? queued.reservedSpecific
+                        : {};
+                chakraTypes.forEach((type) => {
+                    remainingPool[type] = Math.max(
+                        0,
+                        (Number(remainingPool[type]) || 0) - (Number(reservedSpecific[type]) || 0)
+                    );
+                });
+            });
+
+            chakraTypes.forEach((type) => {
+                remainingPool[type] = Math.max(
+                    0,
+                    (Number(remainingPool[type]) || 0) - (Number(randomAssignments[type]) || 0)
+                );
+            });
+
+            const assignedRandomTotal = totalPool(randomAssignments);
+            const queuedRandomExcludingActor = Math.max(0, totalQueuedRandom - excludedQueuedRandom);
+            const reservedRandomTotal = Math.max(0, queuedRandomExcludingActor - assignedRandomTotal);
+
+            return {
+                remainingPool,
+                reservedRandomTotal,
+            };
+        };
+
+        const canAffordSkillWithPendingReservations = (energy = [], actorSlot = null, skill = null) => {
+            const { remainingPool, reservedRandomTotal } = getPendingReservationState(actorSlot);
+            const effectiveEnergy = getEffectiveEnergyList(energy, actorSlot, skill);
+            const { specific, random } = getEnergyCost(effectiveEnergy);
+            for (const type of chakraTypes) {
+                if ((Number(remainingPool[type]) || 0) < specific[type]) {
+                    return false;
+                }
+            }
+            const leftover = {
+                taijutsu: (Number(remainingPool.taijutsu) || 0) - specific.taijutsu,
+                ninjutsu: (Number(remainingPool.ninjutsu) || 0) - specific.ninjutsu,
+                bloodline: (Number(remainingPool.bloodline) || 0) - specific.bloodline,
+                genjutsu: (Number(remainingPool.genjutsu) || 0) - specific.genjutsu,
+            };
+            return totalPool(leftover) >= reservedRandomTotal + random;
+        };
+
         const getQueuedSkillForActorSlot = (actorSlot) => {
             const pending = normalizePendingTurn(pendingTurnState);
             return pending.queuedByActorSlot?.[String(actorSlot)] || null;
@@ -987,9 +1049,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     imgEl.style.opacity = '1';
                     return;
                 }
-                imgEl.style.opacity = canAffordSkill(
+                imgEl.style.opacity = canAffordSkillWithPendingReservations(
                     effectiveSkill?.energy,
-                    playerPoolState,
                     meta.actorSlot,
                     effectiveSkill
                 )
@@ -1808,6 +1869,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const groupedNonAfflictionDebuffTotal = groupStatuses.reduce((sum, status) => {
                     return sum + Math.max(0, Number(status?.metadata?.NonAfflictionDamageDebuff) || 0);
                 }, 0);
+                const groupedTurnEndDamageTotal = groupStatuses.reduce((sum, status) => {
+                    return sum + Math.max(0, Number(status?.metadata?.turnEndDamage) || 0);
+                }, 0);
                 const formatTurnsLabel = (remainingTurns) => {
                     const remaining = Math.max(0, Number(remainingTurns) || 0);
                     if (remaining >= 99) return 'Infinite';
@@ -1849,6 +1913,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                             if (key === 'restoreTurnsLeft') {
                                 return String(restoreTurnsLeft);
                             }
+                            if (key === 'turnEndDamage' && groupedTurnEndDamageTotal > 0) {
+                                return String(groupedTurnEndDamageTotal);
+                            }
+                            if (key === 'NonAfflictionDamageDebuff' && groupedNonAfflictionDebuffTotal > 0) {
+                                return String(groupedNonAfflictionDebuffTotal);
+                            }
+                            if (key === 'DamageDebuff' && groupedDamageDebuffTotal > 0) {
+                                return String(groupedDamageDebuffTotal);
+                            }
                             const rawValue = statusMetadata?.[key];
                             if (rawValue === null || rawValue === undefined) {
                                 return `{${key}}`;
@@ -1859,7 +1932,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                             return String(rawValue);
                         });
                     }
-                    if (groupedNonAfflictionDebuffTotal > 0) {
+                    const hasCustomTooltipText = Boolean(statusMetadata?.tooltipText || runtimeTooltipTemplate);
+                    if (groupedNonAfflictionDebuffTotal > 0 && !hasCustomTooltipText) {
                         const ownDebuff = Math.max(
                             0,
                             Number(status?.metadata?.NonAfflictionDamageDebuff) || 0
@@ -1868,7 +1942,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             text = `This character deals ${groupedNonAfflictionDebuffTotal} less non-affliction damage.`;
                         }
                     }
-                    if (groupedDamageDebuffTotal > 0) {
+                    if (groupedDamageDebuffTotal > 0 && !hasCustomTooltipText) {
                         const ownDebuff = Math.max(0, Number(status?.metadata?.DamageDebuff) || 0);
                         if (ownDebuff > 0) {
                             text = `This character deals ${groupedDamageDebuffTotal} less damage.`;
