@@ -19,6 +19,15 @@ const ensureUnitStateShape = (unit) => {
     if (!unit.state.cooldowns || typeof unit.state.cooldowns !== 'object') {
         unit.state.cooldowns = {};
     }
+    if (!unit.state._cooldownsStartedThisTurn || typeof unit.state._cooldownsStartedThisTurn !== 'object') {
+        unit.state._cooldownsStartedThisTurn = {};
+    }
+    if (typeof unit.state._lastEvadeTurnMarker !== 'string') {
+        unit.state._lastEvadeTurnMarker = '';
+    }
+    if (!unit.state.snapshots || typeof unit.state.snapshots !== 'object') {
+        unit.state.snapshots = {};
+    }
     return unit.state;
 };
 
@@ -75,20 +84,31 @@ const resolveEffectiveSkill = ({ characters, rosterIndex, skillIndex, actorState
     const baseSkill = character?.skills?.[skillIndex] || null;
     if (!baseSkill) return null;
     const replacementMap = buildSkillReplacementMap(actorState);
-    const replacementId = replacementMap[baseSkill.id];
-    if (!replacementId) return baseSkill;
-    const replacementSkill =
-        (Array.isArray(character?.skills) ? character.skills : []).find((skill) => skill?.id === replacementId) ||
-        null;
-    return replacementSkill || baseSkill;
+    let resolvedSkill = baseSkill;
+    const visited = new Set();
+    while (resolvedSkill?.id && replacementMap[resolvedSkill.id] && !visited.has(resolvedSkill.id)) {
+        visited.add(resolvedSkill.id);
+        const replacementId = replacementMap[resolvedSkill.id];
+        const replacementSkill =
+            (Array.isArray(character?.skills) ? character.skills : []).find((skill) => skill?.id === replacementId) ||
+            null;
+        if (!replacementSkill) {
+            break;
+        }
+        resolvedSkill = replacementSkill;
+    }
+    return resolvedSkill || baseSkill;
 };
 
 const getStatusMetadataTotals = (actorState) => {
     const totals = {
         damageReductionFlat: 0,
         damageReductionPercent: 0,
+        unpierceableDamageReductionFlat: 0,
         physicalDamageReductionFlat: 0,
         damageTakenMultiplier: 1,
+        healReceivedMultiplier: 1,
+        minimumHp: 0,
         randomCostReduction: 0,
         randomCostIncrease: 0,
         taijutsuCostReduction: 0,
@@ -110,11 +130,16 @@ const getStatusMetadataTotals = (actorState) => {
     statuses.forEach((status) => {
         const metadata = status?.metadata || {};
         totals.damageReductionFlat += Number(metadata.damageReductionFlat) || 0;
+        totals.unpierceableDamageReductionFlat += Number(metadata.unpierceableDamageReductionFlat) || 0;
         totals.damageReductionPercent += Math.max(0, Number(metadata.damageReductionPercent) || 0);
         totals.physicalDamageReductionFlat += Number(metadata.physicalDamageReductionFlat) || 0;
         if (Number.isFinite(metadata.damageTakenMultiplier)) {
             totals.damageTakenMultiplier *= Math.max(0, Number(metadata.damageTakenMultiplier) || 1);
         }
+        if (Number.isFinite(metadata.healReceivedMultiplier)) {
+            totals.healReceivedMultiplier *= Math.max(0, Number(metadata.healReceivedMultiplier) || 1);
+        }
+        totals.minimumHp = Math.max(totals.minimumHp, Math.max(0, Number(metadata.minimumHp) || 0));
         totals.randomCostReduction += Number(metadata.randomCostReduction) || 0;
         totals.randomCostIncrease += Number(metadata.randomCostIncrease) || 0;
         totals.taijutsuCostReduction += Number(metadata.taijutsuCostReduction) || 0;
@@ -147,6 +172,16 @@ const getSkillCooldownRemaining = (actorState, skillId) => {
     const cooldowns =
         actorState.cooldowns && typeof actorState.cooldowns === 'object' ? actorState.cooldowns : {};
     return Math.max(0, Number(cooldowns[skillId]) || 0);
+};
+
+const getCharacterCooldownSkillIds = ({ characters, unit }) => {
+    const rosterIndex = Number.isInteger(unit?.rosterIndex) ? Number(unit.rosterIndex) : null;
+    const character = Number.isInteger(rosterIndex) && Array.isArray(characters) ? characters[rosterIndex] : null;
+    if (!character) return [];
+    const activeIndices = getCharacterActiveSkillIndices(character);
+    return activeIndices
+        .map((index) => character?.skills?.[index]?.id)
+        .filter((skillId) => typeof skillId === 'string' && skillId);
 };
 
 const isActorUnableToUseSkills = (actorState) => getStatusMetadataTotals(actorState).cannotUseSkills;
@@ -182,6 +217,12 @@ const isUnitInvulnerableForSkill = (unit, skillClasses = []) => {
         const metadata = status?.metadata || {};
         if (metadata.invulnerable) return true;
         if (metadata.invulnerableToNonAffliction && !afflictionSkill) return true;
+        if (
+            Array.isArray(metadata.invulnerableToSkillClasses) &&
+            metadata.invulnerableToSkillClasses.some((entry) => hasSkillClass(skillClasses, entry))
+        ) {
+            return true;
+        }
     }
     return false;
 };
@@ -221,11 +262,63 @@ const canActorTargetUnit = ({ actorState, targetUsername, targetSlot }) => {
     return true;
 };
 
+const isUnitInvulnerableToHelpfulSkills = (unit) => {
+    if (!unit) return false;
+    const state = ensureUnitStateShape(unit);
+    const statuses = Array.isArray(state?.statuses) ? state.statuses : [];
+    return statuses.some((status) => {
+        const remaining = Number(status?.remainingTurns) || 0;
+        if (remaining <= 0) return false;
+        return Boolean(status?.metadata?.invulnerableToHelpfulSkills);
+    });
+};
+
+const doesEffectTargetHelpfulRecipient = ({ effect, recipient, actingUsername }) => {
+    if (!effect || !recipient || !actingUsername) return false;
+    if (recipient.username !== actingUsername) return false;
+    const scope = typeof effect?.scope === 'string' ? effect.scope.trim().toLowerCase() : '';
+    return scope === 'self' || scope === 'target' || scope === 'all-allies';
+};
+
+const filterHelpfulImmuneRecipients = ({ effect, recipients, actingUsername }) =>
+    (Array.isArray(recipients) ? recipients : []).filter((recipient) => {
+        if (!recipient?.unit || recipient.unit.alive === false) return false;
+        if (!doesEffectTargetHelpfulRecipient({ effect, recipient, actingUsername })) return true;
+        return !isUnitInvulnerableToHelpfulSkills(recipient.unit);
+    });
+
 const doesUnitSatisfySkillTargetCondition = (unit, skill) => {
     const condition = skill?.targetCondition;
     const state = ensureUnitStateShape(unit);
     if (condition?.statusId && !hasStatus(state, condition.statusId)) return false;
+    if (
+        Array.isArray(condition?.statusIdsAny) &&
+        condition.statusIdsAny.length > 0 &&
+        !condition.statusIdsAny.some((statusId) => hasStatus(state, statusId))
+    ) {
+        return false;
+    }
     if (condition?.missingStatusId && hasStatus(state, condition.missingStatusId)) return false;
+    return true;
+};
+
+const doesActorSatisfySkillCondition = (actorUnit, actorState, skill) => {
+    const condition = skill?.actorCondition;
+    if (!condition || typeof condition !== 'object') return true;
+    if (condition?.statusId && !hasStatus(actorState, condition.statusId)) return false;
+    if (
+        Array.isArray(condition?.statusIdsAny) &&
+        condition.statusIdsAny.length > 0 &&
+        !condition.statusIdsAny.some((statusId) => hasStatus(actorState, statusId))
+    ) {
+        return false;
+    }
+    if (condition?.missingStatusId && hasStatus(actorState, condition.missingStatusId)) return false;
+    const currentHp = Math.max(0, Number(actorUnit?.hp) || 0);
+    const hpAtMost = Number(condition?.sourceCurrentHpAtMost);
+    if (Number.isFinite(hpAtMost) && currentHp > hpAtMost) return false;
+    const hpAtLeast = Number(condition?.sourceCurrentHpAtLeast);
+    if (Number.isFinite(hpAtLeast) && currentHp < hpAtLeast) return false;
     return true;
 };
 
@@ -249,14 +342,17 @@ const computeTargetOptions = ({ match, actingUsername, actorSlot, skillIndex, ch
         (typeof actorCharacter?.id === 'string' && actorCharacter.id) ||
         (typeof actorCharacter?.characterId === 'string' && actorCharacter.characterId) ||
         null;
-    const bypassEnemyInvulnerability = canActorIgnoreEnemyInvulnerability(actorUnit);
-
     const effectiveSkill = resolveEffectiveSkill({
         characters,
         rosterIndex: actorUnit.rosterIndex,
         skillIndex,
         actorState,
     });
+    if (!doesActorSatisfySkillCondition(actorUnit, actorState, effectiveSkill)) {
+        return result;
+    }
+    const bypassEnemyInvulnerability =
+        canActorIgnoreEnemyInvulnerability(actorUnit) || Boolean(effectiveSkill?.ignoreInvulnerability);
     const targetType = effectiveSkill?.target || null;
     result.targetType = targetType;
 
@@ -265,7 +361,11 @@ const computeTargetOptions = ({ match, actingUsername, actorSlot, skillIndex, ch
     const opponentBoard = opponentUsername ? match.board?.[opponentUsername] || [] : [];
 
     const aliveFilter = (unit) => unit && unit.alive !== false;
-    const mapTargets = (username, units, { enemyTargeting = false, skillClasses = [] } = {}) =>
+    const mapTargets = (
+        username,
+        units,
+        { enemyTargeting = false, helpfulTargeting = false, skillClasses = [] } = {}
+    ) =>
         units
             .map((unit, slot) => ({ unit, slot }))
             .filter(({ unit, slot }) => {
@@ -279,6 +379,9 @@ const computeTargetOptions = ({ match, actingUsername, actorSlot, skillIndex, ch
                         targetUnit: unit,
                     })
                 ) {
+                    return false;
+                }
+                if (helpfulTargeting && isUnitInvulnerableToHelpfulSkills(unit)) {
                     return false;
                 }
                 if (!canActorTargetUnit({ actorState, targetUsername: username, targetSlot: slot })) return false;
@@ -311,22 +414,26 @@ const computeTargetOptions = ({ match, actingUsername, actorSlot, skillIndex, ch
         }
         case 'self': {
             result.mode = 'self';
-            result.targets = mapTargets(actingUsername, actorBoard).filter((t) => t.slot === actorSlot);
+            result.targets = mapTargets(actingUsername, actorBoard, { helpfulTargeting: true }).filter(
+                (t) => t.slot === actorSlot
+            );
             break;
         }
         case 'single-ally': {
             result.mode = 'single';
-            result.targets = mapTargets(actingUsername, actorBoard).filter((t) => t.slot !== actorSlot);
+            result.targets = mapTargets(actingUsername, actorBoard, { helpfulTargeting: true }).filter(
+                (t) => t.slot !== actorSlot
+            );
             break;
         }
         case 'self-or-single-ally': {
             result.mode = 'single';
-            result.targets = mapTargets(actingUsername, actorBoard);
+            result.targets = mapTargets(actingUsername, actorBoard, { helpfulTargeting: true });
             break;
         }
         case 'all-allies': {
             result.mode = 'all';
-            result.targets = mapTargets(actingUsername, actorBoard);
+            result.targets = mapTargets(actingUsername, actorBoard, { helpfulTargeting: true });
             break;
         }
         default: {
@@ -419,6 +526,20 @@ const hasStatusMetadataFlag = (actorState, flagName) =>
         return remaining > 0 && Boolean(status?.metadata?.[flagName]);
     });
 
+const pickRandomEntry = (entries = []) => {
+    if (!Array.isArray(entries) || !entries.length) return null;
+    return entries[Math.floor(Math.random() * entries.length)] || null;
+};
+
+const renderTooltipTemplate = (template, metadata = {}) => {
+    if (typeof template !== 'string' || !template) return template;
+    return template.replace(/\{([a-zA-Z0-9_]+)\}/g, (_, key) => {
+        const value = metadata?.[key];
+        if (value === undefined || value === null) return '';
+        return String(value);
+    });
+};
+
 const consumeStatus = (actorState, statusId) => {
     if (!Array.isArray(actorState?.statuses)) return;
     const index = actorState.statuses.findIndex((status) => status?.id === statusId);
@@ -427,7 +548,28 @@ const consumeStatus = (actorState, statusId) => {
     }
 };
 
-const doesEffectConditionMatch = ({ condition, actorState, targetState }) => {
+const getCastStartNextUsedSkillCooldownAdjustment = (castStartStatuses = []) => {
+    if (!Array.isArray(castStartStatuses) || !castStartStatuses.length) {
+        return { amount: 0, statusIdsToConsume: [] };
+    }
+    return castStartStatuses.reduce(
+        (result, status) => {
+            const remaining = Number(status?.remainingTurns) || 0;
+            if (remaining <= 0) return result;
+            const metadata = status?.metadata || {};
+            const adjustment = Number(metadata?.nextUsedSkillCooldownAdjustment) || 0;
+            if (!adjustment) return result;
+            result.amount += adjustment;
+            if (metadata?.consumeOnNextSkillUse !== false && typeof status?.id === 'string' && status.id) {
+                result.statusIdsToConsume.push(status.id);
+            }
+            return result;
+        },
+        { amount: 0, statusIdsToConsume: [] }
+    );
+};
+
+const doesEffectConditionMatch = ({ condition, actorState, targetState, actorUnit, targetUnit }) => {
     if (!condition || typeof condition !== 'object') return true;
     const scope = condition.scope === 'target' ? 'target' : 'self';
     const scopedState = scope === 'target' ? targetState : actorState;
@@ -446,6 +588,17 @@ const doesEffectConditionMatch = ({ condition, actorState, targetState }) => {
             : null;
         const metadataValue = Math.max(0, Number(status?.metadata?.[metadataKey]) || 0);
         if (metadataValue < minValue) return false;
+    }
+    const scopedUnit = scope === 'target' ? targetUnit : actorUnit;
+    const sourceCurrentHpAtMost = Number(condition?.sourceCurrentHpAtMost);
+    if (Number.isFinite(sourceCurrentHpAtMost)) {
+        const currentHp = Math.max(0, Number(scopedUnit?.hp) || 0);
+        if (currentHp > sourceCurrentHpAtMost) return false;
+    }
+    const sourceCurrentHpAtLeast = Number(condition?.sourceCurrentHpAtLeast);
+    if (Number.isFinite(sourceCurrentHpAtLeast)) {
+        const currentHp = Math.max(0, Number(scopedUnit?.hp) || 0);
+        if (currentHp < sourceCurrentHpAtLeast) return false;
     }
     return true;
 };
@@ -469,18 +622,23 @@ const applyStatus = ({
         existing.sourceUsername = sourceUsername || existing.sourceUsername || null;
         existing.sourceSlot = Number.isInteger(sourceSlot) ? sourceSlot : existing.sourceSlot ?? null;
         const nextMetadata = { ...(existing.metadata || {}), ...(metadata || {}) };
+        const mergeNumericAddKeys = Array.isArray(metadata?.mergeNumericAddKeys)
+            ? metadata.mergeNumericAddKeys.filter((key) => typeof key === 'string' && key)
+            : [];
+        mergeNumericAddKeys.forEach((key) => {
+            const previousValue = Number(existing?.metadata?.[key]) || 0;
+            const incomingValue = Number(metadata?.[key]) || 0;
+            nextMetadata[key] = previousValue + incomingValue;
+        });
         if (typeof metadata?.stackMetadataKey === 'string' && metadata.stackMetadataKey) {
             const stackKey = metadata.stackMetadataKey;
             const delta = Number(metadata?.stackDelta) || 0;
             const cap = Math.max(1, Number(metadata?.stackMax) || 1);
             const previous = Math.max(0, Number(existing?.metadata?.[stackKey]) || 0);
             nextMetadata[stackKey] = Math.min(cap, Math.max(0, previous + delta));
-            if (typeof metadata?.tooltipTextTemplate === 'string' && metadata.tooltipTextTemplate) {
-                nextMetadata.tooltipText = metadata.tooltipTextTemplate.replace(
-                    /\{stacks\}/g,
-                    String(nextMetadata[stackKey])
-                );
-            }
+        }
+        if (typeof metadata?.tooltipTextTemplate === 'string' && metadata.tooltipTextTemplate) {
+            nextMetadata.tooltipText = renderTooltipTemplate(metadata.tooltipTextTemplate, nextMetadata);
         }
         const prevBonuses =
             existing?.metadata?.skillDamageBonuses &&
@@ -498,31 +656,99 @@ const applyStatus = ({
             });
             nextMetadata.skillDamageBonuses = mergedBonuses;
         }
+        const mergeObjectNumericAddKeys = Array.isArray(metadata?.mergeObjectNumericAddKeys)
+            ? metadata.mergeObjectNumericAddKeys.filter((key) => typeof key === 'string' && key)
+            : [];
+        mergeObjectNumericAddKeys.forEach((key) => {
+            const previousObject =
+                existing?.metadata?.[key] && typeof existing.metadata[key] === 'object' ? existing.metadata[key] : {};
+            const incomingObject = metadata?.[key] && typeof metadata[key] === 'object' ? metadata[key] : {};
+            const mergedObject = { ...previousObject };
+            Object.entries(incomingObject).forEach(([entryKey, value]) => {
+                mergedObject[entryKey] = (Number(mergedObject[entryKey]) || 0) + (Number(value) || 0);
+            });
+            nextMetadata[key] = mergedObject;
+        });
         existing.metadata = nextMetadata;
         existing.fresh = Boolean(fresh);
+        const applyStatusAtStack = nextMetadata?.applyStatusAtStack;
+        if (applyStatusAtStack && typeof applyStatusAtStack === 'object') {
+            const stackKey =
+                typeof applyStatusAtStack.metadataKey === 'string' && applyStatusAtStack.metadataKey
+                    ? applyStatusAtStack.metadataKey
+                    : '';
+            const stackValue = Math.max(0, Number(nextMetadata?.[stackKey]) || 0);
+            const threshold = Math.max(1, Number(applyStatusAtStack.value) || 1);
+            if (stackKey && stackValue >= threshold && applyStatusAtStack.statusId) {
+                applyStatus({
+                    targetState,
+                    statusId: applyStatusAtStack.statusId,
+                    duration: applyStatusAtStack.duration,
+                    sourceSkillId: sourceSkillId || null,
+                    sourceUsername: sourceUsername || null,
+                    sourceSlot: Number.isInteger(sourceSlot) ? sourceSlot : null,
+                    metadata: applyStatusAtStack.metadata || {},
+                    fresh: false,
+                });
+            }
+        }
         return;
     }
-    targetState.statuses.push({
+    let createdMetadata =
+        typeof metadata?.stackMetadataKey === 'string' &&
+        metadata.stackMetadataKey &&
+        typeof metadata?.tooltipTextTemplate === 'string' &&
+        metadata.tooltipTextTemplate
+            ? {
+                  ...(metadata || {}),
+              }
+            : metadata || {};
+    if (typeof metadata?.stackMetadataKey === 'string' && metadata.stackMetadataKey) {
+        const stackKey = metadata.stackMetadataKey;
+        const cap = Math.max(1, Number(metadata?.stackMax) || 1);
+        const initialFromMetadata = Number(metadata?.[stackKey]);
+        const initialFromDelta = Number(metadata?.stackDelta);
+        const fallbackInitial = Number.isFinite(initialFromDelta) ? initialFromDelta : 1;
+        const normalizedInitial = Number.isFinite(initialFromMetadata) ? initialFromMetadata : fallbackInitial;
+        createdMetadata = {
+            ...(createdMetadata || {}),
+            [stackKey]: Math.min(cap, Math.max(0, normalizedInitial)),
+        };
+    }
+    if (typeof metadata?.tooltipTextTemplate === 'string' && metadata.tooltipTextTemplate) {
+        createdMetadata.tooltipText = renderTooltipTemplate(metadata.tooltipTextTemplate, createdMetadata);
+    }
+    const createdStatus = {
         id: statusId,
         remainingTurns: normalizedDuration,
         sourceSkillId: sourceSkillId || null,
         sourceUsername: sourceUsername || null,
         sourceSlot: Number.isInteger(sourceSlot) ? sourceSlot : null,
-        metadata:
-            typeof metadata?.stackMetadataKey === 'string' &&
-            metadata.stackMetadataKey &&
-            typeof metadata?.tooltipTextTemplate === 'string' &&
-            metadata.tooltipTextTemplate
-                ? {
-                      ...(metadata || {}),
-                      tooltipText: metadata.tooltipTextTemplate.replace(
-                          /\{stacks\}/g,
-                          String(Math.max(0, Number(metadata?.[metadata.stackMetadataKey]) || 0))
-                      ),
-                  }
-                : metadata || {},
+        metadata: createdMetadata,
         fresh: Boolean(fresh),
-    });
+    };
+    targetState.statuses.push(createdStatus);
+    const applyStatusAtStack = createdStatus?.metadata?.applyStatusAtStack;
+    if (applyStatusAtStack && typeof applyStatusAtStack === 'object') {
+        const stackKey =
+            typeof applyStatusAtStack.metadataKey === 'string' && applyStatusAtStack.metadataKey
+                ? applyStatusAtStack.metadataKey
+                : '';
+        const stackValue = Math.max(0, Number(createdStatus?.metadata?.[stackKey]) || 0);
+        const threshold = Math.max(1, Number(applyStatusAtStack.value) || 1);
+        if (stackKey && stackValue >= threshold && applyStatusAtStack.statusId) {
+            applyStatus({
+                targetState,
+                statusId: applyStatusAtStack.statusId,
+                duration: applyStatusAtStack.duration,
+                sourceSkillId: sourceSkillId || null,
+                sourceUsername: sourceUsername || null,
+                sourceSlot: Number.isInteger(sourceSlot) ? sourceSlot : null,
+                metadata: applyStatusAtStack.metadata || {},
+                fresh: false,
+            });
+        }
+    }
 };
 
 const refreshStatusOnTeam = ({ match, username, statusId, duration }) => {
@@ -551,16 +777,38 @@ const normalizeTargetSelection = (selection) => {
         .filter((target) => target.username && Number.isInteger(target.slot) && target.slot >= 0);
 };
 
-const resolveEffectDamageAmount = ({ effect, actorState, targetState, skillClasses = [] }) => {
+const setUnitHpFromSnapshot = (unit, snapshotKey) => {
+    if (!unit || !snapshotKey) return false;
+    const state = ensureUnitStateShape(unit);
+    const snapshots = state?.snapshots && typeof state.snapshots === 'object' ? state.snapshots : {};
+    const snapshotValue = Number(snapshots[snapshotKey]);
+    if (!Number.isFinite(snapshotValue)) return false;
+    unit.hp = Math.max(0, snapshotValue);
+    unit.alive = unit.hp > 0;
+    return true;
+};
+
+const resolveEffectDamageAmount = ({ effect, actorState, actorUnit, targetState, skillClasses = [] }) => {
     let amount = Number(effect?.amount) || 0;
+    const effectiveSkillClasses = Array.isArray(skillClasses) ? [...skillClasses] : [];
+    if (Boolean(effect?.metadata?.afflictionDamage) && !hasSkillClass(effectiveSkillClasses, 'affliction')) {
+        effectiveSkillClasses.push('affliction');
+    }
     const afflictionDamage =
-        hasSkillClass(skillClasses, 'affliction') || Boolean(effect?.metadata?.afflictionDamage);
+        hasSkillClass(effectiveSkillClasses, 'affliction') || Boolean(effect?.metadata?.afflictionDamage);
     const sourceTotals = getStatusMetadataTotals(actorState);
+    const classScopedSourceTotals = getSourceClassScopedDamageModifiers(actorState, effectiveSkillClasses);
     amount += (Number(sourceTotals.damageBonusFlat) || 0) - (Number(sourceTotals.damageDebuffFlat) || 0);
+    amount +=
+        (Number(classScopedSourceTotals.damageBonusFlat) || 0) -
+        (Number(classScopedSourceTotals.damageDebuffFlat) || 0);
     if (!afflictionDamage && !Boolean(effect?.metadata?.ignoreSourceNonAfflictionDamageBonus)) {
         amount +=
             (Number(sourceTotals.nonAfflictionDamageBonusFlat) || 0) -
             (Number(sourceTotals.nonAfflictionDamageDebuffFlat) || 0);
+        amount +=
+            (Number(classScopedSourceTotals.nonAfflictionDamageBonusFlat) || 0) -
+            (Number(classScopedSourceTotals.nonAfflictionDamageDebuffFlat) || 0);
     }
     const applyStackBonus = (currentAmount) => {
         let nextAmount = currentAmount;
@@ -584,15 +832,31 @@ const resolveEffectDamageAmount = ({ effect, actorState, targetState, skillClass
     };
     const condition = effect?.condition;
     if (!condition || !condition.statusId) {
+        let resolvedAmount = applyStackBonus(amount);
         if (condition?.missingStatusId && hasStatus(targetState, condition.missingStatusId)) {
-            return applyStackBonus(amount);
+            resolvedAmount = applyStackBonus(amount);
         }
-        return applyStackBonus(amount);
+        if (Boolean(effect?.metadata?.amountFromSourceMissingHp)) {
+            const currentHp = Math.max(0, Number(actorUnit?.hp) || 0);
+            resolvedAmount += Math.max(0, DEFAULT_HP - currentHp);
+        }
+        if (Boolean(effect?.metadata?.amountFromSourceCurrentHp)) {
+            resolvedAmount += Math.max(0, Number(actorUnit?.hp) || 0);
+        }
+        return resolvedAmount;
     }
     const scope = condition.scope === 'target' ? 'target' : 'self';
     const scopedState = scope === 'target' ? targetState : actorState;
     if (!hasStatus(scopedState, condition.statusId)) {
-        return applyStackBonus(amount);
+        let resolvedAmount = applyStackBonus(amount);
+        if (Boolean(effect?.metadata?.amountFromSourceMissingHp)) {
+            const currentHp = Math.max(0, Number(actorUnit?.hp) || 0);
+            resolvedAmount += Math.max(0, DEFAULT_HP - currentHp);
+        }
+        if (Boolean(effect?.metadata?.amountFromSourceCurrentHp)) {
+            resolvedAmount += Math.max(0, Number(actorUnit?.hp) || 0);
+        }
+        return resolvedAmount;
     }
     if (Number.isFinite(condition.conditionalAmount)) {
         amount = Number(condition.conditionalAmount) || amount;
@@ -600,10 +864,25 @@ const resolveEffectDamageAmount = ({ effect, actorState, targetState, skillClass
     if (condition.consumeOnMatch) {
         consumeStatus(scopedState, condition.statusId);
     }
-    return applyStackBonus(amount);
+    let resolvedAmount = applyStackBonus(amount);
+    if (Boolean(effect?.metadata?.amountFromSourceMissingHp)) {
+        const currentHp = Math.max(0, Number(actorUnit?.hp) || 0);
+        resolvedAmount += Math.max(0, DEFAULT_HP - currentHp);
+    }
+    if (Boolean(effect?.metadata?.amountFromSourceCurrentHp)) {
+        resolvedAmount += Math.max(0, Number(actorUnit?.hp) || 0);
+    }
+    const missingHpStep = Math.max(0, Number(effect?.metadata?.amountFromSourceMissingHpStep) || 0);
+    const missingHpDivisor = Math.max(1, Number(effect?.metadata?.amountFromSourceMissingHpDivisor) || 0);
+    if (missingHpStep > 0 && missingHpDivisor > 0) {
+        const currentHp = Math.max(0, Number(actorUnit?.hp) || 0);
+        const missingHp = Math.max(0, DEFAULT_HP - currentHp);
+        resolvedAmount += Math.floor(missingHp / missingHpDivisor) * missingHpStep;
+    }
+    return resolvedAmount;
 };
 
-const getTargetBonusDamageFromSource = ({ targetState, sourceCharacterId }) => {
+const getTargetBonusDamageFromSource = ({ targetState, sourceCharacterId, sourceSkillId = null }) => {
     if (!targetState || !sourceCharacterId) return 0;
     const statuses = Array.isArray(targetState?.statuses) ? targetState.statuses : [];
     return statuses.reduce((sum, status) => {
@@ -626,6 +905,17 @@ const getTargetBonusDamageFromSource = ({ targetState, sourceCharacterId }) => {
                 ? metadata.bonusDamageFromSourceCharacterId
                 : '';
         if (requiredCharacterId && requiredCharacterId !== sourceCharacterId) return sum;
+        const requiredSkillIds = Array.isArray(metadata?.bonusDamageAppliesToSkillIds)
+            ? metadata.bonusDamageAppliesToSkillIds
+            : null;
+        if (requiredSkillIds && requiredSkillIds.length > 0) {
+            if (
+                !sourceSkillId ||
+                !requiredSkillIds.some((entry) => typeof entry === 'string' && entry === sourceSkillId)
+            ) {
+                return sum;
+            }
+        }
         return sum + bonus;
     }, 0);
 };
@@ -638,6 +928,230 @@ const hasSkillClass = (skillClasses = [], className = '') =>
             typeof className === 'string' &&
             entry.trim().toLowerCase() === className.trim().toLowerCase()
     );
+
+const normalizeSkillClassName = (value) =>
+    typeof value === 'string' ? value.trim().toLowerCase() : '';
+
+const formatSkillClassLabel = (value = '') => {
+    const normalized = normalizeSkillClassName(value);
+    if (!normalized) return '';
+    return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+};
+
+const getSourceClassScopedDamageModifiers = (actorState, skillClasses = []) => {
+    const totals = {
+        damageBonusFlat: 0,
+        damageDebuffFlat: 0,
+        nonAfflictionDamageBonusFlat: 0,
+        nonAfflictionDamageDebuffFlat: 0,
+    };
+    const statuses = Array.isArray(actorState?.statuses) ? actorState.statuses : [];
+    statuses.forEach((status) => {
+        const remaining = Number(status?.remainingTurns) || 0;
+        if (remaining <= 0) return;
+        const metadata = status?.metadata || {};
+        const classBonusMap =
+            metadata?.damageBonusBySkillClass && typeof metadata.damageBonusBySkillClass === 'object'
+                ? metadata.damageBonusBySkillClass
+                : {};
+        Object.entries(classBonusMap).forEach(([className, amount]) => {
+            if (!hasSkillClass(skillClasses, className)) return;
+            totals.damageBonusFlat += Number(amount) || 0;
+        });
+        const classDebuffMap =
+            metadata?.damageDebuffBySkillClass && typeof metadata.damageDebuffBySkillClass === 'object'
+                ? metadata.damageDebuffBySkillClass
+                : {};
+        Object.entries(classDebuffMap).forEach(([className, amount]) => {
+            if (!hasSkillClass(skillClasses, className)) return;
+            totals.damageDebuffFlat += Math.max(0, Number(amount) || 0);
+        });
+        const classNonAfflictionBonusMap =
+            metadata?.nonAfflictionDamageBonusBySkillClass &&
+            typeof metadata.nonAfflictionDamageBonusBySkillClass === 'object'
+                ? metadata.nonAfflictionDamageBonusBySkillClass
+                : {};
+        Object.entries(classNonAfflictionBonusMap).forEach(([className, amount]) => {
+            if (!hasSkillClass(skillClasses, className)) return;
+            totals.nonAfflictionDamageBonusFlat += Number(amount) || 0;
+        });
+        const classNonAfflictionDebuffMap =
+            metadata?.nonAfflictionDamageDebuffBySkillClass &&
+            typeof metadata.nonAfflictionDamageDebuffBySkillClass === 'object'
+                ? metadata.nonAfflictionDamageDebuffBySkillClass
+                : {};
+        Object.entries(classNonAfflictionDebuffMap).forEach(([className, amount]) => {
+            if (!hasSkillClass(skillClasses, className)) return;
+            totals.nonAfflictionDamageDebuffFlat += Math.max(0, Number(amount) || 0);
+        });
+    });
+    return totals;
+};
+
+const resolveSkillClassChoiceForCast = ({ skill, queued }) => {
+    const options = Array.isArray(skill?.classChoiceOptions)
+        ? skill.classChoiceOptions.map(normalizeSkillClassName).filter(Boolean)
+        : [];
+    if (!options.length) return null;
+    const queuedChoice = normalizeSkillClassName(queued?.classChoice);
+    if (queuedChoice && options.includes(queuedChoice)) return queuedChoice;
+    return options[Math.floor(Math.random() * options.length)];
+};
+
+const materializeEffectWithSkillClassChoice = (effect, chosenSkillClass) => {
+    if (!effect || !chosenSkillClass) return effect;
+    const metadata = effect?.metadata && typeof effect.metadata === 'object' ? { ...effect.metadata } : null;
+    let next = effect;
+    const placeholders = {
+        '{selectedSkillClass}': chosenSkillClass,
+        '{selectedSkillClassLabel}': formatSkillClassLabel(chosenSkillClass),
+    };
+    const replacePlaceholders = (text) => {
+        if (typeof text !== 'string') return text;
+        return Object.entries(placeholders).reduce((result, [token, value]) => {
+            if (!token) return result;
+            return result.split(token).join(value);
+        }, text);
+    };
+    if (effect?.useChosenSkillClassForSourceSkillClassesAny) {
+        const { useChosenSkillClassForSourceSkillClassesAny, ...rest } = next;
+        next = { ...rest, sourceSkillClassesAny: [chosenSkillClass] };
+    }
+    if (metadata) {
+        if (metadata?.useChosenSkillClassForCannotUseSkillClasses) {
+            metadata.cannotUseSkillClasses = [chosenSkillClass];
+            delete metadata.useChosenSkillClassForCannotUseSkillClasses;
+        }
+        if (metadata?.useChosenSkillClassForOnOwnerUseSkillClassesAny) {
+            metadata.onOwnerUseSkillClassesAny = [chosenSkillClass];
+            delete metadata.useChosenSkillClassForOnOwnerUseSkillClassesAny;
+        }
+        if (metadata?.useChosenSkillClassForDamageDebuffBySkillClass) {
+            const amount = Math.max(0, Number(metadata?.chosenSkillClassDamageDebuffAmount) || 0);
+            metadata.damageDebuffBySkillClass = { [chosenSkillClass]: amount };
+            delete metadata.useChosenSkillClassForDamageDebuffBySkillClass;
+            delete metadata.chosenSkillClassDamageDebuffAmount;
+        }
+        if (typeof metadata.tooltipText === 'string') {
+            metadata.tooltipText = replacePlaceholders(metadata.tooltipText);
+        }
+        next = { ...next, metadata };
+    }
+    if (typeof next?.statusId === 'string') {
+        next = { ...next, statusId: replacePlaceholders(next.statusId) };
+    }
+    return next;
+};
+
+const getSkillClassSet = (skillClasses = []) =>
+    new Set(
+        (Array.isArray(skillClasses) ? skillClasses : [])
+            .map((entry) => (typeof entry === 'string' ? entry.trim().toLowerCase() : ''))
+            .filter(Boolean)
+    );
+
+const getBlockedSkillIndices = (actorState) => {
+    const blocked = new Set();
+    const statuses = Array.isArray(actorState?.statuses) ? actorState.statuses : [];
+    statuses.forEach((status) => {
+        const remaining = Number(status?.remainingTurns) || 0;
+        if (remaining <= 0) return;
+        const indices = status?.metadata?.cannotUseSkillIndices;
+        if (!Array.isArray(indices)) return;
+        indices.forEach((index) => {
+            const parsed = Number.parseInt(index, 10);
+            if (Number.isInteger(parsed) && parsed >= 0) {
+                blocked.add(parsed);
+            }
+        });
+    });
+    return blocked;
+};
+
+const isSkillIndexBlockedForActor = (actorState, skillIndex) => {
+    const parsed = Number.parseInt(skillIndex, 10);
+    if (!Number.isInteger(parsed) || parsed < 0) return false;
+    return getBlockedSkillIndices(actorState).has(parsed);
+};
+
+const doesTargetIgnoreSkillByClass = ({ targetState, skillClasses = [], isEnemySkill = false }) => {
+    if (!isEnemySkill) return false;
+    const statuses = Array.isArray(targetState?.statuses) ? targetState.statuses : [];
+    if (!statuses.length) return false;
+    const classSet = getSkillClassSet(skillClasses);
+    if (!classSet.size) return false;
+    return statuses.some((status) => {
+        const remaining = Number(status?.remainingTurns) || 0;
+        if (remaining <= 0) return false;
+        const ignored = status?.metadata?.ignoreSkillClasses;
+        if (!Array.isArray(ignored) || !ignored.length) return false;
+        return ignored.some((entry) =>
+            classSet.has(typeof entry === 'string' ? entry.trim().toLowerCase() : '')
+        );
+    });
+};
+
+const getCharacterActiveSkillIndices = (character) => {
+    const skills = Array.isArray(character?.skills) ? character.skills : [];
+    const visible = [];
+    for (let i = 0; i < skills.length; i += 1) {
+        const skill = skills[i];
+        if (!skill || skill.isHidden) continue;
+        visible.push(i);
+        if (visible.length >= 4) break;
+    }
+    if (visible.length >= 4) return visible;
+    const fallback = [];
+    for (let i = 0; i < skills.length && fallback.length < 4; i += 1) {
+        fallback.push(i);
+    }
+    return fallback;
+};
+
+const skillMatchesReflectRule = ({ statusMetadata = {}, skillClasses = [], skillIsHarmful = false }) => {
+    if (!statusMetadata || typeof statusMetadata !== 'object') return false;
+    if (Boolean(statusMetadata.reflectOnlyHarmfulSkills) && !skillIsHarmful) return false;
+    if (
+        Array.isArray(statusMetadata.reflectOnlySkillClasses) &&
+        statusMetadata.reflectOnlySkillClasses.length > 0 &&
+        !statusMetadata.reflectOnlySkillClasses.some((entry) => hasSkillClass(skillClasses, entry))
+    ) {
+        return false;
+    }
+    if (
+        Array.isArray(statusMetadata.reflectExcludeSkillClasses) &&
+        statusMetadata.reflectExcludeSkillClasses.some((entry) => hasSkillClass(skillClasses, entry))
+    ) {
+        return false;
+    }
+    return true;
+};
+
+const getAdditionalIncomingStatusDuration = ({ targetState, incomingStatusId, incomingMetadata }) => {
+    const statuses = Array.isArray(targetState?.statuses) ? targetState.statuses : [];
+    if (!statuses.length) return 0;
+    return statuses.reduce((sum, status) => {
+        const remaining = Number(status?.remainingTurns) || 0;
+        if (remaining <= 0) return sum;
+        const rules = Array.isArray(status?.metadata?.extendIncomingStatusDuration)
+            ? status.metadata.extendIncomingStatusDuration
+            : [];
+        if (!rules.length) return sum;
+        const bonus = rules.reduce((acc, rule) => {
+            const by = Number(rule?.by) || 0;
+            if (by <= 0) return acc;
+            if (rule?.whenStatusId && rule.whenStatusId !== incomingStatusId) return acc;
+            if (
+                rule?.whenStatusHasMetadataFlag &&
+                !Boolean(incomingMetadata?.[rule.whenStatusHasMetadataFlag])
+            ) {
+                return acc;
+            }
+            return acc + by;
+        }, 0);
+        return sum + bonus;
+    }, 0);
+};
 
 const getSkillSpecificDamageBonus = (actorState, skillId) => {
     if (!skillId) return 0;
@@ -724,6 +1238,11 @@ const isHarmfulEffect = (effect) => {
     const type = effect?.type;
     if (type === 'damage') return true;
     if (type === 'execute_below_hp') return true;
+    if (type === 'destroy_destructible_defense') return true;
+    if (type === 'modify_cooldowns') {
+        const amount = Number(effect?.amount) || 0;
+        return amount > 0 || Boolean(effect?.metadata?.harmful);
+    }
     if (type === 'apply_status') {
         const metadata = effect?.metadata || {};
         return Boolean(
@@ -731,6 +1250,7 @@ const isHarmfulEffect = (effect) => {
                 metadata.cannotUseSkills ||
                 metadata.cannotUseHarmfulSkills ||
                 metadata.cannotUseNonMentalSkills ||
+                metadata.useChosenSkillClassForCannotUseSkillClasses ||
                 (Array.isArray(metadata.cannotUseSkillClasses) && metadata.cannotUseSkillClasses.length > 0) ||
                 metadata.cannotReduceDamage ||
                 metadata.cannotBecomeInvulnerable ||
@@ -852,6 +1372,36 @@ const maybeTriggerReactiveDefenses = ({
             fresh: false,
         });
     }
+    const cancelEnemyStatusesByIdFromSelfSource = Array.isArray(
+        trapMetadata?.cancelEnemyStatusesByIdFromSelfSource
+    )
+        ? trapMetadata.cancelEnemyStatusesByIdFromSelfSource.filter((id) => typeof id === 'string' && id)
+        : [];
+    if (
+        cancelEnemyStatusesByIdFromSelfSource.length > 0 &&
+        recipient.username &&
+        Number.isInteger(recipient.slot) &&
+        match
+    ) {
+        (match.players || [])
+            .filter((player) => player?.username && player.username !== recipient.username)
+            .forEach((player) => {
+                const units = Array.isArray(match.board?.[player.username]) ? match.board[player.username] : [];
+                units.forEach((unit) => {
+                    if (!unit || unit.alive === false) return;
+                    const state = ensureUnitStateShape(unit);
+                    state.statuses = (Array.isArray(state.statuses) ? state.statuses : []).filter((status) => {
+                        if (!status?.id || !cancelEnemyStatusesByIdFromSelfSource.includes(status.id)) {
+                            return true;
+                        }
+                        return !(
+                            status?.sourceUsername === recipient.username &&
+                            Number(status?.sourceSlot) === Number(recipient.slot)
+                        );
+                    });
+                });
+            });
+    }
     const counterApplyStatusToSourceOwner = trapMetadata?.counterApplyStatusToSourceOwner;
     if (
         counterApplyStatusToSourceOwner?.statusId &&
@@ -918,7 +1468,34 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
             const absorbed = Math.min(incoming, points);
             incoming -= absorbed;
             const remainingPoints = points - absorbed;
-            status.metadata = { ...(status.metadata || {}), destructibleDefensePoints: remainingPoints };
+            const nextMetadata = { ...(status.metadata || {}), destructibleDefensePoints: remainingPoints };
+            const restoreConfig =
+                nextMetadata?.destructibleDefenseRestore &&
+                typeof nextMetadata.destructibleDefenseRestore === 'object'
+                    ? nextMetadata.destructibleDefenseRestore
+                    : null;
+            if (restoreConfig && absorbed > 0) {
+                const thresholdDamageTaken = Math.max(1, Number(restoreConfig.thresholdDamageTaken) || 0);
+                const triggerAtOrBelowPoints = Math.max(
+                    0,
+                    Number(restoreConfig.triggerAtOrBelowPoints)
+                );
+                const totalTaken = Math.max(0, Number(nextMetadata._destructibleDefenseDamageTaken) || 0) + absorbed;
+                nextMetadata._destructibleDefenseDamageTaken = totalTaken;
+                const alreadyTriggered = Boolean(nextMetadata._destructibleDefenseRestoreTriggered);
+                const triggeredByDamageTaken = thresholdDamageTaken > 0 && totalTaken >= thresholdDamageTaken;
+                const triggeredByRemainingPoints =
+                    Number.isFinite(triggerAtOrBelowPoints) && remainingPoints <= triggerAtOrBelowPoints;
+                if (!alreadyTriggered && (triggeredByDamageTaken || triggeredByRemainingPoints)) {
+                    const delayTurns = Math.max(
+                        0,
+                        Number(restoreConfig.delayOwnerTurns ?? restoreConfig.ownerTurnRestoreCount) || 0
+                    );
+                    nextMetadata._destructibleDefenseRestoreTriggered = true;
+                    nextMetadata._destructibleDefenseRestoreTurnsLeft = delayTurns;
+                }
+            }
+            status.metadata = nextMetadata;
             if (remainingPoints <= 0) {
                 const removeStatusIdsOnBreak = Array.isArray(status?.metadata?.removeStatusIdsOnBreak)
                     ? status.metadata.removeStatusIdsOnBreak.filter((id) => typeof id === 'string' && id)
@@ -960,14 +1537,84 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
         : cannotReduceDamage
         ? 0
         : Math.min(100, Math.max(0, Number(totals.damageReductionPercent) || 0));
-    const afterPercent = incoming * (1 - percentReduction / 100);
-    const mitigation = ignoreDamageReduction
+    let afterPercent = incoming * (1 - percentReduction / 100);
+    const percentMitigationStateMap = context?.percentMitigationStateMap;
+    const percentMitigationStateKey = context?.percentMitigationStateKey;
+    if (
+        percentReduction > 0 &&
+        percentMitigationStateMap instanceof Map &&
+        percentMitigationStateKey
+    ) {
+        const existing = percentMitigationStateMap.get(percentMitigationStateKey);
+        const state =
+            existing && typeof existing === 'object'
+                ? existing
+                : { gross: 0, prevented: 0, percent: percentReduction };
+        const stablePercent = Math.max(0, Math.min(100, Number(state.percent) || percentReduction));
+        const nextGross = Math.max(0, Number(state.gross) || 0) + incoming;
+        const targetPreventedTotal = nextGross * (stablePercent / 100);
+        const preventedThisHit = Math.max(
+            0,
+            targetPreventedTotal - Math.max(0, Number(state.prevented) || 0)
+        );
+        afterPercent = Math.max(0, incoming - preventedThisHit);
+        state.gross = nextGross;
+        state.prevented = Math.max(0, Number(state.prevented) || 0) + preventedThisHit;
+        state.percent = stablePercent;
+        percentMitigationStateMap.set(percentMitigationStateKey, state);
+    }
+    const baseGeneralMitigation =
+        ignoreDamageReduction || cannotReduceDamage
+            ? 0
+            : Math.max(0, Number(totals.damageReductionFlat) || 0);
+    const basePhysicalMitigation =
+        ignoreDamageReduction || cannotReduceDamage || !isPhysical
+            ? 0
+            : Math.max(0, Number(totals.physicalDamageReductionFlat) || 0);
+    let appliedGeneralMitigation = baseGeneralMitigation;
+    let appliedPhysicalMitigation = basePhysicalMitigation;
+    const standardBudgetMap = context?.standardMitigationBudgetMap;
+    const standardBudgetKey = context?.standardMitigationBudgetKey;
+    if (standardBudgetMap instanceof Map && standardBudgetKey) {
+        const generalKey = `g:${standardBudgetKey}`;
+        const physicalKey = `p:${standardBudgetKey}`;
+        const generalBudget = standardBudgetMap.has(generalKey)
+            ? Math.max(0, Number(standardBudgetMap.get(generalKey)) || 0)
+            : baseGeneralMitigation;
+        appliedGeneralMitigation = Math.min(generalBudget, afterPercent);
+        standardBudgetMap.set(generalKey, Math.max(0, generalBudget - appliedGeneralMitigation));
+
+        const remainingAfterGeneral = Math.max(0, afterPercent - appliedGeneralMitigation);
+        const physicalBudget = standardBudgetMap.has(physicalKey)
+            ? Math.max(0, Number(standardBudgetMap.get(physicalKey)) || 0)
+            : basePhysicalMitigation;
+        appliedPhysicalMitigation = Math.min(physicalBudget, remainingAfterGeneral);
+        standardBudgetMap.set(physicalKey, Math.max(0, physicalBudget - appliedPhysicalMitigation));
+    } else {
+        appliedGeneralMitigation = Math.min(baseGeneralMitigation, afterPercent);
+        appliedPhysicalMitigation = Math.min(
+            basePhysicalMitigation,
+            Math.max(0, afterPercent - appliedGeneralMitigation)
+        );
+    }
+    const postStandardMitigation = Math.max(0, afterPercent - appliedGeneralMitigation - appliedPhysicalMitigation);
+    const baseUnpierceableMitigation = cannotReduceDamage
         ? 0
-        : cannotReduceDamage
-        ? 0
-        : Math.max(0, totals.damageReductionFlat + (isPhysical ? totals.physicalDamageReductionFlat : 0));
-    const dealt = Math.max(0, afterPercent - mitigation);
-    unit.hp = Math.max(0, (Number(unit.hp) || 0) - dealt);
+        : Math.max(0, Number(totals.unpierceableDamageReductionFlat) || 0);
+    let appliedUnpierceableMitigation = baseUnpierceableMitigation;
+    const budgetMap = context?.unpierceableBudgetMap;
+    const budgetKey = context?.unpierceableBudgetKey;
+    if (budgetMap instanceof Map && budgetKey) {
+        const currentBudget = budgetMap.has(budgetKey)
+            ? Math.max(0, Number(budgetMap.get(budgetKey)) || 0)
+            : baseUnpierceableMitigation;
+        appliedUnpierceableMitigation = Math.min(currentBudget, postStandardMitigation);
+        budgetMap.set(budgetKey, Math.max(0, currentBudget - appliedUnpierceableMitigation));
+    } else {
+        appliedUnpierceableMitigation = Math.min(baseUnpierceableMitigation, postStandardMitigation);
+    }
+    const dealt = Math.max(0, postStandardMitigation - appliedUnpierceableMitigation);
+    unit.hp = Math.max(Math.max(0, Number(totals.minimumHp) || 0), (Number(unit.hp) || 0) - dealt);
     if (unit.hp <= 0) {
         unit.alive = false;
     }
@@ -976,14 +1623,79 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
 
 const applyHealToUnit = (unit, rawAmount) => {
     if (!unit || unit.alive === false) return 0;
-    const heal = Math.max(0, Number(rawAmount) || 0);
+    const targetState = ensureUnitStateShape(unit);
+    const totals = getStatusMetadataTotals(targetState);
+    const heal = Math.max(0, Number(rawAmount) || 0) * Math.max(0, Number(totals.healReceivedMultiplier) || 0);
     const before = Number(unit.hp) || 0;
-    unit.hp = Math.min(DEFAULT_HP, before + heal);
+    const cap = Math.max(0, Number(unit?.hpCap) || DEFAULT_HP);
+    unit.hp = Math.min(DEFAULT_HP, cap, before + heal);
     return Math.max(0, unit.hp - before);
+};
+
+const applyHealthLossToUnit = (unit, rawAmount) => {
+    if (!unit || unit.alive === false) return 0;
+    const loss = Math.max(0, Number(rawAmount) || 0);
+    if (loss <= 0) return 0;
+    const before = Math.max(0, Number(unit.hp) || 0);
+    unit.hp = Math.max(0, before - loss);
+    if (unit.hp <= 0) {
+        unit.alive = false;
+    }
+    return Math.max(0, before - unit.hp);
+};
+
+const applyHealthCapLossToUnit = (unit, rawAmount) => {
+    if (!unit || unit.alive === false) return 0;
+    const loss = Math.max(0, Number(rawAmount) || 0);
+    if (loss <= 0) return 0;
+    const beforeCap = Math.max(0, Number(unit.hpCap) || DEFAULT_HP);
+    const nextCap = Math.max(0, beforeCap - loss);
+    unit.hpCap = nextCap;
+    const hpBeforeClamp = Math.max(0, Number(unit.hp) || 0);
+    if (hpBeforeClamp > nextCap) {
+        unit.hp = nextCap;
+        if (unit.hp <= 0) {
+            unit.alive = false;
+        }
+    }
+    return Math.max(0, beforeCap - nextCap);
+};
+
+const destroyAllDestructibleDefenseOnUnit = (unit) => {
+    if (!unit || unit.alive === false) return 0;
+    const targetState = ensureUnitStateShape(unit);
+    const statuses = Array.isArray(targetState.statuses) ? targetState.statuses : [];
+    let removedPoints = 0;
+    const removeIds = new Set();
+    const survivors = [];
+    statuses.forEach((status) => {
+        const points = Math.max(0, Number(status?.metadata?.destructibleDefensePoints) || 0);
+        if (points <= 0) {
+            survivors.push(status);
+            return;
+        }
+        removedPoints += points;
+        const removeStatusIdsOnBreak = Array.isArray(status?.metadata?.removeStatusIdsOnBreak)
+            ? status.metadata.removeStatusIdsOnBreak.filter((id) => typeof id === 'string' && id)
+            : [];
+        removeStatusIdsOnBreak.forEach((id) => removeIds.add(id));
+    });
+    targetState.statuses = survivors.filter((entry) => !removeIds.has(entry?.id));
+    return removedPoints;
 };
 
 const applyChakraGainToMatch = ({ match, username, chakraType, amount = 1 }) => {
     if (!match || !username) return 0;
+    const units = Array.isArray(match.board?.[username]) ? match.board[username] : [];
+    const chakraGainBlocked = units.some((unit) => {
+        if (!unit || unit.alive === false) return false;
+        const state = ensureUnitStateShape(unit);
+        return (Array.isArray(state.statuses) ? state.statuses : []).some(
+            (status) => (Number(status?.remainingTurns) || 0) > 0 && Boolean(status?.metadata?.noChakraGain)
+        );
+    });
+    if (chakraGainBlocked) return 0;
+
     const normalizedType =
         typeof chakraType === 'string' ? chakraType.trim().toLowerCase() : '';
     if (!chakraTypes.includes(normalizedType)) return 0;
@@ -1045,35 +1757,86 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
 
     const actorBoard = match.board?.[actingUsername] || [];
     const queueOrder = Array.isArray(pending.queueOrder) ? pending.queueOrder : [];
+    const queuedActions = queueOrder
+        .map((actorSlotRaw) => {
+            const actorSlot = Number.parseInt(actorSlotRaw, 10);
+            if (!Number.isInteger(actorSlot) || actorSlot < 0) return null;
+            const queued = pending.queuedByActorSlot[String(actorSlot)];
+            if (!queued) return null;
+            return {
+                actorSlot,
+                skillIndex: queued.skillIndex,
+                targetSelection: queued.targetSelection,
+                classChoice: queued.classChoice,
+                isAutoCast: false,
+            };
+        })
+        .filter(Boolean);
+    actorBoard.forEach((actorUnit, actorSlot) => {
+        if (!actorUnit || actorUnit.alive === false) return;
+        const actorState = ensureUnitStateShape(actorUnit);
+        const statuses = Array.isArray(actorState.statuses) ? actorState.statuses : [];
+        statuses.forEach((status) => {
+            if (!status || (Number(status?.remainingTurns) || 0) <= 0) return;
+            const autoCastSkillId =
+                typeof status?.metadata?.autoCastSkillId === 'string'
+                    ? status.metadata.autoCastSkillId.trim()
+                    : '';
+            if (!autoCastSkillId) return;
+            const actorCharacter = Number.isInteger(actorUnit?.rosterIndex)
+                ? characters?.[actorUnit.rosterIndex]
+                : null;
+            const skillIndex = Array.isArray(actorCharacter?.skills)
+                ? actorCharacter.skills.findIndex((entry) => entry?.id === autoCastSkillId)
+                : -1;
+            if (skillIndex < 0) return;
+            const autoCastTarget =
+                typeof status?.metadata?.autoCastTarget === 'string'
+                    ? status.metadata.autoCastTarget.trim().toLowerCase()
+                    : 'all-enemy';
+            let targetSelection = [];
+            if (autoCastTarget === 'self') {
+                targetSelection = [{ username: actingUsername, slot: actorSlot }];
+            }
+            queuedActions.push({
+                actorSlot,
+                skillIndex,
+                targetSelection,
+                isAutoCast: true,
+            });
+        });
+    });
     const turnMarker = `${actingUsername}:${Number(match?.economy?.turnCounts?.[actingUsername]) || 0}`;
 
-    queueOrder.forEach((actorSlotRaw) => {
-        const actorSlot = Number.parseInt(actorSlotRaw, 10);
-        if (!Number.isInteger(actorSlot) || actorSlot < 0) return;
-        const queued = pending.queuedByActorSlot[String(actorSlot)];
-        if (!queued) return;
+    for (let queueIndex = 0; queueIndex < queuedActions.length; queueIndex += 1) {
+        const queued = queuedActions[queueIndex];
+        const actorSlot = Number.parseInt(queued?.actorSlot, 10);
+        if (!Number.isInteger(actorSlot) || actorSlot < 0) continue;
 
         const actorUnit = actorBoard[actorSlot];
-        if (!actorUnit || actorUnit.alive === false) return;
+        if (!actorUnit || actorUnit.alive === false) continue;
 
         const actorState = ensureUnitStateShape(actorUnit);
-        if (getStatusMetadataTotals(actorState).cannotUseSkills) return;
+        if (getStatusMetadataTotals(actorState).cannotUseSkills) continue;
 
         const baseSkill = Array.isArray(characters?.[actorUnit.rosterIndex]?.skills)
             ? characters[actorUnit.rosterIndex].skills[queued.skillIndex]
             : null;
         const skill = getSkillByIndices(characters, actorUnit.rosterIndex, queued.skillIndex, actorState);
-        if (!skill) return;
+        if (!skill) continue;
         const cooldownSkillId =
             skill?.useBaseSkillCooldown && baseSkill?.id ? baseSkill.id : skill.id || baseSkill?.id || null;
-        if (cooldownSkillId && getSkillCooldownRemaining(actorState, cooldownSkillId) > 0) return;
+        if (!queued?.isAutoCast && cooldownSkillId && getSkillCooldownRemaining(actorState, cooldownSkillId) > 0) {
+            continue;
+        }
+        if (isSkillIndexBlockedForActor(actorState, queued.skillIndex)) continue;
 
         const blockedByCannotUseHarmfulSkills =
             hasStatusMetadataFlag(actorState, 'cannotUseHarmfulSkills') &&
             ['single-enemy', 'other-enemies', 'all-enemy'].includes(
                 String(skill?.target || '').trim().toLowerCase()
             );
-        if (blockedByCannotUseHarmfulSkills) return;
+        if (blockedByCannotUseHarmfulSkills) continue;
         const blockedSkillClasses = new Set(
             (Array.isArray(actorState?.statuses) ? actorState.statuses : []).flatMap((status) => {
                 const remaining = Number(status?.remainingTurns) || 0;
@@ -1091,18 +1854,74 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 blockedSkillClasses.has(typeof entry === 'string' ? entry.trim().toLowerCase() : '')
             )
         ) {
-            return;
+            continue;
         }
         if (
             hasStatusMetadataFlag(actorState, 'cannotUseNonMentalSkills') &&
             !hasSkillClass(skill?.classes || [], 'mental')
         ) {
-            return;
+            continue;
         }
         const ownerUseSkillTriggeredStatusIds = new Set();
+        const skillIsMental = hasSkillClass(skill?.classes || [], 'mental');
         (Array.isArray(actorState?.statuses) ? actorState.statuses : []).forEach((status) => {
             const remaining = Number(status?.remainingTurns) || 0;
             if (remaining <= 0) return;
+            const ownerUseSkillClassesAny = Array.isArray(status?.metadata?.onOwnerUseSkillClassesAny)
+                ? status.metadata.onOwnerUseSkillClassesAny
+                      .map((entry) => normalizeSkillClassName(entry))
+                      .filter(Boolean)
+                : [];
+            const ownerSkillMatchesClassFilter =
+                ownerUseSkillClassesAny.length === 0 ||
+                ownerUseSkillClassesAny.some((entry) => hasSkillClass(skill?.classes || [], entry));
+            if (!ownerSkillMatchesClassFilter) return;
+            const ownerUseSkillSelfDamage = Math.max(
+                0,
+                Number(status?.metadata?.onOwnerUseSkillSelfDamage) || 0
+            );
+            if (ownerUseSkillSelfDamage > 0) {
+                applyDamageToUnit(actorUnit, ownerUseSkillSelfDamage, {
+                    match,
+                    sourceUsername: status?.sourceUsername || null,
+                    targetUsername: actingUsername,
+                    ignoreDamageReduction:
+                        status?.metadata?.onOwnerUseSkillSelfDamageIgnoreDamageReduction === undefined
+                            ? true
+                            : Boolean(status?.metadata?.onOwnerUseSkillSelfDamageIgnoreDamageReduction),
+                    ignoreDestructibleDefense:
+                        status?.metadata?.onOwnerUseSkillSelfDamageIgnoreDestructibleDefense === undefined
+                            ? true
+                            : Boolean(status?.metadata?.onOwnerUseSkillSelfDamageIgnoreDestructibleDefense),
+                });
+                if (status?.id && Boolean(status?.metadata?.consumeOnOwnerUseSkillSelfDamage)) {
+                    ownerUseSkillTriggeredStatusIds.add(status.id);
+                }
+            }
+            const nonMentalTriggerDamage = Math.max(
+                0,
+                Number(status?.metadata?.onOwnerUseNonMentalSkillSelfDamage) || 0
+            );
+            if (nonMentalTriggerDamage > 0 && !skillIsMental) {
+                applyDamageToUnit(actorUnit, nonMentalTriggerDamage, {
+                    match,
+                    sourceUsername: status?.sourceUsername || null,
+                    targetUsername: actingUsername,
+                    ignoreDamageReduction:
+                        status?.metadata?.onOwnerUseNonMentalSkillSelfDamageIgnoreDamageReduction === undefined
+                            ? true
+                            : Boolean(
+                                  status?.metadata?.onOwnerUseNonMentalSkillSelfDamageIgnoreDamageReduction
+                              ),
+                    ignoreDestructibleDefense:
+                        status?.metadata?.onOwnerUseNonMentalSkillSelfDamageIgnoreDestructibleDefense === undefined
+                            ? true
+                            : Boolean(
+                                  status?.metadata?.onOwnerUseNonMentalSkillSelfDamageIgnoreDestructibleDefense
+                              ),
+                });
+                if (status?.id) ownerUseSkillTriggeredStatusIds.add(status.id);
+            }
             if (!Boolean(status?.metadata?.onOwnerUseSkillTrigger)) return;
             const sourceUnit =
                 status?.sourceUsername && Number.isInteger(status?.sourceSlot)
@@ -1126,7 +1945,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     fresh: false,
                 });
             }
-            if (status?.id) {
+            if (status?.id && !Boolean(status?.metadata?.persistOnOwnerUseSkillTrigger)) {
                 ownerUseSkillTriggeredStatusIds.add(status.id);
             }
         });
@@ -1137,50 +1956,29 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         }
 
         const effects = Array.isArray(skill.effects) ? skill.effects : [];
-        if (!effects.length) return;
+        if (!effects.length) continue;
+        if (!doesActorSatisfySkillCondition(actorUnit, actorState, skill)) continue;
+        const skillCannotBeCountered = Boolean(skill?.cannotBeCountered);
         const actingCharacterId =
             (typeof characters?.[actorUnit?.rosterIndex]?.id === 'string' &&
                 characters[actorUnit.rosterIndex].id) ||
             (typeof characters?.[actorUnit?.rosterIndex]?.characterId === 'string' &&
                 characters[actorUnit.rosterIndex].characterId) ||
             null;
+        const castStartStatuses = (Array.isArray(actorState.statuses) ? actorState.statuses : [])
+            .filter((status) => (status?.remainingTurns || 0) > 0)
+            .map((status) => ({
+                id: status?.id,
+                remainingTurns: status?.remainingTurns,
+                metadata: status?.metadata && typeof status.metadata === 'object' ? { ...status.metadata } : {},
+            }));
         const castStartStatusIds = new Set(
-            (Array.isArray(actorState.statuses) ? actorState.statuses : [])
-                .filter((status) => (status?.remainingTurns || 0) > 0 && status?.id)
-                .map((status) => status.id)
+            castStartStatuses.filter((status) => status?.id).map((status) => status.id)
         );
 
         const selection = normalizeTargetSelection(queued.targetSelection);
-        const bypassEnemyInvulnerability = canActorIgnoreEnemyInvulnerability(actorUnit);
-        const selectedTargets = selection
-            .map((target) => ({
-                username: target.username,
-                slot: target.slot,
-                unit: match.board?.[target.username]?.[target.slot] || null,
-            }))
-            .filter((entry) => {
-                if (!entry.unit || entry.unit.alive === false) return false;
-                const isEnemyTarget = entry.username !== actingUsername;
-                if (!isEnemyTarget) return true;
-                if (
-                    !canActorTargetUnit({
-                        actorState,
-                        targetUsername: entry.username,
-                        targetSlot: entry.slot,
-                    })
-                ) {
-                    return false;
-                }
-                if (!doesUnitSatisfySkillTargetCondition(entry.unit, skill)) return false;
-                return (
-                    bypassEnemyInvulnerability ||
-                    canActorIgnoreTargetInvulnerabilityBySourceMark({
-                        actorCharacterId: actingCharacterId,
-                        targetUnit: entry.unit,
-                    }) ||
-                    !isUnitInvulnerableForSkill(entry.unit, skill.classes || [])
-                );
-            });
+        const bypassEnemyInvulnerability =
+            canActorIgnoreEnemyInvulnerability(actorUnit) || Boolean(skill?.ignoreInvulnerability);
         const opponentEntry = (match.players || []).find((p) => p.username !== actingUsername);
         const opponentUsername = opponentEntry?.username;
         const actorAllies = (match.board?.[actingUsername] || [])
@@ -1209,17 +2007,188 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     !isUnitInvulnerableForSkill(entry.unit, skill.classes || [])
                 );
             });
+        const allAliveUnits = [...actorAllies, ...opponentUnits];
+        const actorHasHarmfulBlind = hasStatusMetadataFlag(actorState, 'harmfulBlind');
+        const actorHasHelpfulBlind = hasStatusMetadataFlag(actorState, 'helpfulBlind');
+        const shouldRetargetToRandomEnemy = actorHasHarmfulBlind && skillHasHarmfulEffects(skill);
+        const shouldRetargetToRandomAlly = actorHasHelpfulBlind && !skillHasHarmfulEffects(skill);
+        const selectedTargets = selection
+            .map((target) => {
+                let entry = {
+                    username: target.username,
+                    slot: target.slot,
+                    unit: match.board?.[target.username]?.[target.slot] || null,
+                };
+                if (!entry.unit || entry.unit.alive === false) return null;
+
+                const targetState = ensureUnitStateShape(entry.unit);
+                if (hasStatusMetadataFlag(targetState, 'fullBlind')) {
+                    const blindPick = pickRandomEntry(allAliveUnits);
+                    if (blindPick?.unit && blindPick.unit.alive !== false) {
+                        entry = blindPick;
+                    }
+                }
+
+                if (shouldRetargetToRandomEnemy) {
+                    const harmfulPick = pickRandomEntry(opponentUnits);
+                    if (harmfulPick?.unit && harmfulPick.unit.alive !== false) {
+                        entry = harmfulPick;
+                    }
+                } else if (shouldRetargetToRandomAlly) {
+                    const helpfulPool = actorAllies.filter((ally) => ally?.unit && ally.unit.alive !== false);
+                    const helpfulPick = pickRandomEntry(helpfulPool);
+                    if (helpfulPick?.unit && helpfulPick.unit.alive !== false) {
+                        entry = helpfulPick;
+                    }
+                }
+
+                return entry;
+            })
+            .filter((entry) => {
+                if (!entry?.unit || entry.unit.alive === false) return false;
+                const isEnemyTarget = entry.username !== actingUsername;
+                if (!isEnemyTarget) return true;
+                if (
+                    !canActorTargetUnit({
+                        actorState,
+                        targetUsername: entry.username,
+                        targetSlot: entry.slot,
+                    })
+                ) {
+                    return false;
+                }
+                if (!doesUnitSatisfySkillTargetCondition(entry.unit, skill)) return false;
+                return (
+                    bypassEnemyInvulnerability ||
+                    canActorIgnoreTargetInvulnerabilityBySourceMark({
+                        actorCharacterId: actingCharacterId,
+                        targetUnit: entry.unit,
+                    }) ||
+                    !isUnitInvulnerableForSkill(entry.unit, skill.classes || [])
+                );
+            });
+        const skillIsHarmful = skillHasHarmfulEffects(skill);
+        const personalReflectStatus = (Array.isArray(actorState.statuses) ? actorState.statuses : []).find(
+            (status) => {
+                const remaining = Number(status?.remainingTurns) || 0;
+                if (remaining <= 0) return false;
+                if (!Boolean(status?.metadata?.reflectNextIncomingSkill)) return false;
+                return skillMatchesReflectRule({
+                    statusMetadata: status?.metadata || {},
+                    skillClasses: skill.classes || [],
+                    skillIsHarmful,
+                });
+            }
+        );
+        const canReflectByPersonalStatus = Boolean(personalReflectStatus);
+        const enemyTargetUsernames = new Set(
+            selectedTargets
+                .filter((entry) => entry?.username && entry.username !== actingUsername)
+                .map((entry) => entry.username)
+        );
+        let mentalGuardReflectHolder = null;
+        if (skillIsHarmful && enemyTargetUsernames.size > 0) {
+            for (const username of enemyTargetUsernames) {
+                const team = Array.isArray(match.board?.[username]) ? match.board[username] : [];
+                for (let slot = 0; slot < team.length; slot += 1) {
+                    const unit = team[slot];
+                    if (!unit || unit.alive === false) continue;
+                    const state = ensureUnitStateShape(unit);
+                    const reflectStatus = (Array.isArray(state.statuses) ? state.statuses : []).find((status) => {
+                        const remaining = Number(status?.remainingTurns) || 0;
+                        if (remaining <= 0) return false;
+                        if (!Boolean(status?.metadata?.teamReflectNextIncomingSkill)) return false;
+                        return skillMatchesReflectRule({
+                            statusMetadata: status?.metadata || {},
+                            skillClasses: skill.classes || [],
+                            skillIsHarmful,
+                        });
+                    });
+                    if (!reflectStatus) continue;
+                    mentalGuardReflectHolder = { username, slot, unit, state, reflectStatusId: reflectStatus.id };
+                    break;
+                }
+                if (mentalGuardReflectHolder) break;
+            }
+        }
+        const skillCannotBeReflected = Boolean(skill?.cannotBeReflected);
+        const shouldReflectTargetsByPersonalStatus = !skillCannotBeReflected && canReflectByPersonalStatus;
+        const shouldReflectTargetsByMentalGuard = !skillCannotBeReflected && Boolean(mentalGuardReflectHolder);
+        if (shouldReflectTargetsByPersonalStatus && personalReflectStatus?.id) {
+            consumeStatus(actorState, personalReflectStatus.id);
+        }
+        if (
+            shouldReflectTargetsByMentalGuard &&
+            mentalGuardReflectHolder?.state &&
+            mentalGuardReflectHolder?.reflectStatusId
+        ) {
+            consumeStatus(mentalGuardReflectHolder.state, mentalGuardReflectHolder.reflectStatusId);
+        }
         const randomScopeGroupPicks = new Map();
+        const reflectedRecipientByOriginalKey = new Map();
+        const reflectRecipients = (recipients = []) =>
+            (Array.isArray(recipients) ? recipients : []).map((recipient) => {
+                if (!recipient?.unit || recipient.unit.alive === false) return recipient;
+                if (recipient.username === actingUsername) return recipient;
+                if (shouldReflectTargetsByMentalGuard) {
+                    return { username: actingUsername, slot: actorSlot, unit: actorUnit };
+                }
+                if (!shouldReflectTargetsByPersonalStatus) return recipient;
+                const personalReflectMetadata = personalReflectStatus?.metadata || {};
+                if (Boolean(personalReflectMetadata?.reflectBackToCaster)) {
+                    return { username: actingUsername, slot: actorSlot, unit: actorUnit };
+                }
+                const reflectToRandomCasterAlly =
+                    Boolean(personalReflectMetadata?.reflectToRandomCasterAlly) ||
+                    Boolean(personalReflectMetadata?.reflectToRandomEnemyTarget);
+                if (!reflectToRandomCasterAlly) {
+                    return recipient;
+                }
+                const originalKey = `${recipient.username}:${recipient.slot}`;
+                const existingRedirect = reflectedRecipientByOriginalKey.get(originalKey);
+                if (existingRedirect?.unit && existingRedirect.unit.alive !== false) {
+                    return existingRedirect;
+                }
+                const alternatives = actorAllies.filter(
+                    (entry) =>
+                        entry?.unit &&
+                        entry.unit.alive !== false &&
+                        Number(entry.slot) !== Number(actorSlot)
+                );
+                if (alternatives.length > 0) {
+                    const redirect = alternatives[Math.floor(Math.random() * alternatives.length)];
+                    reflectedRecipientByOriginalKey.set(originalKey, redirect);
+                    return redirect;
+                }
+                const fallback = { username: actingUsername, slot: actorSlot, unit: actorUnit };
+                reflectedRecipientByOriginalKey.set(originalKey, fallback);
+                return fallback;
+            });
         const resolveRecipients = (effect) => {
             const scope = effect?.scope;
             if (scope === 'self') {
-                return [{ username: actingUsername, slot: actorSlot, unit: actorUnit }];
+                return filterHelpfulImmuneRecipients({
+                    effect,
+                    recipients: [{ username: actingUsername, slot: actorSlot, unit: actorUnit }],
+                    actingUsername,
+                });
+            }
+            if (scope === 'all-units') {
+                return filterHelpfulImmuneRecipients({
+                    effect,
+                    recipients: [...actorAllies, ...opponentUnits],
+                    actingUsername,
+                });
             }
             if (scope === 'all-allies') {
-                return actorAllies;
+                return filterHelpfulImmuneRecipients({ effect, recipients: actorAllies, actingUsername });
             }
             if (scope === 'all-enemy') {
-                return opponentUnits;
+                return filterHelpfulImmuneRecipients({
+                    effect,
+                    recipients: reflectRecipients(opponentUnits),
+                    actingUsername,
+                });
             }
             if (scope === 'random-enemy') {
                 if (!opponentUnits.length) return [];
@@ -1227,17 +2196,75 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 if (randomGroupKey) {
                     const savedPick = randomScopeGroupPicks.get(randomGroupKey);
                     if (savedPick?.unit && savedPick.unit.alive !== false) {
-                        return [savedPick];
+                        return filterHelpfulImmuneRecipients({
+                            effect,
+                            recipients: reflectRecipients([savedPick]),
+                            actingUsername,
+                        });
                     }
                     const groupedPick = opponentUnits[Math.floor(Math.random() * opponentUnits.length)];
                     if (groupedPick) {
                         randomScopeGroupPicks.set(randomGroupKey, groupedPick);
-                        return [groupedPick];
+                        return filterHelpfulImmuneRecipients({
+                            effect,
+                            recipients: reflectRecipients([groupedPick]),
+                            actingUsername,
+                        });
                     }
                     return [];
                 }
                 const pick = opponentUnits[Math.floor(Math.random() * opponentUnits.length)];
-                return pick ? [pick] : [];
+                return pick
+                    ? filterHelpfulImmuneRecipients({
+                          effect,
+                          recipients: reflectRecipients([pick]),
+                          actingUsername,
+                      })
+                    : [];
+            }
+            if (scope === 'random-other-enemy') {
+                const selectedKeys = new Set(
+                    selectedTargets
+                        .filter((entry) => entry?.username && Number.isInteger(entry?.slot))
+                        .map((entry) => `${entry.username}:${entry.slot}`)
+                );
+                const pool = opponentUnits.filter(
+                    (entry) => !selectedKeys.has(`${entry.username}:${entry.slot}`)
+                );
+                if (!pool.length) return [];
+                const randomGroupKey = effect?.metadata?.randomScopeGroupKey;
+                if (randomGroupKey) {
+                    const savedPick = randomScopeGroupPicks.get(randomGroupKey);
+                    if (
+                        savedPick?.unit &&
+                        savedPick.unit.alive !== false &&
+                        !selectedKeys.has(`${savedPick.username}:${savedPick.slot}`)
+                    ) {
+                        return filterHelpfulImmuneRecipients({
+                            effect,
+                            recipients: reflectRecipients([savedPick]),
+                            actingUsername,
+                        });
+                    }
+                    const groupedPick = pool[Math.floor(Math.random() * pool.length)];
+                    if (groupedPick) {
+                        randomScopeGroupPicks.set(randomGroupKey, groupedPick);
+                        return filterHelpfulImmuneRecipients({
+                            effect,
+                            recipients: reflectRecipients([groupedPick]),
+                            actingUsername,
+                        });
+                    }
+                    return [];
+                }
+                const pick = pool[Math.floor(Math.random() * pool.length)];
+                return pick
+                    ? filterHelpfulImmuneRecipients({
+                          effect,
+                          recipients: reflectRecipients([pick]),
+                          actingUsername,
+                      })
+                    : [];
             }
             if (scope === 'other-enemies') {
                 const selectedKeys = new Set(
@@ -1245,18 +2272,29 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         .filter((entry) => entry?.username && Number.isInteger(entry?.slot))
                         .map((entry) => `${entry.username}:${entry.slot}`)
                 );
-                return opponentUnits.filter(
-                    (entry) => !selectedKeys.has(`${entry.username}:${entry.slot}`)
-                );
+                return filterHelpfulImmuneRecipients({
+                    effect,
+                    recipients: reflectRecipients(
+                        opponentUnits.filter((entry) => !selectedKeys.has(`${entry.username}:${entry.slot}`))
+                    ),
+                    actingUsername,
+                });
             }
-            return selectedTargets;
+            return filterHelpfulImmuneRecipients({
+                effect,
+                recipients: reflectRecipients(selectedTargets),
+                actingUsername,
+            });
         };
 
         const pendingDamage = new Map();
         const evadedRecipients = new Set();
         const evadeDecisionByRecipient = new Map();
         let skillCancelledByEvade = false;
-        const skillIsHarmful = skillHasHarmfulEffects(skill);
+        const skillCannotBeEvaded =
+            skillIsHarmful &&
+            effects.length > 0 &&
+            effects.every((effect) => !isHarmfulEffect(effect) || Boolean(effect?.metadata?.cannotBeEvaded));
         const didEvadeRecipient = (recipient) =>
             evadedRecipients.has(`${recipient?.username || ''}:${recipient?.slot ?? ''}`);
         const queueDamage = (recipient, amount, effect) => {
@@ -1270,6 +2308,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 Number.isInteger(recipient.slot) ? recipient.slot : '',
                 ignoreDamageReduction ? 1 : 0,
                 ignoreDestructibleDefense ? 1 : 0,
+                effect?.metadata?.onSuccessfulDamageApplyStatusToTarget?.statusId || '',
             ].join('|');
             const existing = pendingDamage.get(key);
             if (existing) {
@@ -1281,6 +2320,8 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 amount: numericAmount,
                 ignoreDamageReduction,
                 ignoreDestructibleDefense,
+                onSuccessfulDamageApplyStatusToTarget:
+                    effect?.metadata?.onSuccessfulDamageApplyStatusToTarget || null,
             });
         };
         const shouldEvadeForRecipient = (recipient) => {
@@ -1295,6 +2336,10 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 return Boolean(evadeDecisionByRecipient.get(recipientKey));
             }
             const targetState = ensureUnitStateShape(recipient.unit);
+            if (targetState._lastEvadeTurnMarker === turnMarker) {
+                evadeDecisionByRecipient.set(recipientKey, false);
+                return false;
+            }
             const evadeDisabledBySource = Array.isArray(targetState?.statuses)
                 ? targetState.statuses.some((status) => {
                       const remaining = Number(status?.remainingTurns) || 0;
@@ -1320,6 +2365,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             }
             evadeDecisionByRecipient.set(recipientKey, true);
             evadedRecipients.add(`${recipient.username}:${recipient.slot}`);
+            targetState._lastEvadeTurnMarker = turnMarker;
             applyOnEvadeBonuses({
                 targetState,
                 sourceUsername: actingUsername,
@@ -1345,22 +2391,36 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             if (!recipient?.unit || recipient.unit.alive === false) return false;
             if (recipient.username === actingUsername) return false;
             if (!skillIsHarmful) return false;
+            if (skillCannotBeEvaded) return false;
             return didEvadeRecipient(recipient) || shouldEvadeForRecipient(recipient);
         };
         const preflightRecipientsByTargetType = (() => {
             const targetType = String(skill?.target || '').trim().toLowerCase();
             if (targetType === 'single-enemy') {
-                return selectedTargets.filter((entry) => entry?.username !== actingUsername);
+                return reflectRecipients(
+                    selectedTargets.filter((entry) => entry?.username !== actingUsername)
+                );
             }
             if (targetType === 'all-enemy' || targetType === 'other-enemies') {
-                return opponentUnits;
+                return reflectRecipients(opponentUnits);
             }
             return [];
         })();
         for (const recipient of preflightRecipientsByTargetType) {
             if (!recipient?.unit || recipient.unit.alive === false) continue;
+            const targetState = ensureUnitStateShape(recipient.unit);
+            if (
+                doesTargetIgnoreSkillByClass({
+                    targetState,
+                    skillClasses: skill.classes || [],
+                    isEnemySkill: recipient.username !== actingUsername,
+                })
+            ) {
+                continue;
+            }
             if (
                 skillIsHarmful &&
+                !skillCannotBeCountered &&
                 maybeTriggerReactiveDefenses({
                     match,
                     turnMarker,
@@ -1380,11 +2440,20 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             break;
         }
 
-        effects.forEach((effect) => {
+        const actorSilencedToNonDamage = hasStatusMetadataFlag(actorState, 'silenceNonDamageEffects');
+        const chosenSkillClass = resolveSkillClassChoiceForCast({ skill, queued });
+        effects.forEach((rawEffect) => {
+            const effect = materializeEffectWithSkillClassChoice(rawEffect, chosenSkillClass);
             if (skillCancelledByEvade) return;
             const effectType = effect?.type;
+            if (actorSilencedToNonDamage && effectType !== 'damage') return;
+            const rollPerRecipient = Boolean(effect?.rollPerRecipient);
+            const chance = Number(effect?.chance);
+            if (!rollPerRecipient && Number.isFinite(chance) && chance >= 0 && chance < 100) {
+                if (!rollPercentSuccess(chance)) return;
+            }
             const activationChance = Number(effect?.activationChancePercent);
-            if (Number.isFinite(activationChance) && !rollPercentSuccess(activationChance)) {
+            if (!rollPerRecipient && Number.isFinite(activationChance) && !rollPercentSuccess(activationChance)) {
                 return;
             }
             if (effectType === 'damage') {
@@ -1392,12 +2461,37 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 recipients.forEach((recipient) => {
                     if (skillCancelledByEvade) return;
                     if (!recipient?.unit || recipient.unit.alive === false) return;
+                    if (rollPerRecipient && Number.isFinite(chance) && chance >= 0 && chance < 100) {
+                        if (!rollPercentSuccess(chance)) return;
+                    }
+                    if (rollPerRecipient && Number.isFinite(activationChance)) {
+                        if (!rollPercentSuccess(activationChance)) return;
+                    }
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    if (
+                        doesEffectTargetHelpfulRecipient({ effect, recipient, actingUsername }) &&
+                        isUnitInvulnerableToHelpfulSkills(recipient.unit)
+                    ) {
+                        return;
+                    }
+                    if (
+                        doesTargetIgnoreSkillByClass({
+                            targetState,
+                            skillClasses: skill.classes || [],
+                            isEnemySkill: recipient.username !== actingUsername,
+                        })
+                    ) {
+                        return;
+                    }
                     if (!Boolean(effect?.metadata?.cannotBeEvaded) && shouldCancelByEvade(recipient)) {
                         skillCancelledByEvade = true;
                         pendingDamage.clear();
                         return;
                     }
                     if (isHarmfulEffect(effect)) {
+                        if (skillCannotBeCountered) {
+                            // This skill bypasses reactive counter mechanics.
+                        } else {
                         const counterCancelled = maybeTriggerReactiveDefenses({
                             match,
                             turnMarker,
@@ -1411,11 +2505,21 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             pendingDamage.clear();
                             return;
                         }
+                        }
                     }
-                    const targetState = ensureUnitStateShape(recipient.unit);
+                    const condition = effect?.condition;
+                    if (condition) {
+                        if (!doesEffectConditionMatch({ condition, actorState, targetState, actorUnit, targetUnit: recipient.unit })) return;
+                        if (condition.consumeOnMatch && condition.statusId) {
+                            const scope = condition.scope === 'target' ? 'target' : 'self';
+                            const scopedState = scope === 'target' ? targetState : actorState;
+                            consumeStatus(scopedState, condition.statusId);
+                        }
+                    }
                     const amount = resolveEffectDamageAmount({
                         effect,
                         actorState,
+                        actorUnit,
                         targetState,
                         skillClasses: skill.classes || [],
                     });
@@ -1423,6 +2527,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     const targetSourceBonus = getTargetBonusDamageFromSource({
                         targetState,
                         sourceCharacterId: actingCharacterId,
+                        sourceSkillId: skill.id || null,
                     });
                     const totalAmount = Math.max(0, amount + skillSpecificBonus + targetSourceBonus);
                     queueDamage(recipient, totalAmount, effect);
@@ -1431,16 +2536,55 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             }
 
             if (effectType === 'apply_status') {
-                const recipients = resolveRecipients(effect);
+                const statusTargets =
+                    effect?.scope === 'self' && effect?.condition?.scope === 'target'
+                        ? filterHelpfulImmuneRecipients({
+                              effect,
+                              recipients: reflectRecipients(selectedTargets),
+                              actingUsername,
+                          })
+                        : resolveRecipients(effect);
+                const recipients = statusTargets;
                 recipients.forEach((recipient) => {
                     if (skillCancelledByEvade) return;
                     if (!recipient?.unit || recipient.unit.alive === false) return;
-                    if (!Boolean(effect?.metadata?.cannotBeEvaded) && shouldCancelByEvade(recipient)) {
+                    if (rollPerRecipient && Number.isFinite(chance) && chance >= 0 && chance < 100) {
+                        if (!rollPercentSuccess(chance)) return;
+                    }
+                    if (rollPerRecipient && Number.isFinite(activationChance)) {
+                        if (!rollPercentSuccess(activationChance)) return;
+                    }
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    const appliesToSelf = effect?.scope === 'self';
+                    const destinationState = appliesToSelf ? actorState : targetState;
+                    if (
+                        doesEffectTargetHelpfulRecipient({ effect, recipient, actingUsername }) &&
+                        isUnitInvulnerableToHelpfulSkills(recipient.unit)
+                    ) {
+                        return;
+                    }
+                    if (
+                        doesTargetIgnoreSkillByClass({
+                            targetState: destinationState,
+                            skillClasses: skill.classes || [],
+                            isEnemySkill: appliesToSelf ? false : recipient.username !== actingUsername,
+                        })
+                    ) {
+                        return;
+                    }
+                    if (
+                        !appliesToSelf &&
+                        !Boolean(effect?.metadata?.cannotBeEvaded) &&
+                        shouldCancelByEvade(recipient)
+                    ) {
                         skillCancelledByEvade = true;
                         pendingDamage.clear();
                         return;
                     }
-                    if (isHarmfulEffect(effect)) {
+                    if (!appliesToSelf && isHarmfulEffect(effect)) {
+                        if (skillCannotBeCountered) {
+                            // This skill bypasses reactive counter mechanics.
+                        } else {
                         const counterCancelled = maybeTriggerReactiveDefenses({
                             match,
                             turnMarker,
@@ -1453,6 +2597,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             skillCancelledByEvade = true;
                             pendingDamage.clear();
                             return;
+                        }
                         }
                     }
                     if (
@@ -1462,17 +2607,104 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     ) {
                         return;
                     }
-                    const targetState = ensureUnitStateShape(recipient.unit);
                     const condition = effect?.condition;
                     if (condition) {
-                        if (!doesEffectConditionMatch({ condition, actorState, targetState })) return;
+                        if (!doesEffectConditionMatch({ condition, actorState, targetState, actorUnit, targetUnit: recipient.unit })) return;
                         if (condition.consumeOnMatch && condition.statusId) {
                             const scope = condition.scope === 'target' ? 'target' : 'self';
                             const scopedState = scope === 'target' ? targetState : actorState;
                             consumeStatus(scopedState, condition.statusId);
                         }
                     }
+                    let runtimeStatusId = effect.statusId;
+                    let runtimeDuration = effect.duration;
                     let runtimeMetadata = effect.metadata || {};
+                    if (runtimeMetadata?.repeatTargetControl && typeof runtimeMetadata.repeatTargetControl === 'object') {
+                        const control = runtimeMetadata.repeatTargetControl;
+                        const trackerStatusId =
+                            typeof control?.trackerStatusId === 'string' && control.trackerStatusId
+                                ? control.trackerStatusId
+                                : 'repeat_target_tracker';
+                        const trackerDuration = Math.max(1, Number(control?.trackerDuration) || 99);
+                        const lockStatusId =
+                            typeof control?.lockStatusId === 'string' && control.lockStatusId
+                                ? control.lockStatusId
+                                : 'random_skill_lock';
+                        const silenceStatusId =
+                            typeof control?.silenceStatusId === 'string' && control.silenceStatusId
+                                ? control.silenceStatusId
+                                : 'silence_non_damage';
+                        const lastTargetStatus = (Array.isArray(actorState.statuses) ? actorState.statuses : []).find(
+                            (status) =>
+                                status?.id === trackerStatusId &&
+                                (Number(status?.remainingTurns) || 0) > 0
+                        );
+                        const sameTargetAsLastCast =
+                            lastTargetStatus?.metadata?.lastTargetUsername === recipient.username &&
+                            Number(lastTargetStatus?.metadata?.lastTargetSlot) === Number(recipient.slot);
+                        if (sameTargetAsLastCast) {
+                            runtimeStatusId = silenceStatusId;
+                            runtimeMetadata = {
+                                silenceNonDamageEffects: true,
+                                harmful: true,
+                                tooltipText:
+                                    (typeof control?.silenceTooltipText === 'string' && control.silenceTooltipText) ||
+                                    'Silenced: only damage effects from this character\'s skills will work.',
+                            };
+                            consumeStatus(actorState, trackerStatusId);
+                        } else {
+                            const targetCharacter =
+                                Number.isInteger(recipient?.unit?.rosterIndex) &&
+                                Array.isArray(characters)
+                                    ? characters[recipient.unit.rosterIndex]
+                                    : null;
+                            const activeIndices = getCharacterActiveSkillIndices(targetCharacter);
+                            const chosenIndex = activeIndices.length
+                                ? activeIndices[Math.floor(Math.random() * activeIndices.length)]
+                                : null;
+                            runtimeStatusId = lockStatusId;
+                            const lockTooltipTemplate =
+                                typeof control?.lockTooltipTextTemplate === 'string' &&
+                                control.lockTooltipTextTemplate
+                                    ? control.lockTooltipTextTemplate
+                                    : 'Skill slot {slot} is unusable this turn.';
+                            runtimeMetadata = {
+                                harmful: true,
+                                cannotUseSkillIndices: Number.isInteger(chosenIndex) ? [chosenIndex] : [],
+                                tooltipText: Number.isInteger(chosenIndex)
+                                    ? lockTooltipTemplate.replace(/\{slot\}/g, String(chosenIndex + 1))
+                                    : 'A random skill is unusable this turn.',
+                            };
+                        }
+                        if (!sameTargetAsLastCast) {
+                            const trackerTooltipText =
+                                typeof control?.trackerTooltipText === 'string' && control.trackerTooltipText
+                                    ? control.trackerTooltipText
+                                    : null;
+                            applyStatus({
+                                targetState: actorState,
+                                statusId: trackerStatusId,
+                                duration: trackerDuration,
+                                sourceSkillId: skill.id || null,
+                                sourceUsername: actingUsername,
+                                sourceSlot: actorSlot,
+                                metadata: {
+                                    lastTargetUsername: recipient.username,
+                                    lastTargetSlot: recipient.slot,
+                                    ...(trackerTooltipText ? { tooltipText: trackerTooltipText } : {}),
+                                },
+                                fresh: false,
+                            });
+                        }
+                    }
+                    const extraDuration = getAdditionalIncomingStatusDuration({
+                        targetState: destinationState,
+                        incomingStatusId: runtimeStatusId,
+                        incomingMetadata: runtimeMetadata,
+                    });
+                    if (extraDuration > 0) {
+                        runtimeDuration = Math.max(0, Number(runtimeDuration) || 0) + extraDuration;
+                    }
                     if (
                         runtimeMetadata?.cannotBecomeInvulnerable &&
                         runtimeMetadata?.turnDurationAnchor !== 'source_turn'
@@ -1487,20 +2719,49 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         };
                     }
                     const applyingStun =
-                        effect.statusId === 'stunned' ||
-                        Boolean(effect?.metadata?.cannotUseSkills) ||
-                        Boolean(effect?.metadata?.cannotUseHarmfulSkills) ||
-                        Boolean(effect?.metadata?.cannotUseNonMentalSkills) ||
-                        (Array.isArray(effect?.metadata?.cannotUseSkillClasses) &&
-                            effect.metadata.cannotUseSkillClasses.length > 0);
-                    if (applyingStun && hasStatusMetadataFlag(targetState, 'cannotBeStunned')) {
+                        runtimeStatusId === 'stunned' ||
+                        Boolean(runtimeMetadata?.cannotUseSkills) ||
+                        Boolean(runtimeMetadata?.cannotUseHarmfulSkills) ||
+                        Boolean(runtimeMetadata?.cannotUseNonMentalSkills) ||
+                        Boolean(runtimeMetadata?.useChosenSkillClassForCannotUseSkillClasses) ||
+                        (Array.isArray(runtimeMetadata?.cannotUseSkillIndices) &&
+                            runtimeMetadata.cannotUseSkillIndices.length > 0) ||
+                        (Array.isArray(runtimeMetadata?.cannotUseSkillClasses) &&
+                            runtimeMetadata.cannotUseSkillClasses.length > 0);
+                    if (applyingStun && hasStatusMetadataFlag(destinationState, 'cannotBeStunned')) {
+                        // Keep stun feedback visible, but strip all functional stun locks.
+                        applyStatus({
+                            targetState: destinationState,
+                            statusId: 'stun_ignored_notification',
+                            duration: Math.max(0, Number(runtimeDuration) || 0),
+                            sourceSkillId: effect?.sourceSkillId || skill.id || null,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            metadata: {
+                                harmful: Boolean(runtimeMetadata?.harmful),
+                                tooltipText:
+                                    (typeof runtimeMetadata?.tooltipText === 'string' &&
+                                        runtimeMetadata.tooltipText) ||
+                                    'This character is stunned.',
+                            },
+                            fresh: false,
+                        });
                         return;
                     }
-                    if (effect.statusId === 'mind_body_switch_lock' || Boolean(effect?.metadata?.taunt)) {
+                    if (runtimeStatusId === 'mind_body_switch_lock' || Boolean(runtimeMetadata?.taunt)) {
                         runtimeMetadata = {
                             ...(runtimeMetadata || {}),
                             cannotTargetAlliesOfUsername: actingUsername,
                             allowedTargetSlot: actorSlot,
+                        };
+                    }
+                    const sourceSkillClassesSnapshot = (Array.isArray(skill?.classes) ? skill.classes : [])
+                        .map((entry) => (typeof entry === 'string' ? entry.trim().toLowerCase() : ''))
+                        .filter(Boolean);
+                    if (sourceSkillClassesSnapshot.length > 0) {
+                        runtimeMetadata = {
+                            ...(runtimeMetadata || {}),
+                            _sourceSkillClasses: sourceSkillClassesSnapshot,
                         };
                     }
                     if (runtimeMetadata?.uniqueEnemyMarkFromSource && recipient.username !== actingUsername) {
@@ -1514,7 +2775,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             enemyState.statuses = (Array.isArray(enemyState.statuses) ? enemyState.statuses : []).filter(
                                 (entry) =>
                                     !(
-                                        entry?.id === effect.statusId &&
+                                        entry?.id === runtimeStatusId &&
                                         entry?.sourceUsername === actingUsername &&
                                         Number(entry?.sourceSlot) === actorSlot
                                     )
@@ -1522,15 +2783,16 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         });
                     }
                     applyStatus({
-                        targetState,
-                        statusId: effect.statusId,
-                        duration: effect.duration,
+                        targetState: destinationState,
+                        statusId: runtimeStatusId,
+                        duration: runtimeDuration,
                         sourceSkillId: effect?.sourceSkillId || skill.id || null,
                         sourceUsername: actingUsername,
                         sourceSlot: actorSlot,
                         metadata: runtimeMetadata,
                         fresh:
                             recipient.username === actingUsername ||
+                            Boolean(runtimeMetadata?.freezeCooldowns) ||
                             (runtimeMetadata?.turnDurationAnchor === 'source_turn' &&
                                 !runtimeMetadata?.triggerOnApply),
                     });
@@ -1538,13 +2800,13 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         runtimeMetadata?.refreshSameStatusOnEnemyTeam &&
                         recipient.username &&
                         recipient.username !== actingUsername &&
-                        effect.statusId
+                        runtimeStatusId
                     ) {
                         refreshStatusOnTeam({
                             match,
                             username: recipient.username,
-                            statusId: effect.statusId,
-                            duration: effect.duration,
+                            statusId: runtimeStatusId,
+                            duration: runtimeDuration,
                         });
                     }
                 });
@@ -1557,6 +2819,16 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 recipients.forEach((recipient) => {
                     if (skillCancelledByEvade) return;
                     if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    if (
+                        doesTargetIgnoreSkillByClass({
+                            targetState,
+                            skillClasses: skill.classes || [],
+                            isEnemySkill: recipient.username !== actingUsername,
+                        })
+                    ) {
+                        return;
+                    }
                     if (!Boolean(effect?.metadata?.cannotBeEvaded) && shouldCancelByEvade(recipient)) {
                         skillCancelledByEvade = true;
                         pendingDamage.clear();
@@ -1578,16 +2850,24 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 const condition = effect?.condition;
                 recipients.forEach((recipient) => {
                     if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    if (
+                        doesTargetIgnoreSkillByClass({
+                            targetState,
+                            skillClasses: skill.classes || [],
+                            isEnemySkill: recipient.username !== actingUsername,
+                        })
+                    ) {
+                        return;
+                    }
                     if (condition?.statusId) {
-                        const targetState = ensureUnitStateShape(recipient.unit);
-                        if (!doesEffectConditionMatch({ condition, actorState, targetState })) return;
+                        if (!doesEffectConditionMatch({ condition, actorState, targetState, actorUnit, targetUnit: recipient.unit })) return;
                         if (condition.consumeOnMatch && condition.statusId) {
                             const scope = condition.scope === 'target' ? 'target' : 'self';
                             const scopedState = scope === 'target' ? targetState : actorState;
                             consumeStatus(scopedState, condition.statusId);
                         }
                     }
-                    const targetState = ensureUnitStateShape(recipient.unit);
                     const status = Array.isArray(targetState.statuses)
                         ? targetState.statuses.find(
                               (entry) =>
@@ -1604,7 +2884,77 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 const recipients = resolveRecipients(effect);
                 recipients.forEach((recipient) => {
                     if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    if (
+                        doesTargetIgnoreSkillByClass({
+                            targetState,
+                            skillClasses: skill.classes || [],
+                            isEnemySkill: recipient.username !== actingUsername,
+                        })
+                    ) {
+                        return;
+                    }
                     applyHealToUnit(recipient.unit, effect.amount);
+                });
+                return;
+            }
+
+            if (effectType === 'set_hp_from_snapshot') {
+                const recipients = resolveRecipients(effect);
+                const snapshotKey =
+                    typeof effect?.snapshotKey === 'string' ? effect.snapshotKey.trim() : '';
+                if (!snapshotKey) return;
+                recipients.forEach((recipient) => {
+                    if (!recipient?.unit) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    if (
+                        doesTargetIgnoreSkillByClass({
+                            targetState,
+                            skillClasses: skill.classes || [],
+                            isEnemySkill: recipient.username !== actingUsername,
+                        })
+                    ) {
+                        return;
+                    }
+                    setUnitHpFromSnapshot(recipient.unit, snapshotKey);
+                });
+                return;
+            }
+
+            if (effectType === 'HealthLoss') {
+                const recipients = resolveRecipients(effect);
+                recipients.forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    if (
+                        doesTargetIgnoreSkillByClass({
+                            targetState,
+                            skillClasses: skill.classes || [],
+                            isEnemySkill: recipient.username !== actingUsername,
+                        })
+                    ) {
+                        return;
+                    }
+                    applyHealthLossToUnit(recipient.unit, effect.amount);
+                });
+                return;
+            }
+
+            if (effectType === 'destroy_destructible_defense') {
+                const recipients = resolveRecipients(effect);
+                recipients.forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    if (
+                        doesTargetIgnoreSkillByClass({
+                            targetState,
+                            skillClasses: skill.classes || [],
+                            isEnemySkill: recipient.username !== actingUsername,
+                        })
+                    ) {
+                        return;
+                    }
+                    destroyAllDestructibleDefenseOnUnit(recipient.unit);
                 });
                 return;
             }
@@ -1613,7 +2963,264 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 const recipients = resolveRecipients(effect);
                 recipients.forEach((recipient) => {
                     if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    if (
+                        doesTargetIgnoreSkillByClass({
+                            targetState,
+                            skillClasses: skill.classes || [],
+                            isEnemySkill: recipient.username !== actingUsername,
+                        })
+                    ) {
+                        return;
+                    }
                     cleanseHarmfulStatuses(recipient.unit, effect.count || 1);
+                });
+                return;
+            }
+
+            if (effectType === 'cleanse_statuses') {
+                const cleanseTargets =
+                    effect?.scope === 'self' && effect?.condition?.scope === 'target'
+                        ? reflectRecipients(selectedTargets)
+                        : resolveRecipients(effect);
+                const recipients = cleanseTargets;
+                const maxCountRaw = Number(effect?.count);
+                const maxCount = Number.isFinite(maxCountRaw) && maxCountRaw >= 0 ? Math.floor(maxCountRaw) : 0;
+                const removeAll = maxCount <= 0;
+                const sourceRelation =
+                    typeof effect?.sourceRelation === 'string' ? effect.sourceRelation.trim().toLowerCase() : 'any';
+                const metadataAny = Array.isArray(effect?.metadataAny)
+                    ? effect.metadataAny.filter((entry) => typeof entry === 'string' && entry)
+                    : [];
+                const sourceSkillClassesAny = Array.isArray(effect?.sourceSkillClassesAny)
+                    ? effect.sourceSkillClassesAny
+                          .map((entry) => (typeof entry === 'string' ? entry.trim().toLowerCase() : ''))
+                          .filter(Boolean)
+                    : [];
+
+                recipients.forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const appliesToSelf = effect?.scope === 'self';
+                    const destinationUnit = appliesToSelf ? actorUnit : recipient.unit;
+                    if (!destinationUnit || destinationUnit.alive === false) return;
+                    const targetState = ensureUnitStateShape(destinationUnit);
+                    const conditionTargetState = ensureUnitStateShape(recipient.unit);
+                    const condition = effect?.condition;
+                    if (condition) {
+                        if (
+                            !doesEffectConditionMatch({
+                                condition,
+                                actorState,
+                                targetState: conditionTargetState,
+                                actorUnit,
+                                targetUnit: recipient.unit,
+                            })
+                        ) {
+                            return;
+                        }
+                        if (condition.consumeOnMatch && condition.statusId) {
+                            const scope = condition.scope === 'target' ? 'target' : 'self';
+                            const scopedState = scope === 'target' ? conditionTargetState : actorState;
+                            consumeStatus(scopedState, condition.statusId);
+                        }
+                    }
+                    let removed = 0;
+                    const targetUsername = appliesToSelf ? actingUsername : recipient.username || '';
+                    targetState.statuses = (Array.isArray(targetState.statuses) ? targetState.statuses : []).filter(
+                        (status) => {
+                            if (!status || (Number(status?.remainingTurns) || 0) <= 0) return true;
+                            if (!removeAll && removed >= maxCount) return true;
+
+                            const sourceUsername = status?.sourceUsername || '';
+                            const fromEnemy =
+                                Boolean(sourceUsername) && Boolean(targetUsername) && sourceUsername !== targetUsername;
+                            const fromAlly =
+                                Boolean(sourceUsername) && Boolean(targetUsername) && sourceUsername === targetUsername;
+                            if (sourceRelation === 'enemy' && !fromEnemy) return true;
+                            if (sourceRelation === 'ally' && !fromAlly) return true;
+                            if (Boolean(effect?.harmfulOnly) && !Boolean(status?.metadata?.harmful)) return true;
+                            if (metadataAny.length > 0) {
+                                const metadata = status?.metadata || {};
+                                const hasAny = metadataAny.some((key) => Boolean(metadata?.[key]));
+                                if (!hasAny) return true;
+                            }
+                            if (sourceSkillClassesAny.length > 0) {
+                                const stamped = Array.isArray(status?.metadata?._sourceSkillClasses)
+                                    ? status.metadata._sourceSkillClasses
+                                          .map((entry) =>
+                                              typeof entry === 'string' ? entry.trim().toLowerCase() : ''
+                                          )
+                                          .filter(Boolean)
+                                    : [];
+                                if (stamped.length > 0) {
+                                    const stampedMatch = sourceSkillClassesAny.some((entry) => stamped.includes(entry));
+                                    if (!stampedMatch) return true;
+                                } else {
+                                const sourceSkillId =
+                                    typeof status?.sourceSkillId === 'string' ? status.sourceSkillId : '';
+                                const sourceUser = typeof status?.sourceUsername === 'string' ? status.sourceUsername : '';
+                                const sourceSlot = Number.isInteger(status?.sourceSlot)
+                                    ? Number(status.sourceSlot)
+                                    : null;
+                                if (!sourceSkillId || !sourceUser || !Number.isInteger(sourceSlot)) return true;
+                                const sourceUnit = match?.board?.[sourceUser]?.[sourceSlot] || null;
+                                if (!sourceUnit || sourceUnit.alive === false) return true;
+                                const rosterIndex = Number.isInteger(sourceUnit?.rosterIndex)
+                                    ? Number(sourceUnit.rosterIndex)
+                                    : null;
+                                const sourceCharacter =
+                                    Number.isInteger(rosterIndex) && Array.isArray(characters)
+                                        ? characters[rosterIndex]
+                                        : null;
+                                const sourceSkill = Array.isArray(sourceCharacter?.skills)
+                                    ? sourceCharacter.skills.find((entry) => entry?.id === sourceSkillId)
+                                    : null;
+                                const classSet = getSkillClassSet(sourceSkill?.classes || []);
+                                const matchesClass = sourceSkillClassesAny.some((entry) => classSet.has(entry));
+                                if (!matchesClass) return true;
+                                }
+                            }
+
+                            removed += 1;
+                            return false;
+                        }
+                    );
+                });
+                return;
+            }
+
+            if (effectType === 'remove_random_chakra') {
+                const recipients = resolveRecipients(effect);
+                const amount = Math.max(0, Number(effect?.amount) || 0);
+                if (amount <= 0) return;
+                recipients.forEach((recipient) => {
+                    if (!recipient?.username) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    const condition = effect?.condition;
+                    if (condition) {
+                        if (!doesEffectConditionMatch({ condition, actorState, targetState, actorUnit, targetUnit: recipient.unit })) return;
+                        if (condition.consumeOnMatch && condition.statusId) {
+                            const scope = condition.scope === 'target' ? 'target' : 'self';
+                            const scopedState = scope === 'target' ? targetState : actorState;
+                            consumeStatus(scopedState, condition.statusId);
+                        }
+                    }
+                    removeRandomChakraFromMatch({
+                        match,
+                        username: recipient.username,
+                        amount,
+                    });
+                });
+                return;
+            }
+
+            if (effectType === 'modify_cooldowns') {
+                const recipients = resolveRecipients(effect);
+                const amount = Number(effect?.amount) || 0;
+                if (!Number.isFinite(amount) || amount === 0) return;
+                const operation =
+                    typeof effect?.operation === 'string' ? effect.operation.trim().toLowerCase() : 'add';
+                const includeAllCharacterSkills =
+                    Boolean(effect?.includeAllCharacterSkills) ||
+                    Boolean(effect?.metadata?.includeAllCharacterSkills);
+                const explicitSkillIds = Array.isArray(effect?.skillIds)
+                    ? effect.skillIds.filter((entry) => typeof entry === 'string' && entry)
+                    : [];
+                recipients.forEach((recipient) => {
+                    if (skillCancelledByEvade) return;
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    if (rollPerRecipient && Number.isFinite(chance) && chance >= 0 && chance < 100) {
+                        if (!rollPercentSuccess(chance)) return;
+                    }
+                    if (rollPerRecipient && Number.isFinite(activationChance)) {
+                        if (!rollPercentSuccess(activationChance)) return;
+                    }
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    const appliesToSelf = effect?.scope === 'self';
+                    const destinationState = appliesToSelf ? actorState : targetState;
+                    if (
+                        doesTargetIgnoreSkillByClass({
+                            targetState: destinationState,
+                            skillClasses: skill.classes || [],
+                            isEnemySkill: appliesToSelf ? false : recipient.username !== actingUsername,
+                        })
+                    ) {
+                        return;
+                    }
+                    if (
+                        !appliesToSelf &&
+                        !Boolean(effect?.metadata?.cannotBeEvaded) &&
+                        shouldCancelByEvade(recipient)
+                    ) {
+                        skillCancelledByEvade = true;
+                        pendingDamage.clear();
+                        return;
+                    }
+                    if (!appliesToSelf && isHarmfulEffect(effect)) {
+                        if (skillCannotBeCountered) {
+                            // This skill bypasses reactive counter mechanics.
+                        } else {
+                        const counterCancelled = maybeTriggerReactiveDefenses({
+                            match,
+                            turnMarker,
+                            actingUsername,
+                            recipient,
+                            actorUnit,
+                            skillClasses: skill.classes || [],
+                        });
+                        if (counterCancelled) {
+                            skillCancelledByEvade = true;
+                            pendingDamage.clear();
+                            return;
+                        }
+                        }
+                    }
+                    const condition = effect?.condition;
+                    if (condition) {
+                        if (!doesEffectConditionMatch({ condition, actorState, targetState, actorUnit, targetUnit: recipient.unit })) return;
+                        if (condition.consumeOnMatch && condition.statusId) {
+                            const scope = condition.scope === 'target' ? 'target' : 'self';
+                            const scopedState = scope === 'target' ? targetState : actorState;
+                            consumeStatus(scopedState, condition.statusId);
+                        }
+                    }
+                    const destinationUnit = appliesToSelf ? actorUnit : recipient.unit;
+                    const cooldowns =
+                        destinationState.cooldowns && typeof destinationState.cooldowns === 'object'
+                            ? destinationState.cooldowns
+                            : {};
+                    const skillIds = new Set(explicitSkillIds);
+                    if (!explicitSkillIds.length) {
+                        Object.keys(cooldowns).forEach((skillId) => {
+                            if (skillId) {
+                                skillIds.add(skillId);
+                            }
+                        });
+                        if (includeAllCharacterSkills) {
+                            getCharacterCooldownSkillIds({ characters, unit: destinationUnit }).forEach((skillId) => {
+                                skillIds.add(skillId);
+                            });
+                        }
+                    }
+                    skillIds.forEach((skillId) => {
+                        const current = Math.max(0, Number(cooldowns[skillId]) || 0);
+                        let next = current;
+                        if (operation === 'set') {
+                            next = Math.max(0, amount);
+                        } else if (operation === 'max') {
+                            next = Math.max(current, Math.max(0, amount));
+                        } else if (operation === 'min') {
+                            next = Math.max(0, Math.min(current, amount));
+                        } else {
+                            next = Math.max(0, current + amount);
+                        }
+                        if (next <= 0) {
+                            delete cooldowns[skillId];
+                        } else {
+                            cooldowns[skillId] = next;
+                        }
+                    });
+                    destinationState.cooldowns = cooldowns;
                 });
                 return;
             }
@@ -1665,6 +3272,14 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     chakraType: rawType,
                     amount,
                 });
+                return;
+            }
+
+            if (effectType === 'spend_all_chakra') {
+                if (!match || !actingUsername) return;
+                match.chakraPools = match.chakraPools || {};
+                match.chakraPools[actingUsername] = createEmptyChakraCost();
+                return;
             }
 
             if (effectType === 'drain_chakra_non_bloodline_from_target_to_self') {
@@ -1673,10 +3288,19 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 if (maxAmount <= 0) return;
                 recipients.forEach((recipient) => {
                     if (!recipient?.username || recipient.username === actingUsername) return;
-                    const condition = effect?.condition;
                     const targetState = ensureUnitStateShape(recipient.unit);
+                    if (
+                        doesTargetIgnoreSkillByClass({
+                            targetState,
+                            skillClasses: skill.classes || [],
+                            isEnemySkill: recipient.username !== actingUsername,
+                        })
+                    ) {
+                        return;
+                    }
+                    const condition = effect?.condition;
                     if (condition) {
-                        if (!doesEffectConditionMatch({ condition, actorState, targetState })) return;
+                        if (!doesEffectConditionMatch({ condition, actorState, targetState, actorUnit, targetUnit: recipient.unit })) return;
                         if (condition.consumeOnMatch && condition.statusId) {
                             const scope = condition.scope === 'target' ? 'target' : 'self';
                             const scopedState = scope === 'target' ? targetState : actorState;
@@ -1713,9 +3337,18 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 recipients.forEach((recipient) => {
                     if (!recipient?.username || recipient.username === actingUsername) return;
                     const targetState = ensureUnitStateShape(recipient.unit);
+                    if (
+                        doesTargetIgnoreSkillByClass({
+                            targetState,
+                            skillClasses: skill.classes || [],
+                            isEnemySkill: recipient.username !== actingUsername,
+                        })
+                    ) {
+                        return;
+                    }
                     const condition = effect?.condition;
                     if (condition) {
-                        if (!doesEffectConditionMatch({ condition, actorState, targetState })) return;
+                        if (!doesEffectConditionMatch({ condition, actorState, targetState, actorUnit, targetUnit: recipient.unit })) return;
                         if (condition.consumeOnMatch && condition.statusId) {
                             const scope = condition.scope === 'target' ? 'target' : 'self';
                             const scopedState = scope === 'target' ? targetState : actorState;
@@ -1736,16 +3369,41 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             }
         });
 
+        const unpierceableBudgetByRecipient = new Map();
+        const standardMitigationBudgetByRecipient = new Map();
+        const percentMitigationStateByRecipient = new Map();
         pendingDamage.forEach((entry) => {
             if (!entry?.recipient?.unit || entry.recipient.unit.alive === false) return;
-            applyDamageToUnit(entry.recipient.unit, entry.amount, {
+            const mitigationBudgetKey = `${entry.recipient.username || ''}:${
+                Number.isInteger(entry.recipient.slot) ? entry.recipient.slot : ''
+            }`;
+            const dealt = applyDamageToUnit(entry.recipient.unit, entry.amount, {
                 match,
                 sourceUsername: actingUsername,
                 targetUsername: entry.recipient.username,
                 skillClasses: skill.classes || [],
                 ignoreDamageReduction: entry.ignoreDamageReduction,
                 ignoreDestructibleDefense: entry.ignoreDestructibleDefense,
+                unpierceableBudgetMap: unpierceableBudgetByRecipient,
+                unpierceableBudgetKey: mitigationBudgetKey,
+                standardMitigationBudgetMap: standardMitigationBudgetByRecipient,
+                standardMitigationBudgetKey: mitigationBudgetKey,
+                percentMitigationStateMap: percentMitigationStateByRecipient,
+                percentMitigationStateKey: mitigationBudgetKey,
             });
+            const onSuccess = entry?.onSuccessfulDamageApplyStatusToTarget;
+            if (dealt > 0 && onSuccess?.statusId) {
+                applyStatus({
+                    targetState: ensureUnitStateShape(entry.recipient.unit),
+                    statusId: onSuccess.statusId,
+                    duration: onSuccess.duration,
+                    sourceSkillId: skill.id || null,
+                    sourceUsername: actingUsername,
+                    sourceSlot: actorSlot,
+                    metadata: onSuccess.metadata || {},
+                    fresh: false,
+                });
+            }
         });
 
         const cooldownTurns = Math.max(0, Number(skill.cooldown) || 0);
@@ -1754,6 +3412,20 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 getSkillCooldownRemaining(actorState, cooldownSkillId),
                 cooldownTurns + 1
             );
+            actorState._cooldownsStartedThisTurn = actorState._cooldownsStartedThisTurn || {};
+            actorState._cooldownsStartedThisTurn[cooldownSkillId] = true;
+        }
+        const usedSkillPenalty = getTeamStatusMetadataMax({
+            match,
+            username: opponentUsername,
+            metadataKey: 'usedSkillCooldownPenalty',
+        });
+        if (usedSkillPenalty > 0 && cooldownSkillId) {
+            actorState.cooldowns = actorState.cooldowns || {};
+            actorState.cooldowns[cooldownSkillId] =
+                Math.max(0, Number(actorState.cooldowns[cooldownSkillId]) || 0) + usedSkillPenalty;
+            actorState._cooldownsStartedThisTurn = actorState._cooldownsStartedThisTurn || {};
+            actorState._cooldownsStartedThisTurn[cooldownSkillId] = true;
         }
         const harmfulSkillPenalty = getTeamStatusMetadataMax({
             match,
@@ -1767,7 +3439,58 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             });
             actorState.cooldowns = cooldowns;
         }
-    });
+        if (cooldownSkillId) {
+            const nextSkillCooldownAdjustment = getCastStartNextUsedSkillCooldownAdjustment(castStartStatuses);
+            if (nextSkillCooldownAdjustment.amount !== 0) {
+                actorState.cooldowns = actorState.cooldowns || {};
+                const adjustedCooldown = Math.max(
+                    0,
+                    (Number(actorState.cooldowns[cooldownSkillId]) || 0) + nextSkillCooldownAdjustment.amount
+                );
+                if (adjustedCooldown <= 0) {
+                    delete actorState.cooldowns[cooldownSkillId];
+                } else {
+                    actorState.cooldowns[cooldownSkillId] = adjustedCooldown;
+                }
+                nextSkillCooldownAdjustment.statusIdsToConsume.forEach((statusId) => {
+                    consumeStatus(actorState, statusId);
+                });
+            }
+        }
+        const actorCharacter = Number.isInteger(actorUnit?.rosterIndex)
+            ? characters?.[actorUnit.rosterIndex]
+            : null;
+        const activeStatuses = Array.isArray(actorState.statuses) ? actorState.statuses : [];
+        activeStatuses.forEach((status) => {
+            if (!status || (Number(status?.remainingTurns) || 0) <= 0) return;
+            const metadata = status?.metadata || {};
+            const autoCastSkillId =
+                typeof metadata?.autoCastSkillId === 'string' ? metadata.autoCastSkillId.trim() : '';
+            if (!autoCastSkillId) return;
+            if (!Boolean(metadata?.autoCastOnApply)) return;
+            if (metadata?._autoCastOnApplyTriggeredTurnMarker === turnMarker) return;
+            const autoSkillIndex = Array.isArray(actorCharacter?.skills)
+                ? actorCharacter.skills.findIndex((entry) => entry?.id === autoCastSkillId)
+                : -1;
+            if (autoSkillIndex < 0) return;
+            metadata._autoCastOnApplyTriggeredTurnMarker = turnMarker;
+            status.metadata = metadata;
+            const autoCastTarget =
+                typeof metadata?.autoCastTarget === 'string'
+                    ? metadata.autoCastTarget.trim().toLowerCase()
+                    : 'all-enemy';
+            let targetSelection = [];
+            if (autoCastTarget === 'self') {
+                targetSelection = [{ username: actingUsername, slot: actorSlot }];
+            }
+            queuedActions.push({
+                actorSlot,
+                skillIndex: autoSkillIndex,
+                targetSelection,
+                isAutoCast: true,
+            });
+        });
+    }
 
     (match.players || []).forEach((player) => {
         const units = match.board?.[player.username] || [];
@@ -1778,11 +3501,62 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
 const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
     if (!match || !endingUsername) return;
     const players = Array.isArray(match.players) ? match.players : [];
+    const turnEndUnpierceableBudgetByRecipient = new Map();
+    const turnEndStandardMitigationBudgetByRecipient = new Map();
+    const turnEndPercentMitigationStateByRecipient = new Map();
+    const triggerSuperMultiSizeBurst = ({ status, actorState, sourceUsername, sourceSlot }) => {
+        const burstStatusId =
+            typeof status?.metadata?.superMultiSizeBurstStatusId === 'string'
+                ? status.metadata.superMultiSizeBurstStatusId
+                : '';
+        if (!burstStatusId) return;
+        const stunDuration = Math.max(0, Number(status?.metadata?.superMultiSizeBurstStunDuration) || 1);
+        const defenseStatus = (Array.isArray(actorState?.statuses) ? actorState.statuses : []).find(
+            (entry) => entry?.id === burstStatusId && (Number(entry?.remainingTurns) || 0) > 0
+        );
+        const burstDamage = Math.max(0, Number(defenseStatus?.metadata?.destructibleDefensePoints) || 0);
+        if (burstDamage <= 0) return;
+
+        const opponent = players.find((p) => p?.username && p.username !== sourceUsername);
+        const opponentUsername = opponent?.username;
+        const enemyUnits = Array.isArray(match.board?.[opponentUsername]) ? match.board[opponentUsername] : [];
+        enemyUnits.forEach((enemyUnit, enemySlot) => {
+            if (!enemyUnit || enemyUnit.alive === false) return;
+            const mitigationBudgetKey = `${opponentUsername || ''}:${
+                Number.isInteger(enemySlot) ? enemySlot : ''
+            }`;
+            applyDamageToUnit(enemyUnit, burstDamage, {
+                match,
+                sourceUsername,
+                targetUsername: opponentUsername,
+                unpierceableBudgetMap: turnEndUnpierceableBudgetByRecipient,
+                unpierceableBudgetKey: mitigationBudgetKey,
+                standardMitigationBudgetMap: turnEndStandardMitigationBudgetByRecipient,
+                standardMitigationBudgetKey: mitigationBudgetKey,
+                percentMitigationStateMap: turnEndPercentMitigationStateByRecipient,
+                percentMitigationStateKey: mitigationBudgetKey,
+            });
+            applyStatus({
+                targetState: ensureUnitStateShape(enemyUnit),
+                statusId: 'stunned',
+                duration: stunDuration,
+                sourceSkillId: status?.sourceSkillId || null,
+                sourceUsername: sourceUsername || null,
+                sourceSlot: Number.isInteger(sourceSlot) ? sourceSlot : null,
+                metadata: {
+                    harmful: true,
+                    cannotUseSkills: true,
+                    tooltipText: 'This character is stunned.',
+                },
+                fresh: false,
+            });
+        });
+    };
     players.forEach((player) => {
         const username = player?.username;
         if (!username) return;
         const units = match.board?.[username] || [];
-    units.forEach((unit) => {
+    units.forEach((unit, unitSlot) => {
         const actorState = ensureUnitStateShape(unit);
         const endedByControl = new Set();
         const pendingExpireStatuses = [];
@@ -1867,6 +3641,52 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                         });
                     });
                 }
+                const turnEndApplyStatusToRandomEnemy = status?.metadata?.turnEndApplyStatusToRandomEnemy;
+                if (
+                    turnEndApplyStatusToRandomEnemy?.statusId
+                ) {
+                    const opponent = players.find((p) => p?.username && p.username !== username);
+                    const opponentUsername = opponent?.username;
+                    const enemyUnits = Array.isArray(match.board?.[opponentUsername])
+                        ? match.board[opponentUsername]
+                        : [];
+                    let aliveEnemyEntries = enemyUnits
+                        .map((enemyUnit, enemySlot) => ({ enemyUnit, enemySlot }))
+                        .filter((entry) => entry?.enemyUnit && entry.enemyUnit.alive !== false);
+                    if (aliveEnemyEntries.length > 0) {
+                        if (Boolean(turnEndApplyStatusToRandomEnemy.mustChangeTarget)) {
+                            const lastKey =
+                                typeof status?.metadata?._lastRandomStatusEnemyKey === 'string'
+                                    ? status.metadata._lastRandomStatusEnemyKey
+                                    : '';
+                            if (lastKey && aliveEnemyEntries.length > 1) {
+                                const filtered = aliveEnemyEntries.filter(
+                                    (entry) => `${opponentUsername}:${entry.enemySlot}` !== lastKey
+                                );
+                                if (filtered.length > 0) {
+                                    aliveEnemyEntries = filtered;
+                                }
+                            }
+                        }
+                        const picked = pickRandomEntry(aliveEnemyEntries);
+                        if (picked?.enemyUnit) {
+                            if (status?.metadata && typeof status.metadata === 'object') {
+                                status.metadata._lastRandomStatusEnemyKey =
+                                    `${opponentUsername}:${picked.enemySlot}`;
+                            }
+                            applyStatus({
+                                targetState: ensureUnitStateShape(picked.enemyUnit),
+                                statusId: turnEndApplyStatusToRandomEnemy.statusId,
+                                duration: turnEndApplyStatusToRandomEnemy.duration,
+                                sourceSkillId: status?.sourceSkillId || null,
+                                sourceUsername: status?.sourceUsername || null,
+                                sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
+                                metadata: turnEndApplyStatusToRandomEnemy.metadata || {},
+                                fresh: Boolean(turnEndApplyStatusToRandomEnemy.fresh),
+                            });
+                        }
+                    }
+                }
                 if (ongoingClass === 'action' && (sourceStunned || targetInvulnerable)) return;
                 let turnEndDamage = Math.max(0, Number(status?.metadata?.turnEndDamage) || 0);
                 const turnEndIsAffliction = Boolean(status?.metadata?.afflictionDamage);
@@ -1884,7 +3704,8 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                 );
                 if (turnEndDamage > 0) {
                     const affliction = turnEndIsAffliction;
-                    applyDamageToUnit(unit, turnEndDamage, {
+                    const mitigationBudgetKey = `${username || ''}:${Number.isInteger(unitSlot) ? unitSlot : ''}`;
+                    const dealt = applyDamageToUnit(unit, turnEndDamage, {
                         match,
                         sourceUsername: status?.sourceUsername || null,
                         targetUsername: username,
@@ -1892,7 +3713,27 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                             affliction || Boolean(status?.metadata?.ignoreTargetDamageReduction),
                         ignoreDestructibleDefense:
                             affliction || Boolean(status?.metadata?.ignoreTargetDestructibleDefense),
+                        unpierceableBudgetMap: turnEndUnpierceableBudgetByRecipient,
+                        unpierceableBudgetKey: mitigationBudgetKey,
+                        standardMitigationBudgetMap: turnEndStandardMitigationBudgetByRecipient,
+                        standardMitigationBudgetKey: mitigationBudgetKey,
+                        percentMitigationStateMap: turnEndPercentMitigationStateByRecipient,
+                        percentMitigationStateKey: mitigationBudgetKey,
                     });
+                    const onSuccessTurnEndApplyStatusToSelf =
+                        status?.metadata?.onSuccessfulTurnEndDamageApplyStatusToSelf;
+                    if (dealt > 0 && onSuccessTurnEndApplyStatusToSelf?.statusId) {
+                        applyStatus({
+                            targetState: actorState,
+                            statusId: onSuccessTurnEndApplyStatusToSelf.statusId,
+                            duration: onSuccessTurnEndApplyStatusToSelf.duration,
+                            sourceSkillId: status?.sourceSkillId || null,
+                            sourceUsername: status?.sourceUsername || null,
+                            sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
+                            metadata: onSuccessTurnEndApplyStatusToSelf.metadata || {},
+                            fresh: false,
+                        });
+                    }
                 }
 
                 const turnEndRandomEnemyDamage = Math.max(
@@ -1952,6 +3793,9 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                             if (status?.metadata && typeof status.metadata === 'object') {
                                 status.metadata._lastRandomEnemyKey = `${opponentUsername}:${picked.enemySlot}`;
                             }
+                            const mitigationBudgetKey = `${opponentUsername || ''}:${
+                                Number.isInteger(picked?.enemySlot) ? picked.enemySlot : ''
+                            }`;
                             applyDamageToUnit(picked.enemyUnit, adjustedRandomEnemyDamage, {
                                 match,
                                 sourceUsername: username,
@@ -1961,6 +3805,12 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                                 ignoreDestructibleDefense: Boolean(
                                     status?.metadata?.turnEndRandomEnemyIgnoreDestructibleDefense
                                 ),
+                                unpierceableBudgetMap: turnEndUnpierceableBudgetByRecipient,
+                                unpierceableBudgetKey: mitigationBudgetKey,
+                                standardMitigationBudgetMap: turnEndStandardMitigationBudgetByRecipient,
+                                standardMitigationBudgetKey: mitigationBudgetKey,
+                                percentMitigationStateMap: turnEndPercentMitigationStateByRecipient,
+                                percentMitigationStateKey: mitigationBudgetKey,
                             });
                         }
                     }
@@ -1997,6 +3847,102 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                     const healAmount = (currentHp * turnEndHealPercentCurrent) / 100;
                     applyHealToUnit(unit, healAmount);
                 }
+                const turnEndHealthLoss = Math.max(0, Number(status?.metadata?.turnEndHealthLoss) || 0);
+                if (turnEndHealthLoss > 0) {
+                    applyHealthLossToUnit(unit, turnEndHealthLoss);
+                }
+                const turnEndHealthCapLoss = Math.max(
+                    0,
+                    Number(status?.metadata?.turnEndHealthCapLoss) || 0
+                );
+                if (turnEndHealthCapLoss > 0) {
+                    applyHealthCapLossToUnit(unit, turnEndHealthCapLoss);
+                }
+                const turnEndDamageFromSourceCurrentHp = Boolean(
+                    status?.metadata?.turnEndDamageFromSourceCurrentHp
+                );
+                if (
+                    turnEndDamageFromSourceCurrentHp &&
+                    status?.sourceUsername &&
+                    Number.isInteger(status?.sourceSlot)
+                ) {
+                    const sourceUnit =
+                        match.board?.[status.sourceUsername]?.[Number(status.sourceSlot)] || null;
+                    const sourceCurrentHp = Math.max(0, Number(sourceUnit?.hp) || 0);
+                    if (sourceCurrentHp > 0) {
+                        const mitigationBudgetKey = `${username || ''}:${Number.isInteger(unitSlot) ? unitSlot : ''}`;
+                        applyDamageToUnit(unit, sourceCurrentHp, {
+                            match,
+                            sourceUsername: status.sourceUsername,
+                            targetUsername: username,
+                            ignoreDamageReduction: Boolean(status?.metadata?.ignoreTargetDamageReduction),
+                            ignoreDestructibleDefense: Boolean(
+                                status?.metadata?.ignoreTargetDestructibleDefense
+                            ),
+                            unpierceableBudgetMap: turnEndUnpierceableBudgetByRecipient,
+                            unpierceableBudgetKey: mitigationBudgetKey,
+                            standardMitigationBudgetMap: turnEndStandardMitigationBudgetByRecipient,
+                            standardMitigationBudgetKey: mitigationBudgetKey,
+                            percentMitigationStateMap: turnEndPercentMitigationStateByRecipient,
+                            percentMitigationStateKey: mitigationBudgetKey,
+                        });
+                    }
+                }
+                const turnEndGainChakra = status?.metadata?.turnEndGainChakra;
+                if (turnEndGainChakra?.chakraType) {
+                    applyChakraGainToMatch({
+                        match,
+                        username,
+                        chakraType: turnEndGainChakra.chakraType,
+                        amount: Math.max(0, Number(turnEndGainChakra.amount) || 1),
+                    });
+                }
+                const turnEndSetHpToRaw = Number(status?.metadata?.turnEndSetHpTo);
+                if (Number.isFinite(turnEndSetHpToRaw)) {
+                    const nextHp = Math.max(0, turnEndSetHpToRaw);
+                    unit.hp = nextHp;
+                    if (unit.hp <= 0) {
+                        unit.alive = false;
+                    }
+                }
+                const defenseRestoreConfig =
+                    status?.metadata?.destructibleDefenseRestore &&
+                    typeof status.metadata.destructibleDefenseRestore === 'object'
+                        ? status.metadata.destructibleDefenseRestore
+                        : null;
+                if (defenseRestoreConfig && username === endingUsername) {
+                    const turnsLeft = Math.max(0, Number(status?.metadata?._destructibleDefenseRestoreTurnsLeft) || 0);
+                    if (turnsLeft > 0) {
+                        const currentPoints = Math.max(
+                            0,
+                            Number(status?.metadata?.destructibleDefensePoints) || 0
+                        );
+                        const nextTurnsLeft = Math.max(0, turnsLeft - 1);
+                        if (currentPoints > 0) {
+                            if (nextTurnsLeft <= 0) {
+                                const restoreTo = Math.max(
+                                    0,
+                                    Number(defenseRestoreConfig?.restoreTo) || currentPoints
+                                );
+                                status.metadata = {
+                                    ...(status.metadata || {}),
+                                    destructibleDefensePoints: restoreTo,
+                                    _destructibleDefenseRestoreTurnsLeft: 0,
+                                };
+                            } else {
+                                status.metadata = {
+                                    ...(status.metadata || {}),
+                                    _destructibleDefenseRestoreTurnsLeft: nextTurnsLeft,
+                                };
+                            }
+                        } else {
+                            status.metadata = {
+                                ...(status.metadata || {}),
+                                _destructibleDefenseRestoreTurnsLeft: 0,
+                            };
+                        }
+                    }
+                }
             });
             actorState.statuses = actorState.statuses
                 .map((status) => {
@@ -2004,6 +3950,9 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                     if (status?.id && endedByControl.has(status.id)) return null;
                     const remaining = Number(status?.remainingTurns) || 0;
                     if (remaining >= 99 || Boolean(status?.metadata?.infiniteDuration)) {
+                        if (status.fresh) {
+                            return { ...status, fresh: false };
+                        }
                         return status;
                     }
                     const durationAnchor =
@@ -2022,6 +3971,14 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                     }
                     if (status.fresh && Boolean(status?.metadata?.triggerOnApply)) {
                         const nextRemaining = (status.remainingTurns || 0) - 1;
+                        if (nextRemaining <= 0) {
+                            triggerSuperMultiSizeBurst({
+                                status,
+                                actorState,
+                                sourceUsername: username,
+                                sourceSlot: unitSlot,
+                            });
+                        }
                         if (
                             nextRemaining <= 0 &&
                             status?.metadata?.onExpireApplyStatusToSelf?.statusId
@@ -2044,6 +4001,14 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                         };
                     }
                     const nextRemaining = (status.remainingTurns || 0) - 1;
+                    if (nextRemaining <= 0) {
+                        triggerSuperMultiSizeBurst({
+                            status,
+                            actorState,
+                            sourceUsername: username,
+                            sourceSlot: unitSlot,
+                        });
+                    }
                     if (nextRemaining <= 0 && status?.metadata?.onExpireApplyStatusToSelf?.statusId) {
                         applyStatus({
                             targetState: { statuses: pendingExpireStatuses },
@@ -2063,6 +4028,13 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                 actorState.statuses.push(...pendingExpireStatuses);
             }
         });
+        if (username === endingUsername) {
+            units.forEach((unit) => {
+                if (!unit) return;
+                const actorState = ensureUnitStateShape(unit);
+                actorState.snapshots.ownerTurnEndHp = Math.max(0, Number(unit?.hp) || 0);
+            });
+        }
     });
 };
 
@@ -2071,6 +4043,27 @@ const tickCooldownsForTurnEnd = ({ match, endingUsername }) => {
     const units = match.board?.[endingUsername] || [];
     units.forEach((unit) => {
         const actorState = ensureUnitStateShape(unit);
+        const startedThisTurn =
+            actorState._cooldownsStartedThisTurn && typeof actorState._cooldownsStartedThisTurn === 'object'
+                ? actorState._cooldownsStartedThisTurn
+                : {};
+        const freezeActive = hasStatusMetadataFlag(actorState, 'freezeCooldowns');
+        if (hasStatusMetadataFlag(actorState, 'freezeCooldowns')) {
+            const cooldowns =
+                actorState.cooldowns && typeof actorState.cooldowns === 'object' ? actorState.cooldowns : {};
+            Object.keys(cooldowns).forEach((skillId) => {
+                if (!startedThisTurn[skillId]) return;
+                const next = Math.max(0, (Number(cooldowns[skillId]) || 0) - 1);
+                if (next <= 0) {
+                    delete cooldowns[skillId];
+                } else {
+                    cooldowns[skillId] = next;
+                }
+            });
+            actorState.cooldowns = cooldowns;
+            actorState._cooldownsStartedThisTurn = {};
+            return;
+        }
         const cooldowns =
             actorState.cooldowns && typeof actorState.cooldowns === 'object' ? actorState.cooldowns : {};
         Object.keys(cooldowns).forEach((skillId) => {
@@ -2082,6 +4075,9 @@ const tickCooldownsForTurnEnd = ({ match, endingUsername }) => {
             }
         });
         actorState.cooldowns = cooldowns;
+        if (!freezeActive) {
+            actorState._cooldownsStartedThisTurn = {};
+        }
     });
 };
 
@@ -2097,6 +4093,7 @@ module.exports = {
     tickStatusesForTurnEnd,
     tickCooldownsForTurnEnd,
     getSkillCooldownRemaining,
+    isSkillIndexBlockedForActor,
     isActorUnableToUseSkills,
     getUnitState,
 };

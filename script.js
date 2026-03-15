@@ -11,18 +11,80 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.addEventListener('mouseleave', clearPressedCursor);
         window.addEventListener('blur', clearPressedCursor);
     }
+    const SOUND_SETTINGS_STORAGE_KEY = 'narutoSoundSettings';
+    const soundVolumeInput =
+        document.querySelector('.sound-volume') || document.querySelector('.ingame-sound-volume');
+    const soundManager = (() => {
+        const defaultSettings = {
+            volume: 0.7,
+        };
+        const clampVolume = (value) => {
+            const numeric = Number(value);
+            if (!Number.isFinite(numeric)) return defaultSettings.volume;
+            return Math.min(1, Math.max(0, numeric));
+        };
+        const readSettings = () => {
+            try {
+                const raw = localStorage.getItem(SOUND_SETTINGS_STORAGE_KEY);
+                if (!raw) return { ...defaultSettings };
+                const parsed = JSON.parse(raw);
+                return {
+                    volume: clampVolume(parsed?.volume),
+                };
+            } catch (error) {
+                return { ...defaultSettings };
+            }
+        };
+        let settings = readSettings();
+        const syncUi = () => {
+            if (soundVolumeInput) {
+                soundVolumeInput.value = String(Math.round(settings.volume * 100));
+            }
+        };
+        const persist = () => {
+            try {
+                localStorage.setItem(SOUND_SETTINGS_STORAGE_KEY, JSON.stringify(settings));
+            } catch (error) {
+                // Ignore storage failures.
+            }
+        };
+        syncUi();
+        if (soundVolumeInput) {
+            soundVolumeInput.addEventListener('input', (event) => {
+                settings = {
+                    ...settings,
+                    volume: clampVolume((event.target?.value || 0) / 100),
+                };
+                persist();
+                syncUi();
+            });
+        }
+        return {
+            play(audio) {
+                if (!audio || settings.volume <= 0) return;
+                try {
+                    audio.volume = clampVolume(settings.volume);
+                    audio.currentTime = 0;
+                    const playback = audio.play();
+                    if (playback && typeof playback.catch === 'function') {
+                        playback.catch(() => {});
+                    }
+                } catch (error) {
+                    // Ignore playback errors from the browser.
+                }
+            },
+        };
+    })();
     if (shouldUseGameClickSound) {
         const clickSound = new Audio('sounds/click.mp3');
-        document.addEventListener('click', () => {
-            try {
-                clickSound.currentTime = 0;
-                const playback = clickSound.play();
-                if (playback && typeof playback.catch === 'function') {
-                    playback.catch(() => {});
-                }
-            } catch (error) {
-                // Ignore playback errors from the browser.
+        document.addEventListener('click', (event) => {
+            if (
+                event.target instanceof Element &&
+                event.target.closest('.sound-controller, .ingame-sound-controller')
+            ) {
+                return;
             }
+            soundManager.play(clickSound);
         });
     }
 
@@ -102,6 +164,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const skillImagesContainer = document.querySelector('.skill-images');
     let skillImages = Array.from(document.querySelectorAll('.skill-image'));
     const selectedSlots = Array.from(document.querySelectorAll('.selected-character-slot'));
+    const nextPageButton = document.querySelector('.nextpage');
+    const lastPageButton = document.querySelector('.lastpage');
     const rosterSlotElements = [];
     const selectedAssignments = selectedSlots.map(() => null);
     const teamStorageKey = 'narutoSelectedTeam';
@@ -138,6 +202,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const amount = Number(value) || 0;
         return `${amount >= 0 ? '+' : ''}${amount}`;
     };
+
+    const getVisibleSkillClasses = (classes = []) =>
+        (Array.isArray(classes) ? classes : []).filter((entry) => {
+            const normalized = typeof entry === 'string' ? entry.trim().toLowerCase() : '';
+            return normalized && normalized !== 'invisible';
+        });
 
     const shouldUseWideRankHatOffset = (rankHatUrl = '') => {
         const normalized = typeof rankHatUrl === 'string' ? rankHatUrl.trim().toLowerCase() : '';
@@ -368,6 +438,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!slotList) {
         const rosterData = typeof characters !== 'undefined' ? characters : window.characters;
         let matchPoll = null;
+        let matchPollInFlight = false;
         let currentPlayerUsername = null;
         let currentTurnUsername = null;
         let currentOpponentUsername = null;
@@ -414,6 +485,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const battleEndTitleEl = battleEndOverlayEl?.querySelector('.battle-end-title');
         const battleEndMessageEl = battleEndOverlayEl?.querySelector('.battle-end-message');
         const battleEndContinueButton = battleEndOverlayEl?.querySelector('.battle-end-continue');
+        const classChoicePopupEl = document.querySelector('.class-choice-popup');
+        const classChoicePopupOptionsEl = classChoicePopupEl?.querySelector('.class-choice-popup-options');
+        const classChoicePopupCancelButton = classChoicePopupEl?.querySelector('.class-choice-popup-cancel');
         const endTurnChooseCountEl = endTurnModalEl?.querySelector('.chakrachoosered');
         const timerBar = document.querySelector('.timer-bar');
         const TURN_DURATION_MS = 60_000;
@@ -434,6 +508,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             genjutsu: 0,
         };
         let activeCastingSkill = null;
+        const classChoiceBySkillKey = new Map();
+        let pendingQueuePayload = null;
         const playerSkillMetaByKey = new Map();
         let queuedSkillKeySet = new Set();
         let draggingQueueActorSlot = null;
@@ -442,16 +518,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let battleEndShown = false;
         let selectedExchangeType = 'taijutsu';
         const playIngameSound = (audio) => {
-            if (!audio) return;
-            try {
-                audio.currentTime = 0;
-                const playback = audio.play();
-                if (playback && typeof playback.catch === 'function') {
-                    playback.catch(() => {});
-                }
-            } catch (error) {
-                // Ignore browser playback errors.
-            }
+            soundManager.play(audio);
         };
         const chakraCountEls = chakraDisplay
             ? {
@@ -495,6 +562,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             energyEl: document.querySelector('.energytext'),
             classesEl: document.querySelector('.ingameclasses'),
             cooldownEl: document.querySelector('.ingamecooldown'),
+            classPickerWrapEl: document.querySelector('.ingameclasspicker'),
+            classPickerEl: document.querySelector('.ingame-class-picker-field'),
             descEl: document.querySelector('.ingameskilldescription'),
         };
         const chakraTypes = ['taijutsu', 'ninjutsu', 'bloodline', 'genjutsu'];
@@ -529,6 +598,41 @@ document.addEventListener('DOMContentLoaded', async () => {
                     : {}),
             },
         });
+        const normalizeClassChoice = (value) =>
+            typeof value === 'string' ? value.trim().toLowerCase() : '';
+        const formatClassChoiceLabel = (value) => {
+            const normalized = normalizeClassChoice(value);
+            if (!normalized) return '';
+            return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+        };
+        const getClassChoiceOptions = (skill) =>
+            Array.isArray(skill?.classChoiceOptions)
+                ? skill.classChoiceOptions
+                      .map((entry) => normalizeClassChoice(entry))
+                      .filter(Boolean)
+                : [];
+        const getClassChoiceKey = (actorSlot, skillIdx) => {
+            if (!Number.isInteger(actorSlot) || actorSlot < 0) return '';
+            if (!Number.isInteger(skillIdx) || skillIdx < 0) return '';
+            return `${actorSlot}:${skillIdx}`;
+        };
+        const getCurrentClassChoiceForCastingSkill = () => {
+            if (!activeCastingSkill) return null;
+            const options = Array.isArray(activeCastingSkill.classChoiceOptions)
+                ? activeCastingSkill.classChoiceOptions
+                : [];
+            if (!options.length) return null;
+            const pickerValue = normalizeClassChoice(skillInfo.classPickerEl?.value || '');
+            if (pickerValue && options.includes(pickerValue)) {
+                return pickerValue;
+            }
+            const key = getClassChoiceKey(activeCastingSkill.actorSlot, activeCastingSkill.skillIdx);
+            const stored = normalizeClassChoice(classChoiceBySkillKey.get(key));
+            if (stored && options.includes(stored)) {
+                return stored;
+            }
+            return options[0];
+        };
 
         const getActorUnitForSlot = (username, actorSlot) => {
             if (!username || !Number.isInteger(actorSlot) || actorSlot < 0) return null;
@@ -569,14 +673,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!baseSkill) return null;
             const unit = getActorUnitForSlot(currentPlayerUsername, actorSlot);
             const replacementMap = getSkillReplacementMapFromUnit(unit);
-            const replacementId = replacementMap[baseSkill.id];
-            if (!replacementId) return baseSkill;
             const rosterIndex = Number.isInteger(unit?.rosterIndex) ? unit.rosterIndex : null;
             const character = Number.isInteger(rosterIndex) ? rosterData?.[rosterIndex] : null;
-            const replacementSkill = (Array.isArray(character?.skills) ? character.skills : []).find(
-                (skill) => skill?.id === replacementId
-            );
-            return replacementSkill || baseSkill;
+            let resolvedSkill = baseSkill;
+            const visited = new Set();
+            while (resolvedSkill?.id && replacementMap[resolvedSkill.id] && !visited.has(resolvedSkill.id)) {
+                visited.add(resolvedSkill.id);
+                const replacementId = replacementMap[resolvedSkill.id];
+                const replacementSkill = (Array.isArray(character?.skills) ? character.skills : []).find(
+                    (skill) => skill?.id === replacementId
+                );
+                if (!replacementSkill) break;
+                resolvedSkill = replacementSkill;
+            }
+            return resolvedSkill || baseSkill;
         };
         const getEnergyCost = (energy = []) => {
             const specific = emptyPool();
@@ -783,6 +893,41 @@ document.addEventListener('DOMContentLoaded', async () => {
             return skillClasses.some((entry) => blockedClasses.has(entry));
         };
 
+        const isSkillBlockedByIndexLock = (actorUnit, skillIdx) => {
+            const statuses = Array.isArray(actorUnit?.state?.statuses) ? actorUnit.state.statuses : [];
+            return statuses.some((status) => {
+                const blocked = status?.metadata?.cannotUseSkillIndices;
+                if (!Array.isArray(blocked)) return false;
+                return blocked.some((entry) => Number.parseInt(entry, 10) === Number.parseInt(skillIdx, 10));
+            });
+        };
+
+        const isSkillBlockedByActorCondition = (actorUnit, skill) => {
+            const condition = skill?.actorCondition;
+            if (!condition || typeof condition !== 'object') return false;
+            const statuses = Array.isArray(actorUnit?.state?.statuses) ? actorUnit.state.statuses : [];
+            const hasStatusId = (statusId) =>
+                statuses.some(
+                    (status) =>
+                        status?.id === statusId && Math.max(0, Number(status?.remainingTurns) || 0) > 0
+                );
+            if (condition?.statusId && !hasStatusId(condition.statusId)) return true;
+            if (
+                Array.isArray(condition?.statusIdsAny) &&
+                condition.statusIdsAny.length > 0 &&
+                !condition.statusIdsAny.some((statusId) => hasStatusId(statusId))
+            ) {
+                return true;
+            }
+            if (condition?.missingStatusId && hasStatusId(condition.missingStatusId)) return true;
+            const currentHp = Math.max(0, Number(actorUnit?.hp) || 0);
+            const hpAtMost = Number(condition?.sourceCurrentHpAtMost);
+            if (Number.isFinite(hpAtMost) && currentHp > hpAtMost) return true;
+            const hpAtLeast = Number(condition?.sourceCurrentHpAtLeast);
+            if (Number.isFinite(hpAtLeast) && currentHp < hpAtLeast) return true;
+            return false;
+        };
+
         const updateSkillAffordability = () => {
             const isPlayersTurn =
                 currentPlayerUsername && currentTurnUsername && currentPlayerUsername === currentTurnUsername;
@@ -822,6 +967,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return;
                 }
                 if (isSkillBlockedByClassLock(actorUnit, effectiveSkill)) {
+                    imgEl.style.opacity = '0.4';
+                    return;
+                }
+                if (isSkillBlockedByIndexLock(actorUnit, meta.skillIdx)) {
+                    imgEl.style.opacity = '0.4';
+                    return;
+                }
+                if (isSkillBlockedByActorCondition(actorUnit, effectiveSkill)) {
                     imgEl.style.opacity = '0.4';
                     return;
                 }
@@ -1566,6 +1719,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                 tooltipWrap?.querySelector('.skilltooltipimage.status-icon-template') ||
                 tooltipWrap?.querySelector('.skilltooltipimage');
             if (!tooltipWrap || !tooltipImgTemplate) return;
+            const tentenWeaponStatusIconById = {
+                tenten_weapon_last_shuriken: 'https://i.imgur.com/ZcuORyu.png',
+                tenten_weapon_last_kunai: 'https://i.imgur.com/aibtrUO.png',
+                tenten_weapon_last_sword: 'https://i.imgur.com/RchMcXa.png',
+                tenten_weapon_last_hooked_sword: 'https://i.imgur.com/6j0UNBG.png',
+                tenten_weapon_last_scythe: 'https://i.imgur.com/NXDITvE.png',
+                tenten_weapon_last_mace: 'https://i.imgur.com/iRZ8SMk.png',
+            };
+            const resolveStatusIconSrc = (group, statusSkill) => {
+                const statusesInGroup = Array.isArray(group?.statuses) ? group.statuses : [];
+                for (const status of statusesInGroup) {
+                    const mapped = tentenWeaponStatusIconById[status?.id];
+                    if (mapped) return mapped;
+                }
+                return statusSkill?.skillimage || '';
+            };
             if (!tooltipImgTemplate.classList.contains('status-icon-template')) {
                 tooltipImgTemplate.classList.add('status-icon-template');
             }
@@ -1646,11 +1815,50 @@ document.addEventListener('DOMContentLoaded', async () => {
                 };
                 const textRows = [];
                 groupStatuses.forEach((status) => {
+                    const statusMetadata = status?.metadata || {};
                     let text =
-                        status?.metadata?.tooltipText ||
+                        statusMetadata?.tooltipText ||
                         findTooltipTextByStatusId(status?.id) ||
                         status?.id ||
                         'Status effect';
+                    const tooltipTemplate =
+                        typeof statusMetadata?.tooltipTextTemplate === 'string'
+                            ? statusMetadata.tooltipTextTemplate
+                            : '';
+                    const pendingRestoreTooltipTemplate =
+                        typeof statusMetadata?.destructibleDefenseRestore?.pendingTooltipTextTemplate === 'string'
+                            ? statusMetadata.destructibleDefenseRestore.pendingTooltipTextTemplate
+                            : '';
+                    const restoreTurnsLeft = Math.max(
+                        0,
+                        Number(statusMetadata?._destructibleDefenseRestoreTurnsLeft) || 0
+                    );
+                    const runtimeTooltipTemplate =
+                        restoreTurnsLeft > 0 && pendingRestoreTooltipTemplate
+                            ? pendingRestoreTooltipTemplate
+                            : tooltipTemplate;
+                    if (runtimeTooltipTemplate) {
+                        const stackKey =
+                            typeof statusMetadata?.stackMetadataKey === 'string'
+                                ? statusMetadata.stackMetadataKey
+                                : '';
+                        text = runtimeTooltipTemplate.replace(/\{([a-zA-Z0-9_]+)\}/g, (_, key) => {
+                            if (key === 'stacks' && stackKey) {
+                                return String(Math.max(0, Number(statusMetadata?.[stackKey]) || 0));
+                            }
+                            if (key === 'restoreTurnsLeft') {
+                                return String(restoreTurnsLeft);
+                            }
+                            const rawValue = statusMetadata?.[key];
+                            if (rawValue === null || rawValue === undefined) {
+                                return `{${key}}`;
+                            }
+                            if (typeof rawValue === 'number') {
+                                return Number.isFinite(rawValue) ? String(rawValue) : '0';
+                            }
+                            return String(rawValue);
+                        });
+                    }
                     if (groupedNonAfflictionDebuffTotal > 0) {
                         const ownDebuff = Math.max(
                             0,
@@ -1745,8 +1953,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 iconEl.style.display = 'block';
                 iconEl.removeAttribute('title');
-                if (statusSkill?.skillimage) {
-                    iconEl.src = statusSkill.skillimage;
+                const iconSrc = resolveStatusIconSrc(group, statusSkill);
+                if (iconSrc) {
+                    iconEl.src = iconSrc;
                 }
                 const tooltipHtml = buildStatusTooltipHtml(group, statusSkill);
                 iconEl.onmouseenter = (event) => {
@@ -1801,8 +2010,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 currentMatchMode = data.mode.trim().toLowerCase();
             }
             if (data.opponent?.username) {
-                currentOpponentUsername = data.opponent.username;
-                hydrateOpponentIdentity(data.opponent.username).catch(() => {});
+                const nextOpponentUsername = data.opponent.username;
+                const opponentChanged = nextOpponentUsername !== currentOpponentUsername;
+                currentOpponentUsername = nextOpponentUsername;
+                if (opponentChanged) {
+                    hydrateOpponentIdentity(nextOpponentUsername).catch(() => {});
+                }
             }
             const pool = data.chakraPools?.[currentPlayerUsername] || playerPoolState || emptyPool();
             renderChakra(pool);
@@ -1923,7 +2136,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         };
 
-        const renderSkillInfo = (character, skill, actorSlot = null) => {
+        const renderSkillInfo = (character, skill, actorSlot = null, skillIdx = null) => {
             if (!skill || !character) return;
             if (skillInfo.imgEl) {
                 skillInfo.imgEl.src = skill.skillimage || '';
@@ -1939,8 +2152,49 @@ document.addEventListener('DOMContentLoaded', async () => {
                 skillInfo.cooldownEl.textContent = `Cooldown: ${skill.cooldown ?? '-'}`;
             }
             if (skillInfo.classesEl) {
-                const classes = Array.isArray(skill.classes) ? skill.classes.join(', ') : '';
+                const classes = getVisibleSkillClasses(skill.classes).join(', ');
                 skillInfo.classesEl.textContent = `Classes: ${classes}`;
+            }
+            if (skillInfo.classPickerWrapEl && skillInfo.classPickerEl) {
+                const options = getClassChoiceOptions(skill);
+                const picker = skillInfo.classPickerEl;
+                const key = getClassChoiceKey(actorSlot, skillIdx);
+                if (!options.length || !key) {
+                    skillInfo.classPickerWrapEl.style.display = 'none';
+                    picker.innerHTML = '';
+                } else {
+                    const queuedForActor = getQueuedSkillForActorSlot(actorSlot);
+                    const queuedChoice =
+                        queuedForActor && Number.parseInt(queuedForActor.skillIndex, 10) === skillIdx
+                            ? normalizeClassChoice(queuedForActor.classChoice)
+                            : '';
+                    const storedChoice = normalizeClassChoice(classChoiceBySkillKey.get(key));
+                    const selectedChoice = [queuedChoice, storedChoice, options[0]].find(
+                        (entry) => entry && options.includes(entry)
+                    );
+                    classChoiceBySkillKey.set(key, selectedChoice);
+                    skillInfo.classPickerWrapEl.style.display = 'flex';
+                    picker.innerHTML = '';
+                    options.forEach((optionValue) => {
+                        const optionEl = document.createElement('option');
+                        optionEl.value = optionValue;
+                        optionEl.textContent = formatClassChoiceLabel(optionValue);
+                        picker.appendChild(optionEl);
+                    });
+                    picker.value = selectedChoice;
+                    picker.onchange = () => {
+                        const next = normalizeClassChoice(picker.value);
+                        if (!next || !options.includes(next)) return;
+                        classChoiceBySkillKey.set(key, next);
+                        if (
+                            activeCastingSkill &&
+                            activeCastingSkill.actorSlot === actorSlot &&
+                            activeCastingSkill.skillIdx === skillIdx
+                        ) {
+                            activeCastingSkill.classChoice = next;
+                        }
+                    };
+                }
             }
             if (skillInfo.energyEl) {
                 skillInfo.energyEl.innerHTML = '';
@@ -1979,7 +2233,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         };
 
-        const fetchTargetOptions = async (actorSlot, skillIdx) => {
+        const fetchTargetOptions = async (actorSlot, skillIdx, skill = null) => {
             if (!matchIdFromUrl) return;
             clearTargetHighlights();
             activeTargetOptions = null;
@@ -2005,7 +2259,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 applyQueuedSkillVisuals();
                 activeTargetOptions = data;
                 const skillEl = playerSkillMetaByKey.get(`${actorSlot}:${skillIdx}`)?.imgEl || null;
-                activeCastingSkill = { actorSlot, skillIdx, skillEl };
+                const classChoiceOptions = getClassChoiceOptions(skill);
+                const key = getClassChoiceKey(actorSlot, skillIdx);
+                const classChoice = normalizeClassChoice(classChoiceBySkillKey.get(key));
+                activeCastingSkill = {
+                    actorSlot,
+                    skillIdx,
+                    skillEl,
+                    classChoiceOptions,
+                    classChoice:
+                        classChoiceOptions.length > 0 && classChoiceOptions.includes(classChoice)
+                            ? classChoice
+                            : classChoiceOptions[0] || null,
+                };
                 renderTargetHighlights(data);
             } catch (error) {
                 console.warn('Target fetch failed.', error);
@@ -2019,25 +2285,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             return new Set(activeTargetOptions.targets.map((t) => `${t.username}:${t.slot}`));
         };
 
-        const handleCardTargetClick = (event) => {
-            if (!activeTargetOptions || !activeCastingSkill || !matchIdFromUrl) return;
-            const card = event.currentTarget;
-            const username = card.dataset.username;
-            const slot = Number.parseInt(card.dataset.slot, 10);
-            const validKeys = getValidTargetKeySet();
-            if (!validKeys.has(`${username}:${slot}`)) return;
-            const selection =
-                activeTargetOptions.mode === 'all'
-                    ? activeTargetOptions.targets.map((t) => ({ username: t.username, slot: t.slot }))
-                    : { username, slot };
-            fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/queue`, {
+        const closeClassChoicePopup = () => {
+            pendingQueuePayload = null;
+            if (!classChoicePopupEl) return;
+            classChoicePopupEl.classList.remove('visible');
+            classChoicePopupEl.setAttribute('aria-hidden', 'true');
+            if (classChoicePopupOptionsEl) {
+                classChoicePopupOptionsEl.innerHTML = '';
+            }
+        };
+
+        const queueSelectedSkill = ({ actorSlot, skillIdx, selection, classChoice = null }) => {
+            if (!matchIdFromUrl) return Promise.resolve();
+            return fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/queue`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify({
-                    actorSlot: activeCastingSkill.actorSlot,
-                    skillIndex: activeCastingSkill.skillIdx,
+                    actorSlot,
+                    skillIndex: skillIdx,
                     targetSelection: selection,
+                    ...(classChoice ? { classChoice } : {}),
                 }),
             })
                 .then(async (response) => {
@@ -2055,11 +2323,85 @@ document.addEventListener('DOMContentLoaded', async () => {
                     console.warn('Failed to queue skill.', error);
                 })
                 .finally(() => {
+                    closeClassChoicePopup();
                     clearTargetHighlights();
                     activeTargetOptions = null;
                     activeCastingSkill = null;
                 });
         };
+
+        const openClassChoicePopup = ({ actorSlot, skillIdx, selection, options = [] }) => {
+            if (!classChoicePopupEl || !classChoicePopupOptionsEl || !options.length) return;
+            pendingQueuePayload = { actorSlot, skillIdx, selection };
+            classChoicePopupOptionsEl.innerHTML = '';
+            options.forEach((optionValue) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.textContent = formatClassChoiceLabel(optionValue);
+                button.addEventListener('click', () => {
+                    const key = getClassChoiceKey(actorSlot, skillIdx);
+                    if (key) classChoiceBySkillKey.set(key, optionValue);
+                    queueSelectedSkill({
+                        actorSlot,
+                        skillIdx,
+                        selection,
+                        classChoice: optionValue,
+                    });
+                });
+                classChoicePopupOptionsEl.appendChild(button);
+            });
+            classChoicePopupEl.classList.add('visible');
+            classChoicePopupEl.setAttribute('aria-hidden', 'false');
+        };
+
+        const handleCardTargetClick = (event) => {
+            if (!activeTargetOptions || !activeCastingSkill || !matchIdFromUrl) return;
+            const card = event.currentTarget;
+            const username = card.dataset.username;
+            const slot = Number.parseInt(card.dataset.slot, 10);
+            const validKeys = getValidTargetKeySet();
+            if (!validKeys.has(`${username}:${slot}`)) return;
+            const selection =
+                activeTargetOptions.mode === 'all'
+                    ? activeTargetOptions.targets.map((t) => ({ username: t.username, slot: t.slot }))
+                    : { username, slot };
+            const classChoiceOptions = Array.isArray(activeCastingSkill.classChoiceOptions)
+                ? activeCastingSkill.classChoiceOptions
+                : [];
+            if (classChoiceOptions.length > 0) {
+                clearTargetHighlights();
+                openClassChoicePopup({
+                    actorSlot: activeCastingSkill.actorSlot,
+                    skillIdx: activeCastingSkill.skillIdx,
+                    selection,
+                    options: classChoiceOptions,
+                });
+                return;
+            }
+            queueSelectedSkill({
+                actorSlot: activeCastingSkill.actorSlot,
+                skillIdx: activeCastingSkill.skillIdx,
+                selection,
+            });
+        };
+
+        if (classChoicePopupCancelButton) {
+            classChoicePopupCancelButton.addEventListener('click', () => {
+                closeClassChoicePopup();
+                clearTargetHighlights();
+                activeTargetOptions = null;
+                activeCastingSkill = null;
+            });
+        }
+        if (classChoicePopupEl) {
+            classChoicePopupEl.addEventListener('click', (event) => {
+                if (event.target !== classChoicePopupEl) return;
+                closeClassChoicePopup();
+                clearTargetHighlights();
+                activeTargetOptions = null;
+                activeCastingSkill = null;
+            });
+        }
 
         const attachCardTargetHandlers = (cards, username) => {
             cards.forEach((card, slot) => {
@@ -2097,9 +2439,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 const enemyNameEl = document.querySelector('.player-right .player-name.red');
                 if (enemyNameEl && data.opponent?.username) {
-                    enemyNameEl.textContent = data.opponent.username;
-                    currentOpponentUsername = data.opponent.username;
-                    hydrateOpponentIdentity(data.opponent.username).catch(() => {});
+                    const nextOpponentUsername = data.opponent.username;
+                    enemyNameEl.textContent = nextOpponentUsername;
+                    const opponentChanged = nextOpponentUsername !== currentOpponentUsername;
+                    currentOpponentUsername = nextOpponentUsername;
+                    if (opponentChanged) {
+                        hydrateOpponentIdentity(nextOpponentUsername).catch(() => {});
+                    }
                 }
 
                 const populateCard = (card, rosterIndex, isPlayer, slotIndex) => {
@@ -2136,10 +2482,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     imgEl,
                                 });
                                 imgEl.style.cursor = 'pointer';
-                                imgEl.addEventListener('click', () => {
+                                const existingSkillClickHandler = imgEl._skillClickHandler;
+                                if (typeof existingSkillClickHandler === 'function') {
+                                    imgEl.removeEventListener('click', existingSkillClickHandler);
+                                }
+                                const onSkillClick = () => {
                                     const effectiveSkill =
                                         getEffectiveSkillForActorSlot(slotIndex, skillIdx) || skill;
-                                    renderSkillInfo(character, effectiveSkill, slotIndex);
+                                    renderSkillInfo(character, effectiveSkill, slotIndex, skillIdx);
                                     if (!currentPlayerUsername || currentPlayerUsername !== currentTurnUsername) {
                                         return;
                                     }
@@ -2190,6 +2540,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     if (isSkillBlockedByClassLock(actorUnit, effectiveSkill)) {
                                         return;
                                     }
+                                    if (isSkillBlockedByIndexLock(actorUnit, skillIdx)) {
+                                        return;
+                                    }
+                                    if (isSkillBlockedByActorCondition(actorUnit, effectiveSkill)) {
+                                        return;
+                                    }
                                     const cooldowns = actorUnit?.state?.cooldowns || {};
                                     const cooldownRemaining = effectiveSkill?.id
                                         ? Math.max(0, Number(cooldowns[effectiveSkill.id]) || 0)
@@ -2200,8 +2556,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     if (!canAffordSkill(effectiveSkill?.energy, playerPoolState, slotIndex, effectiveSkill)) {
                                         return;
                                     }
-                                    fetchTargetOptions(slotIndex, skillIdx).catch(() => clearTargetHighlights());
-                                });
+                                    fetchTargetOptions(slotIndex, skillIdx, effectiveSkill).catch(() =>
+                                        clearTargetHighlights()
+                                    );
+                                };
+                                imgEl._skillClickHandler = onSkillClick;
+                                imgEl.addEventListener('click', onSkillClick);
                             }
                         });
                     }
@@ -2218,7 +2578,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const firstChar = rosterData[team[0]];
                     const firstSkill = firstChar?.skills?.[0];
                     if (firstSkill) {
-                        renderSkillInfo(firstChar, firstSkill, 0);
+                        renderSkillInfo(firstChar, firstSkill, 0, 0);
                     }
                 }
 
@@ -2243,6 +2603,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const startMatchPoll = () => {
             if (matchPoll || !matchIdFromUrl) return;
             matchPoll = setInterval(async () => {
+                if (matchPollInFlight || battleEndShown || document.hidden) {
+                    return;
+                }
+                matchPollInFlight = true;
                 try {
                     const res = await fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}`, {
                         credentials: 'include',
@@ -2261,6 +2625,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 } catch (error) {
                     clearInterval(matchPoll);
                     matchPoll = null;
+                } finally {
+                    matchPollInFlight = false;
                 }
             }, 3000);
         };
@@ -2561,16 +2927,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const playOneShotSound = (audio) => {
-        if (!audio) return;
-        try {
-            audio.currentTime = 0;
-            const playback = audio.play();
-            if (playback && typeof playback.catch === 'function') {
-                playback.catch(() => {});
-            }
-        } catch (error) {
-            // Ignore autoplay/playback errors from the browser.
-        }
+        soundManager.play(audio);
     };
 
     const setSearchingState = (state = 'searching', mode = 'quick') => {
@@ -2855,16 +3212,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const playSkillViewerSound = (audio) => {
-        if (!audio) return;
-        try {
-            audio.currentTime = 0;
-            const playback = audio.play();
-            if (playback && typeof playback.catch === 'function') {
-                playback.catch(() => {});
-            }
-        } catch (error) {
-            // Ignore autoplay/playback errors from the browser.
-        }
+        soundManager.play(audio);
     };
 
     const openSkillViewer = () => {
@@ -2900,7 +3248,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         roster = window.characters;
     }
 
-    const totalSlots = Math.max(roster.length, 21);
+    const CHARACTERS_PER_PAGE = 21;
+    const totalSlots = Math.max(roster.length, CHARACTERS_PER_PAGE);
+    const totalPages = Math.max(1, Math.ceil(totalSlots / CHARACTERS_PER_PAGE));
+    let currentRosterPage = 0;
     let currentCharacterIndex = null;
     slotList.innerHTML = '';
 
@@ -2952,7 +3303,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         label.className = 'classes-label';
         label.textContent = 'CLASSES:';
         classesEl.appendChild(label);
-        classes.forEach((cls) => {
+        getVisibleSkillClasses(classes).forEach((cls) => {
             const span = document.createElement('span');
             span.className = 'class-type';
             span.textContent = cls;
@@ -3168,14 +3519,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!slot) return;
         slot.innerHTML = '';
         slot.classList.add('slot-empty');
+        slot.draggable = false;
     };
 
-    const fillRosterSlot = (index) => {
+    const buildRosterSlot = (index) => {
         const slot = rosterSlotElements[index];
         const character = roster[index];
-        if (!slot || !character) return;
+        if (!slot) return;
         slot.innerHTML = '';
+        const isSelected = selectedAssignments.some((assignment) => assignment?.rosterIndex === index);
+        if (!character || isSelected) {
+            slot.classList.add('slot-empty');
+            slot.draggable = false;
+            return;
+        }
         slot.classList.remove('slot-empty');
+        slot.draggable = true;
         const image = document.createElement('img');
         image.className = 'slot-image';
         image.src = character.facePicture;
@@ -3183,6 +3542,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         slot.appendChild(image);
         image.addEventListener('dragstart', (event) => handleSlotDragStart(event, index));
         image.addEventListener('dragend', handleSlotDragEnd);
+    };
+
+    const fillRosterSlot = (index) => {
+        buildRosterSlot(index);
     };
 
     const setSelectedSlot = (slotIndex, assignment) => {
@@ -3330,6 +3693,59 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    const updateRosterPageButtons = () => {
+        if (lastPageButton) {
+            const canGoBack = currentRosterPage > 0;
+            lastPageButton.style.opacity = canGoBack ? '1' : '0.45';
+            lastPageButton.style.pointerEvents = canGoBack ? 'auto' : 'none';
+        }
+        if (nextPageButton) {
+            const canGoNext = currentRosterPage < totalPages - 1;
+            nextPageButton.style.opacity = canGoNext ? '1' : '0.45';
+            nextPageButton.style.pointerEvents = canGoNext ? 'auto' : 'none';
+        }
+    };
+
+    const renderRosterPage = () => {
+        slotList.innerHTML = '';
+        rosterSlotElements.length = 0;
+        const pageStart = currentRosterPage * CHARACTERS_PER_PAGE;
+        const pageEnd = pageStart + CHARACTERS_PER_PAGE;
+
+        for (let i = pageStart; i < pageEnd; i += 1) {
+            const listItem = document.createElement('li');
+            listItem.className = 'slot-item';
+            listItem.dataset.index = i;
+            listItem.addEventListener('dragover', handleRosterDragOver);
+            listItem.addEventListener('drop', (event) => handleRosterDrop(event, i));
+
+            const handleClick = () => {
+                if (listItem.classList.contains('slot-empty')) return;
+                queueSelectionPreview(() => {
+                    if (listItem.classList.contains('slot-empty')) return;
+                    handleCharacterSelect(i);
+                });
+            };
+
+            const handleDoubleClick = () => {
+                cancelSelectionPreview();
+                if (listItem.classList.contains('slot-empty')) return;
+                addRosterCharacterToSelection(i);
+            };
+
+            listItem.addEventListener('click', handleClick);
+            listItem.addEventListener('dblclick', handleDoubleClick);
+            listItem.addEventListener('dragstart', (event) => handleSlotDragStart(event, i));
+            listItem.addEventListener('dragend', handleSlotDragEnd);
+
+            rosterSlotElements[i] = listItem;
+            slotList.appendChild(listItem);
+            buildRosterSlot(i);
+        }
+
+        updateRosterPageButtons();
+    };
+
     selectedSlots.forEach((slot, slotIndex) => {
         slot.addEventListener('click', () => {
             queueSelectionPreview(() => handleSelectedSlotClick(slotIndex));
@@ -3348,6 +3764,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const saved = profileCache?.savedTeamIndices;
         if (!Array.isArray(saved) || saved.length !== selectedSlots.length) {
             updateGameButtons();
+            renderRosterPage();
             return;
         }
         const used = new Set();
@@ -3360,46 +3777,26 @@ document.addEventListener('DOMContentLoaded', async () => {
             used.add(rosterIdx);
         });
         updateGameButtons();
+        renderRosterPage();
     };
 
-    for (let i = 0; i < totalSlots; i += 1) {
-        const listItem = document.createElement('li');
-        listItem.className = 'slot-item';
-        listItem.dataset.index = i;
-        listItem.draggable = true;
-        listItem.addEventListener('dragstart', (event) => handleSlotDragStart(event, i));
-        listItem.addEventListener('dragend', handleSlotDragEnd);
-        listItem.addEventListener('dragover', handleRosterDragOver);
-        listItem.addEventListener('drop', (event) => handleRosterDrop(event, i));
-
-        const character = roster[i];
-        if (character && character.facePicture) {
-            const image = document.createElement('img');
-            image.className = 'slot-image';
-            image.src = character.facePicture;
-            image.alt = character.name || `Character ${i + 1}`;
-            listItem.appendChild(image);
-            listItem.addEventListener('click', () => {
-                if (listItem.classList.contains('slot-empty')) return;
-                queueSelectionPreview(() => {
-                    if (listItem.classList.contains('slot-empty')) return;
-                    handleCharacterSelect(i);
-                });
-            });
-            listItem.addEventListener('dblclick', () => {
-                cancelSelectionPreview();
-                if (listItem.classList.contains('slot-empty')) return;
-                addRosterCharacterToSelection(i);
-            });
-            image.draggable = true;
-            image.addEventListener('dragstart', (event) => handleSlotDragStart(event, i));
-            image.addEventListener('dragend', handleSlotDragEnd);
-        }
-
-        rosterSlotElements[i] = listItem;
-        slotList.appendChild(listItem);
+    if (nextPageButton) {
+        nextPageButton.addEventListener('click', () => {
+            if (currentRosterPage >= totalPages - 1) return;
+            currentRosterPage += 1;
+            renderRosterPage();
+        });
     }
 
+    if (lastPageButton) {
+        lastPageButton.addEventListener('click', () => {
+            if (currentRosterPage <= 0) return;
+            currentRosterPage -= 1;
+            renderRosterPage();
+        });
+    }
+
+    renderRosterPage();
     updateGameButtons();
     persistTeamSelection();
     applySavedTeam();

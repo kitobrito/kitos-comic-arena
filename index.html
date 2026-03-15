@@ -165,6 +165,10 @@
       position: relative;
     }
 
+    .nav-link:hover {
+      color: var(--accent);
+    }
+
     .nav-link svg {
       width: 18px;
       height: 18px;
@@ -547,6 +551,198 @@
 
     .mainsection-balances strong {
       color: #fff;
+    }
+
+    .news-feed {
+      display: grid;
+      gap: 18px;
+    }
+
+    .news-feed-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .news-feed-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .news-feed-button {
+      width: 36px;
+      height: 36px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.02);
+      color: #bcbcbc;
+      font: inherit;
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .news-feed-button:hover:not(:disabled) {
+      color: var(--accent);
+      border-color: rgba(255, 184, 77, 0.35);
+    }
+
+    .news-feed-button:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+    .news-feed-counter {
+      color: #a8a8a8;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .news-status {
+      min-height: 20px;
+      color: #d2d2d2;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .news-status[data-state="error"] {
+      color: #ff8f8f;
+    }
+
+    .news-post {
+      padding: 26px 24px;
+      border: 1px solid #171717;
+      border-radius: 14px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)),
+        #0a0a0a;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.24);
+    }
+
+    .news-divider {
+      height: 1px;
+      margin: 18px 0;
+      border: 0;
+      background: linear-gradient(90deg, transparent, rgba(255, 184, 77, 0.75), transparent);
+    }
+
+    .news-change-title {
+      margin: 0 0 12px;
+      color: #ffcf74;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .news-change-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+      color: #dcdcdc;
+    }
+
+    .news-change-item {
+      display: grid;
+      gap: 12px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .news-change-character {
+      width: 75px;
+      height: 75px;
+      object-fit: cover;
+      background: #111;
+    }
+
+    .news-change-copy {
+      min-width: 0;
+    }
+
+    .news-change-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 8px;
+      flex-wrap: wrap;
+    }
+
+    .news-change-character-name {
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .news-change-skill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 8px 3px 3px;
+      border-radius: 999px;
+      background: rgba(255, 184, 77, 0.12);
+      color: #ffd392;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .news-change-skill-image {
+      width: 24px;
+      height: 24px;
+      object-fit: cover;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 6px;
+      background: #111;
+    }
+
+    .news-change-text {
+      margin: 0;
+      color: #dcdcdc;
+      line-height: 1.55;
+      white-space: pre-line;
+    }
+
+    .news-change-type {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .news-change-type.buff {
+      background: rgba(99, 214, 104, 0.16);
+      color: #9ce2a1;
+    }
+
+    .news-change-type.nerf {
+      background: rgba(255, 111, 111, 0.16);
+      color: #ff9b9b;
+    }
+
+    .news-change-group {
+      display: grid;
+      grid-template-columns: 75px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .news-change-group-list {
+      display: grid;
+      gap: 10px;
     }
 
     .slider-dots {
@@ -970,6 +1166,27 @@
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14" /><path d="M8 7V5h8v2" /><path d="M9 11v5" /><path d="M15 11v5" /><path d="M7 7l1 12h8l1-12" /></svg>
               <span>Reset Account</span>
             </button>
+            <section class="group" id="admin-panel-section" hidden>
+              <h2 class="group-title">Admin Panel</h2>
+              <nav class="nav">
+                <a class="nav-link" href="winrates.html">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16" /><path d="M7 14V9" /><path d="M12 14V6" /><path d="M17 14v-3" /></svg>
+                  <span>Winrates</span>
+                </a>
+                <a class="nav-link" href="charactereditor.html">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="m14 4 4 4" /><path d="M6 16l-1 4 4-1" /></svg>
+                  <span>Character Editor</span>
+                </a>
+                <a class="nav-link" href="playeraccounts.html">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg>
+                  <span>Player Accounts</span>
+                </a>
+                <a class="nav-link" href="newspost.html">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6.5h14" /><path d="M5 11.5h14" /><path d="M5 16.5h9" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg>
+                  <span>News Post</span>
+                </a>
+              </nav>
+            </section>
             <button class="account-action" type="button" id="logout-button">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5" /><path d="M15 12H4" /><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4" /></svg>
               <span>Log Out</span>
@@ -1002,17 +1219,16 @@
       </section>
 
 
-      <section class="mainsection">
-        <h1 class="mainsection-kicker">First News Post</h1></h1>
-        <p class="mainsection-meta">&raquo; Saturday, February 28th, 2026 at 15:29 by <span class="byline">Lily</span></p>
-        <div class="mainsection-body">
-          <p>Welcome to the First Post of Naruto-Arena K Edition.</p>
-          <p>
-This is a passion project of Kien/Kito. Coded entirely by Lily. 
-          </p>
-
-
+      <section class="news-feed" id="news-feed">
+        <div class="news-feed-header">
+          <p class="news-status" id="news-status" aria-live="polite"></p>
+          <div class="news-feed-controls">
+            <button class="news-feed-button" type="button" id="news-prev-button" aria-label="Show previous news post">&lsaquo;</button>
+            <span class="news-feed-counter" id="news-feed-counter">0 / 0</span>
+            <button class="news-feed-button" type="button" id="news-next-button" aria-label="Show next news post">&rsaquo;</button>
+          </div>
         </div>
+        <div id="news-feed-content"></div>
       </section>
 
     </main>

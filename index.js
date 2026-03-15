@@ -26,6 +26,7 @@
   var clanPanelButton = document.getElementById("clan-panel-button");
   var changeBackgroundsButton = document.getElementById("change-backgrounds-button");
   var resetAccountButton = document.getElementById("reset-account-button");
+  var adminPanelSection = document.getElementById("admin-panel-section");
   var releaseFaces = [
     document.getElementById("release-face-1"),
     document.getElementById("release-face-2"),
@@ -183,6 +184,55 @@
   var sidebarTopCurrentStreaks = document.getElementById("sidebar-top-current-streaks");
   var sidebarTopWins = document.getElementById("sidebar-top-wins");
   var sidebarTopHighestStreaks = document.getElementById("sidebar-top-highest-streaks");
+  var winratesGrid = document.getElementById("winrates-grid");
+  var winratesStatus = document.getElementById("winrates-status");
+  var resetWinratesButton = document.getElementById("reset-winrates-button");
+  var playerAccountsList = document.getElementById("player-accounts-list");
+  var playerAccountsStatus = document.getElementById("player-accounts-status");
+  var playerAccountsSearch = document.getElementById("player-accounts-search");
+  var playerAccountOverlay = document.getElementById("player-account-overlay");
+  var playerAccountUsername = document.getElementById("player-account-username");
+  var playerAccountRole = document.getElementById("player-account-role");
+  var playerAccountLadderRatio = document.getElementById("player-account-ladder-ratio");
+  var playerAccountEditor = document.getElementById("player-account-editor");
+  var playerAccountSave = document.getElementById("player-account-save");
+  var playerAccountClose = document.getElementById("player-account-close");
+  var playerAccountStatus = document.getElementById("player-account-status");
+  var selectedAdminAccountUsername = "";
+  var adminUserEntries = [];
+  var characterEditorGrid = document.getElementById("character-editor-grid");
+  var characterEditorStatus = document.getElementById("character-editor-status");
+  var characterEditorSearch = document.getElementById("character-editor-search");
+  var characterEditorOverlay = document.getElementById("character-editor-overlay");
+  var characterEditorFace = document.getElementById("character-editor-face");
+  var characterEditorName = document.getElementById("character-editor-name");
+  var characterEditorId = document.getElementById("character-editor-id");
+  var characterEditorJson = document.getElementById("character-editor-json");
+  var characterEditorSave = document.getElementById("character-editor-save");
+  var characterEditorClose = document.getElementById("character-editor-close");
+  var characterEditorModalStatus = document.getElementById("character-editor-modal-status");
+  var selectedAdminCharacterId = "";
+  var adminCharacterEntries = [];
+  var newsFeed = document.getElementById("news-feed");
+  var newsStatus = document.getElementById("news-status");
+  var newsFeedContent = document.getElementById("news-feed-content");
+  var newsPrevButton = document.getElementById("news-prev-button");
+  var newsNextButton = document.getElementById("news-next-button");
+  var newsFeedCounter = document.getElementById("news-feed-counter");
+  var newsAdminForm = document.getElementById("news-admin-form");
+  var newsPostIdInput = document.getElementById("news-post-id");
+  var newsTitleInput = document.getElementById("news-title");
+  var newsContentInput = document.getElementById("news-content");
+  var newsChangesInput = document.getElementById("news-changes");
+  var newsAdminStatus = document.getElementById("news-admin-status");
+  var newsSaveButton = document.getElementById("news-save-button");
+  var newsResetButton = document.getElementById("news-reset-button");
+  var newsPostList = document.getElementById("news-post-list");
+  var newsPostListStatus = document.getElementById("news-post-list-status");
+  var adminNewsPosts = [];
+  var characterCatalog = [];
+  var publicNewsPosts = [];
+  var currentNewsPostIndex = 0;
   var profileLookupStorageKey = "narutoProfileLookupUser";
   var requestedProfileUsername = (function () {
     try {
@@ -337,6 +387,1177 @@
       return;
     }
     delete resetAccountStatus.dataset.state;
+  }
+
+  function setWinratesStatus(message, state) {
+    if (!winratesStatus) {
+      return;
+    }
+    winratesStatus.textContent = message || "";
+    if (state) {
+      winratesStatus.dataset.state = state;
+      return;
+    }
+    delete winratesStatus.dataset.state;
+  }
+
+  function setPlayerAccountsStatus(message, state) {
+    if (!playerAccountsStatus) {
+      return;
+    }
+    playerAccountsStatus.textContent = message || "";
+    if (state) {
+      playerAccountsStatus.dataset.state = state;
+      return;
+    }
+    delete playerAccountsStatus.dataset.state;
+  }
+
+  function setPlayerAccountStatus(message, state) {
+    if (!playerAccountStatus) {
+      return;
+    }
+    playerAccountStatus.textContent = message || "";
+    if (state) {
+      playerAccountStatus.dataset.state = state;
+      return;
+    }
+    delete playerAccountStatus.dataset.state;
+  }
+
+  function setNewsStatus(message, state) {
+    if (!newsStatus) {
+      return;
+    }
+    newsStatus.textContent = message || "";
+    if (state) {
+      newsStatus.dataset.state = state;
+      return;
+    }
+    delete newsStatus.dataset.state;
+  }
+
+  function setNewsAdminStatus(message, state) {
+    if (!newsAdminStatus) {
+      return;
+    }
+    newsAdminStatus.textContent = message || "";
+    if (state) {
+      newsAdminStatus.dataset.state = state;
+      return;
+    }
+    delete newsAdminStatus.dataset.state;
+  }
+
+  function setNewsPostListStatus(message, state) {
+    if (!newsPostListStatus) {
+      return;
+    }
+    newsPostListStatus.textContent = message || "";
+    if (state) {
+      newsPostListStatus.dataset.state = state;
+      return;
+    }
+    delete newsPostListStatus.dataset.state;
+  }
+
+  function splitNewsText(value) {
+    return String(value || "")
+      .split(/\r?\n/)
+      .map(function (line) {
+        return line.trim();
+      });
+  }
+
+  function findCatalogCharacterByName(name) {
+    var target = String(name || "").trim().toLowerCase();
+    if (!target) {
+      return null;
+    }
+    return characterCatalog.find(function (entry) {
+      return entry && entry.name && String(entry.name).trim().toLowerCase() === target;
+    }) || null;
+  }
+
+  function findCatalogSkillByName(character, skillName) {
+    var target = String(skillName || "").trim().toLowerCase();
+    if (!character || !Array.isArray(character.skills) || !target) {
+      return null;
+    }
+    return character.skills.find(function (entry) {
+      return entry && entry.name && String(entry.name).trim().toLowerCase() === target;
+    }) || null;
+  }
+
+  function parseNewsChanges(value) {
+    return splitNewsText(value)
+      .filter(function (line) {
+        return !!line && line !== "---";
+      })
+      .map(function (line) {
+        var parts = line.split("|").map(function (part) {
+          return String(part || "").trim();
+        });
+        if (parts.length >= 4) {
+          var type = parts[0].toLowerCase();
+          var character = findCatalogCharacterByName(parts[1]);
+          var skill = findCatalogSkillByName(character, parts[2]);
+          return {
+            text: parts.slice(3).join(" | "),
+            changeType: type === "buff" || type === "nerf" ? type : "",
+            characterId: character && character.characterId ? String(character.characterId) : "",
+            characterName: character && character.name ? String(character.name) : parts[1],
+            skillId: skill && skill.id ? String(skill.id) : "",
+            skillName: skill && skill.name ? String(skill.name) : parts[2],
+            facePicture: character && character.facePicture ? String(character.facePicture) : "",
+            skillimage: skill && skill.skillimage ? String(skill.skillimage) : ""
+          };
+        }
+        return {
+          text: line,
+          changeType: "",
+          characterId: "",
+          characterName: "",
+          skillId: "",
+          skillName: "",
+          facePicture: "",
+          skillimage: ""
+        };
+      });
+  }
+
+  function buildNewsBlocksFromText(value) {
+    var blocks = [];
+    var currentParagraph = [];
+    splitNewsText(value).forEach(function (line) {
+      if (!line) {
+        if (currentParagraph.length) {
+          blocks.push({
+            type: "paragraph",
+            text: currentParagraph.join(" ")
+          });
+          currentParagraph = [];
+        }
+        return;
+      }
+      if (line === "---") {
+        if (currentParagraph.length) {
+          blocks.push({
+            type: "paragraph",
+            text: currentParagraph.join(" ")
+          });
+          currentParagraph = [];
+        }
+        blocks.push({ type: "divider", text: "" });
+        return;
+      }
+      currentParagraph.push(line);
+    });
+    if (currentParagraph.length) {
+      blocks.push({
+        type: "paragraph",
+        text: currentParagraph.join(" ")
+      });
+    }
+    return blocks;
+  }
+
+  function buildNewsParagraphsFromBlocks(blocks) {
+    return (Array.isArray(blocks) ? blocks : [])
+      .filter(function (block) {
+        return block && block.type === "paragraph" && block.text;
+      })
+      .map(function (block) {
+        return String(block.text);
+      });
+  }
+
+  function buildNewsEditorText(blocks) {
+    return (Array.isArray(blocks) ? blocks : [])
+      .map(function (block) {
+        if (block && block.type === "divider") {
+          return "---";
+        }
+        return block && block.text ? String(block.text) : "";
+      })
+      .join("\n\n");
+  }
+
+  function renderNewsPost(post) {
+    var article = document.createElement("section");
+    article.className = "news-post";
+
+    var title = document.createElement("h1");
+    title.className = "mainsection-kicker";
+    title.textContent = post && post.title ? String(post.title) : "Untitled Post";
+    article.appendChild(title);
+
+    var meta = document.createElement("p");
+    meta.className = "mainsection-meta";
+    meta.innerHTML = "&raquo; " + formatDateTime(post && post.updatedAt ? post.updatedAt : post && post.createdAt) + " by <span class=\"byline\"></span>";
+    var byline = meta.querySelector(".byline");
+    if (byline) {
+      byline.textContent = post && post.author ? String(post.author) : "Unknown";
+    }
+    article.appendChild(meta);
+
+    var body = document.createElement("div");
+    body.className = "mainsection-body";
+    var blocks = post && Array.isArray(post.blocks) && post.blocks.length
+      ? post.blocks
+      : (post && Array.isArray(post.paragraphs) ? post.paragraphs.map(function (text) {
+        return { type: "paragraph", text: text };
+      }) : []);
+
+    (Array.isArray(blocks) ? blocks : []).forEach(function (block) {
+      if (block && block.type === "divider") {
+        var divider = document.createElement("hr");
+        divider.className = "news-divider";
+        body.appendChild(divider);
+        return;
+      }
+      if (block && block.text) {
+        var paragraph = document.createElement("p");
+        paragraph.textContent = String(block.text);
+        body.appendChild(paragraph);
+      }
+    });
+
+    var changes = post && Array.isArray(post.changes) ? post.changes : [];
+    if (changes.length) {
+      var autoDivider = document.createElement("hr");
+      autoDivider.className = "news-divider";
+      body.appendChild(autoDivider);
+
+      var changesTitle = document.createElement("h3");
+      changesTitle.className = "news-change-title";
+      changesTitle.textContent = "Character and Skill Changes";
+      body.appendChild(changesTitle);
+
+      var changeList = document.createElement("div");
+      changeList.className = "news-change-list";
+      var groupedChanges = [];
+      changes.forEach(function (entry) {
+        var groupKey = entry && entry.characterId
+          ? "character:" + entry.characterId
+          : entry && entry.characterName
+            ? "name:" + String(entry.characterName).toLowerCase()
+            : "misc:" + groupedChanges.length;
+        var existingGroup = groupedChanges.find(function (group) {
+          return group.key === groupKey;
+        });
+        if (existingGroup) {
+          existingGroup.entries.push(entry);
+          return;
+        }
+        groupedChanges.push({
+          key: groupKey,
+          facePicture: entry && entry.facePicture ? String(entry.facePicture) : "",
+          characterName: entry && entry.characterName ? String(entry.characterName) : "",
+          entries: [entry]
+        });
+      });
+
+      groupedChanges.forEach(function (group) {
+        var groupNode = document.createElement("div");
+        groupNode.className = "news-change-group";
+
+        if (group.facePicture) {
+          var face = document.createElement("img");
+          face.className = "news-change-character";
+          face.src = group.facePicture;
+          face.alt = group.characterName || "Character";
+          groupNode.appendChild(face);
+        } else {
+          var spacer = document.createElement("div");
+          groupNode.appendChild(spacer);
+        }
+
+        var groupCopy = document.createElement("div");
+        groupCopy.className = "news-change-group-list";
+
+        if (group.characterName) {
+          var groupName = document.createElement("div");
+          groupName.className = "news-change-character-name";
+          groupName.textContent = group.characterName;
+          groupCopy.appendChild(groupName);
+        }
+
+        group.entries.forEach(function (entry) {
+          var item = document.createElement("div");
+          item.className = "news-change-item";
+
+          var copy = document.createElement("div");
+          copy.className = "news-change-copy";
+
+          var header = document.createElement("div");
+          header.className = "news-change-header";
+          if (entry && entry.changeType) {
+            var typeBadge = document.createElement("span");
+            typeBadge.className = "news-change-type " + String(entry.changeType);
+            typeBadge.textContent = String(entry.changeType).toUpperCase();
+            header.appendChild(typeBadge);
+          }
+          if (entry && (entry.skillName || entry.skillimage)) {
+            var skillBadge = document.createElement("span");
+            skillBadge.className = "news-change-skill";
+            if (entry.skillimage) {
+              var skillImage = document.createElement("img");
+              skillImage.className = "news-change-skill-image";
+              skillImage.src = String(entry.skillimage);
+              skillImage.alt = entry && entry.skillName ? String(entry.skillName) : "Skill";
+              skillBadge.appendChild(skillImage);
+            }
+            if (entry.skillName) {
+              var skillName = document.createElement("span");
+              skillName.textContent = String(entry.skillName);
+              skillBadge.appendChild(skillName);
+            }
+            header.appendChild(skillBadge);
+          }
+          if (header.childNodes.length) {
+            copy.appendChild(header);
+          }
+
+          var text = document.createElement("p");
+          text.className = "news-change-text";
+          text.textContent = entry && entry.text
+            ? String(entry.text).replace(/\\n/g, "\n")
+            : String(entry || "");
+          copy.appendChild(text);
+
+          item.appendChild(copy);
+          groupCopy.appendChild(item);
+        });
+
+        groupNode.appendChild(groupCopy);
+        changeList.appendChild(groupNode);
+      });
+      body.appendChild(changeList);
+    }
+
+    article.appendChild(body);
+    return article;
+  }
+
+  function renderNewsFeed(posts) {
+    if (!newsFeedContent) {
+      return;
+    }
+    clearChildren(newsFeedContent);
+
+    var list = Array.isArray(posts) ? posts : [];
+    if (!list.length) {
+      setNewsStatus("No news posts available yet.", "error");
+      if (newsFeedCounter) {
+        newsFeedCounter.textContent = "0 / 0";
+      }
+      if (newsPrevButton) {
+        newsPrevButton.disabled = true;
+      }
+      if (newsNextButton) {
+        newsNextButton.disabled = true;
+      }
+      return;
+    }
+
+    currentNewsPostIndex = Math.max(0, Math.min(currentNewsPostIndex, list.length - 1));
+    newsFeedContent.appendChild(renderNewsPost(list[currentNewsPostIndex]));
+    if (newsFeedCounter) {
+      newsFeedCounter.textContent = (currentNewsPostIndex + 1) + " / " + list.length;
+    }
+    if (newsPrevButton) {
+      newsPrevButton.disabled = currentNewsPostIndex <= 0;
+    }
+    if (newsNextButton) {
+      newsNextButton.disabled = currentNewsPostIndex >= list.length - 1;
+    }
+    setNewsStatus("");
+  }
+
+  async function loadPublicNews() {
+    if (!newsFeed) {
+      return;
+    }
+    setNewsStatus("Loading news...");
+    try {
+      var response = await fetch("/api/news", {
+        credentials: "same-origin"
+      });
+      var data = await response.json().catch(function () {
+        return {};
+      });
+      if (!response.ok) {
+        setNewsStatus(data && data.error ? data.error : "Unable to load news posts.", "error");
+        return;
+      }
+      publicNewsPosts = data && Array.isArray(data.posts) ? data.posts : [];
+      renderNewsFeed(publicNewsPosts);
+    } catch (error) {
+      setNewsStatus("Unable to reach the server.", "error");
+    }
+  }
+
+  function showPreviousNewsPost() {
+    if (!publicNewsPosts.length || currentNewsPostIndex <= 0) {
+      return;
+    }
+    currentNewsPostIndex -= 1;
+    renderNewsFeed(publicNewsPosts);
+  }
+
+  function showNextNewsPost() {
+    if (!publicNewsPosts.length || currentNewsPostIndex >= publicNewsPosts.length - 1) {
+      return;
+    }
+    currentNewsPostIndex += 1;
+    renderNewsFeed(publicNewsPosts);
+  }
+
+  function resetNewsEditor() {
+    if (newsAdminForm) {
+      newsAdminForm.reset();
+    }
+    if (newsPostIdInput) {
+      newsPostIdInput.value = "";
+    }
+    setNewsAdminStatus("");
+  }
+
+  function populateNewsEditor(post) {
+    if (!post) {
+      resetNewsEditor();
+      return;
+    }
+    if (newsPostIdInput) {
+      newsPostIdInput.value = post.id || "";
+    }
+    if (newsTitleInput) {
+      newsTitleInput.value = post.title || "";
+    }
+    if (newsContentInput) {
+      newsContentInput.value = buildNewsEditorText(post.blocks || []);
+    }
+    if (newsChangesInput) {
+      newsChangesInput.value = Array.isArray(post.changes) ? post.changes.map(function (entry) {
+        if (!entry || typeof entry !== "object") {
+          return String(entry || "");
+        }
+        var parts = [];
+        if (entry.changeType) {
+          parts.push(String(entry.changeType).charAt(0).toUpperCase() + String(entry.changeType).slice(1));
+        }
+        if (entry.characterName) {
+          parts.push(String(entry.characterName));
+        }
+        if (entry.skillName) {
+          parts.push(String(entry.skillName));
+        }
+        parts.push(entry.text ? String(entry.text) : "");
+        return parts.join(" | ");
+      }).join("\n") : "";
+    }
+    setNewsAdminStatus("");
+  }
+
+  function renderAdminNewsPosts(posts) {
+    if (!newsPostList) {
+      return;
+    }
+    clearChildren(newsPostList);
+    var list = Array.isArray(posts) ? posts : [];
+    if (!list.length) {
+      setNewsPostListStatus("No news posts yet.", "error");
+      return;
+    }
+    list.forEach(function (post) {
+      var entry = document.createElement("div");
+      entry.className = "news-post-entry";
+
+      var row = document.createElement("div");
+      row.className = "news-post-entry-row";
+
+      var button = document.createElement("button");
+      button.type = "button";
+      button.className = "news-post-entry";
+      button.style.padding = "0";
+      button.style.border = "0";
+      button.style.background = "transparent";
+      button.addEventListener("click", function () {
+        populateNewsEditor(post);
+      });
+
+      var title = document.createElement("span");
+      title.className = "news-post-entry-title";
+      title.textContent = post && post.title ? String(post.title) : "Untitled Post";
+      button.appendChild(title);
+
+      var deleteButton = document.createElement("button");
+      deleteButton.type = "button";
+      deleteButton.className = "news-post-delete";
+      deleteButton.textContent = "Delete";
+      deleteButton.addEventListener("click", function () {
+        deleteNewsPost(post && post.id ? String(post.id) : "");
+      });
+
+      row.appendChild(button);
+      row.appendChild(deleteButton);
+      entry.appendChild(row);
+
+      var meta = document.createElement("span");
+      meta.className = "news-post-entry-meta";
+      meta.textContent = formatDateTime(post && post.updatedAt ? post.updatedAt : post && post.createdAt) +
+        " | " + (post && post.author ? String(post.author) : "Unknown");
+      entry.appendChild(meta);
+
+      newsPostList.appendChild(entry);
+    });
+    setNewsPostListStatus("");
+  }
+
+  async function loadAdminNewsPosts() {
+    if (!newsPostList) {
+      return;
+    }
+    setNewsPostListStatus("Loading posts...");
+    try {
+      var response = await fetch("/api/admin/news", {
+        credentials: "same-origin"
+      });
+      var data = await response.json().catch(function () {
+        return {};
+      });
+      if (!response.ok) {
+        setNewsPostListStatus(data && data.error ? data.error : "Unable to load news posts.", "error");
+        return;
+      }
+      adminNewsPosts = data && Array.isArray(data.posts) ? data.posts : [];
+      renderAdminNewsPosts(adminNewsPosts);
+    } catch (error) {
+      setNewsPostListStatus("Unable to reach the server.", "error");
+    }
+  }
+
+  async function loadCharacterCatalog() {
+    if (!newsChangesInput) {
+      return;
+    }
+    try {
+      var response = await fetch("/api/characters/catalog", {
+        credentials: "same-origin"
+      });
+      var data = await response.json().catch(function () {
+        return {};
+      });
+      if (!response.ok) {
+        return;
+      }
+      characterCatalog = data && Array.isArray(data.characters) ? data.characters : [];
+    } catch (error) {}
+  }
+
+  async function saveNewsPost() {
+    if (!newsTitleInput) {
+      return;
+    }
+    var title = String(newsTitleInput.value || "").trim();
+    if (!title) {
+      setNewsAdminStatus("Title is required.", "error");
+      return;
+    }
+    var blocks = buildNewsBlocksFromText(newsContentInput && newsContentInput.value ? newsContentInput.value : "");
+    var changes = parseNewsChanges(newsChangesInput && newsChangesInput.value ? newsChangesInput.value : "");
+    var payload = {
+      title: title,
+      blocks: blocks,
+      paragraphs: buildNewsParagraphsFromBlocks(blocks),
+      changes: changes
+    };
+    var postId = newsPostIdInput && newsPostIdInput.value ? String(newsPostIdInput.value) : "";
+    var endpoint = postId ? "/api/admin/news/" + encodeURIComponent(postId) : "/api/admin/news";
+    var method = postId ? "PUT" : "POST";
+
+    if (newsSaveButton) {
+      newsSaveButton.disabled = true;
+    }
+    setNewsAdminStatus(postId ? "Updating post..." : "Creating post...");
+    try {
+      var response = await fetch(endpoint, {
+        method: method,
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "same-origin",
+        body: JSON.stringify(payload)
+      });
+      var data = await response.json().catch(function () {
+        return {};
+      });
+      if (!response.ok) {
+        setNewsAdminStatus(data && data.error ? data.error : "Unable to save news post.", "error");
+        return;
+      }
+      setNewsAdminStatus("News post saved.", "success");
+      populateNewsEditor(data && data.post ? data.post : null);
+      loadAdminNewsPosts();
+      loadPublicNews();
+    } catch (error) {
+      setNewsAdminStatus("Unable to reach the server.", "error");
+    } finally {
+      if (newsSaveButton) {
+        newsSaveButton.disabled = false;
+      }
+    }
+  }
+
+  async function deleteNewsPost(postId) {
+    if (!postId) {
+      return;
+    }
+    setNewsAdminStatus("Deleting post...");
+    try {
+      var response = await fetch("/api/admin/news/" + encodeURIComponent(postId), {
+        method: "DELETE",
+        credentials: "same-origin"
+      });
+      var data = await response.json().catch(function () {
+        return {};
+      });
+      if (!response.ok) {
+        setNewsAdminStatus(data && data.error ? data.error : "Unable to delete news post.", "error");
+        return;
+      }
+      if (newsPostIdInput && newsPostIdInput.value === postId) {
+        resetNewsEditor();
+      }
+      setNewsAdminStatus("News post deleted.", "success");
+      loadAdminNewsPosts();
+      loadPublicNews();
+    } catch (error) {
+      setNewsAdminStatus("Unable to reach the server.", "error");
+    }
+  }
+
+  function renderWinrates(entries) {
+    if (!winratesGrid) {
+      return;
+    }
+    clearChildren(winratesGrid);
+
+    var list = Array.isArray(entries) ? entries : [];
+    if (!list.length) {
+      setWinratesStatus("No ladder character stats available yet.", "error");
+      return;
+    }
+
+    list.forEach(function (entry) {
+      var card = document.createElement("article");
+      card.className = "winrate-card";
+
+      var image = document.createElement("img");
+      image.className = "winrate-face";
+      image.src = entry && entry.facePicture ? String(entry.facePicture) : defaultProfileAvatar;
+      image.alt = entry && entry.name ? String(entry.name) : "Character";
+      card.appendChild(image);
+
+      var content = document.createElement("div");
+      content.className = "winrate-content";
+
+      var name = document.createElement("h3");
+      name.className = "winrate-name";
+      name.textContent = entry && entry.name ? String(entry.name) : "Unknown Character";
+      content.appendChild(name);
+
+      var wins = document.createElement("p");
+      wins.className = "winrate-stat";
+      wins.textContent = "Total Games Won: " + formatInteger(entry && entry.totalGamesWon);
+      content.appendChild(wins);
+
+      var matches = document.createElement("p");
+      matches.className = "winrate-stat";
+      matches.textContent = "Total Matches Played: " + formatInteger(entry && entry.totalMatchesPlayed);
+      content.appendChild(matches);
+
+      card.appendChild(content);
+      winratesGrid.appendChild(card);
+    });
+  }
+
+  async function loadAdminWinrates() {
+    if (!winratesGrid) {
+      return;
+    }
+
+    setWinratesStatus("Loading character winrates...");
+    try {
+      var response = await fetch("/api/admin/winrates", {
+        credentials: "same-origin"
+      });
+      var data = await response.json().catch(function () {
+        return {};
+      });
+
+      if (!response.ok) {
+        setWinratesStatus(data && data.error ? data.error : "Unable to load winrates.", "error");
+        return;
+      }
+
+      renderWinrates(data && Array.isArray(data.characters) ? data.characters : []);
+      setWinratesStatus("");
+    } catch (error) {
+      setWinratesStatus("Unable to reach the server.", "error");
+    }
+  }
+
+  function openPlayerAccountModal() {
+    if (!playerAccountOverlay) {
+      return;
+    }
+    playerAccountOverlay.classList.add("visible");
+  }
+
+  function closePlayerAccountModal() {
+    if (!playerAccountOverlay) {
+      return;
+    }
+    playerAccountOverlay.classList.remove("visible");
+    setPlayerAccountStatus("");
+  }
+
+  async function openAdminUser(username) {
+    if (!username) {
+      return;
+    }
+
+    setPlayerAccountStatus("Loading account...");
+    try {
+      var response = await fetch("/api/admin/users/" + encodeURIComponent(username), {
+        credentials: "same-origin"
+      });
+      var data = await response.json().catch(function () {
+        return {};
+      });
+
+      if (!response.ok) {
+        setPlayerAccountStatus(data && data.error ? data.error : "Unable to load player account.", "error");
+        openPlayerAccountModal();
+        return;
+      }
+
+      selectedAdminAccountUsername = username;
+      setText(playerAccountUsername, data && data.username ? data.username : username);
+      setText(playerAccountRole, data && data.role ? formatRole(data.role) : "Player");
+      setText(playerAccountLadderRatio, data && data.ladderRatio ? data.ladderRatio : "0.00%");
+      if (playerAccountEditor) {
+        playerAccountEditor.value = JSON.stringify(data && data.document ? data.document : {}, null, 2);
+      }
+      setPlayerAccountStatus("");
+      openPlayerAccountModal();
+    } catch (error) {
+      setPlayerAccountStatus("Unable to reach the server.", "error");
+      openPlayerAccountModal();
+    }
+  }
+
+  function renderPlayerAccounts(entries) {
+    if (!playerAccountsList) {
+      return;
+    }
+    clearChildren(playerAccountsList);
+
+    var list = Array.isArray(entries) ? entries : [];
+    if (!list.length) {
+      setPlayerAccountsStatus("No player accounts found.", "error");
+      return;
+    }
+
+    list.forEach(function (entry) {
+      var button = document.createElement("button");
+      button.type = "button";
+      button.className = "player-account-entry";
+      button.addEventListener("click", function () {
+        openAdminUser(entry && entry.username ? String(entry.username) : "");
+      });
+
+      var name = document.createElement("span");
+      name.className = "player-account-entry-name";
+      name.textContent = entry && entry.username ? String(entry.username) : "Unknown";
+      button.appendChild(name);
+
+      var meta = document.createElement("span");
+      meta.className = "player-account-entry-meta";
+      meta.textContent =
+        (entry && entry.role ? formatRole(entry.role) : "Player") +
+        " | " +
+        (entry && entry.ladderRatio ? String(entry.ladderRatio) : "0.00%");
+      button.appendChild(meta);
+
+      playerAccountsList.appendChild(button);
+    });
+  }
+
+  function filterAndRenderPlayerAccounts() {
+    var query = String(playerAccountsSearch && playerAccountsSearch.value ? playerAccountsSearch.value : "")
+      .trim()
+      .toLowerCase();
+    var filteredEntries = adminUserEntries.filter(function (entry) {
+      var username = entry && entry.username ? String(entry.username).toLowerCase() : "";
+      var role = entry && entry.role ? String(entry.role).toLowerCase() : "";
+      return !query || username.indexOf(query) !== -1 || role.indexOf(query) !== -1;
+    });
+    renderPlayerAccounts(filteredEntries);
+    if (query && !filteredEntries.length) {
+      setPlayerAccountsStatus("No player accounts match that search.", "error");
+      return;
+    }
+    setPlayerAccountsStatus("");
+  }
+
+  async function loadAdminUsers() {
+    if (!playerAccountsList) {
+      return;
+    }
+
+    setPlayerAccountsStatus("Loading player accounts...");
+    try {
+      var response = await fetch("/api/admin/users", {
+        credentials: "same-origin"
+      });
+      var data = await response.json().catch(function () {
+        return {};
+      });
+
+      if (!response.ok) {
+        setPlayerAccountsStatus(data && data.error ? data.error : "Unable to load player accounts.", "error");
+        return;
+      }
+
+      adminUserEntries = data && Array.isArray(data.users) ? data.users : [];
+      filterAndRenderPlayerAccounts();
+    } catch (error) {
+      setPlayerAccountsStatus("Unable to reach the server.", "error");
+    }
+  }
+
+  async function saveAdminUser() {
+    if (!playerAccountEditor || !selectedAdminAccountUsername) {
+      return;
+    }
+
+    var documentValue = null;
+    try {
+      documentValue = JSON.parse(playerAccountEditor.value || "{}");
+    } catch (error) {
+      setPlayerAccountStatus("Account document must be valid JSON.", "error");
+      return;
+    }
+
+    if (playerAccountSave) {
+      playerAccountSave.disabled = true;
+    }
+    setPlayerAccountStatus("Saving account...");
+    try {
+      var response = await fetch("/api/admin/users/" + encodeURIComponent(selectedAdminAccountUsername), {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "same-origin",
+        body: JSON.stringify(documentValue)
+      });
+      var data = await response.json().catch(function () {
+        return {};
+      });
+
+      if (!response.ok) {
+        setPlayerAccountStatus(data && data.error ? data.error : "Unable to update player account.", "error");
+        return;
+      }
+
+      selectedAdminAccountUsername =
+        data && data.user && data.user.username
+          ? String(data.user.username)
+          : selectedAdminAccountUsername;
+      if (playerAccountEditor) {
+        playerAccountEditor.value = JSON.stringify(data && data.user ? data.user : documentValue, null, 2);
+      }
+      setText(playerAccountUsername, selectedAdminAccountUsername);
+      setText(playerAccountRole, formatRole(data && data.user && data.user.role ? data.user.role : "player"));
+      var updatedProfile = data && data.user && data.user.profile ? data.user.profile : {};
+      var wins = Number(updatedProfile && updatedProfile.ladder && updatedProfile.ladder.wins) || 0;
+      var losses = Number(updatedProfile && updatedProfile.ladder && updatedProfile.ladder.losses) || 0;
+      var total = wins + losses;
+      setText(playerAccountLadderRatio, total > 0 ? ((wins / total) * 100).toFixed(2) + "%" : "0.00%");
+      setPlayerAccountStatus("Player account updated.");
+      loadAdminUsers();
+    } catch (error) {
+      setPlayerAccountStatus("Unable to reach the server.", "error");
+    } finally {
+      if (playerAccountSave) {
+        playerAccountSave.disabled = false;
+      }
+    }
+  }
+
+  function setCharacterEditorStatus(message, state) {
+    if (!characterEditorStatus) {
+      return;
+    }
+    characterEditorStatus.textContent = message || "";
+    if (state) {
+      characterEditorStatus.dataset.state = state;
+      return;
+    }
+    delete characterEditorStatus.dataset.state;
+  }
+
+  function setCharacterEditorModalStatus(message, state) {
+    if (!characterEditorModalStatus) {
+      return;
+    }
+    characterEditorModalStatus.textContent = message || "";
+    if (state) {
+      characterEditorModalStatus.dataset.state = state;
+      return;
+    }
+    delete characterEditorModalStatus.dataset.state;
+  }
+
+  function openCharacterEditorModal() {
+    if (!characterEditorOverlay) {
+      return;
+    }
+    characterEditorOverlay.classList.add("visible");
+    characterEditorOverlay.setAttribute("aria-hidden", "false");
+  }
+
+  function closeCharacterEditorModal() {
+    if (!characterEditorOverlay) {
+      return;
+    }
+    characterEditorOverlay.classList.remove("visible");
+    characterEditorOverlay.setAttribute("aria-hidden", "true");
+    selectedAdminCharacterId = "";
+    setCharacterEditorModalStatus("");
+  }
+
+  function renderAdminCharacters(entries) {
+    if (!characterEditorGrid) {
+      return;
+    }
+    clearChildren(characterEditorGrid);
+
+    var list = Array.isArray(entries) ? entries : [];
+    if (!list.length) {
+      setCharacterEditorStatus("No characters found.", "error");
+      return;
+    }
+
+    list.forEach(function (entry) {
+      var button = document.createElement("button");
+      button.type = "button";
+      button.className = "character-editor-card";
+      button.addEventListener("click", function () {
+        openAdminCharacter(entry && entry.characterId ? String(entry.characterId) : "");
+      });
+
+      var face = document.createElement("img");
+      face.className = "character-editor-card-face";
+      face.alt = (entry && entry.name ? String(entry.name) : "Character") + " face";
+      face.src = entry && entry.facePicture ? String(entry.facePicture) : defaultProfileAvatar;
+      button.appendChild(face);
+
+      var copy = document.createElement("div");
+
+      var name = document.createElement("span");
+      name.className = "character-editor-card-name";
+      name.textContent = entry && entry.name ? String(entry.name) : "Unknown";
+      copy.appendChild(name);
+
+      var meta = document.createElement("span");
+      meta.className = "character-editor-card-id";
+      meta.textContent = entry && entry.characterId ? String(entry.characterId) : "";
+      copy.appendChild(meta);
+
+      button.appendChild(copy);
+      characterEditorGrid.appendChild(button);
+    });
+  }
+
+  function filterAndRenderAdminCharacters() {
+    var query = String(characterEditorSearch && characterEditorSearch.value ? characterEditorSearch.value : "")
+      .trim()
+      .toLowerCase();
+    var filteredEntries = adminCharacterEntries.filter(function (entry) {
+      var name = entry && entry.name ? String(entry.name).toLowerCase() : "";
+      var characterId = entry && entry.characterId ? String(entry.characterId).toLowerCase() : "";
+      return !query || name.indexOf(query) !== -1 || characterId.indexOf(query) !== -1;
+    });
+    renderAdminCharacters(filteredEntries);
+    if (query && !filteredEntries.length) {
+      setCharacterEditorStatus("No characters match that search.", "error");
+      return;
+    }
+    setCharacterEditorStatus("");
+  }
+
+  async function loadAdminCharacters() {
+    if (!characterEditorGrid) {
+      return;
+    }
+
+    setCharacterEditorStatus("Loading characters...");
+    try {
+      var response = await fetch("/api/admin/characters", {
+        credentials: "same-origin"
+      });
+      var data = await response.json().catch(function () {
+        return {};
+      });
+
+      if (!response.ok) {
+        setCharacterEditorStatus(data && data.error ? data.error : "Unable to load characters.", "error");
+        return;
+      }
+
+      adminCharacterEntries = data && Array.isArray(data.characters) ? data.characters : [];
+      filterAndRenderAdminCharacters();
+    } catch (error) {
+      setCharacterEditorStatus("Unable to reach the server.", "error");
+    }
+  }
+
+  async function openAdminCharacter(characterId) {
+    if (!characterId) {
+      return;
+    }
+
+    selectedAdminCharacterId = characterId;
+    setText(characterEditorName, "Loading...");
+    setText(characterEditorId, characterId);
+    if (characterEditorFace) {
+      characterEditorFace.src = defaultProfileAvatar;
+    }
+    if (characterEditorJson) {
+      characterEditorJson.value = "";
+    }
+    setCharacterEditorModalStatus("Loading character...");
+    openCharacterEditorModal();
+
+    try {
+      var response = await fetch("/api/admin/characters/" + encodeURIComponent(characterId), {
+        credentials: "same-origin"
+      });
+      var data = await response.json().catch(function () {
+        return {};
+      });
+
+      if (!response.ok) {
+        setCharacterEditorModalStatus(data && data.error ? data.error : "Unable to load character.", "error");
+        return;
+      }
+
+      var character = data && data.character ? data.character : {};
+      setText(characterEditorName, character && character.name ? character.name : characterId);
+      setText(characterEditorId, character && character.characterId ? character.characterId : characterId);
+      if (characterEditorFace) {
+        characterEditorFace.src = character && character.facePicture ? character.facePicture : defaultProfileAvatar;
+      }
+      if (characterEditorJson) {
+        characterEditorJson.value = JSON.stringify(character, null, 2);
+      }
+      setCharacterEditorModalStatus("");
+    } catch (error) {
+      setCharacterEditorModalStatus("Unable to reach the server.", "error");
+    }
+  }
+
+  async function saveAdminCharacter() {
+    if (!characterEditorJson || !selectedAdminCharacterId) {
+      return;
+    }
+
+    var nextCharacter = null;
+    try {
+      nextCharacter = JSON.parse(characterEditorJson.value || "{}");
+    } catch (error) {
+      setCharacterEditorModalStatus("Character data must be valid JSON.", "error");
+      return;
+    }
+
+    if (characterEditorSave) {
+      characterEditorSave.disabled = true;
+    }
+    setCharacterEditorModalStatus("Saving character...");
+    try {
+      var response = await fetch("/api/admin/characters/" + encodeURIComponent(selectedAdminCharacterId), {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "same-origin",
+        body: JSON.stringify(nextCharacter)
+      });
+      var data = await response.json().catch(function () {
+        return {};
+      });
+
+      if (!response.ok) {
+        setCharacterEditorModalStatus(data && data.error ? data.error : "Unable to update character.", "error");
+        return;
+      }
+
+      var savedCharacter = data && data.character ? data.character : nextCharacter;
+      selectedAdminCharacterId =
+        savedCharacter && savedCharacter.characterId ? String(savedCharacter.characterId) : selectedAdminCharacterId;
+      if (characterEditorJson) {
+        characterEditorJson.value = JSON.stringify(savedCharacter, null, 2);
+      }
+      setText(characterEditorName, savedCharacter && savedCharacter.name ? savedCharacter.name : selectedAdminCharacterId);
+      setText(characterEditorId, selectedAdminCharacterId);
+      if (characterEditorFace) {
+        characterEditorFace.src = savedCharacter && savedCharacter.facePicture ? savedCharacter.facePicture : defaultProfileAvatar;
+      }
+      setCharacterEditorModalStatus("Character updated.");
+      loadAdminCharacters();
+      loadCharacterCatalog();
+    } catch (error) {
+      setCharacterEditorModalStatus("Unable to reach the server.", "error");
+    } finally {
+      if (characterEditorSave) {
+        characterEditorSave.disabled = false;
+      }
+    }
+  }
+
+  async function resetAdminWinrates() {
+    if (!resetWinratesButton) {
+      return;
+    }
+
+    resetWinratesButton.disabled = true;
+    setWinratesStatus("Resetting winrates...");
+    try {
+      var response = await fetch("/api/admin/winrates/reset", {
+        method: "POST",
+        credentials: "same-origin"
+      });
+      var data = await response.json().catch(function () {
+        return {};
+      });
+
+      if (!response.ok) {
+        setWinratesStatus(data && data.error ? data.error : "Unable to reset winrates.", "error");
+        return;
+      }
+
+      setWinratesStatus("Winrates reset.");
+      await loadAdminWinrates();
+    } catch (error) {
+      setWinratesStatus("Unable to reach the server.", "error");
+    } finally {
+      resetWinratesButton.disabled = false;
+    }
   }
 
   function setClanRegisterStatus(message) {
@@ -1727,6 +2948,7 @@
     accountUsername.textContent = "Player";
     currentSessionUser = null;
     updateClanPanelNotification(null);
+    setHiddenState(adminPanelSection, true);
     cacheSessionUser(null);
     setAccountStatus("");
     authForm.reset();
@@ -1743,6 +2965,10 @@
     setStatus("");
     setAccountStatus("");
     setText(clanRegisterCreator, username || "Player");
+    setHiddenState(
+      adminPanelSection,
+      !(currentSessionUser && String(currentSessionUser.role || "").trim().toLowerCase() === "admin")
+    );
   }
 
   function setCurrentSessionUser(user) {
@@ -2064,6 +3290,89 @@
   if (resetAccountButton) {
     resetAccountButton.addEventListener("click", function () {
       window.location.href = "resetaccount.html";
+    });
+  }
+
+  if (resetWinratesButton) {
+    resetWinratesButton.addEventListener("click", function () {
+      resetAdminWinrates();
+    });
+  }
+
+  if (playerAccountSave) {
+    playerAccountSave.addEventListener("click", function () {
+      saveAdminUser();
+    });
+  }
+
+  if (playerAccountClose) {
+    playerAccountClose.addEventListener("click", function () {
+      closePlayerAccountModal();
+    });
+  }
+
+  if (playerAccountOverlay) {
+    playerAccountOverlay.addEventListener("click", function (event) {
+      if (event.target === playerAccountOverlay) {
+        closePlayerAccountModal();
+      }
+    });
+  }
+
+  if (playerAccountsSearch) {
+    playerAccountsSearch.addEventListener("input", function () {
+      filterAndRenderPlayerAccounts();
+    });
+  }
+
+  if (characterEditorSave) {
+    characterEditorSave.addEventListener("click", function () {
+      saveAdminCharacter();
+    });
+  }
+
+  if (characterEditorClose) {
+    characterEditorClose.addEventListener("click", function () {
+      closeCharacterEditorModal();
+    });
+  }
+
+  if (characterEditorOverlay) {
+    characterEditorOverlay.addEventListener("click", function (event) {
+      if (event.target === characterEditorOverlay) {
+        closeCharacterEditorModal();
+      }
+    });
+  }
+
+  if (characterEditorSearch) {
+    characterEditorSearch.addEventListener("input", function () {
+      filterAndRenderAdminCharacters();
+    });
+  }
+
+  if (newsAdminForm) {
+    newsAdminForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+      saveNewsPost();
+    });
+  }
+
+  if (newsResetButton) {
+    newsResetButton.addEventListener("click", function () {
+      resetNewsEditor();
+    });
+  }
+
+  if (newsPrevButton) {
+    newsPrevButton.addEventListener("click", function () {
+      showPreviousNewsPost();
+    });
+  }
+
+  if (newsNextButton) {
+    newsNextButton.addEventListener("click", function () {
+      showNextNewsPost();
     });
   }
 
@@ -2936,8 +4245,20 @@
   updateMode();
   initializeReleaseInputs();
   loadSidebarLeaderboards();
+  loadAdminWinrates();
+  loadAdminUsers();
+  loadAdminCharacters();
+  loadPublicNews();
+  loadAdminNewsPosts();
+  loadCharacterCatalog();
 
   fetchSessionUser().then(function (user) {
+    var isAdminOnlyPage = /(winrates|playeraccounts|newspost|charactereditor)\.html$/i.test(window.location.pathname || "");
+    if (isAdminOnlyPage && !(user && String(user.role || "").trim().toLowerCase() === "admin")) {
+      window.location.replace("index.html");
+      return;
+    }
+
     var safeRequestedClanName = sanitizeClanRouteName(requestedClanName);
     if (clanProfileName || clanProfileMemberList) {
       if (user && user.username) {

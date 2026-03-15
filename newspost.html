@@ -355,9 +355,133 @@
       padding: 18px 26px 26px;
     }
 
-    .reset-panel {
+    .release-panel {
+      margin-bottom: 18px;
+      padding: 18px;
+      border: 1px solid #171717;
+      border-radius: 14px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)),
+        #0a0a0a;
+      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.22);
+    }
+
+    .release-title {
+      margin: 0 0 8px;
+      font-size: 22px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .release-copy {
+      margin: 0 0 14px;
+      color: #b7b7b7;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .release-grid {
       display: grid;
-      gap: 18px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      justify-content: center;
+      justify-items: center;
+    }
+
+    .release-card {
+      display: grid;
+      gap: 10px;
+      justify-items: center;
+      padding: 14px 10px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      width: 150px;
+    }
+
+    .release-face {
+      width: 75px;
+      height: 75px;
+      object-fit: cover;
+      border: 1px solid #ffffff;
+      background: #111;
+    }
+
+    .release-label {
+      color: #cfcfcf;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 18px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 34px;
+    }
+
+    .tab {
+      font-size: 17px;
+      color: #a7a7a7;
+      position: relative;
+      padding: 4px 0;
+    }
+
+    .tab.active {
+      color: #fff;
+    }
+
+    .tab.active::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -18px;
+      width: 30px;
+      height: 4px;
+      transform: translateX(-50%);
+      border-radius: 999px;
+      background: #fff;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .icon-btn,
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      border: 1px solid #3c3c3c;
+      background: #0e0e0e;
+    }
+
+    .icon-btn svg {
+      width: 17px;
+      height: 17px;
+      stroke: #f5f5f5;
+      fill: none;
+      stroke-width: 1.8;
+    }
+
+    .avatar {
+      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
+      border-color: rgba(255, 82, 82, 0.6);
+      font-size: 14px;
+    }
+
+    .mainsection {
       padding: 26px 24px;
       border: 1px solid #171717;
       border-radius: 14px;
@@ -367,75 +491,306 @@
       box-shadow: 0 24px 48px rgba(0, 0, 0, 0.24);
     }
 
-    .reset-panel-title {
-      margin: 0;
+    .mainsection-kicker {
+      margin: 0 0 6px;
       color: #ffac38;
       font-size: 30px;
       font-weight: 700;
       line-height: 1.05;
     }
 
-    .reset-copy {
-      margin: 0;
-      color: #d0d0d0;
+    .mainsection-meta {
+      margin: 0 0 16px;
+      padding-bottom: 10px;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+      color: #a5a5a5;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .mainsection-meta .byline {
+      color: #ffca9e;
+      font-weight: 600;
+    }
+
+    .mainsection-body {
+      color: #efefef;
       font-size: 14px;
-      line-height: 1.6;
+      line-height: 1.65;
     }
 
-    .reset-actions {
-      display: flex;
+    .mainsection-body p {
+      margin: 0 0 14px;
+    }
+
+    .mainsection-points {
+      margin: 0 0 14px;
+      padding-left: 20px;
+      display: grid;
+      gap: 6px;
+    }
+
+    .mainsection-points li::marker {
+      color: #d0d0d0;
+    }
+
+    .mainsection-label {
+      margin: 12px 0 8px;
+      color: #ffcf74;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .mainsection-balances {
+      margin: 0;
+      padding-left: 20px;
+      display: grid;
+      gap: 6px;
+      color: #d6d6d6;
+    }
+
+    .mainsection-balances strong {
+      color: #fff;
+    }
+
+    .news-admin-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.9fr);
+      gap: 18px;
+    }
+
+    .news-editor-card,
+    .news-list-card {
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .news-editor-title,
+    .news-list-title {
+      margin: 0 0 14px;
+      color: #fff;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .news-admin-form {
+      display: grid;
       gap: 12px;
-      flex-wrap: wrap;
     }
 
-    .reset-button {
-      min-width: 150px;
-      height: 40px;
-      border: 0;
-      border-radius: 999px;
-      padding: 0 18px;
+    .news-admin-label {
+      display: grid;
+      gap: 6px;
+      color: #d8d8d8;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .news-admin-input,
+    .news-admin-textarea {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(8, 8, 8, 0.7);
+      color: #f3f3f3;
       font: inherit;
+      outline: none;
+    }
+
+    .news-admin-input {
+      height: 42px;
+      padding: 0 14px;
+    }
+
+    .news-admin-textarea {
+      min-height: 140px;
+      padding: 12px 14px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    .news-admin-input:focus,
+    .news-admin-textarea:focus {
+      border-color: #ffb84d;
+      box-shadow: 0 0 0 3px rgba(241, 169, 34, 0.12);
+    }
+
+    .news-admin-help {
+      margin: -4px 0 0;
+      color: #9f9f9f;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .news-admin-status {
+      min-height: 20px;
+      margin: 0;
+      color: #d2d2d2;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .news-admin-status[data-state="error"] {
+      color: #ff8f8f;
+    }
+
+    .news-admin-status[data-state="success"] {
+      color: #9ce2a1;
+    }
+
+    .news-admin-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .news-admin-button {
+      min-height: 40px;
+      padding: 0 18px;
+      border-radius: 999px;
+      font: inherit;
+      font-size: 14px;
       font-weight: 700;
       cursor: pointer;
     }
 
-    .reset-button.primary {
-      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
-      color: #000;
+    .news-admin-button.secondary {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: transparent;
+      color: #e7e7e7;
     }
 
-    .reset-button.secondary {
-      background: #2a2a2a;
-      color: #f0f0f0;
+    .news-admin-button.primary {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: linear-gradient(160deg, #ffb84d 0%, #ff8c1a 100%);
+      color: #101010;
     }
 
-    .reset-confirm {
-      display: none;
-      gap: 12px;
-      padding: 16px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .reset-confirm.visible {
+    .news-post-list {
       display: grid;
+      gap: 10px;
     }
 
-    .reset-status {
-      min-height: 18px;
-      margin: 0;
-      color: #d2d2d2;
+    .news-post-entry {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      color: #f4f4f4;
+      font: inherit;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .news-post-entry:hover {
+      border-color: rgba(255, 184, 77, 0.5);
+      color: var(--accent);
+    }
+
+    .news-post-entry-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .news-post-entry-title {
+      display: block;
+      margin: 0 0 6px;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .news-post-entry-meta {
+      color: #a9a9a9;
       font-size: 12px;
-      line-height: 1.4;
     }
 
-    .reset-status[data-state="error"] {
-      color: #ff8f8f;
+    .news-post-delete {
+      min-height: 30px;
+      padding: 0 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 999px;
+      background: rgba(255, 95, 95, 0.12);
+      color: #ffb3b3;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      flex: 0 0 auto;
     }
 
-    .reset-status[data-state="success"] {
-      color: #9ce2a1;
+    .slider-dots {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 18px 0 26px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.55);
+      background: transparent;
+    }
+
+    .dot.active {
+      background: #fff;
+      border-color: #fff;
+    }
+
+    .section-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 21px;
+      font-weight: 600;
+    }
+
+    .carousel-arrow {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      color: #9c9c9c;
+      font-size: 36px;
+      line-height: 1;
+    }
+
+    .poster-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 24px;
+      margin-bottom: 38px;
+    }
+
+    .poster-card {
+      min-width: 0;
+    }
+
+    .poster-image {
+      height: 228px;
+      border-radius: 10px;
+      background-size: cover;
+      background-position: center;
+      box-shadow: 0 18px 35px rgba(0, 0, 0, 0.35);
+    }
+
+    .poster-caption {
+      margin-top: 12px;
+      font-size: 14px;
+      text-align: center;
+      color: #dedede;
     }
 
     .aside-top {
@@ -673,6 +1028,22 @@
         left: -12px;
       }
 
+      .mainsection {
+        padding: 22px 18px;
+      }
+
+      .news-admin-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .poster-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .release-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     @media (max-width: 560px) {
@@ -682,7 +1053,17 @@
         padding-right: 16px;
       }
 
-      .reset-panel-title {
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .tabs {
+        gap: 22px;
+      }
+
+      .mainsection-kicker {
         font-size: 24px;
       }
     }
@@ -703,7 +1084,7 @@
         <h2 class="group-title">Home Menu</h2>
         <nav class="nav">
           <button class="play-now" type="button" id="play-now-button">Play Now</button>
-          <a class="nav-link" href="index.html">
+          <a class="nav-link active" href="index.html">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" /></svg>
             <span>Home</span>
           </a>
@@ -763,7 +1144,7 @@
               <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2" /><path d="M4 14c2.5-3 5.5-4.5 8-4.5s5.5 1.5 8 4.5" /></svg>
               <span>Custom Background</span>
             </button>
-            <button class="account-action active" type="button" id="reset-account-button">
+            <button class="account-action" type="button" id="reset-account-button">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14" /><path d="M8 7V5h8v2" /><path d="M9 11v5" /><path d="M15 11v5" /><path d="M7 7l1 12h8l1-12" /></svg>
               <span>Reset Account</span>
             </button>
@@ -782,7 +1163,7 @@
                   <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg>
                   <span>Player Accounts</span>
                 </a>
-                <a class="nav-link" href="newspost.html">
+                <a class="nav-link active" href="newspost.html">
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6.5h14" /><path d="M5 11.5h14" /><path d="M5 16.5h9" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg>
                   <span>News Post</span>
                 </a>
@@ -801,33 +1182,42 @@
 
     <main class="main">
 
-      <section class="reset-panel">
-        <h1 class="reset-panel-title">Reset Account</h1>
-        <p class="reset-copy">
-          This only resets your Level, Rank, Experience Points, Ladder Rank, Wins, Losses,
-          Win percentage, and current Streak.
-        </p>
-        <div class="reset-actions">
-          <button class="reset-button primary" type="button" id="reset-account-trigger">Reset Account</button>
+      <section class="mainsection">
+        <h1 class="mainsection-kicker">News Post</h1>
+        <p class="mainsection-meta">&raquo; Publish and edit homepage announcements</p>
+        <div class="news-admin-layout">
+          <section class="news-editor-card">
+            <h2 class="news-editor-title">Post Editor</h2>
+            <form class="news-admin-form" id="news-admin-form">
+              <input type="hidden" id="news-post-id" />
+              <label class="news-admin-label" for="news-title">
+                Title
+                <input class="news-admin-input" type="text" id="news-title" maxlength="120" required />
+              </label>
+              <label class="news-admin-label" for="news-content">
+                News Content
+                <textarea class="news-admin-textarea" id="news-content" placeholder="Write the announcement here. Use a line with --- to insert a divider."></textarea>
+              </label>
+              <p class="news-admin-help">Use `---` on its own line to insert a divider inside the post.</p>
+              <label class="news-admin-label" for="news-changes">
+                Character and Skill Changes
+                <textarea class="news-admin-textarea" id="news-changes" placeholder="One change per line. Example: Naruto's Rasengan now deals 30 damage instead of 50."></textarea>
+              </label>
+              <p class="news-admin-help">Use one line per change in this format: `Buff|Nerf | Character Name | Skill Name | Change text`. Use `\n` inside the change text for a line break.</p>
+              <p class="news-admin-status" id="news-admin-status" aria-live="polite"></p>
+              <div class="news-admin-actions">
+                <button class="news-admin-button secondary" type="button" id="news-reset-button">New Post</button>
+                <button class="news-admin-button primary" type="submit" id="news-save-button">Save Post</button>
+              </div>
+            </form>
+          </section>
+          <section class="news-list-card">
+            <h2 class="news-list-title">Existing Posts</h2>
+            <p class="news-admin-status" id="news-post-list-status" aria-live="polite"></p>
+            <div class="news-post-list" id="news-post-list"></div>
+          </section>
         </div>
-        <div class="reset-confirm" id="reset-account-confirm">
-          <p class="reset-copy">Are you sure you want to reset these account fields?</p>
-          <div class="reset-actions">
-            <button class="reset-button primary" type="button" id="reset-account-confirm-button">Yes, Reset</button>
-            <button class="reset-button secondary" type="button" id="reset-account-cancel-button">Cancel</button>
-          </div>
-        </div>
-        <p class="reset-status" id="reset-account-status" aria-live="polite"></p>
       </section>
-
-      <div aria-hidden="true" style="display:none;">
-        <img id="release-face-1" alt="" />
-        <img id="release-face-2" alt="" />
-        <img id="release-face-3" alt="" />
-        <div id="release-label-1"></div>
-        <div id="release-label-2"></div>
-        <div id="release-label-3"></div>
-      </div>
 
     </main>
 

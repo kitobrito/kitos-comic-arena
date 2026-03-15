@@ -10,10 +10,10 @@ const rateLimit = require('express-rate-limit');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const Joi = require('joi');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 const bcrypt = require('bcryptjs');
 const battleLogic = require('./battleLogic');
-const charactersData = require('./characters');
+let charactersData = require('./characters');
 
 const app = express();
 
@@ -24,6 +24,9 @@ const DEFAULT_URI = process.env.MONGODB_URI;
 const DATABASE_NAME = process.env.MONGODB_DB || 'naruto-arena';
 const USERS_COLLECTION = process.env.MONGODB_USERS_COLLECTION || 'users';
 const MATCHES_COLLECTION = process.env.MONGODB_MATCHES_COLLECTION || 'matches';
+const APP_STATE_COLLECTION = process.env.MONGODB_APP_STATE_COLLECTION || 'app_state';
+const NEWS_POSTS_COLLECTION = process.env.MONGODB_NEWS_POSTS_COLLECTION || 'news_posts';
+const CHARACTERS_FILE_PATH = path.join(__dirname, 'characters.js');
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRY = process.env.JWT_EXPIRY || '7d';
 const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME || 'naruto_session';
@@ -43,6 +46,8 @@ const LEGACY_DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/zG3W1w6K/itachi.png'
 let mongoClient;
 let usersCollection;
 let matchesCollection;
+let appStateCollection;
+let newsPostsCollection;
 
 const DEFAULT_CLAN_RANK_NAMES = {
     clanLeader: 'Clan Leader',
@@ -932,6 +937,126 @@ const serializePublicUserProfile = (user = {}) => ({
     role: user.role || 'player',
     createdAt: user.createdAt,
     profile: normalizeUserProfile(user),
+});
+
+const serializeAdminUserDocument = (user = {}) => ({
+    username: user.username,
+    usernameLower: user.usernameLower,
+    email: user.email,
+    passwordHash: user.passwordHash,
+    role: user.role || 'player',
+    createdAt: user.createdAt,
+    savedTeamIndices: Array.isArray(user.savedTeamIndices) ? user.savedTeamIndices : [],
+    profile: normalizeUserProfile(user),
+});
+
+const normalizeNewsParagraphs = (value) =>
+    (Array.isArray(value) ? value : [])
+        .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
+        .filter(Boolean)
+        .slice(0, 100);
+
+const buildCharacterCatalog = () =>
+    charactersData.map((character = {}) => ({
+        characterId: typeof character.characterId === 'string' ? character.characterId : '',
+        name: typeof character.name === 'string' ? character.name : '',
+        facePicture: typeof character.facePicture === 'string' ? character.facePicture : '',
+        skills: (Array.isArray(character.skills) ? character.skills : []).map((skill = {}) => ({
+            id: typeof skill.id === 'string' ? skill.id : '',
+            name: typeof skill.name === 'string' ? skill.name : '',
+            skillimage: typeof skill.skillimage === 'string' ? skill.skillimage : '',
+        })),
+    }));
+
+let characterCatalog = buildCharacterCatalog();
+
+const saveCharactersDataFile = async (nextCharacters) => {
+    const serialized =
+        'const characters = ' +
+        JSON.stringify(nextCharacters, null, 4) +
+        ';\n\nif (typeof module !== \'undefined\') {\n    module.exports = characters;\n}\n';
+    await fs.promises.writeFile(CHARACTERS_FILE_PATH, serialized, 'utf8');
+    charactersData = nextCharacters;
+    characterCatalog = buildCharacterCatalog();
+};
+
+const resolveNewsChangeAssets = (entry = {}) => {
+    const characterId = typeof entry.characterId === 'string' ? entry.characterId.trim() : '';
+    const skillId = typeof entry.skillId === 'string' ? entry.skillId.trim() : '';
+    const characterName = typeof entry.characterName === 'string' ? entry.characterName.trim() : '';
+    const skillName = typeof entry.skillName === 'string' ? entry.skillName.trim() : '';
+
+    const character = characterCatalog.find((item) =>
+        (characterId && item.characterId === characterId) ||
+        (characterName && item.name.toLowerCase() === characterName.toLowerCase())
+    );
+    const skill = character && character.skills
+        ? character.skills.find((item) =>
+            (skillId && item.id === skillId) ||
+            (skillName && item.name.toLowerCase() === skillName.toLowerCase())
+        )
+        : null;
+
+    return {
+        characterId: character ? character.characterId : characterId,
+        characterName: character ? character.name : characterName,
+        facePicture: character ? character.facePicture : '',
+        skillId: skill ? skill.id : skillId,
+        skillName: skill ? skill.name : skillName,
+        skillimage: skill ? skill.skillimage : '',
+    };
+};
+
+const normalizeNewsChanges = (value) =>
+    (Array.isArray(value) ? value : [])
+        .map((entry) => {
+            if (typeof entry === 'string') {
+                const text = entry.trim();
+                return text ? { text } : null;
+            }
+            if (!entry || typeof entry !== 'object') {
+                return null;
+            }
+            const text = typeof entry.text === 'string' ? entry.text.trim() : '';
+            if (!text) {
+                return null;
+            }
+            const assets = resolveNewsChangeAssets(entry);
+            return {
+                text,
+                changeType:
+                    typeof entry.changeType === 'string' && entry.changeType.trim()
+                        ? entry.changeType.trim().toLowerCase()
+                        : '',
+                characterId: assets.characterId,
+                characterName: assets.characterName,
+                facePicture: assets.facePicture,
+                skillId: assets.skillId,
+                skillName: assets.skillName,
+                skillimage: assets.skillimage,
+            };
+        })
+        .filter(Boolean)
+        .slice(0, 200);
+
+const normalizeNewsBlocks = (value) =>
+    (Array.isArray(value) ? value : [])
+        .map((entry) => ({
+            type: typeof entry?.type === 'string' ? entry.type.trim().toLowerCase() : 'paragraph',
+            text: typeof entry?.text === 'string' ? entry.text.trim() : '',
+        }))
+        .filter((entry) => entry.type === 'divider' || (entry.type === 'paragraph' && entry.text))
+        .slice(0, 200);
+
+const serializeNewsPost = (post = {}) => ({
+    id: post._id ? String(post._id) : '',
+    title: typeof post.title === 'string' ? post.title : 'Untitled Post',
+    paragraphs: normalizeNewsParagraphs(post.paragraphs),
+    changes: normalizeNewsChanges(post.changes),
+    blocks: normalizeNewsBlocks(post.blocks),
+    author: typeof post.author === 'string' ? post.author : 'Unknown',
+    createdAt: post.createdAt || null,
+    updatedAt: post.updatedAt || null,
 });
 
 const buildPublicClanProfile = async (requestedClanName = '') => {
@@ -1945,7 +2070,10 @@ const persistMatchState = async (match, fields = {}) => {
     }
 };
 
-const queueSkillForActorSlot = ({ match, username, actorSlot, skillIndex, targetSelection }) => {
+const normalizeClassChoice = (value) =>
+    typeof value === 'string' ? value.trim().toLowerCase() : '';
+
+const queueSkillForActorSlot = ({ match, username, actorSlot, skillIndex, targetSelection, classChoice }) => {
     const pool = match.chakraPools?.[username];
     if (!pool) {
         throw new Error('Chakra pool unavailable.');
@@ -1984,6 +2112,16 @@ const queueSkillForActorSlot = ({ match, username, actorSlot, skillIndex, target
     if (!skill) {
         throw new Error('Skill not found.');
     }
+    const classChoiceOptions = Array.isArray(skill?.classChoiceOptions)
+        ? skill.classChoiceOptions.map((entry) => normalizeClassChoice(entry)).filter(Boolean)
+        : [];
+    const normalizedClassChoice = normalizeClassChoice(classChoice);
+    if (normalizedClassChoice && classChoiceOptions.length > 0 && !classChoiceOptions.includes(normalizedClassChoice)) {
+        throw new Error('Invalid class choice.');
+    }
+    if (battleLogic.isSkillIndexBlockedForActor(actorState, skillIndex)) {
+        throw new Error('This skill is unusable this turn.');
+    }
     const baseSkill = Array.isArray(charactersData?.[rosterIndex]?.skills)
         ? charactersData[rosterIndex].skills[skillIndex]
         : null;
@@ -2014,6 +2152,7 @@ const queueSkillForActorSlot = ({ match, username, actorSlot, skillIndex, target
         actorSlot,
         skillIndex,
         targetSelection,
+        ...(normalizedClassChoice ? { classChoice: normalizedClassChoice } : {}),
         reservedSpecific,
         requiredRandom,
     };
@@ -2398,6 +2537,8 @@ async function initDb() {
     const db = mongoClient.db(DATABASE_NAME);
     usersCollection = db.collection(USERS_COLLECTION);
     matchesCollection = db.collection(MATCHES_COLLECTION);
+    appStateCollection = db.collection(APP_STATE_COLLECTION);
+    newsPostsCollection = db.collection(NEWS_POSTS_COLLECTION);
     await usersCollection.createIndex({ username: 1 }, { unique: true });
     await usersCollection.createIndex({ usernameLower: 1 });
     await usersCollection.createIndex(
@@ -2405,6 +2546,8 @@ async function initDb() {
         { unique: true, partialFilterExpression: { email: { $type: 'string' } } }
     );
     await matchesCollection.createIndex({ matchId: 1 }, { unique: true });
+    await appStateCollection.createIndex({ key: 1 }, { unique: true });
+    await newsPostsCollection.createIndex({ createdAt: -1 });
     await backfillUserProfiles();
     console.log('Connected to MongoDB.');
 }
@@ -3044,6 +3187,7 @@ app.post('/api/match/:matchId/skill/queue', requireSession, async (req, res) => 
     const actorSlot = Number.parseInt(req.body?.actorSlot, 10);
     const skillIndex = Number.parseInt(req.body?.skillIndex, 10);
     const targetSelection = req.body?.targetSelection;
+    const classChoice = req.body?.classChoice;
     if (!Number.isInteger(actorSlot) || actorSlot < 0 || !Number.isInteger(skillIndex) || skillIndex < 0) {
         return res.status(400).json({ error: 'actorSlot and skillIndex are required.' });
     }
@@ -3090,6 +3234,7 @@ app.post('/api/match/:matchId/skill/queue', requireSession, async (req, res) => 
             actorSlot,
             skillIndex,
             targetSelection,
+            classChoice,
         });
         await persistMatchState(hydrated, {
             chakraPools: hydrated.chakraPools,
@@ -3379,6 +3524,484 @@ app.get('/api/me', requireSession, async (req, res) => {
         savedTeamIndices: Array.isArray(user.savedTeamIndices) ? user.savedTeamIndices : [],
     };
     res.json({ ok: true, user: serializeUserForClient(hydratedUser) });
+});
+
+app.get('/api/admin/winrates', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    try {
+        const winratesState = await appStateCollection.findOne({ key: 'winrates' });
+        const resetAt =
+            winratesState && winratesState.resetAt
+                ? new Date(winratesState.resetAt)
+                : null;
+        const characters = charactersData.map((character = {}, index) => ({
+            characterIndex: index,
+            characterId: typeof character.characterId === 'string' ? character.characterId : '',
+            name: typeof character.name === 'string' ? character.name : `Character ${index + 1}`,
+            facePicture: typeof character.facePicture === 'string' ? character.facePicture : '',
+            totalGamesWon: 0,
+            totalMatchesPlayed: 0,
+        }));
+
+        const ladderMatches = await matchesCollection.find(
+            {
+                mode: 'ladder',
+                status: 'ended',
+                players: { $exists: true, $ne: [] },
+                ...(resetAt && !Number.isNaN(resetAt.getTime())
+                    ? {
+                        endedAt: { $gte: resetAt },
+                    }
+                    : {}),
+            },
+            {
+                projection: {
+                    winner: 1,
+                    players: 1,
+                },
+            }
+        ).toArray();
+
+        ladderMatches.forEach((match = {}) => {
+            const winnerUsername = typeof match.winner === 'string' ? match.winner.trim() : '';
+            const players = Array.isArray(match.players) ? match.players : [];
+
+            players.forEach((player = {}) => {
+                const team = Array.isArray(player.team) ? player.team : [];
+                const didWin =
+                    winnerUsername &&
+                    typeof player.username === 'string' &&
+                    player.username.trim() === winnerUsername;
+
+                team.forEach((characterIndex) => {
+                    const index = Number(characterIndex);
+                    if (!Number.isInteger(index) || !characters[index]) {
+                        return;
+                    }
+                    characters[index].totalMatchesPlayed += 1;
+                    if (didWin) {
+                        characters[index].totalGamesWon += 1;
+                    }
+                });
+            });
+        });
+
+        return res.json({
+            ok: true,
+            characters,
+        });
+    } catch (error) {
+        console.error('Admin winrates load error:', error);
+        return res.status(500).json({ error: 'Unable to load winrates.' });
+    }
+});
+
+app.post('/api/admin/winrates/reset', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    try {
+        const resetAt = new Date();
+        await appStateCollection.updateOne(
+            { key: 'winrates' },
+            {
+                $set: {
+                    key: 'winrates',
+                    resetAt,
+                    updatedBy: req.authUser.username,
+                },
+            },
+            { upsert: true }
+        );
+
+        return res.json({
+            ok: true,
+            resetAt,
+        });
+    } catch (error) {
+        console.error('Admin winrates reset error:', error);
+        return res.status(500).json({ error: 'Unable to reset winrates.' });
+    }
+});
+
+app.get('/api/news', async (req, res) => {
+    try {
+        const posts = await newsPostsCollection
+            .find({}, { sort: { createdAt: -1 } })
+            .toArray();
+        return res.json({
+            ok: true,
+            posts: posts.map(serializeNewsPost),
+        });
+    } catch (error) {
+        console.error('News load error:', error);
+        return res.status(500).json({ error: 'Unable to load news posts.' });
+    }
+});
+
+app.get('/api/characters/catalog', (req, res) => {
+    return res.json({
+        ok: true,
+        characters: characterCatalog,
+    });
+});
+
+app.get('/api/admin/characters', requireSession, (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    return res.json({
+        ok: true,
+        characters: characterCatalog,
+    });
+});
+
+app.get('/api/admin/characters/:characterId', requireSession, (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    const characterId = typeof req.params?.characterId === 'string' ? req.params.characterId.trim() : '';
+    const character = (Array.isArray(charactersData) ? charactersData : []).find(
+        (entry) => typeof entry?.characterId === 'string' && entry.characterId === characterId
+    );
+    if (!character) {
+        return res.status(404).json({ error: 'Character not found.' });
+    }
+
+    return res.json({
+        ok: true,
+        character,
+    });
+});
+
+app.put('/api/admin/characters/:characterId', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    const characterId = typeof req.params?.characterId === 'string' ? req.params.characterId.trim() : '';
+    const nextCharacter = req.body && typeof req.body === 'object' ? req.body : null;
+    if (!characterId || !nextCharacter || typeof nextCharacter.characterId !== 'string' || !nextCharacter.characterId.trim()) {
+        return res.status(400).json({ error: 'A valid character payload is required.' });
+    }
+
+    const currentCharacters = Array.isArray(charactersData) ? charactersData : [];
+    const characterIndex = currentCharacters.findIndex(
+        (entry) => typeof entry?.characterId === 'string' && entry.characterId === characterId
+    );
+    if (characterIndex === -1) {
+        return res.status(404).json({ error: 'Character not found.' });
+    }
+
+    const duplicateCharacterIndex = currentCharacters.findIndex(
+        (entry, index) =>
+            index !== characterIndex &&
+            typeof entry?.characterId === 'string' &&
+            entry.characterId === nextCharacter.characterId.trim()
+    );
+    if (duplicateCharacterIndex !== -1) {
+        return res.status(409).json({ error: 'Character id is already in use.' });
+    }
+
+    try {
+        const updatedCharacters = currentCharacters.slice();
+        updatedCharacters[characterIndex] = nextCharacter;
+        await saveCharactersDataFile(updatedCharacters);
+        return res.json({
+            ok: true,
+            character: updatedCharacters[characterIndex],
+        });
+    } catch (error) {
+        console.error('Admin character update error:', error);
+        return res.status(500).json({ error: 'Unable to update character.' });
+    }
+});
+
+app.get('/api/admin/news', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    try {
+        const posts = await newsPostsCollection
+            .find({}, { sort: { createdAt: -1 } })
+            .toArray();
+        return res.json({
+            ok: true,
+            posts: posts.map(serializeNewsPost),
+        });
+    } catch (error) {
+        console.error('Admin news load error:', error);
+        return res.status(500).json({ error: 'Unable to load news posts.' });
+    }
+});
+
+app.post('/api/admin/news', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    const title = typeof req.body?.title === 'string' ? req.body.title.trim() : '';
+    const blocks = normalizeNewsBlocks(req.body?.blocks);
+    const paragraphs = normalizeNewsParagraphs(req.body?.paragraphs);
+    const changes = normalizeNewsChanges(req.body?.changes);
+    if (!title) {
+        return res.status(400).json({ error: 'Title is required.' });
+    }
+
+    try {
+        const now = new Date();
+        const post = {
+            title,
+            blocks,
+            paragraphs,
+            changes,
+            author: req.authUser.username,
+            createdAt: now,
+            updatedAt: now,
+        };
+        const result = await newsPostsCollection.insertOne(post);
+        return res.status(201).json({
+            ok: true,
+            post: serializeNewsPost({ ...post, _id: result.insertedId }),
+        });
+    } catch (error) {
+        console.error('Admin news create error:', error);
+        return res.status(500).json({ error: 'Unable to create news post.' });
+    }
+});
+
+app.put('/api/admin/news/:id', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    const id = typeof req.params?.id === 'string' ? req.params.id.trim() : '';
+    if (!ObjectId.isValid(id)) {
+        return res.status(400).json({ error: 'Invalid news post id.' });
+    }
+
+    const title = typeof req.body?.title === 'string' ? req.body.title.trim() : '';
+    const blocks = normalizeNewsBlocks(req.body?.blocks);
+    const paragraphs = normalizeNewsParagraphs(req.body?.paragraphs);
+    const changes = normalizeNewsChanges(req.body?.changes);
+    if (!title) {
+        return res.status(400).json({ error: 'Title is required.' });
+    }
+
+    try {
+        const existing = await newsPostsCollection.findOne({ _id: new ObjectId(id) });
+        if (!existing) {
+            return res.status(404).json({ error: 'News post not found.' });
+        }
+        const nextPost = {
+            title,
+            blocks,
+            paragraphs,
+            changes,
+            author: existing.author || req.authUser.username,
+            createdAt: existing.createdAt || new Date(),
+            updatedAt: new Date(),
+        };
+        await newsPostsCollection.updateOne(
+            { _id: existing._id },
+            {
+                $set: nextPost,
+            }
+        );
+        return res.json({
+            ok: true,
+            post: serializeNewsPost({ ...existing, ...nextPost }),
+        });
+    } catch (error) {
+        console.error('Admin news update error:', error);
+        return res.status(500).json({ error: 'Unable to update news post.' });
+    }
+});
+
+app.delete('/api/admin/news/:id', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    const id = typeof req.params?.id === 'string' ? req.params.id.trim() : '';
+    if (!ObjectId.isValid(id)) {
+        return res.status(400).json({ error: 'Invalid news post id.' });
+    }
+
+    try {
+        const result = await newsPostsCollection.deleteOne({ _id: new ObjectId(id) });
+        if (!result.deletedCount) {
+            return res.status(404).json({ error: 'News post not found.' });
+        }
+        return res.json({ ok: true });
+    } catch (error) {
+        console.error('Admin news delete error:', error);
+        return res.status(500).json({ error: 'Unable to delete news post.' });
+    }
+});
+
+app.get('/api/admin/users', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    try {
+        const users = await usersCollection
+            .find(
+                {},
+                {
+                    projection: {
+                        _id: 0,
+                        username: 1,
+                        role: 1,
+                        profile: 1,
+                    },
+                    sort: { username: 1 },
+                }
+            )
+            .toArray();
+
+        return res.json({
+            ok: true,
+            users: users.map((user = {}) => {
+                const profile = normalizeUserProfile(user);
+                const wins = Number(profile?.ladder?.wins) || 0;
+                const losses = Number(profile?.ladder?.losses) || 0;
+                const total = wins + losses;
+                return {
+                    username: typeof user.username === 'string' ? user.username : '',
+                    role: typeof user.role === 'string' ? user.role : 'player',
+                    ladderRatio: total > 0 ? ((wins / total) * 100).toFixed(2) + '%' : '0.00%',
+                };
+            }),
+        });
+    } catch (error) {
+        console.error('Admin users list error:', error);
+        return res.status(500).json({ error: 'Unable to load player accounts.' });
+    }
+});
+
+app.get('/api/admin/users/:username', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    const username = typeof req.params?.username === 'string' ? req.params.username.trim() : '';
+    if (!username) {
+        return res.status(400).json({ error: 'Username is required.' });
+    }
+
+    try {
+        const user = await usersCollection.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ error: 'Player not found.' });
+        }
+
+        const profile = normalizeUserProfile(user);
+        const wins = Number(profile?.ladder?.wins) || 0;
+        const losses = Number(profile?.ladder?.losses) || 0;
+        const total = wins + losses;
+
+        return res.json({
+            ok: true,
+            username: user.username,
+            role: user.role || 'player',
+            ladderRatio: total > 0 ? ((wins / total) * 100).toFixed(2) + '%' : '0.00%',
+            document: serializeAdminUserDocument(user),
+        });
+    } catch (error) {
+        console.error('Admin user detail error:', error);
+        return res.status(500).json({ error: 'Unable to load player account.' });
+    }
+});
+
+app.put('/api/admin/users/:username', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    const originalUsername = typeof req.params?.username === 'string' ? req.params.username.trim() : '';
+    const document = req.body && typeof req.body === 'object' ? req.body : null;
+    if (!originalUsername || !document) {
+        return res.status(400).json({ error: 'A username and document payload are required.' });
+    }
+
+    const nextUsername = typeof document.username === 'string' ? document.username.trim() : '';
+    if (!nextUsername) {
+        return res.status(400).json({ error: 'Username is required.' });
+    }
+
+    try {
+        const existingUser = await usersCollection.findOne({ username: originalUsername });
+        if (!existingUser) {
+            return res.status(404).json({ error: 'Player not found.' });
+        }
+
+        if (nextUsername !== originalUsername) {
+            const conflictingUser = await usersCollection.findOne({ username: nextUsername });
+            if (conflictingUser) {
+                return res.status(409).json({ error: 'Username is already taken.' });
+            }
+        }
+
+        const nextEmail = typeof document.email === 'string' ? document.email.trim().toLowerCase() : '';
+        if (nextEmail) {
+            const conflictingEmailUser = await usersCollection.findOne({
+                email: nextEmail,
+                username: { $ne: originalUsername },
+            });
+            if (conflictingEmailUser) {
+                return res.status(409).json({ error: 'Email is already in use.' });
+            }
+        }
+
+        const nextUser = {
+            username: nextUsername,
+            usernameLower: nextUsername.toLowerCase(),
+            email: nextEmail,
+            passwordHash:
+                typeof document.passwordHash === 'string' && document.passwordHash.trim()
+                    ? document.passwordHash.trim()
+                    : existingUser.passwordHash,
+            role:
+                typeof document.role === 'string' && document.role.trim()
+                    ? document.role.trim().toLowerCase()
+                    : existingUser.role || 'player',
+            createdAt: document.createdAt || existingUser.createdAt,
+            savedTeamIndices: Array.isArray(document.savedTeamIndices) ? document.savedTeamIndices : [],
+            profile: normalizeUserProfile({
+                ...existingUser,
+                profile: document.profile || existingUser.profile,
+                createdAt: document.createdAt || existingUser.createdAt,
+            }),
+        };
+
+        await usersCollection.updateOne(
+            { _id: existingUser._id },
+            {
+                $set: nextUser,
+            }
+        );
+
+        const updatedUser = await usersCollection.findOne({ _id: existingUser._id });
+        return res.json({
+            ok: true,
+            user: serializeAdminUserDocument(updatedUser || { ...existingUser, ...nextUser }),
+        });
+    } catch (error) {
+        if (error?.code === 11000) {
+            return res.status(409).json({ error: 'Username or email is already in use.' });
+        }
+        console.error('Admin user update error:', error);
+        return res.status(500).json({ error: 'Unable to update player account.' });
+    }
 });
 
 app.get('/api/users/:username/profile', async (req, res) => {

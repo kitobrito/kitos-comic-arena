@@ -163,6 +163,11 @@
       width: 100%;
     }
 
+    .nav-link:hover,
+    .account-action:hover {
+      color: var(--accent);
+    }
+
     .nav-link svg,
     .account-action svg {
       width: 18px;
@@ -799,6 +804,27 @@
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14" /><path d="M8 7V5h8v2" /><path d="M9 11v5" /><path d="M15 11v5" /><path d="M7 7l1 12h8l1-12" /></svg>
               <span>Reset Account</span>
             </button>
+            <section class="group" id="admin-panel-section" hidden>
+              <h2 class="group-title">Admin Panel</h2>
+              <nav class="nav">
+                <a class="nav-link" href="winrates.html">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16" /><path d="M7 14V9" /><path d="M12 14V6" /><path d="M17 14v-3" /></svg>
+                  <span>Winrates</span>
+                </a>
+                <a class="nav-link" href="charactereditor.html">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="m14 4 4 4" /><path d="M6 16l-1 4 4-1" /></svg>
+                  <span>Character Editor</span>
+                </a>
+                <a class="nav-link" href="playeraccounts.html">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg>
+                  <span>Player Accounts</span>
+                </a>
+                <a class="nav-link" href="newspost.html">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6.5h14" /><path d="M5 11.5h14" /><path d="M5 16.5h9" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg>
+                  <span>News Post</span>
+                </a>
+              </nav>
+            </section>
             <button class="account-action" type="button" id="logout-button">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5" /><path d="M15 12H4" /><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4" /></svg>
               <span>Log Out</span>

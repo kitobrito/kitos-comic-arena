@@ -11,6 +11,9 @@
 </head>
 <body>
 <div class="backgroundingame">
+    <div class="ingame-sound-controller" aria-label="Sound controller">
+        <input id="ingame-sound-volume" class="ingame-sound-volume" type="range" min="0" max="100" step="1" value="70" aria-label="Sound volume">
+    </div>
 
     <div class="ChakraChooseEndTurn" style="background-image: url('searchingscroll.png');">
         <p class="chakrachoose">CHOOSE <span class="chakrachoosered">0</span> RANDOM CHAKRA (S)</p>
@@ -379,6 +382,14 @@
         <p class="ingameskilldescription">Naruto hits one enemy with a ball of chakra, dealing 45 damage to them and stunning their skills for 1 turn. Requires 'Shadow Clones'.</p>
     </div>
 
+    <div class="class-choice-popup" aria-hidden="true">
+        <div class="class-choice-popup-panel">
+            <p class="class-choice-popup-title">Choose Class</p>
+            <div class="class-choice-popup-options"></div>
+            <button type="button" class="class-choice-popup-cancel">Cancel</button>
+        </div>
+    </div>
+
     <div class="bottomrender">
         <img src="render.png" alt="render" class="render">
     </div>
@@ -386,6 +397,9 @@
     <div class="bottomgame">
         <div class="surrenderbutton">
             <span>SURRENDER</span>
+        </div>
+        <div class="sound">
+            
         </div>
 </div>
 
