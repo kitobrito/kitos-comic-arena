@@ -134,7 +134,7 @@ h1, h2, h3 {
     position: absolute;
     top: 230px;
     left: 120px;
-    background-color: #fbe9b8;
+    background-color: #f5f5f5;
     border: 1px solid #000000;
     color: #141414;
     text-align: center;
@@ -152,7 +152,7 @@ h1, h2, h3 {
     position: absolute;
     top: 230px;
     left: 230px;
-    background-color: #fbe9b8;
+    background-color: #f5f5f5;
     border: 1px solid #000000;
     color: #141414;
     text-align: center;
@@ -230,8 +230,8 @@ h1, h2, h3 {
 .slot-item {
     width: 50px;
     height: 50px;
-    background-color: #d4c9a8;
-    border: 1px solid #8b7d5c;
+    background-color: #f5f5f5;
+    border: 1px solid #000000;
     box-sizing: border-box;
     cursor: grab;
     user-select: none;
@@ -264,6 +264,7 @@ h1, h2, h3 {
     position: relative;
 text-transform: uppercase;
 }
+
 
 .player-avatar {
     width: 75px;
@@ -309,8 +310,8 @@ text-transform: uppercase;
 .selected-character-slot {
     width: 50px;
     height: 50px;
-    background-color: #c4b896;
-    border: 1px solid #8b7d5c;
+    background-color: #f5f5f5;
+    border: 1px solid #000000;
     box-sizing: border-box;
     display: flex;
     align-items: center;
@@ -318,7 +319,7 @@ text-transform: uppercase;
     font-family: 'Pedra', Arial, sans-serif;
     font-size: 24px;
     font-weight: bold;
-    color: #ebebeb;
+    color: #262834;
     position: relative;
     bottom: 140px;
     left: 480px;
@@ -685,7 +686,7 @@ text-transform: uppercase;
 .private-match-cancel {
     position: absolute;
     top: 215px;
-    background-color: #fbe9b8;
+    background-color: #f5f5f5;
     border: 1px solid #000000;
     color: #141414;
     text-align: center;
@@ -725,13 +726,13 @@ text-transform: uppercase;
 }
 
 .sasukesearch {
-    margin-left: 125px
+    visibility: hidden;
 }
 
 .sharingan {
     position: absolute;
     margin-top: 30px;
-    margin-left: 195px;
+    margin-left: 188px;
     animation: spin 1s linear infinite;
 }
 
@@ -748,7 +749,7 @@ text-transform: uppercase;
     text-transform: uppercase;
     top: 220px;
     left: 175px;
-    background-color: #fbe9b8;
+    background-color: #f5f5f5;
     border: 1px solid #000000;
     color: #141414;
     text-align: center;
@@ -1212,14 +1213,14 @@ text-transform: uppercase;
 }
 
 .class-choice-popup-panel {
-    background: #faedcd;
+    background: #efefef;
     border: 1px solid #000000;
     border-radius: 0;
     padding: 12px;
     position:absolute;
-    left: 300px;
+    left: 100px;
     top: 200px;
-    
+    max-width: 600px;
 }
 
 
@@ -1238,7 +1239,7 @@ text-transform: uppercase;
 
 .class-choice-popup-options button,
 .class-choice-popup-cancel {
-    background: #faedcd;
+    background: #f5f5f5;
     border: 1px solid #000000;
     border-radius: 0;
     color: #000000;
@@ -1552,7 +1553,7 @@ text-transform: uppercase;
     position: absolute;
     top: 230px;
     left: 120px;
-    background-color: #fbe9b8;
+    background-color: #f5f5f5;
     border: 1px solid #000000;
     color: #141414;
     text-align: center;
@@ -1570,7 +1571,7 @@ text-transform: uppercase;
     position: absolute;
     top: 230px;
     left: 230px;
-    background-color: #fbe9b8;
+    background-color: #f5f5f5;
     border: 1px solid #000000;
     color: #141414;
     text-align: center;
@@ -1637,7 +1638,7 @@ text-transform: uppercase;
     position: absolute;
     top: 230px;
     left: 120px;
-    background-color: #fbe9b8;
+    background-color: #f5f5f5;
     border: 1px solid #000000;
     color: #141414;
     text-align: center;
@@ -1655,7 +1656,7 @@ text-transform: uppercase;
     position: absolute;
     top: 230px;
     left: 230px;
-    background-color: #fbe9b8;
+    background-color: #f5f5f5;
     border: 1px solid #000000;
     color: #141414;
     text-align: center;
@@ -1799,7 +1800,7 @@ text-transform: uppercase;
     min-width: 270px;
     max-width: 320px;
     padding: 8px 7px;
-    background: #efe8d1;
+    background: #efefef;
     border: 1px solid #2d1507;
     color: #2d1507;
     font-size: 12px;
@@ -1860,7 +1861,7 @@ text-transform: uppercase;
     min-width: 280px;
     max-width: 280px;
     padding: 5px 7px;
-    background: #efe8d1;
+    background: #efefef;
     border: 1px solid #2d1507;
     color: #2d1507;
     font-size: 12px;

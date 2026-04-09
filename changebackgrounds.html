@@ -3,55 +3,39 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Naruto-Arena Home</title>
+  <title>Comic-Arena Home</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #000;
-      --panel: #050505;
-      --line: #181818;
-      --card: #101010;
-      --soft: #262626;
-      --text: #f4f4f4;
-      --muted: #a0a0a0;
-      --accent: #ffb84d;
+      --bg: #f4e7c9;
+      --panel: #fff7de;
+      --panel-strong: #fffdf6;
+      --line: #16120d;
+      --ink: #15110b;
+      --text: #21180f;
+      --muted: #65584b;
+      --accent: #ff5b2e;
+      --accent-2: #ffd43a;
+      --accent-3: #1f75ff;
     }
 
     * {
       box-sizing: border-box;
     }
 
-
-
     body {
       margin: 0;
       min-height: 100vh;
       background:
-        url("https://i.postimg.cc/x11QM8NQ/476467.png"),
-        radial-gradient(circle at 12% 18%, rgba(255, 149, 0, 0.3), transparent 24%),
-        radial-gradient(circle at 88% 12%, rgba(255, 106, 0, 0.18), transparent 22%),
-        radial-gradient(circle at 50% 78%, rgba(255, 184, 77, 0.08), transparent 28%),
-        linear-gradient(145deg, #1a0700 0%, #090909 38%, #000000 68%, #2f0d00 100%);
-      background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat;
-      background-size: 120px 120px, auto, auto, auto, auto;
-      background-position: 0 0, center, center, center, center;
+        radial-gradient(circle at 20% 20%, rgba(255, 212, 58, 0.85), transparent 0 18%),
+        radial-gradient(circle at 80% 14%, rgba(31, 117, 255, 0.3), transparent 0 16%),
+        radial-gradient(circle, rgba(21, 17, 11, 0.18) 1px, transparent 1.2px) 0 0 / 11px 11px,
+        linear-gradient(180deg, #fff4cd 0%, #f5dd9e 34%, #f7b44a 100%);
       color: var(--text);
-      font-family: "Outfit", system-ui, sans-serif;
-      animation: bodyPatternDrift 18s linear infinite;
+      font-family: "Barlow Condensed", system-ui, sans-serif;
     }
-
-    @keyframes bodyPatternDrift {
-      from {
-        background-position: 0 0, center, center, center, center;
-      }
-
-      to {
-        background-position: 120px 0, center, center, center, center;
-      }
-    }
-
 
     a {
       color: inherit;
@@ -59,28 +43,26 @@
     }
 
     .app {
-      width: min(1500px, 100%);
+      width: min(1560px, 100%);
       min-height: 100vh;
       margin: 0 auto;
       display: grid;
       grid-template-columns: 235px minmax(0, 1fr) 270px;
-
+      gap: 18px;
+      padding: 18px;
     }
 
     .sidebar,
     .aside {
-      padding: 18px 22px;
-      background: rgba(0, 0, 0, 0.94);
+      padding: 18px 20px;
+      background: var(--panel);
+      border: 4px solid var(--line);
+      box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.95);
     }
 
     .sidebar {
       position: relative;
       overflow: hidden;
-      border-right: 1px solid var(--line);
-      background:
-        linear-gradient(180deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.9) 100%),
-        var(--sidebar-backdrop, none) center/cover no-repeat,
-        rgba(0, 0, 0, 0.94);
     }
 
     .sidebar::before {
@@ -88,8 +70,8 @@
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(180deg, rgba(3, 3, 3, 0.2) 0%, rgba(0, 0, 0, 0.68) 45%, rgba(0, 0, 0, 0.9) 100%),
-        radial-gradient(circle at top left, rgba(241, 117, 34, 0.12), transparent 30%);
+        linear-gradient(180deg, rgba(255, 91, 46, 0.08), transparent 30%, rgba(21, 17, 11, 0.08) 100%),
+        radial-gradient(circle at top left, rgba(255, 212, 58, 0.36), transparent 28%);
       pointer-events: none;
     }
 
@@ -99,7 +81,9 @@
     }
 
     .aside {
-      border-left: 1px solid var(--line);
+      background:
+        radial-gradient(circle at top right, rgba(255, 212, 58, 0.28), transparent 22%),
+        var(--panel);
     }
 
     .brand {
@@ -108,7 +92,7 @@
       gap: 10px;
       margin-bottom: 34px;
       padding-bottom: 18px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      border-bottom: 4px solid var(--line);
     }
 
     .brand-mark {
@@ -120,9 +104,12 @@
     }
 
     .brand-name {
-      font-size: 16px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
+      font-family: "Bangers", cursive;
+      font-size: 34px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      line-height: 1;
+      text-shadow: 3px 3px 0 var(--accent-2);
     }
 
     .brand-copy {
@@ -133,9 +120,11 @@
     }
 
     .brand-tagline {
-      font-size: 11px;
-      line-height: 1.35;
-      color: #8f8f8f;
+      font-size: 14px;
+      line-height: 1.2;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
     }
 
     .group {
@@ -144,9 +133,11 @@
 
     .group-title {
       margin: 0 0 14px;
-      color: #f8f8f8;
-      font-size: 17px;
-      font-weight: 600;
+      color: var(--ink);
+      font-family: "Bangers", cursive;
+      font-size: 27px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
     }
 
     .nav {
@@ -158,15 +149,19 @@
       display: flex;
       align-items: center;
       gap: 14px;
-      padding: 8px 0;
-      color: #d7d7d7;
-      font-size: 15px;
-      font-weight: 400;
+      padding: 10px 12px;
+      color: var(--ink);
+      font-size: 19px;
+      font-weight: 700;
       position: relative;
+      border: 3px solid transparent;
+      text-transform: uppercase;
     }
 
     .nav-link:hover {
-      color: var(--accent);
+      color: var(--ink);
+      border-color: var(--line);
+      background: var(--accent-2);
     }
 
     .nav-link svg {
@@ -179,33 +174,49 @@
     }
 
     .nav-link.active {
-      color: var(--accent);
-      font-weight: 500;
+      color: #fff;
+      background: var(--accent);
+      border-color: var(--line);
+      transform: translate(-4px, -4px);
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 1);
     }
 
     .nav-link.active::before {
-      content: "";
+      content: "!";
       position: absolute;
-      left: -22px;
-      top: 9px;
-      bottom: 9px;
-      width: 4px;
-      border-radius: 999px;
-      background: var(--accent);
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%) rotate(-8deg);
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--accent-2);
+      color: var(--line);
+      font-family: "Bangers", cursive;
+      font-size: 18px;
     }
 
     .play-now {
       width: 100%;
-      height: 42px;
-      margin-bottom: 8px;
-      border: 0;
-      border-radius: 100px;
-      background: linear-gradient(160deg, #ffb84d 0%, #ff8c1a 100%);
+      height: 52px;
+      margin-bottom: 10px;
+      border: 4px solid var(--line);
+      background: linear-gradient(180deg, #ffeb67 0%, #ff9e1b 100%);
       color: #101010;
       font: inherit;
-      font-weight: 700;
+      font-size: 24px;
+      font-weight: 800;
+      text-transform: uppercase;
       cursor: pointer;
-      box-shadow: 0 10px 24px rgba(255, 140, 26, 0.2);
+      box-shadow: 0 6px 0 rgba(0, 0, 0, 0.95);
+      transform: rotate(-1.5deg);
+    }
+
+    .play-now:hover {
+      transform: translateY(2px) rotate(-1.5deg);
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.95);
     }
 
     .auth-form {
@@ -217,61 +228,67 @@
     .auth-description {
       margin: 0;
       color: var(--muted);
-      font-size: 12px;
+      font-size: 15px;
       line-height: 1.4;
+      font-weight: 600;
     }
 
     .auth-input {
       width: 100%;
-      height: 38px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 100px;
-      background: rgba(8, 8, 8, 0.7);
-      color: #f3f3f3;
+      height: 42px;
+      border: 3px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--ink);
       padding: 0 12px;
       font: inherit;
+      font-size: 18px;
+      font-weight: 600;
       outline: none;
     }
 
     .auth-input::placeholder {
-      color: #8e8e8e;
+      color: #806d5b;
     }
 
     .auth-input:focus {
-      border-color: #ffb84d;
-      box-shadow: 0 0 0 3px rgba(241, 169, 34, 0.12);
+      border-color: var(--accent-3);
+      box-shadow: 0 0 0 4px rgba(31, 117, 255, 0.15);
     }
 
     .auth-button {
       width: 100%;
-      height: 40px;
-      border: 0;
-      border-radius: 100px;
-      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
-      color: #000000;
+      height: 44px;
+      border: 3px solid var(--line);
+      background: linear-gradient(180deg, #ff673d 0%, #ef2e00 100%);
+      color: #ffffff;
       font: inherit;
-      font-weight: 600;
+      font-size: 20px;
+      font-weight: 800;
+      text-transform: uppercase;
       cursor: pointer;
-      box-shadow: 0 10px 24px rgba(241, 134, 34, 0.22);
+      box-shadow: 0 5px 0 rgba(0, 0, 0, 0.95);
     }
 
     .auth-switch {
       border: 0;
       padding: 0;
       background: transparent;
-      color: #ffd392;
+      color: var(--accent-3);
       font: inherit;
-      font-size: 12px;
+      font-size: 15px;
+      font-weight: 700;
       text-align: left;
       cursor: pointer;
+      text-transform: uppercase;
     }
 
     .auth-status {
       min-height: 18px;
       margin: 0;
-      color: #d2d2d2;
-      font-size: 12px;
+      color: var(--text);
+      font-size: 14px;
       line-height: 1.4;
+      font-weight: 600;
     }
 
     .auth-status[data-state="error"] {
@@ -288,15 +305,16 @@
 
     .account-greeting {
       margin: 0;
-      color: #f6f6f6;
-      font-size: 15px;
+      color: var(--ink);
+      font-size: 19px;
       line-height: 1.45;
-      font-weight: 500;
+      font-weight: 700;
+      text-transform: uppercase;
     }
 
     .account-name {
-      color: #ffd392;
-      font-weight: 700;
+      color: var(--accent);
+      font-weight: 800;
     }
 
     .account-actions {
@@ -310,16 +328,18 @@
       align-items: center;
       gap: 14px;
       width: 100%;
-      min-height: 36px;
-      border: 0;
+      min-height: 42px;
+      border: 3px solid transparent;
       background: transparent;
-      color: #d7d7d7;
-      padding: 8px 0;
+      color: var(--ink);
+      padding: 8px 10px;
       font: inherit;
-      font-size: 15px;
+      font-size: 18px;
+      font-weight: 700;
       text-align: left;
       cursor: pointer;
       position: relative;
+      text-transform: uppercase;
     }
 
     .account-action svg {
@@ -332,109 +352,218 @@
     }
 
     .account-action:hover {
-      color: var(--accent);
+      color: var(--ink);
+      background: var(--accent-2);
+      border-color: var(--line);
     }
 
     .account-action.active {
-      color: var(--accent);
-      font-weight: 500;
+      color: #fff;
+      background: var(--accent);
+      border-color: var(--line);
+      transform: translate(-4px, -4px);
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 1);
     }
 
     .account-action.active::before {
-      content: "";
+      content: "!";
       position: absolute;
-      left: -22px;
-      top: 9px;
-      bottom: 9px;
-      width: 4px;
-      border-radius: 999px;
-      background: var(--accent);
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%) rotate(-8deg);
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--accent-2);
+      color: var(--line);
+      font-family: "Bangers", cursive;
+      font-size: 18px;
     }
 
     .main {
-      padding: 18px 26px 26px;
+      padding: 0;
+      display: grid;
+      gap: 18px;
+      align-content: start;
     }
 
     .background-panel {
       display: grid;
-      gap: 18px;
-      padding: 26px 24px;
-      border: 1px solid #171717;
-      border-radius: 14px;
+      gap: 22px;
+      padding: 28px 24px;
+      border: 4px solid var(--line);
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)),
-        #0a0a0a;
-      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.24);
+        linear-gradient(135deg, rgba(31, 117, 255, 0.18), transparent 42%),
+        radial-gradient(circle at right top, rgba(255, 212, 58, 0.55), transparent 18%),
+        linear-gradient(180deg, #fffdfa 0%, #ffe6b4 100%);
+      box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.95);
+      position: relative;
+      overflow: hidden;
+    }
+
+
+    .background-banner {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(260px, 0.9fr);
+      gap: 18px;
+      align-items: start;
     }
 
     .background-panel-title {
       margin: 0;
-      color: #ffac38;
-      font-size: 30px;
+      max-width: 560px;
+      font-family: "Bangers", cursive;
+      font-size: 46px;
+      font-weight: 400;
+      line-height: 0.95;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      text-shadow: 4px 4px 0 var(--accent-2);
+    }
+
+    .background-lead {
+      margin: 10px 0 0;
+      max-width: 700px;
+      color: var(--muted);
+      font-size: 22px;
+      line-height: 1.1;
       font-weight: 700;
-      line-height: 1.05;
+      text-transform: uppercase;
+    }
+
+    .background-badge {
+      display: grid;
+      gap: 10px;
+      align-self: stretch;
+      padding: 16px;
+      border: 4px solid var(--line);
+      background:
+        radial-gradient(circle at center, rgba(255, 212, 58, 0.3), transparent 45%),
+        var(--panel-strong);
+      box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.95);
+      transform: rotate(1.5deg);
+    }
+
+    .background-badge-title {
+      margin: 0;
+      color: var(--accent);
+      font-family: "Bangers", cursive;
+      font-size: 28px;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+    }
+
+    .background-badge-copy {
+      margin: 0;
+      color: var(--text);
+      font-size: 17px;
+      line-height: 1.35;
+      font-weight: 700;
+      text-transform: uppercase;
     }
 
     .background-form {
       display: grid;
-      gap: 14px;
+      gap: 18px;
+    }
+
+    .background-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
     }
 
     .background-field {
       display: grid;
-      gap: 8px;
+      gap: 10px;
+      padding: 18px 16px;
+      border: 4px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 243, 218, 0.92)),
+        var(--panel);
+      box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.95);
     }
 
     .background-label {
-      color: #e7e7e7;
-      font-size: 14px;
-      font-weight: 600;
+      color: var(--ink);
+      font-family: "Bangers", cursive;
+      font-size: 24px;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .background-copy {
+      color: var(--muted);
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.35;
+      text-transform: uppercase;
     }
 
     .background-input {
       width: 100%;
       height: 42px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 999px;
-      background: rgba(8, 8, 8, 0.7);
-      color: #f3f3f3;
+      border: 3px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--ink);
       padding: 0 14px;
       font: inherit;
+      font-size: 18px;
+      font-weight: 600;
       outline: none;
     }
 
     .background-input:focus {
-      border-color: #ffb84d;
-      box-shadow: 0 0 0 3px rgba(241, 169, 34, 0.12);
+      border-color: var(--accent-3);
+      box-shadow: 0 0 0 4px rgba(31, 117, 255, 0.15);
+    }
+
+    .background-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding: 18px;
+      border: 4px solid var(--line);
+      background: var(--panel-strong);
+      box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.95);
     }
 
     .background-save {
-      width: fit-content;
-      min-width: 150px;
-      height: 40px;
-      border: 0;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
-      color: #000;
+      min-width: 210px;
+      height: 48px;
+      border: 4px solid var(--line);
+      background: linear-gradient(180deg, #ffeb67 0%, #ff9e1b 100%);
+      color: #101010;
       font: inherit;
-      font-weight: 700;
+      font-size: 20px;
+      font-weight: 800;
+      text-transform: uppercase;
       cursor: pointer;
       padding: 0 18px;
+      box-shadow: 0 6px 0 rgba(0, 0, 0, 0.95);
     }
 
     .background-hint {
       margin: 0;
-      color: #c7c7c7;
-      font-size: 13px;
-      line-height: 1.5;
+      color: var(--text);
+      font-size: 17px;
+      line-height: 1.3;
+      font-weight: 700;
+      text-transform: uppercase;
     }
 
     .background-status {
       min-height: 18px;
       margin: 0;
-      color: #d2d2d2;
-      font-size: 12px;
+      color: var(--text);
+      font-size: 14px;
       line-height: 1.4;
+      font-weight: 700;
     }
 
     .background-status[data-state="error"] {
@@ -445,35 +574,28 @@
       color: #9ce2a1;
     }
 
-    .aside-top {
-      padding-bottom: 16px;
-      margin-bottom: 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-    }
-
     .ladder,
     .stats-panel {
       margin-bottom: 16px;
       padding: 14px;
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.015) 100%),
-        rgba(8, 8, 8, 0.9);
-      color: #f0f0f0;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 14px;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 241, 202, 0.95) 100%),
+        var(--panel);
+      color: var(--text);
+      border: 4px solid var(--line);
+      box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.95);
     }
 
     .ladder-title,
     .stats-title {
       margin: 0 0 12px;
       padding-bottom: 8px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      font-size: 13px;
+      border-bottom: 3px solid var(--line);
+      font-size: 18px;
       font-weight: 800;
       letter-spacing: 0.04em;
       text-transform: uppercase;
-      color: #ffcf8c;
+      color: var(--accent);
     }
 
     .ladder-list,
@@ -488,7 +610,7 @@
       gap: 10px;
       align-items: center;
       padding: 8px 8px 8px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      border-bottom: 2px dashed rgba(21, 17, 11, 0.35);
     }
 
     .ladder-row:last-child {
@@ -502,11 +624,11 @@
       display: grid;
       place-items: center;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: var(--accent-2);
+      border: 2px solid var(--line);
       font-size: 11px;
       font-weight: 800;
-      color: #b8b8b8;
+      color: var(--line);
       line-height: 1;
     }
 
@@ -515,7 +637,7 @@
       font-size: 12px;
       font-weight: 700;
       line-height: 1.2;
-      color: #f4f4f4;
+      color: var(--ink);
     }
 
     .ladder-name a,
@@ -526,23 +648,21 @@
 
     .ladder-name a:hover,
     .stats-list a:hover {
-      color: #ffcf8c;
+      color: var(--accent);
     }
 
     .ladder-bar {
       height: 18px;
       width: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      border: 2px solid var(--line);
       background: #ffffff;
       position: relative;
       overflow: hidden;
-      border-radius: 999px;
     }
 
     .ladder-fill {
       height: 100%;
-      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
-      box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.08);
+      background: linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 100%);
     }
 
     .ladder-score {
@@ -554,115 +674,38 @@
       font-weight: 800;
       color: #000000;
       letter-spacing: 0.03em;
-      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
-    }
-
-    .search {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      height: 34px;
-      padding: 0 14px;
-      border-radius: 999px;
-      background: #1e1e1e;
-      color: #7f7f7f;
-      font-size: 14px;
     }
 
     .stats-group + .stats-group {
       margin-top: 16px;
       padding-top: 16px;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      border-top: 2px dashed rgba(21, 17, 11, 0.35);
     }
 
     .stats-list {
       margin: 0;
       padding: 0;
       list-style: none;
-      color: #d8d8d8;
+      color: var(--text);
       font-size: 12px;
       line-height: 1.45;
     }
 
     .stats-list li {
       padding: 7px 8px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.04);
-    }
-
-    .search svg {
-      width: 14px;
-      height: 14px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 2;
-      flex: 0 0 auto;
-    }
-
-    .aside-title {
-      margin: 0 0 18px;
-      font-size: 18px;
+      background: var(--panel-strong);
+      border: 2px solid rgba(21, 17, 11, 0.4);
       font-weight: 700;
-    }
-
-    .stack {
-      display: grid;
-      gap: 18px;
-    }
-
-    .stack-item {
-      display: grid;
-      grid-template-columns: 102px 1fr;
-      gap: 14px;
-      align-items: start;
-    }
-
-    .stack-thumb {
-      width: 102px;
-      height: 148px;
-      border-radius: 10px;
-      background-size: cover;
-      background-position: center;
-      box-shadow: 0 16px 28px rgba(0, 0, 0, 0.3);
-    }
-
-    .stack-name {
-      margin: 2px 0 6px;
-      font-size: 18px;
-      font-weight: 500;
-      line-height: 1.15;
-    }
-
-    .stack-meta {
-      color: #bcbcbc;
-      font-size: 14px;
-      line-height: 1.35;
-    }
-
-    .see-more {
-      width: 100%;
-      height: 34px;
-      margin: 18px 0 26px;
-      border: 0;
-      border-radius: 999px;
-      background: #292929;
-      color: #ededed;
-      font: inherit;
-      cursor: pointer;
     }
 
     @media (max-width: 1180px) {
       .app {
         grid-template-columns: 220px minmax(0, 1fr);
+        padding: 14px;
       }
 
       .aside {
         display: none;
-      }
-
-      .poster-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
       }
     }
 
@@ -672,25 +715,32 @@
       }
 
       .sidebar {
-        border-right: 0;
-        border-bottom: 1px solid var(--line);
+        border-bottom-width: 4px;
       }
 
-      .nav-link.active::before {
-        left: -12px;
+      .background-banner,
+      .background-grid {
+        grid-template-columns: 1fr;
       }
-
     }
 
     @media (max-width: 560px) {
       .main,
       .sidebar {
-        padding-left: 16px;
-        padding-right: 16px;
+        padding-left: 14px;
+        padding-right: 14px;
       }
 
       .background-panel-title {
         font-size: 24px;
+      }
+
+      .background-actions {
+        align-items: stretch;
+      }
+
+      .background-save {
+        width: 100%;
       }
     }
   </style>
@@ -699,10 +749,10 @@
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
-        <img class="brand-mark" src="https://i.postimg.cc/nLym09x8/logo.png" alt="Naruto-Arena logo" />
+        <img class="brand-mark" src="sitelogo.png" alt="Comic-Arena logo" />
         <div class="brand-copy">
-          <div class="brand-name">NARUTO-ARENA</div>
-          <div class="brand-tagline">Your #1 Naruto Online Multiplayer Game</div>
+          <div class="brand-name">Comic-ARENA</div>
+          <div class="brand-tagline">Your #1 Comic Online Multiplayer Game</div>
         </div>
       </div>
 
@@ -724,7 +774,7 @@
           </a>
           <a class="nav-link" href="#">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.1 2.8 7.9 7 9 4.2-1.1 7-4.9 7-9V6z" /><path d="M9 12h6" /><path d="M12 9v6" /></svg>
-            <span>Ninja Missions</span>
+            <span>Comic Missions</span>
           </a>
           <a class="nav-link" href="#">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2H20v16H8.5A2.5 2.5 0 0 0 6 20.5z" /><path d="M6 4.5V22" /><path d="M9.5 7H16" /><path d="M9.5 11H17" /></svg>
@@ -809,18 +859,36 @@
     <main class="main">
 
       <section class="background-panel">
-        <h1 class="background-panel-title">Change Backgrounds</h1>
+        <div class="background-banner">
+          <div>
+            <h1 class="background-panel-title">Change Backgrounds</h1>
+            <p class="background-lead">Set custom art for your selection and battle screens.</p>
+          </div>
+          <aside class="background-badge" aria-label="Background tips">
+            <h2 class="background-badge-title">Quick Notes</h2>
+            <p class="background-badge-copy">Use direct image links and keep each image close to 770 x 560 for the cleanest fit.</p>
+          </aside>
+        </div>
+
         <form class="background-form" id="change-backgrounds-form">
-          <label class="background-field">
-            <span class="background-label">Selection Background</span>
-            <input class="background-input" id="selection-background-url" type="url" inputmode="url" autocomplete="off" placeholder="Direct URL only" />
-          </label>
-          <label class="background-field">
-            <span class="background-label">In-Game Background</span>
-            <input class="background-input" id="ingame-background-url" type="url" inputmode="url" autocomplete="off" placeholder="Direct URL only" />
-          </label>
-          <button class="background-save" type="submit" id="change-backgrounds-submit">Save Backgrounds</button>
-          <p class="background-hint">Note: Backgrounds should be 770 x 560.</p>
+          <div class="background-grid">
+            <label class="background-field">
+              <span class="background-label">Selection Background</span>
+              <span class="background-copy">Paste a direct image URL for the character selection screen.</span>
+              <input class="background-input" id="selection-background-url" type="url" inputmode="url" autocomplete="off" placeholder="Direct URL only" />
+            </label>
+            <label class="background-field">
+              <span class="background-label">In-Game Background</span>
+              <span class="background-copy">Paste a direct image URL for the battle screen backdrop.</span>
+              <input class="background-input" id="ingame-background-url" type="url" inputmode="url" autocomplete="off" placeholder="Direct URL only" />
+            </label>
+          </div>
+
+          <div class="background-actions">
+            <button class="background-save" type="submit" id="change-backgrounds-submit">Save Backgrounds</button>
+            <p class="background-hint">Backgrounds should be 770 x 560.</p>
+          </div>
+
           <p class="background-status" id="change-backgrounds-status" aria-live="polite"></p>
         </form>
       </section>
@@ -913,7 +981,7 @@
         </div>
       </section>
       <section class="ladder">
-        <h3 class="ladder-title">Top 10 Clan Levels</h3>
+        <h3 class="ladder-title">Top 10 Alliance Levels</h3>
         <div class="ladder-list" id="sidebar-top-clan-levels">
           <div class="ladder-row">
             <div class="ladder-rank">01</div>

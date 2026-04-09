@@ -3,114 +3,90 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Naruto-Arena Home</title>
+  <title>Comic-Arena Player Accounts</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
-  <style>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
     :root {
-      --bg: #000;
-      --panel: #050505;
-      --line: #181818;
-      --card: #101010;
-      --soft: #262626;
-      --text: #f4f4f4;
-      --muted: #a0a0a0;
-      --accent: #ffb84d;
+      --bg: #f4e7c9;
+      --panel: #fff7de;
+      --panel-strong: #fffdf6;
+      --line: #16120d;
+      --ink: #15110b;
+      --text: #21180f;
+      --muted: #65584b;
+      --accent: #ff5b2e;
+      --accent-2: #ffd43a;
+      --accent-3: #1f75ff;
     }
-
     * {
       box-sizing: border-box;
     }
-
-
-
     body {
       margin: 0;
       min-height: 100vh;
       background:
-        url("https://i.postimg.cc/x11QM8NQ/476467.png"),
-        radial-gradient(circle at 12% 18%, rgba(255, 149, 0, 0.3), transparent 24%),
-        radial-gradient(circle at 88% 12%, rgba(255, 106, 0, 0.18), transparent 22%),
-        radial-gradient(circle at 50% 78%, rgba(255, 184, 77, 0.08), transparent 28%),
-        linear-gradient(145deg, #1a0700 0%, #090909 38%, #000000 68%, #2f0d00 100%);
-      background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat;
-      background-size: 120px 120px, auto, auto, auto, auto;
-      background-position: 0 0, center, center, center, center;
+        radial-gradient(circle at 20% 20%, rgba(255, 212, 58, 0.85), transparent 0 18%),
+        radial-gradient(circle at 80% 14%, rgba(31, 117, 255, 0.3), transparent 0 16%),
+        radial-gradient(circle at 74% 78%, rgba(255, 91, 46, 0.18), transparent 0 18%),
+        radial-gradient(circle, rgba(21, 17, 11, 0.18) 1px, transparent 1.2px) 0 0 / 11px 11px,
+        linear-gradient(180deg, #fff4cd 0%, #f5dd9e 34%, #f7b44a 100%);
       color: var(--text);
-      font-family: "Outfit", system-ui, sans-serif;
-      animation: bodyPatternDrift 18s linear infinite;
+      font-family: "Barlow Condensed", system-ui, sans-serif;
     }
-
-    @keyframes bodyPatternDrift {
-      from {
-        background-position: 0 0, center, center, center, center;
-      }
-
-      to {
-        background-position: 120px 0, center, center, center, center;
-      }
-    }
-
-
     a {
       color: inherit;
       text-decoration: none;
     }
-
     .app {
-      width: min(1500px, 100%);
+      width: min(1560px, 100%);
       min-height: 100vh;
       margin: 0 auto;
       display: grid;
       grid-template-columns: 235px minmax(0, 1fr) 270px;
-
+      gap: 18px;
+      padding: 18px;
     }
-
     .sidebar,
     .aside {
-      padding: 18px 22px;
-      background: rgba(0, 0, 0, 0.94);
+      padding: 18px 20px;
+      background: var(--panel);
+      border: 4px solid var(--line);
+      box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.95);
     }
-
     .sidebar {
       position: relative;
       overflow: hidden;
-      border-right: 1px solid var(--line);
       background:
-        linear-gradient(180deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.9) 100%),
-        var(--sidebar-backdrop, none) center/cover no-repeat,
-        rgba(0, 0, 0, 0.94);
+        linear-gradient(180deg, rgba(255, 91, 46, 0.08), transparent 30%, rgba(21, 17, 11, 0.08) 100%),
+        radial-gradient(circle at top left, rgba(255, 212, 58, 0.36), transparent 28%),
+        var(--panel);
     }
-
     .sidebar::before {
       content: "";
       position: absolute;
       inset: 0;
-      background:
-        linear-gradient(180deg, rgba(3, 3, 3, 0.2) 0%, rgba(0, 0, 0, 0.68) 45%, rgba(0, 0, 0, 0.9) 100%),
-        radial-gradient(circle at top left, rgba(241, 117, 34, 0.12), transparent 30%);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.24), transparent 24%, rgba(21, 17, 11, 0.08) 100%);
       pointer-events: none;
     }
-
     .sidebar > * {
       position: relative;
       z-index: 1;
     }
-
     .aside {
-      border-left: 1px solid var(--line);
+      background:
+        radial-gradient(circle at top right, rgba(255, 212, 58, 0.28), transparent 22%),
+        var(--panel);
     }
-
     .brand {
       display: grid;
       justify-items: center;
       gap: 10px;
       margin-bottom: 34px;
       padding-bottom: 18px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      border-bottom: 4px solid var(--line);
     }
-
     .brand-mark {
       width: 54px;
       height: auto;
@@ -118,57 +94,59 @@
       display: block;
       object-fit: contain;
     }
-
     .brand-name {
-      font-size: 16px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
+      font-family: "Bangers", cursive;
+      font-size: 34px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      line-height: 1;
+      text-shadow: 3px 3px 0 var(--accent-2);
     }
-
     .brand-copy {
       display: grid;
       gap: 4px;
       justify-items: center;
       text-align: center;
     }
-
     .brand-tagline {
-      font-size: 11px;
-      line-height: 1.35;
-      color: #8f8f8f;
+      font-size: 14px;
+      line-height: 1.2;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
     }
-
     .group {
       margin-bottom: 28px;
     }
-
     .group-title {
       margin: 0 0 14px;
-      color: #f8f8f8;
-      font-size: 17px;
-      font-weight: 600;
+      color: var(--ink);
+      font-family: "Bangers", cursive;
+      font-size: 27px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
     }
-
     .nav {
       display: grid;
       gap: 6px;
     }
-
     .nav-link {
       display: flex;
       align-items: center;
       gap: 14px;
-      padding: 8px 0;
-      color: #d7d7d7;
-      font-size: 15px;
-      font-weight: 400;
+      padding: 10px 12px;
+      color: var(--ink);
+      font-size: 19px;
+      font-weight: 700;
       position: relative;
+      border: 3px solid transparent;
+      text-transform: uppercase;
     }
-
     .nav-link:hover {
-      color: var(--accent);
+      color: var(--ink);
+      border-color: var(--line);
+      background: var(--accent-2);
     }
-
     .nav-link svg {
       width: 18px;
       height: 18px;
@@ -177,151 +155,156 @@
       stroke-width: 1.8;
       flex: 0 0 auto;
     }
-
     .nav-link.active {
-      color: var(--accent);
-      font-weight: 500;
-    }
-
-    .nav-link.active::before {
-      content: "";
-      position: absolute;
-      left: -22px;
-      top: 9px;
-      bottom: 9px;
-      width: 4px;
-      border-radius: 999px;
+      color: #fff;
       background: var(--accent);
+      border-color: var(--line);
+      transform: translate(-4px, -4px);
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 1);
     }
-
+    .nav-link.active::before {
+      content: "!";
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%) rotate(-8deg);
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--accent-2);
+      color: var(--line);
+      font-family: "Bangers", cursive;
+      font-size: 18px;
+    }
     .play-now {
       width: 100%;
-      height: 42px;
-      margin-bottom: 8px;
-      border: 0;
-      border-radius: 100px;
-      background: linear-gradient(160deg, #ffb84d 0%, #ff8c1a 100%);
+      height: 52px;
+      margin-bottom: 10px;
+      border: 4px solid var(--line);
+      background: linear-gradient(180deg, #ffeb67 0%, #ff9e1b 100%);
       color: #101010;
       font: inherit;
-      font-weight: 700;
+      font-size: 24px;
+      font-weight: 800;
+      text-transform: uppercase;
       cursor: pointer;
-      box-shadow: 0 10px 24px rgba(255, 140, 26, 0.2);
+      box-shadow: 0 6px 0 rgba(0, 0, 0, 0.95);
+      transform: rotate(-1.5deg);
     }
-
+    .play-now:hover {
+      transform: translateY(2px) rotate(-1.5deg);
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.95);
+    }
     .auth-form {
       display: grid;
       gap: 10px;
       margin-top: 14px;
     }
-
     .auth-description {
       margin: 0;
       color: var(--muted);
-      font-size: 12px;
+      font-size: 15px;
       line-height: 1.4;
+      font-weight: 600;
     }
-
     .auth-input {
       width: 100%;
-      height: 38px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 100px;
-      background: rgba(8, 8, 8, 0.7);
-      color: #f3f3f3;
+      height: 42px;
+      border: 3px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--ink);
       padding: 0 12px;
       font: inherit;
+      font-size: 18px;
+      font-weight: 600;
       outline: none;
     }
-
     .auth-input::placeholder {
-      color: #8e8e8e;
+      color: #806d5b;
     }
-
     .auth-input:focus {
-      border-color: #ffb84d;
-      box-shadow: 0 0 0 3px rgba(241, 169, 34, 0.12);
+      border-color: var(--accent-3);
+      box-shadow: 0 0 0 4px rgba(31, 117, 255, 0.15);
     }
-
     .auth-button {
       width: 100%;
-      height: 40px;
-      border: 0;
-      border-radius: 100px;
-      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
-      color: #000000;
+      height: 44px;
+      border: 3px solid var(--line);
+      background: linear-gradient(180deg, #ff673d 0%, #ef2e00 100%);
+      color: #ffffff;
       font: inherit;
-      font-weight: 600;
+      font-size: 20px;
+      font-weight: 800;
+      text-transform: uppercase;
       cursor: pointer;
-      box-shadow: 0 10px 24px rgba(241, 134, 34, 0.22);
+      box-shadow: 0 5px 0 rgba(0, 0, 0, 0.95);
     }
-
     .auth-switch {
       border: 0;
       padding: 0;
       background: transparent;
-      color: #ffd392;
+      color: var(--accent-3);
       font: inherit;
-      font-size: 12px;
+      font-size: 15px;
+      font-weight: 700;
       text-align: left;
       cursor: pointer;
+      text-transform: uppercase;
     }
-
     .auth-status {
       min-height: 18px;
       margin: 0;
-      color: #d2d2d2;
-      font-size: 12px;
+      color: var(--text);
+      font-size: 14px;
       line-height: 1.4;
+      font-weight: 600;
     }
-
     .auth-status[data-state="error"] {
       color: #ff8f8f;
     }
-
     .auth-status[data-state="success"] {
       color: #9ce2a1;
     }
-
     .account-panel[hidden] {
       display: none;
     }
-
     .account-greeting {
       margin: 0;
-      color: #f6f6f6;
-      font-size: 15px;
+      color: var(--ink);
+      font-size: 19px;
       line-height: 1.45;
-      font-weight: 500;
-    }
-
-    .account-name {
-      color: #ffd392;
       font-weight: 700;
+      text-transform: uppercase;
     }
-
+    .account-name {
+      color: var(--accent);
+      font-weight: 800;
+    }
     .account-actions {
       display: grid;
       gap: 6px;
       margin-top: 14px;
     }
-
     .account-action {
       display: flex;
       align-items: center;
       gap: 14px;
       width: 100%;
-      min-height: 36px;
-      border: 0;
+      min-height: 42px;
+      border: 3px solid transparent;
       background: transparent;
-      color: #d7d7d7;
-      padding: 8px 0;
+      color: var(--ink);
+      padding: 8px 10px;
       font: inherit;
-      font-size: 15px;
+      font-size: 18px;
+      font-weight: 700;
       text-align: left;
       cursor: pointer;
       position: relative;
+      text-transform: uppercase;
     }
-
     .account-action svg {
       width: 18px;
       height: 18px;
@@ -330,212 +313,221 @@
       stroke-width: 1.8;
       flex: 0 0 auto;
     }
-
     .account-action:hover {
-      color: var(--accent);
+      color: var(--ink);
+      background: var(--accent-2);
+      border-color: var(--line);
     }
-
     .account-action.active {
-      color: var(--accent);
-      font-weight: 500;
-    }
-
-    .account-action.active::before {
-      content: "";
-      position: absolute;
-      left: -22px;
-      top: 9px;
-      bottom: 9px;
-      width: 4px;
-      border-radius: 999px;
-      background: var(--accent);
-    }
-
-    .main {
-      padding: 18px 26px 26px;
-    }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-bottom: 18px;
-      margin-bottom: 18px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .tabs {
-      display: flex;
-      gap: 34px;
-    }
-
-    .tab {
-      font-size: 17px;
-      color: #a7a7a7;
-      position: relative;
-      padding: 4px 0;
-    }
-
-    .tab.active {
       color: #fff;
+      background: var(--accent-3);
+      border-color: var(--line);
     }
-
-    .tab.active::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      bottom: -18px;
-      width: 30px;
-      height: 4px;
-      transform: translateX(-50%);
-      border-radius: 999px;
-      background: #fff;
+    .account-action.active::before {
+      display: none;
     }
-
-    .top-actions {
-      display: flex;
-      gap: 14px;
-      align-items: center;
-    }
-
-    .icon-btn,
-    .avatar {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
+    .main {
+      padding: 0;
       display: grid;
-      place-items: center;
-      border: 1px solid #3c3c3c;
-      background: #0e0e0e;
+      gap: 18px;
+      align-content: start;
     }
-
-    .icon-btn svg {
-      width: 17px;
-      height: 17px;
-      stroke: #f5f5f5;
-      fill: none;
-      stroke-width: 1.8;
-    }
-
-    .avatar {
-      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
-      border-color: rgba(255, 82, 82, 0.6);
-      font-size: 14px;
-    }
-
     .mainsection {
       padding: 26px 24px;
-      border: 1px solid #171717;
-      border-radius: 14px;
+      border: 4px solid var(--line);
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)),
-        #0a0a0a;
-      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.24);
+        linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.18)),
+        var(--panel-strong);
+      box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.95);
+      position: relative;
+      overflow: hidden;
     }
-
+    .mainsection::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top right, rgba(255, 212, 58, 0.38), transparent 24%),
+        linear-gradient(135deg, rgba(31, 117, 255, 0.12), transparent 44%);
+      pointer-events: none;
+    }
+    .mainsection > * {
+      position: relative;
+      z-index: 1;
+    }
     .mainsection-kicker {
-      margin: 0 0 6px;
-      color: #ffac38;
-      font-size: 30px;
-      font-weight: 700;
-      line-height: 1.05;
+      margin: 0 0 10px;
+      color: var(--ink);
+      font-family: "Bangers", cursive;
+      font-size: 56px;
+      font-weight: 400;
+      line-height: 0.95;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      text-shadow: 4px 4px 0 var(--accent-2);
     }
-
     .mainsection-meta {
-      margin: 0 0 16px;
-      padding-bottom: 10px;
-      border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
-      color: #a5a5a5;
-      font-size: 13px;
-      line-height: 1.4;
-    }
-
-    .mainsection-meta .byline {
-      color: #ffca9e;
-      font-weight: 600;
-    }
-
-    .mainsection-body {
-      color: #efefef;
-      font-size: 14px;
-      line-height: 1.65;
-    }
-
-    .mainsection-body p {
-      margin: 0 0 14px;
-    }
-
-    .mainsection-points {
-      margin: 0 0 14px;
-      padding-left: 20px;
-      display: grid;
-      gap: 6px;
-    }
-
-    .mainsection-points li::marker {
-      color: #d0d0d0;
-    }
-
-    .mainsection-label {
-      margin: 12px 0 8px;
-      color: #ffcf74;
-      font-size: 16px;
+      margin: 0 0 20px;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 22px;
+      line-height: 1.1;
       font-weight: 700;
+      text-transform: uppercase;
     }
-
-    .mainsection-balances {
-      margin: 0;
-      padding-left: 20px;
+    .account-strip {
       display: grid;
-      gap: 6px;
-      color: #d6d6d6;
+      grid-template-columns: 1.25fr 0.95fr;
+      gap: 18px;
+      margin-bottom: 22px;
+      align-items: stretch;
     }
-
-    .mainsection-balances strong {
+    .dispatch-panel,
+    .board-panel {
+      border: 4px solid var(--line);
+      box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.95);
+    }
+    .dispatch-panel {
+      padding: 22px;
+      background:
+        linear-gradient(135deg, rgba(31, 117, 255, 0.2), transparent 44%),
+        radial-gradient(circle at right top, rgba(255, 212, 58, 0.58), transparent 18%),
+        linear-gradient(180deg, #fffdfa 0%, #ffe6b4 100%);
+      position: relative;
+      overflow: hidden;
+    }
+    .dispatch-panel::after {
+      content: "Admin Feed";
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      padding: 5px 12px;
+      border: 3px solid var(--line);
+      background: var(--accent);
       color: #fff;
+      font-family: "Bangers", cursive;
+      font-size: 24px;
+      letter-spacing: 0.05em;
+      transform: rotate(3deg);
     }
-
+    .dispatch-title {
+      margin: 0 0 10px;
+      max-width: 480px;
+      color: var(--ink);
+      font-family: "Bangers", cursive;
+      font-size: 38px;
+      font-weight: 400;
+      line-height: 0.95;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .dispatch-copy {
+      margin: 0;
+      max-width: 540px;
+      color: var(--muted);
+      font-size: 19px;
+      line-height: 1.15;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .board-panel {
+      padding: 18px;
+      background:
+        radial-gradient(circle at center, rgba(255, 212, 58, 0.26), transparent 52%),
+        var(--panel);
+      display: grid;
+      gap: 12px;
+      align-content: start;
+    }
+    .board-title {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Bangers", cursive;
+      font-size: 30px;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .board-list {
+      display: grid;
+      gap: 10px;
+    }
+    .board-item {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 10px 12px;
+      border: 3px solid var(--line);
+      background: var(--panel-strong);
+      transform: rotate(calc(var(--tilt, 0) * 1deg));
+    }
+    .board-item:nth-child(1) { --tilt: -1.5; }
+    .board-item:nth-child(2) { --tilt: 1; }
+    .board-item:nth-child(3) { --tilt: -0.75; }
+    .board-badge {
+      min-width: 42px;
+      min-height: 42px;
+      padding: 4px 6px;
+      display: grid;
+      place-items: center;
+      border: 3px solid var(--line);
+      background: var(--accent-2);
+      color: var(--line);
+      font-family: "Bangers", cursive;
+      font-size: 20px;
+      letter-spacing: 0.04em;
+    }
+    .board-copy {
+      margin: 0;
+      color: var(--ink);
+      font-size: 17px;
+      line-height: 1.1;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
     .player-accounts-status,
     .player-account-status {
       min-height: 20px;
       margin: 0 0 16px;
-      color: #d2d2d2;
-      font-size: 13px;
+      color: var(--text);
+      font-size: 15px;
       line-height: 1.4;
+      font-weight: 700;
     }
-
     .player-accounts-status[data-state="error"],
     .player-account-status[data-state="error"] {
-      color: #ff8f8f;
+      color: #cf1d00;
     }
-
+    .player-accounts-status[data-state="success"],
+    .player-account-status[data-state="success"] {
+      color: #0b7a2b;
+    }
     .player-accounts-list {
       display: grid;
-      gap: 10px;
+      gap: 12px;
     }
-
     .player-accounts-search {
       width: 100%;
-      height: 42px;
+      height: 52px;
       margin: 0 0 16px;
       padding: 0 14px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 999px;
-      background: rgba(8, 8, 8, 0.7);
-      color: #f3f3f3;
+      border: 4px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--ink);
       font: inherit;
+      font-size: 21px;
+      font-weight: 700;
       outline: none;
     }
-
     .player-accounts-search::placeholder {
-      color: #8e8e8e;
+      color: #806d5b;
+      text-transform: uppercase;
     }
-
     .player-accounts-search:focus {
-      border-color: #ffb84d;
-      box-shadow: 0 0 0 3px rgba(241, 169, 34, 0.12);
+      border-color: var(--accent-3);
+      box-shadow: 0 0 0 4px rgba(31, 117, 255, 0.15);
     }
-
     .player-account-entry {
       display: flex;
       align-items: center;
@@ -543,30 +535,32 @@
       gap: 12px;
       width: 100%;
       padding: 14px 16px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.02);
-      color: #f4f4f4;
+      border: 4px solid var(--line);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0.28));
+      color: var(--ink);
       font: inherit;
       cursor: pointer;
       text-align: left;
+      box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.95);
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
     }
-
     .player-account-entry:hover {
-      border-color: rgba(255, 184, 77, 0.5);
-      color: var(--accent);
+      transform: translate(-3px, -3px) rotate(-0.4deg);
+      box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.95);
+      background: linear-gradient(180deg, #fff9db 0%, #ffd86f 100%);
+      color: var(--ink);
     }
-
     .player-account-entry-name {
+      font-size: 21px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .player-account-entry-meta {
+      color: var(--muted);
       font-size: 15px;
       font-weight: 700;
+      text-transform: uppercase;
     }
-
-    .player-account-entry-meta {
-      color: #a9a9a9;
-      font-size: 12px;
-    }
-
     .player-account-overlay {
       position: fixed;
       inset: 0;
@@ -575,265 +569,170 @@
       align-items: center;
       justify-content: center;
       padding: 24px;
-      background: rgba(0, 0, 0, 0.7);
+      background:
+        radial-gradient(circle at center, rgba(255, 212, 58, 0.18), transparent 35%),
+        rgba(10, 7, 3, 0.82);
     }
-
     .player-account-overlay.visible {
       display: flex;
     }
-
     .player-account-modal {
       width: min(860px, 100%);
       max-height: min(88vh, 920px);
       overflow: auto;
       padding: 22px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 16px;
-      background: #0a0a0a;
-      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.32);
+      border: 4px solid var(--line);
+      background:
+        linear-gradient(135deg, rgba(31, 117, 255, 0.16), transparent 38%),
+        linear-gradient(180deg, #fffdf7 0%, #ffe8b9 100%);
+      box-shadow: 12px 12px 0 rgba(0, 0, 0, 0.95);
     }
-
     .player-account-summary {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
       margin: 0 0 18px;
     }
-
     .player-account-summary-card {
       padding: 12px 14px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.02);
+      border: 4px solid var(--line);
+      background: var(--panel-strong);
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.95);
     }
-
     .player-account-summary-label {
       margin: 0 0 6px;
-      color: #9f9f9f;
-      font-size: 11px;
+      color: var(--muted);
+      font-size: 14px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
+      font-weight: 700;
     }
-
     .player-account-summary-value {
       margin: 0;
-      color: #fff;
-      font-size: 16px;
-      font-weight: 700;
+      color: var(--ink);
+      font-size: 20px;
+      font-weight: 800;
       word-break: break-word;
+      text-transform: uppercase;
     }
-
     .player-account-editor {
       width: 100%;
       min-height: 380px;
       padding: 14px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 12px;
-      background: #050505;
-      color: #f4f4f4;
+      border: 4px solid var(--line);
+      background: #fffdf6;
+      color: #1c140d;
       font: 13px/1.6 "Consolas", "Courier New", monospace;
       resize: vertical;
       outline: none;
+      box-shadow: inset 0 0 0 2px rgba(21, 17, 11, 0.05);
     }
-
     .player-account-actions {
       display: flex;
       justify-content: flex-end;
       gap: 10px;
+      margin-top: 16px;
     }
-
     .player-account-button {
-      min-height: 38px;
+      min-height: 44px;
       padding: 0 18px;
-      border-radius: 999px;
+      border: 3px solid var(--line);
       font: inherit;
-      font-size: 14px;
-      font-weight: 700;
+      font-size: 18px;
+      font-weight: 800;
+      text-transform: uppercase;
       cursor: pointer;
+      box-shadow: 0 5px 0 rgba(0, 0, 0, 0.95);
     }
-
     .player-account-button.secondary {
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: transparent;
-      color: #e7e7e7;
+      background: #fff4cd;
+      color: var(--ink);
     }
-
     .player-account-button.primary {
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      background: linear-gradient(160deg, #ffb84d 0%, #ff8c1a 100%);
-      color: #101010;
+      background: linear-gradient(180deg, #ff673d 0%, #ef2e00 100%);
+      color: #fff;
     }
-
-    .slider-dots {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      padding: 18px 0 26px;
-    }
-
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      border: 2px solid rgba(255, 255, 255, 0.55);
-      background: transparent;
-    }
-
-    .dot.active {
-      background: #fff;
-      border-color: #fff;
-    }
-
-    .section-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 18px;
-    }
-
-    .section-title {
-      margin: 0;
-      font-size: 21px;
-      font-weight: 600;
-    }
-
-    .carousel-arrow {
-      width: 36px;
-      height: 36px;
-      display: grid;
-      place-items: center;
-      color: #9c9c9c;
-      font-size: 36px;
-      line-height: 1;
-    }
-
-    .poster-grid {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 24px;
-      margin-bottom: 38px;
-    }
-
-    .poster-card {
-      min-width: 0;
-    }
-
-    .poster-image {
-      height: 228px;
-      border-radius: 10px;
-      background-size: cover;
-      background-position: center;
-      box-shadow: 0 18px 35px rgba(0, 0, 0, 0.35);
-    }
-
-    .poster-caption {
-      margin-top: 12px;
-      font-size: 14px;
-      text-align: center;
-      color: #dedede;
-    }
-
-    .aside-top {
-      padding-bottom: 16px;
-      margin-bottom: 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-    }
-
     .ladder,
     .stats-panel {
       margin-bottom: 16px;
       padding: 14px;
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.015) 100%),
-        rgba(8, 8, 8, 0.9);
-      color: #f0f0f0;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 14px;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0.2) 100%),
+        var(--panel-strong);
+      color: var(--ink);
+      border: 4px solid var(--line);
+      box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.95);
     }
-
     .ladder-title,
     .stats-title {
       margin: 0 0 12px;
       padding-bottom: 8px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 0.04em;
+      border-bottom: 3px solid var(--line);
+      font-family: "Bangers", cursive;
+      font-size: 24px;
+      font-weight: 400;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
-      color: #ffcf8c;
+      color: var(--ink);
     }
-
     .ladder-list,
     .stats-list {
       display: grid;
       gap: 8px;
     }
-
     .ladder-row {
       display: grid;
       grid-template-columns: 28px 1fr;
       gap: 10px;
       align-items: center;
       padding: 8px 8px 8px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      border-bottom: 2px dashed rgba(21, 17, 11, 0.18);
     }
-
     .ladder-row:last-child {
       border-bottom: 0;
       padding-bottom: 0;
     }
-
     .ladder-rank {
       width: 24px;
       height: 24px;
       display: grid;
       place-items: center;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: var(--accent-2);
+      border: 2px solid var(--line);
       font-size: 11px;
       font-weight: 800;
-      color: #b8b8b8;
+      color: var(--line);
       line-height: 1;
     }
-
     .ladder-name {
       margin-bottom: 5px;
-      font-size: 12px;
+      font-size: 14px;
       font-weight: 700;
       line-height: 1.2;
-      color: #f4f4f4;
+      color: var(--ink);
+      text-transform: uppercase;
     }
-
     .ladder-name a,
     .stats-list a {
       color: inherit;
       text-decoration: none;
     }
-
     .ladder-name a:hover,
     .stats-list a:hover {
-      color: #ffcf8c;
+      color: var(--accent);
     }
-
     .ladder-bar {
       height: 18px;
       width: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      border: 2px solid var(--line);
       background: #ffffff;
       position: relative;
       overflow: hidden;
-      border-radius: 999px;
     }
-
     .ladder-fill {
       height: 100%;
-      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
-      box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.08);
+      background: linear-gradient(90deg, #ff5b2e 0%, #ffd43a 100%);
     }
-
     .ladder-score {
       position: absolute;
       inset: 0;
@@ -843,165 +742,66 @@
       font-weight: 800;
       color: #000000;
       letter-spacing: 0.03em;
-      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
     }
-
-    .search {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      height: 34px;
-      padding: 0 14px;
-      border-radius: 999px;
-      background: #1e1e1e;
-      color: #7f7f7f;
-      font-size: 14px;
-    }
-
     .stats-group + .stats-group {
       margin-top: 16px;
       padding-top: 16px;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      border-top: 2px dashed rgba(21, 17, 11, 0.18);
     }
-
     .stats-list {
       margin: 0;
       padding: 0;
       list-style: none;
-      color: #d8d8d8;
-      font-size: 12px;
+      color: var(--ink);
+      font-size: 14px;
       line-height: 1.45;
+      font-weight: 700;
+      text-transform: uppercase;
     }
-
     .stats-list li {
       padding: 7px 8px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.04);
+      border: 2px solid var(--line);
+      background: rgba(255, 255, 255, 0.48);
     }
-
-    .search svg {
-      width: 14px;
-      height: 14px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 2;
-      flex: 0 0 auto;
-    }
-
-    .aside-title {
-      margin: 0 0 18px;
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .stack {
-      display: grid;
-      gap: 18px;
-    }
-
-    .stack-item {
-      display: grid;
-      grid-template-columns: 102px 1fr;
-      gap: 14px;
-      align-items: start;
-    }
-
-    .stack-thumb {
-      width: 102px;
-      height: 148px;
-      border-radius: 10px;
-      background-size: cover;
-      background-position: center;
-      box-shadow: 0 16px 28px rgba(0, 0, 0, 0.3);
-    }
-
-    .stack-name {
-      margin: 2px 0 6px;
-      font-size: 18px;
-      font-weight: 500;
-      line-height: 1.15;
-    }
-
-    .stack-meta {
-      color: #bcbcbc;
-      font-size: 14px;
-      line-height: 1.35;
-    }
-
-    .see-more {
-      width: 100%;
-      height: 34px;
-      margin: 18px 0 26px;
-      border: 0;
-      border-radius: 999px;
-      background: #292929;
-      color: #ededed;
-      font: inherit;
-      cursor: pointer;
-    }
-
     @media (max-width: 1180px) {
       .app {
         grid-template-columns: 220px minmax(0, 1fr);
       }
-
       .aside {
         display: none;
       }
-
-      .poster-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+      .account-strip {
+        grid-template-columns: 1fr;
       }
     }
-
     @media (max-width: 860px) {
       .app {
         grid-template-columns: 1fr;
       }
-
-      .sidebar {
-        border-right: 0;
-        border-bottom: 1px solid var(--line);
-      }
-
-      .nav-link.active::before {
-        left: -12px;
-      }
-
       .mainsection {
         padding: 22px 18px;
       }
-
-      .poster-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 18px;
+      .mainsection-kicker {
+        font-size: 42px;
       }
-
       .player-account-summary {
         grid-template-columns: 1fr;
       }
     }
-
     @media (max-width: 560px) {
-      .main,
-      .sidebar {
-        padding-left: 16px;
-        padding-right: 16px;
-      }
-
-      .topbar {
-        flex-direction: column;
-        align-items: flex-start;
+      .app {
+        padding: 12px;
         gap: 12px;
       }
-
-      .tabs {
-        gap: 22px;
-      }
-
       .mainsection-kicker {
-        font-size: 24px;
+        font-size: 34px;
+      }
+      .dispatch-title {
+        font-size: 30px;
+      }
+      .player-account-entry {
+        align-items: flex-start;
+        flex-direction: column;
       }
     }
   </style>
@@ -1021,7 +821,7 @@
         <h2 class="group-title">Home Menu</h2>
         <nav class="nav">
           <button class="play-now" type="button" id="play-now-button">Play Now</button>
-          <a class="nav-link active" href="index.html">
+          <a class="nav-link" href="index.html">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" /></svg>
             <span>Home</span>
           </a>
@@ -1035,7 +835,7 @@
           </a>
           <a class="nav-link" href="#">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.1 2.8 7.9 7 9 4.2-1.1 7-4.9 7-9V6z" /><path d="M9 12h6" /><path d="M12 9v6" /></svg>
-            <span>Ninja Missions</span>
+            <span>Comic Missions</span>
           </a>
           <a class="nav-link" href="#">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2H20v16H8.5A2.5 2.5 0 0 0 6 20.5z" /><path d="M6 4.5V22" /><path d="M9.5 7H16" /><path d="M9.5 11H17" /></svg>
@@ -1119,9 +919,32 @@
 
     <main class="main">
 
-      <section class="mainsection">
+            <section class="mainsection">
         <h1 class="mainsection-kicker">Player Accounts</h1>
-        <p class="mainsection-meta">&raquo; Admin account editor</p>
+        <p class="mainsection-meta">Direct account edits, and rank checks.</p>
+        <div class="account-strip">
+          <section class="dispatch-panel" aria-label="Admin overview">
+            <h2 class="dispatch-title">Edit Account</h2>
+            <p class="dispatch-copy">This page showcases the account editor.</p>
+          </section>
+          <section class="board-panel" aria-label="Admin checklist">
+            <h2 class="board-title">Quick Notes</h2>
+            <div class="board-list">
+              <div class="board-item">
+                <div class="board-badge">01</div>
+                <p class="board-copy">Search by username or role, then open the account record instantly.</p>
+              </div>
+              <div class="board-item">
+                <div class="board-badge">02</div>
+                <p class="board-copy">Review rank and ladder ratio before editing raw account data.</p>
+              </div>
+              <div class="board-item">
+                <div class="board-badge">03</div>
+                <p class="board-copy">Save from the editor overlay without changing any existing page logic.</p>
+              </div>
+            </div>
+          </section>
+        </div>
         <p class="player-accounts-status" id="player-accounts-status" aria-live="polite"></p>
         <input class="player-accounts-search" type="search" id="player-accounts-search" placeholder="Search usernames or roles" />
         <div class="player-accounts-list" id="player-accounts-list"></div>
@@ -1231,7 +1054,7 @@
         </div>
       </section>
       <section class="ladder">
-        <h3 class="ladder-title">Top 10 Clan Levels</h3>
+        <h3 class="ladder-title">Top 10 Alliance Levels</h3>
         <div class="ladder-list" id="sidebar-top-clan-levels">
           <div class="ladder-row">
             <div class="ladder-rank">01</div>
@@ -1367,3 +1190,4 @@
   <script src="./index.js" defer></script>
 </body>
 </html>
+

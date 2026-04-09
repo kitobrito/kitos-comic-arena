@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Naruto-Arena Game</title>
+    <title>Comic-Arena Game</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&family=Petra&display=swap" rel="stylesheet">
@@ -16,13 +16,13 @@
     </div>
 
     <div class="ChakraChooseEndTurn" style="background-image: url('searchingscroll.png');">
-        <p class="chakrachoose">CHOOSE <span class="chakrachoosered">0</span> RANDOM CHAKRA (S)</p>
+        <p class="chakrachoose">CHOOSE <span class="chakrachoosered">0</span> RANDOM ENERGY (S)</p>
         <div class="chakra-container">
             <div class="chakra-column">
-                <div class="chakra-title">CHAKRA LEFT:</div>
+                <div class="chakra-title">ENERGY LEFT:</div>
                 <div class="chakra-row">
                     <span class="chakra-box green" style="display:inline-block;width:8px;height:8px;border:1px solid #000;"></span>
-                    <span class="chakra-name">TAIJUTSU</span>
+                    <span class="chakra-name">GREEN</span>
                     <span class="chakra-amount">1</span>
                     <span class="chakra-buttons">
                         <button type="button" class="minus-button">-</button>
@@ -31,7 +31,7 @@
                 </div>
                 <div class="chakra-row">
                     <span class="chakra-box red" style="display:inline-block;width:8px;height:8px;border:1px solid #000;"></span>
-                    <span class="chakra-name">BLOODLINE</span>
+                    <span class="chakra-name">RED</span>
                     <span class="chakra-amount">1</span>
                     <span class="chakra-buttons">
                         <button type="button" class="minus-button">-</button>
@@ -40,7 +40,7 @@
                 </div>
                 <div class="chakra-row">
                     <span class="chakra-box blue" style="display:inline-block;width:8px;height:8px;border:1px solid #000;"></span>
-                    <span class="chakra-name">NINJUTSU</span>
+                    <span class="chakra-name">BLUE</span>
                     <span class="chakra-amount">2</span>
                     <span class="chakra-buttons">
                         <button type="button" class="minus-button">-</button>
@@ -49,7 +49,7 @@
                 </div>
                 <div class="chakra-row">
                     <span class="chakra-box white" style="display:inline-block;width:8px;height:8px;border:1px solid #000;"></span>
-                    <span class="chakra-name">GENJUTSU</span>
+                    <span class="chakra-name">WHITE</span>
                     <span class="chakra-amount">2</span>
                     <span class="chakra-buttons">
                         <button type="button" class="minus-button">-</button>
@@ -58,25 +58,25 @@
                 </div>
             </div>
             <div class="chakra-columnright">
-                <div class="chakra-title">RANDOM CHAKRA:</div>
+                <div class="chakra-title">RANDOM ENERGY:</div>
                 <div class="chakra-row">
                     <span class="chakra-box green" style="display:inline-block;width:8px;height:8px;border:1px solid #000;"></span>
-                    <span class="chakra-name">TAIJUTSU</span>
+                    <span class="chakra-name">GREEN</span>
                     <span class="chakra-amount">0</span>
                 </div>
                 <div class="chakra-row">
                     <span class="chakra-box red" style="display:inline-block;width:8px;height:8px;border:1px solid #000;"></span>
-                    <span class="chakra-name">BLOODLINE</span>
+                    <span class="chakra-name">RED</span>
                     <span class="chakra-amount">0</span>
                 </div>
                 <div class="chakra-row">
                     <span class="chakra-box blue" style="display:inline-block;width:8px;height:8px;border:1px solid #000;"></span>
-                    <span class="chakra-name">NINJUTSU</span>
+                    <span class="chakra-name">BLUE</span>
                     <span class="chakra-amount">1</span>
                 </div>
                 <div class="chakra-row">
                     <span class="chakra-box white" style="display:inline-block;width:8px;height:8px;border:1px solid #000;"></span>
-                    <span class="chakra-name">GENJUTSU</span>
+                    <span class="chakra-name">WHITE</span>
                     <span class="chakra-amount">0</span>
                 </div>
             </div>
@@ -89,7 +89,7 @@
     </div>
 
     <div class="exchange_chakra">
-        <p class="exchange_chakra_title">CHOOSE YOUR NEW CHAKRA</p>
+        <p class="exchange_chakra_title">CHOOSE YOUR NEW ENERGY</p>
         <div class="exchange_chakra_choices">
             <button type="button" class="exchange_chakra_choice selected" aria-label="Taijutsu">
                 <span class="chakra-box green"></span>
@@ -104,35 +104,35 @@
                 <span class="chakra-box white"></span>
             </button>
         </div>
-        <p class="exchange_chakra_subtitle">CHOOSE <span class="chakrachoosered">0</span> RANDOM CHAKRA (S)</p>
+        <p class="exchange_chakra_subtitle">CHOOSE <span class="chakrachoosered">0</span> RANDOM ENERGY (S)</p>
 
         <div class="exchange_chakra_container">
             <div class="exchange_chakra_column">
-                <div class="chakra-title">CHAKRA LEFT:</div>
+                <div class="chakra-title">ENERGY LEFT:</div>
                 <div class="exchange_chakra_row">
                     <span class="chakra-box green"></span>
-                    <span class="chakra-name">TAIJUTSU</span>
+                    <span class="chakra-name">GREEN</span>
                     <span class="chakra-amount">4</span>
                     <span class="exchange_symbol">-</span>
                     <span class="exchange_symbol">+</span>
                 </div>
                 <div class="exchange_chakra_row">
                     <span class="chakra-box red"></span>
-                    <span class="chakra-name">BLOODLINE</span>
+                    <span class="chakra-name">RED</span>
                     <span class="chakra-amount">0</span>
                     <span class="exchange_symbol">-</span>
                     <span class="exchange_symbol">+</span>
                 </div>
                 <div class="exchange_chakra_row">
                     <span class="chakra-box blue"></span>
-                    <span class="chakra-name">NINJUTSU</span>
+                    <span class="chakra-name">BLUE</span>
                     <span class="chakra-amount">2</span>
                     <span class="exchange_symbol">-</span>
                     <span class="exchange_symbol">+</span>
                 </div>
                 <div class="exchange_chakra_row">
                     <span class="chakra-box white"></span>
-                    <span class="chakra-name">GENJUTSU</span>
+                    <span class="chakra-name">WHITE</span>
                     <span class="chakra-amount">0</span>
                     <span class="exchange_symbol">-</span>
                     <span class="exchange_symbol">+</span>
@@ -140,25 +140,25 @@
             </div>
 
             <div class="exchange_chakra_column">
-                <div class="chakra-title">RANDOM CHAKRA:</div>
+                <div class="chakra-title">RANDOM ENERGY:</div>
                 <div class="exchange_chakra_row">
                     <span class="chakra-box green"></span>
-                    <span class="chakra-name">TAIJUTSU</span>
+                    <span class="chakra-name">GREEN</span>
                     <span class="chakra-amount">0</span>
                 </div>
                 <div class="exchange_chakra_row">
                     <span class="chakra-box red"></span>
-                    <span class="chakra-name">BLOODLINE</span>
+                    <span class="chakra-name">RED</span>
                     <span class="chakra-amount">0</span>
                 </div>
                 <div class="exchange_chakra_row">
                     <span class="chakra-box blue"></span>
-                    <span class="chakra-name">NINJUTSU</span>
+                    <span class="chakra-name">BLUE</span>
                     <span class="chakra-amount">0</span>
                 </div>
                 <div class="exchange_chakra_row">
                     <span class="chakra-box white"></span>
-                    <span class="chakra-name">GENJUTSU</span>
+                    <span class="chakra-name">WHITE</span>
                     <span class="chakra-amount">0</span>
                 </div>
             </div>
@@ -332,7 +332,7 @@
                                     <div class="skilltooltips">
                             <img src="https://i.imgur.com/Uy1TKG3.png" alt="Skill" class="skilltooltipimage">
                         </div>
-                        <img src="hats/sannin.png" alt="rankhat" class="rank-hat">
+                        <img src="hats/hokage.png" alt="rankhat" class="rank-hat">
             <img src="https://i.imgur.com/B52DL1t.png" alt="Character" class="character-face">
             <div class="health-bar-container">
                 <div class="health-bar">

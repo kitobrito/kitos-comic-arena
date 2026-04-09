@@ -3,20 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Naruto-Arena Profile</title>
+  <title>Comic-Arena Profile</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg: #000;
-      --panel: #050505;
-      --line: #181818;
-      --card: #101010;
-      --soft: #262626;
-      --text: #f4f4f4;
-      --muted: #a0a0a0;
-      --accent: #ffb84d;
+      --bg: #f4e7c9;
+      --panel: #fff7de;
+      --panel-strong: #fffdf6;
+      --line: #16120d;
+      --ink: #15110b;
+      --text: #21180f;
+      --muted: #65584b;
+      --accent: #ff5b2e;
+      --accent-2: #ffd43a;
+      --accent-3: #1f75ff;
     }
 
     * {
@@ -29,27 +31,12 @@
       margin: 0;
       min-height: 100vh;
       background:
-        url("https://i.postimg.cc/x11QM8NQ/476467.png"),
-        radial-gradient(circle at 12% 18%, rgba(255, 149, 0, 0.3), transparent 24%),
-        radial-gradient(circle at 88% 12%, rgba(255, 106, 0, 0.18), transparent 22%),
-        radial-gradient(circle at 50% 78%, rgba(255, 184, 77, 0.08), transparent 28%),
-        linear-gradient(145deg, #1a0700 0%, #090909 38%, #000000 68%, #2f0d00 100%);
-      background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat;
-      background-size: 120px 120px, auto, auto, auto, auto;
-      background-position: 0 0, center, center, center, center;
+        radial-gradient(circle at 20% 20%, rgba(255, 212, 58, 0.85), transparent 0 18%),
+        radial-gradient(circle at 80% 14%, rgba(31, 117, 255, 0.3), transparent 0 16%),
+        radial-gradient(circle, rgba(21, 17, 11, 0.18) 1px, transparent 1.2px) 0 0 / 11px 11px,
+        linear-gradient(180deg, #fff4cd 0%, #f5dd9e 34%, #f7b44a 100%);
       color: var(--text);
-      font-family: "Outfit", system-ui, sans-serif;
-      animation: bodyPatternDrift 18s linear infinite;
-    }
-
-    @keyframes bodyPatternDrift {
-      from {
-        background-position: 0 0, center, center, center, center;
-      }
-
-      to {
-        background-position: 120px 0, center, center, center, center;
-      }
+      font-family: "Barlow Condensed", system-ui, sans-serif;
     }
 
 
@@ -59,28 +46,26 @@
     }
 
     .app {
-      width: min(1500px, 100%);
+      width: min(1560px, 100%);
       min-height: 100vh;
       margin: 0 auto;
       display: grid;
       grid-template-columns: 235px minmax(0, 1fr) 270px;
-
+      gap: 18px;
+      padding: 18px;
     }
 
     .sidebar,
     .aside {
-      padding: 18px 22px;
-      background: rgba(0, 0, 0, 0.94);
+      padding: 18px 20px;
+      background: var(--panel);
+      border: 4px solid var(--line);
+      box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.95);
     }
 
     .sidebar {
       position: relative;
       overflow: hidden;
-      border-right: 1px solid var(--line);
-      background:
-        linear-gradient(180deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.9) 100%),
-        var(--sidebar-backdrop, none) center/cover no-repeat,
-        rgba(0, 0, 0, 0.94);
     }
 
     .sidebar::before {
@@ -88,8 +73,8 @@
       position: absolute;
       inset: 0;
       background:
-        linear-gradient(180deg, rgba(3, 3, 3, 0.2) 0%, rgba(0, 0, 0, 0.68) 45%, rgba(0, 0, 0, 0.9) 100%),
-        radial-gradient(circle at top left, rgba(241, 117, 34, 0.12), transparent 30%);
+        linear-gradient(180deg, rgba(255, 91, 46, 0.08), transparent 30%, rgba(21, 17, 11, 0.08) 100%),
+        radial-gradient(circle at top left, rgba(255, 212, 58, 0.36), transparent 28%);
       pointer-events: none;
     }
 
@@ -99,7 +84,9 @@
     }
 
     .aside {
-      border-left: 1px solid var(--line);
+      background:
+        radial-gradient(circle at top right, rgba(255, 212, 58, 0.28), transparent 22%),
+        var(--panel);
     }
 
     .brand {
@@ -108,7 +95,7 @@
       gap: 10px;
       margin-bottom: 34px;
       padding-bottom: 18px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      border-bottom: 4px solid var(--line);
     }
 
     .brand-mark {
@@ -120,9 +107,12 @@
     }
 
     .brand-name {
-      font-size: 16px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
+      font-family: "Bangers", cursive;
+      font-size: 34px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      line-height: 1;
+      text-shadow: 3px 3px 0 var(--accent-2);
     }
 
     .brand-copy {
@@ -133,9 +123,11 @@
     }
 
     .brand-tagline {
-      font-size: 11px;
-      line-height: 1.35;
-      color: #8f8f8f;
+      font-size: 14px;
+      line-height: 1.2;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
     }
 
     .group {
@@ -144,9 +136,11 @@
 
     .group-title {
       margin: 0 0 14px;
-      color: #f8f8f8;
-      font-size: 17px;
-      font-weight: 600;
+      color: var(--ink);
+      font-family: "Bangers", cursive;
+      font-size: 27px;
+      font-weight: 400;
+      letter-spacing: 0.06em;
     }
 
     .nav {
@@ -158,15 +152,19 @@
       display: flex;
       align-items: center;
       gap: 14px;
-      padding: 8px 0;
-      color: #d7d7d7;
-      font-size: 15px;
-      font-weight: 400;
+      padding: 10px 12px;
+      color: var(--ink);
+      font-size: 19px;
+      font-weight: 700;
       position: relative;
+      border: 3px solid transparent;
+      text-transform: uppercase;
     }
 
     .nav-link:hover {
-      color: var(--accent);
+      color: var(--ink);
+      border-color: var(--line);
+      background: var(--accent-2);
     }
 
     .nav-link svg {
@@ -179,33 +177,49 @@
     }
 
     .nav-link.active {
-      color: var(--accent);
-      font-weight: 500;
+      color: #fff;
+      background: var(--accent);
+      border-color: var(--line);
+      transform: translate(-4px, -4px);
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 1);
     }
 
     .nav-link.active::before {
-      content: "";
+      content: "!";
       position: absolute;
-      left: -22px;
-      top: 9px;
-      bottom: 9px;
-      width: 4px;
-      border-radius: 999px;
-      background: var(--accent);
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%) rotate(-8deg);
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--accent-2);
+      color: var(--line);
+      font-family: "Bangers", cursive;
+      font-size: 18px;
     }
 
     .play-now {
       width: 100%;
-      height: 42px;
-      margin-bottom: 8px;
-      border: 0;
-      border-radius: 100px;
-      background: linear-gradient(160deg, #ffb84d 0%, #ff8c1a 100%);
+      height: 52px;
+      margin-bottom: 10px;
+      border: 4px solid var(--line);
+      background: linear-gradient(180deg, #ffeb67 0%, #ff9e1b 100%);
       color: #101010;
       font: inherit;
-      font-weight: 700;
+      font-size: 24px;
+      font-weight: 800;
+      text-transform: uppercase;
       cursor: pointer;
-      box-shadow: 0 10px 24px rgba(255, 140, 26, 0.2);
+      box-shadow: 0 6px 0 rgba(0, 0, 0, 0.95);
+      transform: rotate(-1.5deg);
+    }
+
+    .play-now:hover {
+      transform: translateY(2px) rotate(-1.5deg);
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.95);
     }
 
     .auth-form {
@@ -217,61 +231,67 @@
     .auth-description {
       margin: 0;
       color: var(--muted);
-      font-size: 12px;
+      font-size: 15px;
       line-height: 1.4;
+      font-weight: 600;
     }
 
     .auth-input {
       width: 100%;
-      height: 38px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 100px;
-      background: rgba(8, 8, 8, 0.7);
-      color: #f3f3f3;
+      height: 42px;
+      border: 3px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--ink);
       padding: 0 12px;
       font: inherit;
+      font-size: 18px;
+      font-weight: 600;
       outline: none;
     }
 
     .auth-input::placeholder {
-      color: #8e8e8e;
+      color: #806d5b;
     }
 
     .auth-input:focus {
-      border-color: #ffb84d;
-      box-shadow: 0 0 0 3px rgba(241, 169, 34, 0.12);
+      border-color: var(--accent-3);
+      box-shadow: 0 0 0 4px rgba(31, 117, 255, 0.15);
     }
 
     .auth-button {
       width: 100%;
-      height: 40px;
-      border: 0;
-      border-radius: 100px;
-      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
-      color: #000000;
+      height: 44px;
+      border: 3px solid var(--line);
+      background: linear-gradient(180deg, #ff673d 0%, #ef2e00 100%);
+      color: #ffffff;
       font: inherit;
-      font-weight: 600;
+      font-size: 20px;
+      font-weight: 800;
+      text-transform: uppercase;
       cursor: pointer;
-      box-shadow: 0 10px 24px rgba(241, 134, 34, 0.22);
+      box-shadow: 0 5px 0 rgba(0, 0, 0, 0.95);
     }
 
     .auth-switch {
       border: 0;
       padding: 0;
       background: transparent;
-      color: #ffd392;
+      color: var(--accent-3);
       font: inherit;
-      font-size: 12px;
+      font-size: 15px;
+      font-weight: 700;
       text-align: left;
       cursor: pointer;
+      text-transform: uppercase;
     }
 
     .auth-status {
       min-height: 18px;
       margin: 0;
-      color: #d2d2d2;
-      font-size: 12px;
+      color: var(--text);
+      font-size: 14px;
       line-height: 1.4;
+      font-weight: 600;
     }
 
     .auth-status[data-state="error"] {
@@ -288,15 +308,16 @@
 
     .account-greeting {
       margin: 0;
-      color: #f6f6f6;
-      font-size: 15px;
+      color: var(--ink);
+      font-size: 19px;
       line-height: 1.45;
-      font-weight: 500;
+      font-weight: 700;
+      text-transform: uppercase;
     }
 
     .account-name {
-      color: #ffd392;
-      font-weight: 700;
+      color: var(--accent);
+      font-weight: 800;
     }
 
     .account-actions {
@@ -310,16 +331,18 @@
       align-items: center;
       gap: 14px;
       width: 100%;
-      min-height: 36px;
-      border: 0;
+      min-height: 42px;
+      border: 3px solid transparent;
       background: transparent;
-      color: #d7d7d7;
-      padding: 8px 0;
+      color: var(--ink);
+      padding: 8px 10px;
       font: inherit;
-      font-size: 15px;
+      font-size: 18px;
+      font-weight: 700;
       text-align: left;
       cursor: pointer;
       position: relative;
+      text-transform: uppercase;
     }
 
     .account-action svg {
@@ -332,44 +355,198 @@
     }
 
     .account-action:hover {
-      color: var(--accent);
+      color: var(--ink);
+      background: var(--accent-2);
+      border-color: var(--line);
     }
 
     .account-action.active {
-      color: var(--accent);
-      font-weight: 500;
+      color: #fff;
+      background: var(--accent);
+      border-color: var(--line);
+      transform: translate(-4px, -4px);
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 1);
     }
 
     .account-action.active::before {
-      content: "";
+      content: "!";
       position: absolute;
-      left: -22px;
-      top: 9px;
-      bottom: 9px;
-      width: 4px;
-      border-radius: 999px;
-      background: var(--accent);
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%) rotate(-8deg);
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--accent-2);
+      color: var(--line);
+      font-family: "Bangers", cursive;
+      font-size: 18px;
     }
 
     .main {
-      padding: 18px 26px 26px;
+      padding: 0;
     }
 
     .profile-layout {
       display: grid;
-      gap: 20px;
+      gap: 18px;
+    }
+
+    .profile-banner {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+      gap: 18px;
+    }
+
+    .profile-banner-main,
+    .profile-banner-side,
+    .profile-search,
+    .profile-section {
+      border: 4px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 243, 218, 0.92)),
+        var(--panel);
+      box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.95);
+    }
+
+    .profile-banner-main {
+      position: relative;
+      overflow: hidden;
+      min-height: 260px;
+      padding: 26px 24px;
+      background:
+        linear-gradient(135deg, rgba(31, 117, 255, 0.18), transparent 42%),
+        radial-gradient(circle at right top, rgba(255, 212, 58, 0.55), transparent 18%),
+        linear-gradient(180deg, #fffdfa 0%, #ffe6b4 100%);
+    }
+
+    .profile-banner-main::before {
+      content: "Profile";
+      position: absolute;
+      top: 18px;
+      right: 20px;
+      padding: 6px 12px;
+      border: 3px solid var(--line);
+      background: var(--accent);
+      color: #fff;
+      font-family: "Bangers", cursive;
+      font-size: 24px;
+      letter-spacing: 0.05em;
+      transform: rotate(3deg);
+    }
+
+    .profile-banner-title {
+      margin: 0 0 12px;
+      max-width: 640px;
+      font-family: "Bangers", cursive;
+      font-size: clamp(42px, 7vw, 68px);
+      font-weight: 400;
+      line-height: 0.95;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      text-shadow: 4px 4px 0 var(--accent-2);
+    }
+
+    .profile-banner-copy {
+      margin: 0 0 18px;
+      max-width: 620px;
+      color: var(--muted);
+      font-size: 22px;
+      line-height: 1.1;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .profile-banner-points {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .profile-banner-point {
+      padding: 8px 12px;
+      border: 3px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--ink);
+      font-size: 16px;
+      font-weight: 800;
+      text-transform: uppercase;
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.9);
+    }
+
+    .profile-banner-side {
+      padding: 18px;
+      display: grid;
+      align-content: start;
+      gap: 14px;
+      background:
+        radial-gradient(circle at 50% 18%, rgba(255, 212, 58, 0.42), transparent 24%),
+        var(--panel);
+    }
+
+    .profile-banner-side-title {
+      margin: 0;
+      font-family: "Bangers", cursive;
+      font-size: 28px;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    .profile-banner-side-copy {
+      margin: 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.2;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .profile-banner-card {
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
+      padding: 14px;
+      border: 4px solid var(--line);
+      background: var(--panel-strong);
+      box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.95);
+    }
+
+    .profile-banner-avatar {
+      width: 84px;
+      height: 84px;
+      border: 3px solid var(--line);
+      object-fit: cover;
+      background: #111;
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.9);
+    }
+
+    .profile-banner-name {
+      margin: 0 0 6px;
+      color: var(--ink);
+      font-size: 26px;
+      font-weight: 800;
+      text-transform: uppercase;
+      line-height: 1;
+    }
+
+    .profile-banner-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.15;
+      font-weight: 700;
+      text-transform: uppercase;
     }
 
     .profile-search {
       display: grid;
       gap: 12px;
-      border: 1px solid #171717;
-      border-radius: 14px;
       padding: 18px;
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)),
-        #0a0a0a;
-      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.22);
     }
 
     .profile-search-row {
@@ -380,40 +557,44 @@
 
     .profile-search-input {
       flex: 1 1 auto;
-      height: 40px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 999px;
-      background: rgba(8, 8, 8, 0.75);
-      color: #f3f3f3;
+      height: 44px;
+      border: 3px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--ink);
       padding: 0 14px;
       font: inherit;
+      font-size: 19px;
+      font-weight: 700;
       outline: none;
     }
 
     .profile-search-input:focus {
-      border-color: #ffb84d;
-      box-shadow: 0 0 0 3px rgba(241, 169, 34, 0.12);
+      border-color: var(--accent-3);
+      box-shadow: 0 0 0 4px rgba(31, 117, 255, 0.15);
     }
 
     .profile-search-button {
-      height: 40px;
+      height: 44px;
       padding: 0 18px;
-      border: 0;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
-      color: #000;
+      border: 3px solid var(--line);
+      background: linear-gradient(180deg, #ff673d 0%, #ef2e00 100%);
+      color: #fff;
       font: inherit;
-      font-weight: 700;
+      font-size: 19px;
+      font-weight: 800;
+      text-transform: uppercase;
       cursor: pointer;
       white-space: nowrap;
+      box-shadow: 0 5px 0 rgba(0, 0, 0, 0.95);
     }
 
     .profile-search-status {
       min-height: 18px;
       margin: 0;
-      color: #d2d2d2;
-      font-size: 12px;
+      color: var(--text);
+      font-size: 14px;
       line-height: 1.4;
+      font-weight: 700;
     }
 
     .profile-search-status[data-state="error"] {
@@ -425,18 +606,12 @@
     }
 
     .profile-section {
-      border: 1px solid #171717;
-      border-radius: 14px;
       padding: 18px;
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)),
-        #0a0a0a;
-      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.22);
     }
 
     .profile-header {
       display: grid;
-      grid-template-columns: 88px minmax(0, 1fr);
+      grid-template-columns: 108px minmax(0, 1fr);
       gap: 18px;
       align-items: start;
     }
@@ -445,9 +620,10 @@
       box-sizing: content-box;
       width: 75px;
       height: 75px;
-      border: 1px solid rgb(0, 0, 0);
+      border: 3px solid var(--line);
       background: #111;
       object-fit: cover;
+      box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.95);
     }
 
     .profile-block {
@@ -459,15 +635,24 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding-bottom: 8px;
-      border-bottom: 1px dotted rgba(255, 255, 255, 0.26);
-      color: #ffffff;
-      font-size: 18px;
-      font-weight: 600;
+      padding-bottom: 10px;
+      border-bottom: 3px solid var(--line);
+      color: var(--ink);
+      font-family: "Bangers", cursive;
+      font-size: 30px;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
     }
 
     .profile-star {
-      color: #ff8f26;
+      display: inline-grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border: 2px solid var(--line);
+      background: var(--accent-2);
+      color: var(--line);
       font-size: 14px;
       line-height: 1;
     }
@@ -482,25 +667,25 @@
     .profile-clan-badge {
       width: 75px;
       height: 75px;
-
-      border: 1px solid rgb(2, 2, 2);
+      border: 3px solid var(--line);
       display: grid;
       place-items: center;
       text-align: center;
       padding: 10px;
       background:
-        radial-gradient(circle at 50% 22%, rgba(168, 155, 255, 0.55), transparent 30%),
-        linear-gradient(145deg, #19103c 0%, #2f1f7f 46%, #0e0826 100%);
+        radial-gradient(circle at 50% 22%, rgba(255, 212, 58, 0.65), transparent 30%),
+        linear-gradient(145deg, #ff6f43 0%, #ff3723 46%, #631500 100%);
       color: #ffffff;
-      font-size: 15px;
-      font-weight: 700;
+      font-size: 19px;
+      font-weight: 800;
       line-height: 1.15;
       letter-spacing: 0.03em;
+      box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.95);
     }
 
     .info-table {
       display: grid;
-      gap: 4px;
+      gap: 8px;
     }
 
     .info-row {
@@ -508,38 +693,41 @@
       grid-template-columns: 132px minmax(0, 1fr);
       gap: 12px;
       align-items: center;
-      min-height: 28px;
-      padding: 2px 10px;
-      background: rgba(255, 255, 255, 0.04);
-      border-radius: 100px;
+      min-height: 40px;
+      padding: 6px 12px;
+      background: var(--panel-strong);
+      border: 3px solid rgb(0, 0, 0);
     }
 
     .info-label {
-      color: #d5d5d5;
-      font-size: 14px;
+      color: var(--muted);
+      font-size: 16px;
+      font-weight: 700;
+      text-transform: uppercase;
     }
 
     .info-value {
-      color: #f6f6f6;
-      font-size: 14px;
+      color: var(--ink);
+      font-size: 18px;
+      font-weight: 800;
+      text-transform: uppercase;
     }
 
     .info-value.accent {
       color: var(--accent);
-      font-weight: 600;
+      font-weight: 800;
     }
 
     .info-value.soft {
-      color: #bdbdbd;
+      color: var(--muted);
     }
 
     .level-meter {
       position: relative;
-      width: 78px;
-      height: 18px;
-      border-radius: 100px;
+      width: 92px;
+      height: 24px;
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.12);
+      border: 3px solid var(--line);
       background: #ffffff;
     }
 
@@ -548,7 +736,7 @@
       position: absolute;
       inset: 0;
       width: var(--level-progress, 6%);
-      background: linear-gradient(90deg, #ff9a1f 0%, #ffd48a 100%);
+      background: linear-gradient(90deg, var(--accent) 0%, #ffd43a 100%);
     }
 
     .level-meter span {
@@ -558,7 +746,7 @@
       place-items: center;
       height: 100%;
       color: #000000;
-      font-size: 12px;
+      font-size: 14px;
       font-weight: 800;
     }
 
@@ -566,7 +754,9 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      color: #d6d6d6;
+      color: var(--ink);
+      font-weight: 800;
+      text-transform: uppercase;
     }
 
     .status-offline::before {
@@ -582,7 +772,9 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      color: #d6d6d6;
+      color: var(--ink);
+      font-weight: 800;
+      text-transform: uppercase;
     }
 
     .status-online::before {
@@ -596,7 +788,7 @@
 
     .quick-games-list {
       display: grid;
-      gap: 4px;
+      gap: 8px;
     }
 
     .quick-game-row {
@@ -604,29 +796,34 @@
       grid-template-columns: 170px minmax(0, 1fr) 160px;
       gap: 12px;
       align-items: center;
-      min-height: 28px;
-      padding: 2px 10px;
-      background: rgba(255, 255, 255, 0.04);
-      border-radius: 6px;
-      color: #f0f0f0;
-      font-size: 14px;
+      min-height: 48px;
+      padding: 8px 12px;
+      background: var(--panel-strong);
+      border: 3px solid rgb(0, 0, 0);
+      color: var(--ink);
+      font-size: 16px;
+      font-weight: 800;
+      text-transform: uppercase;
     }
 
     .quick-game-time,
     .quick-game-result {
-      color: #d5d5d5;
-      font-size: 13px;
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 700;
     }
 
     .quick-game-matchup {
-      color: #d9d2ff;
-      font-size: 14px;
+      color: var(--accent-3);
+      font-size: 16px;
     }
 
     .quick-game-empty {
-      color: #b7b7b7;
-      font-size: 13px;
+      color: var(--muted);
+      font-size: 15px;
       line-height: 1.5;
+      font-weight: 700;
+      text-transform: uppercase;
     }
 
     .legacy-release-hooks {
@@ -644,24 +841,23 @@
       margin-bottom: 16px;
       padding: 14px;
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.015) 100%),
-        rgba(8, 8, 8, 0.9);
-      color: #f0f0f0;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 14px;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 241, 202, 0.95) 100%),
+        var(--panel);
+      color: var(--text);
+      border: 4px solid var(--line);
+      box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.95);
     }
 
     .ladder-title,
     .stats-title {
       margin: 0 0 12px;
       padding-bottom: 8px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      font-size: 13px;
+      border-bottom: 3px solid var(--line);
+      font-size: 18px;
       font-weight: 800;
       letter-spacing: 0.04em;
       text-transform: uppercase;
-      color: #ffcf8c;
+      color: var(--accent);
     }
 
     .ladder-list,
@@ -676,7 +872,7 @@
       gap: 10px;
       align-items: center;
       padding: 8px 8px 8px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      border-bottom: 2px dashed rgba(21, 17, 11, 0.35);
     }
 
     .ladder-row:last-child {
@@ -689,21 +885,22 @@
       height: 24px;
       display: grid;
       place-items: center;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      font-size: 11px;
+      background: var(--accent-2);
+      border: 2px solid var(--line);
+      font-size: 12px;
       font-weight: 800;
-      color: #b8b8b8;
+      color: var(--line);
       line-height: 1;
+      border-radius: 100px;
     }
 
     .ladder-name {
       margin-bottom: 5px;
-      font-size: 12px;
+      font-size: 15px;
       font-weight: 700;
       line-height: 1.2;
-      color: #f4f4f4;
+      color: var(--ink);
+      text-transform: uppercase;
     }
 
     .ladder-name a,
@@ -714,23 +911,21 @@
 
     .ladder-name a:hover,
     .stats-list a:hover {
-      color: #ffcf8c;
+      color: var(--accent);
     }
 
     .ladder-bar {
       height: 18px;
       width: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      border: 3px solid var(--line);
       background: #ffffff;
       position: relative;
       overflow: hidden;
-      border-radius: 999px;
     }
 
     .ladder-fill {
       height: 100%;
-      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
-      box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.08);
+      background: linear-gradient(90deg, var(--accent) 0%, #ffb11b 100%);
     }
 
     .ladder-score {
@@ -742,7 +937,7 @@
       font-weight: 800;
       color: #000000;
       letter-spacing: 0.03em;
-      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+      text-shadow: none;
     }
 
     .search {
@@ -760,23 +955,23 @@
     .stats-group + .stats-group {
       margin-top: 16px;
       padding-top: 16px;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      border-top: 2px dashed rgba(21, 17, 11, 0.35);
     }
 
     .stats-list {
       margin: 0;
       padding: 0;
       list-style: none;
-      color: #d8d8d8;
-      font-size: 12px;
+      color: var(--text);
+      font-size: 14px;
       line-height: 1.45;
     }
 
     .stats-list li {
       padding: 7px 8px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.04);
+      background: var(--panel-strong);
+      border: 2px solid rgba(21, 17, 11, 0.4);
+      font-weight: 700;
     }
 
     .search svg {
@@ -843,14 +1038,15 @@
     @media (max-width: 1180px) {
       .app {
         grid-template-columns: 220px minmax(0, 1fr);
+        padding: 14px;
       }
 
       .aside {
         display: none;
       }
 
-      .poster-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+      .profile-banner {
+        grid-template-columns: 1fr;
       }
     }
 
@@ -860,12 +1056,7 @@
       }
 
       .sidebar {
-        border-right: 0;
-        border-bottom: 1px solid var(--line);
-      }
-
-      .nav-link.active::before {
-        left: -12px;
+        border-bottom-width: 4px;
       }
 
       .profile-header,
@@ -885,7 +1076,7 @@
 
       .quick-game-row {
         grid-template-columns: 1fr;
-        gap: 4px;
+        gap: 6px;
         padding: 8px 10px;
       }
     }
@@ -893,13 +1084,13 @@
     @media (max-width: 560px) {
       .main,
       .sidebar {
-        padding-left: 16px;
-        padding-right: 16px;
+        padding-left: 14px;
+        padding-right: 14px;
       }
 
       .info-row {
         grid-template-columns: 1fr;
-        gap: 4px;
+        gap: 6px;
         padding: 8px 10px;
       }
     }
@@ -909,10 +1100,10 @@
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
-        <img class="brand-mark" src="https://i.postimg.cc/nLym09x8/logo.png" alt="Naruto-Arena logo" />
+        <img class="brand-mark" src="sitelogo.png" alt="Comic-Arena logo" />
         <div class="brand-copy">
-          <div class="brand-name">NARUTO-ARENA</div>
-          <div class="brand-tagline">Your #1 Naruto Online Multiplayer Game</div>
+          <div class="brand-name">Comic-ARENA</div>
+          <div class="brand-tagline">Your #1 Comic Online Multiplayer Game</div>
         </div>
       </div>
 
@@ -934,7 +1125,7 @@
           </a>
           <a class="nav-link" href="#">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.1 2.8 7.9 7 9 4.2-1.1 7-4.9 7-9V6z" /><path d="M9 12h6" /><path d="M12 9v6" /></svg>
-            <span>Ninja Missions</span>
+            <span>Comic Missions</span>
           </a>
           <a class="nav-link" href="#">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2H20v16H8.5A2.5 2.5 0 0 0 6 20.5z" /><path d="M6 4.5V22" /><path d="M9.5 7H16" /><path d="M9.5 11H17" /></svg>
@@ -1018,6 +1209,7 @@
 
     <main class="main">
       <div class="profile-layout">
+
         <section class="profile-search">
           <div class="profile-block-head">
             <span class="profile-star">✦</span>
@@ -1072,20 +1264,20 @@
           <div class="profile-block">
             <div class="profile-block-head">
               <span class="profile-star">✦</span>
-              <span>Clan information</span>
+              <span>Alliance information</span>
             </div>
             <div class="profile-content-split">
               <div class="info-table">
                 <div class="info-row">
-                  <div class="info-label">Clan Name:</div>
+                  <div class="info-label">Alliance Name:</div>
                   <div class="info-value accent" id="profile-clan-name">Crimson Lotus</div>
                 </div>
                 <div class="info-row">
-                  <div class="info-label">Clan Abbreviation:</div>
+                  <div class="info-label">Alliance Abbreviation:</div>
                   <div class="info-value" id="profile-clan-abbreviation">CLT</div>
                 </div>
                 <div class="info-row">
-                  <div class="info-label">Rank in clan:</div>
+                  <div class="info-label">Rank in Alliance:</div>
                   <div class="info-value" id="profile-clan-rank">Elite Jonin</div>
                 </div>
                 <div class="info-row">
@@ -1300,7 +1492,7 @@
         </div>
       </section>
       <section class="ladder">
-        <h3 class="ladder-title">Top 10 Clan Levels</h3>
+        <h3 class="ladder-title">Top 10 Alliance Levels</h3>
         <div class="ladder-list" id="sidebar-top-clan-levels">
           <div class="ladder-row">
             <div class="ladder-rank">01</div>
@@ -1434,5 +1626,53 @@
     </aside>
   </div>
   <script src="./index.js" defer></script>
+  <script>
+    window.addEventListener("DOMContentLoaded", () => {
+      const pairs = [
+        ["profile-username", "profile-banner-username"],
+        ["profile-site-rank", "profile-banner-rank"]
+      ];
+
+      const syncBanner = () => {
+        pairs.forEach(([sourceId, targetId]) => {
+          const source = document.getElementById(sourceId);
+          const target = document.getElementById(targetId);
+          if (source && target) {
+            target.textContent = source.textContent;
+          }
+        });
+
+        const avatar = document.getElementById("profile-avatar-image");
+        const bannerAvatar = document.getElementById("profile-banner-avatar-image");
+        if (avatar && bannerAvatar) {
+          bannerAvatar.src = avatar.src;
+        }
+      };
+
+      syncBanner();
+
+      const observedIds = [
+        "profile-username",
+        "profile-site-rank",
+        "profile-avatar-image"
+      ];
+
+      observedIds.forEach((id) => {
+        const node = document.getElementById(id);
+        if (!node) {
+          return;
+        }
+
+        const observer = new MutationObserver(syncBanner);
+        observer.observe(node, {
+          childList: true,
+          characterData: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ["src"]
+        });
+      });
+    });
+  </script>
 </body>
 </html>

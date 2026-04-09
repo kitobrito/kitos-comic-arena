@@ -288,7 +288,7 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "cannotUseSkills": true,
-                            "tooltipText": "This character is stunned and cannot use skills."
+                            "tooltipText": "This character is stunned."
                         }
                     },
                     {
@@ -6477,7 +6477,7 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "cannotUseSkills": true,
-                            "tooltipText": "This character is stunned and cannot use skills."
+                            "tooltipText": "This character is stunned."
                         }
                     },
                     {
@@ -7724,7 +7724,5010 @@ const characters = [
                 ]
             }
         ]
-    }
+    },
+        {
+            id: 'iron-man',
+            characterId: 'iron-man',
+            name: 'Iron Man',
+            facePicture: 'https://i.imgur.com/rt5r1bu.png',
+            characterdeescription:
+                'Iron Man serves as a versatile control damage dealer, applying sustained pressure with energy-based attacks while adapting his suit mid-battle. Through Armor Upgrade, he evolves into a stronger form, gaining access to devastating abilities like Proton Cannon and Energy Burst. While his damage can be interrupted, Iron Man excels when protected, using mobility and precision to control the flow of combat and support his team.',
+            skills: [
+                {
+                    id: 'iron-man-repulsor-blast',
+                    name: 'Repulsor Blast',
+                    skillimage: 'https://i.imgur.com/3ulWurz.png',
+                    skilldescription:
+                        'Deals 8 damage to one enemy per turn for 2 turns. If Overcharge is active, this instead deals 28 energy damage and stuns the target for 1 turn.',
+                    energy: ['Random'],
+                    target: 'single-enemy',
+                    damage: 0,
+                    cooldown: 0,
+                    classes: ['Energy', 'Ranged', 'Control'],
+                    effects: [
+                        {
+                            type: 'apply_status',
+                            statusId: 'iron_man_repulsor_blast_dot',
+                            duration: 2,
+                            scope: 'target',
+                            condition: {
+                                scope: 'self',
+                                missingStatusId: 'iron_man_overcharge_active',
+                            },
+                            metadata: {
+                                harmful: true,
+                                turnEndDamage: 8,
+                                "triggerOnApply": true,
+                                turnEndTrigger: 'source_turn',
+                                turnDurationAnchor: 'source_turn',
+                                ongoingClass: 'action',
+                                tooltipText: 'This character takes 8 damage each turn.',
+                            },
+                        },
+                        {
+                            type: 'damage',
+                            amount: 28,
+                            scope: 'target',
+                            condition: {
+                                scope: 'self',
+                                statusId: 'iron_man_overcharge_active',
+                            },
+                        },
+                        {
+                            type: 'apply_status',
+                            statusId: 'stunned',
+                            duration: 1,
+                            scope: 'target',
+                            condition: {
+                                scope: 'self',
+                                statusId: 'iron_man_overcharge_active',
+                            },
+                            metadata: {
+                                harmful: true,
+                                cannotUseSkills: true,
+                                tooltipText: 'This character is stunned.',
+                            },
+                        },
+                    ],
+                },
+                {
+                    id: 'iron-man-overcharge',
+                    name: 'Overcharge',
+                    skillimage: 'https://i.imgur.com/XxNKoKu.png',
+                    skilldescription:
+                        "For 1 turn, Iron Man's Repulsor Blast and Proton Cannon is improved and gains a new effect.",
+                    energy: ['Ninjutsu'],
+                    target: 'self',
+                    damage: 0,
+                    cooldown: 0,
+                    classes: ['Chakra', 'Instant'],
+                    effects: [
+                        {
+                            type: 'apply_status',
+                            statusId: 'iron_man_overcharge_active',
+                            duration: 1,
+                            scope: 'self',
+                            metadata: {
+                                infiniteDuration: false,
+                                tooltipText: 'Iron Man\'s Repulsor Blast and Proton Cannon is overcharged for 1 turn.',
+                            },
+                        },
+                    ],
+                },
+                {
+                    id: 'iron-man-armor-upgrade',
+                    name: 'Armor Upgrade',
+                    skillimage: 'https://i.imgur.com/cUWpevS.png',
+                    skilldescription:
+                        "Iron Man may use this skill on himself or an ally. If used on himself, Repulsor Blast becomes Proton Cannon, this skill becomes Energy Burst, and Iron Man gains 10 points of unpierceable damage reduction. If used on an ally, they gain 5 bonus non-affliction damage and 10 permanent destructible defense. This effect stacks on allies and is permanent.",
+                    energy: ['Bloodline'],
+                    target: 'self-or-single-ally',
+                    damage: 0,
+                    cooldown: 2,
+                    classes: ['Physical', 'Instant'],
+                    effects: [
+                        {
+                            type: 'apply_status',
+                            statusId: 'iron_man_armor_upgrade_self',
+                            duration: 99,
+                            scope: 'target',
+                            condition: {
+                                scope: 'target',
+                                targetRelation: 'self',
+                            },
+                            metadata: {
+                                infiniteDuration: true,
+                                unpierceableDamageReductionFlat: 10,
+                                skillReplacements: {
+                                    'iron-man-repulsor-blast': 'iron-man-proton-cannon',
+                                    'iron-man-armor-upgrade': 'iron-man-energy-burst',
+                                },
+                                tooltipText:
+                                    'Iron Man has 10 unpierceable damage reduction, Repulsor Blast is replaced by Proton Cannon, and Armor Upgrade is replaced by Energy Burst.',
+                            },
+                        },
+                        {
+                            type: 'apply_status',
+                            statusId: 'iron_man_armor_upgrade_ally',
+                            duration: 99,
+                            scope: 'target',
+                            condition: {
+                                scope: 'target',
+                                targetRelation: 'ally',
+                            },
+                            metadata: {
+                                infiniteDuration: true,
+                                nonAfflictionDamageBonusFlat: 5,
+                                destructibleDefensePoints: 10,
+                                mergeNumericAddKeys: ['nonAfflictionDamageBonusFlat', 'destructibleDefensePoints'],
+                                tooltipTextTemplate:
+                                    'This character deals {nonAfflictionDamageBonusFlat} additional non-affliction damage and has {destructibleDefensePoints} destructible defense.',
+                            },
+                        },
+                    ],
+                },
+                {
+                    id: 'iron-man-iron-suit-mobility',
+                    name: 'Iron Suit Mobility',
+                    skillimage: 'https://i.imgur.com/JC495sM.png',
+                    skilldescription:
+                        "Iron Man and any ally affected by Armor Upgrade become invulnerable for 1 turn.",
+                    energy: ['Random'],
+                    target: 'self',
+                    damage: 0,
+                    cooldown: 4,
+                    classes: ['Physical', 'Instant'],
+                    effects: [
+                        {
+                            type: 'apply_status',
+                            statusId: 'iron_man_iron_suit_mobility_invulnerable',
+                            duration: 1,
+                            scope: 'self',
+                            metadata: {
+                                invulnerable: true,
+                                tooltipText: 'This character is invulnerable.',
+                            },
+                        },
+                        {
+                            type: 'apply_status',
+                            statusId: 'iron_man_iron_suit_mobility_invulnerable',
+                            duration: 1,
+                            scope: 'all-allies',
+                            condition: {
+                                scope: 'target',
+                                targetRelation: 'ally',
+                                statusId: 'iron_man_armor_upgrade_ally',
+                            },
+                            metadata: {
+                                invulnerable: true,
+                                tooltipText: 'This character is invulnerable.',
+                            },
+                        },
+                    ],
+                },
+                {
+                    id: 'iron-man-proton-cannon',
+                    name: 'Proton Cannon',
+                    hiddenFromSelectionViewer: true,
+                    actorCondition: {
+                        statusId: 'iron_man_armor_upgrade_self',
+                    },
+                    skillimage: 'https://i.imgur.com/5AoKo39.png',
+                    skilldescription:
+                        'Deals 18 damage to one enemy per turn for 2 turns. If Overcharge is active, this instead deals 42 affliction damage.',
+                    energy: ['Random', 'Random'],
+                    target: 'single-enemy',
+                    damage: 0,
+                    cooldown: 0,
+                    classes: ['Energy', 'Ranged', 'Control'],
+                    effects: [
+                        {
+                            type: 'apply_status',
+                            statusId: 'iron_man_proton_cannon_dot',
+                            duration: 2,
+                            scope: 'target',
+                            condition: {
+                                scope: 'self',
+                                missingStatusId: 'iron_man_overcharge_active',
+                            },
+                            metadata: {
+                                harmful: true,
+                                turnEndDamage: 18,
+                                turnEndTrigger: 'source_turn',
+                                turnDurationAnchor: 'source_turn',
+                                ongoingClass: 'action',
+                                tooltipText: 'This character takes 18 damage each turn.',
+                            },
+                        },
+                        {
+                            type: 'damage',
+                            amount: 42,
+                            scope: 'target',
+                            condition: {
+                                scope: 'self',
+                                statusId: 'iron_man_overcharge_active',
+                            },
+                            metadata: {
+                                afflictionDamage: true,
+                                ignoreDamageReduction: true,
+                                ignoreDestructibleDefense: true,
+                            },
+                        },
+                    ],
+                },
+                {
+                    id: 'iron-man-energy-burst',
+                    name: 'Energy Burst',
+                    hiddenFromSelectionViewer: true,
+                    actorCondition: {
+                        statusId: 'iron_man_armor_upgrade_self',
+                    },
+                    skillimage: 'https://i.imgur.com/r6cDktw.png',
+                    skilldescription: 'Deals 22 damage to all enemies and stuns their energy skills for 1 turn.',
+                    energy: ['Bloodline', 'Ninjutsu'],
+                    target: 'all-enemy',
+                    damage: 0,
+                    cooldown: 2,
+                    classes: ['Energy', 'Ranged', 'Instant'],
+                    effects: [
+                        {
+                            type: 'damage',
+                            amount: 22,
+                            scope: 'all-enemy',
+                        },
+                        {
+                            type: 'apply_status',
+                            statusId: 'iron_man_energy_burst_lock',
+                            duration: 1,
+                            scope: 'all-enemy',
+                            metadata: {
+                                harmful: true,
+                                cannotUseSkillClasses: ['energy'],
+                                tooltipText: 'This character energy skills are stunned.',
+                            },
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+    id: 'spider-man',
+    characterId: 'spider-man',
+    name: 'Spider-Man',
+    facePicture: 'https://i.imgur.com/P6HqSu0.png',
+    startStatuses: [
+        {
+            statusId: 'spider_man_spider_senses_passive',
+            duration: 999,
+            sourceSkillId: 'spider-man-passive-spider-senses',
+            metadata: {
+                infiniteDuration: true,
+                persistOnOwnerSkillEvadedTrigger: true,
+                evadeChancePercent: 0,
+                tooltipAggregateStatusIds: [
+                    'spider_man_spider_strike_senses',
+                    'spider_man_web_shot_senses',
+                    'spider_man_web_wrap_senses',
+                    'spider_man_web_slinging_senses'
+                ],
+                tooltipAggregateMetadataKey: 'evadeChancePercent',
+                tooltipTextTemplate:
+                    'Spider-Man has {evadeChancePercent}% Evasion (this increases by up to 75% through his other skills). When a skill misses, Spider Strike and Web Shot have their costs changed to 1 random energy for 1 turn.',
+                onOwnerSkillEvadedApplyStatusToOwner: {
+                    statusId: 'spider_man_spider_senses_evade_cost_shift',
+                    duration: 1,
+                    metadata: {
+                        skillCostOverridesBySkillId: {
+                            'spider-man-spider-strike': {
+                                energy: ['Random']
+                            },
+                            'spider-man-web-shot': {
+                                energy: ['Random']
+                            }
+                        },
+                        tooltipText: 'Spider-Man\'s Spider Strike and Web Shot cost 1 random energy for 1 turn after he evades a skill.'
+                    }
+                },
+                tooltipText: 'Spider-Man has 0% Evasion (this increases by up to 75% through his other skills). When a skill misses, Spider Strike and Web Shot have their costs changed to 1 random energy for 1 turn.'
+            }
+        }
+    ],
+    characterdeescription: 'Agile, reactive, and relentlessly disruptive, Spider-Man excels at controlling the flow of battle through precision and timing. Rather than overpowering enemies, he weakens them—restricting their options, increasing their costs, and punishing every misstep. With abilities that hinder enemy actions and amplify his own evasiveness, Spider-Man thrives in drawn-out encounters where his Spider Senses can fully take over.',
+    skills: [
+        {
+            id: 'spider-man-spider-strike',
+            name: 'Spider Strike',
+            skillimage: 'https://i.imgur.com/nlYDkTI.png',
+            skilldescription: 'Deals 20 damage to one enemy. This deals 5 additional damage to an enemy affected by \'Web Shot\' or \'Web Wrap\' and becomes piercing if Spider-Man is under the effects of \'Web Slinging\'. Increases \'Passive: Spider Senses\' by 5%.',
+            energy: [
+                'Taijutsu'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 20,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: false
+                    }
+                },
+                {
+                    type: 'damage',
+                    amount: 5,
+                    scope: 'target',
+                    condition: {
+                        scope: 'target',
+                        statusIdsAny: ['spider_man_web_shot_stun', 'spider_man_web_wrap_cost']
+                    },
+                    metadata: {
+                        ignoreDamageReduction: false
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'spider_man_spider_strike_senses',
+                    duration: 999,
+                    scope: 'self',
+                    metadata: {
+                        infiniteDuration: true,
+                        evadeChancePercent: 5,
+                        mergeNumericAddKeys: ['evadeChancePercent'],
+                        tooltipText: 'This character has 5% evasion.',
+                        "hideTooltip": true,
+                    }
+                }
+            ]
+        },
+        {
+            id: 'spider-man-web-shot',
+            name: 'Web Shot',
+            skillimage: 'https://i.imgur.com/tubyiRo.png',
+            skilldescription: 'Stuns one enemy’s harmful skills for 1 turn. If the target is affected by \'Web Wrap\', the cost of their skills is increased by 1 random energy until they use a new skill (does not stack). Increases \'Passive: Spider Senses\' by 5%.',
+            energy: [
+                'Genjutsu'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'spider_man_web_shot_stun',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        cannotUseHarmfulSkills: true,
+                        tooltipText: 'This character cannot use harmful skills.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'spider_man_web_shot_wrap_cost',
+                    duration: 999,
+                    scope: 'target',
+                    condition: {
+                        scope: 'target',
+                        statusId: 'spider_man_web_wrap_cost'
+                    },
+                    metadata: {
+                        harmful: true,
+                        randomCostIncrease: 1,
+                        onOwnerUseSkillTrigger: true,
+                        tooltipText: 'This character\'s skills cost 1 additional random energy until they use a skill.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'spider_man_web_shot_senses',
+                    duration: 999,
+                    scope: 'self',
+                    metadata: {
+                        infiniteDuration: true,
+                        evadeChancePercent: 5,
+                        mergeNumericAddKeys: ['evadeChancePercent'],
+                        tooltipText: 'This character has 5% evasion.',
+                        "hideTooltip": true,
+                    }
+                }
+            ]
+        },
+        {
+            id: 'spider-man-web-wrap',
+            name: 'Web Wrap',
+            skillimage: 'https://i.imgur.com/6lWrM2t.png',
+            skilldescription: 'Increases the cost of one enemy’s skills by 2 White Energy until they use a new skill. This does not stack and may only affect one enemy at a time (will remove itself from a previous enemy if used on a new one). Increases \'Passive: Spider Senses\' by 5%.',
+            energy: [
+                'Genjutsu',
+                'Genjutsu'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'spider_man_web_wrap_cost',
+                    duration: 999,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        genjutsuCostIncrease: 2,
+                        onOwnerUseSkillTrigger: true,
+                        uniqueEnemyMarkFromSource: true,
+                        tooltipText: 'This character\'s skills cost 2 additional white energy until they use a skill.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'spider_man_web_wrap_senses',
+                    duration: 999,
+                    scope: 'self',
+                    metadata: {
+                        infiniteDuration: true,
+                        evadeChancePercent: 5,
+                        mergeNumericAddKeys: ['evadeChancePercent'],
+                        tooltipText: 'This character has 5% evasion.',
+                        "hideTooltip": true,
+                    }
+                }
+            ]
+        },
+        {
+            id: 'spider-man-web-slinging',
+            name: 'Web Slinging',
+            skillimage: 'https://i.imgur.com/7gcVo5T.png',
+            skilldescription: 'Spider-Man ignores enemy stun effects and deals 5 bonus damage with \'Spider Strike\' for 2 turns. Increases \'Passive: Spider Senses\' by 10%.',
+            energy: [
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 3,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'spider_man_web_slinging_active',
+                    duration: 2,
+                    scope: 'self',
+                    metadata: {
+                        cannotBeStunned: true,
+                        ignoreDamageReductionForSkillIds: ['spider-man-spider-strike'],
+                        skillDamageBonuses: {
+                            'spider-man-spider-strike': 5
+                        },
+                        tooltipText: 'Spider-Man ignores stun effects and Spider Strike deals 5 additional damage.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'spider_man_web_slinging_senses',
+                    duration: 999,
+                    scope: 'self',
+                    metadata: {
+                        infiniteDuration: true,
+                        evadeChancePercent: 10,
+                        mergeNumericAddKeys: ['evadeChancePercent'],
+                        tooltipText: 'This character has 10% evasion.',
+                        "hideTooltip": true,
+                    }
+                }
+            ]
+        },
+        {
+            id: 'spider-man-passive-spider-senses',
+            name: 'Passive: Spider Senses',
+            
+            skillimage: 'https://i.imgur.com/Ucz75UH.png',
+            skilldescription: 'Spider-Man has 0% Evasion (this increases by up to 75% through his other skills). When a skill misses, \'Spider Strike\' and \'Web Shot\' have their costs changed to 1 random energy for 1 turn.',
+            energy: [],
+            target: 'self',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Passive',
+                'Instant'
+            ],
+        }
+    ]
+},
+    {
+    id: 'captain-america',
+    characterId: 'captain-america',
+    name: 'Captain America',
+    facePicture: 'https://i.imgur.com/hdlwp4G.png',
+    characterdeescription: 'Captain America serves as a disciplined frontline protector who excels at controlling the pace of battle through precise, well-timed defensive plays. Rather than building long-term power, he focuses on creating short windows of advantage that allow his team to safely pressure the enemy. His abilities provide a versatile mix of disruption and protection—silencing key threats, forcing enemies to target him, and reducing incoming damage at critical moments. With low cooldowns across his kit, he can consistently adapt to the flow of combat and respond to enemy actions in real time.',
+    startStatuses: [
+        {
+            statusId: 'captain_america_america_shield_passive',
+            sourceSkillId: 'captain_america_america_shield_passive2',
+            duration: 999,
+            metadata: {
+                infiniteDuration: true,
+                onTeamMemberUseSkillApplyStatusToOwner: {
+                    statusId: 'captain_america_america_shield_defense',
+                    duration: 999,
+                    energyTypes: ['genjutsu', 'ninjutsu', 'bloodline'],
+                    scaleMetadataKeys: ['destructibleDefensePoints'],
+                    metadata: {
+                        destructibleDefensePoints: 5,
+                        mergeNumericAddKeys: ['destructibleDefensePoints'],
+                        tooltipTextTemplate: 'This character has {destructibleDefensePoints} destructible defense.'
+                    }
+                },
+                tooltipText:
+                    "While Cap is alive, teammates gain 5 permanent destructible defense for each red, white, or blue energy spent by a skill."
+            }
+        },
+        {
+            statusId: 'captain_america_vibranium_ricochet_cost_red',
+            sourceSkillId: 'captain-america-vibranium-ricochet',
+            duration: 1,
+            metadata: {
+                hideTooltipFromUnitOwner: true,
+                hideTooltipFromEnemy: true,
+                skillCostOverridesBySkillId: {
+                    'captain-america-vibranium-ricochet': {
+                        energy: ['Bloodline']
+                    }
+                },
+                onExpireApplyStatusToSelf: {
+                    statusId: 'captain_america_vibranium_ricochet_cost_white',
+                    duration: 1,
+                    metadata: {
+                        hideTooltipFromUnitOwner: true,
+                        hideTooltipFromEnemy: true,
+                        skillCostOverridesBySkillId: {
+                            'captain-america-vibranium-ricochet': {
+                                energy: ['Genjutsu']
+                            }
+                        },
+                        onExpireApplyStatusToSelf: {
+                            statusId: 'captain_america_vibranium_ricochet_cost_blue',
+                            duration: 1,
+                            metadata: {
+                                hideTooltipFromUnitOwner: true,
+                                hideTooltipFromEnemy: true,
+                                skillCostOverridesBySkillId: {
+                                    'captain-america-vibranium-ricochet': {
+                                        energy: ['Ninjutsu']
+                                    }
+                                },
+                                onExpireApplyStatusToSelf: {
+                                    statusId: 'captain_america_vibranium_ricochet_cost_red',
+                                    duration: 1,
+                                    metadata: {
+                                        hideTooltipFromUnitOwner: true,
+                                        hideTooltipFromEnemy: true,
+                                        skillCostOverridesBySkillId: {
+                                            'captain-america-vibranium-ricochet': {
+                                                energy: ['Bloodline']
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    skills: [
+        {
+            id: 'captain-america-shield-throw',
+            name: 'Shield Throw',
+            skillimage: 'https://i.imgur.com/evOMqYo.png',
+            skilldescription: 'Deals 20 damage to one main enemy and 15 damage to a random different enemy then silences the main enemy\'s harmful skills for 1 turn.',
+            energy: [
+                'Bloodline'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 20,
+                    scope: 'target'
+                },
+                {
+                    type: 'damage',
+                    amount: 15,
+                    scope: 'random-other-enemy'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'captain_america_shield_throw_silence',
+                    duration: 1,
+                    scope: 'target',
+                        "metadata": {
+                            "harmful": true,
+                            "silenceNonDamageEffects": true,
+                            "tooltipText": "Silenced: only damage from this character's skills will work."
+                        }
+                }
+            ]
+        },
+        {
+            id: 'captain-america-shield-bash',
+            name: 'Shield Bash',
+            skillimage: 'https://i.imgur.com/tMxWAWJ.png',
+            skilldescription: 'One enemy receives 20 damage and is taunted for 1 turn. This skill grants Captain America 20 points of destructible defense for 1 turn.',
+            energy: [
+                'Genjutsu'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 20,
+                    scope: 'target'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'captain_america_shield_bash_taunt',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        taunt: true,
+                        tooltipText: 'This character is taunted and can only target Captain America.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'captain_america_shield_bash_defense',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        destructibleDefensePoints: 20,
+                        tooltipText: 'Captain America has 20 destructible defense.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'captain-america-patriot-s-flag',
+            name: 'Patriot\'s Flag',
+            skillimage: 'https://i.imgur.com/rV2vZHe.png',
+            skilldescription: 'Captain America rallies his team to stand united. For 1 turn, all allies gain 10 health, 5 points of unpierceable damage reduction, deal +5 additional non-affliction damage, and are immune to stun effects.',
+            energy: [
+                'Ninjutsu'
+            ],
+            target: 'all-allies',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'heal',
+                    amount: 10,
+                    scope: 'all-allies'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'captain_america_patriots_flag_buff',
+                    duration: 1,
+                    scope: 'all-allies',
+                    metadata: {
+                        unpierceableDamageReductionFlat: 5,
+                        nonAfflictionDamageBonusFlat: 5,
+                        cannotBeStunned: true,
+                        mergeNumericAddKeys: [
+                            'unpierceableDamageReductionFlat',
+                            'nonAfflictionDamageBonusFlat'
+                        ],
+                        tooltipText:
+                            'This character has 5 unpierceable damage reduction, deals 5 additional non-affliction damage, and ignores stun effects.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'captain-america-vibranium-ricochet',
+            name: 'Vibranium Ricochet',
+            skillimage: 'https://i.imgur.com/360RvnV.png',
+            skilldescription: 'Captain America or one ally ignores all enemy non-mental skills for 1 turn. Reflects 25% of all non-mental damage directed at the character affected by this skill back at the attacker. This skill is invisible and cycles its cost between red/white/blue each turn.',
+            energy: [
+                'Bloodline'
+            ],
+            target: 'self-or-single-ally',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Physical',
+                'Instant',
+                'Invisible'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'captain_america_vibranium_ricochet_guard',
+                    duration: 1,
+                    scope: 'self-or-single-ally',
+                    metadata: {
+                        ignoreEnemyNonMentalDamage: true,
+                        "hideTooltipFromEnemy": true,
+                        reflectDamagePercent: 25,
+                        reflectDamageExcludeSkillClasses: ['mental'],
+                        tooltipText:
+                            'This character will ignore all non-mental enemy skills and reflects 25% of non-mental damage back at the attacker.',
+                        onExpireApplyStatusToSelf: {
+                            statusId: 'captain_america_vibranium_ricochet_guard_used',
+                            duration: 1,
+                            metadata: {
+                                tooltipText: 'This skill was used.'
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            id: 'captain_america_america_shield_passive2',
+            name: 'Passive: America\'s Shield',
+            skillimage: 'https://i.imgur.com/kNCwURs.png',
+            skilldescription: 'While Cap is alive, every time a member of his team uses a skill with an individual Red/White/Blue energy in its cost (or any combination of the 3, but not black or green), they gain 5 points of permanent destructible defense for each color spent.',
+            energy: [],
+            target: '',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Passive',
+                'Instant'
+            ]
+        }
+    ]
+},
+    {
+    id: 'superman',
+    characterId: 'superman',
+    name: 'Superman',
+    facePicture: 'https://i.imgur.com/qxxeJxM.png',
+    startStatuses: [
+        {
+            statusId: 'superman_the_man_of_steel_passive',
+            sourceSkillId: 'superman-passive-the-man-of-steel',
+            duration: 999,
+            metadata: {
+                infiniteDuration: true,
+                unpierceableDamageReductionFlat: 10,
+                tooltipText: 'Superman has 10 unpierceable damage reduction.',
+            },
+        },
+    ],
+    characterdeescription: 'Superman plays as a tempo enforcer—opening fights with debilitating control like Frost Breath, then following with consistent, unavoidable damage from Laser Eyes and Solar Flare to wear down entire teams. His Man of Steel passive anchors everything, giving him the durability to stay aggressive longer than most damage dealers',
+    skills: [
+        {
+            id: 'superman-laser-eyes',
+            name: 'Laser Eyes',
+            skillimage: 'https://i.imgur.com/TD7qGDJ.png',
+            skilldescription: 'Superman blasts one enemy with his laser vision, dealing 10 piercing and 10 affliction damage to them. For 1 turn, this skill costs 1 more red energy and deals 20 piercing and 20 affliction damage.',
+            energy: ['Bloodline'],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: ['Energy', 'Ranged', 'Instant'],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 10,
+                    scope: 'target',
+                    metadata: {
+                            "ignoreDamageReduction": true,
+                    }
+                },
+                {
+                    type: 'damage',
+                    amount: 10,
+                    scope: 'target',
+                    metadata: {
+                        afflictionDamage: true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'superman_laser_eyes_charge',
+                    duration: 2,
+                    scope: 'self',
+                    metadata: {
+                        skillReplacementsBySkillId: {
+                            'superman-laser-eyes': 'superman-laser-eyes-empowered'
+                        },
+                        tooltipText: 'Laser Eyes costs 1 more red energy and deals 20 piercing and 20 affliction damage..'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'superman-frost-breath',
+            name: 'Frost Breath',
+            skillimage: 'https://i.imgur.com/OdxIs9J.png',
+            skilldescription: 'Superman freezes one enemy in ice, dealing 10 affliction damage to them and fully stuns them for 1 turn. For 1 turn, this skill costs 1 more blue energy, deals 20 affliction damage, and fully stuns for 2 turns.',
+            energy: ['Ninjutsu'],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: ['Energy', 'Ranged', 'Instant'],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 10,
+                    scope: 'target',
+                    metadata: {
+                        afflictionDamage: true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'stunned',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        cannotUseSkills: true,
+                        tooltipText: 'This character is stunned.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'superman_frost_breath_charge',
+                    duration: 2,
+                    scope: 'self',
+                    metadata: {
+                        skillReplacementsBySkillId: {
+                            'superman-frost-breath': 'superman-frost-breath-empowered'
+                        },
+                        tooltipText: 'Frost Breath costs 1 more blue energy, deals 20 affliction damage, and fully stuns for 2 turns.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'superman-solar-flare',
+            name: 'Solar Flare',
+            skillimage: 'https://i.imgur.com/oNMuLXK.png',
+            skilldescription: 'Superman deals 30 damage to the enemy team. For 2 turns, Passive: The Man of Steel is de-activated.',
+            energy: ['Random', 'Random', 'Random'],
+            target: 'all-enemy',
+            damage: 0,
+            cooldown: 3,
+            classes: ['Energy', 'Ranged', 'Instant'],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 30,
+                    scope: 'all-enemy'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'superman_solar_flare_deactivation',
+                    duration: 2,
+                    scope: 'self',
+                    metadata: {
+                        removeStatusIdsOnApply: ['superman_the_man_of_steel_passive'],
+                        onExpireApplyStatusToSelf: {
+                            statusId: 'superman_the_man_of_steel_passive',
+                            duration: 999,
+                            sourceSkillId: 'superman-passive-the-man-of-steel',
+                            metadata: {
+                                infiniteDuration: true,
+                                unpierceableDamageReductionFlat: 10,
+                                tooltipText: 'Superman has 10 unpierceable damage reduction.'
+                            }
+                        },
+                        tooltipText: 'Superman\'s Man of Steel passive is de-activated.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'superman-super-powered-flight',
+            name: 'Super-Powered Flight',
+            skillimage: 'https://i.imgur.com/59xjdEo.png',
+            skilldescription: 'Superman becomes invulnerable for 1 turn and deals 25 damage to one enemy.',
+            energy: ['Random', 'Random'],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 4,
+            classes: ['Physical', 'Melee', 'Instant'],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'invulnerable',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        invulnerable: true,
+                        tooltipText: 'This character is invulnerable.'
+                    }
+                },
+                {
+                    type: 'damage',
+                    amount: 25,
+                    scope: 'target'
+                }
+            ]
+        },
+        {
+            id: 'superman-passive-the-man-of-steel',
+            name: 'Passive: The Man of Steel',
+            skillimage: 'https://i.imgur.com/BDerCDI.png',
+            skilldescription: 'Superman has 10 unpierceable damage reduction.',
+            energy: [],
+            target: '',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Passive',
+                'Instant'
+            ]
+        },
+                {
+            id: 'superman-laser-eyes-empowered',
+            name: 'Laser Eyes',
+            hiddenFromSelectionViewer: true,
+            skillimage: 'https://i.imgur.com/TD7qGDJ.png',
+            skilldescription: 'Laser Eyes is empowered, dealing 20 piercing damage and 20 affliction damage to one enemy.',
+            energy: ['Bloodline', 'Bloodline'],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: ['Energy', 'Ranged', 'Instant'],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 20,
+                    scope: 'target',
+                    "metadata": {
+                        "ignoreDamageReduction": true
+                    }
+                },
+                {
+                    type: 'damage',
+                    amount: 20,
+                    scope: 'target',
+                    metadata: {
+                        afflictionDamage: true,
+                        "ignoreDamageReduction": true,
+                     "ignoreDestructibleDefense": true,
+
+                    }
+                }
+            ]
+        },
+                {
+            id: 'superman-frost-breath-empowered',
+            name: 'Frost Breath',
+            hiddenFromSelectionViewer: true,
+            skillimage: 'https://i.imgur.com/OdxIs9J.png',
+            skilldescription: 'Frost Breath is empowered, dealing 20 affliction damage to one enemy and fully stunning them for 2 turns.',
+            energy: ['Ninjutsu', 'Ninjutsu'],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: ['Energy', 'Ranged', 'Instant'],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 20,
+                    scope: 'target',
+                    metadata: {
+                        afflictionDamage: true,
+                        "ignoreDamageReduction": true,
+                     "ignoreDestructibleDefense": true,
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'stunned',
+                    duration: 2,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        cannotUseSkills: true,
+                        tooltipText: 'This character is stunned.'
+                    }
+                }
+            ]
+        },
+    ]
+},
+    {
+    id: 'batman',
+    characterId: 'batman',
+    name: 'Batman',
+    facePicture: 'https://i.imgur.com/lFB3seb.png',
+    startStatuses: [
+        {
+            statusId: 'batman_bat_signal',
+            sourceSkillId: 'batman-passive-bat-signal',
+            duration: 2,
+            metadata: {
+                infiniteDuration: false,
+                invulnerableToHarmfulEffects: true,
+                onOwnerUseSkillTrigger: true,
+                removeStatusIdsOnEnemyHarmfulSkill: ['batman_bat_signal'],
+                tooltipText: 'Batman is invulnerable to harmful effects for the first 2 turns, if he uses a new skill, this passive will end.'
+            }
+        }
+    ],
+    characterdeescription: 'Batman is a master tactician who controls the battlefield with gadgets, evasive maneuvers, and precision strikes. Using advanced technology and relentless preparation, he can disrupt enemy teams, reflect attacks, and pressure opponents with bursts of damage. Batman excels at manipulating enemy positioning and punishing careless aggression, making him a highly adaptable fighter who thrives when staying one step ahead.',
+    skills: [
+        {
+            id: 'batman-explosive-batarangs',
+            name: 'Explosive Batarangs',
+            skillimage: 'https://i.imgur.com/8EK9yEi.png',
+            skilldescription: 'Deals 5 damage and 3 affliction damage to all enemies. For the next turn, this skill instead targets one enemy and strikes them three times, each hit dealing 5 damage and 3 affliction damage, before returning to its normal effect.',
+            energy: [
+                'Random'
+            ],
+            target: 'all-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant',
+                'Affliction'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 5,
+                    scope: 'all-enemy'
+                },
+                {
+                    type: 'damage',
+                    amount: 3,
+                    scope: 'all-enemy',
+                    metadata: {
+                        afflictionDamage: true
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'batman_explosive_batarangs_followup',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        skillReplacementsByRemainingTurns: {
+                            '1': {
+                                'batman-explosive-batarangs': 'batman-explosive-batarangs-empowered'
+                            }
+                        },
+                        tooltipText: 'Explosive Batarangs now targets one enemy and strikes them three times, each hit dealing 5 damage and 3 affliction damage,'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'batman-pocket-emp',
+            name: 'Pocket EMP',
+            skillimage: 'https://i.imgur.com/4Pr0xxy.png',
+            skilldescription: 'Batman releases a compact electromagnetic pulse that silences the enemy team for 1 turn, preventing all non-damage effects. Enemies also take 5 additional damage from all sources for 1 turn. This skill ignores invulnerability and then swaps to \'Smoke Bomb\'.',
+            energy: [
+                'Genjutsu'
+            ],
+            target: 'all-enemy',
+            damage: 0,
+            cooldown: 3,
+            classes: [
+                'Energy',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'batman_pocket_emp_silence',
+                    duration: 1,
+                    scope: 'all-enemy',
+                    metadata: {
+                        harmful: true,
+                        silenceNonDamageEffects: true,
+                        damageTakenBonusFlat: 5,
+                        tooltipText: 'This character is silenced and takes 5 additional damage from all sources.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'batman_gadget_swap',
+                    duration: 99,
+                    scope: 'self',
+                    metadata: {
+                        skillReplacements: {
+                            'batman-pocket-emp': 'batman-smoke-bomb',
+                            'batman-smoke-bomb': 'batman-pocket-emp'
+                        },
+                        tooltipText: 'Pocket EMP and Smoke Bomb are replaced by each other.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'batman-grappling-hook',
+            name: 'Grappling Hook',
+            skillimage: 'https://i.imgur.com/7PwWb6Z.png',
+            skilldescription: 'Batman evades danger using his grappling hook, becoming invulnerable for 1 turn and removing all harmful effects from himself. One enemy becomes unable to go invulnerable or reduce damage for 1 turn and takes 5 additional damage from all sources during that time. This skill then swaps to \'Bullet-Deflecting Cape\'.',
+            energy: [
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 3,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'cleanse_harmful',
+                    count: 99,
+                    scope: 'self'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'batman_grappling_hook_invulnerable',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        invulnerable: true,
+                        tooltipText: 'This character is invulnerable.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'batman_grappling_hook_lock',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        cannotReduceDamage: true,
+                        cannotBecomeInvulnerable: true,
+                        damageTakenBonusFlat: 5,
+                        tooltipText: 'This character cannot reduce damage or become invulnerable and takes 5 additional damage from all sources.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'batman_cape_swap',
+                    duration: 99,
+                    scope: 'self',
+                    metadata: {
+                        skillReplacements: {
+                            'batman-grappling-hook': 'batman-bullet-deflecting-cape',
+                        },
+                        tooltipText: 'Grappling Hook is now Bullet-Deflecting Cape.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'batman-batmobile',
+            name: 'Batmobile',
+            skillimage: 'https://i.imgur.com/NA1Udzh.png',
+            skilldescription: 'Batman deploys the Batmobile, gaining 55 permanent destructible defense and becoming invulnerable for 1 turn. While this destructible defense remains, this skill can be used for no energy cost to deal 35 piercing damage to one enemy, reducing Batman’s destructible defense by 25 each use. When the destructible defense is destroyed, this skill is replaced with \'Bat Kick\'.',
+            energy: [
+                'Genjutsu',
+                'Random',
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'batman_batmobile_active',
+                    duration: 99,
+                    scope: 'self',
+                    metadata: {
+                        destructibleDefensePoints: 55,
+                        removeStatusIdsOnBreak: ['batman_batmobile_active'],
+                        skillReplacements: {
+                            'batman-batmobile': 'batman-batmobile-active'
+                        },
+                        onBreakApplyStatusToSelf: {
+                            statusId: 'batman_batmobile_broken_swap',
+                            duration: 99,
+                            metadata: {
+                                infiniteDuration: true,
+                                skillReplacements: {
+                                    'batman-batmobile': 'batman-bat-kick'
+                                },
+                                tooltipText: 'Batmobile is replaced by Bat Kick once the Batmobile is destroyed.'
+                            }
+                        },
+                        tooltipTextTemplate: 'Batman has {destructibleDefensePoints} destructible defense and Batmobile is active.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'batman_batmobile_invulnerable',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        invulnerable: true,
+                        tooltipText: 'This character is invulnerable.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'batman-batmobile-active',
+            name: 'Batmobile',
+            hiddenFromSelectionViewer: true,
+            skillimage: 'https://i.imgur.com/NA1Udzh.png',
+            skilldescription: 'Batman drives the Batmobile into one enemy, dealing 35 piercing damage and consuming 25 points of destructible defense.',
+            energy: [],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 35,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                },
+                {
+                    type: 'damage',
+                    amount: 25,
+                    scope: 'self',
+                    metadata: {
+                        ignoreDamageReduction: true
+                    }
+                }
+            ]
+        },
+        {
+            id: 'batman_batmobile_broken_swap',
+            name: 'Batmobile Broken Swap',
+            hiddenFromSelectionViewer: true,
+            skillimage: 'https://i.imgur.com/NA1Udzh.png',
+            skilldescription: 'Internal replacement status that changes Batmobile into Bat Kick after the Batmobile is destroyed.',
+            energy: [],
+            target: '',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Passive',
+                'Instant'
+            ]
+        },
+        {
+            id: 'batman-bullet-deflecting-cape',
+            name: 'Bullet-Deflecting Cape',
+            skillimage: 'https://i.imgur.com/QPcJuMv.png',
+            skilldescription: 'For 1 turn, the first non-mental harmful skill used on Batman is reflected onto a random enemy. This skill is invisible. This skill then swaps back to \'Grappling Hook\'.',
+            energy: [
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 3,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'batman_bullet_deflecting_cape_reflect',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        reflectNextIncomingSkill: true,
+                        reflectOnlyHarmfulSkills: true,
+                        reflectExcludeSkillClasses: ['mental'],
+                        reflectToRandomCasterAlly: true,
+                        skipFirstTurnEndTick: true,
+                        preserveOnOwnerUseSkillTrigger: true,
+                        hideTooltipFromEnemy: true,
+                        onExpireApplyStatusToSelf: {
+                            statusId: 'batman_bullet_deflecting_cape_used',
+                            duration: 1,
+                            metadata: {
+                                tooltipText: 'This skill was used.'
+                            }
+                        },
+                        harmful: true,
+                        tooltipText: 'The next harmful non-mental skill used on Batman is reflected to a random enemy.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'batman_cape_swap',
+                    duration: 99,
+                    scope: 'self',
+                    metadata: {
+                        hideTooltip: true,
+                        skillReplacements: {
+                            'batman-grappling-hook': 'batman-bullet-deflecting-cape',
+                        },
+                        tooltipText: 'Grappling Hook is now Bullet-Deflecting Cape.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'batman-smoke-bomb',
+            name: 'Smoke Bomb',
+            skillimage: 'https://i.imgur.com/WmwINXG.png',
+            skilldescription: 'Batman throws a smoke bomb that blinds the enemy team for 1 turn, causing their next skill to target a random character. Enemies also take 5 additional damage from all sources for 1 turn. This skill then swaps back to \'Pocket EMP\'.',
+            energy: [
+                'Genjutsu',
+                'Random'
+            ],
+            target: 'all-enemy',
+            damage: 0,
+            cooldown: 3,
+            classes: [
+                'Physical',
+                'Instant',
+                'Ranged'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'batman_smoke_bomb_blind',
+                    duration: 1,
+                    scope: 'all-enemy',
+                    metadata: {
+                        harmful: true,
+                        harmfulBlind: true,
+                        damageTakenBonusFlat: 5,
+                        tooltipText: 'This character is blinded and takes 5 additional damage from all sources.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'batman_gadget_swap',
+                    duration: 99,
+                    scope: 'self',
+                    metadata: {
+                        skillReplacements: {
+                            'batman-pocket-emp': 'batman-smoke-bomb',
+                            'batman-smoke-bomb': 'batman-pocket-emp'
+                        },
+                        tooltipText: 'Pocket EMP and Smoke Bomb are replaced by each other.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'batman-bat-kick',
+            name: 'Bat Kick',
+            skillimage: 'https://i.imgur.com/C7eIM8u.png',
+            skilldescription: 'Batman delivers a brutal martial arts strike, dealing 35 damage to one enemy.',
+            energy: [
+                'Random',
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 35,
+                    scope: 'target'
+                }
+            ]
+        },
+        {
+            id: 'batman-passive-bat-signal',
+            name: 'Passive: Bat Signal',
+            skillimage: 'https://i.imgur.com/czU1Ikq.png',
+            skilldescription: 'Batman enters battle fully prepared. For the first 2 turns of the match, Batman is invulnerable to harmful effects. This protection ends immediately if Batman uses a skill or if a new harmful enemy skill affects him.',
+            energy: [],
+            target: '',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Passive',
+                'Instant'
+            ]
+        },
+                {
+            id: 'batman-explosive-batarangs-empowered',
+            name: 'Explosive Batarangs',
+            hiddenFromSelectionViewer: true,
+            skillimage: 'https://i.imgur.com/8EK9yEi.png',
+            skilldescription: 'Batman hurls three explosive batarangs at one enemy, each hit dealing 5 damage and 3 affliction damage.',
+            energy: [
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant',
+                'Affliction'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 15,
+                    scope: 'target'
+                },
+                {
+                    type: 'damage',
+                    amount: 9,
+                    scope: 'target',
+                    metadata: {
+                        afflictionDamage: true,
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                }
+            ]
+        },
+    ]
+},
+{
+    id: 'the-flash-barry-allen',
+    characterId: 'the-flash-barry-allen',
+    name: 'The Flash (Barry Allen)',
+    facePicture: 'https://i.imgur.com/X3TO0hk.png',
+    characterdeescription: 'The Flash dominates the pace of battle through unmatched speed and relentless momentum. Rather than relying on raw durability, he overwhelms opponents by acting faster, striking repeatedly, and disrupting their ability to keep up. His abilities create rapid pressure windows, forcing enemies into reactive play while he dictates the flow of combat. With tools that accelerate his own actions and interfere with enemy timing, The Flash thrives in fast-paced encounters where every second matters. He can evade danger, reset momentum, and enable his team to act more efficiently, turning brief openings into decisive advantages.',
+    skills: [
+        {
+            id: 'the-flash-barry-allen-infinite-mass-punch',
+            name: 'Infinite Mass Punch',
+            skillimage: 'https://i.imgur.com/vwUOYsd.png',
+            skilldescription: 'Deals 40 piercing damage to one enemy. If The Flash has \'Speed Up\' this skill cannot be countered or reflected and ignores invulnerability.',
+            energy: [
+                'Taijutsu',
+                'Bloodline'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 40,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                    }
+                }
+            ]
+        },
+        {
+            id: 'the-flash-barry-allen-lightning-rush',
+            name: 'Lightning Rush',
+            skillimage: 'https://i.imgur.com/ZlN4KC4.png',
+            skilldescription: 'The Flash strikes one enemy 4 times in quick succession, dealing 5 damage each time. Each hit has a 25% chance to apply \'Shock\': dealing 3 piercing damage for 4 turns. The Flash gains \'Speed Up\' for 1 turn.',
+            energy: [
+                'Bloodline'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 5,
+                    scope: 'target'
+                },
+                {
+                    type: 'damage',
+                    amount: 5,
+                    scope: 'target'
+                },
+                {
+                    type: 'damage',
+                    amount: 5,
+                    scope: 'target'
+                },
+                {
+                    type: 'damage',
+                    amount: 5,
+                    scope: 'target'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'the_flash_barry_allen_shock',
+                    duration: 4,
+                    scope: 'target',
+                    chance: 25,
+                    metadata: {
+                        harmful: true,
+                        turnEndDamage: 3,
+                        ignoreTargetDamageReduction: true,
+                        ignoreTargetDestructibleDefense: true,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        mergeNumericAddKeys: ['turnEndDamage'],
+                        tooltipTextTemplate: 'This character takes {turnEndDamage} piercing damage from Shock each turn.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'the_flash_barry_allen_shock',
+                    duration: 4,
+                    scope: 'target',
+                    chance: 25,
+                    metadata: {
+                        harmful: true,
+                        turnEndDamage: 3,
+                        ignoreTargetDamageReduction: true,
+                        ignoreTargetDestructibleDefense: true,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        mergeNumericAddKeys: ['turnEndDamage'],
+                        tooltipTextTemplate: 'This character takes {turnEndDamage} piercing damage from Shock each turn.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'the_flash_barry_allen_shock',
+                    duration: 4,
+                    scope: 'target',
+                    chance: 25,
+                    metadata: {
+                        harmful: true,
+                        turnEndDamage: 3,
+                        ignoreTargetDamageReduction: true,
+                        ignoreTargetDestructibleDefense: true,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        mergeNumericAddKeys: ['turnEndDamage'],
+                        tooltipTextTemplate: 'This character takes {turnEndDamage} piercing damage from Shock each turn.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'the_flash_barry_allen_shock',
+                    duration: 4,
+                    scope: 'target',
+                    chance: 25,
+                    metadata: {
+                        harmful: true,
+                        turnEndDamage: 3,
+                        ignoreTargetDamageReduction: true,
+                        ignoreTargetDestructibleDefense: true,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        mergeNumericAddKeys: ['turnEndDamage'],
+                        tooltipTextTemplate: 'This character takes {turnEndDamage} piercing damage from Shock each turn.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'the_flash_barry_allen_speed_up',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        ownerTurnEndExtraCooldownTicksBySkillId: {
+                            'the-flash-barry-allen-phase-shift': 1
+                        },
+                        skillReplacements: {
+                            'the-flash-barry-allen-infinite-mass-punch': 'the-flash-barry-allen-infinite-mass-punch-speed-up'
+                        },
+                        tooltipText: 'The Flash is sped up. Infinite Mass Punch is improved and Phase Shift active cooldown is lowered by 1.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'the-flash-barry-allen-speed-steal',
+            name: 'Speed Steal',
+            skillimage: 'https://i.imgur.com/laG0u0X.png',
+            skilldescription: 'For 2 turns, the enemy player only has 40 seconds to complete their turn and you are given 20 additional seconds to complete yours. The Flash gains \'Speed Up\' and this swaps to \'Flashpoint Surge\' while active.',
+            energy: [
+                'Random',
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Energy',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'the_flash_barry_allen_speed_up',
+                    duration: 2,
+                    scope: 'self',
+                    metadata: {
+                        ownerTurnEndExtraCooldownTicksBySkillId: {
+                            'the-flash-barry-allen-phase-shift': 1
+                        },
+                        skillReplacements: {
+                            'the-flash-barry-allen-infinite-mass-punch': 'the-flash-barry-allen-infinite-mass-punch-speed-up'
+                        },
+                        tooltipText: 'The Flash is sped up. Infinite Mass Punch is improved and Phase Shift active cooldown is lowered by 1.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'the_flash_barry_allen_speed_steal_active',
+                    duration: 2,
+                    scope: 'self',
+                    metadata: {
+                        ownTurnDurationBonusMs: 20000,
+                        enemyTurnDurationPenaltyMs: 20000,
+                        skillReplacements: {
+                            'the-flash-barry-allen-speed-steal': 'the-flash-barry-allen-flashpoint-surge'
+                        },
+                        tooltipText: 'For 2 turns, your turns last 20 additional seconds, enemy turns last 20 fewer seconds, and Speed Steal is replaced by Flashpoint Surge.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'the-flash-barry-allen-phase-shift',
+            name: 'Phase Shift',
+            skillimage: 'https://i.imgur.com/ovup1JS.png',
+            skilldescription: 'The Flash removes all harmful skills and gains 100% evasion for 1 turn. If The Flash is \'Speed Up\', this skill\'s active cooldown is 1 turn less.',
+            energy: [
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'cleanse_harmful',
+                    count: 99,
+                    scope: 'self'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'the_flash_barry_allen_phase_shift',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        evadeChancePercent: 100,
+                        tooltipText: 'The Flash has 100% evasion.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'the-flash-barry-allen-flashpoint-surge',
+            name: 'Flashpoint Surge',
+            useBaseSkillCooldown: true,
+            skillimage: 'https://i.imgur.com/teE3m1U.png',
+            skilldescription: 'The Flash resets his team\'s cooldowns and heals them 25 HP. This skill ignores invulnerability.',
+            energy: [
+                'Bloodline',
+                'Random',
+                'Random'
+            ],
+            target: 'all-allies',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'modify_cooldowns',
+                    operation: 'set',
+                    amount: 0,
+                    includeAllCharacterSkills: true,
+                    scope: 'all-allies',
+                    ignoreHelpfulInvulnerability: true
+                },
+                {
+                    type: 'heal',
+                    amount: 25,
+                    scope: 'all-allies',
+                    metadata: {
+                        ignoreHelpfulInvulnerability: true
+                    }
+                }
+            ]
+        },
+        {
+            id: 'the-flash-barry-allen-infinite-mass-punch-speed-up',
+            name: 'Infinite Mass Punch',
+            hiddenFromSelectionViewer: true,
+            useBaseSkillCooldown: true,
+            cannotBeCountered: true,
+            cannotBeReflected: true,
+            ignoreInvulnerability: true,
+            skillimage: 'https://i.imgur.com/vwUOYsd.png',
+            skilldescription: 'Deals 40 piercing damage to one enemy. This skill cannot be countered or reflected and ignores invulnerability while Speed Up is active.',
+            energy: [
+                'Taijutsu',
+                'Bloodline'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 40,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                    }
+                }
+            ]
+        },
+    ]
+},
+    {
+    id: 'aquaman',
+    characterId: 'aquaman',
+    name: 'Aquaman',
+    facePicture: 'https://i.imgur.com/lUWpCxK.png',
+    characterdeescription: 'Ruler of Atlantis and master of the oceans, Aquaman dominates the battlefield through relentless pressure and crushing tidal control. Wielding his legendary trident, he marks enemies for punishment, drags them beneath the waves, and unleashes swarms of sea creatures to finish them off. Whether shielding himself with rushing currents or drowning foes in mounting afflictions, Aquaman excels at overwhelming teams that rely on defense or invulnerability.',
+    skills: [
+        {
+            id: 'aquaman-trident-strike',
+            name: 'Trident Strike',
+            skillimage: 'https://i.imgur.com/jWzBCve.png',
+            skilldescription: 'Aquaman strikes one enemy with his trident, dealing 17 piercing damage and marking them for 1 turn. If used on a marked enemy, Aquaman also stuns their helpful skills for 1 turn.',
+            energy: [
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 17,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'aquaman_trident_strike_helpful_stun',
+                    duration: 1,
+                    scope: 'target',
+                    condition: {
+                        statusId: 'aquaman_trident_strike_mark',
+                        scope: 'target'
+                    },
+                    metadata: {
+                        harmful: true,
+                        cannotUseHelpfulSkills: true,
+                        tooltipText: 'This character helpful skills are stunned.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'aquaman_trident_strike_mark',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        tooltipText: 'This character is marked by Trident Strike.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'aquaman-drown',
+            name: 'Drown',
+            skillimage: 'https://i.imgur.com/OnxjSgd.png',
+            skilldescription: 'Aquaman forces one enemy\'s head underwater, removing 1 random energy from them and dealing 15 affliction damage. If they are marked by \'Trident Strike\', they are given a stack of \'Sea Sharks\'.',
+            energy: [
+                'Ninjutsu'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant',
+                'Affliction'
+            ],
+            effects: [
+                {
+                    type: 'remove_random_chakra',
+                    amount: 1,
+                    scope: 'target'
+                },
+                {
+                    type: 'damage',
+                    amount: 15,
+                    scope: 'target',
+                    metadata: {
+                        afflictionDamage: true,
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'aquaman_sea_sharks',
+                    duration: 99,
+                    scope: 'target',
+                    condition: {
+                        statusId: 'aquaman_trident_strike_mark',
+                        scope: 'target'
+                    },
+                    metadata: {
+                        harmful: true,
+                        infiniteDuration: true,
+                        turnEndDamage: 5,
+                        ignoreTargetDamageReduction: true,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        triggerOnApply: true,
+                        mergeNumericAddKeys: ['turnEndDamage'],
+                        tooltipTextTemplate: 'This character takes {turnEndDamage} piercing damage each turn from Sea Sharks.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'aquaman-tidal-wave',
+            name: 'Tidal Wave',
+            skillimage: 'https://i.imgur.com/VepAJ8X.png',
+            skilldescription: 'Aquaman makes the enemy team unable to reduce damage or become invulnerable and increases their cooldowns by 1 for 2 turns. When this skill ends, they have their harmful skills stunned for 1 turn and are granted a stack of \'Sea Sharks\'. If an enemy is marked by \'Trident Strike\' at the end of the second turn, they take 30 damage.',
+            energy: [
+                'Ninjutsu',
+                'Ninjutsu'
+            ],
+            target: 'all-enemy',
+            damage: 0,
+            cooldown: 3,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'aquaman_tidal_wave',
+                    duration: 2,
+                    scope: 'all-enemy',
+                    metadata: {
+                        harmful: true,
+                        cannotReduceDamage: true,
+                        cannotBecomeInvulnerable: true,
+                        usedSkillCooldownPenalty: 1,
+                        onExpireEffects: [
+                            {
+                                type: 'apply_status',
+                                statusId: 'aquaman_tidal_wave_harmful_stun',
+                                duration: 1,
+                                metadata: {
+                                    harmful: true,
+                                    cannotUseHarmfulSkills: true,
+                                    tooltipText: 'This character harmful skills are stunned.'
+                                }
+                            },
+                            {
+                                type: 'apply_status',
+                                statusId: 'aquaman_sea_sharks',
+                                duration: 99,
+                                metadata: {
+                                    harmful: true,
+                                    infiniteDuration: true,
+                                    turnEndDamage: 5,
+                                    ignoreTargetDamageReduction: true,
+                                    turnEndTrigger: 'source_turn',
+                                    turnDurationAnchor: 'source_turn',
+                                    triggerOnApply: true,
+                                    mergeNumericAddKeys: ['turnEndDamage'],
+                                    tooltipTextTemplate: 'This character takes {turnEndDamage} piercing damage each turn from Sea Sharks.'
+                                }
+                            },
+                            {
+                                type: 'damage',
+                                amount: 30,
+                                condition: {
+                                    statusId: 'aquaman_trident_strike_mark',
+                                    scope: 'target'
+                                }
+                            }
+                        ],
+                        tooltipText: 'This character cannot reduce damage or become invulnerable and the skills they use have their cooldown increased by 1 turn. When this skill ends, this character will be stunned for 1 turn'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'aquaman-water-jet',
+            name: 'Water Jet',
+            skillimage: 'https://i.imgur.com/DEowat1.png',
+            skilldescription: 'This skill makes Aquaman invulnerable for 1 turn and grants all enemies a stack of \'Sea Sharks\'.',
+            energy: [
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'aquaman_water_jet_invulnerable',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        invulnerable: true,
+                        tooltipText: 'This character is invulnerable.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'aquaman_sea_sharks',
+                    duration: 99,
+                    scope: 'all-enemy',
+                    metadata: {
+                        harmful: true,
+                        infiniteDuration: true,
+                        turnEndDamage: 5,
+                        ignoreTargetDamageReduction: true,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        triggerOnApply: true,
+                        mergeNumericAddKeys: ['turnEndDamage'],
+                        tooltipTextTemplate: 'This character takes {turnEndDamage} piercing damage each turn from Sea Sharks.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'aquaman-sea-sharks',
+            name: 'Sea Sharks',
+            hiddenFromSelectionViewer: true,
+            skillimage: 'https://i.imgur.com/TYkjQdu.png',
+            skilldescription: 'Deals 5 piercing damage permanently (stacks).',
+            energy: [],
+            target: '',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant'
+            ]
+        }
+    ]
+},
+    {
+    id: 'storm',
+    characterId: 'storm',
+    name: 'Storm',
+    facePicture: 'https://i.imgur.com/5v5AXWu.png',
+    characterdeescription: 'Storm is a support-controller who heals allies over time, removes harmful effects, and disrupts enemy actions. Her abilities reward smart timing and positioning, allowing her to sustain her team while limiting enemy options.',
+    skills: [
+        {
+            id: 'storm-lightning-strike',
+            name: 'Lightning Strike',
+            skillimage: 'https://i.imgur.com/cIQ7sTM.png',
+            skilldescription: 'Storm calls down lightning, dealing 30 piercing damage to one enemy and fully stunning them for 1 turn. If \'Rainstorm\' is active, this also deals 10 piercing damage to all other enemies and ignores invulnerability.',
+            energy: [
+                'ninjutsu',
+                'random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Energy',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 30,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'stunned',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        cannotUseSkills: true,
+                        tooltipText: 'This character is stunned.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'storm-wind-funnel',
+            name: 'Wind Funnel',
+            skillimage: 'https://i.imgur.com/L0Yu0B4.png',
+            skilldescription: 'Storm targets an ally or herself, removing all active enemy effects from them. If \'Rainstorm\' is active, one random enemy has their skills silenced for 1 turn.',
+            energy: [
+                'genjutsu'
+            ],
+            target: 'self-or-single-ally',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'cleanse_statuses',
+                    count: 0,
+                    harmfulOnly: true,
+                    sourceRelation: 'enemy',
+                    scope: 'target'
+                }
+            ]
+        },
+        {
+            id: 'storm-rainstorm',
+            name: 'Rainstorm',
+            skillimage: 'https://i.imgur.com/xB6A34j.png',
+            skilldescription: 'Storm heals her entire team for 12 HP per turn for 4 turns. While active, this becomes \'Hailstorm\' and Storm\'s skills are improved. This skill ignores invulnerability.',
+            energy: [
+                'random',
+                'random'
+            ],
+            target: 'all-allies',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Energy',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'storm_rainstorm_active',
+                    duration: 4,
+                    scope: 'self',
+                    metadata: {
+                        skillReplacements: {
+                            'storm-rainstorm': 'storm-hailstorm',
+                            'storm-lightning-strike': 'storm-lightning-strike-rainstorm',
+                            'storm-wind-funnel': 'storm-wind-funnel-rainstorm'
+                        },
+                        tooltipText: ' This skill is now Hailstorm and storm\'s skills are improved'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'storm_rainstorm_heal',
+                    duration: 4,
+                    scope: 'all-allies',
+                    metadata: {
+                        turnEndHealFlat: 12,
+                        tooltipText: 'This character will heal 12 health each turn.'
+                    },
+                    ignoreHelpfulInvulnerability: true
+                }
+            ]
+        },
+        {
+            id: 'storm-ice-barrier',
+            name: 'Ice Barrier',
+            skillimage: 'https://i.imgur.com/fsSRHNk.png',
+            skilldescription: 'Storm targets herself or one ally, countering the first enemy skill used on them for 1 turn. If triggered, the ally gains 15 points of permanent destructible defense. This skill is invisible until triggered.',
+            energy: [
+                'random'
+            ],
+            target: 'self-or-single-ally',
+            damage: 0,
+            cooldown: 3,
+            classes: [
+                'Energy',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'storm_ice_barrier_guard',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        triggerOnEnemyHarmfulSkill: true,
+                        counterCancelsSkill: true,
+                        counterStatusId: 'storm_ice_barrier_countered',
+                        counterStatusDuration: 1,
+                        counterStatusMetadata: {
+                            harmful: true,
+                            tooltipText: 'This character was countered by Ice Barrier.'
+                        },
+                        turnDurationAnchor: 'source_turn',
+                        onExpireApplyStatusToSelf: {
+                            statusId: 'storm_ice_barrier_used',
+                            duration: 1,
+                            metadata: {
+                                tooltipText: 'This skill has been used.'
+                            }
+                        },
+                        usedStatusId: 'storm_ice_barrier_used',
+                        usedStatusDuration: 1,
+                        usedStatusMetadata: {
+                            tooltipText: 'This skill has been used.'
+                        },
+                        counterApplyStatusToSourceOwner: {
+                            statusId: 'storm_ice_barrier_defense',
+                            duration: 99,
+                            metadata: {
+                                destructibleDefensePoints: 15,
+                                mergeNumericAddKeys: ['destructibleDefensePoints'],
+                                tooltipTextTemplate: 'This character has {destructibleDefensePoints} destructible defense.'
+                            }
+                        },
+                        hideTooltipFromEnemy: true,
+                        tooltipText: 'The next enemy harmful skill used on this character this turn is countered. If triggered, this character gains 15 permanent destructible defense.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'storm-hailstorm',
+            name: 'Hailstorm',
+            hiddenFromSelectionViewer: true,
+            skillimage: 'https://i.imgur.com/HPsujWh.png',
+            skilldescription: 'For 4 turns, all enemies take 8 damage per turn. On turn 2 of this skill, their harmful skills are stunned for 1 turn. On turn 4 of this skill, their helpful skills are stunned for 1 turn. This skill ignores invulnerability.',
+            energy: [
+                'ninjutsu',
+                'genjutsu'
+            ],
+            target: 'all-enemy',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Energy',
+                'Ranged',
+                'Instant'
+            ],
+            ignoreInvulnerability: true,
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'storm_hailstorm_damage',
+                    duration: 4,
+                    scope: 'all-enemy',
+                    metadata: {
+                        harmful: true,
+                        turnEndDamage: 8,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        tooltipText: 'This character takes 8 damage at the end of each of Storm\'s turns.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'storm_hailstorm_harmful_delay',
+                    duration: 2,
+                    scope: 'all-enemy',
+                    metadata: {
+                        harmful: true,
+                        turnDurationAnchor: 'source_turn',
+                        hideTooltip: true,
+                        onExpireApplyStatusToSelf: {
+                            statusId: 'storm_hailstorm_harmful_stun',
+                            duration: 1,
+                            metadata: {
+                                harmful: true,
+                                cannotUseHarmfulSkills: true,
+                                tooltipText: 'This character harmful skills are stunned.'
+                            }
+                        }
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'storm_hailstorm_helpful_delay',
+                    duration: 4,
+                    scope: 'all-enemy',
+                    metadata: {
+                        harmful: true,
+                        turnDurationAnchor: 'source_turn',
+                        hideTooltip: true,
+                        onExpireApplyStatusToSelf: {
+                            statusId: 'storm_hailstorm_helpful_stun',
+                            duration: 1,
+                            metadata: {
+                                harmful: true,
+                                cannotUseHelpfulSkills: true,
+                                tooltipText: 'This character helpful skills are stunned.'
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            id: 'storm-lightning-strike-rainstorm',
+            name: 'Lightning Strike',
+            hiddenFromSelectionViewer: true,
+            useBaseSkillCooldown: true,
+            skillimage: 'https://i.imgur.com/cIQ7sTM.png',
+            skilldescription: 'Storm calls down lightning, dealing 30 piercing damage to one enemy and fully stunning them for 1 turn. This also deals 10 piercing damage to all other enemies and ignores invulnerability.',
+            energy: [
+                'ninjutsu',
+                'random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Energy',
+                'Ranged',
+                'Instant'
+            ],
+            ignoreInvulnerability: true,
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 30,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'stunned',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        cannotUseSkills: true,
+                        tooltipText: 'This character is stunned.'
+                    }
+                },
+                {
+                    type: 'damage',
+                    amount: 10,
+                    scope: 'other-enemies',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                    }
+                }
+            ]
+        },
+        {
+            id: 'storm-wind-funnel-rainstorm',
+            name: 'Wind Funnel',
+            hiddenFromSelectionViewer: true,
+            useBaseSkillCooldown: true,
+            skillimage: 'https://i.imgur.com/L0Yu0B4.png',
+            skilldescription: 'Storm targets herself or one ally, removing all active enemy effects from them. One random enemy then has all their skills silenced for 1 turn.',
+            energy: [
+                'genjutsu'
+            ],
+            target: 'self-or-single-ally',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'cleanse_statuses',
+                    count: 0,
+                    harmfulOnly: true,
+                    sourceRelation: 'enemy',
+                    scope: 'target'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'storm_wind_funnel_silence',
+                    duration: 1,
+                    scope: 'random-enemy',
+                    metadata: {
+                        harmful: true,
+                        silenceNonDamageEffects: true,
+                        tooltipText: 'Silenced: only damage from this character\'s skills will work.'
+                    }
+                }
+            ]
+        }
+    ]
+},
+    {
+    id: 'venom',
+    characterId: 'venom',
+    name: 'Venom',
+    facePicture: 'https://i.imgur.com/T7RpFwn.png',
+    characterdeescription: 'Venom excels as a self-sustaining bruiser who draws aggression, disrupts enemies, and converts his own survival into team advantage. He thrives in the chaos of focus fire, feeding on damage to keep himself standing while forcing enemies to deal with him. His presence is oppressive but calculated—taunting teams into attacking him, isolating threats with precise control, and sustaining through relentless lifesteal. When the tide turns or his body begins to fail, Venom becomes something even more dangerous, sacrificing himself to empower an ally with overwhelming defense and energy. Whether anchoring the front line or enabling a decisive swing, he ensures that ignoring him is never an option—and killing him may be even worse.',
+    skills: [
+        {
+            id: 'venom-ravenous-bite',
+            name: 'Ravenous Bite',
+            skillimage: 'https://i.imgur.com/tjeIQ9D.png',
+            skilldescription: 'Deals 30 damage to one enemy. Venom heals 20 HP.',
+            energy: [
+                'Taijutsu',
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 30,
+                    scope: 'target'
+                },
+                {
+                    type: 'heal',
+                    amount: 20,
+                    scope: 'self'
+                }
+            ]
+        },
+        {
+            id: 'venom-pulling-tendrils',
+            name: 'Pulling Tendrils',
+            skillimage: 'https://i.imgur.com/MWVKUSL.png',
+            skilldescription: 'Venom taunts the enemy team for 1 turn. Next turn, \'Ravenous Bite\' heals 15 more health.',
+            energy: [
+                'Random',
+                'Random'
+            ],
+            target: 'all-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'venom_pulling_tendrils_taunt',
+                    duration: 1,
+                    scope: 'all-enemy',
+                    metadata: {
+                        harmful: true,
+                        taunt: true,
+                        turnDurationAnchor: 'source_turn',
+                        tooltipText: 'This character is taunted and can only target Venom.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'venom_pulling_tendrils_bite_buff',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        turnDurationAnchor: 'source_turn',
+                        skillReplacements: {
+                            'venom-ravenous-bite': 'venom-ravenous-bite-empowered'
+                        },
+                        tooltipText: 'Ravenous Bite now deals 30 damage to one enemy and heals Venom for 35 HP.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'venom-venom-web-wrap',
+            name: 'Venom Web Wrap',
+            skillimage: 'https://i.imgur.com/aFSulnK.png',
+            skilldescription: 'Venom stuns one enemy\'s non-affliction skills for 2 turns. If the target recieves new damage, this skill will end.',
+            energy: [
+                'Bloodline'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 3,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'venom_web_wrap_lock',
+                    duration: 2,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        cannotUseSkillClasses: [
+                            'physical',
+                            'chakra',
+                            'mental',
+                            'energy'
+                        ],
+                        removeStatusIdsOnNewDamage: [
+                            'venom_web_wrap_lock'
+                        ],
+                        tooltipText: 'This character non-affliction skills are stunned. This effect ends if they take new damage.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'venom-ally-symbiosis',
+            name: 'Ally Symbiosis',
+            skillimage: 'https://i.imgur.com/VnKHJsU.png',
+            skilldescription: 'Venom dies and grants one ally permanent destructible defense equal to his current HP. While the ally has that destructible defense, they gain 1 additional random energy each turn. This may only be used if Venom is at 50 HP or below.',
+            energy: [
+                'Random'
+            ],
+            target: 'single-ally',
+            damage: 0,
+            cooldown: 0,
+            actorCondition: {
+                sourceCurrentHpAtMost: 50
+            },
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'venom_ally_symbiosis_transfer',
+                    duration: 99,
+                    scope: 'target',
+                    metadata: {
+                        copySourceCurrentHpToKeys: ['destructibleDefensePoints'],
+                        destructibleDefensePoints: 0,
+                        additionalRandomChakraPerTurn: 1,
+                        tooltipTextTemplate: 'This character has {destructibleDefensePoints} destructible defense and gains 1 additional random chakra each turn.'
+                    }
+                },
+                {
+                    type: 'HealthLoss',
+                    amount: 0,
+                    scope: 'self',
+                    metadata: {
+                        amountFromSourceCurrentHp: true
+                    }
+                }
+            ]
+        },
+        {
+            id: 'venom-passive-symbiote-vigor',
+            name: 'Passive: Symbiote Vigor',
+            skillimage: 'https://i.imgur.com/AuGDgXi.png',
+            skilldescription: 'Venom has 10% damage reduction while above 50 HP.',
+            energy: [],
+            target: '',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Passive',
+                'Instant'
+            ]
+        },
+        {
+            id: 'venom-ravenous-bite-empowered',
+            name: 'Ravenous Bite',
+            hiddenFromSelectionViewer: true,
+            useBaseSkillCooldown: true,
+            skillimage: 'https://i.imgur.com/tjeIQ9D.png',
+            skilldescription: 'Deals 30 damage to one enemy. Venom heals 35 HP.',
+            energy: [
+                'Taijutsu',
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 30,
+                    scope: 'target'
+                },
+                {
+                    type: 'heal',
+                    amount: 35,
+                    scope: 'self'
+                }
+            ]
+        }
+    ],
+    startStatuses: [
+        {
+            statusId: 'venom_passive_symbiote_vigor',
+            sourceSkillId: 'venom-passive-symbiote-vigor',
+            duration: 99,
+            metadata: {
+                infiniteDuration: true,
+                activeWhileOwnerCurrentHpAtLeast: 51,
+                damageReductionPercent: 10,
+                tooltipText: 'While above 50 HP, Venom has 10% damage reduction.'
+            }
+        }
+    ]
+},
+    {
+    id: 'the-joker',
+    characterId: 'the-joker',
+    name: 'The Joker',
+    facePicture: 'https://i.imgur.com/DSEdkUO.png',
+    characterdeescription: 'The Joker specializes in destabilizing enemies through unpredictable traps, afflictions, and psychological pressure. Rather than overwhelming opponents with raw damage, he punishes decision-making itself—forcing enemies into lose-lose situations where every action carries risk. By planting hidden threats and disrupting key abilities, The Joker excels at dismantling coordinated strategies and isolating high-value targets. His toxins weaken offensive output over time, while his gadgets interrupt, silence, and invalidate enemy actions at critical moments. The longer a fight drags on, the more control he exerts, turning chaos into a weapon and forcing opponents to play on his terms.',
+    skills: [
+        {
+            id: 'the-joker-hand-buzzer',
+            name: 'Hand Buzzer',
+            skillimage: 'https://i.imgur.com/t0AM8jf.png',
+            skilldescription: 'Deals 1 piercing damage to one enemy and stuns their harmful skills for 1 turn. Swaps to \'Acid Flower\'.',
+            energy: [],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 1,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'the_joker_hand_buzzer_lock',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        cannotUseHarmfulSkills: true,
+                        tooltipText: 'This character harmful skills are stunned.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'the_joker_gag_cycle',
+                    duration: 99,
+                    scope: 'self',
+                    metadata: {
+                        skillReplacements: {
+                            'the-joker-hand-buzzer': 'the-joker-acid-flower'
+                        },
+                        tooltipText: 'Hand Buzzer is replaced by Acid Flower.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'the-joker-crowbar',
+            name: 'Crowbar',
+            skillimage: 'https://i.imgur.com/EloJhie.png',
+            skilldescription: 'For 2 turns, destroy one enemy\'s destructible defense each turn and deal 15 damage to them each turn.',
+            energy: [
+                'Random',
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Melee',
+                'Control'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'the_joker_crowbar_mauling',
+                    duration: 2,
+                    scope: 'target',
+                    metadata: {
+                        turnEndDestroyDestructibleDefense: true,
+                        harmful: true,
+                        turnEndDamage: 15,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        tooltipText: 'This character recieves 15 damage and all of their destructible defense is destroyed each turn.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'the-joker-joker-venom',
+            name: 'Joker Venom',
+            skillimage: 'https://i.imgur.com/MZgtCyw.png',
+            skilldescription: 'For 3 turns, one enemy has their maximum damage output capped to 15 and is dealt 10 affliction damage each turn.',
+            energy: [
+                'Taijutsu',
+                'Taijutsu'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 3,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant',
+                'Affliction'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'the_joker_joker_venom',
+                    duration: 3,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        maxDamageOutput: 15,
+                        turnEndDamage: 10,
+                        afflictionDamage: true,
+                        ignoreTargetDamageReduction: true,
+                        ignoreTargetDestructibleDefense: true,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        tooltipText: 'This character\'s damage is capped to 15 and they recieve 10 affliction damage each turn.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'the-joker-bang',
+            name: 'BANG!',
+            skillimage: 'https://i.imgur.com/O3C7ZSC.png',
+            skilldescription: 'This skill makes The Joker invulnerable for 1 turn. When this ends, one enemy is dealt 15 piercing damage.',
+            energy: [
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'the_joker_bang_invulnerable',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        invulnerable: true,
+                        tooltipText: 'This character is invulnerable.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'the_joker_bang_followup',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        triggerOnApply: true,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        turnEndRandomEnemyDamage: 15,
+                        turnEndRandomEnemyIgnoreDamageReduction: true,
+                        turnEndRandomEnemyIgnoreDestructibleDefense: true,
+                        tooltipText: 'When this skill ends, a random enemy recieves 15 piercing damage.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'the-joker-acid-flower',
+            name: 'Acid Flower',
+            hiddenFromSelectionViewer: true,
+            useBaseSkillCooldown: true,
+            skillimage: 'https://i.imgur.com/GIOcMgw.png',
+            skilldescription: 'Deals 5 affliction damage to one enemy permanently. For 1 turn, the target has their helpful skills stunned. Swaps to \'Chattering Teeth\'.',
+            energy: [
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant',
+                'Affliction'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'the_joker_acid_flower_burn',
+                    duration: 99,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        infiniteDuration: true,
+                        mergeNumericAddKeys: [
+                            'turnEndDamage'
+                        ],
+                        turnEndDamage: 5,
+                        afflictionDamage: true,
+                        ignoreTargetDamageReduction: true,
+                        ignoreTargetDestructibleDefense: true,
+                        turnEndTrigger: 'source_turn',
+                        tooltipTextTemplate: 'This character takes {turnEndDamage} permanent affliction damage each turn.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'the_joker_acid_flower_helpful_lock',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        cannotUseHelpfulSkills: true,
+                        tooltipText: 'This character helpful skills are stunned.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'the_joker_gag_cycle',
+                    duration: 99,
+                    scope: 'self',
+                    metadata: {
+                        skillReplacements: {
+                            'the-joker-hand-buzzer': 'the-joker-chattering-teeth'
+                        },
+                        tooltipText: 'Hand Buzzer is replaced by Chattering Teeth.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'the-joker-chattering-teeth',
+            name: 'Chattering Teeth',
+            hiddenFromSelectionViewer: true,
+            useBaseSkillCooldown: true,
+            skillimage: 'https://i.imgur.com/vh7qbuR.png',
+            skilldescription: 'Targets one enemy for 1 turn, countering them if they use a new harmful skill. If successful, silence their harmful skills for 2 turns. This is invisible. Swaps to \'Remote Bomb\'.',
+            energy: [
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'the_joker_chattering_teeth_trap',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        triggerOnEnemyHarmfulSkill: true,
+                        counterCancelsSkill: true,
+                        counterStatusId: 'the_joker_chattering_teeth_silence',
+                        counterStatusDuration: 2,
+                        counterStatusMetadata: {
+                            harmful: true,
+                            cannotUseHarmfulSkills: true,
+                            tooltipText: 'This character harmful skills are silenced.'
+                        },
+                        hideTooltipFromEnemy: true,
+                        tooltipText: 'If this character uses a new harmful skill this turn, it is countered and their harmful skills are silenced for 2 turns.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'the_joker_gag_cycle',
+                    duration: 99,
+                    scope: 'self',
+                    metadata: {
+                        skillReplacements: {
+                            'the-joker-hand-buzzer': 'the-joker-remote-bomb'
+                        },
+                        tooltipText: 'Hand Buzzer is replaced by Remote Bombs.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'the-joker-remote-bomb',
+            name: 'Remote Bomb',
+            hiddenFromSelectionViewer: true,
+            useBaseSkillCooldown: true,
+            skillimage: 'https://i.imgur.com/gA4KqdI.png',
+            skilldescription: 'Marks one enemy for 1 turn. When this ends, they are dealt 20 affliction damage and have their active harmful skills cancelled. Swaps to \'Hand Buzzer\'.',
+            energy: [
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant',
+                'Affliction'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'the_joker_remote_bomb_mark',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        turnDurationAnchor: 'source_turn',
+                        onExpireEffects: [
+                            {
+                                type: 'damage',
+                                amount: 20,
+                                metadata: {
+                                    afflictionDamage: true,
+                                    ignoreDamageReduction: true,
+                                    ignoreDestructibleDefense: true
+                                }
+                            },
+                            {
+                                type: 'cleanse_statuses',
+                                count: 0,
+                                harmfulOnly: true,
+                                sourceRelation: 'ally'
+                            }
+                        ],
+                        tooltipText: 'When this effect ends, this character recieves 20 affliction damage and their active harmful effects are cancelled.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'the_joker_gag_cycle',
+                    duration: 99,
+                    scope: 'self',
+                    metadata: {
+                        hideTooltipFromEnemy: true,
+                        skillReplacements: {
+                            'the-joker-hand-buzzer': 'the-joker-hand-buzzer'
+                        },
+                        tooltipText: 'Hand Buzzer is restored. It deals 1 piercing damage to one enemy and stuns their harmful skills for 1 turn.'
+                    }
+                }
+            ]
+        }
+    ]
+},
+    {
+    id: 'negan',
+    characterId: 'negan',
+    name: 'Negan',
+    facePicture: 'https://i.imgur.com/csZvbwl.png',
+    characterdeescription: 'Negan excels at isolating and eliminating priority targets through relentless, no-nonsense pressure. He doesn’t overwhelm enemies with flashy bursts—he breaks them down, step by step, until they’re completely screwed and out of options. With abilities that apply sustained damage and shut down healing, Negan forces opponents into dangerous territory fast. Once a target is marked, they’re on borrowed time—and if they don’t deal with him quickly, they’re as good as dead. Negan thrives on punishing mistakes. One bad move, one wrong target, one moment of hesitation—and he’ll capitalize immediately, ending the fight before the enemy team can recover.',
+    skills: [
+        {
+            id: 'negan-you-re-already-fucked',
+            name: 'You\'re Already Fucked',
+            skillimage: 'https://i.imgur.com/xlCXPVg.png',
+            skilldescription: 'Negan strikes an enemy with Lucille, dealing 25 normal damage and 5 piercing damage to them. Negan heals 5 HP. This deals 5 additional damage to the target of \'You Got No Guts\'.',
+            energy: [
+                'Random',
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 25,
+                    scope: 'target'
+                },
+                {
+                    type: 'damage',
+                    amount: 5,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                    }
+                },
+                {
+                    type: 'heal',
+                    amount: 5,
+                    scope: 'self'
+                },
+                {
+                    type: 'damage',
+                    amount: 0,
+                    scope: 'target',
+                    condition: {
+                        statusId: 'negan_you_got_no_guts',
+                        scope: 'target',
+                        conditionalAmount: 5
+                    }
+                }
+            ]
+        },
+        {
+            id: 'negan-you-got-no-guts',
+            name: 'You Got No Guts',
+            skillimage: 'https://i.imgur.com/VoLDAm3.png',
+            skilldescription: 'Negan cuts open an enemy\'s bowels, dealing 5 piercing damage permanently. While affected, if the target\'s HP falls to 15 or less they are executed. This may only affect one enemy at a time and will remove itself from the previous if used on a new one.',
+            energy: [
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'negan_you_got_no_guts',
+                    duration: 99,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        infiniteDuration: true,
+                        uniqueEnemyMarkFromSource: true,
+                        turnEndDamage: 5,
+                        ignoreTargetDamageReduction: true,
+                        ignoreTargetDestructibleDefense: true,
+                        turnEndTrigger: 'source_turn',
+                        executeBelowHpThreshold: 15,
+                        bonusDamageFromSourceCharacterId: 'negan',
+                        bonusDamageFromSourceSkillsFlat: 5,
+                        tooltipText: 'This character takes 5 piercing damage and will recieve 5 additional damage by Negan\'s skills, and is executed if their HP falls to 15 or below.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'negan-the-iron',
+            name: 'The Iron',
+            skillimage: 'https://i.imgur.com/vgyp2m8.png',
+            skilldescription: 'Deals 25 affliction damage to one enemy and makes them unable to be healed for 4 turns.',
+            energy: [
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant',
+                'Affliction'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 25,
+                    scope: 'target',
+                    metadata: {
+                        afflictionDamage: true,
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'negan_the_iron_lock',
+                    duration: 4,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        healReceivedMultiplier: 0,
+                        tooltipText: 'This character cannot be healed.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'negan-bat-smashes-knives',
+            name: 'Bat Smashes Knives',
+            skillimage: 'https://i.imgur.com/1aqHgid.png',
+            skilldescription: 'This skill makes Negan invulnerable for 1 turn.',
+            energy: [
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'negan_bat_smashes_knives_invulnerable',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        invulnerable: true,
+                        tooltipText: 'This character is invulnerable.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'negan-passive-tainted-weapons',
+            name: 'Passive: Tainted Weapons',
+            skillimage: 'https://i.imgur.com/lIF0QtB.png',
+            skilldescription: 'While Negan is alive, all physical-class damage him and his team deal will also apply this skill to their target (stacks). Deals 1 affliction damage permanently.',
+            energy: [],
+            target: '',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Passive',
+                'Instant'
+            ]
+        }
+    ],
+    startStatuses: [
+        {
+            statusId: 'negan_passive_tainted_weapons',
+            sourceSkillId: 'negan-passive-tainted-weapons',
+            duration: 99,
+            metadata: {
+                infiniteDuration: true,
+                onTeamMemberSuccessfulDamageSkillClassesAny: [
+                    'physical'
+                ],
+                onTeamMemberSuccessfulDamageApplyStatusToTarget: {
+                    statusId: 'negan_tainted_weapons_poison',
+                    duration: 99,
+                    metadata: {
+                        harmful: true,
+                        infiniteDuration: true,
+                        mergeNumericAddKeys: [
+                            'turnEndDamage'
+                        ],
+                        turnEndDamage: 1,
+                        afflictionDamage: true,
+                        ignoreTargetDamageReduction: true,
+                        ignoreTargetDestructibleDefense: true,
+                        turnEndTrigger: 'source_turn',
+                        tooltipTextTemplate: 'This character takes {turnEndDamage} permanent affliction damage each turn.'
+                    }
+                },
+                tooltipText: 'While Negan is alive, all physical-class damage his team deals also applies 1 permanent affliction damage to the target.'
+            }
+        }
+    ]
+},
+    {
+    id: 'rick-grimes',
+    characterId: 'rick-grimes',
+    name: 'Rick Grimes',
+    facePicture: 'https://i.imgur.com/4p90X9r.png',
+    characterdeescription: 'A hardened survivor from a world overrun by the dead, Rick Grimes leads with grit, instinct, and relentless will. He excels as a precision damage dealer who balances risky shots with calculated setup and late-game sustain. A man forged in chaos, Rick walks the line between control and desperation—each bullet a gamble, each decision a fight to stay alive. When his aim is steady, enemies fall in an instant; when the odds turn against him, he adapts, enduring through sheer brutality and resolve. In the end, whether by skill or sheer luck, Rick is the one still standing.',
+    skills: [
+        {
+            id: 'rick-grimes-357-revolver',
+            name: '.357 Revolver',
+            skillimage: 'https://i.imgur.com/J7oYkQt.png',
+            skilldescription: 'Rick fires his signature weapon at one enemy, dealing 20 piercing damage. This has an 80% chance to successfully hit and a 20% chance to miss. If successful, this has a 25% chance to be a \'Headshot\'. If it misses, it has a 10% chance to hit a random different enemy (and 5% chance for that to then be a \'Headshot\'). Rick only carries six bullets with him per game.',
+            energy: [],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            maxUses: 6,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'rick_grimes_revolver_hit_confirmed',
+                    duration: 1,
+                    scope: 'self',
+                    chance: 80,
+                    condition: {
+                        missingStatusId: 'rick_grimes_throat_slit_bleed',
+                        scope: 'target'
+                    },
+                    metadata: {
+                        hideTooltipFromUnitOwner: true,
+                        hideTooltipFromEnemy: true
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'rick_grimes_revolver_resolved_hit',
+                    duration: 1,
+                    scope: 'self',
+                    condition: {
+                        statusId: 'rick_grimes_revolver_hit_confirmed',
+                        scope: 'self'
+                    },
+                    metadata: {
+                        hideTooltipFromUnitOwner: true,
+                        hideTooltipFromEnemy: true
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'rick_grimes_revolver_bleed_hit_confirmed',
+                    duration: 1,
+                    scope: 'self',
+                    chance: 100,
+                    condition: {
+                        statusId: 'rick_grimes_throat_slit_bleed',
+                        scope: 'target'
+                    },
+                    metadata: {
+                        hideTooltipFromUnitOwner: true,
+                        hideTooltipFromEnemy: true
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'rick_grimes_revolver_resolved_hit',
+                    duration: 1,
+                    scope: 'self',
+                    condition: {
+                        statusId: 'rick_grimes_revolver_bleed_hit_confirmed',
+                        scope: 'self'
+                    },
+                    metadata: {
+                        hideTooltipFromUnitOwner: true,
+                        hideTooltipFromEnemy: true
+                    }
+                },
+                {
+                    type: 'damage',
+                    amount: 20,
+                    scope: 'target',
+                    condition: {
+                        statusId: 'rick_grimes_revolver_hit_confirmed',
+                        scope: 'self'
+                    },
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                },
+                {
+                    type: 'damage',
+                    amount: 20,
+                    scope: 'target',
+                    condition: {
+                        statusId: 'rick_grimes_revolver_bleed_hit_confirmed',
+                        scope: 'self'
+                    },
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                },
+                {
+                    type: 'damage',
+                    amount: 10,
+                    scope: 'target',
+                    chance: 25,
+                    condition: {
+                        statusId: 'rick_grimes_revolver_hit_confirmed',
+                        scope: 'self'
+                    },
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                },
+                {
+                    type: 'damage',
+                    amount: 10,
+                    scope: 'target',
+                    chance: 40,
+                    condition: {
+                        statusId: 'rick_grimes_revolver_bleed_hit_confirmed',
+                        scope: 'self'
+                    },
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'rick_grimes_revolver_missed',
+                    duration: 1,
+                    scope: 'self',
+                    condition: {
+                        missingStatusId: 'rick_grimes_revolver_resolved_hit',
+                        scope: 'self'
+                    },
+                    metadata: {
+                        hideTooltipFromUnitOwner: true,
+                        hideTooltipFromEnemy: true
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'rick_grimes_revolver_redirect_hit',
+                    duration: 1,
+                    scope: 'self',
+                    chance: 10,
+                    condition: {
+                        statusId: 'rick_grimes_revolver_missed',
+                        scope: 'self'
+                    },
+                    metadata: {
+                        hideTooltipFromUnitOwner: true,
+                        hideTooltipFromEnemy: true
+                    }
+                },
+                {
+                    type: 'damage',
+                    amount: 20,
+                    scope: 'random-other-enemy',
+                    condition: {
+                        statusId: 'rick_grimes_revolver_redirect_hit',
+                        scope: 'self'
+                    },
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true,
+                        randomScopeGroupKey: 'rick_grimes_revolver_redirect_target'
+                    }
+                },
+                {
+                    type: 'damage',
+                    amount: 10,
+                    scope: 'random-other-enemy',
+                    chance: 5,
+                    condition: {
+                        statusId: 'rick_grimes_revolver_redirect_hit',
+                        scope: 'self'
+                    },
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true,
+                        randomScopeGroupKey: 'rick_grimes_revolver_redirect_target'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'rick-grimes-throat-slit',
+            name: 'Throat Slit',
+            skillimage: 'https://i.imgur.com/xcN920R.png',
+            skilldescription: 'Rick slashes an enemy\'s throat, dealing 10 damage this turn then making them bleed 10 affliction damage next turn. While bleeding, the target\'s harmful skills are silenced, \'.357 Revolver\' cannot miss them, and has a 15% bonus chance to \'Headshot\'.',
+            energy: [
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant',
+                'Affliction'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 10,
+                    scope: 'target'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'rick_grimes_throat_slit_bleed',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        cannotUseHarmfulSkills: true,
+                        turnEndDamage: 10,
+                        afflictionDamage: true,
+                        ignoreTargetDamageReduction: true,
+                        ignoreTargetDestructibleDefense: true,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        tooltipText: 'This character will take 10 affliction damage next turn, their harmful skills are silenced, Rick\'s .357 Revolver cannot miss them, and it has a 40% chance to Headshot them.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'rick-grimes-desperation',
+            name: 'Desperation',
+            skillimage: 'https://i.imgur.com/hIVO2kn.png',
+            skilldescription: 'Rick steals 20 HP from one enemy. If \'.357 Revolver\' is out of bullets, this steals 25 bonus health.',
+            energy: [
+                'Random',
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 20,
+                    scope: 'target'
+                },
+                {
+                    type: 'heal',
+                    amount: 20,
+                    scope: 'self'
+                },
+                {
+                    type: 'damage',
+                    amount: 25,
+                    scope: 'target',
+                    condition: {
+                        scope: 'self',
+                        sourceSkillUsesAtLeast: {
+                            skillId: 'rick-grimes-357-revolver',
+                            value: 6
+                        }
+                    }
+                },
+                {
+                    type: 'heal',
+                    amount: 25,
+                    scope: 'self',
+                    condition: {
+                        scope: 'self',
+                        sourceSkillUsesAtLeast: {
+                            skillId: 'rick-grimes-357-revolver',
+                            value: 6
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            id: 'rick-grimes-arm-guard',
+            name: 'Arm Guard',
+            skillimage: 'https://i.imgur.com/KPOD3Mo.png',
+            skilldescription: 'This skill makes Rick Grimes invulnerable for 1 turn.',
+            energy: [
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'rick_grimes_arm_guard_invulnerable',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        invulnerable: true,
+                        tooltipText: 'This character is invulnerable.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'rick-grimes-headshot',
+            name: 'Headshot',
+            skillimage: 'https://i.imgur.com/1GWRE0R.png',
+            skilldescription: '\'.357 Revolver\' has a 25% chance to deal 10 bonus piercing damage on a successful hit. If the shot ricochets to a random different enemy after a miss, it has a 5% chance to deal 10 bonus piercing damage instead. Against a target affected by \'Throat Slit\', the successful-hit chance becomes 40%.',
+            energy: [],
+            target: '',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Passive',
+                'Instant'
+            ]
+        }
+    ]
+},
+    {
+    id: 'andrea',
+    characterId: 'andrea',
+    name: 'Andrea',
+    facePicture: 'https://i.imgur.com/MECXiBj.png',
+    characterdeescription: 'Andrea excels at punishing exposed targets with precise, high-impact shots, capitalizing on moments when enemies leave themselves vulnerable. Rather than applying constant pressure, she waits for the right opportunity—marking targets who act and striking them down with devastating force. Through her ‘Locked On’ passive, Andrea rewards awareness and timing, turning enemy actions into openings for lethal follow-ups. When positioned safely, she can enter a focused state that enhances her accuracy and enables her most powerful attacks, but this advantage is fragile and easily disrupted.',
+    startStatuses: [
+        {
+            statusId: 'andrea_passive_locked_on',
+            sourceSkillId: 'andrea-passive-locked-on',
+            duration: 99,
+            metadata: {
+                infiniteDuration: true,
+                onEnemyTeamMemberUseSkillApplyStatusToTarget: {
+                    statusId: 'andrea_locked_on_mark',
+                    duration: 1,
+                    metadata: {
+                        harmful: true,
+                        ignoreInvulnerabilityFromSourceSkillIdsAny: ['andrea-quick-shot'],
+                        turnDurationAnchor: 'source_turn',
+                        tooltipText: 'This character is Locked On.'
+                    }
+                },
+                tooltipText: 'Enemies that use a new skill are marked as Locked On.'
+            }
+        }
+    ],
+    skills: [
+        {
+            id: 'andrea-quick-shot',
+            name: 'Quick Shot',
+            skillimage: 'https://i.imgur.com/6a9Sd7K.png',
+            skilldescription: 'Andrea deals 30 piercing damage to one enemy. If the target is Locked On, this ignores their invulnerability.',
+            energy: [
+                'Random',
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 30,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                }
+            ]
+        },
+        {
+            id: 'andrea-sniper-tower',
+            name: 'Sniper Tower',
+            skillimage: 'https://i.imgur.com/bp5oUro.png',
+            skilldescription: 'For 3 turns, Andrea gains Sniper Tower. While active, she becomes invulnerable for 1 turn each time she uses a skill. If Andrea takes new non-affliction damage, Sniper Tower is ignored for 1 turn.',
+            energy: [
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'andrea_sniper_tower_active',
+                    duration: 3,
+                    scope: 'self',
+                    metadata: {
+                        onOwnerUseSkillTrigger: true,
+                        persistOnOwnerUseSkillTrigger: true,
+                        onOwnerUseSkillApplyStatusToOwnerCondition: {
+                            scope: 'self',
+                            missingStatusId: 'andrea_sniper_tower_disabled'
+                        },
+                        onOwnerUseSkillApplyStatusToOwner: {
+                            statusId: 'andrea_sniper_tower_invulnerable',
+                            duration: 1,
+                            metadata: {
+                                invulnerable: true,
+                                tooltipText: 'This character is invulnerable.'
+                            }
+                        },
+                        onTeamMemberDamageTakenApplyStatusToOwner: {
+                            statusId: 'andrea_sniper_tower_disabled',
+                            duration: 1,
+                            nonAfflictionOnly: true,
+                            metadata: {
+                                harmful: true,
+                                tooltipText: 'Sniper Tower is ignored for 1 turn.'
+                            }
+                        },
+                        tooltipText: 'For 3 turns, Andrea becomes invulnerable for 1 turn each time she uses a skill. If she takes new non-affliction damage, Sniper Tower is ignored for 1 turn.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'andrea-snipe',
+            name: 'Snipe',
+            skillimage: 'https://i.imgur.com/GA4nBnh.png',
+            skilldescription: 'Andrea deals 85 piercing damage to one Locked On enemy, but only while Sniper Tower is active.',
+            energy: [
+                'Random',
+                'Random',
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant'
+            ],
+            actorCondition: {
+                statusId: 'andrea_sniper_tower_active'
+            },
+            targetCondition: {
+                statusId: 'andrea_locked_on_mark'
+            },
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 85,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                }
+            ]
+        },
+        {
+            id: 'andrea-horse-escape',
+            name: 'Horse Escape',
+            skillimage: 'https://i.imgur.com/MFmkXQ2.png',
+            skilldescription: 'Andrea removes all harmful effects from herself and makes one ally invulnerable for 1 turn.',
+            energy: [
+                'Random'
+            ],
+            target: 'single-ally',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'cleanse_harmful',
+                    count: 99,
+                    scope: 'self'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'andrea_horse_escape_invulnerable',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        invulnerable: true,
+                        tooltipText: 'This character is invulnerable.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'andrea-passive-locked-on',
+            name: 'Passive: Locked On',
+            skillimage: 'https://i.imgur.com/p74b06s.png',
+            skilldescription: 'Any enemy that uses a new skill is marked as Locked On. Locked On enemies lose invulnerability against Andrea\'s attacks.',
+            energy: [],
+            target: '',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Passive',
+                'Instant'
+            ]
+        }
+    ]
+},
+    {
+    id: 'walker',
+    characterId: 'walker',
+    name: 'Walker',
+    facePicture: 'https://i.imgur.com/NqFhNs6.png',
+    characterdeescription: 'Walker is an undead vanguard spawned from the endless hunger of the infected masses. On a team, Walker functions as a scaling pressure engine and anti-healing disruptor, gradually overwhelming enemies through persistent damage and infection. He excels in longer fights, where his effects stack and compound, forcing opponents into a losing war of attrition.',
+    skills: [
+        {
+            id: 'walker-infected-horde',
+            name: 'Infected Horde',
+            skillimage: 'https://i.imgur.com/e4sEkft.png',
+            skilldescription: 'For the rest of the game, Walker and his team gain 10 damage reduction and the enemy team takes 10 affliction damage at the end of Walker\'s turns. The next Surprise Chomp or Overpower Walker uses will target all enemies. This effect stacks up to 3 times and ends when Walker dies.',
+            energy: [
+                'Random',
+                'Random',
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Physical',
+                'Melee',
+                'Action',
+                'Instant*'
+            ],
+            maxUses: 3,
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'walker_infected_horde_team_aura',
+                    duration: 99,
+                    scope: 'all-allies',
+                    metadata: {
+                        infiniteDuration: true,
+                        ongoingClass: 'action',
+                        damageReductionFlat: 10,
+                        stackMetadataKey: 'infectedHordeStacks',
+                        stackDelta: 1,
+                        stackMax: 3,
+                        mergeNumericAddKeys: ['damageReductionFlat'],
+                        tooltipTextTemplate: 'This character has {damageReductionFlat} damage reduction from Infected Horde.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'walker_infected_horde_enemy_bleed',
+                    duration: 99,
+                    scope: 'all-enemy',
+                    metadata: {
+                        harmful: true,
+                        infiniteDuration: true,
+                        ongoingClass: 'action',
+                        turnEndDamage: 10,
+                        afflictionDamage: true,
+                        ignoreTargetDamageReduction: true,
+                        ignoreTargetDestructibleDefense: true,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        triggerOnApply: true,
+                        mergeNumericAddKeys: ['turnEndDamage'],
+                        tooltipTextTemplate: 'This character takes {turnEndDamage} affliction damage at the end of each of Walker\'s turns.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'walker_infected_horde_next_attack',
+                    duration: 99,
+                    scope: 'self',
+                    metadata: {
+                        infiniteDuration: true,
+                        onOwnerUseSkillTrigger: true,
+                        onOwnerUseSkillClassesAny: ['melee'],
+                        skillReplacements: {
+                            'walker-surprise-chomp': 'walker-surprise-chomp-all',
+                            'walker-overpower': 'walker-overpower-all'
+                        },
+                        tooltipText: 'Walker\'s next Surprise Chomp or Overpower targets all enemies.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'walker-surprise-chomp',
+            name: 'Surprise Chomp',
+            skillimage: 'https://i.imgur.com/WajPlhY.png',
+            skilldescription: 'Walker steals 15 HP from one enemy and grants them Infected Bite.',
+            energy: [
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 15,
+                    scope: 'target'
+                },
+                {
+                    type: 'heal',
+                    amount: 15,
+                    scope: 'self'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'walker_infected_bite',
+                    duration: 99,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        infiniteDuration: true,
+                        ongoingClass: 'action',
+                        turnEndDamage: 2,
+                        afflictionDamage: true,
+                        ignoreTargetDamageReduction: true,
+                        ignoreTargetDestructibleDefense: true,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        triggerOnApply: true,
+                        healReceivedMultiplier: 0.75,
+                        healReceivedMultiplierWhenOwnerCurrentHpAtMostThreshold: 40,
+                        healReceivedMultiplierWhenOwnerCurrentHpAtMost: 0.5,
+                        bonusDamageFromSourceCharacterId: 'walker',
+                        bonusDamageAppliesToSkillIds: ['walker-surprise-chomp', 'walker-surprise-chomp-all'],
+                        bonusDamageFromSourceSkillsFlat: 5,
+                        tooltipText: 'This character takes 2 affliction damage each turn, receives 25% less healing or 50% less healing at 40 HP or below, and Walker\'s Surprise Chomp steals 5 additional HP from them.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'walker-surprise-chomp-all',
+            name: 'Surprise Chomp',
+            hiddenFromSelectionViewer: true,
+            useBaseSkillCooldown: true,
+            skillimage: 'https://i.imgur.com/WajPlhY.png',
+            skilldescription: 'Walker steals 15 HP from all enemies and grants Infected Bite to one enemy.',
+            energy: [
+                'Random'
+            ],
+            target: 'all-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 15,
+                    scope: 'all-enemy',
+                    metadata: {
+                        randomScopeGroupKey: 'walker_surprise_chomp_all_target'
+                    }
+                },
+                {
+                    type: 'heal',
+                    amount: 15,
+                    scope: 'self'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'walker_infected_bite',
+                    duration: 99,
+                    scope: 'random-enemy',
+                    metadata: {
+                        harmful: true,
+                        infiniteDuration: true,
+                        ongoingClass: 'action',
+                        turnEndDamage: 2,
+                        afflictionDamage: true,
+                        ignoreTargetDamageReduction: true,
+                        ignoreTargetDestructibleDefense: true,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        triggerOnApply: true,
+                        healReceivedMultiplier: 0.75,
+                        healReceivedMultiplierWhenOwnerCurrentHpAtMostThreshold: 40,
+                        healReceivedMultiplierWhenOwnerCurrentHpAtMost: 0.5,
+                        bonusDamageFromSourceCharacterId: 'walker',
+                        bonusDamageAppliesToSkillIds: ['walker-surprise-chomp', 'walker-surprise-chomp-all'],
+                        bonusDamageFromSourceSkillsFlat: 5,
+                        tooltipText: 'This character takes 2 affliction damage each turn, receives 25% less healing or 50% less healing at 40 HP or below, and Walker\'s Surprise Chomp steals 5 additional HP from them.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'walker-overpower',
+            name: 'Overpower',
+            skillimage: 'https://i.imgur.com/g0Tie8I.png',
+            skilldescription: 'Walker stuns one enemy\'s non-mental skills for 1 turn. The following turn, Surprise Chomp deals 10 additional damage to this target.',
+            energy: [
+                'Random',
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'walker_overpower_stun',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        cannotUseNonMentalSkills: true,
+                        tooltipText: 'This character non-mental skills are stunned.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'walker_overpower_bonus',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        bonusDamageFromSourceCharacterId: 'walker',
+                        bonusDamageAppliesToSkillIds: ['walker-surprise-chomp', 'walker-surprise-chomp-all'],
+                        bonusDamageFromSourceSkillsFlat: 10,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        tooltipText: 'Walker\'s Surprise Chomp deals 10 additional damage to this character.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'walker-overpower-all',
+            name: 'Overpower',
+            hiddenFromSelectionViewer: true,
+            useBaseSkillCooldown: true,
+            skillimage: 'https://i.imgur.com/g0Tie8I.png',
+            skilldescription: 'Walker stuns all enemies\' non-mental skills for 1 turn. The following turn, Surprise Chomp deals 10 additional damage to one enemy.',
+            energy: [
+                'Random',
+                'Random'
+            ],
+            target: 'all-enemy',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'walker_overpower_stun_all',
+                    duration: 1,
+                    scope: 'all-enemy',
+                    metadata: {
+                        harmful: true,
+                        cannotUseNonMentalSkills: true,
+                        tooltipText: 'This character non-mental skills are stunned.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'walker_overpower_bonus',
+                    duration: 1,
+                    scope: 'random-enemy',
+                    metadata: {
+                        harmful: true,
+                        randomScopeGroupKey: 'walker_overpower_bonus_target',
+                        bonusDamageFromSourceCharacterId: 'walker',
+                        bonusDamageAppliesToSkillIds: ['walker-surprise-chomp', 'walker-surprise-chomp-all'],
+                        bonusDamageFromSourceSkillsFlat: 10,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        tooltipText: 'Walker\'s Surprise Chomp deals 10 additional damage to this character.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'walker-group-banquet',
+            name: 'Group Banquet',
+            skillimage: 'https://i.imgur.com/J1mBmGk.png',
+            skilldescription: 'Walker heals 15 HP at the end of each of his turns for 2 turns.',
+            energy: [
+                'Random',
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Physical',
+                'Control'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'walker_group_banquet_regen',
+                    duration: 2,
+                    scope: 'self',
+                    metadata: {
+                        turnEndHealFlat: 15,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        triggerOnApply: true,
+                        tooltipText: 'Walker heals 15 HP at the end of each of his turns.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'walker-passive-infected-bite',
+            name: 'Passive: Infected Bite',
+            skillimage: 'https://i.imgur.com/zeUfS91.png',
+            skilldescription: 'This character takes 2 affliction damage every turn, receives 25% less healing or 50% less healing at 40 HP or below, and Walker\'s Surprise Chomp steals 5 additional HP from them. This effect does not stack.',
+            energy: [],
+            target: '',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Passive',
+                'Instant',
+                'Affliction'
+            ]
+        }
+    ]
+},
+    {
+    id: 'hershel-greene',
+    characterId: 'hershel-greene',
+    name: 'Hershel Greene',
+    facePicture: 'https://i.imgur.com/A4uAHH9.png',
+    characterdeescription: 'A steady hand in the chaos, Hershel Greene keeps his team alive through sheer experience and resolve. Though not a frontline fighter, his medical expertise allows him to stabilize allies, mitigate incoming damage, and even bring the fallen back into the fight. Hershel excels at sustaining his team over extended battles—delaying damage, cleansing afflictions, and turning lethal situations into survivable ones. However, his reliance on timing and limited supplies means every decision matters. Misuse his tools, and his team will crumble. Use them wisely, and they simply won’t die.',
+    skills: [
+        {
+            id: 'hershel-greene-reluctant-bullet',
+            name: 'Reluctant Bullet',
+            skillimage: 'https://i.imgur.com/N57Xbty.png',
+            skilldescription: 'Hershel deals 20 piercing damage to one enemy and reduces the healing they recieve by 50% for 1 turn.',
+            energy: [
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 20,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'hershel_greene_reluctant_bullet_healing_debuff',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        healReceivedMultiplier: 0.5,
+                        tooltipText: 'This character receives 50% less healing.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'hershel-greene-tending-the-crops',
+            name: 'Tending the Crops',
+            skillimage: 'https://i.imgur.com/5i9qL6M.png',
+            skilldescription: 'Hershel heals his entire team 10 HP and grants them 10 points of destructible defense.',
+            energy: [
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'heal',
+                    amount: 10,
+                    scope: 'all-allies'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'hershel_greene_tending_the_crops_defense',
+                    duration: 99,
+                    scope: 'all-allies',
+                    metadata: {
+                        destructibleDefensePoints: 10,
+                        mergeNumericAddKeys: ['destructibleDefensePoints'],
+                        tooltipTextTemplate: 'This character has {destructibleDefensePoints} destructible defense.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'hershel-greene-morphine-shot',
+            name: 'Morphine Shot',
+            skillimage: 'https://i.imgur.com/cT2uA4x.png',
+            skilldescription: 'Hershel targets himself or an ally. For 3 turns, they gain 60% unpierceable damage reduction that decays by 20% each turn. Swaps to \'Antibiotics\' once used.',
+            energy: [
+                'Ninjutsu'
+            ],
+            target: 'self-or-single-ally',
+            damage: 0,
+            cooldown: 3,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'hershel_greene_morphine_shot_reduction_60',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        unpierceableDamageReductionFlat: 60,
+                        tooltipTextTemplate: 'This character has {unpierceableDamageReductionFlat}% unpierceable damage reduction.',
+                        onExpireApplyStatusToSelf: {
+                            statusId: 'hershel_greene_morphine_shot_reduction_40',
+                            duration: 1,
+                            metadata: {
+                                unpierceableDamageReductionFlat: 40,
+                                tooltipTextTemplate: 'This character has {unpierceableDamageReductionFlat}% unpierceable damage reduction.',
+                                onExpireApplyStatusToSelf: {
+                                    statusId: 'hershel_greene_morphine_shot_reduction_20',
+                                    duration: 1,
+                                    metadata: {
+                                        unpierceableDamageReductionFlat: 20,
+                                        tooltipTextTemplate: 'This character has {unpierceableDamageReductionFlat}% unpierceable damage reduction.'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'hershel_greene_medkit_swap_to_antibiotics',
+                    duration: 99,
+                    scope: 'self',
+                    metadata: {
+                        skillReplacements: {
+                            'hershel-greene-morphine-shot': 'hershel-greene-antibiotics'
+                        },
+                        removeStatusIdsOnApply: ['hershel_greene_medkit_swap_to_morphine'],
+                        tooltipText: 'Morphine Shot is replaced by Antibiotics.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'hershel-greene-doctor-s-bag',
+            name: 'Doctor\'s Bag',
+            skillimage: 'https://i.imgur.com/neBRimV.png',
+            skilldescription: 'Hershel activates this skill. Each time an ally dies, at the start of your next turn, choose one of the following: 1. Heal an ally 35 HP. 2. Remove all harmful damaging skills on an ally. 3. Revive a dead ally to 30 HP. Only activates once per turn and can only activate twice in a game.',
+            energy: [],
+            target: 'all-allies',
+            damage: 0,
+            maxUses: 1,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'hershel_greene_doctor_s_bag_active',
+                    duration: 99,
+                    scope: 'self',
+                    metadata: {
+                        turnStartChoicePromptText: 'Choose one Doctor\'s Bag effect.',
+                        turnStartChoiceMaxUses: 2,
+                        turnStartChoiceUsesUsed: 0,
+                        onTeamMemberDeathQueueTurnStartChoice: true,
+                        turnStartChoiceOptions: [
+                            {
+                                key: 'heal',
+                                label: 'Heal an ally 35 HP',
+                                targetStrategy: 'alive-ally-lowest-hp',
+                                effect: {
+                                    type: 'heal',
+                                    amount: 35
+                                }
+                            },
+                            {
+                                key: 'cleanse',
+                                label: 'Remove harmful damaging skills',
+                                targetStrategy: 'alive-ally-most-harmful',
+                                effect: {
+                                    type: 'cleanse_harmful',
+                                    count: 0
+                                }
+                            },
+                            {
+                                key: 'revive',
+                                label: 'Revive a dead ally to 30 HP',
+                                targetStrategy: 'dead-ally-first',
+                                effect: {
+                                    type: 'revive',
+                                    amount: 30
+                                }
+                            }
+                        ],
+                        tooltipText: 'When an ally dies, choose a Doctor\'s Bag effect at the start of your next turn.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'hershel-greene-antibiotics',
+            name: 'Antibiotics',
+            skillimage: 'https://i.imgur.com/fzgNljs.png',
+            skilldescription: 'Hershel targets himself or an ally. For 3 turns, the target has all enemy affliction skills removed from them and heals 10 HP each turn. Swaps to \'Morphine Shot\' once used.',
+            energy: [
+                'Ninjutsu'
+            ],
+            target: 'self-or-single-ally',
+            damage: 0,
+            cooldown: 3,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'hershel_greene_antibiotics_active',
+                    duration: 3,
+                    scope: 'target',
+                    metadata: {
+                        removeEnemyAfflictionStatusesOnApply: true,
+                        removeEnemyAfflictionStatusesOnTurnEnd: true,
+                        turnEndHealFlat: 10,
+                        tooltipText: 'Enemy affliction damage effects are removed and this character heals 10 HP each turn.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'hershel_greene_medkit_swap_to_morphine',
+                    duration: 99,
+                    scope: 'self',
+                    metadata: {
+                        skillReplacements: {
+                            'hershel-greene-antibiotics': 'hershel-greene-morphine-shot'
+                        },
+                        removeStatusIdsOnApply: ['hershel_greene_medkit_swap_to_antibiotics'],
+                        tooltipText: 'Antibiotics is replaced by Morphine Shot.'
+                    }
+                }
+            ]
+        }
+    ]
+},
+    {
+    id: 'invincible',
+    characterId: 'invincible',
+    name: 'Invincible',
+    facePicture: 'https://i.imgur.com/vNO0ebm.png',
+    characterdeescription: 'Invincible thrives in the chaos of battle, growing stronger as his team endures enemy pressure. Rather than avoiding damage, he embraces it—using each hit his allies take as fuel to amplify his own power. With the ability to shield teammates at critical moments and retaliate with increasingly devastating force, Invincible rewards calculated risk and precise timing.',
+    startStatuses: [
+        {
+            statusId: 'invincible_passive_something_to_fight_for',
+            sourceSkillId: 'invincible-passive-something-to-fight-for',
+            duration: 99,
+            metadata: {
+                onTeamMemberDamageTakenApplyStatusToOwner: {
+                    statusId: 'invincible_passive_something_to_fight_for_damage_bonus',
+                    duration: 99,
+                    nonAfflictionOnly: true,
+                    metadata: {
+                        damageBonusFlat: 5,
+                        mergeNumericAddKeys: ['damageBonusFlat'],
+                        tooltipTextTemplate: 'Invincible deals {damageBonusFlat} additional damage.'
+                    }
+                },
+                tooltipText: 'Invincible deals 5 bonus damage every time an ally recieves new non-affliction damage.'
+            }
+        }
+    ],
+    skills: [
+        {
+            id: 'invincible-invincible-punch',
+            name: 'Invincible Punch',
+            skillimage: 'https://i.imgur.com/HowF8NS.png',
+            skilldescription: 'Invincible punches one enemy dealing 5 damage to them.',
+            energy: [
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 5,
+                    scope: 'target'
+                }
+            ]
+        },
+        {
+            id: 'invincible-to-the-rescue',
+            name: 'To the Rescue',
+            skillimage: 'https://i.imgur.com/MZHQ6n3.png',
+            skilldescription: 'Invincible makes an ally invulnerable for 1 turn.',
+            energy: [
+                'Taijutsu'
+            ],
+            target: 'ally',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'invincible_to_the_rescue_invulnerable',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        invulnerable: true,
+                        tooltipText: 'This character is invulnerable.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'invincible-desperate-bite',
+            name: 'Desperate Bite',
+            skillimage: 'https://i.imgur.com/lv18VL8.png',
+            skilldescription: 'Deals 10 affliction damage to one enemy. This swaps to \'Head Smash\' for 1 turn.',
+            energy: [
+                'Taijutsu'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant',
+                'Affliction'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 10,
+                    scope: 'target',
+                    metadata: {
+                        afflictionDamage: true
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'invincible_desperate_bite_to_head_smash',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        skillReplacements: {
+                            'invincible-desperate-bite': 'invincible-head-smash'
+                        },
+                        tooltipText: 'Desperate Bite is replaced by Head Smash.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'invincible-viltrumite-flight',
+            name: 'Viltrumite Flight',
+            skillimage: 'https://i.imgur.com/0ZS3Gfm.png',
+            skilldescription: 'This skill makes Invincible invulnerable and deal 15 bonus damage for 1 turn.',
+            energy: [
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'invincible_viltrumite_flight',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        invulnerable: true,
+                        damageBonusFlat: 15,
+                        mergeNumericAddKeys: ['damageBonusFlat'],
+                        tooltipText: 'Invincible is invulnerable and deals 15 additional damage.'
+                    }
+                }
+            ]
+        },
+        {
+            hiddenFromSelectionViewer: true,
+            id: 'invincible-head-smash',
+            name: 'Head Smash',
+            skillimage: 'https://i.imgur.com/5wQuvL7.png',
+            skilldescription: 'Deals 20 piercing damage to one enemy and fully stuns them for 1 turn.',
+            energy: [
+                'Taijutsu',
+                'Taijutsu'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 20,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'stunned',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        cannotUseSkills: true,
+                        tooltipText: 'This character is stunned.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'invincible-passive-something-to-fight-for',
+            name: 'Passive: Something to Fight For',
+            skillimage: 'https://i.imgur.com/1eD58MB.png',
+            skilldescription: 'Invincible deals 5 bonus damage every time an ally recieves new non-affliction damage. This effect is permanent.',
+            energy: [],
+            target: '',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Passive',
+                'Instant'
+            ]
+        }
+    ]
+},
+    {
+    id: 'rex-splode',
+    characterId: 'rex-splode',
+    name: 'Rex Splode',
+    facePicture: 'https://i.imgur.com/sYSm26V.png',
+    characterdeescription: 'On a team, Rex excels as a burst damage and disruption specialist, ideal for breaking through durable targets and creating openings for allies. Played well, he controls the pace of the fight—forcing opponents to react or risk getting blown apart. Rex Splode is a high-pressure ranged damage dealer who thrives on controlled bursts of explosive power. Rather than relying on sustained output, he manages limited resources—charged batons and coins—to deliver precise, piercing attacks that weaken and disrupt enemies',
+     startStatuses: [
+         {
+             statusId: 'rex_splode_ammo_swap_tracker',
+             sourceSkillId: 'rex-splode-passive-ammo-shift',
+             duration: 99,
+             metadata: {
+                 onOwnerUseSkillTrigger: true,
+                 persistOnOwnerUseSkillTrigger: true,
+                 onOwnerUseSkillApplyStatusToOwnerCondition: {
+                     scope: 'self',
+                     sourceSkillUsesAtLeast: {
+                         skillId: 'rex-splode-explosive-baton',
+                         value: 2
+                     }
+                 },
+                 onOwnerUseSkillApplyStatusToOwner: {
+                     statusId: 'rex_splode_explosive_baton_spent',
+                     duration: 99,
+                     metadata: {
+                         hideTooltipFromUnitOwner: true,
+                         hideTooltipFromEnemy: true,
+                         skillReplacements: {
+                             'rex-splode-explosive-baton': 'rex-splode-explosive-debris'
+                         },
+                         tooltipText: 'Explosive Baton is replaced by Explosive Debris.'
+                     }
+                 },
+                 hideTooltipFromUnitOwner: true,
+                 hideTooltipFromEnemy: true,
+                 tooltipText: 'When Explosive Baton runs out of ammo, it is replaced by Explosive Debris.'
+             }
+         },
+         {
+             statusId: 'rex_splode_pocket_change_swap_tracker',
+             sourceSkillId: 'rex-splode-passive-ammo-shift',
+             duration: 99,
+             metadata: {
+                 onOwnerUseSkillTrigger: true,
+                 persistOnOwnerUseSkillTrigger: true,
+                 onOwnerUseSkillApplyStatusToOwnerCondition: {
+                     scope: 'self',
+                     sourceSkillUsesAtLeast: {
+                         skillId: 'rex-splode-explosive-pocket-change',
+                         value: 3
+                     }
+                 },
+                 onOwnerUseSkillApplyStatusToOwner: {
+                     statusId: 'rex_splode_explosive_pocket_change_spent',
+                     duration: 99,
+                     metadata: {
+                         hideTooltipFromUnitOwner: true,
+                         hideTooltipFromEnemy: true,
+                         skillReplacements: {
+                             'rex-splode-explosive-pocket-change': 'rex-splode-explosive-debris'
+                         },
+                         tooltipText: 'Explosive Pocket Change is replaced by Explosive Debris.'
+                     }
+                 },
+                 hideTooltipFromUnitOwner: true,
+                 hideTooltipFromEnemy: true,
+                 tooltipText: 'When Explosive Pocket Change runs out of ammo, it is replaced by Explosive Debris.'
+             }
+         }
+     ],
+     skills: [
+         {
+             id: 'rex-splode-explosive-baton',
+            name: 'Explosive Baton',
+            skillimage: 'https://i.imgur.com/Vqrh1D8.png',
+            skilldescription: 'Rex throws a charged baton at one enemy, dealing 24 piercing damage and reducing their non-affliction damage by 15 for 1 turn. Rex can only use this skill twice per game.',
+            energy: [
+                'Bloodline'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            maxUses: 2,
+            classes: [
+                'Energy',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 24,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        bonusPerStatusMetadata: {
+                            statusId: 'rex_splode_floor_detonation_mark',
+                            metadataKey: 'floorDetonationBonusDamage',
+                            multiplier: 1,
+                            consumeStatus: true
+                        }
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'rex_splode_baton_damage_debuff',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        nonAfflictionDamageDebuffFlat: 15,
+                        tooltipText: 'This character deals 15 less non-affliction damage.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'rex-splode-explosive-pocket-change',
+            name: 'Explosive Pocket Change',
+            skillimage: 'https://i.imgur.com/51ENwBD.png',
+            skilldescription: 'Rex charges a coin in his pocket and throws it a one enemy, dealing 15 piercing damage and removing 1 random chakra from them. Rex can only use this skill three times per game.',
+            energy: [
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            maxUses: 3,
+            classes: [
+                'Energy',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 15,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        bonusPerStatusMetadata: {
+                            statusId: 'rex_splode_floor_detonation_mark',
+                            metadataKey: 'floorDetonationBonusDamage',
+                            multiplier: 1,
+                            consumeStatus: true
+                        }
+                    }
+                },
+                {
+                    type: 'remove_random_chakra',
+                    amount: 1,
+                    scope: 'target'
+                }
+            ]
+        },
+        {
+            id: 'rex-splode-floor-detonation',
+            name: 'Floor Detonation',
+            skillimage: 'https://i.imgur.com/LrqRUVL.png',
+            skilldescription: 'Rex charges the entire floor underneath the enemy team, dealing 20 affliction damage to them and marking them for 2 turns. The next skill Rex uses on them if they are marked deals 10 additional damage.',
+            energy: [
+                'Bloodline',
+                'Random'
+            ],
+            target: 'all-enemy',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Energy',
+                'Ranged',
+                'Instant',
+                'Affliction'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 20,
+                    scope: 'all-enemy',
+                    metadata: {
+                        afflictionDamage: true,
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true,
+                        bonusPerStatusMetadata: {
+                            statusId: 'rex_splode_floor_detonation_mark',
+                            metadataKey: 'floorDetonationBonusDamage',
+                            multiplier: 1,
+                            consumeStatus: true
+                        }
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'rex_splode_floor_detonation_mark',
+                    duration: 2,
+                    scope: 'all-enemy',
+                    metadata: {
+                        harmful: true,
+                        floorDetonationBonusDamage: 10,
+                        tooltipText: 'This character is marked by Floor Detonation.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'rex-splode-smoke-screen',
+            name: 'Smoke Screen',
+            skillimage: 'https://i.imgur.com/EbbHfy2.png',
+            skilldescription: 'This skill makes Rex Splode invulnerable for 1 turn.',
+            energy: [
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Energy',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'rex_splode_smoke_screen_invulnerable',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        invulnerable: true,
+                        tooltipText: 'This character is invulnerable.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'rex-splode-explosive-debris',
+            name: 'Explosive Debris',
+            skillimage: 'https://i.imgur.com/gOwnLXF.png',
+            skilldescription: 'This skill replaces Explosive Baton or Explosive Pocket Change when they run out of ammo. Deal 20 piercing damage to one enemy. The following turn, if this skill is used on the same target it will deal 35 piercing damage instead.',
+            energy: [],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Energy',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 20,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        bonusPerStatusMetadata: {
+                            statusId: 'rex_splode_floor_detonation_mark',
+                            metadataKey: 'floorDetonationBonusDamage',
+                            multiplier: 1,
+                            consumeStatus: true
+                        }
+                    }
+                },
+                {
+                    type: 'damage',
+                    amount: 15,
+                    scope: 'target',
+                    condition: {
+                        scope: 'target',
+                        statusId: 'rex_splode_explosive_debris_followup'
+                    },
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'rex_splode_explosive_debris_followup',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        turnDurationAnchor: 'source_turn',
+                        tooltipText: 'If Rex uses Explosive Debris on this target next turn, it deals 15 additional damage.'
+                    }
+                }
+            ]
+        }
+    ]
+},
+    {
+    id: 'atom-eve',
+    characterId: 'atom-eve',
+    name: 'Atom Eve',
+    facePicture: 'https://i.imgur.com/Gsfj3gN.png',
+    characterdeescription: 'Atom Eve is a battlefield control support who reshapes fights through precise molecular constructs. Rather than overwhelming enemies with raw damage, she dominates through disruption, protection, and inevitability—shutting down key threats while reinforcing her team with layered defenses. Her constructs allow her to disable high-impact enemies, create protective barriers, and mitigate incoming damage across her team, making her especially valuable in slower, control-oriented compositions. Eve thrives when dictating tempo—forcing opponents into unfavorable positions while her allies capitalize on the openings she creates.',
+    startStatuses: [
+        {
+            statusId: 'atom_eve_passive_near_death_awakening',
+            sourceSkillId: 'atom-eve-passive-near-death-awakening',
+            duration: 99,
+            metadata: {
+                onOwnerDeathReviveToHp: 50,
+                onOwnerDeathApplyStatusToSelf: {
+                    statusId: 'atom_eve_near_death_awakening_active',
+                    duration: 2,
+                    metadata: {
+                        removeStatusIdsOnApply: ['atom_eve_passive_near_death_awakening'],
+                        turnEndHealthLoss: 25,
+                        skillReplacements: {
+                            'atom-eve-molecule-crush': 'atom-eve-molecular-deconstruction-beam',
+                            'atom-eve-molecule-helmet': 'atom-eve-molecular-deconstruction-beam',
+                            'atom-eve-molecule-shield': 'atom-eve-molecular-deconstruction-beam',
+                            'atom-eve-molecule-battle-armor': 'atom-eve-molecular-deconstruction-beam'
+                        },
+                        tooltipTextTemplate:
+                            'Eve has {turnEndHealthLoss} health loss each turn and all her skills become Molecular Deconstruction Beam.'
+                    }
+                },
+                hideTooltipFromEnemy: true,
+                tooltipText:
+                    'When Eve is killed, she is revived to 50 HP for 2 turns and all her skills become Molecular Deconstruction Beam.'
+            }
+        }
+    ],
+    skills: [
+        {
+            id: 'atom-eve-molecule-crush',
+            name: 'Molecule Crush',
+            skillimage: 'https://i.imgur.com/Q9Pbq4F.png',
+            skilldescription: 'Grants one enemy 15 points of Barrier for 1 turn and deals 20 damage to them.',
+            energy: [
+                'Bloodline'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Energy',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'atom_eve_molecule_crush_barrier',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        barrierPoints: 15,
+                        mergeNumericAddKeys: ['barrierPoints'],
+                        tooltipTextTemplate: 'This character has {barrierPoints} barrier.'
+                    }
+                },
+                {
+                    type: 'damage',
+                    amount: 20,
+                    scope: 'target',
+                }
+            ]
+        },
+        {
+            id: 'atom-eve-molecule-helmet',
+            name: 'Molecule Helmet',
+            skillimage: 'https://i.imgur.com/Fa6bU6r.png',
+            skilldescription: 'Grants one enemy 30 permanent Barrier. While they have any Barrier from this skill, their harmful skills are Silenced and Blinded. This cannot be used on an already affected enemy.',
+            energy: [
+                'Bloodline',
+                'Ninjutsu'
+            ],
+            target: 'single-enemy',
+            targetCondition: {
+                missingStatusId: 'atom_eve_molecule_helmet_barrier'
+            },
+            damage: 0,
+            cooldown: 3,
+            classes: [
+                'Energy',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'atom_eve_molecule_helmet_barrier',
+                    duration: 99,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        barrierPoints: 30,
+                        mergeNumericAddKeys: ['barrierPoints'],
+                        silenceNonDamageEffects: true,
+                        harmfulBlind: true,
+                        tooltipTextTemplate:
+                            'This character has {barrierPoints} barrier. Their harmful skills are silenced and blinded.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'atom-eve-molecule-shield',
+            name: 'Molecule Shield',
+            skillimage: 'https://i.imgur.com/268NZqY.png',
+            skilldescription: 'Eve grants her entire team 20 points of destructible defense for 1 turn. This skill is invisible.',
+            energy: [
+                'Random',
+                'Random'
+            ],
+            target: 'all-allies',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Energy',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'atom_eve_molecule_shield_defense',
+                    duration: 1,
+                    scope: 'all-allies',
+                    metadata: {
+                        destructibleDefensePoints: 20,
+                        mergeNumericAddKeys: ['destructibleDefensePoints'],
+                        hideTooltipFromEnemy: true,
+                        tooltipTextTemplate: 'This character has {destructibleDefensePoints} destructible defense.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'atom-eve-molecule-battle-armor',
+            name: 'Molecule Battle Armor',
+            skillimage: 'https://i.imgur.com/rwhfkYI.png',
+            skilldescription: 'Eve may use this on herself or an ally. Grants the target 20 points of damage reduction for 3 turns.',
+            energy: [
+                'Random'
+            ],
+            target: 'self-or-single-ally',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Energy',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'atom_eve_molecule_battle_armor',
+                    duration: 3,
+                    scope: 'target',
+                    metadata: {
+                        damageReductionFlat: 20,
+                        mergeNumericAddKeys: ['damageReductionFlat'],
+                        tooltipTextTemplate: 'This character has {damageReductionFlat} damage reduction.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'atom-eve-passive-near-death-awakening',
+            name: 'Passive: Near Death Awakening',
+            skillimage: 'https://i.imgur.com/2GW1mrj.png',
+            skilldescription: 'When Eve is killed, her health is set to 50 HP for 2 turns. Each turn, she loses 25 HP and all her skills become \'Molecular Deconstruction Beam\'.',
+            energy: [],
+            target: 'self',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Passive',
+                'Instant'
+            ]
+        },
+        {
+            id: 'atom-eve-molecular-deconstruction-beam',
+            name: 'Molecular Deconstruction Beam',
+            hiddenFromSelectionViewer: true,
+            skillimage: 'https://i.imgur.com/lT7gHa3.png',
+            skilldescription: 'Deals 35 affliction damage to one enemy. This skill cannot be ignored.',
+            energy: [
+                'Random',
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Energy',
+                'Ranged',
+                'Instant',
+                'Affliction'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 35,
+                    scope: 'target',
+                    metadata: {
+                        afflictionDamage: true,
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                }
+            ]
+        }
+    ]
+},
 ];
 
 if (typeof module !== 'undefined') {

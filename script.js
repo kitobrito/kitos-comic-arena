@@ -288,8 +288,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             const currentText =
                 typeof element.textContent === 'string' ? element.textContent.trim().toUpperCase() : '';
-            if (currentText.startsWith('CLAN:')) {
-                element.textContent = `CLAN: ${clanAbbreviation}`;
+            if (currentText.startsWith('ALLIANCE:')) {
+                element.textContent = `Alliance: ${clanAbbreviation}`;
                 return;
             }
             if (currentText.startsWith('LEVEL:')) {
@@ -486,6 +486,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const battleEndMessageEl = battleEndOverlayEl?.querySelector('.battle-end-message');
         const battleEndContinueButton = battleEndOverlayEl?.querySelector('.battle-end-continue');
         const classChoicePopupEl = document.querySelector('.class-choice-popup');
+        const classChoicePopupTitleEl = classChoicePopupEl?.querySelector('.class-choice-popup-title');
         const classChoicePopupOptionsEl = classChoicePopupEl?.querySelector('.class-choice-popup-options');
         const classChoicePopupCancelButton = classChoicePopupEl?.querySelector('.class-choice-popup-cancel');
         const endTurnChooseCountEl = endTurnModalEl?.querySelector('.chakrachoosered');
@@ -497,6 +498,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const READY_TEXT_OPPONENT = "OPPONENT'S TURN...";
         let lastTurnOwner = null;
         let turnExpiresAtMs = null;
+        let currentTurnDurationMs = TURN_DURATION_MS;
         let turnTimerInterval = null;
         let autoEndRequested = false;
         let isEndingTurn = false;
@@ -510,7 +512,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         let activeCastingSkill = null;
         const classChoiceBySkillKey = new Map();
         let pendingQueuePayload = null;
+        let pendingTurnStartChoicePayload = null;
         const playerSkillMetaByKey = new Map();
+        let activeTurnStartChoiceKey = '';
+        let activeChoicePopupMode = '';
         let queuedSkillKeySet = new Set();
         let draggingQueueActorSlot = null;
         let latestBoardState = null;
@@ -529,12 +534,34 @@ document.addEventListener('DOMContentLoaded', async () => {
                   total: chakraDisplay.querySelector('[data-chakra-total] .chakra-count'),
               }
             : {};
+        const chakraLabelToTypeMap = {
+            taijutsu: 'taijutsu',
+            green: 'taijutsu',
+            bloodline: 'bloodline',
+            red: 'bloodline',
+            ninjutsu: 'ninjutsu',
+            blue: 'ninjutsu',
+            genjutsu: 'genjutsu',
+            white: 'genjutsu',
+        };
+        const resolveChakraType = (value) => {
+            const normalized =
+                typeof value === 'string' ? value.trim().toLowerCase() : '';
+            return chakraLabelToTypeMap[normalized] || null;
+        };
+        const getRowChakraType = (row) => {
+            if (!(row instanceof Element)) return null;
+            return (
+                resolveChakraType(row.getAttribute('data-chakra-type')) ||
+                resolveChakraType(row.querySelector('.chakra-name')?.textContent)
+            );
+        };
         const buildAmountElementMap = (columnSelector) => {
             if (!endTurnModalEl) return {};
             const rows = Array.from(endTurnModalEl.querySelectorAll(`${columnSelector} .chakra-row`));
             const result = {};
             rows.forEach((row) => {
-                const name = row.querySelector('.chakra-name')?.textContent?.trim().toLowerCase();
+                const name = getRowChakraType(row);
                 const amountEl = row.querySelector('.chakra-amount');
                 if (name && amountEl) {
                     result[name] = amountEl;
@@ -549,7 +576,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const rows = Array.from(endTurnModalEl.querySelectorAll('.chakra-column .chakra-row'));
             const result = {};
             rows.forEach((row) => {
-                const name = row.querySelector('.chakra-name')?.textContent?.trim().toLowerCase();
+                const name = getRowChakraType(row);
                 if (name) {
                     result[name] = row;
                 }
@@ -597,6 +624,65 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ? pending.randomAssignments
                     : {}),
             },
+            turnStartChoice:
+                pending && pending.turnStartChoice && typeof pending.turnStartChoice === 'object'
+                    ? {
+                          actorSlot: Number.isInteger(pending.turnStartChoice.actorSlot)
+                              ? pending.turnStartChoice.actorSlot
+                              : null,
+                          sourceSkillId:
+                              typeof pending.turnStartChoice.sourceSkillId === 'string'
+                                  ? pending.turnStartChoice.sourceSkillId
+                                  : null,
+                          sourceUsername:
+                              typeof pending.turnStartChoice.sourceUsername === 'string'
+                                  ? pending.turnStartChoice.sourceUsername
+                                  : null,
+                          sourceSlot: Number.isInteger(pending.turnStartChoice.sourceSlot)
+                              ? pending.turnStartChoice.sourceSlot
+                              : null,
+                          sourceStatusId:
+                              typeof pending.turnStartChoice.sourceStatusId === 'string'
+                                  ? pending.turnStartChoice.sourceStatusId
+                                  : null,
+                          promptText:
+                              typeof pending.turnStartChoice.promptText === 'string'
+                                  ? pending.turnStartChoice.promptText
+                                  : '',
+                          options: Array.isArray(pending.turnStartChoice.options)
+                              ? pending.turnStartChoice.options
+                                    .map((option) => {
+                                        if (!option || typeof option !== 'object') return null;
+                                        const key =
+                                            typeof option.key === 'string'
+                                                ? option.key.trim().toLowerCase()
+                                                : '';
+                                        const label =
+                                            typeof option.label === 'string' ? option.label.trim() : '';
+                                        if (!key || !label) return null;
+                                        return {
+                                            key,
+                                            label,
+                                            targetStrategy:
+                                                typeof option.targetStrategy === 'string'
+                                                    ? option.targetStrategy.trim().toLowerCase()
+                                                    : '',
+                                            effect:
+                                                option.effect && typeof option.effect === 'object'
+                                                    ? { ...option.effect }
+                                                    : null,
+                                        };
+                                    })
+                                    .filter(Boolean)
+                              : [],
+                          maxUses: Number.isInteger(pending.turnStartChoice.maxUses)
+                              ? pending.turnStartChoice.maxUses
+                              : 0,
+                          usesUsed: Number.isInteger(pending.turnStartChoice.usesUsed)
+                              ? pending.turnStartChoice.usesUsed
+                              : 0,
+                      }
+                    : null,
         });
         const normalizeClassChoice = (value) =>
             typeof value === 'string' ? value.trim().toLowerCase() : '';
@@ -749,6 +835,50 @@ document.addEventListener('DOMContentLoaded', async () => {
             );
         };
 
+        const normalizeSkillCostOverride = (override = {}) => {
+            const result = [];
+            const addEnergy = (type, amount) => {
+                const count = Math.max(0, Number(amount) || 0);
+                for (let i = 0; i < count; i += 1) {
+                    result.push(type);
+                }
+            };
+            if (Array.isArray(override?.energy)) {
+                override.energy.forEach((entry) => {
+                    const normalized = typeof entry === 'string' ? entry.trim().toLowerCase() : '';
+                    if (normalized) result.push(normalized);
+                });
+            }
+            addEnergy('random', override?.requiredRandom);
+            addEnergy('random', override?.random);
+            ['taijutsu', 'ninjutsu', 'bloodline', 'genjutsu'].forEach((type) => {
+                addEnergy(type, override?.[type]);
+                addEnergy(type, override?.reservedSpecific?.[type]);
+            });
+            return result;
+        };
+
+        const getSkillCostOverrideForSkill = (actorSlot, skill = null) => {
+            const skillId = typeof skill?.id === 'string' ? skill.id : '';
+            if (!skillId || !Number.isInteger(actorSlot) || actorSlot < 0) return null;
+            const actorUnit = latestBoardState?.[currentPlayerUsername]?.[actorSlot];
+            const statuses = Array.isArray(actorUnit?.state?.statuses) ? actorUnit.state.statuses : [];
+            for (const status of statuses) {
+                if ((Number(status?.remainingTurns) || 0) <= 0) continue;
+                const overrides = status?.metadata?.skillCostOverridesBySkillId;
+                if (!overrides || typeof overrides !== 'object') continue;
+                const overrideByRemaining = status?.metadata?.skillCostOverridesByRemainingTurns;
+                const remaining = Number(status?.remainingTurns) || 0;
+                const override =
+                    (overrideByRemaining && typeof overrideByRemaining === 'object'
+                        ? overrideByRemaining[String(remaining)] || overrideByRemaining[remaining]
+                        : null) || overrides[skillId];
+                if (!override || typeof override !== 'object') continue;
+                return normalizeSkillCostOverride(override);
+            }
+            return null;
+        };
+
         const getEffectiveEnergyList = (energy = [], actorSlot = null, skill = null) => {
             const normalizedEnergy = (Array.isArray(energy) ? energy : []).filter((entry) => {
                 const normalized = typeof entry === 'string' ? entry.trim().toLowerCase() : '';
@@ -756,6 +886,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             if (!Number.isInteger(actorSlot) || actorSlot < 0) {
                 return normalizedEnergy;
+            }
+            const overrideEnergy = getSkillCostOverrideForSkill(actorSlot, skill);
+            if (overrideEnergy) {
+                return overrideEnergy;
             }
             const reductions = getActorCostReductions(actorSlot);
             let remainingRandomReduction = Math.max(0, reductions.random);
@@ -1169,7 +1303,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 pendingTurnState = normalizePendingTurn(data.pendingTurn);
                 applyQueuedSkillVisuals();
-                syncTurnState(data.currentTurn, data.turnExpiresAt);
+                syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
             } catch (error) {
                 console.warn('Failed to reorder queued skills.', error);
             }
@@ -1270,7 +1404,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
             const remaining = Math.max(0, turnExpiresAtMs - Date.now());
-            const ratio = remaining / TURN_DURATION_MS;
+            const ratio = remaining / Math.max(1, currentTurnDurationMs || TURN_DURATION_MS);
             const widthPx = Math.max(0, Math.round(TIMER_MAX_WIDTH * ratio));
             timerBar.style.width = `${widthPx}px`;
             if (
@@ -1278,6 +1412,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 currentPlayerUsername &&
                 currentTurnUsername === currentPlayerUsername &&
                 normalizePendingTurn(pendingTurnState).unresolvedRandom === 0 &&
+                !normalizePendingTurn(pendingTurnState).turnStartChoice &&
                 !autoEndRequested
             ) {
                 autoEndRequested = true;
@@ -1302,17 +1437,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         };
 
-        const syncTurnState = (turnOwner, turnExpiresAt) => {
+        const syncTurnState = (turnOwner, turnExpiresAt, turnDurationMs) => {
             const parsedExpiry = turnExpiresAt ? new Date(turnExpiresAt).getTime() : null;
             const turnChanged = turnOwner && turnOwner !== lastTurnOwner;
+            const resolvedDurationMs = Math.max(1000, Number(turnDurationMs) || TURN_DURATION_MS);
             if (turnChanged) {
                 lastTurnOwner = turnOwner;
                 autoEndRequested = false;
             }
+            currentTurnDurationMs = resolvedDurationMs;
             if (parsedExpiry) {
                 turnExpiresAtMs = parsedExpiry;
             } else if (turnChanged) {
-                turnExpiresAtMs = Date.now() + TURN_DURATION_MS;
+                turnExpiresAtMs = Date.now() + currentTurnDurationMs;
             }
             currentTurnUsername = turnOwner || null;
             const isPlayersTurn = currentPlayerUsername && currentTurnUsername
@@ -1332,9 +1469,30 @@ document.addEventListener('DOMContentLoaded', async () => {
                 updateSkillAffordability();
                 return;
             }
+            const turnStartChoice = normalizePendingTurn(pendingTurnState).turnStartChoice;
+            const hasTurnStartChoice = Boolean(
+                turnStartChoice &&
+                    Array.isArray(turnStartChoice.options) &&
+                    turnStartChoice.options.length > 0
+            );
             setSkillInteractivity(isPlayersTurn);
             startTimerLoop();
             updateTimerBar();
+            if (isPlayersTurn && hasTurnStartChoice) {
+                setSkillInteractivity(false);
+                const popupKey = `${turnStartChoice.sourceStatusId || ''}:${turnStartChoice.usesUsed || 0}`;
+                if (activeTurnStartChoiceKey !== popupKey) {
+                    activeTurnStartChoiceKey = popupKey;
+                    openTurnStartChoicePopup({
+                        promptText: turnStartChoice.promptText || "Choose Doctor's Bag effect.",
+                        options: turnStartChoice.options || [],
+                    });
+                }
+            } else {
+                if (activeChoicePopupMode === 'turn-start') {
+                    closeClassChoicePopup();
+                }
+            }
             if (!isPlayersTurn) {
                 const skillImgs = Array.from(
                     document.querySelectorAll('.player-characters .skillscrollingame .skillimage')
@@ -1348,6 +1506,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 activeTargetOptions = null;
                 activeCastingSkill = null;
                 closeEndTurnModal();
+                if (activeChoicePopupMode === 'turn-start') {
+                    closeClassChoicePopup();
+                }
             }
             updateSkillAffordability();
         };
@@ -1438,13 +1599,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const getExchangeTypeFromButton = (button) => {
-            const label = button?.getAttribute('aria-label') || '';
-            const normalized = label.trim().toLowerCase();
-            if (normalized === 'taijutsu') return 'taijutsu';
-            if (normalized === 'bloodline') return 'bloodline';
-            if (normalized === 'ninjutsu') return 'ninjutsu';
-            if (normalized === 'genjutsu') return 'genjutsu';
-            return null;
+            return (
+                resolveChakraType(button?.getAttribute('data-chakra-type')) ||
+                resolveChakraType(button?.getAttribute('aria-label'))
+            );
         };
 
         const updateExchangeChoiceUi = () => {
@@ -1483,14 +1641,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             const leftRows = Array.from(columns[0]?.querySelectorAll('.exchange_chakra_row') || []);
             const rightRows = Array.from(columns[1]?.querySelectorAll('.exchange_chakra_row') || []);
             leftRows.forEach((row) => {
-                const name = row.querySelector('.chakra-name')?.textContent?.trim().toLowerCase();
+                const name = getRowChakraType(row);
                 const amountEl = row.querySelector('.chakra-amount');
                 if (!name || !amountEl) return;
                 const assigned = Math.max(0, Number(exchangeSpendAssignments[name]) || 0);
                 amountEl.textContent = String(Math.max(0, (normalizedPool[name] || 0) - assigned));
             });
             rightRows.forEach((row) => {
-                const name = row.querySelector('.chakra-name')?.textContent?.trim().toLowerCase();
+                const name = getRowChakraType(row);
                 const amountEl = row.querySelector('.chakra-amount');
                 if (!name || !amountEl) return;
                 amountEl.textContent = String(Math.max(0, Number(exchangeSpendAssignments[name]) || 0));
@@ -1953,7 +2111,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         typeof status.metadata.skillDamageBonuses === 'object'
                             ? status.metadata.skillDamageBonuses
                             : null;
-                    if (skillDamageBonuses) {
+                    if (skillDamageBonuses && !hasCustomTooltipText) {
                         const bonusLines = Object.entries(skillDamageBonuses)
                             .map(([skillId, value]) => {
                                 const bonus = Number(value) || 0;
@@ -2128,7 +2286,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
                 return;
             }
-            syncTurnState(data.currentTurn, data.turnExpiresAt);
+            syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
         };
 
         setSkillInteractivity(true);
@@ -2361,11 +2519,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const closeClassChoicePopup = () => {
             pendingQueuePayload = null;
+            pendingTurnStartChoicePayload = null;
+            activeTurnStartChoiceKey = '';
+            activeChoicePopupMode = '';
             if (!classChoicePopupEl) return;
             classChoicePopupEl.classList.remove('visible');
             classChoicePopupEl.setAttribute('aria-hidden', 'true');
             if (classChoicePopupOptionsEl) {
                 classChoicePopupOptionsEl.innerHTML = '';
+            }
+            if (classChoicePopupTitleEl) {
+                classChoicePopupTitleEl.textContent = 'Choose Class';
+            }
+            if (classChoicePopupCancelButton) {
+                classChoicePopupCancelButton.style.display = '';
             }
         };
 
@@ -2391,7 +2558,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     renderChakra(data.chakraPools?.[currentPlayerUsername] || emptyPool());
                     pendingTurnState = normalizePendingTurn(data.pendingTurn);
                     applyQueuedSkillVisuals();
-                    syncTurnState(data.currentTurn, data.turnExpiresAt);
+                    syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
                 })
                 .catch((error) => {
                     console.warn('Failed to queue skill.', error);
@@ -2406,8 +2573,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const openClassChoicePopup = ({ actorSlot, skillIdx, selection, options = [] }) => {
             if (!classChoicePopupEl || !classChoicePopupOptionsEl || !options.length) return;
+            activeChoicePopupMode = 'skill-class';
             pendingQueuePayload = { actorSlot, skillIdx, selection };
+            pendingTurnStartChoicePayload = null;
             classChoicePopupOptionsEl.innerHTML = '';
+            if (classChoicePopupTitleEl) {
+                classChoicePopupTitleEl.textContent = 'Choose Class';
+            }
+            if (classChoicePopupCancelButton) {
+                classChoicePopupCancelButton.style.display = '';
+            }
             options.forEach((optionValue) => {
                 const button = document.createElement('button');
                 button.type = 'button';
@@ -2421,6 +2596,72 @@ document.addEventListener('DOMContentLoaded', async () => {
                         selection,
                         classChoice: optionValue,
                     });
+                });
+                classChoicePopupOptionsEl.appendChild(button);
+            });
+            classChoicePopupEl.classList.add('visible');
+            classChoicePopupEl.setAttribute('aria-hidden', 'false');
+        };
+
+        const resolveTurnStartChoice = async (choiceKey) => {
+            if (!matchIdFromUrl || !choiceKey || !pendingTurnStartChoicePayload) return;
+            try {
+                const response = await fetch(
+                    `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/start-choice`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        credentials: 'include',
+                        body: JSON.stringify({ choiceKey }),
+                    }
+                );
+                const data = await response.json();
+                if (!response.ok || !data?.ok) {
+                    throw new Error(data?.error || 'Unable to resolve choice.');
+                }
+                pendingTurnState = normalizePendingTurn(data.pendingTurn);
+                applyMatchState({
+                    ok: true,
+                    player: data.player || { username: currentPlayerUsername },
+                    opponent: data.opponent || { username: currentOpponentUsername },
+                    board: data.board || latestBoardState,
+                    currentTurn: data.currentTurn,
+                    turnExpiresAt: data.turnExpiresAt,
+                    turnDurationMs: data.turnDurationMs,
+                    pendingTurn: data.pendingTurn,
+                    chakraPools: data.chakraPools || { [currentPlayerUsername]: playerPoolState },
+                    status: data.status || 'active',
+                });
+                playIngameSound(applySkillSound);
+            } catch (error) {
+                console.warn('Failed to resolve turn start choice.', error);
+            } finally {
+                closeClassChoicePopup();
+                clearTargetHighlights();
+                activeTargetOptions = null;
+                activeCastingSkill = null;
+            }
+        };
+
+        const openTurnStartChoicePopup = ({ promptText = '', options = [] }) => {
+            if (!classChoicePopupEl || !classChoicePopupOptionsEl || !options.length) return;
+            activeChoicePopupMode = 'turn-start';
+            pendingTurnStartChoicePayload = { promptText, options };
+            pendingQueuePayload = null;
+            classChoicePopupOptionsEl.innerHTML = '';
+            if (classChoicePopupTitleEl) {
+                classChoicePopupTitleEl.textContent = promptText || "Doctor's Bag";
+            }
+            if (classChoicePopupCancelButton) {
+                classChoicePopupCancelButton.style.display = 'none';
+            }
+            options.forEach((optionValue) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.textContent = optionValue.label || formatClassChoiceLabel(optionValue.key);
+                button.addEventListener('click', () => {
+                    activeTurnStartChoiceKey = optionValue.key || '';
+                    resolveTurnStartChoice(optionValue.key || '');
                 });
                 classChoicePopupOptionsEl.appendChild(button);
             });
@@ -2461,6 +2702,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (classChoicePopupCancelButton) {
             classChoicePopupCancelButton.addEventListener('click', () => {
+                if (activeChoicePopupMode === 'turn-start') return;
                 closeClassChoicePopup();
                 clearTargetHighlights();
                 activeTargetOptions = null;
@@ -2470,6 +2712,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (classChoicePopupEl) {
             classChoicePopupEl.addEventListener('click', (event) => {
                 if (event.target !== classChoicePopupEl) return;
+                if (activeChoicePopupMode === 'turn-start') return;
                 closeClassChoicePopup();
                 clearTargetHighlights();
                 activeTargetOptions = null;
@@ -2593,7 +2836,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                                 );
                                                 pendingTurnState = normalizePendingTurn(data.pendingTurn);
                                                 applyQueuedSkillVisuals();
-                                                syncTurnState(data.currentTurn, data.turnExpiresAt);
+                                                syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
                                             })
                                             .catch((error) => console.warn('Failed to cancel skill.', error));
                                         return;
@@ -2710,6 +2953,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const handleReadySectionClick = async () => {
             if (!currentPlayerUsername || !currentTurnUsername) return;
             if (currentPlayerUsername !== currentTurnUsername) return;
+            if (normalizePendingTurn(pendingTurnState).turnStartChoice) return;
             await openEndTurnModal();
         };
 
@@ -2734,7 +2978,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 );
                 const data = await response.json();
                 if (!response.ok || !data?.ok) {
-                    throw new Error(data?.error || 'Failed to end turn.');
+                    const detailSuffix = data?.details ? ` Details: ${data.details}` : '';
+                    throw new Error((data?.error || 'Failed to end turn.') + detailSuffix);
                 }
                 playIngameSound(nextRoundSound);
                 applyMatchState(data);
@@ -2770,7 +3015,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 renderChakra(data.chakraPools?.[currentPlayerUsername] || emptyPool());
                 pendingTurnState = normalizePendingTurn(data.pendingTurn);
                 applyQueuedSkillVisuals();
-                syncTurnState(data.currentTurn, data.turnExpiresAt);
+                syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
                 if (endTurnModalEl && endTurnModalEl.style.visibility === 'visible') {
                     renderEndTurnModal(playerPoolState, pendingTurnState);
                 }
@@ -2802,7 +3047,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 renderChakra(data.chakraPools?.[currentPlayerUsername] || emptyPool());
                 pendingTurnState = normalizePendingTurn(data.pendingTurn);
                 applyQueuedSkillVisuals();
-                syncTurnState(data.currentTurn, data.turnExpiresAt);
+                syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
                 exchangeSpendAssignments = emptyPool();
                 closeExchangeModal();
             } catch (error) {
@@ -2844,7 +3089,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const columns = Array.from(exchangeModalEl.querySelectorAll('.exchange_chakra_column'));
             const leftRows = Array.from(columns[0]?.querySelectorAll('.exchange_chakra_row') || []);
             leftRows.forEach((row) => {
-                const name = row.querySelector('.chakra-name')?.textContent?.trim().toLowerCase();
+                const name = getRowChakraType(row);
                 const symbols = Array.from(row.querySelectorAll('.exchange_symbol'));
                 if (!name || symbols.length < 2 || !chakraTypes.includes(name)) return;
                 const minusEl = symbols[0];

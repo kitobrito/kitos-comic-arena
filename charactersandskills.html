@@ -1,1013 +1,132 @@
-﻿<!DOCTYPE html>
+﻿
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Naruto-Arena Home</title>
+  <title>Comic-Arena Character Files</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --bg: #000;
-      --panel: #050505;
-      --line: #181818;
-      --card: #101010;
-      --soft: #262626;
-      --text: #f4f4f4;
-      --muted: #a0a0a0;
-      --accent: #ffb84d;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background:
-        url("https://i.postimg.cc/x11QM8NQ/476467.png"),
-        radial-gradient(circle at 12% 18%, rgba(255, 149, 0, 0.3), transparent 24%),
-        radial-gradient(circle at 88% 12%, rgba(255, 106, 0, 0.18), transparent 22%),
-        radial-gradient(circle at 50% 78%, rgba(255, 184, 77, 0.08), transparent 28%),
-        linear-gradient(145deg, #1a0700 0%, #090909 38%, #000000 68%, #2f0d00 100%);
-      background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat;
-      background-size: 120px 120px, auto, auto, auto, auto;
-      background-position: 0 0, center, center, center, center;
-      color: var(--text);
-      font-family: "Outfit", system-ui, sans-serif;
-      animation: bodyPatternDrift 18s linear infinite;
-    }
-
-    @keyframes bodyPatternDrift {
-      from {
-        background-position: 0 0, center, center, center, center;
-      }
-
-      to {
-        background-position: 120px 0, center, center, center, center;
-      }
-    }
-
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .app {
-      width: min(1500px, 100%);
-      min-height: 100vh;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 235px minmax(0, 1fr) 270px;
-
-    }
-
-    .sidebar,
-    .aside {
-      padding: 18px 22px;
-      background: rgba(0, 0, 0, 0.94);
-    }
-
-    .sidebar {
-      position: relative;
-      overflow: hidden;
-      border-right: 1px solid var(--line);
-      background:
-        linear-gradient(180deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.9) 100%),
-        var(--sidebar-backdrop, none) center/cover no-repeat,
-        rgba(0, 0, 0, 0.94);
-    }
-
-    .sidebar::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(180deg, rgba(3, 3, 3, 0.2) 0%, rgba(0, 0, 0, 0.68) 45%, rgba(0, 0, 0, 0.9) 100%),
-        radial-gradient(circle at top left, rgba(241, 117, 34, 0.12), transparent 30%);
-      pointer-events: none;
-    }
-
-    .sidebar > * {
-      position: relative;
-      z-index: 1;
-    }
-
-    .aside {
-      border-left: 1px solid var(--line);
-    }
-
-    .brand {
-      display: grid;
-      justify-items: center;
-      gap: 10px;
-      margin-bottom: 34px;
-      padding-bottom: 18px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-    }
-
-    .brand-mark {
-      width: 54px;
-      height: auto;
-      max-height: 42px;
-      display: block;
-      object-fit: contain;
-    }
-
-    .brand-name {
-      font-size: 16px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-    }
-
-    .brand-copy {
-      display: grid;
-      gap: 4px;
-      justify-items: center;
-      text-align: center;
-    }
-
-    .brand-tagline {
-      font-size: 11px;
-      line-height: 1.35;
-      color: #8f8f8f;
-    }
-
-    .group {
-      margin-bottom: 28px;
-    }
-
-    .group-title {
-      margin: 0 0 14px;
-      color: #f8f8f8;
-      font-size: 17px;
-      font-weight: 600;
-    }
-
-    .nav {
-      display: grid;
-      gap: 6px;
-    }
-
-    .nav-link {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 8px 0;
-      color: #d7d7d7;
-      font-size: 15px;
-      font-weight: 400;
-      position: relative;
-    }
-
-    .nav-link:hover {
-      color: var(--accent);
-    }
-
-    .nav-link svg {
-      width: 18px;
-      height: 18px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 1.8;
-      flex: 0 0 auto;
-    }
-
-    .nav-link.active {
-      color: var(--accent);
-      font-weight: 500;
-    }
-
-    .nav-link.active::before {
-      content: "";
-      position: absolute;
-      left: -22px;
-      top: 9px;
-      bottom: 9px;
-      width: 4px;
-      border-radius: 999px;
-      background: var(--accent);
-    }
-
-    .play-now {
-      width: 100%;
-      height: 42px;
-      margin-bottom: 8px;
-      border: 0;
-      border-radius: 100px;
-      background: linear-gradient(160deg, #ffb84d 0%, #ff8c1a 100%);
-      color: #101010;
-      font: inherit;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 10px 24px rgba(255, 140, 26, 0.2);
-    }
-
-    .auth-form {
-      display: grid;
-      gap: 10px;
-      margin-top: 14px;
-    }
-
-    .auth-description {
-      margin: 0;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.4;
-    }
-
-    .auth-input {
-      width: 100%;
-      height: 38px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 100px;
-      background: rgba(8, 8, 8, 0.7);
-      color: #f3f3f3;
-      padding: 0 12px;
-      font: inherit;
-      outline: none;
-    }
-
-    .auth-input::placeholder {
-      color: #8e8e8e;
-    }
-
-    .auth-input:focus {
-      border-color: #ffb84d;
-      box-shadow: 0 0 0 3px rgba(241, 169, 34, 0.12);
-    }
-
-    .auth-button {
-      width: 100%;
-      height: 40px;
-      border: 0;
-      border-radius: 100px;
-      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
-      color: #000000;
-      font: inherit;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: 0 10px 24px rgba(241, 134, 34, 0.22);
-    }
-
-    .auth-switch {
-      border: 0;
-      padding: 0;
-      background: transparent;
-      color: #ffd392;
-      font: inherit;
-      font-size: 12px;
-      text-align: left;
-      cursor: pointer;
-    }
-
-    .auth-status {
-      min-height: 18px;
-      margin: 0;
-      color: #d2d2d2;
-      font-size: 12px;
-      line-height: 1.4;
-    }
-
-    .auth-status[data-state="error"] {
-      color: #ff8f8f;
-    }
-
-    .auth-status[data-state="success"] {
-      color: #9ce2a1;
-    }
-
-    .account-panel[hidden] {
-      display: none;
-    }
-
-    .account-greeting {
-      margin: 0;
-      color: #f6f6f6;
-      font-size: 15px;
-      line-height: 1.45;
-      font-weight: 500;
-    }
-
-    .account-name {
-      color: #ffd392;
-      font-weight: 700;
-    }
-
-    .account-actions {
-      display: grid;
-      gap: 6px;
-      margin-top: 14px;
-    }
-
-    .account-action {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      width: 100%;
-      min-height: 36px;
-      border: 0;
-      background: transparent;
-      color: #d7d7d7;
-      padding: 8px 0;
-      font: inherit;
-      font-size: 15px;
-      text-align: left;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .account-action svg {
-      width: 18px;
-      height: 18px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 1.8;
-      flex: 0 0 auto;
-    }
-
-    .account-action:hover {
-      color: var(--accent);
-    }
-
-    .account-action.active {
-      color: var(--accent);
-      font-weight: 500;
-    }
-
-    .account-action.active::before {
-      content: "";
-      position: absolute;
-      left: -22px;
-      top: 9px;
-      bottom: 9px;
-      width: 4px;
-      border-radius: 999px;
-      background: var(--accent);
-    }
-
-    .main {
-      padding: 18px 26px 26px;
-    }
-
-    .release-panel {
-      margin-bottom: 18px;
-      padding: 18px;
-      border: 1px solid #171717;
-      border-radius: 14px;
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)),
-        #0a0a0a;
-      box-shadow: 0 18px 36px rgba(0, 0, 0, 0.22);
-    }
-
-    .release-title {
-      margin: 0 0 8px;
-      font-size: 22px;
-      font-weight: 700;
-      text-align: center;
-    }
-
-    .release-copy {
-      margin: 0 0 14px;
-      color: #b7b7b7;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .release-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      justify-content: center;
-      justify-items: center;
-    }
-
-    .release-card {
-      display: grid;
-      gap: 10px;
-      justify-items: center;
-      padding: 14px 10px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.04);
-      width: 150px;
-    }
-
-    .release-face {
-      width: 75px;
-      height: 75px;
-      object-fit: cover;
-      border: 1px solid #ffffff;
-      background: #111;
-    }
-
-    .release-label {
-      color: #cfcfcf;
-      font-size: 12px;
-      text-align: center;
-    }
-
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-bottom: 18px;
-      margin-bottom: 18px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .tabs {
-      display: flex;
-      gap: 34px;
-    }
-
-    .tab {
-      font-size: 17px;
-      color: #a7a7a7;
-      position: relative;
-      padding: 4px 0;
-    }
-
-    .tab.active {
-      color: #fff;
-    }
-
-    .tab.active::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      bottom: -18px;
-      width: 30px;
-      height: 4px;
-      transform: translateX(-50%);
-      border-radius: 999px;
-      background: #fff;
-    }
-
-    .top-actions {
-      display: flex;
-      gap: 14px;
-      align-items: center;
-    }
-
-    .icon-btn,
-    .avatar {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      border: 1px solid #3c3c3c;
-      background: #0e0e0e;
-    }
-
-    .icon-btn svg {
-      width: 17px;
-      height: 17px;
-      stroke: #f5f5f5;
-      fill: none;
-      stroke-width: 1.8;
-    }
-
-    .avatar {
-      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
-      border-color: rgba(255, 82, 82, 0.6);
-      font-size: 14px;
-    }
-
-    .mainsection {
-      padding: 26px 24px;
-      border: 1px solid #171717;
-      border-radius: 14px;
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)),
-        #0a0a0a;
-      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.24);
-    }
-
-    .character-directory {
-      display: grid;
-      gap: 18px;
-    }
-
-    .character-search-row {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
-    }
-
-    .character-search-label {
-      margin: 0;
-      color: #f4f4f4;
-      font-size: 24px;
-      font-weight: 700;
-    }
-
-    .character-search-input {
-      width: min(100%, 320px);
-      height: 42px;
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      background: rgba(7, 7, 7, 0.88);
-      color: #f0f0f0;
-      padding: 0 14px;
-      font: inherit;
-      font-size: 14px;
-      outline: none;
-    }
-
-    .character-search-input::placeholder {
-      color: #8e8e8e;
-      font-style: italic;
-    }
-
-    .character-search-input:focus {
-      border-color: #ffb84d;
-      box-shadow: 0 0 0 3px rgba(255, 184, 77, 0.12);
-    }
-
-    .character-directory-copy {
-      margin: 0;
-      color: #d8d8d8;
-      font-size: 14px;
-      line-height: 1.65;
-      max-width: 900px;
-    }
-
-    .character-directory-list {
-      display: grid;
-      gap: 0;
-    }
-
-    .character-row {
-      padding: 16px 0 12px;
-      border-bottom: 1px dotted rgba(255, 255, 255, 0.28);
-    }
-
-    .character-row-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-      color: #d7e0ff;
-      font-size: 17px;
-      font-weight: 700;
-    }
-
-    .character-row-star {
-      color: #ff9d1e;
-      font-size: 15px;
-      line-height: 1;
-    }
-
-    .character-row-name {
-      color: #ffffff;
-    }
-
-    .character-row-body {
-      display: grid;
-      grid-template-columns: 78px minmax(0, 1fr);
-      gap: 14px;
-      align-items: start;
-    }
-
-    .character-row-image {
-      width: 75px;
-      height: 75px;
-      border: 1px solid rgba(255, 255, 255, 0.35);
-      object-fit: cover;
-      background: #111;
-    }
-
-    .character-row-copy {
-      display: grid;
-      gap: 10px;
-    }
-
-    .character-row-description {
-      color: #efefef;
-      font-size: 14px;
-      line-height: 1.5;
-      margin: 0;
-    }
-
-    .character-row-link {
-      justify-self: end;
-      color: #ff9d2e;
-      font-size: 13px;
-      font-weight: 600;
-    }
-
-    .character-row-link:hover {
-      color: #ffc777;
-    }
-
-    .character-directory-empty {
-      padding: 18px 0 4px;
-      color: #bdbdbd;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .character-modal-backdrop {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      background: rgba(0, 0, 0, 0.76);
-      z-index: 1000;
-    }
-
-    .character-modal-backdrop.visible {
-      display: flex;
-    }
-
-    .character-modal {
-      width: min(980px, 100%);
-      max-height: min(88vh, 900px);
-      overflow: auto;
-      padding: 22px 18px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 14px;
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)),
-        #0a0a0a;
-      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.36);
-    }
-
-    .character-modal-close-row {
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 10px;
-    }
-
-    .character-modal-close {
-      border: 0;
-      background: transparent;
-      color: #cfcfcf;
-      font: inherit;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    .character-modal-header {
-      padding-bottom: 12px;
-      border-bottom: 1px dotted rgba(255, 255, 255, 0.28);
-      margin-bottom: 16px;
-    }
-
-    .character-modal-summary {
-      display: grid;
-      grid-template-columns: 78px minmax(0, 1fr);
-      gap: 14px;
-      align-items: start;
-    }
-
-    .character-modal-image {
-      width: 75px;
-      height: 75px;
-      object-fit: cover;
-      border: 1px solid rgba(255, 255, 255, 0.35);
-      background: #111;
-    }
-
-    .character-modal-description {
-      margin: 0;
-      color: #efefef;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .character-modal-unlock {
-      margin: 8px 0 0;
-      color: #d9d9d9;
-      font-size: 13px;
-    }
-
-    .character-modal-skill-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 18px 16px;
-    }
-
-    .character-skill-card {
-      padding-bottom: 10px;
-      border-bottom: 1px dotted rgba(255, 255, 255, 0.24);
-    }
-
-    .character-skill-title {
-      margin: 0 0 8px;
-      color: #f0f0f0;
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .character-skill-name {
-      color: #ff9d2e;
-      font-weight: 700;
-    }
-
-    .character-skill-body {
-      display: grid;
-      grid-template-columns: 78px minmax(0, 1fr);
-      gap: 12px;
-      align-items: start;
-    }
-
-    .character-skill-image {
-      width: 75px;
-      height: 75px;
-      object-fit: cover;
-      border: 1px solid rgba(255, 255, 255, 0.28);
-      background: #111;
-    }
-
-    .character-skill-description {
-      margin: 0;
-      color: #ececec;
-      font-size: 14px;
-      line-height: 1.45;
-    }
-
-    .character-skill-meta {
-      margin-top: 8px;
-      color: #d9d9d9;
-      font-size: 12px;
-      line-height: 1.45;
-    }
-
-    .character-skill-meta strong {
-      color: #f0f0f0;
-      font-weight: 600;
-    }
-
-    .character-energy-pips {
-      display: inline-flex;
-      align-items: center;
-      gap: 2px;
-      vertical-align: middle;
-      margin-left: 4px;
-    }
-
-    .character-energy-pip {
-      width: 10px;
-      height: 10px;
-      border: 1px solid rgb(255, 255, 255);
-      display: inline-block;
-    }
-
+    :root { --bg: #f4e7c9; --panel: #fff7de; --panel-strong: #fffdf6; --line: #16120d; --ink: #15110b; --text: #21180f; --muted: #65584b; --accent: #ff5b2e; --accent-2: #ffd43a; --accent-3: #1f75ff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: radial-gradient(circle at 20% 20%, rgba(255, 212, 58, 0.85), transparent 0 18%), radial-gradient(circle at 80% 14%, rgba(31, 117, 255, 0.3), transparent 0 16%), radial-gradient(circle, rgba(21, 17, 11, 0.18) 1px, transparent 1.2px) 0 0 / 11px 11px, linear-gradient(180deg, #fff4cd 0%, #f5dd9e 34%, #f7b44a 100%); color: var(--text); font-family: "Barlow Condensed", system-ui, sans-serif; }
+    a { color: inherit; text-decoration: none; }
+    .app { width: min(1560px, 100%); min-height: 100vh; margin: 0 auto; display: grid; grid-template-columns: 235px minmax(0, 1fr) 270px; gap: 18px; padding: 18px; }
+    .sidebar, .aside { padding: 18px 20px; background: var(--panel); border: 4px solid var(--line); box-shadow: 8px 8px 0 rgba(0,0,0,.95); }
+    .sidebar { position: relative; overflow: hidden; }
+    .sidebar::before { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,91,46,.08), transparent 30%, rgba(21,17,11,.08) 100%), radial-gradient(circle at top left, rgba(255,212,58,.36), transparent 28%); pointer-events: none; }
+    .sidebar > * { position: relative; z-index: 1; }
+    .aside { background: radial-gradient(circle at top right, rgba(255,212,58,.28), transparent 22%), var(--panel); }
+    .brand { display: grid; justify-items: center; gap: 10px; margin-bottom: 34px; padding-bottom: 18px; border-bottom: 4px solid var(--line); }
+    .brand-mark { width: 54px; max-height: 42px; display: block; object-fit: contain; }
+    .brand-name { font-family: "Bangers", cursive; font-size: 34px; font-weight: 400; letter-spacing: .06em; line-height: 1; text-shadow: 3px 3px 0 var(--accent-2); }
+    .brand-copy { display: grid; gap: 4px; justify-items: center; text-align: center; }
+    .brand-tagline { font-size: 14px; line-height: 1.2; color: var(--muted); font-weight: 600; text-transform: uppercase; }
+    .group { margin-bottom: 28px; }
+    .group-title { margin: 0 0 14px; color: var(--ink); font-family: "Bangers", cursive; font-size: 27px; font-weight: 400; letter-spacing: .06em; }
+    .nav { display: grid; gap: 6px; }
+    .nav-link, .account-action { display: flex; align-items: center; gap: 14px; position: relative; text-transform: uppercase; }
+    .nav-link { padding: 10px 12px; color: var(--ink); font-size: 19px; font-weight: 700; border: 3px solid transparent; }
+    .nav-link:hover { color: var(--ink); border-color: var(--line); background: var(--accent-2); }
+    .nav-link svg, .account-action svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; flex: 0 0 auto; }
+    .nav-link.active { color: #fff; background: var(--accent); border-color: var(--line); transform: translate(-4px,-4px); box-shadow: 4px 4px 0 rgba(0,0,0,1); }
+    .nav-link.active::before { content: "!"; position: absolute; right: 10px; top: 50%; transform: translateY(-50%) rotate(-8deg); width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; background: var(--accent-2); color: var(--line); font-family: "Bangers", cursive; font-size: 18px; }
+    .play-now { width: 100%; height: 52px; margin-bottom: 10px; border: 4px solid var(--line); background: linear-gradient(180deg, #ffeb67 0%, #ff9e1b 100%); color: #101010; font: inherit; font-size: 24px; font-weight: 800; text-transform: uppercase; cursor: pointer; box-shadow: 0 6px 0 rgba(0,0,0,.95); transform: rotate(-1.5deg); }
+    .play-now:hover { transform: translateY(2px) rotate(-1.5deg); box-shadow: 0 4px 0 rgba(0,0,0,.95); }
+    .auth-form { display: grid; gap: 10px; margin-top: 14px; }
+    .auth-description { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.4; font-weight: 600; }
+    .auth-input, .character-search-input { border: 3px solid var(--line); background: var(--panel-strong); color: var(--ink); font: inherit; outline: none; }
+    .auth-input { width: 100%; height: 42px; padding: 0 12px; font-size: 18px; font-weight: 600; }
+    .auth-input::placeholder, .character-search-input::placeholder { color: #806d5b; }
+    .auth-input:focus, .character-search-input:focus { border-color: var(--accent-3); box-shadow: 0 0 0 4px rgba(31,117,255,.15); }
+    .auth-button { width: 100%; height: 44px; border: 3px solid var(--line); background: linear-gradient(180deg, #ff673d 0%, #ef2e00 100%); color: #fff; font: inherit; font-size: 20px; font-weight: 800; text-transform: uppercase; cursor: pointer; box-shadow: 0 5px 0 rgba(0,0,0,.95); }
+    .auth-switch { border: 0; padding: 0; background: transparent; color: var(--accent-3); font: inherit; font-size: 15px; font-weight: 700; text-align: left; cursor: pointer; text-transform: uppercase; }
+    .auth-status { min-height: 18px; margin: 0; color: var(--text); font-size: 14px; line-height: 1.4; font-weight: 600; }
+    .auth-status[data-state="error"] { color: #b90f0f; }
+    .auth-status[data-state="success"] { color: #166e27; }
+    .account-panel[hidden] { display: none; }
+    .account-greeting { margin: 0; color: var(--ink); font-size: 19px; line-height: 1.45; font-weight: 700; text-transform: uppercase; }
+    .account-name { color: var(--accent); font-weight: 800; }
+    .account-actions { display: grid; gap: 6px; margin-top: 14px; }
+    .account-action { width: 100%; min-height: 42px; border: 3px solid transparent; background: transparent; color: var(--ink); padding: 8px 10px; font: inherit; font-size: 18px; font-weight: 700; text-align: left; cursor: pointer; }
+    .account-action:hover { color: var(--ink); background: var(--accent-2); border-color: var(--line); }
+    .account-action.active { color: #fff; background: var(--accent-3); border-color: var(--line); }
+    .account-action.active::before { display: none; }
+    .main { padding: 0; display: grid; gap: 18px; align-content: start; }
+    .release-panel, .mainsection, .ladder, .stats-panel { border: 4px solid var(--line); box-shadow: 8px 8px 0 rgba(0,0,0,.95); }
+    .release-panel { padding: 24px; background: linear-gradient(135deg, rgba(31,117,255,.18), transparent 42%), radial-gradient(circle at right top, rgba(255,212,58,.55), transparent 18%), linear-gradient(180deg, #fffdfa 0%, #ffe6b4 100%); position: relative; overflow: hidden; }
+    .release-panel::before { content: "Roster Spotlight"; position: absolute; top: 18px; right: 20px; padding: 6px 12px; border: 3px solid var(--line); background: var(--accent); color: #fff; font-family: "Bangers", cursive; font-size: 24px; letter-spacing: .05em; transform: rotate(3deg); }
+    .release-title { margin: 0 0 10px; max-width: 700px; font-family: "Bangers", cursive; font-size: 45px; font-weight: 400; line-height: .95; letter-spacing: .05em; text-transform: uppercase; text-shadow: 4px 4px 0 var(--accent-2); }
+    .release-copy { margin: 0 0 20px; max-width: 760px; color: var(--muted); font-size: 22px; line-height: 1.1; font-weight: 700; text-transform: uppercase; }
+    .release-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+    .release-card { display: grid; gap: 12px; justify-items: center; padding: 18px 14px; border: 4px solid var(--line); background: radial-gradient(circle at center, rgba(255,212,58,.3), transparent 45%), var(--panel-strong); box-shadow: 6px 6px 0 rgba(0,0,0,.95); transform: rotate(calc(var(--tilt, 0) * 1deg)); }
+    .release-card:nth-child(1) { --tilt: -2; }
+    .release-card:nth-child(2) { --tilt: 1; }
+    .release-card:nth-child(3) { --tilt: -1; }
+    .release-face, .character-row-image, .character-modal-image, .character-skill-image { object-fit: cover; background: #111; border: 3px solid var(--line); box-shadow: 4px 4px 0 rgba(0,0,0,.9); }
+    .release-face { width: 88px; height: 88px; }
+    .release-label { color: var(--ink); font-size: 18px; text-align: center; font-weight: 800; text-transform: uppercase; }
+    .mainsection { padding: 24px; background: linear-gradient(145deg, rgba(255,255,255,.46), rgba(255,241,209,.94)), var(--panel); }
+    .character-directory { display: grid; gap: 18px; }
+    .character-directory-header { display: grid; gap: 10px; padding-bottom: 16px; border-bottom: 3px solid var(--line); }
+    .character-search-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+    .character-search-label { margin: 0; color: var(--ink); font-family: "Bangers", cursive; font-size: 36px; font-weight: 400; letter-spacing: .05em; text-transform: uppercase; text-shadow: 3px 3px 0 var(--accent-2); }
+    .character-search-input { width: min(100%, 380px); height: 48px; padding: 0 14px; font-size: 18px; font-weight: 700; box-shadow: 4px 4px 0 rgba(0,0,0,.9); }
+    .character-directory-copy { margin: 0; color: var(--muted); font-size: 20px; line-height: 1.2; max-width: 920px; font-weight: 700; text-transform: uppercase; }
+    .character-directory-list { display: grid; gap: 16px; }
+    .character-row { padding: 16px; border: 4px solid var(--line); background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,247,222,.98)), var(--panel-strong); box-shadow: 6px 6px 0 rgba(0,0,0,.92); }
+    .character-row-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: var(--accent-3); font-size: 22px; font-weight: 800; text-transform: uppercase; }
+    .character-row-star { color: var(--accent); font-size: 22px; line-height: 1; }
+    .character-row-name { color: var(--ink); }
+    .character-row-body, .character-modal-summary, .character-skill-body { display: grid; gap: 16px; align-items: start; }
+    .character-row-body { grid-template-columns: 90px minmax(0, 1fr); }
+    .character-row-image { width: 86px; height: 86px; }
+    .character-row-copy { display: grid; gap: 10px; }
+    .character-row-description { color: var(--text); font-size: 18px; line-height: 1.35; margin: 0; font-weight: 600; }
+    .character-row-link, .character-modal-close { display: inline-flex; align-items: center; justify-content: center; border: 3px solid var(--line); font: inherit; font-weight: 800; text-transform: uppercase; box-shadow: 3px 3px 0 rgba(0,0,0,.9); cursor: pointer; }
+    .character-row-link { justify-self: end; min-height: 40px; padding: 0 14px; background: var(--accent-2); color: var(--line); font-size: 15px; }
+    .character-row-link:hover { background: var(--accent); color: #fff; }
+    .character-directory-empty, .character-modal-empty { color: var(--muted); font-size: 18px; line-height: 1.5; font-weight: 700; text-transform: uppercase; }
+    .character-directory-empty { padding: 18px; border: 3px dashed rgba(21,17,11,.45); background: rgba(255,255,255,.45); }
+    .character-modal-backdrop { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(19,12,6,.74); z-index: 1000; }
+    .character-modal-backdrop.visible { display: flex; }
+    .character-modal { width: min(1040px, 100%); max-height: min(88vh, 900px); overflow: auto; padding: 22px 18px; border: 4px solid var(--line); background: linear-gradient(145deg, rgba(255,255,255,.5), rgba(255,241,209,.98)), var(--panel); box-shadow: 10px 10px 0 rgba(0,0,0,.95); }
+    .character-modal-close-row { display: flex; justify-content: flex-end; margin-bottom: 10px; }
+    .character-modal-close { padding: 8px 14px; background: var(--accent); color: #fff; font-size: 16px; }
+    .character-modal-header { padding-bottom: 12px; border-bottom: 3px solid var(--line); margin-bottom: 16px; }
+    .character-modal-summary { grid-template-columns: 110px minmax(0, 1fr); }
+    .character-modal-image { width: 104px; height: 104px; }
+    .character-modal-description { margin: 0; color: var(--text); font-size: 19px; line-height: 1.35; font-weight: 600; }
+    .character-modal-unlock { margin: 8px 0 0; color: var(--muted); font-size: 16px; font-weight: 700; text-transform: uppercase; }
+    .character-modal-skill-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 16px; }
+    .character-skill-card { padding: 14px; border: 3px solid var(--line); background: var(--panel-strong); box-shadow: 4px 4px 0 rgba(0,0,0,.88); }
+    .character-skill-title { margin: 0 0 8px; color: var(--text); font-size: 18px; font-weight: 700; text-transform: uppercase; }
+    .character-skill-name { color: var(--accent); font-weight: 800; }
+    .character-skill-body { grid-template-columns: 90px minmax(0, 1fr); }
+    .character-skill-image { width: 84px; height: 84px; }
+    .character-skill-description { margin: 0; color: var(--text); font-size: 17px; line-height: 1.45; font-weight: 600; }
+    .character-skill-meta { margin-top: 8px; color: var(--text); font-size: 15px; line-height: 1.45; font-weight: 600; }
+    .character-skill-meta strong { color: var(--ink); font-weight: 800; }
+    .character-energy-pips { display: inline-flex; align-items: center; gap: 4px; vertical-align: middle; margin-left: 8px; }
+    .character-energy-pip { width: 12px; height: 12px; border: 2px solid var(--line); display: inline-block; }
     .character-energy-pip.taijutsu { background: #2ecc71; }
     .character-energy-pip.ninjutsu { background: #3498db; }
     .character-energy-pip.bloodline { background: #e74c3c; }
     .character-energy-pip.genjutsu { background: #ecf0f1; }
     .character-energy-pip.random { background: #000000; }
-
-    .character-modal-empty {
-      color: #bdbdbd;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .mainsection-kicker {
-      margin: 0 0 6px;
-      color: #ffac38;
-      font-size: 30px;
-      font-weight: 700;
-      line-height: 1.05;
-    }
-
-    .mainsection-meta {
-      margin: 0 0 16px;
-      padding-bottom: 10px;
-      border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
-      color: #a5a5a5;
-      font-size: 13px;
-      line-height: 1.4;
-    }
-
-    .mainsection-meta .byline {
-      color: #ffca9e;
-      font-weight: 600;
-    }
-
-    .mainsection-body {
-      color: #efefef;
-      font-size: 14px;
-      line-height: 1.65;
-    }
-
-    .mainsection-body p {
-      margin: 0 0 14px;
-    }
-
-    .mainsection-points {
-      margin: 0 0 14px;
-      padding-left: 20px;
-      display: grid;
-      gap: 6px;
-    }
-
-    .mainsection-points li::marker {
-      color: #d0d0d0;
-    }
-
-    .mainsection-label {
-      margin: 12px 0 8px;
-      color: #ffcf74;
-      font-size: 16px;
-      font-weight: 700;
-    }
-
-    .mainsection-balances {
-      margin: 0;
-      padding-left: 20px;
-      display: grid;
-      gap: 6px;
-      color: #d6d6d6;
-    }
-
-    .mainsection-balances strong {
-      color: #fff;
-    }
-
-    .slider-dots {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      padding: 18px 0 26px;
-    }
-
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      border: 2px solid rgba(255, 255, 255, 0.55);
-      background: transparent;
-    }
-
-    .dot.active {
-      background: #fff;
-      border-color: #fff;
-    }
-
-    .section-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 18px;
-    }
-
-    .section-title {
-      margin: 0;
-      font-size: 21px;
-      font-weight: 600;
-    }
-
-    .carousel-arrow {
-      width: 36px;
-      height: 36px;
-      display: grid;
-      place-items: center;
-      color: #9c9c9c;
-      font-size: 36px;
-      line-height: 1;
-    }
-
-    .poster-grid {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-      gap: 24px;
-      margin-bottom: 38px;
-    }
-
-    .poster-card {
-      min-width: 0;
-    }
-
-    .poster-image {
-      height: 228px;
-      border-radius: 10px;
-      background-size: cover;
-      background-position: center;
-      box-shadow: 0 18px 35px rgba(0, 0, 0, 0.35);
-    }
-
-    .poster-caption {
-      margin-top: 12px;
-      font-size: 14px;
-      text-align: center;
-      color: #dedede;
-    }
-
-    .aside-top {
-      padding-bottom: 16px;
-      margin-bottom: 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-    }
-
-    .ladder,
-    .stats-panel {
-      margin-bottom: 16px;
-      padding: 14px;
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.015) 100%),
-        rgba(8, 8, 8, 0.9);
-      color: #f0f0f0;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 14px;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
-    }
-
-    .ladder-title,
-    .stats-title {
-      margin: 0 0 12px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: #ffcf8c;
-    }
-
-    .ladder-list,
-    .stats-list {
-      display: grid;
-      gap: 8px;
-    }
-
-    .ladder-row {
-      display: grid;
-      grid-template-columns: 28px 1fr;
-      gap: 10px;
-      align-items: center;
-      padding: 8px 8px 8px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    }
-
-    .ladder-row:last-child {
-      border-bottom: 0;
-      padding-bottom: 0;
-    }
-
-    .ladder-rank {
-      width: 24px;
-      height: 24px;
-      display: grid;
-      place-items: center;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      font-size: 11px;
-      font-weight: 800;
-      color: #b8b8b8;
-      line-height: 1;
-    }
-
-    .ladder-name {
-      margin-bottom: 5px;
-      font-size: 12px;
-      font-weight: 700;
-      line-height: 1.2;
-      color: #f4f4f4;
-    }
-
-    .ladder-name a,
-    .stats-list a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .ladder-name a:hover,
-    .stats-list a:hover {
-      color: #ffcf8c;
-    }
-
-    .ladder-bar {
-      height: 18px;
-      width: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      background: #ffffff;
-      position: relative;
-      overflow: hidden;
-      border-radius: 999px;
-    }
-
-    .ladder-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
-      box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.08);
-    }
-
+    .ladder, .stats-panel { margin-bottom: 16px; padding: 14px; background: linear-gradient(180deg, rgba(255,255,255,.45) 0%, rgba(255,241,202,.95) 100%), var(--panel); }
+    .ladder-title, .stats-title { margin: 0 0 12px; padding-bottom: 8px; border-bottom: 3px solid var(--line); font-size: 18px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: var(--accent); }
+    .ladder-list, .stats-list { display: grid; gap: 8px; }
+    .ladder-row { display: grid; grid-template-columns: 28px 1fr; gap: 10px; align-items: center; padding: 8px 8px 8px 0; border-bottom: 2px dashed rgba(21,17,11,.35); }
+    .ladder-row:last-child { border-bottom: 0; padding-bottom: 0; }
+    .ladder-rank { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 999px; background: var(--accent-2); border: 2px solid var(--line); color: var(--line); font-size: 11px; font-weight: 700; }
+    .ladder-name { color: var(--ink); font-size: 16px; font-weight: 800; margin-bottom: 6px; text-transform: uppercase; }
+    .ladder-name a, .ladder-name a:visited { color: inherit; text-decoration: none; }
+    .ladder-name a:hover, .ladder-name a:focus-visible { color: var(--accent); }
+    .ladder-bar { position: relative; height: 18px; background: rgba(255, 255, 255, 0.14); border: 2px solid rgb(0, 0, 0); overflow: hidden; }
+    .ladder-fill { height: 100%; background: linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 100%); }
     .ladder-score {
       position: absolute;
       inset: 0;
@@ -1017,211 +136,37 @@
       font-weight: 800;
       color: #000000;
       letter-spacing: 0.03em;
-      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
-    }
-
-    .search {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      height: 34px;
-      padding: 0 14px;
-      border-radius: 999px;
-      background: #1e1e1e;
-      color: #7f7f7f;
-      font-size: 14px;
-    }
-
-    .stats-group + .stats-group {
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .stats-list {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      color: #d8d8d8;
-      font-size: 12px;
-      line-height: 1.45;
-    }
-
-    .stats-list li {
-      padding: 7px 8px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.04);
-    }
-
-    .search svg {
-      width: 14px;
-      height: 14px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 2;
-      flex: 0 0 auto;
-    }
-
-    .aside-title {
-      margin: 0 0 18px;
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .stack {
-      display: grid;
-      gap: 18px;
-    }
-
-    .stack-item {
-      display: grid;
-      grid-template-columns: 102px 1fr;
-      gap: 14px;
-      align-items: start;
-    }
-
-    .stack-thumb {
-      width: 102px;
-      height: 148px;
-      border-radius: 10px;
-      background-size: cover;
-      background-position: center;
-      box-shadow: 0 16px 28px rgba(0, 0, 0, 0.3);
-    }
-
-    .stack-name {
-      margin: 2px 0 6px;
-      font-size: 18px;
-      font-weight: 500;
-      line-height: 1.15;
-    }
-
-    .stack-meta {
-      color: #bcbcbc;
-      font-size: 14px;
-      line-height: 1.35;
-    }
-
-    .see-more {
-      width: 100%;
-      height: 34px;
-      margin: 18px 0 26px;
-      border: 0;
-      border-radius: 999px;
-      background: #292929;
-      color: #ededed;
-      font: inherit;
-      cursor: pointer;
-    }
-
-    @media (max-width: 1180px) {
-      .app {
-        grid-template-columns: 220px minmax(0, 1fr);
-      }
-
-      .aside {
-        display: none;
-      }
-
-      .poster-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 860px) {
-      .app {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        border-right: 0;
-        border-bottom: 1px solid var(--line);
-      }
-
-      .nav-link.active::before {
-        left: -12px;
-      }
-
-      .mainsection {
-        padding: 22px 18px;
-      }
-
-      .poster-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 18px;
-      }
-
-      .release-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 560px) {
-      .main,
-      .sidebar {
-        padding-left: 16px;
-        padding-right: 16px;
-      }
-
-      .topbar {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-      }
-
-      .tabs {
-        gap: 22px;
-      }
-
-      .mainsection-kicker {
-        font-size: 24px;
-      }
-    }
+      text-shadow: none;
+    }    .stats-group + .stats-group { margin-top: 18px; }
+    .stats-list { margin: 0; padding-left: 18px; }
+    .stats-list li { padding: 7px 8px; background: var(--panel-strong); border: 2px solid rgba(21,17,11,.4); color: var(--text); font-size: 15px; line-height: 1.45; font-weight: 700; }
+    @media (max-width: 1180px) { .app { grid-template-columns: 220px minmax(0, 1fr); padding: 14px; } .aside { display: none; } }
+    @media (max-width: 860px) { .app { grid-template-columns: 1fr; } .sidebar { border-bottom-width: 4px; } .release-grid, .character-modal-skill-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 560px) { .main, .sidebar { padding-left: 14px; padding-right: 14px; } .release-title, .character-search-label { font-size: 30px; } .character-directory-copy { font-size: 17px; } .character-row-body, .character-modal-summary, .character-skill-body { grid-template-columns: 1fr; } .character-row-link { justify-self: start; } }
   </style>
 </head>
 <body>
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
-        <img class="brand-mark" src="https://i.postimg.cc/nLym09x8/logo.png" alt="Naruto-Arena logo" />
+        <img class="brand-mark" src="sitelogo.png" alt="Comic-Arena logo" />
         <div class="brand-copy">
-          <div class="brand-name">NARUTO-ARENA</div>
-          <div class="brand-tagline">Your #1 Naruto Online Multiplayer Game</div>
+          <div class="brand-name">Comic-ARENA</div>
+          <div class="brand-tagline">Your #1 Comic Online Multiplayer Game</div>
         </div>
       </div>
-
       <section class="group">
         <h2 class="group-title">Home Menu</h2>
         <nav class="nav">
           <button class="play-now" type="button" id="play-now-button">Play Now</button>
-          <a class="nav-link" href="index.html">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" /></svg>
-            <span>Home</span>
-          </a>
-          <a class="nav-link" href="#">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg>
-            <span>Community</span>
-          </a>
-          <a class="nav-link" href="#">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" /><rect x="14" y="4" width="6" height="6" /><rect x="4" y="14" width="6" height="6" /><rect x="14" y="14" width="6" height="6" /></svg>
-            <span>Events</span>
-          </a>
-          <a class="nav-link" href="#">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.1 2.8 7.9 7 9 4.2-1.1 7-4.9 7-9V6z" /><path d="M9 12h6" /><path d="M12 9v6" /></svg>
-            <span>Ninja Missions</span>
-          </a>
-          <a class="nav-link" href="#">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2H20v16H8.5A2.5 2.5 0 0 0 6 20.5z" /><path d="M6 4.5V22" /><path d="M9.5 7H16" /><path d="M9.5 11H17" /></svg>
-            <span>Game Manual</span>
-          </a>
-          <a class="nav-link active" href="charactersandskills.html">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h16" /><path d="M7.5 4v16" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg>
-            <span>Characters and Skills</span>
-          </a>
+          <a class="nav-link" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" /></svg><span>Home</span></a>
+          <a class="nav-link" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg><span>Community</span></a>
+          <a class="nav-link" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" /><rect x="14" y="4" width="6" height="6" /><rect x="4" y="14" width="6" height="6" /><rect x="14" y="14" width="6" height="6" /></svg><span>Events</span></a>
+          <a class="nav-link" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.1 2.8 7.9 7 9 4.2-1.1 7-4.9 7-9V6z" /><path d="M9 12h6" /><path d="M12 9v6" /></svg><span>Ninja Missions</span></a>
+          <a class="nav-link" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2H20v16H8.5A2.5 2.5 0 0 0 6 20.5z" /><path d="M6 4.5V22" /><path d="M9.5 7H16" /><path d="M9.5 11H17" /></svg><span>Game Manual</span></a>
+          <a class="nav-link active" href="charactersandskills.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h16" /><path d="M7.5 4v16" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg><span>Characters and Skills</span></a>
         </nav>
       </section>
-
       <section class="group" id="auth-panel">
         <h2 class="group-title" id="auth-title">Login</h2>
         <div id="guest-auth-view">
@@ -1239,295 +184,80 @@
         <div class="account-panel" id="account-panel" hidden>
           <p class="account-greeting">Welcome back, <span class="account-name" id="account-username">Player</span>!</p>
           <div class="account-actions">
-            <button class="account-action" type="button" id="view-profile-button">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.25" /><path d="M5 19c.9-3 3.6-4.5 7-4.5S18.1 16 19 19" /></svg>
-              <span>View Profile</span>
-            </button>
-            <button class="account-action" type="button" id="change-avatar-button">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v6" /><path d="M9 6h6" /><path d="M5 21c1.2-3.2 4-4.8 7-4.8s5.8 1.6 7 4.8" /></svg>
-              <span>Change Avatar</span>
-            </button>
-            <button class="account-action" type="button" id="clan-panel-button">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V6l8-3 8 3v12l-8 3z" /><path d="M8 10h8" /><path d="M8 14h5" /></svg>
-              <span>Clan Panel</span>
-            </button>
-            <button class="account-action" type="button" id="change-backgrounds-button">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2" /><path d="M4 14c2.5-3 5.5-4.5 8-4.5s5.5 1.5 8 4.5" /></svg>
-              <span>Custom Background</span>
-            </button>
-            <button class="account-action" type="button" id="reset-account-button">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14" /><path d="M8 7V5h8v2" /><path d="M9 11v5" /><path d="M15 11v5" /><path d="M7 7l1 12h8l1-12" /></svg>
-              <span>Reset Account</span>
-            </button>
+            <button class="account-action" type="button" id="view-profile-button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.25" /><path d="M5 19c.9-3 3.6-4.5 7-4.5S18.1 16 19 19" /></svg><span>View Profile</span></button>
+            <button class="account-action" type="button" id="change-avatar-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v6" /><path d="M9 6h6" /><path d="M5 21c1.2-3.2 4-4.8 7-4.8s5.8 1.6 7 4.8" /></svg><span>Change Avatar</span></button>
+            <button class="account-action" type="button" id="clan-panel-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V6l8-3 8 3v12l-8 3z" /><path d="M8 10h8" /><path d="M8 14h5" /></svg><span>Clan Panel</span></button>
+            <button class="account-action" type="button" id="change-backgrounds-button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2" /><path d="M4 14c2.5-3 5.5-4.5 8-4.5s5.5 1.5 8 4.5" /></svg><span>Custom Background</span></button>
+            <button class="account-action" type="button" id="reset-account-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14" /><path d="M8 7V5h8v2" /><path d="M9 11v5" /><path d="M15 11v5" /><path d="M7 7l1 12h8l1-12" /></svg><span>Reset Account</span></button>
             <section class="group" id="admin-panel-section" hidden>
               <h2 class="group-title">Admin Panel</h2>
               <nav class="nav">
-                <a class="nav-link" href="winrates.html">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16" /><path d="M7 14V9" /><path d="M12 14V6" /><path d="M17 14v-3" /></svg>
-                  <span>Winrates</span>
-                </a>
-                <a class="nav-link" href="charactereditor.html">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="m14 4 4 4" /><path d="M6 16l-1 4 4-1" /></svg>
-                  <span>Character Editor</span>
-                </a>
-                <a class="nav-link" href="playeraccounts.html">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg>
-                  <span>Player Accounts</span>
-                </a>
-                <a class="nav-link" href="newspost.html">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6.5h14" /><path d="M5 11.5h14" /><path d="M5 16.5h9" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg>
-                  <span>News Post</span>
-                </a>
+                <a class="nav-link" href="winrates.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16" /><path d="M7 14V9" /><path d="M12 14V6" /><path d="M17 14v-3" /></svg><span>Winrates</span></a>
+                <a class="nav-link" href="charactereditor.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="m14 4 4 4" /><path d="M6 16l-1 4 4-1" /></svg><span>Character Editor</span></a>
+                <a class="nav-link" href="playeraccounts.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg><span>Player Accounts</span></a>
+                <a class="nav-link" href="newspost.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6.5h14" /><path d="M5 11.5h14" /><path d="M5 16.5h9" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg><span>News Post</span></a>
               </nav>
             </section>
-            <button class="account-action" type="button" id="logout-button">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5" /><path d="M15 12H4" /><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4" /></svg>
-              <span>Log Out</span>
-            </button>
+            <button class="account-action" type="button" id="logout-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5" /><path d="M15 12H4" /><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4" /></svg><span>Log Out</span></button>
           </div>
           <p class="auth-status" id="account-status" aria-live="polite"></p>
         </div>
       </section>
-
     </aside>
-
     <main class="main">
-
       <section class="mainsection">
         <div class="character-directory">
-          <div class="character-search-row">
-            <h1 class="character-search-label">Search Characters:</h1>
-            <input class="character-search-input" id="character-search-input" type="text" placeholder="Search an character..." autocomplete="off" />
+          <div class="character-directory-header">
+            <div class="character-search-row">
+              <h1 class="character-search-label">Character Files</h1>
+              <input class="character-search-input" id="character-search-input" type="text" placeholder="Search characters..." autocomplete="off" />
+            </div>
           </div>
-          <p class="character-directory-copy">
-            Naruto-Arena forces you to select 3 characters when you start a new game. This page gives you an overview of all
-            characters available in the Naruto-Arena game. Not only can you view each character's skills, you can also discuss
-            the characters by posting comments.
-          </p>
-          <div class="character-directory-list" id="character-directory-list">
-            <div class="character-directory-empty">Loading characters...</div>
-          </div>
+          <div class="character-directory-list" id="character-directory-list"><div class="character-directory-empty">Loading characters...</div></div>
         </div>
       </section>
-
     </main>
-
     <div class="character-modal-backdrop" id="character-modal-backdrop">
       <div class="character-modal">
-        <div class="character-modal-close-row">
-          <button class="character-modal-close" id="character-modal-close" type="button">Close</button>
-        </div>
+        <div class="character-modal-close-row"><button class="character-modal-close" id="character-modal-close" type="button">Close</button></div>
         <div id="character-modal-content"></div>
       </div>
     </div>
-
     <aside class="aside">
       <section class="ladder">
         <h3 class="ladder-title">Top 10 Player Levels</h3>
         <div class="ladder-list" id="sidebar-top-player-levels">
-          <div class="ladder-row">
-            <div class="ladder-rank">01</div>
-            <div>
-              <div class="ladder-name">Rafa</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 57%;"></div><div class="ladder-score">57</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">02</div>
-            <div>
-              <div class="ladder-name">nejihyuuga</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 56%;"></div><div class="ladder-score">56</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">03</div>
-            <div>
-              <div class="ladder-name">ichi404</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 55%;"></div><div class="ladder-score">55</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">04</div>
-            <div>
-              <div class="ladder-name">Shar</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 53%;"></div><div class="ladder-score">53</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">05</div>
-            <div>
-              <div class="ladder-name">HalfDead-</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 52%;"></div><div class="ladder-score">52</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">06</div>
-            <div>
-              <div class="ladder-name">ShikamaruN</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 51%;"></div><div class="ladder-score">51</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">07</div>
-            <div>
-              <div class="ladder-name">Josh</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 51%;"></div><div class="ladder-score">51</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">08</div>
-            <div>
-              <div class="ladder-name">robz</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 51%;"></div><div class="ladder-score">51</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">09</div>
-            <div>
-              <div class="ladder-name">Shari</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 50%;"></div><div class="ladder-score">50</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">10</div>
-            <div>
-              <div class="ladder-name">xinef</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 50%;"></div><div class="ladder-score">50</div></div>
-            </div>
-          </div>
+          <div class="ladder-row"><div class="ladder-rank">01</div><div><div class="ladder-name">Rafa</div><div class="ladder-bar"><div class="ladder-fill" style="width: 57%;"></div><div class="ladder-score">57</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">02</div><div><div class="ladder-name">nejihyuuga</div><div class="ladder-bar"><div class="ladder-fill" style="width: 56%;"></div><div class="ladder-score">56</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">03</div><div><div class="ladder-name">ichi404</div><div class="ladder-bar"><div class="ladder-fill" style="width: 55%;"></div><div class="ladder-score">55</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">04</div><div><div class="ladder-name">Shar</div><div class="ladder-bar"><div class="ladder-fill" style="width: 53%;"></div><div class="ladder-score">53</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">05</div><div><div class="ladder-name">HalfDead-</div><div class="ladder-bar"><div class="ladder-fill" style="width: 52%;"></div><div class="ladder-score">52</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">06</div><div><div class="ladder-name">ShikamaruN</div><div class="ladder-bar"><div class="ladder-fill" style="width: 51%;"></div><div class="ladder-score">51</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">07</div><div><div class="ladder-name">Josh</div><div class="ladder-bar"><div class="ladder-fill" style="width: 51%;"></div><div class="ladder-score">51</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">08</div><div><div class="ladder-name">robz</div><div class="ladder-bar"><div class="ladder-fill" style="width: 51%;"></div><div class="ladder-score">51</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">09</div><div><div class="ladder-name">Shari</div><div class="ladder-bar"><div class="ladder-fill" style="width: 50%;"></div><div class="ladder-score">50</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">10</div><div><div class="ladder-name">xinef</div><div class="ladder-bar"><div class="ladder-fill" style="width: 50%;"></div><div class="ladder-score">50</div></div></div></div>
         </div>
       </section>
       <section class="ladder">
-        <h3 class="ladder-title">Top 10 Clan Levels</h3>
+        <h3 class="ladder-title">Top 10 Alliance Levels</h3>
         <div class="ladder-list" id="sidebar-top-clan-levels">
-          <div class="ladder-row">
-            <div class="ladder-rank">01</div>
-            <div>
-              <div class="ladder-name">Akatsuki</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 92%;"></div><div class="ladder-score">92</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">02</div>
-            <div>
-              <div class="ladder-name">Konoha</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 89%;"></div><div class="ladder-score">89</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">03</div>
-            <div>
-              <div class="ladder-name">Sand</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 85%;"></div><div class="ladder-score">85</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">04</div>
-            <div>
-              <div class="ladder-name">Mist</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 81%;"></div><div class="ladder-score">81</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">05</div>
-            <div>
-              <div class="ladder-name">Cloud</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 78%;"></div><div class="ladder-score">78</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">06</div>
-            <div>
-              <div class="ladder-name">LeafForce</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 74%;"></div><div class="ladder-score">74</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">07</div>
-            <div>
-              <div class="ladder-name">Anbu</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 71%;"></div><div class="ladder-score">71</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">08</div>
-            <div>
-              <div class="ladder-name">Uchiha</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 67%;"></div><div class="ladder-score">67</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">09</div>
-            <div>
-              <div class="ladder-name">Sannin</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 63%;"></div><div class="ladder-score">63</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">10</div>
-            <div>
-              <div class="ladder-name">Hyuga</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 60%;"></div><div class="ladder-score">60</div></div>
-            </div>
-          </div>
+          <div class="ladder-row"><div class="ladder-rank">01</div><div><div class="ladder-name">Akatsuki</div><div class="ladder-bar"><div class="ladder-fill" style="width: 92%;"></div><div class="ladder-score">92</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">02</div><div><div class="ladder-name">Konoha</div><div class="ladder-bar"><div class="ladder-fill" style="width: 89%;"></div><div class="ladder-score">89</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">03</div><div><div class="ladder-name">Sand</div><div class="ladder-bar"><div class="ladder-fill" style="width: 85%;"></div><div class="ladder-score">85</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">04</div><div><div class="ladder-name">Mist</div><div class="ladder-bar"><div class="ladder-fill" style="width: 81%;"></div><div class="ladder-score">81</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">05</div><div><div class="ladder-name">Cloud</div><div class="ladder-bar"><div class="ladder-fill" style="width: 78%;"></div><div class="ladder-score">78</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">06</div><div><div class="ladder-name">LeafForce</div><div class="ladder-bar"><div class="ladder-fill" style="width: 74%;"></div><div class="ladder-score">74</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">07</div><div><div class="ladder-name">Anbu</div><div class="ladder-bar"><div class="ladder-fill" style="width: 71%;"></div><div class="ladder-score">71</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">08</div><div><div class="ladder-name">Uchiha</div><div class="ladder-bar"><div class="ladder-fill" style="width: 67%;"></div><div class="ladder-score">67</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">09</div><div><div class="ladder-name">Sannin</div><div class="ladder-bar"><div class="ladder-fill" style="width: 63%;"></div><div class="ladder-score">63</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">10</div><div><div class="ladder-name">Hyuga</div><div class="ladder-bar"><div class="ladder-fill" style="width: 60%;"></div><div class="ladder-score">60</div></div></div></div>
         </div>
       </section>
       <section class="stats-panel">
-        <div class="stats-group">
-          <h3 class="stats-title">Top 10 Winstreak</h3>
-          <ol class="stats-list" id="sidebar-top-current-streaks">
-            <li>Douglasschanu +25 streak</li>
-            <li>madara +22 streak</li>
-            <li>topreactor +21 streak</li>
-            <li>ComodoroTeach +20</li>
-            <li>Clanles +20 streak</li>
-            <li>Vy +20 streak</li>
-            <li>vanns +20 streak</li>
-            <li>Cleezus888 +19 streak</li>
-            <li>yase-forfun +16 streak</li>
-            <li>TheusTop +15 streak</li>
-          </ol>
-        </div>
-        <div class="stats-group">
-          <h3 class="stats-title">Top 10 Wins</h3>
-          <ol class="stats-list" id="sidebar-top-wins">
-            <li>juicewrld999 +8255 wins</li>
-            <li>GoodySan +7216 wins</li>
-            <li>rogerindopend +6558 wins</li>
-            <li>One_ib +6463 wins</li>
-            <li>Sirup +4921 wins</li>
-            <li>gravidadeTAUBATE +4586 wins</li>
-            <li>leohyua25 +4342 wins</li>
-            <li>newmimproved +4282 wins</li>
-            <li>beluxe +4281 wins</li>
-            <li>julu0612 +4188 wins</li>
-          </ol>
-        </div>
-        <div class="stats-group">
-          <h3 class="stats-title">Top 20 Highest Win Streak</h3>
-          <ol class="stats-list" id="sidebar-top-highest-streaks">
-            <li>Buffy +80 streak</li>
-            <li>_hoshigama- +76 streak</li>
-            <li>Cloudprince +76 streak</li>
-            <li>GodEneru +74 streak</li>
-            <li>AkatsKonan +73 streak</li>
-            <li>HalfDead- +72 streak</li>
-            <li>_Shark +67 streak</li>
-            <li>gabooo +66 streak</li>
-            <li>Cersak +65 streak</li>
-            <li>Demon +65 streak</li>
-            <li>Dan +63 streak</li>
-            <li>mrChans +61 streak</li>
-            <li>itachi_killer25 +61 streak</li>
-            <li>Sakura +60 streak</li>
-            <li>Rafa +60 streak</li>
-            <li>videogame33 +60 streak</li>
-            <li>Myotismon +60 streak</li>
-            <li>Sasuke +60 streak</li>
-            <li>Bolts +59 streak</li>
-            <li>Douglasschanu +57 streak</li>
-          </ol>
-        </div>
+        <div class="stats-group"><h3 class="stats-title">Top 10 Winstreak</h3><ol class="stats-list" id="sidebar-top-current-streaks"><li>Douglasschanu +25 streak</li><li>madara +22 streak</li><li>topreactor +21 streak</li><li>ComodoroTeach +20</li><li>Clanles +20 streak</li><li>Vy +20 streak</li><li>vanns +20 streak</li><li>Cleezus888 +19 streak</li><li>yase-forfun +16 streak</li><li>TheusTop +15 streak</li></ol></div>
+        <div class="stats-group"><h3 class="stats-title">Top 10 Wins</h3><ol class="stats-list" id="sidebar-top-wins"><li>juicewrld999 +8255 wins</li><li>GoodySan +7216 wins</li><li>rogerindopend +6558 wins</li><li>One_ib +6463 wins</li><li>Sirup +4921 wins</li><li>gravidadeTAUBATE +4586 wins</li><li>leohyua25 +4342 wins</li><li>newmimproved +4282 wins</li><li>beluxe +4281 wins</li><li>julu0612 +4188 wins</li></ol></div>
+        <div class="stats-group"><h3 class="stats-title">Top 20 Highest Win Streak</h3><ol class="stats-list" id="sidebar-top-highest-streaks"><li>Buffy +80 streak</li><li>_hoshigama- +76 streak</li><li>Cloudprince +76 streak</li><li>GodEneru +74 streak</li><li>AkatsKonan +73 streak</li><li>HalfDead- +72 streak</li><li>_Shark +67 streak</li><li>gabooo +66 streak</li><li>Cersak +65 streak</li><li>Demon +65 streak</li><li>Dan +63 streak</li><li>mrChans +61 streak</li><li>itachi_killer25 +61 streak</li><li>Sakura +60 streak</li><li>Rafa +60 streak</li><li>videogame33 +60 streak</li><li>Myotismon +60 streak</li><li>Sasuke +60 streak</li><li>Bolts +59 streak</li><li>Douglasschanu +57 streak</li></ol></div>
       </section>
     </aside>
   </div>
@@ -1601,7 +331,7 @@
 
         var star = document.createElement("span");
         star.className = "character-row-star";
-        star.textContent = "✦";
+        star.textContent = "?";
 
         var name = document.createElement("span");
         name.className = "character-row-name";
@@ -1721,7 +451,7 @@
 
         var star = document.createElement("span");
         star.className = "character-row-star";
-        star.textContent = "✦";
+        star.textContent = "?";
 
         var title = document.createElement("span");
         title.className = "character-row-name";

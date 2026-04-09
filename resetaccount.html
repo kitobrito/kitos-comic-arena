@@ -1,735 +1,120 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Naruto-Arena Home</title>
+  <title>Comic-Arena Home</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --bg: #000;
-      --panel: #050505;
-      --line: #181818;
-      --card: #101010;
-      --soft: #262626;
-      --text: #f4f4f4;
-      --muted: #a0a0a0;
-      --accent: #ffb84d;
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      background:
-        url("https://i.postimg.cc/x11QM8NQ/476467.png"),
-        radial-gradient(circle at 12% 18%, rgba(255, 149, 0, 0.3), transparent 24%),
-        radial-gradient(circle at 88% 12%, rgba(255, 106, 0, 0.18), transparent 22%),
-        radial-gradient(circle at 50% 78%, rgba(255, 184, 77, 0.08), transparent 28%),
-        linear-gradient(145deg, #1a0700 0%, #090909 38%, #000000 68%, #2f0d00 100%);
-      background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat;
-      background-size: 120px 120px, auto, auto, auto, auto;
-      background-position: 0 0, center, center, center, center;
-      color: var(--text);
-      font-family: "Outfit", system-ui, sans-serif;
-      animation: bodyPatternDrift 18s linear infinite;
-    }
-
-    @keyframes bodyPatternDrift {
-      from {
-        background-position: 0 0, center, center, center, center;
-      }
-
-      to {
-        background-position: 120px 0, center, center, center, center;
-      }
-    }
-
-
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .app {
-      width: min(1500px, 100%);
-      min-height: 100vh;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: 235px minmax(0, 1fr) 270px;
-
-    }
-
-    .sidebar,
-    .aside {
-      padding: 18px 22px;
-      background: rgba(0, 0, 0, 0.94);
-    }
-
-    .sidebar {
-      position: relative;
-      overflow: hidden;
-      border-right: 1px solid var(--line);
-      background:
-        linear-gradient(180deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.9) 100%),
-        var(--sidebar-backdrop, none) center/cover no-repeat,
-        rgba(0, 0, 0, 0.94);
-    }
-
-    .sidebar::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(180deg, rgba(3, 3, 3, 0.2) 0%, rgba(0, 0, 0, 0.68) 45%, rgba(0, 0, 0, 0.9) 100%),
-        radial-gradient(circle at top left, rgba(241, 117, 34, 0.12), transparent 30%);
-      pointer-events: none;
-    }
-
-    .sidebar > * {
-      position: relative;
-      z-index: 1;
-    }
-
-    .aside {
-      border-left: 1px solid var(--line);
-    }
-
-    .brand {
-      display: grid;
-      justify-items: center;
-      gap: 10px;
-      margin-bottom: 34px;
-      padding-bottom: 18px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-    }
-
-    .brand-mark {
-      width: 54px;
-      height: auto;
-      max-height: 42px;
-      display: block;
-      object-fit: contain;
-    }
-
-    .brand-name {
-      font-size: 16px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-    }
-
-    .brand-copy {
-      display: grid;
-      gap: 4px;
-      justify-items: center;
-      text-align: center;
-    }
-
-    .brand-tagline {
-      font-size: 11px;
-      line-height: 1.35;
-      color: #8f8f8f;
-    }
-
-    .group {
-      margin-bottom: 28px;
-    }
-
-    .group-title {
-      margin: 0 0 14px;
-      color: #f8f8f8;
-      font-size: 17px;
-      font-weight: 600;
-    }
-
-    .nav {
-      display: grid;
-      gap: 6px;
-    }
-
-    .nav-link {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      padding: 8px 0;
-      color: #d7d7d7;
-      font-size: 15px;
-      font-weight: 400;
-      position: relative;
-    }
-
-    .nav-link:hover {
-      color: var(--accent);
-    }
-
-    .nav-link svg {
-      width: 18px;
-      height: 18px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 1.8;
-      flex: 0 0 auto;
-    }
-
-    .nav-link.active {
-      color: var(--accent);
-      font-weight: 500;
-    }
-
-    .nav-link.active::before {
-      content: "";
-      position: absolute;
-      left: -22px;
-      top: 9px;
-      bottom: 9px;
-      width: 4px;
-      border-radius: 999px;
-      background: var(--accent);
-    }
-
-    .play-now {
-      width: 100%;
-      height: 42px;
-      margin-bottom: 8px;
-      border: 0;
-      border-radius: 100px;
-      background: linear-gradient(160deg, #ffb84d 0%, #ff8c1a 100%);
-      color: #101010;
-      font: inherit;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 10px 24px rgba(255, 140, 26, 0.2);
-    }
-
-    .auth-form {
-      display: grid;
-      gap: 10px;
-      margin-top: 14px;
-    }
-
-    .auth-description {
-      margin: 0;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.4;
-    }
-
-    .auth-input {
-      width: 100%;
-      height: 38px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 100px;
-      background: rgba(8, 8, 8, 0.7);
-      color: #f3f3f3;
-      padding: 0 12px;
-      font: inherit;
-      outline: none;
-    }
-
-    .auth-input::placeholder {
-      color: #8e8e8e;
-    }
-
-    .auth-input:focus {
-      border-color: #ffb84d;
-      box-shadow: 0 0 0 3px rgba(241, 169, 34, 0.12);
-    }
-
-    .auth-button {
-      width: 100%;
-      height: 40px;
-      border: 0;
-      border-radius: 100px;
-      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
-      color: #000000;
-      font: inherit;
-      font-weight: 600;
-      cursor: pointer;
-      box-shadow: 0 10px 24px rgba(241, 134, 34, 0.22);
-    }
-
-    .auth-switch {
-      border: 0;
-      padding: 0;
-      background: transparent;
-      color: #ffd392;
-      font: inherit;
-      font-size: 12px;
-      text-align: left;
-      cursor: pointer;
-    }
-
-    .auth-status {
-      min-height: 18px;
-      margin: 0;
-      color: #d2d2d2;
-      font-size: 12px;
-      line-height: 1.4;
-    }
-
-    .auth-status[data-state="error"] {
-      color: #ff8f8f;
-    }
-
-    .auth-status[data-state="success"] {
-      color: #9ce2a1;
-    }
-
-    .account-panel[hidden] {
-      display: none;
-    }
-
-    .account-greeting {
-      margin: 0;
-      color: #f6f6f6;
-      font-size: 15px;
-      line-height: 1.45;
-      font-weight: 500;
-    }
-
-    .account-name {
-      color: #ffd392;
-      font-weight: 700;
-    }
-
-    .account-actions {
-      display: grid;
-      gap: 6px;
-      margin-top: 14px;
-    }
-
-    .account-action {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      width: 100%;
-      min-height: 36px;
-      border: 0;
-      background: transparent;
-      color: #d7d7d7;
-      padding: 8px 0;
-      font: inherit;
-      font-size: 15px;
-      text-align: left;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .account-action svg {
-      width: 18px;
-      height: 18px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 1.8;
-      flex: 0 0 auto;
-    }
-
-    .account-action:hover {
-      color: var(--accent);
-    }
-
-    .account-action.active {
-      color: var(--accent);
-      font-weight: 500;
-    }
-
-    .account-action.active::before {
-      content: "";
-      position: absolute;
-      left: -22px;
-      top: 9px;
-      bottom: 9px;
-      width: 4px;
-      border-radius: 999px;
-      background: var(--accent);
-    }
-
-    .main {
-      padding: 18px 26px 26px;
-    }
-
-    .reset-panel {
-      display: grid;
-      gap: 18px;
-      padding: 26px 24px;
-      border: 1px solid #171717;
-      border-radius: 14px;
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)),
-        #0a0a0a;
-      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.24);
-    }
-
-    .reset-panel-title {
-      margin: 0;
-      color: #ffac38;
-      font-size: 30px;
-      font-weight: 700;
-      line-height: 1.05;
-    }
-
-    .reset-copy {
-      margin: 0;
-      color: #d0d0d0;
-      font-size: 14px;
-      line-height: 1.6;
-    }
-
-    .reset-actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .reset-button {
-      min-width: 150px;
-      height: 40px;
-      border: 0;
-      border-radius: 999px;
-      padding: 0 18px;
-      font: inherit;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .reset-button.primary {
-      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
-      color: #000;
-    }
-
-    .reset-button.secondary {
-      background: #2a2a2a;
-      color: #f0f0f0;
-    }
-
-    .reset-confirm {
-      display: none;
-      gap: 12px;
-      padding: 16px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .reset-confirm.visible {
-      display: grid;
-    }
-
-    .reset-status {
-      min-height: 18px;
-      margin: 0;
-      color: #d2d2d2;
-      font-size: 12px;
-      line-height: 1.4;
-    }
-
-    .reset-status[data-state="error"] {
-      color: #ff8f8f;
-    }
-
-    .reset-status[data-state="success"] {
-      color: #9ce2a1;
-    }
-
-    .aside-top {
-      padding-bottom: 16px;
-      margin-bottom: 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-    }
-
-    .ladder,
-    .stats-panel {
-      margin-bottom: 16px;
-      padding: 14px;
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.015) 100%),
-        rgba(8, 8, 8, 0.9);
-      color: #f0f0f0;
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 14px;
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
-    }
-
-    .ladder-title,
-    .stats-title {
-      margin: 0 0 12px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      color: #ffcf8c;
-    }
-
-    .ladder-list,
-    .stats-list {
-      display: grid;
-      gap: 8px;
-    }
-
-    .ladder-row {
-      display: grid;
-      grid-template-columns: 28px 1fr;
-      gap: 10px;
-      align-items: center;
-      padding: 8px 8px 8px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    }
-
-    .ladder-row:last-child {
-      border-bottom: 0;
-      padding-bottom: 0;
-    }
-
-    .ladder-rank {
-      width: 24px;
-      height: 24px;
-      display: grid;
-      place-items: center;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      font-size: 11px;
-      font-weight: 800;
-      color: #b8b8b8;
-      line-height: 1;
-    }
-
-    .ladder-name {
-      margin-bottom: 5px;
-      font-size: 12px;
-      font-weight: 700;
-      line-height: 1.2;
-      color: #f4f4f4;
-    }
-
-    .ladder-name a,
-    .stats-list a {
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .ladder-name a:hover,
-    .stats-list a:hover {
-      color: #ffcf8c;
-    }
-
-    .ladder-bar {
-      height: 18px;
-      width: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      background: #ffffff;
-      position: relative;
-      overflow: hidden;
-      border-radius: 999px;
-    }
-
-    .ladder-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #ffb84d 0%, #ff8c1a 100%);
-      box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.08);
-    }
-
-    .ladder-score {
-      position: absolute;
-      inset: 0;
-      display: grid;
-      place-items: center;
-      font-size: 10px;
-      font-weight: 800;
-      color: #000000;
-      letter-spacing: 0.03em;
-      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
-    }
-
-    .search {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      height: 34px;
-      padding: 0 14px;
-      border-radius: 999px;
-      background: #1e1e1e;
-      color: #7f7f7f;
-      font-size: 14px;
-    }
-
-    .stats-group + .stats-group {
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .stats-list {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      color: #d8d8d8;
-      font-size: 12px;
-      line-height: 1.45;
-    }
-
-    .stats-list li {
-      padding: 7px 8px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid rgba(255, 255, 255, 0.04);
-    }
-
-    .search svg {
-      width: 14px;
-      height: 14px;
-      stroke: currentColor;
-      fill: none;
-      stroke-width: 2;
-      flex: 0 0 auto;
-    }
-
-    .aside-title {
-      margin: 0 0 18px;
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .stack {
-      display: grid;
-      gap: 18px;
-    }
-
-    .stack-item {
-      display: grid;
-      grid-template-columns: 102px 1fr;
-      gap: 14px;
-      align-items: start;
-    }
-
-    .stack-thumb {
-      width: 102px;
-      height: 148px;
-      border-radius: 10px;
-      background-size: cover;
-      background-position: center;
-      box-shadow: 0 16px 28px rgba(0, 0, 0, 0.3);
-    }
-
-    .stack-name {
-      margin: 2px 0 6px;
-      font-size: 18px;
-      font-weight: 500;
-      line-height: 1.15;
-    }
-
-    .stack-meta {
-      color: #bcbcbc;
-      font-size: 14px;
-      line-height: 1.35;
-    }
-
-    .see-more {
-      width: 100%;
-      height: 34px;
-      margin: 18px 0 26px;
-      border: 0;
-      border-radius: 999px;
-      background: #292929;
-      color: #ededed;
-      font: inherit;
-      cursor: pointer;
-    }
-
-    @media (max-width: 1180px) {
-      .app {
-        grid-template-columns: 220px minmax(0, 1fr);
-      }
-
-      .aside {
-        display: none;
-      }
-
-      .poster-grid {
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-      }
-    }
-
-    @media (max-width: 860px) {
-      .app {
-        grid-template-columns: 1fr;
-      }
-
-      .sidebar {
-        border-right: 0;
-        border-bottom: 1px solid var(--line);
-      }
-
-      .nav-link.active::before {
-        left: -12px;
-      }
-
-    }
-
-    @media (max-width: 560px) {
-      .main,
-      .sidebar {
-        padding-left: 16px;
-        padding-right: 16px;
-      }
-
-      .reset-panel-title {
-        font-size: 24px;
-      }
-    }
+    :root { --panel:#fff7de; --panel-strong:#fffdf6; --line:#16120d; --ink:#15110b; --text:#21180f; --muted:#65584b; --accent:#ff5b2e; --accent-2:#ffd43a; --accent-3:#1f75ff; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:radial-gradient(circle at 20% 20%, rgba(255,212,58,.85), transparent 0 18%), radial-gradient(circle at 80% 14%, rgba(31,117,255,.3), transparent 0 16%), radial-gradient(circle, rgba(21,17,11,.18) 1px, transparent 1.2px) 0 0 / 11px 11px, linear-gradient(180deg,#fff4cd 0%,#f5dd9e 34%,#f7b44a 100%); color:var(--text); font-family:"Barlow Condensed",system-ui,sans-serif; }
+    a { color:inherit; text-decoration:none; }
+    .app { width:min(1560px,100%); min-height:100vh; margin:0 auto; display:grid; grid-template-columns:235px minmax(0,1fr) 270px; gap:18px; padding:18px; }
+    .sidebar,.aside { padding:18px 20px; background:var(--panel); border:4px solid var(--line); box-shadow:8px 8px 0 rgba(0,0,0,.95); }
+    .sidebar { position:relative; overflow:hidden; }
+    .sidebar::before { content:""; position:absolute; inset:0; background:linear-gradient(180deg,rgba(255,91,46,.08),transparent 30%,rgba(21,17,11,.08) 100%), radial-gradient(circle at top left, rgba(255,212,58,.36), transparent 28%); pointer-events:none; }
+    .sidebar > * { position:relative; z-index:1; }
+    .aside { background:radial-gradient(circle at top right, rgba(255,212,58,.28), transparent 22%), var(--panel); }
+    .brand { display:grid; justify-items:center; gap:10px; margin-bottom:34px; padding-bottom:18px; border-bottom:4px solid var(--line); }
+    .brand-mark { width:54px; height:auto; max-height:42px; display:block; object-fit:contain; }
+    .brand-name { font-family:"Bangers",cursive; font-size:34px; font-weight:400; letter-spacing:.06em; line-height:1; text-shadow:3px 3px 0 var(--accent-2); }
+    .brand-copy { display:grid; gap:4px; justify-items:center; text-align:center; }
+    .brand-tagline { font-size:14px; line-height:1.2; color:var(--muted); font-weight:600; text-transform:uppercase; }
+    .group { margin-bottom:28px; }
+    .group-title { margin:0 0 14px; color:var(--ink); font-family:"Bangers",cursive; font-size:27px; font-weight:400; letter-spacing:.06em; }
+    .nav,.account-actions { display:grid; gap:6px; }
+    .nav-link,.account-action { display:flex; align-items:center; gap:14px; padding:10px 12px; color:var(--ink); font-size:19px; font-weight:700; position:relative; border:3px solid transparent; text-transform:uppercase; background:transparent; width:100%; text-align:left; cursor:pointer; font-family:inherit; }
+    .nav-link:hover,.account-action:hover { color:var(--ink); border-color:var(--line); background:var(--accent-2); }
+    .nav-link svg,.account-action svg { width:18px; height:18px; stroke:currentColor; fill:none; stroke-width:1.8; flex:0 0 auto; }
+    .nav-link.active { color:#fff; background:var(--accent); border-color:var(--line); transform:translate(-4px,-4px); box-shadow:4px 4px 0 rgba(0,0,0,1); }
+    .nav-link.active::before { content:"!"; position:absolute; right:10px; top:50%; transform:translateY(-50%) rotate(-8deg); width:26px; height:26px; display:grid; place-items:center; border-radius:50%; background:var(--accent-2); color:var(--line); font-family:"Bangers",cursive; font-size:18px; }
+    .account-action.active { color:#fff; background:var(--accent); border-color:var(--line); transform:translate(-4px,-4px); box-shadow:4px 4px 0 rgba(0,0,0,1); }
+    .account-action.active::before { content:"!"; position:absolute; right:10px; top:50%; transform:translateY(-50%) rotate(-8deg); width:26px; height:26px; display:grid; place-items:center; border-radius:50%; background:var(--accent-2); color:var(--line); font-family:"Bangers",cursive; font-size:18px; }
+    .play-now { width:100%; height:52px; margin-bottom:10px; border:4px solid var(--line); background:linear-gradient(180deg,#ffeb67 0%,#ff9e1b 100%); color:#101010; font:inherit; font-size:24px; font-weight:800; text-transform:uppercase; cursor:pointer; box-shadow:0 6px 0 rgba(0,0,0,.95); transform:rotate(-1.5deg); }
+    .play-now:hover { transform:translateY(2px) rotate(-1.5deg); box-shadow:0 4px 0 rgba(0,0,0,.95); }
+    .auth-form { display:grid; gap:10px; margin-top:14px; }
+    .auth-description { margin:0; color:var(--muted); font-size:15px; line-height:1.4; font-weight:600; text-transform:uppercase; }
+    .auth-input { width:100%; height:42px; border:3px solid var(--line); background:var(--panel-strong); color:var(--ink); padding:0 12px; font:inherit; font-size:18px; font-weight:600; outline:none; }
+    .auth-input::placeholder { color:#806d5b; }
+    .auth-input:focus { border-color:var(--accent-3); box-shadow:0 0 0 4px rgba(31,117,255,.15); }
+    .auth-button { width:100%; height:44px; border:3px solid var(--line); background:linear-gradient(180deg,#ff673d 0%,#ef2e00 100%); color:#fff; font:inherit; font-size:20px; font-weight:800; text-transform:uppercase; cursor:pointer; box-shadow:0 5px 0 rgba(0,0,0,.95); }
+    .auth-switch { border:0; padding:0; background:transparent; color:var(--accent-3); font:inherit; font-size:15px; font-weight:700; text-align:left; cursor:pointer; text-transform:uppercase; }
+    .auth-status,.reset-status { min-height:18px; margin:0; color:var(--text); font-size:14px; line-height:1.4; font-weight:700; }
+    .auth-status[data-state="error"],.reset-status[data-state="error"] { color:#b10000; }
+    .auth-status[data-state="success"],.reset-status[data-state="success"] { color:#117a1c; }
+    .account-panel[hidden] { display:none; }
+    .account-greeting { margin:0; color:var(--ink); font-size:19px; line-height:1.45; font-weight:700; text-transform:uppercase; }
+    .account-name { color:var(--accent); font-weight:800; }
+    .main { padding:0; display:grid; gap:18px; align-content:start; }
+    .headline-card { padding:24px; border:4px solid var(--line); background:linear-gradient(135deg, rgba(31,117,255,.18), transparent 42%), radial-gradient(circle at right top, rgba(255,212,58,.55), transparent 18%), linear-gradient(180deg,#fffdfa 0%,#ffe6b4 100%); box-shadow:8px 8px 0 rgba(0,0,0,.95); position:relative; overflow:hidden; }
+    .headline-card::before { content:"Alert"; position:absolute; top:18px; right:20px; padding:6px 12px; border:3px solid var(--line); background:var(--accent); color:#fff; font-family:"Bangers",cursive; font-size:24px; letter-spacing:.05em; transform:rotate(3deg); }
+    .headline-title { margin:0 0 10px; max-width:620px; font-family:"Bangers",cursive; font-size:48px; font-weight:400; line-height:.95; letter-spacing:.05em; text-transform:uppercase; text-shadow:4px 4px 0 var(--accent-2); }
+    .headline-copy { margin:0; max-width:700px; color:var(--muted); font-size:22px; line-height:1.1; font-weight:700; text-transform:uppercase; }
+    .reset-stage { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr); gap:18px; }
+    .reset-card,.detail-card,.ladder,.stats-panel { border:4px solid var(--line); box-shadow:8px 8px 0 rgba(0,0,0,.95); }
+    .reset-card { padding:24px; background:linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,243,218,.92)), var(--panel); display:grid; gap:18px; }
+    .reset-kicker { display:inline-flex; width:fit-content; align-items:center; min-height:34px; padding:0 14px; border:3px solid var(--line); background:var(--accent-2); color:var(--line); font-size:16px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; box-shadow:4px 4px 0 rgba(0,0,0,.9); transform:rotate(-2deg); }
+    .reset-panel-title { margin:0; color:var(--ink); font-family:"Bangers",cursive; font-size:38px; font-weight:400; line-height:.95; letter-spacing:.05em; text-transform:uppercase; }
+    .reset-copy { margin:0; color:var(--text); font-size:19px; line-height:1.45; font-weight:600; }
+    .reset-stats { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    .reset-stat { padding:14px 12px; border:3px solid var(--line); background:var(--panel-strong); min-height:92px; }
+    .reset-stat-label { display:block; margin-bottom:8px; color:var(--muted); font-size:14px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
+    .reset-stat-value { display:block; color:var(--ink); font-family:"Bangers",cursive; font-size:28px; line-height:1; letter-spacing:.04em; text-transform:uppercase; }
+    .reset-actions { display:flex; gap:12px; flex-wrap:wrap; }
+    .reset-button { min-width:170px; min-height:48px; border:3px solid var(--line); padding:0 18px; font:inherit; font-size:19px; font-weight:800; text-transform:uppercase; cursor:pointer; box-shadow:0 5px 0 rgba(0,0,0,.95); }
+    .reset-button.primary { background:linear-gradient(180deg,#ff673d 0%,#ef2e00 100%); color:#fff; }
+    .reset-button.secondary { background:linear-gradient(180deg,#fff7de 0%,#f4dca5 100%); color:var(--line); }
+    .reset-button:hover { transform:translateY(2px); box-shadow:0 3px 0 rgba(0,0,0,.95); }
+    .reset-confirm { display:none; gap:14px; padding:18px; border:4px solid var(--line); background:radial-gradient(circle at top right, rgba(255,91,46,.18), transparent 28%), var(--panel-strong); box-shadow:6px 6px 0 rgba(0,0,0,.9); }
+    .reset-confirm.visible { display:grid; }
+    .detail-card { padding:22px 20px; background:radial-gradient(circle at top right, rgba(31,117,255,.15), transparent 26%), linear-gradient(180deg,#fffdfa 0%,#ffeec6 100%); display:grid; gap:16px; align-content:start; }
+    .detail-title { margin:0; color:var(--accent); font-family:"Bangers",cursive; font-size:30px; font-weight:400; letter-spacing:.05em; text-transform:uppercase; }
+    .detail-list { margin:0; padding:0; list-style:none; display:grid; gap:10px; }
+    .detail-item { padding:12px; border:3px solid var(--line); background:var(--panel-strong); color:var(--text); font-size:17px; font-weight:700; line-height:1.35; text-transform:uppercase; }
+    .detail-note { padding:14px; border:3px dashed var(--line); background:rgba(255,212,58,.22); color:var(--ink); font-size:17px; font-weight:700; line-height:1.35; text-transform:uppercase; }
+    .ladder,.stats-panel { margin-bottom:16px; padding:14px; background:linear-gradient(180deg, rgba(255,255,255,.45) 0%, rgba(255,241,202,.95) 100%), var(--panel); color:var(--text); }
+    .ladder-title,.stats-title { margin:0 0 12px; padding-bottom:8px; border-bottom:3px solid var(--line); font-size:18px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:var(--accent); }
+    .ladder-list,.stats-list { display:grid; gap:8px; }
+    .ladder-row { display:grid; grid-template-columns:28px 1fr; gap:10px; align-items:center; padding:8px 8px 8px 0; border-bottom:2px dashed rgba(21,17,11,.35); }
+    .ladder-row:last-child { border-bottom:0; padding-bottom:0; }
+    .ladder-rank { width:24px; height:24px; display:grid; place-items:center; border-radius:999px; background:var(--accent-2); border:2px solid var(--line); font-size:11px; font-weight:800; color:var(--line); line-height:1; }
+    .ladder-name { margin-bottom:5px; font-size:13px; font-weight:800; line-height:1.2; color:var(--ink); text-transform:uppercase; }
+    .ladder-bar { height:18px; width:100%; border:2px solid var(--line); background:#fff; position:relative; overflow:hidden; }
+    .ladder-fill { height:100%; background:linear-gradient(90deg,#ffb84d 0%,#ff5b2e 100%); }
+    .ladder-score { position:absolute; inset:0; display:grid; place-items:center; font-size:10px; font-weight:800; color:#000; letter-spacing:.03em; }
+    .stats-group + .stats-group { margin-top:16px; padding-top:16px; border-top:2px dashed rgba(21,17,11,.35); }
+    .stats-list { margin:0; padding:0; list-style:none; color:var(--text); font-size:14px; line-height:1.45; }
+    .stats-list li { padding:7px 8px; background:var(--panel-strong); border:2px solid rgba(21,17,11,.4); font-weight:700; }
+    @media (max-width:1180px) { .app { grid-template-columns:220px minmax(0,1fr); padding:14px; } .aside { display:none; } .reset-stage { grid-template-columns:1fr; } }
+    @media (max-width:860px) { .app { grid-template-columns:1fr; } .reset-stats { grid-template-columns:1fr; } }
+    @media (max-width:560px) { .headline-title { font-size:36px; } .headline-copy,.reset-copy { font-size:18px; } .reset-panel-title,.detail-title { font-size:28px; } .reset-button { width:100%; } }
   </style>
 </head>
 <body>
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
-        <img class="brand-mark" src="https://i.postimg.cc/nLym09x8/logo.png" alt="Naruto-Arena logo" />
+        <img class="brand-mark" src="sitelogo.png" alt="Comic-Arena logo" />
         <div class="brand-copy">
-          <div class="brand-name">NARUTO-ARENA</div>
-          <div class="brand-tagline">Your #1 Naruto Online Multiplayer Game</div>
+          <div class="brand-name">Comic-ARENA</div>
+          <div class="brand-tagline">Your #1 Comic Online Multiplayer Game</div>
         </div>
       </div>
-
       <section class="group">
         <h2 class="group-title">Home Menu</h2>
         <nav class="nav">
           <button class="play-now" type="button" id="play-now-button">Play Now</button>
-          <a class="nav-link" href="index.html">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" /></svg>
-            <span>Home</span>
-          </a>
-          <a class="nav-link" href="#">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg>
-            <span>Community</span>
-          </a>
-          <a class="nav-link" href="#">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" /><rect x="14" y="4" width="6" height="6" /><rect x="4" y="14" width="6" height="6" /><rect x="14" y="14" width="6" height="6" /></svg>
-            <span>Events</span>
-          </a>
-          <a class="nav-link" href="#">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.1 2.8 7.9 7 9 4.2-1.1 7-4.9 7-9V6z" /><path d="M9 12h6" /><path d="M12 9v6" /></svg>
-            <span>Ninja Missions</span>
-          </a>
-          <a class="nav-link" href="#">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2H20v16H8.5A2.5 2.5 0 0 0 6 20.5z" /><path d="M6 4.5V22" /><path d="M9.5 7H16" /><path d="M9.5 11H17" /></svg>
-            <span>Game Manual</span>
-          </a>
-          <a class="nav-link" href="charactersandskills.html">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h16" /><path d="M7.5 4v16" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg>
-            <span>Characters and Skills</span>
-          </a>
+          <a class="nav-link" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" /></svg><span>Home</span></a>
+          <a class="nav-link" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg><span>Community</span></a>
+          <a class="nav-link" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" /><rect x="14" y="4" width="6" height="6" /><rect x="4" y="14" width="6" height="6" /><rect x="14" y="14" width="6" height="6" /></svg><span>Events</span></a>
+          <a class="nav-link" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.1 2.8 7.9 7 9 4.2-1.1 7-4.9 7-9V6z" /><path d="M9 12h6" /><path d="M12 9v6" /></svg><span>Comic Missions</span></a>
+          <a class="nav-link" href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2H20v16H8.5A2.5 2.5 0 0 0 6 20.5z" /><path d="M6 4.5V22" /><path d="M9.5 7H16" /><path d="M9.5 11H17" /></svg><span>Game Manual</span></a>
+          <a class="nav-link" href="charactersandskills.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h16" /><path d="M7.5 4v16" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg><span>Characters and Skills</span></a>
         </nav>
       </section>
-
       <section class="group" id="auth-panel">
         <h2 class="group-title" id="auth-title">Login</h2>
         <div id="guest-auth-view">
@@ -747,79 +132,62 @@
         <div class="account-panel" id="account-panel" hidden>
           <p class="account-greeting">Welcome back, <span class="account-name" id="account-username">Player</span>!</p>
           <div class="account-actions">
-            <button class="account-action" type="button" id="view-profile-button">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.25" /><path d="M5 19c.9-3 3.6-4.5 7-4.5S18.1 16 19 19" /></svg>
-              <span>View Profile</span>
-            </button>
-            <button class="account-action" type="button" id="change-avatar-button">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v6" /><path d="M9 6h6" /><path d="M5 21c1.2-3.2 4-4.8 7-4.8s5.8 1.6 7 4.8" /></svg>
-              <span>Change Avatar</span>
-            </button>
-            <button class="account-action" type="button" id="clan-panel-button">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V6l8-3 8 3v12l-8 3z" /><path d="M8 10h8" /><path d="M8 14h5" /></svg>
-              <span>Clan Panel</span>
-            </button>
-            <button class="account-action" type="button" id="change-backgrounds-button">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2" /><path d="M4 14c2.5-3 5.5-4.5 8-4.5s5.5 1.5 8 4.5" /></svg>
-              <span>Custom Background</span>
-            </button>
-            <button class="account-action active" type="button" id="reset-account-button">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14" /><path d="M8 7V5h8v2" /><path d="M9 11v5" /><path d="M15 11v5" /><path d="M7 7l1 12h8l1-12" /></svg>
-              <span>Reset Account</span>
-            </button>
+            <button class="account-action" type="button" id="view-profile-button"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.25" /><path d="M5 19c.9-3 3.6-4.5 7-4.5S18.1 16 19 19" /></svg><span>View Profile</span></button>
+            <button class="account-action" type="button" id="change-avatar-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v6" /><path d="M9 6h6" /><path d="M5 21c1.2-3.2 4-4.8 7-4.8s5.8 1.6 7 4.8" /></svg><span>Change Avatar</span></button>
+            <button class="account-action" type="button" id="clan-panel-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18V6l8-3 8 3v12l-8 3z" /><path d="M8 10h8" /><path d="M8 14h5" /></svg><span>Clan Panel</span></button>
+            <button class="account-action" type="button" id="change-backgrounds-button"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="16" height="14" rx="2" /><path d="M4 14c2.5-3 5.5-4.5 8-4.5s5.5 1.5 8 4.5" /></svg><span>Custom Background</span></button>
+            <button class="account-action active" type="button" id="reset-account-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14" /><path d="M8 7V5h8v2" /><path d="M9 11v5" /><path d="M15 11v5" /><path d="M7 7l1 12h8l1-12" /></svg><span>Reset Account</span></button>
             <section class="group" id="admin-panel-section" hidden>
               <h2 class="group-title">Admin Panel</h2>
               <nav class="nav">
-                <a class="nav-link" href="winrates.html">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16" /><path d="M7 14V9" /><path d="M12 14V6" /><path d="M17 14v-3" /></svg>
-                  <span>Winrates</span>
-                </a>
-                <a class="nav-link" href="charactereditor.html">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="m14 4 4 4" /><path d="M6 16l-1 4 4-1" /></svg>
-                  <span>Character Editor</span>
-                </a>
-                <a class="nav-link" href="playeraccounts.html">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg>
-                  <span>Player Accounts</span>
-                </a>
-                <a class="nav-link" href="newspost.html">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6.5h14" /><path d="M5 11.5h14" /><path d="M5 16.5h9" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg>
-                  <span>News Post</span>
-                </a>
+                <a class="nav-link" href="winrates.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16" /><path d="M7 14V9" /><path d="M12 14V6" /><path d="M17 14v-3" /></svg><span>Winrates</span></a>
+                <a class="nav-link" href="charactereditor.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="m14 4 4 4" /><path d="M6 16l-1 4 4-1" /></svg><span>Character Editor</span></a>
+                <a class="nav-link" href="playeraccounts.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg><span>Player Accounts</span></a>
+                <a class="nav-link" href="newspost.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6.5h14" /><path d="M5 11.5h14" /><path d="M5 16.5h9" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg><span>News Post</span></a>
               </nav>
             </section>
-            <button class="account-action" type="button" id="logout-button">
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5" /><path d="M15 12H4" /><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4" /></svg>
-              <span>Log Out</span>
-            </button>
+            <button class="account-action" type="button" id="logout-button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5" /><path d="M15 12H4" /><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4" /></svg><span>Log Out</span></button>
           </div>
           <p class="auth-status" id="account-status" aria-live="polite"></p>
         </div>
       </section>
-
     </aside>
-
     <main class="main">
-
-      <section class="reset-panel">
-        <h1 class="reset-panel-title">Reset Account</h1>
-        <p class="reset-copy">
-          This only resets your Level, Rank, Experience Points, Ladder Rank, Wins, Losses,
-          Win percentage, and current Streak.
-        </p>
-        <div class="reset-actions">
-          <button class="reset-button primary" type="button" id="reset-account-trigger">Reset Account</button>
-        </div>
-        <div class="reset-confirm" id="reset-account-confirm">
-          <p class="reset-copy">Are you sure you want to reset these account fields?</p>
-          <div class="reset-actions">
-            <button class="reset-button primary" type="button" id="reset-account-confirm-button">Yes, Reset</button>
-            <button class="reset-button secondary" type="button" id="reset-account-cancel-button">Cancel</button>
-          </div>
-        </div>
-        <p class="reset-status" id="reset-account-status" aria-live="polite"></p>
+      <section class="headline-card">
+        <h1 class="headline-title">Reset The Record And Start Fresh</h1>
+        <p class="headline-copy">Clean the score board numbers while keeping your account and access intact.</p>
       </section>
-
+      <section class="reset-stage">
+        <section class="reset-card">
+          <span class="reset-kicker">Account Reset</span>
+          <h2 class="reset-panel-title">Clear Ranked Progress</h2>
+          <p class="reset-copy">This only resets your Level, Rank, Experience Points, Ladder Rank, Wins, Losses, Win percentage, and current Streak.</p>
+          <div class="reset-stats" aria-hidden="true">
+            <div class="reset-stat"><span class="reset-stat-label">Stats Affected</span><span class="reset-stat-value">Level Rank XP</span></div>
+            <div class="reset-stat"><span class="reset-stat-label">Battle Record</span><span class="reset-stat-value">Wins Losses Streak</span></div>
+          </div>
+          <div class="reset-actions">
+            <button class="reset-button primary" type="button" id="reset-account-trigger">Reset Account</button>
+          </div>
+          <div class="reset-confirm" id="reset-account-confirm">
+            <p class="reset-copy">Are you sure you want to reset these account fields?</p>
+            <div class="reset-actions">
+              <button class="reset-button primary" type="button" id="reset-account-confirm-button">Yes, Reset</button>
+              <button class="reset-button secondary" type="button" id="reset-account-cancel-button">Cancel</button>
+            </div>
+          </div>
+          <p class="reset-status" id="reset-account-status" aria-live="polite"></p>
+        </section>
+        <aside class="detail-card">
+          <h2 class="detail-title">What Changes</h2>
+          <ul class="detail-list">
+            <li class="detail-item">Level and rank are set back.</li>
+            <li class="detail-item">Experience and ladder placement are cleared.</li>
+            <li class="detail-item">Wins, losses, win rate, and streak return to a fresh state.</li>
+          </ul>
+          <div class="detail-note">Login details, account access, and the rest of your profile stay in place.</div>
+        </aside>
+      </section>
       <div aria-hidden="true" style="display:none;">
         <img id="release-face-1" alt="" />
         <img id="release-face-2" alt="" />
@@ -828,214 +196,55 @@
         <div id="release-label-2"></div>
         <div id="release-label-3"></div>
       </div>
-
     </main>
-
     <aside class="aside">
       <section class="ladder">
         <h3 class="ladder-title">Top 10 Player Levels</h3>
         <div class="ladder-list" id="sidebar-top-player-levels">
-          <div class="ladder-row">
-            <div class="ladder-rank">01</div>
-            <div>
-              <div class="ladder-name">Rafa</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 57%;"></div><div class="ladder-score">57</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">02</div>
-            <div>
-              <div class="ladder-name">nejihyuuga</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 56%;"></div><div class="ladder-score">56</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">03</div>
-            <div>
-              <div class="ladder-name">ichi404</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 55%;"></div><div class="ladder-score">55</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">04</div>
-            <div>
-              <div class="ladder-name">Shar</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 53%;"></div><div class="ladder-score">53</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">05</div>
-            <div>
-              <div class="ladder-name">HalfDead-</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 52%;"></div><div class="ladder-score">52</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">06</div>
-            <div>
-              <div class="ladder-name">ShikamaruN</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 51%;"></div><div class="ladder-score">51</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">07</div>
-            <div>
-              <div class="ladder-name">Josh</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 51%;"></div><div class="ladder-score">51</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">08</div>
-            <div>
-              <div class="ladder-name">robz</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 51%;"></div><div class="ladder-score">51</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">09</div>
-            <div>
-              <div class="ladder-name">Shari</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 50%;"></div><div class="ladder-score">50</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">10</div>
-            <div>
-              <div class="ladder-name">xinef</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 50%;"></div><div class="ladder-score">50</div></div>
-            </div>
-          </div>
+          <div class="ladder-row"><div class="ladder-rank">01</div><div><div class="ladder-name">Rafa</div><div class="ladder-bar"><div class="ladder-fill" style="width: 57%;"></div><div class="ladder-score">57</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">02</div><div><div class="ladder-name">nejihyuuga</div><div class="ladder-bar"><div class="ladder-fill" style="width: 56%;"></div><div class="ladder-score">56</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">03</div><div><div class="ladder-name">ichi404</div><div class="ladder-bar"><div class="ladder-fill" style="width: 55%;"></div><div class="ladder-score">55</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">04</div><div><div class="ladder-name">Shar</div><div class="ladder-bar"><div class="ladder-fill" style="width: 53%;"></div><div class="ladder-score">53</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">05</div><div><div class="ladder-name">HalfDead-</div><div class="ladder-bar"><div class="ladder-fill" style="width: 52%;"></div><div class="ladder-score">52</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">06</div><div><div class="ladder-name">ShikamaruN</div><div class="ladder-bar"><div class="ladder-fill" style="width: 51%;"></div><div class="ladder-score">51</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">07</div><div><div class="ladder-name">Josh</div><div class="ladder-bar"><div class="ladder-fill" style="width: 51%;"></div><div class="ladder-score">51</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">08</div><div><div class="ladder-name">robz</div><div class="ladder-bar"><div class="ladder-fill" style="width: 51%;"></div><div class="ladder-score">51</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">09</div><div><div class="ladder-name">Shari</div><div class="ladder-bar"><div class="ladder-fill" style="width: 50%;"></div><div class="ladder-score">50</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">10</div><div><div class="ladder-name">xinef</div><div class="ladder-bar"><div class="ladder-fill" style="width: 50%;"></div><div class="ladder-score">50</div></div></div></div>
         </div>
       </section>
       <section class="ladder">
-        <h3 class="ladder-title">Top 10 Clan Levels</h3>
+        <h3 class="ladder-title">Top 10 Alliance Levels</h3>
         <div class="ladder-list" id="sidebar-top-clan-levels">
-          <div class="ladder-row">
-            <div class="ladder-rank">01</div>
-            <div>
-              <div class="ladder-name">Akatsuki</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 92%;"></div><div class="ladder-score">92</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">02</div>
-            <div>
-              <div class="ladder-name">Konoha</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 89%;"></div><div class="ladder-score">89</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">03</div>
-            <div>
-              <div class="ladder-name">Sand</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 85%;"></div><div class="ladder-score">85</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">04</div>
-            <div>
-              <div class="ladder-name">Mist</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 81%;"></div><div class="ladder-score">81</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">05</div>
-            <div>
-              <div class="ladder-name">Cloud</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 78%;"></div><div class="ladder-score">78</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">06</div>
-            <div>
-              <div class="ladder-name">LeafForce</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 74%;"></div><div class="ladder-score">74</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">07</div>
-            <div>
-              <div class="ladder-name">Anbu</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 71%;"></div><div class="ladder-score">71</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">08</div>
-            <div>
-              <div class="ladder-name">Uchiha</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 67%;"></div><div class="ladder-score">67</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">09</div>
-            <div>
-              <div class="ladder-name">Sannin</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 63%;"></div><div class="ladder-score">63</div></div>
-            </div>
-          </div>
-          <div class="ladder-row">
-            <div class="ladder-rank">10</div>
-            <div>
-              <div class="ladder-name">Hyuga</div>
-              <div class="ladder-bar"><div class="ladder-fill" style="width: 60%;"></div><div class="ladder-score">60</div></div>
-            </div>
-          </div>
+          <div class="ladder-row"><div class="ladder-rank">01</div><div><div class="ladder-name">Akatsuki</div><div class="ladder-bar"><div class="ladder-fill" style="width: 92%;"></div><div class="ladder-score">92</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">02</div><div><div class="ladder-name">Konoha</div><div class="ladder-bar"><div class="ladder-fill" style="width: 89%;"></div><div class="ladder-score">89</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">03</div><div><div class="ladder-name">Sand</div><div class="ladder-bar"><div class="ladder-fill" style="width: 85%;"></div><div class="ladder-score">85</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">04</div><div><div class="ladder-name">Mist</div><div class="ladder-bar"><div class="ladder-fill" style="width: 81%;"></div><div class="ladder-score">81</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">05</div><div><div class="ladder-name">Cloud</div><div class="ladder-bar"><div class="ladder-fill" style="width: 78%;"></div><div class="ladder-score">78</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">06</div><div><div class="ladder-name">LeafForce</div><div class="ladder-bar"><div class="ladder-fill" style="width: 74%;"></div><div class="ladder-score">74</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">07</div><div><div class="ladder-name">Anbu</div><div class="ladder-bar"><div class="ladder-fill" style="width: 71%;"></div><div class="ladder-score">71</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">08</div><div><div class="ladder-name">Uchiha</div><div class="ladder-bar"><div class="ladder-fill" style="width: 67%;"></div><div class="ladder-score">67</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">09</div><div><div class="ladder-name">Sannin</div><div class="ladder-bar"><div class="ladder-fill" style="width: 63%;"></div><div class="ladder-score">63</div></div></div></div>
+          <div class="ladder-row"><div class="ladder-rank">10</div><div><div class="ladder-name">Hyuga</div><div class="ladder-bar"><div class="ladder-fill" style="width: 60%;"></div><div class="ladder-score">60</div></div></div></div>
         </div>
       </section>
       <section class="stats-panel">
         <div class="stats-group">
           <h3 class="stats-title">Top 10 Winstreak</h3>
           <ol class="stats-list" id="sidebar-top-current-streaks">
-            <li>Douglasschanu +25 streak</li>
-            <li>madara +22 streak</li>
-            <li>topreactor +21 streak</li>
-            <li>ComodoroTeach +20</li>
-            <li>Clanles +20 streak</li>
-            <li>Vy +20 streak</li>
-            <li>vanns +20 streak</li>
-            <li>Cleezus888 +19 streak</li>
-            <li>yase-forfun +16 streak</li>
-            <li>TheusTop +15 streak</li>
+            <li>Douglasschanu +25 streak</li><li>madara +22 streak</li><li>topreactor +21 streak</li><li>ComodoroTeach +20</li><li>Clanles +20 streak</li><li>Vy +20 streak</li><li>vanns +20 streak</li><li>Cleezus888 +19 streak</li><li>yase-forfun +16 streak</li><li>TheusTop +15 streak</li>
           </ol>
         </div>
         <div class="stats-group">
           <h3 class="stats-title">Top 10 Wins</h3>
           <ol class="stats-list" id="sidebar-top-wins">
-            <li>juicewrld999 +8255 wins</li>
-            <li>GoodySan +7216 wins</li>
-            <li>rogerindopend +6558 wins</li>
-            <li>One_ib +6463 wins</li>
-            <li>Sirup +4921 wins</li>
-            <li>gravidadeTAUBATE +4586 wins</li>
-            <li>leohyua25 +4342 wins</li>
-            <li>newmimproved +4282 wins</li>
-            <li>beluxe +4281 wins</li>
-            <li>julu0612 +4188 wins</li>
+            <li>juicewrld999 +8255 wins</li><li>GoodySan +7216 wins</li><li>rogerindopend +6558 wins</li><li>One_ib +6463 wins</li><li>Sirup +4921 wins</li><li>gravidadeTAUBATE +4586 wins</li><li>leohyua25 +4342 wins</li><li>newmimproved +4282 wins</li><li>beluxe +4281 wins</li><li>julu0612 +4188 wins</li>
           </ol>
         </div>
         <div class="stats-group">
           <h3 class="stats-title">Top 20 Highest Win Streak</h3>
           <ol class="stats-list" id="sidebar-top-highest-streaks">
-            <li>Buffy +80 streak</li>
-            <li>_hoshigama- +76 streak</li>
-            <li>Cloudprince +76 streak</li>
-            <li>GodEneru +74 streak</li>
-            <li>AkatsKonan +73 streak</li>
-            <li>HalfDead- +72 streak</li>
-            <li>_Shark +67 streak</li>
-            <li>gabooo +66 streak</li>
-            <li>Cersak +65 streak</li>
-            <li>Demon +65 streak</li>
-            <li>Dan +63 streak</li>
-            <li>mrChans +61 streak</li>
-            <li>itachi_killer25 +61 streak</li>
-            <li>Sakura +60 streak</li>
-            <li>Rafa +60 streak</li>
-            <li>videogame33 +60 streak</li>
-            <li>Myotismon +60 streak</li>
-            <li>Sasuke +60 streak</li>
-            <li>Bolts +59 streak</li>
-            <li>Douglasschanu +57 streak</li>
+            <li>Buffy +80 streak</li><li>_hoshigama- +76 streak</li><li>Cloudprince +76 streak</li><li>GodEneru +74 streak</li><li>AkatsKonan +73 streak</li><li>HalfDead- +72 streak</li><li>_Shark +67 streak</li><li>gabooo +66 streak</li><li>Cersak +65 streak</li><li>Demon +65 streak</li><li>Dan +63 streak</li><li>mrChans +61 streak</li><li>itachi_killer25 +61 streak</li><li>Sakura +60 streak</li><li>Rafa +60 streak</li><li>videogame33 +60 streak</li><li>Myotismon +60 streak</li><li>Sasuke +60 streak</li><li>Bolts +59 streak</li><li>Douglasschanu +57 streak</li>
           </ol>
         </div>
       </section>
