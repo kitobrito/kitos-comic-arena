@@ -8042,7 +8042,7 @@ const characters = [
             energy: [
                 'Taijutsu'
             ],
-            target: 'single-enemy',
+            target: 'all-enemy',
             damage: 0,
             cooldown: 0,
             classes: [
@@ -12420,7 +12420,7 @@ const characters = [
                     metadata: {
                         harmful: true,
                         floorDetonationBonusDamage: 10,
-                        tooltipText: 'This character is marked by Floor Detonation.'
+                        tooltipText: 'This character is marked by Floor Detonation: Rex\'s next skill on them will deal 10 additional damage.'
                     }
                 }
             ]
@@ -12539,7 +12539,6 @@ const characters = [
                             'Eve has {turnEndHealthLoss} health loss each turn and all her skills become Molecular Deconstruction Beam.'
                     }
                 },
-                hideTooltipFromEnemy: true,
                 tooltipText:
                     'When Eve is killed, she is revived to 50 HP for 2 turns and all her skills become Molecular Deconstruction Beam.'
             }
@@ -12724,6 +12723,2048 @@ const characters = [
                         ignoreDestructibleDefense: true
                     }
                 }
+            ]
+        }
+    ]
+},
+    {
+    id: 'omni-man',
+    characterId: 'omni-man',
+    name: 'Omni-Man',
+    facePicture: 'https://i.imgur.com/YwXook2.png',
+    characterdeescription: 'Omni-Man dominates the battlefield through overwhelming force and relentless punishment, thriving in direct confrontation where he can dismantle enemies over time. Rather than relying on burst or utility alone, he pressures opponents with sustained damage, disruptive control, and permanent stat reduction that weakens enemies the longer the fight continues. With abilities that force engagement and punish enemy actions, Omni-Man excels at drawing attention and turning it into an advantage. As he takes damage, his power escalates, transforming him into an increasingly dangerous threat that cannot be ignored.',
+    startStatuses: [
+        {
+            statusId: 'omni_man_passive_omni_rage',
+            sourceSkillId: 'omni-man-passive-omni-rage',
+            duration: 99,
+            metadata: {
+                infiniteDuration: true,
+                onTeamMemberDamageTakenApplyStatusToOwner: {
+                    statusId: 'omni_man_passive_omni_rage_damage_bonus',
+                    duration: 99,
+                    ownerOnly: true,
+                    enemyOnly: true,
+                    nonAfflictionOnly: true,
+                    metadata: {
+                        infiniteDuration: true,
+                        damageBonusFlat: 5,
+                        mergeNumericAddKeys: ['damageBonusFlat'],
+                        tooltipTextTemplate: 'Omni-Man deals {damageBonusFlat} additional damage.'
+                    }
+                },
+                tooltipText: 'Omni-Man gains 5 additional damage each time he receives new enemy non-affliction damage.'
+            }
+        }
+    ],
+    skills: [
+        {
+            id: 'omni-man-omni-headbutt',
+            name: 'Omni-Headbutt',
+            skillimage: 'https://i.imgur.com/gVtgAob.png',
+            skilldescription: 'Omni-Man headbutts one enemy, dealing 15 damage and stunning their harmful skills for 1 turn.',
+            energy: [
+                'Random',
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 15,
+                    scope: 'target'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'omni_man_omni_headbutt_harmful_stun',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        cannotUseHarmfulSkills: true,
+                        tooltipText: 'This character harmful skills are stunned.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'omni-man-omni-bisect',
+            name: 'Omni-Bisect',
+            skillimage: 'https://i.imgur.com/sZ1V2HR.png',
+            skilldescription: 'Omni-Man rips one enemy in half, dealing 30 piercing damage and permanently reducing their non-affliction damage by 5 (stacks).',
+            energy: [
+                'Bloodline',
+                'Genjutsu'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 30,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'omni_man_omni_bisect_debuff',
+                    duration: 99,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        infiniteDuration: true,
+                        NonAfflictionDamageDebuff: 5,
+                        mergeNumericAddKeys: ['NonAfflictionDamageDebuff'],
+                        tooltipTextTemplate: 'This character deals {NonAfflictionDamageDebuff} less non-affliction damage.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'omni-man-omni-rush',
+            name: 'Omni-Rush',
+            skillimage: 'https://i.imgur.com/nOu6M16.png',
+            skilldescription: 'Omni-Man gains 50% unpierceable damage reduction and taunts one enemy for 1 turn. This ignores invulnerability. This cannot be used on an enemy that had this skill used on them last turn.',
+            energy: [
+                'Bloodline'
+            ],
+            ignoreInvulnerability: true,
+            target: 'single-enemy',
+            targetCondition: {
+                missingStatusId: 'omni_man_omni_rush_recent_target'
+            },
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'omni_man_omni_rush_defense',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        unpierceableDamageReductionFlat: 50,
+                        tooltipText: 'Omni-Man has 50 unpierceable damage reduction.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'omni_man_omni_rush_taunt',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        taunt: true,
+                        turnDurationAnchor: 'source_turn',
+                        tooltipText: 'This character is taunted and can only target Omni-Man.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'omni_man_omni_rush_recent_target',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        turnDurationAnchor: 'source_turn',
+                        tooltipText: 'Omni-Rush cannot target this character this turn.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'omni-man-omni-guard',
+            name: 'Omni-Guard',
+            hiddenFromSelectionViewer: true,
+            skillimage: 'https://i.imgur.com/CfSDPu2.png',
+            skilldescription: 'Omni-Man targets one enemy for 1 turn, countering them if they use a new harmful skill. If successful, Omni-Man deals 10 additional damage permanently. This skill is invisible.',
+            energy: [
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 3,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'omni_man_omni_guard_trap',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        triggerOnEnemyHarmfulSkill: true,
+                        counterCancelsSkill: true,
+                        counterApplyStatusToSourceOwner: {
+                            statusId: 'omni_man_omni_guard_damage_bonus',
+                            duration: 99,
+                            metadata: {
+                                infiniteDuration: true,
+                                damageBonusFlat: 10,
+                                mergeNumericAddKeys: ['damageBonusFlat'],
+                                tooltipTextTemplate: 'Omni-Man deals {damageBonusFlat} additional damage.'
+                            }
+                        },
+                        hideTooltipFromEnemy: true,
+                        tooltipText: 'If this character uses a new harmful skill this turn, it is countered and Omni-Man gains 10 additional damage permanently.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'omni-man-passive-omni-rage',
+            name: 'Passive: Omni-Rage',
+            skillimage: 'https://i.imgur.com/3kXPrrT.png',
+            skilldescription: 'Omni-Man will deal 5 additional damage every time he receives new enemy non-affliction damage (stacks). This skill is permanent.',
+            energy: [],
+            target: '',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Passive',
+                'Instant'
+            ]
+        }
+    ]
+},
+    {
+    id: 'angstrom-levy',
+    characterId: 'angstrom-levy',
+    name: 'Angstrom Levy',
+    facePicture: 'https://i.imgur.com/Rg974iR.png',
+    characterdeescription: 'Levy controls the tempo of combat by manipulating space and timing. His portals counter enemy abilities, banish priority targets, and create openings for his team to strike safely. Enemies who act without caution risk being erased from the battlefield entirely, making Angstrom a constant threat to coordinated teams.',
+    skills: [
+        {
+            id: 'angstrom-levy-spy-drones',
+            name: 'Spy Drones',
+            skillimage: 'https://i.imgur.com/Wyhuo5P.png',
+            skilldescription: 'For 2 turns, deals 10 normal and 10 piercing damage to one enemy each turn. \'Sneaky Portal\' will instantly cast \'Dimension Abandon\' on an enemy affected by this skill.',
+            energy: [
+                'Bloodline',
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Action'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'angstrom_levy_spy_drones_damage',
+                    duration: 2,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        turnEndDamage: 10,
+                        tooltipText: 'This character takes 10 damage and 10 piercing damage from Spy Drones each turn.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'angstrom_levy_spy_drones_piercing_damage',
+                    duration: 2,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        turnEndDamage: 10,
+                        ignoreTargetDamageReduction: true,
+                        ignoreTargetDestructibleDefense: true,
+                        tooltipText: 'This character takes 10 piercing damage from Spy Drones each turn.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'angstrom-levy-sneaky-portal',
+            name: 'Sneaky Portal',
+            skillimage: 'https://i.imgur.com/Lafh95q.png',
+            skilldescription: 'Targets one enemy for 1 turn, and if they use a new harmful skill they will be countered. If successful, \'Dimension Abandon\' will be cast on the target. This skill is invisible.',
+            energy: [
+                'Taijutsu'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Energy',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'angstrom_levy_dimension_abandon_banish',
+                    duration: 1,
+                    scope: 'target',
+                    condition: {
+                        statusIdsAny: [
+                            'angstrom_levy_spy_drones_damage',
+                            'angstrom_levy_spy_drones_piercing_damage'
+                        ],
+                        scope: 'target'
+                    },
+                    metadata: {
+                        harmful: true,
+                        banished: true,
+                        tooltipText: 'This character is banished and is treated as if dead until this effect ends.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'angstrom_levy_sneaky_portal_trap',
+                    duration: 1,
+                    scope: 'target',
+                    condition: {
+                        missingStatusId: 'angstrom_levy_spy_drones_damage',
+                        scope: 'target'
+                    },
+                    metadata: {
+                        triggerOnEnemyHarmfulSkill: true,
+                        counterCancelsSkill: true,
+                        counterStatusId: 'angstrom_levy_dimension_abandon_banish',
+                        counterStatusDuration: 1,
+                        counterStatusMetadata: {
+                            harmful: true,
+                            banished: true,
+                            tooltipText: 'This character is banished and is treated as if dead until this effect ends.'
+                        },
+                        hideTooltipFromEnemy: true,
+                        tooltipText: 'If this character uses a new harmful skill this turn, it is countered and they are banished for 1 turn.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'angstrom-levy-multi-dimensional-rifts',
+            name: 'Multi-Dimensional Rifts',
+            skillimage: 'https://i.imgur.com/oEhNlWW.png',
+            skilldescription: 'For 2 turns, \'Sneaky Portal\' is cast on one random enemy each turn and \'Portal Save\' has its cooldown reset. While active, \'Spy Drones\' will have no cooldown. This skill is invisible.',
+            energy: [
+                'Taijutsu',
+                'Taijutsu',
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 5,
+            classes: [
+                'Energy',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'modify_cooldowns',
+                    amount: 0,
+                    operation: 'set',
+                    skillIds: ['angstrom-levy-portal-save'],
+                    scope: 'self'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'angstrom_levy_multi_dimensional_rifts_active',
+                    duration: 2,
+                    scope: 'self',
+                    metadata: {
+                        turnDurationAnchor: 'source_turn',
+                        skillReplacements: {
+                            'angstrom-levy-spy-drones': 'angstrom-levy-spy-drones-rifts'
+                        },
+                        turnEndApplyStatusesToRandomEnemy: [
+                            {
+                                statusId: 'angstrom_levy_dimension_abandon_banish',
+                                duration: 1,
+                                condition: {
+                                    scope: 'target',
+                                    statusIdsAny: [
+                                        'angstrom_levy_spy_drones_damage',
+                                        'angstrom_levy_spy_drones_piercing_damage'
+                                    ]
+                                },
+                                metadata: {
+                                    harmful: true,
+                                    banished: true,
+                                    tooltipText: 'This character is banished and is treated as if dead until this effect ends.'
+                                }
+                            },
+                            {
+                                statusId: 'angstrom_levy_sneaky_portal_trap',
+                                duration: 1,
+                                condition: {
+                                    scope: 'target',
+                                    missingStatusId: 'angstrom_levy_spy_drones_damage'
+                                },
+                                metadata: {
+                                    triggerOnEnemyHarmfulSkill: true,
+                                    counterCancelsSkill: true,
+                                    counterStatusId: 'angstrom_levy_dimension_abandon_banish',
+                                    counterStatusDuration: 1,
+                                    counterStatusMetadata: {
+                                        harmful: true,
+                                        banished: true,
+                                        tooltipText: 'This character is banished and is treated as if dead until this effect ends.'
+                                    },
+                                    hideTooltipFromEnemy: true,
+                                    tooltipText: 'If this character uses a new harmful skill this turn, it is countered and they are banished for 1 turn.'
+                                }
+                            }
+                        ],
+                        turnEndModifyCooldownsSelf: {
+                            operation: 'set',
+                            amount: 0,
+                            skillIds: ['angstrom-levy-portal-save']
+                        },
+                        tooltipText: 'Each turn, Sneaky Portal is applied to one random enemy, Portal Save has its cooldown reset, and Spy Drones has no cooldown.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'angstrom-levy-portal-save',
+            name: 'Portal Save',
+            skillimage: 'https://i.imgur.com/xoNB4ZG.png',
+            skilldescription: 'This skill makes Angstrom Levy or an ally invulnerable for 1 turn.',
+            energy: [
+                'Random'
+            ],
+            target: 'self-or-single-ally',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Energy',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'angstrom_levy_portal_save_invulnerable',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        invulnerable: true,
+                        tooltipText: 'This character is invulnerable.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'angstrom-levy-dimension-abandon',
+            name: 'Dimension Abandon',
+            hiddenFromSelectionViewer: true,
+            skillimage: 'https://i.imgur.com/JK3dEhh.png',
+            skilldescription: 'This character is Banished for 1 turn. Banished characters are treated as if they are dead.',
+            energy: [],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Energy',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'angstrom_levy_dimension_abandon_banish',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        banished: true,
+                        tooltipText: 'This character is banished and is treated as if dead until this effect ends.'
+                    }
+                }
+            ]
+        },
+                {
+            id: 'angstrom-levy-spy-drones-rifts',
+            name: 'Spy Drones',
+            hiddenFromSelectionViewer: true,
+            skillimage: 'https://i.imgur.com/Wyhuo5P.png',
+            skilldescription: 'For 2 turns, deals 10 normal and 10 piercing damage to one enemy each turn. \'Sneaky Portal\' will instantly cast \'Dimension Abandon\' on an enemy affected by this skill. This skill has no cooldown while Multi-Dimensional Rifts is active.',
+            energy: [
+                'Bloodline',
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Action'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'angstrom_levy_spy_drones_damage',
+                    duration: 2,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        turnEndDamage: 10,
+                        tooltipText: 'This character takes 10 damage and 10 piercing damage from Spy Drones each turn.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'angstrom_levy_spy_drones_piercing_damage',
+                    duration: 2,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        turnEndDamage: 10,
+                        ignoreTargetDamageReduction: true,
+                        ignoreTargetDestructibleDefense: true,
+                        tooltipText: 'This character takes 10 piercing damage from Spy Drones each turn.'
+                    }
+                }
+            ]
+        },
+    ]
+},
+    {
+    id: 'doctor-octopus',
+    characterId: 'doctor-octopus',
+    name: 'Doctor Octopus',
+    facePicture: 'https://i.imgur.com/0rcAM48.png',
+    startStatuses: [
+        {
+            statusId: 'doctor_octopus_mechanical_tentacles',
+            sourceSkillId: 'doctor-octopus-passive-mechanical-tentacles',
+            duration: 99,
+            metadata: {
+                infiniteDuration: true,
+                stackMetadataKey: 'mechanicalTentacles',
+                mechanicalTentacles: 4,
+                stackDerivedNumericKeys: {
+                    damageReductionFlat: 4
+                },
+                onOwnerDamagedByBaseDamageAtLeastApplyStatusToOwner: {
+                    statusId: 'doctor_octopus_mechanical_tentacles',
+                    duration: 99,
+                    threshold: 30,
+                    enemyOnly: true,
+                    oncePerSourceSkillPerTurn: true,
+                    metadata: {
+                        stackMetadataKey: 'mechanicalTentacles',
+                        stackDelta: -1,
+                        stackDerivedNumericKeys: {
+                            damageReductionFlat: 4
+                        },
+                        tooltipTextTemplate: 'Doctor Octopus has {mechanicalTentacles} Mechanical Tentacles and {damageReductionFlat} damage reduction.'
+                    }
+                },
+                tooltipTextTemplate: 'Doctor Octopus has {mechanicalTentacles} Mechanical Tentacles and {damageReductionFlat} damage reduction.'
+            }
+        }
+    ],
+    characterdeescription: 'Play Doctor Octopus as a strategic controller—manage your tentacles wisely, disrupt at the right moments, and outmaneuver your opponents through superior planning. Doctor Octopus dominates the battlefield through calculated control and mechanical superiority. His ever-present tentacles enhance his resilience and empower his abilities, allowing him to pressure enemies while protecting himself and his team.',
+    skills: [
+        {
+            id: 'doctor-octopus-tentacle-assault',
+            name: 'Tentacle Assault',
+            skillimage: 'https://i.imgur.com/ooC0I7y.png',
+            skilldescription: 'Deals 8 piercing damage plus 4 damage per Mechanical Tentacle to one enemy and taunts them for 1 turn.',
+            energy: [
+                'Ninjutsu'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 8,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        bonusPerStatusMetadata: {
+                            statusId: 'doctor_octopus_mechanical_tentacles',
+                            metadataKey: 'mechanicalTentacles',
+                            multiplier: 4,
+                            scope: 'self'
+                        }
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'doctor_octopus_tentacle_assault_taunt',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        taunt: true,
+                        tooltipText: 'This character is taunted and can only target Doctor Octopus.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'doctor-octopus-tentacle-manipulation',
+            name: 'Tentacle Manipulation',
+            skillimage: 'https://i.imgur.com/h0WxoR6.png',
+            skilldescription: 'Deals 24 damage to one enemy and stuns their non-mental skills for 1 turn. If Doctor Octopus has 4 Mechanical Tentacles, the target\'s harmful skills are silenced for 1 turn.',
+            energy: [
+                'Random',
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 24,
+                    scope: 'target'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'doctor_octopus_tentacle_manipulation_stun',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        cannotUseNonMentalSkills: true,
+                        tooltipText: 'This character non-mental skills are stunned.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'doctor_octopus_tentacle_manipulation_silence',
+                    duration: 1,
+                    scope: 'target',
+                    condition: {
+                        scope: 'self',
+                        statusMetadataAtLeast: {
+                            statusId: 'doctor_octopus_mechanical_tentacles',
+                            metadataKey: 'mechanicalTentacles',
+                            value: 4
+                        }
+                    },
+                    metadata: {
+                        harmful: true,
+                        silenceNonDamageEffects: true,
+                        tooltipText: 'Silenced: only damage from this character\'s skills will work.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'doctor-octopus-tentacle-strangulation',
+            name: 'Tentacle Strangulation',
+            skillimage: 'https://i.imgur.com/DvOD11W.png',
+            skilldescription: 'Silences one enemy\'s harmful skills for 1 turn and deals 4 damage plus 4 damage per Mechanical Tentacle.',
+            energy: [
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'doctor_octopus_tentacle_strangulation_silence',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        silenceNonDamageEffects: true,
+                        tooltipText: 'Silenced: only damage from this character\'s skills will work.'
+                    }
+                },
+                {
+                    type: 'damage',
+                    amount: 4,
+                    scope: 'target',
+                    metadata: {
+                        bonusPerStatusMetadata: {
+                            statusId: 'doctor_octopus_mechanical_tentacles',
+                            metadataKey: 'mechanicalTentacles',
+                            multiplier: 4,
+                            scope: 'self'
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            id: 'doctor-octopus-tentacle-parry',
+            name: 'Tentacle Parry',
+            skillimage: 'https://i.imgur.com/PnLSTOC.png',
+            skilldescription: 'Doctor Octopus grants his team 4 points of destructible defense per Mechanical Tentacle for 1 turn. If an enemy uses a new harmful skill on his team next turn, they are taunted for 1 turn.',
+            energy: [
+                'Random'
+            ],
+            target: 'all-allies',
+            damage: 0,
+            cooldown: 3,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'doctor_octopus_tentacle_parry_defense',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        scaleFromSourceStatusMetadata: {
+                            statusId: 'doctor_octopus_mechanical_tentacles',
+                            metadataKey: 'mechanicalTentacles',
+                            multiplier: 4,
+                            targetKeys: ['destructibleDefensePoints']
+                        },
+                        destructibleDefensePoints: 0,
+                        tooltipTextTemplate: 'This character has {destructibleDefensePoints} destructible defense.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'doctor_octopus_tentacle_parry_trap',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        triggerOnEnemyHarmfulSkill: true,
+                        counterStatusId: 'doctor_octopus_tentacle_parry_taunt',
+                        counterStatusDuration: 1,
+                        counterStatusMetadata: {
+                            harmful: true,
+                            taunt: true,
+                            tooltipText: 'This character is taunted and can only target Doctor Octopus.'
+                        },
+                        hideTooltipFromEnemy: true,
+                        tooltipText: 'If an enemy uses a new harmful skill on this character next turn, they are taunted for 1 turn.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'doctor-octopus-passive-mechanical-tentacles',
+            name: 'Passive: Mechanical Tentacles',
+            skillimage: 'https://i.imgur.com/wYhb8lf.png',
+            skilldescription: 'Doctor Octopus starts the game with 4 Mechanical Tentacles. Each one grants him 4 points of damage reduction. Every time a skill with base damage of 30 or more is used on him, he loses 1 Mechanical Tentacle.',
+            energy: [],
+            target: '',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Passive',
+                'Instant'
+            ]
+        }
+    ]
+},
+    {
+    id: 'carnage',
+    characterId: 'carnage',
+    name: 'Carnage',
+    facePicture: 'https://i.imgur.com/ECJOkvk.png',
+    startStatuses: [
+        {
+            statusId: 'carnage_passive_blood_bonded',
+            sourceSkillId: 'carnage-passive-blood-bonded',
+            duration: 99,
+            metadata: {
+                infiniteDuration: true,
+                minimumHp: 1,
+                onOwnerUseSkillTrigger: true,
+                persistOnOwnerUseSkillTrigger: true,
+                onOwnerUseSkillApplyStatusToOwnerCondition: {
+                    scope: 'self',
+                    statusIdsAny: [
+                        'carnage_blood_bonded_trigger_blood_slash',
+                        'carnage_blood_bonded_trigger_wide_area_cutting',
+                        'carnage_blood_bonded_trigger_blood_slinging'
+                    ]
+                },
+                onOwnerUseSkillApplyStatusToOwner: {
+                    statusId: 'carnage_blood_bonded_defense',
+                    duration: 1,
+                    metadata: {
+                        destructibleDefensePoints: 15,
+                        tooltipTextTemplate: 'Carnage has {destructibleDefensePoints} destructible defense from Blood-Bonded.'
+                    }
+                },
+                tooltipText: 'All health lost from Carnage\'s skills is given to him in the same amount as destructible defense for 1 turn. Carnage\'s skills cannot kill him.'
+            }
+        }
+    ],
+    characterdeescription: 'Play Carnage as a high-risk finisher—wait for the right moment, then unleash unstoppable carnage. Carnage thrives in chaos, trading his own life force for overwhelming offense. His attacks are relentless and impossible to stop, carving through enemies while setting up lethal execution windows. Through Blood Slinging, he becomes evasive and unpredictable, striking at the perfect moment to finish off weakened foes.',
+    skills: [
+        {
+            id: 'carnage-blood-slash',
+            name: 'Blood Slash',
+            skillimage: 'https://i.imgur.com/f69xBeL.png',
+            skilldescription: 'Deals 35 piercing damage to one enemy. Carnage loses 15 HP. This skill cannot be countered or reflected. This executes enemies that fall to 15 HP or less during \'Blood Slinging\'.',
+            energy: [
+                'Bloodline',
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            cannotBeCountered: true,
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 35,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                },
+                {
+                    type: 'HealthLoss',
+                    amount: 15,
+                    scope: 'self'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'carnage_blood_bonded_trigger_blood_slash',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        hideTooltipFromUnitOwner: true,
+                        hideTooltipFromEnemy: true,
+                        tooltipText: 'Blood Slash triggered Blood-Bonded.'
+                    }
+                },
+                {
+                    type: 'execute_below_hp',
+                    threshold: 15,
+                    scope: 'target',
+                    condition: {
+                        statusId: 'carnage_blood_slinging_active',
+                        scope: 'self'
+                    },
+                    metadata: {
+                        cannotBeEvaded: true
+                    }
+                }
+            ]
+        },
+        {
+            id: 'carnage-wide-area-cutting',
+            name: 'Wide-Area Cutting',
+            skillimage: 'https://i.imgur.com/9H59XyW.png',
+            skilldescription: 'Deals 25 piercing damage to the enemy team. Carnage loses 15 HP. This skill cannot be countered or reflected. This executes enemies that fall to 5 HP or less during \'Blood Slinging\'.',
+            energy: [
+                'Bloodline',
+                'Random'
+            ],
+            target: 'all-enemy',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant'
+            ],
+            cannotBeCountered: true,
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 25,
+                    scope: 'all-enemy',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                },
+                {
+                    type: 'HealthLoss',
+                    amount: 15,
+                    scope: 'self'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'carnage_blood_bonded_trigger_wide_area_cutting',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        hideTooltipFromUnitOwner: true,
+                        hideTooltipFromEnemy: true,
+                        tooltipText: 'Wide-Area Cutting triggered Blood-Bonded.'
+                    }
+                },
+                {
+                    type: 'execute_below_hp',
+                    threshold: 5,
+                    scope: 'all-enemy',
+                    condition: {
+                        statusId: 'carnage_blood_slinging_active',
+                        scope: 'self'
+                    },
+                    metadata: {
+                        cannotBeEvaded: true
+                    }
+                }
+            ]
+        },
+        {
+            id: 'carnage-brain-devour',
+            name: 'Brain Devour',
+            skillimage: 'https://i.imgur.com/HDzBQV8.png',
+            skilldescription: 'Carnage steals 1 random energy and 15HP from one enemy. This costs 1 random energy during \'Blood Slinging\'.',
+            energy: [
+                'Bloodline'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'drain_chakra',
+                    amount: 1,
+                    chakraType: 'random',
+                    scope: 'target'
+                },
+                {
+                    type: 'damage',
+                    amount: 15,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                },
+                {
+                    type: 'heal',
+                    amount: 15,
+                    scope: 'self'
+                }
+            ]
+        },
+        {
+            id: 'carnage-blood-slinging',
+            name: 'Blood Slinging',
+            skillimage: 'https://i.imgur.com/VANex95.png',
+            skilldescription: 'This skill makes Carnage gain 40% Evasion for 2 turns. Carnage loses 15 HP.',
+            energy: [
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'carnage_blood_slinging_active',
+                    duration: 2,
+                    scope: 'self',
+                    metadata: {
+                        evadeChancePercent: 40,
+                        evadeAgainstNonMental: true,
+                        skillCostOverridesBySkillId: {
+                            'carnage-brain-devour': {
+                                energy: ['Random']
+                            }
+                        },
+                        tooltipText: 'Carnage has 40% evade chance against enemy non-mental skills and Brain Devour costs 1 random energy.'
+                    }
+                },
+                {
+                    type: 'HealthLoss',
+                    amount: 15,
+                    scope: 'self'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'carnage_blood_bonded_trigger_blood_slinging',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        hideTooltipFromUnitOwner: true,
+                        hideTooltipFromEnemy: true,
+                        tooltipText: 'Blood Slinging triggered Blood-Bonded.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'carnage-passive-blood-bonded',
+            name: 'Passive: Blood-Bonded',
+            skillimage: 'https://i.imgur.com/VjHW4nb.png',
+            skilldescription: 'All health lost from Carnage\'s skills is given to him in the same amount as destructible defense for 1 turn. Carnage\'s skills cannot kill him.',
+            energy: [],
+            target: '',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Passive',
+                'Instant'
+            ]
+        }
+    ]
+},
+    {
+    id: 'the-green-goblin',
+    characterId: 'the-green-goblin',
+    name: 'The Green Goblin',
+    facePicture: 'https://i.imgur.com/DvnhkRP.png',
+    startStatuses: [
+        {
+            statusId: 'the_green_goblin_mad_bomber_passive',
+            duration: 99,
+            sourceSkillId: 'the-green-goblin-passive-mad-bomber',
+            metadata: {
+                infiniteDuration: true,
+                tooltipText: 'Whenever one of Green Goblin\'s skills comes off cooldown, he has a 15% chance to plant a Bomb on a random enemy for 2 turns. If that enemy uses a harmful skill, or when the Bomb ends, Green Goblin deals 15 affliction damage to the enemy team.',
+                onOwnerSkillCooldownFinishedApplyStatusToRandomEnemy: {
+                    statusId: 'the_green_goblin_mad_bomber_bomb',
+                    duration: 2,
+                    chancePercent: 15,
+                    sourceSkillId: 'the-green-goblin-passive-mad-bomber',
+                    metadata: {
+                        harmful: true,
+                        triggerOnEnemyHarmfulSkill: true,
+                        onExpireEffectsToEnemiesOfSource: [
+                            {
+                                type: 'damage',
+                                amount: 15,
+                                metadata: {
+                                    afflictionDamage: true,
+                                    ignoreDamageReduction: true,
+                                    ignoreDestructibleDefense: true
+                                }
+                            }
+                        ],
+                        counterEffectsToEnemiesOfSource: [
+                            {
+                                type: 'damage',
+                                amount: 15,
+                                metadata: {
+                                    afflictionDamage: true,
+                                    ignoreDamageReduction: true,
+                                    ignoreDestructibleDefense: true
+                                }
+                            }
+                        ],
+                        tooltipText: 'If this character uses a harmful skill, or when this effect ends, Green Goblin deals 15 affliction damage to the enemy team.'
+                    }
+                }
+            }
+        }
+    ],
+    characterdeescription: 'Green Goblin dominates the battlefield by turning every action into a risk, layering delayed threats that punish enemies for acting without caution. Rather than relying on direct control or overwhelming burst, he creates zones of danger through his bombs—forcing opponents to constantly weigh the consequences of every move.',
+    skills: [
+        {
+            id: 'the-green-goblin-pumpkin-bomb',
+            name: 'Pumpkin Bomb',
+            skillimage: 'https://i.imgur.com/j7P6oI0.png',
+            skilldescription: 'Deals 20 damage to one enemy and plants a Bomb on them for 2 turns. If the target uses a harmful skill → Bomb explodes (15 affliction damage to all enemies). If it expires → explodes anyway.',
+            energy: [
+                'Bloodline'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Energy',
+                'Ranged',
+                'Instant',
+                'Affliction'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 20,
+                    scope: 'target'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'the_green_goblin_pumpkin_bomb',
+                    duration: 2,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        triggerOnEnemyHarmfulSkill: true,
+                        onExpireEffectsToEnemiesOfSource: [
+                            {
+                                type: 'damage',
+                                amount: 15,
+                                metadata: {
+                                    afflictionDamage: true,
+                                    ignoreDamageReduction: true,
+                                    ignoreDestructibleDefense: true
+                                }
+                            }
+                        ],
+                        counterEffectsToEnemiesOfSource: [
+                            {
+                                type: 'damage',
+                                amount: 15,
+                                metadata: {
+                                    afflictionDamage: true,
+                                    ignoreDamageReduction: true,
+                                    ignoreDestructibleDefense: true
+                                }
+                            }
+                        ],
+                        tooltipText: 'If this character uses a harmful skill, or when this effect ends, Green Goblin deals 15 affliction damage to the enemy team.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'the-green-goblin-carpet-bombing',
+            name: 'Carpet Bombing',
+            skillimage: 'https://i.imgur.com/eDPHpc8.png',
+            skilldescription: 'Deals 10 damage to the enemy team and plants a Bomb on each of them for 2 turns. If the target uses a harmful skill → Bomb explodes (10 affliction damage to all enemies). If it expires → explodes anyway.',
+            energy: [
+                'Bloodline',
+                'Random',
+                'Random'
+            ],
+            target: 'all-enemy',
+            damage: 0,
+            cooldown: 3,
+            classes: [
+                'Energy',
+                'Ranged',
+                'Instant',
+                'Affliction'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 10,
+                    scope: 'all-enemy'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'the_green_goblin_carpet_bomb',
+                    duration: 2,
+                    scope: 'all-enemy',
+                    metadata: {
+                        harmful: true,
+                        triggerOnEnemyHarmfulSkill: true,
+                        onExpireEffectsToEnemiesOfSource: [
+                            {
+                                type: 'damage',
+                                amount: 10,
+                                metadata: {
+                                    afflictionDamage: true,
+                                    ignoreDamageReduction: true,
+                                    ignoreDestructibleDefense: true
+                                }
+                            }
+                        ],
+                        counterEffectsToEnemiesOfSource: [
+                            {
+                                type: 'damage',
+                                amount: 10,
+                                metadata: {
+                                    afflictionDamage: true,
+                                    ignoreDamageReduction: true,
+                                    ignoreDestructibleDefense: true
+                                }
+                            }
+                        ],
+                        tooltipText: 'If this character uses a harmful skill, or when this effect ends, Green Goblin deals 10 affliction damage to the enemy team.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'the-green-goblin-glider-impale',
+            name: 'Glider Impale',
+            skillimage: 'https://i.imgur.com/Wg00OkV.png',
+            skilldescription: 'Deals 25 damage to one enemy and makes them take 10 additional damage from all sources for 1 turn. If they are affected by a Bomb immediately detonate it.',
+            energy: [
+                'Random',
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 25,
+                    scope: 'target'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'the_green_goblin_glider_impale_vulnerability',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        damageTakenBonusFlat: 10,
+                        tooltipText: 'This character takes 10 additional damage from all sources.'
+                    }
+                },
+                {
+                    type: 'trigger_status_effects',
+                    scope: 'target',
+                    statusIdsAny: [
+                        'the_green_goblin_pumpkin_bomb',
+                        'the_green_goblin_carpet_bomb',
+                        'the_green_goblin_mad_bomber_bomb'
+                    ],
+                    consumeMatchedStatus: true
+                }
+            ]
+        },
+        {
+            id: 'the-green-goblin-glider-flight',
+            name: 'Glider Flight',
+            skillimage: 'https://i.imgur.com/vcMHrD9.png',
+            skilldescription: 'This skill makes The Green Goblin invulnerable for 1 turn and reduces his active cooldowns by 1.',
+            energy: [
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'the_green_goblin_glider_flight',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        invulnerable: true,
+                        tooltipText: 'Green Goblin is invulnerable.'
+                    }
+                },
+                {
+                    type: 'modify_cooldowns',
+                    amount: -1,
+                    includeAllCharacterSkills: true,
+                    scope: 'self'
+                }
+            ]
+        },
+        {
+            id: 'the-green-goblin-passive-mad-bomber',
+            name: 'Passive: Mad Bomber',
+            skillimage: 'https://i.imgur.com/oAcpnSv.png',
+            skilldescription: 'The Green Goblin has a 15% chance to toss a Bomb onto a random enemy for 2 turns whenever he has a skill come off of cooldown. If the target uses a harmful skill → Bomb explodes (15 affliction damage AoE). If it expires → explodes anyway.',
+            energy: [],
+            target: '',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Passive',
+                'Instant'
+            ]
+        }
+    ]
+},
+    {
+    id: 'sandman',
+    characterId: 'sandman',
+    name: 'Sandman',
+    facePicture: 'https://i.imgur.com/pJj5Wz0.png',
+    characterdeescription: 'Sandman excels at isolating key enemies and forcing them into unfavorable situations, using his shifting form to control engagements and dictate the flow of combat. Rather than overwhelming entire teams, he focuses on a single target—marking them, limiting their effectiveness, and isetting up unavoidable punishment through well-timed ability sequences.',
+    skills: [
+        {
+            id: 'sandman-sand-body-enter',
+            name: 'Sand Body Enter',
+            skillimage: 'https://i.imgur.com/jyd0lvn.png',
+            skilldescription: 'Sandman marks an enemy for 1 turn. During this time, Sandman is invulnerable and this swaps to \'Sand Body Exit\'.',
+            energy: [
+                'Genjutsu'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'sandman_sand_body_mark',
+                    duration: 2,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        turnDurationAnchor: 'source_turn',
+                        tooltipText: 'This character is marked by Sand Body Enter.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'sandman_sand_body_enter_active',
+                    duration: 2,
+                    scope: 'self',
+                    metadata: {
+                        invulnerable: true,
+                        skillReplacementsByRemainingTurns: {
+                            '2': {
+                                'sandman-sand-body-enter': 'sandman-sand-body-exit'
+                            },
+                            '1': {
+                                'sandman-sand-body-exit': 'sandman-sand-body-enter'
+                            }
+                        },
+                        tooltipText: 'Sandman is invulnerable and Sand Body Enter is replaced by Sand Body Exit.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'sandman-sand-clone-counter',
+            name: 'Sand Clone Counter',
+            skillimage: 'https://i.imgur.com/8g6oZlb.png',
+            skilldescription: 'Target an ally, granting them 20 destructible defense and himself 10 destructible defense for 1 turn. Sandman and the Ally will swap places. This skill is invisible to the enemy for 1 turn.',
+            energy: [
+                'Genjutsu'
+            ],
+            target: 'ally',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'sandman_sand_clone_counter_ally_defense',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        destructibleDefensePoints: 20,
+                        tooltipText: 'This character has 20 destructible defense.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'sandman_sand_clone_counter_self_defense',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        destructibleDefensePoints: 10,
+                        hideTooltipFromEnemy: true,
+                        tooltipText: 'Sandman has 10 destructible defense.'
+                    }
+                },
+                {
+                    type: 'swap_positions',
+                    scope: 'target'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'sandman_sand_clone_counter_hidden',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        hideTooltipFromEnemy: true,
+                        tooltipText: 'This skill is invisible.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'sandman-sand-smothering',
+            name: 'Sand Smothering',
+            skillimage: 'https://i.imgur.com/AUkTp1z.png',
+            skilldescription: 'For 2 turns, one enemy has their non-affliction damage reduced by 10 and takes 15 damage each turn.',
+            energy: [
+                'Random',
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Melee',
+                'Action'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'sandman_sand_smothering',
+                    duration: 2,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        nonAfflictionDamageDebuffFlat: 10,
+                        turnEndDamage: 15,
+                        tooltipText: 'This character deals 10 less non-affliction damage and takes 15 damage each turn.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'sandman-body-of-sand',
+            name: 'Body of Sand',
+            skillimage: 'https://i.imgur.com/nzJlnhN.png',
+            skilldescription: 'Sandman ignores all enemy physical skills for 2 turns. This effect is invisible on its first turn.',
+            energy: [
+                'Random',
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 5,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'sandman_body_of_sand_active',
+                    duration: 2,
+                    scope: 'self',
+                    metadata: {
+                        ignoreEnemyPhysicalSkills: true,
+                        ignoreSkillClasses: ['physical'],
+                        hideTooltipFromEnemy: true,
+                        tooltipText: 'Sandman ignores enemy physical skills.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'sandman-sand-body-exit',
+            name: 'Sand Body Exit',
+            skillimage: 'https://i.imgur.com/LLIk8Nu.png',
+            skilldescription: 'Deals 45 affliction damage to the enemy marked by \'Sand Body Enter\'. This skill ignores invulnerability and cannot be reflected.',
+            energy: [
+                'Genjutsu',
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant',
+                'Affliction'
+            ],
+            cannotBeReflected: true,
+            ignoreInvulnerability: true,
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 45,
+                    scope: 'target',
+                    condition: {
+                        statusId: 'sandman_sand_body_mark',
+                        scope: 'target'
+                    },
+                    metadata: {
+                        afflictionDamage: true,
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                },
+                {
+                    type: 'cleanse_statuses',
+                    scope: 'target',
+                    statusId: 'sandman_sand_body_mark',
+                    count: 0
+                }
+            ]
+        }
+    ]
+},
+    {
+    id: 'mysterio',
+    characterId: 'mysterio',
+    name: 'Mysterio',
+    facePicture: 'https://i.imgur.com/QOsgmSs.png',
+    characterdeescription: 'Mysterio excels at destabilizing the battlefield through deception, punishing enemies for acting without caution. Rather than directly overpowering opponents, he manipulates outcomes—redirecting abilities, setting hidden traps, and turning enemy decisions against them. With tools that reward prediction and punish routine play.',
+    skills: [
+        {
+            id: 'mysterio-illusion-of-choice',
+            name: 'Illusion of Choice',
+            skillimage: 'https://i.imgur.com/L6xYXGc.png',
+            skilldescription: 'Mysterio targets one enemy for 1 turn. During this time, their next harmful skill will be reflected to a random enemy and their next helpful skill will be re-directed to a random ally. This skill is invisible.',
+            energy: [
+                'Genjutsu'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Mental',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'mysterio_illusion_of_choice_reflect',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        hideTooltipFromEnemy: true,
+                        reflectNextIncomingSkill: true,
+                        reflectOnlyHarmfulSkills: true,
+                        reflectToRandomCasterAlly: true,
+                        tooltipText: 'The next harmful skill used on this character is reflected to a random enemy.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'mysterio_illusion_of_choice_helpful_blind',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        hideTooltipFromEnemy: true,
+                        helpfulBlind: true,
+                        tooltipText: 'The next helpful skill used on this character will target a random ally.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'mysterio-script-rewrite',
+            name: 'Script Rewrite',
+            skillimage: 'https://i.imgur.com/pt6KJHc.png',
+            skilldescription: 'Mysterio targets one enemy for 2 turns. If they use a new harmful skill, they take 30 affliction damage, their cooldown is increased by 1, and this trap is consumed. This skill is invisible. This cannot be used on an already affected enemy.',
+            energy: [
+                'Ninjutsu'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Mental',
+                'Ranged',
+                'Instant',
+                'Affliction'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'mysterio_script_rewrite_trap',
+                    duration: 2,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        triggerOnEnemyHarmfulSkill: true,
+                        counterCancelsSkill: true,
+                        counterEffectsToSourceOwner: [
+                            {
+                                type: 'damage',
+                                amount: 30,
+                                metadata: {
+                                    afflictionDamage: true,
+                                    ignoreDamageReduction: true,
+                                    ignoreDestructibleDefense: true
+                                }
+                            },
+                            {
+                                type: 'modify_cooldowns',
+                                amount: 1,
+                                metadata: {
+                                    targetTriggeredSkillOnly: true
+                                }
+                            }
+                        ],
+                        hideTooltipFromEnemy: true,
+                        tooltipText: 'If this character uses a new harmful skill, they take 30 affliction damage and that skill\'s cooldown increases by 1.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'mysterio-hall-of-mirrors',
+            name: 'Hall of Mirrors',
+            skillimage: 'https://i.imgur.com/MV1gA5Q.png',
+            skilldescription: 'For 2 turns, your team gains 30% evasion. This skill is invisible on its first turn.',
+            energy: [
+                'Ninjutsu',
+                'Genjutsu'
+            ],
+            target: 'all-allies',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Mental',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'mysterio_hall_of_mirrors_evasion',
+                    duration: 2,
+                    scope: 'all-allies',
+                    metadata: {
+                        hideTooltipFromEnemy: true,
+                        turnDurationAnchor: 'source_turn',
+                        evadeChancePercent: 30,
+                        evadeAgainstNonMental: true,
+                        tooltipText: 'This character has 30% evasion against enemy non-mental skills.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'mysterio-grand-illusion',
+            name: 'Grand Illusion',
+            skillimage: 'https://i.imgur.com/jGNjooo.png',
+            skilldescription: 'Mysterio creates a “Decoy” for 2 turns. Decoy absorbs the next harmful skill used on Mysterio’s team and If destroyed → the enemy team has their damage reduced by 10 for 1 turn.',
+            energy: [
+                'Random'
+            ],
+            target: 'all-allies',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Mental',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'mysterio_grand_illusion_decoy',
+                    duration: 2,
+                    scope: 'all-allies',
+                    metadata: {
+                        harmful: true,
+                        triggerOnEnemyHarmfulSkill: true,
+                        counterCancelsSkill: true,
+                        statusGroupId: 'mysterio_grand_illusion_decoy',
+                        removeStatusGroupIdsOnTrigger: ['mysterio_grand_illusion_decoy'],
+                        counterEffectsToEnemiesOfSource: [
+                            {
+                                type: 'apply_status',
+                                statusId: 'mysterio_grand_illusion_enemy_damage_debuff',
+                                duration: 1,
+                                metadata: {
+                                    harmful: true,
+                                    damageDebuffFlat: 10,
+                                    tooltipText: 'This character deals 10 less damage.'
+                                }
+                            }
+                        ],
+                        hideTooltipFromEnemy: true,
+                        tooltipText: 'The next harmful skill used on this character\'s team is absorbed. If the decoy is destroyed, the enemy team deals 10 less damage for 1 turn.'
+                    }
+                }
+            ]
+        }
+    ]
+},
+    {
+    id: 'scorpion',
+    characterId: 'scorpion',
+    name: 'Scorpion',
+    facePicture: 'https://i.imgur.com/PLACEHOLDER.png',
+    characterdeescription: 'Scorpion controls the battlefield through unpredictable venom cycles, forcing enemies to adapt to constantly shifting effects. His abilities layer affliction, disruption, and scaling damage, making him a dangerous threat the longer he remains active.',
+    startStatuses: [
+        {
+            statusId: 'scorpion_passive_scorpion_venom',
+            sourceSkillId: 'scorpion-passive-scorpion-venom',
+            duration: 1,
+            metadata: {
+                randomizeMetadataKeyFromOptions: {
+                    metadataKey: 'currentVenom',
+                    options: ['Neurotoxin', 'Acid', 'Paralytic Agent']
+                },
+                turnEndRandomizeMetadataKeyFromOptions: {
+                    metadataKey: 'currentVenom',
+                    options: ['Neurotoxin', 'Acid', 'Paralytic Agent'],
+                    excludeCurrentValue: true,
+                    resetDuration: 1
+                },
+                hideTooltipFromEnemy: true,
+                tooltipTextTemplate: 'Current venom: {currentVenom}'
+            }
+        }
+    ],
+    skills: [
+        {
+            id: 'scorpion-scorpion-sting',
+            name: 'Scorpion Sting',
+            skillimage: 'https://i.imgur.com/PLACEHOLDER.png',
+            skilldescription: 'Deals 15 piercing damage to one enemy and injects them with Scorpion\'s current venom for 2 turns.\n\nNeurotoxin: Target ignores healing effects and deals 10 less non-affliction damage.\nAcid: Deals 10 affliction damage the first turn and 5 the second.\nParalytic Agent: Stuns harmful skills the first turn and helpful skills the second.',
+            energy: [
+                'Taijutsu'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Ranged',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 15,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'scorpion_scorpion_sting_neurotoxin',
+                    duration: 2,
+                    scope: 'target',
+                    condition: {
+                        scope: 'self',
+                        statusMetadataEquals: {
+                            statusId: 'scorpion_passive_scorpion_venom',
+                            metadataKey: 'currentVenom',
+                            value: 'Neurotoxin'
+                        }
+                    },
+                    metadata: {
+                        healReceivedMultiplier: 0,
+                        nonAfflictionDamageDebuffFlat: 10,
+                        tooltipText: 'This character ignores healing and deals 10 less non-affliction damage.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'scorpion_scorpion_sting_acid_primary',
+                    duration: 1,
+                    scope: 'target',
+                    condition: {
+                        scope: 'self',
+                        statusMetadataEquals: {
+                            statusId: 'scorpion_passive_scorpion_venom',
+                            metadataKey: 'currentVenom',
+                            value: 'Acid'
+                        }
+                    },
+                    metadata: {
+                        turnEndDamage: 10,
+                        afflictionDamage: true,
+                        removeStatusIdsOnApply: ['scorpion_scorpion_sting_acid_secondary'],
+                        onExpireApplyStatusToSelf: {
+                            statusId: 'scorpion_scorpion_sting_acid_secondary',
+                            duration: 1,
+                            metadata: {
+                                turnEndDamage: 5,
+                                afflictionDamage: true,
+                                tooltipText: 'This character takes 5 affliction damage each turn.'
+                            }
+                        },
+                        tooltipText: 'This character takes 10 affliction damage each turn.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'scorpion_scorpion_sting_paralytic_primary',
+                    duration: 1,
+                    scope: 'target',
+                    condition: {
+                        scope: 'self',
+                        statusMetadataEquals: {
+                            statusId: 'scorpion_passive_scorpion_venom',
+                            metadataKey: 'currentVenom',
+                            value: 'Paralytic Agent'
+                        }
+                    },
+                    metadata: {
+                        cannotUseHarmfulSkills: true,
+                        removeStatusIdsOnApply: ['scorpion_scorpion_sting_paralytic_secondary'],
+                        onExpireApplyStatusToSelf: {
+                            statusId: 'scorpion_scorpion_sting_paralytic_secondary',
+                            duration: 1,
+                            metadata: {
+                                cannotUseHelpfulSkills: true,
+                                tooltipText: 'This character cannot use helpful skills.'
+                            }
+                        },
+                        tooltipText: 'This character cannot use harmful skills.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'scorpion-tail-laser',
+            name: 'Tail Laser',
+            skillimage: 'https://i.imgur.com/PLACEHOLDER.png',
+            skilldescription: 'Targets an enemy with an effect depending on Scorpion\'s current venom.\n\nNeurotoxin: Deals 40 affliction damage and makes the target ignore helpful effects for 1 turn.\nAcid: Deals 15 affliction damage permanently (stacks).\nParalytic Agent: Deals 30 affliction damage and stuns physical and chakra skills for 2 turns.',
+            energy: [
+                'Taijutsu',
+                'Taijutsu'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Chakra',
+                'Ranged',
+                'Instant',
+                'Affliction'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 40,
+                    scope: 'target',
+                    condition: {
+                        scope: 'self',
+                        statusMetadataEquals: {
+                            statusId: 'scorpion_passive_scorpion_venom',
+                            metadataKey: 'currentVenom',
+                            value: 'Neurotoxin'
+                        }
+                    },
+                    metadata: {
+                        afflictionDamage: true,
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'scorpion_tail_laser_neurotoxin',
+                    duration: 1,
+                    scope: 'target',
+                    condition: {
+                        scope: 'self',
+                        statusMetadataEquals: {
+                            statusId: 'scorpion_passive_scorpion_venom',
+                            metadataKey: 'currentVenom',
+                            value: 'Neurotoxin'
+                        }
+                    },
+                    metadata: {
+                        invulnerableToHelpfulSkills: true,
+                        tooltipText: 'This character ignores helpful skills.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'scorpion_tail_laser_acid_burn',
+                    duration: 1,
+                    scope: 'target',
+                    condition: {
+                        scope: 'self',
+                        statusMetadataEquals: {
+                            statusId: 'scorpion_passive_scorpion_venom',
+                            metadataKey: 'currentVenom',
+                            value: 'Acid'
+                        }
+                    },
+                    metadata: {
+                        afflictionDamage: true,
+                        stackMetadataKey: 'acidStacks',
+                        stackDelta: 1,
+                        stackMax: 99,
+                        stackDerivedNumericKeys: {
+                            turnEndDamage: 15
+                        },
+                        turnEndDamage: 15,
+                        tooltipTextTemplate: 'This character takes {turnEndDamage} affliction damage each turn.',
+                        onExpireApplyStatusToSelf: {
+                            statusId: 'scorpion_tail_laser_acid_burn',
+                            duration: 1,
+                            inheritSourceMetadata: true
+                        }
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'scorpion_tail_laser_paralytic',
+                    duration: 2,
+                    scope: 'target',
+                    condition: {
+                        scope: 'self',
+                        statusMetadataEquals: {
+                            statusId: 'scorpion_passive_scorpion_venom',
+                            metadataKey: 'currentVenom',
+                            value: 'Paralytic Agent'
+                        }
+                    },
+                    metadata: {
+                        afflictionDamage: true,
+                        cannotUseSkillClasses: ['physical', 'chakra'],
+                        tooltipText: 'This character cannot use physical or chakra skills.'
+                    }
+                },
+                {
+                    type: 'damage',
+                    amount: 30,
+                    scope: 'target',
+                    condition: {
+                        scope: 'self',
+                        statusMetadataEquals: {
+                            statusId: 'scorpion_passive_scorpion_venom',
+                            metadataKey: 'currentVenom',
+                            value: 'Paralytic Agent'
+                        }
+                    },
+                    metadata: {
+                        afflictionDamage: true,
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                }
+            ]
+        },
+        {
+            id: 'scorpion-neck-constriction',
+            name: 'Neck Constriction',
+            skillimage: 'https://i.imgur.com/PLACEHOLDER.png',
+            skilldescription: 'Stuns one enemy\'s non-mental skills for 1 turn. Permanently, Scorpion deals 5 additional damage to this target (stacks).',
+            energy: [
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Physical',
+                'Control',
+                'Ranged'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'scorpion_neck_constriction_lock',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        cannotUseNonMentalSkills: true,
+                        tooltipText: 'This character cannot use non-mental skills.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'scorpion_neck_constriction_mark',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        bonusDamageFromSourceCharacterId: 'scorpion',
+                        bonusDamageFromSourceSkillsFlat: 5,
+                        mergeNumericAddKeys: ['bonusDamageFromSourceSkillsFlat'],
+                        tooltipTextTemplate: 'Scorpion deals {bonusDamageFromSourceSkillsFlat} additional damage to this target.',
+                        onExpireApplyStatusToSelf: {
+                            statusId: 'scorpion_neck_constriction_mark',
+                            duration: 1,
+                            inheritSourceMetadata: true
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            id: 'scorpion-scorpion-crawl',
+            name: 'Scorpion Crawl',
+            skillimage: 'https://i.imgur.com/PLACEHOLDER.png',
+            skilldescription: 'This skill makes Scorpion invulnerable for 1 turn.',
+            energy: [
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'scorpion_scorpion_crawl_invulnerable',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        invulnerable: true,
+                        tooltipText: 'Scorpion is invulnerable.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'scorpion-passive-scorpion-venom',
+            name: 'Passive: Scorpion Venom',
+            skillimage: 'https://i.imgur.com/PLACEHOLDER.png',
+            skilldescription: 'Each turn, Scorpion randomly cycles his venom between Neurotoxin, Acid, and Paralytic Agent. This cannot repeat the same venom as the previous turn and is hidden from enemies.',
+            energy: [],
+            target: '',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Passive',
+                'Instant',
+                'Affliction'
             ]
         }
     ]

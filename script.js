@@ -727,6 +727,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             return units[actorSlot] || null;
         };
 
+        const isUnitBanished = (unit) => {
+            const statuses = Array.isArray(unit?.state?.statuses) ? unit.state.statuses : [];
+            return statuses.some((status) => {
+                const remaining = Number(status?.remainingTurns) || 0;
+                return remaining > 0 && Boolean(status?.metadata?.banished);
+            });
+        };
+
+        const isUnitDeadLike = (unit) => {
+            const hp = Number(unit?.hp);
+            return unit?.alive === false || isUnitBanished(unit) || (Number.isFinite(hp) && hp <= 0);
+        };
+
         await hydratePlayerIdentity();
 
         const getSkillReplacementMapFromUnit = (unit) => {
@@ -1098,7 +1111,32 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         };
 
+        const getSkillUsageState = (actorUnit, skill) => {
+            const maxUses = Math.max(0, Number(skill?.maxUses) || 0);
+            const skillId = typeof skill?.id === 'string' ? skill.id : '';
+            const skillUses =
+                actorUnit?.state?.skillUses && typeof actorUnit.state.skillUses === 'object'
+                    ? actorUnit.state.skillUses
+                    : {};
+            const uses = skillId ? Math.max(0, Number(skillUses[skillId]) || 0) : 0;
+            const isLimited = maxUses > 0;
+            const isMaxed = isLimited && uses >= maxUses;
+            return {
+                isLimited,
+                uses,
+                maxUses,
+                isMaxed,
+                tooltipText: isLimited
+                    ? isMaxed
+                        ? `${skill?.name || 'This skill'} cannot be used.`
+                        : `${skill?.name || 'This skill'} has been used ${uses} time${uses === 1 ? '' : 's'}.`
+                    : '',
+            };
+        };
+
         const isSkillBlockedByActorCondition = (actorUnit, skill) => {
+            const usageState = getSkillUsageState(actorUnit, skill);
+            if (usageState.isMaxed) return true;
             const condition = skill?.actorCondition;
             if (!condition || typeof condition !== 'object') return false;
             const statuses = Array.isArray(actorUnit?.state?.statuses) ? actorUnit.state.statuses : [];
@@ -1145,9 +1183,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const imgEl = meta?.imgEl;
                 if (!imgEl) return;
                 const actorUnit = Array.isArray(playerUnits) ? playerUnits[meta.actorSlot] : null;
-                const actorHp = Number(actorUnit?.hp);
-                const actorDead =
-                    actorUnit?.alive === false || (Number.isFinite(actorHp) && actorHp <= 0);
+                const effectiveSkill = getEffectiveSkillForActorSlot(meta.actorSlot, meta.skillIdx) || meta?.skill;
+                const usageState = getSkillUsageState(actorUnit, effectiveSkill);
+                imgEl.title = usageState.tooltipText || '';
+                const actorDead = isUnitDeadLike(actorUnit);
                 if (actorDead) {
                     imgEl.style.opacity = '0.4';
                     return;
@@ -1157,7 +1196,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     imgEl.style.opacity = '0.4';
                     return;
                 }
-                const effectiveSkill = getEffectiveSkillForActorSlot(meta.actorSlot, meta.skillIdx) || meta?.skill;
+                if (usageState.isMaxed) {
+                    imgEl.style.opacity = '0.4';
+                    return;
+                }
                 if (isActorEnemyTargetingStunned(actorUnit) && skillIsEnemyTargeting(effectiveSkill)) {
                     imgEl.style.opacity = '0.4';
                     return;
@@ -1221,6 +1263,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const actorUnit = Array.isArray(playerUnits) ? playerUnits[meta.actorSlot] : null;
                 const cooldowns = actorUnit?.state?.cooldowns || {};
                 const effectiveSkill = getEffectiveSkillForActorSlot(meta.actorSlot, meta.skillIdx) || meta?.skill;
+                const usageState = getSkillUsageState(actorUnit, effectiveSkill);
                 const skillId = effectiveSkill?.id || '';
                 const cooldownRemaining = skillId ? Math.max(0, Number(cooldowns[skillId]) || 0) : 0;
                 if (cooldownRemaining > 0) {
@@ -1706,8 +1749,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const getAliveCountFromUnits = (units) => {
             if (!Array.isArray(units)) return 0;
             return units.reduce((sum, unit) => {
-                const hp = Number(unit?.hp);
-                const isDead = unit?.alive === false || (Number.isFinite(hp) && hp <= 0);
+                const isDead = isUnitDeadLike(unit);
                 return sum + (isDead ? 0 : 1);
             }, 0);
         };
@@ -1762,7 +1804,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const healthBar = card.querySelector('.health-bar');
             const healthText = card.querySelector('.health-text');
             if (!healthBar || !healthText) return;
-            const rawHp = Number(unit?.hp);
+            const rawHp = isUnitBanished(unit) ? 0 : Number(unit?.hp);
             const hp = Math.max(0, Math.min(MAX_HP, Number.isFinite(rawHp) ? rawHp : MAX_HP));
             const ratio = hp / MAX_HP;
             const width = Math.max(0, Math.round(HEALTH_BAR_MAX_WIDTH * ratio));
@@ -1775,7 +1817,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             healthText.textContent = `${hp}/${MAX_HP}`;
             const face = card.querySelector('.character-face');
-            const dead = unit?.alive === false || hp <= 0;
+            const dead = isUnitDeadLike(unit) || hp <= 0;
             if (face) {
                 const aliveSrc = face.dataset.aliveSrc || face.src;
                 if (!face.dataset.aliveSrc) {
@@ -1957,8 +1999,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!tooltipImgTemplate.classList.contains('status-icon-template')) {
                 tooltipImgTemplate.classList.add('status-icon-template');
             }
-            const unitHp = Number(unit?.hp);
-            const dead = unit?.alive === false || (Number.isFinite(unitHp) && unitHp <= 0);
+            const dead = isUnitDeadLike(unit);
             if (dead) {
                 tooltipWrap
                     .querySelectorAll('.skilltooltipimage.dynamic-status-icon')
@@ -2325,8 +2366,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const slot = Number.parseInt(target?.slot, 10);
                     if (!username || !Number.isInteger(slot) || slot < 0) return;
                     const unit = latestBoardState?.[username]?.[slot];
-                    const hp = Number(unit?.hp);
-                    const dead = unit?.alive === false || (Number.isFinite(hp) && hp <= 0);
+                    const dead = isUnitDeadLike(unit);
                     if (dead) return;
                     const key = `${username}:${slot}`;
                     if (!queuedByTargetKey.has(key)) {
@@ -2370,6 +2410,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const renderSkillInfo = (character, skill, actorSlot = null, skillIdx = null) => {
             if (!skill || !character) return;
+            const actorUnit =
+                actorSlot !== null && currentPlayerUsername && latestBoardState?.[currentPlayerUsername]
+                    ? latestBoardState[currentPlayerUsername][actorSlot]
+                    : null;
+            const usageState = getSkillUsageState(actorUnit, skill);
             if (skillInfo.imgEl) {
                 skillInfo.imgEl.src = skill.skillimage || '';
                 skillInfo.imgEl.alt = skill.name || 'Skill';
@@ -2378,7 +2423,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 skillInfo.nameEl.textContent = skill.name || 'Skill';
             }
             if (skillInfo.descEl) {
-                skillInfo.descEl.textContent = skill.skilldescription || '';
+                const baseDescription = skill.skilldescription || '';
+                skillInfo.descEl.textContent = usageState.tooltipText
+                    ? `${baseDescription} ${usageState.tooltipText}`.trim()
+                    : baseDescription;
             }
             if (skillInfo.cooldownEl) {
                 skillInfo.cooldownEl.textContent = `Cooldown: ${skill.cooldown ?? '-'}`;
@@ -2459,9 +2507,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!meta?.imgEl) return;
                 const effectiveSkill = getEffectiveSkillForActorSlot(meta.actorSlot, meta.skillIdx) || meta?.baseSkill;
                 if (!effectiveSkill) return;
+                const actorUnit = latestBoardState?.[currentPlayerUsername]?.[meta.actorSlot];
+                const usageState = getSkillUsageState(actorUnit, effectiveSkill);
                 meta.skill = effectiveSkill;
                 meta.imgEl.src = effectiveSkill.skillimage || '';
                 meta.imgEl.alt = effectiveSkill.name || `Skill ${meta.skillIdx + 1}`;
+                meta.imgEl.title = usageState.tooltipText || '';
             });
         };
 
@@ -2783,10 +2834,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const skillImgs = Array.from(card.querySelectorAll('.skillscrollingame .skillimage'));
                     if (Array.isArray(character.skills)) {
                         skillImgs.forEach((imgEl, skillIdx) => {
-                            const skill = character.skills[skillIdx];
-                            if (!skill) return;
-                            imgEl.src = skill.skillimage || '';
-                            imgEl.alt = skill.name || `Skill ${skillIdx + 1}`;
+                    const skill = character.skills[skillIdx];
+                    if (!skill) return;
+                    imgEl.src = skill.skillimage || '';
+                    imgEl.alt = skill.name || `Skill ${skillIdx + 1}`;
                             imgEl.dataset.actorSlot = String(slotIndex);
                             imgEl.dataset.skillIdx = String(skillIdx);
                             if (isPlayer) {
