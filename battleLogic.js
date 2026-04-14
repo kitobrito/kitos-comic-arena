@@ -990,7 +990,7 @@ const applyStatus = ({
         existing.sourceSkillId = sourceSkillId || existing.sourceSkillId;
         existing.sourceUsername = sourceUsername || existing.sourceUsername || null;
         existing.sourceSlot = Number.isInteger(sourceSlot) ? sourceSlot : existing.sourceSlot ?? null;
-        const nextMetadata = { ...(existing.metadata || {}), ...(metadata || {}) };
+        let nextMetadata = { ...(existing.metadata || {}), ...(metadata || {}) };
         const mergeNumericAddKeys = Array.isArray(metadata?.mergeNumericAddKeys)
             ? metadata.mergeNumericAddKeys.filter((key) => typeof key === 'string' && key)
             : [];
@@ -2886,12 +2886,30 @@ const removeRandomChakraFromMatch = ({ match, username, amount = 1 }) => {
     if (lossAmount <= 0) return 0;
     match.chakraPools = match.chakraPools || {};
     const pool = match.chakraPools[username] || createEmptyChakraCost();
+    const pending = match.pendingTurns?.[username];
+    const randomAssignments =
+        pending && pending.randomAssignments && typeof pending.randomAssignments === 'object'
+            ? pending.randomAssignments
+            : null;
     let removed = 0;
     for (let i = 0; i < lossAmount; i += 1) {
         const available = chakraTypes.filter((type) => (Number(pool[type]) || 0) > 0);
-        if (!available.length) break;
-        const pick = available[Math.floor(Math.random() * available.length)];
-        pool[pick] = Math.max(0, (Number(pool[pick]) || 0) - 1);
+        if (available.length) {
+            const pick = available[Math.floor(Math.random() * available.length)];
+            pool[pick] = Math.max(0, (Number(pool[pick]) || 0) - 1);
+            removed += 1;
+            continue;
+        }
+        const assigned = randomAssignments
+            ? chakraTypes.filter((type) => (Number(randomAssignments[type]) || 0) > 0)
+            : [];
+        if (!assigned.length) break;
+        const pick = assigned[Math.floor(Math.random() * assigned.length)];
+        randomAssignments[pick] = Math.max(0, (Number(randomAssignments[pick]) || 0) - 1);
+        if (pending) {
+            pending.unresolvedRandom = Math.max(0, (Number(pending.unresolvedRandom) || 0) + 1);
+            match.pendingTurns[username] = pending;
+        }
         removed += 1;
     }
     match.chakraPools[username] = pool;
@@ -5970,6 +5988,7 @@ const applyOnTeamMemberSuccessfulDamageBonuses = ({
     const targetState = ensureUnitStateShape(targetUnit);
     teamUnits.forEach((teamUnit, teamSlot) => {
         if (!teamUnit || teamUnit.alive === false) return;
+        if (Number.isInteger(targetSlot) && Number(teamSlot) === Number(targetSlot)) return;
         const teamState = ensureUnitStateShape(teamUnit);
         (Array.isArray(teamState.statuses) ? teamState.statuses : []).forEach((status) => {
             if (!isStatusActiveForMetadata(status, teamUnit)) return;

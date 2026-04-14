@@ -316,7 +316,7 @@ const characters = [
             energy: [
                 'Taijutsu'
             ],
-            target: 'all-enemy',
+            target: 'single-enemy',
             damage: 0,
             cooldown: 0,
             classes: [
@@ -845,7 +845,7 @@ const characters = [
                     duration: 2,
                     scope: 'self',
                     metadata: {
-                        skillReplacementsBySkillId: {
+                        skillReplacements: {
                             'superman-laser-eyes': 'superman-laser-eyes-empowered'
                         },
                         tooltipText: 'Laser Eyes costs 1 more red energy and deals 20 piercing and 20 affliction damage..'
@@ -891,7 +891,7 @@ const characters = [
                     duration: 2,
                     scope: 'self',
                     metadata: {
-                        skillReplacementsBySkillId: {
+                        skillReplacements: {
                             'superman-frost-breath': 'superman-frost-breath-empowered'
                         },
                         tooltipText: 'Frost Breath costs 1 more blue energy, deals 20 affliction damage, and fully stuns for 2 turns.'
@@ -1017,7 +1017,7 @@ const characters = [
             name: 'Frost Breath',
             hiddenFromSelectionViewer: true,
             skillimage: 'https://i.imgur.com/OdxIs9J.png',
-            skilldescription: 'Frost Breath is empowered, dealing 20 affliction damage to one enemy and fully stunning them for 2 turns.',
+            skilldescription: 'Frost Breath deals 20 affliction damage to one enemy and fully stunning them for 2 turns.',
             energy: ['Ninjutsu', 'Ninjutsu'],
             target: 'single-enemy',
             damage: 0,
@@ -4616,7 +4616,7 @@ const characters = [
             id: 'rex-splode-explosive-pocket-change',
             name: 'Explosive Pocket Change',
             skillimage: 'https://i.imgur.com/51ENwBD.png',
-            skilldescription: 'Rex charges a coin in his pocket and throws it a one enemy, dealing 15 piercing damage and removing 1 random chakra from them. Rex can only use this skill three times per game.',
+            skilldescription: 'Rex charges a coin in his pocket and throws it a one enemy, dealing 15 piercing damage and removing 1 random energy from them. Rex can only use this skill three times per game.',
             energy: [
                 'Random'
             ],
