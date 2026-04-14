@@ -5978,6 +5978,7 @@ const applyOnTeamMemberSuccessfulDamageBonuses = ({
     actingUsername,
     targetUnit,
     targetUsername,
+    targetSlot = null,
     sourceSkillId = null,
     sourceSkillClasses = [],
     sourceSlot = null,
