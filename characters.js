@@ -2048,7 +2048,6 @@ const characters = [
         {
             id: 'aquaman-sea-sharks',
             name: 'Sea Sharks',
-            hiddenFromSelectionViewer: true,
             skillimage: 'https://i.imgur.com/TYkjQdu.png',
             skilldescription: 'Deals 5 piercing damage permanently (stacks).',
             energy: [],
@@ -3440,31 +3439,14 @@ const characters = [
             ],
             effects: [
                 {
-                    type: 'damage',
+                    type: 'health_steal_damage',
                     amount: 20,
                     scope: 'target'
                 },
                 {
-                    type: 'heal',
-                    amount: 20,
-                    scope: 'self'
-                },
-                {
-                    type: 'damage',
+                    type: 'health_steal_damage',
                     amount: 25,
                     scope: 'target',
-                    condition: {
-                        scope: 'self',
-                        sourceSkillUsesAtLeast: {
-                            skillId: 'rick-grimes-357-revolver',
-                            value: 6
-                        }
-                    }
-                },
-                {
-                    type: 'heal',
-                    amount: 25,
-                    scope: 'self',
                     condition: {
                         scope: 'self',
                         sourceSkillUsesAtLeast: {
@@ -3722,7 +3704,7 @@ const characters = [
             id: 'walker-infected-horde',
             name: 'Infected Horde',
             skillimage: 'https://i.imgur.com/e4sEkft.png',
-            skilldescription: 'For the rest of the game, Walker and his team gain 10 damage reduction and the enemy team takes 10 affliction damage at the end of Walker\'s turns. The next Surprise Chomp or Overpower Walker uses will target all enemies. This effect stacks up to 3 times and ends when Walker dies.',
+            skilldescription: 'For the rest of the game, Walker and his team gain 10 damage reduction and the enemy team takes 10 damage at the end of Walker\'s turns. The next Surprise Chomp or Overpower Walker uses will target all enemies. This effect stacks up to 3 times and ends when Walker dies.',
             energy: [
                 'Random',
                 'Random',
@@ -3765,14 +3747,11 @@ const characters = [
                         infiniteDuration: true,
                         ongoingClass: 'action',
                         turnEndDamage: 10,
-                        afflictionDamage: true,
-                        ignoreTargetDamageReduction: true,
-                        ignoreTargetDestructibleDefense: true,
                         turnEndTrigger: 'source_turn',
                         turnDurationAnchor: 'source_turn',
                         triggerOnApply: true,
                         mergeNumericAddKeys: ['turnEndDamage'],
-                        tooltipTextTemplate: 'This character takes {turnEndDamage} affliction damage at the end of each of Walker\'s turns.'
+                        tooltipTextTemplate: 'This character takes {turnEndDamage} damage at the end of each of Walker\'s turns.'
                     }
                 },
                 {
@@ -3811,79 +3790,15 @@ const characters = [
             ],
             effects: [
                 {
-                    type: 'damage',
+                    type: 'health_steal_damage',
                     amount: 15,
                     scope: 'target'
-                },
-                {
-                    type: 'heal',
-                    amount: 15,
-                    scope: 'self'
                 },
                 {
                     type: 'apply_status',
                     statusId: 'walker_infected_bite',
                     duration: 99,
                     scope: 'target',
-                    metadata: {
-                        harmful: true,
-                        infiniteDuration: true,
-                        ongoingClass: 'action',
-                        turnEndDamage: 2,
-                        afflictionDamage: true,
-                        ignoreTargetDamageReduction: true,
-                        ignoreTargetDestructibleDefense: true,
-                        turnEndTrigger: 'source_turn',
-                        turnDurationAnchor: 'source_turn',
-                        triggerOnApply: true,
-                        healReceivedMultiplier: 0.75,
-                        healReceivedMultiplierWhenOwnerCurrentHpAtMostThreshold: 40,
-                        healReceivedMultiplierWhenOwnerCurrentHpAtMost: 0.5,
-                        bonusDamageFromSourceCharacterId: 'walker',
-                        bonusDamageAppliesToSkillIds: ['walker-surprise-chomp', 'walker-surprise-chomp-all'],
-                        bonusDamageFromSourceSkillsFlat: 5,
-                        tooltipText: 'This character takes 2 affliction damage each turn, receives 25% less healing or 50% less healing at 40 HP or below, and Walker\'s Surprise Chomp steals 5 additional HP from them.'
-                    }
-                }
-            ]
-        },
-        {
-            id: 'walker-surprise-chomp-all',
-            name: 'Surprise Chomp',
-            hiddenFromSelectionViewer: true,
-            useBaseSkillCooldown: true,
-            skillimage: 'https://i.imgur.com/WajPlhY.png',
-            skilldescription: 'Walker steals 15 HP from all enemies and grants Infected Bite to one enemy.',
-            energy: [
-                'Random'
-            ],
-            target: 'all-enemy',
-            damage: 0,
-            cooldown: 1,
-            classes: [
-                'Physical',
-                'Melee',
-                'Instant'
-            ],
-            effects: [
-                {
-                    type: 'damage',
-                    amount: 15,
-                    scope: 'all-enemy',
-                    metadata: {
-                        randomScopeGroupKey: 'walker_surprise_chomp_all_target'
-                    }
-                },
-                {
-                    type: 'heal',
-                    amount: 15,
-                    scope: 'self'
-                },
-                {
-                    type: 'apply_status',
-                    statusId: 'walker_infected_bite',
-                    duration: 99,
-                    scope: 'random-enemy',
                     metadata: {
                         harmful: true,
                         infiniteDuration: true,
@@ -3953,6 +3868,53 @@ const characters = [
             ]
         },
         {
+            id: 'walker-group-banquet',
+            name: 'Group Banquet',
+            skillimage: 'https://i.imgur.com/J1mBmGk.png',
+            skilldescription: 'Walker heals 15 HP at the end of each of his turns for 2 turns.',
+            energy: [
+                'Random',
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Physical',
+                'Control'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'walker_group_banquet_regen',
+                    duration: 2,
+                    scope: 'self',
+                    metadata: {
+                        turnEndHealFlat: 15,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        triggerOnApply: true,
+                        tooltipText: 'Walker heals 15 HP at the end of each of his turns.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'walker-passive-infected-bite',
+            name: 'Passive: Infected Bite',
+            skillimage: 'https://i.imgur.com/zeUfS91.png',
+            skilldescription: 'This character takes 2 affliction damage every turn, receives 25% less healing or 50% less healing at 40 HP or below, and Walker\'s Surprise Chomp steals 5 additional HP from them. This effect does not stack.',
+            energy: [],
+            target: '',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Passive',
+                'Instant',
+                'Affliction'
+            ]
+        },
+        {
             id: 'walker-overpower-all',
             name: 'Overpower',
             hiddenFromSelectionViewer: true,
@@ -4001,53 +3963,60 @@ const characters = [
                 }
             ]
         },
-        {
-            id: 'walker-group-banquet',
-            name: 'Group Banquet',
-            skillimage: 'https://i.imgur.com/J1mBmGk.png',
-            skilldescription: 'Walker heals 15 HP at the end of each of his turns for 2 turns.',
+                {
+            id: 'walker-surprise-chomp-all',
+            name: 'Surprise Chomp',
+            hiddenFromSelectionViewer: true,
+            useBaseSkillCooldown: true,
+            skillimage: 'https://i.imgur.com/WajPlhY.png',
+            skilldescription: 'Walker steals 15 HP from all enemies and grants Infected Bite to one enemy.',
             energy: [
-                'Random',
                 'Random'
             ],
-            target: 'self',
+            target: 'all-enemy',
             damage: 0,
-            cooldown: 2,
+            cooldown: 1,
             classes: [
                 'Physical',
-                'Control'
+                'Melee',
+                'Instant'
             ],
             effects: [
                 {
-                    type: 'apply_status',
-                    statusId: 'walker_group_banquet_regen',
-                    duration: 2,
-                    scope: 'self',
+                    type: 'health_steal_damage',
+                    amount: 15,
+                    scope: 'all-enemy',
                     metadata: {
-                        turnEndHealFlat: 15,
+                        randomScopeGroupKey: 'walker_surprise_chomp_all_target'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'walker_infected_bite',
+                    duration: 99,
+                    scope: 'random-enemy',
+                    metadata: {
+                        harmful: true,
+                        infiniteDuration: true,
+                        ongoingClass: 'action',
+                        turnEndDamage: 2,
+                        afflictionDamage: true,
+                        ignoreTargetDamageReduction: true,
+                        ignoreTargetDestructibleDefense: true,
                         turnEndTrigger: 'source_turn',
                         turnDurationAnchor: 'source_turn',
                         triggerOnApply: true,
-                        tooltipText: 'Walker heals 15 HP at the end of each of his turns.'
+                        healReceivedMultiplier: 0.75,
+                        healReceivedMultiplierWhenOwnerCurrentHpAtMostThreshold: 40,
+                        healReceivedMultiplierWhenOwnerCurrentHpAtMost: 0.5,
+                        bonusDamageFromSourceCharacterId: 'walker',
+                        bonusDamageAppliesToSkillIds: ['walker-surprise-chomp', 'walker-surprise-chomp-all'],
+                        bonusDamageFromSourceSkillsFlat: 5,
+                        tooltipText: 'This character takes 2 affliction damage each turn, receives 25% less healing or 50% less healing at 40 HP or below, and Walker\'s Surprise Chomp steals 5 additional HP from them.'
                     }
                 }
             ]
         },
-        {
-            id: 'walker-passive-infected-bite',
-            name: 'Passive: Infected Bite',
-            skillimage: 'https://i.imgur.com/zeUfS91.png',
-            skilldescription: 'This character takes 2 affliction damage every turn, receives 25% less healing or 50% less healing at 40 HP or below, and Walker\'s Surprise Chomp steals 5 additional HP from them. This effect does not stack.',
-            energy: [],
-            target: '',
-            damage: 0,
-            cooldown: 0,
-            classes: [
-                'Passive',
-                'Instant',
-                'Affliction'
-            ]
-        }
     ]
 },
     {
@@ -5453,7 +5422,6 @@ const characters = [
         {
             id: 'angstrom-levy-dimension-abandon',
             name: 'Dimension Abandon',
-            hiddenFromSelectionViewer: true,
             skillimage: 'https://i.imgur.com/JK3dEhh.png',
             skilldescription: 'This character is Banished for 1 turn. Banished characters are treated as if they are dead.',
             energy: [],
@@ -5955,18 +5923,12 @@ const characters = [
                     scope: 'target'
                 },
                 {
-                    type: 'damage',
+                    type: 'health_steal_damage',
                     amount: 15,
                     scope: 'target',
                     metadata: {
                         ignoreDamageReduction: true,
-                        ignoreDestructibleDefense: true
                     }
-                },
-                {
-                    type: 'heal',
-                    amount: 15,
-                    scope: 'self'
                 }
             ]
         },

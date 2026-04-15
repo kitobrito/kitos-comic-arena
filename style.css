@@ -16,6 +16,27 @@ body {
     text-transform: uppercase;
 }
 
+body.app-loading-selection .skillviewer,
+body.app-loading-selection .slot-list,
+body.app-loading-selection .player-card,
+body.app-loading-selection .selected-character-slot-list,
+body.app-loading-selection .button-container,
+body.app-loading-ingame .game-hud,
+body.app-loading-ingame .player-characters,
+body.app-loading-ingame .enemy-characters,
+body.app-loading-ingame .skillinformation,
+body.app-loading-ingame .bottomrender,
+body.app-loading-ingame .bottomgame,
+body.app-loading-ingame .ChakraChooseEndTurn,
+body.app-loading-ingame .exchange_chakra,
+body.app-loading-ingame .surrender-confirm,
+body.app-loading-ingame .battle-end-overlay,
+body.app-loading-ingame .class-choice-popup {
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+}
+
 body.custom-game-cursor,
 body.custom-game-cursor * {
     cursor: url('cursor.png') 0 0, auto !important;
@@ -954,6 +975,7 @@ text-transform: uppercase;
 .character-card {
     margin-left: 32px;
     margin-top: -28px;
+    touch-action: manipulation;
 }
 
 .target-overlay {
@@ -1056,7 +1078,7 @@ text-transform: uppercase;
 .skillimage.selected-target {
     position: relative;
     z-index: 7;
-    transition: transform 0.35s ease, opacity 0.2s ease;
+    transition: transform 0.12s ease, opacity 0.12s ease;
 }
 
 
@@ -1072,7 +1094,8 @@ text-transform: uppercase;
     top: 11px;
     left: 40px;
     position: relative;
-    transition: transform 0.35s ease, opacity 0.2s ease;
+    transition: transform 0.12s ease, opacity 0.12s ease;
+    touch-action: manipulation;
 }
 
 .skill-cooldown-badge {

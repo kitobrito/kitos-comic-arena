@@ -437,8 +437,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (!slotList) {
         const rosterData = typeof characters !== 'undefined' ? characters : window.characters;
-        let matchPoll = null;
-        let matchPollInFlight = false;
+        let matchSocket = null;
+        let matchSocketReconnectTimer = null;
+        let matchSocketReconnectDelay = 1000;
+        let matchSocketManuallyClosed = false;
         let currentPlayerUsername = null;
         let currentTurnUsername = null;
         let currentOpponentUsername = null;
@@ -1610,30 +1612,34 @@ document.addEventListener('DOMContentLoaded', async () => {
             updateEndTurnButtons();
         };
 
-        const openEndTurnModal = async () => {
+        const openEndTurnModal = () => {
             if (!endTurnModalEl || !matchIdFromUrl) return;
-            try {
-                const res = await fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}`, {
-                    credentials: 'include',
-                });
-                if (!res.ok) {
-                    throw new Error('Unable to load match state.');
-                }
-                const data = await res.json();
-                if (!data?.ok) {
-                    throw new Error('Unable to load match state.');
-                }
-                if (data.player?.username) {
-                    currentPlayerUsername = data.player.username;
-                }
-                const playerPool = data.chakraPools?.[currentPlayerUsername] || {};
-                pendingTurnState = normalizePendingTurn(data.pendingTurn);
-                renderEndTurnModal(playerPool, pendingTurnState);
-            } catch (error) {
-                renderEndTurnModal(emptyPool(), normalizePendingTurn());
-                console.warn('Unable to load end turn chakra preview.', error);
-            }
+            // Show immediately from the last known client state; refresh in the background below.
             endTurnModalEl.style.visibility = 'visible';
+            renderEndTurnModal(playerPoolState, pendingTurnState);
+            fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}`, {
+                credentials: 'include',
+            })
+                .then(async (res) => {
+                    if (!res.ok) {
+                        throw new Error('Unable to load match state.');
+                    }
+                    const data = await res.json();
+                    if (!data?.ok) {
+                        throw new Error('Unable to load match state.');
+                    }
+                    if (data.player?.username) {
+                        currentPlayerUsername = data.player.username;
+                    }
+                    const playerPool = data.chakraPools?.[currentPlayerUsername] || {};
+                    pendingTurnState = normalizePendingTurn(data.pendingTurn);
+                    if (endTurnModalEl?.style.visibility === 'visible') {
+                        renderEndTurnModal(playerPool, pendingTurnState);
+                    }
+                })
+                .catch((error) => {
+                    console.warn('Unable to load end turn chakra preview.', error);
+                });
         };
 
         const closeEndTurnModal = () => {
@@ -1736,10 +1742,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const stopMatchRealtime = () => {
-            if (matchPoll) {
-                clearInterval(matchPoll);
-                matchPoll = null;
-            }
+            clearMatchSocketReconnect();
+            closeMatchSocket();
             if (turnTimerInterval) {
                 clearInterval(turnTimerInterval);
                 turnTimerInterval = null;
@@ -2516,6 +2520,98 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         };
 
+        const applyIncomingMatchState = (data, { playEntrySound = false } = {}) => {
+            if (!data || typeof data !== 'object') return;
+            if (data.player?.username) {
+                currentPlayerUsername = data.player.username;
+            }
+            if (
+                playEntrySound &&
+                !hasPlayedMatchEntrySound &&
+                data.player?.username &&
+                data.currentTurn
+            ) {
+                playIngameSound(
+                    data.player.username === data.currentTurn ? startFirstSound : secondPlayerStartSound
+                );
+                hasPlayedMatchEntrySound = true;
+            }
+            applyMatchState(data);
+            renderDynamicSkillIcons();
+        };
+
+        const clearMatchSocketReconnect = () => {
+            if (matchSocketReconnectTimer) {
+                clearTimeout(matchSocketReconnectTimer);
+                matchSocketReconnectTimer = null;
+            }
+        };
+
+        const connectMatchSocket = () => {
+            if (!matchIdFromUrl || battleEndShown || typeof WebSocket === 'undefined') return;
+            if (
+                matchSocket &&
+                (matchSocket.readyState === WebSocket.OPEN ||
+                    matchSocket.readyState === WebSocket.CONNECTING)
+            ) {
+                return;
+            }
+            clearMatchSocketReconnect();
+            matchSocketManuallyClosed = false;
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const socketUrl = `${protocol}//${window.location.host}/ws?matchId=${encodeURIComponent(matchIdFromUrl)}`;
+            const socket = new WebSocket(socketUrl);
+            matchSocket = socket;
+            socket.addEventListener('open', () => {
+                matchSocketReconnectDelay = 1000;
+            });
+            socket.addEventListener('message', (event) => {
+                try {
+                    const message = JSON.parse(event.data);
+                    if (message?.type === 'match_state' && message.payload) {
+                        applyIncomingMatchState(message.payload);
+                    }
+                } catch (error) {
+                    console.warn('Failed to process match socket message.', error);
+                }
+            });
+            socket.addEventListener('close', () => {
+                if (matchSocket === socket) {
+                    matchSocket = null;
+                }
+                if (matchSocketManuallyClosed || battleEndShown || !matchIdFromUrl) {
+                    return;
+                }
+                clearMatchSocketReconnect();
+                matchSocketReconnectTimer = setTimeout(() => {
+                    matchSocketReconnectTimer = null;
+                    connectMatchSocket();
+                }, matchSocketReconnectDelay);
+                matchSocketReconnectDelay = Math.min(matchSocketReconnectDelay * 2, 10000);
+            });
+            socket.addEventListener('error', () => {
+                try {
+                    socket.close();
+                } catch (error) {
+                    // Ignore socket close failures.
+                }
+            });
+        };
+
+        const closeMatchSocket = () => {
+            matchSocketManuallyClosed = true;
+            clearMatchSocketReconnect();
+            if (!matchSocket) return;
+            try {
+                matchSocket.close();
+            } catch (error) {
+                // Ignore socket close failures.
+            }
+            matchSocket = null;
+        };
+
+        window.addEventListener('beforeunload', closeMatchSocket);
+
         const fetchTargetOptions = async (actorSlot, skillIdx, skill = null) => {
             if (!matchIdFromUrl) return;
             clearTargetHighlights();
@@ -2722,6 +2818,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const handleCardTargetClick = (event) => {
             if (!activeTargetOptions || !activeCastingSkill || !matchIdFromUrl) return;
+            if (event?.button !== undefined && event.button !== 0) return;
+            event.preventDefault();
+            event.stopPropagation();
             const card = event.currentTarget;
             const username = card.dataset.username;
             const slot = Number.parseInt(card.dataset.slot, 10);
@@ -2776,8 +2875,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!card) return;
                 card.dataset.username = username;
                 card.dataset.slot = slot;
-                card.removeEventListener('click', handleCardTargetClick);
-                card.addEventListener('click', handleCardTargetClick);
+                card.removeEventListener('pointerdown', handleCardTargetClick);
+                card.addEventListener('pointerdown', handleCardTargetClick);
             });
         };
 
@@ -2852,9 +2951,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 imgEl.style.cursor = 'pointer';
                                 const existingSkillClickHandler = imgEl._skillClickHandler;
                                 if (typeof existingSkillClickHandler === 'function') {
-                                    imgEl.removeEventListener('click', existingSkillClickHandler);
+                                    imgEl.removeEventListener('pointerdown', existingSkillClickHandler);
                                 }
-                                const onSkillClick = () => {
+                                const onSkillClick = (event) => {
+                                    if (event?.button !== undefined && event.button !== 0) return;
+                                    event.preventDefault();
+                                    event.stopPropagation();
                                     const effectiveSkill =
                                         getEffectiveSkillForActorSlot(slotIndex, skillIdx) || skill;
                                     renderSkillInfo(character, effectiveSkill, slotIndex, skillIdx);
@@ -2929,7 +3031,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     );
                                 };
                                 imgEl._skillClickHandler = onSkillClick;
-                                imgEl.addEventListener('click', onSkillClick);
+                                imgEl.addEventListener('pointerdown', onSkillClick);
                             }
                         });
                     }
@@ -2953,52 +3055,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (data.player?.username) {
                     currentPlayerUsername = data.player.username;
                 }
-                if (!hasPlayedMatchEntrySound && data.player?.username && data.currentTurn) {
-                    playIngameSound(
-                        data.player.username === data.currentTurn ? startFirstSound : secondPlayerStartSound
-                    );
-                    hasPlayedMatchEntrySound = true;
-                }
-                applyMatchState(data);
-                renderDynamicSkillIcons();
+                applyIncomingMatchState(data, { playEntrySound: true });
+                connectMatchSocket();
             } catch (error) {
                 console.warn('Failed to load match data.', error);
             }
         };
 
-        loadMatchForIngame();
-
-        const startMatchPoll = () => {
-            if (matchPoll || !matchIdFromUrl) return;
-            matchPoll = setInterval(async () => {
-                if (matchPollInFlight || battleEndShown || document.hidden) {
-                    return;
-                }
-                matchPollInFlight = true;
-                try {
-                    const res = await fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}`, {
-                        credentials: 'include',
-                    });
-                    if (!res.ok) {
-                        throw new Error('Match not found or finished.');
-                    }
-                    const data = await res.json();
-                    if (!data?.ok) {
-                        throw new Error('Match unavailable.');
-                    }
-                    if (data.player?.username) {
-                        currentPlayerUsername = data.player.username;
-                    }
-                    applyMatchState(data);
-                } catch (error) {
-                    clearInterval(matchPoll);
-                    matchPoll = null;
-                } finally {
-                    matchPollInFlight = false;
-                }
-            }, 3000);
-        };
-        startMatchPoll();
+        loadMatchForIngame().finally(() => {
+            document.body.classList.remove('app-loading', 'app-loading-ingame');
+        });
 
         const surrenderButton = document.querySelector('.surrenderbutton');
         const handleReadySectionClick = async () => {
@@ -3047,8 +3113,58 @@ document.addEventListener('DOMContentLoaded', async () => {
             closeEndTurnModal();
         };
 
+        const clonePoolState = (pool = emptyPool()) => ({
+            taijutsu: Math.max(0, Number(pool?.taijutsu) || 0),
+            ninjutsu: Math.max(0, Number(pool?.ninjutsu) || 0),
+            bloodline: Math.max(0, Number(pool?.bloodline) || 0),
+            genjutsu: Math.max(0, Number(pool?.genjutsu) || 0),
+        });
+
+        const clonePendingTurnState = (pending = normalizePendingTurn()) => ({
+            queuedByActorSlot: JSON.parse(JSON.stringify(pending?.queuedByActorSlot || {})),
+            queueOrder: Array.isArray(pending?.queueOrder) ? [...pending.queueOrder] : [],
+            unresolvedRandom: Math.max(0, Number(pending?.unresolvedRandom) || 0),
+            randomAssignments: clonePoolState(pending?.randomAssignments || emptyPool()),
+            turnStartChoice:
+                pending?.turnStartChoice && typeof pending.turnStartChoice === 'object'
+                    ? JSON.parse(JSON.stringify(pending.turnStartChoice))
+                    : null,
+        });
+
+        const applyRandomChakraAdjustmentLocally = (chakraType, delta) => {
+            const normalizedType = typeof chakraType === 'string' ? chakraType.trim().toLowerCase() : '';
+            if (!chakraTypes.includes(normalizedType)) return false;
+            const nextPool = clonePoolState(playerPoolState);
+            const nextPending = clonePendingTurnState(pendingTurnState);
+            if (delta === 1) {
+                if (nextPending.unresolvedRandom <= 0) return false;
+                if ((nextPool[normalizedType] || 0) <= 0) return false;
+                nextPool[normalizedType] -= 1;
+                nextPending.randomAssignments[normalizedType] = (nextPending.randomAssignments[normalizedType] || 0) + 1;
+                nextPending.unresolvedRandom -= 1;
+            } else if (delta === -1) {
+                if ((nextPending.randomAssignments[normalizedType] || 0) <= 0) return false;
+                nextPool[normalizedType] += 1;
+                nextPending.randomAssignments[normalizedType] -= 1;
+                nextPending.unresolvedRandom += 1;
+            } else {
+                return false;
+            }
+            renderChakra(nextPool);
+            pendingTurnState = nextPending;
+            applyQueuedSkillVisuals();
+            if (endTurnModalEl && endTurnModalEl.style.visibility === 'visible') {
+                renderEndTurnModal(nextPool, nextPending);
+            }
+            return true;
+        };
+
         const adjustRandomChakra = async (chakraType, delta) => {
             if (!matchIdFromUrl) return;
+            const previousPoolState = clonePoolState(playerPoolState);
+            const previousPendingState = clonePendingTurnState(pendingTurnState);
+            const appliedLocally = applyRandomChakraAdjustmentLocally(chakraType, delta);
+            if (!appliedLocally) return;
             try {
                 const response = await fetch(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/random/adjust`,
@@ -3071,6 +3187,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     renderEndTurnModal(playerPoolState, pendingTurnState);
                 }
             } catch (error) {
+                renderChakra(previousPoolState);
+                pendingTurnState = previousPendingState;
+                applyQueuedSkillVisuals();
+                if (endTurnModalEl && endTurnModalEl.style.visibility === 'visible') {
+                    renderEndTurnModal(previousPoolState, previousPendingState);
+                }
                 console.warn('Failed to adjust random chakra.', error);
             }
         };
@@ -4171,4 +4293,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     persistTeamSelection();
     applySavedTeam();
     resumeMatchIfActive();
+    document.body.classList.remove('app-loading', 'app-loading-selection');
 });

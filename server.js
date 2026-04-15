@@ -12,6 +12,7 @@ const jwt = require('jsonwebtoken');
 const Joi = require('joi');
 const { MongoClient, ObjectId } = require('mongodb');
 const bcrypt = require('bcryptjs');
+const { WebSocketServer, WebSocket } = require('ws');
 const battleLogic = require('./battleLogic');
 let charactersData = require('./characters');
 
@@ -48,6 +49,10 @@ let usersCollection;
 let matchesCollection;
 let appStateCollection;
 let newsPostsCollection;
+const matchSocketRooms = new Map();
+const wsConnections = new Set();
+const wsServer = new WebSocketServer({ noServer: true });
+let turnSweepTimer = null;
 
 const DEFAULT_CLAN_RANK_NAMES = {
     clanLeader: 'Clan Leader',
@@ -1641,6 +1646,225 @@ const requireSession = async (req, res, next) => {
     }
 };
 
+const parseCookieHeader = (cookieHeader = '') => {
+    if (typeof cookieHeader !== 'string' || !cookieHeader.trim()) return {};
+    return cookieHeader.split(';').reduce((acc, part) => {
+        const [rawKey, ...rawValueParts] = String(part).split('=');
+        const key = rawKey ? rawKey.trim() : '';
+        if (!key) return acc;
+        const value = rawValueParts.join('=').trim();
+        acc[key] = decodeURIComponent(value || '');
+        return acc;
+    }, {});
+};
+
+const getSessionUserFromToken = async (token) => {
+    if (!token) return null;
+    const decoded = jwt.verify(token, JWT_SECRET);
+    const user = await usersCollection.findOne({ username: decoded.username });
+    if (!user) return null;
+    return {
+        ...serializeUserForClient(user),
+    };
+};
+
+const getMatchRoom = (matchId) => {
+    const key = typeof matchId === 'string' ? matchId.trim() : '';
+    if (!key) return null;
+    if (!matchSocketRooms.has(key)) {
+        matchSocketRooms.set(key, new Set());
+    }
+    return matchSocketRooms.get(key);
+};
+
+const removeSocketFromRoom = (ws) => {
+    if (!ws || !ws.matchId) return;
+    const room = matchSocketRooms.get(ws.matchId);
+    if (!room) return;
+    room.delete(ws);
+    if (room.size === 0) {
+        matchSocketRooms.delete(ws.matchId);
+    }
+};
+
+const sendJsonToSocket = (ws, payload) => {
+    if (!ws || ws.readyState !== WebSocket.OPEN) return false;
+    try {
+        ws.send(JSON.stringify(payload));
+        return true;
+    } catch (error) {
+        return false;
+    }
+};
+
+const buildMatchPayloadForUser = (match, username) => {
+    if (!match || !username) return null;
+    const playerEntry = Array.isArray(match.players)
+        ? match.players.find((player) => player?.username === username) || null
+        : null;
+    if (!playerEntry) return null;
+    const opponentEntry = Array.isArray(match.players)
+        ? match.players.find((player) => player?.username !== username) || null
+        : null;
+    return {
+        ok: true,
+        matchId: match.matchId || null,
+        mode: match.mode || 'quick',
+        status: match.status || 'active',
+        winner: match.winner || null,
+        surrenderedBy: match.surrenderedBy || null,
+        endReason: match.endReason || null,
+        endedAt: match.endedAt || null,
+        player: playerEntry,
+        opponent: opponentEntry,
+        currentTurn: match.currentTurn || null,
+        turnOrder: match.turnOrder || null,
+        turnExpiresAt: match.turnExpiresAt || null,
+        turnDurationMs: getTurnDurationMsForUser(match, match?.currentTurn),
+        board: match.board || null,
+        chakraPools: match.chakraPools || null,
+        lastChakraGain: match.economy?.lastChakraGain || null,
+        pendingTurn: getPendingTurn(match, username),
+        ladderResult: match.ladderResults?.[username] || null,
+    };
+};
+
+const hydrateMatchForBroadcast = async (matchOrMatchId) => {
+    const match =
+        typeof matchOrMatchId === 'string'
+            ? await matchesCollection.findOne({ matchId: matchOrMatchId })
+            : matchOrMatchId;
+    if (!match) return null;
+    const hydratedTurn = await ensureMatchTurnData(match);
+    const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
+    const hydratedPending = await ensurePendingTurnState(hydratedEcon);
+    const hydratedBoard = await ensureBoardState(hydratedPending);
+    return autoAdvanceTurnIfExpired(hydratedBoard);
+};
+
+const broadcastMatchState = async (matchOrMatchId) => {
+    const hydrated = await hydrateMatchForBroadcast(matchOrMatchId);
+    if (!hydrated || !Array.isArray(hydrated.players) || hydrated.players.length === 0) {
+        return null;
+    }
+    const room = getMatchRoom(hydrated.matchId);
+    if (!room || room.size === 0) {
+        return hydrated;
+    }
+    room.forEach((ws) => {
+        if (!ws || ws.readyState !== WebSocket.OPEN) {
+            removeSocketFromRoom(ws);
+            return;
+        }
+        const payload = buildMatchPayloadForUser(hydrated, ws.username);
+        if (payload) {
+            sendJsonToSocket(ws, { type: 'match_state', payload });
+        }
+    });
+    return hydrated;
+};
+
+const sweepExpiredMatches = async () => {
+    if (!matchesCollection) return;
+    const now = new Date();
+    const expiredMatches = await matchesCollection
+        .find(
+            {
+                status: { $ne: 'ended' },
+                turnExpiresAt: { $lte: now },
+            },
+            { projection: { matchId: 1 } }
+        )
+        .toArray();
+    for (const entry of expiredMatches) {
+        const matchId = typeof entry?.matchId === 'string' ? entry.matchId : '';
+        if (!matchId) continue;
+        await broadcastMatchState(matchId);
+    }
+};
+
+const attachWebSocketSupport = (server) => {
+    if (!server || typeof server.on !== 'function') return;
+    server.on('upgrade', async (req, socket, head) => {
+        try {
+            const requestUrl = new URL(req.url || '', `http://${req.headers.host || 'localhost'}`);
+            if (requestUrl.pathname !== '/ws') {
+                socket.destroy();
+                return;
+            }
+            const matchId = String(requestUrl.searchParams.get('matchId') || '').trim();
+            if (!matchId) {
+                socket.destroy();
+                return;
+            }
+            const cookies = parseCookieHeader(req.headers.cookie || '');
+            const token = cookies[SESSION_COOKIE_NAME];
+            const authUser = await getSessionUserFromToken(token);
+            if (!authUser?.username) {
+                socket.destroy();
+                return;
+            }
+            const match = await matchesCollection.findOne({ matchId });
+            if (!match || !Array.isArray(match.players)) {
+                socket.destroy();
+                return;
+            }
+            const playerEntry = match.players.find((player) => player?.username === authUser.username);
+            if (!playerEntry) {
+                socket.destroy();
+                return;
+            }
+            wsServer.handleUpgrade(req, socket, head, (ws) => {
+                ws.matchId = matchId;
+                ws.username = authUser.username;
+                ws.authUser = authUser;
+                const room = getMatchRoom(matchId);
+                room.add(ws);
+                wsConnections.add(ws);
+                ws.on('close', () => {
+                    wsConnections.delete(ws);
+                    removeSocketFromRoom(ws);
+                });
+                ws.on('error', () => {
+                    wsConnections.delete(ws);
+                    removeSocketFromRoom(ws);
+                });
+                wsServer.emit('connection', ws, req);
+            });
+        } catch (error) {
+            socket.destroy();
+        }
+    });
+};
+
+wsServer.on('connection', async (ws) => {
+    if (!ws?.matchId || !ws?.username) {
+        try {
+            ws.close();
+        } catch (error) {
+            // Ignore close failures.
+        }
+        return;
+    }
+    try {
+        const hydrated = await hydrateMatchForBroadcast(ws.matchId);
+        if (!hydrated) {
+            ws.close();
+            return;
+        }
+        const payload = buildMatchPayloadForUser(hydrated, ws.username);
+        if (payload) {
+            sendJsonToSocket(ws, { type: 'match_state', payload });
+        }
+    } catch (error) {
+        try {
+            ws.close();
+        } catch (closeError) {
+            // Ignore close failures.
+        }
+    }
+});
+
 // In-memory matchmaking queues (demo)
 let quickQueue = [];
 let ladderQueue = [];
@@ -3231,6 +3455,7 @@ app.post('/api/match/:matchId/surrender', requireSession, async (req, res) => {
     );
     quickMatches.delete(matchId);
     (match.players || []).forEach((player) => userToMatch.delete(player.username));
+    await broadcastMatchState(matchId);
     return res.json({
         ok: true,
         mode: match.mode || 'quick',
@@ -3275,6 +3500,7 @@ app.post('/api/match/:matchId/turn/end', requireSession, async (req, res) => {
         }
 
         const updated = await finalizeTurn(hydrated, username);
+        await broadcastMatchState(updated || hydrated);
 
         return res.json({
             ok: true,
@@ -3365,6 +3591,7 @@ app.post('/api/match/:matchId/skill/queue', requireSession, async (req, res) => 
             chakraPools: hydrated.chakraPools,
             pendingTurns: hydrated.pendingTurns,
         });
+        await broadcastMatchState(hydrated);
         return res.json({
             ok: true,
             chakraPools: hydrated.chakraPools,
@@ -3486,6 +3713,7 @@ app.post('/api/match/:matchId/turn/start-choice', requireSession, async (req, re
             players: hydrated.players,
             pendingTurns: hydrated.pendingTurns,
         });
+        await broadcastMatchState(hydrated);
         return res.json({
             ok: true,
             player: playerEntry,
@@ -3544,6 +3772,7 @@ app.post('/api/match/:matchId/skill/cancel', requireSession, async (req, res) =>
             chakraPools: hydrated.chakraPools,
             pendingTurns: hydrated.pendingTurns,
         });
+        await broadcastMatchState(hydrated);
     }
     return res.json({
         ok: true,
@@ -3587,6 +3816,7 @@ app.post('/api/match/:matchId/skill/reorder', requireSession, async (req, res) =
     await persistMatchState(hydrated, {
         pendingTurns: hydrated.pendingTurns,
     });
+    await broadcastMatchState(hydrated);
     return res.json({
         ok: true,
         pendingTurn: getPendingTurn(hydrated, username),
@@ -3635,6 +3865,7 @@ app.post('/api/match/:matchId/turn/random/adjust', requireSession, async (req, r
             chakraPools: hydrated.chakraPools,
             pendingTurns: hydrated.pendingTurns,
         });
+        await broadcastMatchState(hydrated);
         return res.json({
             ok: true,
             chakraPools: hydrated.chakraPools,
@@ -3694,6 +3925,7 @@ app.post('/api/match/:matchId/chakra/exchange', requireSession, async (req, res)
         await persistMatchState(hydrated, {
             chakraPools: hydrated.chakraPools,
         });
+        await broadcastMatchState(hydrated);
         return res.json({
             ok: true,
             chakraPools: hydrated.chakraPools,
@@ -5670,26 +5902,56 @@ const startServer = async () => {
     const server = app.listen(PORT, '0.0.0.0', () => {
         console.log(`Naruto-Arena API listening on http://localhost:${PORT}`);
     });
+    attachWebSocketSupport(server);
 
+    let httpsServer = null;
     if (HTTPS_KEY_PATH && HTTPS_CERT_PATH) {
         try {
             const key = fs.readFileSync(HTTPS_KEY_PATH);
             const cert = fs.readFileSync(HTTPS_CERT_PATH);
-            https
-                .createServer({ key, cert }, app)
-                .listen(PORT + 1, () =>
-                    console.log(`Naruto-Arena API (HTTPS) listening on https://localhost:${PORT + 1}`)
-                );
+            httpsServer = https.createServer({ key, cert }, app);
+            httpsServer.listen(PORT + 1, () =>
+                console.log(`Naruto-Arena API (HTTPS) listening on https://localhost:${PORT + 1}`)
+            );
+            attachWebSocketSupport(httpsServer);
         } catch (error) {
             console.error('Failed to start HTTPS server:', error);
         }
     }
 
+    if (!turnSweepTimer) {
+        turnSweepTimer = setInterval(() => {
+            sweepExpiredMatches().catch((error) => {
+                console.error('Failed to sweep expired matches:', error);
+            });
+        }, 2000);
+    }
+
     process.on('SIGINT', async () => {
+        if (turnSweepTimer) {
+            clearInterval(turnSweepTimer);
+            turnSweepTimer = null;
+        }
+        wsConnections.forEach((ws) => {
+            try {
+                ws.close();
+            } catch (error) {
+                // Ignore socket close failures.
+            }
+        });
+        wsConnections.clear();
         if (mongoClient) {
             await mongoClient.close();
         }
         server.close(() => process.exit(0));
+        if (httpsServer) {
+            httpsServer.close(() => {});
+        }
+        try {
+            wsServer.close();
+        } catch (error) {
+            // Ignore websocket server shutdown failures.
+        }
     });
 };
 

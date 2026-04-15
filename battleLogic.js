@@ -1777,7 +1777,7 @@ const applyOnSkillEvadedBonuses = ({
 
 const isHarmfulEffect = (effect) => {
     const type = effect?.type;
-    if (type === 'damage') return true;
+    if (type === 'damage' || type === 'health_steal_damage') return true;
     if (type === 'execute_below_hp') return true;
     if (type === 'destroy_destructible_defense') return true;
     if (type === 'modify_cooldowns') {
@@ -2447,6 +2447,33 @@ const applyHealToUnit = (unit, rawAmount) => {
     const cap = Math.max(0, Number(unit?.hpCap) || DEFAULT_HP);
     unit.hp = Math.min(DEFAULT_HP, cap, before + heal);
     return Math.max(0, unit.hp - before);
+};
+
+const applyDirectHpGainToUnit = (unit, rawAmount) => {
+    if (!unit || unit.alive === false || isUnitBanished(unit)) return 0;
+    const gain = Math.max(0, Number(rawAmount) || 0);
+    if (gain <= 0) return 0;
+    const before = Number(unit.hp) || 0;
+    const cap = Math.max(0, Number(unit?.hpCap) || DEFAULT_HP);
+    unit.hp = Math.min(DEFAULT_HP, cap, before + gain);
+    return Math.max(0, unit.hp - before);
+};
+
+const applyHealthStealToUnit = ({ targetUnit, sourceUnit, rawAmount, context = {} }) => {
+    if (!targetUnit || !sourceUnit) {
+        return applyDamageToUnit(targetUnit, rawAmount, {
+            ...context,
+            ignoreDamageReduction: true,
+        });
+    }
+    const dealt = applyDamageToUnit(targetUnit, rawAmount, {
+        ...context,
+        ignoreDamageReduction: true,
+    });
+    if (dealt > 0) {
+        applyDirectHpGainToUnit(sourceUnit, dealt);
+    }
+    return dealt;
 };
 
 const applyHealthLossToUnit = (unit, rawAmount, context = {}) => {
@@ -3639,6 +3666,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 Number.isInteger(recipient.slot) ? recipient.slot : '',
                 ignoreDamageReduction ? 1 : 0,
                 ignoreDestructibleDefense ? 1 : 0,
+                effect?.type === 'health_steal_damage' || Boolean(effect?.metadata?.healthStealDamage) ? 1 : 0,
                 effectSkillClasses.slice().sort().join(','),
                 effect?.metadata?.onSuccessfulDamageApplyStatusToTarget?.statusId || '',
             ].join('|');
@@ -3658,6 +3686,9 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 sourceSkillId: skill?.id || null,
                 onSuccessfulDamageApplyStatusToTarget:
                     effect?.metadata?.onSuccessfulDamageApplyStatusToTarget || null,
+                healthStealDamage:
+                    effect?.type === 'health_steal_damage' ||
+                    Boolean(effect?.metadata?.healthStealDamage),
             });
         };
         const shouldEvadeForRecipient = (recipient) => {
@@ -3800,7 +3831,8 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             if (!rollPerRecipient && Number.isFinite(activationChance) && !rollPercentSuccess(activationChance)) {
                 return;
             }
-            if (effectType === 'damage') {
+            if (effectType === 'damage' || effectType === 'health_steal_damage') {
+                const isHealthStealDamage = effectType === 'health_steal_damage';
                 const recipients = resolveRecipients(effect);
                 recipients.forEach((recipient) => {
                     if (skillCancelledByEvade) return;
@@ -4954,28 +4986,32 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             const mitigationBudgetKey = `${entry.recipient.username || ''}:${
                 Number.isInteger(entry.recipient.slot) ? entry.recipient.slot : ''
             }`;
-            const dealt = applyDamageToUnit(entry.recipient.unit, entry.amount, {
-                match,
-                sourceUsername: actingUsername,
-                sourceSlot: actorSlot,
-                sourceSkillId: entry.sourceSkillId || skill.id || null,
-                targetUsername: entry.recipient.username,
-                targetSlot: entry.recipient.slot,
-                sourceBaseDamage: entry.sourceBaseDamage,
-                skillClasses: entry.skillClasses || skill.classes || [],
-                ignoreDamageReduction: entry.ignoreDamageReduction,
-                ignoreDestructibleDefense: entry.ignoreDestructibleDefense,
-                unpierceableBudgetMap: unpierceableBudgetByRecipient,
-                unpierceableBudgetKey: mitigationBudgetKey,
-                standardMitigationBudgetMap: standardMitigationBudgetByRecipient,
-                standardMitigationBudgetKey: mitigationBudgetKey,
-                percentMitigationStateMap: percentMitigationStateByRecipient,
-                percentMitigationStateKey: mitigationBudgetKey,
-            });
-            const onSuccess = entry?.onSuccessfulDamageApplyStatusToTarget;
-            if (dealt > 0 && onSuccess?.statusId) {
-                applyStatus({
-                    targetState: ensureUnitStateShape(entry.recipient.unit),
+                    const dealt = applyDamageToUnit(entry.recipient.unit, entry.amount, {
+                        match,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        sourceSkillId: entry.sourceSkillId || skill.id || null,
+                        targetUsername: entry.recipient.username,
+                        targetSlot: entry.recipient.slot,
+                        sourceBaseDamage: entry.sourceBaseDamage,
+                        skillClasses: entry.skillClasses || skill.classes || [],
+                        ignoreDamageReduction:
+                            Boolean(entry.ignoreDamageReduction) || Boolean(entry.healthStealDamage),
+                        ignoreDestructibleDefense: entry.ignoreDestructibleDefense,
+                        unpierceableBudgetMap: unpierceableBudgetByRecipient,
+                        unpierceableBudgetKey: mitigationBudgetKey,
+                        standardMitigationBudgetMap: standardMitigationBudgetByRecipient,
+                        standardMitigationBudgetKey: mitigationBudgetKey,
+                        percentMitigationStateMap: percentMitigationStateByRecipient,
+                        percentMitigationStateKey: mitigationBudgetKey,
+                    });
+                    if (dealt > 0 && entry.healthStealDamage) {
+                        applyDirectHpGainToUnit(actorUnit, dealt);
+                    }
+                    const onSuccess = entry?.onSuccessfulDamageApplyStatusToTarget;
+                    if (dealt > 0 && onSuccess?.statusId) {
+                        applyStatus({
+                            targetState: ensureUnitStateShape(entry.recipient.unit),
                     statusId: onSuccess.statusId,
                     duration: onSuccess.duration,
                     sourceSkillId: skill.id || null,
@@ -6164,27 +6200,66 @@ const applyTriggeredEffectsFromStatus = ({
         ) {
             return;
         }
-        if (effect.type === 'damage') {
+        if (effect.type === 'damage' || effect.type === 'health_steal_damage') {
+            const isHealthStealDamage = effect.type === 'health_steal_damage';
             const amount = Math.max(0, Number(effect?.amount) || 0);
             if (amount <= 0) return;
-            applyDamageToUnit(targetUnit, amount, {
-                match,
-                sourceSkillId: status?.sourceSkillId || null,
-                sourceUsername: status?.sourceUsername || null,
-                sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
-                targetUsername,
-                afflictionDamage: Boolean(effect?.metadata?.afflictionDamage),
-                skillClasses: Array.isArray(effect?.metadata?.skillClasses) ? effect.metadata.skillClasses : [],
-                damageDebugReason: 'status effect',
-                ignoreDamageReduction: Boolean(effect?.metadata?.ignoreDamageReduction),
-                ignoreDestructibleDefense: Boolean(effect?.metadata?.ignoreDestructibleDefense),
-                unpierceableBudgetMap: new Map(),
-                unpierceableBudgetKey: mitigationBudgetKey,
-                standardMitigationBudgetMap: new Map(),
-                standardMitigationBudgetKey: mitigationBudgetKey,
-                percentMitigationStateMap: new Map(),
-                percentMitigationStateKey: mitigationBudgetKey,
-            });
+            const sourceUsername = status?.sourceUsername || null;
+            const sourceSlot = Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null;
+            const sourceUnit =
+                isHealthStealDamage &&
+                match &&
+                sourceUsername &&
+                Number.isInteger(sourceSlot) &&
+                Array.isArray(match.board?.[sourceUsername])
+                    ? match.board[sourceUsername][sourceSlot]
+                    : null;
+            if (isHealthStealDamage && sourceUnit) {
+                applyHealthStealToUnit({
+                    targetUnit,
+                    sourceUnit,
+                    rawAmount: amount,
+                    context: {
+                        match,
+                        sourceSkillId: status?.sourceSkillId || null,
+                        sourceUsername,
+                        sourceSlot,
+                        targetUsername,
+                        targetSlot,
+                        afflictionDamage: Boolean(effect?.metadata?.afflictionDamage),
+                        skillClasses: Array.isArray(effect?.metadata?.skillClasses)
+                            ? effect.metadata.skillClasses
+                            : [],
+                        damageDebugReason: 'status effect',
+                        ignoreDestructibleDefense: Boolean(effect?.metadata?.ignoreDestructibleDefense),
+                        unpierceableBudgetMap: new Map(),
+                        unpierceableBudgetKey: mitigationBudgetKey,
+                        standardMitigationBudgetMap: new Map(),
+                        standardMitigationBudgetKey: mitigationBudgetKey,
+                        percentMitigationStateMap: new Map(),
+                        percentMitigationStateKey: mitigationBudgetKey,
+                    },
+                });
+            } else {
+                applyDamageToUnit(targetUnit, amount, {
+                    match,
+                    sourceSkillId: status?.sourceSkillId || null,
+                    sourceUsername,
+                    sourceSlot,
+                    targetUsername,
+                    afflictionDamage: Boolean(effect?.metadata?.afflictionDamage),
+                    skillClasses: Array.isArray(effect?.metadata?.skillClasses) ? effect.metadata.skillClasses : [],
+                    damageDebugReason: 'status effect',
+                    ignoreDamageReduction: Boolean(effect?.metadata?.ignoreDamageReduction),
+                    ignoreDestructibleDefense: Boolean(effect?.metadata?.ignoreDestructibleDefense),
+                    unpierceableBudgetMap: new Map(),
+                    unpierceableBudgetKey: mitigationBudgetKey,
+                    standardMitigationBudgetMap: new Map(),
+                    standardMitigationBudgetKey: mitigationBudgetKey,
+                    percentMitigationStateMap: new Map(),
+                    percentMitigationStateKey: mitigationBudgetKey,
+                });
+            }
             return;
         }
         if (effect.type === 'apply_status' && effect.statusId) {
