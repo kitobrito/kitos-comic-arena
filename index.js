@@ -2087,6 +2087,12 @@
           ? user.profile.clan.abbreviation
           : "",
         ladder: user.profile && user.profile.ladder ? user.profile.ladder : null,
+        missions: user.profile && user.profile.missions
+          ? user.profile.missions
+          : {
+              progress: {},
+              unlockedCharacterIds: [],
+            },
         backgrounds: user.profile && user.profile.backgrounds ? user.profile.backgrounds : {
           selectionUrl: "",
           ingameUrl: ""
@@ -2170,6 +2176,14 @@
   }
 
   function createProfileLink(username, className) {
+    if (String(username || "").trim() === "Game Bot") {
+      var label = document.createElement("span");
+      if (className) {
+        label.className = className;
+      }
+      label.textContent = "Game Bot";
+      return label;
+    }
     var safeUsername = sanitizeProfileRouteUsername(username);
     var link = document.createElement("a");
     link.href = buildProfileHref(safeUsername);
@@ -4253,7 +4267,7 @@
   loadCharacterCatalog();
 
   fetchSessionUser().then(function (user) {
-    var isAdminOnlyPage = /(winrates|playeraccounts|newspost|charactereditor)\.html$/i.test(window.location.pathname || "");
+    var isAdminOnlyPage = /(winrates|playeraccounts|newspost|charactereditor|editmission)\.html$/i.test(window.location.pathname || "");
     if (isAdminOnlyPage && !(user && String(user.role || "").trim().toLowerCase() === "admin")) {
       window.location.replace("index.html");
       return;

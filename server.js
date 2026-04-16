@@ -21,6 +21,9 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 const TURN_DURATION_MS = 60 * 1000;
 const MATCH_FOUND_HOLD_MS = 3 * 1000;
+const BATTLE_BOT_QUEUE_TIMEOUT_MS = 60 * 1000;
+const BATTLE_BOT_ACTION_DELAY_MS = 1200;
+const BATTLE_BOTS_ENABLED = process.env.ENABLE_BATTLE_BOTS !== 'false';
 const DEFAULT_URI = process.env.MONGODB_URI;
 const DATABASE_NAME = process.env.MONGODB_DB || 'naruto-arena';
 const USERS_COLLECTION = process.env.MONGODB_USERS_COLLECTION || 'users';
@@ -43,6 +46,70 @@ const LATEST_CHARACTER_RELEASES = [
 ];
 const DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/3JqVcPXm/default.png';
 const LEGACY_DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/zG3W1w6K/itachi.png';
+const MISSION_CATALOG_STATE_KEY = 'missions';
+let missionCatalogCache = null;
+const DEFAULT_MISSION_CATALOG = [
+    {
+        missionId: 'adored-elder-sister',
+        title: 'The Adored Elder Sister',
+        level_requirement: 1,
+        mode_restriction: { allowed_modes: ['quick', 'ladder'] },
+        reward: 'Mission "The Adored Elder Sister" completion.',
+        image: 'ingamebgexample.png',
+        imageAlt: 'The Adored Elder Sister mission artwork',
+        characterName: 'Hyuuga Hanabi',
+        portrait: 'deadcharacter.png',
+        portraitAlt: 'Hyuuga Hanabi portrait',
+        requirements: [],
+        goals: [
+            'Use Hyuuga Neji\'s "Gentle Fist" 8 times. (0/8)',
+            'Use Hyuuga Hinata\'s "Gentle Fist" 8 times. (0/8)',
+        ],
+        sortOrder: 1,
+    },
+    {
+        missionId: 'yellow-flash',
+        title: 'The Yellow Flash',
+        level_requirement: 16,
+        mode_restriction: { allowed_modes: ['quick', 'ladder'] },
+        reward: 'Mission "The Yellow Flash" completion.',
+        image: 'ingamebgexample2.png',
+        imageAlt: 'The Yellow Flash mission artwork',
+        characterName: 'Minato Namikaze',
+        portrait: 'deadcharacter.png',
+        portraitAlt: 'Minato Namikaze portrait',
+        requirements: [],
+        goals: [
+            'Win the battle against Minato.',
+            'Finish the mission to unlock its reward.',
+        ],
+        sortOrder: 2,
+    },
+    {
+        missionId: 'negan',
+        title: 'Negan',
+        level_requirement: 16,
+        mode_restriction: { allowed_modes: ['quick', 'ladder'] },
+        reward_character: 'negan',
+        reward_character_name: 'Negan',
+        reward: 'Unlock Negan.',
+        image: 'https://i.imgur.com/csZvbwl.png',
+        imageAlt: 'Negan mission artwork',
+        characterName: 'Rick Grimes',
+        portrait: 'https://i.imgur.com/4p90X9r.png',
+        portraitAlt: 'Rick Grimes portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'win_streak',
+                character_id: 'rick-grimes',
+                character_name: 'Rick Grimes',
+                wins: 4,
+            },
+        ],
+        sortOrder: 3,
+    },
+];
 
 let mongoClient;
 let usersCollection;
@@ -53,6 +120,10 @@ const matchSocketRooms = new Map();
 const wsConnections = new Set();
 const wsServer = new WebSocketServer({ noServer: true });
 let turnSweepTimer = null;
+const activeBattleBotTurns = new Set();
+const scheduledBattleBotTurns = new Set();
+const GAME_BOT_USERNAME_PREFIX = '__game_bot__:';
+const GAME_BOT_DISPLAY_NAME = 'Game Bot';
 
 const DEFAULT_CLAN_RANK_NAMES = {
     clanLeader: 'Clan Leader',
@@ -206,6 +277,606 @@ const getLevelProgressPercent = (experienceIntoLevel, experienceForNextLevel, le
     return Math.max(6, Math.min(100, Math.round((normalizedLevel / LADDER_MAX_LEVEL) * 100)));
 };
 
+const getRosterCharacterId = (rosterIndex) => {
+    const index = Number.parseInt(rosterIndex, 10);
+    if (!Number.isInteger(index) || index < 0) {
+        return '';
+    }
+    const character = Array.isArray(charactersData) ? charactersData[index] : null;
+    return typeof character?.characterId === 'string' ? character.characterId.trim().toLowerCase() : '';
+};
+
+const getRosterCharacterName = (rosterIndex) => {
+    const index = Number.parseInt(rosterIndex, 10);
+    if (!Number.isInteger(index) || index < 0) {
+        return '';
+    }
+    const character = Array.isArray(charactersData) ? charactersData[index] : null;
+    return typeof character?.name === 'string' ? character.name.trim() : '';
+};
+
+const normalizeCharacterId = (value) =>
+    String(value || '')
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+const getCharacterDisplayNameById = (characterId) => {
+    const normalizedCharacterId = normalizeCharacterId(characterId);
+    if (!normalizedCharacterId) {
+        return '';
+    }
+    const characters = Array.isArray(charactersData) ? charactersData : [];
+    const match = characters.find((character) => {
+        const candidateId = normalizeCharacterId(
+            character?.characterId || character?.id || character?.name || ''
+        );
+        return candidateId === normalizedCharacterId;
+    });
+    return typeof match?.name === 'string' && match.name.trim()
+        ? match.name.trim()
+        : String(characterId || '').trim();
+};
+
+const normalizeMissionModeRestriction = (source = {}) => {
+    const allowedModes = Array.from(
+        new Set(
+            normalizeMissionTextList(
+                Array.isArray(source.allowed_modes)
+                    ? source.allowed_modes
+                    : Array.isArray(source.allowedModes)
+                        ? source.allowedModes
+                        : typeof source.allowed_modes === 'string'
+                            ? source.allowed_modes.split(',')
+                            : typeof source.allowedModes === 'string'
+                                ? source.allowedModes.split(',')
+                                : []
+            )
+                .map((entry) => String(entry || '').trim().toLowerCase())
+                .filter((entry) => entry === 'quick' || entry === 'ladder')
+        )
+    );
+    return {
+        allowed_modes: allowedModes.length ? allowedModes : ['quick', 'ladder'],
+    };
+};
+
+const getLegacyLevelRequirement = (value) => {
+    const numericValue = Number(value);
+    if (Number.isFinite(numericValue) && numericValue > 0) {
+        return Math.max(1, Math.floor(numericValue));
+    }
+
+    const label = String(value || '').trim().toLowerCase();
+    if (!label) {
+        return 0;
+    }
+
+    const legacyLevelMap = new Map([
+        ['academy student', 1],
+        ['sparkstrike', 1],
+        ['genin', 6],
+        ['temporal warden', 6],
+        ['chunin', 12],
+        ['blood ripper', 12],
+        ['jounin', 16],
+        ['jonin', 16],
+        ['joinin', 16],
+        ['stormbreaker', 16],
+        ['anbu', 21],
+        ['void sentinel', 21],
+        ['sannin', 31],
+        ['galaxy reaper', 31],
+        ['jinchuriki', 36],
+        ['purity aegis', 36],
+        ['akatsuki', 41],
+        ['dimension crusader', 41],
+        ['kage', 46],
+        ['infinity knight', 46],
+    ]);
+    return legacyLevelMap.get(label) || 0;
+};
+
+const normalizeMissionProgressEntry = (entry = {}) => {
+    const source = entry && typeof entry === 'object' ? entry : {};
+    const winStreak = Math.max(
+        0,
+        Number(
+            source.winStreak ??
+                source.rickGrimesWinStreak ??
+                source.streak ??
+                source.consecutiveWins ??
+                0
+        ) || 0
+    );
+    const completedAt =
+        source.completedAt instanceof Date || typeof source.completedAt === 'string'
+            ? source.completedAt
+            : source.unlockedAt instanceof Date || typeof source.unlockedAt === 'string'
+                ? source.unlockedAt
+                : null;
+    const updatedAt =
+        source.updatedAt instanceof Date || typeof source.updatedAt === 'string'
+            ? source.updatedAt
+            : null;
+    const rawGoalProgress =
+        source.goalProgressByIndex && typeof source.goalProgressByIndex === 'object'
+            ? source.goalProgressByIndex
+            : source.goalProgress && typeof source.goalProgress === 'object'
+                ? source.goalProgress
+                : {};
+    const goalProgressByIndex = {};
+    Object.keys(rawGoalProgress).forEach((goalIndex) => {
+        const normalizedGoalIndex = String(Number.parseInt(goalIndex, 10));
+        if (!normalizedGoalIndex || normalizedGoalIndex === 'NaN') {
+            return;
+        }
+        goalProgressByIndex[normalizedGoalIndex] = normalizeMissionGoalProgressEntry(
+            rawGoalProgress[goalIndex]
+        );
+    });
+    return {
+        winStreak,
+        rickGrimesWinStreak: winStreak,
+        completedAt,
+        unlockedAt: completedAt,
+        updatedAt,
+        goalProgressByIndex,
+        goalProgress: goalProgressByIndex,
+    };
+};
+
+const normalizeMissionGoalProgressEntry = (entry = {}) => {
+    const source = entry && typeof entry === 'object' ? entry : {};
+    const count = Math.max(0, Number(source.count ?? source.progress ?? 0) || 0);
+    const completedAt =
+        source.completedAt instanceof Date || typeof source.completedAt === 'string'
+            ? source.completedAt
+            : null;
+    const updatedAt =
+        source.updatedAt instanceof Date || typeof source.updatedAt === 'string'
+            ? source.updatedAt
+            : null;
+    return {
+        count,
+        progress: count,
+        completedAt,
+        updatedAt,
+    };
+};
+
+const createDefaultMissionState = () => {
+    const neganProgress = normalizeMissionProgressEntry({
+        winStreak: 0,
+        completedAt: null,
+    });
+    return {
+        progressByMissionId: {
+            negan: neganProgress,
+        },
+        progress: {
+            negan: neganProgress,
+        },
+        unlockedCharacterIds: [],
+    };
+};
+
+const normalizeMissionState = (missions = {}) => {
+    const source = missions && typeof missions === 'object' ? missions : {};
+    const sourceProgress =
+        source.progressByMissionId && typeof source.progressByMissionId === 'object'
+            ? source.progressByMissionId
+            : source.progress && typeof source.progress === 'object'
+                ? source.progress
+                : {};
+    const progressByMissionId = {};
+    Object.keys(sourceProgress).forEach((missionId) => {
+        const normalizedMissionId = slugifyMissionId(missionId);
+        if (!normalizedMissionId) {
+            return;
+        }
+        progressByMissionId[normalizedMissionId] = normalizeMissionProgressEntry(
+            sourceProgress[missionId]
+        );
+    });
+    if (!progressByMissionId.negan) {
+        progressByMissionId.negan = normalizeMissionProgressEntry(sourceProgress.negan || {});
+    }
+    const unlockedCharacterIds = new Set(
+        (Array.isArray(source.unlockedCharacterIds) ? source.unlockedCharacterIds : [])
+            .map((entry) => normalizeCharacterId(entry))
+            .filter(Boolean)
+    );
+    Object.keys(progressByMissionId).forEach((missionId) => {
+        const progressEntry = progressByMissionId[missionId];
+        if (
+            missionId === 'negan' &&
+            Math.max(0, Number(progressEntry?.winStreak) || 0) >= 4
+        ) {
+            unlockedCharacterIds.add('negan');
+        }
+    });
+    return {
+        progressByMissionId,
+        progress: progressByMissionId,
+        unlockedCharacterIds: Array.from(unlockedCharacterIds),
+    };
+};
+
+const normalizeMissionTextList = (entries = []) =>
+    (Array.isArray(entries) ? entries : [])
+        .map((entry) => {
+            if (typeof entry === 'string') {
+                return entry.trim();
+            }
+            if (entry && typeof entry === 'object') {
+                return typeof entry.text === 'string' && entry.text.trim()
+                    ? entry.text.trim()
+                    : typeof entry.value === 'string' && entry.value.trim()
+                        ? entry.value.trim()
+                        : typeof entry.label === 'string' && entry.label.trim()
+                            ? entry.label.trim()
+                            : '';
+            }
+            return '';
+        })
+        .filter(Boolean);
+
+const normalizeMissionGoalEntry = (entry = {}, index = 0) => {
+    if (typeof entry === 'string') {
+        const text = entry.trim();
+        if (!text) {
+            return null;
+        }
+
+        const winMatchesMatch = text.match(/^Win\s+(\d+)\s+matches?\s+with\s+(.+?)(?:\.\s*\(0\/\d+\))?$/i);
+        if (winMatchesMatch) {
+            const wins = Math.max(0, Number(winMatchesMatch[1]) || 0);
+            const characterName = winMatchesMatch[2].trim();
+            const characterId = normalizeCharacterId(characterName);
+            return {
+                type: 'win_matches',
+                character_id: characterId,
+                character_name: characterName,
+                wins,
+            };
+        }
+
+        const winStreakMatch = text.match(
+            /^Win\s+(\d+)\s+battles?\s+in\s+a\s+row\s+with\s+(.+?)(?:\.\s*\(0\/\d+\))?$/i
+        );
+        if (winStreakMatch) {
+            const wins = Math.max(0, Number(winStreakMatch[1]) || 0);
+            const characterName = winStreakMatch[2].trim();
+            const characterId = normalizeCharacterId(characterName);
+            return {
+                type: 'win_streak',
+                character_id: characterId,
+                character_name: characterName,
+                wins,
+            };
+        }
+
+        return {
+            type: 'text',
+            text,
+        };
+    }
+
+    const source = entry && typeof entry === 'object' ? entry : {};
+    const type = String(source.type || source.goalType || source.kind || 'text')
+        .trim()
+        .toLowerCase();
+    const normalizedType =
+        type === 'win_matches' || type === 'win_match' || type === 'match_wins'
+            ? 'win_matches'
+            : type === 'win_streak' || type === 'streak'
+                ? 'win_streak'
+                : 'text';
+
+    if (normalizedType === 'win_matches' || normalizedType === 'win_streak') {
+        const wins = Math.max(
+            0,
+            Number(source.wins ?? source.count ?? source.target ?? source.goal ?? 0) || 0
+        );
+        const characterId = normalizeCharacterId(
+            source.character_id ?? source.characterId ?? source.character ?? source.target_character
+        );
+        const characterName = String(
+            source.character_name ?? source.characterName ?? getCharacterDisplayNameById(characterId)
+        ).trim();
+        if (!wins || !characterId) {
+            return null;
+        }
+        return {
+            type: normalizedType,
+            character_id: characterId,
+            character_name: characterName || getCharacterDisplayNameById(characterId),
+            wins,
+        };
+    }
+
+    const text = normalizeMissionTextList([
+        source.text ?? source.value ?? source.label ?? source.description ?? '',
+    ])[0];
+    if (!text) {
+        return null;
+    }
+    return {
+        type: 'text',
+        text,
+    };
+};
+
+const normalizeMissionGoalList = (entries = []) =>
+    (Array.isArray(entries) ? entries : [])
+        .map((entry, index) => normalizeMissionGoalEntry(entry, index))
+        .filter(Boolean);
+
+const slugifyMissionId = (value) =>
+    String(value || '')
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+const normalizeMissionCatalogEntry = (mission = {}, index = 0) => {
+    const source = mission && typeof mission === 'object' ? mission : {};
+    const missionTitle =
+        typeof source.title === 'string' && source.title.trim()
+            ? source.title.trim()
+            : typeof source.name === 'string' && source.name.trim()
+                ? source.name.trim()
+                : `Mission ${index + 1}`;
+    const missionId = slugifyMissionId(
+        typeof source.missionId === 'string' && source.missionId.trim()
+            ? source.missionId.trim()
+            : missionTitle
+    ) || `mission-${index + 1}`;
+    const levelRequirement = Math.max(
+        0,
+        Number(
+            source.level_requirement ??
+                source.levelRequirement ??
+                source.rank_requirement?.level ??
+                source.rankRequirement?.level ??
+                getLegacyLevelRequirement(source.rank)
+        ) || 0
+    );
+    const rewardCharacterId = normalizeCharacterId(
+        source.reward_character ??
+            source.rewardCharacter ??
+            source.rewardCharacterId ??
+            source.reward_character_id
+    );
+    const winStreakCharacterId = normalizeCharacterId(
+        source.win_streak?.character_id ??
+            source.winStreak?.characterId ??
+            source.win_streak_character_id ??
+            source.winStreakCharacterId
+    );
+    const winStreakWins = Math.max(
+        0,
+        Number(
+            source.win_streak?.wins ??
+                source.winStreak?.wins ??
+                source.win_streak_wins ??
+                source.winStreakWins ??
+                (winStreakCharacterId ? 1 : 0)
+        ) || 0
+    );
+    const modeRestriction = normalizeMissionModeRestriction(
+        source.mode_restriction || source.modeRestriction || {}
+    );
+    const requirementNotes = normalizeMissionTextList(
+        source.requirements || source.requirementNotes || source.notes
+    );
+    const goals = normalizeMissionGoalList(source.goals || source.objectives);
+    const legacyGoalCharacterId = normalizeCharacterId(
+        source.character_used ??
+            source.characterUsed ??
+            source.characterUsedId ??
+            source.character_used_id
+    );
+    if (
+        legacyGoalCharacterId &&
+        !goals.some(
+            (goal) =>
+                goal &&
+                goal.type === 'win_streak' &&
+                normalizeCharacterId(goal.character_id) === legacyGoalCharacterId
+        )
+    ) {
+        goals.push({
+            type: 'win_streak',
+            character_id: legacyGoalCharacterId,
+            character_name: getCharacterDisplayNameById(legacyGoalCharacterId),
+            wins: Math.max(1, winStreakWins),
+        });
+    }
+    return {
+        missionId,
+        title: missionTitle,
+        level_requirement: levelRequirement,
+        rank: levelRequirement ? String(levelRequirement) : '',
+        reward_character: rewardCharacterId,
+        reward_character_name: getCharacterDisplayNameById(rewardCharacterId),
+        reward: typeof source.reward === 'string' ? source.reward.trim() : '',
+        mode_restriction: modeRestriction,
+        win_streak: {
+            character_id: winStreakCharacterId,
+            character_name: getCharacterDisplayNameById(winStreakCharacterId),
+            wins: winStreakWins,
+        },
+        image: typeof source.image === 'string' ? source.image.trim() : '',
+        imageAlt:
+            typeof source.imageAlt === 'string' && source.imageAlt.trim()
+                ? source.imageAlt.trim()
+                : `${missionTitle} mission artwork`,
+        characterName: typeof source.characterName === 'string' ? source.characterName.trim() : '',
+        portrait: typeof source.portrait === 'string' ? source.portrait.trim() : '',
+        portraitAlt:
+            typeof source.portraitAlt === 'string' && source.portraitAlt.trim()
+                ? source.portraitAlt.trim()
+                : `${missionTitle} portrait`,
+        requirements: requirementNotes,
+        goals,
+        sortOrder: Number.isFinite(Number(source.sortOrder)) ? Number(source.sortOrder) : index + 1,
+    };
+};
+
+const normalizeMissionCatalog = (missions = []) => {
+    const seen = new Set();
+    return (Array.isArray(missions) ? missions : [])
+        .map((mission, index) => normalizeMissionCatalogEntry(mission, index))
+        .filter((mission) => mission.missionId && mission.title)
+        .map((mission) => {
+            let nextMissionId = mission.missionId;
+            let duplicateIndex = 2;
+            while (seen.has(nextMissionId)) {
+                nextMissionId = `${mission.missionId}-${duplicateIndex}`;
+                duplicateIndex += 1;
+            }
+            seen.add(nextMissionId);
+            return {
+                ...mission,
+                missionId: nextMissionId,
+            };
+        })
+        .sort((a, b) => {
+            const sortDelta = Number(a.sortOrder || 0) - Number(b.sortOrder || 0);
+            if (sortDelta !== 0) {
+                return sortDelta;
+            }
+            return String(a.title).localeCompare(String(b.title));
+        });
+};
+
+const cloneMissionCatalog = (missions = []) =>
+    normalizeMissionCatalog(
+        (Array.isArray(missions) ? missions : []).map((mission) => ({
+            ...mission,
+            mode_restriction: mission?.mode_restriction
+                ? {
+                      allowed_modes: Array.isArray(mission.mode_restriction.allowed_modes)
+                          ? mission.mode_restriction.allowed_modes.slice()
+                          : [],
+                  }
+                : undefined,
+            win_streak: mission?.win_streak
+                ? {
+                      character_id:
+                          typeof mission.win_streak.character_id === 'string'
+                              ? mission.win_streak.character_id
+                              : '',
+                      wins: Number(mission.win_streak.wins) || 0,
+                  }
+                : undefined,
+            requirements: Array.isArray(mission?.requirements) ? mission.requirements.slice() : [],
+            goals: Array.isArray(mission?.goals) ? mission.goals.slice() : [],
+        }))
+    );
+
+const getDefaultMissionCatalog = () => cloneMissionCatalog(DEFAULT_MISSION_CATALOG);
+
+const getStoredMissionCatalog = async () => {
+    const defaultCatalog = getDefaultMissionCatalog();
+    if (!appStateCollection) {
+        missionCatalogCache = defaultCatalog;
+        return defaultCatalog;
+    }
+
+    const storedState = await appStateCollection.findOne({ key: MISSION_CATALOG_STATE_KEY });
+    const storedCatalog = normalizeMissionCatalog(
+        storedState && Array.isArray(storedState.missions) ? storedState.missions : []
+    );
+    const nextCatalog = storedCatalog.length ? storedCatalog : defaultCatalog;
+    missionCatalogCache = nextCatalog;
+    return nextCatalog;
+};
+
+const saveMissionCatalog = async (missions, updatedBy) => {
+    const normalizedCatalog = normalizeMissionCatalog(missions);
+    if (!normalizedCatalog.length) {
+        throw new Error('At least one mission is required.');
+    }
+
+    await appStateCollection.updateOne(
+        { key: MISSION_CATALOG_STATE_KEY },
+        {
+            $set: {
+                key: MISSION_CATALOG_STATE_KEY,
+                missions: normalizedCatalog,
+                updatedAt: new Date(),
+                updatedBy: updatedBy || '',
+            },
+        },
+        { upsert: true }
+    );
+
+    missionCatalogCache = normalizedCatalog;
+    return normalizedCatalog;
+};
+
+const getMissionLockedCharacterIds = async () => {
+    const catalog = missionCatalogCache && Array.isArray(missionCatalogCache)
+        ? missionCatalogCache
+        : await getStoredMissionCatalog();
+    return new Set(
+        (Array.isArray(catalog) ? catalog : [])
+            .map((mission) => normalizeCharacterId(mission.reward_character))
+            .filter(Boolean)
+    );
+};
+
+const profileHasUnlockedCharacter = (profile, characterId, lockedCharacterIds = new Set()) => {
+    const normalizedCharacterId =
+        typeof characterId === 'string' ? normalizeCharacterId(characterId) : '';
+    if (!normalizedCharacterId) {
+        return true;
+    }
+    const missions = profile && typeof profile.missions === 'object' ? profile.missions : {};
+    const unlocked = new Set(
+        (Array.isArray(missions.unlockedCharacterIds) ? missions.unlockedCharacterIds : [])
+            .map((entry) => normalizeCharacterId(entry))
+            .filter(Boolean)
+    );
+    if (!lockedCharacterIds.has(normalizedCharacterId)) {
+        return true;
+    }
+    return unlocked.has(normalizedCharacterId);
+};
+
+const assertTeamCanBeUsed = async (profile, team = []) => {
+    const lockedCharacterIds = await getMissionLockedCharacterIds();
+    const normalizedProfile = normalizeUserProfile({
+        profile,
+    });
+    const invalidCharacter = Array.isArray(team)
+        ? team.find((slot) => {
+              const rosterCharacterId = getRosterCharacterId(slot);
+              if (!rosterCharacterId) {
+                  return true;
+              }
+              return !profileHasUnlockedCharacter(
+                  normalizedProfile,
+                  rosterCharacterId,
+                  lockedCharacterIds
+              );
+          })
+        : null;
+    if (invalidCharacter === undefined || invalidCharacter === null) {
+        return;
+    }
+    const rosterCharacterId = getRosterCharacterId(invalidCharacter);
+    const rosterCharacterName = getRosterCharacterName(invalidCharacter) || rosterCharacterId || 'Character';
+    if (!rosterCharacterId) {
+        throw new Error('Invalid team selection.');
+    }
+    throw new Error(`${rosterCharacterName} is locked.`);
+};
+
 const buildDefaultUserProfile = (user = {}) => {
     const createdAt = user.createdAt instanceof Date ? user.createdAt : new Date(user.createdAt || Date.now());
     return {
@@ -220,6 +891,10 @@ const buildDefaultUserProfile = (user = {}) => {
         recentQuickGames: [],
         recentPrivateGames: [],
         recentLadderGames: [],
+        missions: createDefaultMissionState(),
+        matchmaking: {
+            battleBotEnabled: true,
+        },
         ladder: {
             level: 1,
             rank: 'Academy Student',
@@ -435,6 +1110,8 @@ const normalizeUserProfile = (user = {}) => {
     const source = user.profile && typeof user.profile === 'object' ? user.profile : {};
     const ladder = source.ladder && typeof source.ladder === 'object' ? source.ladder : {};
     const activity = source.activity && typeof source.activity === 'object' ? source.activity : {};
+    const matchmaking =
+        source.matchmaking && typeof source.matchmaking === 'object' ? source.matchmaking : {};
     const clan =
         source.clan && typeof source.clan === 'object'
             ? (() => {
@@ -503,6 +1180,13 @@ const normalizeUserProfile = (user = {}) => {
         recentQuickGamesCount24Hours: normalizeRecentQuickGames(source.recentQuickGames).length,
         recentPrivateGamesCount24Hours: normalizeRecentQuickGames(source.recentPrivateGames).length,
         recentLadderGamesCount24Hours: normalizeRecentLadderGames(source.recentLadderGames).length,
+        missions: normalizeMissionState(source.missions),
+        matchmaking: {
+            battleBotEnabled:
+                typeof matchmaking.battleBotEnabled === 'boolean'
+                    ? matchmaking.battleBotEnabled
+                    : defaults.matchmaking.battleBotEnabled,
+        },
         ladder: {
             level: normalizedLadderState.level,
             rank: rankInfo.rank,
@@ -539,6 +1223,21 @@ const normalizeUserProfile = (user = {}) => {
     };
 };
 
+const isGameBotUsername = (username) =>
+    typeof username === 'string' && username.trim().toLowerCase().startsWith(GAME_BOT_USERNAME_PREFIX);
+
+const getPlayerDisplayName = (player) => {
+    const displayName =
+        typeof player?.displayName === 'string' && player.displayName.trim()
+            ? player.displayName.trim()
+            : '';
+    if (displayName) {
+        return displayName;
+    }
+    const username = typeof player?.username === 'string' ? player.username.trim() : '';
+    return isGameBotUsername(username) ? GAME_BOT_DISPLAY_NAME : username;
+};
+
 const recordRecentQuickGameForUsers = async ({ players, winnerUsername, endedAt }) => {
     const usernames = Array.isArray(players)
         ? players
@@ -566,13 +1265,19 @@ const recordRecentQuickGameForUsers = async ({ players, winnerUsername, endedAt 
 
     await Promise.all(
         existingUsers.map(async (user) => {
-            const opponentUsername = usernames.find((name) => name !== user.username) || '';
+            const opponentPlayer = (Array.isArray(players) ? players : []).find(
+                (player) => player?.username && player.username !== user.username
+            );
+            const opponentUsername = getPlayerDisplayName(opponentPlayer) || '';
+            const winnerPlayer = (Array.isArray(players) ? players : []).find(
+                (player) => player?.username && player.username === winnerUsername
+            );
             const profile = normalizeUserProfile(user);
             profile.recentQuickGames = normalizeRecentQuickGames([
                 {
                     playedAt: endedDate,
                     opponentUsername,
-                    winnerUsername: winnerUsername || '',
+                    winnerUsername: getPlayerDisplayName(winnerPlayer) || winnerUsername || '',
                 },
                 ...(Array.isArray(profile.recentQuickGames) ? profile.recentQuickGames : []),
             ]);
@@ -615,13 +1320,19 @@ const recordRecentPrivateGameForUsers = async ({ players, winnerUsername, endedA
 
     await Promise.all(
         existingUsers.map(async (user) => {
-            const opponentUsername = usernames.find((name) => name !== user.username) || '';
+            const opponentPlayer = (Array.isArray(players) ? players : []).find(
+                (player) => player?.username && player.username !== user.username
+            );
+            const opponentUsername = getPlayerDisplayName(opponentPlayer) || '';
+            const winnerPlayer = (Array.isArray(players) ? players : []).find(
+                (player) => player?.username && player.username === winnerUsername
+            );
             const profile = normalizeUserProfile(user);
             profile.recentPrivateGames = normalizeRecentQuickGames([
                 {
                     playedAt: endedDate,
                     opponentUsername,
-                    winnerUsername: winnerUsername || '',
+                    winnerUsername: getPlayerDisplayName(winnerPlayer) || winnerUsername || '',
                 },
                 ...(Array.isArray(profile.recentPrivateGames) ? profile.recentPrivateGames : []),
             ]);
@@ -635,6 +1346,226 @@ const recordRecentPrivateGameForUsers = async ({ players, winnerUsername, endedA
             );
         })
     );
+};
+
+const teamHasCharacterId = (match, username, characterId) => {
+    if (!match || !username || !characterId) {
+        return false;
+    }
+    const playerEntry = Array.isArray(match.players)
+        ? match.players.find((player) => player && player.username === username)
+        : null;
+    const team = Array.isArray(playerEntry?.team) ? playerEntry.team : [];
+    return team.some((rosterIndex) => getRosterCharacterId(rosterIndex) === characterId);
+};
+
+const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
+    if (!match || !Array.isArray(match.players) || match.players.length < 2) {
+        return null;
+    }
+    if (match.mode !== 'quick' && match.mode !== 'ladder') {
+        return null;
+    }
+
+    const usernames = match.players
+        .map((player) => (typeof player?.username === 'string' ? player.username : ''))
+        .filter(Boolean);
+    if (!usernames.length) {
+        return null;
+    }
+
+    const users = await usersCollection
+        .find(
+            { username: { $in: usernames } },
+            {
+                projection: {
+                    _id: 1,
+                    username: 1,
+                    profile: 1,
+                    createdAt: 1,
+                },
+            }
+        )
+        .toArray();
+    if (!users.length) {
+        return null;
+    }
+
+    const userByUsername = new Map(users.map((user) => [user.username, user]));
+    const missionCatalog = await getStoredMissionCatalog();
+
+    await Promise.all(
+        usernames.map(async (username) => {
+            const user = userByUsername.get(username);
+            if (!user) {
+                return;
+            }
+
+            const profile = normalizeUserProfile(user);
+            const missionState = normalizeMissionState(profile.missions);
+            const progressByMissionId = {
+                ...(missionState.progressByMissionId || {}),
+            };
+            const unlockedIds = new Set(missionState.unlockedCharacterIds || []);
+            const userLevel = Number(profile?.ladder?.level) || 1;
+            const didWin = Boolean(winnerUsername) && winnerUsername === username;
+            let mutated = false;
+
+            for (const mission of missionCatalog) {
+                if (!mission || !mission.missionId) {
+                    continue;
+                }
+
+                const levelRequirement = Math.max(0, Number(mission.level_requirement) || 0);
+                if (levelRequirement > 0 && userLevel < levelRequirement) {
+                    continue;
+                }
+
+                const allowedModes = Array.isArray(mission.mode_restriction?.allowed_modes)
+                    ? mission.mode_restriction.allowed_modes
+                    : ['quick', 'ladder'];
+                if (!allowedModes.includes(match.mode)) {
+                    continue;
+                }
+
+                const rewardCharacterId = normalizeCharacterId(mission.reward_character);
+                const missionGoals = normalizeMissionGoalList(mission.goals || []);
+                const trackedGoals = missionGoals;
+                const existingProgress = normalizeMissionProgressEntry(
+                    progressByMissionId[mission.missionId] || {}
+                );
+                const alreadyCompleted = Boolean(existingProgress.completedAt);
+                const existingGoalProgressByIndex = {
+                    ...(existingProgress.goalProgressByIndex || existingProgress.goalProgress || {}),
+                };
+                if (rewardCharacterId && unlockedIds.has(rewardCharacterId)) {
+                    if (!alreadyCompleted) {
+                        progressByMissionId[mission.missionId] = normalizeMissionProgressEntry({
+                            ...existingProgress,
+                            completedAt: endedAt || existingProgress.completedAt || new Date(),
+                        });
+                        mutated = true;
+                    }
+                    continue;
+                }
+                const nextGoalProgressByIndex = { ...existingGoalProgressByIndex };
+                let hasTrackableGoals = false;
+                let allTrackableGoalsComplete = trackedGoals.length > 0;
+
+                trackedGoals.forEach((goal, goalIndex) => {
+                    if (!goal || !goal.type) {
+                        return;
+                    }
+                    const goalType = String(goal.type).trim().toLowerCase();
+                    if (goalType !== 'win_matches' && goalType !== 'win_streak') {
+                        return;
+                    }
+                    hasTrackableGoals = true;
+                    const targetWins = Math.max(0, Number(goal.wins) || 0);
+                    if (!targetWins) {
+                        allTrackableGoalsComplete = false;
+                        return;
+                    }
+                    const goalCharacterId = normalizeCharacterId(goal.character_id);
+                    const hasGoalCharacter = goalCharacterId
+                        ? teamHasCharacterId(match, username, goalCharacterId)
+                        : true;
+                    const existingGoalProgress = normalizeMissionGoalProgressEntry(
+                        nextGoalProgressByIndex[goalIndex] || {}
+                    );
+                    const nextGoalProgress = {
+                        ...existingGoalProgress,
+                    };
+
+                    if (goalType === 'win_matches') {
+                        if (didWin && hasGoalCharacter) {
+                            nextGoalProgress.count = Math.min(
+                                targetWins,
+                                Math.max(0, Number(existingGoalProgress.count) || 0) + 1
+                            );
+                        }
+                    } else if (goalType === 'win_streak') {
+                        if (didWin && hasGoalCharacter) {
+                            nextGoalProgress.count = Math.min(
+                                targetWins,
+                                Math.max(0, Number(existingGoalProgress.count) || 0) + 1
+                            );
+                        } else if (winnerUsername) {
+                            nextGoalProgress.count = 0;
+                        }
+                    }
+
+                    if (nextGoalProgress.count >= targetWins) {
+                        nextGoalProgress.completedAt =
+                            existingGoalProgress.completedAt || endedAt || new Date();
+                    }
+                    nextGoalProgress.updatedAt = endedAt || new Date();
+                    nextGoalProgressByIndex[goalIndex] = normalizeMissionGoalProgressEntry(
+                        nextGoalProgress
+                    );
+
+                    if (!nextGoalProgressByIndex[goalIndex].completedAt) {
+                        allTrackableGoalsComplete = false;
+                    }
+                });
+
+                const nextProgress = normalizeMissionProgressEntry({
+                    ...existingProgress,
+                    goalProgressByIndex: nextGoalProgressByIndex,
+                    goalProgress: nextGoalProgressByIndex,
+                });
+
+                if (hasTrackableGoals && allTrackableGoalsComplete) {
+                    nextProgress.completedAt = existingProgress.completedAt || endedAt || new Date();
+                    nextProgress.unlockedAt = nextProgress.completedAt;
+                    if (rewardCharacterId) {
+                        unlockedIds.add(rewardCharacterId);
+                    }
+                }
+
+                const progressChanged =
+                    JSON.stringify(nextProgress) !== JSON.stringify(existingProgress);
+                if (progressChanged) {
+                    progressByMissionId[mission.missionId] = nextProgress;
+                    mutated = true;
+                } else if (
+                    rewardCharacterId &&
+                    hasTrackableGoals &&
+                    allTrackableGoalsComplete &&
+                    !unlockedIds.has(rewardCharacterId)
+                ) {
+                    unlockedIds.add(rewardCharacterId);
+                    mutated = true;
+                }
+            }
+
+            if (!mutated) {
+                return;
+            }
+
+            profile.missions = {
+                ...profile.missions,
+                progressByMissionId,
+                progress: progressByMissionId,
+                unlockedCharacterIds: Array.from(unlockedIds),
+            };
+
+            const normalizedProfile = normalizeUserProfile({
+                ...user,
+                profile,
+            });
+            await usersCollection.updateOne(
+                { _id: user._id },
+                {
+                    $set: {
+                        profile: normalizedProfile,
+                    },
+                }
+            );
+        })
+    );
+
+    return true;
 };
 
 const addClanExperience = async (clanName, clanExpDelta) => {
@@ -774,6 +1705,8 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
         return null;
     }
 
+    await applyMissionProgressForUsers(match, winnerUsername, endedAt);
+
     if (match.mode === 'private') {
         await recordRecentPrivateGameForUsers({
             players: match.players || [],
@@ -812,7 +1745,7 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
             }
         )
         .toArray();
-    if (users.length < 2) {
+    if (users.length < 1) {
         return null;
     }
 
@@ -825,8 +1758,21 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
     for (const username of usernames) {
         const user = userByUsername.get(username);
         const profile = initialProfiles.get(username);
-        const opponentUsername = usernames.find((entry) => entry !== username) || '';
-        const opponentProfile = initialProfiles.get(opponentUsername) || buildDefaultUserProfile();
+        const opponentEntry = (Array.isArray(match.players) ? match.players : []).find(
+            (entry) => entry?.username && entry.username !== username
+        );
+        const opponentUsername =
+            typeof opponentEntry?.username === 'string' ? opponentEntry.username : '';
+        const opponentProfile = initialProfiles.get(opponentUsername) || {
+            ...buildDefaultUserProfile(),
+            ladder: {
+                ...buildDefaultUserProfile().ladder,
+                level: Math.max(
+                    1,
+                    Number(opponentEntry?.ladderLevel) || Number(profile?.ladder?.level) || 1
+                ),
+            },
+        };
         if (!user || !profile) {
             continue;
         }
@@ -867,8 +1813,15 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
         profile.recentLadderGames = normalizeRecentLadderGames([
             {
                 playedAt: endedAt,
-                opponentUsername,
-                winnerUsername: winnerUsername || '',
+                opponentUsername: getPlayerDisplayName(opponentEntry) || opponentUsername,
+                winnerUsername:
+                    getPlayerDisplayName(
+                        (Array.isArray(match.players) ? match.players : []).find(
+                            (entry) => entry?.username && entry.username === winnerUsername
+                        )
+                    ) ||
+                    winnerUsername ||
+                    '',
                 expDelta,
                 clanExpDelta,
             },
@@ -1403,6 +2356,40 @@ app.use(
         credentials: true,
     })
 );
+app.use(async (req, res, next) => {
+    const protectedMissionPages = new Set(['/editmission', '/editmission.html']);
+    if (!protectedMissionPages.has(req.path)) {
+        return next();
+    }
+
+    try {
+        const cookies = String(req.headers?.cookie || '')
+            .split(';')
+            .reduce((acc, part) => {
+                const [rawKey, ...rawValueParts] = String(part).split('=');
+                const key = rawKey ? rawKey.trim() : '';
+                if (!key) {
+                    return acc;
+                }
+                acc[key] = decodeURIComponent(rawValueParts.join('=').trim() || '');
+                return acc;
+            }, {});
+        const token = cookies[SESSION_COOKIE_NAME];
+        if (!token) {
+            return res.redirect('/');
+        }
+
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const user = await usersCollection.findOne({ username: decoded.username });
+        if (!user || String(user.role || '').trim().toLowerCase() !== 'admin') {
+            return res.redirect('/');
+        }
+
+        return next();
+    } catch (error) {
+        return res.redirect('/');
+    }
+});
 app.use(express.static(path.join(__dirname)));
 app.use(
     helmet({
@@ -1747,6 +2734,7 @@ const broadcastMatchState = async (matchOrMatchId) => {
     if (!hydrated || !Array.isArray(hydrated.players) || hydrated.players.length === 0) {
         return null;
     }
+    scheduleBattleBotTurn(hydrated);
     const room = getMatchRoom(hydrated.matchId);
     if (!room || room.size === 0) {
         return hydrated;
@@ -1905,6 +2893,148 @@ const normalizeEnergyCost = (energy = []) => {
         }
     });
     return { reservedSpecific, requiredRandom };
+};
+
+const createGameBotUsername = (seed = '') =>
+    `${GAME_BOT_USERNAME_PREFIX}${String(seed || Date.now()).replace(/[^a-z0-9_-]+/gi, '').toLowerCase()}`;
+
+const getQueueForMode = (mode = 'quick') => {
+    if (mode === 'ladder') return ladderQueue;
+    if (mode === 'private') return privateQueue;
+    return quickQueue;
+};
+
+const setQueueForMode = (mode = 'quick', nextQueue = []) => {
+    if (mode === 'ladder') {
+        ladderQueue = nextQueue;
+        return;
+    }
+    if (mode === 'private') {
+        privateQueue = nextQueue;
+        return;
+    }
+    quickQueue = nextQueue;
+};
+
+const findQueuedEntry = (username, mode = null) => {
+    const normalizedUsername = typeof username === 'string' ? username.trim().toLowerCase() : '';
+    const queues = mode ? [mode] : ['quick', 'ladder', 'private'];
+    for (const queueMode of queues) {
+        const queue = getQueueForMode(queueMode);
+        const entry = queue.find(
+            (item) =>
+                typeof item?.username === 'string' &&
+                item.username.trim().toLowerCase() === normalizedUsername
+        );
+        if (entry) {
+            return { mode: queueMode, entry };
+        }
+    }
+    return null;
+};
+
+const removeQueuedEntry = (username, mode = null) => {
+    const normalizedUsername = typeof username === 'string' ? username.trim().toLowerCase() : '';
+    const queues = mode ? [mode] : ['quick', 'ladder', 'private'];
+    queues.forEach((queueMode) => {
+        setQueueForMode(
+            queueMode,
+            getQueueForMode(queueMode).filter(
+                (entry) =>
+                    typeof entry?.username !== 'string' ||
+                    entry.username.trim().toLowerCase() !== normalizedUsername
+            )
+        );
+    });
+};
+
+const getCharacterSpecificChakraProfile = (character = {}) => {
+    const specificCounts = createEmptyChakraCost();
+    let randomCount = 0;
+    const skills = Array.isArray(character?.skills) ? character.skills : [];
+    skills.forEach((skill) => {
+        const costs = Array.isArray(skill?.energy) ? skill.energy : [];
+        costs.forEach((entry) => {
+            const normalized = typeof entry === 'string' ? entry.trim().toLowerCase() : '';
+            if (normalized === 'random') {
+                randomCount += 1;
+                return;
+            }
+            if (Object.prototype.hasOwnProperty.call(specificCounts, normalized)) {
+                specificCounts[normalized] += 1;
+            }
+        });
+    });
+    const dominantType = chakraTypes.reduce((best, type) => {
+        if ((specificCounts[type] || 0) > (specificCounts[best] || 0)) {
+            return type;
+        }
+        return best;
+    }, chakraTypes[0]);
+    const specificTotal = chakraTypes.reduce((sum, type) => sum + (specificCounts[type] || 0), 0);
+    const diversity = chakraTypes.filter((type) => (specificCounts[type] || 0) > 0).length;
+    return {
+        specificCounts,
+        dominantType: specificTotal > 0 ? dominantType : '',
+        specificTotal,
+        diversity,
+        randomCount,
+    };
+};
+
+const shuffleList = (items = []) => {
+    const next = Array.isArray(items) ? items.slice() : [];
+    for (let index = next.length - 1; index > 0; index -= 1) {
+        const swapIndex = Math.floor(Math.random() * (index + 1));
+        const temp = next[index];
+        next[index] = next[swapIndex];
+        next[swapIndex] = temp;
+    }
+    return next;
+};
+
+const buildBattleBotTeam = () => {
+    const candidates = shuffleList(
+        (Array.isArray(charactersData) ? charactersData : [])
+            .map((character, rosterIndex) => ({
+                rosterIndex,
+                character,
+                profile: getCharacterSpecificChakraProfile(character),
+            }))
+            .filter(
+                (entry) =>
+                    entry.character &&
+                    typeof entry.character.characterId === 'string' &&
+                    Array.isArray(entry.character.skills) &&
+                    entry.character.skills.length > 0
+            )
+    );
+    const selected = [];
+    const usedDominantTypes = new Set();
+
+    candidates.forEach((entry) => {
+        if (selected.length >= 3) return;
+        const dominantType = entry.profile.dominantType;
+        if (!dominantType || usedDominantTypes.has(dominantType)) {
+            return;
+        }
+        selected.push(entry);
+        usedDominantTypes.add(dominantType);
+    });
+
+    const fallbackPool = candidates
+        .filter((entry) => !selected.some((picked) => picked.rosterIndex === entry.rosterIndex))
+        .sort((left, right) => {
+            const leftScore = left.profile.diversity * 10 + left.profile.randomCount + left.profile.specificTotal;
+            const rightScore =
+                right.profile.diversity * 10 + right.profile.randomCount + right.profile.specificTotal;
+            return rightScore - leftScore;
+        });
+    while (selected.length < 3 && fallbackPool.length > 0) {
+        selected.push(fallbackPool.shift());
+    }
+
+    return selected.slice(0, 3).map((entry) => entry.rosterIndex);
 };
 
 const makeEmptyPendingTurn = () => ({
@@ -2115,9 +3245,9 @@ const initializeEconomyState = (players, currentTurn, aliveLookup = {}) => {
     };
 };
 
-const buildMatch = (players, aliveLookup = {}) => {
+const buildMatch = (players, aliveLookup = {}, options = {}) => {
     const { turnOrder, currentTurn } = pickInitialTurn(players);
-    const matchId = `match-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const matchId = options.matchId || `match-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const matchStartsAt = new Date(Date.now() + MATCH_FOUND_HOLD_MS);
     const { chakraPools, economy, turnExpiresAt } = initializeEconomyState(
         players,
@@ -2140,7 +3270,12 @@ const buildMatch = (players, aliveLookup = {}) => {
     });
     players.forEach((p) => {
         const opponent = players.find((x) => x !== p) || null;
-        userToMatch.set(p, { matchId, opponent });
+        if (!isGameBotUsername(p)) {
+            userToMatch.set(p, {
+                matchId,
+                opponent: isGameBotUsername(opponent) ? GAME_BOT_DISPLAY_NAME : opponent,
+            });
+        }
     });
     return {
         matchId,
@@ -2179,6 +3314,84 @@ const dequeueOpponent = (username, mode = 'quick') => {
         quickQueue = quickQueue.filter((u) => u.username !== opponent.username);
     }
     return opponent;
+};
+
+const createBattleBotPlayer = ({ matchId, team, ladderLevel = 1 }) => ({
+    username: createGameBotUsername(matchId),
+    displayName: GAME_BOT_DISPLAY_NAME,
+    isBot: true,
+    team,
+    aliveCount: Array.isArray(team) ? team.length : 3,
+    ladderLevel: Math.max(1, Number(ladderLevel) || 1),
+});
+
+const buildBattleBotMatch = async ({ username, team, mode, playerProfile }) => {
+    const matchId = `match-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const botPlayer = createBattleBotPlayer({
+        matchId,
+        team: buildBattleBotTeam(),
+        ladderLevel: Number(playerProfile?.ladder?.level) || 1,
+    });
+    const aliveLookup = {
+        [username]: Array.isArray(team) ? team.length : 3,
+        [botPlayer.username]: Array.isArray(botPlayer.team) ? botPlayer.team.length : 3,
+    };
+    const built = buildMatch([username, botPlayer.username], aliveLookup, { matchId });
+    const playerDocs = [
+        {
+            username,
+            team,
+            aliveCount: aliveLookup[username],
+        },
+        botPlayer,
+    ];
+    const board = battleLogic.buildInitialBoard(playerDocs);
+    const matchDocument = {
+        matchId: built.matchId,
+        mode,
+        status: 'active',
+        createdAt: new Date(),
+        matchStartsAt: built.matchStartsAt,
+        chakraPools: built.chakraPools,
+        economy: built.economy,
+        pendingTurns: built.pendingTurns,
+        currentTurn: built.currentTurn,
+        turnOrder: built.turnOrder,
+        turnExpiresAt: built.turnExpiresAt,
+        board,
+        players: playerDocs,
+        botMatch: {
+            enabled: true,
+            displayName: GAME_BOT_DISPLAY_NAME,
+        },
+    };
+    await matchesCollection.insertOne(matchDocument);
+    return matchDocument;
+};
+
+const maybeCreateBattleBotMatch = async ({ username, mode, userProfile = null }) => {
+    if (!BATTLE_BOTS_ENABLED || (mode !== 'quick' && mode !== 'ladder')) {
+        return null;
+    }
+    const queued = findQueuedEntry(username, mode);
+    if (!queued?.entry) {
+        return null;
+    }
+    const queuedAtMs = new Date(queued.entry.queuedAt || Date.now()).getTime();
+    if (Number.isNaN(queuedAtMs) || Date.now() - queuedAtMs < BATTLE_BOT_QUEUE_TIMEOUT_MS) {
+        return null;
+    }
+    if (queued.entry.allowBattleBot === false) {
+        return null;
+    }
+    removeQueuedEntry(username, mode);
+    const matchDocument = await buildBattleBotMatch({
+        username,
+        team: queued.entry.team,
+        mode,
+        playerProfile: userProfile,
+    });
+    return matchDocument;
 };
 
 const dequeuePrivateOpponent = (username, targetUsername) => {
@@ -2388,6 +3601,257 @@ const persistMatchState = async (match, fields = {}) => {
         });
     }
 };
+
+const getBattleBotPlayer = (match) =>
+    Array.isArray(match?.players) ? match.players.find((player) => player?.isBot) || null : null;
+
+const getBattleBotUsername = (match) => getBattleBotPlayer(match)?.username || null;
+
+const isBattleBotTurn = (match) => isGameBotUsername(match?.currentTurn || '');
+
+const botCanAffordSkill = ({ match, username, skill, actorState }) => {
+    const pool = match?.chakraPools?.[username];
+    if (!pool || !skill) {
+        return false;
+    }
+    const pending = getPendingTurn(match, username);
+    const { reservedSpecific, requiredRandom } = battleLogic.computeEffectiveEnergyCost({
+        skill,
+        actorState,
+    });
+    for (const type of chakraTypes) {
+        if ((Number(pool[type]) || 0) < (Number(reservedSpecific[type]) || 0)) {
+            return false;
+        }
+    }
+    const remainingPool = chakraTypes.reduce((sum, type) => {
+        const remaining = (Number(pool[type]) || 0) - (Number(reservedSpecific[type]) || 0);
+        return sum + Math.max(0, remaining);
+    }, 0);
+    return remainingPool >= Math.max(0, Number(pending.unresolvedRandom) || 0) + requiredRandom;
+};
+
+const chooseBattleBotTargetSelection = (options = {}) => {
+    const targets = Array.isArray(options.targets) ? options.targets : [];
+    if (!targets.length) {
+        return null;
+    }
+    if (options.mode === 'single' || options.mode === 'self') {
+        return [targets[Math.floor(Math.random() * targets.length)]];
+    }
+    return targets;
+};
+
+const assignBattleBotRandomChakra = ({ match, username }) => {
+    const pending = getPendingTurn(match, username);
+    while ((pending.unresolvedRandom || 0) > 0) {
+        const pool = match?.chakraPools?.[username] || createEmptyChakraPool();
+        const availableTypes = chakraTypes.filter((type) => (Number(pool[type]) || 0) > 0);
+        if (!availableTypes.length) {
+            break;
+        }
+        const chakraType = availableTypes[Math.floor(Math.random() * availableTypes.length)];
+        adjustRandomAssignment({ match, username, chakraType, delta: 1 });
+        const nextPending = getPendingTurn(match, username);
+        pending.unresolvedRandom = nextPending.unresolvedRandom;
+    }
+};
+
+const resolveTurnStartChoiceForUser = ({ match, username, choiceKey }) => {
+    const pendingTurn = getPendingTurn(match, username);
+    const prompt = pendingTurn.turnStartChoice;
+    if (!hasPendingTurnStartChoice(pendingTurn) || !prompt) {
+        throw new Error('No turn-start choice is pending.');
+    }
+    const option = Array.isArray(prompt.options)
+        ? prompt.options.find((entry) => entry?.key === choiceKey)
+        : null;
+    if (!option) {
+        throw new Error('Invalid turn-start choice.');
+    }
+    const sourceUnit = Array.isArray(match.board?.[username]) ? match.board[username][prompt.actorSlot] : null;
+    const targetPick = battleLogic.selectTurnStartChoiceTarget({
+        match,
+        actingUsername: username,
+        choice: option,
+    });
+    if (!targetPick?.unit) {
+        throw new Error('No valid target available.');
+    }
+    const targetUnit = targetPick.unit;
+    const targetState = battleLogic.getUnitState(match, targetPick.username, targetPick.slot);
+    const effect = option.effect || {};
+    const effectType = typeof effect.type === 'string' ? effect.type.trim().toLowerCase() : '';
+    if ((effectType === 'heal' || effectType === 'cleanse_harmful') && targetUnit.alive === false) {
+        throw new Error('No valid living ally is available.');
+    }
+    if (effectType === 'revive' && targetUnit.alive !== false) {
+        throw new Error('No dead ally is available.');
+    }
+    if (effectType === 'heal') {
+        battleLogic.applyHealToUnit(targetUnit, Math.max(0, Number(effect.amount) || 0));
+    } else if (effectType === 'cleanse_harmful') {
+        battleLogic.cleanseHarmfulStatuses(targetUnit, effect.count);
+    } else if (effectType === 'revive') {
+        battleLogic.reviveUnitToHp(targetUnit, Math.max(1, Number(effect.amount) || 30));
+        targetState.statuses = Array.isArray(targetState.statuses) ? targetState.statuses : [];
+    } else {
+        throw new Error('Unsupported choice effect.');
+    }
+
+    match.players.forEach((player) => {
+        if (!player?.username) return;
+        player.aliveCount = getAliveCountForUser(match, player.username);
+    });
+
+    const sourceState = sourceUnit ? battleLogic.getUnitState(match, username, prompt.actorSlot) : null;
+    if (sourceState && prompt.sourceStatusId) {
+        const status = Array.isArray(sourceState.statuses)
+            ? sourceState.statuses.find((entry) => entry?.id === prompt.sourceStatusId)
+            : null;
+        if (status) {
+            const metadata = status?.metadata && typeof status.metadata === 'object' ? { ...status.metadata } : {};
+            metadata.turnStartChoiceQueued = false;
+            metadata.turnStartChoiceUsesUsed = Math.max(0, Number(metadata.turnStartChoiceUsesUsed) || 0) + 1;
+            status.metadata = metadata;
+            const maxUses = Math.max(0, Number(metadata.turnStartChoiceMaxUses) || 0);
+            if (maxUses > 0 && metadata.turnStartChoiceUsesUsed >= maxUses) {
+                status.metadata = {
+                    ...metadata,
+                    tooltipText: "Doctor's Bag has been used.",
+                    turnStartChoiceQueued: false,
+                };
+            }
+        }
+    }
+    pendingTurn.turnStartChoice = null;
+    match.pendingTurns[username] = pendingTurn;
+};
+
+const runBattleBotTurn = async (matchId) => {
+    if (!matchId || activeBattleBotTurns.has(matchId)) {
+        return;
+    }
+    activeBattleBotTurns.add(matchId);
+    try {
+        const match = await matchesCollection.findOne({ matchId });
+        if (!match) {
+            return;
+        }
+        const hydratedTurn = await ensureMatchTurnData(match);
+        const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
+        const hydratedPending = await ensurePendingTurnState(hydratedEcon);
+        const hydratedBoard = await ensureBoardState(hydratedPending);
+        const hydrated = await autoAdvanceTurnIfExpired(hydratedBoard);
+        if (!hydrated || hydrated.status === 'ended' || !isBattleBotTurn(hydrated)) {
+            return;
+        }
+        const username = hydrated.currentTurn;
+        const pendingTurn = getPendingTurn(hydrated, username);
+        if (hasPendingTurnStartChoice(pendingTurn)) {
+            const choice = Array.isArray(pendingTurn.turnStartChoice?.options)
+                ? pendingTurn.turnStartChoice.options[0]
+                : null;
+            if (choice?.key) {
+                resolveTurnStartChoiceForUser({
+                    match: hydrated,
+                    username,
+                    choiceKey: choice.key,
+                });
+            }
+        }
+
+        const team = Array.isArray(hydrated.board?.[username]) ? hydrated.board[username] : [];
+        const actorSlots = shuffleList(
+            team
+                .map((unit, slot) => (unit && unit.alive !== false ? slot : null))
+                .filter((slot) => Number.isInteger(slot))
+        );
+        actorSlots.forEach((actorSlot) => {
+            const actorUnit = hydrated.board?.[username]?.[actorSlot];
+            if (!actorUnit || actorUnit.alive === false) {
+                return;
+            }
+            const actorState = battleLogic.getUnitState(hydrated, username, actorSlot);
+            if (battleLogic.isActorUnableToUseSkills(actorState)) {
+                return;
+            }
+            const character = charactersData?.[actorUnit.rosterIndex];
+            const skillIndices = shuffleList(
+                (Array.isArray(character?.skills) ? character.skills : []).map((_, index) => index)
+            );
+            for (const skillIndex of skillIndices) {
+                const options = battleLogic.computeTargetOptions({
+                    match: hydrated,
+                    actingUsername: username,
+                    actorSlot,
+                    skillIndex,
+                    characters: charactersData,
+                });
+                if (!options?.targetType || options.mode === 'unknown' || !Array.isArray(options.targets) || !options.targets.length) {
+                    continue;
+                }
+                const skill = battleLogic.resolveEffectiveSkill({
+                    characters: charactersData,
+                    rosterIndex: actorUnit.rosterIndex,
+                    skillIndex,
+                    actorState,
+                });
+                if (!botCanAffordSkill({ match: hydrated, username, skill, actorState })) {
+                    continue;
+                }
+                const classChoiceOptions = Array.isArray(skill?.classChoiceOptions)
+                    ? skill.classChoiceOptions.map((entry) => normalizeClassChoice(entry)).filter(Boolean)
+                    : [];
+                const targetSelection = chooseBattleBotTargetSelection(options);
+                if (!targetSelection) {
+                    continue;
+                }
+                try {
+                    queueSkillForActorSlot({
+                        match: hydrated,
+                        username,
+                        actorSlot,
+                        skillIndex,
+                        targetSelection,
+                        classChoice: classChoiceOptions[0] || null,
+                    });
+                    break;
+                } catch (error) {
+                    continue;
+                }
+            }
+        });
+
+        assignBattleBotRandomChakra({ match: hydrated, username });
+        const updated = await finalizeTurn(hydrated, username);
+        await broadcastMatchState(updated || hydrated);
+        if (updated && isBattleBotTurn(updated)) {
+            scheduleBattleBotTurn(updated);
+        }
+    } finally {
+        activeBattleBotTurns.delete(matchId);
+    }
+};
+
+function scheduleBattleBotTurn(match) {
+    if (!match || match.status === 'ended' || !isBattleBotTurn(match)) {
+        return;
+    }
+    const matchId = match.matchId;
+    if (!matchId || activeBattleBotTurns.has(matchId) || scheduledBattleBotTurns.has(matchId)) {
+        return;
+    }
+    const matchStartsAtMs = match.matchStartsAt ? new Date(match.matchStartsAt).getTime() : Date.now();
+    const delayMs = Math.max(BATTLE_BOT_ACTION_DELAY_MS, matchStartsAtMs - Date.now() + BATTLE_BOT_ACTION_DELAY_MS);
+    scheduledBattleBotTurns.add(matchId);
+    setTimeout(() => {
+        scheduledBattleBotTurns.delete(matchId);
+        runBattleBotTurn(matchId).catch((error) => {
+            console.error('Battle bot turn failed:', error);
+        });
+    }, delayMs);
+}
 
 const normalizeClassChoice = (value) =>
     typeof value === 'string' ? value.trim().toLowerCase() : '';
@@ -2949,6 +4413,10 @@ const backgroundUpdateSchema = Joi.object({
     ingameUrl: Joi.string().trim().allow('').uri({ scheme: ['http', 'https'] }).max(2048).required(),
 });
 
+const matchmakingSettingsSchema = Joi.object({
+    battleBotEnabled: Joi.boolean().required(),
+});
+
 const clanCreateSchema = Joi.object({
     name: Joi.string().trim().min(3).max(35).required(),
     abbreviation: Joi.string().trim().min(2).max(4).required(),
@@ -3106,9 +4574,24 @@ app.post('/api/team/save', requireSession, async (req, res) => {
     if (validationError) {
         return res.status(400).json({ error: 'Invalid team selection.' });
     }
+    const user = await usersCollection.findOne({ username: req.authUser.username });
+    if (!user) {
+        return res.status(404).json({ error: 'User not found.' });
+    }
+    const profile = normalizeUserProfile(user);
+    try {
+        await assertTeamCanBeUsed(profile, value);
+    } catch (error) {
+        return res.status(403).json({ error: error.message || 'Character is locked.' });
+    }
     await usersCollection.updateOne(
-        { username: req.authUser.username },
-        { $set: { savedTeamIndices: value } }
+        { _id: user._id },
+        {
+            $set: {
+                savedTeamIndices: value,
+                profile,
+            },
+        }
     );
     return res.json({ ok: true });
 });
@@ -3147,6 +4630,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
             if (!hydrated || hydrated.status === 'ended') {
                 userToMatch.delete(username);
             } else {
+            scheduleBattleBotTurn(hydrated);
             return res.json({
                 ok: true,
                 matchFound: true,
@@ -3183,8 +4667,9 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                 return res.json({ ok: true, matchFound: false });
             }
             const opponentEntry = hydrated.players.find((p) => p.username !== username);
-            const opponent = opponentEntry ? opponentEntry.username : null;
+            const opponent = opponentEntry ? getPlayerDisplayName(opponentEntry) : null;
             userToMatch.set(username, { matchId: hydrated.matchId, opponent });
+            scheduleBattleBotTurn(hydrated);
             return res.json({
                 ok: true,
                 matchFound: true,
@@ -3203,6 +4688,17 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                 lastChakraGain: hydrated.economy?.lastChakraGain || null,
                 pendingTurn: getPendingTurn(hydrated, username),
             });
+        }
+
+        const user = await usersCollection.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+        const profile = normalizeUserProfile(user);
+        try {
+            await assertTeamCanBeUsed(profile, team);
+        } catch (error) {
+            return res.status(403).json({ error: error.message || 'Character is locked.' });
         }
 
         // Try to pair with waiting opponent
@@ -3245,6 +4741,22 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                 board,
                 players: playerDocs,
             });
+            const createdMatch = {
+                matchId,
+                mode,
+                status: 'active',
+                createdAt: new Date(),
+                matchStartsAt,
+                chakraPools,
+                economy,
+                pendingTurns,
+                currentTurn,
+                turnOrder,
+                turnExpiresAt,
+                board,
+                players: playerDocs,
+            };
+            scheduleBattleBotTurn(createdMatch);
             const opponentName = opponent.username;
             return res.json({
                 ok: true,
@@ -3262,8 +4774,43 @@ app.post('/api/match/join', requireSession, async (req, res) => {
             });
         }
 
+        const queuedBotMatch = await maybeCreateBattleBotMatch({
+            username,
+            mode,
+            userProfile: profile,
+        });
+        if (queuedBotMatch) {
+            scheduleBattleBotTurn(queuedBotMatch);
+            return res.json({
+                ok: true,
+                matchFound: true,
+                matchId: queuedBotMatch.matchId,
+                mode: queuedBotMatch.mode || mode,
+                opponent: GAME_BOT_DISPLAY_NAME,
+                matchStartsAt: queuedBotMatch.matchStartsAt || queuedBotMatch.createdAt || null,
+                matchReady:
+                    !queuedBotMatch.matchStartsAt ||
+                    new Date(queuedBotMatch.matchStartsAt).getTime() <= Date.now(),
+                currentTurn: queuedBotMatch.currentTurn || null,
+                turnOrder: queuedBotMatch.turnOrder || null,
+                turnExpiresAt: queuedBotMatch.turnExpiresAt || null,
+                turnDurationMs: getTurnDurationMsForUser(queuedBotMatch, queuedBotMatch?.currentTurn),
+                chakraPools: queuedBotMatch.chakraPools || null,
+                lastChakraGain: queuedBotMatch.economy?.lastChakraGain || null,
+                pendingTurn: getPendingTurn(queuedBotMatch, username),
+            });
+        }
+
         // Otherwise enqueue
-        enqueuePlayer({ username, team, mode, targetUsername });
+        enqueuePlayer({
+            username,
+            team,
+            mode,
+            targetUsername,
+            queuedAt: new Date(),
+            allowBattleBot: Boolean(profile.matchmaking?.battleBotEnabled),
+            ladderLevel: Number(profile.ladder?.level) || 1,
+        });
         return res.json({ ok: true, queued: true, mode });
     } catch (error) {
         console.error('Matchmaking error:', error);
@@ -3274,6 +4821,11 @@ app.post('/api/match/join', requireSession, async (req, res) => {
 app.get('/api/match/status', requireSession, async (req, res) => {
     try {
         const username = req.authUser.username;
+        const user = await usersCollection.findOne(
+            { username },
+            { projection: { _id: 1, username: 1, createdAt: 1, profile: 1 } }
+        );
+        const normalizedProfile = user ? normalizeUserProfile(user) : null;
         const mapping = userToMatch.get(username);
         if (mapping) {
             const match = await matchesCollection.findOne({ matchId: mapping.matchId });
@@ -3290,6 +4842,7 @@ app.get('/api/match/status', requireSession, async (req, res) => {
                 userToMatch.delete(username);
                 return res.json({ ok: true, matchFound: false });
             }
+            scheduleBattleBotTurn(hydrated);
             return res.json({
                 ok: true,
                 matchFound: true,
@@ -3311,6 +4864,34 @@ app.get('/api/match/status', requireSession, async (req, res) => {
             });
         }
 
+        const queuedEntry = findQueuedEntry(username);
+        const botMatch = await maybeCreateBattleBotMatch({
+            username,
+            mode: queuedEntry?.mode || 'quick',
+            userProfile: normalizedProfile,
+        });
+        if (botMatch) {
+            scheduleBattleBotTurn(botMatch);
+            return res.json({
+                ok: true,
+                matchFound: true,
+                matchId: botMatch.matchId,
+                mode: botMatch.mode || 'quick',
+                opponent: GAME_BOT_DISPLAY_NAME,
+                matchStartsAt: botMatch.matchStartsAt || botMatch.createdAt || null,
+                matchReady:
+                    !botMatch.matchStartsAt ||
+                    new Date(botMatch.matchStartsAt).getTime() <= Date.now(),
+                currentTurn: botMatch.currentTurn || null,
+                turnOrder: botMatch.turnOrder || null,
+                turnExpiresAt: botMatch.turnExpiresAt || null,
+                turnDurationMs: getTurnDurationMsForUser(botMatch, botMatch?.currentTurn),
+                chakraPools: botMatch.chakraPools || null,
+                lastChakraGain: botMatch.economy?.lastChakraGain || null,
+                pendingTurn: getPendingTurn(botMatch, username),
+            });
+        }
+
         // Fallback: lookup persisted match
         const match = await matchesCollection.findOne({
             'players.username': username,
@@ -3328,8 +4909,9 @@ app.get('/api/match/status', requireSession, async (req, res) => {
             return res.json({ ok: true, matchFound: false });
         }
         const opponentEntry = hydrated.players.find((p) => p.username !== username);
-        const opponent = opponentEntry ? opponentEntry.username : null;
+        const opponent = opponentEntry ? getPlayerDisplayName(opponentEntry) : null;
         userToMatch.set(username, { matchId: hydrated.matchId, opponent });
+        scheduleBattleBotTurn(hydrated);
         return res.json({
             ok: true,
             matchFound: true,
@@ -3361,9 +4943,7 @@ app.post('/api/match/cancel', requireSession, (req, res) => {
     if (userToMatch.has(username)) {
         return res.json({ ok: false, message: 'Match already found.' });
     }
-    quickQueue = quickQueue.filter((u) => u.username !== username);
-    ladderQueue = ladderQueue.filter((u) => u.username !== username);
-    privateQueue = privateQueue.filter((u) => u.username !== username);
+    removeQueuedEntry(username);
     // Do not remove from existing matches here; only queue
     return res.json({ ok: true, cancelled: true });
 });
@@ -3384,6 +4964,7 @@ app.get('/api/match/:matchId', requireSession, async (req, res) => {
         return res.status(403).json({ error: 'Not part of this match.' });
     }
     const opponentEntry = hydrated.players.find((p) => p.username !== req.authUser.username);
+    scheduleBattleBotTurn(hydrated);
     return res.json({
         ok: true,
         matchId,
@@ -3484,11 +5065,13 @@ app.post('/api/match/:matchId/turn/end', requireSession, async (req, res) => {
             return res.status(404).json({ error: 'Match not found.' });
         }
         if (hydrated.status === 'ended') {
+            await broadcastMatchState(hydrated);
             return res.status(409).json({ error: 'Match already ended.' });
         }
 
         const username = req.authUser.username;
         if (hydrated.currentTurn !== username) {
+            await broadcastMatchState(hydrated);
             return res.status(403).json({ error: 'Not your turn.' });
         }
         const pendingTurn = getPendingTurn(hydrated, username);
@@ -3501,6 +5084,7 @@ app.post('/api/match/:matchId/turn/end', requireSession, async (req, res) => {
 
         const updated = await finalizeTurn(hydrated, username);
         await broadcastMatchState(updated || hydrated);
+        scheduleBattleBotTurn(updated || hydrated);
 
         return res.json({
             ok: true,
@@ -3643,69 +5227,7 @@ app.post('/api/match/:matchId/turn/start-choice', requireSession, async (req, re
         if (!option) {
             return res.status(400).json({ error: 'Invalid choice.' });
         }
-        const sourceUnit = Array.isArray(hydrated.board?.[username]) ? hydrated.board[username][prompt.actorSlot] : null;
-        const targetPick = battleLogic.selectTurnStartChoiceTarget({
-            match: hydrated,
-            actingUsername: username,
-            choice: option,
-        });
-        if (!targetPick?.unit) {
-            return res.status(400).json({ error: 'No valid target available.' });
-        }
-        const targetUnit = targetPick.unit;
-        const targetState = battleLogic.getUnitState(hydrated, targetPick.username, targetPick.slot);
-        const effect = option.effect || {};
-        const effectType = typeof effect.type === 'string' ? effect.type.trim().toLowerCase() : '';
-        if (!effectType) {
-            return res.status(400).json({ error: 'Choice effect is unavailable.' });
-        }
-        if ((effectType === 'heal' || effectType === 'cleanse_harmful') && targetUnit.alive === false) {
-            return res.status(400).json({ error: 'No valid living ally is available.' });
-        }
-        if (effectType === 'revive' && targetUnit.alive !== false) {
-            return res.status(400).json({ error: 'No dead ally is available.' });
-        }
-        if (effectType === 'heal') {
-            battleLogic.applyHealToUnit(targetUnit, Math.max(0, Number(effect.amount) || 0));
-        } else if (effectType === 'cleanse_harmful') {
-            battleLogic.cleanseHarmfulStatuses(targetUnit, effect.count);
-        } else if (effectType === 'revive') {
-            battleLogic.reviveUnitToHp(targetUnit, Math.max(1, Number(effect.amount) || 30));
-            targetState.statuses = Array.isArray(targetState.statuses) ? targetState.statuses : [];
-        } else {
-            return res.status(400).json({ error: 'Unsupported choice effect.' });
-        }
-
-        hydrated.players.forEach((player) => {
-            if (!player?.username) return;
-            player.aliveCount = getAliveCountForUser(hydrated, player.username);
-        });
-
-        const sourceState = sourceUnit ? battleLogic.getUnitState(hydrated, username, prompt.actorSlot) : null;
-        if (sourceState && prompt.sourceStatusId) {
-            const status = Array.isArray(sourceState.statuses)
-                ? sourceState.statuses.find((entry) => entry?.id === prompt.sourceStatusId)
-                : null;
-            if (status) {
-                const metadata = status?.metadata && typeof status.metadata === 'object' ? { ...status.metadata } : {};
-                metadata.turnStartChoiceQueued = false;
-                metadata.turnStartChoiceUsesUsed = Math.max(
-                    0,
-                    Number(metadata.turnStartChoiceUsesUsed) || 0
-                ) + 1;
-                status.metadata = metadata;
-                const maxUses = Math.max(0, Number(metadata.turnStartChoiceMaxUses) || 0);
-                if (maxUses > 0 && metadata.turnStartChoiceUsesUsed >= maxUses) {
-                    status.metadata = {
-                        ...metadata,
-                        tooltipText: "Doctor's Bag has been used.",
-                        turnStartChoiceQueued: false,
-                    };
-                }
-            }
-        }
-        pendingTurn.turnStartChoice = null;
-        hydrated.pendingTurns[username] = pendingTurn;
+        resolveTurnStartChoiceForUser({ match: hydrated, username, choiceKey });
         const playerEntry = hydrated.players.find((player) => player.username === username) || null;
         const opponentEntry = hydrated.players.find((player) => player.username !== username) || null;
         await persistMatchState(hydrated, {
@@ -3714,6 +5236,7 @@ app.post('/api/match/:matchId/turn/start-choice', requireSession, async (req, re
             pendingTurns: hydrated.pendingTurns,
         });
         await broadcastMatchState(hydrated);
+        scheduleBattleBotTurn(hydrated);
         return res.json({
             ok: true,
             player: playerEntry,
@@ -4143,6 +5666,58 @@ app.get('/api/news', async (req, res) => {
     } catch (error) {
         console.error('News load error:', error);
         return res.status(500).json({ error: 'Unable to load news posts.' });
+    }
+});
+
+app.get('/api/missions', async (req, res) => {
+    try {
+        const missions = await getStoredMissionCatalog();
+        return res.json({
+            ok: true,
+            missions,
+        });
+    } catch (error) {
+        console.error('Mission catalog load error:', error);
+        return res.status(500).json({ error: 'Unable to load missions.' });
+    }
+});
+
+app.get('/api/admin/missions', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    try {
+        const missions = await getStoredMissionCatalog();
+        return res.json({
+            ok: true,
+            missions,
+        });
+    } catch (error) {
+        console.error('Admin mission catalog load error:', error);
+        return res.status(500).json({ error: 'Unable to load missions.' });
+    }
+});
+
+app.put('/api/admin/missions', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    const missions = Array.isArray(req.body?.missions) ? req.body.missions : null;
+    if (!missions) {
+        return res.status(400).json({ error: 'Missions are required.' });
+    }
+
+    try {
+        const savedMissions = await saveMissionCatalog(missions, req.authUser.username);
+        return res.json({
+            ok: true,
+            missions: savedMissions,
+        });
+    } catch (error) {
+        console.error('Admin mission catalog save error:', error);
+        return res.status(400).json({ error: error.message || 'Unable to save missions.' });
     }
 });
 
@@ -4632,6 +6207,41 @@ app.post('/api/profile/avatar', requireSession, async (req, res) => {
             return res.status(400).json({ error: error.message });
         }
         return res.status(500).json({ error: 'Unable to update avatar.' });
+    }
+});
+
+app.post('/api/profile/matchmaking', requireSession, async (req, res) => {
+    try {
+        const { error: validationError, value } = matchmakingSettingsSchema.validate(req.body || {});
+        if (validationError) {
+            return res.status(400).json({ error: 'A valid matchmaking preference is required.' });
+        }
+        const user = await usersCollection.findOne({ username: req.authUser.username });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+        const profile = normalizeUserProfile(user);
+        profile.matchmaking = {
+            ...profile.matchmaking,
+            battleBotEnabled: Boolean(value.battleBotEnabled),
+        };
+        await usersCollection.updateOne(
+            { _id: user._id },
+            {
+                $set: {
+                    profile,
+                },
+            }
+        );
+        return res.json({
+            ok: true,
+            user: serializeUserForClient({
+                ...user,
+                profile,
+            }),
+        });
+    } catch (error) {
+        return res.status(500).json({ error: 'Unable to update matchmaking settings.' });
     }
 });
 
@@ -5894,6 +7504,13 @@ app.get(['/changebackgrounds', '/changebackgrounds.html'], (req, res) => {
 
 app.get(['/clan-panel', '/clan panel.html'], (req, res) => {
     res.sendFile(path.join(__dirname, 'clan panel.html'));
+});
+
+app.get(['/editmission', '/editmission.html'], requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.redirect('/');
+    }
+    return res.sendFile(path.join(__dirname, 'editmission.html'));
 });
 
 const startServer = async () => {

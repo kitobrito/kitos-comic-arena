@@ -771,6 +771,400 @@
       color: #fff;
     }
 
+    .mission-editor-shell {
+      display: grid;
+      grid-template-columns: minmax(300px, 0.9fr) minmax(0, 1.1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .mission-panel {
+      position: relative;
+      padding: 22px;
+      border: 4px solid var(--line);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 247, 222, 0.96)), var(--panel);
+      box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.92);
+    }
+
+    .mission-panel::before {
+      content: attr(data-flag);
+      position: absolute;
+      top: -14px;
+      left: 18px;
+      padding: 4px 10px;
+      border: 3px solid var(--line);
+      background: var(--accent-2);
+      color: var(--line);
+      font-family: "Bangers", cursive;
+      font-size: 22px;
+      letter-spacing: 0.05em;
+    }
+
+    .mission-panel-title {
+      margin: 0 0 12px;
+      color: var(--ink);
+      font-family: "Bangers", cursive;
+      font-size: 30px;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .mission-panel-copy {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.35;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .mission-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .mission-button {
+      min-height: 44px;
+      padding: 0 16px;
+      border: 3px solid var(--line);
+      font: inherit;
+      font-size: 16px;
+      font-weight: 800;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.95);
+    }
+
+    .mission-button.primary {
+      background: linear-gradient(180deg, #ff673d 0%, #ef2e00 100%);
+      color: #fff;
+    }
+
+    .mission-button.secondary {
+      background: var(--panel-strong);
+      color: var(--ink);
+    }
+
+    .mission-search {
+      width: 100%;
+      height: 46px;
+      margin: 0 0 14px;
+      padding: 0 16px;
+      border: 4px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--ink);
+      font: inherit;
+      font-size: 19px;
+      font-weight: 700;
+      outline: none;
+      text-transform: uppercase;
+    }
+
+    .mission-list {
+      display: grid;
+      gap: 10px;
+      max-height: 620px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .mission-list-item {
+      width: 100%;
+      padding: 14px 16px;
+      border: 3px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--ink);
+      text-align: left;
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.88);
+      cursor: pointer;
+    }
+
+    .mission-list-item.active {
+      background: var(--accent-2);
+      transform: translate(-2px, -2px);
+    }
+
+    .mission-list-title {
+      display: block;
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1.05;
+      text-transform: uppercase;
+    }
+
+    .mission-list-meta {
+      display: block;
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.25;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .mission-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .mission-field {
+      display: grid;
+      gap: 6px;
+      color: var(--ink);
+      font-size: 17px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .mission-field-help {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.3;
+      font-weight: 700;
+      text-transform: none;
+    }
+
+    .mission-field input {
+      width: 100%;
+      height: 44px;
+      border: 3px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--ink);
+      padding: 0 12px;
+      font: inherit;
+      font-size: 17px;
+      font-weight: 600;
+      outline: none;
+    }
+
+    .mission-field select {
+      width: 100%;
+      height: 44px;
+      border: 3px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--ink);
+      padding: 0 12px;
+      font: inherit;
+      font-size: 17px;
+      font-weight: 600;
+      outline: none;
+    }
+
+    .mission-field input:focus,
+    .mission-field select:focus,
+    .mission-search:focus {
+      border-color: var(--accent-3);
+      box-shadow: 0 0 0 4px rgba(31, 117, 255, 0.15);
+    }
+
+    .mission-section {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 3px dashed rgba(22, 18, 13, 0.35);
+    }
+
+    .mission-section-heading {
+      margin: 0 0 10px;
+      color: var(--accent);
+      font-family: "Bangers", cursive;
+      font-size: 28px;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .mission-section-copy {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.35;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .mission-toggle-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .mission-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border: 3px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--ink);
+      font-size: 16px;
+      font-weight: 800;
+      text-transform: uppercase;
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.88);
+    }
+
+    .mission-toggle input {
+      width: 16px;
+      height: 16px;
+      margin: 0;
+      accent-color: var(--accent);
+    }
+
+    .repeat-list {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .goal-list {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .goal-card {
+      display: grid;
+      gap: 10px;
+      padding: 12px 14px;
+      border: 3px solid var(--line);
+      background: var(--panel-strong);
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.85);
+    }
+
+    .goal-card-summary {
+      margin: 0;
+      color: var(--ink);
+      font-size: 18px;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    .goal-card-meta {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.35;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .goal-card-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .goal-card-button {
+      min-height: 34px;
+      padding: 0 10px;
+      border: 3px solid var(--line);
+      background: #ffeb67;
+      color: var(--ink);
+      font: inherit;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      text-transform: uppercase;
+      box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.85);
+    }
+
+    .goal-card-button.delete {
+      background: #ffb4b0;
+      color: #571011;
+    }
+
+    .goal-card-button:hover {
+      transform: translate(-1px, -1px);
+    }
+
+    .goal-popup {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(10, 7, 3, 0.75);
+    }
+
+    .goal-popup.visible {
+      display: flex;
+    }
+
+    .goal-popup-card {
+      width: min(640px, 100%);
+      border: 4px solid var(--line);
+      background:
+        radial-gradient(circle at top right, rgba(255, 212, 58, 0.24), transparent 20%),
+        linear-gradient(180deg, #fffdf4 0%, #f7e7bf 100%);
+      box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.95);
+      padding: 20px;
+    }
+
+    .goal-popup-title {
+      margin: 0 0 6px;
+      font-family: "Bangers", cursive;
+      font-size: 34px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .goal-popup-copy {
+      margin: 0 0 16px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.35;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .goal-popup-grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .goal-popup-grid .mission-field {
+      margin: 0;
+    }
+
+    .goal-popup-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .mission-editor-status {
+      min-height: 20px;
+      margin: 14px 0 0;
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.4;
+      font-weight: 700;
+    }
+
+    .mission-editor-status[data-state="error"] {
+      color: #c91717;
+    }
+
+    .mission-editor-status[data-state="success"] {
+      color: #10641e;
+    }
+
+    .mission-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
     .topbar {
       display: flex;
       align-items: center;
@@ -1407,6 +1801,10 @@
         grid-template-columns: 1fr;
       }
 
+      .mission-editor-shell {
+        grid-template-columns: 1fr;
+      }
+
       .sidebar {
         border-bottom-width: 4px;
       }
@@ -1421,6 +1819,10 @@
       }
 
       .release-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .mission-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -1446,24 +1848,11 @@
         font-size: 24px;
       }
 
-      .character-editor-card {
-        grid-template-columns: 74px minmax(0, 1fr);
-      }
-
-      .character-editor-card-face {
-        width: 74px;
-        height: 74px;
-      }
-
-      .character-editor-summary {
-        grid-template-columns: 1fr;
-      }
-
-      .character-editor-actions {
+      .mission-actions {
         flex-direction: column;
       }
 
-      .character-editor-button {
+      .mission-button {
         width: 100%;
       }
     }
@@ -1496,7 +1885,7 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" /><rect x="14" y="4" width="6" height="6" /><rect x="4" y="14" width="6" height="6" /><rect x="14" y="14" width="6" height="6" /></svg>
             <span>Events</span>
           </a>
-          <a class="nav-link" href="missions.html">
+          <a class="nav-link" href="#">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.1 2.8 7.9 7 9 4.2-1.1 7-4.9 7-9V6z" /><path d="M9 12h6" /><path d="M12 9v6" /></svg>
             <span>Comic Missions</span>
           </a>
@@ -1555,12 +1944,12 @@
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16" /><path d="M7 14V9" /><path d="M12 14V6" /><path d="M17 14v-3" /></svg>
                   <span>Winrates</span>
                 </a>
-                <a class="nav-link active" href="charactereditor.html">
+                <a class="nav-link" href="charactereditor.html">
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="m14 4 4 4" /><path d="M6 16l-1 4 4-1" /></svg>
                   <span>Character Editor</span>
                 </a>
-                <a class="nav-link" href="editmission.html">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="M4 20l4-1" /><path d="M14 4l4 4" /></svg>
+                <a class="nav-link active" href="editmission.html">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16" /><path d="M7 16l10-10" /><path d="M14 6l4 4" /><path d="M6 18l1-4 4-1" /></svg>
                   <span>Mission Editor</span>
                 </a>
                 <a class="nav-link" href="playeraccounts.html">
@@ -1585,30 +1974,149 @@
     </aside>
 
     <main class="main">
-
       <section class="release-panel">
-        <h2 class="release-title">Tune Every Fighter</h2>
-        <p class="release-copy">Search the roster, open the data, and push balance updates.</p>
+        <h2 class="release-title">Mission Workshop</h2>
+        <p class="release-copy">Add missions, set level requirements.</p>
       </section>
 
       <section class="editor-stage">
-        <h1 class="mainsection-kicker">Character Editor</h1>
-        <p class="mainsection-meta">Open a character, edit the live code, and save changes directly.</p>
-        <div class="editor-topline">
-          <div class="editor-note">
-            <h2 class="editor-note-title">Quick Pass</h2>
-            <p class="editor-note-copy">Filter by name or id, jump into a record, and keep the existing game logic connected to the same editor controls.</p>
-          </div>
-          <div class="editor-count">
-            <span class="editor-count-label">Roster Feed</span>
-            <span class="editor-count-value">Live</span>
-          </div>
+        <h1 class="mainsection-kicker">Mission Editor</h1>
+        <p class="mainsection-meta">Saved changes are written to the mission catalog used by <strong>missions.html</strong>.</p>
+
+        <div class="mission-editor-shell">
+          <section class="mission-panel" data-flag="Mission List">
+            <h2 class="mission-panel-title">Saved Missions</h2>
+            <p class="mission-panel-copy">Pick an existing mission or create a new draft.</p>
+            <div class="mission-toolbar">
+              <button class="mission-button primary" type="button" id="mission-add-button">Add Mission</button>
+              <button class="mission-button secondary" type="button" id="mission-reload-button">Reload</button>
+            </div>
+            <input class="mission-search" type="search" id="mission-list-search" placeholder="Search missions" autocomplete="off" />
+            <div class="mission-list" id="mission-list"></div>
+          </section>
+
+          <section class="mission-panel" data-flag="Editor">
+            <h2 class="mission-panel-title">Mission Details</h2>
+            <p class="mission-panel-copy">Set the unlock rules here. The server enforces these fields and missions only count in quick or ladder games.</p>
+            <div class="mission-grid">
+              <label class="mission-field">
+                Mission ID
+                <input type="text" id="mission-id" placeholder="negan" />
+                <span class="mission-field-help">Unique slug used by the server and mission page.</span>
+              </label>
+              <label class="mission-field">
+                Mission Title
+                <input type="text" id="mission-title" placeholder="Negan" />
+                <span class="mission-field-help">Shown as the mission name on the site.</span>
+              </label>
+              <label class="mission-field">
+                Level Requirement
+                <input type="number" id="mission-level-requirement" min="0" step="1" placeholder="16" />
+                <span class="mission-field-help">Player must be at least this ladder level.</span>
+              </label>
+              <label class="mission-field">
+                Reward Text
+                <input type="text" id="mission-reward" placeholder="Unlock Negan." />
+                <span class="mission-field-help">Short text shown in the mission popup.</span>
+              </label>
+              <label class="mission-field">
+                Reward Character ID
+                <select id="mission-reward-character"></select>
+                <span class="mission-field-help">Character unlocked when the mission is completed.</span>
+              </label>
+              <label class="mission-field">
+                Image URL
+                <input type="text" id="mission-image" placeholder="https://..." />
+                <span class="mission-field-help">Main mission artwork shown on missions.html.</span>
+              </label>
+              <label class="mission-field">
+                Image Alt
+                <input type="text" id="mission-image-alt" placeholder="Mission artwork" />
+                <span class="mission-field-help">Alt text for the main mission image.</span>
+              </label>
+              <label class="mission-field">
+                Character Name
+                <input type="text" id="mission-character-name" placeholder="Rick Grimes" />
+                <span class="mission-field-help">Display name shown beside the portrait.</span>
+              </label>
+              <label class="mission-field">
+                Portrait URL
+                <input type="text" id="mission-portrait" placeholder="https://..." />
+                <span class="mission-field-help">Portrait image shown in the mission popup.</span>
+              </label>
+              <label class="mission-field">
+                Portrait Alt
+                <input type="text" id="mission-portrait-alt" placeholder="Character portrait" />
+                <span class="mission-field-help">Alt text for the portrait image.</span>
+              </label>
+              <label class="mission-field">
+                Sort Order
+                <input type="number" id="mission-sort-order" min="0" step="1" placeholder="1" />
+                <span class="mission-field-help">Lower numbers appear earlier in the list.</span>
+              </label>
+            </div>
+
+            <div class="mission-section">
+              <h3 class="mission-section-heading">Mode Restriction</h3>
+              <p class="mission-section-copy">Private games are excluded. Leave both checked for normal quick and ladder mission tracking.</p>
+              <div class="mission-toggle-row">
+                <label class="mission-toggle"><input type="checkbox" id="mission-mode-quick" checked /> Quick Games</label>
+                <label class="mission-toggle"><input type="checkbox" id="mission-mode-ladder" checked /> Ladder Games</label>
+              </div>
+            </div>
+
+            <div class="mission-section">
+              <h3 class="mission-section-heading">Goals</h3>
+              <p class="mission-section-copy">These show in the popup on <strong>missions.html</strong>.</p>
+              <div class="goal-list" id="mission-goals"></div>
+              <button class="mission-button secondary" type="button" id="mission-add-goal">Add Goal</button>
+            </div>
+
+            <p class="mission-editor-status" id="mission-editor-status" aria-live="polite"></p>
+            <div class="mission-actions">
+              <button class="mission-button secondary" type="button" id="mission-delete-button">Delete Mission</button>
+              <button class="mission-button primary" type="button" id="mission-save-button">Save Mission Catalog</button>
+            </div>
+          </section>
         </div>
-        <p class="character-editor-status" id="character-editor-status" aria-live="polite"></p>
-        <input class="character-editor-search" type="search" id="character-editor-search" placeholder="Search by character name or id" autocomplete="off" />
-        <div class="character-editor-grid" id="character-editor-grid"></div>
       </section>
 
+      <div class="goal-popup" id="mission-goal-popup" hidden>
+        <div class="goal-popup-card" role="dialog" aria-modal="true" aria-labelledby="mission-goal-popup-title">
+          <h3 class="goal-popup-title" id="mission-goal-popup-title">Add Goal</h3>
+          <p class="goal-popup-copy">Create a structured mission goal. Use custom text or a tracked win goal like Win 21 matches with Batman.</p>
+              <div class="goal-popup-grid">
+            <label class="mission-field">
+              Goal Type
+              <select id="mission-goal-type">
+                <option value="text">Custom text</option>
+                <option value="win_matches">Win matches with character</option>
+                <option value="win_streak">Win streak with character</option>
+              </select>
+              <span class="mission-field-help">Choose a plain text goal or a character win target.</span>
+            </label>
+            <label class="mission-field" id="mission-goal-text-field">
+              Goal Text
+              <input type="text" id="mission-goal-text" placeholder="Win 21 matches with Batman." />
+              <span class="mission-field-help">Shown exactly on missions.html.</span>
+            </label>
+            <label class="mission-field" id="mission-goal-character-field" hidden>
+              Character ID
+              <select id="mission-goal-character"></select>
+              <span class="mission-field-help">Character name used in the goal text and mission mapping.</span>
+            </label>
+            <label class="mission-field" id="mission-goal-count-field" hidden>
+              <span id="mission-goal-count-label">Match Count</span>
+              <input type="number" id="mission-goal-count" min="1" step="1" placeholder="21" />
+              <span class="mission-field-help">How many wins are required for this goal.</span>
+            </label>
+          </div>
+          <div class="goal-popup-actions">
+            <button class="mission-button secondary" type="button" id="mission-goal-cancel">Cancel</button>
+            <button class="mission-button primary" type="button" id="mission-goal-save">Save Goal</button>
+          </div>
+        </div>
+      </div>
     </main>
 
     <aside class="aside">
@@ -1821,24 +2329,563 @@
       </section>
     </aside>
   </div>
-  <div class="character-editor-overlay" id="character-editor-overlay" aria-hidden="true">
-    <div class="character-editor-modal" role="dialog" aria-modal="true" aria-labelledby="character-editor-name">
-      <div class="character-editor-summary">
-        <img class="character-editor-face" id="character-editor-face" alt="Character face" />
-        <div>
-          <h2 class="character-editor-name" id="character-editor-name">Character</h2>
-          <p class="character-editor-id" id="character-editor-id"></p>
-        </div>
-      </div>
-      <p class="character-editor-modal-status" id="character-editor-modal-status" aria-live="polite"></p>
-      <textarea class="character-editor-json" id="character-editor-json" spellcheck="false"></textarea>
-      <div class="character-editor-actions">
-        <button class="character-editor-button secondary" type="button" id="character-editor-close">Close</button>
-        <button class="character-editor-button primary" type="button" id="character-editor-save">Save Character</button>
-      </div>
-    </div>
-  </div>
+  <script>
+    (function () {
+      const list = document.getElementById("mission-list");
+      const listSearch = document.getElementById("mission-list-search");
+      const status = document.getElementById("mission-editor-status");
+      const fields = {
+        missionId: document.getElementById("mission-id"),
+        title: document.getElementById("mission-title"),
+        levelRequirement: document.getElementById("mission-level-requirement"),
+        reward: document.getElementById("mission-reward"),
+        rewardCharacter: document.getElementById("mission-reward-character"),
+        modeQuick: document.getElementById("mission-mode-quick"),
+        modeLadder: document.getElementById("mission-mode-ladder"),
+        image: document.getElementById("mission-image"),
+        imageAlt: document.getElementById("mission-image-alt"),
+        characterName: document.getElementById("mission-character-name"),
+        portrait: document.getElementById("mission-portrait"),
+        portraitAlt: document.getElementById("mission-portrait-alt"),
+        sortOrder: document.getElementById("mission-sort-order"),
+      };
+      const goalBox = document.getElementById("mission-goals");
+      const addBtn = document.getElementById("mission-add-button");
+      const reloadBtn = document.getElementById("mission-reload-button");
+      const addGoalBtn = document.getElementById("mission-add-goal");
+      const saveBtn = document.getElementById("mission-save-button");
+      const deleteBtn = document.getElementById("mission-delete-button");
+      const goalPopup = document.getElementById("mission-goal-popup");
+      const goalPopupTitle = document.getElementById("mission-goal-popup-title");
+      const goalTypeField = document.getElementById("mission-goal-type");
+      const goalTextField = document.getElementById("mission-goal-text");
+      const goalTextWrap = document.getElementById("mission-goal-text-field");
+      const goalCharacterWrap = document.getElementById("mission-goal-character-field");
+      const goalCharacterField = document.getElementById("mission-goal-character");
+      const goalCountWrap = document.getElementById("mission-goal-count-field");
+      const goalCountLabel = document.getElementById("mission-goal-count-label");
+      const goalCountField = document.getElementById("mission-goal-count");
+      const goalPopupSave = document.getElementById("mission-goal-save");
+      const goalPopupCancel = document.getElementById("mission-goal-cancel");
+      let missions = [];
+      let selectedId = "";
+      let characterCatalog = [];
+      let goalItems = [];
+      let editingGoalIndex = null;
+
+      const slugify = (v) => String(v || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+      const cleanList = (v) => (Array.isArray(v) ? v.map((x) => String(x || "").trim()).filter(Boolean) : []);
+      const cleanModes = (v) => {
+        const list = Array.isArray(v) ? v : [];
+        const modes = list.map((x) => String(x || "").trim().toLowerCase()).filter((x) => x === "quick" || x === "ladder");
+        if (!modes.length) {
+          return ["quick", "ladder"];
+        }
+        return Array.from(new Set(modes));
+      };
+      const normalizeCharacterId = (v) => String(v || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+      const normalizeGoal = (entry) => {
+        if (typeof entry === "string") {
+          const text = entry.trim();
+          if (!text) return null;
+          const winMatchesMatch = text.match(/^Win\s+(\d+)\s+matches?\s+with\s+(.+?)(?:\.\s*\(0\/\d+\))?$/i);
+          if (winMatchesMatch) {
+            const characterName = String(winMatchesMatch[2] || "").trim();
+            return {
+              type: "win_matches",
+              character_id: normalizeCharacterId(characterName),
+              character_name: characterName,
+              wins: Number(winMatchesMatch[1]) || 0,
+            };
+          }
+          const winStreakMatch = text.match(/^Win\s+(\d+)\s+battles?\s+in\s+a\s+row\s+with\s+(.+?)(?:\.\s*\(0\/\d+\))?$/i);
+          if (winStreakMatch) {
+            const characterName = String(winStreakMatch[2] || "").trim();
+            return {
+              type: "win_streak",
+              character_id: normalizeCharacterId(characterName),
+              character_name: characterName,
+              wins: Number(winStreakMatch[1]) || 0,
+            };
+          }
+          return { type: "text", text };
+        }
+        const source = entry && typeof entry === "object" ? entry : {};
+        const type = String(source.type || source.goalType || source.kind || "text").trim().toLowerCase();
+        const wins = Number(source.wins ?? source.count ?? source.target ?? 0) || 0;
+        const characterId = normalizeCharacterId(source.character_id || source.characterId || source.character || "");
+        const characterName = String(source.character_name || source.characterName || "").trim();
+        if (type === "win_matches" || type === "win_streak") {
+          if (!wins || !characterId) return null;
+          return {
+            type,
+            character_id: characterId,
+            character_name: characterName || characterId,
+            wins,
+          };
+        }
+        const text = String(source.text || source.value || source.label || source.description || "").trim();
+        return text ? { type: "text", text } : null;
+      };
+      const normalizeGoals = (list, legacyWinStreak = null) => {
+        const normalized = (Array.isArray(list) ? list : []).map(normalizeGoal).filter(Boolean);
+        const streakWins = Number(legacyWinStreak && legacyWinStreak.wins ? legacyWinStreak.wins : 0) || 0;
+        const streakCharacterId = normalizeCharacterId(
+          legacyWinStreak && (legacyWinStreak.character_id || legacyWinStreak.characterId)
+        );
+        if (
+          streakWins > 0 &&
+          streakCharacterId &&
+          !normalized.some((goal) => goal.type === "win_streak")
+        ) {
+          normalized.push({
+            type: "win_streak",
+            character_id: streakCharacterId,
+            character_name:
+              String(legacyWinStreak.character_name || legacyWinStreak.characterName || "").trim() ||
+              streakCharacterId,
+            wins: streakWins,
+          });
+        }
+        return normalized;
+      };
+      function populateCharacterSelect(select, value) {
+        if (!select) {
+          return;
+        }
+        const current = normalizeCharacterId(value);
+        select.innerHTML = "";
+        const empty = document.createElement("option");
+        empty.value = "";
+        empty.textContent = "None";
+        select.appendChild(empty);
+        characterCatalog.forEach((character) => {
+          if (!character || !character.characterId) {
+            return;
+          }
+          const option = document.createElement("option");
+          option.value = character.characterId;
+          option.textContent = `${character.name} (${character.characterId})`;
+          select.appendChild(option);
+        });
+        select.value = current;
+      }
+      function goalSummary(goal) {
+        const normalized = normalizeGoal(goal);
+        if (!normalized) return "";
+        if (normalized.type === "win_matches") {
+          return `Win ${normalized.wins} matches with ${normalized.character_name || normalized.character_id}.`;
+        }
+        if (normalized.type === "win_streak") {
+          return `Win ${normalized.wins} battles in a row with ${normalized.character_name || normalized.character_id}.`;
+        }
+        return normalized.text || "";
+      }
+      function goalMeta(goal) {
+        const normalized = normalizeGoal(goal);
+        if (!normalized) return "";
+        if (normalized.type === "win_matches" || normalized.type === "win_streak") {
+          return `Type: ${normalized.type.replace(/_/g, " ")} | Character ID: ${normalized.character_id} | Count: ${normalized.wins}`;
+        }
+        return "Type: custom text";
+      }
+      function renderGoalList() {
+        goalBox.innerHTML = "";
+        if (!goalItems.length) {
+          const empty = document.createElement("div");
+          empty.className = "goal-card";
+          const summary = document.createElement("p");
+          summary.className = "goal-card-summary";
+          summary.textContent = "No goals added yet.";
+          const meta = document.createElement("p");
+          meta.className = "goal-card-meta";
+          meta.textContent = "Click Add Goal to create a structured mission goal.";
+          empty.append(summary, meta);
+          goalBox.appendChild(empty);
+          return;
+        }
+        goalItems.forEach((goal, index) => {
+          const card = document.createElement("div");
+          card.className = "goal-card";
+          const summary = document.createElement("p");
+          summary.className = "goal-card-summary";
+          summary.textContent = goalSummary(goal) || "Untitled goal";
+          const meta = document.createElement("p");
+          meta.className = "goal-card-meta";
+          meta.textContent = goalMeta(goal);
+          const actions = document.createElement("div");
+          actions.className = "goal-card-actions";
+          const edit = document.createElement("button");
+          edit.type = "button";
+          edit.className = "goal-card-button";
+          edit.textContent = "Edit";
+          edit.addEventListener("click", () => openGoalPopup(goal, index));
+          const remove = document.createElement("button");
+          remove.type = "button";
+          remove.className = "goal-card-button delete";
+          remove.textContent = "Remove";
+          remove.addEventListener("click", () => {
+            goalItems.splice(index, 1);
+            renderGoalList();
+            setStatus("Goal removed from the draft.", "success");
+          });
+          actions.append(edit, remove);
+          card.append(summary, meta, actions);
+          goalBox.appendChild(card);
+        });
+      }
+      function syncGoalPopupFields() {
+        if (!goalTypeField) return;
+        const goalType = goalTypeField.value;
+        const isWinMatch = goalType === "win_matches" || goalType === "win_streak";
+        if (goalCountLabel) {
+          goalCountLabel.textContent = goalType === "win_streak" ? "Win Streak Wins" : "Match Count";
+        }
+        if (goalTextWrap) {
+          goalTextWrap.hidden = goalType !== "text";
+        }
+        if (goalCharacterWrap) {
+          goalCharacterWrap.hidden = !isWinMatch;
+        }
+        if (goalCountWrap) {
+          goalCountWrap.hidden = !isWinMatch;
+        }
+      }
+      function fillGoalPopup(goal = null, index = null) {
+        editingGoalIndex = Number.isInteger(index) ? index : null;
+        const normalized = normalizeGoal(goal) || { type: "win_matches", character_id: "batman", character_name: "Batman", wins: 21 };
+        if (goalTypeField) {
+          goalTypeField.value = normalized.type === "text" ? "text" : normalized.type;
+        }
+        if (goalTextField) {
+          goalTextField.value = normalized.type === "text" ? normalized.text || "" : goalSummary(normalized);
+        }
+        populateCharacterSelect(goalCharacterField, normalized.character_id || "batman");
+        if (goalCountField) {
+          goalCountField.value = normalized.wins ? String(normalized.wins) : "21";
+        }
+        syncGoalPopupFields();
+      }
+      function openGoalPopup(goal = null, index = null) {
+        fillGoalPopup(goal, index);
+        if (goalPopupTitle) {
+          goalPopupTitle.textContent = Number.isInteger(index) ? "Edit Goal" : "Add Goal";
+        }
+        if (goalPopup) {
+          goalPopup.hidden = false;
+          goalPopup.classList.add("visible");
+        }
+        if (goalTypeField) {
+          goalTypeField.focus();
+        }
+      }
+      function closeGoalPopup() {
+        if (goalPopup) {
+          goalPopup.hidden = true;
+          goalPopup.classList.remove("visible");
+        }
+        editingGoalIndex = null;
+      }
+      function readGoalFromPopup() {
+        const goalType = goalTypeField ? goalTypeField.value : "text";
+        if (goalType === "win_matches" || goalType === "win_streak") {
+          const wins = Number(goalCountField && goalCountField.value ? goalCountField.value : 0) || 0;
+          const characterId = normalizeCharacterId(goalCharacterField && goalCharacterField.value ? goalCharacterField.value : "");
+          const selectedCharacter = characterCatalog.find((character) => character.characterId === characterId);
+          return {
+            type: goalType,
+            character_id: characterId,
+            character_name: selectedCharacter ? selectedCharacter.name : characterId,
+            wins,
+          };
+        }
+        return {
+          type: "text",
+          text: String(goalTextField && goalTextField.value ? goalTextField.value : "").trim(),
+        };
+      }
+      function saveGoalFromPopup() {
+        const nextGoal = normalizeGoal(readGoalFromPopup());
+        if (!nextGoal) {
+          setStatus("Enter a valid goal before saving.", "error");
+          return;
+        }
+        if (editingGoalIndex === null) {
+          goalItems.push(nextGoal);
+        } else {
+          goalItems[editingGoalIndex] = nextGoal;
+        }
+        renderGoalList();
+        closeGoalPopup();
+        setStatus("Goal saved.", "success");
+      }
+      function refreshCharacterSelects(mission) {
+        populateCharacterSelect(fields.rewardCharacter, mission && mission.reward_character ? mission.reward_character : "");
+        populateCharacterSelect(goalCharacterField, "batman");
+      }
+      const norm = (m = {}, i = 0) => {
+        const t = String(m.title || m.name || `Mission ${i + 1}`).trim();
+        const levelRequirement = Number(
+          m.level_requirement ??
+          m.levelRequirement ??
+          m.rank_requirement?.level ??
+          m.rankRequirement?.level ??
+          m.rank ??
+          0
+        ) || 0;
+        const rewardCharacter = String(m.reward_character || m.rewardCharacter || m.rewardCharacterId || "").trim();
+        const winStreak = m.win_streak || m.winStreak || {};
+        const streakCharacter = String(winStreak.character_id || winStreak.characterId || "").trim();
+        return {
+          missionId: slugify(m.missionId || m.id || t) || `mission-${i + 1}`,
+          title: t,
+          level_requirement: levelRequirement,
+          rank: levelRequirement ? String(levelRequirement) : "",
+          reward: String(m.reward || "").trim(),
+          reward_character: rewardCharacter,
+          win_streak: {
+            character_id: streakCharacter,
+            wins: Number(winStreak.wins || 0) || 0,
+          },
+          mode_restriction: { allowed_modes: cleanModes(m.mode_restriction?.allowed_modes || m.modeRestriction?.allowedModes) },
+          image: String(m.image || "").trim(),
+          imageAlt: String(m.imageAlt || `${t} mission artwork`).trim(),
+          characterName: String(m.characterName || "").trim(),
+          portrait: String(m.portrait || "").trim(),
+          portraitAlt: String(m.portraitAlt || `${m.characterName || t} portrait`).trim(),
+          requirements: cleanList(m.requirements),
+          goals: normalizeGoals(m.goals),
+          available: m.available !== false,
+          sortOrder: Number.isFinite(Number(m.sortOrder)) ? Number(m.sortOrder) : i + 1,
+        };
+      };
+      const normList = (list) => (Array.isArray(list) ? list : []).map(norm).filter((m) => m.missionId && m.title).sort((a, b) => (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0) || a.title.localeCompare(b.title));
+      function setStatus(message, state) {
+        status.textContent = message || "";
+        if (state) status.dataset.state = state;
+        else delete status.dataset.state;
+      }
+      function getModeValues() {
+        return cleanModes([
+          fields.modeQuick && fields.modeQuick.checked ? "quick" : "",
+          fields.modeLadder && fields.modeLadder.checked ? "ladder" : ""
+        ]);
+      }
+      function fillEditor(m = { missionId: "", title: "", level_requirement: 0, reward: "", reward_character: "", win_streak: { character_id: "", wins: 0 }, mode_restriction: { allowed_modes: ["quick", "ladder"] }, image: "", imageAlt: "", characterName: "", portrait: "", portraitAlt: "", requirements: [], goals: [], sortOrder: missions.length + 1 }) {
+        fields.missionId.value = m.missionId || "";
+        fields.title.value = m.title || "";
+        fields.levelRequirement.value = String(m.level_requirement || "");
+        fields.reward.value = m.reward || "";
+        refreshCharacterSelects(m);
+        const allowedModes = Array.isArray(m.mode_restriction && m.mode_restriction.allowed_modes)
+          ? m.mode_restriction.allowed_modes
+          : [];
+        fields.modeQuick.checked = allowedModes.indexOf("quick") !== -1;
+        fields.modeLadder.checked = allowedModes.indexOf("ladder") !== -1;
+        fields.image.value = m.image || "";
+        fields.imageAlt.value = m.imageAlt || "";
+        fields.characterName.value = m.characterName || "";
+        fields.portrait.value = m.portrait || "";
+        fields.portraitAlt.value = m.portraitAlt || "";
+        fields.sortOrder.value = String(m.sortOrder || "");
+        goalItems = normalizeGoals(m.goals, m.win_streak);
+        renderGoalList();
+      }
+      function buildMission() {
+        const allowedModes = getModeValues();
+        const winStreakGoal = goalItems.find((goal) => goal && goal.type === "win_streak") || null;
+        return norm({
+          missionId: fields.missionId.value,
+          title: fields.title.value,
+          level_requirement: Number(fields.levelRequirement.value) || 0,
+          reward: fields.reward.value,
+          reward_character: fields.rewardCharacter.value,
+          win_streak: {
+            character_id: String(winStreakGoal && winStreakGoal.character_id ? winStreakGoal.character_id : "").trim(),
+            wins: Number(winStreakGoal && winStreakGoal.wins ? winStreakGoal.wins : 0) || 0,
+          },
+          mode_restriction: { allowed_modes: allowedModes },
+          image: fields.image.value,
+          imageAlt: fields.imageAlt.value,
+          characterName: fields.characterName.value,
+          portrait: fields.portrait.value,
+          portraitAlt: fields.portraitAlt.value,
+          requirements: [],
+          goals: goalItems.map((goal) => normalizeGoal(goal)).filter(Boolean),
+          available: true,
+          sortOrder: Number(fields.sortOrder.value) || missions.length + 1,
+        }, 0);
+      }
+      function renderList() {
+        const q = String(listSearch.value || "").trim().toLowerCase();
+        list.innerHTML = "";
+        const filtered = missions.filter((m) => !q || m.title.toLowerCase().includes(q) || m.missionId.toLowerCase().includes(q) || String(m.level_requirement || "").toLowerCase().includes(q));
+        if (!filtered.length) {
+          const empty = document.createElement("div");
+          empty.className = "mission-list-item";
+          empty.textContent = "No missions found.";
+          list.appendChild(empty);
+          return;
+        }
+        filtered.forEach((m) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "mission-list-item" + (m.missionId === selectedId ? " active" : "");
+          const t = document.createElement("span");
+          t.className = "mission-list-title";
+          t.textContent = m.title;
+          const meta = document.createElement("span");
+          meta.className = "mission-list-meta";
+          const modes = Array.isArray(m.mode_restriction && m.mode_restriction.allowed_modes)
+            ? m.mode_restriction.allowed_modes
+            : [];
+          meta.textContent = `ID: ${m.missionId} | Level requirement: ${m.level_requirement || "Any"} | Modes: ${modes.join(", ") || "quick, ladder"} | Requirements: ${m.requirements.length}`;
+          btn.addEventListener("click", () => {
+            selectedId = m.missionId;
+            fillEditor(m);
+            renderList();
+            setStatus(`Editing ${m.title}.`);
+          });
+          btn.append(t, meta);
+          list.appendChild(btn);
+        });
+      }
+      function upsertMission(next) {
+        const dup = missions.findIndex((m) => m.missionId === next.missionId && m.missionId !== selectedId);
+        if (dup !== -1) throw new Error("Mission ID is already in use.");
+        const idx = missions.findIndex((m) => m.missionId === selectedId);
+        if (idx === -1) missions.push(next);
+        else missions[idx] = next;
+        missions = normList(missions);
+        selectedId = next.missionId;
+      }
+      function deleteSelected() {
+        if (!selectedId) return;
+        missions = missions.filter((m) => m.missionId !== selectedId);
+        selectedId = missions[0] ? missions[0].missionId : "";
+        fillEditor(missions.find((m) => m.missionId === selectedId) || null);
+      }
+      async function loadMissions() {
+        setStatus("Loading missions...");
+        try {
+          const [missionsResponse, charactersResponse] = await Promise.all([
+            fetch("/api/admin/missions", { credentials: "same-origin" }),
+            fetch("/api/characters/catalog", { credentials: "same-origin" }),
+          ]);
+          const missionData = await missionsResponse.json().catch(() => ({}));
+          const characterData = await charactersResponse.json().catch(() => ({}));
+          if (!missionsResponse.ok) throw new Error(missionData && missionData.error ? missionData.error : "Unable to load missions.");
+          characterCatalog = Array.isArray(characterData && characterData.characters)
+            ? characterData.characters
+                .map((character) => ({
+                  characterId: normalizeCharacterId(character && character.characterId ? character.characterId : ""),
+                  name: String(character && character.name ? character.name : "").trim(),
+                }))
+                .filter((character) => character.characterId && character.name)
+            : [];
+          missions = normList(missionData && Array.isArray(missionData.missions) ? missionData.missions : []);
+          selectedId = missions[0] ? missions[0].missionId : "";
+          fillEditor(missions[0] || null);
+          renderList();
+          setStatus("Mission catalog loaded.", "success");
+        } catch (err) {
+          setStatus(err && err.message ? err.message : "Unable to reach the server.", "error");
+        }
+      }
+      async function saveMissions() {
+        const current = buildMission();
+        if (!current.missionId || !current.title) {
+          setStatus("Mission ID and title are required.", "error");
+          return;
+        }
+        try {
+          upsertMission(current);
+          const res = await fetch("/api/admin/missions", {
+            method: "PUT",
+            credentials: "same-origin",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ missions })
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data && data.error ? data.error : "Unable to save missions.");
+          missions = normList(data && Array.isArray(data.missions) ? data.missions : missions);
+          selectedId = current.missionId;
+          fillEditor(missions.find((m) => m.missionId === selectedId) || current);
+          renderList();
+          setStatus("Mission catalog saved.", "success");
+        } catch (err) {
+          setStatus(err && err.message ? err.message : "Unable to save missions.", "error");
+        }
+      }
+      listSearch.addEventListener("input", renderList);
+      addBtn.addEventListener("click", () => {
+        const next = norm({ missionId: "", title: "New Mission", level_requirement: 1, reward_character: "", win_streak: { character_id: "", wins: 0 }, mode_restriction: { allowed_modes: ["quick", "ladder"] }, requirements: [], goals: [], sortOrder: missions.length + 1 }, missions.length);
+        missions.push(next);
+        selectedId = next.missionId;
+        fillEditor(next);
+        renderList();
+        setStatus("Added a new mission draft.", "success");
+      });
+      reloadBtn.addEventListener("click", loadMissions);
+      addGoalBtn.addEventListener("click", () => openGoalPopup());
+      saveBtn.addEventListener("click", saveMissions);
+      deleteBtn.addEventListener("click", () => {
+        deleteSelected();
+        renderList();
+        fillEditor(missions.find((m) => m.missionId === selectedId) || null);
+        setStatus("Mission removed from the local catalog. Save to persist the change.", "success");
+      });
+      if (goalTypeField) {
+        goalTypeField.addEventListener("change", syncGoalPopupFields);
+      }
+      if (goalPopupCancel) {
+        goalPopupCancel.addEventListener("click", closeGoalPopup);
+      }
+      if (goalPopupSave) {
+        goalPopupSave.addEventListener("click", saveGoalFromPopup);
+      }
+      if (goalPopup) {
+        goalPopup.addEventListener("click", (event) => {
+          if (event.target === goalPopup) {
+            closeGoalPopup();
+          }
+        });
+      }
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && goalPopup && !goalPopup.hidden) {
+          closeGoalPopup();
+        }
+      });
+      if (goalCharacterField) {
+        goalCharacterField.addEventListener("change", () => {
+          if (goalTypeField && goalTypeField.value === "win_matches" && goalTextField) {
+            const selectedCharacter = characterCatalog.find((character) => character.characterId === goalCharacterField.value);
+            const characterName = selectedCharacter ? selectedCharacter.name : goalCharacterField.value;
+            const count = Number(goalCountField && goalCountField.value ? goalCountField.value : 0) || 21;
+            goalTextField.value = `Win ${count} matches with ${characterName}.`;
+          }
+        });
+      }
+      if (goalCountField) {
+        goalCountField.addEventListener("input", () => {
+          if (goalTypeField && goalTypeField.value === "win_matches" && goalTextField) {
+            const selectedCharacter = characterCatalog.find((character) => character.characterId === goalCharacterField.value);
+            const characterName = selectedCharacter ? selectedCharacter.name : goalCharacterField.value;
+            const count = Number(goalCountField.value || 0) || 0;
+            goalTextField.value = `Win ${count} matches with ${characterName}.`;
+          }
+        });
+      }
+      if (goalTextField) {
+        goalTextField.addEventListener("input", () => {
+          if (goalTypeField && goalTypeField.value === "text") {
+            return;
+          }
+        });
+      }
+      loadMissions();
+    }());
+  </script>
   <script src="./index.js" defer></script>
 </body>
 </html>
-

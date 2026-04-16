@@ -3170,6 +3170,10 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             ) {
                 return;
             }
+            const removeStatusIdsOnOwnerUseSkill = Array.isArray(status?.metadata?.removeStatusIdsOnOwnerUseSkill)
+                ? status.metadata.removeStatusIdsOnOwnerUseSkill.filter((id) => typeof id === 'string' && id)
+                : [];
+            removeStatusIdsOnOwnerUseSkill.forEach((id) => ownerUseSkillTriggeredStatusIds.add(id));
             if (status?.id && !Boolean(status?.metadata?.persistOnOwnerUseSkillTrigger)) {
                 ownerUseSkillTriggeredStatusIds.add(status.id);
             }

@@ -1061,10 +1061,12 @@ const characters = [
             duration: 2,
             metadata: {
                 infiniteDuration: false,
-                invulnerableToHarmfulEffects: true,
+                invulnerable: true,
                 onOwnerUseSkillTrigger: true,
+                removeStatusIdsOnOwnerUseSkill: ['batman_bat_signal'],
                 removeStatusIdsOnEnemyHarmfulSkill: ['batman_bat_signal'],
-                tooltipText: 'Batman is invulnerable to harmful effects for the first 2 turns, if he uses a new skill, this passive will end.'
+                tooltipText:
+                    'Batman is invulnerable to harmful skills for the first 2 turns. If Batman uses a new skill or recieves a new harmful skills, this passive ends.'
             }
         }
     ],
@@ -1455,7 +1457,7 @@ const characters = [
             id: 'batman-passive-bat-signal',
             name: 'Passive: Bat Signal',
             skillimage: 'https://i.imgur.com/czU1Ikq.png',
-            skilldescription: 'Batman enters battle fully prepared. For the first 2 turns of the match, Batman is invulnerable to harmful effects. This protection ends immediately if Batman uses a skill or if a new harmful enemy skill affects him.',
+            skilldescription: 'Batman enters battle fully prepared. For the first 2 turns of the match, Batman is invulnerable to harmful skills. This protection ends immediately if Batman uses a skill or if a new harmful enemy skill affects him.',
             energy: [],
             target: '',
             damage: 0,
@@ -5136,7 +5138,6 @@ const characters = [
         {
             id: 'omni-man-omni-guard',
             name: 'Omni-Guard',
-            hiddenFromSelectionViewer: true,
             skillimage: 'https://i.imgur.com/CfSDPu2.png',
             skilldescription: 'Omni-Man targets one enemy for 1 turn, countering them if they use a new harmful skill. If successful, Omni-Man deals 10 additional damage permanently. This skill is invisible.',
             energy: [
@@ -6803,7 +6804,7 @@ const characters = [
             damage: 0,
             cooldown: 0,
             classes: [
-                'Chakra',
+                'Energy',
                 'Ranged',
                 'Instant',
                 'Affliction'

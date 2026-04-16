@@ -135,7 +135,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             setLoginStatus('Login successful. Redirecting...', 'success');
-            localStorage.setItem('narutoUser', JSON.stringify({ username: data.user?.username }));
+            localStorage.setItem('narutoUser', JSON.stringify({
+                username: data.user?.username,
+                avatarUrl: data.user?.profile?.avatarUrl || defaultProfileAvatar,
+                clanAbbreviation: data.user?.profile?.clan?.abbreviation || '',
+                ladder: data.user?.profile?.ladder || null,
+                backgrounds: data.user?.profile?.backgrounds || {
+                    selectionUrl: '',
+                    ingameUrl: '',
+                },
+                missions: data.user?.profile?.missions || {
+                    progress: {},
+                    unlockedCharacterIds: [],
+                },
+                matchmaking: data.user?.profile?.matchmaking || {
+                    battleBotEnabled: true,
+                },
+            }));
             window.location.href = 'selection.html';
         } catch (error) {
             console.error('Login failed:', error);
@@ -172,6 +188,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const defaultProfileAvatar = 'https://i.postimg.cc/3JqVcPXm/default.png';
     const defaultLadderRankHat = 'hats/academy.png';
     let profileCache = null;
+    let missionLockedCharacterIds = new Set();
     let selectionClickTimer = null;
 
     const normalizeLadderPresentation = (ladder = null) => {
@@ -197,6 +214,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                     : defaultLadderRankHat,
         };
     };
+
+    const normalizeMatchmakingPresentation = (matchmaking = null) => {
+        const source = matchmaking && typeof matchmaking === 'object' ? matchmaking : {};
+        return {
+            battleBotEnabled:
+                typeof source.battleBotEnabled === 'boolean' ? source.battleBotEnabled : true,
+        };
+    };
+
+    const isGameBotUsername = (username) =>
+        typeof username === 'string' && username.trim().toLowerCase().indexOf('__game_bot__:') === 0;
 
     const formatSignedNumber = (value) => {
         const amount = Number(value) || 0;
@@ -254,8 +282,70 @@ document.addEventListener('DOMContentLoaded', async () => {
                 avatarUrl: user.profile?.avatarUrl || defaultProfileAvatar,
                 clanAbbreviation: user.profile?.clan?.abbreviation || '',
                 ladder: normalizeLadderPresentation(user.profile?.ladder),
+                missions: user.profile?.missions || {
+                    progress: {},
+                    unlockedCharacterIds: [],
+                },
+                matchmaking: normalizeMatchmakingPresentation(user.profile?.matchmaking),
             })
         );
+    };
+
+    const getUnlockedCharacterIdSet = () => {
+        const unlockedIds = new Set();
+        const cachedMissions = profileCache?.profile?.missions;
+        const cachedStorageUser = readCachedUser();
+        const sourceIds = Array.isArray(cachedMissions?.unlockedCharacterIds)
+            ? cachedMissions.unlockedCharacterIds
+            : Array.isArray(cachedStorageUser?.missions?.unlockedCharacterIds)
+                ? cachedStorageUser.missions.unlockedCharacterIds
+                : [];
+        sourceIds.forEach((entry) => {
+            const normalized = typeof entry === 'string' ? entry.trim().toLowerCase() : '';
+            if (normalized) {
+                unlockedIds.add(normalized);
+            }
+        });
+        return unlockedIds;
+    };
+
+    const loadMissionLockedCharacterIds = async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/missions`, {
+                credentials: 'include',
+            });
+            if (!response.ok) {
+                throw new Error('Unable to load missions.');
+            }
+            const data = await response.json();
+            const lockedIds = new Set();
+            (Array.isArray(data?.missions) ? data.missions : []).forEach((mission) => {
+                const rewardCharacterId =
+                    typeof mission?.reward_character === 'string'
+                        ? mission.reward_character.trim().toLowerCase()
+                        : '';
+                if (rewardCharacterId) {
+                    lockedIds.add(rewardCharacterId);
+                }
+            });
+            missionLockedCharacterIds = lockedIds;
+        } catch (error) {
+            console.warn('Failed to load mission lock data.', error);
+            missionLockedCharacterIds = new Set();
+        }
+    };
+
+    const isCharacterLocked = (character) => {
+        const characterId = typeof character?.characterId === 'string'
+            ? character.characterId.trim().toLowerCase()
+            : '';
+        if (!characterId) {
+            return false;
+        }
+        if (!missionLockedCharacterIds.has(characterId)) {
+            return false;
+        }
+        return !getUnlockedCharacterIdSet().has(characterId);
     };
 
     const applyPlayerIdentity = (options = {}) => {
@@ -369,6 +459,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         return null;
     };
 
+    const getBattleBotPreference = () => {
+        const cachedUser = readCachedUser();
+        return normalizeMatchmakingPresentation(
+            profileCache?.profile?.matchmaking || cachedUser?.matchmaking
+        ).battleBotEnabled;
+    };
+
     const hydratePlayerIdentity = async () => {
         const cachedUser = readCachedUser();
         if (cachedUser?.username) {
@@ -425,6 +522,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             return;
         }
+        if (isGameBotUsername(username)) {
+            applyOpponentIdentity({
+                name: 'Game Bot',
+                avatarUrl: defaultProfileAvatar,
+                ladder: null,
+            });
+            return;
+        }
         const user = await fetchPublicProfile(username);
         applyOpponentIdentity({
             name: user?.username || username,
@@ -444,6 +549,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let currentPlayerUsername = null;
         let currentTurnUsername = null;
         let currentOpponentUsername = null;
+        let currentOpponentDisplayName = null;
         let currentMatchMode = 'quick';
         const startFirstSound = new Audio('sounds/start-first.mp3');
         const secondPlayerStartSound = new Audio('sounds/yahoe.mp3');
@@ -2288,10 +2394,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (data.opponent?.username) {
                 const nextOpponentUsername = data.opponent.username;
+                const nextOpponentDisplayName =
+                    data.opponent.displayName ||
+                    (isGameBotUsername(nextOpponentUsername) ? 'Game Bot' : nextOpponentUsername);
                 const opponentChanged = nextOpponentUsername !== currentOpponentUsername;
                 currentOpponentUsername = nextOpponentUsername;
+                currentOpponentDisplayName = nextOpponentDisplayName;
                 if (opponentChanged) {
-                    hydrateOpponentIdentity(nextOpponentUsername).catch(() => {});
+                    if (data.opponent.isBot) {
+                        applyOpponentIdentity({
+                            name: nextOpponentDisplayName,
+                            avatarUrl: defaultProfileAvatar,
+                            ladder: null,
+                        });
+                    } else {
+                        hydrateOpponentIdentity(nextOpponentUsername).catch(() => {});
+                    }
                 }
             }
             const pool = data.chakraPools?.[currentPlayerUsername] || playerPoolState || emptyPool();
@@ -2309,7 +2427,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const opponentFromResult = didWin ? data.surrenderedBy : data.winner;
                 showBattleEndOverlay({
                     didWin,
-                    opponentUsername: opponentFromResult || data.opponent?.username || currentOpponentUsername,
+                    opponentUsername:
+                        (data.opponent?.isBot ? data.opponent.displayName : null) ||
+                        (opponentFromResult && isGameBotUsername(opponentFromResult) ? 'Game Bot' : opponentFromResult) ||
+                        data.opponent?.displayName ||
+                        data.opponent?.username ||
+                        currentOpponentDisplayName ||
+                        currentOpponentUsername,
                     expDelta: data.ladderResult?.expDelta,
                     clanExpDelta: data.ladderResult?.clanExpDelta,
                 });
@@ -2327,7 +2451,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 showBattleEndOverlay({
                     didWin: playerAlive > opponentAlive,
-                    opponentUsername: currentOpponentUsername,
+                    opponentUsername: currentOpponentDisplayName || currentOpponentUsername,
                 });
                 return;
             }
@@ -2907,11 +3031,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const enemyNameEl = document.querySelector('.player-right .player-name.red');
                 if (enemyNameEl && data.opponent?.username) {
                     const nextOpponentUsername = data.opponent.username;
-                    enemyNameEl.textContent = nextOpponentUsername;
+                    const nextOpponentDisplayName = data.opponent.displayName || (isGameBotUsername(nextOpponentUsername) ? 'Game Bot' : nextOpponentUsername);
+                    enemyNameEl.textContent = nextOpponentDisplayName;
                     const opponentChanged = nextOpponentUsername !== currentOpponentUsername;
                     currentOpponentUsername = nextOpponentUsername;
+                    currentOpponentDisplayName = nextOpponentDisplayName;
                     if (opponentChanged) {
-                        hydrateOpponentIdentity(nextOpponentUsername).catch(() => {});
+                        if (data.opponent.isBot) {
+                            applyOpponentIdentity({
+                                name: nextOpponentDisplayName,
+                                avatarUrl: defaultProfileAvatar,
+                                ladder: null,
+                            });
+                        } else {
+                            hydrateOpponentIdentity(nextOpponentUsername).catch(() => {});
+                        }
                     }
                 }
 
@@ -3381,6 +3515,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const searchingMessage = document.querySelector('.searching');
     const searchingSpinner = document.querySelector('.sharingan');
     const cancelSearchingButton = document.querySelector('.cancel-button');
+    const battleBotWheelButton = document.getElementById('battle-bot-wheel-button');
+    const battleBotWheelStatus = document.getElementById('battle-bot-wheel-status');
+    const battleBotChoicePopup = document.getElementById('battle-bot-choice-popup');
+    const battleBotChoiceCloseButton = document.getElementById('battle-bot-choice-close');
+    const battleBotChoiceButtons = Array.from(
+        document.querySelectorAll('[data-battle-bot-choice]')
+    );
     const privateMatchBackdrop = document.querySelector('.private-match-backdrop');
     const privateMatchInput = document.querySelector('.private-match-input');
     const privateMatchError = document.querySelector('.private-match-error');
@@ -3394,6 +3535,49 @@ document.addEventListener('DOMContentLoaded', async () => {
     let matchmakingPoll = null;
     let isSearching = false;
     let pendingMatchRedirect = null;
+    const setBattleBotWheelStatus = (message = '', variant = 'info') => {
+        if (!battleBotWheelStatus) return;
+        battleBotWheelStatus.textContent = message;
+        battleBotWheelStatus.dataset.variant = variant;
+    };
+
+    const syncBattleBotWheel = () => {
+        const enabled = getBattleBotPreference();
+        if (battleBotWheelButton) {
+            battleBotWheelButton.classList.toggle('enabled', enabled);
+            battleBotWheelButton.classList.toggle('disabled', !enabled);
+            battleBotWheelButton.setAttribute('aria-expanded', 'false');
+        }
+    };
+
+    const setBattleBotChoicePopupVisible = (visible) => {
+        if (!battleBotChoicePopup) return;
+        battleBotChoicePopup.classList.toggle('visible', visible);
+        battleBotChoicePopup.setAttribute('aria-hidden', visible ? 'false' : 'true');
+        if (battleBotWheelButton) {
+            battleBotWheelButton.setAttribute('aria-expanded', visible ? 'true' : 'false');
+        }
+    };
+
+    const saveBattleBotPreference = async (enabled) => {
+        const response = await fetch(`${API_BASE_URL}/api/profile/matchmaking`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                battleBotEnabled: Boolean(enabled),
+            }),
+        });
+        const data = await response.json().catch(() => null);
+        if (!response.ok || !data?.ok || !data?.user) {
+            throw new Error(data?.error || 'Unable to update battle bot preference.');
+        }
+        profileCache = data.user;
+        writeCachedUser(data.user);
+        syncBattleBotWheel();
+    };
     const handleLogout = async () => {
         try {
             await fetch(`${API_BASE_URL}/api/logout`, {
@@ -3411,6 +3595,41 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (logoutButton) {
         logoutButton.addEventListener('click', handleLogout);
     }
+
+    syncBattleBotWheel();
+
+    if (battleBotWheelButton) {
+        battleBotWheelButton.addEventListener('click', () => {
+            setBattleBotChoicePopupVisible(true);
+        });
+    }
+
+    if (battleBotChoiceCloseButton) {
+        battleBotChoiceCloseButton.addEventListener('click', () => {
+            setBattleBotChoicePopupVisible(false);
+        });
+    }
+
+    if (battleBotChoicePopup) {
+        battleBotChoicePopup.addEventListener('click', (event) => {
+            if (event.target !== battleBotChoicePopup) return;
+            setBattleBotChoicePopupVisible(false);
+        });
+    }
+
+    battleBotChoiceButtons.forEach((button) => {
+        button.addEventListener('click', async () => {
+            const enabled = button.dataset.battleBotChoice === 'enabled';
+            try {
+                await saveBattleBotPreference(enabled);
+            } catch (error) {
+                console.warn('Failed to update battle bot preference.', error);
+                setBattleBotWheelStatus('Unable to update Game Bot setting.', 'error');
+            } finally {
+                setBattleBotChoicePopupVisible(false);
+            }
+        });
+    });
 
     const clearPendingMatchRedirect = () => {
         if (!pendingMatchRedirect) return;
@@ -3962,6 +4181,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const rosterSlot = rosterSlotElements[rosterIndex];
         if (rosterSlot && rosterSlot.classList.contains('slot-empty')) return;
         const character = roster[rosterIndex];
+        if (isCharacterLocked(character)) return;
         if (!character || !event.dataTransfer) return;
         setDragPayload(event.dataTransfer, { type: 'roster', rosterIndex });
         const img = event.target.closest('.slot-image');
@@ -4019,20 +4239,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         const character = roster[index];
         if (!slot) return;
         slot.innerHTML = '';
+        const locked = isCharacterLocked(character);
         const isSelected = selectedAssignments.some((assignment) => assignment?.rosterIndex === index);
         if (!character || isSelected) {
             slot.classList.add('slot-empty');
+            slot.classList.remove('slot-locked');
             slot.draggable = false;
             return;
         }
         slot.classList.remove('slot-empty');
-        slot.draggable = true;
+        slot.classList.toggle('slot-locked', locked);
+        slot.draggable = !locked;
         const image = document.createElement('img');
         image.className = 'slot-image';
+        if (locked) {
+            image.classList.add('slot-locked');
+        }
         image.src = character.facePicture;
         image.alt = character.name || `Character ${index + 1}`;
+        image.draggable = !locked;
+        image.title = locked ? `${character.name || 'Character'} is locked.` : character.name || `Character ${index + 1}`;
         slot.appendChild(image);
-        image.addEventListener('dragstart', (event) => handleSlotDragStart(event, index));
+        if (!locked) {
+            image.addEventListener('dragstart', (event) => handleSlotDragStart(event, index));
+        }
         image.addEventListener('dragend', handleSlotDragEnd);
     };
 
@@ -4043,6 +4273,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const setSelectedSlot = (slotIndex, assignment) => {
         const slotElement = selectedSlots[slotIndex];
         if (!slotElement) return;
+        if (assignment && isCharacterLocked(roster[assignment.characterIndex])) {
+            return;
+        }
         selectedAssignments[slotIndex] = assignment;
         slotElement.innerHTML = '';
         slotElement.classList.remove('drag-over');
@@ -4153,6 +4386,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const addRosterCharacterToSelection = (rosterIndex) => {
         if (!Number.isInteger(rosterIndex) || !roster[rosterIndex]) return;
+        if (isCharacterLocked(roster[rosterIndex])) return;
         const existingSlotIndex = selectedAssignments.findIndex(
             (assignment) => assignment?.characterIndex === rosterIndex
         );
@@ -4262,6 +4496,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const used = new Set();
         saved.forEach((rosterIdx, slotIdx) => {
             if (!Number.isInteger(rosterIdx) || rosterIdx < 0 || rosterIdx >= roster.length) return;
+            if (isCharacterLocked(roster[rosterIdx])) return;
             if (used.has(rosterIdx)) return;
             const assignment = { characterIndex: rosterIdx, rosterIndex: rosterIdx };
             clearRosterSlot(rosterIdx);
@@ -4288,6 +4523,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    await loadMissionLockedCharacterIds();
     renderRosterPage();
     updateGameButtons();
     persistTeamSelection();

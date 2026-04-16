@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Comic-Arena Character Editor</title>
+  <title>Cosmic-Arena Missions</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -377,6 +377,449 @@
       align-content: start;
     }
 
+    .missions-panel {
+      width: 100%;
+      margin: 0 auto;
+      padding: 22px;
+      border: 4px solid var(--line);
+      background:
+        radial-gradient(circle at top right, rgba(255, 212, 58, 0.38), transparent 20%),
+        radial-gradient(circle at bottom left, rgba(31, 117, 255, 0.12), transparent 28%),
+        linear-gradient(180deg, #fff9ea 0%, #f7e0a7 100%);
+      box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.95);
+      position: relative;
+      overflow: hidden;
+    }
+
+
+    .missions-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px 18px;
+      margin-bottom: 20px;
+      padding: 14px 16px;
+      border: 3px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 243, 214, 0.96)),
+        var(--panel-strong);
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.95);
+      color: #000000;
+      font-family: "Barlow Condensed", system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.2;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+    }
+
+    .missions-search {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .missions-search-label {
+      white-space: nowrap;
+    }
+
+    .missions-search-input {
+      width: min(260px, 54vw);
+      min-width: 160px;
+      height: 30px;
+      padding: 0 10px;
+      border: 2px solid var(--line);
+      background: #ffffff;
+      color: #222222;
+      font: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      outline: none;
+      box-shadow: inset 0 1px 0 rgba(0, 0, 0, 0.08);
+    }
+
+    .missions-search-input::placeholder {
+      color: #777777;
+    }
+
+    .missions-search-input:focus {
+      border-color: var(--accent-3);
+      box-shadow: 0 0 0 3px rgba(31, 117, 255, 0.14);
+    }
+
+    .missions-availability {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+      font-size: 15px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .missions-status {
+      min-height: 18px;
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.3;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .missions-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(265px, 1fr));
+      justify-content: center;
+      gap: 18px 18px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .mission-card {
+      display: grid;
+      align-content: start;
+      gap: 10px;
+      width: 100%;
+      max-width: 320px;
+      justify-self: center;
+      padding: 14px 12px 12px;
+      border: 3px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(255, 249, 227, 0.96)),
+        var(--panel-strong);
+      box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.95);
+      transform: rotate(calc(var(--mission-tilt, 0) * 1deg));
+      cursor: pointer;
+    }
+
+    .mission-card:nth-child(1) {
+      --mission-tilt: -1.2;
+    }
+
+    .mission-card:nth-child(2) {
+      --mission-tilt: 0.8;
+    }
+
+    .mission-card:nth-child(3) {
+      --mission-tilt: -0.6;
+    }
+
+    .mission-card:hover,
+    .mission-card:focus-within {
+      transform: translateY(-2px) rotate(calc(var(--mission-tilt, 0) * 1deg));
+      box-shadow: 7px 7px 0 rgba(0, 0, 0, 0.95);
+    }
+
+    .mission-title {
+      display: block;
+      color: var(--accent-3);
+      font-family: "Bangers", cursive;
+      font-size: 28px;
+      line-height: 1;
+      text-align: center;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      font-weight: 400;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .mission-image {
+      width: 265px;
+      height: 177px;
+      display: block;
+      border: 1px solid #000000;
+      object-fit: cover;
+      background: #f0f0f0;
+      box-shadow: 0 4px 0 rgba(0, 0, 0, 0.85);
+      justify-self: center;
+    }
+
+    .mission-details {
+      width: 100%;
+      display: grid;
+      gap: 6px;
+    }
+
+    .mission-requirements-title {
+      display: inline-flex;
+      width: fit-content;
+      padding: 3px 8px;
+      border: 2px solid var(--line);
+      background: var(--accent-2);
+      color: var(--line);
+      font-size: 14px;
+      line-height: 1.2;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .mission-requirements-box {
+      min-height: 64px;
+      padding: 8px 10px;
+      border: 2px dashed rgba(22, 18, 13, 0.4);
+      background: rgba(255, 255, 255, 0.72);
+      color: #000000;
+      font-size: 15px;
+      line-height: 1.35;
+      font-weight: 600;
+    }
+
+    .mission-requirements-box p {
+      margin: 0;
+    }
+
+    .mission-requirements-box p + p {
+      margin-top: 2px;
+    }
+
+    .mission-rank {
+      margin: 0;
+      font-weight: 600;
+    }
+
+    .mission-rank-label {
+      font-weight: 800;
+    }
+
+    .mission-rank-available {
+      color: #008000;
+    }
+
+    .mission-rank-unavailable {
+      color: #d00000;
+    }
+
+    .mission-link {
+      color: var(--accent);
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .mission-note {
+      color: #6f6f6f;
+      font-style: italic;
+      margin: 0;
+    }
+
+    .mission-overlay {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255, 212, 58, 0.22), transparent 18%),
+        radial-gradient(circle at 80% 10%, rgba(31, 117, 255, 0.15), transparent 20%),
+        rgba(0, 0, 0, 0.56);
+      backdrop-filter: blur(2px);
+      z-index: 1000;
+    }
+
+    .mission-overlay[hidden] {
+      display: none;
+    }
+
+    .mission-sheet {
+      width: min(100%, 900px);
+      border: 4px solid var(--line);
+      background:
+        radial-gradient(circle at top right, rgba(255, 212, 58, 0.34), transparent 18%),
+        radial-gradient(circle at bottom left, rgba(31, 117, 255, 0.12), transparent 22%),
+        linear-gradient(180deg, #fff8de 0%, #f5d98b 100%);
+      box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.95);
+      position: relative;
+      overflow: hidden;
+      padding: 20px 20px 18px;
+    }
+
+    .mission-sheet::before {
+      content: "Mission Brief";
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      padding: 6px 12px;
+      border: 3px solid var(--line);
+      background: var(--accent-2);
+      font-family: "Bangers", cursive;
+      font-size: 24px;
+      letter-spacing: 0.04em;
+      transform: rotate(3deg);
+      box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.95);
+    }
+
+    .mission-sheet-close {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      width: 36px;
+      height: 36px;
+      border: 3px solid var(--line);
+      background: linear-gradient(180deg, #fffaf0 0%, #ffe98d 100%);
+      color: var(--line);
+      font: inherit;
+      font-size: 22px;
+      font-weight: 800;
+      line-height: 1;
+      cursor: pointer;
+      box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.95);
+    }
+
+    .mission-sheet-close:hover {
+      background: var(--accent-2);
+    }
+
+    .mission-sheet-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.12fr) minmax(280px, 0.88fr);
+      gap: 18px 22px;
+      padding-top: 30px;
+      align-items: start;
+    }
+
+    .mission-sheet-copy,
+    .mission-sheet-goals {
+      min-width: 0;
+      padding: 14px 14px 12px;
+      border: 3px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(255, 248, 228, 0.95)),
+        var(--panel-strong);
+      box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.95);
+    }
+
+    .mission-sheet-heading {
+      margin: 0 0 8px;
+      color: var(--accent);
+      font-family: "Bangers", cursive;
+      font-size: 24px;
+      font-weight: 400;
+      line-height: 0.95;
+      border-bottom: 3px solid var(--line);
+      padding-bottom: 6px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .mission-sheet-line {
+      margin: 0 0 6px;
+      color: #111111;
+      font-size: 16px;
+      line-height: 1.45;
+      font-weight: 600;
+    }
+
+    .mission-sheet-link {
+      color: var(--accent-3);
+      font-weight: 700;
+      text-decoration: underline;
+    }
+
+    .mission-sheet-divider {
+      margin: 12px 0 12px;
+      border-top: 2px dashed rgba(22, 18, 13, 0.45);
+    }
+
+    .mission-sheet-reward {
+      margin: 0;
+      color: #111111;
+      font-size: 16px;
+      line-height: 1.45;
+      font-weight: 600;
+    }
+
+    .mission-sheet-requirements {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .mission-sheet-visual {
+      display: grid;
+      justify-items: start;
+      gap: 12px;
+      align-content: start;
+      padding: 14px 14px 12px;
+      border: 3px solid var(--line);
+      background:
+        radial-gradient(circle at center, rgba(255, 212, 58, 0.24), transparent 46%),
+        rgba(255, 255, 255, 0.68);
+      box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.95);
+    }
+
+    .mission-sheet-image {
+      width: 265px;
+      height: 177px;
+      border: 1px solid #000000;
+      object-fit: cover;
+      background: #f0f0f0;
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.85);
+    }
+
+    .mission-sheet-footer {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+      padding-top: 2px;
+    }
+
+    .mission-sheet-portrait {
+      width: 92px;
+      height: 92px;
+      border: 3px solid var(--line);
+      object-fit: cover;
+      background: #f0f0f0;
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.95);
+    }
+
+    .mission-sheet-portrait-wrap {
+      display: grid;
+      gap: 6px;
+      justify-items: start;
+      padding: 12px;
+      border: 3px solid var(--line);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(255, 248, 228, 0.96));
+      box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.95);
+    }
+
+    .mission-sheet-character-name {
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.2;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .mission-sheet-goals-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .mission-sheet-goal {
+      margin: 0;
+      color: #111111;
+      font-size: 16px;
+      line-height: 1.45;
+      font-weight: 500;
+      padding-left: 10px;
+      position: relative;
+    }
+
+    .mission-sheet-goal::before {
+      content: "✘";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: 800;
+    }
+
     .release-panel {
       margin-bottom: 0;
       padding: 24px;
@@ -391,7 +834,7 @@
     }
 
     .release-panel::before {
-      content: "Editor Desk";
+      content: "Hero Dispatch";
       position: absolute;
       top: 18px;
       right: 20px;
@@ -453,9 +896,8 @@
     .release-card:nth-child(3) { --card-tilt: -1; }
 
     .release-face {
-      width: 88px;
-      height: 88px;
-      object-fit: cover;
+      width: 75px;
+      height: 75px;
       border: 3px solid var(--line);
       background: #111;
       box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.9);
@@ -467,308 +909,6 @@
       text-align: center;
       font-weight: 800;
       text-transform: uppercase;
-    }
-
-    .editor-stage {
-      position: relative;
-      overflow: hidden;
-      padding: 26px 24px;
-      border: 4px solid var(--line);
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 243, 218, 0.92)),
-        var(--panel);
-      box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.95);
-    }
-
-    .editor-stage::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at 12% 14%, rgba(255, 91, 46, 0.12), transparent 16%),
-        radial-gradient(circle at 88% 18%, rgba(31, 117, 255, 0.12), transparent 14%);
-      pointer-events: none;
-    }
-
-    .editor-stage > * {
-      position: relative;
-      z-index: 1;
-    }
-
-    .editor-topline {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) 230px;
-      gap: 16px;
-      align-items: end;
-      margin-bottom: 18px;
-    }
-
-    .editor-note {
-      padding: 14px 16px;
-      border: 3px solid var(--line);
-      background: var(--panel-strong);
-    }
-
-    .editor-note-title {
-      margin: 0 0 6px;
-      color: var(--ink);
-      font-family: "Bangers", cursive;
-      font-size: 26px;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-
-    .editor-note-copy {
-      margin: 0;
-      color: var(--text);
-      font-size: 17px;
-      line-height: 1.35;
-      font-weight: 700;
-    }
-
-    .editor-count {
-      padding: 14px 16px;
-      border: 3px solid var(--line);
-      background: linear-gradient(180deg, #ffeb67 0%, #ffb31f 100%);
-      color: var(--line);
-      text-align: center;
-      text-transform: uppercase;
-    }
-
-    .editor-count-label {
-      display: block;
-      font-size: 14px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-    }
-
-    .editor-count-value {
-      display: block;
-      margin-top: 4px;
-      font-family: "Bangers", cursive;
-      font-size: 34px;
-      line-height: 1;
-      letter-spacing: 0.05em;
-    }
-
-    .character-editor-status,
-    .character-editor-modal-status {
-      min-height: 22px;
-      margin: 0 0 14px;
-      color: var(--text);
-      font-size: 17px;
-      line-height: 1.35;
-      font-weight: 700;
-    }
-
-    .character-editor-status[data-state="error"],
-    .character-editor-modal-status[data-state="error"] {
-      color: #c91717;
-    }
-
-    .character-editor-status[data-state="success"],
-    .character-editor-modal-status[data-state="success"] {
-      color: #10641e;
-    }
-
-    .character-editor-search {
-      width: 100%;
-      height: 54px;
-      margin: 0 0 18px;
-      padding: 0 18px;
-      border: 4px solid var(--line);
-      background: var(--panel-strong);
-      color: var(--ink);
-      font: inherit;
-      font-size: 22px;
-      font-weight: 700;
-      outline: none;
-      text-transform: uppercase;
-    }
-
-    .character-editor-search::placeholder {
-      color: #806d5b;
-    }
-
-    .character-editor-search:focus {
-      border-color: var(--accent-3);
-      box-shadow: 0 0 0 4px rgba(31, 117, 255, 0.15);
-    }
-
-    .character-editor-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-      gap: 16px;
-    }
-
-    .character-editor-card {
-      display: grid;
-      grid-template-columns: 88px minmax(0, 1fr);
-      gap: 14px;
-      align-items: center;
-      width: 100%;
-      padding: 14px;
-      border: 4px solid var(--line);
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 246, 227, 0.96)),
-        var(--panel-strong);
-      color: var(--ink);
-      font: inherit;
-      cursor: pointer;
-      text-align: left;
-      box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.92);
-      transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
-    }
-
-    .character-editor-card:hover {
-      transform: translate(-3px, -3px) rotate(-1deg);
-      box-shadow: 9px 9px 0 rgba(0, 0, 0, 0.92);
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(255, 233, 143, 0.94)),
-        var(--panel-strong);
-    }
-
-    .character-editor-card-face {
-      width: 75px;
-      height: 75px;
-      object-fit: cover;
-      border: 3px solid var(--line);
-      background: #111;
-      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.88);
-    }
-
-    .character-editor-card-name {
-      display: block;
-      color: var(--ink);
-      font-size: 23px;
-      font-weight: 800;
-      line-height: 1;
-      text-transform: uppercase;
-    }
-
-    .character-editor-card-id {
-      display: block;
-      margin-top: 7px;
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.25;
-      font-weight: 700;
-      word-break: break-word;
-      text-transform: uppercase;
-    }
-
-    .character-editor-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 40;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      background:
-        radial-gradient(circle at center, rgba(255, 212, 58, 0.2), transparent 40%),
-        rgba(8, 5, 2, 0.78);
-    }
-
-    .character-editor-overlay.visible {
-      display: flex;
-    }
-
-    .character-editor-modal {
-      width: min(980px, 100%);
-      max-height: min(90vh, 980px);
-      overflow: auto;
-      padding: 22px;
-      border: 4px solid var(--line);
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 243, 218, 0.95)),
-        var(--panel);
-      box-shadow: 12px 12px 0 rgba(0, 0, 0, 0.95);
-    }
-
-    .character-editor-summary {
-      display: grid;
-      grid-template-columns: 94px minmax(0, 1fr);
-      gap: 16px;
-      align-items: center;
-      margin: 0 0 18px;
-      padding: 14px;
-      border: 3px solid var(--line);
-      background: var(--panel-strong);
-    }
-
-    .character-editor-face {
-      width: 94px;
-      height: 94px;
-      object-fit: cover;
-      border: 3px solid var(--line);
-      background: #050505;
-      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.88);
-    }
-
-    .character-editor-name {
-      margin: 0 0 6px;
-      color: var(--accent);
-      font-family: "Bangers", cursive;
-      font-size: 36px;
-      line-height: 0.95;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-
-    .character-editor-id {
-      margin: 0;
-      color: var(--muted);
-      font-size: 16px;
-      font-weight: 700;
-      word-break: break-word;
-      text-transform: uppercase;
-    }
-
-    .character-editor-json {
-      width: 100%;
-      min-height: 460px;
-      margin: 0 0 16px;
-      padding: 16px;
-      border: 4px solid var(--line);
-      background: #fffdf6;
-      color: #17120d;
-      font: 14px/1.55 "Consolas", "Courier New", monospace;
-      resize: vertical;
-      outline: none;
-    }
-
-    .character-editor-json:focus {
-      border-color: var(--accent-3);
-      box-shadow: 0 0 0 4px rgba(31, 117, 255, 0.15);
-    }
-
-    .character-editor-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-    }
-
-    .character-editor-button {
-      min-height: 44px;
-      padding: 0 18px;
-      border: 3px solid var(--line);
-      font: inherit;
-      font-size: 18px;
-      font-weight: 800;
-      text-transform: uppercase;
-      cursor: pointer;
-      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.95);
-    }
-
-    .character-editor-button.secondary {
-      background: var(--panel-strong);
-      color: var(--ink);
-    }
-
-    .character-editor-button.primary {
-      background: linear-gradient(180deg, #ff673d 0%, #ef2e00 100%);
-      color: #fff;
     }
 
     .topbar {
@@ -851,7 +991,7 @@
 
     .mainsection-kicker {
       margin: 0 0 6px;
-      color: #ffac38;
+      color: #1b1b1b;
       font-size: 30px;
       font-weight: 700;
       line-height: 1.05;
@@ -1016,10 +1156,10 @@
     }
 
     .news-change-character {
-      width: 75px;
-      height: 75px;
-      object-fit: cover;
+      width: 77px;
+      height: 77px;
       background: #111;
+      border:  1px solid black;
     }
 
     .news-change-copy {
@@ -1403,10 +1543,6 @@
         grid-template-columns: 1fr;
       }
 
-      .editor-topline {
-        grid-template-columns: 1fr;
-      }
-
       .sidebar {
         border-bottom-width: 4px;
       }
@@ -1445,26 +1581,61 @@
       .mainsection-kicker {
         font-size: 24px;
       }
+    }
 
-      .character-editor-card {
-        grid-template-columns: 74px minmax(0, 1fr);
+    @media (max-width: 640px) {
+      .missions-panel {
+        max-width: 100%;
+        padding: 16px;
       }
 
-      .character-editor-card-face {
-        width: 74px;
-        height: 74px;
+      .missions-toolbar {
+        justify-content: center;
       }
 
-      .character-editor-summary {
+      .missions-grid {
+        grid-template-columns: 1fr;
+        justify-content: center;
+      }
+
+      .mission-card {
+        transform: none;
+      }
+
+      .mission-image {
+        width: min(265px, 100%);
+        height: auto;
+        aspect-ratio: 265 / 177;
+      }
+
+      .mission-sheet {
+        padding-top: 54px;
+      }
+
+      .mission-sheet-grid {
         grid-template-columns: 1fr;
       }
 
-      .character-editor-actions {
-        flex-direction: column;
+      .mission-sheet-copy,
+      .mission-sheet-goals,
+      .mission-sheet-visual,
+      .mission-sheet-portrait-wrap {
+        box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.95);
       }
 
-      .character-editor-button {
-        width: 100%;
+      .mission-sheet-image {
+        width: min(265px, 100%);
+        height: auto;
+        aspect-ratio: 265 / 177;
+      }
+
+      .mission-sheet-footer {
+        grid-template-columns: 1fr;
+      }
+
+      .mission-sheet-portrait {
+        width: 77px;
+        height: 77px;
       }
     }
   </style>
@@ -1496,7 +1667,7 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" /><rect x="14" y="4" width="6" height="6" /><rect x="4" y="14" width="6" height="6" /><rect x="14" y="14" width="6" height="6" /></svg>
             <span>Events</span>
           </a>
-          <a class="nav-link" href="missions.html">
+          <a class="nav-link active" href="missions.html">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.1 2.8 7.9 7 9 4.2-1.1 7-4.9 7-9V6z" /><path d="M9 12h6" /><path d="M12 9v6" /></svg>
             <span>Comic Missions</span>
           </a>
@@ -1555,12 +1726,12 @@
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18h16" /><path d="M7 14V9" /><path d="M12 14V6" /><path d="M17 14v-3" /></svg>
                   <span>Winrates</span>
                 </a>
-                <a class="nav-link active" href="charactereditor.html">
+                <a class="nav-link" href="charactereditor.html">
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="m14 4 4 4" /><path d="M6 16l-1 4 4-1" /></svg>
                   <span>Character Editor</span>
                 </a>
-                <a class="nav-link" href="editmission.html">
-                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h16" /><path d="M6 16 18 4" /><path d="M4 20l4-1" /><path d="M14 4l4 4" /></svg>
+                <a class="nav-link active" href="editmission.html">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16" /><path d="M7 16l10-10" /><path d="M14 6l4 4" /><path d="M6 18l1-4 4-1" /></svg>
                   <span>Mission Editor</span>
                 </a>
                 <a class="nav-link" href="playeraccounts.html">
@@ -1585,31 +1756,61 @@
     </aside>
 
     <main class="main">
-
-      <section class="release-panel">
-        <h2 class="release-title">Tune Every Fighter</h2>
-        <p class="release-copy">Search the roster, open the data, and push balance updates.</p>
-      </section>
-
-      <section class="editor-stage">
-        <h1 class="mainsection-kicker">Character Editor</h1>
-        <p class="mainsection-meta">Open a character, edit the live code, and save changes directly.</p>
-        <div class="editor-topline">
-          <div class="editor-note">
-            <h2 class="editor-note-title">Quick Pass</h2>
-            <p class="editor-note-copy">Filter by name or id, jump into a record, and keep the existing game logic connected to the same editor controls.</p>
+      <section class="missions-panel" aria-label="Missions">
+        <div class="missions-toolbar">
+          <div class="missions-search">
+            <label class="missions-search-label" for="mission-search">Search Mission:</label>
+            <input
+              class="missions-search-input"
+              id="mission-search"
+              type="search"
+              placeholder="Search for a name mission..."
+              aria-label="Search for a mission by name"
+            />
           </div>
-          <div class="editor-count">
-            <span class="editor-count-label">Roster Feed</span>
-            <span class="editor-count-value">Live</span>
+          <label class="missions-availability" for="missions-available">
+            <input id="missions-available" type="checkbox" />
+            <span>Only Show Available</span>
+          </label>
+        </div>
+        <p class="missions-status" id="missions-status" aria-live="polite"></p>
+        <div class="missions-grid" id="missions-grid"></div>
+      </section>
+    </main>
+
+    <div class="mission-overlay" id="mission-overlay" hidden>
+      <section class="mission-sheet" id="mission-sheet" role="dialog" aria-modal="true" aria-labelledby="mission-sheet-heading">
+        <button class="mission-sheet-close" type="button" id="mission-sheet-close" aria-label="Close mission info">✘</button>
+        <div class="mission-sheet-grid">
+          <div class="mission-sheet-copy">
+            <h3 class="mission-sheet-heading" id="mission-sheet-heading">Mission Info</h3>
+            <p class="mission-sheet-line" id="mission-sheet-name-line"></p>
+            <div class="mission-sheet-divider"></div>
+            <h3 class="mission-sheet-heading">Mission Requirements</h3>
+            <p class="mission-sheet-line" id="mission-sheet-rank-line"></p>
+            <div class="mission-sheet-requirements" id="mission-sheet-requirements"></div>
+            <div class="mission-sheet-divider"></div>
+            <h3 class="mission-sheet-heading">Mission Reward</h3>
+            <p class="mission-sheet-reward" id="mission-sheet-reward"></p>
+          </div>
+
+          <div class="mission-sheet-visual">
+            <img class="mission-sheet-image" id="mission-sheet-image" alt="" />
+          </div>
+
+          <div class="mission-sheet-footer">
+            <div class="mission-sheet-portrait-wrap">
+              <div class="mission-sheet-character-name" id="mission-sheet-character-name"></div>
+              <img class="mission-sheet-portrait" id="mission-sheet-portrait" alt="" />
+            </div>
+            <div class="mission-sheet-goals">
+              <h3 class="mission-sheet-heading">Mission Goals</h3>
+              <div class="mission-sheet-goals-list" id="mission-sheet-goals"></div>
+            </div>
           </div>
         </div>
-        <p class="character-editor-status" id="character-editor-status" aria-live="polite"></p>
-        <input class="character-editor-search" type="search" id="character-editor-search" placeholder="Search by character name or id" autocomplete="off" />
-        <div class="character-editor-grid" id="character-editor-grid"></div>
       </section>
-
-    </main>
+    </div>
 
     <aside class="aside">
       <section class="ladder">
@@ -1821,24 +2022,579 @@
       </section>
     </aside>
   </div>
-  <div class="character-editor-overlay" id="character-editor-overlay" aria-hidden="true">
-    <div class="character-editor-modal" role="dialog" aria-modal="true" aria-labelledby="character-editor-name">
-      <div class="character-editor-summary">
-        <img class="character-editor-face" id="character-editor-face" alt="Character face" />
-        <div>
-          <h2 class="character-editor-name" id="character-editor-name">Character</h2>
-          <p class="character-editor-id" id="character-editor-id"></p>
-        </div>
-      </div>
-      <p class="character-editor-modal-status" id="character-editor-modal-status" aria-live="polite"></p>
-      <textarea class="character-editor-json" id="character-editor-json" spellcheck="false"></textarea>
-      <div class="character-editor-actions">
-        <button class="character-editor-button secondary" type="button" id="character-editor-close">Close</button>
-        <button class="character-editor-button primary" type="button" id="character-editor-save">Save Character</button>
-      </div>
-    </div>
-  </div>
+  <script>
+    (function () {
+      const defaultMissionCatalog = [
+        {
+          missionId: "adored-elder-sister",
+          title: "The Adored Elder Sister",
+          level_requirement: 1,
+          mode_restriction: { allowed_modes: ["quick", "ladder"] },
+          reward: 'Mission "The Adored Elder Sister" completion.',
+          image: "ingamebgexample.png",
+          imageAlt: "The Adored Elder Sister mission artwork",
+          characterName: "Hyuuga Hanabi",
+          portrait: "deadcharacter.png",
+          portraitAlt: "Hyuuga Hanabi portrait",
+          requirements: [],
+          goals: [
+            'Use Hyuuga Neji\'s "Gentle Fist" 8 times. (0/8)',
+            'Use Hyuuga Hinata\'s "Gentle Fist" 8 times. (0/8)'
+          ],
+          available: true,
+          sortOrder: 1
+        },
+        {
+          missionId: "yellow-flash",
+          title: "The Yellow Flash",
+          level_requirement: 16,
+          mode_restriction: { allowed_modes: ["quick", "ladder"] },
+          reward: 'Mission "The Yellow Flash" completion.',
+          image: "ingamebgexample2.png",
+          imageAlt: "The Yellow Flash mission artwork",
+          characterName: "Minato Namikaze",
+          portrait: "deadcharacter.png",
+          portraitAlt: "Minato Namikaze portrait",
+          requirements: [],
+          goals: [
+            "Win the battle against Minato.",
+            "Finish the mission to unlock its reward."
+          ],
+          available: true,
+          sortOrder: 2
+        },
+        {
+          missionId: "negan",
+          title: "Negan",
+          level_requirement: 16,
+          mode_restriction: { allowed_modes: ["quick", "ladder"] },
+          reward_character: "negan",
+          reward_character_name: "Negan",
+          reward: "Unlock Negan.",
+          image: "https://i.imgur.com/csZvbwl.png",
+          imageAlt: "Negan mission artwork",
+          characterName: "Rick Grimes",
+          portrait: "https://i.imgur.com/4p90X9r.png",
+          portraitAlt: "Rick Grimes portrait",
+          requirements: [],
+          goals: [
+            {
+              type: "win_streak",
+              character_id: "rick-grimes",
+              character_name: "Rick Grimes",
+              wins: 4
+            }
+          ],
+          available: true,
+          sortOrder: 3
+        }
+      ];
+
+      const missionsGrid = document.getElementById("missions-grid");
+      const missionsStatus = document.getElementById("missions-status");
+      const missionSearch = document.getElementById("mission-search");
+      const missionsAvailable = document.getElementById("missions-available");
+      const overlay = document.getElementById("mission-overlay");
+      const sheet = document.getElementById("mission-sheet");
+      const closeButton = document.getElementById("mission-sheet-close");
+      const nameLine = document.getElementById("mission-sheet-name-line");
+      const rankLine = document.getElementById("mission-sheet-rank-line");
+      const requirementsEl = document.getElementById("mission-sheet-requirements");
+      const rewardLine = document.getElementById("mission-sheet-reward");
+      const imageEl = document.getElementById("mission-sheet-image");
+      const characterNameEl = document.getElementById("mission-sheet-character-name");
+      const portraitEl = document.getElementById("mission-sheet-portrait");
+      const goalsEl = document.getElementById("mission-sheet-goals");
+
+      let missionCatalog = [];
+      let missionMap = new Map();
+
+      function normalizeMissionCatalog(missions) {
+        const list = Array.isArray(missions) ? missions : [];
+        return list
+          .map(function (mission, index) {
+            const source = mission && typeof mission === "object" ? mission : {};
+            const missionId = String(source.missionId || source.id || source.title || source.name || "")
+              .trim()
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/^-+|-+$/g, "") || "mission-" + (index + 1);
+            const levelRequirement = Number(
+              source.level_requirement ??
+              source.levelRequirement ??
+              source.rank_requirement?.level ??
+              source.rankRequirement?.level ??
+              source.rank ??
+              0
+            ) || 0;
+            const allowedModes = Array.isArray(source.mode_restriction?.allowed_modes)
+              ? source.mode_restriction.allowed_modes
+              : Array.isArray(source.modeRestriction?.allowedModes)
+                ? source.modeRestriction.allowedModes
+                : ["quick", "ladder"];
+            const rewardCharacter = String(source.reward_character || source.rewardCharacter || "").trim();
+            const rewardCharacterName = String(source.reward_character_name || source.rewardCharacterName || "").trim();
+            const streakCharacter = String(source.win_streak?.character_id || source.winStreak?.characterId || "").trim();
+            const streakCharacterName = String(source.win_streak?.character_name || source.winStreak?.characterName || source.characterName || "").trim();
+            const streakWins = Number(source.win_streak?.wins || source.winStreak?.wins || 0) || 0;
+            return {
+              missionId: missionId,
+              title: String(source.title || source.name || "Mission " + (index + 1)).trim(),
+              level_requirement: levelRequirement,
+              rank: levelRequirement ? String(levelRequirement) : "",
+              mode_restriction: { allowed_modes: allowedModes.filter(function (mode) {
+                return mode === "quick" || mode === "ladder";
+              }) },
+              reward_character: rewardCharacter,
+              reward_character_name: rewardCharacterName,
+              reward: String(source.reward || "").trim(),
+              win_streak: {
+                character_id: streakCharacter,
+                character_name: streakCharacterName,
+                wins: streakWins
+              },
+              image: String(source.image || "").trim(),
+              imageAlt: String(source.imageAlt || source.imageAltText || (source.title || source.name || "Mission") + " mission artwork").trim(),
+              characterName: String(source.characterName || "").trim(),
+              portrait: String(source.portrait || "").trim(),
+              portraitAlt: String(source.portraitAlt || source.portraitAltText || (source.characterName || source.title || "Mission") + " portrait").trim(),
+              requirements: Array.isArray(source.requirements)
+                ? source.requirements.map(function (entry) { return String(entry || "").trim(); }).filter(Boolean)
+                : [],
+              goals: Array.isArray(source.goals)
+                ? source.goals
+                    .map(function (entry) { return normalizeMissionGoal(entry); })
+                    .filter(Boolean)
+                : [],
+              available: source.available !== false,
+              sortOrder: Number.isFinite(Number(source.sortOrder)) ? Number(source.sortOrder) : index + 1
+            };
+          })
+          .filter(function (mission) {
+            return mission.missionId && mission.title;
+          })
+          .sort(function (a, b) {
+            var sortDelta = (Number(a.sortOrder) || 0) - (Number(b.sortOrder) || 0);
+            if (sortDelta !== 0) {
+              return sortDelta;
+            }
+            return a.title.localeCompare(b.title);
+          });
+      }
+
+      function setMissionCatalog(missions) {
+        missionCatalog = normalizeMissionCatalog(missions);
+        missionMap = new Map();
+        missionCatalog.forEach(function (mission) {
+          missionMap.set(mission.missionId, mission);
+        });
+      }
+
+      function escapeHtml(value) {
+        return String(value || "").replace(/[&<>"']/g, function (character) {
+          return ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+          })[character];
+        });
+      }
+
+      function setStatus(message, isError) {
+        if (!missionsStatus) {
+          return;
+        }
+        missionsStatus.textContent = message || "";
+        missionsStatus.style.color = isError ? "#c91717" : "";
+      }
+
+      function getLevelRequirementValue(mission) {
+        const value = Number(mission && mission.level_requirement ? mission.level_requirement : mission && mission.rank ? mission.rank : 0);
+        return Number.isFinite(value) && value > 0 ? value : 0;
+      }
+
+      function getModeRestrictionText(mission) {
+        const allowedModes = Array.isArray(mission && mission.mode_restriction && mission.mode_restriction.allowed_modes)
+          ? mission.mode_restriction.allowed_modes
+              .map(function (entry) { return String(entry || "").trim().toLowerCase(); })
+              .filter(Boolean)
+          : [];
+        if (!allowedModes.length) {
+          return "";
+        }
+        if (allowedModes.length === 2 && allowedModes.indexOf("quick") !== -1 && allowedModes.indexOf("ladder") !== -1) {
+          return "Mode: Quick games and ladder games only.";
+        }
+        return "Mode: " + allowedModes.map(function (entry) {
+          return entry.charAt(0).toUpperCase() + entry.slice(1);
+        }).join(", ") + ".";
+      }
+
+      function normalizeMissionGoal(goal) {
+        if (typeof goal === "string") {
+          const text = goal.trim();
+          if (!text) {
+            return null;
+          }
+
+          const winMatchesMatch = text.match(/^Win\s+(\d+)\s+matches?\s+with\s+(.+?)(?:\.\s*\(0\/\d+\))?$/i);
+          if (winMatchesMatch) {
+            const characterName = String(winMatchesMatch[2] || "").trim();
+            return {
+              type: "win_matches",
+              character_id: characterName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
+              character_name: characterName,
+              wins: Number(winMatchesMatch[1]) || 0,
+            };
+          }
+
+          const winStreakMatch = text.match(/^Win\s+(\d+)\s+battles?\s+in\s+a\s+row\s+with\s+(.+?)(?:\.\s*\(0\/\d+\))?$/i);
+          if (winStreakMatch) {
+            const characterName = String(winStreakMatch[2] || "").trim();
+            return {
+              type: "win_streak",
+              character_id: characterName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
+              character_name: characterName,
+              wins: Number(winStreakMatch[1]) || 0,
+            };
+          }
+
+          return {
+            type: "text",
+            text,
+          };
+        }
+
+        const source = goal && typeof goal === "object" ? goal : {};
+        const type = String(source.type || source.goalType || source.kind || "text").trim().toLowerCase();
+        const wins = Number(source.wins ?? source.count ?? source.target ?? 0) || 0;
+        const characterId = String(source.character_id || source.characterId || source.character || "").trim();
+        const characterName = String(source.character_name || source.characterName || characterId).trim();
+        if (type === "win_matches" || type === "win_streak") {
+          if (!wins || !characterId) {
+            return null;
+          }
+          return {
+            type,
+            character_id: characterId,
+            character_name: characterName || characterId,
+            wins,
+          };
+        }
+
+        const text = String(source.text || source.value || source.label || source.description || "").trim();
+        if (!text) {
+          return null;
+        }
+        return {
+          type: "text",
+          text,
+        };
+      }
+
+      function formatMissionGoal(goal) {
+        const normalized = normalizeMissionGoal(goal);
+        if (!normalized) {
+          return "";
+        }
+        if (normalized.type === "win_matches") {
+          const characterName = normalized.character_name || normalized.character_id;
+          return "Win " + normalized.wins + " matches with " + characterName + ". (0/" + normalized.wins + ")";
+        }
+        if (normalized.type === "win_streak") {
+          const characterName = normalized.character_name || normalized.character_id;
+          return "Win " + normalized.wins + " battles in a row with " + characterName + ". (0/" + normalized.wins + ")";
+        }
+        return normalized.text || "";
+      }
+
+      function getRequirementLines(mission) {
+        const lines = [];
+        const modeText = getModeRestrictionText(mission);
+        if (modeText) {
+          lines.push(modeText);
+        }
+
+        const streak = mission && mission.win_streak ? mission.win_streak : null;
+        const streakWins = Number(streak && streak.wins ? streak.wins : 0) || 0;
+        const streakCharacterName = String(
+          streak && streak.character_name
+            ? streak.character_name
+            : streak && streak.character_id
+              ? streak.character_id
+              : usedCharacterName || usedCharacterId
+        ).trim();
+        if (streakWins > 0 && streakCharacterName) {
+          lines.push("Win streak: Win " + streakWins + " battles in a row with " + streakCharacterName + ".");
+        }
+        (Array.isArray(mission && mission.requirements) ? mission.requirements : []).forEach(function (requirement) {
+          if (requirement && lines.indexOf(requirement) === -1) {
+            lines.push(requirement);
+          }
+        });
+        return lines;
+      }
+
+      function getCardRequirementLines(mission) {
+        const lines = [];
+        const levelRequirement = getLevelRequirementValue(mission);
+        if (levelRequirement > 0) {
+          lines.push("Level requirement: At least " + levelRequirement + ".");
+        }
+        return lines;
+      }
+
+      function getRewardText(mission) {
+        const rewardCharacterName = String(
+          mission && mission.reward_character_name
+            ? mission.reward_character_name
+            : mission && mission.reward_character
+              ? mission.reward_character
+              : ""
+        ).trim();
+        if (rewardCharacterName) {
+          return "Unlock " + rewardCharacterName + ".";
+        }
+        return String(mission && mission.reward ? mission.reward : "").trim();
+      }
+
+      function renderMissionCard(mission) {
+        const article = document.createElement("article");
+        article.className = "mission-card";
+        article.tabIndex = 0;
+        article.setAttribute("role", "button");
+        article.setAttribute("aria-label", "Open mission info for " + mission.title);
+        article.setAttribute("data-mission", mission.missionId);
+        if (mission.available === false) {
+          article.setAttribute("aria-disabled", "true");
+          article.style.opacity = "0.78";
+        }
+
+        const title = document.createElement("a");
+        title.className = "mission-title";
+        title.href = "#";
+        title.setAttribute("data-mission-open", "");
+        title.textContent = mission.title;
+
+        const image = document.createElement("img");
+        image.className = "mission-image";
+        image.src = mission.image || "deadcharacter.png";
+        image.alt = mission.imageAlt || mission.title + " mission artwork";
+
+        const details = document.createElement("div");
+        details.className = "mission-details";
+
+        const requirementsTitle = document.createElement("div");
+        requirementsTitle.className = "mission-requirements-title";
+        requirementsTitle.textContent = "Requirements:";
+
+        const requirementsBox = document.createElement("div");
+        requirementsBox.className = "mission-requirements-box";
+
+        const rankLine = document.createElement("p");
+        rankLine.className = "mission-rank";
+        const rankLabel = document.createElement("span");
+        rankLabel.className = "mission-rank-label";
+        rankLabel.textContent = "Level requirement:";
+        rankLine.appendChild(rankLabel);
+        rankLine.appendChild(document.createTextNode(" At least "));
+        const rankValue = document.createElement("span");
+        rankValue.className = mission.available === false ? "mission-rank-unavailable" : "mission-rank-available";
+        rankValue.textContent = getLevelRequirementValue(mission) || "Any";
+        rankLine.appendChild(rankValue);
+        requirementsBox.appendChild(rankLine);
+
+        const requirementLines = getCardRequirementLines(mission);
+        requirementLines.forEach(function (requirement) {
+          const line = document.createElement("p");
+          line.className = "mission-note";
+          line.style.fontStyle = "normal";
+          line.style.color = "#111111";
+          line.textContent = requirement;
+          requirementsBox.appendChild(line);
+        });
+
+        const viewLine = document.createElement("p");
+        const viewLink = document.createElement("a");
+        viewLink.className = "mission-link";
+        viewLink.href = "#";
+        viewLink.setAttribute("data-mission-open", "");
+        viewLink.textContent = "View this mission";
+        viewLine.appendChild(viewLink);
+        requirementsBox.appendChild(viewLine);
+
+        details.appendChild(requirementsTitle);
+        details.appendChild(requirementsBox);
+
+        article.appendChild(title);
+        article.appendChild(image);
+        article.appendChild(details);
+        return article;
+      }
+
+      function renderMissionCards() {
+        if (!missionsGrid) {
+          return;
+        }
+
+        const searchValue = String(missionSearch && missionSearch.value ? missionSearch.value : "").trim().toLowerCase();
+        const showAvailableOnly = Boolean(missionsAvailable && missionsAvailable.checked);
+        const filtered = missionCatalog.filter(function (mission) {
+          const levelRequirementText = String(getLevelRequirementValue(mission) || "");
+          const matchesSearch =
+            !searchValue ||
+            mission.title.toLowerCase().indexOf(searchValue) !== -1 ||
+            levelRequirementText.toLowerCase().indexOf(searchValue) !== -1 ||
+            mission.missionId.toLowerCase().indexOf(searchValue) !== -1;
+          const matchesAvailability = !showAvailableOnly || mission.available !== false;
+          return matchesSearch && matchesAvailability;
+        });
+
+        missionsGrid.innerHTML = "";
+        if (!filtered.length) {
+          setStatus("No missions match that search.", true);
+          return;
+        }
+
+        setStatus("");
+        filtered.forEach(function (mission) {
+          missionsGrid.appendChild(renderMissionCard(mission));
+        });
+
+        missionsGrid.querySelectorAll("[data-mission]").forEach(function (card) {
+          const key = card.getAttribute("data-mission");
+          const openTargets = card.querySelectorAll("[data-mission-open]");
+
+          card.addEventListener("click", function (event) {
+            const target = event.target;
+            if (target && target.closest && target.closest(".mission-link")) {
+              return;
+            }
+            event.preventDefault();
+            openMission(key);
+          });
+
+          card.addEventListener("keydown", function (event) {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              openMission(key);
+            }
+          });
+
+          openTargets.forEach(function (target) {
+            target.addEventListener("click", function (event) {
+              event.preventDefault();
+              event.stopPropagation();
+              openMission(key);
+            });
+          });
+        });
+      }
+
+      function openMission(key) {
+        const mission = missionMap.get(key);
+        if (!mission || !overlay) {
+          return;
+        }
+
+        nameLine.innerHTML = "&raquo; Mission Name: <span class=\"mission-sheet-link\">" + escapeHtml(mission.title) + "</span>";
+        rankLine.textContent = "✘ Level requirement: At least " + (getLevelRequirementValue(mission) || "Any");
+        rewardLine.textContent = getRewardText(mission);
+        imageEl.src = mission.image || "deadcharacter.png";
+        imageEl.alt = mission.imageAlt || mission.title + " mission artwork";
+        characterNameEl.textContent = mission.characterName || "";
+        portraitEl.src = mission.portrait || "deadcharacter.png";
+        portraitEl.alt = mission.portraitAlt || mission.characterName + " portrait";
+
+        requirementsEl.innerHTML = "";
+        getRequirementLines(mission).forEach(function (requirement) {
+          const line = document.createElement("p");
+          line.className = "mission-sheet-line";
+          line.textContent = requirement;
+          requirementsEl.appendChild(line);
+        });
+
+        goalsEl.innerHTML = "";
+        (Array.isArray(mission.goals) ? mission.goals : []).forEach(function (goal) {
+          const p = document.createElement("p");
+          p.className = "mission-sheet-goal";
+          p.textContent = formatMissionGoal(goal);
+          goalsEl.appendChild(p);
+        });
+
+        overlay.hidden = false;
+        document.body.style.overflow = "hidden";
+        closeButton.focus();
+      }
+
+      function closeMission() {
+        if (overlay) {
+          overlay.hidden = true;
+        }
+        document.body.style.overflow = "";
+      }
+
+      async function loadMissionCatalog() {
+        try {
+          setStatus("Loading missions...");
+          const response = await fetch("/api/missions", {
+            credentials: "same-origin"
+          });
+          const data = await response.json().catch(function () {
+            return {};
+          });
+
+          if (!response.ok) {
+            throw new Error(data && data.error ? data.error : "Unable to load missions.");
+          }
+
+          setMissionCatalog(data && Array.isArray(data.missions) ? data.missions : []);
+          if (!missionCatalog.length) {
+            setMissionCatalog(defaultMissionCatalog);
+          }
+          renderMissionCards();
+        } catch (error) {
+          setMissionCatalog(defaultMissionCatalog);
+          renderMissionCards();
+          setStatus("Using local mission data while the server is unavailable.", true);
+        }
+      }
+
+      if (missionSearch) {
+        missionSearch.addEventListener("input", renderMissionCards);
+      }
+
+      if (missionsAvailable) {
+        missionsAvailable.addEventListener("change", renderMissionCards);
+      }
+
+      closeButton.addEventListener("click", closeMission);
+
+      overlay.addEventListener("click", function (event) {
+        if (event.target === overlay) {
+          closeMission();
+        }
+      });
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && !overlay.hidden) {
+          closeMission();
+        }
+      });
+
+      sheet.addEventListener("click", function (event) {
+        event.stopPropagation();
+      });
+
+      loadMissionCatalog();
+    }());
+  </script>
   <script src="./index.js" defer></script>
 </body>
 </html>
+
+
+
 

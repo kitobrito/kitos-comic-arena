@@ -119,6 +119,26 @@
     </button>
 </div>
 
+<div class="battle-bot-check-wrap">
+    <button type="button" class="battle-bot-check" id="battle-bot-wheel-button" aria-haspopup="dialog" aria-expanded="false">
+        <span class="battle-bot-check-box" aria-hidden="true"></span>
+        <span class="battle-bot-check-label">Game Bot</span>
+    </button>
+    <p class="battle-bot-check-status" id="battle-bot-wheel-status" aria-live="polite"></p>
+</div>
+
+<div class="battle-bot-choice-popup" id="battle-bot-choice-popup" aria-hidden="true">
+    <div class="battle-bot-choice-panel" role="dialog" aria-modal="true" aria-labelledby="battle-bot-choice-title">
+        <p class="battle-bot-choice-title" id="battle-bot-choice-title">Game Bot</p>
+        <p class="battle-bot-choice-copy">Choose whether to use the Game Bot. Game Bot is found if no players are found after 1 minute.</p>
+        <div class="battle-bot-choice-options">
+            <button type="button" class="battle-bot-choice-option" data-battle-bot-choice="enabled">Enable</button>
+            <button type="button" class="battle-bot-choice-option" data-battle-bot-choice="disabled">Disable</button>
+        </div>
+        <button type="button" class="battle-bot-choice-close" id="battle-bot-choice-close">Close</button>
+    </div>
+</div>
+
     </div>
 </div>
 <script src="characters.js"></script>
