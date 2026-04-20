@@ -7121,6 +7121,303 @@ const characters = [
         }
     ]
 },
+    {
+    id: 'green-lantern-hal-jordan',
+    characterId: 'green-lantern-hal-jordan',
+    name: 'Green Lantern (Hal Jordan)',
+    facePicture: 'https://i.imgur.com/PLACEHOLDER.png',
+    characterdeescription: 'Green Lantern functions as a scaling control damage dealer who adapts to the needs of his team as the fight progresses. Through a rotating arsenal of constructs, he applies steady pressure, breaks through defenses, and disrupts key enemies before ramping into powerful finishing blows.',
+    startStatuses: [
+        {
+            statusId: 'green_lantern_hal_jordan_passive_green_lantern_ring',
+            sourceSkillId: 'green-lantern-hal-jordan-passive-green-lantern-ring',
+            duration: 99,
+            metadata: {
+                infiniteDuration: true,
+                turnEndApplyStatusToSelf: {
+                    statusId: 'green_lantern_hal_jordan_green_lantern_ring_damage_bonus',
+                    duration: 99,
+                    metadata: {
+                        infiniteDuration: true,
+                        damageBonusFlat: 1,
+                        mergeNumericAddKeys: ['damageBonusFlat'],
+                        tooltipTextTemplate: 'Green Lantern deals {damageBonusFlat} additional damage.'
+                    }
+                },
+                tooltipText: 'At the end of each of Green Lantern\'s turns, he will deal 1 additional damage.'
+            }
+        }
+    ],
+    skills: [
+        {
+            id: 'green-lantern-hal-jordan-willpower-blast',
+            name: 'Willpower Blast',
+            skillimage: 'https://i.imgur.com/PLACEHOLDER.png',
+            skilldescription: 'Deals 20 affliction damage to one enemy. If the target uses a new harmful skill next turn, Green Lantern gains 1 green energy.',
+            energy: [
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Energy',
+                'Instant',
+                'Ranged',
+                'Affliction'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 20,
+                    scope: 'target',
+                    metadata: {
+                        afflictionDamage: true,
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'green_lantern_hal_jordan_willpower_blast_charge_trap',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        triggerOnEnemyHarmfulSkill: true,
+                        counterEffectsToSourceOwner: [
+                            {
+                                type: 'gain_chakra',
+                                chakraType: 'taijutsu',
+                                amount: 1
+                            }
+                        ],
+                        tooltipText: 'If this character uses a new harmful skill next turn, Green Lantern gains 1 taijutsu chakra.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'green-lantern-hal-jordan-willpower-shackles',
+            name: 'Willpower Shackles',
+            skillimage: 'https://i.imgur.com/PLACEHOLDER.png',
+            skilldescription: 'Deals 15 damage to one enemy and stuns their harmful skills for 1 turn.',
+            energy: [
+                'Taijutsu'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 1,
+            classes: [
+                'Energy',
+                'Instant',
+                'Ranged'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 15,
+                    scope: 'target'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'green_lantern_hal_jordan_willpower_shackles_lock',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        cannotUseHarmfulSkills: true,
+                        tooltipText: 'This character\'s harmful skills are stunned.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'green-lantern-hal-jordan-willpower-minigun',
+            name: 'Willpower Minigun',
+            skillimage: 'https://i.imgur.com/PLACEHOLDER.png',
+            skilldescription: 'Deals 7 piercing damage to the enemy team for 3 turns. This skill becomes \'Willpower Torpedo\' after use.',
+            energy: [
+                'Taijutsu'
+            ],
+            target: 'all-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Energy',
+                'Action',
+                'Ranged'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'green_lantern_hal_jordan_willpower_minigun_barrage',
+                    duration: 3,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        ongoingClass: 'action',
+                        turnEndDamage: 7,
+                        ignoreTargetDamageReduction: true,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        tooltipText: 'This character takes 7 piercing damage each turn.'
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'green_lantern_hal_jordan_construct_cycle_torpedo',
+                    duration: 99,
+                    scope: 'self',
+                    metadata: {
+                        infiniteDuration: true,
+                        removeStatusIdsOnApply: ['green_lantern_hal_jordan_construct_cycle_train'],
+                        skillReplacements: {
+                            'green-lantern-hal-jordan-willpower-minigun': 'green-lantern-hal-jordan-willpower-torpedo'
+                        },
+                        tooltipText: 'Willpower Minigun is replaced by Willpower Torpedo.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'green-lantern-hal-jordan-willpower-truck',
+            name: 'Willpower Truck',
+            skillimage: 'https://i.imgur.com/PLACEHOLDER.png',
+            skilldescription: 'Green Lantern grants himself or one ally 40 destructible defense for 2 turns.',
+            energy: [
+                'Taijutsu'
+            ],
+            target: 'self-or-single-ally',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Energy',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'green_lantern_hal_jordan_willpower_truck_defense',
+                    duration: 2,
+                    scope: 'target',
+                    metadata: {
+                        destructibleDefensePoints: 40,
+                        tooltipTextTemplate: 'This character has {destructibleDefensePoints} destructible defense.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'green-lantern-hal-jordan-willpower-torpedo',
+            name: 'Willpower Torpedo',
+            hiddenFromSelectionViewer: true,
+            useBaseSkillCooldown: true,
+            skillimage: 'https://i.imgur.com/PLACEHOLDER.png',
+            skilldescription: 'Destroys one enemy\'s destructible defense and deals 40 piercing damage to them. This skill becomes \'Willpower Train\' after use.',
+            energy: [
+                'Taijutsu',
+                'Taijutsu'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Energy',
+                'Instant',
+                'Ranged'
+            ],
+            effects: [
+                {
+                    type: 'destroy_destructible_defense',
+                    scope: 'target'
+                },
+                {
+                    type: 'damage',
+                    amount: 40,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'green_lantern_hal_jordan_construct_cycle_train',
+                    duration: 99,
+                    scope: 'self',
+                    metadata: {
+                        infiniteDuration: true,
+                        removeStatusIdsOnApply: ['green_lantern_hal_jordan_construct_cycle_torpedo'],
+                        skillReplacements: {
+                            'green-lantern-hal-jordan-willpower-minigun': 'green-lantern-hal-jordan-willpower-train'
+                        },
+                        tooltipText: 'Willpower Minigun is replaced by Willpower Train, which deals 65 damage and stuns one enemy for 1 turn.',
+                        hideTooltip: true
+                    }
+                }
+            ]
+        },
+        {
+            id: 'green-lantern-hal-jordan-willpower-train',
+            name: 'Willpower Train',
+            hiddenFromSelectionViewer: true,
+            useBaseSkillCooldown: true,
+            skillimage: 'https://i.imgur.com/PLACEHOLDER.png',
+            skilldescription: 'Deals 65 damage to one enemy and stuns them for 1 turn. This skill becomes \'Willpower Minigun\' after use.',
+            energy: [
+                'Taijutsu',
+                'Taijutsu',
+                'Taijutsu'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Energy',
+                'Instant',
+                'Ranged'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 65,
+                    scope: 'target'
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'stunned',
+                    duration: 1,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        cannotUseSkills: true,
+                        tooltipText: 'This character is stunned.'
+                    }
+                },
+                {
+                    type: 'cleanse_statuses',
+                    count: 1,
+                    scope: 'self',
+                    statusId: 'green_lantern_hal_jordan_construct_cycle_train'
+                }
+            ]
+        },
+        {
+            id: 'green-lantern-hal-jordan-passive-green-lantern-ring',
+            name: 'Passive: Green Lantern Ring',
+            skillimage: 'https://i.imgur.com/PLACEHOLDER.png',
+            skilldescription: 'At the end of each of Green Lantern\'s turns, he gains 1 additional damage permanently.',
+            energy: [],
+            target: '',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Passive',
+                'Instant'
+            ]
+        }
+    ]
+},
 ];
 
 if (typeof module !== 'undefined') {
