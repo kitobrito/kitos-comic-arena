@@ -21,6 +21,7 @@ body.app-loading-selection .slot-list,
 body.app-loading-selection .player-card,
 body.app-loading-selection .selected-character-slot-list,
 body.app-loading-selection .button-container,
+body.app-loading-selection .sound-controller,
 body.app-loading-ingame .game-hud,
 body.app-loading-ingame .player-characters,
 body.app-loading-ingame .enemy-characters,
@@ -35,6 +36,206 @@ body.app-loading-ingame .class-choice-popup {
     visibility: hidden;
     opacity: 0;
     pointer-events: none;
+}
+
+@keyframes selection-bubble-pop {
+    0% {
+        opacity: 0;
+        transform: scale(0.68) translateY(16px);
+    }
+    45% {
+        opacity: 1;
+        transform: scale(1.13) translateY(-7px);
+    }
+    65% {
+        transform: scale(0.94) translateY(3px);
+    }
+    82% {
+        transform: scale(1.04) translateY(-2px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes selection-bubble-pop-flat {
+    0% {
+        opacity: 0;
+        transform: scale(0.68);
+    }
+    45% {
+        opacity: 1;
+        transform: scale(1.13);
+    }
+    65% {
+        transform: scale(0.94);
+    }
+    82% {
+        transform: scale(1.04);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes selection-bubble-pop-inverted {
+    0% {
+        opacity: 0;
+        transform: scaleY(-1) scale(0.68);
+    }
+    45% {
+        opacity: 1;
+        transform: scaleY(-1) scale(1.13);
+    }
+    65% {
+        transform: scaleY(-1) scale(0.94);
+    }
+    82% {
+        transform: scaleY(-1) scale(1.04);
+    }
+    100% {
+        opacity: 1;
+        transform: scaleY(-1) scale(1);
+    }
+}
+
+body:not(.app-loading-selection) .selectionscroll,
+body:not(.app-loading-selection) .selectionpage,
+body:not(.app-loading-selection) .player-card,
+body:not(.app-loading-selection) .selected-character-slot,
+body:not(.app-loading-selection) .button-container,
+body:not(.app-loading-selection) .battle-bot-check-wrap,
+body:not(.app-loading-selection) .sound-controller,
+body:not(.app-loading-selection) .nextpage,
+body:not(.app-loading-selection) .lastpage {
+    animation: selection-bubble-pop 0.62s cubic-bezier(0.18, 0.9, 0.22, 1.25) both;
+}
+
+body:not(.app-loading-selection) .selectionpage {
+    animation-delay: 0.04s;
+}
+
+body:not(.app-loading-selection) .slot-item {
+    animation: selection-bubble-pop-flat 0.5s cubic-bezier(0.18, 0.9, 0.22, 1.25) both;
+    animation-delay: calc(var(--slot-pop-index, 0) * 22ms + 0.08s);
+}
+
+body:not(.app-loading-selection) .player-card {
+    animation-delay: 0.14s;
+}
+
+body:not(.app-loading-selection) .selected-character-slot {
+    animation-delay: calc(var(--selected-pop-index, 0) * 55ms + 0.18s);
+}
+
+body:not(.app-loading-selection) .button-container {
+    animation-delay: 0.25s;
+}
+
+body:not(.app-loading-selection) .battle-bot-check-wrap {
+    animation-delay: 0.3s;
+}
+
+body:not(.app-loading-selection) .selected-slot-image {
+    animation: selection-bubble-pop-flat 0.48s cubic-bezier(0.18, 0.9, 0.22, 1.25) both;
+}
+
+.bubble-pop-replay {
+    animation: selection-bubble-pop-flat 0.48s cubic-bezier(0.18, 0.9, 0.22, 1.25) both !important;
+}
+
+.skill-image.bubble-pop-replay {
+    animation: selection-bubble-pop-flat 0.48s cubic-bezier(0.18, 0.9, 0.22, 1.25) both !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body:not(.app-loading-selection) .selectionscroll,
+    body:not(.app-loading-selection) .selectionpage,
+    body:not(.app-loading-selection) .player-card,
+    body:not(.app-loading-selection) .selected-character-slot,
+    body:not(.app-loading-selection) .button-container,
+    body:not(.app-loading-selection) .battle-bot-check-wrap,
+    body:not(.app-loading-selection) .sound-controller,
+    body:not(.app-loading-selection) .nextpage,
+    body:not(.app-loading-selection) .lastpage,
+    body:not(.app-loading-selection) .slot-item,
+    body:not(.app-loading-selection) .selected-slot-image,
+    body:not(.app-loading-selection) .character-portrait,
+    body:not(.app-loading-selection) .skill-image,
+    .searching-backdrop.visible .searchingscroll,
+    .private-match-backdrop.visible .private-match-modal,
+    .battle-bot-choice-popup.visible .battle-bot-choice-panel,
+    .bubble-pop-replay {
+        animation: none;
+    }
+}
+
+@keyframes selection-scroll-unfurl {
+    0% {
+        opacity: 0;
+        transform: scaleX(0.06);
+        clip-path: inset(0 0 0 94%);
+    }
+    48% {
+        opacity: 1;
+        transform: scaleX(1.035);
+        clip-path: inset(0 0 0 0);
+    }
+    72% {
+        transform: scaleX(0.985);
+    }
+    100% {
+        opacity: 1;
+        transform: scaleX(1);
+        clip-path: inset(0 0 0 0);
+    }
+}
+
+@keyframes selection-scroll-content-unfurl {
+    0% {
+        opacity: 0;
+        clip-path: inset(0 0 0 100%);
+        transform: translateX(28px);
+    }
+    55% {
+        opacity: 0.85;
+    }
+    100% {
+        opacity: 1;
+        clip-path: inset(0 0 0 0);
+        transform: translateX(0);
+    }
+}
+
+@keyframes selection-scroll-ravel {
+    0% {
+        opacity: 1;
+        transform: scaleX(1);
+        clip-path: inset(0 0 0 0);
+    }
+    35% {
+        transform: scaleX(1.025);
+    }
+    100% {
+        opacity: 1;
+        transform: scaleX(0.06);
+        clip-path: inset(0 0 0 100%);
+    }
+}
+
+@keyframes selection-scroll-content-ravel {
+    0% {
+        opacity: 1;
+        clip-path: inset(0 0 0 0);
+        transform: translateX(0);
+    }
+    100% {
+        opacity: 0;
+        clip-path: inset(0 0 0 100%);
+        transform: translateX(28px);
+    }
 }
 
 body.custom-game-cursor,
@@ -396,7 +597,8 @@ text-transform: uppercase;
     gap: 8px;
     padding: 4px 8px 4px 6px;
     border: 1px solid #000;
-    background: rgb(245 245 245);
+    background: linear-gradient(180deg, #ffffff 0%, #dedede 100%);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
     cursor: pointer;
     font-family: 'Libre Franklin', Arial, sans-serif;
     text-transform: uppercase;
@@ -405,6 +607,9 @@ text-transform: uppercase;
     right: 83px;
     top: -36px;
     position: relative;
+        transform: skew(-10deg);
+    transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+    
 }
 
 .battle-bot-check-box {
@@ -470,6 +675,8 @@ text-transform: uppercase;
     justify-content: center;
     background: rgba(0, 0, 0, 0.72);
     z-index: 4000;
+            top: -316px;
+    left: -54px;
 }
 
 .battle-bot-choice-popup.visible {
@@ -564,8 +771,8 @@ text-transform: uppercase;
     position: absolute;
     bottom: 280px;
     left: 80px;
-    transition: transform 0.45s ease-in-out, opacity 0.45s ease-in-out;
-    transform-origin: left center;
+    transition: transform 0.58s cubic-bezier(0.42, 0, 0.2, 1), opacity 0.58s ease;
+    transform-origin: right center;
 }
 
 .skillscroll {
@@ -573,7 +780,7 @@ text-transform: uppercase;
     position: relative;
     left: 520px;
     cursor: pointer;
-    transition: transform 0.45s ease-in-out;
+    transition: transform 0.58s cubic-bezier(0.42, 0, 0.2, 1);
 }
 
 .skillpage {
@@ -584,21 +791,54 @@ text-transform: uppercase;
     z-index: 1;
     top: 9px;
     left: 10px;
-    transition: transform 0.45s ease-in-out, opacity 0.45s ease-in-out;
+    overflow: hidden;
+    transform-origin: right center;
+    transition:
+        clip-path 0.58s cubic-bezier(0.42, 0, 0.2, 1),
+        opacity 0.36s ease,
+        transform 0.58s cubic-bezier(0.42, 0, 0.2, 1);
+}
+
+.skillviewer:not(.collapsed) .skillpage {
+    animation: selection-scroll-unfurl 0.68s cubic-bezier(0.18, 0.9, 0.22, 1) both;
+}
+
+.skillviewer:not(.collapsed) .skill-card {
+    animation: selection-scroll-content-unfurl 0.58s ease both;
+    animation-delay: 0.12s;
+}
+
+.skillviewer.raveling {
+    transform: translateX(-210px);
+    opacity: 1;
+    pointer-events: none;
+}
+
+.skillviewer.raveling .skillscroll {
+    transform: translateX(-290px) rotate(-10deg) scaleX(0.76);
+}
+
+.skillviewer.raveling .skillpage {
+    animation: selection-scroll-ravel 0.62s cubic-bezier(0.42, 0, 0.2, 1) both;
+}
+
+.skillviewer.raveling .skill-card {
+    animation: selection-scroll-content-ravel 0.45s ease both;
 }
 
 .skillviewer.collapsed {
-    transform: translateX(-700px) scaleX(0.9);
+    transform: translateX(-210px);
     opacity: 0;
     pointer-events: none;
 }
 
 .skillviewer.collapsed .skillscroll {
-    transform: translateX(-260px) rotate(-15deg) scaleX(0.7);
+    transform: translateX(-290px) rotate(-10deg) scaleX(0.76);
 }
 
 .skillviewer.collapsed .skillpage {
-    transform: translateX(-200px) scaleX(0);
+    clip-path: inset(0 0 0 100%);
+    transform: scaleX(0.06);
     opacity: 0;
 }
 
@@ -796,6 +1036,8 @@ text-transform: uppercase;
     justify-content: center;
         width: 770px;
     height: 560px;
+        top: -316px;
+    left: -54px;
 }
 
 .searching-backdrop.visible {
@@ -812,6 +1054,8 @@ text-transform: uppercase;
     justify-content: center;
     width: 770px;
     height: 560px;
+        top: -316px;
+    left: -54px;
 }
 
 .private-match-backdrop.visible {
@@ -2081,5 +2325,5 @@ text-transform: uppercase;
     position: absolute;
     top: 17px;
     z-index: 3;
-    transform: scaleX(-1);
+    transform: scaleX(-1) !important;
 }

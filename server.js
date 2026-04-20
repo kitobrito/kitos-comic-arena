@@ -22,7 +22,7 @@ const PORT = process.env.PORT || 4000;
 const TURN_DURATION_MS = 60 * 1000;
 const MATCH_FOUND_HOLD_MS = 3 * 1000;
 const BATTLE_BOT_QUEUE_TIMEOUT_MS = 60 * 1000;
-const BATTLE_BOT_ACTION_DELAY_MS = 1200;
+const BATTLE_BOT_ACTION_DELAY_MS = 15 * 1000;
 const BATTLE_BOTS_ENABLED = process.env.ENABLE_BATTLE_BOTS !== 'false';
 const DEFAULT_URI = process.env.MONGODB_URI;
 const DATABASE_NAME = process.env.MONGODB_DB || 'naruto-arena';
@@ -44,6 +44,8 @@ const LATEST_CHARACTER_RELEASES = [
     { label: 'Aburame Shino', characterId: 'aburame-shino' },
     { label: 'Latest Character 3', characterId: '' },
 ];
+const LATEST_CHARACTER_RELEASES_STATE_KEY = 'latest_character_releases';
+const MAINTENANCE_MODE_STATE_KEY = 'maintenance_mode';
 const DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/3JqVcPXm/default.png';
 const LEGACY_DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/zG3W1w6K/itachi.png';
 const MISSION_CATALOG_STATE_KEY = 'missions';
@@ -293,6 +295,24 @@ const getRosterCharacterName = (rosterIndex) => {
     }
     const character = Array.isArray(charactersData) ? charactersData[index] : null;
     return typeof character?.name === 'string' ? character.name.trim() : '';
+};
+
+const teamHasDuplicateCharacters = (team = []) => {
+    if (!Array.isArray(team)) {
+        return false;
+    }
+    const seen = new Set();
+    return team.some((rosterIndex) => {
+        const key = Number.parseInt(rosterIndex, 10);
+        if (!Number.isInteger(key)) {
+            return false;
+        }
+        if (seen.has(key)) {
+            return true;
+        }
+        seen.add(key);
+        return false;
+    });
 };
 
 const normalizeCharacterId = (value) =>
@@ -848,7 +868,13 @@ const profileHasUnlockedCharacter = (profile, characterId, lockedCharacterIds = 
     return unlocked.has(normalizedCharacterId);
 };
 
-const assertTeamCanBeUsed = async (profile, team = []) => {
+const assertTeamCanBeUsed = async (profile, team = [], userRole = 'player') => {
+    if (teamHasDuplicateCharacters(team)) {
+        throw new Error('Team characters must be unique.');
+    }
+    if (String(userRole || '').trim().toLowerCase() === 'admin') {
+        return;
+    }
     const lockedCharacterIds = await getMissionLockedCharacterIds();
     const normalizedProfile = normalizeUserProfile({
         profile,
@@ -911,6 +937,7 @@ const buildDefaultUserProfile = (user = {}) => {
         },
         activity: {
             lastOnlineAt: createdAt,
+            currentPage: '',
         },
     };
 };
@@ -1219,6 +1246,7 @@ const normalizeUserProfile = (user = {}) => {
         },
         activity: {
             lastOnlineAt: activity.lastOnlineAt || defaults.activity.lastOnlineAt,
+            currentPage: typeof activity.currentPage === 'string' ? activity.currentPage.trim().slice(0, 120) : '',
         },
     };
 };
@@ -2343,6 +2371,143 @@ const buildCharacterFaceMap = () =>
             .filter(Boolean)
     );
 
+const buildCharacterSummaryMap = () =>
+    new Map(
+        (Array.isArray(charactersData) ? charactersData : [])
+            .filter((character) => character && typeof character === 'object')
+            .map((character) => {
+                const key = character.characterId || character.id || character.name;
+                if (!key) return null;
+                return [
+                    key,
+                    {
+                        characterId: key,
+                        label: character.name || key,
+                        facePicture: character.facePicture || '',
+                    },
+                ];
+            })
+            .filter(Boolean)
+    );
+
+const normalizeLatestCharacterReleases = (entries = []) => {
+    const characterMap = buildCharacterSummaryMap();
+    const defaults = Array.isArray(LATEST_CHARACTER_RELEASES) ? LATEST_CHARACTER_RELEASES : [];
+    return [0, 1, 2].map((index) => {
+        const entry = Array.isArray(entries) ? entries[index] || {} : {};
+        const fallback = defaults[index] || { label: `Latest Character ${index + 1}`, characterId: '' };
+        const requestedCharacterId =
+            typeof entry?.characterId === 'string' ? entry.characterId.trim() : '';
+        const character = requestedCharacterId ? characterMap.get(requestedCharacterId) : null;
+        if (character) {
+            return {
+                label: character.label,
+                characterId: character.characterId,
+                facePicture: character.facePicture,
+            };
+        }
+        return {
+            label: fallback.label || `Latest Character ${index + 1}`,
+            characterId: '',
+            facePicture: '',
+        };
+    });
+};
+
+const getLatestCharacterReleases = async () => {
+    if (!appStateCollection) {
+        return normalizeLatestCharacterReleases(LATEST_CHARACTER_RELEASES);
+    }
+    const state = await appStateCollection.findOne({ key: LATEST_CHARACTER_RELEASES_STATE_KEY });
+    const entries =
+        state && Array.isArray(state.releases)
+            ? state.releases
+            : state?.value && Array.isArray(state.value.releases)
+            ? state.value.releases
+            : LATEST_CHARACTER_RELEASES;
+    return normalizeLatestCharacterReleases(entries);
+};
+
+const getMaintenanceModeState = async () => {
+    if (!appStateCollection) {
+        return false;
+    }
+    const state = await appStateCollection.findOne({ key: MAINTENANCE_MODE_STATE_KEY });
+    return Boolean(state?.enabled);
+};
+
+const parseSessionTokenFromRequest = (req = {}) => {
+    const cookies = String(req.headers?.cookie || '')
+        .split(';')
+        .reduce((acc, part) => {
+            const [rawKey, ...rawValueParts] = String(part).split('=');
+            const key = rawKey ? rawKey.trim() : '';
+            if (!key) {
+                return acc;
+            }
+            acc[key] = decodeURIComponent(rawValueParts.join('=').trim() || '');
+            return acc;
+        }, {});
+    return cookies[SESSION_COOKIE_NAME] || '';
+};
+
+const getSessionUserFromRequest = async (req = {}) => {
+    const token = parseSessionTokenFromRequest(req);
+    if (!token) {
+        return null;
+    }
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const user = await usersCollection.findOne({ username: decoded.username });
+        return user || null;
+    } catch (error) {
+        return null;
+    }
+};
+
+const renderMaintenancePage = () => `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comic-Arena Maintenance</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(180deg, #fff4cd 0%, #f5dd9e 34%, #f7b44a 100%);
+      color: #15110b;
+      font-family: Arial, sans-serif;
+    }
+    .panel {
+      width: min(90vw, 560px);
+      padding: 32px 28px;
+      border: 4px solid #16120d;
+      background: #fff7de;
+      box-shadow: 10px 10px 0 rgba(0, 0, 0, 0.95);
+      text-align: center;
+    }
+    h1 {
+      margin: 0 0 12px;
+      font-size: 32px;
+    }
+    p {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <h1>Maintenance Mode</h1>
+    <p>This game is under maintenance.</p>
+  </div>
+</body>
+</html>`;
+
 const allowedOrigins = (
     process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:4000,https://localhost:4001'
 )
@@ -2388,6 +2553,43 @@ app.use(async (req, res, next) => {
         return next();
     } catch (error) {
         return res.redirect('/');
+    }
+});
+app.use(async (req, res, next) => {
+    try {
+        const maintenanceEnabled = await getMaintenanceModeState();
+        if (!maintenanceEnabled) {
+            return next();
+        }
+
+        const requestPath = String(req.path || '');
+        const adminBypassPaths = new Set(['/newspost', '/newspost.html', '/api/login', '/health']);
+        if (adminBypassPaths.has(requestPath)) {
+            return next();
+        }
+
+        const sessionUser = await getSessionUserFromRequest(req);
+        if (sessionUser && String(sessionUser.role || '').trim().toLowerCase() === 'admin') {
+            return next();
+        }
+
+        if (requestPath.startsWith('/api/')) {
+            return res.status(503).json({
+                error: 'This game is under maintenance.',
+                maintenance: true,
+            });
+        }
+
+        if (req.method === 'GET' || req.method === 'HEAD') {
+            return res.status(503).type('html').send(renderMaintenancePage());
+        }
+
+        return res.status(503).json({
+            error: 'This game is under maintenance.',
+            maintenance: true,
+        });
+    } catch (error) {
+        return next();
     }
 });
 app.use(express.static(path.join(__dirname)));
@@ -2684,6 +2886,157 @@ const sendJsonToSocket = (ws, payload) => {
     }
 };
 
+const cloneSerializable = (value) => {
+    if (value === null || value === undefined) return value;
+    if (typeof structuredClone === 'function') {
+        return structuredClone(value);
+    }
+    return JSON.parse(JSON.stringify(value));
+};
+
+const CLIENT_SAFE_STATUS_METADATA_KEYS = new Set([
+    '_destructibleDefenseRestoreTurnsLeft',
+    'banished',
+    'bloodlineCostIncrease',
+    'bloodlineCostReduction',
+    'cannotUseHarmfulSkills',
+    'cannotUseNonMentalSkills',
+    'cannotUseSkillClasses',
+    'cannotUseSkillIndices',
+    'cannotUseSkills',
+    'DamageDebuff',
+    'destructibleDefenseRestore',
+    'facePictureOverride',
+    'genjutsuCostIncrease',
+    'genjutsuCostReduction',
+    'NonAfflictionDamageDebuff',
+    'ninjutsuCostIncrease',
+    'ninjutsuCostReduction',
+    'nonMentalRandomCostIncrease',
+    'randomCostIncrease',
+    'randomCostReduction',
+    'skillCostOverridesByRemainingTurns',
+    'skillCostOverridesBySkillId',
+    'skillDamageBonuses',
+    'skillReplacements',
+    'skillReplacementsByRemainingTurns',
+    'sourceSkillName',
+    'stackMetadataKey',
+    'taijutsuCostIncrease',
+    'taijutsuCostReduction',
+    'tooltipText',
+    'tooltipTextTemplate',
+    'turnEndDamage',
+]);
+
+const extractTooltipPlaceholderKeys = (template) => {
+    if (typeof template !== 'string' || !template) return [];
+    const matches = template.matchAll(/\{([a-zA-Z0-9_]+)\}/g);
+    return Array.from(new Set(Array.from(matches, (match) => match[1]).filter(Boolean)));
+};
+
+const sanitizeStatusMetadataForClient = (metadata = {}) => {
+    if (!metadata || typeof metadata !== 'object') return {};
+    const sanitized = {};
+    const safeKeys = new Set(CLIENT_SAFE_STATUS_METADATA_KEYS);
+    extractTooltipPlaceholderKeys(metadata.tooltipTextTemplate).forEach((key) => safeKeys.add(key));
+    extractTooltipPlaceholderKeys(
+        metadata?.destructibleDefenseRestore?.pendingTooltipTextTemplate
+    ).forEach((key) => safeKeys.add(key));
+    safeKeys.forEach((key) => {
+        if (Object.prototype.hasOwnProperty.call(metadata, key)) {
+            sanitized[key] = cloneSerializable(metadata[key]);
+        }
+    });
+    return sanitized;
+};
+
+const shouldHideStatusFromViewer = ({ status, unitUsername, viewerUsername }) => {
+    const metadata = status?.metadata || {};
+    if (Boolean(metadata.hideTooltip)) {
+        return true;
+    }
+    if (viewerUsername !== unitUsername && Boolean(metadata.hideTooltipFromEnemy)) {
+        return true;
+    }
+    if (
+        viewerUsername === unitUsername &&
+        (Boolean(metadata.hideTooltipFromOwner) || Boolean(metadata.hideTooltipFromUnitOwner))
+    ) {
+        return true;
+    }
+    return false;
+};
+
+const sanitizeStatusForViewer = ({ status, unitUsername, viewerUsername }) => {
+    if (!status || typeof status !== 'object') return null;
+    if (shouldHideStatusFromViewer({ status, unitUsername, viewerUsername })) {
+        return null;
+    }
+    return {
+        id: typeof status.id === 'string' ? status.id : '',
+        remainingTurns: Math.max(0, Number(status.remainingTurns) || 0),
+        sourceSkillId: typeof status.sourceSkillId === 'string' ? status.sourceSkillId : null,
+        metadata: sanitizeStatusMetadataForClient(status.metadata),
+    };
+};
+
+const sanitizeUnitStateForViewer = ({ unit, unitUsername, viewerUsername }) => {
+    const statuses = Array.isArray(unit?.state?.statuses)
+        ? unit.state.statuses
+              .map((status) => sanitizeStatusForViewer({ status, unitUsername, viewerUsername }))
+              .filter(Boolean)
+        : [];
+    const state = { statuses };
+    if (unitUsername === viewerUsername) {
+        state.cooldowns =
+            unit?.state?.cooldowns && typeof unit.state.cooldowns === 'object'
+                ? cloneSerializable(unit.state.cooldowns)
+                : {};
+        state.skillUses =
+            unit?.state?.skillUses && typeof unit.state.skillUses === 'object'
+                ? cloneSerializable(unit.state.skillUses)
+                : {};
+    }
+    return state;
+};
+
+const sanitizeBoardForViewer = (board, viewerUsername) => {
+    if (!board || typeof board !== 'object' || !viewerUsername) return null;
+    return Object.fromEntries(
+        Object.entries(board).map(([unitUsername, units]) => [
+            unitUsername,
+            Array.isArray(units)
+                ? units.map((unit) => ({
+                      slot: Number.isInteger(unit?.slot) ? unit.slot : null,
+                      rosterIndex: Number.isInteger(unit?.rosterIndex) ? unit.rosterIndex : null,
+                      alive: unit?.alive !== false,
+                      hp: Number.isFinite(Number(unit?.hp)) ? Number(unit.hp) : 0,
+                      state: sanitizeUnitStateForViewer({ unit, unitUsername, viewerUsername }),
+                  }))
+                : [],
+        ])
+    );
+};
+
+const sanitizeChakraPoolsForViewer = (chakraPools, viewerUsername) => {
+    if (!chakraPools || typeof chakraPools !== 'object' || !viewerUsername) return null;
+    const ownPool =
+        chakraPools?.[viewerUsername] && typeof chakraPools[viewerUsername] === 'object'
+            ? cloneSerializable(chakraPools[viewerUsername])
+            : null;
+    return ownPool ? { [viewerUsername]: ownPool } : null;
+};
+
+const sanitizeLastChakraGainForViewer = (lastChakraGain, viewerUsername) => {
+    if (!lastChakraGain || typeof lastChakraGain !== 'object' || !viewerUsername) return null;
+    const ownGain =
+        lastChakraGain?.[viewerUsername] && typeof lastChakraGain[viewerUsername] === 'object'
+            ? cloneSerializable(lastChakraGain[viewerUsername])
+            : null;
+    return ownGain ? { [viewerUsername]: ownGain } : null;
+};
+
 const buildMatchPayloadForUser = (match, username) => {
     if (!match || !username) return null;
     const playerEntry = Array.isArray(match.players)
@@ -2706,11 +3059,12 @@ const buildMatchPayloadForUser = (match, username) => {
         opponent: opponentEntry,
         currentTurn: match.currentTurn || null,
         turnOrder: match.turnOrder || null,
+        turnStartedAt: match.turnStartedAt || null,
         turnExpiresAt: match.turnExpiresAt || null,
         turnDurationMs: getTurnDurationMsForUser(match, match?.currentTurn),
-        board: match.board || null,
-        chakraPools: match.chakraPools || null,
-        lastChakraGain: match.economy?.lastChakraGain || null,
+        board: sanitizeBoardForViewer(match.board, username),
+        chakraPools: sanitizeChakraPoolsForViewer(match.chakraPools, username),
+        lastChakraGain: sanitizeLastChakraGainForViewer(match.economy?.lastChakraGain, username),
         pendingTurn: getPendingTurn(match, username),
         ladderResult: match.ladderResults?.[username] || null,
     };
@@ -3257,12 +3611,14 @@ const buildMatch = (players, aliveLookup = {}, options = {}) => {
     const delayedTurnExpiry = turnExpiresAt
         ? new Date(new Date(turnExpiresAt).getTime() + MATCH_FOUND_HOLD_MS)
         : matchStartsAt;
+    const turnStartedAt = matchStartsAt;
     quickMatches.set(matchId, {
         players,
         createdAt: new Date(),
         matchStartsAt,
         turnOrder,
         currentTurn,
+        turnStartedAt,
         chakraPools,
         economy,
         pendingTurns: Object.fromEntries(players.map((username) => [username, makeEmptyPendingTurn()])),
@@ -3282,6 +3638,7 @@ const buildMatch = (players, aliveLookup = {}, options = {}) => {
         matchStartsAt,
         turnOrder,
         currentTurn,
+        turnStartedAt,
         chakraPools,
         economy,
         pendingTurns: Object.fromEntries(players.map((username) => [username, makeEmptyPendingTurn()])),
@@ -3356,6 +3713,7 @@ const buildBattleBotMatch = async ({ username, team, mode, playerProfile }) => {
         economy: built.economy,
         pendingTurns: built.pendingTurns,
         currentTurn: built.currentTurn,
+        turnStartedAt: built.turnStartedAt,
         turnOrder: built.turnOrder,
         turnExpiresAt: built.turnExpiresAt,
         board,
@@ -3464,12 +3822,13 @@ const ensureMatchTurnData = async (match) => {
     }
     const usernames = (match.players || []).map((p) => p.username).filter(Boolean);
     const { turnOrder, currentTurn } = pickInitialTurn(usernames);
+    const turnStartedAt = new Date();
     const turnExpiresAt = new Date(Date.now() + getTurnDurationMsForUser(match, currentTurn));
     await matchesCollection.updateOne(
         { matchId: match.matchId },
-        { $set: { currentTurn, turnOrder, turnExpiresAt } }
+        { $set: { currentTurn, turnOrder, turnStartedAt, turnExpiresAt } }
     );
-    return { ...match, currentTurn, turnOrder, turnExpiresAt };
+    return { ...match, currentTurn, turnOrder, turnStartedAt, turnExpiresAt };
 };
 
 const ensureMatchEconomy = async (match) => {
@@ -3484,6 +3843,7 @@ const ensureMatchEconomy = async (match) => {
         );
         match.chakraPools = chakraPools;
         match.economy = economy;
+        match.turnStartedAt = match.turnStartedAt || new Date();
         match.turnExpiresAt = match.turnExpiresAt || turnExpiresAt;
         changed = true;
     } else {
@@ -3510,6 +3870,10 @@ const ensureMatchEconomy = async (match) => {
                 changed = true;
             }
         });
+        if (!match.turnStartedAt) {
+            match.turnStartedAt = new Date();
+            changed = true;
+        }
         if (!match.turnExpiresAt) {
             match.turnExpiresAt = new Date(Date.now() + getTurnDurationMsForUser(match, match.currentTurn));
             changed = true;
@@ -3537,6 +3901,7 @@ const ensureMatchEconomy = async (match) => {
                 $set: {
                     chakraPools: match.chakraPools,
                     economy: match.economy,
+                    turnStartedAt: match.turnStartedAt,
                     turnExpiresAt: match.turnExpiresAt,
                 },
             }
@@ -3843,7 +4208,12 @@ function scheduleBattleBotTurn(match) {
         return;
     }
     const matchStartsAtMs = match.matchStartsAt ? new Date(match.matchStartsAt).getTime() : Date.now();
-    const delayMs = Math.max(BATTLE_BOT_ACTION_DELAY_MS, matchStartsAtMs - Date.now() + BATTLE_BOT_ACTION_DELAY_MS);
+    const turnStartedAtMs = match.turnStartedAt ? new Date(match.turnStartedAt).getTime() : matchStartsAtMs;
+    const earliestActionAtMs = Math.max(
+        matchStartsAtMs,
+        Number.isNaN(turnStartedAtMs) ? matchStartsAtMs : turnStartedAtMs + BATTLE_BOT_ACTION_DELAY_MS
+    );
+    const delayMs = Math.max(0, earliestActionAtMs - Date.now());
     scheduledBattleBotTurns.add(matchId);
     setTimeout(() => {
         scheduledBattleBotTurns.delete(matchId);
@@ -4034,7 +4404,7 @@ const adjustRandomAssignment = ({ match, username, chakraType, delta }) => {
     match.pendingTurns[username] = pending;
 };
 
-const exchangeChakra = ({ match, username, chakraType, cost = 5, spendAssignments = null }) => {
+const exchangeChakra = ({ match, username, chakraType, cost = 4, spendAssignments = null }) => {
     if (!chakraTypes.includes(chakraType)) {
         throw new Error('Invalid chakra type.');
     }
@@ -4042,7 +4412,7 @@ const exchangeChakra = ({ match, username, chakraType, cost = 5, spendAssignment
     if (!pool) {
         throw new Error('Chakra pool unavailable.');
     }
-    const exchangeCost = Math.max(1, Number(cost) || 5);
+    const exchangeCost = Math.max(1, Number(cost) || 4);
     if (getTotalChakra(pool) < exchangeCost) {
         throw new Error(`Need at least ${exchangeCost} chakra to exchange.`);
     }
@@ -4191,6 +4561,7 @@ const finalizeTurn = async (match, username) => {
         match.endReason = 'elimination';
         match.endedAt = new Date();
         match.currentTurn = null;
+        match.turnStartedAt = null;
         match.turnExpiresAt = null;
         match.ladderResults = await applyMatchCompletionRewards(
             match,
@@ -4208,6 +4579,7 @@ const finalizeTurn = async (match, username) => {
                     endReason: match.endReason,
                     endedAt: match.endedAt,
                     currentTurn: match.currentTurn,
+                    turnStartedAt: match.turnStartedAt,
                     turnExpiresAt: match.turnExpiresAt,
                     board: match.board,
                     players: match.players,
@@ -4267,6 +4639,7 @@ const finalizeTurn = async (match, username) => {
         startingUsername: nextTurn,
     });
 
+    match.turnStartedAt = new Date();
     match.turnExpiresAt = new Date(Date.now() + getTurnDurationMsForUser(match, nextTurn));
     match.pendingTurns[username] = makeEmptyPendingTurn();
 
@@ -4280,6 +4653,7 @@ const finalizeTurn = async (match, username) => {
                 chakraPools: pools,
                 economy: econ,
                 pendingTurns: match.pendingTurns,
+                turnStartedAt: match.turnStartedAt,
                 turnExpiresAt: match.turnExpiresAt,
             },
         }
@@ -4294,6 +4668,7 @@ const finalizeTurn = async (match, username) => {
             chakraPools: pools,
             economy: econ,
             pendingTurns: match.pendingTurns,
+            turnStartedAt: match.turnStartedAt,
             turnExpiresAt: match.turnExpiresAt,
         });
     }
@@ -4348,15 +4723,85 @@ app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
 
-app.get('/api/latest-releases', (req, res) => {
-    const faceMap = buildCharacterFaceMap();
+app.get('/api/latest-releases', async (req, res) => {
+    const releases = await getLatestCharacterReleases();
     return res.json({
         ok: true,
-        releases: LATEST_CHARACTER_RELEASES.map((item) => ({
-            label: item.label,
-            characterId: item.characterId,
-            facePicture: item.characterId ? faceMap.get(item.characterId) || '' : '',
-        })),
+        releases,
+    });
+});
+
+app.get('/api/admin/latest-releases', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+    const releases = await getLatestCharacterReleases();
+    return res.json({
+        ok: true,
+        releases,
+    });
+});
+
+app.put('/api/admin/latest-releases', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+    const { error: validationError, value } = latestReleasesUpdateSchema.validate(req.body || {});
+    if (validationError) {
+        return res.status(400).json({ error: 'Invalid latest releases payload.' });
+    }
+    const normalizedReleases = normalizeLatestCharacterReleases(value.releases);
+    await appStateCollection.updateOne(
+        { key: LATEST_CHARACTER_RELEASES_STATE_KEY },
+        {
+            $set: {
+                key: LATEST_CHARACTER_RELEASES_STATE_KEY,
+                releases: normalizedReleases.map((entry) => ({
+                    characterId: entry.characterId,
+                })),
+                updatedAt: new Date(),
+            },
+        },
+        { upsert: true }
+    );
+    return res.json({
+        ok: true,
+        releases: normalizedReleases,
+    });
+});
+
+app.get('/api/admin/maintenance', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+    return res.json({
+        ok: true,
+        enabled: await getMaintenanceModeState(),
+    });
+});
+
+app.put('/api/admin/maintenance', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+    const { error: validationError, value } = maintenanceModeUpdateSchema.validate(req.body || {});
+    if (validationError) {
+        return res.status(400).json({ error: 'Invalid maintenance payload.' });
+    }
+    await appStateCollection.updateOne(
+        { key: MAINTENANCE_MODE_STATE_KEY },
+        {
+            $set: {
+                key: MAINTENANCE_MODE_STATE_KEY,
+                enabled: Boolean(value.enabled),
+                updatedAt: new Date(),
+            },
+        },
+        { upsert: true }
+    );
+    return res.json({
+        ok: true,
+        enabled: Boolean(value.enabled),
     });
 });
 
@@ -4392,7 +4837,15 @@ const registerSchema = Joi.object({
     email: Joi.string().trim().lowercase().email().max(254).required(),
 });
 
-const teamSchema = Joi.array().items(Joi.number().integer().min(0)).length(3);
+const teamSchema = Joi.array()
+    .items(Joi.number().integer().min(0))
+    .length(3)
+    .custom((team, helpers) =>
+        teamHasDuplicateCharacters(team) ? helpers.error('array.unique') : team
+    )
+    .messages({
+        'array.unique': 'Team characters must be unique.',
+    });
 
 const matchJoinSchema = Joi.object({
     team: teamSchema.required(),
@@ -4402,6 +4855,25 @@ const matchJoinSchema = Joi.object({
 
 const publicProfileLookupSchema = Joi.object({
     username: Joi.string().trim().min(1).max(64).required(),
+});
+
+const activityUpdateSchema = Joi.object({
+    currentPage: Joi.string().trim().max(120).allow('').required(),
+});
+
+const latestReleasesUpdateSchema = Joi.object({
+    releases: Joi.array()
+        .length(3)
+        .items(
+            Joi.object({
+                characterId: Joi.string().trim().max(128).allow('').required(),
+            }).required()
+        )
+        .required(),
+});
+
+const maintenanceModeUpdateSchema = Joi.object({
+    enabled: Joi.boolean().required(),
 });
 
 const avatarUpdateSchema = Joi.object({
@@ -4580,7 +5052,7 @@ app.post('/api/team/save', requireSession, async (req, res) => {
     }
     const profile = normalizeUserProfile(user);
     try {
-        await assertTeamCanBeUsed(profile, value);
+        await assertTeamCanBeUsed(profile, value, user.role);
     } catch (error) {
         return res.status(403).json({ error: error.message || 'Character is locked.' });
     }
@@ -4631,6 +5103,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                 userToMatch.delete(username);
             } else {
             scheduleBattleBotTurn(hydrated);
+            const safePayload = buildMatchPayloadForUser(hydrated, username);
             return res.json({
                 ok: true,
                 matchFound: true,
@@ -4645,9 +5118,9 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                 turnOrder: hydrated?.turnOrder || null,
                 turnExpiresAt: hydrated?.turnExpiresAt || null,
                 turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
-                chakraPools: hydrated?.chakraPools || null,
-                lastChakraGain: hydrated?.economy?.lastChakraGain || null,
-                pendingTurn: hydrated ? getPendingTurn(hydrated, username) : makeEmptyPendingTurn(),
+                chakraPools: safePayload?.chakraPools || null,
+                lastChakraGain: safePayload?.lastChakraGain || null,
+                pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
             });
             }
             }
@@ -4670,6 +5143,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
             const opponent = opponentEntry ? getPlayerDisplayName(opponentEntry) : null;
             userToMatch.set(username, { matchId: hydrated.matchId, opponent });
             scheduleBattleBotTurn(hydrated);
+            const safePayload = buildMatchPayloadForUser(hydrated, username);
             return res.json({
                 ok: true,
                 matchFound: true,
@@ -4684,9 +5158,9 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                 turnOrder: hydrated.turnOrder || null,
                 turnExpiresAt: hydrated.turnExpiresAt || null,
                 turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
-                chakraPools: hydrated.chakraPools || null,
-                lastChakraGain: hydrated.economy?.lastChakraGain || null,
-                pendingTurn: getPendingTurn(hydrated, username),
+                chakraPools: safePayload?.chakraPools || null,
+                lastChakraGain: safePayload?.lastChakraGain || null,
+                pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
             });
         }
 
@@ -4696,7 +5170,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
         }
         const profile = normalizeUserProfile(user);
         try {
-            await assertTeamCanBeUsed(profile, team);
+            await assertTeamCanBeUsed(profile, team, user.role);
         } catch (error) {
             return res.status(403).json({ error: error.message || 'Character is locked.' });
         }
@@ -4781,6 +5255,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
         });
         if (queuedBotMatch) {
             scheduleBattleBotTurn(queuedBotMatch);
+            const safePayload = buildMatchPayloadForUser(queuedBotMatch, username);
             return res.json({
                 ok: true,
                 matchFound: true,
@@ -4795,9 +5270,9 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                 turnOrder: queuedBotMatch.turnOrder || null,
                 turnExpiresAt: queuedBotMatch.turnExpiresAt || null,
                 turnDurationMs: getTurnDurationMsForUser(queuedBotMatch, queuedBotMatch?.currentTurn),
-                chakraPools: queuedBotMatch.chakraPools || null,
-                lastChakraGain: queuedBotMatch.economy?.lastChakraGain || null,
-                pendingTurn: getPendingTurn(queuedBotMatch, username),
+                chakraPools: safePayload?.chakraPools || null,
+                lastChakraGain: safePayload?.lastChakraGain || null,
+                pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
             });
         }
 
@@ -4843,6 +5318,7 @@ app.get('/api/match/status', requireSession, async (req, res) => {
                 return res.json({ ok: true, matchFound: false });
             }
             scheduleBattleBotTurn(hydrated);
+            const safePayload = buildMatchPayloadForUser(hydrated, username);
             return res.json({
                 ok: true,
                 matchFound: true,
@@ -4857,10 +5333,10 @@ app.get('/api/match/status', requireSession, async (req, res) => {
                 turnOrder: hydrated?.turnOrder || null,
                 turnExpiresAt: hydrated?.turnExpiresAt || null,
                 turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
-                board: hydrated?.board || null,
-                chakraPools: hydrated?.chakraPools || null,
-                lastChakraGain: hydrated?.economy?.lastChakraGain || null,
-                pendingTurn: hydrated ? getPendingTurn(hydrated, username) : makeEmptyPendingTurn(),
+                board: safePayload?.board || null,
+                chakraPools: safePayload?.chakraPools || null,
+                lastChakraGain: safePayload?.lastChakraGain || null,
+                pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
             });
         }
 
@@ -4872,6 +5348,7 @@ app.get('/api/match/status', requireSession, async (req, res) => {
         });
         if (botMatch) {
             scheduleBattleBotTurn(botMatch);
+            const safePayload = buildMatchPayloadForUser(botMatch, username);
             return res.json({
                 ok: true,
                 matchFound: true,
@@ -4886,9 +5363,9 @@ app.get('/api/match/status', requireSession, async (req, res) => {
                 turnOrder: botMatch.turnOrder || null,
                 turnExpiresAt: botMatch.turnExpiresAt || null,
                 turnDurationMs: getTurnDurationMsForUser(botMatch, botMatch?.currentTurn),
-                chakraPools: botMatch.chakraPools || null,
-                lastChakraGain: botMatch.economy?.lastChakraGain || null,
-                pendingTurn: getPendingTurn(botMatch, username),
+                chakraPools: safePayload?.chakraPools || null,
+                lastChakraGain: safePayload?.lastChakraGain || null,
+                pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
             });
         }
 
@@ -4912,6 +5389,7 @@ app.get('/api/match/status', requireSession, async (req, res) => {
         const opponent = opponentEntry ? getPlayerDisplayName(opponentEntry) : null;
         userToMatch.set(username, { matchId: hydrated.matchId, opponent });
         scheduleBattleBotTurn(hydrated);
+        const safePayload = buildMatchPayloadForUser(hydrated, username);
         return res.json({
             ok: true,
             matchFound: true,
@@ -4926,10 +5404,10 @@ app.get('/api/match/status', requireSession, async (req, res) => {
             turnOrder: hydrated.turnOrder || null,
             turnExpiresAt: hydrated.turnExpiresAt || null,
             turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
-            board: hydrated.board || null,
-            chakraPools: hydrated.chakraPools || null,
-            lastChakraGain: hydrated.economy?.lastChakraGain || null,
-            pendingTurn: getPendingTurn(hydrated, username),
+            board: safePayload?.board || null,
+            chakraPools: safePayload?.chakraPools || null,
+            lastChakraGain: safePayload?.lastChakraGain || null,
+            pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
         });
     } catch (error) {
         console.error('Match status error:', error);
@@ -4963,29 +5441,8 @@ app.get('/api/match/:matchId', requireSession, async (req, res) => {
     if (!playerEntry) {
         return res.status(403).json({ error: 'Not part of this match.' });
     }
-    const opponentEntry = hydrated.players.find((p) => p.username !== req.authUser.username);
     scheduleBattleBotTurn(hydrated);
-    return res.json({
-        ok: true,
-        matchId,
-        mode: hydrated.mode || 'quick',
-        status: hydrated.status || 'active',
-        winner: hydrated.winner || null,
-        surrenderedBy: hydrated.surrenderedBy || null,
-        endReason: hydrated.endReason || null,
-        endedAt: hydrated.endedAt || null,
-        player: playerEntry || null,
-        opponent: opponentEntry || null,
-        currentTurn: hydrated.currentTurn || null,
-        turnOrder: hydrated.turnOrder || null,
-        turnExpiresAt: hydrated.turnExpiresAt || null,
-        turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
-        board: hydrated.board || null,
-        chakraPools: hydrated.chakraPools || null,
-        lastChakraGain: hydrated.economy?.lastChakraGain || null,
-        pendingTurn: getPendingTurn(hydrated, req.authUser.username),
-        ladderResult: hydrated.ladderResults?.[req.authUser.username] || null,
-    });
+    return res.json(buildMatchPayloadForUser(hydrated, req.authUser.username));
 });
 
 app.post('/api/match/:matchId/surrender', requireSession, async (req, res) => {
@@ -5086,25 +5543,7 @@ app.post('/api/match/:matchId/turn/end', requireSession, async (req, res) => {
         await broadcastMatchState(updated || hydrated);
         scheduleBattleBotTurn(updated || hydrated);
 
-        return res.json({
-            ok: true,
-            matchId,
-            mode: updated.mode || hydrated.mode || 'quick',
-            status: updated.status || 'active',
-            winner: updated.winner || null,
-            surrenderedBy: updated.surrenderedBy || null,
-            endReason: updated.endReason || null,
-            endedAt: updated.endedAt || null,
-            currentTurn: updated.currentTurn,
-            turnOrder: updated.turnOrder,
-            turnExpiresAt: updated.turnExpiresAt,
-            turnDurationMs: getTurnDurationMsForUser(updated, updated?.currentTurn),
-            board: updated.board || null,
-            chakraPools: updated.chakraPools,
-            lastChakraGain: updated.economy?.lastChakraGain,
-            pendingTurn: getPendingTurn(updated, username),
-            ladderResult: updated.ladderResults?.[username] || null,
-        });
+        return res.json(buildMatchPayloadForUser(updated, username));
     } catch (error) {
         console.error('Failed to end turn:', error);
         return res.status(500).json({
@@ -5176,10 +5615,11 @@ app.post('/api/match/:matchId/skill/queue', requireSession, async (req, res) => 
             pendingTurns: hydrated.pendingTurns,
         });
         await broadcastMatchState(hydrated);
+        const safePayload = buildMatchPayloadForUser(hydrated, username);
         return res.json({
             ok: true,
-            chakraPools: hydrated.chakraPools,
-            pendingTurn: getPendingTurn(hydrated, username),
+            chakraPools: safePayload?.chakraPools || null,
+            pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
             currentTurn: hydrated.currentTurn,
             turnExpiresAt: hydrated.turnExpiresAt,
             turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
@@ -5228,8 +5668,6 @@ app.post('/api/match/:matchId/turn/start-choice', requireSession, async (req, re
             return res.status(400).json({ error: 'Invalid choice.' });
         }
         resolveTurnStartChoiceForUser({ match: hydrated, username, choiceKey });
-        const playerEntry = hydrated.players.find((player) => player.username === username) || null;
-        const opponentEntry = hydrated.players.find((player) => player.username !== username) || null;
         await persistMatchState(hydrated, {
             board: hydrated.board,
             players: hydrated.players,
@@ -5237,19 +5675,7 @@ app.post('/api/match/:matchId/turn/start-choice', requireSession, async (req, re
         });
         await broadcastMatchState(hydrated);
         scheduleBattleBotTurn(hydrated);
-        return res.json({
-            ok: true,
-            player: playerEntry,
-            opponent: opponentEntry,
-            mode: hydrated.mode || 'quick',
-            status: hydrated.status || 'active',
-            board: hydrated.board,
-            chakraPools: hydrated.chakraPools,
-            pendingTurn: getPendingTurn(hydrated, username),
-            currentTurn: hydrated.currentTurn,
-            turnExpiresAt: hydrated.turnExpiresAt,
-            turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
-        });
+        return res.json(buildMatchPayloadForUser(hydrated, username));
     } catch (error) {
         console.error('Failed to resolve turn start choice:', error);
         return res.status(500).json({
@@ -5297,10 +5723,11 @@ app.post('/api/match/:matchId/skill/cancel', requireSession, async (req, res) =>
         });
         await broadcastMatchState(hydrated);
     }
+    const safePayload = buildMatchPayloadForUser(hydrated, username);
     return res.json({
         ok: true,
-        chakraPools: hydrated.chakraPools,
-        pendingTurn: getPendingTurn(hydrated, username),
+        chakraPools: safePayload?.chakraPools || null,
+        pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
         currentTurn: hydrated.currentTurn,
         turnExpiresAt: hydrated.turnExpiresAt,
         turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
@@ -5389,10 +5816,11 @@ app.post('/api/match/:matchId/turn/random/adjust', requireSession, async (req, r
             pendingTurns: hydrated.pendingTurns,
         });
         await broadcastMatchState(hydrated);
+        const safePayload = buildMatchPayloadForUser(hydrated, username);
         return res.json({
             ok: true,
-            chakraPools: hydrated.chakraPools,
-            pendingTurn: getPendingTurn(hydrated, username),
+            chakraPools: safePayload?.chakraPools || null,
+            pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
             currentTurn: hydrated.currentTurn,
             turnExpiresAt: hydrated.turnExpiresAt,
             turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
@@ -5449,10 +5877,11 @@ app.post('/api/match/:matchId/chakra/exchange', requireSession, async (req, res)
             chakraPools: hydrated.chakraPools,
         });
         await broadcastMatchState(hydrated);
+        const safePayload = buildMatchPayloadForUser(hydrated, username);
         return res.json({
             ok: true,
-            chakraPools: hydrated.chakraPools,
-            pendingTurn: getPendingTurn(hydrated, username),
+            chakraPools: safePayload?.chakraPools || null,
+            pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
             currentTurn: hydrated.currentTurn,
             turnExpiresAt: hydrated.turnExpiresAt,
             turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
@@ -5550,6 +5979,32 @@ app.get('/api/me', requireSession, async (req, res) => {
         savedTeamIndices: Array.isArray(user.savedTeamIndices) ? user.savedTeamIndices : [],
     };
     res.json({ ok: true, user: serializeUserForClient(hydratedUser) });
+});
+
+app.post('/api/activity', requireSession, async (req, res) => {
+    const { error: validationError, value } = activityUpdateSchema.validate(req.body || {});
+    if (validationError) {
+        return res.status(400).json({ error: 'Invalid activity payload.' });
+    }
+    const user = await usersCollection.findOne({ username: req.authUser.username });
+    if (!user) {
+        return res.status(401).json({ error: 'Unauthorized.' });
+    }
+    const normalizedProfile = normalizeUserProfile(user);
+    normalizedProfile.activity.lastOnlineAt = new Date();
+    normalizedProfile.activity.currentPage = value.currentPage || '';
+    await usersCollection.updateOne(
+        { _id: user._id },
+        {
+            $set: {
+                profile: normalizedProfile,
+            },
+        }
+    );
+    return res.json({
+        ok: true,
+        activity: normalizedProfile.activity,
+    });
 });
 
 app.get('/api/admin/winrates', requireSession, async (req, res) => {

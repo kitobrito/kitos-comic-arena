@@ -1144,6 +1144,7 @@ const characters = [
                     metadata: {
                         harmful: true,
                         silenceNonDamageEffects: true,
+                        skipFirstTurnEndTick: true,
                         damageTakenBonusFlat: 5,
                         tooltipText: 'This character is silenced and takes 5 additional damage from all sources.'
                     }
@@ -1871,6 +1872,7 @@ const characters = [
                     scope: 'target',
                     metadata: {
                         harmful: true,
+                        skipFirstTurnEndTick: true,
                         tooltipText: 'This character is marked by Trident Strike.'
                     }
                 }
@@ -3049,6 +3051,15 @@ const characters = [
             ],
             effects: [
                 {
+                    type: 'damage',
+                    amount: 5,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true,
+                    }
+                },
+                {
                     type: 'apply_status',
                     statusId: 'negan_you_got_no_guts',
                     duration: 99,
@@ -3166,6 +3177,7 @@ const characters = [
                 onTeamMemberSuccessfulDamageApplyStatusToTarget: {
                     statusId: 'negan_tainted_weapons_poison',
                     duration: 99,
+                    sourceSkillId: 'negan-passive-tainted-weapons',
                     metadata: {
                         harmful: true,
                         infiniteDuration: true,
@@ -3191,6 +3203,41 @@ const characters = [
     name: 'Rick Grimes',
     facePicture: 'https://i.imgur.com/4p90X9r.png',
     characterdeescription: 'A hardened survivor from a world overrun by the dead, Rick Grimes leads with grit, instinct, and relentless will. He excels as a precision damage dealer who balances risky shots with calculated setup and late-game sustain. A man forged in chaos, Rick walks the line between control and desperation—each bullet a gamble, each decision a fight to stay alive. When his aim is steady, enemies fall in an instant; when the odds turn against him, he adapts, enduring through sheer brutality and resolve. In the end, whether by skill or sheer luck, Rick is the one still standing.',
+    startStatuses: [
+        {
+            statusId: 'rick_grimes_revolver_bullets',
+            sourceSkillId: 'rick-grimes-357-revolver',
+            duration: 99,
+            metadata: {
+                bulletsRemaining: 6,
+                hideTooltipFromEnemy: true,
+                tooltipTextTemplate: 'Rick has {bulletsRemaining} bullets left.'
+            }
+        },
+        {
+            statusId: 'rick_grimes_revolver_bullet_tracker',
+            sourceSkillId: 'rick-grimes-357-revolver',
+            duration: 99,
+            metadata: {
+                onOwnerUseSkillTrigger: true,
+                persistOnOwnerUseSkillTrigger: true,
+                onOwnerUseSkillIdsAny: ['rick-grimes-357-revolver'],
+                hideTooltipFromUnitOwner: true,
+                hideTooltipFromEnemy: true,
+                onOwnerUseSkillApplyStatusToOwner: {
+                    statusId: 'rick_grimes_revolver_bullets',
+                    duration: 99,
+                    sourceSkillId: 'rick-grimes-357-revolver',
+                    metadata: {
+                        bulletsRemaining: -1,
+                        mergeNumericAddKeys: ['bulletsRemaining'],
+                        hideTooltipFromEnemy: true,
+                        tooltipTextTemplate: 'Rick has {bulletsRemaining} bullets left.'
+                    }
+                }
+            }
+        }
+    ],
     skills: [
         {
             id: 'rick-grimes-357-revolver',
@@ -3629,7 +3676,8 @@ const characters = [
                 'Instant'
             ],
             actorCondition: {
-                statusId: 'andrea_sniper_tower_active'
+                statusId: 'andrea_sniper_tower_active',
+                missingStatusId: 'andrea_sniper_tower_disabled'
             },
             targetCondition: {
                 statusId: 'andrea_locked_on_mark'
@@ -4019,6 +4067,38 @@ const characters = [
                 }
             ]
         },
+                {
+            id: 'walker-group-banquet-all',
+            name: 'Group Banquet',
+            skillimage: 'https://i.imgur.com/J1mBmGk.png',
+            skilldescription: 'Walker and his team heals 15 HP for 2 turns.',
+            energy: [
+                'Random',
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 2,
+            classes: [
+                'Physical',
+                'Control'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'walker_group_banquet_regen',
+                    duration: 2,
+                    scope: 'self',
+                    metadata: {
+                        turnEndHealFlat: 15,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
+                        triggerOnApply: true,
+                        tooltipText: 'Walker heals 15 HP at the end of each of his turns.'
+                    }
+                }
+            ]
+        },
     ]
 },
     {
@@ -4123,20 +4203,20 @@ const characters = [
                     duration: 1,
                     scope: 'target',
                     metadata: {
-                        unpierceableDamageReductionFlat: 60,
-                        tooltipTextTemplate: 'This character has {unpierceableDamageReductionFlat}% unpierceable damage reduction.',
+                        unpierceableDamageReductionPercent: 60,
+                        tooltipTextTemplate: 'This character has {unpierceableDamageReductionPercent}% unpierceable damage reduction.',
                         onExpireApplyStatusToSelf: {
                             statusId: 'hershel_greene_morphine_shot_reduction_40',
                             duration: 1,
                             metadata: {
-                                unpierceableDamageReductionFlat: 40,
-                                tooltipTextTemplate: 'This character has {unpierceableDamageReductionFlat}% unpierceable damage reduction.',
+                                unpierceableDamageReductionPercent: 40,
+                                tooltipTextTemplate: 'This character has {unpierceableDamageReductionPercent}% unpierceable damage reduction.',
                                 onExpireApplyStatusToSelf: {
                                     statusId: 'hershel_greene_morphine_shot_reduction_20',
                                     duration: 1,
                                     metadata: {
-                                        unpierceableDamageReductionFlat: 20,
-                                        tooltipTextTemplate: 'This character has {unpierceableDamageReductionFlat}% unpierceable damage reduction.'
+                                        unpierceableDamageReductionPercent: 20,
+                                        tooltipTextTemplate: 'This character has {unpierceableDamageReductionPercent}% unpierceable damage reduction.'
                                     }
                                 }
                             }
@@ -4277,7 +4357,9 @@ const characters = [
                 onTeamMemberDamageTakenApplyStatusToOwner: {
                     statusId: 'invincible_passive_something_to_fight_for_damage_bonus',
                     duration: 99,
+                    allyOnly: true,
                     nonAfflictionOnly: true,
+                    sourceSkillId: 'invincible-passive-something-to-fight-for',
                     metadata: {
                         damageBonusFlat: 5,
                         mergeNumericAddKeys: ['damageBonusFlat'],
@@ -4475,6 +4557,50 @@ const characters = [
     characterdeescription: 'On a team, Rex excels as a burst damage and disruption specialist, ideal for breaking through durable targets and creating openings for allies. Played well, he controls the pace of the fight—forcing opponents to react or risk getting blown apart. Rex Splode is a high-pressure ranged damage dealer who thrives on controlled bursts of explosive power. Rather than relying on sustained output, he manages limited resources—charged batons and coins—to deliver precise, piercing attacks that weaken and disrupt enemies',
      startStatuses: [
          {
+             statusId: 'rex_splode_explosive_baton_usage_tracker',
+             sourceSkillId: 'rex-splode-explosive-baton',
+             duration: 99,
+             metadata: {
+                 onOwnerUseSkillTrigger: true,
+                 persistOnOwnerUseSkillTrigger: true,
+                 onOwnerUseSkillIdsAny: ['rex-splode-explosive-baton'],
+                 hideTooltipFromUnitOwner: true,
+                 hideTooltipFromEnemy: true,
+                 onOwnerUseSkillApplyStatusToOwner: {
+                     statusId: 'rex_splode_explosive_baton_usage',
+                     duration: 99,
+                     sourceSkillId: 'rex-splode-explosive-baton',
+                     metadata: {
+                         usesUsedCount: 1,
+                         mergeNumericAddKeys: ['usesUsedCount'],
+                         tooltipTextTemplate: 'Rex has used this skill {usesUsedCount} times.'
+                     }
+                 },
+             }
+         },
+         {
+             statusId: 'rex_splode_explosive_pocket_change_usage_tracker',
+             sourceSkillId: 'rex-splode-explosive-pocket-change',
+             duration: 99,
+             metadata: {
+                 onOwnerUseSkillTrigger: true,
+                 persistOnOwnerUseSkillTrigger: true,
+                 onOwnerUseSkillIdsAny: ['rex-splode-explosive-pocket-change'],
+                 hideTooltipFromUnitOwner: true,
+                 hideTooltipFromEnemy: true,
+                 onOwnerUseSkillApplyStatusToOwner: {
+                     statusId: 'rex_splode_explosive_pocket_change_usage',
+                     duration: 99,
+                     sourceSkillId: 'rex-splode-explosive-pocket-change',
+                     metadata: {
+                         usesUsedCount: 1,
+                         mergeNumericAddKeys: ['usesUsedCount'],
+                         tooltipTextTemplate: 'Rex has used this skill {usesUsedCount} times.'
+                     }
+                 },
+             }
+         },
+         {
              statusId: 'rex_splode_ammo_swap_tracker',
              sourceSkillId: 'rex-splode-passive-ammo-shift',
              duration: 99,
@@ -4492,7 +4618,6 @@ const characters = [
                      statusId: 'rex_splode_explosive_baton_spent',
                      duration: 99,
                      metadata: {
-                         hideTooltipFromUnitOwner: true,
                          hideTooltipFromEnemy: true,
                          skillReplacements: {
                              'rex-splode-explosive-baton': 'rex-splode-explosive-debris'
@@ -4500,8 +4625,6 @@ const characters = [
                          tooltipText: 'Explosive Baton is replaced by Explosive Debris.'
                      }
                  },
-                 hideTooltipFromUnitOwner: true,
-                 hideTooltipFromEnemy: true,
                  tooltipText: 'When Explosive Baton runs out of ammo, it is replaced by Explosive Debris.'
              }
          },
@@ -4523,7 +4646,6 @@ const characters = [
                      statusId: 'rex_splode_explosive_pocket_change_spent',
                      duration: 99,
                      metadata: {
-                         hideTooltipFromUnitOwner: true,
                          hideTooltipFromEnemy: true,
                          skillReplacements: {
                              'rex-splode-explosive-pocket-change': 'rex-splode-explosive-debris'
@@ -4531,8 +4653,6 @@ const characters = [
                          tooltipText: 'Explosive Pocket Change is replaced by Explosive Debris.'
                      }
                  },
-                 hideTooltipFromUnitOwner: true,
-                 hideTooltipFromEnemy: true,
                  tooltipText: 'When Explosive Pocket Change runs out of ammo, it is replaced by Explosive Debris.'
              }
          }
@@ -5107,8 +5227,8 @@ const characters = [
                     duration: 1,
                     scope: 'self',
                     metadata: {
-                        unpierceableDamageReductionFlat: 50,
-                        tooltipText: 'Omni-Man has 50 unpierceable damage reduction.'
+                        unpierceableDamageReductionPercent: 50,
+                        tooltipText: 'Omni-Man has 50% unpierceable damage reduction.'
                     }
                 },
                 {
@@ -5760,24 +5880,6 @@ const characters = [
             metadata: {
                 infiniteDuration: true,
                 minimumHp: 1,
-                onOwnerUseSkillTrigger: true,
-                persistOnOwnerUseSkillTrigger: true,
-                onOwnerUseSkillApplyStatusToOwnerCondition: {
-                    scope: 'self',
-                    statusIdsAny: [
-                        'carnage_blood_bonded_trigger_blood_slash',
-                        'carnage_blood_bonded_trigger_wide_area_cutting',
-                        'carnage_blood_bonded_trigger_blood_slinging'
-                    ]
-                },
-                onOwnerUseSkillApplyStatusToOwner: {
-                    statusId: 'carnage_blood_bonded_defense',
-                    duration: 1,
-                    metadata: {
-                        destructibleDefensePoints: 15,
-                        tooltipTextTemplate: 'Carnage has {destructibleDefensePoints} destructible defense from Blood-Bonded.'
-                    }
-                },
                 tooltipText: 'All health lost from Carnage\'s skills is given to him in the same amount as destructible defense for 1 turn. Carnage\'s skills cannot kill him.'
             }
         }
@@ -5813,19 +5915,22 @@ const characters = [
                     }
                 },
                 {
-                    type: 'HealthLoss',
+                    type: 'damage',
                     amount: 15,
-                    scope: 'self'
+                    scope: 'self',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
                 },
                 {
                     type: 'apply_status',
-                    statusId: 'carnage_blood_bonded_trigger_blood_slash',
+                    statusId: 'carnage_blood_bonded_defense',
                     duration: 1,
                     scope: 'self',
                     metadata: {
-                        hideTooltipFromUnitOwner: true,
-                        hideTooltipFromEnemy: true,
-                        tooltipText: 'Blood Slash triggered Blood-Bonded.'
+                        destructibleDefensePoints: 15,
+                        tooltipTextTemplate: 'Carnage has {destructibleDefensePoints} destructible defense from Blood-Bonded.'
                     }
                 },
                 {
@@ -5871,19 +5976,22 @@ const characters = [
                     }
                 },
                 {
-                    type: 'HealthLoss',
+                    type: 'damage',
                     amount: 15,
-                    scope: 'self'
+                    scope: 'self',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
                 },
                 {
                     type: 'apply_status',
-                    statusId: 'carnage_blood_bonded_trigger_wide_area_cutting',
+                    statusId: 'carnage_blood_bonded_defense',
                     duration: 1,
                     scope: 'self',
                     metadata: {
-                        hideTooltipFromUnitOwner: true,
-                        hideTooltipFromEnemy: true,
-                        tooltipText: 'Wide-Area Cutting triggered Blood-Bonded.'
+                        destructibleDefensePoints: 15,
+                        tooltipTextTemplate: 'Carnage has {destructibleDefensePoints} destructible defense from Blood-Bonded.'
                     }
                 },
                 {
@@ -5966,19 +6074,22 @@ const characters = [
                     }
                 },
                 {
-                    type: 'HealthLoss',
+                    type: 'damage',
                     amount: 15,
-                    scope: 'self'
+                    scope: 'self',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
                 },
                 {
                     type: 'apply_status',
-                    statusId: 'carnage_blood_bonded_trigger_blood_slinging',
+                    statusId: 'carnage_blood_bonded_defense',
                     duration: 1,
                     scope: 'self',
                     metadata: {
-                        hideTooltipFromUnitOwner: true,
-                        hideTooltipFromEnemy: true,
-                        tooltipText: 'Blood Slinging triggered Blood-Bonded.'
+                        destructibleDefensePoints: 15,
+                        tooltipTextTemplate: 'Carnage has {destructibleDefensePoints} destructible defense from Blood-Bonded.'
                     }
                 }
             ]
@@ -6491,7 +6602,7 @@ const characters = [
             id: 'mysterio-illusion-of-choice',
             name: 'Illusion of Choice',
             skillimage: 'https://i.imgur.com/L6xYXGc.png',
-            skilldescription: 'Mysterio targets one enemy for 1 turn. During this time, their next harmful skill will be reflected to a random enemy and their next helpful skill will be re-directed to a random ally. This skill is invisible.',
+            skilldescription: 'Mysterio targets one enemy for 1 turn. During this time, their next harmful skill will be reflected to a random enemy and their next helpful skill will be re-directed to a random ally. This skill is invisible to the target team.',
             energy: [
                 'Genjutsu'
             ],
@@ -6510,7 +6621,7 @@ const characters = [
                     duration: 1,
                     scope: 'target',
                     metadata: {
-                        hideTooltipFromEnemy: true,
+                        hideTooltipFromUnitOwner: true,
                         reflectNextIncomingSkill: true,
                         reflectOnlyHarmfulSkills: true,
                         reflectToRandomCasterAlly: true,
@@ -6523,7 +6634,7 @@ const characters = [
                     duration: 1,
                     scope: 'target',
                     metadata: {
-                        hideTooltipFromEnemy: true,
+                        hideTooltipFromUnitOwner: true,
                         helpfulBlind: true,
                         tooltipText: 'The next helpful skill used on this character will target a random ally.'
                     }
@@ -6749,6 +6860,8 @@ const characters = [
                     metadata: {
                         turnEndDamage: 10,
                         afflictionDamage: true,
+                        turnEndTrigger: 'source_turn',
+                        turnDurationAnchor: 'source_turn',
                         removeStatusIdsOnApply: ['scorpion_scorpion_sting_acid_secondary'],
                         onExpireApplyStatusToSelf: {
                             statusId: 'scorpion_scorpion_sting_acid_secondary',
@@ -6756,10 +6869,12 @@ const characters = [
                             metadata: {
                                 turnEndDamage: 5,
                                 afflictionDamage: true,
-                                tooltipText: 'This character takes 5 affliction damage each turn.'
+                                turnEndTrigger: 'source_turn',
+                                turnDurationAnchor: 'source_turn',
+                                tooltipText: 'This character takes 5 affliction.'
                             }
                         },
-                        tooltipText: 'This character takes 10 affliction damage each turn.'
+                        tooltipText: 'This character takes 10 affliction damage this turn and 5 affliction damage the next turn.'
                     }
                 },
                 {

@@ -722,7 +722,8 @@
     }
 
     .news-admin-input,
-    .news-admin-textarea {
+    .news-admin-textarea,
+    .news-admin-select {
       width: 100%;
       border: 3px solid var(--line);
       background: var(--panel-strong);
@@ -746,8 +747,16 @@
       line-height: 1.45;
     }
 
+    .news-admin-select {
+      height: 48px;
+      padding: 0 14px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
     .news-admin-input:focus,
-    .news-admin-textarea:focus {
+    .news-admin-textarea:focus,
+    .news-admin-select:focus {
       border-color: var(--accent-3);
       box-shadow: 0 0 0 4px rgba(31, 117, 255, 0.15);
     }
@@ -1513,6 +1522,41 @@
             <p class="news-card-note">Open any saved item to load it back into the editor and update it without leaving the page.</p>
             <p class="news-admin-status" id="news-post-list-status" aria-live="polite"></p>
             <div class="news-post-list" id="news-post-list"></div>
+          </section>
+
+          <section class="news-list-card">
+            <h2 class="news-list-title">Latest Character Releases</h2>
+            <p class="news-card-note">Choose which three characters appear in the homepage release strip.</p>
+            <form class="news-admin-form" id="latest-releases-form">
+              <label class="news-admin-label" for="latest-release-1">
+                Release Slot 1
+                <select class="news-admin-select" id="latest-release-1"></select>
+              </label>
+              <label class="news-admin-label" for="latest-release-2">
+                Release Slot 2
+                <select class="news-admin-select" id="latest-release-2"></select>
+              </label>
+              <label class="news-admin-label" for="latest-release-3">
+                Release Slot 3
+                <select class="news-admin-select" id="latest-release-3"></select>
+              </label>
+              <p class="news-admin-status" id="latest-releases-status" aria-live="polite"></p>
+              <div class="news-admin-actions">
+                <button class="news-admin-button secondary" type="button" id="latest-releases-reset-button">Reload</button>
+                <button class="news-admin-button primary" type="submit" id="latest-releases-save-button">Save Releases</button>
+              </div>
+            </form>
+          </section>
+
+          <section class="news-list-card">
+            <h2 class="news-list-title">Maintenance Mode</h2>
+            <p class="news-card-note">When enabled, normal players will only see a maintenance message until you turn it back off.</p>
+            <div class="news-admin-form">
+              <p class="news-admin-status" id="maintenance-mode-status" aria-live="polite"></p>
+              <div class="news-admin-actions">
+                <button class="news-admin-button primary" type="button" id="maintenance-mode-toggle-button">Maintenance Mode</button>
+              </div>
+            </div>
           </section>
         </div>
       </section>

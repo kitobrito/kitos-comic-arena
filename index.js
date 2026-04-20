@@ -229,8 +229,21 @@
   var newsResetButton = document.getElementById("news-reset-button");
   var newsPostList = document.getElementById("news-post-list");
   var newsPostListStatus = document.getElementById("news-post-list-status");
+  var latestReleasesForm = document.getElementById("latest-releases-form");
+  var latestReleaseSelects = [
+    document.getElementById("latest-release-1"),
+    document.getElementById("latest-release-2"),
+    document.getElementById("latest-release-3")
+  ];
+  var latestReleasesStatus = document.getElementById("latest-releases-status");
+  var latestReleasesSaveButton = document.getElementById("latest-releases-save-button");
+  var latestReleasesResetButton = document.getElementById("latest-releases-reset-button");
+  var maintenanceModeStatus = document.getElementById("maintenance-mode-status");
+  var maintenanceModeToggleButton = document.getElementById("maintenance-mode-toggle-button");
   var adminNewsPosts = [];
   var characterCatalog = [];
+  var adminLatestReleases = [];
+  var maintenanceModeEnabled = false;
   var publicNewsPosts = [];
   var currentNewsPostIndex = 0;
   var profileLookupStorageKey = "narutoProfileLookupUser";
@@ -459,6 +472,42 @@
       return;
     }
     delete newsPostListStatus.dataset.state;
+  }
+
+  function setLatestReleasesStatus(message, state) {
+    if (!latestReleasesStatus) {
+      return;
+    }
+    latestReleasesStatus.textContent = message || "";
+    if (state) {
+      latestReleasesStatus.dataset.state = state;
+      return;
+    }
+    delete latestReleasesStatus.dataset.state;
+  }
+
+  function setMaintenanceModeStatus(message, state) {
+    if (!maintenanceModeStatus) {
+      return;
+    }
+    maintenanceModeStatus.textContent = message || "";
+    if (state) {
+      maintenanceModeStatus.dataset.state = state;
+      return;
+    }
+    delete maintenanceModeStatus.dataset.state;
+  }
+
+  function renderMaintenanceModeState() {
+    if (maintenanceModeToggleButton) {
+      maintenanceModeToggleButton.textContent = maintenanceModeEnabled
+        ? "Disable Maintenance Mode"
+        : "Enable Maintenance Mode";
+    }
+    setMaintenanceModeStatus(
+      maintenanceModeEnabled ? "Maintenance mode is currently ON." : "Maintenance mode is currently OFF.",
+      maintenanceModeEnabled ? "error" : "success"
+    );
   }
 
   function splitNewsText(value) {
@@ -939,7 +988,7 @@
   }
 
   async function loadCharacterCatalog() {
-    if (!newsChangesInput) {
+    if (!newsChangesInput && !latestReleasesForm) {
       return;
     }
     try {
@@ -953,7 +1002,172 @@
         return;
       }
       characterCatalog = data && Array.isArray(data.characters) ? data.characters : [];
+      populateLatestReleaseSelectOptions();
     } catch (error) {}
+  }
+
+  function populateLatestReleaseSelectOptions() {
+    if (!latestReleaseSelects.length) {
+      return;
+    }
+    var characters = Array.isArray(characterCatalog) ? characterCatalog.slice() : [];
+    characters.sort(function (left, right) {
+      return String(left && left.name ? left.name : "").localeCompare(String(right && right.name ? right.name : ""));
+    });
+    latestReleaseSelects.forEach(function (select) {
+      if (!select) {
+        return;
+      }
+      var selectedValue = select.value || "";
+      clearChildren(select);
+      var placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.textContent = "None";
+      select.appendChild(placeholder);
+      characters.forEach(function (character) {
+        var option = document.createElement("option");
+        option.value = character && character.characterId ? String(character.characterId) : "";
+        option.textContent = character && character.name ? String(character.name) : option.value;
+        select.appendChild(option);
+      });
+      select.value = selectedValue;
+      if (select.value !== selectedValue) {
+        select.value = "";
+      }
+    });
+  }
+
+  function populateLatestReleasesEditor(releases) {
+    adminLatestReleases = Array.isArray(releases) ? releases.slice(0, 3) : [];
+    latestReleaseSelects.forEach(function (select, index) {
+      if (!select) {
+        return;
+      }
+      var entry = adminLatestReleases[index] || null;
+      select.value = entry && entry.characterId ? String(entry.characterId) : "";
+    });
+    setLatestReleasesStatus("");
+  }
+
+  async function loadAdminLatestReleases() {
+    if (!latestReleasesForm) {
+      return;
+    }
+    setLatestReleasesStatus("Loading latest releases...");
+    try {
+      var response = await fetch("/api/admin/latest-releases", {
+        credentials: "same-origin"
+      });
+      var data = await response.json().catch(function () {
+        return {};
+      });
+      if (!response.ok) {
+        setLatestReleasesStatus(data && data.error ? data.error : "Unable to load latest releases.", "error");
+        return;
+      }
+      populateLatestReleasesEditor(data && Array.isArray(data.releases) ? data.releases : []);
+    } catch (error) {
+      setLatestReleasesStatus("Unable to reach the server.", "error");
+    }
+  }
+
+  async function saveAdminLatestReleases() {
+    if (!latestReleasesForm) {
+      return;
+    }
+    var payload = {
+      releases: latestReleaseSelects.map(function (select) {
+        return {
+          characterId: select && select.value ? String(select.value) : ""
+        };
+      })
+    };
+    if (latestReleasesSaveButton) {
+      latestReleasesSaveButton.disabled = true;
+    }
+    setLatestReleasesStatus("Saving latest releases...");
+    try {
+      var response = await fetch("/api/admin/latest-releases", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "same-origin",
+        body: JSON.stringify(payload)
+      });
+      var data = await response.json().catch(function () {
+        return {};
+      });
+      if (!response.ok) {
+        setLatestReleasesStatus(data && data.error ? data.error : "Unable to save latest releases.", "error");
+        return;
+      }
+      populateLatestReleasesEditor(data && Array.isArray(data.releases) ? data.releases : []);
+      setLatestReleasesStatus("Latest character releases updated.", "success");
+      loadLatestReleases();
+    } catch (error) {
+      setLatestReleasesStatus("Unable to reach the server.", "error");
+    } finally {
+      if (latestReleasesSaveButton) {
+        latestReleasesSaveButton.disabled = false;
+      }
+    }
+  }
+
+  async function loadMaintenanceMode() {
+    if (!maintenanceModeToggleButton) {
+      return;
+    }
+    setMaintenanceModeStatus("Loading maintenance mode...");
+    try {
+      var response = await fetch("/api/admin/maintenance", {
+        credentials: "same-origin"
+      });
+      var data = await response.json().catch(function () {
+        return {};
+      });
+      if (!response.ok) {
+        setMaintenanceModeStatus(data && data.error ? data.error : "Unable to load maintenance mode.", "error");
+        return;
+      }
+      maintenanceModeEnabled = !!(data && data.enabled);
+      renderMaintenanceModeState();
+    } catch (error) {
+      setMaintenanceModeStatus("Unable to reach the server.", "error");
+    }
+  }
+
+  async function toggleMaintenanceMode() {
+    if (!maintenanceModeToggleButton) {
+      return;
+    }
+    maintenanceModeToggleButton.disabled = true;
+    setMaintenanceModeStatus(maintenanceModeEnabled ? "Disabling maintenance mode..." : "Enabling maintenance mode...");
+    try {
+      var response = await fetch("/api/admin/maintenance", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        credentials: "same-origin",
+        body: JSON.stringify({
+          enabled: !maintenanceModeEnabled
+        })
+      });
+      var data = await response.json().catch(function () {
+        return {};
+      });
+      if (!response.ok) {
+        setMaintenanceModeStatus(data && data.error ? data.error : "Unable to update maintenance mode.", "error");
+        return;
+      }
+      maintenanceModeEnabled = !!(data && data.enabled);
+      renderMaintenanceModeState();
+    } catch (error) {
+      setMaintenanceModeStatus("Unable to reach the server.", "error");
+    } finally {
+      maintenanceModeToggleButton.disabled = false;
+    }
   }
 
   async function saveNewsPost() {
@@ -2074,6 +2288,73 @@
       .slice(0, 64);
   }
 
+  function getCurrentActivityPageLabel() {
+    var pathname = String(window.location.pathname || "").toLowerCase();
+    var pageName = pathname.split("/").pop() || "index.html";
+    var pageMap = {
+      "index.html": "Comic Arena > Home",
+      "profile.html": "Comic Arena > Profile",
+      "clanprofile.html": "Comic Arena > Clan Profile",
+      "selection.html": "Comic Arena > Selection",
+      "ingame.html": "Comic Arena > In Game"
+    };
+    return pageMap[pageName] || "Comic Arena > " + pageName.replace(/\.html$/i, "").replace(/[-_]+/g, " ");
+  }
+
+  function isUserCurrentlyOnline(user) {
+    var timestamp = user && user.profile && user.profile.activity
+      ? user.profile.activity.lastOnlineAt
+      : null;
+    var lastOnlineAt = timestamp ? new Date(timestamp) : null;
+    if (!lastOnlineAt || Number.isNaN(lastOnlineAt.getTime())) {
+      return false;
+    }
+    return Date.now() - lastOnlineAt.getTime() <= 2 * 60 * 1000;
+  }
+
+  function getProfileCurrentPageLabel(user) {
+    var isCurrentSessionProfile = Boolean(
+      currentSessionUser &&
+      currentSessionUser.username &&
+      user &&
+      user.username &&
+      String(currentSessionUser.username).trim().toLowerCase() === String(user.username).trim().toLowerCase()
+    );
+    if (isCurrentSessionProfile) {
+      return getCurrentActivityPageLabel();
+    }
+    return user && user.profile && user.profile.activity && user.profile.activity.currentPage
+      ? user.profile.activity.currentPage
+      : "Not available";
+  }
+
+  async function reportCurrentActivity() {
+    if (!(currentSessionUser && currentSessionUser.username)) {
+      return;
+    }
+    var currentPage = getCurrentActivityPageLabel();
+    try {
+      await fetch("/api/activity", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          currentPage: currentPage
+        })
+      });
+      if (!currentSessionUser.profile) {
+        currentSessionUser.profile = {};
+      }
+      if (!currentSessionUser.profile.activity) {
+        currentSessionUser.profile.activity = {};
+      }
+      currentSessionUser.profile.activity.currentPage = currentPage;
+      currentSessionUser.profile.activity.lastOnlineAt = new Date().toISOString();
+    } catch (error) {}
+  }
+
   function cacheSessionUser(user) {
     try {
       if (!user || !user.username) {
@@ -2748,7 +3029,7 @@
         profileStatus.className = "status-offline";
       }
       setText(profileCurrentActivity, "Not available");
-      setText(profileCurrentPage, "Naruto Arena > Profile");
+      setText(profileCurrentPage, "Not available");
       renderLadderGames(null);
       renderQuickGames(null);
       if (clanPanelAvatar) {
@@ -2834,9 +3115,10 @@
             : 0
       )
     );
+    var isOnline = isUserCurrentlyOnline(user);
     if (profileStatus) {
-      profileStatus.textContent = "online";
-      profileStatus.className = "status-online";
+      profileStatus.textContent = isOnline ? "online" : "offline";
+      profileStatus.className = isOnline ? "status-online" : "status-offline";
     }
     setText(
       profileCurrentActivity,
@@ -2846,7 +3128,7 @@
           : user.createdAt
       )
     );
-    setText(profileCurrentPage, "Naruto Arena > Profile");
+    setText(profileCurrentPage, getProfileCurrentPageLabel(user));
     renderLadderGames(user);
     renderQuickGames(user);
     renderPrivateGames(user);
@@ -2988,6 +3270,9 @@
   function setCurrentSessionUser(user) {
     currentSessionUser = user && user.username ? user : null;
     updateClanPanelNotification(currentSessionUser);
+    if (currentSessionUser) {
+      reportCurrentActivity();
+    }
   }
 
   function updateMode() {
@@ -3005,7 +3290,7 @@
     }
 
     authTitle.textContent = "Login";
-    authDescription.textContent = "Sign in with your Naruto-Arena account.";
+    authDescription.textContent = "Sign in with your Comic-Arena account.";
     authSubmit.textContent = "Login";
     authToggle.textContent = "Need an account? Register";
     passwordInput.autocomplete = "current-password";
@@ -3375,6 +3660,25 @@
   if (newsResetButton) {
     newsResetButton.addEventListener("click", function () {
       resetNewsEditor();
+    });
+  }
+
+  if (latestReleasesForm) {
+    latestReleasesForm.addEventListener("submit", function (event) {
+      event.preventDefault();
+      saveAdminLatestReleases();
+    });
+  }
+
+  if (latestReleasesResetButton) {
+    latestReleasesResetButton.addEventListener("click", function () {
+      loadAdminLatestReleases();
+    });
+  }
+
+  if (maintenanceModeToggleButton) {
+    maintenanceModeToggleButton.addEventListener("click", function () {
+      toggleMaintenanceMode();
     });
   }
 
@@ -4265,6 +4569,8 @@
   loadPublicNews();
   loadAdminNewsPosts();
   loadCharacterCatalog();
+  loadAdminLatestReleases();
+  loadMaintenanceMode();
 
   fetchSessionUser().then(function (user) {
     var isAdminOnlyPage = /(winrates|playeraccounts|newspost|charactereditor|editmission)\.html$/i.test(window.location.pathname || "");
@@ -4387,5 +4693,17 @@
     }
     showGuestView();
     populateProfile(null);
+  });
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible" && currentSessionUser && currentSessionUser.username) {
+      reportCurrentActivity();
+    }
+  });
+
+  window.addEventListener("focus", function () {
+    if (currentSessionUser && currentSessionUser.username) {
+      reportCurrentActivity();
+    }
   });
 }());

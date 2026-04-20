@@ -279,6 +279,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             'narutoUser',
             JSON.stringify({
                 username: user.username,
+                role: typeof user.role === 'string' ? user.role : 'player',
                 avatarUrl: user.profile?.avatarUrl || defaultProfileAvatar,
                 clanAbbreviation: user.profile?.clan?.abbreviation || '',
                 ladder: normalizeLadderPresentation(user.profile?.ladder),
@@ -289,6 +290,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 matchmaking: normalizeMatchmakingPresentation(user.profile?.matchmaking),
             })
         );
+    };
+
+    const isCurrentUserAdmin = () => {
+        const profileRole =
+            typeof profileCache?.role === 'string' ? profileCache.role.trim().toLowerCase() : '';
+        if (profileRole === 'admin') {
+            return true;
+        }
+        const cachedUser = readCachedUser();
+        return typeof cachedUser?.role === 'string' && cachedUser.role.trim().toLowerCase() === 'admin';
     };
 
     const getUnlockedCharacterIdSet = () => {
@@ -336,6 +347,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const isCharacterLocked = (character) => {
+        if (isCurrentUserAdmin()) {
+            return false;
+        }
         const characterId = typeof character?.characterId === 'string'
             ? character.characterId.trim().toLowerCase()
             : '';
@@ -439,6 +453,44 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    const getCurrentActivityPageLabel = () => {
+        const pageMap = {
+            'index.html': 'Comic Arena > Home',
+            'profile.html': 'Comic Arena > Profile',
+            'clanprofile.html': 'Comic Arena > Clan Profile',
+            'selection.html': 'Comic Arena > Selection',
+            'ingame.html': 'Comic Arena > In Game',
+        };
+        return pageMap[pageName] || `Comic Arena > ${pageName.replace(/\.html$/i, '').replace(/[-_]+/g, ' ')}`;
+    };
+
+    const reportCurrentActivity = async () => {
+        if (!profileCache?.username) return;
+        const currentPage = getCurrentActivityPageLabel();
+        try {
+            await fetch(`${API_BASE_URL}/api/activity`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    currentPage,
+                }),
+            });
+            if (!profileCache.profile) {
+                profileCache.profile = {};
+            }
+            if (!profileCache.profile.activity) {
+                profileCache.profile.activity = {};
+            }
+            profileCache.profile.activity.currentPage = currentPage;
+            profileCache.profile.activity.lastOnlineAt = new Date().toISOString();
+        } catch (error) {
+            return;
+        }
+    };
+
     const fetchProfile = async () => {
         try {
             const response = await fetch(`${API_BASE_URL}/api/me`, {
@@ -451,6 +503,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (data?.user?.username) {
                 profileCache = data.user;
                 writeCachedUser(data.user);
+                reportCurrentActivity();
                 return data.user;
             }
         } catch (error) {
@@ -494,6 +547,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             applyCustomBackgrounds(apiUser);
         }
     };
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            reportCurrentActivity();
+        }
+    });
+
+    window.addEventListener('focus', () => {
+        reportCurrentActivity();
+    });
 
     const fetchPublicProfile = async (username) => {
         if (!username) return null;
@@ -601,7 +664,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const timerBar = document.querySelector('.timer-bar');
         const TURN_DURATION_MS = 60_000;
         const TIMER_MAX_WIDTH = 191;
-        const EXCHANGE_CHAKRA_COST = 5;
+        const EXCHANGE_CHAKRA_COST = 4;
         const READY_TEXT_PLAYER = 'PRESS WHEN READY';
         const READY_TEXT_OPPONENT = "OPPONENT'S TURN...";
         let lastTurnOwner = null;
@@ -1234,11 +1297,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 uses,
                 maxUses,
                 isMaxed,
-                tooltipText: isLimited
-                    ? isMaxed
-                        ? `${skill?.name || 'This skill'} cannot be used.`
-                        : `${skill?.name || 'This skill'} has been used ${uses} time${uses === 1 ? '' : 's'}.`
-                    : '',
+                tooltipText: isLimited ? `Rex has used this skill ${uses} time${uses === 1 ? '' : 's'}.` : '',
             };
         };
 
@@ -1371,7 +1430,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const actorUnit = Array.isArray(playerUnits) ? playerUnits[meta.actorSlot] : null;
                 const cooldowns = actorUnit?.state?.cooldowns || {};
                 const effectiveSkill = getEffectiveSkillForActorSlot(meta.actorSlot, meta.skillIdx) || meta?.skill;
-                const usageState = getSkillUsageState(actorUnit, effectiveSkill);
                 const skillId = effectiveSkill?.id || '';
                 const cooldownRemaining = skillId ? Math.max(0, Number(cooldowns[skillId]) || 0) : 0;
                 if (cooldownRemaining > 0) {
@@ -2039,6 +2097,37 @@ document.addEventListener('DOMContentLoaded', async () => {
             return tooltip;
         };
 
+        const getTemplateMetadataValue = (metadata = {}, key = '') => {
+            if (!metadata || typeof metadata !== 'object' || !key) return undefined;
+            if (metadata[key] !== undefined && metadata[key] !== null) {
+                return metadata[key];
+            }
+            const normalizedKey = String(key).toLowerCase();
+            const matchedEntry = Object.entries(metadata).find(([entryKey, entryValue]) => {
+                if (entryValue === undefined || entryValue === null) return false;
+                return String(entryKey).toLowerCase() === normalizedKey;
+            });
+            return matchedEntry ? matchedEntry[1] : undefined;
+        };
+
+        const renderTooltipTemplate = (template, metadata = {}, overrides = {}) => {
+            if (typeof template !== 'string' || !template) return template;
+            return template.replace(/\{([a-zA-Z0-9_]+)\}|\[([a-zA-Z0-9_]+)\]/g, (_, braceKey, bracketKey) => {
+                const key = braceKey || bracketKey || '';
+                if (Object.prototype.hasOwnProperty.call(overrides, key)) {
+                    return String(overrides[key]);
+                }
+                const value = getTemplateMetadataValue(metadata, key);
+                if (value === undefined || value === null) {
+                    return braceKey ? `{${key}}` : `[${key}]`;
+                }
+                if (typeof value === 'number') {
+                    return Number.isFinite(value) ? String(value) : '0';
+                }
+                return String(value);
+            });
+        };
+
         const positionGlobalStatusTooltip = (
             event,
             anchorEl = null,
@@ -2215,30 +2304,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                             typeof statusMetadata?.stackMetadataKey === 'string'
                                 ? statusMetadata.stackMetadataKey
                                 : '';
-                        text = runtimeTooltipTemplate.replace(/\{([a-zA-Z0-9_]+)\}/g, (_, key) => {
-                            if (key === 'stacks' && stackKey) {
-                                return String(Math.max(0, Number(statusMetadata?.[stackKey]) || 0));
-                            }
-                            if (key === 'restoreTurnsLeft') {
-                                return String(restoreTurnsLeft);
-                            }
-                            if (key === 'turnEndDamage' && groupedTurnEndDamageTotal > 0) {
-                                return String(groupedTurnEndDamageTotal);
-                            }
-                            if (key === 'NonAfflictionDamageDebuff' && groupedNonAfflictionDebuffTotal > 0) {
-                                return String(groupedNonAfflictionDebuffTotal);
-                            }
-                            if (key === 'DamageDebuff' && groupedDamageDebuffTotal > 0) {
-                                return String(groupedDamageDebuffTotal);
-                            }
-                            const rawValue = statusMetadata?.[key];
-                            if (rawValue === null || rawValue === undefined) {
-                                return `{${key}}`;
-                            }
-                            if (typeof rawValue === 'number') {
-                                return Number.isFinite(rawValue) ? String(rawValue) : '0';
-                            }
-                            return String(rawValue);
+                        text = renderTooltipTemplate(runtimeTooltipTemplate, statusMetadata, {
+                            ...(stackKey
+                                ? { stacks: Math.max(0, Number(statusMetadata?.[stackKey]) || 0) }
+                                : {}),
+                            restoreTurnsLeft,
+                            ...(groupedTurnEndDamageTotal > 0 ? { turnEndDamage: groupedTurnEndDamageTotal } : {}),
+                            ...(groupedNonAfflictionDebuffTotal > 0
+                                ? { NonAfflictionDamageDebuff: groupedNonAfflictionDebuffTotal }
+                                : {}),
+                            ...(groupedDamageDebuffTotal > 0 ? { DamageDebuff: groupedDamageDebuffTotal } : {}),
                         });
                     }
                     const hasCustomTooltipText = Boolean(statusMetadata?.tooltipText || runtimeTooltipTemplate);
@@ -2494,25 +2569,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const slot = Number.parseInt(target?.slot, 10);
                     if (!username || !Number.isInteger(slot) || slot < 0) return;
                     const unit = latestBoardState?.[username]?.[slot];
-                    const dead = isUnitDeadLike(unit);
-                    if (dead) return;
+                    if (unit && isUnitDeadLike(unit)) return;
+                    const card = getCardByUsernameSlot(username, slot) || (
+                        username === currentPlayerUsername
+                            ? (Array.isArray(playerCards) ? playerCards[slot] : null)
+                            : (Array.isArray(enemyCards) ? enemyCards[slot] : null)
+                    );
+                    if (!card) return;
                     const key = `${username}:${slot}`;
                     if (!queuedByTargetKey.has(key)) {
-                        queuedByTargetKey.set(key, []);
+                        queuedByTargetKey.set(key, {
+                            card,
+                            entries: [],
+                        });
                     }
-                    queuedByTargetKey.get(key).push({
+                    queuedByTargetKey.get(key).entries.push({
                         iconSrc,
                         skillName: effectiveSkill?.name || 'Queued Skill',
                     });
                 });
             });
 
-            queuedByTargetKey.forEach((entries, key) => {
-                const [username, slotText] = key.split(':');
-                const slot = Number.parseInt(slotText, 10);
-                if (!username || !Number.isInteger(slot) || slot < 0) return;
-                const cards = username === currentPlayerUsername ? playerCards : enemyCards;
-                const card = Array.isArray(cards) ? cards[slot] : null;
+            queuedByTargetKey.forEach(({ card, entries }) => {
                 const tooltipWrap = card?.querySelector('.skilltooltips');
                 const tooltipImgTemplate =
                     tooltipWrap?.querySelector('.skilltooltipimage.status-icon-template') ||
@@ -2552,9 +2630,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (skillInfo.descEl) {
                 const baseDescription = skill.skilldescription || '';
-                skillInfo.descEl.textContent = usageState.tooltipText
-                    ? `${baseDescription} ${usageState.tooltipText}`.trim()
-                    : baseDescription;
+                skillInfo.descEl.textContent = baseDescription;
             }
             if (skillInfo.cooldownEl) {
                 skillInfo.cooldownEl.textContent = `Cooldown: ${skill.cooldown ?? '-'}`;

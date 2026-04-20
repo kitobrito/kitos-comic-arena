@@ -233,6 +233,7 @@ const getStatusMetadataTotals = (actorState, ownerUnit = null) => {
         damageReductionFlat: 0,
         damageReductionPercent: 0,
         unpierceableDamageReductionFlat: 0,
+        unpierceableDamageReductionPercent: 0,
         physicalDamageReductionFlat: 0,
         damageTakenBonusFlat: 0,
         damageTakenMultiplier: 1,
@@ -263,6 +264,10 @@ const getStatusMetadataTotals = (actorState, ownerUnit = null) => {
         totals.damageReductionFlat += Number(metadata.damageReductionFlat) || 0;
         totals.unpierceableDamageReductionFlat += Number(metadata.unpierceableDamageReductionFlat) || 0;
         totals.damageReductionPercent += Math.max(0, Number(metadata.damageReductionPercent) || 0);
+        totals.unpierceableDamageReductionPercent += Math.max(
+            0,
+            Number(metadata.unpierceableDamageReductionPercent) || 0
+        );
         totals.physicalDamageReductionFlat += Number(metadata.physicalDamageReductionFlat) || 0;
         totals.damageTakenBonusFlat += Number(metadata.damageTakenBonusFlat) || 0;
         if (Number.isFinite(metadata.damageTakenMultiplier)) {
@@ -779,10 +784,24 @@ const pickRandomEntry = (entries = []) => {
     return entries[Math.floor(Math.random() * entries.length)] || null;
 };
 
+const getTemplateMetadataValue = (metadata = {}, key = '') => {
+    if (!metadata || typeof metadata !== 'object' || !key) return undefined;
+    if (metadata[key] !== undefined && metadata[key] !== null) {
+        return metadata[key];
+    }
+    const normalizedKey = String(key).toLowerCase();
+    const matchedEntry = Object.entries(metadata).find(([entryKey, entryValue]) => {
+        if (entryValue === undefined || entryValue === null) return false;
+        return String(entryKey).toLowerCase() === normalizedKey;
+    });
+    return matchedEntry ? matchedEntry[1] : undefined;
+};
+
 const renderTooltipTemplate = (template, metadata = {}) => {
     if (typeof template !== 'string' || !template) return template;
-    return template.replace(/\{([a-zA-Z0-9_]+)\}/g, (_, key) => {
-        const value = metadata?.[key];
+    return template.replace(/\{([a-zA-Z0-9_]+)\}|\[([a-zA-Z0-9_]+)\]/g, (_, braceKey, bracketKey) => {
+        const key = braceKey || bracketKey || '';
+        const value = getTemplateMetadataValue(metadata, key);
         if (value === undefined || value === null) return '';
         return String(value);
     });
@@ -1865,18 +1884,22 @@ const maybeTriggerReactiveDefenses = ({
     skillClasses = [],
     skillIsHarmful = false,
     sourceSkillId = null,
+    allowSelfTrapTrigger = false,
 }) => {
     if (!recipient?.unit || recipient.unit.alive === false) return false;
     if (!actorUnit || actorUnit.alive === false) return false;
-    if (recipient.username === actingUsername) return false;
+    const isSelfTrapTrigger = recipient.username === actingUsername;
+    if (isSelfTrapTrigger && !allowSelfTrapTrigger) return false;
 
-    maybeTriggerReflectDamage({
-        match,
-        turnMarker,
-        actingUsername,
-        recipient,
-        actorUnit,
-    });
+    if (!isSelfTrapTrigger) {
+        maybeTriggerReflectDamage({
+            match,
+            turnMarker,
+            actingUsername,
+            recipient,
+            actorUnit,
+        });
+    }
 
     const targetState = ensureUnitStateShape(recipient.unit);
     const statuses = Array.isArray(targetState.statuses) ? targetState.statuses : [];
@@ -2223,36 +2246,69 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
     if (damageTakenBonusFlat > 0) {
         incoming += damageTakenBonusFlat;
     }
-    const percentReduction = ignoreDamageReduction
+    const standardPercentReduction = ignoreDamageReduction
         ? 0
         : cannotReduceDamage
         ? 0
         : Math.min(100, Math.max(0, Number(totals.damageReductionPercent) || 0));
-    let afterPercent = incoming * (1 - percentReduction / 100);
+    let afterStandardPercent = incoming * (1 - standardPercentReduction / 100);
     const percentMitigationStateMap = context?.percentMitigationStateMap;
     const percentMitigationStateKey = context?.percentMitigationStateKey;
     if (
-        percentReduction > 0 &&
+        standardPercentReduction > 0 &&
         percentMitigationStateMap instanceof Map &&
         percentMitigationStateKey
     ) {
-        const existing = percentMitigationStateMap.get(percentMitigationStateKey);
+        const existing = percentMitigationStateMap.get(`standard:${percentMitigationStateKey}`);
         const state =
             existing && typeof existing === 'object'
                 ? existing
-                : { gross: 0, prevented: 0, percent: percentReduction };
-        const stablePercent = Math.max(0, Math.min(100, Number(state.percent) || percentReduction));
+                : { gross: 0, prevented: 0, percent: standardPercentReduction };
+        const stablePercent = Math.max(
+            0,
+            Math.min(100, Number(state.percent) || standardPercentReduction)
+        );
         const nextGross = Math.max(0, Number(state.gross) || 0) + incoming;
         const targetPreventedTotal = nextGross * (stablePercent / 100);
         const preventedThisHit = Math.max(
             0,
             targetPreventedTotal - Math.max(0, Number(state.prevented) || 0)
         );
-        afterPercent = Math.max(0, incoming - preventedThisHit);
+        afterStandardPercent = Math.max(0, incoming - preventedThisHit);
         state.gross = nextGross;
         state.prevented = Math.max(0, Number(state.prevented) || 0) + preventedThisHit;
         state.percent = stablePercent;
-        percentMitigationStateMap.set(percentMitigationStateKey, state);
+        percentMitigationStateMap.set(`standard:${percentMitigationStateKey}`, state);
+    }
+    const unpierceablePercentReduction = cannotReduceDamage
+        ? 0
+        : Math.min(100, Math.max(0, Number(totals.unpierceableDamageReductionPercent) || 0));
+    let afterPercent = afterStandardPercent * (1 - unpierceablePercentReduction / 100);
+    if (
+        unpierceablePercentReduction > 0 &&
+        percentMitigationStateMap instanceof Map &&
+        percentMitigationStateKey
+    ) {
+        const existing = percentMitigationStateMap.get(`unpierceable:${percentMitigationStateKey}`);
+        const state =
+            existing && typeof existing === 'object'
+                ? existing
+                : { gross: 0, prevented: 0, percent: unpierceablePercentReduction };
+        const stablePercent = Math.max(
+            0,
+            Math.min(100, Number(state.percent) || unpierceablePercentReduction)
+        );
+        const nextGross = Math.max(0, Number(state.gross) || 0) + afterStandardPercent;
+        const targetPreventedTotal = nextGross * (stablePercent / 100);
+        const preventedThisHit = Math.max(
+            0,
+            targetPreventedTotal - Math.max(0, Number(state.prevented) || 0)
+        );
+        afterPercent = Math.max(0, afterStandardPercent - preventedThisHit);
+        state.gross = nextGross;
+        state.prevented = Math.max(0, Number(state.prevented) || 0) + preventedThisHit;
+        state.percent = stablePercent;
+        percentMitigationStateMap.set(`unpierceable:${percentMitigationStateKey}`, state);
     }
     const baseGeneralMitigation =
         ignoreDamageReduction || cannotReduceDamage
@@ -3096,6 +3152,13 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         ) {
             continue;
         }
+        if (skill?.id) {
+            const skillUses =
+                actorState.skillUses && typeof actorState.skillUses === 'object' ? actorState.skillUses : {};
+            skillUses[skill.id] = (Number(skillUses[skill.id]) || 0) + 1;
+            actorState.skillUses = skillUses;
+        }
+
         const ownerUseSkillTriggeredStatusIds = new Set();
         const skillIsMental = hasSkillClass(skill?.classes || [], 'mental');
         (Array.isArray(actorState?.statuses) ? actorState.statuses : []).forEach((status) => {
@@ -3164,9 +3227,20 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                       .map((entry) => normalizeSkillClassName(entry))
                       .filter(Boolean)
                 : [];
+            const ownerUseSkillTriggerIdsAny = Array.isArray(status?.metadata?.onOwnerUseSkillIdsAny)
+                ? status.metadata.onOwnerUseSkillIdsAny
+                      .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
+                      .filter(Boolean)
+                : [];
             if (
                 ownerUseSkillTriggerClassesAny.length > 0 &&
                 !ownerUseSkillTriggerClassesAny.some((entry) => hasSkillClass(skill?.classes || [], entry))
+            ) {
+                return;
+            }
+            if (
+                ownerUseSkillTriggerIdsAny.length > 0 &&
+                !ownerUseSkillTriggerIdsAny.includes(skill?.id || '')
             ) {
                 return;
             }
@@ -3181,9 +3255,8 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 status?.sourceUsername && Number.isInteger(status?.sourceSlot)
                     ? match.board?.[status.sourceUsername]?.[Number(status.sourceSlot)] || null
                     : null;
-            if (!sourceUnit || sourceUnit.alive === false) return;
             const healAmount = Math.max(0, Number(status?.metadata?.onOwnerUseSkillHealSourceAmount) || 0);
-            if (healAmount > 0) {
+            if (healAmount > 0 && sourceUnit && sourceUnit.alive !== false) {
                 applyHealToUnit(sourceUnit, healAmount);
             }
             const applyStatusToOwner = status?.metadata?.onOwnerUseSkillApplyStatusToOwner;
@@ -3259,13 +3332,6 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         const castStartStatusIds = new Set(
             castStartStatuses.filter((status) => status?.id).map((status) => status.id)
         );
-        if (skill?.id) {
-            const skillUses =
-                actorState.skillUses && typeof actorState.skillUses === 'object' ? actorState.skillUses : {};
-            skillUses[skill.id] = (Number(skillUses[skill.id]) || 0) + 1;
-            actorState.skillUses = skillUses;
-        }
-
         const selection = normalizeTargetSelection(queued.targetSelection);
         const bypassEnemyInvulnerability =
             canActorIgnoreEnemyInvulnerability(actorUnit) || Boolean(skill?.ignoreInvulnerability);
@@ -3783,6 +3849,24 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             }
             return [];
         })();
+        if (
+            skillIsHarmful &&
+            !skillCannotBeCountered &&
+            maybeTriggerReactiveDefenses({
+                match,
+                turnMarker,
+                actingUsername,
+                recipient: { username: actingUsername, slot: actorSlot, unit: actorUnit },
+                actorUnit,
+                skillClasses: skill.classes || [],
+                skillIsHarmful,
+                sourceSkillId: skill.id || null,
+                allowSelfTrapTrigger: true,
+            })
+        ) {
+            skillCancelledByEvade = true;
+            pendingDamage.clear();
+        }
         for (const recipient of preflightRecipientsByTargetType) {
             if (!recipient?.unit || recipient.unit.alive === false) continue;
             const targetState = ensureUnitStateShape(recipient.unit);
@@ -6029,7 +6113,6 @@ const applyOnTeamMemberSuccessfulDamageBonuses = ({
     const targetState = ensureUnitStateShape(targetUnit);
     teamUnits.forEach((teamUnit, teamSlot) => {
         if (!teamUnit || teamUnit.alive === false) return;
-        if (Number.isInteger(targetSlot) && Number(teamSlot) === Number(targetSlot)) return;
         const teamState = ensureUnitStateShape(teamUnit);
         (Array.isArray(teamState.statuses) ? teamState.statuses : []).forEach((status) => {
             if (!isStatusActiveForMetadata(status, teamUnit)) return;
@@ -6058,8 +6141,8 @@ const applyOnTeamMemberSuccessfulDamageBonuses = ({
                 sourceUsername: status?.sourceUsername || actingUsername || null,
                 sourceSlot: Number.isInteger(status?.sourceSlot)
                     ? status.sourceSlot
-                    : Number.isInteger(sourceSlot)
-                    ? sourceSlot
+                    : Number.isInteger(teamSlot)
+                    ? teamSlot
                     : null,
                 metadata: applyStatusToTarget.metadata || {},
                 fresh: false,
@@ -6091,6 +6174,9 @@ const applyOnTeamMemberDamageTakenBonuses = ({
             const applyStatusToSelf = metadata.onTeamMemberDamageTakenApplyStatusToOwner;
             if (!applyStatusToSelf?.statusId) return;
             if (Boolean(applyStatusToSelf.ownerOnly) && Number(teamSlot) !== Number(targetSlot)) {
+                return;
+            }
+            if (Boolean(applyStatusToSelf.allyOnly) && Number(teamSlot) === Number(targetSlot)) {
                 return;
             }
             if (Boolean(applyStatusToSelf.enemyOnly) && actingUsername === targetUsername) return;
