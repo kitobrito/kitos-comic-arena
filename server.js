@@ -550,6 +550,17 @@ const normalizeMissionGoalEntry = (entry = {}, index = 0) => {
             return null;
         }
 
+        const reachRankMatch = text.match(/^Reach\s+rank\s+(\d+)(?:\.\s*\(0\/\d+\))?$/i);
+        if (reachRankMatch) {
+            const rank = Math.max(0, Number(reachRankMatch[1]) || 0);
+            return rank
+                ? {
+                      type: 'reach_rank',
+                      rank,
+                  }
+                : null;
+        }
+
         const winMatchesMatch = text.match(/^Win\s+(\d+)\s+matches?\s+with\s+(.+?)(?:\.\s*\(0\/\d+\))?$/i);
         if (winMatchesMatch) {
             const wins = Math.max(0, Number(winMatchesMatch[1]) || 0);
@@ -578,6 +589,26 @@ const normalizeMissionGoalEntry = (entry = {}, index = 0) => {
             };
         }
 
+        const winSameTeamMatch = text.match(
+            /^Win\s+(\d+)\s+games?\s+with\s+(.+?)\s+and\s+(.+?)\s+on\s+the\s+same\s+team(?:\.\s*\(0\/\d+\))?$/i
+        );
+        if (winSameTeamMatch) {
+            const wins = Math.max(0, Number(winSameTeamMatch[1]) || 0);
+            const firstCharacterName = winSameTeamMatch[2].trim();
+            const secondCharacterName = winSameTeamMatch[3].trim();
+            const firstCharacterId = normalizeCharacterId(firstCharacterName);
+            const secondCharacterId = normalizeCharacterId(secondCharacterName);
+            if (!wins || !firstCharacterId || !secondCharacterId) {
+                return null;
+            }
+            return {
+                type: 'win_matches_same_team',
+                character_ids: [firstCharacterId, secondCharacterId],
+                character_names: [firstCharacterName, secondCharacterName],
+                wins,
+            };
+        }
+
         return {
             type: 'text',
             text,
@@ -593,6 +624,12 @@ const normalizeMissionGoalEntry = (entry = {}, index = 0) => {
             ? 'win_matches'
             : type === 'win_streak' || type === 'streak'
                 ? 'win_streak'
+                : type === 'reach_rank' || type === 'rank' || type === 'reach_level'
+                    ? 'reach_rank'
+                    : type === 'win_matches_same_team' ||
+                        type === 'same_team_wins' ||
+                        type === 'same_team'
+                        ? 'win_matches_same_team'
                 : 'text';
 
     if (normalizedType === 'win_matches' || normalizedType === 'win_streak') {
@@ -613,6 +650,63 @@ const normalizeMissionGoalEntry = (entry = {}, index = 0) => {
             type: normalizedType,
             character_id: characterId,
             character_name: characterName || getCharacterDisplayNameById(characterId),
+            wins,
+        };
+    }
+
+    if (normalizedType === 'reach_rank') {
+        const rank = Math.max(
+            0,
+            Number(source.rank ?? source.level ?? source.target ?? source.goal ?? source.value ?? 0) || 0
+        );
+        if (!rank) {
+            return null;
+        }
+        return {
+            type: 'reach_rank',
+            rank,
+        };
+    }
+
+    if (normalizedType === 'win_matches_same_team') {
+        const wins = Math.max(
+            0,
+            Number(source.wins ?? source.count ?? source.target ?? source.goal ?? 0) || 0
+        );
+        const characterIds = normalizeMissionTextList(
+            Array.isArray(source.character_ids)
+                ? source.character_ids
+                : [
+                      source.character_id ?? source.characterId ?? source.character ?? '',
+                      source.teammate_character_id ??
+                          source.teammateCharacterId ??
+                          source.character_two_id ??
+                          source.characterTwoId ??
+                          '',
+                  ]
+        ).map((value) => normalizeCharacterId(value));
+        const uniqueCharacterIds = Array.from(new Set(characterIds.filter(Boolean))).slice(0, 2);
+        if (!wins || uniqueCharacterIds.length < 2) {
+            return null;
+        }
+        const rawCharacterNames = Array.isArray(source.character_names)
+            ? source.character_names
+            : [
+                  source.character_name ?? source.characterName ?? '',
+                  source.teammate_character_name ??
+                      source.teammateCharacterName ??
+                      source.character_two_name ??
+                      source.characterTwoName ??
+                      '',
+              ];
+        const characterNames = uniqueCharacterIds.map((characterId, idx) => {
+            const providedName = String(rawCharacterNames[idx] ?? '').trim();
+            return providedName || getCharacterDisplayNameById(characterId);
+        });
+        return {
+            type: 'win_matches_same_team',
+            character_ids: uniqueCharacterIds,
+            character_names: characterNames,
             wins,
         };
     }
@@ -1485,12 +1579,20 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
                         return;
                     }
                     const goalType = String(goal.type).trim().toLowerCase();
-                    if (goalType !== 'win_matches' && goalType !== 'win_streak') {
+                    if (
+                        goalType !== 'win_matches' &&
+                        goalType !== 'win_streak' &&
+                        goalType !== 'reach_rank' &&
+                        goalType !== 'win_matches_same_team'
+                    ) {
                         return;
                     }
                     hasTrackableGoals = true;
-                    const targetWins = Math.max(0, Number(goal.wins) || 0);
-                    if (!targetWins) {
+                    const targetCount =
+                        goalType === 'reach_rank'
+                            ? Math.max(0, Number(goal.rank) || 0)
+                            : Math.max(0, Number(goal.wins) || 0);
+                    if (!targetCount) {
                         allTrackableGoalsComplete = false;
                         return;
                     }
@@ -1498,6 +1600,14 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
                     const hasGoalCharacter = goalCharacterId
                         ? teamHasCharacterId(match, username, goalCharacterId)
                         : true;
+                    const sameTeamCharacterIds = Array.isArray(goal.character_ids)
+                        ? goal.character_ids.map((value) => normalizeCharacterId(value)).filter(Boolean)
+                        : [];
+                    const hasSameTeamCharacters =
+                        sameTeamCharacterIds.length >= 2 &&
+                        sameTeamCharacterIds.every((characterId) =>
+                            teamHasCharacterId(match, username, characterId)
+                        );
                     const existingGoalProgress = normalizeMissionGoalProgressEntry(
                         nextGoalProgressByIndex[goalIndex] || {}
                     );
@@ -1508,22 +1618,31 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
                     if (goalType === 'win_matches') {
                         if (didWin && hasGoalCharacter) {
                             nextGoalProgress.count = Math.min(
-                                targetWins,
+                                targetCount,
                                 Math.max(0, Number(existingGoalProgress.count) || 0) + 1
                             );
                         }
                     } else if (goalType === 'win_streak') {
                         if (didWin && hasGoalCharacter) {
                             nextGoalProgress.count = Math.min(
-                                targetWins,
+                                targetCount,
                                 Math.max(0, Number(existingGoalProgress.count) || 0) + 1
                             );
                         } else if (winnerUsername) {
                             nextGoalProgress.count = 0;
                         }
+                    } else if (goalType === 'reach_rank') {
+                        nextGoalProgress.count = Math.min(targetCount, Math.max(0, userLevel));
+                    } else if (goalType === 'win_matches_same_team') {
+                        if (didWin && hasSameTeamCharacters) {
+                            nextGoalProgress.count = Math.min(
+                                targetCount,
+                                Math.max(0, Number(existingGoalProgress.count) || 0) + 1
+                            );
+                        }
                     }
 
-                    if (nextGoalProgress.count >= targetWins) {
+                    if (nextGoalProgress.count >= targetCount) {
                         nextGoalProgress.completedAt =
                             existingGoalProgress.completedAt || endedAt || new Date();
                     }

@@ -2239,6 +2239,14 @@
             return null;
           }
 
+          const reachRankMatch = text.match(/^Reach\s+rank\s+(\d+)(?:\.\s*\(0\/\d+\))?$/i);
+          if (reachRankMatch) {
+            return {
+              type: "reach_rank",
+              rank: Number(reachRankMatch[1]) || 0,
+            };
+          }
+
           const winMatchesMatch = text.match(/^Win\s+(\d+)\s+matches?\s+with\s+(.+?)(?:\.\s*\(0\/\d+\))?$/i);
           if (winMatchesMatch) {
             const characterName = String(winMatchesMatch[2] || "").trim();
@@ -2247,6 +2255,21 @@
               character_id: characterName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
               character_name: characterName,
               wins: Number(winMatchesMatch[1]) || 0,
+            };
+          }
+
+          const winSameTeamMatch = text.match(/^Win\s+(\d+)\s+games?\s+with\s+(.+?)\s+and\s+(.+?)\s+on\s+the\s+same\s+team(?:\.\s*\(0\/\d+\))?$/i);
+          if (winSameTeamMatch) {
+            const firstCharacterName = String(winSameTeamMatch[2] || "").trim();
+            const secondCharacterName = String(winSameTeamMatch[3] || "").trim();
+            return {
+              type: "win_matches_same_team",
+              character_ids: [
+                firstCharacterName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
+                secondCharacterName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
+              ].filter(Boolean),
+              character_names: [firstCharacterName, secondCharacterName],
+              wins: Number(winSameTeamMatch[1]) || 0,
             };
           }
 
@@ -2272,6 +2295,51 @@
         const wins = Number(source.wins ?? source.count ?? source.target ?? 0) || 0;
         const characterId = String(source.character_id || source.characterId || source.character || "").trim();
         const characterName = String(source.character_name || source.characterName || characterId).trim();
+        const rank = Number(source.rank ?? source.level ?? source.target ?? source.goal ?? source.value ?? 0) || 0;
+        if (type === "reach_rank") {
+          if (!rank) {
+            return null;
+          }
+          return {
+            type: "reach_rank",
+            rank,
+          };
+        }
+        if (type === "win_matches_same_team") {
+          const characterIds = (
+            Array.isArray(source.character_ids)
+              ? source.character_ids
+              : [
+                  source.character_id || source.characterId || source.character || "",
+                  source.teammate_character_id || source.teammateCharacterId || source.character_two_id || source.characterTwoId || "",
+                ]
+          ).map(function (value) {
+            return String(value || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+          }).filter(Boolean);
+          const uniqueCharacterIds = Array.from(new Set(characterIds)).slice(0, 2);
+          const characterNames = (
+            Array.isArray(source.character_names)
+              ? source.character_names
+              : [
+                  source.character_name || source.characterName || uniqueCharacterIds[0] || "",
+                  source.teammate_character_name || source.teammateCharacterName || source.character_two_name || source.characterTwoName || uniqueCharacterIds[1] || "",
+                ]
+          ).map(function (value) {
+            return String(value || "").trim();
+          });
+          if (!wins || uniqueCharacterIds.length < 2) {
+            return null;
+          }
+          return {
+            type: "win_matches_same_team",
+            character_ids: uniqueCharacterIds,
+            character_names: [
+              characterNames[0] || uniqueCharacterIds[0],
+              characterNames[1] || uniqueCharacterIds[1],
+            ],
+            wins,
+          };
+        }
         if (type === "win_matches" || type === "win_streak") {
           if (!wins || !characterId) {
             return null;
@@ -2299,6 +2367,9 @@
         if (!normalized) {
           return "";
         }
+        if (normalized.type === "reach_rank") {
+          return "Reach rank " + normalized.rank + ". (0/" + normalized.rank + ")";
+        }
         if (normalized.type === "win_matches") {
           const characterName = normalized.character_name || normalized.character_id;
           return "Win " + normalized.wins + " matches with " + characterName + ". (0/" + normalized.wins + ")";
@@ -2306,6 +2377,10 @@
         if (normalized.type === "win_streak") {
           const characterName = normalized.character_name || normalized.character_id;
           return "Win " + normalized.wins + " battles in a row with " + characterName + ". (0/" + normalized.wins + ")";
+        }
+        if (normalized.type === "win_matches_same_team") {
+          const names = Array.isArray(normalized.character_names) ? normalized.character_names : normalized.character_ids;
+          return "Win " + normalized.wins + " games with " + (names[0] || normalized.character_ids[0]) + " and " + (names[1] || normalized.character_ids[1]) + " on the same team. (0/" + normalized.wins + ")";
         }
         return normalized.text || "";
       }
@@ -2594,7 +2669,5 @@
   <script src="./index.js" defer></script>
 </body>
 </html>
-
-
 
 

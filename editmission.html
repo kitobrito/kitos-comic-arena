@@ -2090,8 +2090,10 @@
               Goal Type
               <select id="mission-goal-type">
                 <option value="text">Custom text</option>
+                <option value="reach_rank">Reach rank</option>
                 <option value="win_matches">Win matches with character</option>
                 <option value="win_streak">Win streak with character</option>
+                <option value="win_matches_same_team">Win games with two characters on the same team</option>
               </select>
               <span class="mission-field-help">Choose a plain text goal or a character win target.</span>
             </label>
@@ -2105,10 +2107,20 @@
               <select id="mission-goal-character"></select>
               <span class="mission-field-help">Character name used in the goal text and mission mapping.</span>
             </label>
+            <label class="mission-field" id="mission-goal-character-two-field" hidden>
+              Second Character ID
+              <select id="mission-goal-character-two"></select>
+              <span class="mission-field-help">Required teammate for same-team win goals.</span>
+            </label>
             <label class="mission-field" id="mission-goal-count-field" hidden>
               <span id="mission-goal-count-label">Match Count</span>
               <input type="number" id="mission-goal-count" min="1" step="1" placeholder="21" />
               <span class="mission-field-help">How many wins are required for this goal.</span>
+            </label>
+            <label class="mission-field" id="mission-goal-rank-field" hidden>
+              Rank Target
+              <input type="number" id="mission-goal-rank" min="1" step="1" placeholder="10" />
+              <span class="mission-field-help">Mission completes when the player reaches this rank.</span>
             </label>
           </div>
           <div class="goal-popup-actions">
@@ -2362,9 +2374,13 @@
       const goalTextWrap = document.getElementById("mission-goal-text-field");
       const goalCharacterWrap = document.getElementById("mission-goal-character-field");
       const goalCharacterField = document.getElementById("mission-goal-character");
+      const goalCharacterTwoWrap = document.getElementById("mission-goal-character-two-field");
+      const goalCharacterTwoField = document.getElementById("mission-goal-character-two");
       const goalCountWrap = document.getElementById("mission-goal-count-field");
       const goalCountLabel = document.getElementById("mission-goal-count-label");
       const goalCountField = document.getElementById("mission-goal-count");
+      const goalRankWrap = document.getElementById("mission-goal-rank-field");
+      const goalRankField = document.getElementById("mission-goal-rank");
       const goalPopupSave = document.getElementById("mission-goal-save");
       const goalPopupCancel = document.getElementById("mission-goal-cancel");
       let missions = [];
@@ -2388,6 +2404,13 @@
         if (typeof entry === "string") {
           const text = entry.trim();
           if (!text) return null;
+          const reachRankMatch = text.match(/^Reach\s+rank\s+(\d+)(?:\.\s*\(0\/\d+\))?$/i);
+          if (reachRankMatch) {
+            return {
+              type: "reach_rank",
+              rank: Number(reachRankMatch[1]) || 0,
+            };
+          }
           const winMatchesMatch = text.match(/^Win\s+(\d+)\s+matches?\s+with\s+(.+?)(?:\.\s*\(0\/\d+\))?$/i);
           if (winMatchesMatch) {
             const characterName = String(winMatchesMatch[2] || "").trim();
@@ -2396,6 +2419,17 @@
               character_id: normalizeCharacterId(characterName),
               character_name: characterName,
               wins: Number(winMatchesMatch[1]) || 0,
+            };
+          }
+          const winSameTeamMatch = text.match(/^Win\s+(\d+)\s+games?\s+with\s+(.+?)\s+and\s+(.+?)\s+on\s+the\s+same\s+team(?:\.\s*\(0\/\d+\))?$/i);
+          if (winSameTeamMatch) {
+            const firstCharacterName = String(winSameTeamMatch[2] || "").trim();
+            const secondCharacterName = String(winSameTeamMatch[3] || "").trim();
+            return {
+              type: "win_matches_same_team",
+              character_ids: [normalizeCharacterId(firstCharacterName), normalizeCharacterId(secondCharacterName)].filter(Boolean),
+              character_names: [firstCharacterName, secondCharacterName].filter(Boolean),
+              wins: Number(winSameTeamMatch[1]) || 0,
             };
           }
           const winStreakMatch = text.match(/^Win\s+(\d+)\s+battles?\s+in\s+a\s+row\s+with\s+(.+?)(?:\.\s*\(0\/\d+\))?$/i);
@@ -2415,6 +2449,43 @@
         const wins = Number(source.wins ?? source.count ?? source.target ?? 0) || 0;
         const characterId = normalizeCharacterId(source.character_id || source.characterId || source.character || "");
         const characterName = String(source.character_name || source.characterName || "").trim();
+        const rank = Number(source.rank ?? source.level ?? source.target ?? source.goal ?? source.value ?? 0) || 0;
+        if (type === "reach_rank") {
+          if (!rank) return null;
+          return {
+            type: "reach_rank",
+            rank,
+          };
+        }
+        if (type === "win_matches_same_team") {
+          const characterIds = (
+            Array.isArray(source.character_ids)
+              ? source.character_ids
+              : [
+                  source.character_id || source.characterId || source.character || "",
+                  source.teammate_character_id || source.teammateCharacterId || source.character_two_id || source.characterTwoId || "",
+                ]
+          ).map(normalizeCharacterId).filter(Boolean);
+          const uniqueCharacterIds = Array.from(new Set(characterIds)).slice(0, 2);
+          const characterNames = (
+            Array.isArray(source.character_names)
+              ? source.character_names
+              : [
+                  source.character_name || source.characterName || uniqueCharacterIds[0] || "",
+                  source.teammate_character_name || source.teammateCharacterName || source.character_two_name || source.characterTwoName || uniqueCharacterIds[1] || "",
+                ]
+          ).map((value) => String(value || "").trim());
+          if (!wins || uniqueCharacterIds.length < 2) return null;
+          return {
+            type,
+            character_ids: uniqueCharacterIds,
+            character_names: [
+              characterNames[0] || uniqueCharacterIds[0],
+              characterNames[1] || uniqueCharacterIds[1],
+            ],
+            wins,
+          };
+        }
         if (type === "win_matches" || type === "win_streak") {
           if (!wins || !characterId) return null;
           return {
@@ -2473,17 +2544,30 @@
       function goalSummary(goal) {
         const normalized = normalizeGoal(goal);
         if (!normalized) return "";
+        if (normalized.type === "reach_rank") {
+          return `Reach rank ${normalized.rank}.`;
+        }
         if (normalized.type === "win_matches") {
           return `Win ${normalized.wins} matches with ${normalized.character_name || normalized.character_id}.`;
         }
         if (normalized.type === "win_streak") {
           return `Win ${normalized.wins} battles in a row with ${normalized.character_name || normalized.character_id}.`;
         }
+        if (normalized.type === "win_matches_same_team") {
+          const names = Array.isArray(normalized.character_names) ? normalized.character_names : normalized.character_ids;
+          return `Win ${normalized.wins} games with ${names[0] || normalized.character_ids[0]} and ${names[1] || normalized.character_ids[1]} on the same team.`;
+        }
         return normalized.text || "";
       }
       function goalMeta(goal) {
         const normalized = normalizeGoal(goal);
         if (!normalized) return "";
+        if (normalized.type === "reach_rank") {
+          return `Type: reach rank | Rank: ${normalized.rank}`;
+        }
+        if (normalized.type === "win_matches_same_team") {
+          return `Type: win matches same team | Characters: ${(normalized.character_ids || []).join(", ")} | Count: ${normalized.wins}`;
+        }
         if (normalized.type === "win_matches" || normalized.type === "win_streak") {
           return `Type: ${normalized.type.replace(/_/g, " ")} | Character ID: ${normalized.character_id} | Count: ${normalized.wins}`;
         }
@@ -2537,7 +2621,10 @@
       function syncGoalPopupFields() {
         if (!goalTypeField) return;
         const goalType = goalTypeField.value;
-        const isWinMatch = goalType === "win_matches" || goalType === "win_streak";
+        const isSingleCharacterWin = goalType === "win_matches" || goalType === "win_streak";
+        const isSameTeamWin = goalType === "win_matches_same_team";
+        const isWinGoal = isSingleCharacterWin || isSameTeamWin;
+        const isRankGoal = goalType === "reach_rank";
         if (goalCountLabel) {
           goalCountLabel.textContent = goalType === "win_streak" ? "Win Streak Wins" : "Match Count";
         }
@@ -2545,24 +2632,35 @@
           goalTextWrap.hidden = goalType !== "text";
         }
         if (goalCharacterWrap) {
-          goalCharacterWrap.hidden = !isWinMatch;
+          goalCharacterWrap.hidden = !(isSingleCharacterWin || isSameTeamWin);
+        }
+        if (goalCharacterTwoWrap) {
+          goalCharacterTwoWrap.hidden = !isSameTeamWin;
         }
         if (goalCountWrap) {
-          goalCountWrap.hidden = !isWinMatch;
+          goalCountWrap.hidden = !isWinGoal;
+        }
+        if (goalRankWrap) {
+          goalRankWrap.hidden = !isRankGoal;
         }
       }
       function fillGoalPopup(goal = null, index = null) {
         editingGoalIndex = Number.isInteger(index) ? index : null;
         const normalized = normalizeGoal(goal) || { type: "win_matches", character_id: "batman", character_name: "Batman", wins: 21 };
+        const sameTeamCharacterIds = Array.isArray(normalized.character_ids) ? normalized.character_ids : [];
         if (goalTypeField) {
           goalTypeField.value = normalized.type === "text" ? "text" : normalized.type;
         }
         if (goalTextField) {
           goalTextField.value = normalized.type === "text" ? normalized.text || "" : goalSummary(normalized);
         }
-        populateCharacterSelect(goalCharacterField, normalized.character_id || "batman");
+        populateCharacterSelect(goalCharacterField, normalized.character_id || sameTeamCharacterIds[0] || "batman");
+        populateCharacterSelect(goalCharacterTwoField, sameTeamCharacterIds[1] || "");
         if (goalCountField) {
           goalCountField.value = normalized.wins ? String(normalized.wins) : "21";
+        }
+        if (goalRankField) {
+          goalRankField.value = normalized.rank ? String(normalized.rank) : "10";
         }
         syncGoalPopupFields();
       }
@@ -2588,6 +2686,28 @@
       }
       function readGoalFromPopup() {
         const goalType = goalTypeField ? goalTypeField.value : "text";
+        if (goalType === "reach_rank") {
+          return {
+            type: "reach_rank",
+            rank: Number(goalRankField && goalRankField.value ? goalRankField.value : 0) || 0,
+          };
+        }
+        if (goalType === "win_matches_same_team") {
+          const wins = Number(goalCountField && goalCountField.value ? goalCountField.value : 0) || 0;
+          const firstCharacterId = normalizeCharacterId(goalCharacterField && goalCharacterField.value ? goalCharacterField.value : "");
+          const secondCharacterId = normalizeCharacterId(goalCharacterTwoField && goalCharacterTwoField.value ? goalCharacterTwoField.value : "");
+          const firstCharacter = characterCatalog.find((character) => character.characterId === firstCharacterId);
+          const secondCharacter = characterCatalog.find((character) => character.characterId === secondCharacterId);
+          return {
+            type: "win_matches_same_team",
+            character_ids: [firstCharacterId, secondCharacterId],
+            character_names: [
+              firstCharacter ? firstCharacter.name : firstCharacterId,
+              secondCharacter ? secondCharacter.name : secondCharacterId,
+            ],
+            wins,
+          };
+        }
         if (goalType === "win_matches" || goalType === "win_streak") {
           const wins = Number(goalCountField && goalCountField.value ? goalCountField.value : 0) || 0;
           const characterId = normalizeCharacterId(goalCharacterField && goalCharacterField.value ? goalCharacterField.value : "");
@@ -2622,6 +2742,7 @@
       function refreshCharacterSelects(mission) {
         populateCharacterSelect(fields.rewardCharacter, mission && mission.reward_character ? mission.reward_character : "");
         populateCharacterSelect(goalCharacterField, "batman");
+        populateCharacterSelect(goalCharacterTwoField, "");
       }
       const norm = (m = {}, i = 0) => {
         const t = String(m.title || m.name || `Mission ${i + 1}`).trim();
