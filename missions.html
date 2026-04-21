@@ -601,6 +601,22 @@
       text-decoration: none;
     }
 
+    .mission-card.completed {
+      filter: grayscale(1);
+      opacity: 0.72;
+    }
+
+    .mission-card.completed .mission-link {
+      color: #4f4f4f;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .mission-card.completed .mission-rank-available,
+    .mission-card.completed .mission-rank-unavailable {
+      color: #4f4f4f;
+    }
+
     .mission-note {
       color: #6f6f6f;
       font-style: italic;
@@ -2108,6 +2124,7 @@
 
       let missionCatalog = [];
       let missionMap = new Map();
+      let missionProgressByMissionId = {};
 
       function normalizeMissionCatalog(missions) {
         const list = Array.isArray(missions) ? missions : [];
@@ -2188,6 +2205,78 @@
         missionCatalog.forEach(function (mission) {
           missionMap.set(mission.missionId, mission);
         });
+      }
+
+      function normalizeMissionGoalProgressEntry(entry) {
+        const source = entry && typeof entry === "object" ? entry : {};
+        const count = Math.max(0, Number(source.count ?? source.progress ?? 0) || 0);
+        return {
+          count: count,
+          progress: count,
+          completedAt:
+            source.completedAt instanceof Date || typeof source.completedAt === "string"
+              ? source.completedAt
+              : null,
+          updatedAt:
+            source.updatedAt instanceof Date || typeof source.updatedAt === "string"
+              ? source.updatedAt
+              : null,
+        };
+      }
+
+      function normalizeMissionProgressEntry(entry) {
+        const source = entry && typeof entry === "object" ? entry : {};
+        const rawGoalProgress =
+          source.goalProgressByIndex && typeof source.goalProgressByIndex === "object"
+            ? source.goalProgressByIndex
+            : source.goalProgress && typeof source.goalProgress === "object"
+              ? source.goalProgress
+              : {};
+        const goalProgressByIndex = {};
+        Object.keys(rawGoalProgress).forEach(function (goalIndex) {
+          const normalizedGoalIndex = String(parseInt(goalIndex, 10));
+          if (!normalizedGoalIndex || normalizedGoalIndex === "NaN") {
+            return;
+          }
+          goalProgressByIndex[normalizedGoalIndex] = normalizeMissionGoalProgressEntry(rawGoalProgress[goalIndex]);
+        });
+        return {
+          completedAt:
+            source.completedAt instanceof Date || typeof source.completedAt === "string"
+              ? source.completedAt
+              : null,
+          goalProgressByIndex: goalProgressByIndex,
+          goalProgress: goalProgressByIndex,
+        };
+      }
+
+      function setMissionProgress(progressByMissionId) {
+        const source = progressByMissionId && typeof progressByMissionId === "object" ? progressByMissionId : {};
+        const normalized = {};
+        Object.keys(source).forEach(function (missionId) {
+          normalized[missionId] = normalizeMissionProgressEntry(source[missionId]);
+        });
+        missionProgressByMissionId = normalized;
+      }
+
+      function getMissionGoalProgress(missionId, goalIndex) {
+        const missionProgress =
+          missionProgressByMissionId && typeof missionProgressByMissionId === "object"
+            ? missionProgressByMissionId[missionId]
+            : null;
+        const goalProgress =
+          missionProgress && missionProgress.goalProgressByIndex && typeof missionProgress.goalProgressByIndex === "object"
+            ? missionProgress.goalProgressByIndex[String(goalIndex)]
+            : null;
+        return normalizeMissionGoalProgressEntry(goalProgress || {});
+      }
+
+      function isMissionCompleted(missionId) {
+        const missionProgress =
+          missionProgressByMissionId && typeof missionProgressByMissionId === "object"
+            ? missionProgressByMissionId[missionId]
+            : null;
+        return Boolean(missionProgress && missionProgress.completedAt);
       }
 
       function escapeHtml(value) {
@@ -2362,25 +2451,26 @@
         };
       }
 
-      function formatMissionGoal(goal) {
+      function formatMissionGoal(goal, progress) {
         const normalized = normalizeMissionGoal(goal);
         if (!normalized) {
           return "";
         }
+        const progressCount = Math.max(0, Number(progress && progress.count ? progress.count : 0) || 0);
         if (normalized.type === "reach_rank") {
-          return "Reach rank " + normalized.rank + ". (0/" + normalized.rank + ")";
+          return "Reach rank " + normalized.rank + ". (" + Math.min(progressCount, normalized.rank) + "/" + normalized.rank + ")";
         }
         if (normalized.type === "win_matches") {
           const characterName = normalized.character_name || normalized.character_id;
-          return "Win " + normalized.wins + " matches with " + characterName + ". (0/" + normalized.wins + ")";
+          return "Win " + normalized.wins + " matches with " + characterName + ". (" + Math.min(progressCount, normalized.wins) + "/" + normalized.wins + ")";
         }
         if (normalized.type === "win_streak") {
           const characterName = normalized.character_name || normalized.character_id;
-          return "Win " + normalized.wins + " battles in a row with " + characterName + ". (0/" + normalized.wins + ")";
+          return "Win " + normalized.wins + " battles in a row with " + characterName + ". (" + Math.min(progressCount, normalized.wins) + "/" + normalized.wins + ")";
         }
         if (normalized.type === "win_matches_same_team") {
           const names = Array.isArray(normalized.character_names) ? normalized.character_names : normalized.character_ids;
-          return "Win " + normalized.wins + " games with " + (names[0] || normalized.character_ids[0]) + " and " + (names[1] || normalized.character_ids[1]) + " on the same team. (0/" + normalized.wins + ")";
+          return "Win " + normalized.wins + " games with " + (names[0] || normalized.character_ids[0]) + " and " + (names[1] || normalized.character_ids[1]) + " on the same team. (" + Math.min(progressCount, normalized.wins) + "/" + normalized.wins + ")";
         }
         return normalized.text || "";
       }
@@ -2413,12 +2503,7 @@
       }
 
       function getCardRequirementLines(mission) {
-        const lines = [];
-        const levelRequirement = getLevelRequirementValue(mission);
-        if (levelRequirement > 0) {
-          lines.push("Level requirement: At least " + levelRequirement + ".");
-        }
-        return lines;
+        return [];
       }
 
       function getRewardText(mission) {
@@ -2436,8 +2521,9 @@
       }
 
       function renderMissionCard(mission) {
+        const completed = isMissionCompleted(mission.missionId);
         const article = document.createElement("article");
-        article.className = "mission-card";
+        article.className = "mission-card" + (completed ? " completed" : "");
         article.tabIndex = 0;
         article.setAttribute("role", "button");
         article.setAttribute("aria-label", "Open mission info for " + mission.title);
@@ -2496,7 +2582,7 @@
         viewLink.className = "mission-link";
         viewLink.href = "#";
         viewLink.setAttribute("data-mission-open", "");
-        viewLink.textContent = "View this mission";
+        viewLink.textContent = completed ? "Mission Completed" : "View this mission";
         viewLine.appendChild(viewLink);
         requirementsBox.appendChild(viewLine);
 
@@ -2592,10 +2678,10 @@
         });
 
         goalsEl.innerHTML = "";
-        (Array.isArray(mission.goals) ? mission.goals : []).forEach(function (goal) {
+        (Array.isArray(mission.goals) ? mission.goals : []).forEach(function (goal, goalIndex) {
           const p = document.createElement("p");
           p.className = "mission-sheet-goal";
-          p.textContent = formatMissionGoal(goal);
+          p.textContent = formatMissionGoal(goal, getMissionGoalProgress(mission.missionId, goalIndex));
           goalsEl.appendChild(p);
         });
 
@@ -2626,12 +2712,15 @@
           }
 
           setMissionCatalog(data && Array.isArray(data.missions) ? data.missions : []);
+          setMissionProgress(data && data.missionProgressByMissionId ? data.missionProgressByMissionId : {});
           if (!missionCatalog.length) {
             setMissionCatalog(defaultMissionCatalog);
+            setMissionProgress({});
           }
           renderMissionCards();
         } catch (error) {
           setMissionCatalog(defaultMissionCatalog);
+          setMissionProgress({});
           renderMissionCards();
           setStatus("Using local mission data while the server is unavailable.", true);
         }
@@ -2669,5 +2758,3 @@
   <script src="./index.js" defer></script>
 </body>
 </html>
-
-

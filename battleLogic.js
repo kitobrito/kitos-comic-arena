@@ -326,6 +326,33 @@ const getStatusMetadataTotals = (actorState, ownerUnit = null) => {
     return totals;
 };
 
+const getContextualMinimumHp = (targetState, ownerUnit, context = {}) => {
+    const totals = getStatusMetadataTotals(targetState, ownerUnit);
+    let minimumHp = Math.max(0, Number(totals.minimumHp) || 0);
+    const isSelfSkillDamage =
+        typeof context?.sourceSkillId === 'string' &&
+        context.sourceSkillId &&
+        context?.sourceUsername &&
+        context?.targetUsername &&
+        context.sourceUsername === context.targetUsername &&
+        Number.isInteger(context?.sourceSlot) &&
+        Number.isInteger(context?.targetSlot) &&
+        context.sourceSlot === context.targetSlot;
+    if (!isSelfSkillDamage) {
+        return minimumHp;
+    }
+    const statuses = Array.isArray(targetState?.statuses) ? targetState.statuses : [];
+    statuses.forEach((status) => {
+        if (!isStatusActiveForMetadata(status, ownerUnit)) return;
+        const scopedMinimumHp = Math.max(
+            0,
+            Number(status?.metadata?.minimumHpFromSelfSkillDamage) || 0
+        );
+        minimumHp = Math.max(minimumHp, scopedMinimumHp);
+    });
+    return minimumHp;
+};
+
 const getSkillCooldownRemaining = (actorState, skillId) => {
     if (!actorState || !skillId) return 0;
     const cooldowns =
@@ -2238,6 +2265,7 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
     }
 
     const totals = getStatusMetadataTotals(targetState, unit);
+    const contextualMinimumHp = getContextualMinimumHp(targetState, unit, context);
     const isPhysical = skillClasses.some(
         (entry) => typeof entry === 'string' && entry.trim().toLowerCase() === 'physical'
     );
@@ -2361,7 +2389,7 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
         appliedUnpierceableMitigation = Math.min(baseUnpierceableMitigation, postStandardMitigation);
     }
     const dealt = Math.max(0, postStandardMitigation - appliedUnpierceableMitigation);
-    unit.hp = Math.max(Math.max(0, Number(totals.minimumHp) || 0), (Number(unit.hp) || 0) - dealt);
+    unit.hp = Math.max(contextualMinimumHp, (Number(unit.hp) || 0) - dealt);
     if (dealt > 0) {
         setLastDamageDebug(targetState, dealt, context);
     }
@@ -2539,7 +2567,8 @@ const applyHealthLossToUnit = (unit, rawAmount, context = {}) => {
     if (loss <= 0) return 0;
     const before = Math.max(0, Number(unit.hp) || 0);
     const targetState = ensureUnitStateShape(unit);
-    unit.hp = Math.max(0, before - loss);
+    const contextualMinimumHp = getContextualMinimumHp(targetState, unit, context);
+    unit.hp = Math.max(contextualMinimumHp, before - loss);
     setLastDamageDebug(targetState, loss, context);
     if (unit.hp <= 0) {
         unit.alive = false;

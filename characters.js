@@ -5879,7 +5879,7 @@ const characters = [
             duration: 99,
             metadata: {
                 infiniteDuration: true,
-                minimumHp: 1,
+                minimumHpFromSelfSkillDamage: 1,
                 tooltipText: 'All health lost from Carnage\'s skills is given to him in the same amount as destructible defense for 1 turn. Carnage\'s skills cannot kill him.'
             }
         }
