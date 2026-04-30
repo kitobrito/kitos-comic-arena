@@ -209,6 +209,7 @@
   var characterEditorId = document.getElementById("character-editor-id");
   var characterEditorJson = document.getElementById("character-editor-json");
   var characterEditorSave = document.getElementById("character-editor-save");
+  var characterEditorExport = document.getElementById("character-editor-export");
   var characterEditorClose = document.getElementById("character-editor-close");
   var characterEditorModalStatus = document.getElementById("character-editor-modal-status");
   var selectedAdminCharacterId = "";
@@ -1741,6 +1742,46 @@
       if (characterEditorSave) {
         characterEditorSave.disabled = false;
       }
+    }
+  }
+
+  async function exportAdminCharacters() {
+    if (!characterEditorExport) {
+      return;
+    }
+
+    characterEditorExport.disabled = true;
+    setCharacterEditorStatus("Preparing characters.js export...");
+    try {
+      var response = await fetch("/api/admin/characters/export", {
+        credentials: "same-origin"
+      });
+
+      if (!response.ok) {
+        var errorData = await response.json().catch(function () {
+          return {};
+        });
+        setCharacterEditorStatus(
+          errorData && errorData.error ? errorData.error : "Unable to export characters.js.",
+          "error"
+        );
+        return;
+      }
+
+      var fileBlob = await response.blob();
+      var downloadUrl = window.URL.createObjectURL(fileBlob);
+      var downloadLink = document.createElement("a");
+      downloadLink.href = downloadUrl;
+      downloadLink.download = "characters.js";
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+      window.URL.revokeObjectURL(downloadUrl);
+      setCharacterEditorStatus("Downloaded characters.js from the live server.", "success");
+    } catch (error) {
+      setCharacterEditorStatus("Unable to reach the server.", "error");
+    } finally {
+      characterEditorExport.disabled = false;
     }
   }
 
@@ -3627,6 +3668,12 @@
   if (characterEditorSave) {
     characterEditorSave.addEventListener("click", function () {
       saveAdminCharacter();
+    });
+  }
+
+  if (characterEditorExport) {
+    characterEditorExport.addEventListener("click", function () {
+      exportAdminCharacters();
     });
   }
 

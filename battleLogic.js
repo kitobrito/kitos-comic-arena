@@ -656,6 +656,17 @@ const computeTargetOptions = ({ match, actingUsername, actorSlot, skillIndex, ch
             result.targets = mapTargets(actingUsername, actorBoard, { helpfulTargeting: true });
             break;
         }
+        case 'single-character': {
+            result.mode = 'single';
+            result.targets = [
+                ...mapTargets(actingUsername, actorBoard),
+                ...mapTargets(opponentUsername, opponentBoard, {
+                    enemyTargeting: true,
+                    skillClasses: effectiveSkill?.classes || [],
+                }),
+            ];
+            break;
+        }
         default: {
             result.mode = 'unknown';
             result.targets = [];
@@ -745,11 +756,42 @@ const getSkillCostOverrideForSkill = (actorState, skillId) => {
     return resolvedOverride;
 };
 
+const getOverrideAllSkillsToAllRandomConfig = (actorState, skillId) => {
+    const statuses = Array.isArray(actorState?.statuses) ? actorState.statuses : [];
+    let resolvedConfig = null;
+    statuses.forEach((status) => {
+        const remaining = Number(status?.remainingTurns) || 0;
+        if (remaining <= 0) return;
+        const metadata = status?.metadata || {};
+        if (!Boolean(metadata.overrideAllSkillsToAllRandom)) return;
+        const restrictedSkillIds = Array.isArray(metadata.overrideAllSkillsToAllRandomSkillIdsAny)
+            ? metadata.overrideAllSkillsToAllRandomSkillIdsAny
+                  .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
+                  .filter(Boolean)
+            : [];
+        if (restrictedSkillIds.length > 0 && !restrictedSkillIds.includes(skillId || '')) {
+            return;
+        }
+        resolvedConfig = metadata;
+    });
+    return resolvedConfig;
+};
+
 const computeEffectiveEnergyCost = ({ skill, actorState }) => {
     const base = normalizeEnergyCost(skill?.energy || []);
     const skillOverride = getSkillCostOverrideForSkill(actorState, skill?.id || null);
     if (skillOverride) {
         return skillOverride;
+    }
+    const allRandomOverride = getOverrideAllSkillsToAllRandomConfig(actorState, skill?.id || null);
+    if (allRandomOverride) {
+        const totalCost =
+            chakraTypes.reduce((sum, type) => sum + Math.max(0, Number(base.reservedSpecific?.[type]) || 0), 0) +
+            Math.max(0, Number(base.requiredRandom) || 0);
+        return {
+            reservedSpecific: createEmptyChakraCost(),
+            requiredRandom: totalCost,
+        };
     }
     const totals = getStatusMetadataTotals(actorState || { statuses: [] });
     const reservedSpecific = { ...base.reservedSpecific };
@@ -809,6 +851,61 @@ const hasStatusMetadataFlag = (actorState, flagName) =>
 const pickRandomEntry = (entries = []) => {
     if (!Array.isArray(entries) || !entries.length) return null;
     return entries[Math.floor(Math.random() * entries.length)] || null;
+};
+
+const parseTrackedUnitKey = (rawValue) => {
+    if (typeof rawValue !== 'string' || !rawValue) return null;
+    const [username, slotRaw] = rawValue.split(':');
+    const slot = Number.parseInt(slotRaw, 10);
+    if (!username || !Number.isInteger(slot) || slot < 0) return null;
+    return { username, slot };
+};
+
+const pickTrackedEnemyEntry = ({
+    aliveEnemyEntries = [],
+    opponentUsername = '',
+    strategy = '',
+    previousKey = '',
+    mustChangeTarget = false,
+}) => {
+    if (!Array.isArray(aliveEnemyEntries) || !aliveEnemyEntries.length) return null;
+    const normalizedStrategy =
+        typeof strategy === 'string' ? strategy.trim().toLowerCase() : '';
+    const previous = parseTrackedUnitKey(previousKey);
+    let pool = aliveEnemyEntries.slice();
+    const shouldAvoidPrevious =
+        mustChangeTarget ||
+        normalizedStrategy === 'nearest-other-enemy' ||
+        normalizedStrategy === 'different-random-enemy';
+    if (shouldAvoidPrevious && previous && pool.length > 1) {
+        const filtered = pool.filter((entry) => {
+            const slot = Number.isInteger(entry?.enemySlot) ? entry.enemySlot : Number.parseInt(entry?.enemySlot, 10);
+            return !(opponentUsername === previous.username && slot === previous.slot);
+        });
+        if (filtered.length > 0) {
+            pool = filtered;
+        }
+    }
+    if (
+        (normalizedStrategy === 'nearest-enemy' || normalizedStrategy === 'nearest-other-enemy') &&
+        previous
+    ) {
+        const sameTeamPool = pool.filter(
+            (entry) => entry && opponentUsername === previous.username && Number.isInteger(entry.enemySlot)
+        );
+        const distancePool = sameTeamPool.length > 0 ? sameTeamPool : pool;
+        return (
+            distancePool
+                .slice()
+                .sort((a, b) => {
+                    const distanceA = Math.abs(Number(a.enemySlot) - previous.slot);
+                    const distanceB = Math.abs(Number(b.enemySlot) - previous.slot);
+                    if (distanceA !== distanceB) return distanceA - distanceB;
+                    return Number(a.enemySlot) - Number(b.enemySlot);
+                })[0] || null
+        );
+    }
+    return pickRandomEntry(pool);
 };
 
 const getTemplateMetadataValue = (metadata = {}, key = '') => {
@@ -1995,7 +2092,9 @@ const maybeTriggerReactiveDefenses = ({
             sourceUsername: recipient.username || null,
             sourceSlot: Number.isInteger(recipient.slot) ? recipient.slot : null,
             metadata: counterStatusMetadata,
-            fresh: false,
+            // Counter-applied statuses land during the triggering unit's turn, so they
+            // need to start fresh or a 1-turn effect expires at that same turn end.
+            fresh: true,
         });
     }
     const cancelEnemyStatusesByIdFromSelfSource = Array.isArray(
@@ -2437,6 +2536,14 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
             username: context.targetUsername,
             slot: Number.isInteger(context?.targetSlot) ? context.targetSlot : null,
         });
+        triggerSourceKillHooks({
+            match: context.match,
+            sourceUsername: context?.sourceUsername || null,
+            sourceSlot: Number.isInteger(context?.sourceSlot) ? context.sourceSlot : null,
+            targetUsername: context.targetUsername,
+            sourceSkillId: context?.sourceSkillId || null,
+            sourceSkillClasses: skillClasses,
+        });
     }
     if (
         (dealt > 0 || damageForReflection > 0) &&
@@ -2585,6 +2692,14 @@ const applyHealthLossToUnit = (unit, rawAmount, context = {}) => {
             username: context.targetUsername,
             slot: Number.isInteger(context?.targetSlot) ? context.targetSlot : null,
         });
+        triggerSourceKillHooks({
+            match: context.match,
+            sourceUsername: context?.sourceUsername || null,
+            sourceSlot: Number.isInteger(context?.sourceSlot) ? context.sourceSlot : null,
+            targetUsername: context.targetUsername,
+            sourceSkillId: context?.sourceSkillId || null,
+            sourceSkillClasses: Array.isArray(context?.skillClasses) ? context.skillClasses : [],
+        });
     }
     return Math.max(0, before - unit.hp);
 };
@@ -2615,6 +2730,14 @@ const applyHealthCapLossToUnit = (unit, rawAmount, context = {}) => {
             match: context.match,
             username: context.targetUsername,
             slot: Number.isInteger(context?.targetSlot) ? context.targetSlot : null,
+        });
+        triggerSourceKillHooks({
+            match: context.match,
+            sourceUsername: context?.sourceUsername || null,
+            sourceSlot: Number.isInteger(context?.sourceSlot) ? context.sourceSlot : null,
+            targetUsername: context.targetUsername,
+            sourceSkillId: context?.sourceSkillId || null,
+            sourceSkillClasses: Array.isArray(context?.skillClasses) ? context.skillClasses : [],
         });
     }
     return Math.max(0, beforeCap - nextCap);
@@ -2819,6 +2942,153 @@ const triggerOwnerDeathHooks = ({ unit, match, username, slot }) => {
     if (changed) {
         refreshDerivedStatusTooltips(targetState);
     }
+};
+
+const triggerSourceKillHooks = ({
+    match,
+    sourceUsername,
+    sourceSlot = null,
+    targetUsername = null,
+    sourceSkillId = null,
+    sourceSkillClasses = [],
+}) => {
+    if (!match || !sourceUsername || !Number.isInteger(sourceSlot)) return;
+    const sourceUnit = match.board?.[sourceUsername]?.[Number(sourceSlot)] || null;
+    if (!sourceUnit || sourceUnit.alive === false) return;
+    const sourceState = ensureUnitStateShape(sourceUnit);
+    (Array.isArray(sourceState.statuses) ? sourceState.statuses : []).forEach((status) => {
+        if (!isStatusActiveForMetadata(status, sourceUnit)) return;
+        const metadata = status?.metadata || {};
+        const targetRelation =
+            typeof metadata.onOwnerKillTargetRelation === 'string'
+                ? metadata.onOwnerKillTargetRelation.trim().toLowerCase()
+                : 'any';
+        if (targetRelation === 'enemy' && sourceUsername === targetUsername) return;
+        if (targetRelation === 'ally' && sourceUsername !== targetUsername) return;
+        const skillIdFilter = Array.isArray(metadata.onOwnerKillSourceSkillIdsAny)
+            ? metadata.onOwnerKillSourceSkillIdsAny.filter((entry) => typeof entry === 'string' && entry)
+            : [];
+        if (skillIdFilter.length > 0 && !skillIdFilter.includes(sourceSkillId || '')) {
+            return;
+        }
+        const classFilter = Array.isArray(metadata.onOwnerKillSourceSkillClassesAny)
+            ? metadata.onOwnerKillSourceSkillClassesAny
+                  .map((entry) => normalizeSkillClassName(entry))
+                  .filter(Boolean)
+            : [];
+        if (
+            classFilter.length > 0 &&
+            !classFilter.some((entry) => hasSkillClass(sourceSkillClasses, entry))
+        ) {
+            return;
+        }
+        const healAmount = Math.max(0, Number(metadata.onOwnerKillHealSelfAmount) || 0);
+        if (healAmount > 0) {
+            applyHealToUnit(sourceUnit, healAmount);
+        }
+        const gainChakraConfig =
+            metadata?.onOwnerKillGainChakra && typeof metadata.onOwnerKillGainChakra === 'object'
+                ? metadata.onOwnerKillGainChakra
+                : null;
+        if (gainChakraConfig?.chakraType) {
+            const chakraAmount = Math.max(0, Number(gainChakraConfig.amount) || 0);
+            if (chakraAmount > 0) {
+                const chakraType = String(gainChakraConfig.chakraType).trim().toLowerCase();
+                if (chakraType === 'random') {
+                    for (let i = 0; i < chakraAmount; i += 1) {
+                        const pick = chakraTypes[Math.floor(Math.random() * chakraTypes.length)];
+                        applyChakraGainToMatch({
+                            match,
+                            username: sourceUsername,
+                            chakraType: pick,
+                            amount: 1,
+                        });
+                    }
+                } else {
+                    applyChakraGainToMatch({
+                        match,
+                        username: sourceUsername,
+                        chakraType,
+                        amount: chakraAmount,
+                    });
+                }
+            }
+        }
+        const applyStatusToSelf = metadata.onOwnerKillApplyStatusToSelf;
+        if (applyStatusToSelf?.statusId) {
+            applyStatus({
+                targetState: sourceState,
+                statusId: applyStatusToSelf.statusId,
+                duration: applyStatusToSelf.duration,
+                sourceSkillId: sourceSkillId || status?.sourceSkillId || null,
+                sourceUsername,
+                sourceSlot,
+                metadata: applyStatusToSelf.metadata || {},
+                fresh: false,
+            });
+        }
+    });
+};
+
+const triggerOnEnemySkillTargetedBonuses = ({
+    match,
+    actingUsername,
+    actorUnit,
+    actorSlot = null,
+    recipient,
+    skill,
+}) => {
+    if (!match || !actingUsername || !actorUnit || !recipient?.unit) return;
+    if (!recipient.username || recipient.username === actingUsername) return;
+    const targetUnit = recipient.unit;
+    const targetState = ensureUnitStateShape(targetUnit);
+    (Array.isArray(targetState.statuses) ? targetState.statuses : []).forEach((status) => {
+        if (!isStatusActiveForMetadata(status, targetUnit)) return;
+        const metadata = status?.metadata || {};
+        if (Boolean(metadata.onEnemySkillTargetedHarmfulOnly) && !skillHasHarmfulEffects(skill)) {
+            return;
+        }
+        const classFilter = Array.isArray(metadata.onEnemySkillTargetedSkillClassesAny)
+            ? metadata.onEnemySkillTargetedSkillClassesAny
+                  .map((entry) => normalizeSkillClassName(entry))
+                  .filter(Boolean)
+            : [];
+        if (classFilter.length > 0 && !classFilter.some((entry) => hasSkillClass(skill?.classes || [], entry))) {
+            return;
+        }
+        const retaliateDamage = Math.max(0, Number(metadata.onEnemySkillTargetedDamageToSourceAmount) || 0);
+        if (retaliateDamage > 0) {
+            applyDamageToUnit(actorUnit, retaliateDamage, {
+                match,
+                sourceUsername: recipient.username,
+                sourceSlot: Number.isInteger(recipient.slot) ? recipient.slot : null,
+                sourceSkillId: status?.sourceSkillId || null,
+                targetUsername: actingUsername,
+                targetSlot: Number.isInteger(actorSlot) ? actorSlot : null,
+                damageDebugReason: 'targeted trigger',
+                ignoreDamageReduction: Boolean(metadata.onEnemySkillTargetedDamageToSourceIgnoreDamageReduction),
+                ignoreDestructibleDefense: Boolean(
+                    metadata.onEnemySkillTargetedDamageToSourceIgnoreDestructibleDefense
+                ),
+                skillClasses: Array.isArray(metadata.onEnemySkillTargetedDamageToSourceSkillClasses)
+                    ? metadata.onEnemySkillTargetedDamageToSourceSkillClasses
+                    : [],
+            });
+        }
+        const applyStatusToSource = metadata.onEnemySkillTargetedApplyStatusToSource;
+        if (applyStatusToSource?.statusId) {
+            applyStatus({
+                targetState: ensureUnitStateShape(actorUnit),
+                statusId: applyStatusToSource.statusId,
+                duration: applyStatusToSource.duration,
+                sourceSkillId: status?.sourceSkillId || null,
+                sourceUsername: recipient.username,
+                sourceSlot: Number.isInteger(recipient.slot) ? recipient.slot : null,
+                metadata: applyStatusToSource.metadata || {},
+                fresh: Boolean(applyStatusToSource.fresh),
+            });
+        }
+    });
 };
 
 const reviveUnitToHp = (unit, rawAmount) => {
@@ -3148,10 +3418,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         if (isSkillIndexBlockedForActor(actorState, queued.skillIndex)) continue;
 
         const blockedByCannotUseHarmfulSkills =
-            hasStatusMetadataFlag(actorState, 'cannotUseHarmfulSkills') &&
-            ['single-enemy', 'other-enemies', 'all-enemy'].includes(
-                String(skill?.target || '').trim().toLowerCase()
-            );
+            hasStatusMetadataFlag(actorState, 'cannotUseHarmfulSkills') && skillHasHarmfulEffects(skill);
         if (blockedByCannotUseHarmfulSkills) continue;
         if (hasStatusMetadataFlag(actorState, 'cannotUseHelpfulSkills') && !skillHasHarmfulEffects(skill)) {
             continue;
@@ -3870,7 +4137,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         };
         const preflightRecipientsByTargetType = (() => {
             const targetType = String(skill?.target || '').trim().toLowerCase();
-            if (targetType === 'single-enemy') {
+            if (targetType === 'single-enemy' || targetType === 'single-character') {
                 return reflectRecipients(selectedTargets.filter((entry) => entry?.username !== actingUsername));
             }
             if (targetType === 'all-enemy' || targetType === 'other-enemies') {
@@ -3908,6 +4175,14 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             ) {
                 continue;
             }
+            triggerOnEnemySkillTargetedBonuses({
+                match,
+                actingUsername,
+                actorUnit,
+                actorSlot,
+                recipient,
+                skill,
+            });
             if (
                 skillIsHarmful &&
                 !skillCannotBeCountered &&
@@ -3927,9 +4202,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 break;
             }
             if (!shouldCancelByEvade(recipient)) continue;
-            skillCancelledByEvade = true;
-            pendingDamage.clear();
-            break;
+            continue;
         }
 
         const actorSilencedToNonDamage = hasStatusMetadataFlag(actorState, 'silenceNonDamageEffects');
@@ -3981,8 +4254,6 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         return;
                     }
                     if (!Boolean(effect?.metadata?.cannotBeEvaded) && shouldCancelByEvade(recipient)) {
-                        skillCancelledByEvade = true;
-                        pendingDamage.clear();
                         return;
                     }
                     if (isHarmfulEffect(effect)) {
@@ -4085,8 +4356,6 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         !Boolean(effect?.metadata?.cannotBeEvaded) &&
                         shouldCancelByEvade(recipient)
                     ) {
-                        skillCancelledByEvade = true;
-                        pendingDamage.clear();
                         return;
                     }
                     const targetHasHarmfulEffectImmunity = hasStatusMetadataFlag(
@@ -4310,6 +4579,43 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         });
                         runtimeMetadata = nextMetadata;
                     }
+                    const copyTargetSlotToKeys = Array.isArray(runtimeMetadata?.copyTargetSlotToKeys)
+                        ? runtimeMetadata.copyTargetSlotToKeys.filter((key) => typeof key === 'string' && key)
+                        : [];
+                    if (copyTargetSlotToKeys.length > 0) {
+                        const nextMetadata = {
+                            ...(runtimeMetadata || {}),
+                        };
+                        copyTargetSlotToKeys.forEach((key) => {
+                            nextMetadata[key] = recipient.slot;
+                        });
+                        runtimeMetadata = nextMetadata;
+                    }
+                    const copyTargetUsernameToKeys = Array.isArray(runtimeMetadata?.copyTargetUsernameToKeys)
+                        ? runtimeMetadata.copyTargetUsernameToKeys.filter((key) => typeof key === 'string' && key)
+                        : [];
+                    if (copyTargetUsernameToKeys.length > 0) {
+                        const nextMetadata = {
+                            ...(runtimeMetadata || {}),
+                        };
+                        copyTargetUsernameToKeys.forEach((key) => {
+                            nextMetadata[key] = recipient.username;
+                        });
+                        runtimeMetadata = nextMetadata;
+                    }
+                    const copyTargetKeyToKeys = Array.isArray(runtimeMetadata?.copyTargetKeyToKeys)
+                        ? runtimeMetadata.copyTargetKeyToKeys.filter((key) => typeof key === 'string' && key)
+                        : [];
+                    if (copyTargetKeyToKeys.length > 0) {
+                        const targetKey = `${recipient.username}:${recipient.slot}`;
+                        const nextMetadata = {
+                            ...(runtimeMetadata || {}),
+                        };
+                        copyTargetKeyToKeys.forEach((key) => {
+                            nextMetadata[key] = targetKey;
+                        });
+                        runtimeMetadata = nextMetadata;
+                    }
                     const scaleFromSourceStatusMetadata =
                         runtimeMetadata?.scaleFromSourceStatusMetadata &&
                         typeof runtimeMetadata.scaleFromSourceStatusMetadata === 'object'
@@ -4412,8 +4718,6 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         return;
                     }
                     if (!Boolean(effect?.metadata?.cannotBeEvaded) && shouldCancelByEvade(recipient)) {
-                        skillCancelledByEvade = true;
-                        pendingDamage.clear();
                         return;
                     }
                     const hp = Math.max(0, Number(recipient.unit.hp) || 0);
@@ -4796,8 +5100,6 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         !Boolean(effect?.metadata?.cannotBeEvaded) &&
                         shouldCancelByEvade(recipient)
                     ) {
-                        skillCancelledByEvade = true;
-                        pendingDamage.clear();
                         return;
                     }
                     if (!appliesToSelf && isHarmfulEffect(effect)) {
@@ -5416,31 +5718,43 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                     const enemyUnits = Array.isArray(match.board?.[opponentUsername])
                         ? match.board[opponentUsername]
                         : [];
-                    let aliveEnemyEntries = enemyUnits
+                    const aliveEnemyEntries = enemyUnits
                         .map((enemyUnit, enemySlot) => ({ enemyUnit, enemySlot }))
                         .filter((entry) => entry?.enemyUnit && entry.enemyUnit.alive !== false);
                     if (aliveEnemyEntries.length > 0) {
-                        if (
+                        const trackingMetadataKey =
+                            typeof turnEndApplyStatusToRandomEnemy?.trackingMetadataKey === 'string' &&
+                            turnEndApplyStatusToRandomEnemy.trackingMetadataKey
+                                ? turnEndApplyStatusToRandomEnemy.trackingMetadataKey
+                                : turnEndApplyStatusesToRandomEnemy.find(
+                                      (entry) =>
+                                          typeof entry?.trackingMetadataKey === 'string' &&
+                                          entry.trackingMetadataKey
+                                  )?.trackingMetadataKey || '_lastRandomStatusEnemyKey';
+                        const lastKey =
+                            typeof status?.metadata?.[trackingMetadataKey] === 'string'
+                                ? status.metadata[trackingMetadataKey]
+                                : '';
+                        const targetStrategy =
+                            typeof turnEndApplyStatusToRandomEnemy?.targetStrategy === 'string' &&
+                            turnEndApplyStatusToRandomEnemy.targetStrategy
+                                ? turnEndApplyStatusToRandomEnemy.targetStrategy
+                                : turnEndApplyStatusesToRandomEnemy.find(
+                                      (entry) => typeof entry?.targetStrategy === 'string' && entry.targetStrategy
+                                  )?.targetStrategy || '';
+                        const mustChangeTarget =
                             Boolean(turnEndApplyStatusToRandomEnemy?.mustChangeTarget) ||
-                            turnEndApplyStatusesToRandomEnemy.some((entry) => Boolean(entry?.mustChangeTarget))
-                        ) {
-                            const lastKey =
-                                typeof status?.metadata?._lastRandomStatusEnemyKey === 'string'
-                                    ? status.metadata._lastRandomStatusEnemyKey
-                                    : '';
-                            if (lastKey && aliveEnemyEntries.length > 1) {
-                                const filtered = aliveEnemyEntries.filter(
-                                    (entry) => `${opponentUsername}:${entry.enemySlot}` !== lastKey
-                                );
-                                if (filtered.length > 0) {
-                                    aliveEnemyEntries = filtered;
-                                }
-                            }
-                        }
-                        const picked = pickRandomEntry(aliveEnemyEntries);
+                            turnEndApplyStatusesToRandomEnemy.some((entry) => Boolean(entry?.mustChangeTarget));
+                        const picked = pickTrackedEnemyEntry({
+                            aliveEnemyEntries,
+                            opponentUsername,
+                            strategy: targetStrategy,
+                            previousKey: lastKey,
+                            mustChangeTarget,
+                        });
                         if (picked?.enemyUnit) {
                             if (status?.metadata && typeof status.metadata === 'object') {
-                                status.metadata._lastRandomStatusEnemyKey =
+                                status.metadata[trackingMetadataKey] =
                                     `${opponentUsername}:${picked.enemySlot}`;
                             }
                             const pickedState = ensureUnitStateShape(picked.enemyUnit);
@@ -5471,6 +5785,99 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                                     sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
                                     metadata: entry.metadata || {},
                                     fresh: Boolean(entry.fresh),
+                                });
+                            });
+                        }
+                    }
+                }
+                const turnEndEffectsToRandomEnemy = Array.isArray(status?.metadata?.turnEndEffectsToRandomEnemy)
+                    ? status.metadata.turnEndEffectsToRandomEnemy.filter(
+                          (entry) =>
+                              entry &&
+                              typeof entry === 'object' &&
+                              Array.isArray(entry.effects) &&
+                              entry.effects.length > 0
+                      )
+                    : [];
+                const turnEndEffectToRandomEnemy =
+                    turnEndEffectsToRandomEnemy.length > 0
+                        ? null
+                        : status?.metadata?.turnEndEffectToRandomEnemy;
+                if (turnEndEffectsToRandomEnemy.length > 0 || Array.isArray(turnEndEffectToRandomEnemy?.effects)) {
+                    const opponent = players.find((p) => p?.username && p.username !== username);
+                    const opponentUsername = opponent?.username;
+                    const enemyUnits = Array.isArray(match.board?.[opponentUsername])
+                        ? match.board[opponentUsername]
+                        : [];
+                    const aliveEnemyEntries = enemyUnits
+                        .map((enemyUnit, enemySlot) => ({ enemyUnit, enemySlot }))
+                        .filter((entry) => entry?.enemyUnit && entry.enemyUnit.alive !== false);
+                    if (aliveEnemyEntries.length > 0) {
+                        const trackingMetadataKey =
+                            typeof turnEndEffectToRandomEnemy?.trackingMetadataKey === 'string' &&
+                            turnEndEffectToRandomEnemy.trackingMetadataKey
+                                ? turnEndEffectToRandomEnemy.trackingMetadataKey
+                                : turnEndEffectsToRandomEnemy.find(
+                                      (entry) =>
+                                          typeof entry?.trackingMetadataKey === 'string' &&
+                                          entry.trackingMetadataKey
+                                  )?.trackingMetadataKey || '_lastRandomStatusEnemyKey';
+                        const lastKey =
+                            typeof status?.metadata?.[trackingMetadataKey] === 'string'
+                                ? status.metadata[trackingMetadataKey]
+                                : '';
+                        const targetStrategy =
+                            typeof turnEndEffectToRandomEnemy?.targetStrategy === 'string' &&
+                            turnEndEffectToRandomEnemy.targetStrategy
+                                ? turnEndEffectToRandomEnemy.targetStrategy
+                                : turnEndEffectsToRandomEnemy.find(
+                                      (entry) => typeof entry?.targetStrategy === 'string' && entry.targetStrategy
+                                  )?.targetStrategy || '';
+                        const mustChangeTarget =
+                            Boolean(turnEndEffectToRandomEnemy?.mustChangeTarget) ||
+                            turnEndEffectsToRandomEnemy.some((entry) => Boolean(entry?.mustChangeTarget));
+                        const picked = pickTrackedEnemyEntry({
+                            aliveEnemyEntries,
+                            opponentUsername,
+                            strategy: targetStrategy,
+                            previousKey: lastKey,
+                            mustChangeTarget,
+                        });
+                        if (picked?.enemyUnit) {
+                            if (status?.metadata && typeof status.metadata === 'object') {
+                                status.metadata[trackingMetadataKey] =
+                                    `${opponentUsername}:${picked.enemySlot}`;
+                            }
+                            const entries =
+                                turnEndEffectsToRandomEnemy.length > 0
+                                    ? turnEndEffectsToRandomEnemy
+                                    : [turnEndEffectToRandomEnemy];
+                            entries.forEach((entry) => {
+                                const pickedState = ensureUnitStateShape(picked.enemyUnit);
+                                if (
+                                    !doesEffectConditionMatch({
+                                        condition: entry?.condition,
+                                        actorState,
+                                        targetState: pickedState,
+                                        actorUnit: unit,
+                                        targetUnit: picked.enemyUnit,
+                                        actorUsername: username,
+                                        targetUsername: opponentUsername,
+                                    })
+                                ) {
+                                    return;
+                                }
+                                applyTriggeredEffectsToRecipients({
+                                    effects: entry.effects,
+                                    match,
+                                    status,
+                                    recipients: [
+                                        {
+                                            unit: picked.enemyUnit,
+                                            slot: picked.enemySlot,
+                                            username: opponentUsername,
+                                        },
+                                    ],
                                 });
                             });
                         }

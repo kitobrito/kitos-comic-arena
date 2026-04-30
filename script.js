@@ -1063,6 +1063,28 @@ document.addEventListener('DOMContentLoaded', async () => {
             return null;
         };
 
+        const doesSkillOverrideToAllRandom = (actorSlot, skill = null) => {
+            const skillId = typeof skill?.id === 'string' ? skill.id : '';
+            if (!skillId || !Number.isInteger(actorSlot) || actorSlot < 0) return false;
+            const actorUnit = latestBoardState?.[currentPlayerUsername]?.[actorSlot];
+            const statuses = Array.isArray(actorUnit?.state?.statuses) ? actorUnit.state.statuses : [];
+            for (const status of statuses) {
+                if ((Number(status?.remainingTurns) || 0) <= 0) continue;
+                const metadata = status?.metadata || {};
+                if (!metadata.overrideAllSkillsToAllRandom) continue;
+                const restrictedSkillIds = Array.isArray(metadata.overrideAllSkillsToAllRandomSkillIdsAny)
+                    ? metadata.overrideAllSkillsToAllRandomSkillIdsAny
+                          .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
+                          .filter(Boolean)
+                    : [];
+                if (restrictedSkillIds.length > 0 && !restrictedSkillIds.includes(skillId)) {
+                    continue;
+                }
+                return true;
+            }
+            return false;
+        };
+
         const getEffectiveEnergyList = (energy = [], actorSlot = null, skill = null) => {
             const normalizedEnergy = (Array.isArray(energy) ? energy : []).filter((entry) => {
                 const normalized = typeof entry === 'string' ? entry.trim().toLowerCase() : '';
@@ -1074,6 +1096,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const overrideEnergy = getSkillCostOverrideForSkill(actorSlot, skill);
             if (overrideEnergy) {
                 return overrideEnergy;
+            }
+            if (doesSkillOverrideToAllRandom(actorSlot, skill)) {
+                return normalizedEnergy.map(() => 'random');
             }
             const reductions = getActorCostReductions(actorSlot);
             let remainingRandomReduction = Math.max(0, reductions.random);
@@ -1240,7 +1265,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const skillIsEnemyTargeting = (skill) => {
             const target = String(skill?.target || '').trim().toLowerCase();
-            return target === 'single-enemy' || target === 'other-enemies' || target === 'all-enemy';
+            return (
+                target === 'single-enemy' ||
+                target === 'other-enemies' ||
+                target === 'all-enemy' ||
+                target === 'single-character'
+            );
         };
 
         const isActorEnemyTargetingStunned = (actorUnit) => {
@@ -2187,11 +2217,23 @@ document.addEventListener('DOMContentLoaded', async () => {
                 tenten_weapon_last_scythe: 'https://i.imgur.com/NXDITvE.png',
                 tenten_weapon_last_mace: 'https://i.imgur.com/iRZ8SMk.png',
             };
+            const rexAmmoStatusIconById = {
+                rex_splode_explosive_baton_usage: 'https://i.imgur.com/rSLzlpG.png',
+                rex_splode_explosive_baton_usage_tracker: 'https://i.imgur.com/rSLzlpG.png',
+                rex_splode_explosive_pocket_change_usage: 'https://i.imgur.com/rSLzlpG.png',
+                rex_splode_explosive_pocket_change_usage_tracker: 'https://i.imgur.com/rSLzlpG.png',
+                rex_splode_ammo_swap_tracker: 'https://i.imgur.com/rSLzlpG.png',
+                rex_splode_pocket_change_swap_tracker: 'https://i.imgur.com/rSLzlpG.png',
+                rex_splode_explosive_baton_spent: 'https://i.imgur.com/rSLzlpG.png',
+                rex_splode_explosive_pocket_change_spent: 'https://i.imgur.com/rSLzlpG.png',
+            };
             const resolveStatusIconSrc = (group, statusSkill) => {
                 const statusesInGroup = Array.isArray(group?.statuses) ? group.statuses : [];
                 for (const status of statusesInGroup) {
                     const mapped = tentenWeaponStatusIconById[status?.id];
                     if (mapped) return mapped;
+                    const rexMapped = rexAmmoStatusIconById[status?.id];
+                    if (rexMapped) return rexMapped;
                 }
                 return statusSkill?.skillimage || '';
             };

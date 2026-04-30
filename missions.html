@@ -635,6 +635,7 @@
         rgba(0, 0, 0, 0.56);
       backdrop-filter: blur(2px);
       z-index: 1000;
+      overflow-y: auto;
     }
 
     .mission-overlay[hidden] {
@@ -643,6 +644,7 @@
 
     .mission-sheet {
       width: min(100%, 900px);
+      max-height: calc(100vh - 40px);
       border: 4px solid var(--line);
       background:
         radial-gradient(circle at top right, rgba(255, 212, 58, 0.34), transparent 18%),
@@ -650,7 +652,8 @@
         linear-gradient(180deg, #fff8de 0%, #f5d98b 100%);
       box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.95);
       position: relative;
-      overflow: hidden;
+      overflow-x: hidden;
+      overflow-y: auto;
       padding: 20px 20px 18px;
     }
 
@@ -728,6 +731,7 @@
       font-size: 16px;
       line-height: 1.45;
       font-weight: 600;
+      overflow-wrap: anywhere;
     }
 
     .mission-sheet-link {
@@ -826,6 +830,7 @@
       font-weight: 500;
       padding-left: 10px;
       position: relative;
+      overflow-wrap: anywhere;
     }
 
     .mission-sheet-goal::before {
@@ -1600,6 +1605,11 @@
     }
 
     @media (max-width: 640px) {
+      .mission-overlay {
+        place-items: start center;
+        padding: 12px;
+      }
+
       .missions-panel {
         max-width: 100%;
         padding: 16px;
@@ -1625,6 +1635,7 @@
       }
 
       .mission-sheet {
+        max-height: calc(100dvh - 24px);
         padding-top: 54px;
       }
 

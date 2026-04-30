@@ -2075,11 +2075,13 @@ const buildCharacterCatalog = () =>
 
 let characterCatalog = buildCharacterCatalog();
 
+const serializeCharactersDataFile = (nextCharacters) =>
+    'const characters = ' +
+    JSON.stringify(nextCharacters, null, 4) +
+    ';\n\nif (typeof module !== \'undefined\') {\n    module.exports = characters;\n}\n';
+
 const saveCharactersDataFile = async (nextCharacters) => {
-    const serialized =
-        'const characters = ' +
-        JSON.stringify(nextCharacters, null, 4) +
-        ';\n\nif (typeof module !== \'undefined\') {\n    module.exports = characters;\n}\n';
+    const serialized = serializeCharactersDataFile(nextCharacters);
     await fs.promises.writeFile(CHARACTERS_FILE_PATH, serialized, 'utf8');
     charactersData = nextCharacters;
     characterCatalog = buildCharacterCatalog();
@@ -3032,6 +3034,8 @@ const CLIENT_SAFE_STATUS_METADATA_KEYS = new Set([
     'ninjutsuCostIncrease',
     'ninjutsuCostReduction',
     'nonMentalRandomCostIncrease',
+    'overrideAllSkillsToAllRandom',
+    'overrideAllSkillsToAllRandomSkillIdsAny',
     'randomCostIncrease',
     'randomCostReduction',
     'skillCostOverridesByRemainingTurns',
@@ -4667,6 +4671,16 @@ const finalizeTurn = async (match, username) => {
     battleLogic.tickCooldownsForTurnEnd({
         match,
         endingUsername: username,
+    });
+    (match.players || []).forEach((player) => {
+        const units = Array.isArray(match.board?.[player.username]) ? match.board[player.username] : [];
+        player.aliveCount = units.reduce((sum, unit) => {
+            if (!unit || typeof unit !== 'object') return sum;
+            if ((Number(unit.hp) || 0) <= 0) {
+                unit.alive = false;
+            }
+            return sum + (unit.alive === false ? 0 : 1);
+        }, 0);
     });
 
     const alivePlayers = (match.players || []).filter(
@@ -6324,6 +6338,17 @@ app.get('/api/admin/characters', requireSession, (req, res) => {
         ok: true,
         characters: characterCatalog,
     });
+});
+
+app.get('/api/admin/characters/export', requireSession, (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    const serialized = serializeCharactersDataFile(Array.isArray(charactersData) ? charactersData : []);
+    res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="characters.js"');
+    return res.send(serialized);
 });
 
 app.get('/api/admin/characters/:characterId', requireSession, (req, res) => {
