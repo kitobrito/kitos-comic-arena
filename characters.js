@@ -297,7 +297,7 @@ const characters = [
         "id": "spider-man",
         "characterId": "spider-man",
         "name": "Spider-Man",
-        "facePicture": "https://i.imgur.com/P6HqSu0.png",
+        "facePicture": "https://i.imgur.com/10hGC1C.jpeg",
         "startStatuses": [
             {
                 "statusId": "spider_man_spider_senses_passive",
@@ -343,7 +343,7 @@ const characters = [
             {
                 "id": "spider-man-spider-strike",
                 "name": "Spider Strike",
-                "skillimage": "https://i.imgur.com/nlYDkTI.png",
+                "skillimage": "https://i.imgur.com/FKv3P8m.png",
                 "skilldescription": "Deals 20 damage to one enemy. This deals 5 additional damage to an enemy affected by 'Web Shot' or 'Web Wrap' and becomes piercing if Spider-Man is under the effects of 'Web Slinging'. Increases 'Passive: Spider Senses' by 5%.",
                 "energy": [
                     "Taijutsu"
@@ -400,7 +400,7 @@ const characters = [
             {
                 "id": "spider-man-web-shot",
                 "name": "Web Shot",
-                "skillimage": "https://i.imgur.com/tubyiRo.png",
+                "skillimage": "https://i.imgur.com/696d5RE.jpeg",
                 "skilldescription": "Stuns one enemy’s harmful skills for 1 turn. If the target is affected by 'Web Wrap', the cost of their skills is increased by 1 random energy until they use a new skill (does not stack). Increases 'Passive: Spider Senses' by 5%.",
                 "energy": [
                     "Genjutsu"
@@ -461,7 +461,7 @@ const characters = [
             {
                 "id": "spider-man-web-wrap",
                 "name": "Web Wrap",
-                "skillimage": "https://i.imgur.com/6lWrM2t.png",
+                "skillimage": "https://i.imgur.com/zIKyZk2.jpeg",
                 "skilldescription": "Increases the cost of one enemy’s skills by 2 White Energy until they use a new skill. This does not stack and may only affect one enemy at a time (will remove itself from a previous enemy if used on a new one). Increases 'Passive: Spider Senses' by 5%.",
                 "energy": [
                     "Genjutsu",
@@ -509,7 +509,7 @@ const characters = [
             {
                 "id": "spider-man-web-slinging",
                 "name": "Web Slinging",
-                "skillimage": "https://i.imgur.com/7gcVo5T.png",
+                "skillimage": "https://i.imgur.com/jKG2vsk.jpeg",
                 "skilldescription": "Spider-Man ignores enemy stun effects and deals 5 bonus damage with 'Spider Strike' for 2 turns. Increases 'Passive: Spider Senses' by 10%.",
                 "energy": [
                     "Random"
@@ -558,7 +558,7 @@ const characters = [
             {
                 "id": "spider-man-passive-spider-senses",
                 "name": "Passive: Spider Senses",
-                "skillimage": "https://i.imgur.com/Ucz75UH.png",
+                "skillimage": "https://i.imgur.com/ImdCo6q.jpeg",
                 "skilldescription": "Spider-Man has 0% Evasion (this increases by up to 75% through his other skills). When a skill misses, 'Spider Strike' and 'Web Shot' have their costs changed to 1 random energy for 1 turn.",
                 "energy": [],
                 "target": "self",
@@ -575,7 +575,7 @@ const characters = [
         "id": "captain-america",
         "characterId": "captain-america",
         "name": "Captain America",
-        "facePicture": "https://i.imgur.com/hdlwp4G.png",
+        "facePicture": "https://i.imgur.com/7j5pcra.jpeg",
         "characterdeescription": "Captain America serves as a disciplined frontline protector who excels at controlling the pace of battle through precise, well-timed defensive plays. Rather than building long-term power, he focuses on creating short windows of advantage that allow his team to safely pressure the enemy. His abilities provide a versatile mix of disruption and protection—silencing key threats, forcing enemies to target him, and reducing incoming damage at critical moments. With low cooldowns across his kit, he can consistently adapt to the flow of combat and respond to enemy actions in real time.",
         "startStatuses": [
             {
@@ -672,7 +672,7 @@ const characters = [
             {
                 "id": "captain-america-shield-throw",
                 "name": "Shield Throw",
-                "skillimage": "https://i.imgur.com/evOMqYo.png",
+                "skillimage": "https://i.imgur.com/uulT2pq.jpeg",
                 "skilldescription": "Deals 25 damage to one main enemy and 15 damage to a random different enemy then silences the main enemy's harmful skills for 1 turn.",
                 "energy": [
                     "Bloodline"
@@ -712,7 +712,7 @@ const characters = [
             {
                 "id": "captain-america-shield-bash",
                 "name": "Shield Bash",
-                "skillimage": "https://i.imgur.com/tMxWAWJ.png",
+                "skillimage": "https://i.imgur.com/MoJrXEu.jpeg",
                 "skilldescription": "One enemy receives 20 damage and is taunted for 1 turn. This skill grants Captain America 20 points of destructible defense for 1 turn.",
                 "energy": [
                     "Genjutsu"
@@ -757,7 +757,7 @@ const characters = [
             {
                 "id": "captain-america-patriot-s-flag",
                 "name": "Patriot's Flag",
-                "skillimage": "https://i.imgur.com/rV2vZHe.png",
+                "skillimage": "https://i.imgur.com/QJ1Gn8l.jpeg",
                 "skilldescription": "Captain America rallies his team to stand united. For 1 turn, all allies gain 10 health, 5 points of unpierceable damage reduction, deal +5 additional non-affliction damage, and are immune to stun effects.",
                 "energy": [
                     "Ninjutsu"
@@ -796,7 +796,7 @@ const characters = [
             {
                 "id": "captain-america-vibranium-ricochet",
                 "name": "Vibranium Ricochet",
-                "skillimage": "https://i.imgur.com/360RvnV.png",
+                "skillimage": "https://i.imgur.com/Lmj8tYf.jpeg",
                 "skilldescription": "Captain America or one ally ignores all enemy non-mental skills for 1 turn. Reflects 25% of all non-mental damage directed at the character affected by this skill back at the attacker. This skill is invisible and cycles its cost between red/white/blue each turn.",
                 "energy": [
                     "Bloodline"
@@ -837,7 +837,7 @@ const characters = [
             {
                 "id": "captain_america_america_shield_passive2",
                 "name": "Passive: America's Shield",
-                "skillimage": "https://i.imgur.com/kNCwURs.png",
+                "skillimage": "https://i.imgur.com/WiTTvPl.jpeg",
                 "skilldescription": "While Cap is alive, every time a member of his team uses a skill with an individual Red/White/Blue energy in its cost (or any combination of the 3, but not black or green), they gain 5 points of permanent destructible defense for each color spent.",
                 "energy": [],
                 "target": "",
@@ -854,7 +854,7 @@ const characters = [
         "id": "superman",
         "characterId": "superman",
         "name": "Superman",
-        "facePicture": "https://i.imgur.com/qxxeJxM.png",
+        "facePicture": "https://i.imgur.com/mDgc01K.jpeg",
         "startStatuses": [
             {
                 "statusId": "superman_the_man_of_steel_passive",
@@ -872,7 +872,7 @@ const characters = [
             {
                 "id": "superman-laser-eyes",
                 "name": "Laser Eyes",
-                "skillimage": "https://i.imgur.com/TD7qGDJ.png",
+                "skillimage": "https://i.imgur.com/E1mzMke.jpeg",
                 "skilldescription": "Superman blasts one enemy with his laser vision, dealing 10 piercing and 10 affliction damage to them. For 1 turn, this skill costs 1 more red energy and deals 20 piercing and 20 affliction damage.",
                 "energy": [
                     "Bloodline"
@@ -921,7 +921,7 @@ const characters = [
             {
                 "id": "superman-frost-breath",
                 "name": "Frost Breath",
-                "skillimage": "https://i.imgur.com/OdxIs9J.png",
+                "skillimage": "https://i.imgur.com/Vty8muB.jpeg",
                 "skilldescription": "Superman freezes one enemy in ice, dealing 15 affliction damage to them and fully stuns them for 1 turn. For 1 turn, this skill costs 1 more blue energy, deals 30 affliction damage, and fully stuns for 2 turns.",
                 "energy": [
                     "Ninjutsu"
@@ -973,7 +973,7 @@ const characters = [
             {
                 "id": "superman-solar-flare",
                 "name": "Solar Flare",
-                "skillimage": "https://i.imgur.com/oNMuLXK.png",
+                "skillimage": "https://i.imgur.com/THwGbwn.jpeg",
                 "skilldescription": "Superman deals 35 damage to the enemy team. For 3 turns, Passive: The Man of Steel is de-activated.",
                 "energy": [
                     "Bloodline",
@@ -1021,7 +1021,7 @@ const characters = [
             {
                 "id": "superman-super-powered-flight",
                 "name": "Super-Powered Flight",
-                "skillimage": "https://i.imgur.com/59xjdEo.png",
+                "skillimage": "https://i.imgur.com/BMQtiPt.jpeg",
                 "skilldescription": "Superman becomes invulnerable for 1 turn and deals 25 damage to one enemy.",
                 "energy": [
                     "Random",
@@ -1056,7 +1056,7 @@ const characters = [
             {
                 "id": "superman-passive-the-man-of-steel",
                 "name": "Passive: The Man of Steel",
-                "skillimage": "https://i.imgur.com/BDerCDI.png",
+                "skillimage": "https://i.imgur.com/ACqPlGK.jpeg",
                 "skilldescription": "Superman has 12 unpierceable damage reduction.",
                 "energy": [],
                 "target": "",
@@ -1071,7 +1071,7 @@ const characters = [
                 "id": "superman-laser-eyes-empowered",
                 "name": "Laser Eyes",
                 "hiddenFromSelectionViewer": true,
-                "skillimage": "https://i.imgur.com/TD7qGDJ.png",
+                "skillimage": "https://i.imgur.com/E1mzMke.jpeg",
                 "skilldescription": "Laser Eyes is empowered, dealing 20 piercing damage and 20 affliction damage to one enemy.",
                 "energy": [
                     "Bloodline",
@@ -1110,7 +1110,7 @@ const characters = [
                 "id": "superman-frost-breath-empowered",
                 "name": "Frost Breath",
                 "hiddenFromSelectionViewer": true,
-                "skillimage": "https://i.imgur.com/OdxIs9J.png",
+                "skillimage": "https://i.imgur.com/Vty8muB.jpeg",
                 "skilldescription": "Frost Breath deals 30 affliction damage to one enemy and fully stunning them for 2 turns.",
                 "energy": [
                     "Ninjutsu",
@@ -1154,7 +1154,7 @@ const characters = [
         "id": "batman",
         "characterId": "batman",
         "name": "Batman",
-        "facePicture": "https://i.imgur.com/lFB3seb.png",
+        "facePicture": "https://i.imgur.com/uV53DZN.jpeg",
         "startStatuses": [
             {
                 "statusId": "batman_bat_signal",
@@ -1179,7 +1179,7 @@ const characters = [
             {
                 "id": "batman-explosive-batarangs",
                 "name": "Explosive Batarangs",
-                "skillimage": "https://i.imgur.com/8EK9yEi.png",
+                "skillimage": "https://i.imgur.com/WJmxjLz.jpeg",
                 "skilldescription": "Deals 5 damage and 4 affliction damage to all enemies. For the next turn, this skill instead targets one enemy and strikes them three times, each hit dealing 5 damage and 4 affliction damage, before returning to its normal effect.",
                 "energy": [
                     "Random"
@@ -1226,7 +1226,7 @@ const characters = [
             {
                 "id": "batman-pocket-emp",
                 "name": "Pocket EMP",
-                "skillimage": "https://i.imgur.com/4Pr0xxy.png",
+                "skillimage": "https://i.imgur.com/KoxLeK9.jpeg",
                 "skilldescription": "Batman releases a compact electromagnetic pulse that silences the enemy team for 1 turn, preventing all non-damage effects. Enemies also take 5 additional damage from all sources for 1 turn. This skill then swaps to 'Smoke Bomb'.",
                 "energy": [
                     "Genjutsu"
@@ -1271,7 +1271,7 @@ const characters = [
             {
                 "id": "batman-grappling-hook",
                 "name": "Grappling Hook",
-                "skillimage": "https://i.imgur.com/7PwWb6Z.png",
+                "skillimage": "https://i.imgur.com/c3nX3zy.jpeg",
                 "skilldescription": "Batman evades danger using his grappling hook, becoming invulnerable for 1 turn and removing all harmful effects from himself. One enemy becomes unable to go invulnerable for 1 turn and takes 5 additional damage from all sources during that time. This skill then swaps to 'Bullet-Deflecting Cape'.",
                 "energy": [
                     "Random"
@@ -1329,7 +1329,7 @@ const characters = [
             {
                 "id": "batman-batmobile",
                 "name": "Batmobile",
-                "skillimage": "https://i.imgur.com/NA1Udzh.png",
+                "skillimage": "https://i.imgur.com/D1IKpC8.jpeg",
                 "skilldescription": "Batman deploys the Batmobile, gaining 55 permanent destructible defense and becoming invulnerable for 1 turn. While this destructible defense remains, this skill can be used for no energy cost to deal 35 piercing damage to one enemy, reducing Batman’s destructible defense by 25 each use. When the destructible defense is destroyed, this skill is replaced with 'Bat Kick'.",
                 "energy": [
                     "Random",
@@ -1437,7 +1437,7 @@ const characters = [
             {
                 "id": "batman-bullet-deflecting-cape",
                 "name": "Bullet-Deflecting Cape",
-                "skillimage": "https://i.imgur.com/QPcJuMv.png",
+                "skillimage": "https://i.imgur.com/c0AlSs8.jpeg",
                 "skilldescription": "For 1 turn, the first non-mental harmful skill used on Batman is reflected onto a random enemy. This skill is invisible. This skill then swaps back to 'Grappling Hook'.",
                 "energy": [
                     "Random"
@@ -1494,7 +1494,7 @@ const characters = [
             {
                 "id": "batman-smoke-bomb",
                 "name": "Smoke Bomb",
-                "skillimage": "https://i.imgur.com/WmwINXG.png",
+                "skillimage": "https://i.imgur.com/I9CEmJw.jpeg",
                 "skilldescription": "Batman throws a smoke bomb that blinds the enemy team for 1 turn, causing their next skill to target a random character. Enemies also take 5 additional damage from all sources for 1 turn. This skill then swaps back to 'Pocket EMP'.",
                 "energy": [
                     "Genjutsu",
@@ -1539,7 +1539,7 @@ const characters = [
             {
                 "id": "batman-bat-kick",
                 "name": "Bat Kick",
-                "skillimage": "https://i.imgur.com/C7eIM8u.png",
+                "skillimage": "https://i.imgur.com/Lp7x70v.jpeg",
                 "skilldescription": "Batman delivers a brutal martial arts strike, dealing 35 damage to one enemy.",
                 "energy": [
                     "Genjutsu",
@@ -1564,7 +1564,7 @@ const characters = [
             {
                 "id": "batman-passive-bat-signal",
                 "name": "Passive: Bat Signal",
-                "skillimage": "https://i.imgur.com/czU1Ikq.png",
+                "skillimage": "https://i.imgur.com/BJPvrVa.jpeg",
                 "skilldescription": "Batman enters battle fully prepared. For the first turn of the match, Batman is invulnerable to harmful skills. This protection ends immediately if Batman uses a skill or if a new harmful enemy skill affects him.",
                 "energy": [],
                 "target": "",
@@ -1617,13 +1617,13 @@ const characters = [
         "id": "the-flash-barry-allen",
         "characterId": "the-flash-barry-allen",
         "name": "The Flash (Barry Allen)",
-        "facePicture": "https://i.imgur.com/X3TO0hk.png",
+        "facePicture": "https://i.imgur.com/hYpELKX.jpeg",
         "characterdeescription": "The Flash dominates the pace of battle through unmatched speed and relentless momentum. Rather than relying on raw durability, he overwhelms opponents by acting faster, striking repeatedly, and disrupting their ability to keep up. His abilities create rapid pressure windows, forcing enemies into reactive play while he dictates the flow of combat. With tools that accelerate his own actions and interfere with enemy timing, The Flash thrives in fast-paced encounters where every second matters. He can evade danger, reset momentum, and enable his team to act more efficiently, turning brief openings into decisive advantages.",
         "skills": [
             {
                 "id": "the-flash-barry-allen-infinite-mass-punch",
                 "name": "Infinite Mass Punch",
-                "skillimage": "https://i.imgur.com/vwUOYsd.png",
+                "skillimage": "https://i.imgur.com/tZfTTzm.jpeg",
                 "skilldescription": "Deals 45 piercing damage to one enemy. If The Flash has 'Speed Up' this skill cannot be countered or reflected and ignores invulnerability.",
                 "energy": [
                     "Taijutsu",
@@ -1651,7 +1651,7 @@ const characters = [
             {
                 "id": "the-flash-barry-allen-lightning-rush",
                 "name": "Lightning Rush",
-                "skillimage": "https://i.imgur.com/ZlN4KC4.png",
+                "skillimage": "https://i.imgur.com/Pwzbd89.jpeg",
                 "skilldescription": "The Flash strikes one enemy 4 times in quick succession, dealing 5 damage each time. Each hit has a 25% chance to apply 'Shock': dealing 3 piercing damage for 4 turns. The Flash gains 'Speed Up' for 1 turn.",
                 "energy": [
                     "Bloodline"
@@ -1781,7 +1781,7 @@ const characters = [
             {
                 "id": "the-flash-barry-allen-speed-steal",
                 "name": "Speed Steal",
-                "skillimage": "https://i.imgur.com/laG0u0X.png",
+                "skillimage": "https://i.imgur.com/XF2SCm0.jpeg",
                 "skilldescription": "For 2 turns, the enemy player only has 40 seconds to complete their turn and you are given 20 additional seconds to complete yours. The Flash gains 'Speed Up' and this swaps to 'Flashpoint Surge' while active.",
                 "energy": [
                     "Random",
@@ -1830,7 +1830,7 @@ const characters = [
             {
                 "id": "the-flash-barry-allen-phase-shift",
                 "name": "Phase Shift",
-                "skillimage": "https://i.imgur.com/ovup1JS.png",
+                "skillimage": "https://i.imgur.com/3m7tgys.jpeg",
                 "skilldescription": "The Flash removes all harmful skills and gains 100% evasion for 1 turn. If The Flash is 'Speed Up', this skill's active cooldown is 1 turn less.",
                 "energy": [],
                 "target": "self",
@@ -1862,7 +1862,7 @@ const characters = [
                 "id": "the-flash-barry-allen-flashpoint-surge",
                 "name": "Flashpoint Surge",
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/teE3m1U.png",
+                "skillimage": "https://i.imgur.com/2rQgv0G.jpeg",
                 "skilldescription": "The Flash resets his team's cooldowns and heals them 25 HP. This skill ignores invulnerability.",
                 "energy": [
                     "Bloodline",
@@ -1935,13 +1935,13 @@ const characters = [
         "id": "aquaman",
         "characterId": "aquaman",
         "name": "Aquaman",
-        "facePicture": "https://i.imgur.com/lUWpCxK.png",
+        "facePicture": "https://i.imgur.com/76Svd5q.jpeg",
         "characterdeescription": "Ruler of Atlantis and master of the oceans, Aquaman dominates the battlefield through relentless pressure and crushing tidal control. Wielding his legendary trident, he marks enemies for punishment, drags them beneath the waves, and unleashes swarms of sea creatures to finish them off. Whether shielding himself with rushing currents or drowning foes in mounting afflictions, Aquaman excels at overwhelming teams that rely on defense or invulnerability.",
         "skills": [
             {
                 "id": "aquaman-trident-strike",
                 "name": "Trident Strike",
-                "skillimage": "https://i.imgur.com/jWzBCve.png",
+                "skillimage": "https://i.imgur.com/fvvaagh.jpeg",
                 "skilldescription": "Aquaman strikes one enemy with his trident, dealing 17 piercing damage and marking them for 1 turn. If used on a marked enemy, Aquaman also stuns their helpful skills for 1 turn.",
                 "energy": [
                     "Random"
@@ -1994,7 +1994,7 @@ const characters = [
             {
                 "id": "aquaman-drown",
                 "name": "Drown",
-                "skillimage": "https://i.imgur.com/OnxjSgd.png",
+                "skillimage": "https://i.imgur.com/Quiv9Wj.jpeg",
                 "skilldescription": "Aquaman forces one enemy's head underwater, removing 1 random energy from them and dealing 15 affliction damage. If they are marked by 'Trident Strike', they are given a stack of 'Sea Sharks'.",
                 "energy": [
                     "Ninjutsu"
@@ -2052,7 +2052,7 @@ const characters = [
             {
                 "id": "aquaman-tidal-wave",
                 "name": "Tidal Wave",
-                "skillimage": "https://i.imgur.com/VepAJ8X.png",
+                "skillimage": "https://i.imgur.com/CaFUaKo.jpeg",
                 "skilldescription": "Aquaman makes the enemy team unable to reduce damage or become invulnerable, increases their cooldowns by 1 and their energy costs by 1 random energy for 2 turns. When this skill ends, they have their harmful skills stunned for 1 turn and are granted a stack of 'Sea Sharks'. If an enemy is marked by 'Trident Strike' at the end of the second turn, they take 30 damage.",
                 "energy": [
                     "Ninjutsu",
@@ -2135,7 +2135,7 @@ const characters = [
             {
                 "id": "aquaman-water-jet",
                 "name": "Water Jet",
-                "skillimage": "https://i.imgur.com/DEowat1.png",
+                "skillimage": "https://i.imgur.com/0NmOe89.jpeg",
                 "skilldescription": "This skill makes Aquaman invulnerable for 1 turn and grants all enemies a stack of 'Sea Sharks'.",
                 "energy": [
                     "Random"
@@ -2183,7 +2183,7 @@ const characters = [
             {
                 "id": "aquaman-sea-sharks",
                 "name": "Sea Sharks",
-                "skillimage": "https://i.imgur.com/TYkjQdu.png",
+                "skillimage": "https://i.imgur.com/38s3F0Z.jpeg",
                 "skilldescription": "Deals 5 piercing damage permanently (stacks).",
                 "energy": [],
                 "target": "",
@@ -4498,7 +4498,7 @@ const characters = [
         "id": "invincible",
         "characterId": "invincible",
         "name": "Invincible",
-        "facePicture": "https://i.imgur.com/vNO0ebm.png",
+        "facePicture": "https://i.imgur.com/V13iGcl.jpeg",
         "characterdeescription": "Invincible thrives in the chaos of battle, growing stronger as his team endures enemy pressure. Rather than avoiding damage, he embraces it—using each hit his allies take as fuel to amplify his own power. With the ability to shield teammates at critical moments and retaliate with increasingly devastating force, Invincible rewards calculated risk and precise timing.",
         "startStatuses": [
             {
@@ -4528,7 +4528,7 @@ const characters = [
             {
                 "id": "invincible-invincible-punch",
                 "name": "Invincible Punch",
-                "skillimage": "https://i.imgur.com/HowF8NS.png",
+                "skillimage": "https://i.imgur.com/SPOWsaf.jpeg",
                 "skilldescription": "Invincible punches one enemy dealing 5 damage to them.",
                 "energy": [
                     "Random"
@@ -4552,7 +4552,7 @@ const characters = [
             {
                 "id": "invincible-to-the-rescue",
                 "name": "To the Rescue",
-                "skillimage": "https://i.imgur.com/MZHQ6n3.png",
+                "skillimage": "https://i.imgur.com/zfwfOzL.jpeg",
                 "skilldescription": "Invincible makes an ally invulnerable for 1 turn.",
                 "energy": [
                     "Taijutsu"
@@ -4580,7 +4580,7 @@ const characters = [
             {
                 "id": "invincible-desperate-bite",
                 "name": "Desperate Bite",
-                "skillimage": "https://i.imgur.com/lv18VL8.png",
+                "skillimage": "https://i.imgur.com/BURjHNr.jpeg",
                 "skilldescription": "Deals 10 affliction damage to one enemy. This swaps to 'Head Smash' for 1 turn.",
                 "energy": [
                     "Taijutsu"
@@ -4620,7 +4620,7 @@ const characters = [
             {
                 "id": "invincible-viltrumite-flight",
                 "name": "Viltrumite Flight",
-                "skillimage": "https://i.imgur.com/0ZS3Gfm.png",
+                "skillimage": "https://i.imgur.com/cFLjDwX.jpeg",
                 "skilldescription": "This skill makes Invincible invulnerable and deal 15 bonus damage for 1 turn.",
                 "energy": [
                     "Taijutsu"
@@ -4652,7 +4652,7 @@ const characters = [
             {
                 "id": "invincible-head-smash",
                 "name": "Head Smash",
-                "skillimage": "https://i.imgur.com/5wQuvL7.png",
+                "skillimage": "https://i.imgur.com/CM1PmTW.jpeg",
                 "skilldescription": "Deals 15 piercing damage to one enemy and fully stuns them for 1 turn.",
                 "energy": [
                     "Random",
@@ -4691,7 +4691,7 @@ const characters = [
             {
                 "id": "invincible-passive-something-to-fight-for",
                 "name": "Passive: Something to Fight For",
-                "skillimage": "https://i.imgur.com/1eD58MB.png",
+                "skillimage": "https://i.imgur.com/BarSsoW.jpeg",
                 "skilldescription": "Invincible deals 5 bonus damage every time an ally recieves new non-affliction damage. This effect is permanent.",
                 "energy": [],
                 "target": "",
@@ -4708,7 +4708,7 @@ const characters = [
         "id": "rex-splode",
         "characterId": "rex-splode",
         "name": "Rex Splode",
-        "facePicture": "https://i.imgur.com/sYSm26V.png",
+        "facePicture": "https://i.imgur.com/ntQvjKH.jpeg",
         "characterdeescription": "On a team, Rex excels as a burst damage and disruption specialist, ideal for breaking through durable targets and creating openings for allies. Played well, he controls the pace of the fight—forcing opponents to react or risk getting blown apart. Rex Splode is a high-pressure ranged damage dealer who thrives on controlled bursts of explosive power. Rather than relying on sustained output, he manages limited resources—charged batons and coins—to deliver precise, piercing attacks that weaken and disrupt enemies",
         "startStatuses": [
             {
@@ -4824,7 +4824,7 @@ const characters = [
             {
                 "id": "rex-splode-explosive-baton",
                 "name": "Explosive Baton",
-                "skillimage": "https://i.imgur.com/Vqrh1D8.png",
+                "skillimage": "https://i.imgur.com/N0bWSfK.jpeg",
                 "skilldescription": "Rex throws a charged baton at one enemy, dealing 30 piercing damage and reducing their non-affliction damage by 15 for 1 turn. Rex can only use this skill twice per game.",
                 "energy": [
                     "Bloodline"
@@ -4869,7 +4869,7 @@ const characters = [
             {
                 "id": "rex-splode-explosive-pocket-change",
                 "name": "Explosive Pocket Change",
-                "skillimage": "https://i.imgur.com/51ENwBD.png",
+                "skillimage": "https://i.imgur.com/7B0U28W.jpeg",
                 "skilldescription": "Rex charges a coin in his pocket and throws it a one enemy, dealing 15 piercing damage and removing 1 random energy from them. Rex can only use this skill three times per game.",
                 "energy": [
                     "Random"
@@ -4908,7 +4908,7 @@ const characters = [
             {
                 "id": "rex-splode-floor-detonation",
                 "name": "Floor Detonation",
-                "skillimage": "https://i.imgur.com/LrqRUVL.png",
+                "skillimage": "https://i.imgur.com/46lxBIX.jpeg",
                 "skilldescription": "Rex charges the entire floor underneath the enemy team, dealing 20 affliction damage to them and marking them for 2 turns. The next skill Rex uses on them if they are marked deals 10 additional damage.",
                 "energy": [
                     "Bloodline",
@@ -4956,7 +4956,7 @@ const characters = [
             {
                 "id": "rex-splode-smoke-screen",
                 "name": "Smoke Screen",
-                "skillimage": "https://i.imgur.com/EbbHfy2.png",
+                "skillimage": "https://i.imgur.com/4YK42j9.jpeg",
                 "skilldescription": "This skill makes Rex Splode invulnerable for 1 turn.",
                 "energy": [
                     "Random"
@@ -4984,7 +4984,7 @@ const characters = [
             {
                 "id": "rex-splode-explosive-debris",
                 "name": "Explosive Debris",
-                "skillimage": "https://i.imgur.com/gOwnLXF.png",
+                "skillimage": "https://i.imgur.com/sUz3JDv.jpeg",
                 "skilldescription": "This skill replaces Explosive Baton or Explosive Pocket Change when they run out of ammo. Deal 20 piercing damage to one enemy. The following turn, if this skill is used on the same target it will deal 35 piercing damage instead.",
                 "energy": [
                     "Random"
@@ -5044,7 +5044,7 @@ const characters = [
         "id": "atom-eve",
         "characterId": "atom-eve",
         "name": "Atom Eve",
-        "facePicture": "https://i.imgur.com/Gsfj3gN.png",
+        "facePicture": "https://i.imgur.com/O08XwjS.jpeg",
         "characterdeescription": "Atom Eve is a battlefield control support who reshapes fights through precise molecular constructs. Rather than overwhelming enemies with raw damage, she dominates through disruption, protection, and inevitability—shutting down key threats while reinforcing her team with layered defenses. Her constructs allow her to disable high-impact enemies, create protective barriers, and mitigate incoming damage across her team, making her especially valuable in slower, control-oriented compositions. Eve thrives when dictating tempo—forcing opponents into unfavorable positions while her allies capitalize on the openings she creates.",
         "startStatuses": [
             {
@@ -5078,7 +5078,7 @@ const characters = [
             {
                 "id": "atom-eve-molecule-crush",
                 "name": "Molecule Crush",
-                "skillimage": "https://i.imgur.com/Q9Pbq4F.png",
+                "skillimage": "https://i.imgur.com/JClGCas.jpeg",
                 "skilldescription": "Grants one enemy 15 points of Barrier for 1 turn and deals 20 damage to them.",
                 "energy": [
                     "Ninjutsu"
@@ -5116,7 +5116,7 @@ const characters = [
             {
                 "id": "atom-eve-molecule-helmet",
                 "name": "Molecule Helmet",
-                "skillimage": "https://i.imgur.com/Fa6bU6r.png",
+                "skillimage": "https://i.imgur.com/JX1tefx.jpeg",
                 "skilldescription": "Grants one enemy 35 permanent Barrier. While they have any Barrier from this skill, their harmful skills are Silenced and Blinded. This cannot be used on an already affected enemy.",
                 "energy": [
                     "Ninjutsu",
@@ -5155,7 +5155,7 @@ const characters = [
             {
                 "id": "atom-eve-molecule-shield",
                 "name": "Molecule Shield",
-                "skillimage": "https://i.imgur.com/268NZqY.png",
+                "skillimage": "https://i.imgur.com/oeKbnxE.jpeg",
                 "skilldescription": "Eve grants her entire team 20 points of destructible defense for 1 turn. This skill is invisible.",
                 "energy": [
                     "Random",
@@ -5188,7 +5188,7 @@ const characters = [
             {
                 "id": "atom-eve-molecule-battle-armor",
                 "name": "Molecule Battle Armor",
-                "skillimage": "https://i.imgur.com/rwhfkYI.png",
+                "skillimage": "https://i.imgur.com/yzflAg2.jpeg",
                 "skilldescription": "Eve may use this on herself or an ally. Grants the target 20 points of damage reduction for 3 turns.",
                 "energy": [
                     "Random"
@@ -5219,7 +5219,7 @@ const characters = [
             {
                 "id": "atom-eve-passive-near-death-awakening",
                 "name": "Passive: Near Death Awakening",
-                "skillimage": "https://i.imgur.com/2GW1mrj.png",
+                "skillimage": "https://i.imgur.com/o2t3dtM.jpeg",
                 "skilldescription": "When Eve is killed, her health is set to 50 HP for 2 turns. Each turn, she loses 25 HP and all her skills become 'Molecular Deconstruction Beam'.",
                 "energy": [],
                 "target": "self",
@@ -5234,7 +5234,7 @@ const characters = [
                 "id": "atom-eve-molecular-deconstruction-beam",
                 "name": "Molecular Deconstruction Beam",
                 "hiddenFromSelectionViewer": true,
-                "skillimage": "https://i.imgur.com/lT7gHa3.png",
+                "skillimage": "https://i.imgur.com/1E4AQ15.jpeg",
                 "skilldescription": "Deals 35 affliction damage to one enemy. This skill cannot be ignored.",
                 "energy": [
                     "Random",
@@ -5268,7 +5268,7 @@ const characters = [
         "id": "omni-man",
         "characterId": "omni-man",
         "name": "Omni-Man",
-        "facePicture": "https://i.imgur.com/YwXook2.png",
+        "facePicture": "https://i.imgur.com/uOWdpob_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
         "characterdeescription": "Omni-Man dominates the battlefield through overwhelming force and relentless punishment, thriving in direct confrontation where he can dismantle enemies over time. Rather than relying on burst or utility alone, he pressures opponents with sustained damage, disruptive control, and permanent stat reduction that weakens enemies the longer the fight continues. With abilities that force engagement and punish enemy actions, Omni-Man excels at drawing attention and turning it into an advantage. As he takes damage, his power escalates, transforming him into an increasingly dangerous threat that cannot be ignored.",
         "startStatuses": [
             {
@@ -5300,7 +5300,7 @@ const characters = [
             {
                 "id": "omni-man-omni-headbutt",
                 "name": "Omni-Headbutt",
-                "skillimage": "https://i.imgur.com/gVtgAob.png",
+                "skillimage": "https://i.imgur.com/kLXbd4b_d.webp?maxwidth=760&fidelity=grand",
                 "skilldescription": "Omni-Man headbutts one enemy, dealing 15 damage and stunning their harmful skills for 1 turn.",
                 "energy": [
                     "Random",
@@ -5336,7 +5336,7 @@ const characters = [
             {
                 "id": "omni-man-omni-bisect",
                 "name": "Omni-Bisect",
-                "skillimage": "https://i.imgur.com/sZ1V2HR.png",
+                "skillimage": "https://i.imgur.com/hnJmXsL.jpeg",
                 "skilldescription": "Omni-Man rips one enemy in half, dealing 30 piercing damage and permanently reducing their non-affliction damage by 5 (stacks).",
                 "energy": [
                     "Bloodline",
@@ -5379,7 +5379,7 @@ const characters = [
             {
                 "id": "omni-man-omni-rush",
                 "name": "Omni-Rush",
-                "skillimage": "https://i.imgur.com/nOu6M16.png",
+                "skillimage": "https://i.imgur.com/Z163Kpb.jpeg",
                 "skilldescription": "Omni-Man gains 50% unpierceable damage reduction and taunts one enemy for 1 turn. This ignores invulnerability. This cannot be used on an enemy that had this skill used on them last turn.",
                 "energy": [
                     "Bloodline"
@@ -5434,7 +5434,7 @@ const characters = [
             {
                 "id": "omni-man-omni-guard",
                 "name": "Omni-Guard",
-                "skillimage": "https://i.imgur.com/CfSDPu2.png",
+                "skillimage": "https://i.imgur.com/sHp09rW.jpeg",
                 "skilldescription": "Omni-Man targets one enemy for 1 turn, countering them if they use a new harmful skill. If successful, Omni-Man deals 10 additional damage permanently. This skill is invisible.",
                 "energy": [
                     "Random"
@@ -5477,7 +5477,7 @@ const characters = [
             {
                 "id": "omni-man-passive-omni-rage",
                 "name": "Passive: Omni-Rage",
-                "skillimage": "https://i.imgur.com/3kXPrrT.png",
+                "skillimage": "https://i.imgur.com/sgAqXNY.jpeg",
                 "skilldescription": "Omni-Man will deal 5 additional damage every time he receives new enemy non-affliction damage (stacks). This skill is permanent.",
                 "energy": [],
                 "target": "",
@@ -5494,13 +5494,13 @@ const characters = [
         "id": "angstrom-levy",
         "characterId": "angstrom-levy",
         "name": "Angstrom Levy",
-        "facePicture": "https://i.imgur.com/Rg974iR.png",
+        "facePicture": "https://i.imgur.com/HZ86RDV.jpeg",
         "characterdeescription": "Levy controls the tempo of combat by manipulating space and timing. His portals counter enemy abilities, banish priority targets, and create openings for his team to strike safely. Enemies who act without caution risk being erased from the battlefield entirely, making Angstrom a constant threat to coordinated teams.",
         "skills": [
             {
                 "id": "angstrom-levy-spy-drones",
                 "name": "Spy Drones",
-                "skillimage": "https://i.imgur.com/Wyhuo5P.png",
+                "skillimage": "https://i.imgur.com/UpCFN5q.jpeg",
                 "skilldescription": "For 2 turns, deals 10 normal and 10 piercing damage to one enemy each turn. 'Sneaky Portal' will instantly cast 'Dimension Abandon' on an enemy affected by this skill.",
                 "energy": [
                     "Bloodline",
@@ -5550,7 +5550,7 @@ const characters = [
             {
                 "id": "angstrom-levy-sneaky-portal",
                 "name": "Sneaky Portal",
-                "skillimage": "https://i.imgur.com/Lafh95q.png",
+                "skillimage": "https://i.imgur.com/oSJHrpN.jpeg",
                 "skilldescription": "Targets one enemy for 1 turn, and if they use a new harmful skill they will be countered. If successful, 'Dimension Abandon' will be cast on the target. This skill is invisible.",
                 "energy": [
                     "Taijutsu"
@@ -5610,7 +5610,7 @@ const characters = [
             {
                 "id": "angstrom-levy-multi-dimensional-rifts",
                 "name": "Multi-Dimensional Rifts",
-                "skillimage": "https://i.imgur.com/oEhNlWW.png",
+                "skillimage": "https://i.imgur.com/8gbeVqS.jpeg",
                 "skilldescription": "For 2 turns, 'Sneaky Portal' is cast on one random enemy each turn and 'Portal Save' has its cooldown reset. While active, 'Spy Drones' will have no cooldown. This skill is invisible.",
                 "energy": [
                     "Taijutsu",
@@ -5699,7 +5699,7 @@ const characters = [
             {
                 "id": "angstrom-levy-portal-save",
                 "name": "Portal Save",
-                "skillimage": "https://i.imgur.com/xoNB4ZG.png",
+                "skillimage": "https://i.imgur.com/2CXX1YE.jpeg",
                 "skilldescription": "This skill makes Angstrom Levy or an ally invulnerable for 1 turn.",
                 "energy": [
                     "Random"
@@ -5727,7 +5727,7 @@ const characters = [
             {
                 "id": "angstrom-levy-dimension-abandon",
                 "name": "Dimension Abandon",
-                "skillimage": "https://i.imgur.com/JK3dEhh.png",
+                "skillimage": "https://i.imgur.com/OuFPdYN.jpeg",
                 "skilldescription": "This character is Banished for 1 turn. Banished characters are treated as if they are dead.",
                 "energy": [],
                 "target": "single-enemy",
@@ -7638,7 +7638,7 @@ const characters = [
         "id": "homelander",
         "characterId": "homelander",
         "name": "Homelander",
-        "facePicture": "HOMELANDER_IMAGE_URL",
+        "facePicture": "https://i.imgur.com/DI93KSQ_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
         "characterdeescription": "Homelander functions as a snowball executioner who grows deadlier every time he finishes off a weakened target. Starting as a strong single-target threat, he uses brutal burst damage and intimidation tools to pick off vulnerable enemies, then converts each kill into permanent bonus damage and self-healing. The longer he is allowed to secure eliminations, the faster he spirals into an overwhelming late-game menace.",
         "startStatuses": [
             {
@@ -7669,7 +7669,7 @@ const characters = [
             {
                 "id": "homelander-laser-death-beam",
                 "name": "Laser Death Beam",
-                "skillimage": "LASER_IMAGE_URL",
+                "skillimage": "https://i.imgur.com/n5ttNa6_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
                 "skilldescription": "Deals 40 piercing damage to ally or enemy.",
                 "energy": [
                     "Bloodline",
@@ -7697,7 +7697,7 @@ const characters = [
             {
                 "id": "homelander-flying-assault",
                 "name": "Flying Assault",
-                "skillimage": "FLYING_IMAGE_URL",
+                "skillimage": "https://i.imgur.com/e83Q4Oh_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
                 "skilldescription": "Taunts one enemy for 3 turns. If the target uses a new harmful skill during this time, their skills cost all random energy for 1 turn.",
                 "energy": [
                     "Random"
@@ -7745,7 +7745,7 @@ const characters = [
             {
                 "id": "homelander-god-s-fist",
                 "name": "God's Fist",
-                "skillimage": "FIST_IMAGE_URL",
+                "skillimage": "https://i.imgur.com/VRYBKoR_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
                 "skilldescription": "Deals 30 damage to an ally or enemy. For 1 turn, 'Laser Death Beam' deals 50 piercing damage.",
                 "energy": [
                     "Taijutsu",
@@ -7782,7 +7782,7 @@ const characters = [
             {
                 "id": "homelander-unbreakable-body",
                 "name": "Unbreakable Body",
-                "skillimage": "BODY_IMAGE_URL",
+                "skillimage": "https://i.imgur.com/7Muvcwt_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
                 "skilldescription": "For the rest of the game, Homelander gains 20% unpierceable damage reduction and enemies take 10 damage when they use a new skill on him. This skill may only be used 3 times.",
                 "energy": [
                     "Bloodline"
@@ -7817,7 +7817,7 @@ const characters = [
             {
                 "id": "homelander-passive-finish-the-weak",
                 "name": "Passive: Finish the Weak",
-                "skillimage": "PASSIVE_IMAGE_URL",
+                "skillimage": "https://i.imgur.com/taU9ypw_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
                 "skilldescription": "If Homelander kills a character, he heals 15 HP and gains 5 permanent damage. This effect stacks.",
                 "energy": [],
                 "target": "",
@@ -7831,9 +7831,8 @@ const characters = [
             {
                 "id": "homelander-laser-death-beam-empowered",
                 "name": "Laser Death Beam",
-                "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "LASER_IMAGE_URL",
+                "skillimage": "https://i.imgur.com/Lj24mN6_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
                 "skilldescription": "Deals 50 piercing damage to one character.",
                 "energy": [
                     "Bloodline",
@@ -7864,7 +7863,7 @@ const characters = [
         "id": "predator-stalker",
         "characterId": "predator-stalker",
         "name": "Predator Stalker",
-        "facePicture": "PREDATOR_IMAGE_URL",
+        "facePicture": "http://i.imgur.com/1NssQOv_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
         "characterdeescription": "Predator Stalker is a calculated hunter who chains multi-turn damage and lethal burst through stealth. He excels at softening multiple targets before executing a priority enemy while remaining highly evasive.",
         "startStatuses": [
             {
@@ -7886,7 +7885,7 @@ const characters = [
             {
                 "id": "predator-stalker-yautja-shuriken",
                 "name": "Yautja Shuriken",
-                "skillimage": "SHURIKEN_IMAGE_URL",
+                "skillimage": "https://i.imgur.com/v2YOpMA_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
                 "skilldescription": "Deals 15 piercing damage to one enemy. At the end of Predator Stalker's next turn, it bounces to the nearest other enemy and deals 10 piercing damage. At the end of the following turn, it bounces to the nearest other enemy and deals 5 piercing damage.",
                 "energy": [
                     "Random"
@@ -7971,7 +7970,7 @@ const characters = [
             {
                 "id": "predator-stalker-bleeder-spear",
                 "name": "Bleeder Spear",
-                "skillimage": "SPEAR_IMAGE_URL",
+                "skillimage": "https://i.imgur.com/wcV1Ubk_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
                 "skilldescription": "Deals 15 piercing damage to one enemy. That enemy takes 10 affliction damage at the end of each of Predator Stalker's turns permanently. This effect stacks.",
                 "energy": [
                     "Bloodline",
@@ -8022,7 +8021,7 @@ const characters = [
             {
                 "id": "predator-stalker-cloaking-assassination",
                 "name": "Cloaking Assassination",
-                "skillimage": "ASSASSINATION_IMAGE_URL",
+                "skillimage": "https://i.imgur.com/uDof8fR_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
                 "skilldescription": "Requires Cloaking Tech. Deals 50 piercing damage to one enemy and ignores invulnerability. If this kills the target, Cloaking Tech lasts 1 additional turn.",
                 "energy": [
                     "Genjutsu",
@@ -8055,7 +8054,7 @@ const characters = [
             {
                 "id": "predator-stalker-cloaking-tech",
                 "name": "Cloaking Tech",
-                "skillimage": "CLOAK_IMAGE_URL",
+                "skillimage": "https://i.imgur.com/NcKmrHh_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
                 "skilldescription": "For 1 turn, Predator Stalker gains 90% evasion and can use Cloaking Assassination. If Cloaking Assassination kills an enemy while this is active, this effect lasts 1 additional turn.",
                 "energy": [
                     "Bloodline"
@@ -8099,7 +8098,7 @@ const characters = [
             {
                 "id": "predator-stalker-passive-trophy-hunter",
                 "name": "Passive: Trophy Hunter",
-                "skillimage": "PASSIVE_IMAGE_URL",
+                "skillimage": "https://i.imgur.com/0H3OgJV_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
                 "skilldescription": "If Predator Stalker kills an enemy, he gains 1 random energy.",
                 "energy": [],
                 "target": "",
@@ -8111,7 +8110,7 @@ const characters = [
                 ]
             }
         ]
-    },
+    }
 ];
 
 if (typeof module !== 'undefined') {

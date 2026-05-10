@@ -2,6 +2,9 @@
   "name": "naruto-arena",
   "version": "1.0.0",
   "main": "server.js",
+  "engines": {
+    "node": ">=20 <21"
+  },
   "scripts": {
     "start": "node server.js",
     "test": "node --test"
