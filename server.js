@@ -46,10 +46,16 @@ const LATEST_CHARACTER_RELEASES = [
 ];
 const LATEST_CHARACTER_RELEASES_STATE_KEY = 'latest_character_releases';
 const MAINTENANCE_MODE_STATE_KEY = 'maintenance_mode';
+const MAINTENANCE_MODE_CACHE_TTL_MS = 10 * 1000;
 const DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/3JqVcPXm/default.png';
 const LEGACY_DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/zG3W1w6K/itachi.png';
 const MISSION_CATALOG_STATE_KEY = 'missions';
 let missionCatalogCache = null;
+let maintenanceModeCache = {
+    enabled: false,
+    expiresAt: 0,
+};
+let maintenanceModeStatePromise = null;
 const DEFAULT_MISSION_CATALOG = [
     {
         missionId: 'adored-elder-sister',
@@ -1226,6 +1232,20 @@ const normalizeRecentLadderGames = (entries = []) => {
         .slice(0, 25);
 };
 
+const inferCurrentLadderLossStreak = ({ username = '', recentLadderGames = [] } = {}) => {
+    const normalizedUsername = typeof username === 'string' ? username.trim().toLowerCase() : '';
+    if (!normalizedUsername || !Array.isArray(recentLadderGames)) return 0;
+    let losses = 0;
+    for (const game of recentLadderGames) {
+        const winnerUsername =
+            typeof game?.winnerUsername === 'string' ? game.winnerUsername.trim().toLowerCase() : '';
+        if (!winnerUsername) break;
+        if (winnerUsername === normalizedUsername) break;
+        losses += 1;
+    }
+    return losses > 0 ? -losses : 0;
+};
+
 const normalizeUserProfile = (user = {}) => {
     const defaults = buildDefaultUserProfile(user);
     const source = user.profile && typeof user.profile === 'object' ? user.profile : {};
@@ -1274,6 +1294,13 @@ const normalizeUserProfile = (user = {}) => {
     const normalizedLadderState = deriveLadderStateFromExperience(inferredExperiencePoints);
     const isHokage = Boolean(ladder.isHokage) && normalizedLadderState.level >= 46;
     const rankInfo = getRankInfoForLevel(normalizedLadderState.level, isHokage);
+    const recentLadderGames = normalizeRecentLadderGames(source.recentLadderGames);
+    const storedStreak = Number.isFinite(Number(ladder.streak)) ? Number(ladder.streak) : defaults.ladder.streak;
+    const inferredLossStreak = inferCurrentLadderLossStreak({
+        username: user.username,
+        recentLadderGames,
+    });
+    const resolvedStreak = storedStreak === 0 && inferredLossStreak < 0 ? inferredLossStreak : storedStreak;
 
     return {
         avatarUrl:
@@ -1297,10 +1324,10 @@ const normalizeUserProfile = (user = {}) => {
         clanInvitations: normalizeClanInvitations(source.clanInvitations),
         recentQuickGames: normalizeRecentQuickGames(source.recentQuickGames),
         recentPrivateGames: normalizeRecentQuickGames(source.recentPrivateGames),
-        recentLadderGames: normalizeRecentLadderGames(source.recentLadderGames),
+        recentLadderGames,
         recentQuickGamesCount24Hours: normalizeRecentQuickGames(source.recentQuickGames).length,
         recentPrivateGamesCount24Hours: normalizeRecentQuickGames(source.recentPrivateGames).length,
-        recentLadderGamesCount24Hours: normalizeRecentLadderGames(source.recentLadderGames).length,
+        recentLadderGamesCount24Hours: recentLadderGames.length,
         missions: normalizeMissionState(source.missions),
         matchmaking: {
             battleBotEnabled:
@@ -1323,7 +1350,7 @@ const normalizeUserProfile = (user = {}) => {
             losses: Number.isFinite(Number(ladder.losses))
                 ? Math.max(0, Number(ladder.losses))
                 : defaults.ladder.losses,
-            streak: Number.isFinite(Number(ladder.streak)) ? Number(ladder.streak) : defaults.ladder.streak,
+            streak: resolvedStreak,
             highestStreak: Number.isFinite(Number(ladder.highestStreak))
                 ? Number(ladder.highestStreak)
                 : defaults.ladder.highestStreak,
@@ -1947,7 +1974,7 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
             );
         } else if (winnerUsername) {
             profile.ladder.losses += 1;
-            profile.ladder.streak = 0;
+            profile.ladder.streak = Math.min(0, Number(profile.ladder.streak) || 0) - 1;
         }
 
         const expDelta = nextExperiencePoints - previousExperiencePoints;
@@ -2085,6 +2112,20 @@ const saveCharactersDataFile = async (nextCharacters) => {
     await fs.promises.writeFile(CHARACTERS_FILE_PATH, serialized, 'utf8');
     charactersData = nextCharacters;
     characterCatalog = buildCharacterCatalog();
+};
+
+const refreshCharactersDataFromFile = () => {
+    try {
+        delete require.cache[require.resolve(CHARACTERS_FILE_PATH)];
+        const fileCharacters = require(CHARACTERS_FILE_PATH);
+        if (Array.isArray(fileCharacters)) {
+            charactersData = fileCharacters;
+            characterCatalog = buildCharacterCatalog();
+        }
+    } catch (error) {
+        console.error('Character data refresh error:', error);
+    }
+    return Array.isArray(charactersData) ? charactersData : [];
 };
 
 const resolveNewsChangeAssets = (entry = {}) => {
@@ -2553,8 +2594,26 @@ const getMaintenanceModeState = async () => {
     if (!appStateCollection) {
         return false;
     }
-    const state = await appStateCollection.findOne({ key: MAINTENANCE_MODE_STATE_KEY });
-    return Boolean(state?.enabled);
+    const now = Date.now();
+    if (maintenanceModeCache.expiresAt > now) {
+        return maintenanceModeCache.enabled;
+    }
+    if (!maintenanceModeStatePromise) {
+        maintenanceModeStatePromise = appStateCollection
+            .findOne({ key: MAINTENANCE_MODE_STATE_KEY })
+            .then((state) => {
+                const enabled = Boolean(state?.enabled);
+                maintenanceModeCache = {
+                    enabled,
+                    expiresAt: Date.now() + MAINTENANCE_MODE_CACHE_TTL_MS,
+                };
+                return enabled;
+            })
+            .finally(() => {
+                maintenanceModeStatePromise = null;
+            });
+    }
+    return maintenanceModeStatePromise;
 };
 
 const parseSessionTokenFromRequest = (req = {}) => {
@@ -2584,6 +2643,15 @@ const getSessionUserFromRequest = async (req = {}) => {
     } catch (error) {
         return null;
     }
+};
+
+const shouldBypassMaintenanceCheckForAsset = (req = {}) => {
+    const method = String(req.method || '').toUpperCase();
+    if (method !== 'GET' && method !== 'HEAD') {
+        return false;
+    }
+    const extension = path.extname(String(req.path || '')).toLowerCase();
+    return Boolean(extension && extension !== '.html');
 };
 
 const renderMaintenancePage = () => `<!DOCTYPE html>
@@ -2677,6 +2745,10 @@ app.use(async (req, res, next) => {
     }
 });
 app.use(async (req, res, next) => {
+    if (shouldBypassMaintenanceCheckForAsset(req)) {
+        return next();
+    }
+
     try {
         const maintenanceEnabled = await getMaintenanceModeState();
         if (!maintenanceEnabled) {
@@ -3027,15 +3099,23 @@ const CLIENT_SAFE_STATUS_METADATA_KEYS = new Set([
     'cannotUseSkills',
     'DamageDebuff',
     'destructibleDefenseRestore',
+    'effectiveCharacterId',
+    'evadeAgainstNonMental',
+    'evadeChancePercent',
+    'evadedSkillName',
+    'evadedSourceName',
     'facePictureOverride',
     'genjutsuCostIncrease',
     'genjutsuCostReduction',
+    'hulkRage',
+    'ignoreAfflictionDamage',
     'NonAfflictionDamageDebuff',
     'ninjutsuCostIncrease',
     'ninjutsuCostReduction',
     'nonMentalRandomCostIncrease',
     'overrideAllSkillsToAllRandom',
     'overrideAllSkillsToAllRandomSkillIdsAny',
+    'onOwnerUseSkillApplyStatusToEnemies',
     'randomCostIncrease',
     'randomCostReduction',
     'skillCostOverridesByRemainingTurns',
@@ -3043,13 +3123,22 @@ const CLIENT_SAFE_STATUS_METADATA_KEYS = new Set([
     'skillDamageBonuses',
     'skillReplacements',
     'skillReplacementsByRemainingTurns',
+    'skillReplacementsRequireSourceSkillId',
     'sourceSkillName',
     'stackMetadataKey',
+    'stackDerivedNumericKeys',
     'taijutsuCostIncrease',
     'taijutsuCostReduction',
     'tooltipText',
     'tooltipTextTemplate',
+    'currentUnpierceableDamageReduction',
+    'currentUnpierceableDamageReductionFlat',
+    'unpierceableDamageReductionFlatPerStatusMetadataAmount',
+    'unpierceableDamageReductionFlatPerStatusMetadataKey',
+    'unpierceableDamageReductionFlatPerStatusMetadataStep',
     'turnEndDamage',
+    'turnEndApplyStatusToAllies',
+    'turnEndApplyStatusToEnemies',
 ]);
 
 const extractTooltipPlaceholderKeys = (template) => {
@@ -3227,6 +3316,12 @@ const broadcastMatchState = async (matchOrMatchId) => {
         }
     });
     return hydrated;
+};
+
+const queueMatchStateBroadcast = (matchOrMatchId) => {
+    broadcastMatchState(matchOrMatchId).catch((error) => {
+        console.warn('Failed to broadcast match state:', error);
+    });
 };
 
 const sweepExpiredMatches = async () => {
@@ -4349,6 +4444,11 @@ function scheduleBattleBotTurn(match) {
 const normalizeClassChoice = (value) =>
     typeof value === 'string' ? value.trim().toLowerCase() : '';
 
+const usernamesEqual = (left, right) =>
+    typeof left === 'string' &&
+    typeof right === 'string' &&
+    left.trim().toLowerCase() === right.trim().toLowerCase();
+
 const queueSkillForActorSlot = ({ match, username, actorSlot, skillIndex, targetSelection, classChoice }) => {
     const pool = match.chakraPools?.[username];
     if (!pool) {
@@ -4659,11 +4759,20 @@ const finalizeTurn = async (match, username) => {
     const pools = match.chakraPools;
     match.pendingTurns = match.pendingTurns || {};
     const blockedActorGainCount = getTeamStatusFlagCount(match, username, 'preventNextTurnChakraGain');
+    const pendingTurnBeforeResolve = getPendingTurn(match, username);
     battleLogic.resolvePendingTurnSkills({
         match,
         actingUsername: username,
         characters: charactersData,
     });
+    battleLogic.reduceHulkRageForInactiveTurn({
+        match,
+        endingUsername: username,
+        pendingTurn: pendingTurnBeforeResolve,
+    });
+    if (match._manualSkillActorSlotsByUsername) {
+        delete match._manualSkillActorSlotsByUsername;
+    }
     battleLogic.tickStatusesForTurnEnd({
         match,
         endingUsername: username,
@@ -4932,6 +5041,10 @@ app.put('/api/admin/maintenance', requireSession, async (req, res) => {
         },
         { upsert: true }
     );
+    maintenanceModeCache = {
+        enabled: Boolean(value.enabled),
+        expiresAt: Date.now() + MAINTENANCE_MODE_CACHE_TTL_MS,
+    };
     return res.json({
         ok: true,
         enabled: Boolean(value.enabled),
@@ -5710,12 +5823,13 @@ app.post('/api/match/:matchId/skill/queue', requireSession, async (req, res) => 
     if (hydrated.status === 'ended') {
         return res.status(409).json({ error: 'Match already ended.' });
     }
-    const username = req.authUser.username;
-    const playerEntry = hydrated.players.find((p) => p.username === username);
+    const authUsername = req.authUser.username;
+    const playerEntry = hydrated.players.find((p) => usernamesEqual(p.username, authUsername));
     if (!playerEntry) {
         return res.status(403).json({ error: 'Not part of this match.' });
     }
-    if (hydrated.currentTurn !== username) {
+    const username = playerEntry.username;
+    if (!usernamesEqual(hydrated.currentTurn, username)) {
         return res.status(403).json({ error: 'Not your turn.' });
     }
     if (hasPendingTurnStartChoice(getPendingTurn(hydrated, username))) {
@@ -5837,12 +5951,13 @@ app.post('/api/match/:matchId/skill/cancel', requireSession, async (req, res) =>
     if (hydrated.status === 'ended') {
         return res.status(409).json({ error: 'Match already ended.' });
     }
-    const username = req.authUser.username;
-    const playerEntry = hydrated.players.find((p) => p.username === username);
+    const authUsername = req.authUser.username;
+    const playerEntry = hydrated.players.find((p) => usernamesEqual(p.username, authUsername));
     if (!playerEntry) {
         return res.status(403).json({ error: 'Not part of this match.' });
     }
-    if (hydrated.currentTurn !== username) {
+    const username = playerEntry.username;
+    if (!usernamesEqual(hydrated.currentTurn, username)) {
         return res.status(403).json({ error: 'Not your turn.' });
     }
     if (hasPendingTurnStartChoice(getPendingTurn(hydrated, username))) {
@@ -6357,7 +6472,8 @@ app.get('/api/admin/characters/:characterId', requireSession, (req, res) => {
     }
 
     const characterId = typeof req.params?.characterId === 'string' ? req.params.characterId.trim() : '';
-    const character = (Array.isArray(charactersData) ? charactersData : []).find(
+    const currentCharacters = refreshCharactersDataFromFile();
+    const character = currentCharacters.find(
         (entry) => typeof entry?.characterId === 'string' && entry.characterId === characterId
     );
     if (!character) {
@@ -6381,13 +6497,10 @@ app.put('/api/admin/characters/:characterId', requireSession, async (req, res) =
         return res.status(400).json({ error: 'A valid character payload is required.' });
     }
 
-    const currentCharacters = Array.isArray(charactersData) ? charactersData : [];
+    const currentCharacters = refreshCharactersDataFromFile();
     const characterIndex = currentCharacters.findIndex(
         (entry) => typeof entry?.characterId === 'string' && entry.characterId === characterId
     );
-    if (characterIndex === -1) {
-        return res.status(404).json({ error: 'Character not found.' });
-    }
 
     const duplicateCharacterIndex = currentCharacters.findIndex(
         (entry, index) =>
@@ -6401,11 +6514,15 @@ app.put('/api/admin/characters/:characterId', requireSession, async (req, res) =
 
     try {
         const updatedCharacters = currentCharacters.slice();
-        updatedCharacters[characterIndex] = nextCharacter;
+        const saveIndex = characterIndex === -1 ? updatedCharacters.length : characterIndex;
+        updatedCharacters[saveIndex] = {
+            ...nextCharacter,
+            characterId: nextCharacter.characterId.trim(),
+        };
         await saveCharactersDataFile(updatedCharacters);
         return res.json({
             ok: true,
-            character: updatedCharacters[characterIndex],
+            character: updatedCharacters[saveIndex],
         });
     } catch (error) {
         console.error('Admin character update error:', error);

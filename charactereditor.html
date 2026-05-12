@@ -725,6 +725,32 @@
       text-transform: uppercase;
     }
 
+    .character-editor-field {
+      display: grid;
+      gap: 6px;
+      margin: 0 0 12px;
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .character-editor-field input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 3px solid var(--line);
+      background: #fffdf6;
+      color: #17120d;
+      font: 700 15px/1.2 "Inter", sans-serif;
+      outline: none;
+    }
+
+    .character-editor-field input:focus {
+      border-color: var(--accent-3);
+      box-shadow: 0 0 0 4px rgba(31, 117, 255, 0.15);
+    }
+
     .character-editor-json {
       width: 100%;
       min-height: 460px;
@@ -1834,6 +1860,10 @@
         </div>
       </div>
       <p class="character-editor-modal-status" id="character-editor-modal-status" aria-live="polite"></p>
+      <label class="character-editor-field" for="character-editor-role">
+        Role
+        <input id="character-editor-role" type="text" autocomplete="off" placeholder="Tank, Support, Damage, Control..." />
+      </label>
       <textarea class="character-editor-json" id="character-editor-json" spellcheck="false"></textarea>
       <div class="character-editor-actions">
         <button class="character-editor-button secondary" type="button" id="character-editor-close">Close</button>
@@ -1841,7 +1871,8 @@
       </div>
     </div>
   </div>
-  <script src="./index.js" defer></script>
+  <script src="./characters.js?v=lantern-trio"></script>
+  <script src="./index.js?v=stable-roster-display-order" defer></script>
 </body>
 </html>
 

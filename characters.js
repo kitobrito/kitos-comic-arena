@@ -10,7 +10,7 @@ const characters = [
                 "id": "iron-man-repulsor-blast",
                 "name": "Repulsor Blast",
                 "skillimage": "https://i.imgur.com/3ulWurz.png",
-                "skilldescription": "Deals 13 damage to one enemy per turn for 2 turns. If Overcharge is active, this instead deals 28 energy damage and stuns the target for 1 turn.",
+                "skilldescription": "Deals 15 damage to one enemy per turn for 2 turns. If Overcharge is active, this instead deals 30 energy damage and stuns the target for 1 turn.",
                 "energy": [
                     "Random"
                 ],
@@ -34,17 +34,17 @@ const characters = [
                         },
                         "metadata": {
                             "harmful": true,
-                            "turnEndDamage": 13,
+                            "turnEndDamage": 15,
                             "triggerOnApply": true,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
                             "ongoingClass": "action",
-                            "tooltipText": "This character takes 13 damage each turn."
+                            "tooltipText": "This character takes 15 damage each turn."
                         }
                     },
                     {
                         "type": "damage",
-                        "amount": 28,
+                        "amount": 30,
                         "scope": "target",
                         "condition": {
                             "scope": "self",
@@ -291,7 +291,8 @@ const characters = [
                     }
                 ]
             }
-        ]
+        ],
+        "role": "Hybrid DPS"
     },
     {
         "id": "spider-man",
@@ -569,7 +570,409 @@ const characters = [
                     "Instant"
                 ]
             }
-        ]
+        ],
+        "role": "Evasion Disruptor"
+    },
+    {
+        "id": "the-hulk",
+        "characterId": "the-hulk",
+        "name": "The Hulk",
+        "nameHtml": "The Hulk",
+        "facePicture": "https://i.imgur.com/SIkUVer.jpeg",
+        "url": "https://i.imgur.com/SIkUVer.jpeg",
+        "unlockRequirement": "None",
+        "unlockRequirementHtml": "None",
+        "characterdeescription": "Bruce Banner lives a life caught between the soft-spoken scientist he's always been and the uncontrollable green monster powered by his rage. Exposed to heavy doses of gamma radiation, scientist Bruce Banner transforms into the mean, green rage machine called the Hulk.",
+        "description": "Bruce Banner lives a life caught between the soft-spoken scientist he's always been and the uncontrollable green monster powered by his rage. Exposed to heavy doses of gamma radiation, scientist Bruce Banner transforms into the mean, green rage machine called the Hulk.",
+        "descriptionHtml": "Bruce Banner lives a life caught between the soft-spoken scientist he's always been and the uncontrollable green monster powered by his rage.<br>Exposed to heavy doses of gamma radiation, scientist Bruce Banner transforms into the mean, green rage machine called the Hulk.",
+        "startStatuses": [
+            {
+                "statusId": "hulk_anger_management",
+                "duration": 999,
+                "sourceSkillId": "the-hulk-passive-anger-management",
+                "metadata": {
+                    "infiniteDuration": true,
+                    "stackMetadataKey": "hulkRage",
+                    "stackMax": 100,
+                    "hulkRage": 0,
+                    "unpierceableDamageReductionFlatPerStatusMetadataKey": "hulkRage",
+                    "unpierceableDamageReductionFlatPerStatusMetadataStep": 25,
+                    "unpierceableDamageReductionFlatPerStatusMetadataAmount": 10,
+                    "onEnemySkillTargetedHarmfulOnly": true,
+                    "onEnemySkillTargetedApplyStatusToOwner": {
+                        "statusId": "hulk_anger_management",
+                        "duration": 999,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "stackMetadataKey": "hulkRage",
+                            "stackDelta": 25,
+                            "stackMax": 100,
+                            "unpierceableDamageReductionFlatPerStatusMetadataKey": "hulkRage",
+                            "unpierceableDamageReductionFlatPerStatusMetadataStep": 25,
+                            "unpierceableDamageReductionFlatPerStatusMetadataAmount": 10,
+                            "tooltipTextTemplate": "Hulk has {hulkRage} rage and {currentUnpierceableDamageReductionFlat} unpierceable damage reduction."
+                        }
+                    },
+                    "onOwnerUseSkillTrigger": true,
+                    "onOwnerUseSkillHarmfulOnly": true,
+                    "persistOnOwnerUseSkillTrigger": true,
+                    "onOwnerUseSkillApplyStatusToOwner": {
+                        "statusId": "hulk_anger_management",
+                        "duration": 999,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "stackMetadataKey": "hulkRage",
+                            "stackDelta": 10,
+                            "stackMax": 100,
+                            "unpierceableDamageReductionFlatPerStatusMetadataKey": "hulkRage",
+                            "unpierceableDamageReductionFlatPerStatusMetadataStep": 25,
+                            "unpierceableDamageReductionFlatPerStatusMetadataAmount": 10,
+                            "tooltipTextTemplate": "Hulk has {hulkRage} rage and {currentUnpierceableDamageReductionFlat} unpierceable damage reduction."
+                        }
+                    },
+                    "applyStatusAtStack": {
+                        "metadataKey": "hulkRage",
+                        "value": 100,
+                        "statusId": "hulk_worldbreaker_active",
+                        "duration": 999,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "facePictureOverride": "https://i.imgur.com/SGK1J5U.jpeg",
+                            "silenceNonDamageEffects": true,
+                            "skillReplacements": {
+                                "the-hulk-debris-catapult": "the-hulk-world-break"
+                            },
+                            "skillCostOverridesBySkillId": {
+                                "the-hulk-hulk-smash": {
+                                    "energy": []
+                                },
+                                "the-hulk-thunder-clap": {
+                                    "energy": []
+                                },
+                                "the-hulk-debris-catapult": {
+                                    "energy": []
+                                },
+                                "the-hulk-hulk-leap": {
+                                    "energy": []
+                                },
+                                "the-hulk-world-break": {
+                                    "energy": []
+                                }
+                            },
+                            "tooltipText": "Worldbreaker is active. Hulk ignores enemy non-damage effects and his skills cost no energy."
+                        }
+                    },
+                    "tooltipTextTemplate": "Hulk has {hulkRage} rage and {currentUnpierceableDamageReductionFlat} unpierceable damage reduction."
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "the-hulk-hulk-smash",
+                "name": "Hulk Smash",
+                "nameHtml": "Hulk Smash",
+                "skillimage": "http://i.imgur.com/JeNdeM5.jpeg",
+                "url": "http://i.imgur.com/JeNdeM5.jpeg",
+                "skilldescription": "Destroys all of one enemy's destructible defense, then deals 35 damage to them and stuns their non-mental skills for 1 turn. Consumes 50 rage to increase this skill's damage by 10 and 100 rage to increase it by 20.",
+                "description": "Destroys all of one enemy's destructible defense, then deals 35 damage to them and stuns their non-mental skills for 1 turn. Consumes 50 rage to increase this skill's damage by 10 and 100 rage to increase it by 20.",
+                "descriptionHtml": "Destroys all of one enemy's destructible defense, then deals 35 damage to them and stuns their non-mental skills for 1 turn.<br>Consumes 50 rage to increase this skill's damage by 10 and 100 rage to increase it by 20.",
+                "energy": [
+                    "Taijutsu",
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "None",
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Instant",
+                "effects": [
+                    {
+                        "type": "destroy_destructible_defense",
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target",
+                        "metadata": {
+                            "bonusFromStatusMetadataThresholds": {
+                                "scope": "self",
+                                "statusId": "hulk_anger_management",
+                                "metadataKey": "hulkRage",
+                                "thresholds": [
+                                    {
+                                        "atLeast": 100,
+                                        "bonus": 20,
+                                        "consume": 100
+                                    },
+                                    {
+                                        "atLeast": 50,
+                                        "bonus": 10,
+                                        "consume": 50
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "hulk_smash_non_mental_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseNonMentalSkills": true,
+                            "tooltipText": "This character's non-mental skills are stunned."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "the-hulk-thunder-clap",
+                "name": "Thunder Clap",
+                "nameHtml": "Thunder Clap",
+                "skillimage": "https://i.imgur.com/LQ7Pyik.jpeg",
+                "url": "https://i.imgur.com/LQ7Pyik.jpeg",
+                "skilldescription": "Hulk taunts the enemy team for 1 turn. Hulk heals 10 HP for every enemy hit. Consumes 50 rage to increase the duration of this skill's effect by 1 turn.",
+                "description": "Hulk taunts the enemy team for 1 turn. Hulk heals 10 HP for every enemy hit. Consumes 50 rage to increase the duration of this skill's effect by 1 turn.",
+                "descriptionHtml": "Hulk taunts the enemy team for 1 turn.<br>Hulk heals 10 HP for every enemy hit.<br>Consumes 50 rage to increase the duration of this skill's effect by 1 turn.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "cooldownHtml": "3",
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "hulk_thunder_clap_taunt",
+                        "duration": 1,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "taunt": true,
+                            "durationBonusFromStatusMetadataThresholds": {
+                                "scope": "self",
+                                "statusId": "hulk_anger_management",
+                                "metadataKey": "hulkRage",
+                                "thresholds": [
+                                    {
+                                        "atLeast": 50,
+                                        "bonus": 1,
+                                        "consume": 50
+                                    }
+                                ]
+                            },
+                            "tooltipText": "This character is taunted by Hulk."
+                        }
+                    },
+                    {
+                        "type": "heal",
+                        "amount": 30,
+                        "scope": "self"
+                    }
+                ]
+            },
+            {
+                "id": "the-hulk-debris-catapult",
+                "name": "Debris Catapult",
+                "nameHtml": "Debris Catapult",
+                "skillimage": "https://i.imgur.com/6afyDto.jpeg",
+                "url": "https://i.imgur.com/6afyDto.jpeg",
+                "skilldescription": "Deals 35 damage to one enemy. Consumes 25 rage to reduce this skill's cooldown by 1 and 50 rage to reduce it by 2.",
+                "description": "Deals 35 damage to one enemy. Consumes 25 rage to reduce this skill's cooldown by 1 and 50 rage to reduce it by 2.",
+                "descriptionHtml": "Deals 35 damage to one enemy.<br>Consumes 25 rage to reduce this skill's cooldown by 1 and 50 rage to reduce it by 2.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "cooldownHtml": "2",
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Instant",
+                "metadata": {
+                    "cooldownReductionFromStatusMetadataThresholds": {
+                        "scope": "self",
+                        "statusId": "hulk_anger_management",
+                        "metadataKey": "hulkRage",
+                        "thresholds": [
+                            {
+                                "atLeast": 50,
+                                "amount": 2,
+                                "consume": 50
+                            },
+                            {
+                                "atLeast": 25,
+                                "amount": 1,
+                                "consume": 25
+                            }
+                        ]
+                    }
+                },
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target"
+                    }
+                ]
+            },
+            {
+                "id": "the-hulk-hulk-leap",
+                "name": "Hulk Leap",
+                "nameHtml": "Hulk Leap",
+                "skillimage": "https://i.imgur.com/nOKU4B9.jpeg",
+                "url": "https://i.imgur.com/nOKU4B9.jpeg",
+                "skilldescription": "Hulk becomes invulnerable for 1 turn and marks an enemy. When this skill ends, the marked target is dealt 20 damage and has their non-strategic skills stunned for 1 turn.",
+                "description": "Hulk becomes invulnerable for 1 turn and marks an enemy. When this skill ends, the marked target is dealt 20 damage and has their non-strategic skills stunned for 1 turn.",
+                "descriptionHtml": "Hulk becomes invulnerable for 1 turn and marks an enemy.<br>When this skill ends, the marked target is dealt 20 damage and has their non-strategic skills stunned for 1 turn.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "cooldownHtml": "2",
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "hulk_leap_invulnerable",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Hulk is invulnerable."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "hulk_leap_mark",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "onExpireEffects": [
+                                {
+                                    "type": "damage",
+                                    "amount": 20
+                                },
+                                {
+                                    "type": "apply_status",
+                                    "statusId": "hulk_leap_non_mental_stun",
+                                    "duration": 1,
+                                    "metadata": {
+                                        "harmful": true,
+                                        "cannotUseNonMentalSkills": true,
+                                        "tooltipText": "This character's non-mental skills are stunned."
+                                    }
+                                }
+                            ],
+                            "tooltipText": "When this expires, Hulk lands for 20 damage and stuns non-mental skills."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "the-hulk-passive-anger-management",
+                "name": "Passive: Anger Management",
+                "nameHtml": "Passive: Anger Management",
+                "skillimage": "https://i.imgur.com/SqCB3OU.jpeg",
+                "url": "https://i.imgur.com/SqCB3OU.jpeg",
+                "skilldescription": "Hulk starts the game with 0 rage, which can stack up to 100. Rage reduces by 35 at the end of Hulk's turns if he has any and did not use a skill, and he gains 25 every time an enemy uses a new skill on him. For every enemy he uses a new skill on, he gains 10 rage after any previous rage has been consumed. Hulk gains 10 points unpierceable damage reduction for every 25 points of rage he has.",
+                "description": "Hulk starts the game with 0 rage, which can stack up to 100. Rage reduces by 35 at the end of Hulk's turns if he has any and did not use a skill, and he gains 25 every time an enemy uses a new skill on him. For every enemy he uses a new skill on, he gains 10 rage after any previous rage has been consumed. Hulk gains 10 points unpierceable damage reduction for every 25 points of rage he has.",
+                "descriptionHtml": "Hulk starts the game with 0 rage, which can stack up to 100.<br>Rage reduces by 35 at the end of Hulk's turns if he has any and did not use a skill, and he gains 25 every time an enemy uses a new skill on him.<br>For every enemy he uses a new skill on, he gains 10 rage after any previous rage has been consumed.<br>Hulk gains 10 points unpierceable damage reduction for every 25 points of rage he has.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "Passive",
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
+                "classesHtml": "Passive, Instant"
+            },
+            {
+                "id": "the-hulk-passive-worldbreaker",
+                "name": "Passive: Worldbreaker",
+                "nameHtml": "Passive: Worldbreaker",
+                "skillimage": "https://i.imgur.com/rhYz0Af.jpeg",
+                "url": "https://i.imgur.com/rhYz0Af.jpeg",
+                "activatedFacePicture": "https://i.imgur.com/SGK1J5U.jpeg",
+                "skilldescription": "If Hulk's health is reduced to 25 HP or below while he has 100 rage, this will activate. Hulk removes all skills from himself, ignores enemy non-damage effects, and reduces the cost of all of his skills to no cost for the rest of the game. 'Debris Catapult' swaps to 'World-Break'.",
+                "description": "If Hulk's health is reduced to 25 HP or below while he has 100 rage, this will activate. Hulk removes all skills from himself, ignores enemy non-damage effects, and reduces the cost of all of his skills to no cost for the rest of the game. 'Debris Catapult' swaps to 'World-Break'.",
+                "descriptionHtml": "If Hulk's health is reduced to 25 HP or below while he has 100 rage, this will activate.<br>Hulk removes all skills from himself, ignores enemy non-damage effects, and reduces the cost of all of his skills to no cost for the rest of the game.<br>'Debris Catapult' swaps to 'World-Break'.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "Passive",
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
+                "classesHtml": "Passive, Instant"
+            },
+            {
+                "id": "the-hulk-world-break",
+                "name": "World-Break",
+                "nameHtml": "World-Break",
+                "actorCondition": {
+                    "statusId": "hulk_worldbreaker_active"
+                },
+                "skillimage": "https://i.imgur.com/Peb79BG.jpeg",
+                "url": "https://i.imgur.com/Peb79BG.jpeg",
+                "skilldescription": "Deals 25 piercing damage to the enemy team. Bypasses invulnerability.",
+                "description": "Deals 25 piercing damage to the enemy team. Bypasses invulnerability.",
+                "descriptionHtml": "Deals 25 piercing damage to the enemy team.<br>Bypasses invulnerability.",
+                "energy": [
+                    "Random"
+                ],
+                "ignoreInvulnerability": true,
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "cooldownHtml": "2",
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Instant",
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Juggernaut"
     },
     {
         "id": "captain-america",
@@ -848,7 +1251,8 @@ const characters = [
                     "Instant"
                 ]
             }
-        ]
+        ],
+        "role": "Protection Tank"
     },
     {
         "id": "superman",
@@ -1148,7 +1552,8 @@ const characters = [
                     }
                 ]
             }
-        ]
+        ],
+        "role": "Battle Mage"
     },
     {
         "id": "batman",
@@ -1611,7 +2016,8 @@ const characters = [
                     }
                 ]
             }
-        ]
+        ],
+        "role": "Gadget Disruptor"
     },
     {
         "id": "the-flash-barry-allen",
@@ -1929,7 +2335,8 @@ const characters = [
                     }
                 ]
             }
-        ]
+        ],
+        "role": "Tempo DPS"
     },
     {
         "id": "aquaman",
@@ -2027,6 +2434,7 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "aquaman_sea_sharks",
+                        "sourceSkillId": "aquaman-sea-sharks",
                         "duration": 99,
                         "scope": "target",
                         "condition": {
@@ -2036,7 +2444,7 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "infiniteDuration": true,
-                            "turnEndDamage": 5,
+                            "turnEndDamage": 4,
                             "ignoreTargetDamageReduction": true,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
@@ -2060,7 +2468,7 @@ const characters = [
                 ],
                 "target": "all-enemy",
                 "damage": 0,
-                "cooldown": 3,
+                "cooldown": 4,
                 "classes": [
                     "Physical",
                     "Ranged",
@@ -2069,16 +2477,15 @@ const characters = [
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "hyuuga_hinata_gentle_fist_cost_lock",
-                        "duration": 1,
-                        "scope": "target",
+                        "statusId": "aquaman_tidal_wave_cost_increase",
+                        "duration": 2,
+                        "scope": "all-enemy",
                         "metadata": {
                             "harmful": true,
                             "randomCostIncrease": 1,
-                            "tooltipText": "This character's skills cost 1 additional random energy."
+                            "tooltipText": "This character's skills cost 1 additional random energy from Tidal Wave."
                         }
                     },
-                    null,
                     {
                         "type": "apply_status",
                         "statusId": "aquaman_tidal_wave",
@@ -2103,11 +2510,12 @@ const characters = [
                                 {
                                     "type": "apply_status",
                                     "statusId": "aquaman_sea_sharks",
+                                    "sourceSkillId": "aquaman-sea-sharks",
                                     "duration": 99,
                                     "metadata": {
                                         "harmful": true,
                                         "infiniteDuration": true,
-                                        "turnEndDamage": 5,
+                                        "turnEndDamage": 4,
                                         "ignoreTargetDamageReduction": true,
                                         "turnEndTrigger": "source_turn",
                                         "turnDurationAnchor": "source_turn",
@@ -2162,12 +2570,13 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "aquaman_sea_sharks",
+                        "sourceSkillId": "aquaman-sea-sharks",
                         "duration": 99,
                         "scope": "all-enemy",
                         "metadata": {
                             "harmful": true,
                             "infiniteDuration": true,
-                            "turnEndDamage": 5,
+                            "turnEndDamage": 4,
                             "ignoreTargetDamageReduction": true,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
@@ -2184,7 +2593,7 @@ const characters = [
                 "id": "aquaman-sea-sharks",
                 "name": "Sea Sharks",
                 "skillimage": "https://i.imgur.com/38s3F0Z.jpeg",
-                "skilldescription": "Deals 5 piercing damage permanently (stacks).",
+                "skilldescription": "Deals 4 piercing damage permanently (stacks).",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -2195,7 +2604,8 @@ const characters = [
                     "Instant"
                 ]
             }
-        ]
+        ],
+        "role": "Anti-Tank"
     },
     {
         "id": "storm",
@@ -2534,7 +2944,8 @@ const characters = [
                     }
                 ]
             }
-        ]
+        ],
+        "role": "Heal Support"
     },
     {
         "id": "venom",
@@ -2758,7 +3169,8 @@ const characters = [
                     "tooltipText": "While above 50 HP, Venom has 10% damage reduction."
                 }
             }
-        ]
+        ],
+        "role": "Sustain Tank"
     },
     {
         "id": "the-joker",
@@ -2999,11 +3411,11 @@ const characters = [
                 "name": "Chattering Teeth",
                 "useBaseSkillCooldown": true,
                 "skillimage": "https://i.imgur.com/vh7qbuR.png",
-                "skilldescription": "Targets one enemy for 1 turn, countering them if they use a new harmful skill. If successful, silence their harmful skills for 2 turns. This is invisible. Swaps to 'Remote Bomb'.",
+                "skilldescription": "Marks the enemy team for 2 turns. If a marked enemy uses a new skill, they take 5 damage, have their harmful skills silenced the following turn, and the mark is removed. Swaps to 'Remote Bomb'.",
                 "energy": [
                     "Random"
                 ],
-                "target": "single-enemy",
+                "target": "all-enemy",
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
@@ -3014,21 +3426,26 @@ const characters = [
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "the_joker_chattering_teeth_trap",
-                        "duration": 1,
-                        "scope": "target",
+                        "statusId": "the_joker_chattering_teeth_mark",
+                        "duration": 2,
+                        "scope": "all-enemy",
                         "metadata": {
-                            "triggerOnEnemyHarmfulSkill": true,
-                            "counterCancelsSkill": true,
-                            "counterStatusId": "the_joker_chattering_teeth_silence",
-                            "counterStatusDuration": 2,
-                            "counterStatusMetadata": {
-                                "harmful": true,
-                                "cannotUseHarmfulSkills": true,
-                                "tooltipText": "This character harmful skills are silenced."
+                            "harmful": true,
+                            "onOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillSelfDamage": 5,
+                            "onOwnerUseSkillSelfDamageIgnoreDamageReduction": true,
+                            "onOwnerUseSkillSelfDamageIgnoreDestructibleDefense": true,
+                            "onOwnerUseSkillApplyStatusToOwner": {
+                                "statusId": "the_joker_chattering_teeth_silence",
+                                "duration": 1,
+                                "fresh": true,
+                                "metadata": {
+                                    "harmful": true,
+                                    "cannotUseHarmfulSkills": true,
+                                    "tooltipText": "This character's harmful skills are silenced."
+                                }
                             },
-                            "hideTooltipFromEnemy": true,
-                            "tooltipText": "If this character uses a new harmful skill this turn, it is countered and their harmful skills are silenced for 2 turns."
+                            "tooltipText": "If this character uses a new skill, they take 5 damage, their harmful skills are silenced the following turn, and this mark is removed."
                         }
                     },
                     {
@@ -3107,7 +3524,8 @@ const characters = [
                     }
                 ]
             }
-        ]
+        ],
+        "role": "Gadget Disruptor"
     },
     {
         "id": "negan",
@@ -3321,7 +3739,8 @@ const characters = [
                     "tooltipText": "While Negan is alive, all physical-class damage his team deals also applies 1 permanent affliction damage to the target."
                 }
             }
-        ]
+        ],
+        "role": "Executioner"
     },
     {
         "id": "rick-grimes",
@@ -3678,7 +4097,8 @@ const characters = [
                     "Instant"
                 ]
             }
-        ]
+        ],
+        "role": "DPS"
     },
     {
         "id": "andrea",
@@ -3870,7 +4290,8 @@ const characters = [
                     "Instant"
                 ]
             }
-        ]
+        ],
+        "role": "Marksman Assassin"
     },
     {
         "id": "walker",
@@ -3945,14 +4366,13 @@ const characters = [
                         "metadata": {
                             "infiniteDuration": true,
                             "onOwnerUseSkillTrigger": true,
-                            "onOwnerUseSkillClassesAny": [
-                                "melee"
-                            ],
+                            "skillReplacementsRequireSourceSkillId": "walker-infected-horde",
                             "skillReplacements": {
                                 "walker-surprise-chomp": "walker-surprise-chomp-all",
-                                "walker-overpower": "walker-overpower-all"
+                                "walker-overpower": "walker-overpower-all",
+                                "walker-group-banquet": "walker-group-banquet-all"
                             },
-                            "tooltipText": "Walker's next Surprise Chomp or Overpower targets all enemies."
+                            "tooltipText": "Walker's next used skill targets all enemies."
                         }
                     }
                 ]
@@ -4217,6 +4637,8 @@ const characters = [
             {
                 "id": "walker-group-banquet-all",
                 "name": "Group Banquet",
+                "hiddenFromSelectionViewer": true,
+                "useBaseSkillCooldown": true,
                 "skillimage": "https://i.imgur.com/J1mBmGk.png",
                 "skilldescription": "Walker and his team heals 15 HP for 2 turns.",
                 "energy": [
@@ -4246,7 +4668,8 @@ const characters = [
                     }
                 ]
             }
-        ]
+        ],
+        "role": "Attrition DPS"
     },
     {
         "id": "hershel-greene",
@@ -4492,7 +4915,8 @@ const characters = [
                     }
                 ]
             }
-        ]
+        ],
+        "role": "Heal Support"
     },
     {
         "id": "invincible",
@@ -4702,7 +5126,8 @@ const characters = [
                     "Instant"
                 ]
             }
-        ]
+        ],
+        "role": "Bruiser/Scaling Carry"
     },
     {
         "id": "rex-splode",
@@ -5038,7 +5463,8 @@ const characters = [
                     }
                 ]
             }
-        ]
+        ],
+        "role": "DPS"
     },
     {
         "id": "atom-eve",
@@ -5262,7 +5688,8 @@ const characters = [
                     }
                 ]
             }
-        ]
+        ],
+        "role": "Shield Support"
     },
     {
         "id": "omni-man",
@@ -5488,7 +5915,8 @@ const characters = [
                     "Instant"
                 ]
             }
-        ]
+        ],
+        "role": "Juggernaut"
     },
     {
         "id": "angstrom-levy",
@@ -5803,7 +6231,8 @@ const characters = [
                     }
                 ]
             }
-        ]
+        ],
+        "role": "Remover"
     },
     {
         "id": "doctor-octopus",
@@ -6055,7 +6484,8 @@ const characters = [
                     "Instant"
                 ]
             }
-        ]
+        ],
+        "role": "Defensive Controller"
     },
     {
         "id": "carnage",
@@ -6300,7 +6730,8 @@ const characters = [
                     "Instant"
                 ]
             }
-        ]
+        ],
+        "role": "Execution Beserker"
     },
     {
         "id": "the-green-goblin",
@@ -6314,8 +6745,10 @@ const characters = [
                 "sourceSkillId": "the-green-goblin-passive-mad-bomber",
                 "metadata": {
                     "infiniteDuration": true,
-                    "tooltipText": "Whenever one of Green Goblin's skills comes off cooldown, he has a 15% chance to plant a Bomb on a random enemy for 2 turns. If that enemy uses a harmful skill, or when the Bomb ends, Green Goblin deals 15 affliction damage to the enemy team.",
-                    "onOwnerSkillCooldownFinishedApplyStatusToRandomEnemy": {
+                    "tooltipText": "Whenever Green Goblin uses a skill, he has a 15% chance to plant a Bomb on a random enemy for 2 turns. If that enemy uses a harmful skill, or when the Bomb ends, Green Goblin deals 15 affliction damage to the enemy team.",
+                    "onOwnerUseSkillTrigger": true,
+                    "persistOnOwnerUseSkillTrigger": true,
+                    "onOwnerUseSkillApplyStatusToRandomEnemy": {
                         "statusId": "the_green_goblin_mad_bomber_bomb",
                         "duration": 2,
                         "chancePercent": 15,
@@ -6346,6 +6779,15 @@ const characters = [
                                 }
                             ],
                             "tooltipText": "If this character uses a harmful skill, or when this effect ends, Green Goblin deals 15 affliction damage to the enemy team."
+                        }
+                    },
+                    "onSuccessApplyStatusToOwner": {
+                        "statusId": "the_green_goblin_mad_bomber_triggered",
+                        "duration": 1,
+                        "metadata": {
+                            "sourceSkillName": "Passive: Mad Bomber",
+                            "statusIconUrl": "https://i.imgur.com/oAcpnSv.png",
+                            "tooltipText": "The Green Goblin threw an extra bomb onto a random enemy!"
                         }
                     }
                 }
@@ -6555,7 +6997,7 @@ const characters = [
                 "id": "the-green-goblin-passive-mad-bomber",
                 "name": "Passive: Mad Bomber",
                 "skillimage": "https://i.imgur.com/oAcpnSv.png",
-                "skilldescription": "The Green Goblin has a 15% chance to toss a Bomb onto a random enemy for 2 turns whenever he has a skill come off of cooldown. If the target uses a harmful skill → Bomb explodes (15 affliction damage AoE). If it expires → explodes anyway.",
+                "skilldescription": "The Green Goblin has a 15% chance to toss a Bomb onto a random enemy for 2 turns whenever he uses a skill. If the target uses a harmful skill → Bomb explodes (15 affliction damage AoE). If it expires → explodes anyway.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -6565,7 +7007,8 @@ const characters = [
                     "Instant"
                 ]
             }
-        ]
+        ],
+        "role": "Punisher"
     },
     {
         "id": "sandman",
@@ -6630,7 +7073,7 @@ const characters = [
                 "energy": [
                     "Genjutsu"
                 ],
-                "target": "ally",
+                "target": "single-ally",
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
@@ -6783,7 +7226,8 @@ const characters = [
                     }
                 ]
             }
-        ]
+        ],
+        "role": "Duelist Bruiser"
     },
     {
         "id": "mysterio",
@@ -6965,7 +7409,8 @@ const characters = [
                     }
                 ]
             }
-        ]
+        ],
+        "role": "Trickster Mage"
     },
     {
         "id": "scorpion",
@@ -7331,7 +7776,8 @@ const characters = [
                     "Affliction"
                 ]
             }
-        ]
+        ],
+        "role": "Affliction Specialist"
     },
     {
         "id": "green-lantern-hal-jordan",
@@ -7632,7 +8078,8 @@ const characters = [
                     "Instant"
                 ]
             }
-        ]
+        ],
+        "role": "Scaling Carry"
     },
     {
         "id": "homelander",
@@ -7857,13 +8304,14 @@ const characters = [
                     }
                 ]
             }
-        ]
+        ],
+        "role": "Executioner"
     },
     {
         "id": "predator-stalker",
         "characterId": "predator-stalker",
         "name": "Predator Stalker",
-        "facePicture": "http://i.imgur.com/1NssQOv_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+        "facePicture": "https://i.imgur.com/1NssQOv_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
         "characterdeescription": "Predator Stalker is a calculated hunter who chains multi-turn damage and lethal burst through stealth. He excels at softening multiple targets before executing a priority enemy while remaining highly evasive.",
         "startStatuses": [
             {
@@ -7914,7 +8362,7 @@ const characters = [
                         "scope": "self",
                         "metadata": {
                             "hideTooltip": true,
-                            "copyTargetKeyToKeys": [
+                            "copySelectedTargetKeyToKeys": [
                                 "_lastRandomStatusEnemyKey"
                             ],
                             "turnEndEffectsToRandomEnemy": [
@@ -7932,6 +8380,15 @@ const characters = [
                                                     "ranged"
                                                 ]
                                             }
+                                        },
+                                        {
+                                            "type": "apply_status",
+                                            "statusId": "predator_stalker_yautja_shuriken_ricochet_marker",
+                                            "duration": 1,
+                                            "metadata": {
+                                                "harmful": true,
+                                                "tooltipText": "Yautja Shuriken ricocheted to this character."
+                                            }
                                         }
                                     ]
                                 }
@@ -7942,6 +8399,8 @@ const characters = [
                                 "inheritSourceMetadata": true,
                                 "metadata": {
                                     "hideTooltip": true,
+                                    "onExpireApplyStatusToSelf": null,
+                                    "copySelectedTargetKeyToKeys": [],
                                     "turnEndEffectsToRandomEnemy": [
                                         {
                                             "targetStrategy": "nearest-other-enemy",
@@ -7957,6 +8416,15 @@ const characters = [
                                                             "ranged"
                                                         ]
                                                     }
+                                                },
+                                                {
+                                                    "type": "apply_status",
+                                                    "statusId": "predator_stalker_yautja_shuriken_ricochet_marker",
+                                                    "duration": 1,
+                                                    "metadata": {
+                                                        "harmful": true,
+                                                        "tooltipText": "Yautja Shuriken ricocheted to this character."
+                                                    }
                                                 }
                                             ]
                                         }
@@ -7971,14 +8439,14 @@ const characters = [
                 "id": "predator-stalker-bleeder-spear",
                 "name": "Bleeder Spear",
                 "skillimage": "https://i.imgur.com/wcV1Ubk_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "skilldescription": "Deals 15 piercing damage to one enemy. That enemy takes 10 affliction damage at the end of each of Predator Stalker's turns permanently. This effect stacks.",
+                "skilldescription": "Deals 10 piercing damage to one enemy. That enemy takes 10 affliction damage at the end of each of Predator Stalker's turns permanently. This effect stacks.",
                 "energy": [
-                    "Bloodline",
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
+                "cooldown": 1,
                 "classes": [
                     "Physical",
                     "Ranged",
@@ -7988,7 +8456,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 15,
+                        "amount": 10,
                         "scope": "target",
                         "metadata": {
                             "ignoreDamageReduction": true
@@ -8057,7 +8525,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/NcKmrHh_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
                 "skilldescription": "For 1 turn, Predator Stalker gains 90% evasion and can use Cloaking Assassination. If Cloaking Assassination kills an enemy while this is active, this effect lasts 1 additional turn.",
                 "energy": [
-                    "Bloodline"
+                    "Genjutsu"
                 ],
                 "target": "self",
                 "damage": 0,
@@ -8109,7 +8577,2418 @@ const characters = [
                     "Instant"
                 ]
             }
-        ]
+        ],
+        "role": "Evasion Assassin"
+    },
+    {
+        "id": "xenomorph-drone",
+        "characterId": "xenomorph-drone",
+        "name": "Xenomorph Drone",
+        "nameHtml": "Xenomorph Drone",
+        "facePicture": "https://i.imgur.com/IwSu3G7_d.png?maxwidth=520&shape=thumb&fidelity=high",
+        "url": "https://i.imgur.com/IwSu3G7_d.png?maxwidth=520&shape=thumb&fidelity=high",
+        "unlockRequirement": "None",
+        "unlockRequirementHtml": "None",
+        "characterdeescription": "Xenomorph Drone is a scaling swarm-based fighter that punishes enemies with affliction and executes weakened targets. It becomes stronger as more drones are present.",
+        "description": "Xenomorph Drone is a scaling swarm-based fighter that punishes enemies with affliction and executes weakened targets. It becomes stronger as more drones are present.",
+        "descriptionHtml": "Xenomorph Drone is a scaling swarm-based fighter that punishes enemies with affliction and executes weakened targets.<br>It becomes stronger as more drones are present.",
+        "startStatuses": [
+            {
+                "statusId": "xenomorph_drone_acid_blood_passive",
+                "sourceSkillId": "xenomorph-drone-passive-acid-blood",
+                "duration": 999,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "triggerOnEnemyHarmfulSkill": true,
+                    "triggerOnEnemyHarmfulSkillClassesAny": [
+                        "Melee"
+                    ],
+                    "counterDamageMetadata": {
+                        "bonusPerAliveTeamMember": {
+                            "characterId": "xenomorph-drone",
+                            "statusId": "xenomorph_hive_member",
+                            "amount": 3
+                        }
+                    },
+                    "counterDamageIgnoresReduction": true,
+                    "counterDamageIgnoresDestructibleDefense": true,
+                    "persistOnTrigger": true,
+                    "tooltipText": "Enemies using melee skills on this character take 3 affliction damage for each Xenomorph Drone on this team."
+                }
+            },
+            {
+                "statusId": "xenomorph_drone_facehugger_reward",
+                "sourceSkillId": "xenomorph-drone-facehugger",
+                "duration": 999,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "hideTooltip": true,
+                    "onOwnerKillTargetRelation": "enemy",
+                    "onOwnerKillSourceSkillIdsAny": [
+                        "xenomorph-drone-facehugger"
+                    ],
+                    "onOwnerKillApplyStatusToSelf": {
+                        "statusId": "xenomorph_drone_facehugger_carapace",
+                        "duration": 999,
+                        "metadata": {
+                            "destructibleDefensePoints": 25,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Facehugger."
+                        }
+                    }
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "xenomorph-drone-inner-jaw-strike",
+                "name": "Inner-Jaw Strike",
+                "nameHtml": "Inner-Jaw Strike",
+                "skillimage": "https://i.imgur.com/OeSLg1o_d.png?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/OeSLg1o_d.png?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "Deals 20 damage to one enemy. If their health falls to 10 HP or below, they are executed.",
+                "description": "Deals 20 damage to one enemy. If their health falls to 10 HP or below, they are executed.",
+                "descriptionHtml": "Deals 20 damage to one enemy.<br>If their health falls to 10 HP or below, they are executed.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "None",
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Melee, Instant",
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "bonusPerAliveTeamMember": {
+                                "characterId": "xenomorph-drone",
+                                "statusId": "xenomorph_hive_member",
+                                "amount": 5
+                            }
+                        }
+                    },
+                    {
+                        "type": "execute_below_hp",
+                        "threshold": 10,
+                        "scope": "target"
+                    }
+                ]
+            },
+            {
+                "id": "xenomorph-drone-cystic-acid-spit",
+                "name": "Cystic Acid Spit",
+                "nameHtml": "Cystic Acid Spit",
+                "skillimage": "https://i.imgur.com/LJwMFWx_d.png?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/LJwMFWx_d.png?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "Removes all damage reduction and destructible defense from one enemy, then deals 15 affliction damage. Lasts 1 extra turn if they had none.",
+                "description": "Removes all damage reduction and destructible defense from one enemy, then deals 15 affliction damage. Lasts 1 extra turn if they had none.",
+                "descriptionHtml": "Removes all damage reduction and destructible defense from one enemy, then deals 15 affliction damage.<br>Lasts 1 extra turn if they had none.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "cooldownHtml": "2",
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "classesHtml": "Physical, Ranged, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "xenomorph_drone_cystic_acid_linger",
+                        "duration": 1,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "missingStatusMetadataAny": [
+                                "damageReductionFlat",
+                                "damageReductionPercent",
+                                "unpierceableDamageReductionFlat",
+                                "destructibleDefensePoints"
+                            ]
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "turnEndDamage": 15,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "afflictionDamage": true,
+                            "tooltipText": "This character will take 15 affliction damage next turn."
+                        }
+                    },
+                    {
+                        "type": "cleanse_statuses",
+                        "scope": "target",
+                        "metadataAny": [
+                            "damageReductionFlat",
+                            "damageReductionPercent",
+                            "unpierceableDamageReductionFlat"
+                        ]
+                    },
+                    {
+                        "type": "destroy_destructible_defense",
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                            "bonusPerAliveTeamMember": {
+                                "characterId": "xenomorph-drone",
+                                "statusId": "xenomorph_hive_member",
+                                "amount": 5
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "xenomorph-drone-facehugger",
+                "name": "Facehugger",
+                "nameHtml": "Facehugger",
+                "skillimage": "https://i.imgur.com/q9VzVoj_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/q9VzVoj_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "May target ally or enemy. Allies become Xenomorphs. Enemies take 25 affliction damage after 2 turns; if they die, gain 25 destructible defense.",
+                "description": "May target ally or enemy. Allies become Xenomorphs. Enemies take 25 affliction damage after 2 turns; if they die, gain 25 destructible defense.",
+                "descriptionHtml": "May target ally or enemy.<br>Allies become Xenomorphs.<br>Enemies take 25 affliction damage after 2 turns; if they die, gain 25 destructible defense.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-character",
+                "damage": 0,
+                "cooldown": 1,
+                "cooldownHtml": "1",
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "classesHtml": "Physical, Ranged, Instant, Affliction",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "xenomorph_hive_member",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "effectiveCharacterId": "xenomorph-drone",
+                            "facePictureOverride": "https://i.imgur.com/IwSu3G7_d.png?maxwidth=520&shape=thumb&fidelity=high",
+                            "tooltipText": "This ally counts as a Xenomorph for The Hive."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "xenomorph_facehugger_implanted",
+                        "duration": 2,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "onExpireEffects": [
+                                {
+                                    "type": "damage",
+                                    "amount": 25,
+                                    "metadata": {
+                                        "afflictionDamage": true,
+                                        "ignoreDamageReduction": true,
+                                        "ignoreDestructibleDefense": true,
+                                        "skillClasses": [
+                                            "Affliction"
+                                        ]
+                                    }
+                                }
+                            ],
+                            "tooltipText": "After 2 turns, this character takes 25 affliction damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "xenomorph-drone-xeno-stealth",
+                "name": "Xeno-Stealth",
+                "nameHtml": "Xeno-Stealth",
+                "skillimage": "https://i.imgur.com/HylKUuA_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/HylKUuA_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "Heals 15 HP, becomes invulnerable, and increases 'Inner-Jaw Strike' damage by 10 for 1 turn.",
+                "description": "Heals 15 HP, becomes invulnerable, and increases 'Inner-Jaw Strike' damage by 10 for 1 turn.",
+                "descriptionHtml": "Heals 15 HP, becomes invulnerable, and increases 'Inner-Jaw Strike' damage by 10 for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 5,
+                "cooldownHtml": "5",
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Instant",
+                "effects": [
+                    {
+                        "type": "heal",
+                        "amount": 15,
+                        "scope": "self"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "xenomorph_drone_xeno_stealth",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "skillDamageBonuses": {
+                                "xenomorph-drone-inner-jaw-strike": 10
+                            },
+                            "tooltipText": "This character is invulnerable and Inner-Jaw Strike deals 10 additional damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "xenomorph-drone-passive-acid-blood",
+                "name": "Passive: Acid Blood",
+                "nameHtml": "Passive: Acid Blood",
+                "skillimage": "https://i.imgur.com/O5qNmea_d.png?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/O5qNmea_d.png?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "Enemies using new melee skills on Xenomorph take 3 affliction damage (increases per drone).",
+                "description": "Enemies using new melee skills on Xenomorph take 3 affliction damage (increases per drone).",
+                "descriptionHtml": "Enemies using new melee skills on Xenomorph take 3 affliction damage (increases per drone).",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "Passive",
+                "classes": [
+                    "Passive",
+                    "Instant",
+                    "Affliction"
+                ],
+                "classesHtml": "Passive, Instant, Affliction"
+            },
+            {
+                "id": "xenomorph-drone-passive-the-hive",
+                "name": "Passive: The Hive",
+                "nameHtml": "Passive: The Hive",
+                "skillimage": "https://i.imgur.com/wOMvYEY_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/wOMvYEY_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "'Inner-Jaw Strike' and 'Cystic Acid Spit' deal 5 bonus damage for every Xenomorph Drone on your team.",
+                "description": "'Inner-Jaw Strike' and 'Cystic Acid Spit' deal 5 bonus damage for every Xenomorph Drone on your team.",
+                "descriptionHtml": "'Inner-Jaw Strike' and 'Cystic Acid Spit' deal 5 bonus damage for every Xenomorph Drone on your team.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "Passive",
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
+                "classesHtml": "Passive, Instant"
+            }
+        ],
+        "role": "Swarm DPS"
+    },
+    {
+        "id": "rage-infected",
+        "characterId": "rage-infected",
+        "name": "Rage Infected",
+        "nameHtml": "Rage Infected",
+        "facePicture": "https://i.imgur.com/k4lrBvO_d.png?maxwidth=520&shape=thumb&fidelity=high",
+        "url": "https://i.imgur.com/k4lrBvO_d.png?maxwidth=520&shape=thumb&fidelity=high",
+        "unlockRequirement": "None",
+        "unlockRequirementHtml": "None",
+        "characterdeescription": "Infected with the Rage Virus is a relentless berserker who overwhelms enemies through pain, chaos, and psychological pressure. Using brutal attacks, blindness effects, and self-destructive rage, he punishes opponents for trying to fight back while growing deadlier the longer combat continues. Though vulnerable to sustained focus and burst damage, Rage Infected excels at disrupting enemy coordination and forcing reckless decisions through constant pressure and unpredictable aggression.",
+        "description": "Infected with the Rage Virus is a relentless berserker who overwhelms enemies through pain, chaos, and psychological pressure. Using brutal attacks, blindness effects, and self-destructive rage, he punishes opponents for trying to fight back while growing deadlier the longer combat continues. Though vulnerable to sustained focus and burst damage, Rage Infected excels at disrupting enemy coordination and forcing reckless decisions through constant pressure and unpredictable aggression.",
+        "descriptionHtml": "Infected with the Rage Virus is a relentless berserker who overwhelms enemies through pain, chaos, and psychological pressure. Using brutal attacks, blindness effects, and self-destructive rage, he punishes opponents for trying to fight back while growing deadlier the longer combat continues. Though vulnerable to sustained focus and burst damage, Rage Infected excels at disrupting enemy coordination and forcing reckless decisions through constant pressure and unpredictable aggression.",
+        "skills": [
+            {
+                "id": "rage-infected-blood-vomit",
+                "name": "Blood Vomit",
+                "nameHtml": "Blood Vomit",
+                "skillimage": "https://i.imgur.com/5L1V6jg_d.png?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/5L1V6jg_d.png?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "For 2 turns, one enemy takes 15 affliction damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams.",
+                "description": "For 2 turns, one enemy takes 15 affliction damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams.",
+                "descriptionHtml": "For 2 turns, one enemy takes 15 affliction damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams.",
+                "energy": [
+                    "Bloodline",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "cooldownHtml": "3",
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "classesHtml": "Physical, Ranged, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "rage_infected_blood_vomit",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "fullBlind": true,
+                            "nonAfflictionDamageBonusFlat": 10,
+                            "turnEndDamage": 15,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "afflictionDamage": true,
+                            "tooltipText": "This character takes 15 affliction damage each turn, deals 10 additional non-affliction damage, and harmful skills randomly target either team."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "rage-infected-eye-gouge",
+                "name": "Eye Gouge",
+                "nameHtml": "Eye Gouge",
+                "skillimage": "https://i.imgur.com/3f7cgd3_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/3f7cgd3_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "Deals 30 damage to one enemy. For 1 turn, they are partially-blinded, causing their new harmful skills to randomly select their target from the opposing team only.",
+                "description": "Deals 30 damage to one enemy. For 1 turn, they are partially-blinded, causing their new harmful skills to randomly select their target from the opposing team only.",
+                "descriptionHtml": "Deals 30 damage to one enemy.<br>For 1 turn, they are partially-blinded, causing their new harmful skills to randomly select their target from the opposing team only.",
+                "energy": [
+                    "Taijutsu",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "cooldownHtml": "1",
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Melee, Instant",
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "rage_infected_eye_gouge_blind",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "harmfulBlind": true,
+                            "tooltipText": "This character's harmful skills randomly target the opposing team."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "rage-infected-murderous-rage",
+                "name": "Murderous Rage",
+                "nameHtml": "Murderous Rage",
+                "skillimage": "https://i.imgur.com/39yHcrF_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/39yHcrF_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP. While active, if they use a new harmful skill, this effect is refreshed and they take 5 additional damage from Rage Infected permanently. This skill is invisible and cannot be used while active.",
+                "description": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP. While active, if they use a new harmful skill, this effect is refreshed and they take 5 additional damage from Rage Infected permanently. This skill is invisible and cannot be used while active.",
+                "descriptionHtml": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP.<br>While active, if they use a new harmful skill, this effect is refreshed and they take 5 additional damage from Rage Infected permanently.<br>This skill is invisible and cannot be used while active.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "cooldownHtml": "2",
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "classesHtml": "Mental, Ranged, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "rage_infected_murderous_rage_guard",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "minimumHp": 1,
+                            "copySelectedTargetKeyToKeys": [
+                                "minimumHpFromSourceKey"
+                            ],
+                            "skillReplacements": {
+                                "rage-infected-murderous-rage": "rage-infected-murderous-rage-active"
+                            },
+                            "tooltipText": "The selected enemy cannot reduce Rage Infected below 1 HP."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "rage_infected_murderous_rage_mark",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "onOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillHarmfulOnly": true,
+                            "onOwnerUseSkillApplyStatusToSourceOwner": {
+                                "statusId": "rage_infected_murderous_rage_guard",
+                                "duration": 1,
+                                "metadata": {
+                                    "minimumHp": 1,
+                                    "copyOwnerKeyToKeys": [
+                                        "minimumHpFromSourceKey"
+                                    ],
+                                    "skillReplacements": {
+                                        "rage-infected-murderous-rage": "rage-infected-murderous-rage-active"
+                                    },
+                                    "tooltipText": "The selected enemy cannot reduce Rage Infected below 1 HP."
+                                }
+                            },
+                            "onOwnerUseSkillApplyStatusToOwner": {
+                                "statusId": "rage_infected_murderous_rage_bonus",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "bonusDamageFromSourceCharacterId": "rage-infected",
+                                    "bonusDamageFromSourceSkillsFlat": 5,
+                                    "mergeNumericAddKeys": [
+                                        "bonusDamageFromSourceSkillsFlat"
+                                    ],
+                                    "tooltipTextTemplate": "Rage Infected deals {bonusDamageFromSourceSkillsFlat} additional damage to this character."
+                                }
+                            },
+                            "tooltipText": "If this character uses a skill, Rage Infected gains permanent bonus damage against them."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "rage-infected-relentless-pursuit",
+                "name": "Relentless Pursuit",
+                "nameHtml": "Relentless Pursuit",
+                "skillimage": "https://i.imgur.com/osxi6DC_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/osxi6DC_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "For 3 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 10 additional non-affliction damage from enemy skills.",
+                "description": "For 3 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 10 additional non-affliction damage from enemy skills.",
+                "descriptionHtml": "For 3 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 10 additional non-affliction damage from enemy skills.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "cooldownHtml": "4",
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "rage_infected_relentless_pursuit",
+                        "duration": 3,
+                        "scope": "self",
+                        "metadata": {
+                            "cannotBeStunned": true,
+                            "randomCostReduction": 1,
+                            "bonusDamageFromSourceSkillsFlat": 10,
+                            "bonusDamageFromSourceNonAfflictionOnly": true,
+                            "bonusDamageFromSourceEnemyOnly": true,
+                            "tooltipText": "Rage Infected ignores stuns, his skills cost 1 less random energy, and enemy skills deal 10 additional non-affliction damage to him."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "rage-infected-murderous-rage-active",
+                "name": "Murderous Rage",
+                "hiddenFromSelectionViewer": true,
+                "actorCondition": {
+                    "missingStatusId": "rage_infected_murderous_rage_guard"
+                },
+                "skillimage": "https://i.imgur.com/39yHcrF_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "Murderous Rage is active.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Mental",
+                    "Instant"
+                ],
+                "effects": []
+            }
+        ],
+        "role": "Beserker"
+    },
+    {
+        "id": "sinestro",
+        "characterId": "sinestro",
+        "name": "Sinestro",
+        "nameHtml": "Sinestro",
+        "facePicture": "https://i.imgur.com/v9pUryk.jpeg",
+        "url": "https://i.imgur.com/v9pUryk.jpeg",
+        "unlockRequirement": "None",
+        "unlockRequirementHtml": "None",
+        "characterdeescription": "Sinestro is a fear-based pressure fighter who weakens enemies over time, punishes healing, and builds escalating damage reduction through his Yellow Lantern Ring.",
+        "description": "Sinestro is a fear-based pressure fighter who weakens enemies over time, punishes healing, and builds escalating damage reduction through his Yellow Lantern Ring.",
+        "descriptionHtml": "Sinestro is a fear-based pressure fighter who weakens enemies over time, punishes healing, and builds escalating damage reduction through his Yellow Lantern Ring.",
+        "startStatuses": [
+            {
+                "statusId": "sinestro_yellow_lantern_ring_passive",
+                "duration": 99,
+                "sourceSkillId": "sinestro-passive-yellow-lantern-ring",
+                "metadata": {
+                    "infiniteDuration": true,
+                    "onOwnerUseSkillTrigger": true,
+                    "persistOnOwnerUseSkillTrigger": true,
+                    "onOwnerUseSkillApplyStatusToEnemies": {
+                        "statusId": "sinestro_yellow_lantern_ring_fear",
+                        "duration": 99,
+                        "sourceSkillId": "sinestro-passive-yellow-lantern-ring",
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "sinestroFearStacks": 1,
+                            "NonAfflictionDamageDebuff": 1,
+                            "mergeNumericAddKeys": [
+                                "sinestroFearStacks",
+                                "NonAfflictionDamageDebuff"
+                            ],
+                            "tooltipTextTemplate": "This character deals {NonAfflictionDamageDebuff} less non-affliction damage from Yellow Lantern Ring."
+                        }
+                    },
+                    "tooltipText": "Whenever Sinestro uses a skill, every enemy gains 1 Yellow Lantern Ring stack."
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "sinestro-terrifying-crash",
+                "name": "Terrifying Crash",
+                "nameHtml": "Terrifying Crash",
+                "skillimage": "https://i.imgur.com/HPxFTX3.jpeg",
+                "url": "https://i.imgur.com/HPxFTX3.jpeg",
+                "skilldescription": "Deals 30 damage to one enemy and increases their cooldowns by 2 for 1 turn.",
+                "description": "Deals 30 damage to one enemy and increases their cooldowns by 2 for 1 turn.",
+                "descriptionHtml": "Deals 30 damage to one enemy and increases their cooldowns by 2 for 1 turn.",
+                "energy": [
+                    "Taijutsu",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "None",
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "classesHtml": "Energy, Ranged, Instant",
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "modify_cooldowns",
+                        "operation": "add",
+                        "amount": 2,
+                        "includeAllCharacterSkills": true,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "sinestro-dreadful-scorpion",
+                "name": "Dreadful Scorpion",
+                "nameHtml": "Dreadful Scorpion",
+                "skillimage": "https://i.imgur.com/q4a1X6O.png",
+                "url": "https://i.imgur.com/q4a1X6O.png",
+                "skilldescription": "Deals 25 piercing damage to one enemy, then paralyzes their cooldowns and makes them ignore healing effects for 1 turn. The other enemies are dealt 10 piercing damage.",
+                "description": "Deals 25 piercing damage to one enemy, then paralyzes their cooldowns and makes them ignore healing effects for 1 turn. The other enemies are dealt 10 piercing damage.",
+                "descriptionHtml": "Deals 25 piercing damage to one enemy, then paralyzes their cooldowns and makes them ignore healing effects for 1 turn.<br>The other enemies are dealt 10 piercing damage.",
+                "energy": [
+                    "Genjutsu",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "None",
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "classesHtml": "Energy, Ranged, Instant",
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "sinestro_dreadful_scorpion_paralysis",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "freezeCooldowns": true,
+                            "healReceivedMultiplier": 0,
+                            "tooltipText": "This character's cooldowns are paralyzed and they ignore healing effects."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "other-enemies",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "sinestro-scary-dragon",
+                "name": "Scary Dragon",
+                "nameHtml": "Scary Dragon",
+                "skillimage": "https://i.imgur.com/OTLfxav.jpeg",
+                "url": "https://i.imgur.com/OTLfxav.jpeg",
+                "skilldescription": "Deals 10 damage to the enemy team for 4 turns and applies a stack of 'Passive: Yellow Lantern Ring' each turn.",
+                "description": "Deals 10 damage to the enemy team for 4 turns and applies a stack of 'Passive: Yellow Lantern Ring' each turn.",
+                "descriptionHtml": "Deals 10 damage to the enemy team for 4 turns and applies a stack of 'Passive: Yellow Lantern Ring' each turn.",
+                "energy": [
+                    "Taijutsu",
+                    "Genjutsu"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 4,
+                "cooldownHtml": "4",
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Action"
+                ],
+                "classesHtml": "Energy, Ranged, Action",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "sinestro_scary_dragon",
+                        "duration": 4,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "ongoingClass": "action",
+                            "turnEndDamage": 10,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "turnEndApplyStatusToSelf": {
+                                "statusId": "sinestro_yellow_lantern_ring_fear",
+                                "duration": 99,
+                                "metadata": {
+                                    "harmful": true,
+                                    "infiniteDuration": true,
+                                    "sinestroFearStacks": 1,
+                                    "NonAfflictionDamageDebuff": 1,
+                                    "mergeNumericAddKeys": [
+                                        "sinestroFearStacks",
+                                        "NonAfflictionDamageDebuff"
+                                    ],
+                                    "tooltipTextTemplate": "This character deals {NonAfflictionDamageDebuff} less non-affliction damage from Yellow Lantern Ring."
+                                }
+                            },
+                            "tooltipText": "This character takes 10 damage each Sinestro turn and gains Yellow Lantern Ring stacks."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "sinestro-fear-the-reaper",
+                "name": "Fear the Reaper",
+                "nameHtml": "Fear the Reaper",
+                "skillimage": "https://i.imgur.com/cImcBvC.png",
+                "url": "https://i.imgur.com/cImcBvC.png",
+                "skilldescription": "Sinestro conjures an avatar of death to harvest the weak. Deals 10 damage to a single enemy. This attack deals an additional 5 damage for every stack of 'Passive: Yellow Lantern Ring' currently applied to the target and ignores invulnerability.",
+                "description": "Sinestro conjures an avatar of death to harvest the weak. Deals 10 damage to a single enemy. This attack deals an additional 5 damage for every stack of 'Passive: Yellow Lantern Ring' currently applied to the target and ignores invulnerability.",
+                "descriptionHtml": "Sinestro conjures an avatar of death to harvest the weak.<br>Deals 10 damage to a single enemy.<br>This attack deals an additional 5 damage for every stack of 'Passive: Yellow Lantern Ring' currently applied to the target and ignores invulnerability.",
+                "energy": [],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "cooldownHtml": "3",
+                "ignoreInvulnerability": true,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "classesHtml": "Energy, Ranged, Instant",
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "metadata": {
+                            "bonusFromStatusMetadataThresholds": {
+                                "scope": "target",
+                                "statusId": "sinestro_yellow_lantern_ring_fear",
+                                "metadataKey": "sinestroFearStacks",
+                                "thresholds": [
+                                    {
+                                        "atLeast": 20,
+                                        "bonus": 100
+                                    },
+                                    {
+                                        "atLeast": 15,
+                                        "bonus": 75
+                                    },
+                                    {
+                                        "atLeast": 10,
+                                        "bonus": 50
+                                    },
+                                    {
+                                        "atLeast": 5,
+                                        "bonus": 25
+                                    },
+                                    {
+                                        "atLeast": 4,
+                                        "bonus": 20
+                                    },
+                                    {
+                                        "atLeast": 3,
+                                        "bonus": 15
+                                    },
+                                    {
+                                        "atLeast": 2,
+                                        "bonus": 10
+                                    },
+                                    {
+                                        "atLeast": 1,
+                                        "bonus": 5
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "sinestro-passive-yellow-lantern-ring",
+                "name": "Passive: Yellow Lantern Ring",
+                "nameHtml": "Passive: Yellow Lantern Ring",
+                "skillimage": "https://i.imgur.com/iubF9pw.png",
+                "url": "https://i.imgur.com/iubF9pw.png",
+                "skilldescription": "Every time Sinestro uses a new skill, every targetable enemy has their damage reduced by 1. If an enemy dies, all other enemies have their damage reduced by 3.",
+                "description": "Every time Sinestro uses a new skill, every targetable enemy has their damage reduced by 1. If an enemy dies, all other enemies have their damage reduced by 3.",
+                "descriptionHtml": "Every time Sinestro uses a new skill, every targetable enemy has their damage reduced by 1.<br>If an enemy dies, all other enemies have their damage reduced by 3.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "Passive",
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
+                "classesHtml": "Passive, Instant"
+            }
+        ],
+        "role": "De-Buff DPS"
+    },
+    {
+        "id": "atrocitus",
+        "characterId": "atrocitus",
+        "name": "Atrocitus",
+        "nameHtml": "Atrocitus",
+        "facePicture": "https://i.imgur.com/nS6xXG6.png",
+        "url": "https://i.imgur.com/nS6xXG6.png",
+        "unlockRequirement": "None",
+        "unlockRequirementHtml": "None",
+        "characterdeescription": "Atrocitus is a relentless rage-fueled bruiser who grows stronger the more he is attacked. By building Rage stacks through damage taken, he steadily increases the power of his abilities and forces enemies to think twice before focusing him.",
+        "description": "Atrocitus is a relentless rage-fueled bruiser who grows stronger the more he is attacked. By building Rage stacks through damage taken, he steadily increases the power of his abilities and forces enemies to think twice before focusing him.",
+        "descriptionHtml": "Atrocitus is a relentless rage-fueled bruiser who grows stronger the more he is attacked.<br>By building Rage stacks through damage taken, he steadily increases the power of his abilities and forces enemies to think twice before focusing him.",
+        "startStatuses": [
+            {
+                "statusId": "atrocitus_red_lantern_ring_passive",
+                "duration": 99,
+                "sourceSkillId": "atrocitus-passive-red-lantern-ring",
+                "metadata": {
+                    "infiniteDuration": true,
+                    "onOwnerDamagedByBaseDamageAtLeastApplyStatusToOwner": {
+                        "threshold": 25,
+                        "enemyOnly": true,
+                        "statusId": "atrocitus_rage_stacks",
+                        "duration": 99,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "atrocitusRageStacks": 1,
+                            "stackMetadataKey": "atrocitusRageStacks",
+                            "stackDelta": 1,
+                            "stackMax": 99,
+                            "stackDerivedNumericKeys": {
+                                "damageBonusFlat": 5
+                            },
+                            "tooltipTextTemplate": "Atrocitus has {atrocitusRageStacks} Rage stacks and deals {damageBonusFlat} additional damage."
+                        }
+                    },
+                    "tooltipText": "When Atrocitus takes 25 or more damage from an enemy skill, he gains 1 Rage stack."
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "atrocitus-rage-of-ysmault",
+                "name": "Rage of Ysmault",
+                "nameHtml": "Rage of Ysmault",
+                "skillimage": "https://i.imgur.com/VOeek9r.jpeg",
+                "url": "https://i.imgur.com/VOeek9r.jpeg",
+                "skilldescription": "Atrocitus channels the endless rage that fuels the Red Lantern Corps and gains 20 permanent destructible defense. For 3 turns, he gains 1 Rage stack and lowers his active cooldowns by 1 whenever he is damaged. Each Rage stack increases his skill damage by 5. This may not be used while active.",
+                "description": "Atrocitus channels the endless rage that fuels the Red Lantern Corps and gains 20 permanent destructible defense. For 3 turns, he gains 1 Rage stack and lowers his active cooldowns by 1 whenever he is damaged. Each Rage stack increases his skill damage by 5. This may not be used while active.",
+                "descriptionHtml": "Atrocitus channels the endless rage that fuels the Red Lantern Corps and gains 20 permanent destructible defense.<br>For 3 turns, he gains 1 Rage stack and lowers his active cooldowns by 1 whenever he is damaged.<br>Each Rage stack increases his skill damage by 5.<br>This may not be used while active.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "cooldownHtml": "4",
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "classesHtml": "Energy, Instant",
+                "actorCondition": {
+                    "missingStatusId": "atrocitus_rage_of_ysmault_active"
+                },
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "atrocitus_rage_of_ysmault_defense",
+                        "duration": 99,
+                        "scope": "self",
+                        "metadata": {
+                            "destructibleDefensePoints": 20,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "Atrocitus has {destructibleDefensePoints} destructible defense."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "atrocitus_rage_of_ysmault_active",
+                        "duration": 3,
+                        "scope": "self",
+                        "metadata": {
+                            "onOwnerDamagedByBaseDamageAtLeastApplyStatusToOwner": {
+                                "threshold": 1,
+                                "enemyOnly": true,
+                                "statusId": "atrocitus_rage_stacks",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "atrocitusRageStacks": 1,
+                                    "stackMetadataKey": "atrocitusRageStacks",
+                                    "stackDelta": 1,
+                                    "stackMax": 99,
+                                    "stackDerivedNumericKeys": {
+                                        "damageBonusFlat": 5
+                                    },
+                                    "tooltipTextTemplate": "Atrocitus has {atrocitusRageStacks} Rage stacks and deals {damageBonusFlat} additional damage."
+                                }
+                            },
+                            "tooltipText": "Atrocitus gains 1 Rage stack whenever damaged."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "atrocitus-napalm-blood-vomit",
+                "name": "Napalm Blood Vomit",
+                "nameHtml": "Napalm Blood Vomit",
+                "skillimage": "https://i.imgur.com/4kS6GoG.jpeg",
+                "url": "https://i.imgur.com/4kS6GoG.jpeg",
+                "skilldescription": "Atrocitus spews volatile plasma blood at an enemy, dealing 20 affliction damage and applying Burning Rage, which deals 10 affliction damage the following 2 turns. If Atrocitus has 3 or more Rage stacks, the burn becomes unremovable and silences the target for 1 turn.",
+                "description": "Atrocitus spews volatile plasma blood at an enemy, dealing 20 affliction damage and applying Burning Rage, which deals 10 affliction damage the following 2 turns. If Atrocitus has 3 or more Rage stacks, the burn becomes unremovable and silences the target for 1 turn.",
+                "descriptionHtml": "Atrocitus spews volatile plasma blood at an enemy, dealing 20 affliction damage and applying Burning Rage, which deals 10 affliction damage the following 2 turns.<br>If Atrocitus has 3 or more Rage stacks, the burn becomes unremovable and silences the target for 1 turn.",
+                "energy": [
+                    "Bloodline",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "cooldownHtml": "2",
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "classesHtml": "Energy, Ranged, Instant, Affliction",
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "atrocitus_burning_rage",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "turnEndDamage": 10,
+                            "afflictionDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "This character takes 10 affliction damage on Atrocitus's turns."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "atrocitus_burning_rage_silence",
+                        "duration": 1,
+                        "scope": "target",
+                        "condition": {
+                            "statusMetadataAtLeast": {
+                                "scope": "self",
+                                "statusId": "atrocitus_rage_stacks",
+                                "metadataKey": "atrocitusRageStacks",
+                                "value": 3
+                            }
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "silenceNonDamageEffects": true,
+                            "tooltipText": "Silenced: only damage effects from this character's skills will work."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "atrocitus-blood-magic-of-the-butcher",
+                "name": "Blood Magic of the Butcher",
+                "nameHtml": "Blood Magic of the Butcher",
+                "skillimage": "https://i.imgur.com/WgD4R09.jpeg",
+                "url": "https://i.imgur.com/WgD4R09.jpeg",
+                "skilldescription": "Atrocitus brands an enemy with an ancient rage magic for 3 turns. The target takes 5 affliction damage whenever they use a skill. If the target becomes stunned or silenced, they take 10 energy damage.",
+                "description": "Atrocitus brands an enemy with an ancient rage magic for 3 turns. The target takes 5 affliction damage whenever they use a skill. If the target becomes stunned or silenced, they take 10 energy damage.",
+                "descriptionHtml": "Atrocitus brands an enemy with an ancient rage magic for 3 turns.<br>The target takes 5 affliction damage whenever they use a skill.<br>If the target becomes stunned or silenced, they take 10 energy damage.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "cooldownHtml": "3",
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "classesHtml": "Energy, Ranged, Instant, Affliction",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "atrocitus_blood_magic_of_the_butcher",
+                        "duration": 3,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "onOwnerUseSkillSelfDamage": 5,
+                            "onOwnerUseSkillSelfDamageIgnoreDamageReduction": true,
+                            "onOwnerUseSkillSelfDamageIgnoreDestructibleDefense": true,
+                            "tooltipText": "This character takes 5 affliction damage whenever they use a skill."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "atrocitus-red-lantern-execution",
+                "name": "Red Lantern Execution",
+                "nameHtml": "Red Lantern Execution",
+                "skillimage": "https://i.imgur.com/zAcr8c8.png",
+                "url": "https://i.imgur.com/zAcr8c8.png",
+                "skilldescription": "Atrocitus brutally tears into an enemy using rage-fueled constructs, dealing 25 piercing damage plus 10 per Rage stack. After use, all Rage stacks are consumed.",
+                "description": "Atrocitus brutally tears into an enemy using rage-fueled constructs, dealing 25 piercing damage plus 10 per Rage stack. After use, all Rage stacks are consumed.",
+                "descriptionHtml": "Atrocitus brutally tears into an enemy using rage-fueled constructs, dealing 25 piercing damage plus 10 per Rage stack.<br>After use, all Rage stacks are consumed.",
+                "energy": [
+                    "Bloodline",
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "None",
+                "classes": [
+                    "Chakra",
+                    "Melee",
+                    "Instant"
+                ],
+                "classesHtml": "Chakra, Melee, Instant",
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "bonusFromStatusMetadataThresholds": {
+                                "scope": "self",
+                                "statusId": "atrocitus_rage_stacks",
+                                "metadataKey": "atrocitusRageStacks",
+                                "thresholds": [
+                                    {
+                                        "atLeast": 10,
+                                        "bonus": 100,
+                                        "consume": 10
+                                    },
+                                    {
+                                        "atLeast": 5,
+                                        "bonus": 50,
+                                        "consume": 5
+                                    },
+                                    {
+                                        "atLeast": 4,
+                                        "bonus": 40,
+                                        "consume": 4
+                                    },
+                                    {
+                                        "atLeast": 3,
+                                        "bonus": 30,
+                                        "consume": 3
+                                    },
+                                    {
+                                        "atLeast": 2,
+                                        "bonus": 20,
+                                        "consume": 2
+                                    },
+                                    {
+                                        "atLeast": 1,
+                                        "bonus": 10,
+                                        "consume": 1
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "type": "cleanse_statuses",
+                        "scope": "self",
+                        "statusId": "atrocitus_rage_stacks",
+                        "count": 0
+                    }
+                ]
+            },
+            {
+                "id": "atrocitus-passive-red-lantern-ring",
+                "name": "Passive: Red Lantern Ring",
+                "nameHtml": "Passive: Red Lantern Ring",
+                "skillimage": "https://i.imgur.com/Liii5O0.jpeg",
+                "url": "https://i.imgur.com/Liii5O0.jpeg",
+                "skilldescription": "Whenever Atrocitus takes 25 or more damage in one turn, he gains 1 Rage stack and deals 5 affliction damage to the attacker.",
+                "description": "Whenever Atrocitus takes 25 or more damage in one turn, he gains 1 Rage stack and deals 5 affliction damage to the attacker.",
+                "descriptionHtml": "Whenever Atrocitus takes 25 or more damage in one turn, he gains 1 Rage stack and deals 5 affliction damage to the attacker.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "Passive",
+                "classes": [
+                    "Passive",
+                    "Energy",
+                    "Instant"
+                ],
+                "classesHtml": "Passive, Energy, Instant"
+            }
+        ],
+        "role": "Rage Scaling Bruiser"
+    },
+    {
+        "id": "saint-walker",
+        "characterId": "saint-walker",
+        "name": "Saint Walker",
+        "nameHtml": "Saint Walker",
+        "facePicture": "https://i.imgur.com/unzClm5.jpeg",
+        "url": "https://i.imgur.com/unzClm5.jpeg",
+        "unlockRequirement": "None",
+        "unlockRequirementHtml": "None",
+        "characterdeescription": "Saint Walker is a Hope-powered support protector who specializes in shielding allies, preventing death, and empowering his team through permanent defensive growth.",
+        "description": "Saint Walker is a Hope-powered support protector who specializes in shielding allies, preventing death, and empowering his team through permanent defensive growth.",
+        "descriptionHtml": "Saint Walker is a Hope-powered support protector who specializes in shielding allies, preventing death, and empowering his team through permanent defensive growth.",
+        "startStatuses": [
+            {
+                "statusId": "saint_walker_blue_lantern_ring_passive",
+                "duration": 99,
+                "sourceSkillId": "saint-walker-passive-blue-lantern-ring",
+                "metadata": {
+                    "infiniteDuration": true,
+                    "blueLanternRingDefensePerTurn": 1,
+                    "turnEndApplyStatusToAllies": [
+                        {
+                            "statusId": "saint_walker_blue_lantern_ring_defense",
+                            "duration": 99,
+                            "metadata": {
+                                "destructibleDefensePoints": 0,
+                                "scaleFromSourceStatusMetadata": {
+                                    "metadataKey": "blueLanternRingDefensePerTurn",
+                                    "multiplier": 1,
+                                    "targetKeys": [
+                                        "destructibleDefensePoints"
+                                    ]
+                                },
+                                "mergeNumericAddKeys": [
+                                    "destructibleDefensePoints"
+                                ],
+                                "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Blue Lantern Ring."
+                            }
+                        }
+                    ],
+                    "tooltipText": "Saint Walker grants his team 1 permanent destructible defense at the end of each of his turns.",
+                    "tooltipTextTemplate": "Saint Walker grants his team {blueLanternRingDefensePerTurn} permanent destructible defense at the end of each of his turns."
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "saint-walker-fist-of-hope",
+                "name": "Fist of Hope",
+                "nameHtml": "Fist of Hope",
+                "skillimage": "https://i.imgur.com/nGR4QYX.png",
+                "url": "https://i.imgur.com/nGR4QYX.png",
+                "skilldescription": "Deals 25 damage to one enemy and grants your team 5 points of destructible defense.",
+                "description": "Deals 25 damage to one enemy and grants your team 5 points of destructible defense.",
+                "descriptionHtml": "Deals 25 damage to one enemy and grants your team 5 points of destructible defense.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "cooldownHtml": "1",
+                "classes": [
+                    "Energy",
+                    "Melee",
+                    "Instant"
+                ],
+                "classesHtml": "Energy, Melee, Instant",
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "saint_walker_fist_of_hope_defense",
+                        "duration": 99,
+                        "scope": "all-allies",
+                        "metadata": {
+                            "destructibleDefensePoints": 5,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Fist of Hope."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "saint-walker-radiant-hope",
+                "name": "Radiant Hope",
+                "nameHtml": "Radiant Hope",
+                "skillimage": "https://i.imgur.com/4th9J63.jpeg",
+                "url": "https://i.imgur.com/4th9J63.jpeg",
+                "skilldescription": "At the start of your next turn choose one option: - Grant one ally 20 points of permanent destructible defense - Grant an enemy 20 points of Barrier - Prevent an ally from dying for 1 turn. This skill is invisible and its effects are invisible.",
+                "description": "At the start of your next turn choose one option: - Grant one ally 20 points of permanent destructible defense - Grant an enemy 20 points of Barrier - Prevent an ally from dying for 1 turn. This skill is invisible and its effects are invisible.",
+                "descriptionHtml": "At the start of your next turn choose one option:<br>- Grant one ally 20 points of permanent destructible defense<br>- Grant an enemy 20 points of Barrier<br>- Prevent an ally from dying for 1 turn<br>This skill is invisible and its effects are invisible.",
+                "energy": [
+                    "Ninjutsu",
+                    "Random"
+                ],
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "cooldown": 1,
+                "cooldownHtml": "1",
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "classesHtml": "Energy, Ranged, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "saint_walker_radiant_hope_defense",
+                        "duration": 99,
+                        "scope": "target",
+                        "metadata": {
+                            "destructibleDefensePoints": 20,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "hideTooltip": true,
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Radiant Hope."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "saint-walker-emotional-aura-attunement",
+                "name": "Emotional Aura Attunement",
+                "nameHtml": "Emotional Aura Attunement",
+                "skillimage": "https://i.imgur.com/7ACcyxD.jpeg",
+                "url": "https://i.imgur.com/7ACcyxD.jpeg",
+                "skilldescription": "Saint Walker increases the amount of destructible defense granted by 'Passive: Blue Lantern Ring' by 1 (stacks) and gains 1 blue energy. This swaps to 'Phoenix of Hope' for 2 turns.",
+                "description": "Saint Walker increases the amount of destructible defense granted by 'Passive: Blue Lantern Ring' by 1 (stacks) and gains 1 blue energy. This swaps to 'Phoenix of Hope' for 2 turns.",
+                "descriptionHtml": "Saint Walker increases the amount of destructible defense granted by 'Passive: Blue Lantern Ring' by 1 (stacks) and gains 1 blue energy.<br>This swaps to 'Phoenix of Hope' for 2 turns.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "cooldownHtml": "4",
+                "classes": [
+                    "Energy",
+                    "Instant"
+                ],
+                "classesHtml": "Energy, Instant",
+                "effects": [
+                    {
+                        "type": "gain_chakra",
+                        "chakraType": "ninjutsu",
+                        "amount": 1
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "saint_walker_blue_lantern_ring_passive",
+                        "sourceSkillId": "saint-walker-passive-blue-lantern-ring",
+                        "duration": 99,
+                        "scope": "self",
+                        "fresh": false,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "blueLanternRingDefensePerTurn": 1,
+                            "mergeNumericAddKeys": [
+                                "blueLanternRingDefensePerTurn"
+                            ],
+                            "tooltipTextTemplate": "Saint Walker grants his team {blueLanternRingDefensePerTurn} permanent destructible defense at the end of each of his turns."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "saint_walker_phoenix_of_hope_ready",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "skillReplacements": {
+                                "saint-walker-emotional-aura-attunement": "saint-walker-phoenix-of-hope"
+                            },
+                            "tooltipText": "Emotional Aura Attunement is replaced by Phoenix of Hope."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "saint-walker-hope-shield",
+                "name": "Hope Shield",
+                "nameHtml": "Hope Shield",
+                "skillimage": "https://i.imgur.com/07QdV07.png",
+                "url": "https://i.imgur.com/07QdV07.png",
+                "skilldescription": "Saint Walker targets himself or an ally, granting them 50% unpierceable damage reduction and making them ignore affliction damage for 1 turn.",
+                "description": "Saint Walker targets himself or an ally, granting them 50% unpierceable damage reduction and making them ignore affliction damage for 1 turn.",
+                "descriptionHtml": "Saint Walker targets himself or an ally, granting them 50% unpierceable damage reduction and making them ignore affliction damage for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "cooldown": 2,
+                "cooldownHtml": "2",
+                "classes": [
+                    "Energy",
+                    "Instant"
+                ],
+                "classesHtml": "Energy, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "saint_walker_hope_shield",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "unpierceableDamageReductionPercent": 50,
+                            "ignoreAfflictionDamage": true,
+                            "tooltipText": "This character has 50% unpierceable damage reduction and ignores affliction damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "saint-walker-phoenix-of-hope",
+                "name": "Phoenix of Hope",
+                "nameHtml": "Phoenix of Hope",
+                "hiddenFromSelectionViewer": true,
+                "useBaseSkillCooldown": true,
+                "skillimage": "https://i.imgur.com/oH6BgBg.jpeg",
+                "url": "https://i.imgur.com/oH6BgBg.jpeg",
+                "skilldescription": "Saint Walker makes his whole team invulnerable for 1 turn and grants them 15 points of permanent destructible defense.",
+                "description": "Saint Walker makes his whole team invulnerable for 1 turn and grants them 15 points of permanent destructible defense.",
+                "descriptionHtml": "Saint Walker makes his whole team invulnerable for 1 turn and grants them 15 points of permanent destructible defense.",
+                "energy": [
+                    "Ninjutsu",
+                    "Ninjutsu"
+                ],
+                "target": "all-allies",
+                "damage": 0,
+                "cooldown": 4,
+                "cooldownHtml": "4",
+                "classes": [
+                    "Energy",
+                    "Instant"
+                ],
+                "classesHtml": "Energy, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "saint_walker_phoenix_of_hope_invulnerable",
+                        "duration": 1,
+                        "scope": "all-allies",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "This character is invulnerable."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "saint_walker_phoenix_of_hope_defense",
+                        "duration": 99,
+                        "scope": "all-allies",
+                        "metadata": {
+                            "destructibleDefensePoints": 15,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Phoenix of Hope."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "saint-walker-passive-blue-lantern-ring",
+                "name": "Passive: Blue Lantern Ring",
+                "nameHtml": "Passive: Blue Lantern Ring",
+                "skillimage": "https://i.imgur.com/tOBn10V.jpeg",
+                "url": "https://i.imgur.com/tOBn10V.jpeg",
+                "skilldescription": "Saint Walker grants his entire team 1 permanent destructible defense every turn. Also increases the damage of all 'Passive: Green Lantern Ring' by 1 each turn while he is alive.",
+                "description": "Saint Walker grants his entire team 1 permanent destructible defense every turn. Also increases the damage of all 'Passive: Green Lantern Ring' by 1 each turn while he is alive.",
+                "descriptionHtml": "Saint Walker grants his entire team 1 permanent destructible defense every turn.<br>Also increases the damage of all 'Passive: Green Lantern Ring' by 1 each turn while he is alive.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "Passive",
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
+                "classesHtml": "Passive, Instant"
+            }
+        ],
+        "role": "Shield Support"
+    },
+    {
+        "id": "indigo-1",
+        "characterId": "indigo-1",
+        "name": "Indigo-1",
+        "nameHtml": "Indigo-1",
+        "facePicture": "https://i.imgur.com/nOzu8z7.jpeg",
+        "url": "https://i.imgur.com/nOzu8z7.jpeg",
+        "unlockRequirement": "None",
+        "unlockRequirementHtml": "None",
+        "characterdeescription": "Indigo-1 is a versatile empath support who alternates between healing allies and punishing enemies through mirrored suffering and powerful affliction effects.",
+        "description": "Indigo-1 is a versatile empath support who alternates between healing allies and punishing enemies through mirrored suffering and powerful affliction effects.",
+        "descriptionHtml": "Indigo-1 is a versatile empath support who alternates between healing allies and punishing enemies through mirrored suffering and powerful affliction effects.",
+        "startStatuses": [
+            {
+                "statusId": "indigo_1_indigo_lantern_ring_passive",
+                "duration": 99,
+                "sourceSkillId": "indigo-1-passive-indigo-lantern-ring",
+                "metadata": {
+                    "infiniteDuration": true,
+                    "tooltipText": "Indigo-1's healing and damage alternate through the Indigo Lantern Ring."
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "indigo-1-compassion-staff",
+                "name": "Compassion Staff",
+                "nameHtml": "Compassion Staff",
+                "skillimage": "https://i.imgur.com/QiNbR2W.jpeg",
+                "url": "https://i.imgur.com/QiNbR2W.jpeg",
+                "skilldescription": "May be used on an enemy or an ally. If enemy: Deals 13 affliction damage immediately and each turn for 2 turns. If ally: Heal 13 HP immediately and each turn for 2 turns. This will cancel the previous cast if it is used while active.",
+                "description": "May be used on an enemy or an ally. If enemy: Deals 13 affliction damage immediately and each turn for 2 turns. If ally: Heal 13 HP immediately and each turn for 2 turns. This will cancel the previous cast if it is used while active.",
+                "descriptionHtml": "May be used on an enemy or an ally.<br>If enemy: Deals 13 affliction damage immediately and each turn for 2 turns.<br>If ally: Heal 13 HP immediately and each turn for 2 turns.<br>This will cancel the previous cast if it is used while active.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-character",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "None",
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Control",
+                    "Affliction"
+                ],
+                "classesHtml": "Energy, Ranged, Control, Affliction",
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 13,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy"
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "heal",
+                        "amount": 13,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally"
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "indigo_1_compassion_staff_suffering",
+                        "duration": 2,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "ongoingClass": "control",
+                            "turnEndDamage": 13,
+                            "afflictionDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "This character takes 13 affliction damage each Indigo-1 turn."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "indigo_1_compassion_staff_healing",
+                        "duration": 2,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally"
+                        },
+                        "metadata": {
+                            "turnEndHealFlat": 13,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "This character is healed for 13 HP each Indigo-1 turn."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "indigo-1-influx-of-empathy",
+                "name": "Influx of Empathy",
+                "nameHtml": "Influx of Empathy",
+                "skillimage": "https://i.imgur.com/xnVwbwY.jpeg",
+                "url": "https://i.imgur.com/xnVwbwY.jpeg",
+                "skilldescription": "Marks an ally or an enemy for 4 turns. While marked, all damage dealt by Indigo-1 will be given to the target as healing (if on ally) or all healing done by Indigo-1 will be dealt as affliction damage (if on enemy). This will end on the previous target if used on a new one.",
+                "description": "Marks an ally or an enemy for 4 turns. While marked, all damage dealt by Indigo-1 will be given to the target as healing (if on ally) or all healing done by Indigo-1 will be dealt as affliction damage (if on enemy). This will end on the previous target if used on a new one.",
+                "descriptionHtml": "Marks an ally or an enemy for 4 turns.<br>While marked, all damage dealt by Indigo-1 will be given to the target as healing (if on ally) or all healing done by Indigo-1 will be dealt as affliction damage (if on enemy).<br>This will end on the previous target if used on a new one.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-character",
+                "damage": 0,
+                "cooldown": 2,
+                "cooldownHtml": "2",
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "classesHtml": "Energy, Ranged, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "indigo_1_influx_of_empathy_ally",
+                        "duration": 4,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally"
+                        },
+                        "metadata": {
+                            "tooltipText": "Indigo-1's damage is mirrored as healing to this ally."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "indigo_1_influx_of_empathy_enemy",
+                        "duration": 4,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "uniqueEnemyMarkFromSource": true,
+                            "tooltipText": "Indigo-1's healing is mirrored as affliction damage to this enemy."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "indigo-1-purge",
+                "name": "Purge",
+                "nameHtml": "Purge",
+                "skillimage": "https://i.imgur.com/CWBSD5C.jpeg",
+                "url": "https://i.imgur.com/CWBSD5C.jpeg",
+                "skilldescription": "May be used on an enemy or an ally. If enemy: Deals 37 affliction damage to one enemy and banishes them for 2 turns if their health falls to 35 HP or below. If ally: Heals 37 HP and makes them ignore enemy non-damage effects for 2 turns.",
+                "description": "May be used on an enemy or an ally. If enemy: Deals 37 affliction damage to one enemy and banishes them for 2 turns if their health falls to 35 HP or below. If ally: Heals 37 HP and makes them ignore enemy non-damage effects for 2 turns.",
+                "descriptionHtml": "May be used on an enemy or an ally.<br>If enemy: Deals 37 affliction damage to one enemy and banishes them for 2 turns if their health falls to 35 HP or below.<br>If ally: Heals 37 HP and makes them ignore enemy non-damage effects for 2 turns.",
+                "energy": [
+                    "Ninjutsu",
+                    "Ninjutsu"
+                ],
+                "target": "single-character",
+                "damage": 0,
+                "cooldown": 4,
+                "cooldownHtml": "4",
+                "classes": [
+                    "Energy",
+                    "Melee",
+                    "Instant",
+                    "Affliction"
+                ],
+                "classesHtml": "Energy, Melee, Instant, Affliction",
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 37,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy"
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "indigo_1_purge_banished",
+                        "duration": 2,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy",
+                            "sourceCurrentHpAtMost": 35
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "banished": true,
+                            "tooltipText": "This character is banished and is treated as if dead until this effect ends."
+                        }
+                    },
+                    {
+                        "type": "heal",
+                        "amount": 37,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally"
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "indigo_1_purge_protection",
+                        "duration": 2,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally"
+                        },
+                        "metadata": {
+                            "invulnerableToHarmfulEffects": true,
+                            "tooltipText": "This character ignores enemy non-damage effects."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "indigo-1-compassion-shield",
+                "name": "Compassion Shield",
+                "nameHtml": "Compassion Shield",
+                "skillimage": "https://i.imgur.com/2tQ8NvJ.jpeg",
+                "url": "https://i.imgur.com/2tQ8NvJ.jpeg",
+                "skilldescription": "Indigo-1 grants her team 90% unpierceable damage reduction for 1 turn.",
+                "description": "Indigo-1 grants her team 90% unpierceable damage reduction for 1 turn.",
+                "descriptionHtml": "Indigo-1 grants her team 90% unpierceable damage reduction for 1 turn.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "all-allies",
+                "damage": 0,
+                "cooldown": 5,
+                "cooldownHtml": "5",
+                "classes": [
+                    "Energy",
+                    "Instant"
+                ],
+                "classesHtml": "Energy, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "indigo_1_compassion_shield",
+                        "duration": 1,
+                        "scope": "all-allies",
+                        "metadata": {
+                            "unpierceableDamageReductionPercent": 90,
+                            "tooltipText": "This character has 90% unpierceable damage reduction."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "indigo-1-passive-indigo-lantern-ring",
+                "name": "Passive: Indigo Lantern Ring",
+                "nameHtml": "Passive: Indigo Lantern Ring",
+                "skillimage": "https://i.imgur.com/42bESKD.jpeg",
+                "url": "https://i.imgur.com/42bESKD.jpeg",
+                "skilldescription": "If Indigo-1 dealt damage to an enemy last turn, she will heal 10 HP if she heals an ally on this turn. If Indigo-1 healed an ally last turn, she will heal 10 HP if she deals damage to an enemy on this turn.",
+                "description": "If Indigo-1 dealt damage to an enemy last turn, she will heal 10 HP if she heals an ally on this turn. If Indigo-1 healed an ally last turn, she will heal 10 HP if she deals damage to an enemy on this turn.",
+                "descriptionHtml": "If Indigo-1 dealt damage to an enemy last turn, she will heal 10 HP if she heals an ally on this turn.<br>If Indigo-1 healed an ally last turn, she will heal 10 HP if she deals damage to an enemy on this turn.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "Passive",
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
+                "classesHtml": "Passive, Instant"
+            }
+        ],
+        "role": "Heal Support"
+    },
+    {
+        "id": "john-stewart",
+        "characterId": "john-stewart",
+        "name": "John Stewart",
+        "nameHtml": "John Stewart",
+        "facePicture": "https://i.imgur.com/s2MM50x.jpeg",
+        "url": "https://i.imgur.com/s2MM50x.jpeg",
+        "unlockRequirement": "None",
+        "unlockRequirementHtml": "None",
+        "characterdeescription": "John Stewart is a methodical control fighter who spreads Emotional Possession across the battlefield, weakening enemies and manipulating their actions through Ultraviolet constructs.",
+        "description": "John Stewart is a methodical control fighter who spreads Emotional Possession across the battlefield, weakening enemies and manipulating their actions through Ultraviolet constructs.",
+        "descriptionHtml": "John Stewart is a methodical control fighter who spreads Emotional Possession across the battlefield, weakening enemies and manipulating their actions through Ultraviolet constructs.",
+        "startStatuses": [
+            {
+                "statusId": "john_stewart_ultraviolet_lantern_ring_passive",
+                "duration": 99,
+                "sourceSkillId": "john-stewart-passive-ultraviolet-lantern-ring",
+                "metadata": {
+                    "infiniteDuration": true,
+                    "onEnemySkillTargetedMissingStatusId": "john_stewart_ultraviolet_lantern_ring_cooldown",
+                    "onEnemySkillTargetedApplyStatusToSource": {
+                        "statusId": "john_stewart_emotional_possession",
+                        "duration": 2,
+                        "metadata": {
+                            "harmful": true,
+                            "turnEndDamage": 10,
+                            "afflictionDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "mergeNumericAddKeys": [
+                                "turnEndDamage"
+                            ],
+                            "tooltipTextTemplate": "This character takes {turnEndDamage} affliction damage from Emotional Possession each John Stewart turn."
+                        }
+                    },
+                    "onEnemySkillTargetedApplyStatusToOwner": {
+                        "statusId": "john_stewart_ultraviolet_lantern_ring_cooldown",
+                        "duration": 3,
+                        "metadata": {
+                            "tooltipText": "Ultraviolet Lantern Ring is on cooldown."
+                        }
+                    },
+                    "tooltipText": "The first enemy to use a new skill on John Stewart gains Emotional Possession. This effect then goes on cooldown for 3 turns."
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "john-stewart-dark-constructs",
+                "name": "Dark Constructs",
+                "nameHtml": "Dark Constructs",
+                "skillimage": "https://i.imgur.com/W5z1afo.jpeg",
+                "url": "https://i.imgur.com/W5z1afo.jpeg",
+                "skilldescription": "All enemies are given 'Emotional Possession'.",
+                "description": "All enemies are given 'Emotional Possession'.",
+                "descriptionHtml": "All enemies are given 'Emotional Possession'.",
+                "energy": [
+                    "Ninjutsu",
+                    "Random"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "cooldownHtml": "1",
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "classesHtml": "Energy, Ranged, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "john_stewart_emotional_possession",
+                        "duration": 2,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "turnEndDamage": 10,
+                            "afflictionDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "mergeNumericAddKeys": [
+                                "turnEndDamage"
+                            ],
+                            "tooltipTextTemplate": "This character takes {turnEndDamage} affliction damage from Emotional Possession each John Stewart turn."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "john-stewart-giant-dark-construct",
+                "name": "Giant Dark Construct",
+                "nameHtml": "Giant Dark Construct",
+                "skillimage": "https://i.imgur.com/yv7F2Ny.jpeg",
+                "url": "https://i.imgur.com/yv7F2Ny.jpeg",
+                "skilldescription": "Deals 30 damage to one enemy and permanently increases the damage they take from 'Emotional Possession' by 5 stacks.",
+                "description": "Deals 30 damage to one enemy and permanently increases the damage they take from 'Emotional Possession' by 5 stacks.",
+                "descriptionHtml": "Deals 30 damage to one enemy and permanently increases the damage they take from 'Emotional Possession' by 5 stacks.",
+                "energy": [
+                    "Bloodline",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "cooldownHtml": "1",
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "classesHtml": "Energy, Ranged, Instant",
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "john_stewart_emotional_possession",
+                        "duration": 99,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "turnEndDamage": 5,
+                            "afflictionDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "mergeNumericAddKeys": [
+                                "turnEndDamage"
+                            ],
+                            "tooltipTextTemplate": "This character takes {turnEndDamage} affliction damage from Emotional Possession each John Stewart turn."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "john-stewart-mind-manipulation",
+                "name": "Mind Manipulation",
+                "nameHtml": "Mind Manipulation",
+                "skillimage": "https://i.imgur.com/dS10X4K.jpeg",
+                "url": "https://i.imgur.com/dS10X4K.jpeg",
+                "skilldescription": "Targets one enemy affected by 'Emotional Possession' and replaces two random skills of theirs with 'Emotional Possession'. This cannot be used on an already affected enemy.",
+                "description": "Targets one enemy affected by 'Emotional Possession' and replaces two random skills of theirs with 'Emotional Possession'. This cannot be used on an already affected enemy.",
+                "descriptionHtml": "Targets one enemy affected by 'Emotional Possession' and replaces two random skills of theirs with 'Emotional Possession'.<br>This cannot be used on an already affected enemy.",
+                "energy": [
+                    "Bloodline",
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "targetCondition": {
+                    "statusId": "john_stewart_emotional_possession",
+                    "missingStatusId": "john_stewart_mind_manipulation"
+                },
+                "damage": 0,
+                "cooldown": 2,
+                "cooldownHtml": "2",
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "classesHtml": "Energy, Ranged, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "john_stewart_mind_manipulation",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "tooltipText": "Two of this character's skills are replaced by Emotional Possession."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "john-stewart-unseen-guard",
+                "name": "Unseen Guard",
+                "nameHtml": "Unseen Guard",
+                "skillimage": "https://i.imgur.com/hKwdORa.jpeg",
+                "url": "https://i.imgur.com/hKwdORa.jpeg",
+                "skilldescription": "John Stewart gains 20 points of destructible defense for 1 turn. The first enemy to use a new skill on him during this time is given 'Emotional Possession'. This skill is invisible.",
+                "description": "John Stewart gains 20 points of destructible defense for 1 turn. The first enemy to use a new skill on him during this time is given 'Emotional Possession'. This skill is invisible.",
+                "descriptionHtml": "John Stewart gains 20 points of destructible defense for 1 turn.<br>The first enemy to use a new skill on him during this time is given 'Emotional Possession'.<br>This skill is invisible.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 2,
+                "cooldownHtml": "2",
+                "classes": [
+                    "Energy",
+                    "Instant"
+                ],
+                "classesHtml": "Energy, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "john_stewart_unseen_guard",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "destructibleDefensePoints": 20,
+                            "triggerOnEnemyHarmfulSkill": true,
+                            "counterEffectsToSourceOwner": [
+                                {
+                                    "type": "apply_status",
+                                    "statusId": "john_stewart_emotional_possession",
+                                    "duration": 2,
+                                    "metadata": {
+                                        "harmful": true,
+                                        "turnEndDamage": 10,
+                                        "afflictionDamage": true,
+                                        "ignoreTargetDamageReduction": true,
+                                        "ignoreTargetDestructibleDefense": true,
+                                        "turnEndTrigger": "source_turn",
+                                        "turnDurationAnchor": "source_turn",
+                                        "mergeNumericAddKeys": [
+                                            "turnEndDamage"
+                                        ],
+                                        "tooltipTextTemplate": "This character takes {turnEndDamage} affliction damage from Emotional Possession each John Stewart turn."
+                                    }
+                                }
+                            ],
+                            "tooltipText": "John Stewart has 20 destructible defense. The first enemy to use a new harmful skill on him gains Emotional Possession."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "john-stewart-passive-ultraviolet-lantern-ring",
+                "name": "Passive: Ultraviolet Lantern Ring",
+                "nameHtml": "Passive: Ultraviolet Lantern Ring",
+                "skillimage": "https://i.imgur.com/PdrROxH.jpeg",
+                "url": "https://i.imgur.com/PdrROxH.jpeg",
+                "skilldescription": "The first enemy to use a new skill on John Stewart is given 'Emotional Possession' for 2 turns. This effect then goes on cooldown for 3 turns.",
+                "description": "The first enemy to use a new skill on John Stewart is given 'Emotional Possession' for 2 turns. This effect then goes on cooldown for 3 turns.",
+                "descriptionHtml": "The first enemy to use a new skill on John Stewart is given 'Emotional Possession' for 2 turns.<br>This effect then goes on cooldown for 3 turns.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "Passive",
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
+                "classesHtml": "Passive, Instant"
+            },
+            {
+                "id": "john-stewart-emotional-possession",
+                "name": "Emotional Possession",
+                "nameHtml": "Emotional Possession",
+                "skillimage": "https://i.imgur.com/5D8ltK0.jpeg",
+                "url": "https://i.imgur.com/5D8ltK0.jpeg",
+                "skilldescription": "Deals 10 affliction damage each turn for 2 turns. This cannot be ignored and increases its duration by 2 turns instead of stacking. If used by an enemy, this will cast this effect on them and replace itself with their original skill.",
+                "description": "Deals 10 affliction damage each turn for 2 turns. This cannot be ignored and increases its duration by 2 turns instead of stacking. If used by an enemy, this will cast this effect on them and replace itself with their original skill.",
+                "descriptionHtml": "Deals 10 affliction damage each turn for 2 turns.<br>This cannot be ignored and increases its duration by 2 turns instead of stacking.<br>If used by an enemy, this will cast this effect on them and replace itself with their original skill.",
+                "energy": [],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "None",
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "classesHtml": "Energy, Ranged, Instant, Affliction",
+                "effects": [
+                    {
+                        "type": "extend_status",
+                        "targetStatusId": "john_stewart_emotional_possession",
+                        "amount": 2,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "john_stewart_emotional_possession"
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "john_stewart_emotional_possession",
+                        "duration": 2,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "missingStatusId": "john_stewart_emotional_possession"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "turnEndDamage": 10,
+                            "afflictionDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "mergeNumericAddKeys": [
+                                "turnEndDamage"
+                            ],
+                            "tooltipTextTemplate": "This character takes {turnEndDamage} affliction damage from Emotional Possession each John Stewart turn."
+                        }
+                    },
+                    {
+                        "type": "cleanse_statuses",
+                        "statusId": "john_stewart_mind_manipulation",
+                        "count": 0,
+                        "scope": "self"
+                    }
+                ]
+            }
+        ],
+        "role": "Control Fighter"
+    },
+    {
+        "id": "sorrow",
+        "characterId": "sorrow",
+        "name": "Sorrow",
+        "nameHtml": "Sorrow",
+        "facePicture": "https://i.imgur.com/1T6Wf9Y.jpeg",
+        "url": "https://i.imgur.com/1T6Wf9Y.jpeg",
+        "unlockRequirement": "None",
+        "unlockRequirementHtml": "None",
+        "characterdeescription": "Sorrow is a manipulative control fighter who weakens enemies through despair, punishment effects, and escalating Stack of Sorrow debuffs that make targets increasingly vulnerable.",
+        "description": "Sorrow is a manipulative control fighter who weakens enemies through despair, punishment effects, and escalating Stack of Sorrow debuffs that make targets increasingly vulnerable.",
+        "descriptionHtml": "Sorrow is a manipulative control fighter who weakens enemies through despair, punishment effects, and escalating Stack of Sorrow debuffs that make targets increasingly vulnerable.",
+        "startStatuses": [
+            {
+                "statusId": "sorrow_grey_lantern_ring_passive",
+                "duration": 99,
+                "sourceSkillId": "sorrow-passive-grey-lantern-ring",
+                "metadata": {
+                    "infiniteDuration": true,
+                    "onAnyCharacterDeathApplyStatusToRandomEnemy": {
+                        "statusId": "sorrow_stack",
+                        "duration": 99,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "sorrowStacks": 1,
+                            "mergeNumericAddKeys": [
+                                "sorrowStacks"
+                            ],
+                            "tooltipTextTemplate": "This character has {sorrowStacks} Stack(s) of Sorrow."
+                        }
+                    },
+                    "tooltipText": "Every time any character dies, a random enemy gains a Stack of Sorrow."
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "sorrow-mourning-claw",
+                "name": "Mourning Claw",
+                "nameHtml": "Mourning Claw",
+                "skillimage": "https://i.imgur.com/Xj9tEOb.jpeg",
+                "url": "https://i.imgur.com/Xj9tEOb.jpeg",
+                "skilldescription": "Deals 35 damage to one enemy and consumes all Stacks of Sorrow to stun them for 1 turn per stack. This may only stun each character once per game.",
+                "description": "Deals 35 damage to one enemy and consumes all Stacks of Sorrow to stun them for 1 turn per stack. This may only stun each character once per game.",
+                "descriptionHtml": "Deals 35 damage to one enemy and consumes all Stacks of Sorrow to stun them for 1 turn per stack.<br>This may only stun each character once per game.",
+                "energy": [
+                    "Genjutsu",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "cooldownHtml": "None",
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "classesHtml": "Energy, Ranged, Instant",
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "stunned",
+                        "duration": 1,
+                        "durationFromStatusMetadata": {
+                            "scope": "target",
+                            "statusId": "sorrow_stack",
+                            "metadataKey": "sorrowStacks",
+                            "multiplier": 1,
+                            "minimum": 1
+                        },
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "sorrow_stack",
+                            "missingStatusId": "sorrow_mourning_claw_stunned_once"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "tooltipText": "This character is stunned by Mourning Claw."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "sorrow_mourning_claw_stunned_once",
+                        "duration": 99,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "sorrow_stack",
+                            "missingStatusId": "sorrow_mourning_claw_stunned_once"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "hideTooltip": true
+                        }
+                    },
+                    {
+                        "type": "cleanse_statuses",
+                        "statusId": "sorrow_stack",
+                        "count": 0,
+                        "scope": "target"
+                    }
+                ]
+            },
+            {
+                "id": "sorrow-sorrow-spikes",
+                "name": "Sorrow Spikes",
+                "nameHtml": "Sorrow Spikes",
+                "skillimage": "https://i.imgur.com/ubRYRX3.jpeg",
+                "url": "https://i.imgur.com/ubRYRX3.jpeg",
+                "skilldescription": "Marks an enemy for 1 turn. If they do not use a new skill, they take 25 piercing damage and gain a Stack of Sorrow. This skill is invisible.",
+                "description": "Marks an enemy for 1 turn. If they do not use a new skill, they take 25 piercing damage and gain a Stack of Sorrow. This skill is invisible.",
+                "descriptionHtml": "Marks an enemy for 1 turn.<br>If they do not use a new skill, they take 25 piercing damage and gain a Stack of Sorrow.<br>This skill is invisible.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "cooldownHtml": "2",
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "classesHtml": "Energy, Ranged, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "sorrow_spikes_mark",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "onOwnerUseSkillTrigger": true,
+                            "removeStatusIdsOnOwnerUseSkill": [
+                                "sorrow_spikes_mark"
+                            ],
+                            "onExpireEffects": [
+                                {
+                                    "type": "damage",
+                                    "amount": 25,
+                                    "metadata": {
+                                        "ignoreDamageReduction": true
+                                    }
+                                },
+                                {
+                                    "type": "apply_status",
+                                    "statusId": "sorrow_stack",
+                                    "duration": 99,
+                                    "metadata": {
+                                        "infiniteDuration": true,
+                                        "sorrowStacks": 1,
+                                        "mergeNumericAddKeys": [
+                                            "sorrowStacks"
+                                        ],
+                                        "tooltipTextTemplate": "This character has {sorrowStacks} Stack(s) of Sorrow."
+                                    }
+                                }
+                            ],
+                            "hideTooltipFromEnemy": true,
+                            "tooltipText": "If this character does not use a new skill, they take 25 piercing damage and gain a Stack of Sorrow."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "sorrow-depression-orb",
+                "name": "Depression Coffin",
+                "nameHtml": "Depression Coffin",
+                "skillimage": "https://i.imgur.com/fBlXOmL.jpeg",
+                "url": "https://i.imgur.com/fBlXOmL.jpeg",
+                "skilldescription": "Marks an enemy for 1 turn. If they use a new skill, its damage is reduced by 25 and they gain a Stack of Sorrow. This skill is invisible.",
+                "description": "Marks an enemy for 1 turn. If they use a new skill, its damage is reduced by 25 and they gain a Stack of Sorrow. This skill is invisible.",
+                "descriptionHtml": "Marks an enemy for 1 turn.<br>If they use a new skill, its damage is reduced by 25 and they gain a Stack of Sorrow.<br>This skill is invisible.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "cooldownHtml": "2",
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "classesHtml": "Energy, Ranged, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "sorrow_depression_orb_mark",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "onOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillApplyStatusToOwner": {
+                                "statusId": "sorrow_depression_orb_damage_debuff",
+                                "duration": 1,
+                                "metadata": {
+                                    "DamageDebuff": 25,
+                                    "tooltipText": "This character's next skill deals 25 less damage."
+                                }
+                            },
+                            "tooltipText": "If this character uses a new skill, that skill deals 25 less damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "sorrow-tornado-of-grief",
+                "name": "Tornado of Grief",
+                "nameHtml": "Tornado of Grief",
+                "skillimage": "https://i.imgur.com/RwWrRqW.jpeg",
+                "url": "https://i.imgur.com/RwWrRqW.jpeg",
+                "skilldescription": "Sorrow becomes invulnerable for 1 turn and grants one enemy a Stack of Sorrow.",
+                "description": "Sorrow becomes invulnerable for 1 turn and grants one enemy a Stack of Sorrow.",
+                "descriptionHtml": "Sorrow becomes invulnerable for 1 turn and grants one enemy a Stack of Sorrow.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 4,
+                "cooldownHtml": "4",
+                "classes": [
+                    "Energy",
+                    "Instant"
+                ],
+                "classesHtml": "Energy, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "sorrow_tornado_of_grief_invulnerable",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Sorrow is invulnerable."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "sorrow_stack",
+                        "duration": 99,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "sorrowStacks": 1,
+                            "mergeNumericAddKeys": [
+                                "sorrowStacks"
+                            ],
+                            "tooltipTextTemplate": "This character has {sorrowStacks} Stack(s) of Sorrow."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "sorrow-passive-grey-lantern-ring",
+                "name": "Passive: Grey Lantern Ring",
+                "nameHtml": "Passive: Grey Lantern Ring",
+                "skillimage": "https://i.imgur.com/y8mSovk.jpeg",
+                "url": "https://i.imgur.com/y8mSovk.jpeg",
+                "skilldescription": "Every time any character dies, a random enemy gains a Stack of Sorrow.",
+                "description": "Every time any character dies, a random enemy gains a Stack of Sorrow.",
+                "descriptionHtml": "Every time any character dies, a random enemy gains a Stack of Sorrow.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "Passive",
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
+                "classesHtml": "Passive, Instant"
+            },
+            {
+                "id": "sorrow-stack-of-sorrow",
+                "name": "Stack of Sorrow",
+                "nameHtml": "Stack of Sorrow",
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "https://i.imgur.com/41ChnWv.png",
+                "url": "https://i.imgur.com/41ChnWv.png",
+                "skilldescription": "A lingering burden of grief and despair that amplifies the effects of Sorrow's abilities.",
+                "description": "A lingering burden of grief and despair that amplifies the effects of Sorrow's abilities.",
+                "descriptionHtml": "A lingering burden of grief and despair that amplifies the effects of Sorrow's abilities.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "None",
+                "classes": [
+                    "Skill"
+                ],
+                "classesHtml": "Skill"
+            }
+        ],
+        "role": "Control Fighter"
     }
 ];
 

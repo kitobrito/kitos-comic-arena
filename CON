@@ -1,0 +1,191 @@
+        }
+    ]
+},
+    {
+    id: 'negan',
+    characterId: 'negan',
+    name: 'Negan',
+    facePicture: 'https://i.imgur.com/csZvbwl.png',
+    characterdeescription: 'Negan excels at isolating and eliminating priority targets through relentless, no-nonsense pressure. He doesn’t overwhelm enemies with flashy bursts—he breaks them down, step by step, until they’re completely screwed and out of options. With abilities that apply sustained damage and shut down healing, Negan forces opponents into dangerous territory fast. Once a target is marked, they’re on borrowed time—and if they don’t deal with him quickly, they’re as good as dead. Negan thrives on punishing mistakes. One bad move, one wrong target, one moment of hesitation—and he’ll capitalize immediately, ending the fight before the enemy team can recover.',
+    skills: [
+        {
+            id: 'negan-you-re-already-fucked',
+            name: 'You\'re Already Fucked',
+            skillimage: 'https://i.imgur.com/xlCXPVg.png',
+            skilldescription: 'Negan strikes an enemy with Lucille, dealing 25 normal damage and 5 piercing damage to them. Negan heals 5 HP. This deals 5 additional damage to the target of \'You Got No Guts\'.',
+            energy: [
+                'Random',
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 25,
+                    scope: 'target'
+                },
+                {
+                    type: 'damage',
+                    amount: 5,
+                    scope: 'target',
+                    metadata: {
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                },
+                {
+                    type: 'heal',
+                    amount: 5,
+                    scope: 'self'
+                },
+                {
+                    type: 'damage',
+                    amount: 0,
+                    scope: 'target',
+                    condition: {
+                        statusId: 'negan_you_got_no_guts',
+                        scope: 'target',
+                        conditionalAmount: 5
+                    }
+                }
+            ]
+        },
+        {
+            id: 'negan-you-got-no-guts',
+            name: 'You Got No Guts',
+            skillimage: 'https://i.imgur.com/VoLDAm3.png',
+            skilldescription: 'Negan cuts open an enemy\'s bowels, dealing 5 piercing damage permanently. While affected, if the target\'s HP falls to 15 or less they are executed. This may only affect one enemy at a time and will remove itself from the previous if used on a new one.',
+            energy: [
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'negan_you_got_no_guts',
+                    duration: 99,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        infiniteDuration: true,
+                        uniqueEnemyMarkFromSource: true,
+                        turnEndDamage: 5,
+                        ignoreTargetDamageReduction: true,
+                        ignoreTargetDestructibleDefense: true,
+                        turnEndTrigger: 'source_turn',
+                        executeBelowHpThreshold: 15,
+                        bonusDamageFromSourceCharacterId: 'negan',
+                        bonusDamageFromSourceSkillsFlat: 5,
+                        tooltipText: 'This character takes 5 piercing damage at the end of each of Negan\'s turns, is dealt 5 additional damage by Negan\'s skills, and is executed if their HP falls to 15 or below.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'negan-the-iron',
+            name: 'The Iron',
+            skillimage: 'https://i.imgur.com/vgyp2m8.png',
+            skilldescription: 'Deals 25 affliction damage to one enemy and makes them unable to be healed for 4 turns.',
+            energy: [
+                'Random'
+            ],
+            target: 'single-enemy',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Physical',
+                'Melee',
+                'Instant',
+                'Affliction'
+            ],
+            effects: [
+                {
+                    type: 'damage',
+                    amount: 25,
+                    scope: 'target',
+                    metadata: {
+                        afflictionDamage: true,
+                        ignoreDamageReduction: true,
+                        ignoreDestructibleDefense: true
+                    }
+                },
+                {
+                    type: 'apply_status',
+                    statusId: 'negan_the_iron_lock',
+                    duration: 4,
+                    scope: 'target',
+                    metadata: {
+                        harmful: true,
+                        healReceivedMultiplier: 0,
+                        tooltipText: 'This character cannot be healed.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'negan-bat-smashes-knives',
+            name: 'Bat Smashes Knives',
+            skillimage: 'https://i.imgur.com/1aqHgid.png',
+            skilldescription: 'This skill makes Negan invulnerable for 1 turn.',
+            energy: [
+                'Random'
+            ],
+            target: 'self',
+            damage: 0,
+            cooldown: 4,
+            classes: [
+                'Physical',
+                'Instant'
+            ],
+            effects: [
+                {
+                    type: 'apply_status',
+                    statusId: 'negan_bat_smashes_knives_invulnerable',
+                    duration: 1,
+                    scope: 'self',
+                    metadata: {
+                        invulnerable: true,
+                        tooltipText: 'This character is invulnerable.'
+                    }
+                }
+            ]
+        },
+        {
+            id: 'negan-passive-tainted-weapons',
+            name: 'Passive: Tainted Weapons',
+            skillimage: 'https://i.imgur.com/lIF0QtB.png',
+            skilldescription: 'While Negan is alive, all physical-class damage him and his team deal will also apply this skill to their target (stacks). Deals 1 affliction damage permanently.',
+            energy: [],
+            target: '',
+            damage: 0,
+            cooldown: 0,
+            classes: [
+                'Passive',
+                'Instant'
+            ]
+        }
+    ],
+    startStatuses: [
+        {
+            statusId: 'negan_passive_tainted_weapons',
+            sourceSkillId: 'negan-passive-tainted-weapons',
+            duration: 99,
+            metadata: {
+                infiniteDuration: true,
+                onTeamMemberSuccessfulDamageSkillClassesAny: [
+                    'physical'
+                ],

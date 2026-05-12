@@ -80,6 +80,7 @@
     .character-row-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: var(--accent-3); font-size: 22px; font-weight: 800; text-transform: uppercase; }
     .character-row-star { color: var(--accent); font-size: 22px; line-height: 1; }
     .character-row-name { color: var(--ink); }
+    .character-role-label { color: var(--accent); font-size: 16px; font-weight: 900; text-transform: uppercase; }
     .character-row-body, .character-modal-summary, .character-skill-body { display: grid; gap: 16px; align-items: start; }
     .character-row-body { grid-template-columns: 90px minmax(0, 1fr); }
     .character-row-image { width: 86px; height: 86px; }
@@ -262,8 +263,8 @@
       </section>
     </aside>
   </div>
-  <script src="./characters.js"></script>
-  <script src="./index.js" defer></script>
+  <script src="./characters.js?v=lantern-trio"></script>
+  <script src="./index.js?v=stable-roster-display-order" defer></script>
   <script>
     (function () {
       var searchInput = document.getElementById("character-search-input");
@@ -274,6 +275,62 @@
       var roster = Array.isArray(window.characters)
         ? window.characters
         : (typeof characters !== "undefined" && Array.isArray(characters) ? characters : []);
+      var preferredCharacterDisplayOrder = [
+        "iron-man",
+        "spider-man",
+        "captain-america",
+        "storm",
+        "venom",
+        "carnage",
+        "doctor-octopus",
+        "the-green-goblin",
+        "sandman",
+        "mysterio",
+        "scorpion",
+        "the-hulk",
+        "superman",
+        "batman",
+        "aquaman",
+        "the-flash-barry-allen",
+        "green-lantern-hal-jordan",
+        "sinestro",
+        "atrocitus",
+        "saint-walker",
+        "indigo-1",
+        "john-stewart",
+        "sorrow",
+        "the-joker",
+        "invincible",
+        "atom-eve",
+        "rex-splode",
+        "omni-man",
+        "angstrom-levy",
+        "homelander",
+        "rick-grimes",
+        "hershel-greene",
+        "andrea",
+        "negan",
+        "walker",
+        "rage-infected",
+        "predator-stalker",
+        "xenomorph-drone"
+      ];
+      var preferredCharacterDisplayRank = preferredCharacterDisplayOrder.reduce(function (map, id, index) {
+        map[id] = index;
+        return map;
+      }, {});
+      roster = roster.slice().sort(function (left, right) {
+        var leftId = left && (left.characterId || left.id) ? String(left.characterId || left.id) : "";
+        var rightId = right && (right.characterId || right.id) ? String(right.characterId || right.id) : "";
+        var leftRank = Object.prototype.hasOwnProperty.call(preferredCharacterDisplayRank, leftId)
+          ? preferredCharacterDisplayRank[leftId]
+          : 9999;
+        var rightRank = Object.prototype.hasOwnProperty.call(preferredCharacterDisplayRank, rightId)
+          ? preferredCharacterDisplayRank[rightId]
+          : 9999;
+        if (leftRank !== rightRank) return leftRank - rightRank;
+        return String(left && left.name ? left.name : "").localeCompare(String(right && right.name ? right.name : ""));
+      });
 
       function getVisibleSkills(character) {
         var skills = character && Array.isArray(character.skills) ? character.skills : [];
@@ -296,6 +353,11 @@
           return character.skills[0].skilldescription.trim();
         }
         return "No character description is available yet.";
+      }
+
+      function getCharacterRole(character) {
+        var role = character && typeof character.role === "string" ? character.role.trim() : "";
+        return role || "None";
       }
 
       function createEnergyPips(energyList) {
@@ -338,8 +400,13 @@
         name.className = "character-row-name";
         name.textContent = character.name ? String(character.name) : "Unknown Character";
 
+        var role = document.createElement("span");
+        role.className = "character-role-label";
+        role.textContent = "Role: " + getCharacterRole(character);
+
         title.appendChild(star);
         title.appendChild(name);
+        title.appendChild(role);
 
         var summary = document.createElement("div");
         summary.className = "character-modal-summary";
@@ -355,10 +422,15 @@
         description.className = "character-modal-description";
         description.textContent = getCharacterSummary(character);
 
+        var roleLine = document.createElement("p");
+        roleLine.className = "character-role-label";
+        roleLine.textContent = "Role: " + getCharacterRole(character);
+
         var unlock = document.createElement("p");
         unlock.className = "character-modal-unlock";
         unlock.innerHTML = "<strong>Requirement to unlock:</strong> No requirements";
 
+        info.appendChild(roleLine);
         info.appendChild(description);
         info.appendChild(unlock);
         summary.appendChild(image);
@@ -458,6 +530,10 @@
         title.className = "character-row-name";
         title.textContent = character && character.name ? String(character.name) : "Unknown Character";
 
+        var role = document.createElement("span");
+        role.className = "character-role-label";
+        role.textContent = "Role: " + getCharacterRole(character);
+
         var body = document.createElement("div");
         body.className = "character-row-body";
 
@@ -484,6 +560,7 @@
 
         header.appendChild(star);
         header.appendChild(title);
+        header.appendChild(role);
         copy.appendChild(description);
         copy.appendChild(moreLink);
         body.appendChild(image);
@@ -502,7 +579,8 @@
         var query = String(filterValue || "").trim().toLowerCase();
         var filtered = roster.filter(function (character) {
           var name = character && character.name ? String(character.name).toLowerCase() : "";
-          return !query || name.indexOf(query) !== -1;
+          var role = getCharacterRole(character).toLowerCase();
+          return !query || name.indexOf(query) !== -1 || role.indexOf(query) !== -1;
         });
 
         listNode.innerHTML = "";

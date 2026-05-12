@@ -207,6 +207,7 @@
   var characterEditorFace = document.getElementById("character-editor-face");
   var characterEditorName = document.getElementById("character-editor-name");
   var characterEditorId = document.getElementById("character-editor-id");
+  var characterEditorRole = document.getElementById("character-editor-role");
   var characterEditorJson = document.getElementById("character-editor-json");
   var characterEditorSave = document.getElementById("character-editor-save");
   var characterEditorExport = document.getElementById("character-editor-export");
@@ -1599,6 +1600,83 @@
     });
   }
 
+  function getLocalCharacterEditorEntries() {
+    if (typeof characters === "undefined" || !Array.isArray(characters)) {
+      return [];
+    }
+
+    return characters.map(function (character) {
+      return {
+        characterId: character && character.characterId ? String(character.characterId) : "",
+        name: character && character.name ? String(character.name) : "",
+        facePicture: character && character.facePicture ? String(character.facePicture) : "",
+        skills: Array.isArray(character && character.skills)
+          ? character.skills.map(function (skill) {
+              return {
+                id: skill && skill.id ? String(skill.id) : "",
+                name: skill && skill.name ? String(skill.name) : "",
+                skillimage: skill && skill.skillimage ? String(skill.skillimage) : ""
+              };
+            })
+          : []
+      };
+    });
+  }
+
+  function findLocalCharacterEditorRecord(characterId) {
+    if (!characterId || typeof characters === "undefined" || !Array.isArray(characters)) {
+      return null;
+    }
+
+    return (
+      characters.find(function (character) {
+        return character && String(character.characterId || "") === String(characterId);
+      }) || null
+    );
+  }
+
+  function getCharacterEditorRoleValue(character) {
+    var role = character && typeof character.role === "string" ? character.role : "";
+    return role.trim();
+  }
+
+  function setCharacterEditorRoleValue(character) {
+    if (!characterEditorRole) {
+      return;
+    }
+    characterEditorRole.value = getCharacterEditorRoleValue(character);
+  }
+
+  function syncCharacterEditorRoleToJson() {
+    if (!characterEditorJson || !characterEditorRole) {
+      return;
+    }
+    var parsed = null;
+    try {
+      parsed = JSON.parse(characterEditorJson.value || "{}");
+    } catch (error) {
+      return;
+    }
+    var role = String(characterEditorRole.value || "").trim();
+    if (role) {
+      parsed.role = role;
+    } else {
+      delete parsed.role;
+    }
+    characterEditorJson.value = JSON.stringify(parsed, null, 2);
+  }
+
+  function syncCharacterEditorRoleFromJson() {
+    if (!characterEditorJson || !characterEditorRole) {
+      return;
+    }
+    try {
+      setCharacterEditorRoleValue(JSON.parse(characterEditorJson.value || "{}"));
+    } catch (error) {
+      return;
+    }
+  }
+
   function filterAndRenderAdminCharacters() {
     var query = String(characterEditorSearch && characterEditorSearch.value ? characterEditorSearch.value : "")
       .trim()
@@ -1636,9 +1714,23 @@
       }
 
       adminCharacterEntries = data && Array.isArray(data.characters) ? data.characters : [];
+      getLocalCharacterEditorEntries().forEach(function (localEntry) {
+        if (
+          localEntry.characterId &&
+          !adminCharacterEntries.some(function (entry) {
+            return entry && entry.characterId === localEntry.characterId;
+          })
+        ) {
+          adminCharacterEntries.push(localEntry);
+        }
+      });
       filterAndRenderAdminCharacters();
     } catch (error) {
-      setCharacterEditorStatus("Unable to reach the server.", "error");
+      adminCharacterEntries = getLocalCharacterEditorEntries();
+      filterAndRenderAdminCharacters();
+      if (!adminCharacterEntries.length) {
+        setCharacterEditorStatus("Unable to reach the server.", "error");
+      }
     }
   }
 
@@ -1656,6 +1748,7 @@
     if (characterEditorJson) {
       characterEditorJson.value = "";
     }
+    setCharacterEditorRoleValue(null);
     setCharacterEditorModalStatus("Loading character...");
     openCharacterEditorModal();
 
@@ -1668,6 +1761,20 @@
       });
 
       if (!response.ok) {
+        var fallbackCharacter = findLocalCharacterEditorRecord(characterId);
+        if (fallbackCharacter) {
+          setText(characterEditorName, fallbackCharacter.name ? fallbackCharacter.name : characterId);
+          setText(characterEditorId, fallbackCharacter.characterId ? fallbackCharacter.characterId : characterId);
+          if (characterEditorFace) {
+            characterEditorFace.src = fallbackCharacter.facePicture ? fallbackCharacter.facePicture : defaultProfileAvatar;
+          }
+          if (characterEditorJson) {
+            characterEditorJson.value = JSON.stringify(fallbackCharacter, null, 2);
+          }
+          setCharacterEditorRoleValue(fallbackCharacter);
+          setCharacterEditorModalStatus("Loaded from local characters.js.");
+          return;
+        }
         setCharacterEditorModalStatus(data && data.error ? data.error : "Unable to load character.", "error");
         return;
       }
@@ -1681,8 +1788,23 @@
       if (characterEditorJson) {
         characterEditorJson.value = JSON.stringify(character, null, 2);
       }
+      setCharacterEditorRoleValue(character);
       setCharacterEditorModalStatus("");
     } catch (error) {
+      var localCharacter = findLocalCharacterEditorRecord(characterId);
+      if (localCharacter) {
+        setText(characterEditorName, localCharacter.name ? localCharacter.name : characterId);
+        setText(characterEditorId, localCharacter.characterId ? localCharacter.characterId : characterId);
+        if (characterEditorFace) {
+          characterEditorFace.src = localCharacter.facePicture ? localCharacter.facePicture : defaultProfileAvatar;
+        }
+        if (characterEditorJson) {
+          characterEditorJson.value = JSON.stringify(localCharacter, null, 2);
+        }
+        setCharacterEditorRoleValue(localCharacter);
+        setCharacterEditorModalStatus("Loaded from local characters.js.");
+        return;
+      }
       setCharacterEditorModalStatus("Unable to reach the server.", "error");
     }
   }
@@ -1692,6 +1814,7 @@
       return;
     }
 
+    syncCharacterEditorRoleToJson();
     var nextCharacter = null;
     try {
       nextCharacter = JSON.parse(characterEditorJson.value || "{}");
@@ -1728,6 +1851,7 @@
       if (characterEditorJson) {
         characterEditorJson.value = JSON.stringify(savedCharacter, null, 2);
       }
+      setCharacterEditorRoleValue(savedCharacter);
       setText(characterEditorName, savedCharacter && savedCharacter.name ? savedCharacter.name : selectedAdminCharacterId);
       setText(characterEditorId, selectedAdminCharacterId);
       if (characterEditorFace) {
@@ -3695,6 +3819,14 @@
     characterEditorSearch.addEventListener("input", function () {
       filterAndRenderAdminCharacters();
     });
+  }
+
+  if (characterEditorRole) {
+    characterEditorRole.addEventListener("input", syncCharacterEditorRoleToJson);
+  }
+
+  if (characterEditorJson) {
+    characterEditorJson.addEventListener("input", syncCharacterEditorRoleFromJson);
   }
 
   if (newsAdminForm) {
