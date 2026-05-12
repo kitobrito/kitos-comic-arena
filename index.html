@@ -460,6 +460,17 @@
       box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.9);
     }
 
+    .release-face-link {
+      display: inline-block;
+      line-height: 0;
+    }
+
+    .release-face-link:hover .release-face,
+    .release-face-link:focus-visible .release-face {
+      border-color: var(--accent-3);
+      box-shadow: 0 0 0 4px rgba(31, 117, 255, 0.15), 4px 4px 0 rgba(0, 0, 0, 0.9);
+    }
+
     .release-label {
       color: var(--ink);
       font-size: 18px;
@@ -1263,15 +1274,21 @@
         <p class="release-copy">Check out our latest characters!</p>
         <div class="release-grid">
           <div class="release-card">
-            <img class="release-face" id="release-face-1" alt="Latest character 1" />
+            <a class="release-face-link" id="release-link-1" href="charactersandskills.html">
+              <img class="release-face" id="release-face-1" alt="Latest character 1" />
+            </a>
             <div class="release-label" id="release-label-1"></div>
           </div>
           <div class="release-card">
-            <img class="release-face" id="release-face-2" alt="Latest character 2" />
+            <a class="release-face-link" id="release-link-2" href="charactersandskills.html">
+              <img class="release-face" id="release-face-2" alt="Latest character 2" />
+            </a>
             <div class="release-label" id="release-label-2"></div>
           </div>
           <div class="release-card">
-            <img class="release-face" id="release-face-3" alt="Latest character 3" />
+            <a class="release-face-link" id="release-link-3" href="charactersandskills.html">
+              <img class="release-face" id="release-face-3" alt="Latest character 3" />
+            </a>
             <div class="release-label" id="release-label-3"></div>
           </div>
         </div>

@@ -272,6 +272,7 @@
       var modalBackdrop = document.getElementById("character-modal-backdrop");
       var modalClose = document.getElementById("character-modal-close");
       var modalContent = document.getElementById("character-modal-content");
+      var requestedCharacterId = new URLSearchParams(window.location.search).get("characterId");
       var roster = Array.isArray(window.characters)
         ? window.characters
         : (typeof characters !== "undefined" && Array.isArray(characters) ? characters : []);
@@ -598,6 +599,19 @@
         });
       }
 
+      function openRequestedCharacterFromQuery() {
+        var targetId = typeof requestedCharacterId === "string" ? requestedCharacterId.trim().toLowerCase() : "";
+        if (!targetId) {
+          return;
+        }
+        var targetCharacter = roster.find(function (character) {
+          return character && String(character.characterId || character.id || "").trim().toLowerCase() === targetId;
+        });
+        if (targetCharacter) {
+          openCharacterModal(targetCharacter);
+        }
+      }
+
       if (searchInput) {
         searchInput.addEventListener("input", function () {
           renderCharacters(searchInput.value);
@@ -625,6 +639,7 @@
       });
 
       renderCharacters("");
+      openRequestedCharacterFromQuery();
     }());
   </script>
 </body>

@@ -32,6 +32,11 @@
     document.getElementById("release-face-2"),
     document.getElementById("release-face-3")
   ];
+  var releaseLinks = [
+    document.getElementById("release-link-1"),
+    document.getElementById("release-link-2"),
+    document.getElementById("release-link-3")
+  ];
   var releaseLabels = [
     document.getElementById("release-label-1"),
     document.getElementById("release-label-2"),
@@ -3325,11 +3330,24 @@
 
   function updateReleasePreview(index, releaseItem, facePicture) {
     var image = releaseFaces[index];
+    var link = releaseLinks[index];
     var label = releaseLabels[index];
     var name = releaseItem && releaseItem.label ? String(releaseItem.label) : "";
     var url = facePicture ? String(facePicture) : "";
+    var characterId = releaseItem && releaseItem.characterId ? String(releaseItem.characterId) : "";
     if (label) {
       label.textContent = name || "Latest Character";
+    }
+    if (link) {
+      if (characterId) {
+        link.href = "charactersandskills.html?characterId=" + encodeURIComponent(characterId);
+        link.setAttribute("aria-label", "Open " + (name || "character") + " character page");
+        link.title = "Open " + (name || "character") + " character page";
+      } else {
+        link.href = "charactersandskills.html";
+        link.removeAttribute("aria-label");
+        link.removeAttribute("title");
+      }
     }
     if (!image) {
       return;

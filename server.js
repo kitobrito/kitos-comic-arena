@@ -40,9 +40,9 @@ const ALLOW_INSECURE_HTTP = process.env.ALLOW_INSECURE_HTTP === 'true';
 const HTTPS_KEY_PATH = process.env.HTTPS_KEY_PATH;
 const HTTPS_CERT_PATH = process.env.HTTPS_CERT_PATH;
 const LATEST_CHARACTER_RELEASES = [
-    { label: 'Rock Lee', characterId: 'rock-lee' },
-    { label: 'Aburame Shino', characterId: 'aburame-shino' },
-    { label: 'Latest Character 3', characterId: '' },
+    { label: 'Indigo-1', characterId: 'indigo-1' },
+    { label: 'Sorrow', characterId: 'sorrow' },
+    { label: 'John Stewart', characterId: 'john-stewart' },
 ];
 const LATEST_CHARACTER_RELEASES_STATE_KEY = 'latest_character_releases';
 const MAINTENANCE_MODE_STATE_KEY = 'maintenance_mode';
