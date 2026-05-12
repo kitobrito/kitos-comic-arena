@@ -3453,7 +3453,9 @@ text-transform: uppercase;
 }
 
 .enemy-characters .status-tooltip-content {
-   transform: scaleX(-1);
+   transform: none;
+   direction: ltr;
+   unicode-bidi: isolate;
    z-index: 1200;
    position: absolute;
 }
