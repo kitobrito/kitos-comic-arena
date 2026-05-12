@@ -5,8 +5,11 @@ services:
     plan: free
     buildCommand: npm install
     startCommand: npm start
-    autoDeploy: true
+    autoDeployTrigger: commit
+    healthCheckPath: /health
     envVars:
+      - key: NODE_ENV
+        value: production
       - key: MONGODB_URI
         sync: false
       - key: MONGODB_DB
@@ -15,6 +18,10 @@ services:
         value: users
       - key: MONGODB_MATCHES_COLLECTION
         value: matches
+      - key: MONGODB_APP_STATE_COLLECTION
+        value: app_state
+      - key: MONGODB_NEWS_POSTS_COLLECTION
+        value: news_posts
       - key: JWT_SECRET
         sync: false
       - key: JWT_EXPIRY
@@ -23,5 +30,7 @@ services:
         value: naruto_session
       - key: SESSION_MAX_AGE_MS
         value: 604800000
+      - key: ENABLE_BATTLE_BOTS
+        value: "true"
       - key: CORS_ORIGIN
         sync: false

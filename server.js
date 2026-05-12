@@ -2697,19 +2697,67 @@ const renderMaintenancePage = () => `<!DOCTYPE html>
 </body>
 </html>`;
 
-const allowedOrigins = (
+const normalizeOrigin = (value) => {
+    if (typeof value !== 'string') {
+        return '';
+    }
+
+    try {
+        return new URL(value.trim()).origin;
+    } catch (error) {
+        return '';
+    }
+};
+
+const configuredCorsOrigins = (
     process.env.CORS_ORIGIN || 'http://localhost:3000,http://localhost:4000,https://localhost:4001'
 )
     .split(',')
-    .map((origin) => origin.trim())
+    .map((origin) => normalizeOrigin(origin))
     .filter(Boolean);
 
-app.use(
+const resolveRequestOrigin = (req) => {
+    const host = String(req.headers['x-forwarded-host'] || req.headers.host || '').trim();
+    if (!host) {
+        return '';
+    }
+
+    const forwardedProto = String(req.headers['x-forwarded-proto'] || '').trim().split(',')[0];
+    const protocol =
+        forwardedProto || (ALLOW_INSECURE_HTTP ? 'http' : 'https') || req.protocol || 'http';
+    return normalizeOrigin(`${protocol}://${host}`);
+};
+
+const isAllowedCorsOrigin = (origin, req) => {
+    if (!origin) {
+        return true;
+    }
+
+    const normalizedOrigin = normalizeOrigin(origin);
+    if (!normalizedOrigin) {
+        return false;
+    }
+
+    if (configuredCorsOrigins.includes(normalizedOrigin)) {
+        return true;
+    }
+
+    return normalizedOrigin === resolveRequestOrigin(req);
+};
+
+app.use((req, res, next) => {
     cors({
-        origin: allowedOrigins,
+        origin(origin, callback) {
+            if (isAllowedCorsOrigin(origin, req)) {
+                callback(null, true);
+                return;
+            }
+
+            callback(new Error('CORS origin not allowed.'));
+        },
         credentials: true,
-    })
-);
+    })(req, res, next);
+});
 app.use(async (req, res, next) => {
     const protectedMissionPages = new Set(['/editmission', '/editmission.html']);
     if (!protectedMissionPages.has(req.path)) {
@@ -2796,7 +2844,7 @@ app.use(
                 styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
                 fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
                 imgSrc: ["'self'", 'data:', '*'],
-                connectSrc: ["'self'", ...allowedOrigins],
+                connectSrc: ["'self'", ...configuredCorsOrigins],
                 objectSrc: ["'none'"],
                 frameAncestors: ["'self'"],
                 baseUri: ["'self'"],
