@@ -2455,9 +2455,9 @@ const characters = [
                 "nameHtml": "Lasso of Truth",
                 "skillimage": "https://cdn.discordapp.com/attachments/1439850468867047464/1503662080862064741/Wonder_Woman_6.png",
                 "url": "",
-                "skilldescription": "Stuns one enemy's physical and mental skills and paralyzes their cooldowns for 1 turn. For the rest of the game, this enemy takes 5 additional damage.",
-                "description": "Stuns one enemy's physical and mental skills and paralyzes their cooldowns for 1 turn. For the rest of the game, this enemy takes 5 additional damage.",
-                "descriptionHtml": "Stuns one enemy's physical and mental skills and paralyzes their cooldowns for 1 turn.<br>For the rest of the game, this enemy takes 5 additional damage.",
+                "skilldescription": "Stuns one enemy's physical and mental skills and paralyzes their cooldowns for 1 turn. For the rest of the game, this enemy takes 5 additional damage from all sources.",
+                "description": "Stuns one enemy's physical and mental skills and paralyzes their cooldowns for 1 turn. For the rest of the game, this enemy takes 5 additional damage from all sources.",
+                "descriptionHtml": "Stuns one enemy's physical and mental skills and paralyzes their cooldowns for 1 turn.<br>For the rest of the game, this enemy takes 5 additional damage from all sources.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -2546,9 +2546,9 @@ const characters = [
                 "useBaseSkillCooldown": true,
                 "skillimage": "https://cdn.discordapp.com/attachments/1439850468867047464/1503662080862064741/Wonder_Woman_6.png",
                 "url": "",
-                "skilldescription": "Wonder Woman deals 25 damage to one enemy and casts Amazonian Guard on herself.",
-                "description": "Wonder Woman deals 25 damage to one enemy and casts Amazonian Guard on herself.",
-                "descriptionHtml": "Wonder Woman deals 25 damage to one enemy and casts Amazonian Guard on herself.",
+                "skilldescription": "Wonder Woman deals 25 damage to one enemy and casts Amazonian Guard on herself for 15 points of destructible defense.",
+                "description": "Wonder Woman deals 25 damage to one enemy and casts Amazonian Guard on herself for 15 points of destructible defense.",
+                "descriptionHtml": "Wonder Woman deals 25 damage to one enemy and casts Amazonian Guard on herself for 15 points of destructible defense.",
                 "energy": [
                     "Taijutsu"
                 ],
