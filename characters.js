@@ -2339,6 +2339,251 @@ const characters = [
         "role": "Tempo DPS"
     },
     {
+        "id": "wonder-woman",
+        "characterId": "wonder-woman",
+        "name": "Wonder Woman",
+        "nameHtml": "Wonder Woman",
+        "facePicture": "https://cdn.discordapp.com/attachments/1439850468867047464/1503662080862064741/Wonder_Woman_6.png",
+        "url": "https://cdn.discordapp.com/attachments/1439850468867047464/1503662080862064741/Wonder_Woman_6.png",
+        "unlockRequirement": "None",
+        "unlockRequirementHtml": "None",
+        "characterdeescription": "A battle-hardened warrior from Themyscira, Wonder Woman leads the charge with unmatched strength and strategy. On any team, she serves as the frontline powerhouse, able to dish out heavy damage while shielding allies from harm. Her spear and combat prowess allow her to strike key targets relentlessly, while her Lasso of Truth can neutralize the enemy's biggest threats.",
+        "description": "A battle-hardened warrior from Themyscira, Wonder Woman leads the charge with unmatched strength and strategy. On any team, she serves as the frontline powerhouse, able to dish out heavy damage while shielding allies from harm. Her spear and combat prowess allow her to strike key targets relentlessly, while her Lasso of Truth can neutralize the enemy's biggest threats.",
+        "descriptionHtml": "A battle-hardened warrior from Themyscira, Wonder Woman leads the charge with unmatched strength and strategy.<br>On any team, she serves as the frontline powerhouse, able to dish out heavy damage while shielding allies from harm.<br>Her spear and combat prowess allow her to strike key targets relentlessly, while her Lasso of Truth can neutralize the enemy's biggest threats.",
+        "skills": [
+            {
+                "id": "wonder-woman-spear-thrust",
+                "name": "Spear Thrust",
+                "nameHtml": "Spear Thrust",
+                "skillimage": "https://cdn.discordapp.com/attachments/1439850468867047464/1503662080862064741/Wonder_Woman_6.png",
+                "url": "",
+                "skilldescription": "Deals 25 piercing damage to one enemy and 10 piercing damage to a random different enemy. Swaps to Warrior's Strike for 1 turn.",
+                "description": "Deals 25 piercing damage to one enemy and 10 piercing damage to a random different enemy. Swaps to Warrior's Strike for 1 turn.",
+                "descriptionHtml": "Deals 25 piercing damage to one enemy and 10 piercing damage to a random different enemy.<br>Swaps to Warrior's Strike for 1 turn.",
+                "energy": [
+                    "Taijutsu",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "None",
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Melee, Instant",
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "random-other-enemy",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "wonder_woman_spear_thrust_followup",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "skillReplacementsByRemainingTurns": {
+                                "1": {
+                                    "wonder-woman-spear-thrust": "wonder-woman-warriors-strike"
+                                }
+                            },
+                            "tooltipText": "Spear Thrust is replaced by Warrior's Strike."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "wonder-woman-brace-of-submission",
+                "name": "Brace of Submission",
+                "nameHtml": "Brace of Submission",
+                "skillimage": "https://cdn.discordapp.com/attachments/1439850468867047464/1503662080862064741/Wonder_Woman_6.png",
+                "url": "",
+                "skilldescription": "For 1 turn, the next non-mental skill used on Wonder Woman will be reflected to a random enemy. This skill is invisible.",
+                "description": "For 1 turn, the next non-mental skill used on Wonder Woman will be reflected to a random enemy. This skill is invisible.",
+                "descriptionHtml": "For 1 turn, the next non-mental skill used on Wonder Woman will be reflected to a random enemy.<br>This skill is invisible.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 2,
+                "cooldownHtml": "2",
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Ranged, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "wonder_woman_brace_of_submission_reflect",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "reflectNextIncomingSkill": true,
+                            "reflectExcludeSkillClasses": [
+                                "mental"
+                            ],
+                            "reflectToRandomCasterAlly": true,
+                            "skipFirstTurnEndTick": true,
+                            "preserveOnOwnerUseSkillTrigger": true,
+                            "hideTooltipFromEnemy": true,
+                            "tooltipText": "The next non-mental skill used on Wonder Woman is reflected to a random enemy."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "wonder-woman-lasso-of-truth",
+                "name": "Lasso of Truth",
+                "nameHtml": "Lasso of Truth",
+                "skillimage": "https://cdn.discordapp.com/attachments/1439850468867047464/1503662080862064741/Wonder_Woman_6.png",
+                "url": "",
+                "skilldescription": "Stuns one enemy's physical and mental skills and paralyzes their cooldowns for 1 turn. For the rest of the game, this enemy takes 5 additional damage.",
+                "description": "Stuns one enemy's physical and mental skills and paralyzes their cooldowns for 1 turn. For the rest of the game, this enemy takes 5 additional damage.",
+                "descriptionHtml": "Stuns one enemy's physical and mental skills and paralyzes their cooldowns for 1 turn.<br>For the rest of the game, this enemy takes 5 additional damage.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "cooldownHtml": "2",
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Ranged, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "wonder_woman_lasso_of_truth_lock",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "freezeCooldowns": true,
+                            "cannotUseSkillClasses": [
+                                "physical",
+                                "mental"
+                            ],
+                            "tooltipText": "This character's physical and mental skills are stunned, and their cooldowns are paralyzed."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "wonder_woman_lasso_of_truth_mark",
+                        "duration": 99,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "damageTakenBonusFlat": 5,
+                            "mergeNumericAddKeys": [
+                                "damageTakenBonusFlat"
+                            ],
+                            "tooltipTextTemplate": "This character takes {damageTakenBonusFlat} additional damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "wonder-woman-amazonian-guard",
+                "name": "Amazonian Guard",
+                "nameHtml": "Amazonian Guard",
+                "skillimage": "https://cdn.discordapp.com/attachments/1439850468867047464/1503662080862064741/Wonder_Woman_6.png",
+                "url": "",
+                "skilldescription": "Grants Wonder Woman or one selected ally 15 points of destructible defense for 1 turn. This skill is invisible.",
+                "description": "Grants Wonder Woman or one selected ally 15 points of destructible defense for 1 turn. This skill is invisible.",
+                "descriptionHtml": "Grants Wonder Woman or one selected ally 15 points of destructible defense for 1 turn.<br>This skill is invisible.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "cooldown": 1,
+                "cooldownHtml": "1",
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "wonder_woman_amazonian_guard",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "destructibleDefensePoints": 15,
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "wonder-woman-warriors-strike",
+                "name": "Warrior's Strike",
+                "nameHtml": "Warrior's Strike",
+                "hiddenFromSelectionViewer": true,
+                "useBaseSkillCooldown": true,
+                "skillimage": "https://cdn.discordapp.com/attachments/1439850468867047464/1503662080862064741/Wonder_Woman_6.png",
+                "url": "",
+                "skilldescription": "Wonder Woman deals 25 damage to one enemy and casts Amazonian Guard on herself.",
+                "description": "Wonder Woman deals 25 damage to one enemy and casts Amazonian Guard on herself.",
+                "descriptionHtml": "Wonder Woman deals 25 damage to one enemy and casts Amazonian Guard on herself.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "None",
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Melee, Instant",
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "wonder_woman_amazonian_guard",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "destructibleDefensePoints": 15,
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Frontline Bruiser"
+    },
+    {
         "id": "aquaman",
         "characterId": "aquaman",
         "name": "Aquaman",

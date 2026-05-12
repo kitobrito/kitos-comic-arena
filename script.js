@@ -5070,6 +5070,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         'batman',
         'aquaman',
         'the-flash-barry-allen',
+        'wonder-woman',
         'green-lantern-hal-jordan',
         'sinestro',
         'atrocitus',
