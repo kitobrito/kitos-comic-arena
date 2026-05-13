@@ -1,15 +1,4 @@
 (function () {
-  var sidebarBackdrops = [
-    "url('https://i.postimg.cc/8CjdyVrq/5376357.png')",
-    "url('https://i.postimg.cc/Dz8QCKbH/75857858.png')",
-    "url('https://i.postimg.cc/TPpjkXWB/8695795.png')",
-    "url('https://i.postimg.cc/jjL68rJ9/nnnnnnnn.png')",
-    "url('https://i.postimg.cc/bvs06jtc/ssssssss.png')"
-  ];
-
-  var chosen = sidebarBackdrops[Math.floor(Math.random() * sidebarBackdrops.length)];
-  document.documentElement.style.setProperty("--sidebar-backdrop", chosen);
-
   var authForm = document.getElementById("auth-form");
   if (!authForm) {
     return;
