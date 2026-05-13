@@ -8343,6 +8343,10 @@ app.get(['/', '/selection-login', '/selection-login.html'], (req, res) => {
     res.sendFile(path.join(__dirname, 'selection-login.html'));
 });
 
+app.get(['/register', '/register.html'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'register.html'));
+});
+
 app.get(['/selection', '/selection.html'], (req, res) => {
     res.sendFile(path.join(__dirname, 'selection.html'));
 });
