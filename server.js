@@ -2071,6 +2071,41 @@ const serializePublicUserProfile = (user = {}) => ({
     profile: normalizeUserProfile(user),
 });
 
+const serializeCommunityUserSummary = (user = {}) => {
+    const profile = normalizeUserProfile(user);
+    const wins = Number(profile?.ladder?.wins) || 0;
+    const losses = Number(profile?.ladder?.losses) || 0;
+    const totalGames = wins + losses;
+    const winRate = totalGames > 0 ? Number(((wins / totalGames) * 100).toFixed(1)) : 0;
+    return {
+        username: typeof user.username === 'string' ? user.username : '',
+        role: typeof user.role === 'string' ? user.role : 'player',
+        createdAt: user.createdAt || null,
+        avatarUrl: profile?.avatarUrl || DEFAULT_PROFILE_AVATAR,
+        clan: profile?.clan
+            ? {
+                  name: profile.clan.name || '',
+                  abbreviation: profile.clan.abbreviation || '',
+                  rank: profile.clan.rank || '',
+                  avatarUrl: profile.clan.avatarUrl || '',
+              }
+            : null,
+        ladder: {
+            level: Number(profile?.ladder?.level) || 1,
+            rank: profile?.ladder?.rank || 'Academy Student',
+            ladderRank: Number.isFinite(Number(profile?.ladder?.ladderRank))
+                ? Number(profile.ladder.ladderRank)
+                : null,
+            wins,
+            losses,
+            totalGames,
+            winRate,
+            streak: Number(profile?.ladder?.streak) || 0,
+            highestStreak: Number(profile?.ladder?.highestStreak) || 0,
+        },
+    };
+};
+
 const serializeAdminUserDocument = (user = {}) => ({
     username: user.username,
     usernameLower: user.usernameLower,
@@ -6949,6 +6984,59 @@ app.get('/api/leaderboards/sidebar', async (req, res) => {
     }
 });
 
+app.get('/api/community/users', async (req, res) => {
+    try {
+        const users = await usersCollection
+            .find(
+                {},
+                {
+                    projection: {
+                        _id: 0,
+                        username: 1,
+                        role: 1,
+                        createdAt: 1,
+                        profile: 1,
+                    },
+                }
+            )
+            .toArray();
+
+        const communityUsers = users
+            .filter((user) => !isGameBotUsername(user?.username))
+            .map(serializeCommunityUserSummary)
+            .sort((left, right) => {
+                const rankDelta =
+                    (Number(left?.ladder?.ladderRank) || Number.MAX_SAFE_INTEGER) -
+                    (Number(right?.ladder?.ladderRank) || Number.MAX_SAFE_INTEGER);
+                if (rankDelta !== 0) {
+                    return rankDelta;
+                }
+                const levelDelta = (Number(right?.ladder?.level) || 0) - (Number(left?.ladder?.level) || 0);
+                if (levelDelta !== 0) {
+                    return levelDelta;
+                }
+                const winsDelta = (Number(right?.ladder?.wins) || 0) - (Number(left?.ladder?.wins) || 0);
+                if (winsDelta !== 0) {
+                    return winsDelta;
+                }
+                return String(left?.username || '').localeCompare(String(right?.username || ''));
+            });
+
+        return res.json({
+            ok: true,
+            users: communityUsers,
+            stats: {
+                totalRegisteredPlayers: communityUsers.length,
+                rankedPlayers: communityUsers.filter((user) => Number(user?.ladder?.totalGames) > 0).length,
+                clanPlayers: communityUsers.filter((user) => user?.clan?.name).length,
+            },
+        });
+    } catch (error) {
+        console.error('Community users load error:', error);
+        return res.status(500).json({ error: 'Unable to load community players.' });
+    }
+});
+
 app.post('/api/profile/avatar', requireSession, async (req, res) => {
     try {
         const { error: validationError, value } = avatarUpdateSchema.validate(req.body || {});
@@ -8265,6 +8353,18 @@ app.get(['/ingame', '/ingame.html'], (req, res) => {
 
 app.get(['/profile', '/profile.html'], (req, res) => {
     res.sendFile(path.join(__dirname, 'profile.html'));
+});
+
+app.get(['/community', '/community.html'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'community.html'));
+});
+
+app.get(['/events', '/events.html'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'events.html'));
+});
+
+app.get(['/manual', '/manual.html'], (req, res) => {
+    res.sendFile(path.join(__dirname, 'manual.html'));
 });
 
 app.get(['/changeavatar', '/changeavatar.html'], (req, res) => {

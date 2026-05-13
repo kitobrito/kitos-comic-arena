@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comic-Arena Official Game Manual</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --panel: rgba(255, 248, 225, 0.94);
+      --panel-strong: #fffdf6;
+      --line: #16110c;
+      --ink: #24170f;
+      --text: #362115;
+      --muted: #73573f;
+      --accent: #f04b23;
+      --accent-2: #ffd84c;
+      --accent-3: #0f63ff;
+      --shadow: 8px 8px 0 rgba(0, 0, 0, 0.95);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      font-family: "Barlow Condensed", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at 16% 12%, rgba(255, 216, 76, 0.9), transparent 0 14%),
+        radial-gradient(circle at 84% 10%, rgba(15, 99, 255, 0.18), transparent 0 16%),
+        radial-gradient(circle at center, rgba(22, 17, 12, 0.12) 1px, transparent 1.2px) 0 0 / 12px 12px,
+        linear-gradient(180deg, #fff1bf 0%, #f6d277 42%, #f29a38 100%);
+    }
+    a { color: inherit; text-decoration: none; }
+    .shell { width: min(1280px, 100%); margin: 0 auto; padding: 20px; display: grid; gap: 18px; }
+    .topbar, .hero, .panel { border: 4px solid var(--line); box-shadow: var(--shadow); }
+    .topbar {
+      display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+      padding: 14px 18px; background: rgba(255, 252, 242, 0.88);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand img { width: 46px; height: 46px; object-fit: contain; }
+    .brand-name { font-family: "Bangers", cursive; font-size: 34px; letter-spacing: 0.05em; text-shadow: 3px 3px 0 var(--accent-2); }
+    .topnav { display: flex; flex-wrap: wrap; gap: 10px; }
+    .topnav a { padding: 8px 12px; border: 3px solid var(--line); background: var(--panel-strong); font-size: 15px; font-weight: 800; text-transform: uppercase; }
+    .topnav a.active { background: var(--accent); color: #fff; }
+    .hero {
+      padding: 22px;
+      background: linear-gradient(135deg, rgba(255,255,255,.64), rgba(255,241,205,.96));
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "OFFICIAL MANUAL";
+      position: absolute; right: 20px; top: 18px; padding: 6px 12px;
+      border: 3px solid var(--line); background: var(--accent); color: #fff;
+      font-family: "Bangers", cursive; font-size: 22px; letter-spacing: .05em; transform: rotate(3deg);
+    }
+    .eyebrow { display: inline-block; padding: 6px 10px; border: 3px solid var(--line); background: var(--panel-strong); font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; box-shadow: 4px 4px 0 rgba(0,0,0,.95); }
+    .hero h1 { margin: 14px 0 10px; color: var(--ink); font-family: "Bangers", cursive; font-size: clamp(2.8rem, 6vw, 4.7rem); line-height: .92; letter-spacing: .04em; text-transform: uppercase; text-shadow: 4px 4px 0 var(--accent-2); }
+    .hero p { margin: 0; max-width: 760px; color: var(--muted); font-size: 1.2rem; line-height: 1.15; font-weight: 700; text-transform: uppercase; }
+    .panel { padding: 20px; background: rgba(255,250,235,.9); }
+    .toc { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .toc a { padding: 12px; border: 3px solid var(--line); background: var(--panel-strong); font-size: 15px; font-weight: 800; text-transform: uppercase; box-shadow: 4px 4px 0 rgba(0,0,0,.95); }
+    .manual-section + .manual-section { margin-top: 18px; }
+    .manual-section h2 {
+      margin: 0 0 10px; color: var(--ink); font-family: "Bangers", cursive;
+      font-size: 34px; line-height: 1; letter-spacing: .05em; text-transform: uppercase;
+    }
+    .manual-section h3 {
+      margin: 14px 0 8px; color: var(--accent); font-family: "Bangers", cursive;
+      font-size: 25px; line-height: 1; letter-spacing: .04em; text-transform: uppercase;
+    }
+    .manual-section p, .manual-section li {
+      font-size: 18px; line-height: 1.45; font-weight: 700;
+    }
+    .manual-section ul { margin: 10px 0 0; padding-left: 20px; }
+    .manual-section li + li { margin-top: 6px; }
+    .mechanics-grid, .roles-grid {
+      display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 12px;
+    }
+    .fact-card {
+      padding: 14px; border: 3px solid var(--line); background: var(--panel-strong); box-shadow: 4px 4px 0 rgba(0,0,0,.95);
+    }
+    .fact-card strong {
+      display: block; margin-bottom: 6px; color: var(--accent); font-size: 16px; letter-spacing: .06em; text-transform: uppercase;
+    }
+    .fact-card span { font-size: 16px; line-height: 1.35; font-weight: 700; text-transform: uppercase; }
+    @media (max-width: 960px) {
+      .toc, .mechanics-grid, .roles-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 700px) {
+      .shell { padding: 12px; }
+      .hero::before { position: static; display: inline-block; margin-bottom: 12px; transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <img src="sitelogo.png" alt="Comic-Arena logo" />
+        <div class="brand-name">Comic-Arena</div>
+      </div>
+      <nav class="topnav" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <a href="community.html">Community</a>
+        <a href="events.html">Events</a>
+        <a class="active" href="manual.html">Manual</a>
+        <a href="missions.html">Missions</a>
+      </nav>
+    </header>
+
+    <section class="hero">
+      <div class="eyebrow">Official Game Manual</div>
+      <h1>Learn the systems before the systems punish you.</h1>
+      <p>This manual explains how Comic-Arena works: the turn engine, energy flow, damage logic, role structure, and the core habits that separate random play from real strategy.</p>
+    </section>
+
+    <section class="panel">
+      <div class="toc">
+        <a href="#overview">Overview</a>
+        <a href="#modes">Game Modes</a>
+        <a href="#match-structure">Match Structure</a>
+        <a href="#core-mechanics">Core Mechanics</a>
+        <a href="#combat">Combat System</a>
+        <a href="#roles">Roles</a>
+        <a href="#strategy">Strategy Fundamentals</a>
+        <a href="#notes">Additional Notes</a>
+      </div>
+    </section>
+
+    <section class="panel manual-section" id="overview">
+      <h2>1. Overview</h2>
+      <p>Comic-Arena is a turn-based competitive strategy game that blends elements of card battlers with tactical drafting systems. Unlike traditional card games, each “card” is a full character with a unique ability kit and its own miniature combat engine.</p>
+      <p>Players build teams, manage resources, and outmaneuver opponents in fast-paced matches where timing, target priority, and team composition decide who survives the final turn.</p>
+      <h3>2. Platform Availability</h3>
+      <ul>
+        <li>Web browsers</li>
+        <li>Mobile devices</li>
+      </ul>
+    </section>
+
+    <section class="panel manual-section" id="modes">
+      <h2>3. Game Modes</h2>
+      <ul>
+        <li><strong>Ladder:</strong> Ranked mode for climbing, progression, and competitive match results.</li>
+        <li><strong>Quick Game:</strong> Unranked mode for practice, testing, and mission progress.</li>
+        <li><strong>Private Match:</strong> Directly challenge a specific player by name.</li>
+        <li><strong>Bot Matches:</strong> During low-traffic periods, AI opponents may fill the queue to keep the game active.</li>
+      </ul>
+    </section>
+
+    <section class="panel manual-section" id="match-structure">
+      <h2>4. Match Structure</h2>
+      <ul>
+        <li>Each player selects three characters.</li>
+        <li>Matches usually last between 3 and 10 minutes.</li>
+        <li>The game uses a free-pick system, so any available character can be chosen.</li>
+        <li><strong>Victory Condition:</strong> Reduce all enemy characters to 0 HP before your own team is defeated.</li>
+      </ul>
+    </section>
+
+    <section class="panel manual-section" id="core-mechanics">
+      <h2>5. Core Gameplay Mechanics</h2>
+      <h3>5.1 Turn System</h3>
+      <ul>
+        <li>At the start of each turn, players gain 1 random energy color for each living character on their team.</li>
+        <li>The player who goes first only gains 1 total energy on the opening turn.</li>
+        <li>Players spend energy to activate skills.</li>
+        <li>After actions are chosen, the turn resolves according to the game’s timing and interaction rules.</li>
+      </ul>
+      <h3>5.2 Energy System</h3>
+      <div class="mechanics-grid">
+        <article class="fact-card"><strong>Green</strong><span>Primary energy color usable for skills with green costs.</span></article>
+        <article class="fact-card"><strong>Red</strong><span>Primary energy color usable for skills with red costs.</span></article>
+        <article class="fact-card"><strong>Blue</strong><span>Primary energy color usable for skills with blue costs.</span></article>
+        <article class="fact-card"><strong>White</strong><span>Primary energy color usable for skills with white costs.</span></article>
+        <article class="fact-card"><strong>Black Cost</strong><span>Black costs can be paid with any energy color.</span></article>
+        <article class="fact-card"><strong>Energy Exchange</strong><span>Trade 4 energy of any type for 1 energy of a chosen color.</span></article>
+      </div>
+      <h3>5.3 Actions Per Turn</h3>
+      <p>Each character may use one skill per turn by default. Some abilities grant additional actions and let a character exceed that baseline under specific conditions.</p>
+    </section>
+
+    <section class="panel manual-section" id="combat">
+      <h2>6. Combat System</h2>
+      <p>The combat system is the strategic center of Comic-Arena. Most matches are decided by how well you understand timing, protection layers, counters, and target access.</p>
+      <h3>6.1 Skill Types</h3>
+      <ul>
+        <li>Damage</li>
+        <li>Healing</li>
+        <li>Control effects</li>
+        <li>Utility effects</li>
+      </ul>
+      <h3>6.2 Damage Classes</h3>
+      <ul>
+        <li>Physical</li>
+        <li>Energy</li>
+        <li>Mental</li>
+      </ul>
+      <h3>6.3 Damage Types</h3>
+      <ul>
+        <li><strong>Normal:</strong> Reduced by mitigation effects.</li>
+        <li><strong>Piercing:</strong> Ignores damage reduction.</li>
+        <li><strong>Affliction:</strong> Ignores both damage reduction and destructible defenses.</li>
+      </ul>
+      <h3>6.4 Status Effects And Defensive Logic</h3>
+      <div class="roles-grid">
+        <article class="fact-card"><strong>Stun</strong><span>Prevents the target from acting.</span></article>
+        <article class="fact-card"><strong>Energy Removal</strong><span>Removes energy from the target.</span></article>
+        <article class="fact-card"><strong>Energy Steal</strong><span>Transfers energy from the target to the user.</span></article>
+        <article class="fact-card"><strong>Area Of Effect</strong><span>Hits all enemies.</span></article>
+        <article class="fact-card"><strong>Invulnerability</strong><span>The target cannot be selected by skills.</span></article>
+        <article class="fact-card"><strong>Ignore</strong><span>The target can be selected but is immune to all effects.</span></article>
+        <article class="fact-card"><strong>Counter</strong><span>Cancels an enemy skill when timed correctly.</span></article>
+        <article class="fact-card"><strong>Reflect</strong><span>Redirects an enemy skill to a different target.</span></article>
+        <article class="fact-card"><strong>Delay</strong><span>Postpones skill activation.</span></article>
+        <article class="fact-card"><strong>Evasion</strong><span>Gives a chance to avoid incoming skills.</span></article>
+        <article class="fact-card"><strong>Paralyze</strong><span>Freezes enemy cooldowns.</span></article>
+        <article class="fact-card"><strong>Blind</strong><span>Causes skills to target randomly.</span></article>
+        <article class="fact-card"><strong>Silence</strong><span>Skills only deal damage and lose added effects.</span></article>
+        <article class="fact-card"><strong>Banish</strong><span>Temporarily removes a character from play and treats them as defeated.</span></article>
+        <article class="fact-card"><strong>Taunt</strong><span>Forces enemies to target the taunting character.</span></article>
+        <article class="fact-card"><strong>Lower Damage</strong><span>Reduces incoming damage.</span></article>
+        <article class="fact-card"><strong>Damage Reduction</strong><span>Armor that reduces normal damage through flat or percentage mitigation.</span></article>
+        <article class="fact-card"><strong>Destructible Defense</strong><span>A shield that must be broken before health is damaged.</span></article>
+        <article class="fact-card"><strong>Barrier</strong><span>Reverses the protection logic and forces damage through the attacker’s barrier first.</span></article>
+      </div>
+      <h3>6.5 Targeting Rules</h3>
+      <ul>
+        <li>Harmful skills target enemies.</li>
+        <li>Helpful skills target self or allies.</li>
+        <li>Some abilities can function as both.</li>
+        <li>Target types include self, single ally, single enemy, all allies, and all enemies.</li>
+      </ul>
+    </section>
+
+    <section class="panel manual-section" id="roles">
+      <h2>7. Characters And Team Roles</h2>
+      <p>Every team has three characters, and every character leans into a tactical job. Strong team building starts by understanding what each role contributes and what it still needs covered.</p>
+      <div class="roles-grid">
+        <article class="fact-card"><strong>Protector</strong><span>Shields allies through invulnerability, redirection, or mitigation.</span></article>
+        <article class="fact-card"><strong>Tank</strong><span>Absorbs pressure and draws enemy focus.</span></article>
+        <article class="fact-card"><strong>Sustain Tank</strong><span>Survives through healing, restoration, or regeneration.</span></article>
+        <article class="fact-card"><strong>Execution DPS</strong><span>Finishes weakened targets with high-impact attacks.</span></article>
+        <article class="fact-card"><strong>Burst DPS</strong><span>Creates massive damage windows in short sequences.</span></article>
+        <article class="fact-card"><strong>Speed DPS</strong><span>Applies repeated fast pressure.</span></article>
+        <article class="fact-card"><strong>Juggernaut</strong><span>Durable damage dealer that becomes more threatening over time.</span></article>
+        <article class="fact-card"><strong>Glass Cannon</strong><span>High damage, low survivability.</span></article>
+        <article class="fact-card"><strong>DPS Hybrid</strong><span>Mixes damage with utility or control.</span></article>
+        <article class="fact-card"><strong>Tempo Controller</strong><span>Changes the pace of battle by speeding allies or slowing enemies.</span></article>
+        <article class="fact-card"><strong>Support Controller</strong><span>Supports allies while disrupting opponents.</span></article>
+        <article class="fact-card"><strong>Enforcer</strong><span>Forces enemy targeting decisions and punishes avoidance.</span></article>
+        <article class="fact-card"><strong>Trap Controller</strong><span>Uses delayed or conditional effects to punish decisions.</span></article>
+        <article class="fact-card"><strong>Healer</strong><span>Restores health and sustains team longevity.</span></article>
+        <article class="fact-card"><strong>Buffer</strong><span>Enhances ally performance.</span></article>
+        <article class="fact-card"><strong>Debuffer</strong><span>Weakens enemies to open better lines.</span></article>
+        <article class="fact-card"><strong>Zoner</strong><span>Restricts enemy options through pressure and conditionals.</span></article>
+        <article class="fact-card"><strong>Summoner / Swarm</strong><span>Creates extra units or persistent board presence.</span></article>
+        <article class="fact-card"><strong>Cleanser</strong><span>Removes negative effects from allies.</span></article>
+        <article class="fact-card"><strong>Anti-Carry / Shutdown</strong><span>Neutralizes high-priority enemy threats.</span></article>
+      </div>
+    </section>
+
+    <section class="panel manual-section" id="strategy">
+      <h2>8. Strategy Fundamentals</h2>
+      <ul>
+        <li>Manage energy efficiently and think one turn ahead.</li>
+        <li>Prioritize the right target instead of always hitting the easiest one.</li>
+        <li>Build teams around synergy, not just individually strong characters.</li>
+        <li>Time counters, reflects, protection, and burst windows carefully.</li>
+        <li>Adapt to the opponent’s plan instead of repeating the same sequence every match.</li>
+      </ul>
+      <p>Strong players balance offense, defense, and control. The team that spends its resources more cleanly usually wins long before the final knockout appears on screen.</p>
+    </section>
+
+    <section class="panel manual-section" id="notes">
+      <h2>9. Additional Notes</h2>
+      <p>Comic-Arena is designed to be fast-paced but strategically deep. Every decision matters: what energy you preserve, which skill you queue, when you reveal protection, and which character you leave exposed.</p>
+      <p>Mastery comes from learning both your own roster and the opponent’s likely response patterns. If you understand what your team threatens and what the enemy needs next turn, you are already playing a different game from most people in queue.</p>
+    </section>
+  </div>
+</body>
+</html>
