@@ -1,15 +1,11 @@
 (function () {
-  var authForm = document.getElementById("auth-form");
-  if (!authForm) {
-    return;
-  }
-
   var authTitle = document.getElementById("auth-title");
   var authDescription = document.getElementById("auth-description");
-  var authSubmit = document.getElementById("auth-submit");
-  var authToggle = document.getElementById("auth-toggle");
   var authStatus = document.getElementById("auth-status");
   var playNowButton = document.getElementById("play-now-button");
+  var authForm = document.getElementById("auth-form");
+  var authSubmit = document.getElementById("auth-submit");
+  var authToggle = document.getElementById("auth-toggle");
   var viewProfileButton = document.getElementById("view-profile-button");
   var changeAvatarButton = document.getElementById("change-avatar-button");
   var clanPanelButton = document.getElementById("clan-panel-button");
@@ -36,10 +32,10 @@
   var accountUsername = document.getElementById("account-username");
   var accountStatus = document.getElementById("account-status");
   var logoutButton = document.getElementById("logout-button");
-  var usernameInput = authForm.elements.username;
-  var passwordInput = authForm.elements.password;
-  var confirmPasswordInput = authForm.elements.confirmPassword;
-  var emailInput = authForm.elements.email;
+  var usernameInput = authForm ? authForm.elements.username : null;
+  var passwordInput = authForm ? authForm.elements.password : null;
+  var confirmPasswordInput = authForm ? authForm.elements.confirmPassword : null;
+  var emailInput = authForm ? authForm.elements.email : null;
   var isRegisterMode = false;
   var profileAvatarImage = document.getElementById("profile-avatar-image");
   var profileUsername = document.getElementById("profile-username");
@@ -3392,6 +3388,9 @@
   }
 
   function setStatus(message, state) {
+    if (!authStatus) {
+      return;
+    }
     authStatus.textContent = message || "";
     if (state) {
       authStatus.dataset.state = state;
@@ -3410,26 +3409,44 @@
   }
 
   function showGuestView() {
-    authTitle.textContent = "Login";
-    guestAuthView.hidden = false;
-    accountPanel.hidden = true;
-    accountUsername.textContent = "Player";
+    if (authTitle) {
+      authTitle.textContent = "Account Access";
+    }
+    if (guestAuthView) {
+      guestAuthView.hidden = false;
+    }
+    if (accountPanel) {
+      accountPanel.hidden = true;
+    }
+    if (accountUsername) {
+      accountUsername.textContent = "Player";
+    }
     currentSessionUser = null;
     updateClanPanelNotification(null);
     setHiddenState(adminPanelSection, true);
     cacheSessionUser(null);
     setAccountStatus("");
-    authForm.reset();
+    if (authForm) {
+      authForm.reset();
+    }
     isRegisterMode = false;
     setText(clanRegisterCreator, "Player");
     updateMode();
   }
 
   function showAccountView(username) {
-    authTitle.textContent = "Account";
-    guestAuthView.hidden = true;
-    accountPanel.hidden = false;
-    accountUsername.textContent = username || "Player";
+    if (authTitle) {
+      authTitle.textContent = "Account";
+    }
+    if (guestAuthView) {
+      guestAuthView.hidden = true;
+    }
+    if (accountPanel) {
+      accountPanel.hidden = false;
+    }
+    if (accountUsername) {
+      accountUsername.textContent = username || "Player";
+    }
     setStatus("");
     setAccountStatus("");
     setText(clanRegisterCreator, username || "Player");
@@ -3448,6 +3465,9 @@
   }
 
   function updateMode() {
+    if (!authForm || !authDescription || !authSubmit || !authToggle || !passwordInput || !confirmPasswordInput || !emailInput) {
+      return;
+    }
     if (isRegisterMode) {
       authTitle.textContent = "Register";
       authDescription.textContent = "Create an account to start playing.";
@@ -3632,83 +3652,87 @@
     setClanManagementStatus("");
   }
 
-  authToggle.addEventListener("click", function () {
-    isRegisterMode = !isRegisterMode;
-    setStatus("");
-    authForm.reset();
-    updateMode();
-  });
+  if (authToggle && authForm) {
+    authToggle.addEventListener("click", function () {
+      isRegisterMode = !isRegisterMode;
+      setStatus("");
+      authForm.reset();
+      updateMode();
+    });
+  }
 
-  authForm.addEventListener("submit", async function (event) {
-    event.preventDefault();
-    setStatus("");
+  if (authForm && authSubmit && authToggle && usernameInput && passwordInput && confirmPasswordInput && emailInput) {
+    authForm.addEventListener("submit", async function (event) {
+      event.preventDefault();
+      setStatus("");
 
-    var username = String(usernameInput.value || "").trim();
-    var password = String(passwordInput.value || "");
+      var username = String(usernameInput.value || "").trim();
+      var password = String(passwordInput.value || "");
 
-    if (!username || !password) {
-      setStatus("Username and password are required.", "error");
-      return;
-    }
-
-    var endpoint = "/api/login";
-    var payload = {
-      username: username,
-      password: password
-    };
-
-    if (isRegisterMode) {
-      var confirmPassword = String(confirmPasswordInput.value || "");
-      var email = String(emailInput.value || "").trim();
-
-      if (!email) {
-        setStatus("Email is required.", "error");
+      if (!username || !password) {
+        setStatus("Username and password are required.", "error");
         return;
       }
 
-      if (password !== confirmPassword) {
-        setStatus("Passwords do not match.", "error");
-        return;
+      var endpoint = "/api/login";
+      var payload = {
+        username: username,
+        password: password
+      };
+
+      if (isRegisterMode) {
+        var confirmPassword = String(confirmPasswordInput.value || "");
+        var email = String(emailInput.value || "").trim();
+
+        if (!email) {
+          setStatus("Email is required.", "error");
+          return;
+        }
+
+        if (password !== confirmPassword) {
+          setStatus("Passwords do not match.", "error");
+          return;
+        }
+
+        endpoint = "/api/register";
+        payload.confirmPassword = confirmPassword;
+        payload.email = email;
       }
 
-      endpoint = "/api/register";
-      payload.confirmPassword = confirmPassword;
-      payload.email = email;
-    }
+      authSubmit.disabled = true;
+      authToggle.disabled = true;
 
-    authSubmit.disabled = true;
-    authToggle.disabled = true;
+      try {
+        var response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "same-origin",
+          body: JSON.stringify(payload)
+        });
+        var data = await response.json().catch(function () {
+          return {};
+        });
 
-    try {
-      var response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        credentials: "same-origin",
-        body: JSON.stringify(payload)
-      });
-      var data = await response.json().catch(function () {
-        return {};
-      });
+        if (!response.ok) {
+          setStatus(data.error || "Authentication failed.", "error");
+          return;
+        }
 
-      if (!response.ok) {
-        setStatus(data.error || "Authentication failed.", "error");
-        return;
+        var responseUser = data && data.user && data.user.username ? data.user : null;
+        var usernameLabel = responseUser ? responseUser.username : username;
+        setCurrentSessionUser(responseUser);
+        showAccountView(usernameLabel);
+        populateProfile(responseUser);
+      } catch (error) {
+        setStatus("Unable to reach the server.", "error");
+      } finally {
+        authSubmit.disabled = false;
+        authToggle.disabled = false;
       }
-
-      var responseUser = data && data.user && data.user.username ? data.user : null;
-      var usernameLabel = responseUser ? responseUser.username : username;
-      setCurrentSessionUser(responseUser);
-      showAccountView(usernameLabel);
-      populateProfile(responseUser);
-    } catch (error) {
-      setStatus("Unable to reach the server.", "error");
-    } finally {
-      authSubmit.disabled = false;
-      authToggle.disabled = false;
-    }
-  });
+    });
+  }
 
   logoutButton.addEventListener("click", async function () {
     logoutButton.disabled = true;
