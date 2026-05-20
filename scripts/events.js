@@ -54,7 +54,7 @@
       var card = document.createElement("article");
       card.className = "release-card";
       card.innerHTML =
-        '<img class="release-face" src="' + (character && character.facePicture ? character.facePicture : "deadcharacter.png") + '" alt="' + (character && character.name ? character.name : "Release") + '">' +
+        '<img class="release-face" src="' + (character && character.facePicture ? character.facePicture : "assets/images/deadcharacter.png") + '" alt="' + (character && character.name ? character.name : "Release") + '">' +
         "<h3>" + (entry && entry.label ? entry.label : character && character.name ? character.name : "Unknown") + "</h3>" +
         "<p>" + (character && character.name ? character.name : "New roster release") + "</p>" +
         '<a class="news-link" href="charactersandskills.html' + (character && character.characterId ? "?characterId=" + encodeURIComponent(character.characterId) : "") + '">View Character</a>';

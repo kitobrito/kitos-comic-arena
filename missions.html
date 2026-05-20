@@ -1671,7 +1671,7 @@
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
-        <img class="brand-mark" src="sitelogo.png" alt="Comic-Arena logo" />
+        <img class="brand-mark" src="assets/images/sitelogo.png" alt="Comic-Arena logo" />
         <div class="brand-copy">
           <div class="brand-name">Comic-ARENA</div>
           <div class="brand-tagline">Your #1 Comic Online Multiplayer Game</div>
@@ -2058,10 +2058,10 @@
           level_requirement: 1,
           mode_restriction: { allowed_modes: ["quick", "ladder"] },
           reward: 'Mission "The Adored Elder Sister" completion.',
-          image: "ingamebgexample.png",
+          image: "assets/images/ingamebgexample.png",
           imageAlt: "The Adored Elder Sister mission artwork",
           characterName: "Hyuuga Hanabi",
-          portrait: "deadcharacter.png",
+          portrait: "assets/images/deadcharacter.png",
           portraitAlt: "Hyuuga Hanabi portrait",
           requirements: [],
           goals: [
@@ -2077,10 +2077,10 @@
           level_requirement: 16,
           mode_restriction: { allowed_modes: ["quick", "ladder"] },
           reward: 'Mission "The Yellow Flash" completion.',
-          image: "ingamebgexample2.png",
+          image: "assets/images/ingamebgexample2.png",
           imageAlt: "The Yellow Flash mission artwork",
           characterName: "Minato Namikaze",
-          portrait: "deadcharacter.png",
+          portrait: "assets/images/deadcharacter.png",
           portraitAlt: "Minato Namikaze portrait",
           requirements: [],
           goals: [
@@ -2552,7 +2552,7 @@
 
         const image = document.createElement("img");
         image.className = "mission-image";
-        image.src = mission.image || "deadcharacter.png";
+        image.src = mission.image || "assets/images/deadcharacter.png";
         image.alt = mission.imageAlt || mission.title + " mission artwork";
 
         const details = document.createElement("div");
@@ -2674,10 +2674,10 @@
         nameLine.innerHTML = "&raquo; Mission Name: <span class=\"mission-sheet-link\">" + escapeHtml(mission.title) + "</span>";
         rankLine.textContent = "✘ Level requirement: At least " + (getLevelRequirementValue(mission) || "Any");
         rewardLine.textContent = getRewardText(mission);
-        imageEl.src = mission.image || "deadcharacter.png";
+        imageEl.src = mission.image || "assets/images/deadcharacter.png";
         imageEl.alt = mission.imageAlt || mission.title + " mission artwork";
         characterNameEl.textContent = mission.characterName || "";
-        portraitEl.src = mission.portrait || "deadcharacter.png";
+        portraitEl.src = mission.portrait || "assets/images/deadcharacter.png";
         portraitEl.alt = mission.portraitAlt || mission.characterName + " portrait";
 
         requirementsEl.innerHTML = "";
@@ -2766,6 +2766,6 @@
       loadMissionCatalog();
     }());
   </script>
-  <script src="./index.js" defer></script>
+  <script src="./scripts/index.js" defer></script>
 </body>
 </html>

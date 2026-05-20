@@ -204,6 +204,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                         playNoise({ duration: 0.5, amount: 0.2, filterType: 'lowpass', frequency: 520, q: 1.1 });
                         playTone({ frequency: 92, endFrequency: 38, duration: 0.55, type: 'sawtooth', amount: 0.13 });
                         break;
+                    case 'tidal-wave':
+                        playNoise({ duration: 1.25, amount: 0.2, filterType: 'lowpass', frequency: 420, q: 0.7 });
+                        playNoise({ duration: 0.8, amount: 0.11, delay: 0.22, filterType: 'bandpass', frequency: 880, q: 1.1 });
+                        playTone({ frequency: 72, endFrequency: 38, duration: 1.1, type: 'sawtooth', amount: 0.1 });
+                        break;
                     case 'sniper-shot':
                         playNoise({ duration: 0.08, amount: 0.27, filterType: 'highpass', frequency: 2500, q: 1.3 });
                         playTone({ frequency: 115, endFrequency: 52, duration: 0.72, type: 'sawtooth', amount: 0.15, delay: 0.03 });
@@ -439,12 +444,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     })();
 
     if (isSelectionPage) {
-        soundManager.startMusic(['track1.mp3']);
+        soundManager.startMusic(['assets/audio/track1.mp3']);
     } else if (isIngamePage) {
-        soundManager.startMusic(['track2.mp3', 'track3.mp3']);
+        soundManager.startMusic(['assets/audio/track2.mp3', 'assets/audio/track3.mp3']);
     }
     if (shouldUseGameClickSound) {
-        const clickSound = new Audio('sounds/click.mp3');
+        const clickSound = new Audio('assets/audio/sounds/click.mp3');
         document.addEventListener('click', (event) => {
             if (
                 event.target instanceof Element &&
@@ -588,7 +593,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const rosterSlotElements = [];
     const selectedAssignments = selectedSlots.map(() => null);
     const teamStorageKey = 'comicSelectedTeam';
-    const defaultLadderRankHat = 'hats/academy.png';
+    const defaultLadderRankHat = 'assets/images/hats/academy.png';
     let profileCache = null;
     let missionLockedCharacterIds = new Set();
     let selectionClickTimer = null;
@@ -656,13 +661,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         const normalized = typeof rankHatUrl === 'string' ? rankHatUrl.trim().toLowerCase() : '';
         return (
             normalized.endsWith('/anbu.png') ||
-            normalized.endsWith('hats/anbu.png') ||
+            normalized.endsWith('assets/images/hats/anbu.png') ||
             normalized.endsWith('/jinch.png') ||
-            normalized.endsWith('hats/jinch.png') ||
+            normalized.endsWith('assets/images/hats/jinch.png') ||
             normalized.endsWith('/kage.png') ||
-            normalized.endsWith('hats/kage.png') ||
+            normalized.endsWith('assets/images/hats/kage.png') ||
             normalized.endsWith('/hokage.png') ||
-            normalized.endsWith('hats/hokage.png')
+            normalized.endsWith('assets/images/hats/hokage.png')
         );
     };
 
@@ -1055,15 +1060,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         let currentOpponentUsername = null;
         let currentOpponentDisplayName = null;
         let currentMatchMode = 'quick';
-        const startFirstSound = new Audio('sounds/start-first.mp3');
-        const secondPlayerStartSound = new Audio('sounds/yahoe.mp3');
-        const nextRoundSound = new Audio('sounds/next-round.mp3');
-        const startRoundSound = new Audio('sounds/start-round.mp3');
-        const lostSound = new Audio('sounds/lost.mp3');
-        const winSound = new Audio('sounds/win.mp3');
-        const applySkillSound = new Audio('sounds/apply-skill.mp3');
-        const deathSound = new Audio('sounds/death-sound.mp3');
-        const neganAlreadyFuckedSound = new Audio('takingitlikeachamp.mp3');
+        const startFirstSound = new Audio('assets/audio/sounds/start-first.mp3');
+        const secondPlayerStartSound = new Audio('assets/audio/sounds/yahoe.mp3');
+        const nextRoundSound = new Audio('assets/audio/sounds/next-round.mp3');
+        const startRoundSound = new Audio('assets/audio/sounds/start-round.mp3');
+        const lostSound = new Audio('assets/audio/sounds/lost.mp3');
+        const winSound = new Audio('assets/audio/sounds/win.mp3');
+        const applySkillSound = new Audio('assets/audio/sounds/apply-skill.mp3');
+        const deathSound = new Audio('assets/audio/sounds/death-sound.mp3');
+        const neganAlreadyFuckedSound = new Audio('assets/audio/takingitlikeachamp.mp3');
         let hasPlayedMatchEntrySound = false;
         let hasInitializedTurnState = false;
         const playerSkillImages = Array.from(
@@ -2593,6 +2598,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             playIngameSound(neganAlreadyFuckedSound);
         };
 
+        const showAquamanTidalWaveFx = () => {
+            const existing = document.querySelector('.aquaman-tidal-wave-screen-fx');
+            if (existing) existing.remove();
+            const wave = document.createElement('div');
+            wave.className = 'aquaman-tidal-wave-screen-fx';
+            wave.innerHTML =
+                '<span class="aquaman-tidal-wave-crest"></span>' +
+                '<span class="aquaman-tidal-wave-surge"></span>' +
+                '<span class="aquaman-tidal-wave-foam one"></span>' +
+                '<span class="aquaman-tidal-wave-foam two"></span>' +
+                '<span class="aquaman-tidal-wave-spray"></span>';
+            document.body.appendChild(wave);
+            playGeneratedIngameSound('tidal-wave');
+            window.setTimeout(() => wave.remove(), 2600);
+        };
+
         const showDirectionalSkillFx = ({ actorCard, skill, selection }) => {
             const skillId = skill?.id || '';
             const isRedLaser = [
@@ -2608,6 +2629,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isAndreaQuickShot = skillId === 'andrea-quick-shot';
             const isRickRevolver = skillId === 'rick-grimes-357-revolver';
             const isNeganAlreadyFucked = skillId === 'negan-you-re-already-fucked';
+            const isAquamanTidalWave = skillId === 'aquaman-tidal-wave';
             const isGenericLaser = !isRedLaser && !isYellowLaser && skillId.includes('laser');
             if (
                 !isRedLaser &&
@@ -2618,8 +2640,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 !isAndreaQuickShot &&
                 !isRickRevolver &&
                 !isNeganAlreadyFucked &&
+                !isAquamanTidalWave &&
                 !isGenericLaser
             ) {
+                return;
+            }
+            if (isAquamanTidalWave) {
+                showAquamanTidalWaveFx();
                 return;
             }
             if (isSolarFlare) {
@@ -3073,7 +3100,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ? `<br>YOUR CLAN GAINED ${normalizedClanExpDelta.toLocaleString()} EXP`
                     : '';
             if (battleEndPortraitEl) {
-                battleEndPortraitEl.src = didWin ? 'win.png' : 'lose.png';
+                battleEndPortraitEl.src = didWin ? 'assets/images/win.png' : 'assets/images/lose.png';
                 battleEndPortraitEl.alt = didWin ? 'Victory portrait' : 'Defeated portrait';
             }
             if (battleEndTitleEl) {
@@ -3406,6 +3433,60 @@ document.addEventListener('DOMContentLoaded', async () => {
             card?.querySelectorAll?.(`.${className}`).forEach((node) => node.remove());
         };
 
+        const getAquamanSeaSharkStacks = (unit) =>
+            getActiveStatuses(unit).reduce((sum, status) => {
+                if (status?.id !== 'aquaman_sea_sharks') return sum;
+                const damage = Number(status?.metadata?.turnEndDamage);
+                if (Number.isFinite(damage) && damage > 0) {
+                    return sum + Math.max(1, Math.round(damage / 4));
+                }
+                return sum + 1;
+            }, 0);
+
+        const renderAquamanSeaSharkFx = (card, stackCount = 0, newStacks = 0) => {
+            if (!card) return;
+            const count = Math.max(0, Math.min(9, Number(stackCount) || 0));
+            let ring = card.querySelector('.aquaman-sea-shark-ring');
+            if (count <= 0) {
+                ring?.remove();
+                card.querySelectorAll('.aquaman-sea-shark-projectile, .aquaman-sea-shark-splash').forEach((node) => node.remove());
+                card.classList.remove('has-aquaman-sea-sharks');
+                return;
+            }
+            card.classList.add('has-aquaman-sea-sharks');
+            if (!ring) {
+                ring = document.createElement('div');
+                ring.className = 'aquaman-sea-shark-ring';
+                card.appendChild(ring);
+            }
+            ring.innerHTML = '';
+            for (let index = 0; index < count; index += 1) {
+                const fin = document.createElement('span');
+                fin.className = 'aquaman-sea-shark-fin';
+                fin.style.setProperty('--fin-index', String(index));
+                fin.style.setProperty('--fin-count', String(count));
+                fin.style.setProperty('--fin-angle', `${(360 / Math.max(1, count)) * index}deg`);
+                ring.appendChild(fin);
+            }
+            const animateCount = Math.max(0, Math.min(3, Number(newStacks) || 0));
+            for (let index = 0; index < animateCount; index += 1) {
+                const shark = document.createElement('img');
+                shark.className = 'aquaman-sea-shark-projectile';
+                shark.src = 'assets/images/seashark.png';
+                shark.alt = '';
+                shark.style.animationDelay = `${index * 120}ms`;
+                card.appendChild(shark);
+                window.setTimeout(() => {
+                    const splash = document.createElement('div');
+                    splash.className = 'aquaman-sea-shark-splash';
+                    splash.innerHTML = '<span></span><span></span><span></span>';
+                    card.appendChild(splash);
+                    window.setTimeout(() => splash.remove(), 900);
+                }, 620 + index * 120);
+                window.setTimeout(() => shark.remove(), 980 + index * 120);
+            }
+        };
+
         const syncCharacterSpecificFx = (card, unit) => {
             if (!card) return;
             const fxClasses = [
@@ -3422,6 +3503,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 'storm-ice-fx',
                 'hulk-rage-high-fx',
                 'hulk-rage-max-fx',
+                'xenomorph-facehugger-fx',
             ];
             const activeFxStatuses = getActiveStatuses(unit);
             const isBanishedForFx = activeFxStatuses.some((status) => Boolean(status?.metadata?.banished));
@@ -3432,7 +3514,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 (Number.isFinite(hpForFx) && hpForFx <= 0 && !isBanishedForFx);
             if (isDeadForFx) {
                 fxClasses.forEach((className) => card.classList.remove(className));
-                ['joker-detonator-light', 'space-marine-channel-bar', 'rex-charge-counter'].forEach((className) =>
+                ['joker-detonator-light', 'space-marine-channel-bar', 'rex-charge-counter', 'aquaman-sea-shark-ring', 'xenomorph-facehugger-overlay'].forEach((className) =>
                     removeCharacterFxElement(card, className)
                 );
                 return;
@@ -3474,6 +3556,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const isStormIceCountered = hasStatus((status) => status?.id === 'storm_ice_barrier_countered');
             card.classList.toggle('storm-ice-fx', isStormIceCountered);
+
+            const isFacehuggerImplanted = hasStatus((status) => status?.id === 'xenomorph_facehugger_implanted');
+            card.classList.toggle('xenomorph-facehugger-fx', isFacehuggerImplanted);
+            if (isFacehuggerImplanted) {
+                ensureCharacterFxElement(
+                    card,
+                    'xenomorph-facehugger-overlay',
+                    '<img src="assets/images/facehuggerface.png" alt="">'
+                );
+            } else {
+                removeCharacterFxElement(card, 'xenomorph-facehugger-overlay');
+            }
 
             const isRageMarked = hasStatus(idStarts('rage_infected_'));
             card.classList.toggle('rage-infected-fx', isRageMarked);
@@ -3542,6 +3636,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const rage = isHulk ? getHulkRageValue(unit) : 0;
             card.classList.toggle('hulk-rage-high-fx', isHulk && rage >= 70);
             card.classList.toggle('hulk-rage-max-fx', isHulk && rage >= 100);
+            renderAquamanSeaSharkFx(card, getAquamanSeaSharkStacks(unit), 0);
         };
 
         const renderUnitHealth = (card, unit) => {
@@ -3576,7 +3671,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     face.dataset.aliveSrc = aliveSrc;
                 }
                 if (dead) {
-                    face.src = 'deadcharacter.png';
+                    face.src = 'assets/images/deadcharacter.png';
                     return;
                 }
                 const statuses = getActiveStatuses(unit);
@@ -3648,6 +3743,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const previousKey = getEvadeNotificationKey(previousUnit);
                 return nextKey !== previousKey;
             };
+            const getSeaSharkStackDelta = (username, slot, nextUnit) => {
+                if (!showHpAnimations || !username || !Number.isInteger(slot) || !nextUnit) return 0;
+                const previousUnit = Array.isArray(previousBoard[username]) ? previousBoard[username][slot] : null;
+                return getAquamanSeaSharkStacks(nextUnit) - getAquamanSeaSharkStacks(previousUnit);
+            };
 
             if (Array.isArray(playerCards) && Array.isArray(playerUnits)) {
                 playerCards.forEach((card, slot) => {
@@ -3655,7 +3755,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const defenseDelta = getDefenseDelta(currentPlayerUsername, slot, playerUnits[slot]);
                     const died = unitDiedBetweenStates(previousBoard?.[currentPlayerUsername]?.[slot], playerUnits[slot]);
                     const evaded = gainedEvadeNotification(currentPlayerUsername, slot, playerUnits[slot]);
+                    const seaSharkDelta = getSeaSharkStackDelta(currentPlayerUsername, slot, playerUnits[slot]);
                     renderUnitHealth(card, playerUnits[slot]);
+                    if (seaSharkDelta > 0) {
+                        renderAquamanSeaSharkFx(card, getAquamanSeaSharkStacks(playerUnits[slot]), seaSharkDelta);
+                    }
                     if (died) {
                         showCharacterDeathAnimation(card);
                         card.classList.remove('death-crack');
@@ -3685,7 +3789,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const defenseDelta = getDefenseDelta(opponentUsername, slot, opponentUnits[slot]);
                     const died = unitDiedBetweenStates(previousBoard?.[opponentUsername]?.[slot], opponentUnits[slot]);
                     const evaded = gainedEvadeNotification(opponentUsername, slot, opponentUnits[slot]);
+                    const seaSharkDelta = getSeaSharkStackDelta(opponentUsername, slot, opponentUnits[slot]);
                     renderUnitHealth(card, opponentUnits[slot]);
+                    if (seaSharkDelta > 0) {
+                        renderAquamanSeaSharkFx(card, getAquamanSeaSharkStacks(opponentUnits[slot]), seaSharkDelta);
+                    }
                     if (died) {
                         showCharacterDeathAnimation(card);
                         card.classList.remove('death-crack');
@@ -5253,7 +5361,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         throw new Error(data?.error || 'Unable to queue skill.');
                     }
                     playIngameSound(applySkillSound);
-                    animateSkillCastTrail({ actorSlot, skillIdx, selection });
                     renderChakra(data.chakraPools?.[currentPlayerUsername] || emptyPool());
                     pendingTurnState = normalizePendingTurn(data.pendingTurn);
                     applyQueuedSkillVisuals();
@@ -6026,9 +6133,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const privateMatchCancelButton = document.querySelector('.private-match-cancel');
     const defaultCancelButtonLabel = cancelSearchingButton ? cancelSearchingButton.textContent : '';
     let activeSearchTargetUsername = '';
-    const foundMatchSound = new Audio('sounds/found-match.mp3');
-    const skillViewerOpenSound = new Audio('sounds/scroll_open.mp3');
-    const skillViewerCloseSound = new Audio('sounds/scroll_close.mp3');
+    const foundMatchSound = new Audio('assets/audio/sounds/found-match.mp3');
+    const skillViewerOpenSound = new Audio('assets/audio/sounds/scroll_open.mp3');
+    const skillViewerCloseSound = new Audio('assets/audio/sounds/scroll_close.mp3');
     let matchmakingPoll = null;
     let isSearching = false;
     let pendingMatchRedirect = null;
@@ -6143,7 +6250,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (state === 'found') {
             searchingMessage.textContent = 'Opponent found!';
             if (searchingSpinner) {
-                searchingSpinner.src = 'found.png';
+                searchingSpinner.src = 'assets/images/found.png';
                 searchingSpinner.style.visibility = 'visible';
                 searchingSpinner.style.animation = 'none';
             }
@@ -6168,7 +6275,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ? `Searching for ${activeSearchTargetUsername}`
                 : 'Searching for an opponent';
         if (searchingSpinner) {
-            searchingSpinner.src = 'sharingan.png';
+            searchingSpinner.src = 'assets/images/sharingan.png';
             searchingSpinner.style.visibility = 'visible';
             searchingSpinner.style.animation = '';
         }

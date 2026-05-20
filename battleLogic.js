@@ -7291,7 +7291,7 @@ const applyOnTeamMemberSuccessfulDamageBonuses = ({
                 sourceSkillId:
                     typeof applyStatusToTarget.sourceSkillId === 'string' && applyStatusToTarget.sourceSkillId
                         ? applyStatusToTarget.sourceSkillId
-                        : sourceSkillId || status?.sourceSkillId || null,
+                        : status?.sourceSkillId || sourceSkillId || null,
                 sourceUsername: status?.sourceUsername || actingUsername || null,
                 sourceSlot: Number.isInteger(status?.sourceSlot)
                     ? status.sourceSlot
@@ -7353,7 +7353,7 @@ const applyOnTeamMemberDamageTakenBonuses = ({
                 sourceSkillId:
                     typeof applyStatusToSelf.sourceSkillId === 'string' && applyStatusToSelf.sourceSkillId
                         ? applyStatusToSelf.sourceSkillId
-                        : sourceSkillId || status?.sourceSkillId || null,
+                        : status?.sourceSkillId || sourceSkillId || null,
                 sourceUsername: targetUsername || status?.sourceUsername || actingUsername || null,
                 sourceSlot: Number.isInteger(teamSlot)
                     ? teamSlot

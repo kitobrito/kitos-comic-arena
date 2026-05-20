@@ -57,9 +57,9 @@ const ALLOW_INSECURE_HTTP = !IS_PRODUCTION && process.env.ALLOW_INSECURE_HTTP ==
 const HTTPS_KEY_PATH = process.env.HTTPS_KEY_PATH;
 const HTTPS_CERT_PATH = process.env.HTTPS_CERT_PATH;
 const LATEST_CHARACTER_RELEASES = [
-    { label: 'Indigo-1', characterId: 'indigo-1' },
-    { label: 'Sorrow', characterId: 'sorrow' },
-    { label: 'John Stewart', characterId: 'john-stewart' },
+    { label: 'Billy Butcher', characterId: 'billy-butcher' },
+    { label: 'Predalien', characterId: 'predalien' },
+    { label: 'Pvt. Saunders', characterId: 'space-marine-infantry' },
 ];
 const LATEST_CHARACTER_RELEASES_STATE_KEY = 'latest_character_releases';
 const MAINTENANCE_MODE_STATE_KEY = 'maintenance_mode';
@@ -80,10 +80,10 @@ const DEFAULT_MISSION_CATALOG = [
         level_requirement: 1,
         mode_restriction: { allowed_modes: ['quick', 'ladder'] },
         reward: 'Mission "The Adored Elder Sister" completion.',
-        image: 'ingamebgexample.png',
+        image: 'assets/images/ingamebgexample.png',
         imageAlt: 'The Adored Elder Sister mission artwork',
         characterName: 'Hyuuga Hanabi',
-        portrait: 'deadcharacter.png',
+        portrait: 'assets/images/deadcharacter.png',
         portraitAlt: 'Hyuuga Hanabi portrait',
         requirements: [],
         goals: [
@@ -98,10 +98,10 @@ const DEFAULT_MISSION_CATALOG = [
         level_requirement: 16,
         mode_restriction: { allowed_modes: ['quick', 'ladder'] },
         reward: 'Mission "The Yellow Flash" completion.',
-        image: 'ingamebgexample2.png',
+        image: 'assets/images/ingamebgexample2.png',
         imageAlt: 'The Yellow Flash mission artwork',
         characterName: 'Minato Namikaze',
-        portrait: 'deadcharacter.png',
+        portrait: 'assets/images/deadcharacter.png',
         portraitAlt: 'Minato Namikaze portrait',
         requirements: [],
         goals: [
@@ -162,20 +162,20 @@ const DEFAULT_CLAN_RANK_NAMES = {
 const LADDER_MAX_LEVEL = 50;
 const LADDER_MAX_EXPERIENCE_POINTS = 156500;
 const LADDER_RANK_TIERS = [
-    { minLevel: 46, rank: 'Infinity Knight', hatUrl: 'hats/kage.png' },
-    { minLevel: 41, rank: 'Dimension Crusader', hatUrl: 'hats/akatsuki.png' },
-    { minLevel: 36, rank: 'Purity Aegis', hatUrl: 'hats/jinch.png' },
-    { minLevel: 31, rank: 'Galaxy Reaper', hatUrl: 'hats/sannin.png' },
-    { minLevel: 26, rank: 'Abyssal Grasp', hatUrl: 'hats/jounin.png' },
-    { minLevel: 21, rank: 'Void Sentinel', hatUrl: 'hats/anbu.png' },
-    { minLevel: 16, rank: 'Stormbreaker', hatUrl: 'hats/missingnin.png' },
-    { minLevel: 12, rank: 'Blood Ripper', hatUrl: 'hats/chunin.png' },
-    { minLevel: 6, rank: 'Temporal Warden', hatUrl: 'hats/genin.png' },
-    { minLevel: 1, rank: 'Sparkstrike', hatUrl: 'hats/academy.png' },
+    { minLevel: 46, rank: 'Infinity Knight', hatUrl: 'assets/images/hats/kage.png' },
+    { minLevel: 41, rank: 'Dimension Crusader', hatUrl: 'assets/images/hats/akatsuki.png' },
+    { minLevel: 36, rank: 'Purity Aegis', hatUrl: 'assets/images/hats/jinch.png' },
+    { minLevel: 31, rank: 'Galaxy Reaper', hatUrl: 'assets/images/hats/sannin.png' },
+    { minLevel: 26, rank: 'Abyssal Grasp', hatUrl: 'assets/images/hats/jounin.png' },
+    { minLevel: 21, rank: 'Void Sentinel', hatUrl: 'assets/images/hats/anbu.png' },
+    { minLevel: 16, rank: 'Stormbreaker', hatUrl: 'assets/images/hats/missingnin.png' },
+    { minLevel: 12, rank: 'Blood Ripper', hatUrl: 'assets/images/hats/chunin.png' },
+    { minLevel: 6, rank: 'Temporal Warden', hatUrl: 'assets/images/hats/genin.png' },
+    { minLevel: 1, rank: 'Sparkstrike', hatUrl: 'assets/images/hats/academy.png' },
 ];
 const HOKAGE_RANK_INFO = {
     rank: 'Infinity Knight',
-    hatUrl: 'hats/kage.png',
+    hatUrl: 'assets/images/hats/kage.png',
 };
 const LADDER_EXP_BRACKETS = [
     { minLevel: 1, maxLevel: 3, expRequired: 500 },
@@ -1064,7 +1064,7 @@ const buildDefaultUserProfile = (user = {}) => {
         ladder: {
             level: 1,
             rank: 'Academy Student',
-            rankHatUrl: 'hats/academy.png',
+            rankHatUrl: 'assets/images/hats/academy.png',
             experiencePoints: 0,
             ladderRank: null,
             wins: 0,
@@ -7397,7 +7397,7 @@ app.post('/api/profile/reset-account', requireSession, async (req, res) => {
         profile.recentLadderGames = [];
         profile.ladder.level = 1;
         profile.ladder.rank = 'Academy Student';
-        profile.ladder.rankHatUrl = 'hats/academy.png';
+        profile.ladder.rankHatUrl = 'assets/images/hats/academy.png';
         profile.ladder.experiencePoints = 0;
         profile.ladder.experienceIntoLevel = 0;
         profile.ladder.experienceForNextLevel = getExperienceRequiredForNextLevel(1);

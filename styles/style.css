@@ -1,12 +1,12 @@
 
 @font-face {
     font-family: 'Franklin';
-    src: url('franklin.ttf') format('truetype');
+    src: url('../assets/fonts/franklin.ttf') format('truetype');
 }
 
 @font-face {
     font-family: 'Pedra';
-    src: url('pedra.ttf') format('truetype');
+    src: url('../assets/fonts/pedra.ttf') format('truetype');
 }
 
 body {
@@ -240,12 +240,12 @@ body:not(.app-loading-selection) .selected-slot-image {
 
 body.custom-game-cursor,
 body.custom-game-cursor * {
-    cursor: url('cursor.png') 0 0, auto !important;
+    cursor: url('../assets/images/cursor.png') 0 0, auto !important;
 }
 
 body.custom-game-cursor.cursor-clicking,
 body.custom-game-cursor.cursor-clicking * {
-    cursor: url('cursor_click.png') 0 0, auto !important;
+    cursor: url('../assets/images/cursor_click.png') 0 0, auto !important;
 }
 
 h1, h2, h3 {
@@ -253,7 +253,7 @@ h1, h2, h3 {
 }
 
 .background {
-    background-image: url('selectionbg.png');
+    background-image: url('../assets/images/selectionbg.png');
     width: 770px;
     height: 560px;
     position: relative;
@@ -335,7 +335,7 @@ h1, h2, h3 {
 }
 
 .login {
-        background-image: url('loginscroll.png');
+        background-image: url('../assets/images/loginscroll.png');
             width: 391px;
     height: 290px;
     position: absolute;
@@ -465,7 +465,7 @@ h1, h2, h3 {
 }
 
 .selectionscroll {
-    background-image: url('selectionscroll.png');
+    background-image: url('../assets/images/selectionscroll.png');
     width: 46px;
     height: 239px;
     position: absolute;
@@ -475,7 +475,7 @@ h1, h2, h3 {
 }
 
 .selectionpage {
-    background-image: url('selectionpage.png');
+    background-image: url('../assets/images/selectionpage.png');
     width: 697px;
     height: 222px;
     position: absolute;
@@ -900,7 +900,7 @@ text-transform: uppercase;
 }
 
 .skillpage {
-    background-image: url('skillpage.png');
+    background-image: url('../assets/images/skillpage.png');
     width: 530px;
     height: 222px;
     position: absolute;
@@ -1213,7 +1213,7 @@ text-transform: uppercase;
 }
 
 .private-match-modal {
-    background: url("searchingscroll.png") no-repeat;
+    background: url("../assets/images/searchingscroll.png") no-repeat;
     width: 391px;
     height: 290px;
     position: relative;
@@ -1283,7 +1283,7 @@ text-transform: uppercase;
 }
 
 .searchingscroll {
-    background: url("searchingscroll.png") no-repeat;
+    background: url("../assets/images/searchingscroll.png") no-repeat;
     width: 391px;
     height: 290px;
     position: relative;
@@ -1344,7 +1344,7 @@ text-transform: uppercase;
 }
 
 .backgroundingame {
-    background-image: url('ingamebg.png');
+    background-image: url('../assets/images/ingamebg.png');
     width: 770px;
     height: 560px;
     position: relative;
@@ -1362,7 +1362,7 @@ text-transform: uppercase;
     gap: 18px;
     background:
         linear-gradient(180deg, rgba(22, 11, 8, 0.94), rgba(76, 17, 14, 0.9) 48%, rgba(22, 11, 8, 0.94)),
-        url('ingamebg.png') center / cover;
+        url('../assets/images/ingamebg.png') center / cover;
     font-family: 'Pedra', 'Libre Franklin', serif;
     overflow: hidden;
 }
@@ -1845,10 +1845,10 @@ text-transform: uppercase;
 .revolver-cylinder {
     display: none;
     position: absolute;
-    width: 42px;
-    height: 42px;
-    right: -9px;
-    top: -10px;
+    width: 30px;
+    height: 30px;
+    right: -5px;
+    top: -7px;
     border: 2px solid #1b1712;
     border-radius: 50%;
     background:
@@ -1868,9 +1868,9 @@ text-transform: uppercase;
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 7px;
-    height: 7px;
-    margin: -3.5px 0 0 -3.5px;
+    width: 5px;
+    height: 5px;
+    margin: -2.5px 0 0 -2.5px;
     border-radius: 50%;
     background: #e5c45d;
     border: 1px solid #1c1508;
@@ -1885,28 +1885,118 @@ text-transform: uppercase;
 }
 
 .revolver-bullet:nth-child(1) {
-    transform: rotate(0deg) translateY(-14px);
+    transform: rotate(0deg) translateY(-10px);
 }
 
 .revolver-bullet:nth-child(2) {
-    transform: rotate(60deg) translateY(-14px);
+    transform: rotate(60deg) translateY(-10px);
 }
 
 .revolver-bullet:nth-child(3) {
-    transform: rotate(120deg) translateY(-14px);
+    transform: rotate(120deg) translateY(-10px);
 }
 
 .revolver-bullet:nth-child(4) {
-    transform: rotate(180deg) translateY(-14px);
+    transform: rotate(180deg) translateY(-10px);
 }
 
 .revolver-bullet:nth-child(5) {
-    transform: rotate(240deg) translateY(-14px);
+    transform: rotate(240deg) translateY(-10px);
 }
 
 .revolver-bullet:nth-child(6) {
-    transform: rotate(300deg) translateY(-14px);
+    transform: rotate(300deg) translateY(-10px);
 }
+
+.aquaman-sea-shark-ring {
+    position: absolute;
+    left: -8px;
+    top: -8px;
+    width: 92px;
+    height: 92px;
+    z-index: 46;
+    pointer-events: none;
+    animation: aquaman-shark-orbit 3.4s linear infinite;
+}
+
+.aquaman-sea-shark-fin {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 18px;
+    height: 19px;
+    margin: -9px 0 0 -9px;
+    transform:
+        rotate(var(--fin-angle, 0deg))
+        translateY(-42px)
+        rotate(18deg);
+}
+
+.aquaman-sea-shark-fin::before {
+    content: "";
+    position: absolute;
+    left: 4px;
+    top: 0;
+    width: 12px;
+    height: 15px;
+    background: linear-gradient(135deg, #143849 0%, #2a7b93 58%, #d8f7ff 59% 66%, #0d2a38 67% 100%);
+    clip-path: polygon(50% 0, 100% 100%, 0 78%);
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.75));
+}
+
+.aquaman-sea-shark-fin::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 12px;
+    width: 22px;
+    height: 8px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse at center, rgba(112, 225, 255, 0.72), rgba(21, 118, 158, 0.42) 48%, transparent 70%);
+    filter: blur(0.4px);
+}
+
+.aquaman-sea-shark-projectile {
+    position: absolute;
+    left: -58px;
+    top: 20px;
+    width: 42px;
+    height: 42px;
+    z-index: 82;
+    pointer-events: none;
+    object-fit: contain;
+    filter: drop-shadow(0 0 8px rgba(99, 226, 255, 0.95)) drop-shadow(2px 3px 2px rgba(0, 0, 0, 0.55));
+    animation: aquaman-shark-attack 920ms cubic-bezier(0.14, 0.82, 0.2, 1) both;
+}
+
+.aquaman-sea-shark-splash {
+    position: absolute;
+    left: -6px;
+    top: -3px;
+    width: 88px;
+    height: 88px;
+    z-index: 81;
+    pointer-events: none;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(223, 252, 255, 0.9) 0 10%, rgba(67, 194, 238, 0.58) 11% 28%, transparent 52%);
+    animation: aquaman-shark-splash 820ms ease-out both;
+}
+
+.aquaman-sea-shark-splash span {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 7px;
+    height: 28px;
+    border-radius: 999px;
+    background: rgba(207, 249, 255, 0.88);
+    box-shadow: 0 0 8px rgba(82, 214, 255, 0.92);
+    transform-origin: 50% 100%;
+}
+
+.aquaman-sea-shark-splash span:nth-child(1) { transform: translate(-50%, -100%) rotate(-38deg); }
+.aquaman-sea-shark-splash span:nth-child(2) { transform: translate(-50%, -100%) rotate(0deg); }
+.aquaman-sea-shark-splash span:nth-child(3) { transform: translate(-50%, -100%) rotate(42deg); }
 
 .evade-percent-badge {
     display: none;
@@ -1950,6 +2040,48 @@ text-transform: uppercase;
     100% {
         opacity: 0.78;
         transform: scale(1.04) rotate(0deg);
+    }
+}
+
+@keyframes aquaman-shark-orbit {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes aquaman-shark-attack {
+    0% {
+        opacity: 0;
+        transform: translate(-18px, -18px) rotate(-20deg) scale(0.55);
+    }
+    18% {
+        opacity: 1;
+    }
+    72% {
+        opacity: 1;
+        transform: translate(74px, 13px) rotate(11deg) scale(1.12);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(86px, 15px) rotate(18deg) scale(0.35);
+    }
+}
+
+@keyframes aquaman-shark-splash {
+    0% {
+        opacity: 0;
+        transform: scale(0.28) rotate(-8deg);
+    }
+    24% {
+        opacity: 1;
+        transform: scale(1.06) rotate(4deg);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.56) rotate(12deg);
     }
 }
 
@@ -2252,7 +2384,7 @@ text-transform: uppercase;
 }
 
 .skillscrollingame {
-    background-image: url('ingameskillscroll.png');
+    background-image: url('../assets/images/ingameskillscroll.png');
     width: 381px;
     height: 79px;
     position: absolute;
@@ -2849,7 +2981,7 @@ text-transform: uppercase;
 }
 
 .skillinformation {
-    background-image: url('ingamebottomscroll.png');
+    background-image: url('../assets/images/ingamebottomscroll.png');
     width: 523px;
     height: 134px;
     position: absolute;
@@ -3052,7 +3184,7 @@ text-transform: uppercase;
 }
 
 .surrenderbutton {
-    background-image: url('optionscroll.png');
+    background-image: url('../assets/images/optionscroll.png');
     width: 182px;
     height: 46px;
     position: absolute;
@@ -3062,7 +3194,7 @@ text-transform: uppercase;
 }
 
 .sound {
-    background-image: url('optionscroll.png');
+    background-image: url('../assets/images/optionscroll.png');
     width: 182px;
     height: 46px;
     position: absolute;
@@ -3079,7 +3211,7 @@ text-transform: uppercase;
 }
 
 .endturnscroll {
-    background-image: url("searchingscroll.png");
+    background-image: url("../assets/images/searchingscroll.png");
     width: 391px;
     height: 290px;
     position: absolute;
@@ -3210,7 +3342,7 @@ text-transform: uppercase;
 .ChakraChooseEndTurn {
     z-index: 5999;
     position: absolute;
-    background-image: url('searchingscroll.png');
+    background-image: url('../assets/images/searchingscroll.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -3225,7 +3357,7 @@ text-transform: uppercase;
 .exchange_chakra {
     z-index: 5999;
     position: absolute;
-    background-image: url('searchingscroll.png');
+    background-image: url('../assets/images/searchingscroll.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -3417,7 +3549,7 @@ text-transform: uppercase;
 .surrender-confirm {
     z-index: 5999;
     position: absolute;
-    background-image: url('searchingscroll.png');
+    background-image: url('../assets/images/searchingscroll.png');
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -3512,7 +3644,7 @@ text-transform: uppercase;
     transform: translateX(-50%);
     width: 640px;
     height: 320px;
-    background-image: url('endscroll.png');
+    background-image: url('../assets/images/endscroll.png');
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
@@ -4026,6 +4158,125 @@ text-transform: uppercase;
     background-position: 0 0, 12px 8px;
     filter: drop-shadow(0 0 4px rgba(221, 246, 255, 0.9));
     animation: storm-hail-fall 1.45s linear infinite;
+}
+
+.aquaman-tidal-wave-screen-fx {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    pointer-events: none;
+    overflow: hidden;
+    animation: aquaman-tidal-wave-fade 2.6s ease-out forwards;
+}
+
+.aquaman-tidal-wave-screen-fx::before {
+    content: "";
+    position: absolute;
+    left: -12vw;
+    right: -12vw;
+    bottom: -18vh;
+    height: 72vh;
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.92) 0 4%, rgba(177, 238, 255, 0.72) 5% 12%, transparent 13%),
+        linear-gradient(180deg, rgba(118, 219, 255, 0.86) 0%, rgba(18, 117, 190, 0.88) 48%, rgba(4, 48, 96, 0.92) 100%);
+    clip-path: polygon(0 48%, 7% 37%, 15% 45%, 23% 29%, 34% 42%, 44% 22%, 56% 39%, 68% 24%, 79% 43%, 90% 33%, 100% 47%, 100% 100%, 0 100%);
+    filter: drop-shadow(0 -12px 20px rgba(140, 229, 255, 0.65));
+    transform: translateY(72vh) scaleX(1.08);
+    animation: aquaman-tidal-wave-rise 2.25s cubic-bezier(0.16, 0.78, 0.28, 1) forwards;
+}
+
+.aquaman-tidal-wave-crest,
+.aquaman-tidal-wave-surge,
+.aquaman-tidal-wave-foam,
+.aquaman-tidal-wave-spray {
+    position: absolute;
+    left: -15vw;
+    right: -15vw;
+    pointer-events: none;
+}
+
+.aquaman-tidal-wave-crest {
+    bottom: 46vh;
+    height: 18vh;
+    background:
+        radial-gradient(circle at 8% 70%, rgba(255, 255, 255, 0.95) 0 18px, transparent 20px),
+        radial-gradient(circle at 22% 62%, rgba(255, 255, 255, 0.9) 0 26px, transparent 28px),
+        radial-gradient(circle at 42% 74%, rgba(255, 255, 255, 0.95) 0 21px, transparent 23px),
+        radial-gradient(circle at 62% 58%, rgba(255, 255, 255, 0.9) 0 30px, transparent 32px),
+        radial-gradient(circle at 82% 72%, rgba(255, 255, 255, 0.95) 0 22px, transparent 24px);
+    opacity: 0;
+    transform: translateY(42vh);
+    filter: blur(0.3px) drop-shadow(0 0 10px rgba(255, 255, 255, 0.8));
+    animation: aquaman-tidal-crest 2.35s ease-out forwards;
+}
+
+.aquaman-tidal-wave-surge {
+    bottom: 0;
+    height: 100vh;
+    background:
+        repeating-linear-gradient(168deg, rgba(255, 255, 255, 0.24) 0 3px, transparent 3px 18px),
+        linear-gradient(180deg, transparent 0%, rgba(51, 173, 226, 0.38) 36%, rgba(0, 82, 150, 0.55) 100%);
+    mix-blend-mode: screen;
+    opacity: 0;
+    animation: aquaman-tidal-surge 2.45s ease-out forwards;
+}
+
+.aquaman-tidal-wave-foam.one,
+.aquaman-tidal-wave-foam.two {
+    height: 22vh;
+    background:
+        radial-gradient(circle, rgba(255, 255, 255, 0.88) 0 2px, transparent 3px),
+        radial-gradient(circle, rgba(178, 239, 255, 0.82) 0 3px, transparent 4px);
+    background-size: 38px 24px, 54px 34px;
+    opacity: 0;
+}
+
+.aquaman-tidal-wave-foam.one {
+    bottom: 22vh;
+    animation: aquaman-tidal-foam 2.2s ease-out forwards;
+}
+
+.aquaman-tidal-wave-foam.two {
+    bottom: 8vh;
+    transform: scaleX(-1);
+    animation: aquaman-tidal-foam 2.35s ease-out 120ms forwards;
+}
+
+.aquaman-tidal-wave-spray {
+    inset: -8vh -12vw auto -12vw;
+    height: 46vh;
+    background:
+        radial-gradient(circle, rgba(255, 255, 255, 0.8) 0 1px, transparent 2px),
+        radial-gradient(circle, rgba(174, 235, 255, 0.65) 0 2px, transparent 3px);
+    background-size: 24px 18px, 42px 28px;
+    opacity: 0;
+    animation: aquaman-tidal-spray 2.05s ease-out 280ms forwards;
+}
+
+.xenomorph-facehugger-overlay {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 84px;
+    height: 68px;
+    z-index: 76;
+    pointer-events: none;
+    transform: translate(-50%, -51%) rotate(-2deg);
+    filter:
+        drop-shadow(0 3px 2px rgba(0, 0, 0, 0.58))
+        drop-shadow(0 0 7px rgba(189, 214, 187, 0.45));
+    animation: xenomorph-facehugger-grip 1.6s ease-in-out infinite;
+}
+
+.xenomorph-facehugger-overlay img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.xenomorph-facehugger-fx .character-face {
+    filter: brightness(0.78) saturate(0.85) contrast(1.08);
 }
 
 .skilltooltipimage.dynamic-ricochet-target-icon {
@@ -4949,6 +5200,113 @@ text-transform: uppercase;
     }
 }
 
+@keyframes aquaman-tidal-wave-rise {
+    0% {
+        opacity: 0.15;
+        transform: translateY(72vh) scaleX(1.08);
+    }
+    42% {
+        opacity: 1;
+        transform: translateY(4vh) scaleX(1.08);
+    }
+    68% {
+        opacity: 0.96;
+        transform: translateY(-8vh) scaleX(1.12);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(16vh) scaleX(1.18);
+    }
+}
+
+@keyframes aquaman-tidal-crest {
+    0% {
+        opacity: 0;
+        transform: translateY(42vh) scaleX(1.05);
+    }
+    34% {
+        opacity: 1;
+        transform: translateY(-3vh) scaleX(1.12);
+    }
+    64% {
+        opacity: 0.92;
+        transform: translateY(-11vh) scaleX(1.18);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(4vh) scaleX(1.25);
+    }
+}
+
+@keyframes aquaman-tidal-surge {
+    0% {
+        opacity: 0;
+        transform: translateY(40vh);
+    }
+    34% {
+        opacity: 0.92;
+        transform: translateY(0);
+    }
+    72% {
+        opacity: 0.66;
+        transform: translateY(-6vh);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(10vh);
+    }
+}
+
+@keyframes aquaman-tidal-foam {
+    0% {
+        opacity: 0;
+        transform: translateY(28vh) scaleX(1);
+    }
+    38% {
+        opacity: 0.92;
+        transform: translateY(-3vh) scaleX(1.08);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-18vh) scaleX(1.22);
+    }
+}
+
+@keyframes aquaman-tidal-spray {
+    0% {
+        opacity: 0;
+        transform: translateY(52vh) scale(0.95);
+    }
+    42% {
+        opacity: 0.86;
+        transform: translateY(12vh) scale(1.05);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-16vh) scale(1.18);
+    }
+}
+
+@keyframes aquaman-tidal-wave-fade {
+    0%,
+    78% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes xenomorph-facehugger-grip {
+    0%,
+    100% {
+        transform: translate(-50%, -51%) rotate(-2deg) scale(1);
+    }
+    50% {
+        transform: translate(-50%, -52%) rotate(2deg) scale(1.035);
+    }
+}
+
 @keyframes storm-cloud-rumble {
     0%, 100% {
         transform: translateX(0);
@@ -5043,13 +5401,13 @@ text-transform: uppercase;
         opacity: 0;
         transform: translate(-50%, 8px) scale(0.75);
     }
-    20% {
+    14%, 72% {
         opacity: 1;
-        transform: translate(-50%, -5px) scale(1.18);
+        transform: translate(-50%, -8px) scale(1.18);
     }
     100% {
         opacity: 0;
-        transform: translate(-50%, -36px) scale(0.95);
+        transform: translate(-50%, -42px) scale(0.95);
     }
 }
 
@@ -5058,13 +5416,13 @@ text-transform: uppercase;
         opacity: 0;
         transform: translate(-50%, 8px) scale(0.75) scaleX(-1);
     }
-    20% {
+    14%, 72% {
         opacity: 1;
-        transform: translate(-50%, -5px) scale(1.18) scaleX(-1);
+        transform: translate(-50%, -8px) scale(1.18) scaleX(-1);
     }
     100% {
         opacity: 0;
-        transform: translate(-50%, -36px) scale(0.95) scaleX(-1);
+        transform: translate(-50%, -42px) scale(0.95) scaleX(-1);
     }
 }
 
@@ -5082,7 +5440,7 @@ text-transform: uppercase;
     unicode-bidi: isolate;
     pointer-events: none;
     text-shadow: 1px 1px 0 #000, -1px -1px 0 #000;
-    animation: hp-delta-float 1500ms cubic-bezier(0.18, 0.9, 0.22, 1) both;
+    animation: hp-delta-float 2800ms cubic-bezier(0.18, 0.9, 0.22, 1) both;
 }
 
 .hp-delta-popup.enemy-side {
@@ -5176,7 +5534,7 @@ text-transform: uppercase;
     pointer-events: none;
     text-shadow: 1px 1px 0 #000;
     box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.72);
-    animation: status-apply-burst 1400ms cubic-bezier(0.18, 0.9, 0.22, 1) both;
+    animation: status-apply-burst 2600ms cubic-bezier(0.18, 0.9, 0.22, 1) both;
 }
 
 .status-apply-burst.harmful {
@@ -5506,7 +5864,7 @@ text-transform: uppercase;
         opacity: 0;
         transform: translate(-50%, 8px) scale(0.8);
     }
-    22%, 68% {
+    16%, 76% {
         opacity: 1;
         transform: translate(-50%, 0) scale(1);
     }
@@ -5521,7 +5879,7 @@ text-transform: uppercase;
         opacity: 0;
         transform: translate(-50%, 8px) scale(0.8) scaleX(-1);
     }
-    22%, 68% {
+    16%, 76% {
         opacity: 1;
         transform: translate(-50%, 0) scale(1) scaleX(-1);
     }
