@@ -6532,7 +6532,7 @@ const characters = [
         "skills": [
             {
                 "id": "billy-butcher-crowbar-maim",
-                "name": "Crowbar Maim",
+                "name": "Blood and Bone",
                 "skillimage": "https://i.imgur.com/ghyZueb.png",
                 "skilldescription": "One enemy becomes unable to reduce damage or become invulnerable for 2 turns and takes 20 damage. This deals 10 additional damage during 'V24'.",
                 "energy": [
