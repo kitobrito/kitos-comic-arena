@@ -75,20 +75,109 @@
     .character-search-label { margin: 0; color: var(--ink); font-family: "Bangers", cursive; font-size: 36px; font-weight: 400; letter-spacing: .05em; text-transform: uppercase; text-shadow: 3px 3px 0 var(--accent-2); }
     .character-search-input { width: min(100%, 380px); height: 48px; padding: 0 14px; font-size: 18px; font-weight: 700; box-shadow: 4px 4px 0 rgba(0,0,0,.9); }
     .character-directory-copy { margin: 0; color: var(--muted); font-size: 20px; line-height: 1.2; max-width: 920px; font-weight: 700; text-transform: uppercase; }
-    .character-directory-list { display: grid; gap: 16px; }
-    .character-row { padding: 16px; border: 4px solid var(--line); background: linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,247,222,.98)), var(--panel-strong); box-shadow: 6px 6px 0 rgba(0,0,0,.92); }
-    .character-row-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; color: var(--accent-3); font-size: 22px; font-weight: 800; text-transform: uppercase; }
-    .character-row-star { color: var(--accent); font-size: 22px; line-height: 1; }
-    .character-row-name { color: var(--ink); }
-    .character-role-label { color: var(--accent); font-size: 16px; font-weight: 900; text-transform: uppercase; }
-    .character-row-body, .character-modal-summary, .character-skill-body { display: grid; gap: 16px; align-items: start; }
-    .character-row-body { grid-template-columns: 90px minmax(0, 1fr); }
-    .character-row-image { width: 86px; height: 86px; }
-    .character-row-copy { display: grid; gap: 10px; }
-    .character-row-description { color: var(--text); font-size: 18px; line-height: 1.35; margin: 0; font-weight: 600; }
-    .character-row-link, .character-modal-close { display: inline-flex; align-items: center; justify-content: center; border: 3px solid var(--line); font: inherit; font-weight: 800; text-transform: uppercase; box-shadow: 3px 3px 0 rgba(0,0,0,.9); cursor: pointer; }
-    .character-row-link { justify-self: end; min-height: 40px; padding: 0 14px; background: var(--accent-2); color: var(--line); font-size: 15px; }
-    .character-row-link:hover { background: var(--accent); color: #fff; }
+    .character-directory-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 20px; }
+    .character-portrait-card {
+        position: relative;
+        cursor: pointer;
+        border: 4px solid var(--line);
+        background: #111;
+        aspect-ratio: 1/1;
+        box-shadow: 6px 6px 0 rgba(0,0,0,.95);
+        transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .character-portrait-card:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 8px 8px 0 rgba(0,0,0,.95);
+        z-index: 100;
+    }
+    .character-portrait-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    .character-portrait-tooltip {
+        position: absolute;
+        top: 115%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 240px;
+        padding: 12px;
+        background: linear-gradient(180deg, #ffffff, #fff7de);
+        border: 3px solid var(--line);
+        color: var(--text);
+        font-size: 15px;
+        line-height: 1.3;
+        font-weight: 700;
+        text-transform: none;
+        pointer-events: none;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.2s, visibility 0.2s;
+        box-shadow: 6px 6px 0 rgba(0,0,0,0.85);
+        z-index: 200;
+        text-align: center;
+    }
+    .character-portrait-tooltip::after {
+        content: "";
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        margin-left: -8px;
+        border-width: 8px;
+        border-style: solid;
+        border-color: transparent transparent var(--line) transparent;
+    }
+    .character-portrait-name {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--ink);
+        font-family: "Bangers", cursive;
+        font-size: 22px;
+        letter-spacing: 0.05em;
+    }
+    .character-portrait-role {
+        display: block;
+        color: #d63031;
+        font-size: 14px;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+        border-bottom: 2px solid var(--line);
+        padding-bottom: 4px;
+    }
+    .character-portrait-card:hover .character-portrait-tooltip {
+        opacity: 1;
+        visibility: visible;
+    }
+    .role-filters {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+    }
+    .role-tab, .universe-tab {
+        padding: 8px 16px;
+        border: 3px solid var(--line);
+        background: var(--panel-strong);
+        color: var(--ink);
+        font-family: "Bangers", cursive;
+        font-size: 18px;
+        letter-spacing: 0.05em;
+        cursor: pointer;
+        text-transform: uppercase;
+        box-shadow: 4px 4px 0 rgba(0,0,0,.9);
+        transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .role-tab:hover, .universe-tab:hover {
+        background: var(--accent-2);
+    }
+    .role-tab.active, .universe-tab.active {
+        background: var(--accent);
+        color: #fff;
+        transform: translate(-2px, -2px);
+        box-shadow: 6px 6px 0 rgba(0,0,0,1);
+    }
     .character-directory-empty, .character-modal-empty { color: var(--muted); font-size: 18px; line-height: 1.5; font-weight: 700; text-transform: uppercase; }
     .character-directory-empty { padding: 18px; border: 3px dashed rgba(21,17,11,.45); background: rgba(255,255,255,.45); }
     .character-modal-backdrop { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(19,12,6,.74); z-index: 1000; }
@@ -210,6 +299,24 @@
       <section class="mainsection">
         <div class="character-directory">
           <div class="character-directory-header">
+            <div class="role-filters" id="role-filters">
+              <button class="role-tab active" data-role="all">All Roles</button>
+              <button class="role-tab" data-role="tank">Tank</button>
+              <button class="role-tab" data-role="damage">Damage</button>
+              <button class="role-tab" data-role="support">Support</button>
+              <button class="role-tab" data-role="strategic">Strategic</button>
+              <button class="role-tab" data-role="hybrid">Hybrid</button>
+              <button class="role-tab" data-role="assassin">Assassin</button>
+              <button class="role-tab" data-role="bruiser">Bruiser</button>
+              <button class="role-tab" data-role="specialist">Specialist</button>
+            </div>
+            <div class="role-filters" id="universe-filters" style="margin-top: 10px;">
+              <button class="universe-tab active" data-universe="all">All Comics</button>
+              <button class="universe-tab" data-universe="marvel">Marvel</button>
+              <button class="universe-tab" data-universe="dc">DC</button>
+              <button class="universe-tab" data-universe="image">Image</button>
+              <button class="universe-tab" data-universe="other">Other</button>
+            </div>
             <div class="character-search-row">
               <h1 class="character-search-label">Character Files</h1>
               <input class="character-search-input" id="character-search-input" type="text" placeholder="Search characters..." autocomplete="off" />
@@ -307,6 +414,7 @@
         "rex-splode",
         "omni-man",
         "angstrom-levy",
+        "billy-butcher",
         "homelander",
         "rick-grimes",
         "hershel-greene",
@@ -314,6 +422,7 @@
         "negan",
         "walker",
         "rage-infected",
+        "space-marine-infantry",
         "predator-stalker",
         "xenomorph-drone"
       ];
@@ -345,14 +454,16 @@
         if (!character || typeof character !== "object") {
           return "";
         }
-        if (typeof character.characterdescription === "string" && character.characterdescription.trim()) {
-          return character.characterdescription.trim();
+        var desc = character.description || character.characterdescription || character.characterdeescription || "";
+        if (typeof desc === "string" && desc.trim()) {
+          return desc.trim();
         }
-        if (typeof character.characterdeescription === "string" && character.characterdeescription.trim()) {
-          return character.characterdeescription.trim();
-        }
-        if (Array.isArray(character.skills) && character.skills[0] && typeof character.skills[0].skilldescription === "string") {
-          return character.skills[0].skilldescription.trim();
+        if (Array.isArray(character.skills) && character.skills[0]) {
+          var firstSkill = character.skills[0];
+          var skillDesc = firstSkill.description || firstSkill.skilldescription || "";
+          if (typeof skillDesc === "string" && skillDesc.trim()) {
+            return skillDesc.trim();
+          }
         }
         return "No character description is available yet.";
       }
@@ -360,6 +471,23 @@
       function getCharacterRole(character) {
         var role = character && typeof character.role === "string" ? character.role.trim() : "";
         return role || "None";
+      }
+
+      function getCharacterRoleCategory(character) {
+        var category = character && typeof character.roleCategory === "string" ? character.roleCategory.trim().toLowerCase() : "";
+        if (category) {
+          return category;
+        }
+        var role = getCharacterRole(character).toLowerCase();
+        if (role.indexOf("tank") !== -1 || role.indexOf("juggernaut") !== -1) return "tank";
+        if (role.indexOf("support") !== -1 || role.indexOf("heal") !== -1 || role.indexOf("shield") !== -1) return "support";
+        if (role.indexOf("assassin") !== -1 || role.indexOf("execution") !== -1) return "assassin";
+        if (role.indexOf("bruiser") !== -1 || role.indexOf("brawler") !== -1 || role.indexOf("beserker") !== -1 || role.indexOf("berserker") !== -1) return "bruiser";
+        if (role.indexOf("hybrid") !== -1) return "hybrid";
+        if (role.indexOf("disrupt") !== -1 || role.indexOf("control") !== -1 || role.indexOf("trickster") !== -1 || role.indexOf("remover") !== -1) return "strategic";
+        if (role.indexOf("specialist") !== -1 || role.indexOf("punisher") !== -1) return "specialist";
+        if (role.indexOf("dps") !== -1 || role.indexOf("damage") !== -1 || role.indexOf("carry") !== -1 || role.indexOf("mage") !== -1) return "damage";
+        return "specialist";
       }
 
       function createEnergyPips(energyList) {
@@ -394,19 +522,14 @@
         var title = document.createElement("div");
         title.className = "character-row-header";
 
-        var star = document.createElement("span");
-        star.className = "character-row-star";
-        star.textContent = "?";
-
         var name = document.createElement("span");
         name.className = "character-row-name";
         name.textContent = character.name ? String(character.name) : "Unknown Character";
 
         var role = document.createElement("span");
         role.className = "character-role-label";
-        role.textContent = "Role: " + getCharacterRole(character);
+        role.textContent = " Role: " + getCharacterRole(character);
 
-        title.appendChild(star);
         title.appendChild(name);
         title.appendChild(role);
 
@@ -470,7 +593,8 @@
 
             var skillDescription = document.createElement("p");
             skillDescription.className = "character-skill-description";
-            skillDescription.textContent = skill.skilldescription ? String(skill.skilldescription) : "No description available.";
+            var desc = skill.description || skill.skilldescription || "";
+            skillDescription.textContent = desc ? String(desc) : "No description available.";
 
             var meta = document.createElement("div");
             meta.className = "character-skill-meta";
@@ -517,60 +641,43 @@
         modalBackdrop.classList.remove("visible");
       }
 
-      function createCharacterRow(character) {
-        var row = document.createElement("article");
-        row.className = "character-row";
+      var activeRoleFilter = "all";
+      var activeUniverseFilter = "all";
 
-        var header = document.createElement("div");
-        header.className = "character-row-header";
-
-        var star = document.createElement("span");
-        star.className = "character-row-star";
-        star.textContent = "?";
-
-        var title = document.createElement("span");
-        title.className = "character-row-name";
-        title.textContent = character && character.name ? String(character.name) : "Unknown Character";
-
-        var role = document.createElement("span");
-        role.className = "character-role-label";
-        role.textContent = "Role: " + getCharacterRole(character);
-
-        var body = document.createElement("div");
-        body.className = "character-row-body";
+      function createCharacterPortrait(character) {
+        var card = document.createElement("div");
+        card.className = "character-portrait-card";
 
         var image = document.createElement("img");
-        image.className = "character-row-image";
+        image.className = "character-portrait-img";
         image.src = character && character.facePicture ? String(character.facePicture) : "";
         image.alt = character && character.name ? String(character.name) : "Character portrait";
 
-        var copy = document.createElement("div");
-        copy.className = "character-row-copy";
+        var tooltip = document.createElement("div");
+        tooltip.className = "character-portrait-tooltip";
+        
+        var nameSpan = document.createElement("span");
+        nameSpan.className = "character-portrait-name";
+        nameSpan.textContent = character && character.name ? String(character.name) : "Unknown";
 
-        var description = document.createElement("p");
-        description.className = "character-row-description";
-        description.textContent = getCharacterSummary(character);
+        var roleSpan = document.createElement("span");
+        roleSpan.className = "character-portrait-role";
+        roleSpan.textContent = getCharacterRole(character);
+        
+        var descText = document.createTextNode(getCharacterSummary(character));
+        
+        tooltip.appendChild(nameSpan);
+        tooltip.appendChild(roleSpan);
+        tooltip.appendChild(descText);
 
-        var moreLink = document.createElement("a");
-        moreLink.className = "character-row-link";
-        moreLink.href = "#";
-        moreLink.textContent = "More about " + (character && character.name ? String(character.name) : "this character");
-        moreLink.addEventListener("click", function (event) {
-          event.preventDefault();
+        card.appendChild(image);
+        card.appendChild(tooltip);
+
+        card.addEventListener("click", function () {
           openCharacterModal(character);
         });
 
-        header.appendChild(star);
-        header.appendChild(title);
-        header.appendChild(role);
-        copy.appendChild(description);
-        copy.appendChild(moreLink);
-        body.appendChild(image);
-        body.appendChild(copy);
-        row.appendChild(header);
-        row.appendChild(body);
-
-        return row;
+        return card;
       }
 
       function renderCharacters(filterValue) {
@@ -582,7 +689,14 @@
         var filtered = roster.filter(function (character) {
           var name = character && character.name ? String(character.name).toLowerCase() : "";
           var role = getCharacterRole(character).toLowerCase();
-          return !query || name.indexOf(query) !== -1 || role.indexOf(query) !== -1;
+          var roleCategory = getCharacterRoleCategory(character);
+          var universe = character && typeof character.universe === "string" ? character.universe.toLowerCase() : "other";
+          
+          var matchesSearch = !query || name.indexOf(query) !== -1 || role.indexOf(query) !== -1 || roleCategory.indexOf(query) !== -1;
+          var matchesRole = activeRoleFilter === "all" || roleCategory === activeRoleFilter;
+          var matchesUniverse = activeUniverseFilter === "all" || universe === activeUniverseFilter;
+          
+          return matchesSearch && matchesRole && matchesUniverse;
         });
 
         listNode.innerHTML = "";
@@ -596,9 +710,29 @@
         }
 
         filtered.forEach(function (character) {
-          listNode.appendChild(createCharacterRow(character));
+          listNode.appendChild(createCharacterPortrait(character));
         });
       }
+
+      var roleTabs = document.querySelectorAll(".role-tab");
+      roleTabs.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+          roleTabs.forEach(function (t) { t.classList.remove("active"); });
+          tab.classList.add("active");
+          activeRoleFilter = tab.getAttribute("data-role").toLowerCase();
+          renderCharacters(searchInput.value);
+        });
+      });
+
+      var universeTabs = document.querySelectorAll(".universe-tab");
+      universeTabs.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+          universeTabs.forEach(function (t) { t.classList.remove("active"); });
+          tab.classList.add("active");
+          activeUniverseFilter = tab.getAttribute("data-universe").toLowerCase();
+          renderCharacters(searchInput.value);
+        });
+      });
 
       function openRequestedCharacterFromQuery() {
         var targetId = typeof requestedCharacterId === "string" ? requestedCharacterId.trim().toLowerCase() : "";

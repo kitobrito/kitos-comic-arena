@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /character-builder
+Disallow: /character-builder.html
+Disallow: /charactereditor
+Disallow: /charactereditor.html
+Disallow: /editmission
+Disallow: /editmission.html
+Disallow: /newspost
+Disallow: /newspost.html
+Disallow: /playeraccounts
+Disallow: /playeraccounts.html

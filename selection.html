@@ -12,6 +12,8 @@
 <body class="app-loading app-loading-selection">
 <div class="background">
     <div class="sound-controller" aria-label="Sound controller">
+        <button type="button" class="mute-button music-mute-button" aria-label="Mute music" title="Mute music"></button>
+        <button type="button" class="effects-mute-button" aria-label="Mute game sounds" title="Mute game sounds"></button>
         <input id="sound-volume" class="sound-volume" type="range" min="0" max="100" step="1" value="70" aria-label="Sound volume">
     </div>
     <img class="selectionscroll" src="selectionscroll.png" alt="selectionscroll">
@@ -85,6 +87,17 @@
     </div>
 
 <img class="nextpage" src="nextpage.png" alt="nextpage">
+<div class="roster-filter-panel" aria-label="Roster filters">
+    <div class="roster-filter-tabs">
+        <button type="button" class="roster-filter-tab active" data-roster-filter-mode="role">Role</button>
+        <button type="button" class="roster-filter-tab" data-roster-filter-mode="energy">Energy</button>
+        <button type="button" class="roster-filter-tab" data-roster-filter-mode="unlock">Unlock</button>
+        <button type="button" class="roster-filter-tab" data-roster-filter-mode="universe">Universe</button>
+        <button type="button" class="roster-filter-tab" data-roster-filter-mode="play-rate">Play Rate</button>
+    </div>
+    <select class="roster-filter-select" id="roster-filter-select" aria-label="Roster filter option"></select>
+    <div class="roster-filter-status" id="roster-filter-status" aria-live="polite"></div>
+</div>
 <ul class="slot-list"></ul>
 <img class="lastpage" src="nextpage.png" alt="lastpage">
 

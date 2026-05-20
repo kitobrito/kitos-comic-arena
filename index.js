@@ -1,4 +1,9 @@
 (function () {
+  var authForm = document.getElementById("auth-form");
+  if (!authForm) {
+    return;
+  }
+
   var authTitle = document.getElementById("auth-title");
   var authDescription = document.getElementById("auth-description");
   var authStatus = document.getElementById("auth-status");
@@ -238,7 +243,7 @@
   var maintenanceModeEnabled = false;
   var publicNewsPosts = [];
   var currentNewsPostIndex = 0;
-  var profileLookupStorageKey = "narutoProfileLookupUser";
+  var profileLookupStorageKey = "comicProfileLookupUser";
   var requestedProfileUsername = (function () {
     try {
       var queryValue = new URLSearchParams(window.location.search).get("user") || "";
@@ -262,7 +267,7 @@
     }
   }());
   var currentSessionUser = null;
-  var clanInvitationSeenStorageKey = "narutoClanInvitationsSeen";
+  var clanInvitationSeenStorageKey = "comicClanInvitationsSeen";
   var clanPanelNotification = null;
   var defaultClanRankLabels = {
     clanLeader: "Clan Leader",
@@ -2513,10 +2518,10 @@
   function cacheSessionUser(user) {
     try {
       if (!user || !user.username) {
-        localStorage.removeItem("narutoUser");
+        localStorage.removeItem("comicUser");
         return;
       }
-      localStorage.setItem("narutoUser", JSON.stringify({
+      localStorage.setItem("comicUser", JSON.stringify({
         username: user.username,
         avatarUrl: user.profile && user.profile.avatarUrl ? user.profile.avatarUrl : defaultProfileAvatar,
         clanAbbreviation: user.profile && user.profile.clan && user.profile.clan.abbreviation
@@ -3723,6 +3728,7 @@
         var responseUser = data && data.user && data.user.username ? data.user : null;
         var usernameLabel = responseUser ? responseUser.username : username;
         setCurrentSessionUser(responseUser);
+        cacheSessionUser(responseUser);
         showAccountView(usernameLabel);
         populateProfile(responseUser);
       } catch (error) {
@@ -4757,7 +4763,7 @@
         "resizable=yes",
         "scrollbars=yes"
       ].join(",");
-      var popup = window.open(destination, "narutoArenaPlayNow", features);
+      var popup = window.open(destination, "comicArenaPlayNow", features);
       if (popup) {
         try {
           popup.resizeTo(popupWidth, popupHeight);

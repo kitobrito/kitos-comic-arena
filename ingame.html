@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&family=Petra&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=evade-feedback-ui">
+    <link rel="stylesheet" href="style.css?v=negan-lucille-fx">
 </head>
 <body class="app-loading app-loading-ingame">
 <div class="backgroundingame">
@@ -41,6 +41,8 @@
         </div>
     </div>
     <div class="ingame-sound-controller" aria-label="Sound controller">
+        <button type="button" class="ingame-mute-button music-mute-button" aria-label="Mute music" title="Mute music"></button>
+        <button type="button" class="ingame-effects-mute-button effects-mute-button" aria-label="Mute game sounds" title="Mute game sounds"></button>
         <input id="ingame-sound-volume" class="ingame-sound-volume" type="range" min="0" max="100" step="1" value="70" aria-label="Sound volume">
     </div>
 
@@ -422,10 +424,6 @@
         </div>
     </div>
 
-    <div class="bottomrender">
-        <img src="render.png" alt="render" class="render">
-    </div>
-
     <div class="bottomgame">
         <div class="surrenderbutton">
             <span>SURRENDER</span>
@@ -437,6 +435,6 @@
 
 </div>
 <script src="characters.js?v=lantern-trio"></script>
-<script src="script.js?v=lantern-trio"></script>
+<script src="script.js?v=negan-lucille-fx"></script>
 </body>
 </html>

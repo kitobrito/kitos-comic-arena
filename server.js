@@ -1,7 +1,23 @@
-require('dotenv').config();
 const fs = require('fs');
 const https = require('https');
 const path = require('path');
+
+// Diagnostic logging for environment variables
+console.log('--- Startup Diagnostics ---');
+console.log('Current working directory:', process.cwd());
+const envPath = path.join(__dirname, '.env');
+console.log('.env file expected at:', envPath);
+console.log('.env file exists:', fs.existsSync(envPath));
+const dotenvResult = require('dotenv').config();
+if (dotenvResult.error) {
+    console.error('dotenv.config() error:', dotenvResult.error);
+} else {
+    console.log('dotenv.config() successfully loaded.');
+}
+console.log('MONGODB_URI present:', !!process.env.MONGODB_URI);
+console.log('JWT_SECRET present:', !!process.env.JWT_SECRET);
+console.log('---------------------------');
+
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -25,7 +41,7 @@ const BATTLE_BOT_QUEUE_TIMEOUT_MS = 60 * 1000;
 const BATTLE_BOT_ACTION_DELAY_MS = 15 * 1000;
 const BATTLE_BOTS_ENABLED = process.env.ENABLE_BATTLE_BOTS !== 'false';
 const DEFAULT_URI = process.env.MONGODB_URI;
-const DATABASE_NAME = process.env.MONGODB_DB || 'naruto-arena';
+const DATABASE_NAME = process.env.MONGODB_DB || 'comic-arena';
 const USERS_COLLECTION = process.env.MONGODB_USERS_COLLECTION || 'users';
 const MATCHES_COLLECTION = process.env.MONGODB_MATCHES_COLLECTION || 'matches';
 const APP_STATE_COLLECTION = process.env.MONGODB_APP_STATE_COLLECTION || 'app_state';
@@ -33,10 +49,11 @@ const NEWS_POSTS_COLLECTION = process.env.MONGODB_NEWS_POSTS_COLLECTION || 'news
 const CHARACTERS_FILE_PATH = path.join(__dirname, 'characters.js');
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRY = process.env.JWT_EXPIRY || '7d';
-const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME || 'naruto_session';
+const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME || 'comic_session';
 const SESSION_MAX_AGE_MS =
     Number.parseInt(process.env.SESSION_MAX_AGE_MS, 10) || 7 * 24 * 60 * 60 * 1000;
-const ALLOW_INSECURE_HTTP = process.env.ALLOW_INSECURE_HTTP === 'true';
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
+const ALLOW_INSECURE_HTTP = !IS_PRODUCTION && process.env.ALLOW_INSECURE_HTTP === 'true';
 const HTTPS_KEY_PATH = process.env.HTTPS_KEY_PATH;
 const HTTPS_CERT_PATH = process.env.HTTPS_CERT_PATH;
 const LATEST_CHARACTER_RELEASES = [
@@ -303,14 +320,25 @@ const getRosterCharacterName = (rosterIndex) => {
     return typeof character?.name === 'string' ? character.name.trim() : '';
 };
 
+const getRosterCharacterKey = (rosterIndex) => {
+    const index = Number.parseInt(rosterIndex, 10);
+    if (!Number.isInteger(index) || index < 0) {
+        return '';
+    }
+    const character = Array.isArray(charactersData) ? charactersData[index] : null;
+    const characterId =
+        typeof character?.characterId === 'string' ? character.characterId.trim().toLowerCase() : '';
+    return characterId || (character ? `index:${index}` : '');
+};
+
 const teamHasDuplicateCharacters = (team = []) => {
     if (!Array.isArray(team)) {
         return false;
     }
     const seen = new Set();
     return team.some((rosterIndex) => {
-        const key = Number.parseInt(rosterIndex, 10);
-        if (!Number.isInteger(key)) {
+        const key = getRosterCharacterKey(rosterIndex);
+        if (!key) {
             return false;
         }
         if (seen.has(key)) {
@@ -320,6 +348,15 @@ const teamHasDuplicateCharacters = (team = []) => {
         return false;
     });
 };
+
+const isValidTeamSelectionForMatch = (team = []) =>
+    Array.isArray(team) &&
+    team.length === 3 &&
+    team.every((slot) => {
+        const rosterIndex = Number.parseInt(slot, 10);
+        return Number.isInteger(rosterIndex) && rosterIndex >= 0 && Boolean(getRosterCharacterKey(rosterIndex));
+    }) &&
+    !teamHasDuplicateCharacters(team);
 
 const normalizeCharacterId = (value) =>
     String(value || '')
@@ -971,6 +1008,9 @@ const profileHasUnlockedCharacter = (profile, characterId, lockedCharacterIds = 
 const assertTeamCanBeUsed = async (profile, team = [], userRole = 'player') => {
     if (teamHasDuplicateCharacters(team)) {
         throw new Error('Team characters must be unique.');
+    }
+    if (!isValidTeamSelectionForMatch(team)) {
+        throw new Error('Invalid team selection.');
     }
     if (String(userRole || '').trim().toLowerCase() === 'admin') {
         return;
@@ -2128,6 +2168,9 @@ const buildCharacterCatalog = () =>
         characterId: typeof character.characterId === 'string' ? character.characterId : '',
         name: typeof character.name === 'string' ? character.name : '',
         facePicture: typeof character.facePicture === 'string' ? character.facePicture : '',
+        role: typeof character.role === 'string' ? character.role : '',
+        roleCategory: typeof character.roleCategory === 'string' ? character.roleCategory : '',
+        universe: typeof character.universe === 'string' ? character.universe : '',
         skills: (Array.isArray(character.skills) ? character.skills : []).map((skill = {}) => ({
             id: typeof skill.id === 'string' ? skill.id : '',
             name: typeof skill.name === 'string' ? skill.name : '',
@@ -2868,14 +2911,50 @@ app.use(async (req, res, next) => {
         return next();
     }
 });
-app.use(express.static(path.join(__dirname)));
+const noIndexPagePaths = new Set([
+    '/character-builder',
+    '/character-builder.html',
+    '/charactereditor',
+    '/charactereditor.html',
+    '/editmission',
+    '/editmission.html',
+    '/newspost',
+    '/newspost.html',
+    '/playeraccounts',
+    '/playeraccounts.html',
+]);
+
+app.use((req, res, next) => {
+    if (noIndexPagePaths.has(req.path)) {
+        res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+    }
+    next();
+});
+
+app.use(async (req, res, next) => {
+    if (!noIndexPagePaths.has(req.path)) {
+        return next();
+    }
+
+    try {
+        const sessionUser = await getSessionUserFromRequest(req);
+        if (sessionUser && String(sessionUser.role || '').trim().toLowerCase() === 'admin') {
+            return next();
+        }
+    } catch (error) {
+        // Fall through to the public landing page for unauthenticated or invalid sessions.
+    }
+
+    return res.redirect('/');
+});
+
 app.use(
     helmet({
         contentSecurityPolicy: {
             useDefaults: false,
             directives: {
                 defaultSrc: ["'self'"],
-                scriptSrc: ["'self'"],
+                scriptSrc: ["'self'", "'unsafe-inline'"],
                 styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
                 fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
                 imgSrc: ["'self'", 'data:', '*'],
@@ -2888,6 +2967,7 @@ app.use(
         },
     })
 );
+app.use(express.static(path.join(__dirname)));
 app.use(express.json());
 app.use(cookieParser());
 app.use(
@@ -3948,6 +4028,9 @@ const buildMatch = (players, aliveLookup = {}, options = {}) => {
 };
 
 const enqueuePlayer = (entry) => {
+    if (!isValidTeamSelectionForMatch(entry?.team)) {
+        return;
+    }
     quickQueue = quickQueue.filter((u) => u.username !== entry.username);
     ladderQueue = ladderQueue.filter((u) => u.username !== entry.username);
     privateQueue = privateQueue.filter((u) => u.username !== entry.username);
@@ -3963,7 +4046,14 @@ const enqueuePlayer = (entry) => {
 };
 
 const dequeueOpponent = (username, mode = 'quick') => {
-    const queue = mode === 'ladder' ? ladderQueue : quickQueue;
+    const queue = (mode === 'ladder' ? ladderQueue : quickQueue).filter((entry) =>
+        isValidTeamSelectionForMatch(entry?.team)
+    );
+    if (mode === 'ladder') {
+        ladderQueue = queue;
+    } else {
+        quickQueue = queue;
+    }
     const opponent = queue.find((u) => u.username !== username);
     if (!opponent) return null;
     if (mode === 'ladder') {
@@ -4043,6 +4133,10 @@ const maybeCreateBattleBotMatch = async ({ username, mode, userProfile = null })
     if (queued.entry.allowBattleBot === false) {
         return null;
     }
+    if (!isValidTeamSelectionForMatch(queued.entry.team)) {
+        removeQueuedEntry(username, mode);
+        return null;
+    }
     removeQueuedEntry(username, mode);
     const matchDocument = await buildBattleBotMatch({
         username,
@@ -4056,6 +4150,7 @@ const maybeCreateBattleBotMatch = async ({ username, mode, userProfile = null })
 const dequeuePrivateOpponent = (username, targetUsername) => {
     const normalizedTarget = typeof targetUsername === 'string' ? targetUsername.trim().toLowerCase() : '';
     if (!normalizedTarget) return null;
+    privateQueue = privateQueue.filter((entry) => isValidTeamSelectionForMatch(entry?.team));
     const opponent = privateQueue.find((entry) => {
         const entryTarget = typeof entry?.targetUsername === 'string'
             ? entry.targetUsername.trim().toLowerCase()
@@ -5176,6 +5271,14 @@ const teamSchema = Joi.array()
         'array.unique': 'Team characters must be unique.',
     });
 
+const getTeamValidationErrorMessage = (validationError, fallback = 'Invalid team selection.') => {
+    const details = Array.isArray(validationError?.details) ? validationError.details : [];
+    if (details.some((detail) => detail?.type === 'array.unique')) {
+        return 'Team characters must be unique.';
+    }
+    return fallback;
+};
+
 const matchJoinSchema = Joi.object({
     team: teamSchema.required(),
     mode: Joi.string().valid('quick', 'ladder', 'private').default('quick'),
@@ -5373,6 +5476,9 @@ app.post('/api/register', registerLimiter, async (req, res) => {
 app.post('/api/team/save', requireSession, async (req, res) => {
     const { error: validationError, value } = teamSchema.validate(req.body?.team);
     if (validationError) {
+        return res.status(400).json({ error: getTeamValidationErrorMessage(validationError) });
+    }
+    if (!isValidTeamSelectionForMatch(value)) {
         return res.status(400).json({ error: 'Invalid team selection.' });
     }
     const user = await usersCollection.findOne({ username: req.authUser.username });
@@ -5403,9 +5509,17 @@ app.post('/api/match/join', requireSession, async (req, res) => {
         const username = req.authUser.username;
         const { error: validationError, value } = matchJoinSchema.validate(req.body || {});
         if (validationError) {
-            return res.status(400).json({ error: 'Team selection required to join match.' });
+            return res.status(400).json({
+                error: getTeamValidationErrorMessage(
+                    validationError,
+                    'Team selection required to join match.'
+                ),
+            });
         }
         const team = value.team;
+        if (!isValidTeamSelectionForMatch(team)) {
+            return res.status(400).json({ error: 'Invalid team selection.' });
+        }
         const mode = value.mode;
         const targetUsername = typeof value.targetUsername === 'string' ? value.targetUsername.trim() : '';
         if (mode === 'private') {
@@ -5509,6 +5623,9 @@ app.post('/api/match/join', requireSession, async (req, res) => {
             ? dequeuePrivateOpponent(username, targetUsername)
             : dequeueOpponent(username, mode);
         if (opponent) {
+            if (!isValidTeamSelectionForMatch(team) || !isValidTeamSelectionForMatch(opponent.team)) {
+                return res.status(400).json({ error: 'Invalid team selection.' });
+            }
             const aliveLookup = {
                 [username]: Array.isArray(team) ? team.length : 3,
                 [opponent.username]: Array.isArray(opponent.team) ? opponent.team.length : 3,
@@ -5799,40 +5916,55 @@ app.post('/api/match/:matchId/surrender', requireSession, async (req, res) => {
     }
     const opponentEntry = match.players.find((p) => p.username !== username);
     const endedAt = new Date();
-    const ladderResults = await applyMatchCompletionRewards(
-        match,
-        opponentEntry ? opponentEntry.username : null,
-        endedAt
-    );
+    const winnerUsername = opponentEntry ? opponentEntry.username : null;
+    const endedMatch = {
+        ...match,
+        mode: match.mode || 'quick',
+        status: 'ended',
+        winner: winnerUsername,
+        surrenderedBy: username,
+        endReason: 'surrender',
+        endedAt,
+        currentTurn: null,
+        turnExpiresAt: null,
+    };
     await matchesCollection.updateOne(
         { matchId },
         {
             $set: {
-                mode: match.mode || 'quick',
+                mode: endedMatch.mode,
                 status: 'ended',
-                winner: opponentEntry ? opponentEntry.username : null,
+                winner: winnerUsername,
                 surrenderedBy: username,
                 endReason: 'surrender',
                 endedAt,
                 currentTurn: null,
                 turnExpiresAt: null,
-                ladderResults: ladderResults || null,
             },
         }
     );
     quickMatches.delete(matchId);
     (match.players || []).forEach((player) => userToMatch.delete(player.username));
-    await broadcastMatchState(matchId);
-    return res.json({
+    queueMatchStateBroadcast(endedMatch);
+    res.json({
         ok: true,
-        mode: match.mode || 'quick',
+        mode: endedMatch.mode,
         status: 'ended',
         surrenderedBy: username,
-        winner: opponentEntry ? opponentEntry.username : null,
+        winner: winnerUsername,
         endReason: 'surrender',
         endedAt,
-        ladderResult: ladderResults?.[username] || null,
     });
+    applyMatchCompletionRewards(endedMatch, winnerUsername, endedAt)
+        .then(async (ladderResults) => {
+            if (ladderResults) {
+                await matchesCollection.updateOne({ matchId }, { $set: { ladderResults } });
+                queueMatchStateBroadcast(matchId);
+            }
+        })
+        .catch((error) => {
+            console.error('Surrender reward processing error:', error);
+        });
 });
 
 app.post('/api/match/:matchId/turn/end', requireSession, async (req, res) => {
@@ -5851,13 +5983,13 @@ app.post('/api/match/:matchId/turn/end', requireSession, async (req, res) => {
             return res.status(404).json({ error: 'Match not found.' });
         }
         if (hydrated.status === 'ended') {
-            await broadcastMatchState(hydrated);
+            queueMatchStateBroadcast(hydrated);
             return res.status(409).json({ error: 'Match already ended.' });
         }
 
         const username = req.authUser.username;
         if (hydrated.currentTurn !== username) {
-            await broadcastMatchState(hydrated);
+            queueMatchStateBroadcast(hydrated);
             return res.status(403).json({ error: 'Not your turn.' });
         }
         const pendingTurn = getPendingTurn(hydrated, username);
@@ -5944,7 +6076,7 @@ app.post('/api/match/:matchId/skill/queue', requireSession, async (req, res) => 
             chakraPools: hydrated.chakraPools,
             pendingTurns: hydrated.pendingTurns,
         });
-        await broadcastMatchState(hydrated);
+        queueMatchStateBroadcast(hydrated);
         const safePayload = buildMatchPayloadForUser(hydrated, username);
         return res.json({
             ok: true,
@@ -6003,7 +6135,7 @@ app.post('/api/match/:matchId/turn/start-choice', requireSession, async (req, re
             players: hydrated.players,
             pendingTurns: hydrated.pendingTurns,
         });
-        await broadcastMatchState(hydrated);
+        queueMatchStateBroadcast(hydrated);
         scheduleBattleBotTurn(hydrated);
         return res.json(buildMatchPayloadForUser(hydrated, username));
     } catch (error) {
@@ -6052,7 +6184,7 @@ app.post('/api/match/:matchId/skill/cancel', requireSession, async (req, res) =>
             chakraPools: hydrated.chakraPools,
             pendingTurns: hydrated.pendingTurns,
         });
-        await broadcastMatchState(hydrated);
+        queueMatchStateBroadcast(hydrated);
     }
     const safePayload = buildMatchPayloadForUser(hydrated, username);
     return res.json({
@@ -6146,7 +6278,7 @@ app.post('/api/match/:matchId/turn/random/adjust', requireSession, async (req, r
             chakraPools: hydrated.chakraPools,
             pendingTurns: hydrated.pendingTurns,
         });
-        await broadcastMatchState(hydrated);
+        queueMatchStateBroadcast(hydrated);
         const safePayload = buildMatchPayloadForUser(hydrated, username);
         return res.json({
             ok: true,
@@ -6207,7 +6339,7 @@ app.post('/api/match/:matchId/chakra/exchange', requireSession, async (req, res)
         await persistMatchState(hydrated, {
             chakraPools: hydrated.chakraPools,
         });
-        await broadcastMatchState(hydrated);
+        queueMatchStateBroadcast(hydrated);
         const safePayload = buildMatchPayloadForUser(hydrated, username);
         return res.json({
             ok: true,
@@ -6457,6 +6589,7 @@ app.get('/api/news', async (req, res) => {
 
 app.get('/api/missions', async (req, res) => {
     try {
+        res.set('Cache-Control', 'no-store');
         const missions = await getStoredMissionCatalog();
         let missionState = createDefaultMissionState();
         try {
@@ -6521,10 +6654,70 @@ app.put('/api/admin/missions', requireSession, async (req, res) => {
 });
 
 app.get('/api/characters/catalog', (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    refreshCharactersDataFromFile();
     return res.json({
         ok: true,
         characters: characterCatalog,
     });
+});
+
+app.get('/api/characters/play-rates', async (req, res) => {
+    res.set('Cache-Control', 'no-store');
+
+    try {
+        const rosterIndexToCharacterId = new Map(
+            (Array.isArray(charactersData) ? charactersData : []).map((character, rosterIndex) => [
+                rosterIndex,
+                typeof character?.characterId === 'string' ? character.characterId : '',
+            ])
+        );
+        const pickCountsByCharacterId = new Map();
+        let totalPicks = 0;
+
+        const rows = await matchesCollection
+            .aggregate([
+                { $unwind: '$players' },
+                { $unwind: '$players.team' },
+                {
+                    $group: {
+                        _id: '$players.team',
+                        pickCount: { $sum: 1 },
+                    },
+                },
+            ])
+            .toArray();
+
+        rows.forEach((row) => {
+            const rosterIndex = Number.parseInt(row?._id, 10);
+            if (!Number.isInteger(rosterIndex)) return;
+            const characterId = rosterIndexToCharacterId.get(rosterIndex);
+            if (!characterId) return;
+            const pickCount = Math.max(0, Number(row?.pickCount) || 0);
+            totalPicks += pickCount;
+            pickCountsByCharacterId.set(
+                characterId,
+                (pickCountsByCharacterId.get(characterId) || 0) + pickCount
+            );
+        });
+
+        return res.json({
+            ok: true,
+            totalPicks,
+            playRates: (Array.isArray(charactersData) ? charactersData : []).map((character) => {
+                const characterId = typeof character?.characterId === 'string' ? character.characterId : '';
+                const pickCount = pickCountsByCharacterId.get(characterId) || 0;
+                return {
+                    characterId,
+                    pickCount,
+                    playRatePercent: totalPicks > 0 ? (pickCount / totalPicks) * 100 : 0,
+                };
+            }),
+        });
+    } catch (error) {
+        console.error('Character play rate load error:', error);
+        return res.status(500).json({ error: 'Unable to load character play rates.' });
+    }
 });
 
 app.get('/api/admin/characters', requireSession, (req, res) => {
@@ -8339,7 +8532,11 @@ app.post('/api/clan/invitations/accept', requireSession, async (req, res) => {
 });
 
 // Basic static routes for the frontend
-app.get(['/', '/selection-login', '/selection-login.html'], (req, res) => {
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get(['/selection-login', '/selection-login.html'], (req, res) => {
     res.sendFile(path.join(__dirname, 'selection-login.html'));
 });
 

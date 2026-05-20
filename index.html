@@ -1352,12 +1352,16 @@
       <section class="group auth-shell" id="auth-panel">
         <h2 class="group-title" id="auth-title">Account Access</h2>
         <div id="guest-auth-view">
-          <p class="auth-description" id="auth-description">Official Comic-Arena account access happens on the dedicated game entry screen.</p>
-          <div class="auth-links">
-            <a class="auth-link primary" href="register.html">Create Account</a>
-            <a class="auth-link" href="selection-login.html">Secure Sign In</a>
-          </div>
-          <p class="auth-status" id="auth-status" aria-live="polite"></p>
+          <p class="auth-description" id="auth-description">Sign in with your Comic-Arena account.</p>
+          <form class="auth-form" id="auth-form">
+            <input class="auth-input" type="text" name="username" placeholder="Username" autocomplete="username" required />
+            <input class="auth-input" type="password" name="password" placeholder="Password" autocomplete="current-password" required />
+            <input class="auth-input" type="password" name="confirmPassword" placeholder="Confirm Password" autocomplete="new-password" hidden />
+            <input class="auth-input" type="email" name="email" placeholder="Email" autocomplete="email" hidden />
+            <button class="auth-button" type="submit" id="auth-submit">Login</button>
+            <button class="auth-switch" type="button" id="auth-toggle">Need an account? Register</button>
+            <p class="auth-status" id="auth-status" aria-live="polite"></p>
+          </form>
         </div>
         <div class="account-panel" id="account-panel" hidden>
           <p class="account-greeting">Welcome back, <span class="account-name" id="account-username">Player</span>!</p>

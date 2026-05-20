@@ -80,7 +80,7 @@ const characters = [
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
-                    "Chakra",
+                    "Energy",
                     "Instant"
                 ],
                 "effects": [
@@ -292,7 +292,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Hybrid DPS"
+        "role": "Hybrid DPS",
+        "roleCategory": "hybrid",
+        "universe": "marvel"
     },
     {
         "id": "spider-man",
@@ -571,7 +573,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Evasion Disruptor"
+        "role": "Evasion Disruptor",
+        "roleCategory": "strategic",
+        "universe": "marvel"
     },
     {
         "id": "the-hulk",
@@ -972,7 +976,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Juggernaut"
+        "role": "Juggernaut",
+        "roleCategory": "tank",
+        "universe": "marvel"
     },
     {
         "id": "captain-america",
@@ -1252,7 +1258,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Protection Tank"
+        "role": "Protection Tank",
+        "roleCategory": "tank",
+        "universe": "marvel"
     },
     {
         "id": "superman",
@@ -1553,7 +1561,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Battle Mage"
+        "role": "Battle Mage",
+        "roleCategory": "damage",
+        "universe": "dc"
     },
     {
         "id": "batman",
@@ -2017,7 +2027,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Gadget Disruptor"
+        "role": "Gadget Disruptor",
+        "roleCategory": "strategic",
+        "universe": "dc"
     },
     {
         "id": "the-flash-barry-allen",
@@ -2336,15 +2348,17 @@ const characters = [
                 ]
             }
         ],
-        "role": "Tempo DPS"
+        "role": "Tempo DPS",
+        "roleCategory": "damage",
+        "universe": "dc"
     },
     {
         "id": "wonder-woman",
         "characterId": "wonder-woman",
         "name": "Wonder Woman",
         "nameHtml": "Wonder Woman",
-        "facePicture": "https://cdn.discordapp.com/attachments/1439850468867047464/1503662080862064741/Wonder_Woman_6.png",
-        "url": "https://cdn.discordapp.com/attachments/1439850468867047464/1503662080862064741/Wonder_Woman_6.png",
+        "facePicture": "https://i.imgur.com/ZAAWc5G.jpeg",
+        "url": "https://i.imgur.com/ZAAWc5G.jpeg",
         "unlockRequirement": "None",
         "unlockRequirementHtml": "None",
         "characterdeescription": "A battle-hardened warrior from Themyscira, Wonder Woman leads the charge with unmatched strength and strategy. On any team, she serves as the frontline powerhouse, able to dish out heavy damage while shielding allies from harm. Her spear and combat prowess allow her to strike key targets relentlessly, while her Lasso of Truth can neutralize the enemy's biggest threats.",
@@ -2355,10 +2369,10 @@ const characters = [
                 "id": "wonder-woman-spear-thrust",
                 "name": "Spear Thrust",
                 "nameHtml": "Spear Thrust",
-                "skillimage": "https://cdn.discordapp.com/attachments/1439850468867047464/1503662080862064741/Wonder_Woman_6.png",
-                "url": "",
-                "skilldescription": "Deals 25 piercing damage to one enemy and 10 piercing damage to a random different enemy. Swaps to Warrior's Strike for 1 turn.",
-                "description": "Deals 25 piercing damage to one enemy and 10 piercing damage to a random different enemy. Swaps to Warrior's Strike for 1 turn.",
+                "skillimage": "https://i.imgur.com/tRwPWpF.jpeg",
+                "url": "https://i.imgur.com/tRwPWpF.jpeg",
+                "skilldescription": "Deals 30 piercing damage to one enemy and 20 piercing damage to a random different enemy. Swaps to Warrior's Strike for 1 turn.",
+                "description": "Deals 30 piercing damage to one enemy and 20 piercing damage to a random different enemy. Swaps to Warrior's Strike for 1 turn.",
                 "descriptionHtml": "Deals 25 piercing damage to one enemy and 10 piercing damage to a random different enemy.<br>Swaps to Warrior's Strike for 1 turn.",
                 "energy": [
                     "Taijutsu",
@@ -2377,7 +2391,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 25,
+                        "amount": 30,
                         "scope": "target",
                         "metadata": {
                             "ignoreDamageReduction": true
@@ -2385,7 +2399,7 @@ const characters = [
                     },
                     {
                         "type": "damage",
-                        "amount": 10,
+                        "amount": 20,
                         "scope": "random-other-enemy",
                         "metadata": {
                             "ignoreDamageReduction": true
@@ -2411,8 +2425,8 @@ const characters = [
                 "id": "wonder-woman-brace-of-submission",
                 "name": "Brace of Submission",
                 "nameHtml": "Brace of Submission",
-                "skillimage": "https://cdn.discordapp.com/attachments/1439850468867047464/1503662080862064741/Wonder_Woman_6.png",
-                "url": "",
+                "skillimage": "https://i.imgur.com/hOWzTTF.jpeg",
+                "url": "https://i.imgur.com/hOWzTTF.jpeg",
                 "skilldescription": "For 1 turn, the next non-mental skill used on Wonder Woman will be reflected to a random enemy. This skill is invisible.",
                 "description": "For 1 turn, the next non-mental skill used on Wonder Woman will be reflected to a random enemy. This skill is invisible.",
                 "descriptionHtml": "For 1 turn, the next non-mental skill used on Wonder Woman will be reflected to a random enemy.<br>This skill is invisible.",
@@ -2453,8 +2467,8 @@ const characters = [
                 "id": "wonder-woman-lasso-of-truth",
                 "name": "Lasso of Truth",
                 "nameHtml": "Lasso of Truth",
-                "skillimage": "https://cdn.discordapp.com/attachments/1439850468867047464/1503662080862064741/Wonder_Woman_6.png",
-                "url": "",
+                "skillimage": "https://i.imgur.com/8JgkJPq.jpegg",
+                "url": "https://i.imgur.com/8JgkJPq.jpeg",
                 "skilldescription": "Stuns one enemy's physical and mental skills and paralyzes their cooldowns for 1 turn. For the rest of the game, this enemy takes 5 additional damage from all sources.",
                 "description": "Stuns one enemy's physical and mental skills and paralyzes their cooldowns for 1 turn. For the rest of the game, this enemy takes 5 additional damage from all sources.",
                 "descriptionHtml": "Stuns one enemy's physical and mental skills and paralyzes their cooldowns for 1 turn.<br>For the rest of the game, this enemy takes 5 additional damage from all sources.",
@@ -2508,8 +2522,8 @@ const characters = [
                 "id": "wonder-woman-amazonian-guard",
                 "name": "Amazonian Guard",
                 "nameHtml": "Amazonian Guard",
-                "skillimage": "https://cdn.discordapp.com/attachments/1439850468867047464/1503662080862064741/Wonder_Woman_6.png",
-                "url": "",
+                "skillimage": "https://i.imgur.com/XQ0qm1p.jpeg",
+                "url": "https://i.imgur.com/XQ0qm1p.jpeg",
                 "skilldescription": "Grants Wonder Woman or one selected ally 15 points of destructible defense for 1 turn. This skill is invisible.",
                 "description": "Grants Wonder Woman or one selected ally 15 points of destructible defense for 1 turn. This skill is invisible.",
                 "descriptionHtml": "Grants Wonder Woman or one selected ally 15 points of destructible defense for 1 turn.<br>This skill is invisible.",
@@ -2544,8 +2558,8 @@ const characters = [
                 "nameHtml": "Warrior's Strike",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://cdn.discordapp.com/attachments/1439850468867047464/1503662080862064741/Wonder_Woman_6.png",
-                "url": "",
+                "skillimage": "https://i.imgur.com/q35I98q.jpeg",
+                "url": "https://i.imgur.com/q35I98q.jpeg",
                 "skilldescription": "Wonder Woman deals 25 damage to one enemy and casts Amazonian Guard on herself for 15 points of destructible defense.",
                 "description": "Wonder Woman deals 25 damage to one enemy and casts Amazonian Guard on herself for 15 points of destructible defense.",
                 "descriptionHtml": "Wonder Woman deals 25 damage to one enemy and casts Amazonian Guard on herself for 15 points of destructible defense.",
@@ -2581,7 +2595,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Frontline Bruiser"
+        "role": "Frontline Bruiser",
+        "roleCategory": "bruiser",
+        "universe": "dc"
     },
     {
         "id": "aquaman",
@@ -2850,7 +2866,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Anti-Tank"
+        "role": "Anti-Tank",
+        "roleCategory": "bruiser",
+        "universe": "dc"
     },
     {
         "id": "storm",
@@ -3190,7 +3208,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Heal Support"
+        "role": "Heal Support",
+        "roleCategory": "support",
+        "universe": "marvel"
     },
     {
         "id": "venom",
@@ -3415,13 +3435,15 @@ const characters = [
                 }
             }
         ],
-        "role": "Sustain Tank"
+        "role": "Sustain Tank",
+        "roleCategory": "tank",
+        "universe": "marvel"
     },
     {
         "id": "the-joker",
         "characterId": "the-joker",
         "name": "The Joker",
-        "facePicture": "https://i.imgur.com/DSEdkUO.png",
+        "facePicture": "https://i.imgur.com/kbaUc1f.png",
         "characterdeescription": "The Joker specializes in destabilizing enemies through unpredictable traps, afflictions, and psychological pressure. Rather than overwhelming opponents with raw damage, he punishes decision-making itself—forcing enemies into lose-lose situations where every action carries risk. By planting hidden threats and disrupting key abilities, The Joker excels at dismantling coordinated strategies and isolating high-value targets. His toxins weaken offensive output over time, while his gadgets interrupt, silence, and invalidate enemy actions at critical moments. The longer a fight drags on, the more control he exerts, turning chaos into a weapon and forcing opponents to play on his terms.",
         "skills": [
             {
@@ -3770,13 +3792,15 @@ const characters = [
                 ]
             }
         ],
-        "role": "Gadget Disruptor"
+        "role": "Gadget Disruptor",
+        "roleCategory": "strategic",
+        "universe": "dc"
     },
     {
         "id": "negan",
         "characterId": "negan",
         "name": "Negan",
-        "facePicture": "https://i.imgur.com/csZvbwl.png",
+        "facePicture": "https://i.imgur.com/SHLVdT9.jpeg",
         "characterdeescription": "Negan excels at isolating and eliminating priority targets through relentless, no-nonsense pressure. He doesn’t overwhelm enemies with flashy bursts—he breaks them down, step by step, until they’re completely screwed and out of options. With abilities that apply sustained damage and shut down healing, Negan forces opponents into dangerous territory fast. Once a target is marked, they’re on borrowed time—and if they don’t deal with him quickly, they’re as good as dead. Negan thrives on punishing mistakes. One bad move, one wrong target, one moment of hesitation—and he’ll capitalize immediately, ending the fight before the enemy team can recover.",
         "skills": [
             {
@@ -3985,13 +4009,15 @@ const characters = [
                 }
             }
         ],
-        "role": "Executioner"
+        "role": "Executioner",
+        "roleCategory": "assassin",
+        "universe": "image"
     },
     {
         "id": "rick-grimes",
         "characterId": "rick-grimes",
         "name": "Rick Grimes",
-        "facePicture": "https://i.imgur.com/4p90X9r.png",
+        "facePicture": "https://i.imgur.com/jJpqV3f.jpeg",
         "characterdeescription": "A hardened survivor from a world overrun by the dead, Rick Grimes leads with grit, instinct, and relentless will. He excels as a precision damage dealer who balances risky shots with calculated setup and late-game sustain. A man forged in chaos, Rick walks the line between control and desperation—each bullet a gamble, each decision a fight to stay alive. When his aim is steady, enemies fall in an instant; when the odds turn against him, he adapts, enduring through sheer brutality and resolve. In the end, whether by skill or sheer luck, Rick is the one still standing.",
         "startStatuses": [
             {
@@ -4343,13 +4369,15 @@ const characters = [
                 ]
             }
         ],
-        "role": "DPS"
+        "role": "DPS",
+        "roleCategory": "damage",
+        "universe": "image"
     },
     {
         "id": "andrea",
         "characterId": "andrea",
         "name": "Andrea",
-        "facePicture": "https://i.imgur.com/MECXiBj.png",
+        "facePicture": "https://i.imgur.com/pO911Ro.jpeg",
         "characterdeescription": "Andrea excels at punishing exposed targets with precise, high-impact shots, capitalizing on moments when enemies leave themselves vulnerable. Rather than applying constant pressure, she waits for the right opportunity—marking targets who act and striking them down with devastating force. Through her ‘Locked On’ passive, Andrea rewards awareness and timing, turning enemy actions into openings for lethal follow-ups. When positioned safely, she can enter a focused state that enhances her accuracy and enables her most powerful attacks, but this advantage is fragile and easily disrupted.",
         "startStatuses": [
             {
@@ -4536,13 +4564,15 @@ const characters = [
                 ]
             }
         ],
-        "role": "Marksman Assassin"
+        "role": "Marksman Assassin",
+        "roleCategory": "assassin",
+        "universe": "image"
     },
     {
         "id": "walker",
         "characterId": "walker",
         "name": "Walker",
-        "facePicture": "https://i.imgur.com/NqFhNs6.png",
+        "facePicture": "https://i.imgur.com/wTmLyGl.jpeg",
         "characterdeescription": "Walker is an undead vanguard spawned from the endless hunger of the infected masses. On a team, Walker functions as a scaling pressure engine and anti-healing disruptor, gradually overwhelming enemies through persistent damage and infection. He excels in longer fights, where his effects stack and compound, forcing opponents into a losing war of attrition.",
         "skills": [
             {
@@ -4914,13 +4944,15 @@ const characters = [
                 ]
             }
         ],
-        "role": "Attrition DPS"
+        "role": "Attrition DPS",
+        "roleCategory": "specialist",
+        "universe": "image"
     },
     {
         "id": "hershel-greene",
         "characterId": "hershel-greene",
         "name": "Hershel Greene",
-        "facePicture": "https://i.imgur.com/A4uAHH9.png",
+        "facePicture": "https://i.imgur.com/6SJSKyY.jpeg",
         "characterdeescription": "A steady hand in the chaos, Hershel Greene keeps his team alive through sheer experience and resolve. Though not a frontline fighter, his medical expertise allows him to stabilize allies, mitigate incoming damage, and even bring the fallen back into the fight. Hershel excels at sustaining his team over extended battles—delaying damage, cleansing afflictions, and turning lethal situations into survivable ones. However, his reliance on timing and limited supplies means every decision matters. Misuse his tools, and his team will crumble. Use them wisely, and they simply won’t die.",
         "skills": [
             {
@@ -5161,13 +5193,15 @@ const characters = [
                 ]
             }
         ],
-        "role": "Heal Support"
+        "role": "Heal Support",
+        "roleCategory": "support",
+        "universe": "image"
     },
     {
         "id": "invincible",
         "characterId": "invincible",
         "name": "Invincible",
-        "facePicture": "https://i.imgur.com/V13iGcl.jpeg",
+        "facePicture": "https://i.imgur.com/lFKn0A0.png",
         "characterdeescription": "Invincible thrives in the chaos of battle, growing stronger as his team endures enemy pressure. Rather than avoiding damage, he embraces it—using each hit his allies take as fuel to amplify his own power. With the ability to shield teammates at critical moments and retaliate with increasingly devastating force, Invincible rewards calculated risk and precise timing.",
         "startStatuses": [
             {
@@ -5372,7 +5406,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Bruiser/Scaling Carry"
+        "role": "Bruiser/Scaling Carry",
+        "roleCategory": "bruiser",
+        "universe": "image"
     },
     {
         "id": "rex-splode",
@@ -5709,7 +5745,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "DPS"
+        "role": "DPS",
+        "roleCategory": "damage",
+        "universe": "image"
     },
     {
         "id": "atom-eve",
@@ -5934,13 +5972,15 @@ const characters = [
                 ]
             }
         ],
-        "role": "Shield Support"
+        "role": "Shield Support",
+        "roleCategory": "support",
+        "universe": "image"
     },
     {
         "id": "omni-man",
         "characterId": "omni-man",
         "name": "Omni-Man",
-        "facePicture": "https://i.imgur.com/uOWdpob_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+        "facePicture": "https://i.imgur.com/n0iErJ8.png",
         "characterdeescription": "Omni-Man dominates the battlefield through overwhelming force and relentless punishment, thriving in direct confrontation where he can dismantle enemies over time. Rather than relying on burst or utility alone, he pressures opponents with sustained damage, disruptive control, and permanent stat reduction that weakens enemies the longer the fight continues. With abilities that force engagement and punish enemy actions, Omni-Man excels at drawing attention and turning it into an advantage. As he takes damage, his power escalates, transforming him into an increasingly dangerous threat that cannot be ignored.",
         "startStatuses": [
             {
@@ -6161,7 +6201,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Juggernaut"
+        "role": "Juggernaut",
+        "roleCategory": "tank",
+        "universe": "image"
     },
     {
         "id": "angstrom-levy",
@@ -6477,13 +6519,230 @@ const characters = [
                 ]
             }
         ],
-        "role": "Remover"
+        "role": "Remover",
+        "roleCategory": "strategic",
+        "universe": "image"
+    },
+    {
+        "id": "billy-butcher",
+        "characterId": "billy-butcher",
+        "name": "Billy Butcher",
+        "facePicture": "https://i.imgur.com/MblvOMD.png",
+        "characterdeescription": "Leader of The Boys and driven by a relentless, bloody vendetta against Supes, Billy Butcher is a fierce melee brawler who uses everything from a crowbar to temporary V24 to get the job done. While V24 gives him access to devastating ranged laser attacks, it ravages his body over time, eventually forcing him to rely on the horrific, parasitic tumorous tentacles growing inside him to crush his enemies.",
+        "skills": [
+            {
+                "id": "billy-butcher-crowbar-maim",
+                "name": "Crowbar Maim",
+                "skillimage": "https://i.imgur.com/ghyZueb.png",
+                "skilldescription": "One enemy becomes unable to reduce damage or become invulnerable for 2 turns and takes 20 damage. This deals 10 additional damage during 'V24'.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "billy_butcher_crowbar_maim_vulnerable",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotReduceDamage": true,
+                            "cannotBecomeInvulnerable": true,
+                            "tooltipText": "This character cannot reduce damage or become invulnerable."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "billy_butcher_v24_active"
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "billy-butcher-v24",
+                "name": "V24",
+                "skillimage": "https://i.imgur.com/hFsL74M.png",
+                "skilldescription": "For 2 turns, Butcher gains 50% unpierceable damage reduction and swaps this to 'Yellow Death Lasers'. Afterwards, Butcher loses 25HP, has his health capped, then 'Cancerous Tentacles' deals 10 additional damage (Stacks).",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "billy_butcher_v24_active",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "unpierceableDamageReductionPercent": 50,
+                            "skillReplacements": {
+                                "billy-butcher-v24": "billy-butcher-yellow-death-lasers"
+                            },
+                            "onExpireEffects": [
+                                {
+                                    "type": "HealthLoss",
+                                    "amount": 25
+                                },
+                                {
+                                    "type": "HealthCapLoss",
+                                    "amount": 25
+                                },
+                                {
+                                    "type": "apply_status",
+                                    "statusId": "billy_butcher_tentacles_damage_bonus",
+                                    "duration": 99,
+                                    "metadata": {
+                                        "infiniteDuration": true,
+                                        "skillDamageBonuses": {
+                                            "billy-butcher-cancerous-tentacles": 10
+                                        },
+                                        "tooltipText": "Cancerous Tentacles deals 10 additional damage. This effect stacks."
+                                    }
+                                }
+                            ],
+                            "tooltipText": "Butcher has 50% unpierceable damage reduction and V24 is replaced by Yellow Death Lasers."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "billy-butcher-cancerous-tentacles",
+                "name": "Cancerous Tentacles",
+                "skillimage": "https://i.imgur.com/MUVL2C6.png",
+                "skilldescription": "Deals 25 piercing damage to one enemy and stuns their harmful skills for 1 turn. Butcher loses 10HP.",
+                "energy": [
+                    "Bloodline",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "billy_butcher_cancerous_tentacles_harmful_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseHarmfulSkills": true,
+                            "tooltipText": "This character's harmful skills are stunned."
+                        }
+                    },
+                    {
+                        "type": "HealthLoss",
+                        "amount": 10,
+                        "scope": "self"
+                    }
+                ]
+            },
+            {
+                "id": "billy-butcher-escape",
+                "name": "Butcher Escape",
+                "skillimage": "https://i.imgur.com/heQWQJH.png",
+                "skilldescription": "This skill makes Butcher invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "billy_butcher_escape_invulnerable",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Butcher is invulnerable."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "billy-butcher-yellow-death-lasers",
+                "name": "Yellow Death Lasers",
+                "skillimage": "https://i.imgur.com/1MFzKut.jpeg",
+                "skilldescription": "Butcher deals 35 affliction damage to one enemy that ignores invulnerability.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "ignoreInvulnerability": true,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Brawler",
+        "roleCategory": "bruiser",
+        "universe": "other"
     },
     {
         "id": "doctor-octopus",
         "characterId": "doctor-octopus",
         "name": "Doctor Octopus",
-        "facePicture": "https://i.imgur.com/0rcAM48.png",
+        "facePicture": "https://i.imgur.com/HdMCEue.jpeg",
         "startStatuses": [
             {
                 "statusId": "doctor_octopus_mechanical_tentacles",
@@ -6730,13 +6989,15 @@ const characters = [
                 ]
             }
         ],
-        "role": "Defensive Controller"
+        "role": "Defensive Controller",
+        "roleCategory": "strategic",
+        "universe": "marvel"
     },
     {
         "id": "carnage",
         "characterId": "carnage",
         "name": "Carnage",
-        "facePicture": "https://i.imgur.com/ECJOkvk.png",
+        "facePicture": "https://i.imgur.com/053csjw.png",
         "startStatuses": [
             {
                 "statusId": "carnage_passive_blood_bonded",
@@ -6976,7 +7237,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Execution Beserker"
+        "role": "Execution Beserker",
+        "roleCategory": "assassin",
+        "universe": "marvel"
     },
     {
         "id": "the-green-goblin",
@@ -7000,6 +7263,9 @@ const characters = [
                         "sourceSkillId": "the-green-goblin-passive-mad-bomber",
                         "metadata": {
                             "harmful": true,
+                            "specialStatusVisual": "green-goblin-bomb",
+                            "allowDuplicateStatusInstances": true,
+                            "triggerOnOwnerHarmfulSkillOnly": true,
                             "triggerOnEnemyHarmfulSkill": true,
                             "onExpireEffectsToEnemiesOfSource": [
                                 {
@@ -7070,6 +7336,9 @@ const characters = [
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
+                            "specialStatusVisual": "green-goblin-bomb",
+                            "allowDuplicateStatusInstances": true,
+                            "triggerOnOwnerHarmfulSkillOnly": true,
                             "triggerOnEnemyHarmfulSkill": true,
                             "onExpireEffectsToEnemiesOfSource": [
                                 {
@@ -7130,6 +7399,9 @@ const characters = [
                         "scope": "all-enemy",
                         "metadata": {
                             "harmful": true,
+                            "specialStatusVisual": "green-goblin-bomb",
+                            "allowDuplicateStatusInstances": true,
+                            "triggerOnOwnerHarmfulSkillOnly": true,
                             "triggerOnEnemyHarmfulSkill": true,
                             "onExpireEffectsToEnemiesOfSource": [
                                 {
@@ -7253,13 +7525,15 @@ const characters = [
                 ]
             }
         ],
-        "role": "Punisher"
+        "role": "Punisher",
+        "roleCategory": "specialist",
+        "universe": "marvel"
     },
     {
         "id": "sandman",
         "characterId": "sandman",
         "name": "Sandman",
-        "facePicture": "https://i.imgur.com/pJj5Wz0.png",
+        "facePicture": "https://i.imgur.com/achNzMq.png",
         "characterdeescription": "Sandman excels at isolating key enemies and forcing them into unfavorable situations, using his shifting form to control engagements and dictate the flow of combat. Rather than overwhelming entire teams, he focuses on a single target—marking them, limiting their effectiveness, and isetting up unavoidable punishment through well-timed ability sequences.",
         "skills": [
             {
@@ -7472,13 +7746,15 @@ const characters = [
                 ]
             }
         ],
-        "role": "Duelist Bruiser"
+        "role": "Duelist Bruiser",
+        "roleCategory": "bruiser",
+        "universe": "marvel"
     },
     {
         "id": "mysterio",
         "characterId": "mysterio",
         "name": "Mysterio",
-        "facePicture": "https://i.imgur.com/QOsgmSs.png",
+        "facePicture": "https://i.imgur.com/mc1rZn0.jpeg",
         "characterdeescription": "Mysterio excels at destabilizing the battlefield through deception, punishing enemies for acting without caution. Rather than directly overpowering opponents, he manipulates outcomes—redirecting abilities, setting hidden traps, and turning enemy decisions against them. With tools that reward prediction and punish routine play.",
         "skills": [
             {
@@ -7655,7 +7931,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Trickster Mage"
+        "role": "Trickster Mage",
+        "roleCategory": "strategic",
+        "universe": "marvel"
     },
     {
         "id": "scorpion",
@@ -8022,7 +8300,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Affliction Specialist"
+        "role": "Affliction Specialist",
+        "roleCategory": "specialist",
+        "universe": "marvel"
     },
     {
         "id": "green-lantern-hal-jordan",
@@ -8037,11 +8317,13 @@ const characters = [
                 "duration": 99,
                 "metadata": {
                     "infiniteDuration": true,
+                    "lanternPassiveVisual": "green",
                     "turnEndApplyStatusToSelf": {
                         "statusId": "green_lantern_hal_jordan_green_lantern_ring_damage_bonus",
                         "duration": 99,
                         "metadata": {
                             "infiniteDuration": true,
+                            "lanternEffectVisual": "green",
                             "damageBonusFlat": 1,
                             "mergeNumericAddKeys": [
                                 "damageBonusFlat"
@@ -8324,13 +8606,15 @@ const characters = [
                 ]
             }
         ],
-        "role": "Scaling Carry"
+        "role": "Scaling Carry",
+        "roleCategory": "hybrid",
+        "universe": "dc"
     },
     {
         "id": "homelander",
         "characterId": "homelander",
         "name": "Homelander",
-        "facePicture": "https://i.imgur.com/DI93KSQ_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+        "facePicture": "https://i.imgur.com/UEKWk6t.jpeg",
         "characterdeescription": "Homelander functions as a snowball executioner who grows deadlier every time he finishes off a weakened target. Starting as a strong single-target threat, he uses brutal burst damage and intimidation tools to pick off vulnerable enemies, then converts each kill into permanent bonus damage and self-healing. The longer he is allowed to secure eliminations, the faster he spirals into an overwhelming late-game menace.",
         "startStatuses": [
             {
@@ -8550,7 +8834,1048 @@ const characters = [
                 ]
             }
         ],
-        "role": "Executioner"
+        "role": "Executioner",
+        "roleCategory": "assassin",
+        "universe": "other"
+    },
+    {
+        "id": "xenomorph-drone",
+        "characterId": "xenomorph-drone",
+        "name": "Xenomorph Drone",
+        "nameHtml": "Xenomorph Drone",
+        "facePicture": "https://i.imgur.com/IwSu3G7_d.png?maxwidth=520&shape=thumb&fidelity=high",
+        "url": "https://i.imgur.com/IwSu3G7_d.png?maxwidth=520&shape=thumb&fidelity=high",
+        "unlockRequirement": "None",
+        "unlockRequirementHtml": "None",
+        "characterdeescription": "Xenomorph Drone is a scaling swarm-based fighter that punishes enemies with affliction and executes weakened targets. It becomes stronger as more drones are present.",
+        "description": "Xenomorph Drone is a scaling swarm-based fighter that punishes enemies with affliction and executes weakened targets. It becomes stronger as more drones are present.",
+        "descriptionHtml": "Xenomorph Drone is a scaling swarm-based fighter that punishes enemies with affliction and executes weakened targets.<br>It becomes stronger as more drones are present.",
+        "startStatuses": [
+            {
+                "statusId": "xenomorph_drone_acid_blood_passive",
+                "sourceSkillId": "xenomorph-drone-passive-acid-blood",
+                "duration": 999,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "triggerOnEnemyHarmfulSkill": true,
+                    "triggerOnEnemyHarmfulSkillClassesAny": [
+                        "Melee"
+                    ],
+                    "counterDamageMetadata": {
+                        "bonusPerAliveTeamMember": {
+                            "characterId": "xenomorph-drone",
+                            "statusId": "xenomorph_hive_member",
+                            "amount": 3
+                        }
+                    },
+                    "counterDamageIgnoresReduction": true,
+                    "counterDamageIgnoresDestructibleDefense": true,
+                    "persistOnTrigger": true,
+                    "tooltipText": "Enemies using melee skills on this character take 3 affliction damage for each Xenomorph Drone on this team."
+                }
+            },
+            {
+                "statusId": "xenomorph_drone_facehugger_reward",
+                "sourceSkillId": "xenomorph-drone-facehugger",
+                "duration": 999,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "hideTooltip": true,
+                    "onOwnerKillTargetRelation": "enemy",
+                    "onOwnerKillSourceSkillIdsAny": [
+                        "xenomorph-drone-facehugger"
+                    ],
+                    "onOwnerKillApplyStatusToSelf": {
+                        "statusId": "xenomorph_drone_facehugger_carapace",
+                        "duration": 999,
+                        "metadata": {
+                            "destructibleDefensePoints": 25,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Facehugger."
+                        }
+                    }
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "xenomorph-drone-inner-jaw-strike",
+                "name": "Inner-Jaw Strike",
+                "nameHtml": "Inner-Jaw Strike",
+                "skillimage": "https://i.imgur.com/OeSLg1o_d.png?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/OeSLg1o_d.png?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "Deals 20 damage to one enemy. If their health falls to 10 HP or below, they are executed.",
+                "description": "Deals 20 damage to one enemy. If their health falls to 10 HP or below, they are executed.",
+                "descriptionHtml": "Deals 20 damage to one enemy.<br>If their health falls to 10 HP or below, they are executed.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "None",
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Melee, Instant",
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "bonusPerAliveTeamMember": {
+                                "characterId": "xenomorph-drone",
+                                "statusId": "xenomorph_hive_member",
+                                "amount": 5
+                            }
+                        }
+                    },
+                    {
+                        "type": "execute_below_hp",
+                        "threshold": 10,
+                        "scope": "target"
+                    }
+                ]
+            },
+            {
+                "id": "xenomorph-drone-cystic-acid-spit",
+                "name": "Cystic Acid Spit",
+                "nameHtml": "Cystic Acid Spit",
+                "skillimage": "https://i.imgur.com/LJwMFWx_d.png?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/LJwMFWx_d.png?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "Removes all damage reduction and destructible defense from one enemy, then deals 15 affliction damage. Lasts 1 extra turn if they had none.",
+                "description": "Removes all damage reduction and destructible defense from one enemy, then deals 15 affliction damage. Lasts 1 extra turn if they had none.",
+                "descriptionHtml": "Removes all damage reduction and destructible defense from one enemy, then deals 15 affliction damage.<br>Lasts 1 extra turn if they had none.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "cooldownHtml": "2",
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "classesHtml": "Physical, Ranged, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "xenomorph_drone_cystic_acid_linger",
+                        "duration": 1,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "missingStatusMetadataAny": [
+                                "damageReductionFlat",
+                                "damageReductionPercent",
+                                "unpierceableDamageReductionFlat",
+                                "destructibleDefensePoints"
+                            ]
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "turnEndDamage": 15,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "afflictionDamage": true,
+                            "tooltipText": "This character will take 15 affliction damage next turn."
+                        }
+                    },
+                    {
+                        "type": "cleanse_statuses",
+                        "scope": "target",
+                        "metadataAny": [
+                            "damageReductionFlat",
+                            "damageReductionPercent",
+                            "unpierceableDamageReductionFlat"
+                        ]
+                    },
+                    {
+                        "type": "destroy_destructible_defense",
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                            "bonusPerAliveTeamMember": {
+                                "characterId": "xenomorph-drone",
+                                "statusId": "xenomorph_hive_member",
+                                "amount": 5
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "xenomorph-drone-facehugger",
+                "name": "Facehugger",
+                "nameHtml": "Facehugger",
+                "skillimage": "https://i.imgur.com/q9VzVoj_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/q9VzVoj_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "May target ally or enemy. Allies become Xenomorphs. Enemies take 25 affliction damage after 2 turns; if they die, gain 25 destructible defense.",
+                "description": "May target ally or enemy. Allies become Xenomorphs. Enemies take 25 affliction damage after 2 turns; if they die, gain 25 destructible defense.",
+                "descriptionHtml": "May target ally or enemy.<br>Allies become Xenomorphs.<br>Enemies take 25 affliction damage after 2 turns; if they die, gain 25 destructible defense.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-character",
+                "damage": 0,
+                "cooldown": 1,
+                "cooldownHtml": "1",
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "classesHtml": "Physical, Ranged, Instant, Affliction",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "xenomorph_hive_member",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "predator-stalker"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "effectiveCharacterId": "predalien",
+                            "facePictureOverride": "https://i.imgur.com/Rq2FZug.jpeg",
+                            "tooltipText": "This ally has been turned into a Predalien!"
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "xenomorph_hive_member",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "missingCharacterIdsAny": [
+                                "predator-stalker",
+                                "predalien"
+                            ]
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "effectiveCharacterId": "xenomorph-drone",
+                            "facePictureOverride": "https://i.imgur.com/IwSu3G7_d.png?maxwidth=520&shape=thumb&fidelity=high",
+                            "tooltipText": "This ally counts as a Xenomorph for The Hive."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "xenomorph_facehugger_implanted",
+                        "duration": 2,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "onExpireEffects": [
+                                {
+                                    "type": "damage",
+                                    "amount": 25,
+                                    "metadata": {
+                                        "afflictionDamage": true,
+                                        "ignoreDamageReduction": true,
+                                        "ignoreDestructibleDefense": true,
+                                        "skillClasses": [
+                                            "Affliction"
+                                        ]
+                                    }
+                                }
+                            ],
+                            "tooltipText": "After 2 turns, this character takes 25 affliction damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "xenomorph-drone-xeno-stealth",
+                "name": "Xeno-Stealth",
+                "nameHtml": "Xeno-Stealth",
+                "skillimage": "https://i.imgur.com/HylKUuA_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/HylKUuA_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "Heals 15 HP, becomes invulnerable, and increases 'Inner-Jaw Strike' damage by 10 for 1 turn.",
+                "description": "Heals 15 HP, becomes invulnerable, and increases 'Inner-Jaw Strike' damage by 10 for 1 turn.",
+                "descriptionHtml": "Heals 15 HP, becomes invulnerable, and increases 'Inner-Jaw Strike' damage by 10 for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 5,
+                "cooldownHtml": "5",
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Instant",
+                "effects": [
+                    {
+                        "type": "heal",
+                        "amount": 15,
+                        "scope": "self"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "xenomorph_drone_xeno_stealth",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "skillDamageBonuses": {
+                                "xenomorph-drone-inner-jaw-strike": 10
+                            },
+                            "tooltipText": "This character is invulnerable and Inner-Jaw Strike deals 10 additional damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "xenomorph-drone-passive-acid-blood",
+                "name": "Passive: Acid Blood",
+                "nameHtml": "Passive: Acid Blood",
+                "skillimage": "https://i.imgur.com/O5qNmea_d.png?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/O5qNmea_d.png?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "Enemies using new melee skills on Xenomorph take 3 affliction damage (increases per drone).",
+                "description": "Enemies using new melee skills on Xenomorph take 3 affliction damage (increases per drone).",
+                "descriptionHtml": "Enemies using new melee skills on Xenomorph take 3 affliction damage (increases per drone).",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "Passive",
+                "classes": [
+                    "Passive",
+                    "Instant",
+                    "Affliction"
+                ],
+                "classesHtml": "Passive, Instant, Affliction"
+            },
+            {
+                "id": "xenomorph-drone-passive-the-hive",
+                "name": "Passive: The Hive",
+                "nameHtml": "Passive: The Hive",
+                "skillimage": "https://i.imgur.com/wOMvYEY_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/wOMvYEY_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "'Inner-Jaw Strike' and 'Cystic Acid Spit' deal 5 bonus damage for every Xenomorph Drone on your team.",
+                "description": "'Inner-Jaw Strike' and 'Cystic Acid Spit' deal 5 bonus damage for every Xenomorph Drone on your team.",
+                "descriptionHtml": "'Inner-Jaw Strike' and 'Cystic Acid Spit' deal 5 bonus damage for every Xenomorph Drone on your team.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "Passive",
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
+                "classesHtml": "Passive, Instant"
+            }
+        ],
+        "role": "Swarm DPS",
+        "roleCategory": "damage",
+        "universe": "other"
+    },
+    {
+        "id": "predalien",
+        "characterId": "predalien",
+        "name": "Predalien",
+        "nameHtml": "Predalien",
+        "facePicture": "https://i.imgur.com/Rq2FZug.jpeg",
+        "url": "https://i.imgur.com/Rq2FZug.jpeg",
+        "unlockRequirement": "None",
+        "unlockRequirementHtml": "None",
+        "characterdeescription": "Predalien is a relentless bruiser-disruptor that grows stronger the longer combat continues, combining overwhelming physical aggression with stacking defenses and teamwide pressure. It excels at forcing enemies into unfavorable trades while becoming increasingly difficult to bring down.",
+        "description": "Predalien is a relentless bruiser-disruptor that grows stronger the longer combat continues, combining overwhelming physical aggression with stacking defenses and teamwide pressure. It excels at forcing enemies into unfavorable trades while becoming increasingly difficult to bring down.",
+        "descriptionHtml": "Predalien is a relentless bruiser-disruptor that grows stronger the longer combat continues, combining overwhelming physical aggression with stacking defenses and teamwide pressure.<br>It excels at forcing enemies into unfavorable trades while becoming increasingly difficult to bring down.",
+        "skills": [
+            {
+                "id": "predalien-tail-ravage",
+                "name": "Tail Ravage",
+                "nameHtml": "Tail Ravage",
+                "skillimage": "https://i.imgur.com/jOZDXEw.jpeg",
+                "url": "https://i.imgur.com/jOZDXEw.jpeg",
+                "skilldescription": "Deals 45 piercing damage to one enemy. If this kills the target, Predalien gains 1 stack of 'Plated Armor' permanently and deals 5 bonus damage permanently that stacks.",
+                "description": "Deals 45 piercing damage to one enemy. If this kills the target, Predalien gains 1 stack of 'Plated Armor' permanently and deals 5 bonus damage permanently that stacks.",
+                "descriptionHtml": "Deals 45 piercing damage to one enemy. If this kills the target, Predalien gains 1 stack of 'Plated Armor' permanently and deals 5 bonus damage permanently that stacks.",
+                "energy": [
+                    "Genjutsu",
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "cooldownHtml": "1",
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Melee, Instant",
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 45,
+                        "scope": "target",
+                        "metadata": {
+                            "piercingDamage": true,
+                            "onKillApplyStatusesToSource": [
+                                {
+                                    "statusId": "predalien_plated_armor_stack",
+                                    "duration": 999,
+                                    "metadata": {
+                                        "infiniteDuration": true,
+                                        "damageReductionPercent": 10,
+                                        "unpierceableDamageReduction": true,
+                                        "destructibleDefensePoints": 10,
+                                        "stackMetadataKey": "platedArmorStacks",
+                                        "mergeNumericAddKeys": [
+                                            "damageReductionPercent",
+                                            "destructibleDefensePoints"
+                                        ],
+                                        "maxStacks": 9,
+                                        "tooltipTextTemplate": "This character has {damageReductionPercent}% unpierceable damage reduction and {destructibleDefensePoints} destructible defense."
+                                    }
+                                },
+                                {
+                                    "statusId": "predalien_tail_ravage_bonus",
+                                    "duration": 999,
+                                    "metadata": {
+                                        "infiniteDuration": true,
+                                        "damageBonusFlat": 5,
+                                        "mergeNumericAddKeys": [
+                                            "damageBonusFlat"
+                                        ],
+                                        "tooltipTextTemplate": "This character deals {damageBonusFlat} additional damage."
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "predalien-predalien-screech",
+                "name": "Predalien Screech",
+                "nameHtml": "Predalien Screech",
+                "skillimage": "https://i.imgur.com/AT8pjLr.jpeg",
+                "url": "https://i.imgur.com/AT8pjLr.jpeg",
+                "skilldescription": "Taunts the enemy team and lowers their non-affliction damage by 15 for 1 turn. This skill ignores invulnerability.",
+                "description": "Taunts the enemy team and lowers their non-affliction damage by 15 for 1 turn. This skill ignores invulnerability.",
+                "descriptionHtml": "Taunts the enemy team and lowers their non-affliction damage by 15 for 1 turn. This skill ignores invulnerability.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "enemy-team",
+                "damage": 0,
+                "cooldown": 2,
+                "cooldownHtml": "2",
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Ranged, Instant",
+                "ignoreInvulnerability": true,
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "predalien_screech_taunt",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "taunt": true,
+                            "tooltipText": "This character is taunted."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "predalien_screech_debuff",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "nonAfflictionDamageDebuffFlat": 15,
+                            "tooltipText": "This character deals 15 less non-affliction damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "predalien-plated-armor",
+                "name": "Plated Armor",
+                "nameHtml": "Plated Armor",
+                "skillimage": "https://i.imgur.com/txYFMtr.jpeg",
+                "url": "https://i.imgur.com/txYFMtr.jpeg",
+                "skilldescription": "Predalien gains 10% unpierceable damage reduction and 10 points of destructible defense for 1 turn. This skill stacks up to 9 times.",
+                "description": "Predalien gains 10% unpierceable damage reduction and 10 points of destructible defense for 1 turn. This skill stacks up to 9 times.",
+                "descriptionHtml": "Predalien gains 10% unpierceable damage reduction and 10 points of destructible defense for 1 turn. This skill stacks up to 9 times.",
+                "energy": [],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 1,
+                "cooldownHtml": "1",
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "predalien_plated_armor_stack",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "damageReductionPercent": 10,
+                            "unpierceableDamageReduction": true,
+                            "destructibleDefensePoints": 10,
+                            "stackMetadataKey": "platedArmorStacks",
+                            "mergeNumericAddKeys": [
+                                "damageReductionPercent",
+                                "destructibleDefensePoints"
+                            ],
+                            "maxStacks": 9,
+                            "tooltipTextTemplate": "This character has {damageReductionPercent}% unpierceable damage reduction and {destructibleDefensePoints} destructible defense."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "predalien-predalien-nest",
+                "name": "Predalien Nest",
+                "nameHtml": "Predalien Nest",
+                "skillimage": "https://i.imgur.com/NTVnZF4.jpeg",
+                "url": "https://i.imgur.com/NTVnZF4.jpeg",
+                "skilldescription": "Predalien becomes invulnerable for 1 turn and gains 1 genjutsu energy.",
+                "description": "Predalien becomes invulnerable for 1 turn and gains 1 genjutsu energy.",
+                "descriptionHtml": "Predalien becomes invulnerable for 1 turn and gains 1 genjutsu energy.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "cooldownHtml": "4",
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "predalien_nest_invulnerable",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "This character is invulnerable."
+                        }
+                    },
+                    {
+                        "type": "gain_chakra",
+                        "amount": 1,
+                        "chakraType": "genjutsu",
+                        "scope": "self"
+                    }
+                ]
+            }
+        ],
+        "role": "Bruiser",
+        "universe": "other",
+        "roleCategory": "bruiser"
+    },
+    {
+        "id": "rage-infected",
+        "characterId": "rage-infected",
+        "name": "Rage Infected",
+        "nameHtml": "Rage Infected",
+        "facePicture": "https://i.imgur.com/k4lrBvO_d.png?maxwidth=520&shape=thumb&fidelity=high",
+        "url": "https://i.imgur.com/k4lrBvO_d.png?maxwidth=520&shape=thumb&fidelity=high",
+        "unlockRequirement": "None",
+        "unlockRequirementHtml": "None",
+        "characterdeescription": "Infected with the Rage Virus is a relentless berserker who overwhelms enemies through pain, chaos, and psychological pressure. Using brutal attacks, blindness effects, and self-destructive rage, he punishes opponents for trying to fight back while growing deadlier the longer combat continues. Though vulnerable to sustained focus and burst damage, Rage Infected excels at disrupting enemy coordination and forcing reckless decisions through constant pressure and unpredictable aggression.",
+        "description": "Infected with the Rage Virus is a relentless berserker who overwhelms enemies through pain, chaos, and psychological pressure. Using brutal attacks, blindness effects, and self-destructive rage, he punishes opponents for trying to fight back while growing deadlier the longer combat continues. Though vulnerable to sustained focus and burst damage, Rage Infected excels at disrupting enemy coordination and forcing reckless decisions through constant pressure and unpredictable aggression.",
+        "descriptionHtml": "Infected with the Rage Virus is a relentless berserker who overwhelms enemies through pain, chaos, and psychological pressure. Using brutal attacks, blindness effects, and self-destructive rage, he punishes opponents for trying to fight back while growing deadlier the longer combat continues. Though vulnerable to sustained focus and burst damage, Rage Infected excels at disrupting enemy coordination and forcing reckless decisions through constant pressure and unpredictable aggression.",
+        "skills": [
+            {
+                "id": "rage-infected-blood-vomit",
+                "name": "Blood Vomit",
+                "nameHtml": "Blood Vomit",
+                "skillimage": "https://i.imgur.com/5L1V6jg_d.png?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/5L1V6jg_d.png?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "For 2 turns, one enemy takes 15 affliction damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams.",
+                "description": "For 2 turns, one enemy takes 15 affliction damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams.",
+                "descriptionHtml": "For 2 turns, one enemy takes 15 affliction damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams.",
+                "energy": [
+                    "Bloodline",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "cooldownHtml": "3",
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "classesHtml": "Physical, Ranged, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "rage_infected_blood_vomit",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "fullBlind": true,
+                            "nonAfflictionDamageBonusFlat": 10,
+                            "turnEndDamage": 15,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "afflictionDamage": true,
+                            "tooltipText": "This character takes 15 affliction damage each turn, deals 10 additional non-affliction damage, and harmful skills randomly target either team."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "rage-infected-eye-gouge",
+                "name": "Eye Gouge",
+                "nameHtml": "Eye Gouge",
+                "skillimage": "https://i.imgur.com/3f7cgd3_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/3f7cgd3_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "Deals 30 damage to one enemy. For 1 turn, they are partially-blinded, causing their new harmful skills to randomly select their target from the opposing team only.",
+                "description": "Deals 30 damage to one enemy. For 1 turn, they are partially-blinded, causing their new harmful skills to randomly select their target from the opposing team only.",
+                "descriptionHtml": "Deals 30 damage to one enemy.<br>For 1 turn, they are partially-blinded, causing their new harmful skills to randomly select their target from the opposing team only.",
+                "energy": [
+                    "Taijutsu",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "cooldownHtml": "1",
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Melee, Instant",
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "rage_infected_eye_gouge_blind",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "harmfulBlind": true,
+                            "tooltipText": "This character's harmful skills randomly target the opposing team."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "rage-infected-murderous-rage",
+                "name": "Murderous Rage",
+                "nameHtml": "Murderous Rage",
+                "skillimage": "https://i.imgur.com/39yHcrF_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/39yHcrF_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP. While active, if they use a new harmful skill, this effect is refreshed and they take 5 additional damage from Rage Infected permanently. This skill is invisible and cannot be used while active.",
+                "description": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP. While active, if they use a new harmful skill, this effect is refreshed and they take 5 additional damage from Rage Infected permanently. This skill is invisible and cannot be used while active.",
+                "descriptionHtml": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP.<br>While active, if they use a new harmful skill, this effect is refreshed and they take 5 additional damage from Rage Infected permanently.<br>This skill is invisible and cannot be used while active.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "cooldownHtml": "2",
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "classesHtml": "Mental, Ranged, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "rage_infected_murderous_rage_guard",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "minimumHp": 1,
+                            "copySelectedTargetKeyToKeys": [
+                                "minimumHpFromSourceKey"
+                            ],
+                            "skillReplacements": {
+                                "rage-infected-murderous-rage": "rage-infected-murderous-rage-active"
+                            },
+                            "tooltipText": "The selected enemy cannot reduce Rage Infected below 1 HP."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "rage_infected_murderous_rage_mark",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "onOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillHarmfulOnly": true,
+                            "onOwnerUseSkillApplyStatusToSourceOwner": {
+                                "statusId": "rage_infected_murderous_rage_guard",
+                                "duration": 1,
+                                "metadata": {
+                                    "minimumHp": 1,
+                                    "copyOwnerKeyToKeys": [
+                                        "minimumHpFromSourceKey"
+                                    ],
+                                    "skillReplacements": {
+                                        "rage-infected-murderous-rage": "rage-infected-murderous-rage-active"
+                                    },
+                                    "tooltipText": "The selected enemy cannot reduce Rage Infected below 1 HP."
+                                }
+                            },
+                            "onOwnerUseSkillApplyStatusToOwner": {
+                                "statusId": "rage_infected_murderous_rage_bonus",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "bonusDamageFromSourceCharacterId": "rage-infected",
+                                    "bonusDamageFromSourceSkillsFlat": 5,
+                                    "mergeNumericAddKeys": [
+                                        "bonusDamageFromSourceSkillsFlat"
+                                    ],
+                                    "tooltipTextTemplate": "Rage Infected deals {bonusDamageFromSourceSkillsFlat} additional damage to this character."
+                                }
+                            },
+                            "tooltipText": "If this character uses a skill, Rage Infected gains permanent bonus damage against them."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "rage-infected-relentless-pursuit",
+                "name": "Relentless Pursuit",
+                "nameHtml": "Relentless Pursuit",
+                "skillimage": "https://i.imgur.com/osxi6DC_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/osxi6DC_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "For 3 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 10 additional non-affliction damage from enemy skills.",
+                "description": "For 3 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 10 additional non-affliction damage from enemy skills.",
+                "descriptionHtml": "For 3 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 10 additional non-affliction damage from enemy skills.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "cooldownHtml": "4",
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "rage_infected_relentless_pursuit",
+                        "duration": 3,
+                        "scope": "self",
+                        "metadata": {
+                            "cannotBeStunned": true,
+                            "randomCostReduction": 1,
+                            "bonusDamageFromSourceSkillsFlat": 10,
+                            "bonusDamageFromSourceNonAfflictionOnly": true,
+                            "bonusDamageFromSourceEnemyOnly": true,
+                            "tooltipText": "Rage Infected ignores stuns, his skills cost 1 less random energy, and enemy skills deal 10 additional non-affliction damage to him."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "rage-infected-murderous-rage-active",
+                "name": "Murderous Rage",
+                "hiddenFromSelectionViewer": true,
+                "actorCondition": {
+                    "missingStatusId": "rage_infected_murderous_rage_guard"
+                },
+                "skillimage": "https://i.imgur.com/39yHcrF_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "skilldescription": "Murderous Rage is active.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Mental",
+                    "Instant"
+                ],
+                "effects": []
+            }
+        ],
+        "role": "Beserker",
+        "roleCategory": "bruiser",
+        "universe": "other"
+    },
+    {
+        "id": "space-marine-infantry",
+        "characterId": "space-marine-infantry",
+        "name": "Pvt. Saunders",
+        "nameHtml": "Space Marine Infantry",
+        "facePicture": "https://i.imgur.com/Ch1wobl.png",
+        "url": "https://i.imgur.com/Ch1wobl.png",
+        "unlockRequirement": "None",
+        "unlockRequirementHtml": "None",
+        "characterdeescription": "A frontline shock trooper equipped with brutal anti-infantry weaponry and battlefield support tools, the Space Marine Infantry overwhelms enemies through sustained pressure and explosive area damage. Whether suppressing targets with disciplined rifle fire, burning entire teams with incendiary attacks, or shielding allies with emergency extraction protocols, this soldier turns every engagement into a warzone.",
+        "description": "A frontline shock trooper equipped with brutal anti-infantry weaponry and battlefield support tools, the Space Marine Infantry overwhelms enemies through sustained pressure and explosive area damage. Whether suppressing targets with disciplined rifle fire, burning entire teams with incendiary attacks, or shielding allies with emergency extraction protocols, this soldier turns every engagement into a warzone.",
+        "descriptionHtml": "A frontline shock trooper equipped with brutal anti-infantry weaponry and battlefield support tools, the Space Marine Infantry overwhelms enemies through sustained pressure and explosive area damage. Whether suppressing targets with disciplined rifle fire, burning entire teams with incendiary attacks, or shielding allies with emergency extraction protocols, this soldier turns every engagement into a warzone.",
+        "skills": [
+            {
+                "id": "space-marine-infantry-m41a-pulse-rifle",
+                "name": "M41A Pulse Rifle",
+                "nameHtml": "M41A Pulse Rifle",
+                "skillimage": "https://i.imgur.com/aqlogGB.png",
+                "url": "https://i.imgur.com/aqlogGB.png",
+                "skilldescription": "Deals 15 piercing damage to one enemy each turn for 3 turns. This skill is channeled and will end if Space Marine Infantry uses a new skill. While active, Grenade Launcher costs 1 random energy less.",
+                "description": "Deals 15 piercing damage to one enemy each turn for 3 turns. This skill is channeled and will end if Space Marine Infantry uses a new skill. While active, Grenade Launcher costs 1 random energy less.",
+                "descriptionHtml": "Deals 15 piercing damage to one enemy each turn for 3 turns.<br>This skill is channeled and will end if Space Marine Infantry uses a new skill.<br>While active, Grenade Launcher costs 1 random energy less.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "None",
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Channeled"
+                ],
+                "classesHtml": "Physical, Ranged, Channeled",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "space_marine_infantry_m41a_pulse_rifle_channel",
+                        "duration": 3,
+                        "scope": "self",
+                        "metadata": {
+                            "ongoingClass": "channeled",
+                            "skillCostOverridesBySkillId": {
+                                "space-marine-infantry-grenade-launcher": {
+                                    "random": 0
+                                }
+                            },
+                            "tooltipText": "M41A Pulse Rifle is being channeled. Grenade Launcher costs 1 less random energy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "space_marine_infantry_m41a_pulse_rifle_barrage",
+                        "duration": 3,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "ongoingClass": "channeled",
+                            "turnEndDamage": 15,
+                            "triggerOnApply": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "tooltipText": "This character takes 15 piercing damage each turn from M41A Pulse Rifle."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "space-marine-infantry-grenade-launcher",
+                "name": "Grenade Launcher",
+                "nameHtml": "Grenade Launcher",
+                "skillimage": "https://i.imgur.com/Auz9hYU.png",
+                "url": "https://i.imgur.com/Auz9hYU.png",
+                "skilldescription": "Deals 25 affliction damage to one enemy and reduces all their damage by 15 for 1 turn.",
+                "description": "Deals 25 affliction damage to one enemy and reduces all their damage by 15 for 1 turn.",
+                "descriptionHtml": "Deals 25 affliction damage to one enemy and reduces all their damage by 15 for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "cooldownHtml": "2",
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "classesHtml": "Physical, Ranged, Instant, Affliction",
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "space_marine_infantry_grenade_launcher_suppressed",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "damageDebuffFlat": 15,
+                            "tooltipText": "This character deals 15 less damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "space-marine-infantry-flamethrower",
+                "name": "Flamethrower",
+                "nameHtml": "Flamethrower",
+                "skillimage": "https://i.imgur.com/Y435B8s.png",
+                "url": "https://i.imgur.com/Y435B8s.png",
+                "skilldescription": "Deals 12 affliction damage to one enemy, 6 affliction damage to all other enemies, and reduces all their damage by 5 each turn for 3 turns. This skill is channeled and will end if Space Marine Infantry uses a new skill.",
+                "description": "Deals 12 affliction damage to one enemy, 6 affliction damage to all other enemies, and reduces all their damage by 5 each turn for 3 turns. This skill is channeled and will end if Space Marine Infantry uses a new skill.",
+                "descriptionHtml": "Deals 12 affliction damage to one enemy, 6 affliction damage to all other enemies, and reduces all their damage by 5 each turn for 3 turns.<br>This skill is channeled and will end if Space Marine Infantry uses a new skill.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "None",
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Channeled",
+                    "Affliction"
+                ],
+                "classesHtml": "Energy, Ranged, Channeled, Affliction",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "space_marine_infantry_flamethrower_channel",
+                        "duration": 3,
+                        "scope": "self",
+                        "metadata": {
+                            "ongoingClass": "channeled",
+                            "tooltipText": "Flamethrower is being channeled."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "space_marine_infantry_flamethrower_burn",
+                        "duration": 3,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "ongoingClass": "channeled",
+                            "turnEndDamage": 12,
+                            "triggerOnApply": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "afflictionDamage": true,
+                            "damageDebuffFlat": 5,
+                            "tooltipText": "This character takes 12 affliction damage each turn and deals 5 less damage."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "space_marine_infantry_flamethrower_splash_burn",
+                        "duration": 3,
+                        "scope": "other-enemies",
+                        "metadata": {
+                            "harmful": true,
+                            "ongoingClass": "channeled",
+                            "turnEndDamage": 6,
+                            "triggerOnApply": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "afflictionDamage": true,
+                            "damageDebuffFlat": 5,
+                            "tooltipText": "This character takes 6 affliction damage each turn and deals 5 less damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "space-marine-infantry-drop-ship",
+                "name": "Drop Ship",
+                "nameHtml": "Drop Ship",
+                "skillimage": "https://i.imgur.com/euIXe6O.png",
+                "url": "https://i.imgur.com/euIXe6O.png",
+                "skilldescription": "For 1 turn, your entire team becomes invulnerable.",
+                "description": "For 1 turn, your entire team becomes invulnerable.",
+                "descriptionHtml": "For 1 turn, your entire team becomes invulnerable.",
+                "energy": [
+                    "Random",
+                    "Random",
+                    "Random"
+                ],
+                "target": "all-allies",
+                "damage": 0,
+                "cooldown": 4,
+                "cooldownHtml": "4",
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "space_marine_infantry_drop_ship_invulnerable",
+                        "duration": 1,
+                        "scope": "all-allies",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "This character is invulnerable."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Damage",
+        "universe": "other",
+        "roleCategory": "damage"
     },
     {
         "id": "predator-stalker",
@@ -8823,583 +10148,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Evasion Assassin"
-    },
-    {
-        "id": "xenomorph-drone",
-        "characterId": "xenomorph-drone",
-        "name": "Xenomorph Drone",
-        "nameHtml": "Xenomorph Drone",
-        "facePicture": "https://i.imgur.com/IwSu3G7_d.png?maxwidth=520&shape=thumb&fidelity=high",
-        "url": "https://i.imgur.com/IwSu3G7_d.png?maxwidth=520&shape=thumb&fidelity=high",
-        "unlockRequirement": "None",
-        "unlockRequirementHtml": "None",
-        "characterdeescription": "Xenomorph Drone is a scaling swarm-based fighter that punishes enemies with affliction and executes weakened targets. It becomes stronger as more drones are present.",
-        "description": "Xenomorph Drone is a scaling swarm-based fighter that punishes enemies with affliction and executes weakened targets. It becomes stronger as more drones are present.",
-        "descriptionHtml": "Xenomorph Drone is a scaling swarm-based fighter that punishes enemies with affliction and executes weakened targets.<br>It becomes stronger as more drones are present.",
-        "startStatuses": [
-            {
-                "statusId": "xenomorph_drone_acid_blood_passive",
-                "sourceSkillId": "xenomorph-drone-passive-acid-blood",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "triggerOnEnemyHarmfulSkill": true,
-                    "triggerOnEnemyHarmfulSkillClassesAny": [
-                        "Melee"
-                    ],
-                    "counterDamageMetadata": {
-                        "bonusPerAliveTeamMember": {
-                            "characterId": "xenomorph-drone",
-                            "statusId": "xenomorph_hive_member",
-                            "amount": 3
-                        }
-                    },
-                    "counterDamageIgnoresReduction": true,
-                    "counterDamageIgnoresDestructibleDefense": true,
-                    "persistOnTrigger": true,
-                    "tooltipText": "Enemies using melee skills on this character take 3 affliction damage for each Xenomorph Drone on this team."
-                }
-            },
-            {
-                "statusId": "xenomorph_drone_facehugger_reward",
-                "sourceSkillId": "xenomorph-drone-facehugger",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "hideTooltip": true,
-                    "onOwnerKillTargetRelation": "enemy",
-                    "onOwnerKillSourceSkillIdsAny": [
-                        "xenomorph-drone-facehugger"
-                    ],
-                    "onOwnerKillApplyStatusToSelf": {
-                        "statusId": "xenomorph_drone_facehugger_carapace",
-                        "duration": 999,
-                        "metadata": {
-                            "destructibleDefensePoints": 25,
-                            "mergeNumericAddKeys": [
-                                "destructibleDefensePoints"
-                            ],
-                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Facehugger."
-                        }
-                    }
-                }
-            }
-        ],
-        "skills": [
-            {
-                "id": "xenomorph-drone-inner-jaw-strike",
-                "name": "Inner-Jaw Strike",
-                "nameHtml": "Inner-Jaw Strike",
-                "skillimage": "https://i.imgur.com/OeSLg1o_d.png?maxwidth=520&shape=thumb&fidelity=high",
-                "url": "https://i.imgur.com/OeSLg1o_d.png?maxwidth=520&shape=thumb&fidelity=high",
-                "skilldescription": "Deals 20 damage to one enemy. If their health falls to 10 HP or below, they are executed.",
-                "description": "Deals 20 damage to one enemy. If their health falls to 10 HP or below, they are executed.",
-                "descriptionHtml": "Deals 20 damage to one enemy.<br>If their health falls to 10 HP or below, they are executed.",
-                "energy": [
-                    "Random",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "cooldownHtml": "None",
-                "classes": [
-                    "Physical",
-                    "Melee",
-                    "Instant"
-                ],
-                "classesHtml": "Physical, Melee, Instant",
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 20,
-                        "scope": "target",
-                        "metadata": {
-                            "bonusPerAliveTeamMember": {
-                                "characterId": "xenomorph-drone",
-                                "statusId": "xenomorph_hive_member",
-                                "amount": 5
-                            }
-                        }
-                    },
-                    {
-                        "type": "execute_below_hp",
-                        "threshold": 10,
-                        "scope": "target"
-                    }
-                ]
-            },
-            {
-                "id": "xenomorph-drone-cystic-acid-spit",
-                "name": "Cystic Acid Spit",
-                "nameHtml": "Cystic Acid Spit",
-                "skillimage": "https://i.imgur.com/LJwMFWx_d.png?maxwidth=520&shape=thumb&fidelity=high",
-                "url": "https://i.imgur.com/LJwMFWx_d.png?maxwidth=520&shape=thumb&fidelity=high",
-                "skilldescription": "Removes all damage reduction and destructible defense from one enemy, then deals 15 affliction damage. Lasts 1 extra turn if they had none.",
-                "description": "Removes all damage reduction and destructible defense from one enemy, then deals 15 affliction damage. Lasts 1 extra turn if they had none.",
-                "descriptionHtml": "Removes all damage reduction and destructible defense from one enemy, then deals 15 affliction damage.<br>Lasts 1 extra turn if they had none.",
-                "energy": [
-                    "Bloodline"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "cooldownHtml": "2",
-                "classes": [
-                    "Physical",
-                    "Ranged",
-                    "Instant",
-                    "Affliction"
-                ],
-                "classesHtml": "Physical, Ranged, Instant",
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "xenomorph_drone_cystic_acid_linger",
-                        "duration": 1,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "missingStatusMetadataAny": [
-                                "damageReductionFlat",
-                                "damageReductionPercent",
-                                "unpierceableDamageReductionFlat",
-                                "destructibleDefensePoints"
-                            ]
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "turnEndDamage": 15,
-                            "turnEndTrigger": "source_turn",
-                            "turnDurationAnchor": "source_turn",
-                            "afflictionDamage": true,
-                            "tooltipText": "This character will take 15 affliction damage next turn."
-                        }
-                    },
-                    {
-                        "type": "cleanse_statuses",
-                        "scope": "target",
-                        "metadataAny": [
-                            "damageReductionFlat",
-                            "damageReductionPercent",
-                            "unpierceableDamageReductionFlat"
-                        ]
-                    },
-                    {
-                        "type": "destroy_destructible_defense",
-                        "scope": "target"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true,
-                            "bonusPerAliveTeamMember": {
-                                "characterId": "xenomorph-drone",
-                                "statusId": "xenomorph_hive_member",
-                                "amount": 5
-                            }
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "xenomorph-drone-facehugger",
-                "name": "Facehugger",
-                "nameHtml": "Facehugger",
-                "skillimage": "https://i.imgur.com/q9VzVoj_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "url": "https://i.imgur.com/q9VzVoj_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "skilldescription": "May target ally or enemy. Allies become Xenomorphs. Enemies take 25 affliction damage after 2 turns; if they die, gain 25 destructible defense.",
-                "description": "May target ally or enemy. Allies become Xenomorphs. Enemies take 25 affliction damage after 2 turns; if they die, gain 25 destructible defense.",
-                "descriptionHtml": "May target ally or enemy.<br>Allies become Xenomorphs.<br>Enemies take 25 affliction damage after 2 turns; if they die, gain 25 destructible defense.",
-                "energy": [
-                    "Bloodline"
-                ],
-                "target": "single-character",
-                "damage": 0,
-                "cooldown": 1,
-                "cooldownHtml": "1",
-                "classes": [
-                    "Physical",
-                    "Ranged",
-                    "Instant",
-                    "Affliction"
-                ],
-                "classesHtml": "Physical, Ranged, Instant, Affliction",
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "xenomorph_hive_member",
-                        "duration": 999,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "targetRelation": "ally"
-                        },
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "effectiveCharacterId": "xenomorph-drone",
-                            "facePictureOverride": "https://i.imgur.com/IwSu3G7_d.png?maxwidth=520&shape=thumb&fidelity=high",
-                            "tooltipText": "This ally counts as a Xenomorph for The Hive."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "xenomorph_facehugger_implanted",
-                        "duration": 2,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "targetRelation": "enemy"
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "onExpireEffects": [
-                                {
-                                    "type": "damage",
-                                    "amount": 25,
-                                    "metadata": {
-                                        "afflictionDamage": true,
-                                        "ignoreDamageReduction": true,
-                                        "ignoreDestructibleDefense": true,
-                                        "skillClasses": [
-                                            "Affliction"
-                                        ]
-                                    }
-                                }
-                            ],
-                            "tooltipText": "After 2 turns, this character takes 25 affliction damage."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "xenomorph-drone-xeno-stealth",
-                "name": "Xeno-Stealth",
-                "nameHtml": "Xeno-Stealth",
-                "skillimage": "https://i.imgur.com/HylKUuA_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "url": "https://i.imgur.com/HylKUuA_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "skilldescription": "Heals 15 HP, becomes invulnerable, and increases 'Inner-Jaw Strike' damage by 10 for 1 turn.",
-                "description": "Heals 15 HP, becomes invulnerable, and increases 'Inner-Jaw Strike' damage by 10 for 1 turn.",
-                "descriptionHtml": "Heals 15 HP, becomes invulnerable, and increases 'Inner-Jaw Strike' damage by 10 for 1 turn.",
-                "energy": [
-                    "Random"
-                ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 5,
-                "cooldownHtml": "5",
-                "classes": [
-                    "Physical",
-                    "Instant"
-                ],
-                "classesHtml": "Physical, Instant",
-                "effects": [
-                    {
-                        "type": "heal",
-                        "amount": 15,
-                        "scope": "self"
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "xenomorph_drone_xeno_stealth",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "invulnerable": true,
-                            "skillDamageBonuses": {
-                                "xenomorph-drone-inner-jaw-strike": 10
-                            },
-                            "tooltipText": "This character is invulnerable and Inner-Jaw Strike deals 10 additional damage."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "xenomorph-drone-passive-acid-blood",
-                "name": "Passive: Acid Blood",
-                "nameHtml": "Passive: Acid Blood",
-                "skillimage": "https://i.imgur.com/O5qNmea_d.png?maxwidth=520&shape=thumb&fidelity=high",
-                "url": "https://i.imgur.com/O5qNmea_d.png?maxwidth=520&shape=thumb&fidelity=high",
-                "skilldescription": "Enemies using new melee skills on Xenomorph take 3 affliction damage (increases per drone).",
-                "description": "Enemies using new melee skills on Xenomorph take 3 affliction damage (increases per drone).",
-                "descriptionHtml": "Enemies using new melee skills on Xenomorph take 3 affliction damage (increases per drone).",
-                "energy": [],
-                "target": "",
-                "damage": 0,
-                "cooldown": 0,
-                "cooldownHtml": "Passive",
-                "classes": [
-                    "Passive",
-                    "Instant",
-                    "Affliction"
-                ],
-                "classesHtml": "Passive, Instant, Affliction"
-            },
-            {
-                "id": "xenomorph-drone-passive-the-hive",
-                "name": "Passive: The Hive",
-                "nameHtml": "Passive: The Hive",
-                "skillimage": "https://i.imgur.com/wOMvYEY_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "url": "https://i.imgur.com/wOMvYEY_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "skilldescription": "'Inner-Jaw Strike' and 'Cystic Acid Spit' deal 5 bonus damage for every Xenomorph Drone on your team.",
-                "description": "'Inner-Jaw Strike' and 'Cystic Acid Spit' deal 5 bonus damage for every Xenomorph Drone on your team.",
-                "descriptionHtml": "'Inner-Jaw Strike' and 'Cystic Acid Spit' deal 5 bonus damage for every Xenomorph Drone on your team.",
-                "energy": [],
-                "target": "",
-                "damage": 0,
-                "cooldown": 0,
-                "cooldownHtml": "Passive",
-                "classes": [
-                    "Passive",
-                    "Instant"
-                ],
-                "classesHtml": "Passive, Instant"
-            }
-        ],
-        "role": "Swarm DPS"
-    },
-    {
-        "id": "rage-infected",
-        "characterId": "rage-infected",
-        "name": "Rage Infected",
-        "nameHtml": "Rage Infected",
-        "facePicture": "https://i.imgur.com/k4lrBvO_d.png?maxwidth=520&shape=thumb&fidelity=high",
-        "url": "https://i.imgur.com/k4lrBvO_d.png?maxwidth=520&shape=thumb&fidelity=high",
-        "unlockRequirement": "None",
-        "unlockRequirementHtml": "None",
-        "characterdeescription": "Infected with the Rage Virus is a relentless berserker who overwhelms enemies through pain, chaos, and psychological pressure. Using brutal attacks, blindness effects, and self-destructive rage, he punishes opponents for trying to fight back while growing deadlier the longer combat continues. Though vulnerable to sustained focus and burst damage, Rage Infected excels at disrupting enemy coordination and forcing reckless decisions through constant pressure and unpredictable aggression.",
-        "description": "Infected with the Rage Virus is a relentless berserker who overwhelms enemies through pain, chaos, and psychological pressure. Using brutal attacks, blindness effects, and self-destructive rage, he punishes opponents for trying to fight back while growing deadlier the longer combat continues. Though vulnerable to sustained focus and burst damage, Rage Infected excels at disrupting enemy coordination and forcing reckless decisions through constant pressure and unpredictable aggression.",
-        "descriptionHtml": "Infected with the Rage Virus is a relentless berserker who overwhelms enemies through pain, chaos, and psychological pressure. Using brutal attacks, blindness effects, and self-destructive rage, he punishes opponents for trying to fight back while growing deadlier the longer combat continues. Though vulnerable to sustained focus and burst damage, Rage Infected excels at disrupting enemy coordination and forcing reckless decisions through constant pressure and unpredictable aggression.",
-        "skills": [
-            {
-                "id": "rage-infected-blood-vomit",
-                "name": "Blood Vomit",
-                "nameHtml": "Blood Vomit",
-                "skillimage": "https://i.imgur.com/5L1V6jg_d.png?maxwidth=520&shape=thumb&fidelity=high",
-                "url": "https://i.imgur.com/5L1V6jg_d.png?maxwidth=520&shape=thumb&fidelity=high",
-                "skilldescription": "For 2 turns, one enemy takes 15 affliction damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams.",
-                "description": "For 2 turns, one enemy takes 15 affliction damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams.",
-                "descriptionHtml": "For 2 turns, one enemy takes 15 affliction damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams.",
-                "energy": [
-                    "Bloodline",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 3,
-                "cooldownHtml": "3",
-                "classes": [
-                    "Physical",
-                    "Ranged",
-                    "Instant",
-                    "Affliction"
-                ],
-                "classesHtml": "Physical, Ranged, Instant",
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "rage_infected_blood_vomit",
-                        "duration": 2,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "fullBlind": true,
-                            "nonAfflictionDamageBonusFlat": 10,
-                            "turnEndDamage": 15,
-                            "turnEndTrigger": "source_turn",
-                            "turnDurationAnchor": "source_turn",
-                            "afflictionDamage": true,
-                            "tooltipText": "This character takes 15 affliction damage each turn, deals 10 additional non-affliction damage, and harmful skills randomly target either team."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "rage-infected-eye-gouge",
-                "name": "Eye Gouge",
-                "nameHtml": "Eye Gouge",
-                "skillimage": "https://i.imgur.com/3f7cgd3_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "url": "https://i.imgur.com/3f7cgd3_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "skilldescription": "Deals 30 damage to one enemy. For 1 turn, they are partially-blinded, causing their new harmful skills to randomly select their target from the opposing team only.",
-                "description": "Deals 30 damage to one enemy. For 1 turn, they are partially-blinded, causing their new harmful skills to randomly select their target from the opposing team only.",
-                "descriptionHtml": "Deals 30 damage to one enemy.<br>For 1 turn, they are partially-blinded, causing their new harmful skills to randomly select their target from the opposing team only.",
-                "energy": [
-                    "Taijutsu",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 1,
-                "cooldownHtml": "1",
-                "classes": [
-                    "Physical",
-                    "Melee",
-                    "Instant"
-                ],
-                "classesHtml": "Physical, Melee, Instant",
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 30,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "rage_infected_eye_gouge_blind",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "harmfulBlind": true,
-                            "tooltipText": "This character's harmful skills randomly target the opposing team."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "rage-infected-murderous-rage",
-                "name": "Murderous Rage",
-                "nameHtml": "Murderous Rage",
-                "skillimage": "https://i.imgur.com/39yHcrF_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "url": "https://i.imgur.com/39yHcrF_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "skilldescription": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP. While active, if they use a new harmful skill, this effect is refreshed and they take 5 additional damage from Rage Infected permanently. This skill is invisible and cannot be used while active.",
-                "description": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP. While active, if they use a new harmful skill, this effect is refreshed and they take 5 additional damage from Rage Infected permanently. This skill is invisible and cannot be used while active.",
-                "descriptionHtml": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP.<br>While active, if they use a new harmful skill, this effect is refreshed and they take 5 additional damage from Rage Infected permanently.<br>This skill is invisible and cannot be used while active.",
-                "energy": [
-                    "Bloodline"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "cooldownHtml": "2",
-                "classes": [
-                    "Mental",
-                    "Ranged",
-                    "Instant"
-                ],
-                "classesHtml": "Mental, Ranged, Instant",
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "rage_infected_murderous_rage_guard",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "minimumHp": 1,
-                            "copySelectedTargetKeyToKeys": [
-                                "minimumHpFromSourceKey"
-                            ],
-                            "skillReplacements": {
-                                "rage-infected-murderous-rage": "rage-infected-murderous-rage-active"
-                            },
-                            "tooltipText": "The selected enemy cannot reduce Rage Infected below 1 HP."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "rage_infected_murderous_rage_mark",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "onOwnerUseSkillTrigger": true,
-                            "onOwnerUseSkillHarmfulOnly": true,
-                            "onOwnerUseSkillApplyStatusToSourceOwner": {
-                                "statusId": "rage_infected_murderous_rage_guard",
-                                "duration": 1,
-                                "metadata": {
-                                    "minimumHp": 1,
-                                    "copyOwnerKeyToKeys": [
-                                        "minimumHpFromSourceKey"
-                                    ],
-                                    "skillReplacements": {
-                                        "rage-infected-murderous-rage": "rage-infected-murderous-rage-active"
-                                    },
-                                    "tooltipText": "The selected enemy cannot reduce Rage Infected below 1 HP."
-                                }
-                            },
-                            "onOwnerUseSkillApplyStatusToOwner": {
-                                "statusId": "rage_infected_murderous_rage_bonus",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "bonusDamageFromSourceCharacterId": "rage-infected",
-                                    "bonusDamageFromSourceSkillsFlat": 5,
-                                    "mergeNumericAddKeys": [
-                                        "bonusDamageFromSourceSkillsFlat"
-                                    ],
-                                    "tooltipTextTemplate": "Rage Infected deals {bonusDamageFromSourceSkillsFlat} additional damage to this character."
-                                }
-                            },
-                            "tooltipText": "If this character uses a skill, Rage Infected gains permanent bonus damage against them."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "rage-infected-relentless-pursuit",
-                "name": "Relentless Pursuit",
-                "nameHtml": "Relentless Pursuit",
-                "skillimage": "https://i.imgur.com/osxi6DC_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "url": "https://i.imgur.com/osxi6DC_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "skilldescription": "For 3 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 10 additional non-affliction damage from enemy skills.",
-                "description": "For 3 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 10 additional non-affliction damage from enemy skills.",
-                "descriptionHtml": "For 3 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 10 additional non-affliction damage from enemy skills.",
-                "energy": [
-                    "Random"
-                ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 4,
-                "cooldownHtml": "4",
-                "classes": [
-                    "Physical",
-                    "Instant"
-                ],
-                "classesHtml": "Physical, Instant",
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "rage_infected_relentless_pursuit",
-                        "duration": 3,
-                        "scope": "self",
-                        "metadata": {
-                            "cannotBeStunned": true,
-                            "randomCostReduction": 1,
-                            "bonusDamageFromSourceSkillsFlat": 10,
-                            "bonusDamageFromSourceNonAfflictionOnly": true,
-                            "bonusDamageFromSourceEnemyOnly": true,
-                            "tooltipText": "Rage Infected ignores stuns, his skills cost 1 less random energy, and enemy skills deal 10 additional non-affliction damage to him."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "rage-infected-murderous-rage-active",
-                "name": "Murderous Rage",
-                "hiddenFromSelectionViewer": true,
-                "actorCondition": {
-                    "missingStatusId": "rage_infected_murderous_rage_guard"
-                },
-                "skillimage": "https://i.imgur.com/39yHcrF_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "skilldescription": "Murderous Rage is active.",
-                "energy": [],
-                "target": "",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Mental",
-                    "Instant"
-                ],
-                "effects": []
-            }
-        ],
-        "role": "Beserker"
+        "role": "Evasion Assassin",
+        "roleCategory": "assassin",
+        "universe": "other"
     },
     {
         "id": "sinestro",
@@ -9420,6 +10171,7 @@ const characters = [
                 "sourceSkillId": "sinestro-passive-yellow-lantern-ring",
                 "metadata": {
                     "infiniteDuration": true,
+                    "lanternPassiveVisual": "yellow",
                     "onOwnerUseSkillTrigger": true,
                     "persistOnOwnerUseSkillTrigger": true,
                     "onOwnerUseSkillApplyStatusToEnemies": {
@@ -9429,6 +10181,7 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "infiniteDuration": true,
+                            "lanternEffectVisual": "yellow",
                             "sinestroFearStacks": 1,
                             "NonAfflictionDamageDebuff": 1,
                             "mergeNumericAddKeys": [
@@ -9684,7 +10437,9 @@ const characters = [
                 "classesHtml": "Passive, Instant"
             }
         ],
-        "role": "De-Buff DPS"
+        "role": "De-Buff DPS",
+        "roleCategory": "strategic",
+        "universe": "dc"
     },
     {
         "id": "atrocitus",
@@ -9705,6 +10460,7 @@ const characters = [
                 "sourceSkillId": "atrocitus-passive-red-lantern-ring",
                 "metadata": {
                     "infiniteDuration": true,
+                    "lanternPassiveVisual": "red",
                     "onOwnerDamagedByBaseDamageAtLeastApplyStatusToOwner": {
                         "threshold": 25,
                         "enemyOnly": true,
@@ -9712,6 +10468,7 @@ const characters = [
                         "duration": 99,
                         "metadata": {
                             "infiniteDuration": true,
+                            "lanternEffectVisual": "red",
                             "atrocitusRageStacks": 1,
                             "stackMetadataKey": "atrocitusRageStacks",
                             "stackDelta": 1,
@@ -10003,7 +10760,9 @@ const characters = [
                 "classesHtml": "Passive, Energy, Instant"
             }
         ],
-        "role": "Rage Scaling Bruiser"
+        "role": "Rage Scaling Bruiser",
+        "roleCategory": "bruiser",
+        "universe": "dc"
     },
     {
         "id": "saint-walker",
@@ -10024,6 +10783,7 @@ const characters = [
                 "sourceSkillId": "saint-walker-passive-blue-lantern-ring",
                 "metadata": {
                     "infiniteDuration": true,
+                    "lanternPassiveVisual": "blue",
                     "blueLanternRingDefensePerTurn": 1,
                     "turnEndApplyStatusToAllies": [
                         {
@@ -10031,6 +10791,7 @@ const characters = [
                             "duration": 99,
                             "metadata": {
                                 "destructibleDefensePoints": 0,
+                                "lanternEffectVisual": "blue",
                                 "scaleFromSourceStatusMetadata": {
                                     "metadataKey": "blueLanternRingDefensePerTurn",
                                     "multiplier": 1,
@@ -10297,7 +11058,9 @@ const characters = [
                 "classesHtml": "Passive, Instant"
             }
         ],
-        "role": "Shield Support"
+        "role": "Shield Support",
+        "roleCategory": "support",
+        "universe": "dc"
     },
     {
         "id": "indigo-1",
@@ -10318,6 +11081,7 @@ const characters = [
                 "sourceSkillId": "indigo-1-passive-indigo-lantern-ring",
                 "metadata": {
                     "infiniteDuration": true,
+                    "lanternPassiveVisual": "indigo",
                     "tooltipText": "Indigo-1's healing and damage alternate through the Indigo Lantern Ring."
                 }
             }
@@ -10598,7 +11362,9 @@ const characters = [
                 "classesHtml": "Passive, Instant"
             }
         ],
-        "role": "Heal Support"
+        "role": "Heal Support",
+        "roleCategory": "support",
+        "universe": "dc"
     },
     {
         "id": "john-stewart",
@@ -10619,12 +11385,14 @@ const characters = [
                 "sourceSkillId": "john-stewart-passive-ultraviolet-lantern-ring",
                 "metadata": {
                     "infiniteDuration": true,
+                    "lanternPassiveVisual": "ultraviolet",
                     "onEnemySkillTargetedMissingStatusId": "john_stewart_ultraviolet_lantern_ring_cooldown",
                     "onEnemySkillTargetedApplyStatusToSource": {
                         "statusId": "john_stewart_emotional_possession",
                         "duration": 2,
                         "metadata": {
                             "harmful": true,
+                            "lanternEffectVisual": "ultraviolet",
                             "turnEndDamage": 10,
                             "afflictionDamage": true,
                             "ignoreTargetDamageReduction": true,
@@ -10848,7 +11616,6 @@ const characters = [
                 "url": "https://i.imgur.com/PdrROxH.jpeg",
                 "skilldescription": "The first enemy to use a new skill on John Stewart is given 'Emotional Possession' for 2 turns. This effect then goes on cooldown for 3 turns.",
                 "description": "The first enemy to use a new skill on John Stewart is given 'Emotional Possession' for 2 turns. This effect then goes on cooldown for 3 turns.",
-                "descriptionHtml": "The first enemy to use a new skill on John Stewart is given 'Emotional Possession' for 2 turns.<br>This effect then goes on cooldown for 3 turns.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -10868,7 +11635,6 @@ const characters = [
                 "url": "https://i.imgur.com/5D8ltK0.jpeg",
                 "skilldescription": "Deals 10 affliction damage each turn for 2 turns. This cannot be ignored and increases its duration by 2 turns instead of stacking. If used by an enemy, this will cast this effect on them and replace itself with their original skill.",
                 "description": "Deals 10 affliction damage each turn for 2 turns. This cannot be ignored and increases its duration by 2 turns instead of stacking. If used by an enemy, this will cast this effect on them and replace itself with their original skill.",
-                "descriptionHtml": "Deals 10 affliction damage each turn for 2 turns.<br>This cannot be ignored and increases its duration by 2 turns instead of stacking.<br>If used by an enemy, this will cast this effect on them and replace itself with their original skill.",
                 "energy": [],
                 "target": "self",
                 "damage": 0,
@@ -10924,7 +11690,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Control Fighter"
+        "role": "Hybrid",
+        "universe": "dc",
+        "roleCategory": "hybrid"
     },
     {
         "id": "sorrow",
@@ -10937,7 +11705,6 @@ const characters = [
         "unlockRequirementHtml": "None",
         "characterdeescription": "Sorrow is a manipulative control fighter who weakens enemies through despair, punishment effects, and escalating Stack of Sorrow debuffs that make targets increasingly vulnerable.",
         "description": "Sorrow is a manipulative control fighter who weakens enemies through despair, punishment effects, and escalating Stack of Sorrow debuffs that make targets increasingly vulnerable.",
-        "descriptionHtml": "Sorrow is a manipulative control fighter who weakens enemies through despair, punishment effects, and escalating Stack of Sorrow debuffs that make targets increasingly vulnerable.",
         "startStatuses": [
             {
                 "statusId": "sorrow_grey_lantern_ring_passive",
@@ -10945,11 +11712,13 @@ const characters = [
                 "sourceSkillId": "sorrow-passive-grey-lantern-ring",
                 "metadata": {
                     "infiniteDuration": true,
+                    "lanternPassiveVisual": "grey-smoke",
                     "onAnyCharacterDeathApplyStatusToRandomEnemy": {
                         "statusId": "sorrow_stack",
                         "duration": 99,
                         "metadata": {
                             "infiniteDuration": true,
+                            "lanternEffectVisual": "grey-smoke",
                             "sorrowStacks": 1,
                             "mergeNumericAddKeys": [
                                 "sorrowStacks"
@@ -10970,7 +11739,6 @@ const characters = [
                 "url": "https://i.imgur.com/Xj9tEOb.jpeg",
                 "skilldescription": "Deals 35 damage to one enemy and consumes all Stacks of Sorrow to stun them for 1 turn per stack. This may only stun each character once per game.",
                 "description": "Deals 35 damage to one enemy and consumes all Stacks of Sorrow to stun them for 1 turn per stack. This may only stun each character once per game.",
-                "descriptionHtml": "Deals 35 damage to one enemy and consumes all Stacks of Sorrow to stun them for 1 turn per stack.<br>This may only stun each character once per game.",
                 "energy": [
                     "Genjutsu",
                     "Random"
@@ -11045,7 +11813,6 @@ const characters = [
                 "url": "https://i.imgur.com/ubRYRX3.jpeg",
                 "skilldescription": "Marks an enemy for 1 turn. If they do not use a new skill, they take 25 piercing damage and gain a Stack of Sorrow. This skill is invisible.",
                 "description": "Marks an enemy for 1 turn. If they do not use a new skill, they take 25 piercing damage and gain a Stack of Sorrow. This skill is invisible.",
-                "descriptionHtml": "Marks an enemy for 1 turn.<br>If they do not use a new skill, they take 25 piercing damage and gain a Stack of Sorrow.<br>This skill is invisible.",
                 "energy": [
                     "Random"
                 ],
@@ -11085,6 +11852,7 @@ const characters = [
                                     "duration": 99,
                                     "metadata": {
                                         "infiniteDuration": true,
+                                        "lanternEffectVisual": "grey-smoke",
                                         "sorrowStacks": 1,
                                         "mergeNumericAddKeys": [
                                             "sorrowStacks"
@@ -11093,7 +11861,6 @@ const characters = [
                                     }
                                 }
                             ],
-                            "hideTooltipFromEnemy": true,
                             "tooltipText": "If this character does not use a new skill, they take 25 piercing damage and gain a Stack of Sorrow."
                         }
                     }
@@ -11107,7 +11874,6 @@ const characters = [
                 "url": "https://i.imgur.com/fBlXOmL.jpeg",
                 "skilldescription": "Marks an enemy for 1 turn. If they use a new skill, its damage is reduced by 25 and they gain a Stack of Sorrow. This skill is invisible.",
                 "description": "Marks an enemy for 1 turn. If they use a new skill, its damage is reduced by 25 and they gain a Stack of Sorrow. This skill is invisible.",
-                "descriptionHtml": "Marks an enemy for 1 turn.<br>If they use a new skill, its damage is reduced by 25 and they gain a Stack of Sorrow.<br>This skill is invisible.",
                 "energy": [
                     "Random"
                 ],
@@ -11130,15 +11896,32 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "onOwnerUseSkillTrigger": true,
-                            "onOwnerUseSkillApplyStatusToOwner": {
-                                "statusId": "sorrow_depression_orb_damage_debuff",
-                                "duration": 1,
-                                "metadata": {
-                                    "DamageDebuff": 25,
-                                    "tooltipText": "This character's next skill deals 25 less damage."
+                            "onOwnerUseSkillApplyStatusesToOwner": [
+                                {
+                                    "statusId": "sorrow_depression_orb_damage_debuff",
+                                    "duration": 1,
+                                    "metadata": {
+                                        "harmful": true,
+                                        "DamageDebuff": 25,
+                                        "tooltipText": "This character's next skill deals 25 less damage."
+                                    }
+                                },
+                                {
+                                    "statusId": "sorrow_stack",
+                                    "duration": 99,
+                                    "metadata": {
+                                        "harmful": true,
+                                        "infiniteDuration": true,
+                                        "lanternEffectVisual": "grey-smoke",
+                                        "sorrowStacks": 1,
+                                        "mergeNumericAddKeys": [
+                                            "sorrowStacks"
+                                        ],
+                                        "tooltipTextTemplate": "This character has {sorrowStacks} Stack(s) of Sorrow."
+                                    }
                                 }
-                            },
-                            "tooltipText": "If this character uses a new skill, that skill deals 25 less damage."
+                            ],
+                            "tooltipText": "If this character uses a new skill, that skill deals 25 less damage and they gain a Stack of Sorrow."
                         }
                     }
                 ]
@@ -11151,7 +11934,6 @@ const characters = [
                 "url": "https://i.imgur.com/RwWrRqW.jpeg",
                 "skilldescription": "Sorrow becomes invulnerable for 1 turn and grants one enemy a Stack of Sorrow.",
                 "description": "Sorrow becomes invulnerable for 1 turn and grants one enemy a Stack of Sorrow.",
-                "descriptionHtml": "Sorrow becomes invulnerable for 1 turn and grants one enemy a Stack of Sorrow.",
                 "energy": [
                     "Random"
                 ],
@@ -11183,6 +11965,7 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "infiniteDuration": true,
+                            "lanternEffectVisual": "grey-smoke",
                             "sorrowStacks": 1,
                             "mergeNumericAddKeys": [
                                 "sorrowStacks"
@@ -11200,7 +11983,6 @@ const characters = [
                 "url": "https://i.imgur.com/y8mSovk.jpeg",
                 "skilldescription": "Every time any character dies, a random enemy gains a Stack of Sorrow.",
                 "description": "Every time any character dies, a random enemy gains a Stack of Sorrow.",
-                "descriptionHtml": "Every time any character dies, a random enemy gains a Stack of Sorrow.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -11221,7 +12003,6 @@ const characters = [
                 "url": "https://i.imgur.com/41ChnWv.png",
                 "skilldescription": "A lingering burden of grief and despair that amplifies the effects of Sorrow's abilities.",
                 "description": "A lingering burden of grief and despair that amplifies the effects of Sorrow's abilities.",
-                "descriptionHtml": "A lingering burden of grief and despair that amplifies the effects of Sorrow's abilities.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -11233,7 +12014,9 @@ const characters = [
                 "classesHtml": "Skill"
             }
         ],
-        "role": "Control Fighter"
+        "role": "Hybrid",
+        "universe": "dc",
+        "roleCategory": "hybrid"
     }
 ];
 

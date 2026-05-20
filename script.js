@@ -4,8 +4,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         typeof right === 'string' &&
         left.trim().toLowerCase() === right.trim().toLowerCase();
 
-    const pageName = window.location.pathname.split('/').pop().toLowerCase();
-    const shouldUseCustomCursor = pageName === 'ingame.html' || pageName === 'selection.html';
+    const pagePath = window.location.pathname.toLowerCase();
+    const pageName = pagePath.split('/').pop() || 'index.html';
+    const isSelectionPage = pageName === 'selection.html' || pageName === 'selection';
+    const isIngamePage = pageName === 'ingame.html' || pageName === 'ingame';
+
+    const shouldUseCustomCursor = isIngamePage || isSelectionPage;
     const shouldUseGameClickSound = shouldUseCustomCursor;
     if (shouldUseCustomCursor) {
         document.body.classList.add('custom-game-cursor');
@@ -16,12 +20,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.addEventListener('mouseleave', clearPressedCursor);
         window.addEventListener('blur', clearPressedCursor);
     }
-    const SOUND_SETTINGS_STORAGE_KEY = 'narutoSoundSettings';
+    const SOUND_SETTINGS_STORAGE_KEY = 'comicSoundSettings';
     const soundVolumeInput =
         document.querySelector('.sound-volume') || document.querySelector('.ingame-sound-volume');
+    
     const soundManager = (() => {
         const defaultSettings = {
             volume: 0.7,
+            musicMuted: false,
+            effectsMuted: false,
         };
         const clampVolume = (value) => {
             const numeric = Number(value);
@@ -35,16 +42,267 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const parsed = JSON.parse(raw);
                 return {
                     volume: clampVolume(parsed?.volume),
+                    musicMuted: Boolean(parsed?.musicMuted),
+                    effectsMuted: Boolean(parsed?.effectsMuted),
                 };
             } catch (error) {
                 return { ...defaultSettings };
             }
         };
         let settings = readSettings();
+        let currentMusic = null;
+        let musicTracks = [];
+        let currentTrackIndex = -1;
+        let synthContext = null;
+        let noiseBuffer = null;
+        const ambientIntervals = new Map();
+
+        const getSynthContext = () => {
+            const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextCtor || settings.effectsMuted || settings.volume <= 0) return null;
+            synthContext = synthContext || new AudioContextCtor();
+            if (synthContext.state === 'suspended') {
+                synthContext.resume().catch(() => {});
+            }
+            return synthContext;
+        };
+
+        const getNoiseBuffer = (context) => {
+            if (noiseBuffer && noiseBuffer.sampleRate === context.sampleRate) return noiseBuffer;
+            const length = Math.max(1, Math.floor(context.sampleRate * 2));
+            const buffer = context.createBuffer(1, length, context.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let index = 0; index < length; index += 1) {
+                data[index] = Math.random() * 2 - 1;
+            }
+            noiseBuffer = buffer;
+            return buffer;
+        };
+
+        const makeGain = (context, now, amount = 0.18, attack = 0.01, releaseAt = 0.18) => {
+            const gain = context.createGain();
+            const level = clampVolume(settings.volume) * amount;
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.exponentialRampToValueAtTime(Math.max(0.0001, level), now + attack);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + releaseAt);
+            gain.connect(context.destination);
+            return gain;
+        };
+
+        const playTone = ({ frequency = 440, endFrequency = null, duration = 0.25, type = 'sine', amount = 0.14, delay = 0 }) => {
+            const context = getSynthContext();
+            if (!context) return;
+            const now = context.currentTime + delay;
+            const oscillator = context.createOscillator();
+            oscillator.type = type;
+            oscillator.frequency.setValueAtTime(frequency, now);
+            if (endFrequency) {
+                oscillator.frequency.exponentialRampToValueAtTime(Math.max(20, endFrequency), now + duration);
+            }
+            oscillator.connect(makeGain(context, now, amount, 0.012, duration));
+            oscillator.start(now);
+            oscillator.stop(now + duration + 0.04);
+        };
+
+        const playNoise = ({ duration = 0.3, amount = 0.12, delay = 0, filterType = 'bandpass', frequency = 900, q = 1.2 }) => {
+            const context = getSynthContext();
+            if (!context) return;
+            const now = context.currentTime + delay;
+            const source = context.createBufferSource();
+            const filter = context.createBiquadFilter();
+            source.buffer = getNoiseBuffer(context);
+            filter.type = filterType;
+            filter.frequency.setValueAtTime(frequency, now);
+            filter.Q.setValueAtTime(q, now);
+            source.connect(filter);
+            filter.connect(makeGain(context, now, amount, 0.008, duration));
+            source.start(now);
+            source.stop(now + duration + 0.05);
+        };
+
+        const playGeneratedEffect = (name) => {
+            if (!name || settings.effectsMuted || settings.volume <= 0) return;
+            try {
+                switch (name) {
+                    case 'rain':
+                        playNoise({ duration: 0.8, amount: 0.045, filterType: 'highpass', frequency: 1200, q: 0.7 });
+                        break;
+                    case 'hail':
+                        playNoise({ duration: 0.16, amount: 0.09, filterType: 'bandpass', frequency: 2400, q: 3.2 });
+                        playTone({ frequency: 980, endFrequency: 560, duration: 0.09, type: 'triangle', amount: 0.045, delay: 0.04 });
+                        break;
+                    case 'lightning':
+                        playNoise({ duration: 0.12, amount: 0.28, filterType: 'highpass', frequency: 3200, q: 0.8 });
+                        playTone({ frequency: 80, endFrequency: 42, duration: 0.75, type: 'sawtooth', amount: 0.09, delay: 0.1 });
+                        playNoise({ duration: 0.7, amount: 0.12, delay: 0.1, filterType: 'lowpass', frequency: 360, q: 0.8 });
+                        break;
+                    case 'laser-red':
+                        playTone({ frequency: 190, endFrequency: 520, duration: 0.42, type: 'sawtooth', amount: 0.095 });
+                        playTone({ frequency: 760, endFrequency: 1120, duration: 0.34, type: 'square', amount: 0.045 });
+                        playNoise({ duration: 0.32, amount: 0.06, filterType: 'bandpass', frequency: 1800, q: 4 });
+                        break;
+                    case 'laser-yellow':
+                        playTone({ frequency: 240, endFrequency: 780, duration: 0.42, type: 'sawtooth', amount: 0.09 });
+                        playTone({ frequency: 1040, endFrequency: 1460, duration: 0.3, type: 'square', amount: 0.045 });
+                        playNoise({ duration: 0.3, amount: 0.055, filterType: 'bandpass', frequency: 2400, q: 4.4 });
+                        break;
+                    case 'laser-empowered':
+                        playTone({ frequency: 120, endFrequency: 620, duration: 0.62, type: 'sawtooth', amount: 0.13 });
+                        playTone({ frequency: 880, endFrequency: 1700, duration: 0.46, type: 'square', amount: 0.07 });
+                        playNoise({ duration: 0.5, amount: 0.09, filterType: 'bandpass', frequency: 2100, q: 5 });
+                        break;
+                    case 'frost-breath':
+                        playNoise({ duration: 0.72, amount: 0.13, filterType: 'highpass', frequency: 900, q: 0.8 });
+                        playTone({ frequency: 620, endFrequency: 220, duration: 0.58, type: 'sine', amount: 0.055 });
+                        playNoise({ duration: 0.18, amount: 0.06, delay: 0.28, filterType: 'highpass', frequency: 3600, q: 2.6 });
+                        break;
+                    case 'solar-flare':
+                        playTone({ frequency: 96, endFrequency: 42, duration: 0.95, type: 'sawtooth', amount: 0.16 });
+                        playTone({ frequency: 620, endFrequency: 1220, duration: 0.42, type: 'triangle', amount: 0.075 });
+                        playNoise({ duration: 0.82, amount: 0.17, delay: 0.08, filterType: 'lowpass', frequency: 780, q: 0.9 });
+                        break;
+                    case 'wind':
+                        playNoise({ duration: 0.85, amount: 0.13, filterType: 'bandpass', frequency: 520, q: 1.1 });
+                        playTone({ frequency: 210, endFrequency: 410, duration: 0.55, type: 'sine', amount: 0.045 });
+                        break;
+                    case 'ice':
+                        playTone({ frequency: 1300, endFrequency: 2200, duration: 0.12, type: 'triangle', amount: 0.09 });
+                        playTone({ frequency: 740, endFrequency: 520, duration: 0.28, type: 'sine', amount: 0.06, delay: 0.08 });
+                        playNoise({ duration: 0.18, amount: 0.055, delay: 0.03, filterType: 'highpass', frequency: 4200, q: 2.4 });
+                        break;
+                    case 'portal':
+                        playTone({ frequency: 210, endFrequency: 760, duration: 0.18, type: 'sine', amount: 0.08 });
+                        playTone({ frequency: 980, endFrequency: 280, duration: 0.34, type: 'triangle', amount: 0.07, delay: 0.08 });
+                        playNoise({ duration: 0.28, amount: 0.045, delay: 0.04, filterType: 'bandpass', frequency: 720, q: 2.6 });
+                        break;
+                    case 'web':
+                        playNoise({ duration: 0.16, amount: 0.12, filterType: 'highpass', frequency: 2500, q: 1.2 });
+                        playTone({ frequency: 920, endFrequency: 150, duration: 0.16, type: 'triangle', amount: 0.08 });
+                        break;
+                    case 'target-lock':
+                        playTone({ frequency: 880, duration: 0.08, type: 'square', amount: 0.06 });
+                        playTone({ frequency: 1320, duration: 0.08, type: 'square', amount: 0.055, delay: 0.12 });
+                        break;
+                    case 'cloak':
+                        playNoise({ duration: 0.42, amount: 0.055, filterType: 'bandpass', frequency: 1900, q: 4 });
+                        playTone({ frequency: 560, endFrequency: 960, duration: 0.32, type: 'sine', amount: 0.045 });
+                        break;
+                    case 'ricochet':
+                        playTone({ frequency: 1180, endFrequency: 430, duration: 0.2, type: 'triangle', amount: 0.09 });
+                        playNoise({ duration: 0.1, amount: 0.075, filterType: 'highpass', frequency: 3600, q: 2 });
+                        break;
+                    case 'shield':
+                        playNoise({ duration: 0.32, amount: 0.08, filterType: 'bandpass', frequency: 620, q: 0.9 });
+                        playTone({ frequency: 360, endFrequency: 1150, duration: 0.32, type: 'triangle', amount: 0.055 });
+                        playTone({ frequency: 740, endFrequency: 420, duration: 0.14, type: 'square', amount: 0.06, delay: 0.35 });
+                        break;
+                    case 'bomb-arm':
+                        playTone({ frequency: 165, endFrequency: 92, duration: 0.2, type: 'sawtooth', amount: 0.07 });
+                        playNoise({ duration: 0.28, amount: 0.055, delay: 0.05, filterType: 'highpass', frequency: 1800, q: 1.7 });
+                        break;
+                    case 'bomb':
+                        playNoise({ duration: 0.5, amount: 0.2, filterType: 'lowpass', frequency: 520, q: 1.1 });
+                        playTone({ frequency: 92, endFrequency: 38, duration: 0.55, type: 'sawtooth', amount: 0.13 });
+                        break;
+                    case 'sniper-shot':
+                        playNoise({ duration: 0.08, amount: 0.27, filterType: 'highpass', frequency: 2500, q: 1.3 });
+                        playTone({ frequency: 115, endFrequency: 52, duration: 0.72, type: 'sawtooth', amount: 0.15, delay: 0.03 });
+                        playNoise({ duration: 0.55, amount: 0.09, delay: 0.1, filterType: 'lowpass', frequency: 410, q: 0.8 });
+                        break;
+                    case 'quick-shot':
+                        playNoise({ duration: 0.055, amount: 0.16, filterType: 'highpass', frequency: 3000, q: 1.4 });
+                        playTone({ frequency: 190, endFrequency: 78, duration: 0.22, type: 'square', amount: 0.08 });
+                        break;
+                    case 'revolver':
+                        playNoise({ duration: 0.06, amount: 0.13, filterType: 'bandpass', frequency: 1900, q: 1.7 });
+                        playTone({ frequency: 155, endFrequency: 82, duration: 0.28, type: 'triangle', amount: 0.075 });
+                        break;
+                    case 'death':
+                        playNoise({ duration: 0.22, amount: 0.2, filterType: 'bandpass', frequency: 1200, q: 1.5 });
+                        playTone({ frequency: 260, endFrequency: 44, duration: 0.85, type: 'sawtooth', amount: 0.14, delay: 0.05 });
+                        playNoise({ duration: 0.75, amount: 0.11, delay: 0.26, filterType: 'lowpass', frequency: 440, q: 0.9 });
+                        break;
+                    case 'damage':
+                        playNoise({ duration: 0.12, amount: 0.11, filterType: 'bandpass', frequency: 700, q: 1.4 });
+                        playTone({ frequency: 180, endFrequency: 90, duration: 0.13, type: 'triangle', amount: 0.055 });
+                        break;
+                    case 'heal':
+                        playTone({ frequency: 520, endFrequency: 940, duration: 0.22, type: 'sine', amount: 0.06 });
+                        playTone({ frequency: 780, endFrequency: 1240, duration: 0.24, type: 'sine', amount: 0.045, delay: 0.09 });
+                        break;
+                    case 'shield-hit':
+                        playTone({ frequency: 240, endFrequency: 520, duration: 0.16, type: 'square', amount: 0.07 });
+                        playNoise({ duration: 0.16, amount: 0.07, filterType: 'bandpass', frequency: 1200, q: 2.2 });
+                        break;
+                    case 'evade':
+                        playTone({ frequency: 620, endFrequency: 180, duration: 0.16, type: 'triangle', amount: 0.11 });
+                        break;
+                    case 'status-harmful':
+                        playTone({ frequency: 360, endFrequency: 140, duration: 0.22, type: 'sawtooth', amount: 0.055 });
+                        break;
+                    case 'status-helpful':
+                        playTone({ frequency: 420, endFrequency: 760, duration: 0.22, type: 'sine', amount: 0.055 });
+                        break;
+                    default:
+                        playTone({ frequency: 460, duration: 0.12, type: 'triangle', amount: 0.04 });
+                        break;
+                }
+            } catch (error) {
+                // Generated effects are decorative; visuals should continue if audio is blocked.
+            }
+        };
+
+        const startAmbient = (name) => {
+            if (!name || ambientIntervals.has(name)) return;
+            const intervalMs = name === 'rain' ? 950 : 620;
+            const run = () => playGeneratedEffect(name);
+            ambientIntervals.set(name, window.setInterval(run, intervalMs));
+            run();
+        };
+
+        const stopAmbient = (name) => {
+            const interval = ambientIntervals.get(name);
+            if (!interval) return;
+            window.clearInterval(interval);
+            ambientIntervals.delete(name);
+        };
+
+        const syncAmbientEffects = (activeNames = []) => {
+            if (settings.effectsMuted || settings.volume <= 0) {
+                Array.from(ambientIntervals.keys()).forEach(stopAmbient);
+                return;
+            }
+            const activeSet = new Set(activeNames.filter(Boolean));
+            Array.from(ambientIntervals.keys()).forEach((name) => {
+                if (!activeSet.has(name)) stopAmbient(name);
+            });
+            activeSet.forEach(startAmbient);
+        };
+
         const syncUi = () => {
             if (soundVolumeInput) {
                 soundVolumeInput.value = String(Math.round(settings.volume * 100));
             }
+            const allMuteButtons = document.querySelectorAll('.music-mute-button, .mute-button, .ingame-mute-button');
+            allMuteButtons.forEach(btn => {
+                if (settings.musicMuted) {
+                    btn.classList.add('muted');
+                    btn.setAttribute('aria-label', 'Unmute music');
+                } else {
+                    btn.classList.remove('muted');
+                    btn.setAttribute('aria-label', 'Mute music');
+                }
+            });
+            const allEffectsMuteButtons = document.querySelectorAll('.effects-mute-button, .ingame-effects-mute-button');
+            allEffectsMuteButtons.forEach(btn => {
+                if (settings.effectsMuted) {
+                    btn.classList.add('muted');
+                    btn.setAttribute('aria-label', 'Unmute game sounds');
+                } else {
+                    btn.classList.remove('muted');
+                    btn.setAttribute('aria-label', 'Mute game sounds');
+                }
+            });
         };
         const persist = () => {
             try {
@@ -53,20 +311,106 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // Ignore storage failures.
             }
         };
+
+        const updateMusicVolume = () => {
+            if (currentMusic) {
+                currentMusic.volume = settings.musicMuted ? 0 : settings.volume;
+            }
+        };
+
+        const playNextTrack = () => {
+            if (musicTracks.length === 0) return;
+            
+            if (musicTracks.length === 1) {
+                currentTrackIndex = 0;
+            } else {
+                if (currentTrackIndex === -1) {
+                    currentTrackIndex = Math.floor(Math.random() * musicTracks.length);
+                } else {
+                    currentTrackIndex = (currentTrackIndex + 1) % musicTracks.length;
+                }
+            }
+
+            if (currentMusic) {
+                currentMusic.pause();
+                currentMusic.onended = null;
+            }
+
+            currentMusic = new Audio(musicTracks[currentTrackIndex]);
+            currentMusic.volume = settings.musicMuted ? 0 : settings.volume;
+            
+            if (musicTracks.length === 1) {
+                currentMusic.loop = true;
+            } else {
+                currentMusic.onended = playNextTrack;
+            }
+
+            const playback = currentMusic.play();
+            if (playback && typeof playback.catch === 'function') {
+                playback.catch(() => {
+                    const resumeOnInteraction = () => {
+                        currentMusic.play().catch(() => {});
+                        document.removeEventListener('click', resumeOnInteraction);
+                    };
+                    document.addEventListener('click', resumeOnInteraction);
+                });
+            }
+        };
+
         syncUi();
+        
+        const onVolumeInput = (event) => {
+            settings = {
+                ...settings,
+                volume: clampVolume((event.target?.value || 0) / 100),
+            };
+            updateMusicVolume();
+            persist();
+            syncUi();
+        };
+
         if (soundVolumeInput) {
-            soundVolumeInput.addEventListener('input', (event) => {
-                settings = {
-                    ...settings,
-                    volume: clampVolume((event.target?.value || 0) / 100),
-                };
-                persist();
-                syncUi();
-            });
+            soundVolumeInput.addEventListener('input', onVolumeInput);
         }
+
+        const onMusicMuteClick = () => {
+            settings.musicMuted = !settings.musicMuted;
+            updateMusicVolume();
+            persist();
+            syncUi();
+        };
+
+        const onEffectsMuteClick = () => {
+            settings.effectsMuted = !settings.effectsMuted;
+            if (settings.effectsMuted) {
+                syncAmbientEffects([]);
+            }
+            persist();
+            syncUi();
+        }
+
+        document.addEventListener('click', (event) => {
+            const target = event.target;
+            if (!target) return;
+            if (
+                target.classList.contains('music-mute-button') ||
+                target.classList.contains('mute-button') ||
+                target.classList.contains('ingame-mute-button')
+            ) {
+                onMusicMuteClick();
+                return;
+            }
+            if (
+                target.classList.contains('effects-mute-button') ||
+                target.classList.contains('ingame-effects-mute-button')
+            ) {
+                onEffectsMuteClick();
+            }
+        });
+
         return {
             play(audio) {
-                if (!audio || settings.volume <= 0) return;
+                if (!audio || settings.volume <= 0 || settings.effectsMuted) return;
                 try {
                     audio.volume = clampVolume(settings.volume);
                     audio.currentTime = 0;
@@ -78,8 +422,27 @@ document.addEventListener('DOMContentLoaded', async () => {
                     // Ignore playback errors from the browser.
                 }
             },
+            startMusic(tracks) {
+                musicTracks = Array.isArray(tracks) ? tracks : [tracks];
+                currentTrackIndex = -1;
+                playNextTrack();
+            },
+            stopMusic() {
+                if (currentMusic) {
+                    currentMusic.pause();
+                    currentMusic = null;
+                }
+            },
+            playGeneratedEffect,
+            syncAmbientEffects
         };
     })();
+
+    if (isSelectionPage) {
+        soundManager.startMusic(['track1.mp3']);
+    } else if (isIngamePage) {
+        soundManager.startMusic(['track2.mp3', 'track3.mp3']);
+    }
     if (shouldUseGameClickSound) {
         const clickSound = new Audio('sounds/click.mp3');
         document.addEventListener('click', (event) => {
@@ -140,7 +503,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             setLoginStatus('Login successful. Redirecting...', 'success');
-            localStorage.setItem('narutoUser', JSON.stringify({
+            localStorage.setItem('comicUser', JSON.stringify({
                 username: data.user?.username,
                 avatarUrl: data.user?.profile?.avatarUrl || defaultProfileAvatar,
                 clanAbbreviation: data.user?.profile?.clan?.abbreviation || '',
@@ -171,7 +534,41 @@ document.addEventListener('DOMContentLoaded', async () => {
         loginForm.addEventListener('submit', submitLogin);
     }
 
+    const defaultProfileAvatar = 'https://i.postimg.cc/3JqVcPXm/default.png';
+
+    const textFromHtml = (value = '') => {
+        const text = typeof value === 'string' ? value : '';
+        if (!text) return '';
+        const scratch = document.createElement('div');
+        scratch.innerHTML = text.replace(/<br\s*\/?>/gi, '\n');
+        return scratch.textContent || scratch.innerText || '';
+    };
+
+    const getCharacterDescriptionText = (character) => {
+        if (!character) return '';
+        return (
+            character.description ||
+            character.characterdescription ||
+            character.characterdeescription ||
+            textFromHtml(character.descriptionHtml || '') ||
+            ''
+        );
+    };
+
+    const getSkillDescriptionText = (skill) => {
+        if (!skill) return '';
+        return (
+            skill.description ||
+            skill.skilldescription ||
+            textFromHtml(skill.descriptionHtml || '') ||
+            ''
+        );
+    };
+
     const slotList = document.querySelector('.slot-list');
+    const rosterFilterTabs = Array.from(document.querySelectorAll('.roster-filter-tab'));
+    const rosterFilterSelect = document.getElementById('roster-filter-select');
+    const rosterFilterStatus = document.getElementById('roster-filter-status');
     const nameEl = document.getElementById('character-name');
     const roleEl = document.getElementById('character-role');
     const portraitEl = document.getElementById('character-portrait');
@@ -190,12 +587,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     const lastPageButton = document.querySelector('.lastpage');
     const rosterSlotElements = [];
     const selectedAssignments = selectedSlots.map(() => null);
-    const teamStorageKey = 'narutoSelectedTeam';
-    const defaultProfileAvatar = 'https://i.postimg.cc/3JqVcPXm/default.png';
+    const teamStorageKey = 'comicSelectedTeam';
     const defaultLadderRankHat = 'hats/academy.png';
     let profileCache = null;
     let missionLockedCharacterIds = new Set();
     let selectionClickTimer = null;
+    let activeSelectionPointerDrag = null;
+    let suppressSelectionClickUntil = 0;
+
+    document.addEventListener(
+        'click',
+        (event) => {
+            if (Date.now() <= suppressSelectionClickUntil) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        },
+        true
+    );
 
     const normalizeLadderPresentation = (ladder = null) => {
         const source = ladder && typeof ladder === 'object' ? ladder : {};
@@ -269,7 +678,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const readCachedUser = () => {
-        const cachedUser = localStorage.getItem('narutoUser');
+        const cachedUser = localStorage.getItem('comicUser');
         if (!cachedUser) return null;
         try {
             return JSON.parse(cachedUser);
@@ -282,7 +691,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const writeCachedUser = (user) => {
         if (!user?.username) return;
         localStorage.setItem(
-            'narutoUser',
+            'comicUser',
             JSON.stringify({
                 username: user.username,
                 role: typeof user.role === 'string' ? user.role : 'player',
@@ -349,6 +758,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (error) {
             console.warn('Failed to load mission lock data.', error);
             missionLockedCharacterIds = new Set();
+        }
+    };
+
+    const loadCharacterPlayRates = async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/characters/play-rates`, {
+                credentials: 'include',
+            });
+            if (!response.ok) {
+                throw new Error('Unable to load play rates.');
+            }
+            const data = await response.json();
+            const nextRates = new Map();
+            (Array.isArray(data?.playRates) ? data.playRates : []).forEach((entry) => {
+                const characterId =
+                    typeof entry?.characterId === 'string' ? entry.characterId.trim().toLowerCase() : '';
+                if (!characterId) return;
+                nextRates.set(characterId, {
+                    pickCount: Math.max(0, Number(entry?.pickCount) || 0),
+                    playRatePercent: Math.max(0, Number(entry?.playRatePercent) || 0),
+                });
+            });
+            characterPlayRates = nextRates;
+        } catch (error) {
+            console.warn('Failed to load character play rates.', error);
+            characterPlayRates = new Map();
         }
     };
 
@@ -628,6 +1063,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const winSound = new Audio('sounds/win.mp3');
         const applySkillSound = new Audio('sounds/apply-skill.mp3');
         const deathSound = new Audio('sounds/death-sound.mp3');
+        const neganAlreadyFuckedSound = new Audio('takingitlikeachamp.mp3');
         let hasPlayedMatchEntrySound = false;
         let hasInitializedTurnState = false;
         const playerSkillImages = Array.from(
@@ -661,7 +1097,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const battleIntroBottomRecordEl = document.querySelector('.battle-intro-record-bottom');
         const battleIntroTopStreakEl = document.querySelector('.battle-intro-streak-top');
         const battleIntroBottomStreakEl = document.querySelector('.battle-intro-streak-bottom');
-        const BATTLE_INTRO_DURATION_MS = 5200;
+        const BATTLE_INTRO_DURATION_MS = 3000;
         let hasPlayedBattleIntro = false;
         const endTurnModalEl = document.querySelector('.ChakraChooseEndTurn');
         const skillOrderEl = endTurnModalEl?.querySelector('.skillorder');
@@ -715,8 +1151,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         let globalStatusTooltipEl = null;
         let battleEndShown = false;
         let selectedExchangeType = 'taijutsu';
+        let isPlayingResolutionSequence = false;
+        let deferredResolutionMatchState = null;
         const playIngameSound = (audio) => {
             soundManager.play(audio);
+        };
+        const playGeneratedIngameSound = (name) => {
+            soundManager.playGeneratedEffect(name);
         };
         const chakraCountEls = chakraDisplay
             ? {
@@ -1381,6 +1822,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         };
 
+        const getActorBlindModeForSkill = (actorUnit, skill) => {
+            const statuses = Array.isArray(actorUnit?.state?.statuses) ? actorUnit.state.statuses : [];
+            const harmful = skillHasHarmfulEffects(skill);
+            if (statuses.some((status) => Boolean(status?.metadata?.fullBlind)) && harmful) return 'any';
+            if (statuses.some((status) => Boolean(status?.metadata?.harmfulBlind)) && harmful) return 'enemy';
+            if (statuses.some((status) => Boolean(status?.metadata?.helpfulBlind)) && !harmful) return 'ally';
+            return '';
+        };
+
         const isSkillBlockedByClassLock = (actorUnit, skill) => {
             const skillClasses = Array.isArray(skill?.classes)
                 ? skill.classes
@@ -1558,7 +2008,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             imgEl.classList.add('skill-cast-pulse', `skill-cast-${energyClass}`);
             window.setTimeout(() => {
                 imgEl.classList.remove('skill-cast-pulse', `skill-cast-${energyClass}`);
-            }, 520);
+            }, 620);
         };
 
         const triggerBlockedSkillFeedback = (imgEl) => {
@@ -1566,7 +2016,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             imgEl.classList.remove('skill-blocked-shake');
             void imgEl.offsetWidth;
             imgEl.classList.add('skill-blocked-shake');
-            window.setTimeout(() => imgEl.classList.remove('skill-blocked-shake'), 420);
+            window.setTimeout(() => imgEl.classList.remove('skill-blocked-shake'), 520);
         };
 
         const getCooldownBadgeForImage = (imgEl) => {
@@ -1690,6 +2140,55 @@ document.addEventListener('DOMContentLoaded', async () => {
             return ordered;
         };
 
+        const cloneQueuedEntryForAnimation = (queued) =>
+            queued && typeof queued === 'object'
+                ? {
+                      actorSlot: Number.parseInt(queued.actorSlot, 10),
+                      skillIndex: Number.parseInt(queued.skillIndex, 10),
+                      targetSelection:
+                          queued.targetSelection === undefined
+                              ? []
+                              : JSON.parse(JSON.stringify(queued.targetSelection)),
+                  }
+                : null;
+
+        const getQueuedResolutionAnimationEntries = () =>
+            getOrderedQueuedEntries()
+                .map(cloneQueuedEntryForAnimation)
+                .filter(
+                    (entry) =>
+                        entry &&
+                        Number.isInteger(entry.actorSlot) &&
+                        Number.isInteger(entry.skillIndex)
+                );
+
+        const waitForMs = (durationMs) =>
+            new Promise((resolve) => window.setTimeout(resolve, durationMs));
+
+        const playQueuedResolutionSequence = async (entries = []) => {
+            const sequence = Array.isArray(entries) ? entries : [];
+            if (!sequence.length) return;
+            isPlayingResolutionSequence = true;
+            deferredResolutionMatchState = null;
+            for (const entry of sequence) {
+                animateSkillCastTrail({
+                    actorSlot: entry.actorSlot,
+                    skillIdx: entry.skillIndex,
+                    selection: entry.targetSelection,
+                });
+                await waitForMs(980);
+            }
+            await waitForMs(260);
+            isPlayingResolutionSequence = false;
+        };
+
+        const applyMatchStateAfterResolutionSequence = async (data, entries = []) => {
+            await playQueuedResolutionSequence(entries);
+            const deferred = deferredResolutionMatchState;
+            deferredResolutionMatchState = null;
+            applyMatchState(deferred || data, { allowDuringResolutionSequence: true });
+        };
+
         const reorderQueuedSkills = async (actorSlots = []) => {
             if (!matchIdFromUrl) return;
             try {
@@ -1732,7 +2231,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 preview.dataset.skillIndex = String(skillIdx);
                 if (newlyQueuedKeys.has(`${actorSlot}:${skillIdx}`)) {
                     preview.classList.add('skillpreview-added');
-                    window.setTimeout(() => preview.classList.remove('skillpreview-added'), 520);
+                    window.setTimeout(() => preview.classList.remove('skillpreview-added'), 700);
                 }
                 preview.addEventListener('dragstart', () => {
                     draggingQueueActorSlot = actorSlot;
@@ -1768,7 +2267,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const clearTargetHighlights = () => {
-            document.querySelectorAll('.target-overlay, .target-lock-marker').forEach((el) => el.remove());
+            document.querySelectorAll('.target-overlay, .target-lock-marker, .blind-potential-skill-icon').forEach((el) => el.remove());
             [...playerCards, ...enemyCards].forEach((card) => {
                 card?.classList.remove('targetable', 'target-invalid', 'blind-random-target');
             });
@@ -1808,10 +2307,64 @@ document.addEventListener('DOMContentLoaded', async () => {
         const renderTargetHighlights = (options) => {
             clearTargetHighlights();
             if (!options || !Array.isArray(options.targets)) return;
-            const blindedCast = activeCastingSkill && actorHasBlindForSkill(
-                latestBoardState?.[currentPlayerUsername]?.[activeCastingSkill.actorSlot],
-                activeCastingSkill.skill
-            );
+            const actorUnit = activeCastingSkill
+                ? latestBoardState?.[currentPlayerUsername]?.[activeCastingSkill.actorSlot]
+                : null;
+            const blindMode = activeCastingSkill
+                ? getActorBlindModeForSkill(actorUnit, activeCastingSkill.skill)
+                : '';
+            const blindedCast = Boolean(blindMode);
+            const getAliveBlindPotentialTargets = () => {
+                if (!blindedCast) return [];
+                const playerUnits = Array.isArray(latestBoardState?.[currentPlayerUsername])
+                    ? latestBoardState[currentPlayerUsername]
+                    : [];
+                const opponentUnits = Array.isArray(latestBoardState?.[currentOpponentUsername])
+                    ? latestBoardState[currentOpponentUsername]
+                    : [];
+                const makeEntries = (units, username) =>
+                    units
+                        .map((unit, slot) => ({ unit, slot, username }))
+                        .filter((entry) => entry.unit && !isUnitDeadLike(entry.unit));
+                if (blindMode === 'any') {
+                    return [
+                        ...makeEntries(playerUnits, currentPlayerUsername || ''),
+                        ...makeEntries(opponentUnits, currentOpponentUsername || ''),
+                    ];
+                }
+                if (blindMode === 'ally') {
+                    return makeEntries(playerUnits, currentPlayerUsername || '');
+                }
+                return makeEntries(opponentUnits, currentOpponentUsername || '');
+            };
+            const addBlindPotentialMarker = (card) => {
+                if (!card || card.querySelector('.target-lock-marker.blind-random-target')) return;
+                const face = card.querySelector('.character-face');
+                if (!face) return;
+                const overlay = document.createElement('div');
+                overlay.className = 'target-overlay blind-random-target';
+                face.parentElement?.appendChild(overlay);
+                const lock = document.createElement('div');
+                lock.className = 'target-lock-marker blind-random-target';
+                face.parentElement?.appendChild(lock);
+            };
+            const addBlindPotentialSkillIcon = (card) => {
+                if (!card || card.querySelector('.blind-potential-skill-icon')) return;
+                const tooltipWrap = card.querySelector('.skilltooltips');
+                const tooltipImgTemplate =
+                    tooltipWrap?.querySelector('.skilltooltipimage.status-icon-template') ||
+                    tooltipWrap?.querySelector('.skilltooltipimage');
+                if (!tooltipWrap || !tooltipImgTemplate) return;
+                tooltipWrap.style.visibility = 'visible';
+                tooltipWrap.classList.add('has-status');
+                const iconEl = tooltipImgTemplate.cloneNode(true);
+                iconEl.classList.remove('status-icon-template', 'dynamic-status-icon');
+                iconEl.classList.add('blind-potential-skill-icon');
+                iconEl.style.display = 'block';
+                iconEl.src = activeCastingSkill?.skill?.skillimage || activeCastingSkill?.skillEl?.src || iconEl.src;
+                iconEl.title = `Possible random target: ${activeCastingSkill?.skill?.name || 'Selected skill'}`;
+                tooltipWrap.appendChild(iconEl);
+            };
             [...playerCards, ...enemyCards].forEach((card) => {
                 if (!card) return;
                 if (getTargetForCardFromOptions(card, options)) {
@@ -1838,6 +2391,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 lock.className = `target-lock-marker${blindedCast ? ' blind-random-target' : ''}`;
                 face.parentElement?.appendChild(lock);
             });
+            if (blindedCast) {
+                getAliveBlindPotentialTargets().forEach((target) => {
+                    const card = getCardByUsernameSlot(target.username, target.slot);
+                    if (!card) return;
+                    card.classList.add('blind-random-target');
+                    card.classList.remove('target-invalid');
+                    addBlindPotentialMarker(card);
+                    addBlindPotentialSkillIcon(card);
+                });
+            }
         };
 
         const animateSkillToQueue = (skillEl) => {
@@ -1855,7 +2418,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             void skillEl.offsetWidth;
             skillEl.classList.add('skill-queue-trail');
             skillEl.style.transform = `translate(${dx}px, ${dy}px)`;
-            window.setTimeout(() => skillEl.classList.remove('skill-queue-trail'), 520);
+            window.setTimeout(() => skillEl.classList.remove('skill-queue-trail'), 760);
         };
 
         const normalizeTargetSelectionList = (selection) => {
@@ -1869,12 +2432,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             const meta = playerSkillMetaByKey.get(`${actorSlot}:${skillIdx}`);
             const skillEl = meta?.imgEl || null;
             if (!actorCard || !skillEl) return;
+            const effectiveSkill = getEffectiveSkillForActorSlot(actorSlot, skillIdx) || meta?.skill || meta?.baseSkill;
             const face = actorCard.querySelector('.character-face');
             if (face) {
                 face.classList.remove('skill-caster-surge');
                 void face.offsetWidth;
                 face.classList.add('skill-caster-surge');
-                window.setTimeout(() => face.classList.remove('skill-caster-surge'), 620);
+                window.setTimeout(() => face.classList.remove('skill-caster-surge'), 1050);
             }
             const sourceRect = skillEl.getBoundingClientRect();
             const sourceX = sourceRect.left + sourceRect.width / 2;
@@ -1893,9 +2457,263 @@ document.addEventListener('DOMContentLoaded', async () => {
                 projectile.style.top = `${sourceY - 17}px`;
                 projectile.style.setProperty('--cast-dx', `${targetRect.left + targetRect.width / 2 - sourceX}px`);
                 projectile.style.setProperty('--cast-dy', `${targetRect.top + targetRect.height / 2 - sourceY}px`);
-                projectile.style.animationDelay = `${Math.min(index, 3) * 70}ms`;
+                projectile.style.animationDelay = `${Math.min(index, 3) * 120}ms`;
+                if (effectiveSkill?.id === 'captain-america-shield-throw') {
+                    projectile.classList.add('captain-shield-throw-projectile');
+                }
                 document.body.appendChild(projectile);
-                window.setTimeout(() => projectile.remove(), 780 + Math.min(index, 3) * 70);
+                window.setTimeout(
+                    () => projectile.remove(),
+                    (effectiveSkill?.id === 'captain-america-shield-throw' ? 2300 : 1450) + Math.min(index, 3) * 120
+                );
+            });
+            const skillId = effectiveSkill?.id || '';
+            if (skillId === 'captain-america-shield-throw') {
+                playGeneratedIngameSound('shield');
+            } else if (skillId === 'predator-stalker-yautja-shuriken') {
+                playGeneratedIngameSound('ricochet');
+            } else if (skillId.includes('bomb')) {
+                playGeneratedIngameSound('bomb-arm');
+            } else if (skillId.startsWith('spider-man-web')) {
+                playGeneratedIngameSound('web');
+            } else if (skillId.startsWith('angstrom-levy')) {
+                playGeneratedIngameSound('portal');
+            } else if (skillId.startsWith('andrea') && skillId !== 'andrea-snipe' && skillId !== 'andrea-quick-shot') {
+                playGeneratedIngameSound('target-lock');
+            } else if (skillId.includes('cloak')) {
+                playGeneratedIngameSound('cloak');
+            }
+            showDirectionalSkillFx({ actorCard, skill: effectiveSkill, selection });
+            showStormSkillPortraitFx(effectiveSkill, selection);
+        };
+
+        const showTemporaryCardFx = (card, className, html = '', duration = 1600) => {
+            if (!card || !className) return;
+            const primaryClassName = String(className).trim().split(/\s+/)[0];
+            const existing = primaryClassName ? card.querySelector(`.${primaryClassName}`) : null;
+            if (existing) existing.remove();
+            const effect = document.createElement('div');
+            effect.className = className;
+            effect.innerHTML = html;
+            card.appendChild(effect);
+            window.setTimeout(() => effect.remove(), duration);
+        };
+
+        const showCombatBeam = ({ sourceCard, targetCard, color = 'red', empowered = false, frost = false }) => {
+            const sourceFace = sourceCard?.querySelector?.('.character-face') || sourceCard;
+            const targetFace = targetCard?.querySelector?.('.character-face') || targetCard;
+            const sourceRect = sourceFace?.getBoundingClientRect?.();
+            const targetRect = targetFace?.getBoundingClientRect?.();
+            if (!sourceRect || !targetRect) return;
+            const sourceX = sourceRect.left + sourceRect.width * 0.52;
+            const sourceY = sourceRect.top + sourceRect.height * 0.38;
+            const targetX = targetRect.left + targetRect.width * 0.5;
+            const targetY = targetRect.top + targetRect.height * 0.48;
+            const dx = targetX - sourceX;
+            const dy = targetY - sourceY;
+            const length = Math.max(24, Math.sqrt(dx * dx + dy * dy));
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            const beam = document.createElement('div');
+            beam.className = [
+                'combat-energy-beam',
+                frost ? 'frost' : color === 'yellow' ? 'yellow' : 'red',
+                empowered ? 'empowered' : '',
+            ].filter(Boolean).join(' ');
+            beam.style.left = `${sourceX}px`;
+            beam.style.top = `${sourceY}px`;
+            beam.style.width = `${length}px`;
+            beam.style.transform = `rotate(${angle}deg)`;
+            if (frost) {
+                beam.innerHTML = '<span></span><span></span><span></span><span></span>';
+            }
+            document.body.appendChild(beam);
+            window.setTimeout(() => beam.remove(), frost ? 1150 : empowered ? 1050 : 820);
+        };
+
+        const getTargetCardsFromSelection = (selection) =>
+            normalizeTargetSelectionList(selection)
+                .map((target) => {
+                    const targetSlot = Number.parseInt(target?.slot, 10);
+                    return getCardByUsernameSlot(target?.username || '', targetSlot);
+                })
+                .filter(Boolean);
+
+        const showSolarFlareFx = (sourceCard) => {
+            const sourceFace = sourceCard?.querySelector?.('.character-face') || sourceCard;
+            const rect = sourceFace?.getBoundingClientRect?.();
+            if (!rect) return;
+            const flare = document.createElement('div');
+            flare.className = 'superman-solar-flare-screen-fx';
+            flare.style.left = `${rect.left + rect.width / 2}px`;
+            flare.style.top = `${rect.top + rect.height / 2}px`;
+            flare.innerHTML = '<span></span><span></span><span></span><span></span>';
+            document.body.appendChild(flare);
+            playGeneratedIngameSound('solar-flare');
+            window.setTimeout(() => flare.remove(), 1800);
+        };
+
+        const showBulletImpactFx = (targetCard, variant = 'small') => {
+            if (!targetCard) return;
+            showTemporaryCardFx(
+                targetCard,
+                `bullet-hole-impact-fx ${variant}`,
+                '<span class="bullet-hole-core"></span><span class="bullet-hole-crack"></span>',
+                variant === 'sniper' ? 2300 : 1700
+            );
+        };
+
+        const showAndreaSnipeFx = (targetCards = []) => {
+            const targetCard = targetCards[0];
+            if (!targetCard) return;
+            const face = targetCard.querySelector('.character-face') || targetCard;
+            const rect = face.getBoundingClientRect();
+            const scope = document.createElement('div');
+            scope.className = 'andrea-sniper-board-fx';
+            scope.style.setProperty('--scope-x', `${rect.left + rect.width / 2}px`);
+            scope.style.setProperty('--scope-y', `${rect.top + rect.height / 2}px`);
+            scope.innerHTML = '<span class="sniper-scope-ring"></span><span class="sniper-scope-line sniper-scope-line-h"></span><span class="sniper-scope-line sniper-scope-line-v"></span>';
+            document.body.appendChild(scope);
+            window.setTimeout(() => {
+                playGeneratedIngameSound('sniper-shot');
+                showBulletImpactFx(targetCard, 'sniper');
+            }, 620);
+            window.setTimeout(() => scope.remove(), 1700);
+        };
+
+        const showNeganLucilleFx = (targetCards = []) => {
+            targetCards.forEach((targetCard, index) => {
+                if (!targetCard) return;
+                showTemporaryCardFx(
+                    targetCard,
+                    'negan-lucille-swing-fx',
+                    '<span class="negan-lucille-bat"><i></i><b></b></span><span class="negan-lucille-impact"></span>',
+                    1850 + index * 90
+                );
+            });
+            playIngameSound(neganAlreadyFuckedSound);
+        };
+
+        const showDirectionalSkillFx = ({ actorCard, skill, selection }) => {
+            const skillId = skill?.id || '';
+            const isRedLaser = [
+                'superman-laser-eyes',
+                'superman-laser-eyes-empowered',
+                'homelander-laser-death-beam',
+                'homelander-laser-death-beam-empowered',
+            ].includes(skillId);
+            const isYellowLaser = skillId === 'billy-butcher-yellow-death-lasers';
+            const isFrostBreath = skillId === 'superman-frost-breath' || skillId === 'superman-frost-breath-empowered';
+            const isSolarFlare = skillId === 'superman-solar-flare';
+            const isAndreaSnipe = skillId === 'andrea-snipe';
+            const isAndreaQuickShot = skillId === 'andrea-quick-shot';
+            const isRickRevolver = skillId === 'rick-grimes-357-revolver';
+            const isNeganAlreadyFucked = skillId === 'negan-you-re-already-fucked';
+            const isGenericLaser = !isRedLaser && !isYellowLaser && skillId.includes('laser');
+            if (
+                !isRedLaser &&
+                !isYellowLaser &&
+                !isFrostBreath &&
+                !isSolarFlare &&
+                !isAndreaSnipe &&
+                !isAndreaQuickShot &&
+                !isRickRevolver &&
+                !isNeganAlreadyFucked &&
+                !isGenericLaser
+            ) {
+                return;
+            }
+            if (isSolarFlare) {
+                showSolarFlareFx(actorCard);
+                return;
+            }
+            const targetCards = getTargetCardsFromSelection(selection);
+            if (isAndreaSnipe) {
+                showAndreaSnipeFx(targetCards);
+                return;
+            }
+            if (isAndreaQuickShot) {
+                playGeneratedIngameSound('quick-shot');
+                targetCards.forEach((targetCard) => showBulletImpactFx(targetCard, 'quick'));
+                return;
+            }
+            if (isRickRevolver) {
+                playGeneratedIngameSound('revolver');
+                targetCards.forEach((targetCard) => showBulletImpactFx(targetCard, 'revolver'));
+                return;
+            }
+            if (isNeganAlreadyFucked) {
+                showNeganLucilleFx(targetCards);
+                return;
+            }
+            if (isGenericLaser) {
+                playGeneratedIngameSound('laser-red');
+                return;
+            }
+            const empowered = skillId.endsWith('-empowered');
+            targetCards.forEach((targetCard) => {
+                if (isFrostBreath) {
+                    showCombatBeam({ sourceCard: actorCard, targetCard, frost: true, empowered });
+                    showTemporaryCardFx(
+                        targetCard,
+                        `superman-frost-impact-fx${empowered ? ' empowered' : ''}`,
+                        '<span></span><span></span><span></span>',
+                        empowered ? 2200 : 1700
+                    );
+                    playGeneratedIngameSound('frost-breath');
+                    return;
+                }
+                showCombatBeam({
+                    sourceCard: actorCard,
+                    targetCard,
+                    color: isYellowLaser ? 'yellow' : 'red',
+                    empowered,
+                });
+                playGeneratedIngameSound(empowered ? 'laser-empowered' : isYellowLaser ? 'laser-yellow' : 'laser-red');
+            });
+        };
+
+        const showStormSkillPortraitFx = (skill, selection) => {
+            const skillId = skill?.id || '';
+            if (!skillId.startsWith('storm-lightning-strike') && !skillId.startsWith('storm-wind-funnel')) return;
+            if (skillId === 'storm-lightning-strike-rainstorm') {
+                playGeneratedIngameSound('lightning');
+                const enemyUnits = Array.isArray(latestBoardState?.[currentOpponentUsername])
+                    ? latestBoardState[currentOpponentUsername]
+                    : [];
+                enemyUnits.forEach((unit, slot) => {
+                    if (!unit || isUnitDeadLike(unit)) return;
+                    const targetCard = getCardByUsernameSlot(currentOpponentUsername || '', slot);
+                    if (!targetCard) return;
+                    showTemporaryCardFx(
+                        targetCard,
+                        'storm-lightning-fx',
+                        '<span class="storm-lightning-cloud"></span><span class="storm-lightning-bolt"></span>',
+                        1900
+                    );
+                });
+                return;
+            }
+            normalizeTargetSelectionList(selection).forEach((target) => {
+                const targetSlot = Number.parseInt(target?.slot, 10);
+                const targetCard = getCardByUsernameSlot(target?.username || '', targetSlot);
+                if (!targetCard) return;
+                if (skillId.startsWith('storm-lightning-strike')) {
+                    playGeneratedIngameSound('lightning');
+                    showTemporaryCardFx(
+                        targetCard,
+                        'storm-lightning-fx',
+                        '<span class="storm-lightning-cloud"></span><span class="storm-lightning-bolt"></span>',
+                        1900
+                    );
+                } else if (skillId.startsWith('storm-wind-funnel')) {
+                    playGeneratedIngameSound('wind');
+                    showTemporaryCardFx(
+                        targetCard,
+                        'storm-wind-fx',
+                        '<span></span><span></span><span></span>',
+                        1900
+                    );
+                }
             });
         };
 
@@ -1949,11 +2767,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const endTurnDueToTimeout = async () => {
             if (!matchIdFromUrl) return;
+            const resolutionAnimationEntries = getQueuedResolutionAnimationEntries();
             try {
-                await fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/end`, {
+                const response = await fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/end`, {
                     method: 'POST',
                     credentials: 'include',
                 });
+                const data = await response.json().catch(() => null);
+                if (response.ok && data?.ok) {
+                    await applyMatchStateAfterResolutionSequence(data, resolutionAnimationEntries);
+                }
             } catch (error) {
                 console.warn('Failed to auto-end turn on timeout.', error);
             }
@@ -2039,7 +2862,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         try {
-            const cachedUser = JSON.parse(localStorage.getItem('narutoUser') || '{}');
+            const cachedUser = JSON.parse(localStorage.getItem('comicUser') || '{}');
             if (cachedUser?.username) {
                 currentPlayerUsername = cachedUser.username;
             }
@@ -2272,6 +3095,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             battleEndOverlayEl.classList.add('visible');
             battleEndShown = true;
             playIngameSound(didWin ? winSound : lostSound);
+            soundManager.syncAmbientEffects([]);
             stopMatchRealtime();
             closeEndTurnModal();
             closeExchangeModal();
@@ -2292,7 +3116,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             popup.textContent = text;
             card.appendChild(popup);
-            window.setTimeout(() => popup.remove(), 980);
+            window.setTimeout(() => popup.remove(), 1600);
         };
 
         const showFloatingHpDelta = (card, delta) => {
@@ -2305,6 +3129,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ? 'damage'
                     : 'heal';
             showFloatingCombatText(card, `${isDamage ? '' : '+'}${delta}`, variant);
+            playGeneratedIngameSound(isDamage ? 'damage' : 'heal');
         };
 
         const animateUnitImpact = (card, delta) => {
@@ -2317,7 +3142,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             face.classList.remove('damage-impact', 'heal-impact');
             void face.offsetWidth;
             face.classList.add(className);
-            window.setTimeout(() => face.classList.remove(className), 520);
+            window.setTimeout(() => face.classList.remove(className), 650);
 
             const burst = document.createElement('div');
             burst.className = [
@@ -2326,7 +3151,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 isAffliction ? 'affliction' : '',
             ].filter(Boolean).join(' ');
             card.appendChild(burst);
-            window.setTimeout(() => burst.remove(), 620);
+            window.setTimeout(() => burst.remove(), 1050);
         };
 
         const animateDefenseImpact = (card, delta) => {
@@ -2334,7 +3159,34 @@ document.addEventListener('DOMContentLoaded', async () => {
             const burst = document.createElement('div');
             burst.className = `combat-impact-burst shield ${delta < 0 ? 'break' : 'gain'}`;
             card.appendChild(burst);
-            window.setTimeout(() => burst.remove(), 680);
+            window.setTimeout(() => burst.remove(), 1100);
+            playGeneratedIngameSound('shield-hit');
+        };
+
+        const escapeCssUrl = (value = '') => String(value).replaceAll('\\', '\\\\').replaceAll("'", "\\'");
+
+        const showCharacterDeathAnimation = (card) => {
+            if (!card) return;
+            const face = card.querySelector('.character-face');
+            const portraitSrc = face?.dataset?.aliveSrc || face?.src || '';
+            if (!portraitSrc) return;
+            card.querySelectorAll('.character-death-shatter').forEach((node) => node.remove());
+            const safeSrc = escapeCssUrl(portraitSrc);
+            const overlay = document.createElement('div');
+            overlay.className = 'character-death-shatter';
+            const label = card.closest('.enemy-characters') ? 'KILL' : 'DEFEATED';
+            overlay.innerHTML =
+                `<div class="death-slice death-slice-left" style="background-image:url('${safeSrc}')"></div>` +
+                `<div class="death-slice death-slice-right" style="background-image:url('${safeSrc}')"></div>` +
+                `<div class="death-shards">` +
+                    Array.from({ length: 9 }, (_, index) =>
+                        `<span style="background-image:url('${safeSrc}');--piece:${index};"></span>`
+                    ).join('') +
+                `</div>` +
+                `<div class="death-kill-label">${label}</div>`;
+            card.appendChild(overlay);
+            playGeneratedIngameSound('death');
+            window.setTimeout(() => overlay.remove(), 2500);
         };
 
         const getActiveStatuses = (unit) => {
@@ -2403,31 +3255,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.setTimeout(() => popup.remove(), 900);
         };
 
-        let evadeAudioContext = null;
         const playEvadeCue = () => {
-            try {
-                const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
-                if (!AudioContextCtor) return;
-                evadeAudioContext = evadeAudioContext || new AudioContextCtor();
-                if (evadeAudioContext.state === 'suspended') {
-                    evadeAudioContext.resume().catch(() => {});
-                }
-                const now = evadeAudioContext.currentTime;
-                const oscillator = evadeAudioContext.createOscillator();
-                const gain = evadeAudioContext.createGain();
-                oscillator.type = 'triangle';
-                oscillator.frequency.setValueAtTime(620, now);
-                oscillator.frequency.exponentialRampToValueAtTime(180, now + 0.16);
-                gain.gain.setValueAtTime(0.0001, now);
-                gain.gain.exponentialRampToValueAtTime(0.11, now + 0.02);
-                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
-                oscillator.connect(gain);
-                gain.connect(evadeAudioContext.destination);
-                oscillator.start(now);
-                oscillator.stop(now + 0.2);
-            } catch (error) {
-                // Browser audio can be blocked before user interaction; evade visuals still show.
-            }
+            playGeneratedIngameSound('evade');
         };
 
         const showCombatEventLog = (message) => {
@@ -2453,12 +3282,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 face.classList.remove('evade-dodge');
                 void face.offsetWidth;
                 face.classList.add('evade-dodge');
-                window.setTimeout(() => face.classList.remove('evade-dodge'), 560);
+                window.setTimeout(() => face.classList.remove('evade-dodge'), 1000);
             }
             const slash = document.createElement('div');
             slash.className = 'evade-slash-overlay';
             card.appendChild(slash);
-            window.setTimeout(() => slash.remove(), 560);
+            window.setTimeout(() => slash.remove(), 1000);
 
             const evader = Number.isInteger(unit?.rosterIndex) ? rosterData?.[unit.rosterIndex] : null;
             const evaderName = evader?.name || 'Character';
@@ -2561,6 +3390,160 @@ document.addEventListener('DOMContentLoaded', async () => {
             cylinder.title = `${bulletsRemaining}/6 bullets`;
         };
 
+        const ensureCharacterFxElement = (card, className, html = '') => {
+            if (!card || !className) return null;
+            let element = card.querySelector(`.${className}`);
+            if (!element) {
+                element = document.createElement('div');
+                element.className = className;
+                element.innerHTML = html;
+                card.appendChild(element);
+            }
+            return element;
+        };
+
+        const removeCharacterFxElement = (card, className) => {
+            card?.querySelectorAll?.(`.${className}`).forEach((node) => node.remove());
+        };
+
+        const syncCharacterSpecificFx = (card, unit) => {
+            if (!card) return;
+            const fxClasses = [
+                'batman-smoke-fx',
+                'batman-emp-fx',
+                'rage-infected-fx',
+                'mysterio-illusion-fx',
+                'joker-remote-bomb-fx',
+                'captain-shield-fx',
+                'predator-cloak-fx',
+                'spider-web-fx',
+                'andrea-lock-fx',
+                'angstrom-banish-fx',
+                'storm-ice-fx',
+                'hulk-rage-high-fx',
+                'hulk-rage-max-fx',
+            ];
+            const activeFxStatuses = getActiveStatuses(unit);
+            const isBanishedForFx = activeFxStatuses.some((status) => Boolean(status?.metadata?.banished));
+            const hpForFx = Number(unit?.hp);
+            const isDeadForFx =
+                !unit ||
+                unit?.alive === false ||
+                (Number.isFinite(hpForFx) && hpForFx <= 0 && !isBanishedForFx);
+            if (isDeadForFx) {
+                fxClasses.forEach((className) => card.classList.remove(className));
+                ['joker-detonator-light', 'space-marine-channel-bar', 'rex-charge-counter'].forEach((className) =>
+                    removeCharacterFxElement(card, className)
+                );
+                return;
+            }
+            const character = Number.isInteger(unit?.rosterIndex) ? rosterData?.[unit.rosterIndex] : null;
+            const characterId = character?.characterId || character?.id || '';
+            const statuses = activeFxStatuses;
+            const hasStatus = (predicate) => statuses.some(predicate);
+            const idStarts = (prefix) => (status) => typeof status?.id === 'string' && status.id.startsWith(prefix);
+            const sourceStarts = (prefix) => (status) => typeof status?.sourceSkillId === 'string' && status.sourceSkillId.startsWith(prefix);
+
+            const isBatmanSmoke = hasStatus((status) => status?.id === 'batman_smoke_bomb_blind');
+            const isBatmanEmp = hasStatus((status) => typeof status?.id === 'string' && status.id.startsWith('batman_pocket_emp'));
+            card.classList.toggle('batman-smoke-fx', isBatmanSmoke);
+            card.classList.toggle('batman-emp-fx', isBatmanEmp);
+
+            const isSpiderWebbed = hasStatus((status) =>
+                typeof status?.id === 'string' &&
+                status.id.startsWith('spider_man_web_') &&
+                (
+                    status.id.includes('_stun') ||
+                    status.id.includes('_wrap') ||
+                    Boolean(status?.metadata?.cannotUseSkills) ||
+                    Boolean(status?.metadata?.cannotUseHarmfulSkills) ||
+                    Boolean(status?.metadata?.skillCostOverridesBySkillId)
+                )
+            );
+            card.classList.toggle('spider-web-fx', isSpiderWebbed);
+
+            const isAndreaLocked = hasStatus((status) => status?.id === 'andrea_locked_on_mark');
+            card.classList.toggle('andrea-lock-fx', isAndreaLocked);
+
+            const isAngstromBanished = hasStatus((status) =>
+                Boolean(status?.metadata?.banished) &&
+                (status?.id === 'angstrom_levy_dimension_abandon_banish' ||
+                    typeof status?.sourceSkillId === 'string' && status.sourceSkillId.startsWith('angstrom-levy'))
+            );
+            card.classList.toggle('angstrom-banish-fx', isAngstromBanished);
+
+            const isStormIceCountered = hasStatus((status) => status?.id === 'storm_ice_barrier_countered');
+            card.classList.toggle('storm-ice-fx', isStormIceCountered);
+
+            const isRageMarked = hasStatus(idStarts('rage_infected_'));
+            card.classList.toggle('rage-infected-fx', isRageMarked);
+
+            const isMysterioAffected = hasStatus(idStarts('mysterio_'));
+            card.classList.toggle('mysterio-illusion-fx', isMysterioAffected);
+
+            const isJokerBomb = hasStatus((status) => status?.id === 'the_joker_remote_bomb_mark');
+            card.classList.toggle('joker-remote-bomb-fx', isJokerBomb);
+            if (isJokerBomb) {
+                ensureCharacterFxElement(card, 'joker-detonator-light', '<span></span>');
+            } else {
+                removeCharacterFxElement(card, 'joker-detonator-light');
+            }
+
+            const isCaptainRicochet = hasStatus((status) =>
+                typeof status?.id === 'string' && status.id.startsWith('captain_america_vibranium_ricochet')
+            );
+            card.classList.toggle('captain-shield-fx', isCaptainRicochet);
+
+            const isPredatorCloaked =
+                characterId === 'predator-stalker' &&
+                hasStatus((status) => status?.id === 'predator_stalker_cloaking_tech_active');
+            card.classList.toggle('predator-cloak-fx', isPredatorCloaked);
+
+            const isSpaceMarine = characterId === 'space-marine-infantry';
+            const channelStatus = statuses.find((status) => {
+                const ongoingClass =
+                    typeof status?.metadata?.ongoingClass === 'string'
+                        ? status.metadata.ongoingClass.trim().toLowerCase()
+                        : '';
+                return ongoingClass === 'channeled' && (
+                    sourceStarts('space-marine-infantry')(status) ||
+                    typeof status?.id === 'string' && status.id.startsWith('space_marine_infantry_')
+                );
+            });
+            if (isSpaceMarine && channelStatus) {
+                const channelEl = ensureCharacterFxElement(
+                    card,
+                    'space-marine-channel-bar',
+                    '<span class="space-marine-channel-fill"></span><span class="space-marine-channel-label"></span>'
+                );
+                const remaining = Math.max(0, Number(channelStatus.remainingTurns) || 0);
+                const fill = channelEl?.querySelector('.space-marine-channel-fill');
+                const label = channelEl?.querySelector('.space-marine-channel-label');
+                if (fill) fill.style.width = `${Math.max(16, Math.min(100, remaining * 34))}%`;
+                if (label) label.textContent = 'CHANNEL';
+            } else {
+                removeCharacterFxElement(card, 'space-marine-channel-bar');
+            }
+
+            const rexStatuses = statuses.filter((status) =>
+                typeof status?.id === 'string' && status.id.startsWith('rex_splode_')
+            );
+            if (characterId === 'rex-splode' || rexStatuses.length > 0) {
+                const rexEl = ensureCharacterFxElement(card, 'rex-charge-counter', '<span></span>');
+                const count = rexStatuses.length;
+                const span = rexEl?.querySelector('span');
+                if (span) span.textContent = count > 0 ? String(count) : '';
+                rexEl?.classList.toggle('empty', count <= 0);
+            } else {
+                removeCharacterFxElement(card, 'rex-charge-counter');
+            }
+
+            const isHulk = characterId === 'the-hulk';
+            const rage = isHulk ? getHulkRageValue(unit) : 0;
+            card.classList.toggle('hulk-rage-high-fx', isHulk && rage >= 70);
+            card.classList.toggle('hulk-rage-max-fx', isHulk && rage >= 100);
+        };
+
         const renderUnitHealth = (card, unit) => {
             if (!card) return;
             const healthBar = card.querySelector('.health-bar');
@@ -2569,6 +3552,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderHulkRageMeter(card, unit);
             renderRickRevolverCylinder(card, unit);
             renderEvadePercentBadge(card, unit);
+            syncCharacterSpecificFx(card, unit);
             const rawHp = isUnitBanished(unit) ? 0 : Number(unit?.hp);
             const hp = Math.max(0, Math.min(MAX_HP, Number.isFinite(rawHp) ? rawHp : MAX_HP));
             const ratio = hp / MAX_HP;
@@ -2673,6 +3657,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const evaded = gainedEvadeNotification(currentPlayerUsername, slot, playerUnits[slot]);
                     renderUnitHealth(card, playerUnits[slot]);
                     if (died) {
+                        showCharacterDeathAnimation(card);
                         card.classList.remove('death-crack');
                         void card.offsetWidth;
                         card.classList.add('death-crack');
@@ -2702,6 +3687,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const evaded = gainedEvadeNotification(opponentUsername, slot, opponentUnits[slot]);
                     renderUnitHealth(card, opponentUnits[slot]);
                     if (died) {
+                        showCharacterDeathAnimation(card);
                         card.classList.remove('death-crack');
                         void card.offsetWidth;
                         card.classList.add('death-crack');
@@ -2744,7 +3730,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const effect = effects.find(
                         (entry) => entry?.type === 'apply_status' && entry?.statusId === statusId
                     );
-                    const text = effect?.metadata?.tooltipText;
+                    const text = effect?.metadata?.tooltipText || getSkillDescriptionText(skill);
                     if (typeof text === 'string' && text.trim()) {
                         return text.trim();
                     }
@@ -2753,9 +3739,174 @@ document.addEventListener('DOMContentLoaded', async () => {
             return null;
         };
 
+        const lanternVisualBySourceSkillId = {
+            'green-lantern-hal-jordan-passive-green-lantern-ring': 'green',
+            'sinestro-passive-yellow-lantern-ring': 'yellow',
+            'atrocitus-passive-red-lantern-ring': 'red',
+            'saint-walker-passive-blue-lantern-ring': 'blue',
+            'indigo-1-passive-indigo-lantern-ring': 'indigo',
+            'john-stewart-passive-ultraviolet-lantern-ring': 'ultraviolet',
+            'sorrow-passive-grey-lantern-ring': 'grey-smoke',
+        };
+
+        const lanternVisualByStatusId = {
+            green_lantern_hal_jordan_passive_green_lantern_ring: 'green',
+            green_lantern_hal_jordan_green_lantern_ring_damage_bonus: 'green',
+            sinestro_yellow_lantern_ring_passive: 'yellow',
+            sinestro_yellow_lantern_ring_fear: 'yellow',
+            atrocitus_red_lantern_ring_passive: 'red',
+            atrocitus_rage_stacks: 'red',
+            saint_walker_blue_lantern_ring_passive: 'blue',
+            saint_walker_blue_lantern_ring_defense: 'blue',
+            indigo_1_indigo_lantern_ring_passive: 'indigo',
+            john_stewart_ultraviolet_lantern_ring_passive: 'ultraviolet',
+            john_stewart_emotional_possession: 'ultraviolet',
+            sorrow_grey_lantern_ring_passive: 'grey-smoke',
+            sorrow_stack: 'grey-smoke',
+        };
+
+        const lanternVisualClass = (visual) =>
+            `lantern-${String(visual || '').trim().toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+
+        const getLanternPassiveVisual = (status) =>
+            status?.metadata?.lanternPassiveVisual ||
+            lanternVisualBySourceSkillId[status?.sourceSkillId] ||
+            lanternVisualByStatusId[status?.id] ||
+            '';
+
+        const getLanternEffectVisual = (status) => {
+            if (!status) return '';
+            if (status?.metadata?.lanternEffectVisual) return status.metadata.lanternEffectVisual;
+            if (typeof status?.id === 'string' && status.id.startsWith('sorrow_')) return 'grey-smoke';
+            return (
+                lanternVisualBySourceSkillId[status?.sourceSkillId] ||
+                lanternVisualByStatusId[status?.id] ||
+                ''
+            );
+        };
+
+        const syncLanternPassiveAura = (card, statuses = []) => {
+            if (!card) return;
+            Array.from(card.classList)
+                .filter((className) => className === 'has-lantern-aura' || className.startsWith('lantern-aura-'))
+                .forEach((className) => card.classList.remove(className));
+            const passiveStatus = statuses.find((status) => {
+                if ((Number(status?.remainingTurns) || 0) <= 0) return false;
+                if (status?.metadata?.lanternPassiveVisual) return true;
+                return Boolean(lanternVisualByStatusId[status?.id] && /passive/i.test(status?.id || ''));
+            });
+            const visual = getLanternPassiveVisual(passiveStatus);
+            if (!visual) return;
+            card.classList.add('has-lantern-aura', `lantern-aura-${lanternVisualClass(visual)}`);
+        };
+
+        const showLanternTriggerBurst = (card, visual = '') => {
+            if (!card || !visual) return;
+            const burst = document.createElement('div');
+            burst.className = `lantern-trigger-burst ${lanternVisualClass(visual)}`;
+            if (visual === 'grey-smoke') {
+                burst.innerHTML =
+                    '<span></span><span></span><span></span><span></span>';
+            } else {
+                burst.innerHTML = '<span class="lantern-ring-burst-core"></span>';
+            }
+            card.appendChild(burst);
+            window.setTimeout(() => burst.remove(), visual === 'grey-smoke' ? 1100 : 850);
+        };
+
+        const showLanternEnergyLink = ({ sourceUsername, sourceSlot, targetCard, visual = '' }) => {
+            if (!targetCard || !visual || !sourceUsername || !Number.isInteger(sourceSlot)) return;
+            const sourceCard = getCardByUsernameSlot(sourceUsername, sourceSlot);
+            if (!sourceCard || sourceCard === targetCard) return;
+            const sourceRect = sourceCard.getBoundingClientRect();
+            const targetRect = targetCard.getBoundingClientRect();
+            const startX = sourceRect.left + sourceRect.width / 2;
+            const startY = sourceRect.top + sourceRect.height / 2;
+            const endX = targetRect.left + targetRect.width / 2;
+            const endY = targetRect.top + targetRect.height / 2;
+            const dx = endX - startX;
+            const dy = endY - startY;
+            const length = Math.max(12, Math.sqrt(dx * dx + dy * dy));
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            const link = document.createElement('div');
+            link.className = `lantern-energy-link ${lanternVisualClass(visual)}`;
+            link.style.left = `${startX}px`;
+            link.style.top = `${startY}px`;
+            link.style.width = `${length}px`;
+            link.style.setProperty('--angle', `${angle}deg`);
+            link.style.transform = `rotate(${angle}deg)`;
+            document.body.appendChild(link);
+            window.setTimeout(() => link.remove(), visual === 'grey-smoke' ? 1000 : 760);
+        };
+
+        const isGreenGoblinBombStatus = (status) => {
+            if (!status || typeof status !== 'object') return false;
+            if (status?.metadata?.specialStatusVisual === 'green-goblin-bomb') return true;
+            return [
+                'the_green_goblin_pumpkin_bomb',
+                'the_green_goblin_carpet_bomb',
+                'the_green_goblin_mad_bomber_bomb',
+            ].includes(status?.id);
+        };
+
+        const syncGreenGoblinBombMarker = (card, bombActive, animateLob = false) => {
+            if (!card) return;
+            let marker = card.querySelector('.goblin-bomb-marker');
+            const bombCount = typeof bombActive === 'number' ? Math.max(0, bombActive) : (bombActive ? 1 : 0);
+            if (bombCount <= 0) {
+                if (marker) marker.remove();
+                card.querySelectorAll('.goblin-bomb-lob').forEach((node) => node.remove());
+                card.classList.remove('has-goblin-bomb');
+                return;
+            }
+            card.classList.add('has-goblin-bomb');
+            if (!marker) {
+                marker = document.createElement('div');
+                marker.className = 'goblin-bomb-marker';
+                marker.setAttribute('aria-label', 'Green Goblin bomb active');
+                marker.innerHTML =
+                    '<span class="goblin-bomb-core"></span>' +
+                    '<span class="goblin-bomb-fuse"></span>' +
+                    '<span class="goblin-bomb-spark"></span>' +
+                    '<span class="goblin-bomb-count"></span>' +
+                    '<span class="goblin-bomb-label">BOMB</span>';
+                card.appendChild(marker);
+            }
+            marker.dataset.bombCount = String(bombCount);
+            marker.classList.toggle('stacked', bombCount > 1);
+            const countEl = marker.querySelector('.goblin-bomb-count');
+            if (countEl) {
+                countEl.textContent = bombCount > 1 ? `x${bombCount}` : '';
+            }
+            if (animateLob) {
+                marker.classList.remove('fresh');
+                void marker.offsetWidth;
+                marker.classList.add('fresh');
+                playGeneratedIngameSound('bomb-arm');
+                const lob = document.createElement('div');
+                lob.className = 'goblin-bomb-lob';
+                lob.innerHTML =
+                    '<span class="goblin-bomb-core"></span>' +
+                    '<span class="goblin-bomb-fuse"></span>' +
+                    '<span class="goblin-bomb-spark"></span>';
+                card.appendChild(lob);
+                window.setTimeout(() => lob.remove(), 900);
+                window.setTimeout(() => marker.classList.remove('fresh'), 780);
+            }
+        };
+
         const showStatusApplyBurst = (card, group, statusSkill) => {
             if (!card || !group) return;
             const statuses = Array.isArray(group.statuses) ? group.statuses : [];
+            const isBomb = statuses.some(isGreenGoblinBombStatus);
+            const hasSpiderWeb = statuses.some((status) => typeof status?.id === 'string' && status.id.startsWith('spider_man_web_'));
+            const hasAngstromPortal = statuses.some((status) =>
+                Boolean(status?.metadata?.banished) ||
+                (typeof status?.sourceSkillId === 'string' && status.sourceSkillId.startsWith('angstrom-levy'))
+            );
+            const hasAndreaLock = statuses.some((status) => status?.id === 'andrea_locked_on_mark');
+            const hasPredatorCloak = statuses.some((status) => status?.id === 'predator_stalker_cloaking_tech_active');
+            const hasStormIce = statuses.some((status) => status?.id === 'storm_ice_barrier_countered');
             const isPassive =
                 /passive/i.test(statusSkill?.name || '') ||
                 /passive/i.test(group?.sourceSkillId || '');
@@ -2772,11 +3923,31 @@ document.addEventListener('DOMContentLoaded', async () => {
             const burst = document.createElement('div');
             burst.className = [
                 'status-apply-burst',
-                isPassive ? 'passive' : harmful ? 'harmful' : helpful ? 'helpful' : 'neutral',
+                isBomb ? 'bomb' : isPassive ? 'passive' : harmful ? 'harmful' : helpful ? 'helpful' : 'neutral',
             ].join(' ');
-            burst.textContent = isPassive ? 'PASSIVE' : harmful ? 'DEBUFF' : helpful ? 'BUFF' : 'STATUS';
+            if (card.closest('.enemy-characters')) {
+                burst.classList.add('enemy-side');
+            }
+            burst.textContent = isBomb ? 'BOMB ACTIVE' : isPassive ? 'PASSIVE' : harmful ? 'DEBUFF' : helpful ? 'BUFF' : 'STATUS';
             card.appendChild(burst);
-            window.setTimeout(() => burst.remove(), 900);
+            window.setTimeout(() => burst.remove(), 1500);
+            if (isBomb) {
+                playGeneratedIngameSound('bomb-arm');
+            } else if (hasSpiderWeb) {
+                playGeneratedIngameSound('web');
+            } else if (hasAngstromPortal) {
+                playGeneratedIngameSound('portal');
+            } else if (hasAndreaLock) {
+                playGeneratedIngameSound('target-lock');
+            } else if (hasPredatorCloak) {
+                playGeneratedIngameSound('cloak');
+            } else if (hasStormIce) {
+                playGeneratedIngameSound('ice');
+            } else if (harmful) {
+                playGeneratedIngameSound('status-harmful');
+            } else if (helpful || isPassive) {
+                playGeneratedIngameSound('status-helpful');
+            }
         };
 
         const escapeHtml = (value) =>
@@ -2921,6 +4092,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             const dead = isUnitDeadLike(unit);
             if (dead) {
+                syncLanternPassiveAura(card, []);
+                syncGreenGoblinBombMarker(card, false);
                 tooltipWrap
                     .querySelectorAll('.skilltooltipimage.dynamic-status-icon')
                     .forEach((node) => node.remove());
@@ -2957,6 +4130,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 .querySelectorAll('.skilltooltipimage.dynamic-status-icon')
                 .forEach((node) => node.remove());
             if (!statuses.length) {
+                syncLanternPassiveAura(card, []);
+                syncGreenGoblinBombMarker(card, false);
                 tooltipWrap.style.visibility = 'hidden';
                 tooltipImgTemplate.removeAttribute('title');
                 tooltipWrap.classList.remove('has-status');
@@ -2968,6 +4143,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             tooltipWrap.style.visibility = 'visible';
             tooltipWrap.classList.add('has-status');
+            syncLanternPassiveAura(card, statuses);
             const groupedStatuses = [];
             const groupByKey = new Map();
             statuses.forEach((status, index) => {
@@ -2987,6 +4163,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (unitStatusIconKey) {
                 visibleStatusIconKeysByUnit.set(unitStatusIconKey, currentStatusIconKeys);
             }
+            const greenGoblinBombCount = statuses.filter(isGreenGoblinBombStatus).length;
+            const hasGreenGoblinBomb = greenGoblinBombCount > 0;
+            const hasNewGreenGoblinBomb = groupedStatuses.some(
+                (group) =>
+                    (Array.isArray(group?.statuses) ? group.statuses : []).some(isGreenGoblinBombStatus) &&
+                    !previousStatusIconKeys.has(group.key)
+            );
+            syncGreenGoblinBombMarker(
+                card,
+                greenGoblinBombCount,
+                (options.animateNewIcons || previousStatusIconKeys.size > 0) && hasNewGreenGoblinBomb
+            );
 
             const buildStatusTooltipHtml = (group, statusSkill) => {
                 const groupStatuses = Array.isArray(group?.statuses) ? group.statuses : [];
@@ -3157,6 +4345,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                     void iconEl.offsetWidth;
                     iconEl.classList.add('status-icon-turn-pop');
                     showStatusApplyBurst(card, group, statusSkill);
+                    const lanternVisual = group.statuses.map(getLanternEffectVisual).find(Boolean);
+                    if (lanternVisual) {
+                        showLanternTriggerBurst(card, lanternVisual);
+                        const sourceStatus = group.statuses.find((status) => {
+                            const parsedSlot = Number.parseInt(status?.sourceSlot, 10);
+                            return status?.sourceUsername && Number.isInteger(parsedSlot) && parsedSlot >= 0;
+                        });
+                        if (sourceStatus) {
+                            showLanternEnergyLink({
+                                sourceUsername: sourceStatus.sourceUsername,
+                                sourceSlot: Number.parseInt(sourceStatus.sourceSlot, 10),
+                                targetCard: card,
+                                visual: lanternVisual,
+                            });
+                        }
+                    }
                     window.setTimeout(() => {
                         iconEl.classList.remove('status-icon-turn-pop');
                     }, 650);
@@ -3210,11 +4414,191 @@ document.addEventListener('DOMContentLoaded', async () => {
                     renderStatusTooltipForCard(card, opponentUnits[slot], opponentUsername || '', slot, options)
                 );
             }
+            renderPredatorRicochetPreviews(board, data.pendingTurn);
+            syncStormWeather(board);
         };
 
-        const applyMatchState = (data) => {
+        const parseUnitKey = (value = '') => {
+            if (typeof value !== 'string' || !value.includes(':')) return null;
+            const [username, slotRaw] = value.split(':');
+            const slot = Number.parseInt(slotRaw, 10);
+            if (!username || !Number.isInteger(slot) || slot < 0) return null;
+            return { username, slot };
+        };
+
+        const getAliveBoardEntries = (board, username) => {
+            const units = Array.isArray(board?.[username]) ? board[username] : [];
+            return units
+                .map((unit, slot) => ({ unit, slot, username }))
+                .filter((entry) => entry.unit && !isUnitDeadLike(entry.unit));
+        };
+
+        const getPredictedRicochetTargets = (board, previousKey = '') => {
+            const previous = parseUnitKey(previousKey);
+            if (!previous) return [];
+            let pool = getAliveBoardEntries(board, previous.username);
+            if (!pool.length) return [];
+            if (pool.length > 1) {
+                const changedPool = pool.filter((entry) => entry.slot !== previous.slot);
+                if (changedPool.length > 0) {
+                    pool = changedPool;
+                }
+            }
+            const distanceEntries = pool
+                .map((entry) => ({
+                    ...entry,
+                    distance: Math.abs(entry.slot - previous.slot),
+                }))
+                .filter((entry) => Number.isFinite(entry.distance));
+            if (!distanceEntries.length) return [];
+            const nearestDistance = Math.min(...distanceEntries.map((entry) => entry.distance));
+            return distanceEntries.filter((entry) => entry.distance === nearestDistance);
+        };
+
+        const appendPredatorRicochetMarker = ({ card, iconSrc = '', possible = false }) => {
+            if (!card) return;
+            const face = card.querySelector('.character-face');
+            if (face?.parentElement && !card.querySelector('.predator-ricochet-portrait-marker')) {
+                const marker = document.createElement('div');
+                marker.className = 'predator-ricochet-portrait-marker';
+                marker.title = possible
+                    ? 'Possible next Yautja Shuriken ricochet target'
+                    : 'Next Yautja Shuriken ricochet target';
+                marker.innerHTML = iconSrc ? `<img src="${iconSrc}" alt="">` : '<span></span>';
+                face.parentElement.appendChild(marker);
+            }
+            const tooltipWrap = card.querySelector('.skilltooltips');
+            const tooltipImgTemplate =
+                tooltipWrap?.querySelector('.skilltooltipimage.status-icon-template') ||
+                tooltipWrap?.querySelector('.skilltooltipimage');
+            if (!tooltipWrap || !tooltipImgTemplate) return;
+            if (!tooltipImgTemplate.classList.contains('status-icon-template')) {
+                tooltipImgTemplate.classList.add('status-icon-template');
+            }
+            tooltipWrap.style.visibility = 'visible';
+            tooltipWrap.classList.add('has-status');
+            const iconEl = tooltipImgTemplate.cloneNode(true);
+            iconEl.classList.remove('status-icon-template', 'dynamic-status-icon');
+            iconEl.classList.add('dynamic-ricochet-target-icon');
+            iconEl.style.display = 'block';
+            if (iconSrc) {
+                iconEl.src = iconSrc;
+            }
+            iconEl.title = possible
+                ? 'Possible next Yautja Shuriken ricochet target'
+                : 'Next Yautja Shuriken ricochet target';
+            tooltipWrap.appendChild(iconEl);
+        };
+
+        const renderPredatorRicochetPreviews = (board, pendingTurn = null) => {
+            const allCards = [...(Array.isArray(playerCards) ? playerCards : []), ...(Array.isArray(enemyCards) ? enemyCards : [])];
+            allCards.forEach((card) => {
+                card?.querySelectorAll?.('.skilltooltipimage.dynamic-ricochet-target-icon').forEach((node) => node.remove());
+                card?.querySelectorAll?.('.predator-ricochet-portrait-marker').forEach((node) => node.remove());
+            });
+            const shurikenSkill = findSkillById('predator-stalker-yautja-shuriken');
+            const iconSrc = shurikenSkill?.skillimage || '';
+            const previewEntries = [];
+            const pushTargetsFromPreviousKey = (previousKey = '') => {
+                const targets = getPredictedRicochetTargets(board, previousKey);
+                targets.forEach((entry) => {
+                    previewEntries.push({
+                        ...entry,
+                        possible: targets.length > 1,
+                    });
+                });
+            };
+            Object.values(board || {}).forEach((units) => {
+                if (!Array.isArray(units)) return;
+                units.forEach((unit) => {
+                    const statuses = Array.isArray(unit?.state?.statuses) ? unit.state.statuses : [];
+                    statuses.forEach((status) => {
+                        const remaining = Number(status?.remainingTurns) || 0;
+                        if (remaining <= 0) return;
+                        if (
+                            status?.id !== 'predator_stalker_yautja_shuriken_bounce_one' &&
+                            status?.id !== 'predator_stalker_yautja_shuriken_bounce_two'
+                        ) {
+                            return;
+                        }
+                        const previousKey =
+                            typeof status?.metadata?._lastRandomStatusEnemyKey === 'string'
+                                ? status.metadata._lastRandomStatusEnemyKey
+                                : '';
+                        pushTargetsFromPreviousKey(previousKey);
+                    });
+                });
+            });
+            const pending = normalizePendingTurn(pendingTurn || pendingTurnState);
+            Object.values(pending.queuedByActorSlot || {}).forEach((queued) => {
+                const actorSlot = Number.parseInt(queued?.actorSlot, 10);
+                const skillIdx = Number.parseInt(queued?.skillIndex, 10);
+                const actorUnit = latestBoardState?.[currentPlayerUsername]?.[actorSlot];
+                const actorCharacter = Number.isInteger(actorUnit?.rosterIndex) ? rosterData?.[actorUnit.rosterIndex] : null;
+                const actorCharacterId = actorCharacter?.characterId || actorCharacter?.id || '';
+                const effectiveSkill = getEffectiveSkillForActorSlot(actorSlot, skillIdx);
+                if (actorCharacterId !== 'predator-stalker' || effectiveSkill?.id !== 'predator-stalker-yautja-shuriken') return;
+                const selection = Array.isArray(queued?.targetSelection)
+                    ? queued.targetSelection
+                    : queued?.targetSelection
+                        ? [queued.targetSelection]
+                        : [];
+                const firstTarget = selection.find((target) => target?.username && Number.isInteger(Number.parseInt(target?.slot, 10)));
+                if (!firstTarget) return;
+                pushTargetsFromPreviousKey(`${firstTarget.username}:${Number.parseInt(firstTarget.slot, 10)}`);
+            });
+            previewEntries.forEach((entry) => {
+                const card = getCardByUsernameSlot(entry.username, entry.slot);
+                appendPredatorRicochetMarker({ card, iconSrc, possible: entry.possible });
+            });
+        };
+
+        const unitHasActiveStatus = (unit, predicate) => {
+            const statuses = Array.isArray(unit?.state?.statuses) ? unit.state.statuses : [];
+            return statuses.some((status) => (Number(status?.remainingTurns) || 0) > 0 && predicate(status));
+        };
+
+        const teamHasStormRain = (units = []) =>
+            (Array.isArray(units) ? units : []).some((unit) => {
+                const character = Number.isInteger(unit?.rosterIndex) ? rosterData?.[unit.rosterIndex] : null;
+                const characterId = character?.characterId || character?.id || '';
+                return (
+                    characterId === 'storm' &&
+                    unitHasActiveStatus(unit, (status) => status?.id === 'storm_rainstorm_active')
+                );
+            });
+
+        const teamHasStormHail = (units = []) =>
+            (Array.isArray(units) ? units : []).some((unit) =>
+                unitHasActiveStatus(unit, (status) => status?.id === 'storm_hailstorm_damage')
+            );
+
+        const syncStormWeather = (board) => {
+            const playerUnits = currentPlayerUsername ? board?.[currentPlayerUsername] : null;
+            const opponentUnits = currentOpponentUsername ? board?.[currentOpponentUsername] : null;
+            const playerContainer = document.querySelector('.player-characters');
+            const enemyContainer = document.querySelector('.enemy-characters');
+            const playerRain = teamHasStormRain(playerUnits);
+            const enemyRain = teamHasStormRain(opponentUnits);
+            const playerHail = teamHasStormHail(playerUnits);
+            const enemyHail = teamHasStormHail(opponentUnits);
+            playerContainer?.classList.toggle('storm-rain-weather', playerRain);
+            enemyContainer?.classList.toggle('storm-rain-weather', enemyRain);
+            playerContainer?.classList.toggle('storm-hail-weather', playerHail);
+            enemyContainer?.classList.toggle('storm-hail-weather', enemyHail);
+            soundManager.syncAmbientEffects([
+                playerRain || enemyRain ? 'rain' : '',
+                playerHail || enemyHail ? 'hail' : '',
+            ]);
+        };
+
+        const applyMatchState = (data, options = {}) => {
             if (!data || typeof data !== 'object') return;
             if (battleEndShown) return;
+            if (isPlayingResolutionSequence && !options.allowDuringResolutionSequence) {
+                deferredResolutionMatchState = data;
+                return;
+            }
             if (data.player?.username) {
                 currentPlayerUsername = data.player.username;
             }
@@ -3255,6 +4639,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             applyQueuedSkillVisuals();
             if (endTurnModalEl && endTurnModalEl.style.visibility === 'visible') {
                 renderEndTurnModal(pool, pendingTurnState);
+            }
+            if (data.board && typeof data.board === 'object') {
+                renderPredatorRicochetPreviews(data.board, pendingTurnState);
             }
             if (data.status === 'ended') {
                 const didWin = Boolean(data.winner && usernamesMatch(data.winner, currentPlayerUsername));
@@ -3392,8 +4779,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 skillInfo.roleEl.style.display = 'none';
             }
             if (skillInfo.descEl) {
-                const baseDescription = skill.skilldescription || '';
-                skillInfo.descEl.textContent = baseDescription;
+                skillInfo.descEl.textContent = getSkillDescriptionText(skill);
             }
             if (skillInfo.cooldownEl) {
                 skillInfo.cooldownEl.textContent = `Cooldown: ${skill.cooldown ?? '-'}`;
@@ -3467,24 +4853,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     skillInfo.energyEl.appendChild(box);
                 });
             }
-        };
-
-        const textFromHtml = (value = '') => {
-            const text = typeof value === 'string' ? value : '';
-            if (!text) return '';
-            const scratch = document.createElement('div');
-            scratch.innerHTML = text.replace(/<br\s*\/?>/gi, '\n');
-            return scratch.textContent || scratch.innerText || '';
-        };
-
-        const getCharacterDescriptionText = (character) => {
-            if (!character) return '';
-            return (
-                character.description ||
-                character.characterdeescription ||
-                textFromHtml(character.descriptionHtml || '') ||
-                ''
-            );
         };
 
         const getCharacterRoleText = (character) => {
@@ -3834,8 +5202,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             } catch (error) {
                 console.warn('Target fetch failed.', error);
                 if (skillInfo.descEl) {
-                    const baseDescription =
-                        skill?.skilldescription || skill?.description || skillInfo.descEl.textContent || '';
+                    const baseDescription = getSkillDescriptionText(skill) || skillInfo.descEl.textContent || '';
                     skillInfo.descEl.textContent = `${baseDescription}\n\nTargeting failed: ${error?.message || 'Unable to fetch targets.'}`;
                 }
                 activeTargetOptions = null;
@@ -4087,6 +5454,36 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
+        const clearActiveSkillTargeting = () => {
+            if (!activeTargetOptions && !activeCastingSkill) return;
+            clearTargetHighlights();
+            activeTargetOptions = null;
+            activeCastingSkill = null;
+        };
+
+        document.addEventListener('pointerdown', (event) => {
+            if (!activeTargetOptions && !activeCastingSkill) return;
+            if (event?.button !== undefined && event.button !== 0) return;
+            const target = event.target;
+            if (!target?.closest) return;
+            const shouldKeepTargeting = target.closest(
+                [
+                    '.character-card',
+                    '.skillimage',
+                    '.skill-browser-icon',
+                    '.skillinformation',
+                    '.ChakraChooseEndTurn',
+                    '.exchange_chakra',
+                    '.class-choice-popup',
+                    '.surrender-confirm',
+                    '.surrenderbutton',
+                    '.ingame-sound-controller',
+                ].join(',')
+            );
+            if (shouldKeepTargeting) return;
+            clearActiveSkillTargeting();
+        });
+
         const attachCardTargetHandlers = (cards, username) => {
             cards.forEach((card, slot) => {
                 if (!card) return;
@@ -4314,6 +5711,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (endTurnOkButton) {
                 endTurnOkButton.disabled = true;
             }
+            const resolutionAnimationEntries = getQueuedResolutionAnimationEntries();
             try {
                 const response = await fetch(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/end`,
@@ -4328,7 +5726,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     throw new Error((data?.error || 'Failed to end turn.') + detailSuffix);
                 }
                 playIngameSound(nextRoundSound);
-                applyMatchState(data);
+                await applyMatchStateAfterResolutionSequence(data, resolutionAnimationEntries);
                 closeEndTurnModal();
             } catch (error) {
                 console.warn('Failed to end turn.', error);
@@ -4541,8 +5939,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         });
 
+        let surrenderInFlight = false;
         const handleSurrender = async () => {
             if (!matchIdFromUrl) return;
+            if (surrenderInFlight || battleEndShown) return;
+            surrenderInFlight = true;
+            if (surrenderConfirmOkButton) {
+                surrenderConfirmOkButton.disabled = true;
+            }
+            if (surrenderButton) {
+                surrenderButton.style.pointerEvents = 'none';
+                surrenderButton.style.opacity = '0.65';
+            }
+            showBattleEndOverlay({
+                didWin: false,
+                opponentUsername: currentOpponentDisplayName || currentOpponentUsername,
+            });
             try {
                 const response = await fetch(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/surrender`,
@@ -4555,16 +5967,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!response.ok || !data?.ok) {
                     throw new Error(data?.error || 'Failed to surrender.');
                 }
-                const didWin = Boolean(data.winner && usernamesMatch(data.winner, currentPlayerUsername));
-                const opponentUsername = didWin
-                    ? data.surrenderedBy
-                    : data.winner || currentOpponentUsername;
-                showBattleEndOverlay({
-                    didWin,
-                    opponentUsername,
-                    expDelta: data.ladderResult?.expDelta,
-                    clanExpDelta: data.ladderResult?.clanExpDelta,
-                });
             } catch (error) {
                 console.warn('Failed to surrender.', error);
                 window.location.href = 'selection.html';
@@ -4682,7 +6084,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (error) {
             console.warn('Logout request failed; proceeding to clear session locally.', error);
         } finally {
-            localStorage.removeItem('narutoUser');
+            localStorage.removeItem('comicUser');
             window.location.href = 'selection-login.html';
         }
     };
@@ -5084,6 +6486,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         'rex-splode',
         'omni-man',
         'angstrom-levy',
+        'billy-butcher',
         'homelander',
         'rick-grimes',
         'hershel-greene',
@@ -5091,11 +6494,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         'negan',
         'walker',
         'rage-infected',
+        'space-marine-infantry',
         'predator-stalker',
         'xenomorph-drone',
+        'predalien',
     ];
     const getCharacterDisplayId = (character) => character?.characterId || character?.id || '';
-    const rosterDisplayIndices = (() => {
+    const getBaseRosterDisplayIndices = () => {
         const used = new Set();
         const ordered = preferredCharacterDisplayOrder
             .map((id) => roster.findIndex((character) => getCharacterDisplayId(character) === id))
@@ -5108,13 +6513,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!used.has(index)) ordered.push(index);
         });
         return ordered;
-    })();
+    };
 
     const CHARACTERS_PER_PAGE = 21;
-    const totalSlots = Math.max(rosterDisplayIndices.length, CHARACTERS_PER_PAGE);
-    const totalPages = Math.max(1, Math.ceil(totalSlots / CHARACTERS_PER_PAGE));
+    let rosterDisplayIndices = getBaseRosterDisplayIndices();
+    let totalPages = Math.max(1, Math.ceil(Math.max(rosterDisplayIndices.length, CHARACTERS_PER_PAGE) / CHARACTERS_PER_PAGE));
     let currentRosterPage = 0;
     let currentCharacterIndex = null;
+    let activeRosterFilterMode = 'role';
+    let activeRosterFilterValue = 'all';
+    let characterPlayRates = new Map();
     slotList.innerHTML = '';
 
     const renderEnergy = (energyList = []) => {
@@ -5205,7 +6613,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             skillNameEl.style.visibility = 'visible';
         }
         if (skillDescEl) {
-            skillDescEl.textContent = skill.skilldescription || '';
+            skillDescEl.textContent = getSkillDescriptionText(skill);
         }
         if (energyBarEl) {
             energyBarEl.style.display = 'flex';
@@ -5234,17 +6642,78 @@ document.addEventListener('DOMContentLoaded', async () => {
         return typeof role === 'string' && role.trim() ? role.trim() : 'None';
     };
 
+    const labelFromKey = (value = '') =>
+        String(value || '')
+            .split('-')
+            .filter(Boolean)
+            .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+            .join(' ');
+
+    const energyFilterLabels = {
+        taijutsu: 'Green',
+        bloodline: 'Red',
+        ninjutsu: 'Blue',
+        genjutsu: 'White',
+        random: 'Random',
+        none: 'No Cost',
+    };
+
+    const labelEnergyFilterKey = (value = '') => energyFilterLabels[value] || labelFromKey(value);
+
+    const labelEnergyFilterSignature = (signature = '') =>
+        signature === 'none' ? 'No Cost' : signature.split('+').map(labelEnergyFilterKey).join(' + ');
+
+    const getSelectionRoleCategory = (character) => {
+        const category = typeof character?.roleCategory === 'string' ? character.roleCategory.trim().toLowerCase() : '';
+        if (category) return category;
+        const role = getSelectionCharacterRole(character).toLowerCase();
+        if (role.includes('tank') || role.includes('juggernaut')) return 'tank';
+        if (role.includes('support') || role.includes('heal') || role.includes('shield')) return 'support';
+        if (role.includes('assassin') || role.includes('execution')) return 'assassin';
+        if (role.includes('bruiser') || role.includes('brawler') || role.includes('beserker') || role.includes('berserker')) return 'bruiser';
+        if (role.includes('hybrid')) return 'hybrid';
+        if (role.includes('disrupt') || role.includes('control') || role.includes('trickster') || role.includes('remover')) return 'strategic';
+        if (role.includes('specialist') || role.includes('punisher')) return 'specialist';
+        if (role.includes('dps') || role.includes('damage') || role.includes('carry') || role.includes('mage')) return 'damage';
+        return 'specialist';
+    };
+
+    const getCharacterEnergySignatures = (character) => {
+        const signatures = new Set();
+        (Array.isArray(character?.skills) ? character.skills : []).forEach((skill) => {
+            if (!skill || skill.hiddenFromSelectionViewer) return;
+            const types = Array.from(
+                new Set(
+                    (Array.isArray(skill.energy) ? skill.energy : [])
+                        .map((entry) => (typeof entry === 'string' ? entry.trim().toLowerCase() : ''))
+                        .filter((entry) => entry && entry !== 'none' && entry !== 'non')
+                )
+            ).sort();
+            signatures.add(types.length ? types.join('+') : 'none');
+        });
+        return signatures;
+    };
+
+    const getCharacterPlayRate = (character) => {
+        const characterId = getCharacterDisplayId(character).trim().toLowerCase();
+        return characterPlayRates.get(characterId) || { pickCount: 0, playRatePercent: 0 };
+    };
+
+    const getCharacterPlayRateBucket = (character) => {
+        const rate = getCharacterPlayRate(character);
+        if (!rate.pickCount) return 'unused';
+        if (rate.playRatePercent >= 5) return 'high';
+        if (rate.playRatePercent >= 2) return 'medium';
+        return 'low';
+    };
+
     const renderCharacterOverview = (character) => {
         if (skillNameEl) {
             skillNameEl.textContent = '';
             skillNameEl.style.visibility = 'hidden';
         }
         if (skillDescEl) {
-            const description =
-                character.characterdescription ||
-                character.characterdeescription ||
-                '';
-            skillDescEl.textContent = description;
+            skillDescEl.textContent = getCharacterDescriptionText(character);
         }
         if (energyBarEl) {
             energyBarEl.style.display = 'none';
@@ -5415,7 +6884,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         slot.classList.remove('slot-empty');
         slot.classList.toggle('slot-locked', locked);
-        slot.draggable = !locked;
+        slot.draggable = false;
         const image = document.createElement('img');
         image.className = 'slot-image';
         if (locked) {
@@ -5423,11 +6892,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         image.src = character.facePicture;
         image.alt = character.name || `Character ${index + 1}`;
-        image.draggable = !locked;
+        image.draggable = false;
         image.title = locked ? `${character.name || 'Character'} is locked.` : character.name || `Character ${index + 1}`;
         slot.appendChild(image);
         if (!locked) {
             image.addEventListener('dragstart', (event) => handleSlotDragStart(event, index));
+            image.addEventListener('pointerdown', (event) =>
+                startSelectionPointerDrag(event, { type: 'roster', rosterIndex: index }, image)
+            );
         }
         image.addEventListener('dragend', handleSlotDragEnd);
     };
@@ -5454,28 +6926,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         img.src = character?.facePicture || '';
         img.alt = character?.name || 'Selected character';
         img.className = 'selected-slot-image';
-        img.draggable = true;
+        img.draggable = false;
         const dragStart = (event) => {
             setDragPayload(event.dataTransfer, { type: 'selected', selectedIndex: slotIndex });
         };
         img.addEventListener('dragstart', dragStart);
+        img.addEventListener('pointerdown', (event) =>
+            startSelectionPointerDrag(event, { type: 'selected', selectedIndex: slotIndex }, img)
+        );
         slotElement.appendChild(img);
         handleCharacterSelect(assignment.characterIndex, { openViewer: false });
         updateGameButtons();
         persistTeamSelection();
     };
 
-    const handleSelectedSlotDrop = (event, targetSlotIndex) => {
-        event.preventDefault();
-        const slotElement = selectedSlots[targetSlotIndex];
-        if (!slotElement) return;
-        slotElement.classList.remove('drag-over');
-        const payload = parseDragPayload(event);
-        if (!payload) return;
-
+    const moveDragPayloadToSelectedSlot = (payload, targetSlotIndex) => {
         let incoming = null;
         if (payload.type === 'selected' && payload.selectedIndex === targetSlotIndex) {
-            return;
+            return false;
         }
 
         if (payload.type === 'roster' && Number.isInteger(payload.rosterIndex) && roster[payload.rosterIndex]) {
@@ -5490,7 +6958,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             setSelectedSlot(payload.selectedIndex, null);
         }
 
-        if (!incoming) return;
+        if (!incoming) return false;
 
         const displaced = selectedAssignments[targetSlotIndex];
         setSelectedSlot(targetSlotIndex, incoming);
@@ -5500,6 +6968,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         updateGameButtons();
         persistTeamSelection();
+        return true;
+    };
+
+    const handleSelectedSlotDrop = (event, targetSlotIndex) => {
+        event.preventDefault();
+        const slotElement = selectedSlots[targetSlotIndex];
+        if (!slotElement) return;
+        slotElement.classList.remove('drag-over');
+        const payload = parseDragPayload(event);
+        if (!payload) return;
+        moveDragPayloadToSelectedSlot(payload, targetSlotIndex);
     };
 
     const handleSelectedSlotDragOver = (event, slotElement) => {
@@ -5583,6 +7062,263 @@ document.addEventListener('DOMContentLoaded', async () => {
             setSelectedSlot(payload.selectedIndex, null);
             fillRosterSlot(assignment.rosterIndex);
         }
+    };
+
+    const returnSelectedPayloadToRoster = (payload) => {
+        if (
+            payload?.type !== 'selected' ||
+            !Number.isInteger(payload.selectedIndex) ||
+            !selectedAssignments[payload.selectedIndex]
+        ) {
+            return false;
+        }
+        const assignment = selectedAssignments[payload.selectedIndex];
+        setSelectedSlot(payload.selectedIndex, null);
+        if (Number.isInteger(assignment.rosterIndex)) {
+            fillRosterSlot(assignment.rosterIndex);
+        }
+        updateGameButtons();
+        persistTeamSelection();
+        return true;
+    };
+
+    const finishSelectionPointerDrop = (payload, clientX, clientY) => {
+        const target = document.elementFromPoint(clientX, clientY);
+        const selectedSlot = target?.closest?.('.selected-character-slot');
+        const selectedSlotIndex = selectedSlot ? selectedSlots.indexOf(selectedSlot) : -1;
+        if (selectedSlotIndex >= 0) {
+            return moveDragPayloadToSelectedSlot(payload, selectedSlotIndex);
+        }
+        const rosterSlot = target?.closest?.('.slot-item');
+        if (rosterSlot) {
+            return returnSelectedPayloadToRoster(payload);
+        }
+        return false;
+    };
+
+    const updateSelectionDragImagePosition = (dragState, clientX, clientY) => {
+        if (!dragState?.dragImage) return;
+        dragState.dragImage.style.left = `${clientX - dragState.offsetX}px`;
+        dragState.dragImage.style.top = `${clientY - dragState.offsetY}px`;
+    };
+
+    const activateSelectionPointerDrag = (dragState, event) => {
+        if (dragState.active) return;
+        dragState.active = true;
+        const dragImage = dragState.sourceElement.cloneNode(true);
+        dragImage.classList.remove('drag-hidden');
+        dragImage.classList.add('selection-drag-image');
+        dragImage.style.width = `${dragState.rect.width}px`;
+        dragImage.style.height = `${dragState.rect.height}px`;
+        document.body.appendChild(dragImage);
+        dragState.dragImage = dragImage;
+        dragState.sourceElement.classList.add('drag-hidden');
+        updateSelectionDragImagePosition(dragState, event.clientX, event.clientY);
+    };
+
+    const cleanupSelectionPointerDrag = (dragState, restoreSource) => {
+        if (dragState.dragImage?.parentNode) {
+            dragState.dragImage.parentNode.removeChild(dragState.dragImage);
+        }
+        if (restoreSource) {
+            dragState.sourceElement.classList.remove('drag-hidden');
+        }
+        try {
+            dragState.sourceElement.releasePointerCapture?.(dragState.pointerId);
+        } catch (error) {
+            // The source may already have been removed after a successful drop.
+        }
+        activeSelectionPointerDrag = null;
+    };
+
+    const startSelectionPointerDrag = (event, payload, sourceElement) => {
+        if (!sourceElement || !payload || event.button !== 0 || activeSelectionPointerDrag) return;
+        event.preventDefault();
+        cancelSelectionPreview();
+        const rect = sourceElement.getBoundingClientRect();
+        const dragState = {
+            active: false,
+            dragImage: null,
+            offsetX: event.clientX - rect.left,
+            offsetY: event.clientY - rect.top,
+            payload,
+            pointerId: event.pointerId,
+            rect,
+            sourceElement,
+            startX: event.clientX,
+            startY: event.clientY,
+        };
+        activeSelectionPointerDrag = dragState;
+        sourceElement.setPointerCapture?.(event.pointerId);
+
+        const handlePointerMove = (moveEvent) => {
+            if (moveEvent.pointerId !== dragState.pointerId) return;
+            const distance = Math.hypot(moveEvent.clientX - dragState.startX, moveEvent.clientY - dragState.startY);
+            if (!dragState.active && distance >= 4) {
+                activateSelectionPointerDrag(dragState, moveEvent);
+            }
+            if (dragState.active) {
+                moveEvent.preventDefault();
+                updateSelectionDragImagePosition(dragState, moveEvent.clientX, moveEvent.clientY);
+            }
+        };
+
+        const handlePointerUp = (upEvent) => {
+            if (upEvent.pointerId !== dragState.pointerId) return;
+            sourceElement.removeEventListener('pointermove', handlePointerMove);
+            sourceElement.removeEventListener('pointerup', handlePointerUp);
+            sourceElement.removeEventListener('pointercancel', handlePointerCancel);
+            if (!dragState.active) {
+                activeSelectionPointerDrag = null;
+                try {
+                    sourceElement.releasePointerCapture?.(dragState.pointerId);
+                } catch (error) {
+                    // Ignore capture cleanup races.
+                }
+                return;
+            }
+            upEvent.preventDefault();
+            suppressSelectionClickUntil = Date.now() + 350;
+            const dropped = finishSelectionPointerDrop(dragState.payload, upEvent.clientX, upEvent.clientY);
+            cleanupSelectionPointerDrag(dragState, !dropped);
+        };
+
+        const handlePointerCancel = (cancelEvent) => {
+            if (cancelEvent.pointerId !== dragState.pointerId) return;
+            sourceElement.removeEventListener('pointermove', handlePointerMove);
+            sourceElement.removeEventListener('pointerup', handlePointerUp);
+            sourceElement.removeEventListener('pointercancel', handlePointerCancel);
+            cleanupSelectionPointerDrag(dragState, true);
+        };
+
+        sourceElement.addEventListener('pointermove', handlePointerMove);
+        sourceElement.addEventListener('pointerup', handlePointerUp);
+        sourceElement.addEventListener('pointercancel', handlePointerCancel);
+    };
+
+    const rosterFilterOptions = {
+        role: [
+            ['all', 'All Roles'],
+            ['tank', 'Tank'],
+            ['damage', 'Damage'],
+            ['support', 'Support'],
+            ['strategic', 'Strategic'],
+            ['hybrid', 'Hybrid'],
+            ['assassin', 'Assassin'],
+            ['bruiser', 'Bruiser'],
+            ['specialist', 'Specialist'],
+        ],
+        unlock: [
+            ['all', 'All Unlocks'],
+            ['starter', 'Starters'],
+            ['mission', 'Mission Characters'],
+            ['unlocked-mission', 'Unlocked Missions'],
+            ['locked-mission', 'Locked Missions'],
+        ],
+        universe: [
+            ['all', 'All Universes'],
+            ['marvel', 'Marvel'],
+            ['dc', 'DC'],
+            ['image', 'Image'],
+            ['other', 'Other'],
+        ],
+        'play-rate': [
+            ['all', 'All Rates'],
+            ['high', 'High Play Rate'],
+            ['medium', 'Medium Play Rate'],
+            ['low', 'Low Play Rate'],
+            ['unused', 'Unused'],
+        ],
+    };
+
+    const buildEnergyFilterOptions = () => {
+        const signatures = new Set();
+        roster.forEach((character) => {
+            getCharacterEnergySignatures(character).forEach((signature) => signatures.add(signature));
+        });
+        return [
+            ['all', 'All Energy'],
+            ...Array.from(signatures)
+                .sort((left, right) => left.localeCompare(right))
+                .map((signature) => [signature, labelEnergyFilterSignature(signature)]),
+        ];
+    };
+
+    const getRosterFilterOptions = () =>
+        activeRosterFilterMode === 'energy'
+            ? buildEnergyFilterOptions()
+            : rosterFilterOptions[activeRosterFilterMode] || rosterFilterOptions.role;
+
+    const doesCharacterMatchRosterFilter = (character) => {
+        if (activeRosterFilterValue === 'all') return true;
+        const characterId = getCharacterDisplayId(character).trim().toLowerCase();
+        if (activeRosterFilterMode === 'role') {
+            return getSelectionRoleCategory(character) === activeRosterFilterValue;
+        }
+        if (activeRosterFilterMode === 'energy') {
+            return getCharacterEnergySignatures(character).has(activeRosterFilterValue);
+        }
+        if (activeRosterFilterMode === 'unlock') {
+            const isMissionCharacter = missionLockedCharacterIds.has(characterId);
+            const isUnlocked = !isCharacterLocked(character);
+            if (activeRosterFilterValue === 'starter') return !isMissionCharacter;
+            if (activeRosterFilterValue === 'mission') return isMissionCharacter;
+            if (activeRosterFilterValue === 'unlocked-mission') return isMissionCharacter && isUnlocked;
+            if (activeRosterFilterValue === 'locked-mission') return isMissionCharacter && !isUnlocked;
+        }
+        if (activeRosterFilterMode === 'universe') {
+            const universe = typeof character?.universe === 'string' ? character.universe.trim().toLowerCase() : 'other';
+            return universe === activeRosterFilterValue;
+        }
+        if (activeRosterFilterMode === 'play-rate') {
+            return getCharacterPlayRateBucket(character) === activeRosterFilterValue;
+        }
+        return true;
+    };
+
+    const rebuildRosterDisplayIndices = () => {
+        const base = getBaseRosterDisplayIndices();
+        let next = base.filter((index) => doesCharacterMatchRosterFilter(roster[index]));
+        if (activeRosterFilterMode === 'play-rate') {
+            next = next.slice().sort((leftIndex, rightIndex) => {
+                const leftRate = getCharacterPlayRate(roster[leftIndex]);
+                const rightRate = getCharacterPlayRate(roster[rightIndex]);
+                if (rightRate.pickCount !== leftRate.pickCount) return rightRate.pickCount - leftRate.pickCount;
+                return String(roster[leftIndex]?.name || '').localeCompare(String(roster[rightIndex]?.name || ''));
+            });
+        }
+        rosterDisplayIndices = next;
+        totalPages = Math.max(
+            1,
+            Math.ceil(Math.max(rosterDisplayIndices.length, CHARACTERS_PER_PAGE) / CHARACTERS_PER_PAGE)
+        );
+        currentRosterPage = Math.min(currentRosterPage, totalPages - 1);
+        if (rosterFilterStatus) {
+            rosterFilterStatus.textContent = `${rosterDisplayIndices.length} character${rosterDisplayIndices.length === 1 ? '' : 's'}`;
+        }
+    };
+
+    const syncRosterFilterSelect = () => {
+        if (!rosterFilterSelect) return;
+        const options = getRosterFilterOptions();
+        if (!options.some(([value]) => value === activeRosterFilterValue)) {
+            activeRosterFilterValue = 'all';
+        }
+        rosterFilterSelect.innerHTML = '';
+        options.forEach(([value, label]) => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = label;
+            option.selected = value === activeRosterFilterValue;
+            rosterFilterSelect.appendChild(option);
+        });
+    };
+
+    const applyRosterFilter = () => {
+        syncRosterFilterSelect();
+        currentRosterPage = 0;
+        rebuildRosterDisplayIndices();
+        renderRosterPage();
     };
 
     const updateRosterPageButtons = () => {
@@ -5699,11 +7435,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
+    rosterFilterTabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+            const mode = tab.dataset.rosterFilterMode || 'role';
+            activeRosterFilterMode = mode;
+            activeRosterFilterValue = 'all';
+            rosterFilterTabs.forEach((entry) => entry.classList.toggle('active', entry === tab));
+            applyRosterFilter();
+        });
+    });
+
+    if (rosterFilterSelect) {
+        rosterFilterSelect.addEventListener('change', () => {
+            activeRosterFilterValue = rosterFilterSelect.value || 'all';
+            applyRosterFilter();
+        });
+    }
+
     await loadMissionLockedCharacterIds();
+    await loadCharacterPlayRates();
+    rebuildRosterDisplayIndices();
+    syncRosterFilterSelect();
     renderRosterPage();
     updateGameButtons();
     persistTeamSelection();
     applySavedTeam();
     resumeMatchIfActive();
+    
     document.body.classList.remove('app-loading', 'app-loading-selection');
 });
