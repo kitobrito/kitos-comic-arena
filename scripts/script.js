@@ -6164,6 +6164,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     const battleBotChoiceButtons = Array.from(
         document.querySelectorAll('[data-battle-bot-choice]')
     );
+    const draftModeButton = document.getElementById('draft-mode-button');
+    const draftBackdrop = document.querySelector('.draft-backdrop');
+    const draftOpponentEl = document.querySelector('.draft-opponent');
+    const draftTimerEl = document.querySelector('.draft-timer');
+    const draftInstructionEl = document.querySelector('.draft-instruction');
+    const draftSelectedRow = document.querySelector('.draft-selected-row');
+    const draftGrid = document.querySelector('.draft-grid');
+    const draftSubmitButton = document.querySelector('.draft-submit');
+    const draftCancelButton = document.querySelector('.draft-cancel');
+    const draftStatusEl = document.querySelector('.draft-status');
     const privateMatchBackdrop = document.querySelector('.private-match-backdrop');
     const privateMatchInput = document.querySelector('.private-match-input');
     const privateMatchError = document.querySelector('.private-match-error');
@@ -6177,6 +6187,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     let matchmakingPoll = null;
     let isSearching = false;
     let pendingMatchRedirect = null;
+    let draftModeEnabled = localStorage.getItem('comicDraftModeEnabled') === 'true';
+    let activeDraft = null;
+    let activeDraftSelection = [];
+    let activeDraftSelectionPhase = '';
+    let activeDraftPoll = null;
+    let activeDraftTimer = null;
     const setBattleBotWheelStatus = (message = '', variant = 'info') => {
         if (!battleBotWheelStatus) return;
         battleBotWheelStatus.textContent = message;
@@ -6190,6 +6206,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             battleBotWheelButton.classList.toggle('disabled', !enabled);
             battleBotWheelButton.setAttribute('aria-expanded', 'false');
         }
+    };
+
+    const syncDraftModeButton = () => {
+        if (!draftModeButton) return;
+        draftModeButton.classList.toggle('enabled', draftModeEnabled);
+        draftModeButton.classList.toggle('disabled', !draftModeEnabled);
+        draftModeButton.setAttribute('aria-pressed', draftModeEnabled ? 'true' : 'false');
     };
 
     const setBattleBotChoicePopupVisible = (visible) => {
@@ -6239,6 +6262,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     syncBattleBotWheel();
+    syncDraftModeButton();
+
+    if (draftModeButton) {
+        draftModeButton.addEventListener('click', () => {
+            draftModeEnabled = !draftModeEnabled;
+            localStorage.setItem('comicDraftModeEnabled', draftModeEnabled ? 'true' : 'false');
+            syncDraftModeButton();
+        });
+    }
 
     if (battleBotWheelButton) {
         battleBotWheelButton.addEventListener('click', () => {
@@ -6385,6 +6417,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const handleMatchFound = (data = {}) => {
+        if (data?.draft && data.draftId) {
+            isSearching = false;
+            if (matchmakingPoll) {
+                clearInterval(matchmakingPoll);
+                matchmakingPoll = null;
+            }
+            closeSearching();
+            startDraftSession(data);
+            return true;
+        }
         if (!data?.matchFound || !data?.matchId) return false;
         const startAtMs = data.matchStartsAt ? new Date(data.matchStartsAt).getTime() : Date.now();
         const shouldHold = !data.matchReady && startAtMs > Date.now();
@@ -6410,6 +6452,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 credentials: 'include',
             });
             const data = await response.json();
+            if (data?.draft && data.draftId) {
+                handleMatchFound(data);
+                return;
+            }
             if (data?.matchFound && data.matchId) {
                 handleMatchFound(data);
             }
@@ -6430,6 +6476,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     credentials: 'include',
                 });
                 const data = await response.json();
+                if (data?.draft && data.draftId) {
+                    handleMatchFound(data);
+                    return;
+                }
                 if (data?.matchFound && data.matchId) {
                     handleMatchFound(data);
                 }
@@ -6454,6 +6504,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     team: getTeamIndices(),
                     mode,
                     targetUsername: options.targetUsername || '',
+                    draftMode: draftModeEnabled,
                 }),
             });
             const data = await response.json();
@@ -6600,6 +6651,245 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else if (Array.isArray(window.characters)) {
         roster = window.characters;
     }
+
+    const clearDraftIntervals = () => {
+        if (activeDraftPoll) {
+            clearInterval(activeDraftPoll);
+            activeDraftPoll = null;
+        }
+        if (activeDraftTimer) {
+            clearInterval(activeDraftTimer);
+            activeDraftTimer = null;
+        }
+    };
+
+    const setDraftStatus = (message = '', variant = 'info') => {
+        if (!draftStatusEl) return;
+        draftStatusEl.textContent = message;
+        draftStatusEl.dataset.variant = variant;
+    };
+
+    const getDraftPhaseLimit = (draft = activeDraft) =>
+        draft?.phase === 'ban' ? Number(draft?.banCount) || 5 : Number(draft?.teamSize) || 3;
+
+    const updateDraftTimer = () => {
+        if (!draftTimerEl || !activeDraft?.phaseEndsAt) return;
+        const remaining = Math.max(0, Math.ceil((new Date(activeDraft.phaseEndsAt).getTime() - Date.now()) / 1000));
+        draftTimerEl.textContent = String(remaining);
+    };
+
+    const renderDraftSelectionRow = () => {
+        if (!draftSelectedRow) return;
+        draftSelectedRow.innerHTML = '';
+        activeDraftSelection.forEach((rosterIndex) => {
+            const character = roster[rosterIndex];
+            const chip = document.createElement('div');
+            chip.className = 'draft-selected-chip';
+            const image = document.createElement('img');
+            image.src = character?.facePicture || '';
+            image.alt = character?.name || 'Character';
+            const label = document.createElement('span');
+            label.textContent = character?.name || `Character ${rosterIndex + 1}`;
+            chip.appendChild(image);
+            chip.appendChild(label);
+            draftSelectedRow.appendChild(chip);
+        });
+    };
+
+    const renderDraftGrid = () => {
+        if (!draftGrid || !activeDraft) return;
+        const phase = activeDraft.phase;
+        const bannedSet = new Set(Array.isArray(activeDraft.revealedBans) ? activeDraft.revealedBans : []);
+        draftGrid.innerHTML = '';
+        roster.forEach((character, rosterIndex) => {
+            if (!character) return;
+            const locked = isCharacterLocked(character);
+            const banned = bannedSet.has(rosterIndex);
+            const selected = activeDraftSelection.includes(rosterIndex);
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'draft-character';
+            button.classList.toggle('selected', selected);
+            button.classList.toggle('banned', banned);
+            button.classList.toggle('locked', locked);
+            button.disabled = locked || (phase === 'pick' && banned) || activeDraft.myBanSubmitted && phase === 'ban' || activeDraft.myTeamSubmitted && phase === 'pick';
+            const image = document.createElement('img');
+            image.src = character.facePicture || '';
+            image.alt = character.name || `Character ${rosterIndex + 1}`;
+            const label = document.createElement('span');
+            label.textContent = character.name || `Character ${rosterIndex + 1}`;
+            button.appendChild(image);
+            button.appendChild(label);
+            button.addEventListener('click', () => {
+                const existingIndex = activeDraftSelection.indexOf(rosterIndex);
+                if (existingIndex >= 0) {
+                    activeDraftSelection.splice(existingIndex, 1);
+                } else if (activeDraftSelection.length < getDraftPhaseLimit()) {
+                    activeDraftSelection.push(rosterIndex);
+                }
+                renderDraftSelectionRow();
+                renderDraftGrid();
+            });
+            draftGrid.appendChild(button);
+        });
+        if (draftSubmitButton) {
+            const submitted = phase === 'ban' ? activeDraft.myBanSubmitted : activeDraft.myTeamSubmitted;
+            draftSubmitButton.disabled = submitted || activeDraftSelection.length !== getDraftPhaseLimit();
+            draftSubmitButton.textContent = submitted ? 'Locked' : 'Lock In';
+        }
+    };
+
+    const renderDraft = () => {
+        if (!activeDraft) return;
+        if (draftBackdrop) {
+            draftBackdrop.classList.remove('hidden');
+            draftBackdrop.classList.add('visible');
+        }
+        if (draftOpponentEl) {
+            draftOpponentEl.textContent = activeDraft.opponent || 'Opponent';
+        }
+        if (draftInstructionEl) {
+            if (activeDraft.phase === 'ban') {
+                draftInstructionEl.textContent = `Ban ${getDraftPhaseLimit(activeDraft)} characters. Your bans stay hidden until the timer ends or both players lock.`;
+            } else if (activeDraft.phase === 'pick') {
+                draftInstructionEl.textContent = `Pick ${getDraftPhaseLimit(activeDraft)} available characters. Banned characters are disabled.`;
+            } else if (activeDraft.phase === 'completed') {
+                draftInstructionEl.textContent = 'Draft complete. Starting match.';
+            } else {
+                draftInstructionEl.textContent = activeDraft.failureReason || 'Draft failed.';
+            }
+        }
+        const phaseChanged = activeDraftSelectionPhase !== activeDraft.phase;
+        activeDraftSelectionPhase = activeDraft.phase || '';
+        if (activeDraft.phase === 'ban') {
+            if (phaseChanged || activeDraft.myBanSubmitted) {
+                activeDraftSelection = Array.isArray(activeDraft.myBans) ? activeDraft.myBans.slice() : [];
+            }
+            setDraftStatus(activeDraft.myBanSubmitted ? 'Bans locked. Waiting for the opponent or timer.' : '');
+        } else if (activeDraft.phase === 'pick') {
+            if (phaseChanged || activeDraft.myTeamSubmitted) {
+                activeDraftSelection = Array.isArray(activeDraft.myTeam) ? activeDraft.myTeam.slice() : [];
+            }
+            const bans = Array.isArray(activeDraft.revealedBans) ? activeDraft.revealedBans.length : 0;
+            setDraftStatus(activeDraft.myTeamSubmitted ? 'Team locked. Waiting for the opponent or timer.' : `${bans} total bans revealed.`);
+        }
+        renderDraftSelectionRow();
+        renderDraftGrid();
+        updateDraftTimer();
+    };
+
+    const closeDraft = () => {
+        clearDraftIntervals();
+        activeDraft = null;
+        activeDraftSelection = [];
+        activeDraftSelectionPhase = '';
+        if (draftBackdrop) {
+            draftBackdrop.classList.add('hidden');
+            draftBackdrop.classList.remove('visible');
+        }
+    };
+
+    const applyDraftUpdate = (data = {}) => {
+        if (!data?.draft) return false;
+        activeDraft = data;
+        if (data.phase === 'completed' && data.matchId) {
+            closeDraft();
+            handleMatchFound({ matchFound: true, matchId: data.matchId, matchStartsAt: data.matchStartsAt });
+            return true;
+        }
+        if (data.phase === 'failed') {
+            setDraftStatus(data.failureReason || 'Draft failed.', 'error');
+            if (data.requeued) {
+                closeDraft();
+                isSearching = true;
+                setSearchingState('searching', data.mode || 'quick');
+                openSearching();
+                startPollingMatch();
+                return true;
+            }
+            closeDraft();
+            alert(data.failureReason || 'Draft failed.');
+            return true;
+        }
+        renderDraft();
+        return true;
+    };
+
+    const pollDraft = async () => {
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/match/status`, {
+                credentials: 'include',
+            });
+            const data = await response.json();
+            if (data?.draft) {
+                applyDraftUpdate(data);
+                return;
+            }
+            if (data?.matchFound && data.matchId) {
+                closeDraft();
+                handleMatchFound(data);
+            }
+        } catch (error) {
+            console.warn('Draft status check failed:', error);
+        }
+    };
+
+    const startDraftSession = (data = {}) => {
+        const sameDraftPhase =
+            activeDraft?.draftId === data?.draftId &&
+            activeDraft?.phase === data?.phase &&
+            activeDraftSelectionPhase === data?.phase;
+        activeDraft = data;
+        if (!sameDraftPhase) {
+            activeDraftSelection = data.phase === 'ban'
+                ? (Array.isArray(data.myBans) ? data.myBans.slice() : [])
+                : (Array.isArray(data.myTeam) ? data.myTeam.slice() : []);
+        }
+        activeDraftSelectionPhase = data.phase || '';
+        clearDraftIntervals();
+        renderDraft();
+        activeDraftPoll = setInterval(pollDraft, 1500);
+        activeDraftTimer = setInterval(updateDraftTimer, 250);
+    };
+
+    const submitDraftSelection = async () => {
+        if (!activeDraft?.draftId) return;
+        const phase = activeDraft.phase;
+        const endpoint = phase === 'ban' ? 'bans' : 'team';
+        const payloadKey = phase === 'ban' ? 'bans' : 'team';
+        if (activeDraftSelection.length !== getDraftPhaseLimit()) return;
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/draft/${encodeURIComponent(activeDraft.draftId)}/${endpoint}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ [payloadKey]: activeDraftSelection }),
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error(data?.error || 'Unable to lock draft selection.');
+            }
+            applyDraftUpdate(data);
+        } catch (error) {
+            setDraftStatus(error?.message || 'Unable to lock draft selection.', 'error');
+        }
+    };
+
+    if (draftSubmitButton) {
+        draftSubmitButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            submitDraftSelection();
+        });
+    }
+
+    if (draftCancelButton) {
+        draftCancelButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            cancelMatchmaking();
+            closeDraft();
+        });
+    }
+
     const preferredCharacterDisplayOrder = [
         'iron-man',
         'spider-man',

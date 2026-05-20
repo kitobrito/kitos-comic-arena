@@ -3594,6 +3594,11 @@ let ladderQueue = [];
 let privateQueue = [];
 const quickMatches = new Map(); // matchId -> { players, createdAt }
 const userToMatch = new Map(); // username -> { matchId, opponent }
+const draftSessions = new Map(); // draftId -> draft state
+const userToDraft = new Map(); // username -> draftId
+const DRAFT_BAN_COUNT = 5;
+const DRAFT_TEAM_SIZE = 3;
+const DRAFT_PHASE_DURATION_MS = 60 * 1000;
 
 const chakraTypes = ['taijutsu', 'ninjutsu', 'bloodline', 'genjutsu'];
 
@@ -3771,6 +3776,56 @@ const buildBattleBotTeam = () => {
 
     return selected.slice(0, 3).map((entry) => entry.rosterIndex);
 };
+
+const getPlayableRosterIndices = () =>
+    (Array.isArray(charactersData) ? charactersData : [])
+        .map((character, rosterIndex) => ({ character, rosterIndex }))
+        .filter(
+            (entry) =>
+                entry.character &&
+                typeof entry.character.characterId === 'string' &&
+                Array.isArray(entry.character.skills) &&
+                entry.character.skills.length > 0
+        )
+        .map((entry) => entry.rosterIndex);
+
+const normalizeDraftBans = (bans = []) => {
+    const validRoster = new Set(getPlayableRosterIndices());
+    const seen = new Set();
+    return (Array.isArray(bans) ? bans : [])
+        .map((slot) => Number.parseInt(slot, 10))
+        .filter((slot) => {
+            if (!Number.isInteger(slot) || !validRoster.has(slot) || seen.has(slot)) return false;
+            seen.add(slot);
+            return true;
+        })
+        .slice(0, DRAFT_BAN_COUNT);
+};
+
+const normalizeDraftTeam = (team = [], bannedSet = new Set()) => {
+    const validRoster = new Set(getPlayableRosterIndices());
+    const seen = new Set();
+    return (Array.isArray(team) ? team : [])
+        .map((slot) => Number.parseInt(slot, 10))
+        .filter((slot) => {
+            if (
+                !Number.isInteger(slot) ||
+                !validRoster.has(slot) ||
+                bannedSet.has(slot) ||
+                seen.has(slot)
+            ) {
+                return false;
+            }
+            seen.add(slot);
+            return true;
+        })
+        .slice(0, DRAFT_TEAM_SIZE);
+};
+
+const pickRandomDraftBans = () => shuffleList(getPlayableRosterIndices()).slice(0, DRAFT_BAN_COUNT);
+
+const pickRandomDraftTeam = (bannedSet = new Set()) =>
+    shuffleList(getPlayableRosterIndices().filter((slot) => !bannedSet.has(slot))).slice(0, DRAFT_TEAM_SIZE);
 
 const makeEmptyPendingTurn = () => ({
     queuedByActorSlot: {},
@@ -4045,9 +4100,10 @@ const enqueuePlayer = (entry) => {
     quickQueue.push(entry);
 };
 
-const dequeueOpponent = (username, mode = 'quick') => {
+const dequeueOpponent = (username, mode = 'quick', draftMode = false) => {
+    const wantsDraft = Boolean(draftMode);
     const queue = (mode === 'ladder' ? ladderQueue : quickQueue).filter((entry) =>
-        isValidTeamSelectionForMatch(entry?.team)
+        isValidTeamSelectionForMatch(entry?.team) && Boolean(entry?.draftMode) === wantsDraft
     );
     if (mode === 'ladder') {
         ladderQueue = queue;
@@ -4118,6 +4174,42 @@ const buildBattleBotMatch = async ({ username, team, mode, playerProfile }) => {
     return matchDocument;
 };
 
+const createMatchDocumentFromTeams = async ({ mode, players, botMatch = null }) => {
+    const aliveLookup = Object.fromEntries(
+        players.map((player) => [
+            player.username,
+            Array.isArray(player.team) ? player.team.length : DRAFT_TEAM_SIZE,
+        ])
+    );
+    const built = buildMatch(players.map((player) => player.username), aliveLookup);
+    const playerDocs = players.map((player) => ({
+        ...player,
+        aliveCount: aliveLookup[player.username],
+    }));
+    const board = battleLogic.buildInitialBoard(playerDocs);
+    const matchDocument = {
+        matchId: built.matchId,
+        mode,
+        status: 'active',
+        createdAt: new Date(),
+        matchStartsAt: built.matchStartsAt,
+        chakraPools: built.chakraPools,
+        economy: built.economy,
+        pendingTurns: built.pendingTurns,
+        currentTurn: built.currentTurn,
+        turnStartedAt: built.turnStartedAt,
+        turnOrder: built.turnOrder,
+        turnExpiresAt: built.turnExpiresAt,
+        board,
+        players: playerDocs,
+    };
+    if (botMatch) {
+        matchDocument.botMatch = botMatch;
+    }
+    await matchesCollection.insertOne(matchDocument);
+    return matchDocument;
+};
+
 const maybeCreateBattleBotMatch = async ({ username, mode, userProfile = null }) => {
     if (!BATTLE_BOTS_ENABLED || (mode !== 'quick' && mode !== 'ladder')) {
         return null;
@@ -4138,6 +4230,23 @@ const maybeCreateBattleBotMatch = async ({ username, mode, userProfile = null })
         return null;
     }
     removeQueuedEntry(username, mode);
+    if (queued.entry.draftMode) {
+        const botPlayer = createBattleBotPlayer({
+            matchId: `draft-bot-${Date.now()}`,
+            team: buildBattleBotTeam(),
+            ladderLevel: Number(userProfile?.ladder?.level) || 1,
+        });
+        return createDraftSession({
+            mode,
+            players: [
+                {
+                    ...queued.entry,
+                    draftMode: true,
+                },
+                botPlayer,
+            ],
+        });
+    }
     const matchDocument = await buildBattleBotMatch({
         username,
         team: queued.entry.team,
@@ -4145,6 +4254,177 @@ const maybeCreateBattleBotMatch = async ({ username, mode, userProfile = null })
         playerProfile: userProfile,
     });
     return matchDocument;
+};
+
+const getDraftOpponentName = (draft, username) => {
+    const opponent = (draft?.players || []).find((player) => player.username !== username);
+    if (!opponent) return null;
+    return opponent.isBot ? GAME_BOT_DISPLAY_NAME : opponent.username;
+};
+
+const serializeDraftForUser = (draft, username) => {
+    if (!draft) return null;
+    const submitted = draft.submissions?.[username] || {};
+    const opponentUsername = (draft.players || []).find((player) => player.username !== username)?.username || null;
+    const opponentSubmitted = opponentUsername ? draft.submissions?.[opponentUsername] || {} : {};
+    const bansRevealed = draft.phase !== 'ban';
+    return {
+        ok: true,
+        draft: true,
+        draftId: draft.draftId,
+        mode: draft.mode,
+        phase: draft.phase,
+        opponent: getDraftOpponentName(draft, username),
+        phaseEndsAt: draft.phaseEndsAt,
+        banCount: DRAFT_BAN_COUNT,
+        teamSize: DRAFT_TEAM_SIZE,
+        myBans: Array.isArray(submitted.bans) ? submitted.bans : [],
+        myTeam: Array.isArray(submitted.team) ? submitted.team : [],
+        myBanSubmitted: Boolean(submitted.banSubmitted),
+        myTeamSubmitted: Boolean(submitted.teamSubmitted),
+        opponentBanSubmitted: Boolean(opponentSubmitted.banSubmitted),
+        opponentTeamSubmitted: Boolean(opponentSubmitted.teamSubmitted),
+        revealedBans: bansRevealed ? draft.revealedBans || [] : [],
+        matchId: draft.matchId || null,
+        matchStartsAt: draft.matchStartsAt || null,
+        requeued: Boolean(draft.requeued?.[username]),
+        failed: Boolean(draft.failed?.[username]),
+        failureReason: draft.failureReason || '',
+    };
+};
+
+const finishDraftWithFailure = (draft, failedUsernames = [], reason = 'Draft failed.') => {
+    const failedSet = new Set(failedUsernames);
+    draft.phase = 'failed';
+    draft.failureReason = reason;
+    draft.failed = {};
+    draft.requeued = {};
+    (draft.players || []).forEach((player) => {
+        if (player.isBot) return;
+        const submitted = draft.submissions?.[player.username] || {};
+        if (failedSet.has(player.username)) {
+            draft.failed[player.username] = true;
+            removeQueuedEntry(player.username, draft.mode);
+            return;
+        }
+        if (isValidTeamSelectionForMatch(submitted.team)) {
+            enqueuePlayer({
+                ...player,
+                team: submitted.team,
+                mode: draft.mode,
+                draftMode: true,
+                queuedAt: new Date(),
+            });
+            draft.requeued[player.username] = true;
+        }
+    });
+};
+
+const finishDraftWithMatch = async (draft) => {
+    if (draft.phase === 'completed') return draft;
+    const players = (draft.players || []).map((player) => ({
+        ...player,
+        team: draft.submissions?.[player.username]?.team || player.team,
+    }));
+    const matchDocument = await createMatchDocumentFromTeams({
+        mode: draft.mode,
+        players,
+        botMatch: players.some((player) => player.isBot)
+            ? { enabled: true, displayName: GAME_BOT_DISPLAY_NAME }
+            : null,
+    });
+    draft.phase = 'completed';
+    draft.matchId = matchDocument.matchId;
+    draft.matchStartsAt = matchDocument.matchStartsAt;
+    players.forEach((player) => {
+        if (player.isBot) return;
+        const opponent = players.find((entry) => entry.username !== player.username);
+        userToMatch.set(player.username, {
+            matchId: matchDocument.matchId,
+            opponent: opponent?.isBot ? GAME_BOT_DISPLAY_NAME : opponent?.username || null,
+        });
+    });
+    scheduleBattleBotTurn(matchDocument);
+    return draft;
+};
+
+const advanceDraftIfNeeded = async (draft) => {
+    if (!draft || draft.phase === 'completed' || draft.phase === 'failed') return draft;
+    const now = Date.now();
+    const players = draft.players || [];
+    const allBanSubmitted = players.every((player) => draft.submissions?.[player.username]?.banSubmitted);
+    if (draft.phase === 'ban' && (allBanSubmitted || new Date(draft.phaseEndsAt).getTime() <= now)) {
+        const allBans = [];
+        players.forEach((player) => {
+            const submitted = draft.submissions?.[player.username] || {};
+            submitted.bans = normalizeDraftBans(submitted.bans);
+            submitted.banSubmitted = true;
+            draft.submissions[player.username] = submitted;
+            allBans.push(...submitted.bans);
+        });
+        draft.revealedBans = Array.from(new Set(allBans));
+        draft.phase = 'pick';
+        draft.phaseEndsAt = new Date(Date.now() + DRAFT_PHASE_DURATION_MS);
+        const bannedSet = new Set(draft.revealedBans || []);
+        players.forEach((player) => {
+            if (!player.isBot) return;
+            draft.submissions[player.username] = {
+                ...(draft.submissions[player.username] || {}),
+                team: pickRandomDraftTeam(bannedSet),
+                teamSubmitted: true,
+            };
+        });
+    }
+
+    const allTeamSubmitted = players.every((player) => draft.submissions?.[player.username]?.teamSubmitted);
+    if (draft.phase === 'pick' && (allTeamSubmitted || new Date(draft.phaseEndsAt).getTime() <= Date.now())) {
+        const bannedSet = new Set(draft.revealedBans || []);
+        const failed = [];
+        players.forEach((player) => {
+            const submitted = draft.submissions?.[player.username] || {};
+            submitted.team = normalizeDraftTeam(submitted.team, bannedSet);
+            if (submitted.team.length !== DRAFT_TEAM_SIZE) {
+                failed.push(player.username);
+            } else {
+                submitted.teamSubmitted = true;
+            }
+            draft.submissions[player.username] = submitted;
+        });
+        if (failed.length > 0) {
+            finishDraftWithFailure(draft, failed, 'A player did not select a valid team.');
+            return draft;
+        }
+        await finishDraftWithMatch(draft);
+    }
+    return draft;
+};
+
+const createDraftSession = ({ mode, players }) => {
+    const draftId = `draft-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const draft = {
+        draftId,
+        mode,
+        players,
+        phase: 'ban',
+        phaseEndsAt: new Date(Date.now() + DRAFT_PHASE_DURATION_MS),
+        createdAt: new Date(),
+        submissions: {},
+        revealedBans: [],
+    };
+    players.forEach((player) => {
+        const bans = player.isBot ? pickRandomDraftBans() : [];
+        draft.submissions[player.username] = {
+            bans,
+            banSubmitted: player.isBot,
+            team: [],
+            teamSubmitted: false,
+        };
+        if (!player.isBot) {
+            userToDraft.set(player.username, draftId);
+        }
+    });
+    draftSessions.set(draftId, draft);
+    return draft;
 };
 
 const dequeuePrivateOpponent = (username, targetUsername) => {
@@ -5283,6 +5563,7 @@ const matchJoinSchema = Joi.object({
     team: teamSchema.required(),
     mode: Joi.string().valid('quick', 'ladder', 'private').default('quick'),
     targetUsername: Joi.string().trim().min(1).max(64).allow('').optional(),
+    draftMode: Joi.boolean().default(false),
 });
 
 const publicProfileLookupSchema = Joi.object({
@@ -5517,6 +5798,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
             });
         }
         const team = value.team;
+        const draftMode = Boolean(value.draftMode);
         if (!isValidTeamSelectionForMatch(team)) {
             return res.status(400).json({ error: 'Invalid team selection.' });
         }
@@ -5529,6 +5811,15 @@ app.post('/api/match/join', requireSession, async (req, res) => {
             if (targetUsername.toLowerCase() === username.toLowerCase()) {
                 return res.status(400).json({ error: 'You cannot start a private game with yourself.' });
             }
+        }
+
+        const draftId = userToDraft.get(username);
+        if (draftId) {
+            const draft = await advanceDraftIfNeeded(draftSessions.get(draftId));
+            if (draft && draft.phase !== 'failed') {
+                return res.json(serializeDraftForUser(draft, username));
+            }
+            userToDraft.delete(username);
         }
 
         // Already matched
@@ -5621,10 +5912,35 @@ app.post('/api/match/join', requireSession, async (req, res) => {
         // Try to pair with waiting opponent
         const opponent = mode === 'private'
             ? dequeuePrivateOpponent(username, targetUsername)
-            : dequeueOpponent(username, mode);
+            : dequeueOpponent(username, mode, draftMode);
         if (opponent) {
             if (!isValidTeamSelectionForMatch(team) || !isValidTeamSelectionForMatch(opponent.team)) {
                 return res.status(400).json({ error: 'Invalid team selection.' });
+            }
+            const shouldDraft = mode === 'private'
+                ? draftMode || Boolean(opponent.draftMode)
+                : draftMode && Boolean(opponent.draftMode);
+            if (shouldDraft) {
+                const draft = createDraftSession({
+                    mode,
+                    players: [
+                        {
+                            username,
+                            team,
+                            mode,
+                            draftMode: true,
+                            targetUsername,
+                            queuedAt: new Date(),
+                            allowBattleBot: Boolean(profile.matchmaking?.battleBotEnabled),
+                            ladderLevel: Number(profile.ladder?.level) || 1,
+                        },
+                        {
+                            ...opponent,
+                            draftMode: true,
+                        },
+                    ],
+                });
+                return res.json(serializeDraftForUser(draft, username));
             }
             const aliveLookup = {
                 [username]: Array.isArray(team) ? team.length : 3,
@@ -5699,6 +6015,9 @@ app.post('/api/match/join', requireSession, async (req, res) => {
             mode,
             userProfile: profile,
         });
+        if (queuedBotMatch?.draftId) {
+            return res.json(serializeDraftForUser(queuedBotMatch, username));
+        }
         if (queuedBotMatch) {
             scheduleBattleBotTurn(queuedBotMatch);
             const safePayload = buildMatchPayloadForUser(queuedBotMatch, username);
@@ -5727,6 +6046,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
             username,
             team,
             mode,
+            draftMode,
             targetUsername,
             queuedAt: new Date(),
             allowBattleBot: Boolean(profile.matchmaking?.battleBotEnabled),
@@ -5747,6 +6067,20 @@ app.get('/api/match/status', requireSession, async (req, res) => {
             { projection: { _id: 1, username: 1, createdAt: 1, profile: 1 } }
         );
         const normalizedProfile = user ? normalizeUserProfile(user) : null;
+        const draftId = userToDraft.get(username);
+        if (draftId) {
+            const draft = await advanceDraftIfNeeded(draftSessions.get(draftId));
+            if (draft) {
+                if (draft.phase === 'completed' && draft.matchId) {
+                    userToDraft.delete(username);
+                }
+                if (draft.phase === 'failed') {
+                    userToDraft.delete(username);
+                }
+                return res.json(serializeDraftForUser(draft, username));
+            }
+            userToDraft.delete(username);
+        }
         const mapping = userToMatch.get(username);
         if (mapping) {
             const match = await matchesCollection.findOne({ matchId: mapping.matchId });
@@ -5792,6 +6126,9 @@ app.get('/api/match/status', requireSession, async (req, res) => {
             mode: queuedEntry?.mode || 'quick',
             userProfile: normalizedProfile,
         });
+        if (botMatch?.draftId) {
+            return res.json(serializeDraftForUser(botMatch, username));
+        }
         if (botMatch) {
             scheduleBattleBotTurn(botMatch);
             const safePayload = buildMatchPayloadForUser(botMatch, username);
@@ -5867,9 +6204,81 @@ app.post('/api/match/cancel', requireSession, (req, res) => {
     if (userToMatch.has(username)) {
         return res.json({ ok: false, message: 'Match already found.' });
     }
+    const draftId = userToDraft.get(username);
+    if (draftId) {
+        const draft = draftSessions.get(draftId);
+        if (draft && draft.phase !== 'completed' && draft.phase !== 'failed') {
+            finishDraftWithFailure(draft, [username], 'A player left draft.');
+        }
+        userToDraft.delete(username);
+    }
     removeQueuedEntry(username);
     // Do not remove from existing matches here; only queue
     return res.json({ ok: true, cancelled: true });
+});
+
+app.post('/api/draft/:draftId/bans', requireSession, async (req, res) => {
+    try {
+        const username = req.authUser.username;
+        const draft = await advanceDraftIfNeeded(draftSessions.get(req.params.draftId));
+        if (!draft || !draft.players?.some((player) => player.username === username)) {
+            return res.status(404).json({ error: 'Draft not found.' });
+        }
+        if (draft.phase !== 'ban') {
+            return res.status(400).json({ error: 'Ban phase is closed.' });
+        }
+        const bans = normalizeDraftBans(req.body?.bans);
+        if (bans.length !== DRAFT_BAN_COUNT) {
+            return res.status(400).json({ error: `Select ${DRAFT_BAN_COUNT} bans.` });
+        }
+        draft.submissions[username] = {
+            ...(draft.submissions[username] || {}),
+            bans,
+            banSubmitted: true,
+        };
+        await advanceDraftIfNeeded(draft);
+        return res.json(serializeDraftForUser(draft, username));
+    } catch (error) {
+        console.error('Draft ban error:', error);
+        return res.status(500).json({ error: 'Internal server error.' });
+    }
+});
+
+app.post('/api/draft/:draftId/team', requireSession, async (req, res) => {
+    try {
+        const username = req.authUser.username;
+        const draft = await advanceDraftIfNeeded(draftSessions.get(req.params.draftId));
+        if (!draft || !draft.players?.some((player) => player.username === username)) {
+            return res.status(404).json({ error: 'Draft not found.' });
+        }
+        if (draft.phase !== 'pick') {
+            return res.status(400).json({ error: 'Pick phase is not open.' });
+        }
+        const bannedSet = new Set(draft.revealedBans || []);
+        const team = normalizeDraftTeam(req.body?.team, bannedSet);
+        if (team.length !== DRAFT_TEAM_SIZE) {
+            return res.status(400).json({ error: `Select ${DRAFT_TEAM_SIZE} available characters.` });
+        }
+        const user = await usersCollection.findOne({ username });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+        try {
+            await assertTeamCanBeUsed(normalizeUserProfile(user), team, user.role);
+        } catch (error) {
+            return res.status(403).json({ error: error.message || 'Character is locked.' });
+        }
+        draft.submissions[username] = {
+            ...(draft.submissions[username] || {}),
+            team,
+            teamSubmitted: true,
+        };
+        await advanceDraftIfNeeded(draft);
+        return res.json(serializeDraftForUser(draft, username));
+    } catch (error) {
+        console.error('Draft team error:', error);
+        return res.status(500).json({ error: 'Internal server error.' });
+    }
 });
 
 app.get('/api/match/:matchId', requireSession, async (req, res) => {

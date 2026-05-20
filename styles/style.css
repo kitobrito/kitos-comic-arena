@@ -824,6 +824,226 @@ text-transform: uppercase;
     text-align: center;
 }
 
+.draft-mode-check-wrap {
+    position: absolute;
+    right: 168px;
+    bottom: 454px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    z-index: 1500;
+}
+
+.draft-mode-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 8px 4px 6px;
+    border: 1px solid #000;
+    background: linear-gradient(180deg, #ffffff 0%, #dedede 100%);
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+    font-family: 'Libre Franklin', Arial, sans-serif;
+    text-transform: uppercase;
+    color: #000;
+    min-width: 142px;
+    position: relative;
+    right: 83px;
+    top: -36px;
+    transform: skew(-10deg);
+}
+
+.draft-mode-check-box {
+    width: 14px;
+    height: 14px;
+    border: 1px solid #000;
+    background: #fff;
+    position: relative;
+    flex: 0 0 14px;
+}
+
+.draft-mode-check.enabled .draft-mode-check-box::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: -1px;
+    width: 6px;
+    height: 10px;
+    border-right: 2px solid #167a28;
+    border-bottom: 2px solid #167a28;
+    transform: rotate(40deg);
+}
+
+.draft-mode-check-label {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.draft-mode-check-status {
+    width: 190px;
+    min-height: 15px;
+    margin: 0;
+    font-size: 10px;
+    line-height: 1.2;
+    font-family: 'Libre Franklin', Arial, sans-serif;
+    color: #6a180e;
+    text-align: center;
+}
+
+.draft-backdrop {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.78);
+    z-index: 5000;
+}
+
+.draft-backdrop.visible {
+    display: flex;
+}
+
+.draft-modal {
+    width: min(760px, calc(100vw - 28px));
+    max-height: min(720px, calc(100vh - 28px));
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background: #e8e4d7;
+    border: 2px solid #000;
+    box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.55);
+    padding: 14px;
+    font-family: 'Libre Franklin', Arial, sans-serif;
+}
+
+.draft-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+.draft-title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.draft-subtitle,
+.draft-instruction,
+.draft-status {
+    margin: 0;
+    font-size: 13px;
+}
+
+.draft-timer {
+    min-width: 58px;
+    padding: 6px 8px;
+    border: 1px solid #000;
+    background: #fff;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.draft-selected-row {
+    min-height: 44px;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.draft-selected-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: 180px;
+    border: 1px solid #000;
+    background: #fff;
+    padding: 3px 6px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.draft-selected-chip img {
+    width: 28px;
+    height: 28px;
+    object-fit: cover;
+}
+
+.draft-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(66px, 1fr));
+    gap: 7px;
+    overflow: auto;
+    padding: 2px;
+}
+
+.draft-character {
+    min-height: 82px;
+    border: 1px solid #000;
+    background: #f7f5ee;
+    cursor: pointer;
+    padding: 4px;
+    font: inherit;
+}
+
+.draft-character img {
+    width: 48px;
+    height: 48px;
+    display: block;
+    object-fit: cover;
+    margin: 0 auto 4px;
+}
+
+.draft-character span {
+    display: block;
+    font-size: 10px;
+    line-height: 1.1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.draft-character.selected {
+    background: #dbeed8;
+    outline: 2px solid #167a28;
+}
+
+.draft-character.banned,
+.draft-character.locked {
+    filter: grayscale(1);
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.draft-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.draft-submit,
+.draft-cancel {
+    border: 1px solid #000;
+    background: #fff;
+    padding: 7px 14px;
+    font-family: 'Libre Franklin', Arial, sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.draft-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 .battle-bot-choice-popup {
     position: fixed;
     inset: 0;

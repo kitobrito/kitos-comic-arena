@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&family=Petra&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/style.css?v=predator-xeno-fx-toggle-v1">
+    <link rel="stylesheet" href="styles/style.css?v=draft-pick-ban-v3">
 </head>
 <body class="app-loading app-loading-selection">
 <div class="background">
@@ -33,8 +33,28 @@
                 <p class="private-match-title">Enter Opponent Username</p>
                 <input type="text" class="private-match-input" maxlength="64" autocomplete="off">
                 <p class="private-match-error"></p>
-                <button type="button" class="private-match-ok">OK</button>
-                <button type="button" class="private-match-cancel">CANCEL</button>
+        <button type="button" class="private-match-ok">OK</button>
+        <button type="button" class="private-match-cancel">CANCEL</button>
+            </div>
+        </div>
+
+        <div class="draft-backdrop hidden">
+            <div class="draft-modal">
+                <div class="draft-header">
+                    <div>
+                        <p class="draft-title">Draft Mode</p>
+                        <p class="draft-subtitle">Opponent: <span class="draft-opponent">Waiting</span></p>
+                    </div>
+                    <div class="draft-timer">60</div>
+                </div>
+                <p class="draft-instruction">Ban 5 characters.</p>
+                <div class="draft-selected-row" aria-live="polite"></div>
+                <div class="draft-grid"></div>
+                <div class="draft-actions">
+                    <button type="button" class="draft-submit">Lock In</button>
+                    <button type="button" class="draft-cancel">Cancel</button>
+                </div>
+                <p class="draft-status"></p>
             </div>
         </div>
 
@@ -143,6 +163,14 @@
     <p class="battle-bot-check-status" id="battle-bot-wheel-status" aria-live="polite"></p>
 </div>
 
+<div class="draft-mode-check-wrap">
+    <button type="button" class="draft-mode-check" id="draft-mode-button" aria-pressed="false">
+        <span class="draft-mode-check-box" aria-hidden="true"></span>
+        <span class="draft-mode-check-label">Draft Pick/Ban</span>
+    </button>
+    <p class="draft-mode-check-status">Private games use draft if either player enables it.</p>
+</div>
+
 <div class="battle-bot-choice-popup" id="battle-bot-choice-popup" aria-hidden="true">
     <div class="battle-bot-choice-panel" role="dialog" aria-modal="true" aria-labelledby="battle-bot-choice-title">
         <p class="battle-bot-choice-title" id="battle-bot-choice-title">Game Bot</p>
@@ -157,7 +185,7 @@
 
     </div>
 </div>
-<script src="characters.js?v=predator-xeno-fx-toggle-v1"></script>
-<script src="scripts/script.js?v=predator-xeno-fx-toggle-v1"></script>
+<script src="characters.js?v=draft-pick-ban-v3"></script>
+<script src="scripts/script.js?v=draft-pick-ban-v3"></script>
 </body>
 </html>
