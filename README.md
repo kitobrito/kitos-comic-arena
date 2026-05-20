@@ -1,4 +1,4 @@
-# Kien Naruto Arena
+# Kien Comic Arena
 
 This project is already structured to run as a public website:
 
