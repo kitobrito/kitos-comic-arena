@@ -1100,6 +1100,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const applySkillSound = new Audio('assets/audio/sounds/apply-skill.mp3');
         const deathSound = new Audio('assets/audio/sounds/death-sound.mp3');
         const neganAlreadyFuckedSound = new Audio('assets/audio/takingitlikeachamp.mp3');
+        const neganYouGotNoGutsSound = new Audio('assets/audio/youdidhaveguts.wav');
+        const neganDeathSound = new Audio('assets/audio/youbetterbejoking.wav');
         const predatorCloakSound = new Audio('assets/audio/predatorcloak.mp3');
         const xenoSound = new Audio('assets/audio/xeno.mp3');
         let hasPlayedMatchEntrySound = false;
@@ -2465,6 +2467,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             return [];
         };
 
+        const CAPTAIN_AMERICA_SHIELD_PROJECTILE_SRC = 'assets/images/captainamericashield.png';
+
         const animateSkillCastTrail = ({ actorSlot, skillIdx, selection }) => {
             const actorCard = Number.isInteger(actorSlot) ? playerCards[actorSlot] : null;
             const meta = playerSkillMetaByKey.get(`${actorSlot}:${skillIdx}`);
@@ -2479,30 +2483,54 @@ document.addEventListener('DOMContentLoaded', async () => {
                 window.setTimeout(() => face.classList.remove('skill-caster-surge'), 1050);
             }
             const sourceRect = skillEl.getBoundingClientRect();
-            const sourceX = sourceRect.left + sourceRect.width / 2;
-            const sourceY = sourceRect.top + sourceRect.height / 2;
-            normalizeTargetSelectionList(selection).forEach((target, index) => {
-                const targetSlot = Number.parseInt(target?.slot, 10);
-                const targetCard = getCardByUsernameSlot(target?.username || '', targetSlot);
-                const targetFace = targetCard?.querySelector('.character-face') || targetCard;
-                const targetRect = targetFace?.getBoundingClientRect?.();
-                if (!targetRect) return;
+            const actorRect = (face || actorCard).getBoundingClientRect();
+            const isCaptainShieldThrow = effectiveSkill?.id === 'captain-america-shield-throw';
+            const isCaptainShieldBash = effectiveSkill?.id === 'captain-america-shield-bash';
+            const isCaptainShieldProjectile = isCaptainShieldThrow || isCaptainShieldBash;
+            const initialSourceX = isCaptainShieldProjectile
+                ? actorRect.left + actorRect.width / 2
+                : sourceRect.left + sourceRect.width / 2;
+            const initialSourceY = isCaptainShieldProjectile
+                ? actorRect.top + actorRect.height / 2
+                : sourceRect.top + sourceRect.height / 2;
+            const targets = normalizeTargetSelectionList(selection)
+                .map((target) => {
+                    const targetSlot = Number.parseInt(target?.slot, 10);
+                    const targetCard = getCardByUsernameSlot(target?.username || '', targetSlot);
+                    const targetFace = targetCard?.querySelector('.character-face') || targetCard;
+                    const targetRect = targetFace?.getBoundingClientRect?.();
+                    if (!targetRect) return null;
+                    return {
+                        x: targetRect.left + targetRect.width / 2,
+                        y: targetRect.top + targetRect.height / 2,
+                    };
+                })
+                .filter(Boolean);
+            targets.forEach((targetPoint, index) => {
+                const sourceX = isCaptainShieldThrow && index > 0 ? targets[index - 1].x : initialSourceX;
+                const sourceY = isCaptainShieldThrow && index > 0 ? targets[index - 1].y : initialSourceY;
+                const projectileHalfSize = isCaptainShieldProjectile ? 24 : 17;
                 const projectile = document.createElement('img');
                 projectile.className = 'skill-cast-projectile';
-                projectile.src = meta?.skill?.skillimage || skillEl.src || '';
+                projectile.src = isCaptainShieldProjectile
+                    ? CAPTAIN_AMERICA_SHIELD_PROJECTILE_SRC
+                    : meta?.skill?.skillimage || skillEl.src || '';
                 projectile.alt = '';
-                projectile.style.left = `${sourceX - 17}px`;
-                projectile.style.top = `${sourceY - 17}px`;
-                projectile.style.setProperty('--cast-dx', `${targetRect.left + targetRect.width / 2 - sourceX}px`);
-                projectile.style.setProperty('--cast-dy', `${targetRect.top + targetRect.height / 2 - sourceY}px`);
-                projectile.style.animationDelay = `${Math.min(index, 3) * 120}ms`;
-                if (effectiveSkill?.id === 'captain-america-shield-throw') {
+                projectile.style.left = `${sourceX - projectileHalfSize}px`;
+                projectile.style.top = `${sourceY - projectileHalfSize}px`;
+                projectile.style.setProperty('--cast-dx', `${targetPoint.x - sourceX}px`);
+                projectile.style.setProperty('--cast-dy', `${targetPoint.y - sourceY}px`);
+                const animationDelay = isCaptainShieldThrow ? index * 520 : Math.min(index, 3) * (isCaptainShieldBash ? 80 : 120);
+                projectile.style.animationDelay = `${animationDelay}ms`;
+                if (isCaptainShieldThrow) {
                     projectile.classList.add('captain-shield-throw-projectile');
+                } else if (isCaptainShieldBash) {
+                    projectile.classList.add('captain-shield-bash-projectile');
                 }
                 document.body.appendChild(projectile);
                 window.setTimeout(
                     () => projectile.remove(),
-                    (effectiveSkill?.id === 'captain-america-shield-throw' ? 2300 : 1450) + Math.min(index, 3) * 120
+                    (isCaptainShieldThrow ? 2300 : isCaptainShieldBash ? 980 : 1450) + animationDelay
                 );
             });
             const skillId = effectiveSkill?.id || '';
@@ -2636,6 +2664,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             playIngameSound(neganAlreadyFuckedSound);
         };
 
+        const showKnifeWoundFx = (targetCards = [], variant = 'throat') => {
+            const isGutSlice = variant === 'gut';
+            targetCards.forEach((targetCard, index) => {
+                if (!targetCard) return;
+                showTemporaryCardFx(
+                    targetCard,
+                    `knife-wound-fx ${isGutSlice ? 'gut-slice' : 'throat-slit'}`,
+                    '<span class="knife-blade"></span><span class="knife-cut"></span><span class="knife-blood blood-a"></span><span class="knife-blood blood-b"></span><span class="knife-blood blood-c"></span>',
+                    (isGutSlice ? 1650 : 1500) + index * 80
+                );
+            });
+            if (isGutSlice) {
+                playIngameSound(neganYouGotNoGutsSound);
+            } else {
+                playGeneratedIngameSound('damage');
+            }
+        };
+
         const showAquamanTidalWaveFx = () => {
             const existing = document.querySelector('.aquaman-tidal-wave-screen-fx');
             if (existing) existing.remove();
@@ -2666,7 +2712,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isAndreaSnipe = skillId === 'andrea-snipe';
             const isAndreaQuickShot = skillId === 'andrea-quick-shot';
             const isRickRevolver = skillId === 'rick-grimes-357-revolver';
+            const isRickThroatSlit = skillId === 'rick-grimes-throat-slit';
             const isNeganAlreadyFucked = skillId === 'negan-you-re-already-fucked';
+            const isNeganYouGotNoGuts = skillId === 'negan-you-got-no-guts';
             const isAquamanTidalWave = skillId === 'aquaman-tidal-wave';
             const isGenericLaser = !isRedLaser && !isYellowLaser && skillId.includes('laser');
             if (
@@ -2677,7 +2725,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 !isAndreaSnipe &&
                 !isAndreaQuickShot &&
                 !isRickRevolver &&
+                !isRickThroatSlit &&
                 !isNeganAlreadyFucked &&
+                !isNeganYouGotNoGuts &&
                 !isAquamanTidalWave &&
                 !isGenericLaser
             ) {
@@ -2706,8 +2756,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 targetCards.forEach((targetCard) => showBulletImpactFx(targetCard, 'revolver'));
                 return;
             }
+            if (isRickThroatSlit) {
+                showKnifeWoundFx(targetCards, 'throat');
+                return;
+            }
             if (isNeganAlreadyFucked) {
                 showNeganLucilleFx(targetCards);
+                return;
+            }
+            if (isNeganYouGotNoGuts) {
+                showKnifeWoundFx(targetCards, 'gut');
                 return;
             }
             if (isGenericLaser) {
@@ -3741,6 +3799,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     (nextUnit.alive === false || (Number.isFinite(nextHp) && nextHp <= 0));
                 return Boolean(wasAlive && isDead);
             };
+            const isNeganUnit = (unit) => {
+                const character = Number.isInteger(unit?.rosterIndex) ? rosterData?.[unit.rosterIndex] : null;
+                return character?.id === 'negan' || character?.characterId === 'negan';
+            };
             const detectAnyDeath = () => {
                 if (!previousBoard || typeof previousBoard !== 'object') return false;
                 return Object.keys(board).some((username) => {
@@ -3751,9 +3813,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                     );
                 });
             };
+            const detectNeganDeath = () => {
+                if (!previousBoard || typeof previousBoard !== 'object') return false;
+                return Object.keys(board).some((username) => {
+                    const nextUnits = Array.isArray(board[username]) ? board[username] : [];
+                    const prevUnits = Array.isArray(previousBoard[username]) ? previousBoard[username] : [];
+                    return nextUnits.some((nextUnit, slot) =>
+                        isNeganUnit(nextUnit) && unitDiedBetweenStates(prevUnits[slot], nextUnit)
+                    );
+                });
+            };
             latestBoardState = board;
             if (detectAnyDeath()) {
                 playIngameSound(deathSound);
+            }
+            if (detectNeganDeath()) {
+                playIngameSound(neganDeathSound);
             }
             const playerUnits = currentPlayerUsername ? board[currentPlayerUsername] : null;
             const opponentUsername = data.opponent?.username || currentOpponentUsername;
