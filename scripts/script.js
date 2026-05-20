@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             volume: 0.7,
             musicMuted: false,
             effectsMuted: false,
+            skillEffectsMuted: false,
         };
         const clampVolume = (value) => {
             const numeric = Number(value);
@@ -44,6 +45,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     volume: clampVolume(parsed?.volume),
                     musicMuted: Boolean(parsed?.musicMuted),
                     effectsMuted: Boolean(parsed?.effectsMuted),
+                    skillEffectsMuted: Boolean(parsed?.skillEffectsMuted),
                 };
             } catch (error) {
                 return { ...defaultSettings };
@@ -308,6 +310,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                     btn.setAttribute('aria-label', 'Mute game sounds');
                 }
             });
+            const allSkillEffectsButtons = document.querySelectorAll('.skill-effects-toggle, .ingame-skill-effects-toggle');
+            allSkillEffectsButtons.forEach(btn => {
+                if (settings.skillEffectsMuted) {
+                    btn.classList.add('muted');
+                    btn.setAttribute('aria-label', 'Turn on skill effects');
+                    btn.setAttribute('title', 'Turn on skill effects');
+                } else {
+                    btn.classList.remove('muted');
+                    btn.setAttribute('aria-label', 'Turn off skill effects');
+                    btn.setAttribute('title', 'Turn off skill effects');
+                }
+            });
+            document.body.classList.toggle('skill-effects-muted', Boolean(settings.skillEffectsMuted));
         };
         const persist = () => {
             try {
@@ -394,6 +409,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             syncUi();
         }
 
+        const onSkillEffectsToggleClick = () => {
+            settings.skillEffectsMuted = !settings.skillEffectsMuted;
+            persist();
+            syncUi();
+        };
+
         document.addEventListener('click', (event) => {
             const target = event.target;
             if (!target) return;
@@ -410,6 +431,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 target.classList.contains('ingame-effects-mute-button')
             ) {
                 onEffectsMuteClick();
+                return;
+            }
+            if (
+                target.classList.contains('skill-effects-toggle') ||
+                target.classList.contains('ingame-skill-effects-toggle')
+            ) {
+                onSkillEffectsToggleClick();
             }
         });
 
@@ -439,7 +467,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             },
             playGeneratedEffect,
-            syncAmbientEffects
+            syncAmbientEffects,
+            areSkillEffectsMuted() {
+                return Boolean(settings.skillEffectsMuted);
+            }
         };
     })();
 
@@ -1069,6 +1100,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const applySkillSound = new Audio('assets/audio/sounds/apply-skill.mp3');
         const deathSound = new Audio('assets/audio/sounds/death-sound.mp3');
         const neganAlreadyFuckedSound = new Audio('assets/audio/takingitlikeachamp.mp3');
+        const predatorCloakSound = new Audio('assets/audio/predatorcloak.mp3');
+        const xenoSound = new Audio('assets/audio/xeno.mp3');
         let hasPlayedMatchEntrySound = false;
         let hasInitializedTurnState = false;
         const playerSkillImages = Array.from(
@@ -2479,13 +2512,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 playGeneratedIngameSound('ricochet');
             } else if (skillId.includes('bomb')) {
                 playGeneratedIngameSound('bomb-arm');
+            } else if (
+                skillId === 'xenomorph-drone-inner-jaw-strike' ||
+                skillId === 'xenomorph-drone-xeno-stealth'
+            ) {
+                playIngameSound(xenoSound);
             } else if (skillId.startsWith('spider-man-web')) {
                 playGeneratedIngameSound('web');
             } else if (skillId.startsWith('angstrom-levy')) {
                 playGeneratedIngameSound('portal');
             } else if (skillId.startsWith('andrea') && skillId !== 'andrea-snipe' && skillId !== 'andrea-quick-shot') {
                 playGeneratedIngameSound('target-lock');
-            } else if (skillId.includes('cloak')) {
+            } else if (skillId.includes('cloak') && skillId !== 'predator-stalker-cloaking-tech') {
                 playGeneratedIngameSound('cloak');
             }
             showDirectionalSkillFx({ actorCard, skill: effectiveSkill, selection });
@@ -4048,7 +4086,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else if (hasAndreaLock) {
                 playGeneratedIngameSound('target-lock');
             } else if (hasPredatorCloak) {
-                playGeneratedIngameSound('cloak');
+                playIngameSound(predatorCloakSound);
             } else if (hasStormIce) {
                 playGeneratedIngameSound('ice');
             } else if (harmful) {

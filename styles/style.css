@@ -273,7 +273,7 @@ h1, h2, h3 {
     padding: 5px 8px;
 }
 
-.mute-button, .ingame-mute-button, .effects-mute-button, .ingame-effects-mute-button {
+.mute-button, .ingame-mute-button, .effects-mute-button, .ingame-effects-mute-button, .skill-effects-toggle, .ingame-skill-effects-toggle {
     background: none;
     border: none;
     cursor: pointer;
@@ -289,7 +289,7 @@ h1, h2, h3 {
     transition: transform 0.1s ease;
 }
 
-.mute-button:active, .ingame-mute-button:active, .effects-mute-button:active, .ingame-effects-mute-button:active {
+.mute-button:active, .ingame-mute-button:active, .effects-mute-button:active, .ingame-effects-mute-button:active, .skill-effects-toggle:active, .ingame-skill-effects-toggle:active {
     transform: scale(0.9);
 }
 
@@ -311,6 +311,44 @@ h1, h2, h3 {
     content: 'SFX̸';
 }
 
+.skill-effects-toggle,
+.ingame-skill-effects-toggle {
+    width: 54px;
+}
+
+.skill-effects-toggle::before,
+.ingame-skill-effects-toggle::before {
+    content: 'SKILL FX';
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0;
+    line-height: 1;
+}
+
+.skill-effects-toggle.muted::before,
+.ingame-skill-effects-toggle.muted::before {
+    content: 'FX OFF';
+}
+
+body.skill-effects-muted .skill-cast-projectile,
+body.skill-effects-muted .status-apply-burst,
+body.skill-effects-muted .combat-energy-beam,
+body.skill-effects-muted .superman-solar-flare-screen-fx,
+body.skill-effects-muted .andrea-sniper-board-fx,
+body.skill-effects-muted .bullet-hole-impact-fx,
+body.skill-effects-muted .negan-lucille-swing-fx,
+body.skill-effects-muted .aquaman-tidal-wave-screen-fx,
+body.skill-effects-muted .aquaman-sea-shark-projectile,
+body.skill-effects-muted .aquaman-sea-shark-splash,
+body.skill-effects-muted .storm-lightning-fx,
+body.skill-effects-muted .storm-wind-fx,
+body.skill-effects-muted .superman-frost-impact-fx,
+body.skill-effects-muted .storm-rain-weather::before,
+body.skill-effects-muted .storm-hail-weather::before {
+    display: none !important;
+    animation: none !important;
+}
+
 .sound-volume {
     order: -1;
     flex: 0 0 100%;
@@ -325,12 +363,17 @@ h1, h2, h3 {
     left: 40px;
     z-index: 7000;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     padding: 5px 8px;
+    width: 164px;
 }
 
 .ingame-sound-volume {
-    width: 88px;
+    order: -1;
+    flex: 0 0 100%;
+    width: 150px;
+    margin-bottom: 4px;
     accent-color: #c41e3a;
 }
 
