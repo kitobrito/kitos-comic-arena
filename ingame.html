@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&family=Petra&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/style.css?v=predator-xeno-fx-toggle-v1">
+    <link rel="stylesheet" href="styles/style.css?v=match-chat-v2">
 </head>
 <body class="app-loading app-loading-ingame">
 <div class="backgroundingame">
@@ -46,6 +46,34 @@
         <button type="button" class="ingame-skill-effects-toggle skill-effects-toggle" aria-label="Turn off skill effects" title="Turn off skill effects"></button>
         <input id="ingame-sound-volume" class="ingame-sound-volume" type="range" min="0" max="100" step="1" value="70" aria-label="Sound volume">
     </div>
+
+    <section class="match-chat collapsed" aria-label="Match chat">
+        <button type="button" class="match-chat-toggle" aria-expanded="false">
+            <span>Chat</span>
+            <span class="match-chat-unread" aria-hidden="true">0</span>
+        </button>
+        <div class="match-chat-panel">
+            <div class="match-chat-tools" aria-label="Chat tools">
+                <button type="button" class="match-chat-mute" aria-pressed="false">Mute</button>
+            </div>
+            <div class="match-chat-messages" aria-live="polite"></div>
+            <div class="match-chat-emojis" aria-label="Quick emojis">
+                <button type="button" class="match-chat-emoji" data-chat-emoji="😀">😀</button>
+                <button type="button" class="match-chat-emoji" data-chat-emoji="😂">😂</button>
+                <button type="button" class="match-chat-emoji" data-chat-emoji="😮">😮</button>
+                <button type="button" class="match-chat-emoji" data-chat-emoji="😎">😎</button>
+                <button type="button" class="match-chat-emoji" data-chat-emoji="👍">👍</button>
+                <button type="button" class="match-chat-emoji" data-chat-emoji="🔥">🔥</button>
+                <button type="button" class="match-chat-emoji" data-chat-emoji="💀">💀</button>
+                <button type="button" class="match-chat-emoji" data-chat-emoji="❤️">❤️</button>
+            </div>
+            <form class="match-chat-form">
+                <input class="match-chat-input" type="text" maxlength="240" autocomplete="off" placeholder="Message opponent">
+                <button type="submit" class="match-chat-send">Send</button>
+            </form>
+            <p class="match-chat-status"></p>
+        </div>
+    </section>
 
     <div class="ChakraChooseEndTurn" style="background-image: url('assets/images/searchingscroll.png');">
         <p class="chakrachoose">CHOOSE <span class="chakrachoosered">0</span> RANDOM ENERGY (S)</p>
@@ -435,7 +463,7 @@
 </div>
 
 </div>
-<script src="characters.js?v=predator-xeno-fx-toggle-v1"></script>
-<script src="scripts/script.js?v=predator-xeno-fx-toggle-v1"></script>
+<script src="characters.js?v=match-chat-v2"></script>
+<script src="scripts/script.js?v=match-chat-v2"></script>
 </body>
 </html>

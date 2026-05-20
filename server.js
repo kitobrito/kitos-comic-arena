@@ -143,6 +143,8 @@ let appStateCollection;
 let newsPostsCollection;
 const matchSocketRooms = new Map();
 const wsConnections = new Set();
+const MATCH_CHAT_MAX_LENGTH = 240;
+const MATCH_CHAT_MIN_INTERVAL_MS = 900;
 const wsServer = new WebSocketServer({ noServer: true });
 let turnSweepTimer = null;
 const activeBattleBotTurns = new Set();
@@ -3242,6 +3244,67 @@ const sendJsonToSocket = (ws, payload) => {
     }
 };
 
+const normalizeMatchChatText = (value) => {
+    if (typeof value !== 'string') return '';
+    return value.replace(/\s+/g, ' ').trim().slice(0, MATCH_CHAT_MAX_LENGTH);
+};
+
+const broadcastMatchChatMessage = async (ws, rawText) => {
+    if (!ws?.matchId || !ws?.username) return;
+    const now = Date.now();
+    if (ws.lastMatchChatAt && now - ws.lastMatchChatAt < MATCH_CHAT_MIN_INTERVAL_MS) {
+        sendJsonToSocket(ws, {
+            type: 'chat_error',
+            payload: { error: 'Slow down before sending another message.' },
+        });
+        return;
+    }
+    const text = normalizeMatchChatText(rawText);
+    if (!text) {
+        sendJsonToSocket(ws, {
+            type: 'chat_error',
+            payload: { error: 'Enter a message first.' },
+        });
+        return;
+    }
+    const match = await matchesCollection.findOne(
+        { matchId: ws.matchId },
+        { projection: { matchId: 1, status: 1, players: 1 } }
+    );
+    if (!match || match.status === 'ended' || !Array.isArray(match.players)) {
+        sendJsonToSocket(ws, {
+            type: 'chat_error',
+            payload: { error: 'Chat is closed for this match.' },
+        });
+        return;
+    }
+    const playerEntry = match.players.find((player) => player?.username === ws.username);
+    if (!playerEntry) {
+        sendJsonToSocket(ws, {
+            type: 'chat_error',
+            payload: { error: 'You are not part of this match.' },
+        });
+        return;
+    }
+    ws.lastMatchChatAt = now;
+    const payload = {
+        id: `chat-${now}-${Math.random().toString(36).slice(2, 8)}`,
+        matchId: ws.matchId,
+        username: ws.username,
+        displayName: getPlayerDisplayName(playerEntry),
+        text,
+        sentAt: new Date(now).toISOString(),
+    };
+    const room = getMatchRoom(ws.matchId);
+    room.forEach((client) => {
+        if (!client || client.readyState !== WebSocket.OPEN) {
+            removeSocketFromRoom(client);
+            return;
+        }
+        sendJsonToSocket(client, { type: 'chat_message', payload });
+    });
+};
+
 const cloneSerializable = (value) => {
     if (value === null || value === undefined) return value;
     if (typeof structuredClone === 'function') {
@@ -3551,6 +3614,23 @@ const attachWebSocketSupport = (server) => {
                 ws.on('error', () => {
                     wsConnections.delete(ws);
                     removeSocketFromRoom(ws);
+                });
+                ws.on('message', (rawMessage) => {
+                    let message = null;
+                    try {
+                        message = JSON.parse(String(rawMessage || ''));
+                    } catch (error) {
+                        return;
+                    }
+                    if (message?.type === 'chat_message') {
+                        broadcastMatchChatMessage(ws, message?.payload?.text).catch((error) => {
+                            console.warn('Failed to broadcast match chat message:', error);
+                            sendJsonToSocket(ws, {
+                                type: 'chat_error',
+                                payload: { error: 'Unable to send chat message.' },
+                            });
+                        });
+                    }
                 });
                 wsServer.emit('connection', ws, req);
             });

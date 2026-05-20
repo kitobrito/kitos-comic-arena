@@ -1091,6 +1091,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         let currentOpponentUsername = null;
         let currentOpponentDisplayName = null;
         let currentMatchMode = 'quick';
+        const matchChatEl = document.querySelector('.match-chat');
+        const matchChatToggle = document.querySelector('.match-chat-toggle');
+        const matchChatUnreadEl = document.querySelector('.match-chat-unread');
+        const matchChatMessagesEl = document.querySelector('.match-chat-messages');
+        const matchChatForm = document.querySelector('.match-chat-form');
+        const matchChatInput = document.querySelector('.match-chat-input');
+        const matchChatStatusEl = document.querySelector('.match-chat-status');
+        const matchChatMuteButton = document.querySelector('.match-chat-mute');
+        const matchChatEmojiButtons = Array.from(document.querySelectorAll('.match-chat-emoji'));
+        let matchChatUnreadCount = 0;
+        let matchChatOpponentMuted = localStorage.getItem('comicMatchChatOpponentMuted') === 'true';
         const startFirstSound = new Audio('assets/audio/sounds/start-first.mp3');
         const secondPlayerStartSound = new Audio('assets/audio/sounds/yahoe.mp3');
         const nextRoundSound = new Audio('assets/audio/sounds/next-round.mp3');
@@ -5309,6 +5320,95 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         };
 
+        const setMatchChatStatus = (message = '') => {
+            if (!matchChatStatusEl) return;
+            matchChatStatusEl.textContent = message;
+        };
+
+        const syncMatchChatUnread = () => {
+            if (matchChatUnreadEl) {
+                matchChatUnreadEl.textContent = String(Math.min(99, matchChatUnreadCount));
+            }
+            if (matchChatEl) {
+                matchChatEl.classList.toggle('has-unread', matchChatUnreadCount > 0);
+            }
+        };
+
+        const formatMatchChatTime = (value) => {
+            const date = value ? new Date(value) : new Date();
+            if (Number.isNaN(date.getTime())) return '';
+            return date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+        };
+
+        const syncMatchChatMute = () => {
+            if (!matchChatMuteButton) return;
+            matchChatMuteButton.classList.toggle('muted', matchChatOpponentMuted);
+            matchChatMuteButton.setAttribute('aria-pressed', matchChatOpponentMuted ? 'true' : 'false');
+            matchChatMuteButton.textContent = matchChatOpponentMuted ? 'Unmute' : 'Mute';
+        };
+
+        const appendMatchChatMessage = (payload = {}) => {
+            if (!matchChatMessagesEl) return;
+            const text = typeof payload.text === 'string' ? payload.text.trim() : '';
+            if (!text) return;
+            const isOwnMessage =
+                currentPlayerUsername && usernamesMatch(payload.username || '', currentPlayerUsername);
+            if (!isOwnMessage && matchChatOpponentMuted) {
+                return;
+            }
+            const messageEl = document.createElement('div');
+            messageEl.className = 'match-chat-message';
+            if (isOwnMessage) {
+                messageEl.classList.add('own');
+            }
+            const metaEl = document.createElement('div');
+            metaEl.className = 'match-chat-message-meta';
+            const nameEl = document.createElement('span');
+            nameEl.className = 'match-chat-message-name';
+            nameEl.textContent = payload.displayName || payload.username || 'Player';
+            const timeEl = document.createElement('time');
+            timeEl.className = 'match-chat-message-time';
+            timeEl.dateTime = payload.sentAt || '';
+            timeEl.textContent = formatMatchChatTime(payload.sentAt);
+            const textEl = document.createElement('span');
+            textEl.className = 'match-chat-message-text';
+            textEl.textContent = text;
+            metaEl.appendChild(nameEl);
+            metaEl.appendChild(timeEl);
+            messageEl.appendChild(metaEl);
+            messageEl.appendChild(textEl);
+            matchChatMessagesEl.appendChild(messageEl);
+            while (matchChatMessagesEl.children.length > 80) {
+                matchChatMessagesEl.removeChild(matchChatMessagesEl.firstElementChild);
+            }
+            matchChatMessagesEl.scrollTop = matchChatMessagesEl.scrollHeight;
+            if (matchChatEl?.classList.contains('collapsed')) {
+                matchChatUnreadCount += 1;
+                syncMatchChatUnread();
+            }
+        };
+
+        const sendMatchChatMessage = (text) => {
+            const normalized = typeof text === 'string' ? text.replace(/\s+/g, ' ').trim() : '';
+            if (!normalized) return;
+            if (!matchSocket || matchSocket.readyState !== WebSocket.OPEN) {
+                setMatchChatStatus('Chat is reconnecting.');
+                return;
+            }
+            matchSocket.send(
+                JSON.stringify({
+                    type: 'chat_message',
+                    payload: { text: normalized },
+                })
+            );
+            setMatchChatStatus('');
+            if (matchChatInput) {
+                matchChatInput.value = '';
+            }
+        };
+
+        syncMatchChatMute();
+
         const connectMatchSocket = () => {
             if (!matchIdFromUrl || battleEndShown || typeof WebSocket === 'undefined') return;
             if (
@@ -5332,6 +5432,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const message = JSON.parse(event.data);
                     if (message?.type === 'match_state' && message.payload) {
                         applyIncomingMatchState(message.payload);
+                    } else if (message?.type === 'chat_message' && message.payload) {
+                        appendMatchChatMessage(message.payload);
+                    } else if (message?.type === 'chat_error') {
+                        setMatchChatStatus(message?.payload?.error || 'Unable to send message.');
                     }
                 } catch (error) {
                     console.warn('Failed to process match socket message.', error);
@@ -5371,6 +5475,46 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             matchSocket = null;
         };
+
+        if (matchChatToggle && matchChatEl) {
+            matchChatToggle.addEventListener('click', () => {
+                const willOpen = matchChatEl.classList.contains('collapsed');
+                matchChatEl.classList.toggle('collapsed', !willOpen);
+                matchChatToggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+                if (willOpen) {
+                    matchChatUnreadCount = 0;
+                    syncMatchChatUnread();
+                    window.setTimeout(() => matchChatInput?.focus(), 0);
+                    if (matchChatMessagesEl) {
+                        matchChatMessagesEl.scrollTop = matchChatMessagesEl.scrollHeight;
+                    }
+                }
+            });
+        }
+
+        if (matchChatForm) {
+            matchChatForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                sendMatchChatMessage(matchChatInput?.value || '');
+            });
+        };
+
+        if (matchChatMuteButton) {
+            matchChatMuteButton.addEventListener('click', () => {
+                matchChatOpponentMuted = !matchChatOpponentMuted;
+                localStorage.setItem('comicMatchChatOpponentMuted', matchChatOpponentMuted ? 'true' : 'false');
+                syncMatchChatMute();
+                setMatchChatStatus(matchChatOpponentMuted ? 'Opponent muted.' : 'Opponent unmuted.');
+            });
+        }
+
+        matchChatEmojiButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const emoji = button.dataset.chatEmoji || button.textContent || '';
+                if (!emoji) return;
+                sendMatchChatMessage(emoji);
+            });
+        });
 
         window.addEventListener('beforeunload', closeMatchSocket);
 
