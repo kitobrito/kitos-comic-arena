@@ -7724,6 +7724,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         'walker',
         'rage-infected',
         'space-marine-infantry',
+        'lieutenant-seraphina-vale',
         'predator-stalker',
         'xenomorph-drone',
         'predalien',
