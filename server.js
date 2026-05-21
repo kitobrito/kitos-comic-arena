@@ -4955,15 +4955,286 @@ const botCanAffordSkill = ({ match, username, skill, actorState }) => {
     return remainingPool >= Math.max(0, Number(pending.unresolvedRandom) || 0) + requiredRandom;
 };
 
-const chooseBattleBotTargetSelection = (options = {}) => {
+const getBattleBotUnitForTarget = (match, target) => {
+    if (!match || !target || typeof target.username !== 'string') return null;
+    const slot = Number.parseInt(target.slot, 10);
+    if (!Number.isInteger(slot) || slot < 0) return null;
+    const team = Array.isArray(match.board?.[target.username]) ? match.board[target.username] : [];
+    return team[slot] || null;
+};
+
+const getBattleBotSkillText = (skill) => {
+    if (!skill || typeof skill !== 'object') return '';
+    const parts = [
+        skill.name,
+        skill.skilldescription,
+        skill.description,
+        skill.target,
+        Array.isArray(skill.classes) ? skill.classes.join(' ') : '',
+    ];
+    try {
+        parts.push(JSON.stringify(skill.effects || []));
+    } catch (error) {
+        // Ignore malformed skill data and keep the readable fields.
+    }
+    return parts.filter(Boolean).join(' ').toLowerCase();
+};
+
+const isLikelyBattleBotDefensiveSkill = (skill, skillIndex = -1) => {
+    const text = getBattleBotSkillText(skill);
+    const helpfulTarget = /self|ally|allies/.test(String(skill?.target || '').toLowerCase());
+    const defensiveWords =
+        /defense|defence|destructible|protect|invulner|heal|restore|reduce|reduction|counter|reflect|evade|ignore|cleanse|remove harmful|cannot be killed|minimum hp/.test(
+            text
+        );
+    return defensiveWords || (skillIndex === 3 && helpfulTarget);
+};
+
+const getBattleBotRecentDamage = (match, username, actorSlot) => {
+    const damageEntry = match?.lastTurnDamageByUsername?.byUsername?.[username] || {};
+    const bySlot = damageEntry.bySlot || {};
+    return {
+        slotDamage: Math.max(0, Number(bySlot[String(actorSlot)]) || 0),
+        teamDamage: Math.max(0, Number(damageEntry.total) || 0),
+    };
+};
+
+const collectBattleBotEffectAmount = (value, acceptedTypes, acceptedKeys, depth = 0) => {
+    if (!value || depth > 5) return 0;
+    if (Array.isArray(value)) {
+        return value.reduce(
+            (sum, entry) => sum + collectBattleBotEffectAmount(entry, acceptedTypes, acceptedKeys, depth + 1),
+            0
+        );
+    }
+    if (typeof value !== 'object') return 0;
+    const type = typeof value.type === 'string' ? value.type.toLowerCase() : '';
+    let total = 0;
+    if (acceptedTypes.has(type)) {
+        acceptedKeys.forEach((key) => {
+            total += Math.max(0, Number(value[key]) || 0);
+        });
+    }
+    Object.entries(value).forEach(([key, entry]) => {
+        if (key === 'condition') return;
+        total += collectBattleBotEffectAmount(entry, acceptedTypes, acceptedKeys, depth + 1);
+    });
+    return total;
+};
+
+const estimateBattleBotSkillDamage = (skill) => {
+    const directDamage = Math.max(0, Number(skill?.damage) || 0);
+    const effectDamage = collectBattleBotEffectAmount(
+        skill?.effects || [],
+        new Set(['damage', 'health_steal_damage']),
+        ['amount', 'damage', 'turnEndDamage']
+    );
+    const text = getBattleBotSkillText(skill);
+    const textDamage = Array.from(text.matchAll(/(?:deal|deals|damage|take|takes)\D{0,16}(\d+)\s+damage/g)).reduce(
+        (sum, match) => sum + Math.max(0, Number(match[1]) || 0),
+        0
+    );
+    return Math.max(directDamage, effectDamage, textDamage);
+};
+
+const estimateBattleBotSkillHealing = (skill) =>
+    collectBattleBotEffectAmount(skill?.effects || [], new Set(['heal', 'revive']), ['amount', 'heal']);
+
+const scoreBattleBotTarget = ({ match, username, actorSlot, skill, target, damageEstimate, healingEstimate }) => {
+    const unit = getBattleBotUnitForTarget(match, target);
+    if (!unit) return 0;
+    const hp = Math.max(0, Number(unit.hp) || 0);
+    const sameTeam = target.username === username;
+    let score = Math.random() * 4;
+    if (sameTeam) {
+        const missingHpScore = Math.max(0, 100 - hp);
+        const recentDamage = getBattleBotRecentDamage(match, username, target.slot);
+        score += missingHpScore;
+        score += Math.min(40, recentDamage.slotDamage);
+        if (Number.parseInt(target.slot, 10) === actorSlot) score += 8;
+        if (healingEstimate > 0 && hp < 75) score += 25;
+        return score;
+    }
+    score += Math.max(0, 100 - hp) / 2;
+    if (damageEstimate > 0) score += Math.min(60, damageEstimate);
+    if (damageEstimate > 0 && damageEstimate >= hp) score += 90;
+    return score;
+};
+
+const chooseBattleBotTargetSelection = (options = {}, context = {}) => {
     const targets = Array.isArray(options.targets) ? options.targets : [];
     if (!targets.length) {
         return null;
     }
     if (options.mode === 'single' || options.mode === 'self') {
-        return [targets[Math.floor(Math.random() * targets.length)]];
+        const scoredTargets = shuffleList(targets).map((target) => ({
+            target,
+            score: scoreBattleBotTarget({
+                match: context.match,
+                username: context.username,
+                actorSlot: context.actorSlot,
+                skill: context.skill,
+                target,
+                damageEstimate: context.damageEstimate || 0,
+                healingEstimate: context.healingEstimate || 0,
+            }),
+        }));
+        scoredTargets.sort((a, b) => b.score - a.score);
+        return scoredTargets[0]?.target ? [scoredTargets[0].target] : null;
     }
     return targets;
+};
+
+const scoreBattleBotSkillCandidate = ({
+    match,
+    username,
+    actorSlot,
+    actorUnit,
+    skill,
+    skillIndex,
+    targetSelection,
+    preferDefense,
+}) => {
+    const damageEstimate = estimateBattleBotSkillDamage(skill);
+    const healingEstimate = estimateBattleBotSkillHealing(skill);
+    const targetType = String(skill?.target || '').toLowerCase();
+    const defensive = isLikelyBattleBotDefensiveSkill(skill, skillIndex);
+    const recentDamage = getBattleBotRecentDamage(match, username, actorSlot);
+    const actorHp = Math.max(0, Number(actorUnit?.hp) || 0);
+    let score = Math.random() * 8;
+
+    if (preferDefense && defensive) score += 110;
+    if (preferDefense && skillIndex === 3) score += 70;
+    if (!preferDefense && damageEstimate > 0) score += 20;
+    if (defensive && (recentDamage.slotDamage >= 30 || actorHp <= 45)) score += 25;
+    if (/all-enemy/.test(targetType)) score += Math.max(15, damageEstimate);
+    if (/self|ally|allies/.test(targetType)) score += healingEstimate > 0 ? healingEstimate : 12;
+    if (/stun|disable|cooldown|drain|remove chakra|cannot use/.test(getBattleBotSkillText(skill))) score += 18;
+
+    (Array.isArray(targetSelection) ? targetSelection : []).forEach((target) => {
+        score += scoreBattleBotTarget({
+            match,
+            username,
+            actorSlot,
+            skill,
+            target,
+            damageEstimate,
+            healingEstimate,
+        });
+    });
+
+    return {
+        score,
+        defensive,
+    };
+};
+
+const chooseBattleBotSkillCandidate = ({ match, username, actorSlot, actorUnit, actorState, character }) => {
+    const skills = Array.isArray(character?.skills) ? character.skills : [];
+    const recentDamage = getBattleBotRecentDamage(match, username, actorSlot);
+    const actorHp = Math.max(0, Number(actorUnit?.hp) || 0);
+    const tookHeavyDamage = recentDamage.slotDamage >= 30 || recentDamage.teamDamage >= 55 || (actorHp <= 40 && recentDamage.slotDamage > 0);
+    const preferDefense = tookHeavyDamage && Math.random() < 0.5;
+    const candidates = [];
+
+    shuffleList(skills.map((_, index) => index)).forEach((skillIndex) => {
+        const options = battleLogic.computeTargetOptions({
+            match,
+            actingUsername: username,
+            actorSlot,
+            skillIndex,
+            characters: charactersData,
+        });
+        if (!options?.targetType || options.mode === 'unknown' || !Array.isArray(options.targets) || !options.targets.length) {
+            return;
+        }
+        const skill = battleLogic.resolveEffectiveSkill({
+            characters: charactersData,
+            rosterIndex: actorUnit.rosterIndex,
+            skillIndex,
+            actorState,
+        });
+        if (!botCanAffordSkill({ match, username, skill, actorState })) {
+            return;
+        }
+        const damageEstimate = estimateBattleBotSkillDamage(skill);
+        const healingEstimate = estimateBattleBotSkillHealing(skill);
+        const targetSelection = chooseBattleBotTargetSelection(options, {
+            match,
+            username,
+            actorSlot,
+            skill,
+            damageEstimate,
+            healingEstimate,
+        });
+        if (!targetSelection) {
+            return;
+        }
+        const classChoiceOptions = Array.isArray(skill?.classChoiceOptions)
+            ? skill.classChoiceOptions.map((entry) => normalizeClassChoice(entry)).filter(Boolean)
+            : [];
+        const scored = scoreBattleBotSkillCandidate({
+            match,
+            username,
+            actorSlot,
+            actorUnit,
+            skill,
+            skillIndex,
+            targetSelection,
+            preferDefense,
+        });
+        candidates.push({
+            skillIndex,
+            targetSelection,
+            classChoice: classChoiceOptions[0] || null,
+            score: scored.score,
+            defensive: scored.defensive || skillIndex === 3,
+        });
+    });
+
+    const pool = preferDefense && candidates.some((candidate) => candidate.defensive)
+        ? candidates.filter((candidate) => candidate.defensive)
+        : candidates;
+    pool.sort((a, b) => b.score - a.score);
+    return pool[0] || null;
+};
+
+const snapshotBattleHpByUsername = (match) => {
+    const snapshot = {};
+    (match?.players || []).forEach((player) => {
+        if (!player?.username) return;
+        const units = Array.isArray(match.board?.[player.username]) ? match.board[player.username] : [];
+        snapshot[player.username] = {};
+        units.forEach((unit, slot) => {
+            snapshot[player.username][String(slot)] = Math.max(0, Number(unit?.hp) || 0);
+        });
+    });
+    return snapshot;
+};
+
+const buildLastTurnDamageByUsername = ({ match, hpBefore, endedBy }) => {
+    const byUsername = {};
+    (match?.players || []).forEach((player) => {
+        if (!player?.username) return;
+        const units = Array.isArray(match.board?.[player.username]) ? match.board[player.username] : [];
+        const bySlot = {};
+        let total = 0;
+        units.forEach((unit, slot) => {
+            const previousHp = Math.max(0, Number(hpBefore?.[player.username]?.[String(slot)]) || 0);
+            const nextHp = Math.max(0, Number(unit?.hp) || 0);
+            const damage = Math.max(0, previousHp - nextHp);
+            if (damage > 0) {
+                bySlot[String(slot)] = damage;
+                total += damage;
+            }
+        });
+        byUsername[player.username] = { total, bySlot };
+    });
+    return {
+        endedBy,
+        createdAt: new Date(),
+        byUsername,
+    };
 };
 
 const assignBattleBotRandomChakra = ({ match, username }) => {
@@ -5101,49 +5372,28 @@ const runBattleBotTurn = async (matchId) => {
                 return;
             }
             const character = charactersData?.[actorUnit.rosterIndex];
-            const skillIndices = shuffleList(
-                (Array.isArray(character?.skills) ? character.skills : []).map((_, index) => index)
-            );
-            for (const skillIndex of skillIndices) {
-                const options = battleLogic.computeTargetOptions({
+            const candidate = chooseBattleBotSkillCandidate({
+                match: hydrated,
+                username,
+                actorSlot,
+                actorUnit,
+                actorState,
+                character,
+            });
+            if (!candidate) {
+                return;
+            }
+            try {
+                queueSkillForActorSlot({
                     match: hydrated,
-                    actingUsername: username,
+                    username,
                     actorSlot,
-                    skillIndex,
-                    characters: charactersData,
+                    skillIndex: candidate.skillIndex,
+                    targetSelection: candidate.targetSelection,
+                    classChoice: candidate.classChoice,
                 });
-                if (!options?.targetType || options.mode === 'unknown' || !Array.isArray(options.targets) || !options.targets.length) {
-                    continue;
-                }
-                const skill = battleLogic.resolveEffectiveSkill({
-                    characters: charactersData,
-                    rosterIndex: actorUnit.rosterIndex,
-                    skillIndex,
-                    actorState,
-                });
-                if (!botCanAffordSkill({ match: hydrated, username, skill, actorState })) {
-                    continue;
-                }
-                const classChoiceOptions = Array.isArray(skill?.classChoiceOptions)
-                    ? skill.classChoiceOptions.map((entry) => normalizeClassChoice(entry)).filter(Boolean)
-                    : [];
-                const targetSelection = chooseBattleBotTargetSelection(options);
-                if (!targetSelection) {
-                    continue;
-                }
-                try {
-                    queueSkillForActorSlot({
-                        match: hydrated,
-                        username,
-                        actorSlot,
-                        skillIndex,
-                        targetSelection,
-                        classChoice: classChoiceOptions[0] || null,
-                    });
-                    break;
-                } catch (error) {
-                    continue;
-                }
+            } catch (error) {
+                return;
             }
         });
 
@@ -5501,6 +5751,7 @@ const finalizeTurn = async (match, username) => {
     match.pendingTurns = match.pendingTurns || {};
     const blockedActorGainCount = getTeamStatusFlagCount(match, username, 'preventNextTurnChakraGain');
     const pendingTurnBeforeResolve = getPendingTurn(match, username);
+    const hpBeforeResolve = snapshotBattleHpByUsername(match);
     battleLogic.resolvePendingTurnSkills({
         match,
         actingUsername: username,
@@ -5531,6 +5782,11 @@ const finalizeTurn = async (match, username) => {
             }
             return sum + (unit.alive === false ? 0 : 1);
         }, 0);
+    });
+    match.lastTurnDamageByUsername = buildLastTurnDamageByUsername({
+        match,
+        hpBefore: hpBeforeResolve,
+        endedBy: username,
     });
 
     const alivePlayers = (match.players || []).filter(
@@ -5569,6 +5825,7 @@ const finalizeTurn = async (match, username) => {
                     chakraPools: match.chakraPools,
                     economy: match.economy,
                     pendingTurns: match.pendingTurns,
+                    lastTurnDamageByUsername: match.lastTurnDamageByUsername,
                     ladderResults: match.ladderResults || null,
                 },
             }
@@ -5636,6 +5893,7 @@ const finalizeTurn = async (match, username) => {
                 chakraPools: pools,
                 economy: econ,
                 pendingTurns: match.pendingTurns,
+                lastTurnDamageByUsername: match.lastTurnDamageByUsername,
                 turnStartedAt: match.turnStartedAt,
                 turnExpiresAt: match.turnExpiresAt,
             },
@@ -5651,6 +5909,7 @@ const finalizeTurn = async (match, username) => {
             chakraPools: pools,
             economy: econ,
             pendingTurns: match.pendingTurns,
+            lastTurnDamageByUsername: match.lastTurnDamageByUsername,
             turnStartedAt: match.turnStartedAt,
             turnExpiresAt: match.turnExpiresAt,
         });
