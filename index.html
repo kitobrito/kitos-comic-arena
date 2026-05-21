@@ -514,8 +514,10 @@
     }
 
     .hero-link.is-partner {
-      background: linear-gradient(180deg, #ffcf5a 0%, #f06b20 100%);
-      color: #1f1207;
+      min-height: 0;
+      padding: 6px;
+      background: #111;
+      color: #fff;
     }
 
     .hero-link-icon {
@@ -523,6 +525,13 @@
       height: 24px;
       object-fit: contain;
       flex: 0 0 auto;
+    }
+
+    .hero-partner-logo {
+      width: min(260px, 72vw);
+      height: 72px;
+      object-fit: contain;
+      display: block;
     }
 
     .hero-points {
@@ -1454,9 +1463,8 @@
               <img class="hero-link-icon" src="assets/images/discordlogo.png" alt="" aria-hidden="true">
               Join Discord
             </a>
-            <a class="hero-link is-partner" href="https://anime-arena.itch.io/game" target="_blank" rel="noopener noreferrer">
-              <img class="hero-link-icon" src="assets/images/animearenalogo.png" alt="" aria-hidden="true">
-              Try Our Partnered Game Anime-Arena!
+            <a class="hero-link is-partner" href="https://anime-arena.itch.io/game" target="_blank" rel="noopener noreferrer" aria-label="Try our partnered game Anime-Arena">
+              <img class="hero-partner-logo" src="assets/images/animearenalogo.png" alt="Try our partnered game Anime-Arena">
             </a>
           </div>
           <div class="hero-points">
