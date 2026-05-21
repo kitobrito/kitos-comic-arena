@@ -322,6 +322,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                         playNoise({ duration: 0.06, amount: 0.13, filterType: 'bandpass', frequency: 1900, q: 1.7 });
                         playTone({ frequency: 155, endFrequency: 82, duration: 0.28, type: 'triangle', amount: 0.075 });
                         break;
+                    case 'shotgun':
+                        playNoise({ duration: 0.09, amount: 0.31, filterType: 'lowpass', frequency: 980, q: 1.1 });
+                        playTone({ frequency: 92, endFrequency: 45, duration: 0.42, type: 'sawtooth', amount: 0.16 });
+                        playNoise({ duration: 0.12, amount: 0.08, delay: 0.34, filterType: 'highpass', frequency: 2600, q: 2.8 });
+                        playTone({ frequency: 520, endFrequency: 250, duration: 0.1, type: 'square', amount: 0.055, delay: 0.38 });
+                        playNoise({ duration: 0.08, amount: 0.06, delay: 0.52, filterType: 'bandpass', frequency: 1500, q: 3.4 });
+                        break;
                     case 'death':
                         playNoise({ duration: 0.22, amount: 0.2, filterType: 'bandpass', frequency: 1200, q: 1.5 });
                         playTone({ frequency: 260, endFrequency: 44, duration: 0.85, type: 'sawtooth', amount: 0.14, delay: 0.05 });
@@ -2757,6 +2764,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             );
         };
 
+        const buildSeraphinaBuckshotHtml = () =>
+            Array.from({ length: 9 }, (_, index) => `<span class="seraphina-buckshot-pellet pellet-${index + 1}"></span>`).join('');
+
         const showAndreaSnipeFx = (targetCards = []) => {
             const targetCard = targetCards[0];
             if (!targetCard) return;
@@ -2836,6 +2846,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isAndreaSnipe = skillId === 'andrea-snipe';
             const isAndreaQuickShot = skillId === 'andrea-quick-shot';
             const isRickRevolver = skillId === 'rick-grimes-357-revolver';
+            const isSeraphinaShotgun = skillId === 'seraphina-vale-pump-shotgun';
             const isRickThroatSlit = skillId === 'rick-grimes-throat-slit';
             const isNeganAlreadyFucked = skillId === 'negan-you-re-already-fucked';
             const isNeganYouGotNoGuts = skillId === 'negan-you-got-no-guts';
@@ -2849,6 +2860,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 !isAndreaSnipe &&
                 !isAndreaQuickShot &&
                 !isRickRevolver &&
+                !isSeraphinaShotgun &&
                 !isRickThroatSlit &&
                 !isNeganAlreadyFucked &&
                 !isNeganYouGotNoGuts &&
@@ -2878,6 +2890,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (isRickRevolver) {
                 playGeneratedIngameSound('revolver');
                 targetCards.forEach((targetCard) => showBulletImpactFx(targetCard, 'revolver'));
+                return;
+            }
+            if (isSeraphinaShotgun) {
+                playGeneratedIngameSound('shotgun');
+                targetCards.forEach((targetCard) => {
+                    showTemporaryCardFx(targetCard, 'seraphina-buckshot-impact-fx burst', buildSeraphinaBuckshotHtml(), 2100);
+                });
                 return;
             }
             if (isRickThroatSlit) {
@@ -3728,6 +3747,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 'hulk-rage-high-fx',
                 'hulk-rage-max-fx',
                 'xenomorph-facehugger-fx',
+                'seraphina-med-station-fx',
+                'seraphina-buckshot-fx',
+                'seraphina-flare-fx',
             ];
             const activeFxStatuses = getActiveStatuses(unit);
             const isBanishedForFx = activeFxStatuses.some((status) => Boolean(status?.metadata?.banished));
@@ -3738,7 +3760,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 (Number.isFinite(hpForFx) && hpForFx <= 0 && !isBanishedForFx);
             if (isDeadForFx) {
                 fxClasses.forEach((className) => card.classList.remove(className));
-                ['joker-detonator-light', 'space-marine-channel-bar', 'rex-charge-counter', 'aquaman-sea-shark-ring', 'xenomorph-facehugger-overlay'].forEach((className) =>
+                ['joker-detonator-light', 'space-marine-channel-bar', 'rex-charge-counter', 'aquaman-sea-shark-ring', 'xenomorph-facehugger-overlay', 'seraphina-med-plus-overlay', 'seraphina-buckshot-pattern', 'seraphina-road-flare'].forEach((className) =>
                     removeCharacterFxElement(card, className)
                 );
                 return;
@@ -3791,6 +3813,41 @@ document.addEventListener('DOMContentLoaded', async () => {
                 );
             } else {
                 removeCharacterFxElement(card, 'xenomorph-facehugger-overlay');
+            }
+
+            const isSeraphinaMedStation = hasStatus((status) =>
+                status?.id === 'seraphina_vale_emergency_medical_station' ||
+                status?.id === 'seraphina_vale_battlefield_triage_healing_boost'
+            );
+            card.classList.toggle('seraphina-med-station-fx', isSeraphinaMedStation);
+            if (isSeraphinaMedStation) {
+                ensureCharacterFxElement(
+                    card,
+                    'seraphina-med-plus-overlay',
+                    '<span>+</span><span>+</span><span>+</span><span>+</span><span>+</span><span>+</span><span>+</span>'
+                );
+            } else {
+                removeCharacterFxElement(card, 'seraphina-med-plus-overlay');
+            }
+
+            const isSeraphinaBuckshot = hasStatus((status) => status?.id === 'seraphina_vale_pump_shotgun_buckshot');
+            card.classList.toggle('seraphina-buckshot-fx', isSeraphinaBuckshot);
+            if (isSeraphinaBuckshot) {
+                ensureCharacterFxElement(card, 'seraphina-buckshot-pattern', buildSeraphinaBuckshotHtml());
+            } else {
+                removeCharacterFxElement(card, 'seraphina-buckshot-pattern');
+            }
+
+            const isSeraphinaFlared = hasStatus((status) => status?.id === 'seraphina_vale_marking_flares_mark');
+            card.classList.toggle('seraphina-flare-fx', isSeraphinaFlared);
+            if (isSeraphinaFlared) {
+                ensureCharacterFxElement(
+                    card,
+                    'seraphina-road-flare',
+                    '<span class="flare-stick"></span><span class="flare-flame"></span><span class="flare-smoke one"></span><span class="flare-smoke two"></span><span class="flare-glow"></span>'
+                );
+            } else {
+                removeCharacterFxElement(card, 'seraphina-road-flare');
             }
 
             const isRageMarked = hasStatus(idStarts('rage_infected_'));

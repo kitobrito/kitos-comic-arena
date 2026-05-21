@@ -267,6 +267,7 @@ const getStatusMetadataTotals = (actorState, ownerUnit = null) => {
         damageTakenBonusFlat: 0,
         damageTakenMultiplier: 1,
         healReceivedMultiplier: 1,
+        healingBonusFlat: 0,
         minimumHp: 0,
         randomCostReduction: 0,
         randomCostIncrease: 0,
@@ -351,6 +352,7 @@ const getStatusMetadataTotals = (actorState, ownerUnit = null) => {
         totals.bloodlineCostIncrease += Number(metadata.bloodlineCostIncrease) || 0;
         totals.genjutsuCostIncrease += Number(metadata.genjutsuCostIncrease) || 0;
         totals.damageBonusFlat += Number(metadata.damageBonusFlat) || 0;
+        totals.healingBonusFlat += Number(metadata.healingBonusFlat) || 0;
         totals.nonAfflictionDamageBonusFlat += Number(metadata.nonAfflictionDamageBonusFlat) || 0;
         totals.damageDebuffFlat += Math.max(0, Number(metadata.DamageDebuff) || 0);
         totals.nonAfflictionDamageDebuffFlat += Math.max(
@@ -2581,6 +2583,7 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
                 : Math.max(0, Number(rawAmount) || 0),
     });
     const wasAlive = unit.alive !== false;
+    const hpBeforeDamage = Math.max(0, Number(unit.hp) || 0);
     const ignoreEnemyDamage =
         hasStatusMetadataFlag(targetState, 'ignoreEnemyDamage') &&
         context?.sourceUsername &&
@@ -2958,6 +2961,7 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
             targetUnit: unit,
             targetUsername: context.targetUsername,
             targetSlot: Number.isInteger(context?.targetSlot) ? context.targetSlot : null,
+            targetHpBefore: hpBeforeDamage,
             sourceSkillId: context?.sourceSkillId || null,
             sourceSkillClasses,
             sourceSlot: context?.sourceSlot ?? null,
@@ -5452,13 +5456,17 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     ) {
                         return;
                     }
+                    const sourceHealingBonus = Math.max(
+                        0,
+                        Number(getStatusMetadataTotals(actorState, actorUnit).healingBonusFlat) || 0
+                    );
                     applyHealToUnit(
                         recipient.unit,
                         resolveScalarEffectAmount({
                             effect,
                             actorUnit,
                             targetUnit: recipient.unit,
-                        })
+                        }) + sourceHealingBonus
                     );
                 });
                 return;
@@ -6177,6 +6185,20 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             );
             actorState._cooldownsStartedThisTurn = actorState._cooldownsStartedThisTurn || {};
             actorState._cooldownsStartedThisTurn[cooldownSkillId] = true;
+        }
+        const cooldownAfterUses = skill?.metadata?.cooldownAfterEveryUses;
+        if (cooldownSkillId && cooldownAfterUses && typeof cooldownAfterUses === 'object') {
+            const interval = Math.max(0, Number(cooldownAfterUses.interval) || 0);
+            const turns = Math.max(0, Number(cooldownAfterUses.turns) || 0);
+            const useCount = getSkillUseCount(actorState, skill.id);
+            if (interval > 0 && turns > 0 && useCount > 0 && useCount % interval === 0) {
+                actorState.cooldowns[cooldownSkillId] = Math.max(
+                    getSkillCooldownRemaining(actorState, cooldownSkillId),
+                    turns + 1
+                );
+                actorState._cooldownsStartedThisTurn = actorState._cooldownsStartedThisTurn || {};
+                actorState._cooldownsStartedThisTurn[cooldownSkillId] = true;
+            }
         }
         const usedSkillPenalty = getTeamStatusMetadataMax({
             match,
@@ -7339,6 +7361,7 @@ const applyOnTeamMemberDamageTakenBonuses = ({
     targetUnit,
     targetUsername,
     targetSlot = null,
+    targetHpBefore = null,
     sourceSkillId = null,
     sourceSkillClasses = [],
     sourceSlot = null,
@@ -7363,6 +7386,14 @@ const applyOnTeamMemberDamageTakenBonuses = ({
             }
             if (Boolean(applyStatusToSelf.enemyOnly) && actingUsername === targetUsername) return;
             if (afflictionDamage && Boolean(applyStatusToSelf.nonAfflictionOnly)) return;
+            const targetCurrentHp = Math.max(0, Number(targetUnit?.hp) || 0);
+            const targetHpBeforeDamage = Number.isFinite(Number(targetHpBefore))
+                ? Math.max(0, Number(targetHpBefore) || 0)
+                : targetCurrentHp;
+            const targetHpAtMost = Number(applyStatusToSelf.targetCurrentHpAtMost);
+            if (Number.isFinite(targetHpAtMost) && targetCurrentHp > targetHpAtMost) return;
+            const targetHpBeforeAtLeast = Number(applyStatusToSelf.targetPreviousHpAtLeast);
+            if (Number.isFinite(targetHpBeforeAtLeast) && targetHpBeforeDamage < targetHpBeforeAtLeast) return;
             const classFilter = Array.isArray(metadata.onTeamMemberDamageTakenSkillClassesAny)
                 ? metadata.onTeamMemberDamageTakenSkillClassesAny
                       .map((entry) => normalizeSkillClassName(entry))

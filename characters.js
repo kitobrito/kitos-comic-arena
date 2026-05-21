@@ -12027,6 +12027,239 @@ const characters = [
         "role": "Hybrid",
         "universe": "dc",
         "roleCategory": "hybrid"
+    },
+    {
+        "id": "lieutenant-seraphina-vale",
+        "characterId": "lieutenant-seraphina-vale",
+        "name": "Lieutenant Seraphina Vale",
+        "nameHtml": "Lieutenant Seraphina Vale",
+        "facePicture": "https://i.imgur.com/04OvCP9.jpeg",
+        "url": "https://i.imgur.com/04OvCP9.jpeg",
+        "unlockRequirement": "None",
+        "unlockRequirementHtml": "None",
+        "characterdeescription": "Lieutenant Seraphina Vale is a battlefield surgeon forged in the endless wars between the outer colonies and hostile alien forces. Calm under pressure and feared by enemy commanders, she serves on the front lines beside assault squads, patching wounds while laying down suppressive fire. Soldiers call her The Guardian Angel of the Void because no marine under her watch is ever left behind.",
+        "description": "Lieutenant Seraphina Vale is a battlefield surgeon forged in the endless wars between the outer colonies and hostile alien forces. Calm under pressure and feared by enemy commanders, she serves on the front lines beside assault squads, patching wounds while laying down suppressive fire. Soldiers call her The Guardian Angel of the Void because no marine under her watch is ever left behind.",
+        "descriptionHtml": "Lieutenant Seraphina Vale is a battlefield surgeon forged in the endless wars between the outer colonies and hostile alien forces.<br>Calm under pressure and feared by enemy commanders, she patches wounds while laying down suppressive fire.<br>Soldiers call her The Guardian Angel of the Void because no marine under her watch is ever left behind.",
+        "startStatuses": [
+            {
+                "statusId": "seraphina_vale_battlefield_triage_passive",
+                "sourceSkillId": "seraphina-vale-passive-battlefield-triage",
+                "duration": 999,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "hideTooltip": true,
+                    "onTeamMemberDamageTakenApplyStatusToOwner": {
+                        "statusId": "seraphina_vale_battlefield_triage_ready",
+                        "duration": 1,
+                        "allyOnly": true,
+                        "enemyOnly": true,
+                        "targetCurrentHpAtMost": 29,
+                        "targetPreviousHpAtLeast": 30,
+                        "metadata": {
+                            "additionalRandomChakraPerTurn": 1,
+                            "healingBonusFlat": 10,
+                            "tooltipText": "Battlefield Triage is active. Seraphina gains 1 additional random chakra next turn and her healing is increased by 10."
+                        }
+                    }
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "seraphina-vale-pump-shotgun",
+                "name": "Pump Shotgun",
+                "nameHtml": "Pump Shotgun",
+                "skillimage": "https://i.imgur.com/qu9wKKN.png",
+                "url": "https://i.imgur.com/qu9wKKN.png",
+                "skilldescription": "Deals 30 piercing damage to one enemy. After every 2 uses, Pump Shotgun overheats and is disabled for 1 turn.",
+                "description": "Deals 30 piercing damage to one enemy. After every 2 uses, Pump Shotgun overheats and is disabled for 1 turn.",
+                "descriptionHtml": "Deals 30 piercing damage to one enemy.<br>After every 2 uses, Pump Shotgun overheats and is disabled for 1 turn.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "None",
+                "metadata": {
+                    "cooldownAfterEveryUses": {
+                        "interval": 2,
+                        "turns": 1
+                    }
+                },
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Ranged, Instant",
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "seraphina_vale_pump_shotgun_buckshot",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "Buckshot damage marks this character's position."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "seraphina-vale-marking-flares",
+                "name": "Marking Flares",
+                "nameHtml": "Marking Flares",
+                "skillimage": "https://i.imgur.com/uJQI6Ul.png",
+                "url": "https://i.imgur.com/uJQI6Ul.png",
+                "skilldescription": "Marks one enemy for 3 turns. Marked enemies take 5 additional non-affliction damage from all attacks. This may only be used 3 times.",
+                "description": "Marks one enemy for 3 turns. Marked enemies take 5 additional non-affliction damage from all attacks. This may only be used 3 times.",
+                "descriptionHtml": "Marks one enemy for 3 turns.<br>Marked enemies take 5 additional non-affliction damage from all attacks.<br>This may only be used 3 times.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "None",
+                "maxUses": 3,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Ranged, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "seraphina_vale_marking_flares_mark",
+                        "duration": 3,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "damageTakenBonusFlat": 5,
+                            "tooltipText": "This character takes 5 additional non-affliction damage from all attacks."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "seraphina-vale-emergency-medical-station",
+                "name": "Emergency Medical Station",
+                "nameHtml": "Emergency Medical Station",
+                "skillimage": "https://i.imgur.com/gWp1vfu.png",
+                "url": "https://i.imgur.com/gWp1vfu.png",
+                "skilldescription": "Deploys a medical station on herself or one ally, healing them for 25 HP each turn for 2 turns. Battlefield Triage increases this healing by 10. This may only be used 2 times.",
+                "description": "Deploys a medical station on herself or one ally, healing them for 25 HP each turn for 2 turns. Battlefield Triage increases this healing by 10. This may only be used 2 times.",
+                "descriptionHtml": "Deploys a medical station on herself or one ally, healing them for 25 HP each turn for 2 turns.<br>Battlefield Triage increases this healing by 10.<br>This may only be used 2 times.",
+                "energy": [
+                    "Genjutsu",
+                    "Random"
+                ],
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "None",
+                "maxUses": 2,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "seraphina_vale_emergency_medical_station",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "turnEndHealFlat": 25,
+                            "tooltipText": "This character is healed by Emergency Medical Station each turn."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "seraphina_vale_battlefield_triage_healing_boost",
+                        "duration": 2,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "seraphina_vale_battlefield_triage_ready"
+                        },
+                        "metadata": {
+                            "turnEndHealFlat": 10,
+                            "tooltipText": "Battlefield Triage increases Emergency Medical Station healing by 10."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "seraphina-vale-motion-tracker",
+                "name": "Motion Tracker",
+                "nameHtml": "Motion Tracker",
+                "skillimage": "https://i.imgur.com/3IZPq6V.png",
+                "url": "https://i.imgur.com/3IZPq6V.png",
+                "skilldescription": "For 2 turns, all enemies cannot become invulnerable or reduce incoming damage.",
+                "description": "For 2 turns, all enemies cannot become invulnerable or reduce incoming damage.",
+                "descriptionHtml": "For 2 turns, all enemies cannot become invulnerable or reduce incoming damage.",
+                "energy": [],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 4,
+                "cooldownHtml": "4",
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "seraphina_vale_motion_tracker_scanned",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotBecomeInvulnerable": true,
+                            "cannotReduceDamage": true,
+                            "tooltipText": "This character cannot become invulnerable or reduce incoming damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "seraphina-vale-passive-battlefield-triage",
+                "name": "Passive: Battlefield Triage",
+                "nameHtml": "Passive: Battlefield Triage",
+                "skillimage": "https://i.imgur.com/Ga0m3ad.png",
+                "url": "https://i.imgur.com/Ga0m3ad.png",
+                "skilldescription": "Whenever an ally falls below 30 HP from enemy damage, Seraphina gains 1 additional random chakra on her next turn and her healing is increased by 10 for 1 turn.",
+                "description": "Whenever an ally falls below 30 HP from enemy damage, Seraphina gains 1 additional random chakra on her next turn and her healing is increased by 10 for 1 turn.",
+                "descriptionHtml": "Whenever an ally falls below 30 HP from enemy damage, Seraphina gains 1 additional random chakra on her next turn and her healing is increased by 10 for 1 turn.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "Passive",
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
+                "classesHtml": "Passive, Instant"
+            }
+        ],
+        "role": "Frontline Support",
+        "universe": "comic-arena",
+        "roleCategory": "support"
     }
 ];
 
