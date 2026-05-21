@@ -184,8 +184,9 @@
   async function loadCommunity() {
     setStatus("Loading players...");
     try {
-      var response = await fetch("/api/community/users", {
-        credentials: "same-origin"
+      var response = await fetch("/api/community/users?t=" + encodeURIComponent(String(Date.now())), {
+        credentials: "same-origin",
+        cache: "no-store"
       });
       var data = await response.json().catch(function () {
         return {};

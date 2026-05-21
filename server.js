@@ -7951,6 +7951,7 @@ app.get('/api/leaderboards/sidebar', async (req, res) => {
 });
 
 app.get('/api/community/users', async (req, res) => {
+    res.set('Cache-Control', 'no-store');
     try {
         const users = await usersCollection
             .find(
