@@ -55,7 +55,7 @@
   }
 
   function sortUsers(users) {
-    var mode = sortSelect && sortSelect.value ? String(sortSelect.value) : "ladder";
+    var mode = sortSelect && sortSelect.value ? String(sortSelect.value) : "newest";
     return users.slice().sort(function (left, right) {
       if (mode === "wins") {
         return (right && right.ladder ? right.ladder.wins : 0) - (left && left.ladder ? left.ladder.wins : 0);
@@ -198,6 +198,9 @@
       allUsers = data && Array.isArray(data.users) ? data.users : [];
       setStats(data && data.stats ? data.stats : {});
       filterAndRender();
+      if (allUsers.length) {
+        setStatus(String(allUsers.length) + " players loaded.");
+      }
     } catch (error) {
       setStatus("Unable to reach the server.", "error");
     }
