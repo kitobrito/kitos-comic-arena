@@ -491,6 +491,7 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      gap: 8px;
       min-height: 48px;
       padding: 0 18px;
       border: 3px solid var(--line);
@@ -505,6 +506,23 @@
     .hero-link.is-accent {
       background: linear-gradient(180deg, #4d95ff 0%, #155bff 100%);
       color: #fff;
+    }
+
+    .hero-link.is-discord {
+      background: #5865f2;
+      color: #fff;
+    }
+
+    .hero-link.is-partner {
+      background: linear-gradient(180deg, #ffcf5a 0%, #f06b20 100%);
+      color: #1f1207;
+    }
+
+    .hero-link-icon {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+      flex: 0 0 auto;
     }
 
     .hero-points {
@@ -1432,6 +1450,14 @@
             <a class="hero-link is-accent" href="missions.html">Explore Missions</a>
             <a class="hero-link" href="charactersandskills.html">Browse Characters</a>
             <a class="hero-link" href="community.html">Meet The Community</a>
+            <a class="hero-link is-discord" href="https://discord.gg/dabZKRDkf7" target="_blank" rel="noopener noreferrer">
+              <img class="hero-link-icon" src="assets/images/discordlogo.png" alt="" aria-hidden="true">
+              Join Discord
+            </a>
+            <a class="hero-link is-partner" href="https://anime-arena.itch.io/game" target="_blank" rel="noopener noreferrer">
+              <img class="hero-link-icon" src="assets/images/animearenalogo.png" alt="" aria-hidden="true">
+              Try Our Partnered Game Anime-Arena!
+            </a>
           </div>
           <div class="hero-points">
             <article class="hero-point">
