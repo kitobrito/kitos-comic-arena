@@ -1100,8 +1100,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const matchChatStatusEl = document.querySelector('.match-chat-status');
         const matchChatMuteButton = document.querySelector('.match-chat-mute');
         const matchChatEmojiButtons = Array.from(document.querySelectorAll('.match-chat-emoji'));
+        const ingameMissionsEl = document.querySelector('.ingame-missions');
+        const ingameMissionsToggle = document.querySelector('.ingame-missions-toggle');
+        const ingameMissionsListEl = document.querySelector('.ingame-missions-list');
+        const ingameMissionsStatusEl = document.querySelector('.ingame-missions-status');
         let matchChatUnreadCount = 0;
         let matchChatOpponentMuted = localStorage.getItem('comicMatchChatOpponentMuted') === 'true';
+        let currentPlayerTeam = [];
+        let profileIngameBackgroundUrl = '';
         const startFirstSound = new Audio('assets/audio/sounds/start-first.mp3');
         const secondPlayerStartSound = new Audio('assets/audio/sounds/yahoe.mp3');
         const nextRoundSound = new Audio('assets/audio/sounds/next-round.mp3');
@@ -1428,6 +1434,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         await hydratePlayerIdentity();
+        profileIngameBackgroundUrl = document.querySelector('.backgroundingame')?.style.backgroundImage || '';
 
         const getSkillReplacementMapFromUnit = (unit) => {
             const map = {};
@@ -4411,8 +4418,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const buildStatusTooltipHtml = (group, statusSkill) => {
                 const groupStatuses = Array.isArray(group?.statuses) ? group.statuses : [];
                 const skillName =
-                    statusSkill?.name ||
                     groupStatuses[0]?.metadata?.sourceSkillName ||
+                    statusSkill?.name ||
                     'Status';
                 const groupedDamageDebuffTotal = groupStatuses.reduce((sum, status) => {
                     return sum + Math.max(0, Number(status?.metadata?.DamageDebuff) || 0);
@@ -4833,6 +4840,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (data.player?.username) {
                 currentPlayerUsername = data.player.username;
+            }
+            if (Array.isArray(data.player?.team)) {
+                currentPlayerTeam = data.player.team
+                    .map((slot) => Number.parseInt(slot, 10))
+                    .filter((slot) => Number.isInteger(slot) && slot >= 0);
+            }
+            const backgroundEl = document.querySelector('.backgroundingame');
+            if (backgroundEl) {
+                const overrideUrl =
+                    typeof data.backgroundOverride === 'string' ? data.backgroundOverride.trim() : '';
+                backgroundEl.style.backgroundImage = overrideUrl
+                    ? `url("${overrideUrl}")`
+                    : profileIngameBackgroundUrl;
             }
             if (typeof data.mode === 'string' && data.mode.trim()) {
                 currentMatchMode = data.mode.trim().toLowerCase();
@@ -5407,6 +5427,158 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         };
 
+        const setIngameMissionsStatus = (message = '') => {
+            if (!ingameMissionsStatusEl) return;
+            ingameMissionsStatusEl.textContent = message;
+        };
+
+        const getMissionGoalProgressText = (mission, progress = {}) => {
+            if (progress?.completedAt) return 'Complete';
+            const specialPve = mission?.special_pve || mission?.specialPve || {};
+            if (specialPve.enabled) {
+                return 'Defeat the mission fight to unlock.';
+            }
+            const goals = Array.isArray(mission?.goals) ? mission.goals : [];
+            const progressByIndex = progress?.goalProgressByIndex || progress?.goalProgress || {};
+            const lines = goals
+                .map((goal, index) => {
+                    const goalType = String(goal?.type || '').trim().toLowerCase();
+                    const count = Number(progressByIndex?.[index]?.count) || 0;
+                    if (goalType === 'reach_rank') {
+                        const target = Math.max(0, Number(goal.rank) || 0);
+                        return target ? `Reach level ${target}: ${Math.min(count, target)}/${target}` : '';
+                    }
+                    if (
+                        goalType === 'win_matches' ||
+                        goalType === 'win_streak' ||
+                        goalType === 'win_matches_same_team'
+                    ) {
+                        const target = Math.max(0, Number(goal.wins) || 0);
+                        return target ? `Wins: ${Math.min(count, target)}/${target}` : '';
+                    }
+                    return '';
+                })
+                .filter(Boolean);
+            return lines.join(' | ') || 'No tracked progress yet.';
+        };
+
+        const renderIngameMissions = (payload = {}) => {
+            if (!ingameMissionsListEl) return;
+            const missions = Array.isArray(payload.missions) ? payload.missions : [];
+            const progressByMissionId = payload.missionProgressByMissionId || {};
+            const unlockedIds = new Set(
+                (Array.isArray(payload.unlockedCharacterIds) ? payload.unlockedCharacterIds : [])
+                    .map((entry) => String(entry || '').trim().toLowerCase())
+                    .filter(Boolean)
+            );
+            ingameMissionsListEl.innerHTML = '';
+            if (!missions.length) {
+                const empty = document.createElement('div');
+                empty.className = 'ingame-mission-card';
+                empty.textContent = 'No missions available.';
+                ingameMissionsListEl.appendChild(empty);
+                return;
+            }
+            missions.forEach((mission) => {
+                const progress = progressByMissionId?.[mission.missionId] || {};
+                const rewardCharacterId = String(mission.reward_character || '').trim().toLowerCase();
+                const isUnlocked = rewardCharacterId && unlockedIds.has(rewardCharacterId);
+                const card = document.createElement('article');
+                card.className = 'ingame-mission-card';
+
+                const head = document.createElement('div');
+                head.className = 'ingame-mission-head';
+                const image = document.createElement('img');
+                image.className = 'ingame-mission-image';
+                image.src = mission.image || mission.portrait || 'assets/images/default-avatar.png';
+                image.alt = mission.imageAlt || mission.title || 'Mission';
+                const titleWrap = document.createElement('div');
+                const title = document.createElement('h3');
+                title.className = 'ingame-mission-title';
+                title.textContent = mission.title || 'Mission';
+                const reward = document.createElement('p');
+                reward.className = 'ingame-mission-reward';
+                reward.textContent =
+                    mission.reward ||
+                    (mission.reward_character_name ? `Unlock ${mission.reward_character_name}.` : 'Mission reward');
+                titleWrap.appendChild(title);
+                titleWrap.appendChild(reward);
+                head.appendChild(image);
+                head.appendChild(titleWrap);
+                card.appendChild(head);
+
+                const progressText = document.createElement('p');
+                progressText.className = 'ingame-mission-progress';
+                progressText.textContent = isUnlocked ? 'Unlocked' : getMissionGoalProgressText(mission, progress);
+                card.appendChild(progressText);
+
+                const specialPve = mission.special_pve || mission.specialPve || {};
+                if (specialPve.enabled && !isUnlocked && !progress?.completedAt) {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'ingame-mission-action';
+                    button.textContent = specialPve.buttonLabel || 'Start Fight';
+                    button.addEventListener('click', () => {
+                        startMissionPveFight(mission.missionId, button);
+                    });
+                    card.appendChild(button);
+                }
+                ingameMissionsListEl.appendChild(card);
+            });
+        };
+
+        const loadIngameMissions = async () => {
+            if (!ingameMissionsListEl) return;
+            setIngameMissionsStatus('Loading missions...');
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/missions`, {
+                    credentials: 'include',
+                    cache: 'no-store',
+                });
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(payload.error || 'Unable to load missions.');
+                }
+                renderIngameMissions(payload);
+                setIngameMissionsStatus('');
+            } catch (error) {
+                setIngameMissionsStatus(error.message || 'Unable to load missions.');
+            }
+        };
+
+        const startMissionPveFight = async (missionId, button = null) => {
+            if (!missionId) return;
+            if (!Array.isArray(currentPlayerTeam) || currentPlayerTeam.length !== 3) {
+                setIngameMissionsStatus('Your current team is not ready yet.');
+                return;
+            }
+            if (button) button.disabled = true;
+            setIngameMissionsStatus('Starting mission fight...');
+            try {
+                const response = await fetch(
+                    `${API_BASE_URL}/api/missions/${encodeURIComponent(missionId)}/pve/start`,
+                    {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ team: currentPlayerTeam }),
+                    }
+                );
+                const payload = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(payload.error || 'Unable to start mission fight.');
+                }
+                if (payload.matchId) {
+                    window.location.href = `ingame.html?matchId=${encodeURIComponent(payload.matchId)}`;
+                    return;
+                }
+                throw new Error('Mission fight did not return a match.');
+            } catch (error) {
+                if (button) button.disabled = false;
+                setIngameMissionsStatus(error.message || 'Unable to start mission fight.');
+            }
+        };
+
         syncMatchChatMute();
 
         const connectMatchSocket = () => {
@@ -5498,6 +5670,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 sendMatchChatMessage(matchChatInput?.value || '');
             });
         };
+
+        if (ingameMissionsToggle && ingameMissionsEl) {
+            ingameMissionsToggle.addEventListener('click', () => {
+                const willOpen = ingameMissionsEl.classList.contains('collapsed');
+                ingameMissionsEl.classList.toggle('collapsed', !willOpen);
+                ingameMissionsToggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+                if (willOpen) {
+                    loadIngameMissions();
+                }
+            });
+        }
 
         if (matchChatMuteButton) {
             matchChatMuteButton.addEventListener('click', () => {
@@ -6393,6 +6576,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const draftSubmitButton = document.querySelector('.draft-submit');
     const draftCancelButton = document.querySelector('.draft-cancel');
     const draftStatusEl = document.querySelector('.draft-status');
+    const selectionMissionsEl = document.querySelector('.selection-missions');
+    const selectionMissionsToggle = document.querySelector('.selection-missions-toggle');
+    const selectionMissionsListEl = document.querySelector('.selection-missions-list');
+    const selectionMissionsStatusEl = document.querySelector('.selection-missions-status');
     const privateMatchBackdrop = document.querySelector('.private-match-backdrop');
     const privateMatchInput = document.querySelector('.private-match-input');
     const privateMatchError = document.querySelector('.private-match-error');
@@ -6412,6 +6599,185 @@ document.addEventListener('DOMContentLoaded', async () => {
     let activeDraftSelectionPhase = '';
     let activeDraftPoll = null;
     let activeDraftTimer = null;
+
+    const setSelectionMissionsStatus = (message = '') => {
+        if (!selectionMissionsStatusEl) return;
+        selectionMissionsStatusEl.textContent = message;
+    };
+
+    const getSelectionMissionProgressText = (mission, progress = {}) => {
+        if (progress?.completedAt) return 'Complete';
+        const specialPve = mission?.special_pve || mission?.specialPve || {};
+        if (specialPve.enabled) {
+            const botName = specialPve.botName || 'Mission Bot';
+            const botCharacterName =
+                mission?.reward_character_name ||
+                specialPve.botTeamCharacterName ||
+                specialPve.botTeamCharacterId ||
+                'mission enemy';
+            return `Defeat ${botName} using ${botCharacterName}. Requires level ${mission.level_requirement || 1}.`;
+        }
+        const goals = Array.isArray(mission?.goals) ? mission.goals : [];
+        const progressByIndex = progress?.goalProgressByIndex || progress?.goalProgress || {};
+        const lines = goals
+            .map((goal, index) => {
+                const goalType = String(goal?.type || '').trim().toLowerCase();
+                const count = Number(progressByIndex?.[index]?.count) || 0;
+                if (goalType === 'reach_rank') {
+                    const target = Math.max(0, Number(goal.rank) || 0);
+                    return target ? `Reach level ${target}: ${Math.min(count, target)}/${target}` : '';
+                }
+                if (goalType === 'win_matches') {
+                    const target = Math.max(0, Number(goal.wins) || 0);
+                    const characterName = goal.character_name || goal.character_id || 'required character';
+                    return target
+                        ? `Win ${target} with ${characterName}: ${Math.min(count, target)}/${target}`
+                        : '';
+                }
+                if (goalType === 'win_streak') {
+                    const target = Math.max(0, Number(goal.wins) || 0);
+                    const characterName = goal.character_name || goal.character_id || 'required character';
+                    return target
+                        ? `Win ${target} in a row with ${characterName}: ${Math.min(count, target)}/${target}`
+                        : '';
+                }
+                if (goalType === 'win_matches_same_team') {
+                    const target = Math.max(0, Number(goal.wins) || 0);
+                    const characterNames = Array.isArray(goal.character_names) && goal.character_names.length
+                        ? goal.character_names
+                        : Array.isArray(goal.character_ids)
+                            ? goal.character_ids
+                            : [];
+                    return target
+                        ? `Win ${target} with ${characterNames.join(' and ') || 'the required team'}: ${Math.min(count, target)}/${target}`
+                        : '';
+                }
+                return '';
+            })
+            .filter(Boolean);
+        return lines.join(' | ') || 'No tracked progress yet.';
+    };
+
+    const startSelectionMissionPveFight = async (missionId, button = null) => {
+        if (!missionId) return;
+        const team = getTeamIndices();
+        if (!Array.isArray(team) || team.length !== 3) {
+            setSelectionMissionsStatus('Select a full team first.');
+            return;
+        }
+        if (button) button.disabled = true;
+        setSelectionMissionsStatus('Starting mission fight...');
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/api/missions/${encodeURIComponent(missionId)}/pve/start`,
+                {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ team }),
+                }
+            );
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || 'Unable to start mission fight.');
+            }
+            if (payload.matchId) {
+                window.location.href = `ingame.html?matchId=${encodeURIComponent(payload.matchId)}`;
+                return;
+            }
+            throw new Error('Mission fight did not return a match.');
+        } catch (error) {
+            if (button) button.disabled = false;
+            setSelectionMissionsStatus(error.message || 'Unable to start mission fight.');
+        }
+    };
+
+    const renderSelectionMissions = (payload = {}) => {
+        if (!selectionMissionsListEl) return;
+        const missions = Array.isArray(payload.missions) ? payload.missions : [];
+        const progressByMissionId = payload.missionProgressByMissionId || {};
+        const unlockedIds = new Set(
+            (Array.isArray(payload.unlockedCharacterIds) ? payload.unlockedCharacterIds : [])
+                .map((entry) => String(entry || '').trim().toLowerCase())
+                .filter(Boolean)
+        );
+        selectionMissionsListEl.innerHTML = '';
+        if (!missions.length) {
+            const empty = document.createElement('div');
+            empty.className = 'selection-mission-card';
+            empty.textContent = 'No missions available.';
+            selectionMissionsListEl.appendChild(empty);
+            return;
+        }
+        missions.forEach((mission) => {
+            const progress = progressByMissionId?.[mission.missionId] || {};
+            const rewardCharacterId = String(mission.reward_character || '').trim().toLowerCase();
+            const isUnlocked = rewardCharacterId && unlockedIds.has(rewardCharacterId);
+            const card = document.createElement('article');
+            card.className = 'selection-mission-card';
+
+            const head = document.createElement('div');
+            head.className = 'selection-mission-head';
+            const image = document.createElement('img');
+            image.className = 'selection-mission-image';
+            image.src = mission.image || mission.portrait || 'assets/images/default-avatar.png';
+            image.alt = mission.imageAlt || mission.title || 'Mission';
+            const titleWrap = document.createElement('div');
+            const title = document.createElement('h3');
+            title.className = 'selection-mission-title';
+            title.textContent = mission.title || 'Mission';
+            const reward = document.createElement('p');
+            reward.className = 'selection-mission-reward';
+            reward.textContent =
+                mission.reward ||
+                (mission.reward_character_name ? `Unlock ${mission.reward_character_name}.` : 'Mission reward');
+            titleWrap.appendChild(title);
+            titleWrap.appendChild(reward);
+            head.appendChild(image);
+            head.appendChild(titleWrap);
+            card.appendChild(head);
+
+            const progressText = document.createElement('p');
+            progressText.className = 'selection-mission-progress';
+            progressText.textContent = isUnlocked
+                ? 'Unlocked. PvE fights can be replayed.'
+                : getSelectionMissionProgressText(mission, progress);
+            card.appendChild(progressText);
+
+            const specialPve = mission.special_pve || mission.specialPve || {};
+            if (specialPve.enabled) {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'selection-mission-action';
+                button.textContent = isUnlocked ? 'Replay Fight' : specialPve.buttonLabel || 'Start Fight';
+                button.addEventListener('click', () => {
+                    startSelectionMissionPveFight(mission.missionId, button);
+                });
+                card.appendChild(button);
+            }
+            selectionMissionsListEl.appendChild(card);
+        });
+    };
+
+    const loadSelectionMissions = async () => {
+        if (!selectionMissionsListEl) return;
+        setSelectionMissionsStatus('Loading missions...');
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/missions`, {
+                credentials: 'include',
+                cache: 'no-store',
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || 'Unable to load missions.');
+            }
+            renderSelectionMissions(payload);
+            setSelectionMissionsStatus('');
+        } catch (error) {
+            setSelectionMissionsStatus(error.message || 'Unable to load missions.');
+        }
+    };
+
     const setBattleBotWheelStatus = (message = '', variant = 'info') => {
         if (!battleBotWheelStatus) return;
         battleBotWheelStatus.textContent = message;
@@ -6494,6 +6860,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (battleBotWheelButton) {
         battleBotWheelButton.addEventListener('click', () => {
             setBattleBotChoicePopupVisible(true);
+        });
+    }
+
+    if (selectionMissionsToggle && selectionMissionsEl) {
+        selectionMissionsToggle.addEventListener('click', () => {
+            const willOpen = selectionMissionsEl.classList.contains('collapsed');
+            selectionMissionsEl.classList.toggle('collapsed', !willOpen);
+            selectionMissionsToggle.classList.toggle('active', willOpen);
+            selectionMissionsToggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+            if (willOpen) {
+                loadSelectionMissions();
+            }
         });
     }
 

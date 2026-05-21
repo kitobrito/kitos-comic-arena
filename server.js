@@ -151,6 +151,22 @@ const activeBattleBotTurns = new Set();
 const scheduledBattleBotTurns = new Set();
 const GAME_BOT_USERNAME_PREFIX = '__game_bot__:';
 const GAME_BOT_DISPLAY_NAME = 'Game Bot';
+const DEFAULT_SPECIAL_PVE_BATTLE = {
+    enabled: false,
+    buttonLabel: 'Start Fight',
+    botName: 'Mission Bot',
+    botTeamCharacterId: '',
+    botTeamSize: 3,
+    backgroundImage: '',
+};
+const XENOMORPH_DRONE_SPECIAL_PVE = {
+    enabled: true,
+    buttonLabel: 'Enter the Nest',
+    botName: 'Xenomorph Nest',
+    botTeamCharacterId: 'xenomorph-drone',
+    botTeamSize: 3,
+    backgroundImage: 'assets/images/xenonest.png',
+};
 
 const DEFAULT_CLAN_RANK_NAMES = {
     clanLeader: 'Clan Leader',
@@ -320,6 +336,19 @@ const getRosterCharacterName = (rosterIndex) => {
     }
     const character = Array.isArray(charactersData) ? charactersData[index] : null;
     return typeof character?.name === 'string' ? character.name.trim() : '';
+};
+
+const getRosterIndexByCharacterId = (characterId) => {
+    const normalizedCharacterId = normalizeCharacterId(characterId);
+    if (!normalizedCharacterId || !Array.isArray(charactersData)) {
+        return -1;
+    }
+    return charactersData.findIndex((character) => {
+        const candidateId = normalizeCharacterId(
+            character?.characterId || character?.id || character?.name || ''
+        );
+        return candidateId === normalizedCharacterId;
+    });
 };
 
 const getRosterCharacterKey = (rosterIndex) => {
@@ -773,6 +802,67 @@ const normalizeMissionGoalList = (entries = []) =>
         .map((entry, index) => normalizeMissionGoalEntry(entry, index))
         .filter(Boolean);
 
+const normalizeMissionSpecialPve = (source = {}, rewardCharacterId = '') => {
+    const raw =
+        source.special_pve ||
+        source.specialPve ||
+        source.pve_battle ||
+        source.pveBattle ||
+        {};
+    const normalizedRewardCharacterId = normalizeCharacterId(rewardCharacterId);
+    const defaults =
+        normalizedRewardCharacterId === 'xenomorph-drone'
+            ? XENOMORPH_DRONE_SPECIAL_PVE
+            : DEFAULT_SPECIAL_PVE_BATTLE;
+    const enabled =
+        raw.enabled === undefined && raw.required === undefined && raw.type === undefined
+            ? Boolean(defaults.enabled)
+            : Boolean(raw.enabled ?? raw.required ?? raw.type);
+    const botTeamCharacterId = normalizeCharacterId(
+        raw.botTeamCharacterId ??
+            raw.bot_team_character_id ??
+            raw.characterId ??
+            raw.character_id ??
+            defaults.botTeamCharacterId
+    );
+    const botTeamSize = Math.max(
+        1,
+        Math.min(
+            6,
+            Number(
+                raw.botTeamSize ??
+                    raw.bot_team_size ??
+                    raw.teamSize ??
+                    raw.team_size ??
+                    defaults.botTeamSize
+            ) || 3
+        )
+    );
+    return {
+        enabled,
+        buttonLabel:
+            typeof raw.buttonLabel === 'string' && raw.buttonLabel.trim()
+                ? raw.buttonLabel.trim()
+                : typeof raw.button_label === 'string' && raw.button_label.trim()
+                    ? raw.button_label.trim()
+                    : defaults.buttonLabel,
+        botName:
+            typeof raw.botName === 'string' && raw.botName.trim()
+                ? raw.botName.trim()
+                : typeof raw.bot_name === 'string' && raw.bot_name.trim()
+                    ? raw.bot_name.trim()
+                    : defaults.botName,
+        botTeamCharacterId,
+        botTeamSize,
+        backgroundImage:
+            typeof raw.backgroundImage === 'string' && raw.backgroundImage.trim()
+                ? raw.backgroundImage.trim()
+                : typeof raw.background_image === 'string' && raw.background_image.trim()
+                    ? raw.background_image.trim()
+                    : defaults.backgroundImage,
+    };
+};
+
 const slugifyMissionId = (value) =>
     String(value || '')
         .trim()
@@ -809,6 +899,10 @@ const normalizeMissionCatalogEntry = (mission = {}, index = 0) => {
             source.rewardCharacterId ??
             source.reward_character_id
     );
+    const specialPve = normalizeMissionSpecialPve(source, rewardCharacterId);
+    const isXenomorphMission = rewardCharacterId === 'xenomorph-drone';
+    const finalMissionId = isXenomorphMission ? 'raid-on-the-xenomorph-hive' : missionId;
+    const finalMissionTitle = isXenomorphMission ? 'Raid on the Xenomorph Hive' : missionTitle;
     const winStreakCharacterId = normalizeCharacterId(
         source.win_streak?.character_id ??
             source.winStreak?.characterId ??
@@ -855,10 +949,18 @@ const normalizeMissionCatalogEntry = (mission = {}, index = 0) => {
         });
     }
     return {
-        missionId,
-        title: missionTitle,
-        level_requirement: levelRequirement,
-        rank: levelRequirement ? String(levelRequirement) : '',
+        missionId: finalMissionId,
+        title: finalMissionTitle,
+        level_requirement:
+            isXenomorphMission
+                ? Math.max(21, levelRequirement)
+                : levelRequirement,
+        rank:
+            isXenomorphMission
+                ? String(Math.max(21, levelRequirement))
+                : levelRequirement
+                    ? String(levelRequirement)
+                    : '',
         reward_character: rewardCharacterId,
         reward_character_name: getCharacterDisplayNameById(rewardCharacterId),
         reward: typeof source.reward === 'string' ? source.reward.trim() : '',
@@ -868,19 +970,26 @@ const normalizeMissionCatalogEntry = (mission = {}, index = 0) => {
             character_name: getCharacterDisplayNameById(winStreakCharacterId),
             wins: winStreakWins,
         },
-        image: typeof source.image === 'string' ? source.image.trim() : '',
+        image:
+            isXenomorphMission &&
+            !(typeof source.image === 'string' && source.image.trim())
+                ? 'assets/images/xenomission.jpg'
+                : typeof source.image === 'string'
+                    ? source.image.trim()
+                    : '',
         imageAlt:
             typeof source.imageAlt === 'string' && source.imageAlt.trim()
                 ? source.imageAlt.trim()
-                : `${missionTitle} mission artwork`,
+                : `${finalMissionTitle} mission artwork`,
         characterName: typeof source.characterName === 'string' ? source.characterName.trim() : '',
         portrait: typeof source.portrait === 'string' ? source.portrait.trim() : '',
         portraitAlt:
             typeof source.portraitAlt === 'string' && source.portraitAlt.trim()
                 ? source.portraitAlt.trim()
-                : `${missionTitle} portrait`,
+                : `${finalMissionTitle} portrait`,
         requirements: requirementNotes,
         goals,
+        special_pve: specialPve,
         sortOrder: Number.isFinite(Number(source.sortOrder)) ? Number(source.sortOrder) : index + 1,
     };
 };
@@ -934,6 +1043,15 @@ const cloneMissionCatalog = (missions = []) =>
                 : undefined,
             requirements: Array.isArray(mission?.requirements) ? mission.requirements.slice() : [],
             goals: Array.isArray(mission?.goals) ? mission.goals.slice() : [],
+            special_pve: mission?.special_pve
+                ? {
+                      ...mission.special_pve,
+                  }
+                : mission?.specialPve
+                    ? {
+                          ...mission.specialPve,
+                      }
+                    : undefined,
         }))
     );
 
@@ -1554,7 +1672,10 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
     if (!match || !Array.isArray(match.players) || match.players.length < 2) {
         return null;
     }
-    if (match.mode !== 'quick' && match.mode !== 'ladder') {
+    const specialPveMissionId = slugifyMissionId(
+        match.specialPveMissionId || match.pveBattle?.missionId || ''
+    );
+    if (match.mode !== 'quick' && match.mode !== 'ladder' && !specialPveMissionId) {
         return null;
     }
 
@@ -1612,6 +1733,42 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
                     continue;
                 }
 
+                const rewardCharacterId = normalizeCharacterId(mission.reward_character);
+                const specialPve = mission.special_pve || {};
+                const existingProgress = normalizeMissionProgressEntry(
+                    progressByMissionId[mission.missionId] || {}
+                );
+                const alreadyCompleted = Boolean(existingProgress.completedAt);
+                if (specialPve.enabled) {
+                    if (specialPveMissionId !== mission.missionId) {
+                        continue;
+                    }
+                    if (rewardCharacterId && unlockedIds.has(rewardCharacterId)) {
+                        if (!alreadyCompleted) {
+                            progressByMissionId[mission.missionId] = normalizeMissionProgressEntry({
+                                ...existingProgress,
+                                completedAt: endedAt || existingProgress.completedAt || new Date(),
+                                unlockedAt: endedAt || existingProgress.unlockedAt || new Date(),
+                            });
+                            mutated = true;
+                        }
+                        continue;
+                    }
+                    if (didWin) {
+                        const completedAt = endedAt || new Date();
+                        progressByMissionId[mission.missionId] = normalizeMissionProgressEntry({
+                            ...existingProgress,
+                            completedAt: existingProgress.completedAt || completedAt,
+                            unlockedAt: existingProgress.unlockedAt || completedAt,
+                        });
+                        if (rewardCharacterId) {
+                            unlockedIds.add(rewardCharacterId);
+                        }
+                        mutated = true;
+                    }
+                    continue;
+                }
+
                 const allowedModes = Array.isArray(mission.mode_restriction?.allowed_modes)
                     ? mission.mode_restriction.allowed_modes
                     : ['quick', 'ladder'];
@@ -1619,13 +1776,8 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
                     continue;
                 }
 
-                const rewardCharacterId = normalizeCharacterId(mission.reward_character);
                 const missionGoals = normalizeMissionGoalList(mission.goals || []);
                 const trackedGoals = missionGoals;
-                const existingProgress = normalizeMissionProgressEntry(
-                    progressByMissionId[mission.missionId] || {}
-                );
-                const alreadyCompleted = Boolean(existingProgress.completedAt);
                 const existingGoalProgressByIndex = {
                     ...(existingProgress.goalProgressByIndex || existingProgress.goalProgress || {}),
                 };
@@ -1929,6 +2081,10 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
             winnerUsername: winnerUsername || '',
             endedAt,
         });
+        return null;
+    }
+
+    if (match.mode === 'pve') {
         return null;
     }
 
@@ -3505,6 +3661,14 @@ const buildMatchPayloadForUser = (match, username) => {
         lastChakraGain: sanitizeLastChakraGainForViewer(match.economy?.lastChakraGain, username),
         pendingTurn: getPendingTurn(match, username),
         ladderResult: match.ladderResults?.[username] || null,
+        backgroundOverride:
+            typeof match.backgroundOverride === 'string' && match.backgroundOverride.trim()
+                ? match.backgroundOverride.trim()
+                : '',
+        pveBattle:
+            match.pveBattle && typeof match.pveBattle === 'object'
+                ? cloneSerializable(match.pveBattle)
+                : null,
     };
 };
 
@@ -4254,7 +4418,7 @@ const buildBattleBotMatch = async ({ username, team, mode, playerProfile }) => {
     return matchDocument;
 };
 
-const createMatchDocumentFromTeams = async ({ mode, players, botMatch = null }) => {
+const createMatchDocumentFromTeams = async ({ mode, players, botMatch = null, extraFields = null }) => {
     const aliveLookup = Object.fromEntries(
         players.map((player) => [
             player.username,
@@ -4283,6 +4447,9 @@ const createMatchDocumentFromTeams = async ({ mode, players, botMatch = null }) 
         board,
         players: playerDocs,
     };
+    if (extraFields && typeof extraFields === 'object') {
+        Object.assign(matchDocument, cloneSerializable(extraFields));
+    }
     if (botMatch) {
         matchDocument.botMatch = botMatch;
     }
@@ -7100,6 +7267,86 @@ app.get('/api/missions', async (req, res) => {
     } catch (error) {
         console.error('Mission catalog load error:', error);
         return res.status(500).json({ error: 'Unable to load missions.' });
+    }
+});
+
+app.post('/api/missions/:missionId/pve/start', requireSession, async (req, res) => {
+    try {
+        const missionId = slugifyMissionId(req.params?.missionId || '');
+        const missions = await getStoredMissionCatalog();
+        const mission = missions.find((entry) => entry?.missionId === missionId);
+        if (!mission) {
+            return res.status(404).json({ error: 'Mission not found.' });
+        }
+        const specialPve = mission.special_pve || {};
+        if (!specialPve.enabled) {
+            return res.status(400).json({ error: 'This mission does not have a PvE fight.' });
+        }
+
+        const username = req.authUser.username;
+        const user = await usersCollection.findOne({ username });
+        if (!user) {
+            return res.status(401).json({ error: 'Session expired.' });
+        }
+        const profile = normalizeUserProfile(user);
+        const userLevel = Number(profile?.ladder?.level) || 1;
+        const levelRequirement = Math.max(0, Number(mission.level_requirement) || 0);
+        if (levelRequirement > 0 && userLevel < levelRequirement) {
+            return res.status(403).json({ error: `Requires level ${levelRequirement}.` });
+        }
+
+        const team = Array.isArray(req.body?.team)
+            ? req.body.team.map((slot) => Number.parseInt(slot, 10))
+            : [];
+        await assertTeamCanBeUsed(profile, team, user.role);
+
+        const botRosterIndex = getRosterIndexByCharacterId(specialPve.botTeamCharacterId);
+        if (!Number.isInteger(botRosterIndex) || botRosterIndex < 0) {
+            return res.status(400).json({ error: 'Mission PvE bot character is not in the roster.' });
+        }
+        const botTeamSize = Math.max(1, Math.min(6, Number(specialPve.botTeamSize) || 3));
+        const botTeam = Array.from({ length: botTeamSize }, () => botRosterIndex);
+        const botName = specialPve.botName || 'Mission Bot';
+        const botPlayer = createBattleBotPlayer({
+            matchId: `${missionId}-${Date.now()}`,
+            team: botTeam,
+            ladderLevel: userLevel,
+        });
+        botPlayer.displayName = botName;
+
+        const matchDocument = await createMatchDocumentFromTeams({
+            mode: 'pve',
+            players: [
+                {
+                    username,
+                    team,
+                },
+                botPlayer,
+            ],
+            botMatch: {
+                enabled: true,
+                displayName: botName,
+            },
+            extraFields: {
+                specialPveMissionId: mission.missionId,
+                backgroundOverride: specialPve.backgroundImage || '',
+                pveBattle: {
+                    missionId: mission.missionId,
+                    rewardCharacterId: normalizeCharacterId(mission.reward_character),
+                    botName,
+                },
+            },
+        });
+        userToMatch.set(username, {
+            matchId: matchDocument.matchId,
+            opponent: botName,
+        });
+        scheduleBattleBotTurn(matchDocument);
+        const hydrated = await hydrateMatchForBroadcast(matchDocument.matchId);
+        return res.json(buildMatchPayloadForUser(hydrated || matchDocument, username));
+    } catch (error) {
+        console.error('Mission PvE start error:', error);
+        return res.status(400).json({ error: error.message || 'Unable to start mission fight.' });
     }
 });
 

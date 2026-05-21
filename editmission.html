@@ -2057,6 +2057,41 @@
             </div>
 
             <div class="mission-section">
+              <h3 class="mission-section-heading">Special PvE Unlock</h3>
+              <p class="mission-section-copy">Optional mission button that starts a bot fight and unlocks the reward character only after victory.</p>
+              <div class="mission-toggle-row">
+                <label class="mission-toggle"><input type="checkbox" id="mission-special-pve-enabled" /> Require PvE Fight</label>
+              </div>
+              <div class="mission-grid">
+                <label class="mission-field">
+                  Button Text
+                  <input type="text" id="mission-special-pve-button" placeholder="Enter the Nest" />
+                  <span class="mission-field-help">Shown on the in-game mission viewer.</span>
+                </label>
+                <label class="mission-field">
+                  Bot Name
+                  <input type="text" id="mission-special-pve-bot-name" placeholder="Xenomorph Nest" />
+                  <span class="mission-field-help">Opponent display name for the PvE fight.</span>
+                </label>
+                <label class="mission-field">
+                  Bot Character
+                  <select id="mission-special-pve-character"></select>
+                  <span class="mission-field-help">The bot team repeats this character.</span>
+                </label>
+                <label class="mission-field">
+                  Bot Team Size
+                  <input type="number" id="mission-special-pve-team-size" min="1" max="6" step="1" placeholder="3" />
+                  <span class="mission-field-help">Use 3 for the Xenomorph Drone fight.</span>
+                </label>
+                <label class="mission-field">
+                  Fight Background
+                  <input type="text" id="mission-special-pve-background" placeholder="assets/images/xenonest.png" />
+                  <span class="mission-field-help">Background used during the special PvE fight.</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="mission-section">
               <h3 class="mission-section-heading">Mode Restriction</h3>
               <p class="mission-section-copy">Private games are excluded. Leave both checked for normal quick and ladder mission tracking.</p>
               <div class="mission-toggle-row">
@@ -2360,6 +2395,12 @@
         portrait: document.getElementById("mission-portrait"),
         portraitAlt: document.getElementById("mission-portrait-alt"),
         sortOrder: document.getElementById("mission-sort-order"),
+        specialPveEnabled: document.getElementById("mission-special-pve-enabled"),
+        specialPveButton: document.getElementById("mission-special-pve-button"),
+        specialPveBotName: document.getElementById("mission-special-pve-bot-name"),
+        specialPveCharacter: document.getElementById("mission-special-pve-character"),
+        specialPveTeamSize: document.getElementById("mission-special-pve-team-size"),
+        specialPveBackground: document.getElementById("mission-special-pve-background"),
       };
       const goalBox = document.getElementById("mission-goals");
       const addBtn = document.getElementById("mission-add-button");
@@ -2741,6 +2782,7 @@
       }
       function refreshCharacterSelects(mission) {
         populateCharacterSelect(fields.rewardCharacter, mission && mission.reward_character ? mission.reward_character : "");
+        populateCharacterSelect(fields.specialPveCharacter, mission && mission.special_pve ? mission.special_pve.botTeamCharacterId : "");
         populateCharacterSelect(goalCharacterField, "batman");
         populateCharacterSelect(goalCharacterTwoField, "");
       }
@@ -2757,11 +2799,22 @@
         const rewardCharacter = String(m.reward_character || m.rewardCharacter || m.rewardCharacterId || "").trim();
         const winStreak = m.win_streak || m.winStreak || {};
         const streakCharacter = String(winStreak.character_id || winStreak.characterId || "").trim();
+        const rawSpecialPve = m.special_pve || m.specialPve || m.pve_battle || m.pveBattle || {};
+        const isXenomorphReward = normalizeCharacterId(rewardCharacter) === "xenomorph-drone";
+        const finalTitle = isXenomorphReward ? "Raid on the Xenomorph Hive" : t;
+        const specialPve = {
+          enabled: rawSpecialPve.enabled === undefined ? isXenomorphReward : Boolean(rawSpecialPve.enabled),
+          buttonLabel: String(rawSpecialPve.buttonLabel || rawSpecialPve.button_label || (isXenomorphReward ? "Enter the Nest" : "Start Fight")).trim(),
+          botName: String(rawSpecialPve.botName || rawSpecialPve.bot_name || (isXenomorphReward ? "Xenomorph Nest" : "Mission Bot")).trim(),
+          botTeamCharacterId: normalizeCharacterId(rawSpecialPve.botTeamCharacterId || rawSpecialPve.bot_team_character_id || rawSpecialPve.characterId || (isXenomorphReward ? "xenomorph-drone" : "")),
+          botTeamSize: Math.max(1, Math.min(6, Number(rawSpecialPve.botTeamSize || rawSpecialPve.bot_team_size || 3) || 3)),
+          backgroundImage: String(rawSpecialPve.backgroundImage || rawSpecialPve.background_image || (isXenomorphReward ? "assets/images/xenonest.png" : "")).trim(),
+        };
         return {
-          missionId: slugify(m.missionId || m.id || t) || `mission-${i + 1}`,
-          title: t,
-          level_requirement: levelRequirement,
-          rank: levelRequirement ? String(levelRequirement) : "",
+          missionId: isXenomorphReward ? "raid-on-the-xenomorph-hive" : slugify(m.missionId || m.id || t) || `mission-${i + 1}`,
+          title: finalTitle,
+          level_requirement: isXenomorphReward ? Math.max(21, levelRequirement) : levelRequirement,
+          rank: isXenomorphReward ? String(Math.max(21, levelRequirement)) : levelRequirement ? String(levelRequirement) : "",
           reward: String(m.reward || "").trim(),
           reward_character: rewardCharacter,
           win_streak: {
@@ -2769,13 +2822,14 @@
             wins: Number(winStreak.wins || 0) || 0,
           },
           mode_restriction: { allowed_modes: cleanModes(m.mode_restriction?.allowed_modes || m.modeRestriction?.allowedModes) },
-          image: String(m.image || "").trim(),
-          imageAlt: String(m.imageAlt || `${t} mission artwork`).trim(),
+          image: String(m.image || (isXenomorphReward ? "assets/images/xenomission.jpg" : "")).trim(),
+          imageAlt: String(m.imageAlt || `${finalTitle} mission artwork`).trim(),
           characterName: String(m.characterName || "").trim(),
           portrait: String(m.portrait || "").trim(),
-          portraitAlt: String(m.portraitAlt || `${m.characterName || t} portrait`).trim(),
+          portraitAlt: String(m.portraitAlt || `${m.characterName || finalTitle} portrait`).trim(),
           requirements: cleanList(m.requirements),
           goals: normalizeGoals(m.goals),
+          special_pve: specialPve,
           available: m.available !== false,
           sortOrder: Number.isFinite(Number(m.sortOrder)) ? Number(m.sortOrder) : i + 1,
         };
@@ -2809,6 +2863,13 @@
         fields.portrait.value = m.portrait || "";
         fields.portraitAlt.value = m.portraitAlt || "";
         fields.sortOrder.value = String(m.sortOrder || "");
+        const specialPve = m.special_pve || {};
+        fields.specialPveEnabled.checked = Boolean(specialPve.enabled);
+        fields.specialPveButton.value = specialPve.buttonLabel || "";
+        fields.specialPveBotName.value = specialPve.botName || "";
+        fields.specialPveCharacter.value = normalizeCharacterId(specialPve.botTeamCharacterId || "");
+        fields.specialPveTeamSize.value = String(specialPve.botTeamSize || "");
+        fields.specialPveBackground.value = specialPve.backgroundImage || "";
         goalItems = normalizeGoals(m.goals, m.win_streak);
         renderGoalList();
       }
@@ -2833,6 +2894,14 @@
           portraitAlt: fields.portraitAlt.value,
           requirements: [],
           goals: goalItems.map((goal) => normalizeGoal(goal)).filter(Boolean),
+          special_pve: {
+            enabled: fields.specialPveEnabled.checked,
+            buttonLabel: fields.specialPveButton.value,
+            botName: fields.specialPveBotName.value,
+            botTeamCharacterId: fields.specialPveCharacter.value,
+            botTeamSize: Number(fields.specialPveTeamSize.value) || 3,
+            backgroundImage: fields.specialPveBackground.value,
+          },
           available: true,
           sortOrder: Number(fields.sortOrder.value) || missions.length + 1,
         }, 0);

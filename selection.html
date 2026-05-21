@@ -114,10 +114,17 @@
         <button type="button" class="roster-filter-tab" data-roster-filter-mode="unlock">Unlock</button>
         <button type="button" class="roster-filter-tab" data-roster-filter-mode="universe">Universe</button>
         <button type="button" class="roster-filter-tab" data-roster-filter-mode="play-rate">Play Rate</button>
+        <button type="button" class="roster-filter-tab selection-missions-toggle" aria-expanded="false">Missions</button>
     </div>
     <select class="roster-filter-select" id="roster-filter-select" aria-label="Roster filter option"></select>
     <div class="roster-filter-status" id="roster-filter-status" aria-live="polite"></div>
 </div>
+<section class="selection-missions collapsed" aria-label="Mission progress">
+    <div class="selection-missions-panel">
+        <div class="selection-missions-list" aria-live="polite"></div>
+        <p class="selection-missions-status"></p>
+    </div>
+</section>
 <ul class="slot-list"></ul>
 <img class="lastpage" src="assets/images/nextpage.png" alt="lastpage">
 
@@ -185,7 +192,7 @@
 
     </div>
 </div>
-<script src="characters.js?v=draft-pick-ban-v3"></script>
-<script src="scripts/script.js?v=draft-pick-ban-v3"></script>
+<script src="characters.js?v=mission-pve-v1"></script>
+<script src="scripts/script.js?v=mission-pve-v1"></script>
 </body>
 </html>

@@ -550,6 +550,118 @@ body.skill-effects-muted .storm-hail-weather::before {
     font-size: 11px;
 }
 
+.selection-missions {
+    position: absolute;
+    left: 28px;
+    top: 228px;
+    z-index: 9300;
+    width: 640px;
+    font-family: 'Libre Franklin', Arial, sans-serif;
+    color: #111;
+    pointer-events: none;
+}
+
+.selection-missions-toggle.active {
+    background: #111;
+    color: #f7de9d;
+}
+
+.roster-filter-tab.selection-missions-toggle {
+    min-width: 52px;
+    padding-left: 4px;
+    padding-right: 4px;
+    font-size: 9px;
+}
+
+.selection-missions-panel {
+    position: absolute;
+    right: 0;
+    bottom: 48px;
+    width: 340px;
+    border: 1px solid #000;
+    background: rgba(244, 239, 224, 0.96);
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.45);
+    padding: 8px;
+    pointer-events: auto;
+}
+
+.selection-missions.collapsed .selection-missions-panel {
+    display: none;
+}
+
+.selection-missions-list {
+    max-height: 280px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding-right: 3px;
+}
+
+.selection-mission-card {
+    border: 1px solid rgba(0, 0, 0, 0.45);
+    background: #fff;
+    padding: 7px;
+    font-size: 12px;
+    line-height: 1.3;
+}
+
+.selection-mission-head {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.selection-mission-image {
+    width: 42px;
+    height: 42px;
+    object-fit: cover;
+    border: 1px solid #000;
+    background: #ddd;
+    flex: 0 0 auto;
+}
+
+.selection-mission-title {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 700;
+    color: #9b1212;
+}
+
+.selection-mission-reward,
+.selection-mission-progress {
+    margin: 4px 0 0;
+}
+
+.selection-mission-progress {
+    color: #443b34;
+    font-size: 11px;
+}
+
+.selection-mission-action {
+    margin-top: 7px;
+    border: 1px solid #000;
+    background: #f1e2bd;
+    padding: 6px 9px;
+    font: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.selection-mission-action:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.selection-missions-status {
+    min-height: 14px;
+    margin: 6px 0 0;
+    color: #9b1212;
+    font-size: 11px;
+}
+
 .login {
         background-image: url('../assets/images/loginscroll.png');
             width: 391px;

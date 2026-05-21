@@ -2107,6 +2107,26 @@ const rollPercentSuccess = (chancePercent) => {
     return Math.random() * 100 < chance;
 };
 
+const isPassiveSourceSkillId = (sourceSkillId) =>
+    typeof sourceSkillId === 'string' && /passive/i.test(sourceSkillId);
+
+const resolveTriggeredEffectSourceSkillId = ({ status = null, config = null, fallbackSkillId = null } = {}) => {
+    const statusSourceSkillId =
+        typeof status?.sourceSkillId === 'string' && status.sourceSkillId
+            ? status.sourceSkillId
+            : null;
+    if (isPassiveSourceSkillId(statusSourceSkillId)) {
+        return statusSourceSkillId;
+    }
+    return (
+        (typeof config?.sourceSkillId === 'string' && config.sourceSkillId
+            ? config.sourceSkillId
+            : null) ||
+        statusSourceSkillId ||
+        (typeof fallbackSkillId === 'string' && fallbackSkillId ? fallbackSkillId : null)
+    );
+};
+
 const getEvadeChanceAgainstSkill = ({ targetState, skillClasses, isEnemySkill }) => {
     if (!isEnemySkill) return 0;
     const statuses = Array.isArray(targetState?.statuses) ? targetState.statuses : [];
@@ -2189,7 +2209,11 @@ const applyOnSkillEvadedBonuses = ({
             targetState: actorState,
             statusId: applyStatusToOwner.statusId,
             duration: applyStatusToOwner.duration,
-            sourceSkillId: status?.sourceSkillId || sourceSkillId || null,
+            sourceSkillId: resolveTriggeredEffectSourceSkillId({
+                status,
+                config: applyStatusToOwner,
+                fallbackSkillId: sourceSkillId,
+            }),
             sourceUsername: ownerUsername || sourceUsername || null,
             sourceSlot: Number.isInteger(ownerSlot)
                 ? ownerSlot
@@ -3384,7 +3408,11 @@ const triggerSourceKillHooks = ({
                 targetState: sourceState,
                 statusId: applyStatusToSelf.statusId,
                 duration: applyStatusToSelf.duration,
-                sourceSkillId: sourceSkillId || status?.sourceSkillId || null,
+                sourceSkillId: resolveTriggeredEffectSourceSkillId({
+                    status,
+                    config: applyStatusToSelf,
+                    fallbackSkillId: sourceSkillId,
+                }),
                 sourceUsername,
                 sourceSlot,
                 metadata: applyStatusToSelf.metadata || {},
@@ -4091,10 +4119,10 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         targetState: ensureUnitStateShape(enemy.unit),
                         statusId: applyStatusToEnemies.statusId,
                         duration: applyStatusToEnemies.duration,
-                        sourceSkillId:
-                            typeof applyStatusToEnemies.sourceSkillId === 'string' && applyStatusToEnemies.sourceSkillId
-                                ? applyStatusToEnemies.sourceSkillId
-                                : status?.sourceSkillId || null,
+                        sourceSkillId: resolveTriggeredEffectSourceSkillId({
+                            status,
+                            config: applyStatusToEnemies,
+                        }),
                         sourceUsername: actingUsername,
                         sourceSlot: actorSlot,
                         metadata: applyStatusToEnemies.metadata || {},
@@ -4124,11 +4152,10 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     targetState: ensureUnitStateShape(picked.unit),
                     statusId: applyStatusToRandomEnemy.statusId,
                     duration: applyStatusToRandomEnemy.duration,
-                    sourceSkillId:
-                        typeof applyStatusToRandomEnemy.sourceSkillId === 'string' &&
-                        applyStatusToRandomEnemy.sourceSkillId
-                            ? applyStatusToRandomEnemy.sourceSkillId
-                            : status?.sourceSkillId || null,
+                    sourceSkillId: resolveTriggeredEffectSourceSkillId({
+                        status,
+                        config: applyStatusToRandomEnemy,
+                    }),
                     sourceUsername: actingUsername,
                     sourceSlot: actorSlot,
                     metadata: applyStatusToRandomEnemy.metadata || {},
@@ -4142,11 +4169,10 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         targetState: actorState,
                         statusId: onSuccessApplyStatusToOwner.statusId,
                         duration: onSuccessApplyStatusToOwner.duration,
-                        sourceSkillId:
-                            typeof onSuccessApplyStatusToOwner.sourceSkillId === 'string' &&
-                            onSuccessApplyStatusToOwner.sourceSkillId
-                                ? onSuccessApplyStatusToOwner.sourceSkillId
-                                : null,
+                        sourceSkillId: resolveTriggeredEffectSourceSkillId({
+                            status,
+                            config: onSuccessApplyStatusToOwner,
+                        }),
                         sourceUsername: actingUsername,
                         sourceSlot: actorSlot,
                         metadata: onSuccessApplyStatusToOwner.metadata || {},
@@ -7234,10 +7260,11 @@ const applyOnEnemyTeamMemberUseSkillBonuses = ({
                 targetState: actorUnit ? ensureUnitStateShape(actorUnit) : teamState,
                 statusId: applyStatusToTarget.statusId,
                 duration: applyStatusToTarget.duration,
-                sourceSkillId:
-                    typeof applyStatusToTarget.sourceSkillId === 'string' && applyStatusToTarget.sourceSkillId
-                        ? applyStatusToTarget.sourceSkillId
-                        : status?.sourceSkillId || skill?.id || null,
+                sourceSkillId: resolveTriggeredEffectSourceSkillId({
+                    status,
+                    config: applyStatusToTarget,
+                    fallbackSkillId: skill?.id || null,
+                }),
                 sourceUsername: opponentUsername || status?.sourceUsername || null,
                 sourceSlot: Number.isInteger(teamSlot)
                     ? teamSlot
@@ -7288,10 +7315,11 @@ const applyOnTeamMemberSuccessfulDamageBonuses = ({
                 targetState,
                 statusId: applyStatusToTarget.statusId,
                 duration: applyStatusToTarget.duration,
-                sourceSkillId:
-                    typeof applyStatusToTarget.sourceSkillId === 'string' && applyStatusToTarget.sourceSkillId
-                        ? applyStatusToTarget.sourceSkillId
-                        : status?.sourceSkillId || sourceSkillId || null,
+                sourceSkillId: resolveTriggeredEffectSourceSkillId({
+                    status,
+                    config: applyStatusToTarget,
+                    fallbackSkillId: sourceSkillId,
+                }),
                 sourceUsername: status?.sourceUsername || actingUsername || null,
                 sourceSlot: Number.isInteger(status?.sourceSlot)
                     ? status.sourceSlot
@@ -7350,10 +7378,11 @@ const applyOnTeamMemberDamageTakenBonuses = ({
                 targetState: teamState,
                 statusId: applyStatusToSelf.statusId,
                 duration: applyStatusToSelf.duration,
-                sourceSkillId:
-                    typeof applyStatusToSelf.sourceSkillId === 'string' && applyStatusToSelf.sourceSkillId
-                        ? applyStatusToSelf.sourceSkillId
-                        : status?.sourceSkillId || sourceSkillId || null,
+                sourceSkillId: resolveTriggeredEffectSourceSkillId({
+                    status,
+                    config: applyStatusToSelf,
+                    fallbackSkillId: sourceSkillId,
+                }),
                 sourceUsername: targetUsername || status?.sourceUsername || actingUsername || null,
                 sourceSlot: Number.isInteger(teamSlot)
                     ? teamSlot
@@ -7406,7 +7435,11 @@ const applyOnOwnerDamagedByBaseDamageBonuses = ({
             targetState,
             statusId: trigger.statusId,
             duration: trigger.duration,
-            sourceSkillId: sourceSkillId || status?.sourceSkillId || null,
+            sourceSkillId: resolveTriggeredEffectSourceSkillId({
+                status,
+                config: trigger,
+                fallbackSkillId: sourceSkillId,
+            }),
             sourceUsername: sourceUsername || null,
             sourceSlot: Number.isInteger(sourceSlot) ? sourceSlot : null,
             metadata: trigger.metadata || {},
@@ -7732,10 +7765,7 @@ const applyOnOwnerSkillCooldownFinishedBonuses = ({
             targetState: pickedState,
             statusId: config.statusId,
             duration: config.duration,
-            sourceSkillId:
-                typeof config.sourceSkillId === 'string' && config.sourceSkillId
-                    ? config.sourceSkillId
-                    : status?.sourceSkillId || null,
+            sourceSkillId: resolveTriggeredEffectSourceSkillId({ status, config }),
             sourceUsername: ownerUsername,
             sourceSlot: Number.isInteger(ownerSlot)
                 ? ownerSlot
