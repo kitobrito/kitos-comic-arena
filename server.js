@@ -815,7 +815,9 @@ const normalizeMissionSpecialPve = (source = {}, rewardCharacterId = '') => {
             ? XENOMORPH_DRONE_SPECIAL_PVE
             : DEFAULT_SPECIAL_PVE_BATTLE;
     const enabled =
-        raw.enabled === undefined && raw.required === undefined && raw.type === undefined
+        normalizedRewardCharacterId === 'xenomorph-drone'
+            ? true
+            : raw.enabled === undefined && raw.required === undefined && raw.type === undefined
             ? Boolean(defaults.enabled)
             : Boolean(raw.enabled ?? raw.required ?? raw.type);
     const botTeamCharacterId = normalizeCharacterId(
@@ -855,7 +857,9 @@ const normalizeMissionSpecialPve = (source = {}, rewardCharacterId = '') => {
         botTeamCharacterId,
         botTeamSize,
         backgroundImage:
-            typeof raw.backgroundImage === 'string' && raw.backgroundImage.trim()
+            normalizedRewardCharacterId === 'xenomorph-drone'
+                ? XENOMORPH_DRONE_SPECIAL_PVE.backgroundImage
+                : typeof raw.backgroundImage === 'string' && raw.backgroundImage.trim()
                 ? raw.backgroundImage.trim()
                 : typeof raw.background_image === 'string' && raw.background_image.trim()
                     ? raw.background_image.trim()
@@ -971,8 +975,7 @@ const normalizeMissionCatalogEntry = (mission = {}, index = 0) => {
             wins: winStreakWins,
         },
         image:
-            isXenomorphMission &&
-            !(typeof source.image === 'string' && source.image.trim())
+            isXenomorphMission
                 ? 'assets/images/xenomission.jpg'
                 : typeof source.image === 'string'
                     ? source.image.trim()
@@ -1055,7 +1058,38 @@ const cloneMissionCatalog = (missions = []) =>
         }))
     );
 
-const getDefaultMissionCatalog = () => cloneMissionCatalog(DEFAULT_MISSION_CATALOG);
+const XENOMORPH_DRONE_MISSION_ENTRY = {
+    missionId: 'raid-on-the-xenomorph-hive',
+    title: 'Raid on the Xenomorph Hive',
+    level_requirement: 21,
+    mode_restriction: { allowed_modes: ['quick', 'ladder'] },
+    reward_character: 'xenomorph-drone',
+    reward_character_name: 'Xenomorph Drone',
+    reward: 'Unlock Xenomorph Drone.',
+    image: 'assets/images/xenomission.jpg',
+    imageAlt: 'Raid on the Xenomorph Hive mission artwork',
+    characterName: 'Xenomorph Drone',
+    portrait: 'assets/images/xenomission.jpg',
+    portraitAlt: 'Xenomorph Drone portrait',
+    requirements: [],
+    goals: [],
+    special_pve: XENOMORPH_DRONE_SPECIAL_PVE,
+    sortOrder: 999,
+};
+
+const ensureRequiredMissionCatalogEntries = (missions = []) => {
+    const catalog = cloneMissionCatalog(missions);
+    const hasXenomorphMission = catalog.some(
+        (mission) => normalizeCharacterId(mission?.reward_character) === 'xenomorph-drone'
+    );
+    if (!hasXenomorphMission) {
+        catalog.push(normalizeMissionCatalogEntry(XENOMORPH_DRONE_MISSION_ENTRY, catalog.length));
+    }
+    return normalizeMissionCatalog(catalog);
+};
+
+const getDefaultMissionCatalog = () =>
+    ensureRequiredMissionCatalogEntries(DEFAULT_MISSION_CATALOG);
 
 const getStoredMissionCatalog = async () => {
     const defaultCatalog = getDefaultMissionCatalog();
@@ -1068,7 +1102,9 @@ const getStoredMissionCatalog = async () => {
     const storedCatalog = normalizeMissionCatalog(
         storedState && Array.isArray(storedState.missions) ? storedState.missions : []
     );
-    const nextCatalog = storedCatalog.length ? storedCatalog : defaultCatalog;
+    const nextCatalog = ensureRequiredMissionCatalogEntries(
+        storedCatalog.length ? storedCatalog : defaultCatalog
+    );
     missionCatalogCache = nextCatalog;
     return nextCatalog;
 };
