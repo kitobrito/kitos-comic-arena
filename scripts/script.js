@@ -5547,34 +5547,64 @@ document.addEventListener('DOMContentLoaded', async () => {
             ingameMissionsStatusEl.textContent = message;
         };
 
-        const getMissionGoalProgressText = (mission, progress = {}) => {
-            if (progress?.completedAt) return 'Complete';
-            const specialPve = mission?.special_pve || mission?.specialPve || {};
-            if (specialPve.enabled) {
-                return 'Defeat the mission fight to unlock.';
-            }
+        const formatMissionGoalLines = (mission, progress = {}) => {
             const goals = Array.isArray(mission?.goals) ? mission.goals : [];
             const progressByIndex = progress?.goalProgressByIndex || progress?.goalProgress || {};
-            const lines = goals
+            return goals
                 .map((goal, index) => {
                     const goalType = String(goal?.type || '').trim().toLowerCase();
                     const count = Number(progressByIndex?.[index]?.count) || 0;
+                    if (typeof goal === 'string') {
+                        return goal.trim();
+                    }
+                    if (goalType === 'text') {
+                        return String(goal?.text || goal?.value || goal?.label || '').trim();
+                    }
                     if (goalType === 'reach_rank') {
                         const target = Math.max(0, Number(goal.rank) || 0);
                         return target ? `Reach level ${target}: ${Math.min(count, target)}/${target}` : '';
                     }
-                    if (
-                        goalType === 'win_matches' ||
-                        goalType === 'win_streak' ||
-                        goalType === 'win_matches_same_team'
-                    ) {
+                    if (goalType === 'win_matches') {
                         const target = Math.max(0, Number(goal.wins) || 0);
-                        return target ? `Wins: ${Math.min(count, target)}/${target}` : '';
+                        const characterName = goal.character_name || goal.character_id || 'required character';
+                        return target
+                            ? `Win ${target} with ${characterName}: ${Math.min(count, target)}/${target}`
+                            : '';
+                    }
+                    if (goalType === 'win_streak') {
+                        const target = Math.max(0, Number(goal.wins) || 0);
+                        const characterName = goal.character_name || goal.character_id || 'required character';
+                        return target
+                            ? `Win ${target} in a row with ${characterName}: ${Math.min(count, target)}/${target}`
+                            : '';
+                    }
+                    if (goalType === 'win_matches_same_team') {
+                        const target = Math.max(0, Number(goal.wins) || 0);
+                        const characterNames = Array.isArray(goal.character_names) && goal.character_names.length
+                            ? goal.character_names
+                            : Array.isArray(goal.character_ids)
+                                ? goal.character_ids
+                                : [];
+                        return target
+                            ? `Win ${target} with ${characterNames.join(' and ') || 'the required team'}: ${Math.min(count, target)}/${target}`
+                            : '';
                     }
                     return '';
                 })
                 .filter(Boolean);
-            return lines.join(' | ') || 'No tracked progress yet.';
+        };
+
+        const getMissionGoalProgressText = (mission, progress = {}) => {
+            if (progress?.completedAt) return 'Complete';
+            const goalLines = formatMissionGoalLines(mission, progress);
+            if (goalLines.length) {
+                return goalLines.join(' | ');
+            }
+            const specialPve = mission?.special_pve || mission?.specialPve || {};
+            if (specialPve.enabled) {
+                return 'Defeat the mission fight to unlock.';
+            }
+            return 'No tracked progress yet.';
         };
 
         const renderIngameMissions = (payload = {}) => {
@@ -6736,6 +6766,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const getSelectionMissionProgressText = (mission, progress = {}) => {
         if (progress?.completedAt) return 'Complete';
+        const goalLines = formatMissionGoalLines(mission, progress);
+        if (goalLines.length) {
+            return goalLines.join(' | ');
+        }
         const specialPve = mission?.special_pve || mission?.specialPve || {};
         if (specialPve.enabled) {
             const botName = specialPve.botName || 'Mission Bot';
@@ -6746,45 +6780,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 'mission enemy';
             return `Defeat ${botName} using ${botCharacterName}. Requires level ${mission.level_requirement || 1}.`;
         }
-        const goals = Array.isArray(mission?.goals) ? mission.goals : [];
-        const progressByIndex = progress?.goalProgressByIndex || progress?.goalProgress || {};
-        const lines = goals
-            .map((goal, index) => {
-                const goalType = String(goal?.type || '').trim().toLowerCase();
-                const count = Number(progressByIndex?.[index]?.count) || 0;
-                if (goalType === 'reach_rank') {
-                    const target = Math.max(0, Number(goal.rank) || 0);
-                    return target ? `Reach level ${target}: ${Math.min(count, target)}/${target}` : '';
-                }
-                if (goalType === 'win_matches') {
-                    const target = Math.max(0, Number(goal.wins) || 0);
-                    const characterName = goal.character_name || goal.character_id || 'required character';
-                    return target
-                        ? `Win ${target} with ${characterName}: ${Math.min(count, target)}/${target}`
-                        : '';
-                }
-                if (goalType === 'win_streak') {
-                    const target = Math.max(0, Number(goal.wins) || 0);
-                    const characterName = goal.character_name || goal.character_id || 'required character';
-                    return target
-                        ? `Win ${target} in a row with ${characterName}: ${Math.min(count, target)}/${target}`
-                        : '';
-                }
-                if (goalType === 'win_matches_same_team') {
-                    const target = Math.max(0, Number(goal.wins) || 0);
-                    const characterNames = Array.isArray(goal.character_names) && goal.character_names.length
-                        ? goal.character_names
-                        : Array.isArray(goal.character_ids)
-                            ? goal.character_ids
-                            : [];
-                    return target
-                        ? `Win ${target} with ${characterNames.join(' and ') || 'the required team'}: ${Math.min(count, target)}/${target}`
-                        : '';
-                }
-                return '';
-            })
-            .filter(Boolean);
-        return lines.join(' | ') || 'No tracked progress yet.';
+        return 'No tracked progress yet.';
     };
 
     const startSelectionMissionPveFight = async (missionId, button = null) => {

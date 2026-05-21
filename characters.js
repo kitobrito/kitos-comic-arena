@@ -8875,6 +8875,16 @@ const characters = [
                 }
             },
             {
+                "statusId": "xenomorph_hive_member",
+                "sourceSkillId": "xenomorph-drone-passive-the-hive",
+                "duration": 999,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "effectiveCharacterId": "xenomorph-drone",
+                    "tooltipText": "This character counts as a Xenomorph for The Hive."
+                }
+            },
+            {
                 "statusId": "xenomorph_drone_facehugger_reward",
                 "sourceSkillId": "xenomorph-drone-facehugger",
                 "duration": 999,
