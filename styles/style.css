@@ -1114,7 +1114,7 @@ text-transform: uppercase;
 .selection-mode-controls {
     position: absolute;
     right: 18px;
-    bottom: 505px;
+    bottom: 488px;
     display: flex;
     align-items: flex-start;
     gap: 12px;
