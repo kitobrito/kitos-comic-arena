@@ -1064,6 +1064,22 @@ text-transform: uppercase;
     text-align: center;
 }
 
+.private-draft-note {
+    position: absolute;
+    left: 50%;
+    bottom: 62px;
+    width: 210px;
+    transform: translateX(-50%);
+    color: #6a180e;
+    font-family: 'Libre Franklin', Arial, sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.2;
+    pointer-events: none;
+    text-align: center;
+    text-transform: uppercase;
+}
+
 .draft-backdrop {
     position: fixed;
     inset: 0;
