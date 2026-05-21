@@ -106,8 +106,7 @@ body:not(.app-loading-selection) .selectionpage,
 body:not(.app-loading-selection) .player-card,
 body:not(.app-loading-selection) .selected-character-slot,
 body:not(.app-loading-selection) .button-container,
-body:not(.app-loading-selection) .battle-bot-check-wrap,
-body:not(.app-loading-selection) .draft-mode-check-wrap,
+body:not(.app-loading-selection) .selection-mode-controls,
 body:not(.app-loading-selection) .sound-controller,
 body:not(.app-loading-selection) .nextpage,
 body:not(.app-loading-selection) .lastpage {
@@ -135,12 +134,8 @@ body:not(.app-loading-selection) .button-container {
     animation-delay: 0.25s;
 }
 
-body:not(.app-loading-selection) .battle-bot-check-wrap {
+body:not(.app-loading-selection) .selection-mode-controls {
     animation-delay: 0.3s;
-}
-
-body:not(.app-loading-selection) .draft-mode-check-wrap {
-    animation-delay: 0.34s;
 }
 
 body:not(.app-loading-selection) .selected-slot-image {
@@ -161,7 +156,7 @@ body:not(.app-loading-selection) .selected-slot-image {
     body:not(.app-loading-selection) .player-card,
     body:not(.app-loading-selection) .selected-character-slot,
     body:not(.app-loading-selection) .button-container,
-    body:not(.app-loading-selection) .battle-bot-check-wrap,
+    body:not(.app-loading-selection) .selection-mode-controls,
     body:not(.app-loading-selection) .sound-controller,
     body:not(.app-loading-selection) .nextpage,
     body:not(.app-loading-selection) .lastpage,
@@ -1116,15 +1111,22 @@ text-transform: uppercase;
     align-items: center;
 }
 
-.battle-bot-check-wrap {
+.selection-mode-controls {
     position: absolute;
     right: 18px;
     bottom: 454px;
     display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    z-index: 1500;
+}
+
+.battle-bot-check-wrap,
+.draft-mode-check-wrap {
+    display: flex;
     flex-direction: column;
     align-items: center;
     gap: 5px;
-    z-index: 1500;
 }
 
 .battle-bot-check {
@@ -1140,12 +1142,8 @@ text-transform: uppercase;
     text-transform: uppercase;
     color: #000;
     min-width: 108px;
-    right: 83px;
-    top: -36px;
-    position: relative;
-        transform: skew(-10deg);
+    transform: skew(-10deg);
     transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
-    
 }
 
 .battle-bot-check-box {
@@ -1199,19 +1197,6 @@ text-transform: uppercase;
     font-family: 'Libre Franklin', Arial, sans-serif;
     color: #6a180e;
     text-align: center;
-}
-
-.draft-mode-check-wrap {
-    position: absolute;
-    left: 50%;
-    top: 18px;
-    bottom: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 5px;
-    z-index: 1500;
-    transform: translateX(-50%);
 }
 
 .draft-mode-check {
