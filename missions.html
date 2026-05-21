@@ -601,6 +601,29 @@
       text-decoration: none;
     }
 
+    .mission-pve-action {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      margin-top: 10px;
+      padding: 6px 12px;
+      border: 3px solid var(--line);
+      background: linear-gradient(180deg, #ffeb67 0%, #ff9e1b 100%);
+      color: #101010;
+      font: inherit;
+      font-size: 17px;
+      font-weight: 800;
+      line-height: 1;
+      text-transform: uppercase;
+      box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.95);
+    }
+
+    .mission-pve-action:hover {
+      transform: translate(1px, 1px);
+      box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.95);
+    }
+
     .mission-card.completed {
       filter: grayscale(1);
       opacity: 0.72;
@@ -2165,6 +2188,15 @@
             const streakCharacter = String(source.win_streak?.character_id || source.winStreak?.characterId || "").trim();
             const streakCharacterName = String(source.win_streak?.character_name || source.winStreak?.characterName || source.characterName || "").trim();
             const streakWins = Number(source.win_streak?.wins || source.winStreak?.wins || 0) || 0;
+            const rawSpecialPve = source.special_pve || source.specialPve || source.pve_battle || source.pveBattle || {};
+            const specialPve = {
+              enabled: Boolean(rawSpecialPve.enabled),
+              buttonLabel: String(rawSpecialPve.buttonLabel || rawSpecialPve.button_label || "Start Fight").trim(),
+              botName: String(rawSpecialPve.botName || rawSpecialPve.bot_name || "Mission Bot").trim(),
+              botTeamCharacterId: String(rawSpecialPve.botTeamCharacterId || rawSpecialPve.bot_team_character_id || rawSpecialPve.characterId || "").trim(),
+              botTeamSize: Number(rawSpecialPve.botTeamSize || rawSpecialPve.bot_team_size || rawSpecialPve.teamSize || 3) || 3,
+              backgroundImage: String(rawSpecialPve.backgroundImage || rawSpecialPve.background_image || "").trim()
+            };
             return {
               missionId: missionId,
               title: String(source.title || source.name || "Mission " + (index + 1)).trim(),
@@ -2194,6 +2226,7 @@
                     .map(function (entry) { return normalizeMissionGoal(entry); })
                     .filter(Boolean)
                 : [],
+              special_pve: specialPve,
               available: source.available !== false,
               sortOrder: Number.isFinite(Number(source.sortOrder)) ? Number(source.sortOrder) : index + 1
             };
@@ -2596,6 +2629,19 @@
         viewLink.textContent = completed ? "Mission Completed" : "View this mission";
         viewLine.appendChild(viewLink);
         requirementsBox.appendChild(viewLine);
+
+        const specialPve = mission.special_pve || {};
+        if (specialPve.enabled) {
+          const fightLink = document.createElement("a");
+          fightLink.className = "mission-pve-action";
+          fightLink.href = "selection.html?missions=open&missionId=" + encodeURIComponent(mission.missionId);
+          fightLink.textContent = completed ? "Replay Fight" : specialPve.buttonLabel || "Start Fight";
+          fightLink.setAttribute("aria-label", "Select a team for " + mission.title);
+          fightLink.addEventListener("click", function (event) {
+            event.stopPropagation();
+          });
+          requirementsBox.appendChild(fightLink);
+        }
 
         details.appendChild(requirementsTitle);
         details.appendChild(requirementsBox);

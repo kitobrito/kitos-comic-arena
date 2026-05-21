@@ -378,6 +378,26 @@ body.skill-effects-muted .storm-hail-weather::before {
     accent-color: #c41e3a;
 }
 
+.ingame-sound-controller .match-chat {
+    position: static;
+    flex: 0 0 150px;
+    width: 150px;
+    margin-top: 6px;
+}
+
+.ingame-sound-controller .match-chat-toggle {
+    min-height: 26px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
+
+.ingame-sound-controller .match-chat-panel {
+    position: absolute;
+    left: 8px;
+    top: 88px;
+    width: 300px;
+}
+
 .match-chat {
     position: absolute;
     right: 28px;

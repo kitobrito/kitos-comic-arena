@@ -7,6 +7,17 @@ This project is already structured to run as a public website:
 - In-game live updates use WebSockets on the same host.
 - Player data, matchmaking, missions, and news are stored in MongoDB.
 
+## Beta Version 1.2
+
+Feature updates:
+
+- Added the Raid on the Xenomorph Hive special PvE mission flow.
+- Added mission-list fight actions for special PvE missions so players can jump into team selection and start the fight.
+- Added admin bypass support for special PvE mission level requirements.
+- Added selection and in-game mission panels for PvE unlock fights and replay access.
+- Added in-game match chat with mute, unread, quick emoji, and message controls.
+- Moved the in-game chat button under the music, SFX, skill FX, and volume controls.
+
 ## Deploy On Render
 
 The repository includes [`render.yaml`](/home/kienevil1/Kien-Naruto-Arena/render.yaml), so the shortest path is Render.

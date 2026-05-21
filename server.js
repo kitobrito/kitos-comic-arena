@@ -7327,7 +7327,8 @@ app.post('/api/missions/:missionId/pve/start', requireSession, async (req, res) 
         const profile = normalizeUserProfile(user);
         const userLevel = Number(profile?.ladder?.level) || 1;
         const levelRequirement = Math.max(0, Number(mission.level_requirement) || 0);
-        if (levelRequirement > 0 && userLevel < levelRequirement) {
+        const isAdmin = String(user.role || '').trim().toLowerCase() === 'admin';
+        if (!isAdmin && levelRequirement > 0 && userLevel < levelRequirement) {
             return res.status(403).json({ error: `Requires level ${levelRequirement}.` });
         }
 

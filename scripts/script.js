@@ -1078,7 +1078,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     };
 
-    const matchIdFromUrl = new URLSearchParams(window.location.search).get('matchId');
+    const pageSearchParams = new URLSearchParams(window.location.search);
+    const matchIdFromUrl = pageSearchParams.get('matchId');
+    const selectionMissionIdFromUrl = pageSearchParams.get('missionId');
 
     if (!slotList) {
         const rosterData = typeof characters !== 'undefined' ? characters : window.characters;
@@ -6715,6 +6717,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isUnlocked = rewardCharacterId && unlockedIds.has(rewardCharacterId);
             const card = document.createElement('article');
             card.className = 'selection-mission-card';
+            card.dataset.selectionMission = mission.missionId || '';
 
             const head = document.createElement('div');
             head.className = 'selection-mission-head';
@@ -6757,6 +6760,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             selectionMissionsListEl.appendChild(card);
         });
+        if (selectionMissionIdFromUrl) {
+            const targetCard = Array.from(
+                selectionMissionsListEl.querySelectorAll('.selection-mission-card')
+            ).find((card) => card.dataset.selectionMission === selectionMissionIdFromUrl);
+            if (targetCard) {
+                targetCard.scrollIntoView({ block: 'nearest' });
+            }
+        }
     };
 
     const loadSelectionMissions = async () => {
@@ -6873,6 +6884,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 loadSelectionMissions();
             }
         });
+        if (pageSearchParams.get('missions') === 'open' || selectionMissionIdFromUrl) {
+            selectionMissionsEl.classList.remove('collapsed');
+            selectionMissionsToggle.classList.add('active');
+            selectionMissionsToggle.setAttribute('aria-expanded', 'true');
+            loadSelectionMissions();
+        }
     }
 
     if (battleBotChoiceCloseButton) {

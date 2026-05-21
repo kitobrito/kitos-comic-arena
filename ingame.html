@@ -45,35 +45,34 @@
         <button type="button" class="ingame-effects-mute-button effects-mute-button" aria-label="Mute game sounds" title="Mute game sounds"></button>
         <button type="button" class="ingame-skill-effects-toggle skill-effects-toggle" aria-label="Turn off skill effects" title="Turn off skill effects"></button>
         <input id="ingame-sound-volume" class="ingame-sound-volume" type="range" min="0" max="100" step="1" value="70" aria-label="Sound volume">
+        <section class="match-chat collapsed" aria-label="Match chat">
+            <button type="button" class="match-chat-toggle" aria-expanded="false">
+                <span>Chat</span>
+                <span class="match-chat-unread" aria-hidden="true">0</span>
+            </button>
+            <div class="match-chat-panel">
+                <div class="match-chat-tools" aria-label="Chat tools">
+                    <button type="button" class="match-chat-mute" aria-pressed="false">Mute</button>
+                </div>
+                <div class="match-chat-messages" aria-live="polite"></div>
+                <div class="match-chat-emojis" aria-label="Quick emojis">
+                    <button type="button" class="match-chat-emoji" data-chat-emoji="😀">😀</button>
+                    <button type="button" class="match-chat-emoji" data-chat-emoji="😂">😂</button>
+                    <button type="button" class="match-chat-emoji" data-chat-emoji="😮">😮</button>
+                    <button type="button" class="match-chat-emoji" data-chat-emoji="😎">😎</button>
+                    <button type="button" class="match-chat-emoji" data-chat-emoji="👍">👍</button>
+                    <button type="button" class="match-chat-emoji" data-chat-emoji="🔥">🔥</button>
+                    <button type="button" class="match-chat-emoji" data-chat-emoji="💀">💀</button>
+                    <button type="button" class="match-chat-emoji" data-chat-emoji="❤️">❤️</button>
+                </div>
+                <form class="match-chat-form">
+                    <input class="match-chat-input" type="text" maxlength="240" autocomplete="off" placeholder="Message opponent">
+                    <button type="submit" class="match-chat-send">Send</button>
+                </form>
+                <p class="match-chat-status"></p>
+            </div>
+        </section>
     </div>
-
-    <section class="match-chat collapsed" aria-label="Match chat">
-        <button type="button" class="match-chat-toggle" aria-expanded="false">
-            <span>Chat</span>
-            <span class="match-chat-unread" aria-hidden="true">0</span>
-        </button>
-        <div class="match-chat-panel">
-            <div class="match-chat-tools" aria-label="Chat tools">
-                <button type="button" class="match-chat-mute" aria-pressed="false">Mute</button>
-            </div>
-            <div class="match-chat-messages" aria-live="polite"></div>
-            <div class="match-chat-emojis" aria-label="Quick emojis">
-                <button type="button" class="match-chat-emoji" data-chat-emoji="😀">😀</button>
-                <button type="button" class="match-chat-emoji" data-chat-emoji="😂">😂</button>
-                <button type="button" class="match-chat-emoji" data-chat-emoji="😮">😮</button>
-                <button type="button" class="match-chat-emoji" data-chat-emoji="😎">😎</button>
-                <button type="button" class="match-chat-emoji" data-chat-emoji="👍">👍</button>
-                <button type="button" class="match-chat-emoji" data-chat-emoji="🔥">🔥</button>
-                <button type="button" class="match-chat-emoji" data-chat-emoji="💀">💀</button>
-                <button type="button" class="match-chat-emoji" data-chat-emoji="❤️">❤️</button>
-            </div>
-            <form class="match-chat-form">
-                <input class="match-chat-input" type="text" maxlength="240" autocomplete="off" placeholder="Message opponent">
-                <button type="submit" class="match-chat-send">Send</button>
-            </form>
-            <p class="match-chat-status"></p>
-        </div>
-    </section>
 
     <div class="ChakraChooseEndTurn" style="background-image: url('assets/images/searchingscroll.png');">
         <p class="chakrachoose">CHOOSE <span class="chakrachoosered">0</span> RANDOM ENERGY (S)</p>
