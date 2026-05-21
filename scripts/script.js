@@ -8,9 +8,107 @@ document.addEventListener('DOMContentLoaded', async () => {
     const pageName = pagePath.split('/').pop() || 'index.html';
     const isSelectionPage = pageName === 'selection.html' || pageName === 'selection';
     const isIngamePage = pageName === 'ingame.html' || pageName === 'ingame';
+    const UI_SETTINGS_STORAGE_KEY = 'comicUiSettings';
+    const defaultUiSettings = {
+        targetFade: true,
+        skillCastAnimations: true,
+        queuedTargetMarkers: true,
+        lowHpPulse: true,
+        battleIntro: true,
+        customCursor: true,
+        clickSounds: true,
+    };
+    const readUiSettings = () => {
+        try {
+            const raw = localStorage.getItem(UI_SETTINGS_STORAGE_KEY);
+            if (!raw) return { ...defaultUiSettings };
+            const parsed = JSON.parse(raw);
+            return Object.keys(defaultUiSettings).reduce((next, key) => {
+                next[key] =
+                    typeof parsed?.[key] === 'boolean'
+                        ? parsed[key]
+                        : defaultUiSettings[key];
+                return next;
+            }, {});
+        } catch (error) {
+            return { ...defaultUiSettings };
+        }
+    };
+    let uiSettings = readUiSettings();
+    const persistUiSettings = () => {
+        try {
+            localStorage.setItem(UI_SETTINGS_STORAGE_KEY, JSON.stringify(uiSettings));
+        } catch (error) {
+            // Ignore storage failures.
+        }
+    };
+    const applyUiSettings = () => {
+        document.body.classList.toggle('ui-disable-target-fade', !uiSettings.targetFade);
+        document.body.classList.toggle('ui-disable-skill-cast-animations', !uiSettings.skillCastAnimations);
+        document.body.classList.toggle('ui-disable-queued-target-markers', !uiSettings.queuedTargetMarkers);
+        document.body.classList.toggle('ui-disable-low-hp-pulse', !uiSettings.lowHpPulse);
+        document.body.classList.toggle('ui-disable-custom-cursor', !uiSettings.customCursor);
+        if (isIngamePage || isSelectionPage) {
+            document.body.classList.toggle('custom-game-cursor', Boolean(uiSettings.customCursor));
+        }
+        document.querySelectorAll('[data-ui-setting]').forEach((input) => {
+            const key = input.getAttribute('data-ui-setting');
+            if (!Object.prototype.hasOwnProperty.call(uiSettings, key)) return;
+            input.checked = Boolean(uiSettings[key]);
+        });
+    };
+    const setupUiOptionsPanels = () => {
+        const toggles = Array.from(document.querySelectorAll('.ui-options-toggle'));
+        const panels = Array.from(document.querySelectorAll('.ui-options-panel'));
+        if (!toggles.length && !panels.length) return;
+        const setOpen = (panel, toggle, open) => {
+            if (!panel) return;
+            panel.hidden = !open;
+            panel.classList.toggle('open', open);
+            if (toggle) {
+                toggle.classList.toggle('active', open);
+                toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+            }
+        };
+        toggles.forEach((toggle) => {
+            const panelId = toggle.getAttribute('aria-controls');
+            const panel = panelId ? document.getElementById(panelId) : null;
+            toggle.addEventListener('click', () => {
+                const willOpen = !panel || panel.hidden;
+                panels.forEach((entry) => {
+                    const owner = toggles.find((candidate) => candidate.getAttribute('aria-controls') === entry.id);
+                    setOpen(entry, owner, false);
+                });
+                setOpen(panel, toggle, willOpen);
+            });
+        });
+        document.querySelectorAll('[data-ui-setting]').forEach((input) => {
+            input.addEventListener('change', () => {
+                const key = input.getAttribute('data-ui-setting');
+                if (!Object.prototype.hasOwnProperty.call(uiSettings, key)) return;
+                uiSettings = {
+                    ...uiSettings,
+                    [key]: Boolean(input.checked),
+                };
+                persistUiSettings();
+                applyUiSettings();
+            });
+        });
+        document.addEventListener('click', (event) => {
+            const target = event.target;
+            if (!(target instanceof Element)) return;
+            if (target.closest('.ui-options-panel, .ui-options-toggle')) return;
+            panels.forEach((entry) => {
+                const owner = toggles.find((candidate) => candidate.getAttribute('aria-controls') === entry.id);
+                setOpen(entry, owner, false);
+            });
+        });
+        applyUiSettings();
+    };
+    applyUiSettings();
 
-    const shouldUseCustomCursor = isIngamePage || isSelectionPage;
-    const shouldUseGameClickSound = shouldUseCustomCursor;
+    const shouldUseCustomCursor = (isIngamePage || isSelectionPage) && uiSettings.customCursor;
+    const shouldUseGameClickSound = isIngamePage || isSelectionPage;
     if (shouldUseCustomCursor) {
         document.body.classList.add('custom-game-cursor');
         const setPressedCursor = () => document.body.classList.add('cursor-clicking');
@@ -484,13 +582,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.addEventListener('click', (event) => {
             if (
                 event.target instanceof Element &&
-                event.target.closest('.sound-controller, .ingame-sound-controller')
+                event.target.closest('.sound-controller, .ingame-sound-controller, .ui-options-panel')
             ) {
                 return;
             }
+            if (!uiSettings.clickSounds) return;
             soundManager.play(clickSound);
         });
     }
+    setupUiOptionsPanels();
 
     const API_BASE_URL =
         window.NARUTO_API_BASE_URL ||
@@ -1195,6 +1295,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             bloodline: 0,
             genjutsu: 0,
         };
+        let randomChakraRequestQueue = Promise.resolve();
+        let randomChakraMutationVersion = 0;
         let activeCastingSkill = null;
         const classChoiceBySkillKey = new Map();
         let pendingQueuePayload = null;
@@ -2054,6 +2156,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const pulseSkillCast = (imgEl, skill = null) => {
+            if (!uiSettings.skillCastAnimations) return;
             if (!imgEl) return;
             const energyClass = getPrimaryEnergyClass(skill);
             imgEl.classList.remove(
@@ -2464,6 +2567,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const animateSkillToQueue = (skillEl) => {
+            if (!uiSettings.skillCastAnimations) return;
             const skillScroll = skillEl?.closest('.skillscrollingame');
             if (!skillScroll) return;
             const queueEl = skillScroll.querySelector('.skillqueue');
@@ -3063,6 +3167,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Show immediately from the last known client state; refresh in the background below.
             endTurnModalEl.style.visibility = 'visible';
             renderEndTurnModal(playerPoolState, pendingTurnState);
+            const requestMutationVersion = randomChakraMutationVersion;
             fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}`, {
                 credentials: 'include',
             })
@@ -3076,6 +3181,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                     if (data.player?.username) {
                         currentPlayerUsername = data.player.username;
+                    }
+                    if (requestMutationVersion !== randomChakraMutationVersion) {
+                        return;
                     }
                     const playerPool = data.chakraPools?.[currentPlayerUsername] || {};
                     pendingTurnState = normalizePendingTurn(data.pendingTurn);
@@ -5276,6 +5384,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const playBattleIntro = async (data) => {
             if (hasPlayedBattleIntro || !battleIntroOverlayEl) return;
             hasPlayedBattleIntro = true;
+            if (!uiSettings.battleIntro) {
+                battleIntroOverlayEl.classList.remove('visible');
+                battleIntroOverlayEl.setAttribute('aria-hidden', 'true');
+                return;
+            }
             const playerName = data?.player?.username || readCachedUser()?.username || 'Player';
             const opponentName =
                 data?.opponent?.displayName ||
@@ -6341,7 +6454,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             const previousPendingState = clonePendingTurnState(pendingTurnState);
             const appliedLocally = applyRandomChakraAdjustmentLocally(chakraType, delta);
             if (!appliedLocally) return;
-            try {
+            const requestMutationVersion = ++randomChakraMutationVersion;
+            randomChakraRequestQueue = randomChakraRequestQueue
+                .catch(() => {})
+                .then(async () => {
                 const response = await fetch(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/random/adjust`,
                     {
@@ -6355,6 +6471,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!response.ok || !data?.ok) {
                     throw new Error(data?.error || 'Unable to adjust random chakra.');
                 }
+                if (requestMutationVersion !== randomChakraMutationVersion) {
+                    syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
+                    return;
+                }
                 renderChakra(data.chakraPools?.[currentPlayerUsername] || emptyPool());
                 pendingTurnState = normalizePendingTurn(data.pendingTurn);
                 applyQueuedSkillVisuals();
@@ -6362,7 +6482,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (endTurnModalEl && endTurnModalEl.style.visibility === 'visible') {
                     renderEndTurnModal(playerPoolState, pendingTurnState);
                 }
+            });
+            try {
+                await randomChakraRequestQueue;
             } catch (error) {
+                if (requestMutationVersion !== randomChakraMutationVersion) {
+                    console.warn('Failed to adjust random chakra.', error);
+                    return;
+                }
                 renderChakra(previousPoolState);
                 pendingTurnState = previousPendingState;
                 applyQueuedSkillVisuals();

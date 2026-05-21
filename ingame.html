@@ -44,7 +44,17 @@
         <button type="button" class="ingame-mute-button music-mute-button" aria-label="Mute music" title="Mute music"></button>
         <button type="button" class="ingame-effects-mute-button effects-mute-button" aria-label="Mute game sounds" title="Mute game sounds"></button>
         <button type="button" class="ingame-skill-effects-toggle skill-effects-toggle" aria-label="Turn off skill effects" title="Turn off skill effects"></button>
+        <button type="button" class="ingame-ui-options-toggle ui-options-toggle" aria-expanded="false" aria-controls="ingame-ui-options">Options</button>
         <input id="ingame-sound-volume" class="ingame-sound-volume" type="range" min="0" max="100" step="1" value="70" aria-label="Sound volume">
+        <section class="ui-options-panel ingame-ui-options-panel" id="ingame-ui-options" aria-label="UI options" hidden>
+            <label><input type="checkbox" data-ui-setting="targetFade"> Fade invalid targets</label>
+            <label><input type="checkbox" data-ui-setting="skillCastAnimations"> Skill animations</label>
+            <label><input type="checkbox" data-ui-setting="queuedTargetMarkers"> Queued markers</label>
+            <label><input type="checkbox" data-ui-setting="lowHpPulse"> Low HP pulse</label>
+            <label><input type="checkbox" data-ui-setting="battleIntro"> Battle intro</label>
+            <label><input type="checkbox" data-ui-setting="customCursor"> Custom cursor</label>
+            <label><input type="checkbox" data-ui-setting="clickSounds"> Click sounds</label>
+        </section>
         <section class="match-chat collapsed" aria-label="Match chat">
             <button type="button" class="match-chat-toggle" aria-expanded="false">
                 <span>Chat</span>

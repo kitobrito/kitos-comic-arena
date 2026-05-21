@@ -378,6 +378,26 @@ body.skill-effects-muted .storm-hail-weather::before {
     accent-color: #c41e3a;
 }
 
+.ingame-ui-options-toggle {
+    min-height: 24px;
+    border: 1px solid #000;
+    background: #f8f3e4;
+    padding: 3px 7px;
+    font: 700 11px 'Libre Franklin', Arial, sans-serif;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.ingame-ui-options-toggle.active {
+    background: #111;
+    color: #f7de9d;
+}
+
+.ingame-ui-options-panel {
+    left: 170px;
+    top: 28px;
+}
+
 .ingame-sound-controller .match-chat {
     position: static;
     flex: 0 0 150px;
@@ -888,6 +908,11 @@ body.skill-effects-muted .storm-hail-weather::before {
     color: #f7de9d;
 }
 
+.roster-filter-tab.ui-options-toggle.active {
+    background: #111;
+    color: #f7de9d;
+}
+
 .roster-filter-select {
     width: 145px;
     min-height: 27px;
@@ -900,6 +925,48 @@ body.skill-effects-muted .storm-hail-weather::before {
     font-size: 10px;
     font-weight: 700;
     color: #4e3624;
+}
+
+.ui-options-panel {
+    position: absolute;
+    z-index: 9400;
+    width: 238px;
+    border: 2px solid #1b120b;
+    background: rgba(244, 239, 224, 0.98);
+    box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.58);
+    padding: 8px;
+    font: 700 11px 'Libre Franklin', Arial, sans-serif;
+    color: #1b120b;
+    text-transform: none;
+}
+
+.ui-options-panel[hidden] {
+    display: none;
+}
+
+.selection-ui-options-panel {
+    right: 0;
+    bottom: 48px;
+}
+
+.ui-options-panel label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 25px;
+    border-bottom: 1px solid rgba(27, 18, 11, 0.18);
+    cursor: pointer;
+}
+
+.ui-options-panel label:last-child {
+    border-bottom: 0;
+}
+
+.ui-options-panel input {
+    width: 15px;
+    height: 15px;
+    margin: 0;
+    accent-color: #9b1212;
 }
 
 .slot-item {
@@ -2683,8 +2750,41 @@ text-transform: uppercase;
     filter: grayscale(0.25);
 }
 
+body.ui-disable-target-fade .character-card.target-invalid {
+    opacity: 1;
+    filter: none;
+}
+
 .character-card.low-hp-danger .character-face {
     animation: low-hp-danger-pulse 1.15s ease-in-out infinite;
+}
+
+body.ui-disable-low-hp-pulse .character-card.low-hp-danger .character-face {
+    animation: none;
+}
+
+body.ui-disable-queued-target-markers .skilltooltipimage.dynamic-queued-target-icon {
+    display: none !important;
+}
+
+body.ui-disable-skill-cast-animations .skill-cast-pulse,
+body.ui-disable-skill-cast-animations .skill-queue-trail,
+body.ui-disable-skill-cast-animations .skill-cast-projectile,
+body.ui-disable-skill-cast-animations .status-apply-burst,
+body.ui-disable-skill-cast-animations .combat-energy-beam,
+body.ui-disable-skill-cast-animations .superman-solar-flare-screen-fx,
+body.ui-disable-skill-cast-animations .andrea-sniper-board-fx,
+body.ui-disable-skill-cast-animations .bullet-hole-impact-fx,
+body.ui-disable-skill-cast-animations .negan-lucille-swing-fx,
+body.ui-disable-skill-cast-animations .knife-wound-fx,
+body.ui-disable-skill-cast-animations .aquaman-tidal-wave-screen-fx,
+body.ui-disable-skill-cast-animations .aquaman-sea-shark-projectile,
+body.ui-disable-skill-cast-animations .aquaman-sea-shark-splash,
+body.ui-disable-skill-cast-animations .storm-lightning-fx,
+body.ui-disable-skill-cast-animations .storm-wind-fx,
+body.ui-disable-skill-cast-animations .superman-frost-impact-fx {
+    display: none !important;
+    animation: none !important;
 }
 
 .character-card.character-defeated .character-face {

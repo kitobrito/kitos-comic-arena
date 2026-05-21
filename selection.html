@@ -115,9 +115,19 @@
         <button type="button" class="roster-filter-tab" data-roster-filter-mode="universe">Universe</button>
         <button type="button" class="roster-filter-tab" data-roster-filter-mode="play-rate">Play Rate</button>
         <button type="button" class="roster-filter-tab selection-missions-toggle" aria-expanded="false">Missions</button>
+        <button type="button" class="roster-filter-tab ui-options-toggle" aria-expanded="false" aria-controls="selection-ui-options">Options</button>
     </div>
     <select class="roster-filter-select" id="roster-filter-select" aria-label="Roster filter option"></select>
     <div class="roster-filter-status" id="roster-filter-status" aria-live="polite"></div>
+    <section class="ui-options-panel selection-ui-options-panel" id="selection-ui-options" aria-label="UI options" hidden>
+        <label><input type="checkbox" data-ui-setting="customCursor"> Custom cursor</label>
+        <label><input type="checkbox" data-ui-setting="clickSounds"> Click sounds</label>
+        <label><input type="checkbox" data-ui-setting="targetFade"> Fade invalid battle targets</label>
+        <label><input type="checkbox" data-ui-setting="skillCastAnimations"> Skill cast animations</label>
+        <label><input type="checkbox" data-ui-setting="queuedTargetMarkers"> Queued target markers</label>
+        <label><input type="checkbox" data-ui-setting="lowHpPulse"> Low HP pulse</label>
+        <label><input type="checkbox" data-ui-setting="battleIntro"> Battle intro overlay</label>
+    </section>
 </div>
 <section class="selection-missions collapsed" aria-label="Mission progress">
     <div class="selection-missions-panel">
