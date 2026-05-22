@@ -2964,6 +2964,7 @@ body.ui-disable-skill-cast-animations .seraphina-road-flare {
 
 .health-bar-container {
     position: relative;
+    z-index: 9;
     width: 75px;
     height: 13px;
     top: 2px;
