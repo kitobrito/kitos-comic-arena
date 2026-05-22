@@ -9930,9 +9930,9 @@ const characters = [
                 "nameHtml": "Pump Shotgun",
                 "skillimage": "https://i.imgur.com/qu9wKKN.png",
                 "url": "https://i.imgur.com/qu9wKKN.png",
-                "skilldescription": "Deals 20 piercing damage to one enemy and makes them bleed for 3 affliction damage each turn for 4 turns. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect. After every 2 uses, Pump Shotgun overheats and is disabled for 1 turn.",
-                "description": "Deals 20 piercing damage to one enemy and makes them bleed for 3 affliction damage each turn for 4 turns. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect. After every 2 uses, Pump Shotgun overheats and is disabled for 1 turn.",
-                "descriptionHtml": "Deals 20 piercing damage to one enemy.<br>Makes them bleed for 3 affliction damage each turn for 4 turns.<br>Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.<br>After every 2 uses, Pump Shotgun overheats and is disabled for 1 turn.",
+                "skilldescription": "Deals 20 piercing damage to one enemy and makes them bleed for 3 bleed damage each turn for 4 turns. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect. After every 2 uses, Pump Shotgun reloads and is disabled for 1 turn.",
+                "description": "Deals 20 piercing damage to one enemy and makes them bleed for 3 bleed damage each turn for 4 turns. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect. After every 2 uses, Pump Shotgun reloads and is disabled for 1 turn.",
+                "descriptionHtml": "Deals 20 piercing damage to one enemy.<br>Makes them bleed for 3 bleed damage each turn for 4 turns.<br>Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.<br>After every 2 uses, Pump Shotgun reloads and is disabled for 1 turn.",
                 "energy": [
                     "Taijutsu"
                 ],
@@ -9987,7 +9987,7 @@ const characters = [
                             "removeOnHealingEffect": true,
                             "turnEndDamage": 3,
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character bleeds for 3 affliction damage each turn. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect."
+                            "tooltipText": "This character bleeds for 3 bleed damage each turn. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect."
                         }
                     }
                 ]
