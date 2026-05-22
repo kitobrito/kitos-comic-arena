@@ -2569,6 +2569,7 @@ const maybeTriggerReactiveDefenses = ({
 const applyDamageToUnit = (unit, rawAmount, context = {}) => {
     if (!unit || unit.alive === false || isUnitBanished(unit)) return 0;
     const targetState = ensureUnitStateShape(unit);
+    const fixedDamage = Boolean(context?.fixedDamage);
     applyOnOwnerDamagedByBaseDamageBonuses({
         match: context?.match || null,
         targetState,
@@ -2584,7 +2585,13 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
     });
     const wasAlive = unit.alive !== false;
     const hpBeforeDamage = Math.max(0, Number(unit.hp) || 0);
+    const skillClasses = Array.isArray(context?.skillClasses) ? context.skillClasses : [];
+    const isPhysical = skillClasses.some(
+        (entry) => typeof entry === 'string' && entry.trim().toLowerCase() === 'physical'
+    );
+    const ignoreDamageImmunity = Boolean(context?.ignoreDamageImmunity);
     const ignoreEnemyDamage =
+        !ignoreDamageImmunity &&
         hasStatusMetadataFlag(targetState, 'ignoreEnemyDamage') &&
         context?.sourceUsername &&
         context?.targetUsername &&
@@ -2594,12 +2601,14 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
     }
     const skillIsMental = hasSkillClass(context?.skillClasses || [], 'mental');
     const ignoreEnemyPhysicalDamage =
+        !ignoreDamageImmunity &&
         hasStatusMetadataFlag(targetState, 'ignoreEnemyPhysicalDamage') &&
         context?.sourceUsername &&
         context?.targetUsername &&
         context.sourceUsername !== context.targetUsername &&
         isPhysical;
     const ignoreEnemyNonMentalDamage =
+        !ignoreDamageImmunity &&
         hasStatusMetadataFlag(targetState, 'ignoreEnemyNonMentalDamage') &&
         context?.sourceUsername &&
         context?.targetUsername &&
@@ -2614,14 +2623,19 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
     if (ignoreEnemyNonMentalDamage) {
         incoming = 0;
     }
-    const incomingMultiplier = Math.max(0, Number(getStatusMetadataTotals(targetState, unit).damageTakenMultiplier) || 1);
+    const incomingMultiplier = fixedDamage
+        ? 1
+        : Math.max(0, Number(getStatusMetadataTotals(targetState, unit).damageTakenMultiplier) || 1);
     incoming *= incomingMultiplier;
     if (incoming <= 0 && !ignoreEnemyNonMentalDamage) return 0;
-    const skillClasses = Array.isArray(context?.skillClasses) ? context.skillClasses : [];
     const afflictionDamage =
         Boolean(context?.afflictionDamage) ||
         skillClasses.some((entry) => typeof entry === 'string' && entry.trim().toLowerCase() === 'affliction');
-    if (afflictionDamage && hasStatusMetadataFlag(targetState, 'ignoreAfflictionDamage')) {
+    if (
+        afflictionDamage &&
+        !Boolean(context?.ignoreAfflictionDamageImmunity) &&
+        hasStatusMetadataFlag(targetState, 'ignoreAfflictionDamage')
+    ) {
         return 0;
     }
     if (incoming > 0 && !afflictionDamage) {
@@ -2706,11 +2720,10 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
 
     const totals = getStatusMetadataTotals(targetState, unit);
     const contextualMinimumHp = getContextualMinimumHp(targetState, unit, context);
-    const isPhysical = skillClasses.some(
-        (entry) => typeof entry === 'string' && entry.trim().toLowerCase() === 'physical'
-    );
     const ignoreDamageReduction = Boolean(context?.ignoreDamageReduction);
-    const damageTakenBonusFlat = Math.max(0, Number(totals.damageTakenBonusFlat) || 0);
+    const damageTakenBonusFlat = fixedDamage
+        ? 0
+        : Math.max(0, Number(totals.damageTakenBonusFlat) || 0);
     if (damageTakenBonusFlat > 0) {
         incoming += damageTakenBonusFlat;
     }
@@ -2974,6 +2987,12 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
 const applyHealToUnit = (unit, rawAmount) => {
     if (!unit || unit.alive === false || isUnitBanished(unit)) return 0;
     const targetState = ensureUnitStateShape(unit);
+    if (Math.max(0, Number(rawAmount) || 0) > 0) {
+        targetState.statuses = (Array.isArray(targetState.statuses) ? targetState.statuses : []).filter(
+            (status) => !Boolean(status?.metadata?.removeOnHealingEffect)
+        );
+        refreshDerivedStatusTooltips(targetState);
+    }
     const totals = getStatusMetadataTotals(targetState);
     const heal = Math.max(0, Number(rawAmount) || 0) * Math.max(0, Number(totals.healReceivedMultiplier) || 0);
     const before = Number(unit.hp) || 0;
@@ -6660,10 +6679,11 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                 const baseTurnEndDamage = Math.max(0, Number(status?.metadata?.turnEndDamage) || 0);
                 let turnEndDamage = baseTurnEndDamage;
                 const turnEndIsAffliction = Boolean(status?.metadata?.afflictionDamage);
+                const fixedTurnEndDamage = Boolean(status?.metadata?.fixedTurnEndDamage);
                 const ignoreSourceNonAfflictionDamageBonus = Boolean(
                     status?.metadata?.ignoreSourceNonAfflictionDamageBonus
                 );
-                if (baseTurnEndDamage > 0) {
+                if (baseTurnEndDamage > 0 && !fixedTurnEndDamage) {
                     turnEndDamage = Math.max(
                         0,
                         baseTurnEndDamage +
@@ -6675,7 +6695,7 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                     );
                 }
                 const sourceOutgoingCap = sourceState ? getOutgoingDamageCap(sourceState, sourceUnit) : null;
-                if (sourceOutgoingCap !== null) {
+                if (sourceOutgoingCap !== null && !fixedTurnEndDamage) {
                     turnEndDamage = Math.min(turnEndDamage, sourceOutgoingCap);
                 }
                 if (turnEndDamage > 0) {
@@ -6689,6 +6709,11 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                         targetUsername: username,
                         afflictionDamage: affliction,
                         damageDebugReason: 'turn end',
+                        fixedDamage: fixedTurnEndDamage,
+                        ignoreDamageImmunity: Boolean(status?.metadata?.ignoreDamageImmunity),
+                        ignoreAfflictionDamageImmunity: Boolean(
+                            status?.metadata?.ignoreAfflictionDamageImmunity
+                        ),
                         ignoreDamageReduction:
                             affliction || Boolean(status?.metadata?.ignoreTargetDamageReduction),
                         ignoreDestructibleDefense:
