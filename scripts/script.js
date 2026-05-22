@@ -5604,53 +5604,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             ingameMissionsStatusEl.textContent = message;
         };
 
-        const formatMissionGoalLines = (mission, progress = {}) => {
-            const goals = Array.isArray(mission?.goals) ? mission.goals : [];
-            const progressByIndex = progress?.goalProgressByIndex || progress?.goalProgress || {};
-            return goals
-                .map((goal, index) => {
-                    const goalType = String(goal?.type || '').trim().toLowerCase();
-                    const count = Number(progressByIndex?.[index]?.count) || 0;
-                    if (typeof goal === 'string') {
-                        return goal.trim();
-                    }
-                    if (goalType === 'text') {
-                        return String(goal?.text || goal?.value || goal?.label || '').trim();
-                    }
-                    if (goalType === 'reach_rank') {
-                        const target = Math.max(0, Number(goal.rank) || 0);
-                        return target ? `Reach level ${target}: ${Math.min(count, target)}/${target}` : '';
-                    }
-                    if (goalType === 'win_matches') {
-                        const target = Math.max(0, Number(goal.wins) || 0);
-                        const characterName = goal.character_name || goal.character_id || 'required character';
-                        return target
-                            ? `Win ${target} with ${characterName}: ${Math.min(count, target)}/${target}`
-                            : '';
-                    }
-                    if (goalType === 'win_streak') {
-                        const target = Math.max(0, Number(goal.wins) || 0);
-                        const characterName = goal.character_name || goal.character_id || 'required character';
-                        return target
-                            ? `Win ${target} in a row with ${characterName}: ${Math.min(count, target)}/${target}`
-                            : '';
-                    }
-                    if (goalType === 'win_matches_same_team') {
-                        const target = Math.max(0, Number(goal.wins) || 0);
-                        const characterNames = Array.isArray(goal.character_names) && goal.character_names.length
-                            ? goal.character_names
-                            : Array.isArray(goal.character_ids)
-                                ? goal.character_ids
-                                : [];
-                        return target
-                            ? `Win ${target} with ${characterNames.join(' and ') || 'the required team'}: ${Math.min(count, target)}/${target}`
-                            : '';
-                    }
-                    return '';
-                })
-                .filter(Boolean);
-        };
-
         const getMissionGoalProgressText = (mission, progress = {}) => {
             if (progress?.completedAt) return 'Complete';
             const goalLines = formatMissionGoalLines(mission, progress);
@@ -6819,6 +6772,53 @@ document.addEventListener('DOMContentLoaded', async () => {
     const setSelectionMissionsStatus = (message = '') => {
         if (!selectionMissionsStatusEl) return;
         selectionMissionsStatusEl.textContent = message;
+    };
+
+    const formatMissionGoalLines = (mission, progress = {}) => {
+        const goals = Array.isArray(mission?.goals) ? mission.goals : [];
+        const progressByIndex = progress?.goalProgressByIndex || progress?.goalProgress || {};
+        return goals
+            .map((goal, index) => {
+                const goalType = String(goal?.type || '').trim().toLowerCase();
+                const count = Number(progressByIndex?.[index]?.count) || 0;
+                if (typeof goal === 'string') {
+                    return goal.trim();
+                }
+                if (goalType === 'text') {
+                    return String(goal?.text || goal?.value || goal?.label || '').trim();
+                }
+                if (goalType === 'reach_rank') {
+                    const target = Math.max(0, Number(goal.rank) || 0);
+                    return target ? `Reach level ${target}: ${Math.min(count, target)}/${target}` : '';
+                }
+                if (goalType === 'win_matches') {
+                    const target = Math.max(0, Number(goal.wins) || 0);
+                    const characterName = goal.character_name || goal.character_id || 'required character';
+                    return target
+                        ? `Win ${target} with ${characterName}: ${Math.min(count, target)}/${target}`
+                        : '';
+                }
+                if (goalType === 'win_streak') {
+                    const target = Math.max(0, Number(goal.wins) || 0);
+                    const characterName = goal.character_name || goal.character_id || 'required character';
+                    return target
+                        ? `Win ${target} in a row with ${characterName}: ${Math.min(count, target)}/${target}`
+                        : '';
+                }
+                if (goalType === 'win_matches_same_team') {
+                    const target = Math.max(0, Number(goal.wins) || 0);
+                    const characterNames = Array.isArray(goal.character_names) && goal.character_names.length
+                        ? goal.character_names
+                        : Array.isArray(goal.character_ids)
+                            ? goal.character_ids
+                            : [];
+                    return target
+                        ? `Win ${target} with ${characterNames.join(' and ') || 'the required team'}: ${Math.min(count, target)}/${target}`
+                        : '';
+                }
+                return '';
+            })
+            .filter(Boolean);
     };
 
     const getSelectionMissionProgressText = (mission, progress = {}) => {
