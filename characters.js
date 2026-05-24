@@ -11450,8 +11450,8 @@ const characters = [
                             }
                         }
                     ],
-                    "tooltipText": "Saint Walker grants his team 1 permanent destructible defense at the end of each of his turns.",
-                    "tooltipTextTemplate": "Saint Walker grants his team {blueLanternRingDefensePerTurn} permanent destructible defense at the end of each of his turns."
+                    "tooltipText": "Saint Walker grants his team 1 permanent destructible defense at the end of each of his turns. Also increases Passive: Green Lantern by 1 each turn while he is alive.",
+                    "tooltipTextTemplate": "Saint Walker grants his team {blueLanternRingDefensePerTurn} permanent destructible defense at the end of each of his turns. Also increases Passive: Green Lantern by 1 each turn while he is alive."
                 }
             }
         ],
@@ -11662,7 +11662,7 @@ const characters = [
                             "mergeNumericAddKeys": [
                                 "blueLanternRingDefensePerTurn"
                             ],
-                            "tooltipTextTemplate": "Saint Walker grants his team {blueLanternRingDefensePerTurn} permanent destructible defense at the end of each of his turns."
+                            "tooltipTextTemplate": "Saint Walker grants his team {blueLanternRingDefensePerTurn} permanent destructible defense at the end of each of his turns. Also increases Passive: Green Lantern by 1 each turn while he is alive."
                         }
                     },
                     {
