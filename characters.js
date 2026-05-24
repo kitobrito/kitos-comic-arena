@@ -960,9 +960,10 @@ const characters = [
                 "cooldownHtml": "2",
                 "classes": [
                     "Physical",
-                    "Instant"
+                    "Instant",
+                    "Bypassing"
                 ],
-                "classesHtml": "Physical, Instant",
+                "classesHtml": "Physical, Instant, Bypassing",
                 "effects": [
                     {
                         "type": "damage",
@@ -1241,7 +1242,8 @@ const characters = [
                             }
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Physical, Instant, Invisible"
             },
             {
                 "id": "captain_america_america_shield_passive2",
@@ -2343,7 +2345,8 @@ const characters = [
                     "Melee",
                     "Instant",
                     "Bypassing",
-                    "Uncounterable"
+                    "Uncounterable",
+                    "Unreflectable"
                 ],
                 "effects": [
                     {
@@ -2355,7 +2358,7 @@ const characters = [
                         }
                     }
                 ],
-                "classesHtml": "Physical, Melee, Instant, Bypassing, Uncounterable"
+                "classesHtml": "Physical, Melee, Instant, Bypassing, Uncounterable, Unreflectable"
             }
         ],
         "role": "Tempo DPS",
@@ -10245,9 +10248,9 @@ const characters = [
                 "nameHtml": "Smartgun Lock-On",
                 "skillimage": "https://i.imgur.com/Oq1tldJ.png",
                 "url": "https://i.imgur.com/Oq1tldJ.png",
-                "skilldescription": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn. This skill can be cancelled by using it again while active.",
-                "description": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn. This skill can be cancelled by using it again while active.",
-                "descriptionHtml": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn.<br>This skill can be cancelled by using it again while active.",
+                "skilldescription": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn. This skill. This skill has no cooldown and can be cancelled by using it again while active.",
+                "description": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn. This skill. This skill has no cooldown and can be cancelled by using it again while active.",
+                "descriptionHtml": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn.<br>This skill.<br>This skill has no cooldown and can be cancelled by using it again while active.",
                 "energy": [],
                 "target": "self",
                 "damage": 0,
@@ -10258,9 +10261,10 @@ const characters = [
                     "Ranged",
                     "Instant",
                     "Bypassing",
-                    "Uncounterable"
+                    "Uncounterable",
+                    "Unreflectable"
                 ],
-                "classesHtml": "Mental, Ranged, Instant, Bypassing, Uncounterable",
+                "classesHtml": "Mental, Ranged, Instant, Bypassing, Uncounterable, Unreflectable",
                 "ignoreInvulnerability": true,
                 "cannotBeCountered": true,
                 "cannotBeReflected": true,
@@ -10399,9 +10403,10 @@ const characters = [
                     "Physical",
                     "Ranged",
                     "Instant",
-                    "Uncounterable"
+                    "Uncounterable",
+                    "Unreflectable"
                 ],
-                "classesHtml": "Physical, Ranged, Instant, Uncounterable",
+                "classesHtml": "Physical, Ranged, Instant, Uncounterable, Unreflectable",
                 "cannotBeCountered": true,
                 "cannotBeReflected": true,
                 "effects": [
