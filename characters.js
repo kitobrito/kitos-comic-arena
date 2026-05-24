@@ -4986,13 +4986,13 @@ const characters = [
                         "type": "apply_status",
                         "statusId": "walker_group_banquet_regen",
                         "duration": 2,
-                        "scope": "self",
+                        "scope": "all-allies",
                         "metadata": {
                             "turnEndHealFlat": 15,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
                             "triggerOnApply": true,
-                            "tooltipText": "Walker heals 15 HP at the end of each of his turns."
+                            "tooltipText": "This character heals 15 HP at the end of each of Walker's turns."
                         }
                     }
                 ]
