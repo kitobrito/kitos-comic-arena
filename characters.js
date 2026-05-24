@@ -10192,14 +10192,14 @@ const characters = [
                 "nameHtml": "Smartgun Lock-On",
                 "skillimage": "https://i.imgur.com/Oq1tldJ.png",
                 "url": "https://i.imgur.com/Oq1tldJ.png",
-                "skilldescription": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn. This skill ignores invulnerability and cannot be countered or reflected.",
-                "description": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn. This skill ignores invulnerability and cannot be countered or reflected.",
-                "descriptionHtml": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn.<br>This skill ignores invulnerability and cannot be countered or reflected.",
+                "skilldescription": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn. This skill ignores invulnerability and cannot be countered or reflected. This skill has no cooldown and can be cancelled by using it again while active.",
+                "description": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn. This skill ignores invulnerability and cannot be countered or reflected. This skill has no cooldown and can be cancelled by using it again while active.",
+                "descriptionHtml": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn.<br>This skill ignores invulnerability and cannot be countered or reflected.<br>This skill has no cooldown and can be cancelled by using it again while active.",
                 "energy": [],
                 "target": "self",
                 "damage": 0,
-                "cooldown": 3,
-                "cooldownHtml": "3",
+                "cooldown": 0,
+                "cooldownHtml": "None",
                 "classes": [
                     "Mental",
                     "Ranged",
@@ -10215,6 +10215,10 @@ const characters = [
                         "statusId": "sergeant_william_hillford_smartgun_lock_on_active",
                         "duration": 3,
                         "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "missingStatusId": "sergeant_william_hillford_smartgun_lock_on_active"
+                        },
                         "metadata": {
                             "turnEndApplyStatusToRandomEnemy": {
                                 "statusId": "sergeant_william_hillford_smartgun_lock_on_mark",
@@ -10227,6 +10231,23 @@ const characters = [
                                 }
                             },
                             "tooltipText": "At the end of each turn, the lowest health enemy is marked by Smartgun Lock-On."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "sergeant_william_hillford_smartgun_lock_on_cancel_helper",
+                        "duration": 0,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "sergeant_william_hillford_smartgun_lock_on_active"
+                        },
+                        "metadata": {
+                            "removeStatusIdsOnApply": [
+                                "sergeant_william_hillford_smartgun_lock_on_active",
+                                "sergeant_william_hillford_smartgun_lock_on_cancel_helper"
+                            ],
+                            "hideTooltip": true
                         }
                     }
                 ]
