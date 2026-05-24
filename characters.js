@@ -1206,7 +1206,7 @@ const characters = [
                 "id": "captain-america-vibranium-ricochet",
                 "name": "Vibranium Ricochet",
                 "skillimage": "https://i.imgur.com/Lmj8tYf.jpeg",
-                "skilldescription": "Captain America or one ally ignores all enemy non-mental skills for 1 turn. Reflects 25% of all non-mental damage directed at the character affected by this skill back at the attacker. This skill is invisible and cycles its cost between red/white/blue each turn.",
+                "skilldescription": "Captain America or one ally ignores all enemy non-mental skills for 1 turn. Reflects 25% of all non-mental damage directed at the character affected by this skill back at the attacker. cycles its cost between red/white/blue each turn.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -1853,7 +1853,7 @@ const characters = [
                 "id": "batman-bullet-deflecting-cape",
                 "name": "Bullet-Deflecting Cape",
                 "skillimage": "https://i.imgur.com/c0AlSs8.jpeg",
-                "skilldescription": "For 1 turn, the first non-mental harmful skill used on Batman is reflected onto a random enemy. This skill is invisible. This skill then swaps back to 'Grappling Hook'.",
+                "skilldescription": "For 1 turn, the first non-mental harmful skill used on Batman is reflected onto a random enemy. This skill then swaps back to 'Grappling Hook'.",
                 "energy": [
                     "Random"
                 ],
@@ -1862,7 +1862,8 @@ const characters = [
                 "cooldown": 3,
                 "classes": [
                     "Physical",
-                    "Instant"
+                    "Instant",
+                    "Invisible"
                 ],
                 "effects": [
                     {
@@ -1904,7 +1905,8 @@ const characters = [
                             "tooltipText": "Grappling Hook is now Bullet-Deflecting Cape."
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Physical, Instant, Invisible"
             },
             {
                 "id": "batman-smoke-bomb",
@@ -2042,7 +2044,7 @@ const characters = [
                 "id": "the-flash-barry-allen-infinite-mass-punch",
                 "name": "Infinite Mass Punch",
                 "skillimage": "https://i.imgur.com/tZfTTzm.jpeg",
-                "skilldescription": "Deals 45 piercing damage to one enemy. If The Flash has 'Speed Up' this skill cannot be countered or reflected and ignores invulnerability.",
+                "skilldescription": "Deals 45 piercing damage to one enemy.",
                 "energy": [
                     "Taijutsu",
                     "Bloodline"
@@ -2053,7 +2055,9 @@ const characters = [
                 "classes": [
                     "Physical",
                     "Melee",
-                    "Instant"
+                    "Instant",
+                    "Bypassing",
+                    "Uncounterable"
                 ],
                 "effects": [
                     {
@@ -2064,7 +2068,8 @@ const characters = [
                             "ignoreDamageReduction": true
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Physical, Melee, Instant, Bypassing, Uncounterable"
             },
             {
                 "id": "the-flash-barry-allen-lightning-rush",
@@ -2281,7 +2286,7 @@ const characters = [
                 "name": "Flashpoint Surge",
                 "useBaseSkillCooldown": true,
                 "skillimage": "https://i.imgur.com/2rQgv0G.jpeg",
-                "skilldescription": "The Flash resets his team's cooldowns and heals them 25 HP. This skill ignores invulnerability.",
+                "skilldescription": "The Flash resets his team's cooldowns and heals them 25 HP.",
                 "energy": [
                     "Bloodline",
                     "Random",
@@ -2293,7 +2298,8 @@ const characters = [
                 "classes": [
                     "Physical",
                     "Melee",
-                    "Instant"
+                    "Instant",
+                    "Bypassing"
                 ],
                 "effects": [
                     {
@@ -2312,7 +2318,8 @@ const characters = [
                             "ignoreHelpfulInvulnerability": true
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Physical, Melee, Instant, Bypassing"
             },
             {
                 "id": "the-flash-barry-allen-infinite-mass-punch-speed-up",
@@ -2323,7 +2330,7 @@ const characters = [
                 "cannotBeReflected": true,
                 "ignoreInvulnerability": true,
                 "skillimage": "https://i.imgur.com/vwUOYsd.png",
-                "skilldescription": "Deals 45 piercing damage to one enemy. This skill cannot be countered or reflected and ignores invulnerability while Speed Up is active.",
+                "skilldescription": "Deals 45 piercing damage to one enemy. while Speed Up is active.",
                 "energy": [
                     "Taijutsu",
                     "Bloodline"
@@ -2334,7 +2341,9 @@ const characters = [
                 "classes": [
                     "Physical",
                     "Melee",
-                    "Instant"
+                    "Instant",
+                    "Bypassing",
+                    "Uncounterable"
                 ],
                 "effects": [
                     {
@@ -2345,7 +2354,8 @@ const characters = [
                             "ignoreDamageReduction": true
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Physical, Melee, Instant, Bypassing, Uncounterable"
             }
         ],
         "role": "Tempo DPS",
@@ -2427,9 +2437,9 @@ const characters = [
                 "nameHtml": "Brace of Submission",
                 "skillimage": "https://i.imgur.com/hOWzTTF.jpeg",
                 "url": "https://i.imgur.com/hOWzTTF.jpeg",
-                "skilldescription": "For 1 turn, the next non-mental skill used on Wonder Woman will be reflected to a random enemy. This skill is invisible.",
-                "description": "For 1 turn, the next non-mental skill used on Wonder Woman will be reflected to a random enemy. This skill is invisible.",
-                "descriptionHtml": "For 1 turn, the next non-mental skill used on Wonder Woman will be reflected to a random enemy.<br>This skill is invisible.",
+                "skilldescription": "For 1 turn, the next non-mental skill used on Wonder Woman will be reflected to a random enemy.",
+                "description": "For 1 turn, the next non-mental skill used on Wonder Woman will be reflected to a random enemy.",
+                "descriptionHtml": "For 1 turn, the next non-mental skill used on Wonder Woman will be reflected to a random enemy.<br>",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -2440,9 +2450,10 @@ const characters = [
                 "classes": [
                     "Physical",
                     "Ranged",
-                    "Instant"
+                    "Instant",
+                    "Invisible"
                 ],
-                "classesHtml": "Physical, Ranged, Instant",
+                "classesHtml": "Physical, Ranged, Instant, Invisible",
                 "effects": [
                     {
                         "type": "apply_status",
@@ -2524,9 +2535,9 @@ const characters = [
                 "nameHtml": "Amazonian Guard",
                 "skillimage": "https://i.imgur.com/XQ0qm1p.jpeg",
                 "url": "https://i.imgur.com/XQ0qm1p.jpeg",
-                "skilldescription": "Grants Wonder Woman or one selected ally 15 points of destructible defense for 1 turn. This skill is invisible.",
-                "description": "Grants Wonder Woman or one selected ally 15 points of destructible defense for 1 turn. This skill is invisible.",
-                "descriptionHtml": "Grants Wonder Woman or one selected ally 15 points of destructible defense for 1 turn.<br>This skill is invisible.",
+                "skilldescription": "Grants Wonder Woman or one selected ally 15 points of destructible defense for 1 turn.",
+                "description": "Grants Wonder Woman or one selected ally 15 points of destructible defense for 1 turn.",
+                "descriptionHtml": "Grants Wonder Woman or one selected ally 15 points of destructible defense for 1 turn.<br>",
                 "energy": [
                     "Random"
                 ],
@@ -2536,9 +2547,10 @@ const characters = [
                 "cooldownHtml": "1",
                 "classes": [
                     "Physical",
-                    "Instant"
+                    "Instant",
+                    "Invisible"
                 ],
-                "classesHtml": "Physical, Instant",
+                "classesHtml": "Physical, Instant, Invisible",
                 "effects": [
                     {
                         "type": "apply_status",
@@ -2881,7 +2893,7 @@ const characters = [
                 "id": "storm-lightning-strike",
                 "name": "Lightning Strike",
                 "skillimage": "https://i.imgur.com/cIQ7sTM.png",
-                "skilldescription": "Storm calls down lightning, dealing 30 piercing damage to one enemy and fully stunning them for 1 turn. If 'Rainstorm' is active, this also deals 10 piercing damage to all other enemies and ignores invulnerability.",
+                "skilldescription": "Storm calls down lightning, dealing 30 piercing damage to one enemy and fully stunning them for 1 turn.",
                 "energy": [
                     "ninjutsu",
                     "random"
@@ -2892,7 +2904,8 @@ const characters = [
                 "classes": [
                     "Energy",
                     "Ranged",
-                    "Instant"
+                    "Instant",
+                    "Bypassing"
                 ],
                 "effects": [
                     {
@@ -2914,7 +2927,8 @@ const characters = [
                             "tooltipText": "This character is stunned."
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Energy, Ranged, Instant, Bypassing"
             },
             {
                 "id": "storm-wind-funnel",
@@ -2945,7 +2959,7 @@ const characters = [
                 "id": "storm-rainstorm",
                 "name": "Rainstorm",
                 "skillimage": "https://i.imgur.com/xB6A34j.png",
-                "skilldescription": "Storm heals her entire team for 12 HP per turn for 4 turns. While active, this becomes 'Hailstorm' and Storm's skills are improved. This skill ignores invulnerability.",
+                "skilldescription": "Storm heals her entire team for 12 HP per turn for 4 turns. While active, this becomes 'Hailstorm' and Storm's skills are improved.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -2954,7 +2968,8 @@ const characters = [
                 "cooldown": 4,
                 "classes": [
                     "Energy",
-                    "Instant"
+                    "Instant",
+                    "Bypassing"
                 ],
                 "effects": [
                     {
@@ -2982,13 +2997,14 @@ const characters = [
                         },
                         "ignoreHelpfulInvulnerability": true
                     }
-                ]
+                ],
+                "classesHtml": "Energy, Instant, Bypassing"
             },
             {
                 "id": "storm-ice-barrier",
                 "name": "Ice Barrier",
                 "skillimage": "https://i.imgur.com/fsSRHNk.png",
-                "skilldescription": "Storm targets herself or one ally, countering the first enemy skill used on them for 1 turn. If triggered, the ally gains 15 points of permanent destructible defense. This skill is invisible until triggered.",
+                "skilldescription": "Storm targets herself or one ally, countering the first enemy skill used on them for 1 turn. until triggered.",
                 "energy": [
                     "random"
                 ],
@@ -2997,7 +3013,8 @@ const characters = [
                 "cooldown": 3,
                 "classes": [
                     "Energy",
-                    "Instant"
+                    "Instant",
+                    "Invisible"
                 ],
                 "effects": [
                     {
@@ -3043,13 +3060,14 @@ const characters = [
                             "tooltipText": "The next enemy harmful skill used on this character this turn is countered. If triggered, this character gains 15 permanent destructible defense."
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Energy, Instant, Invisible"
             },
             {
                 "id": "storm-hailstorm",
                 "name": "Hailstorm",
                 "skillimage": "https://i.imgur.com/HPsujWh.png",
-                "skilldescription": "For 4 turns, all enemies take 8 damage per turn. On turn 2 of this skill, their harmful skills are stunned for 1 turn. On turn 4 of this skill, their helpful skills are stunned for 1 turn. This skill ignores invulnerability.",
+                "skilldescription": "For 4 turns, all enemies take 8 damage per turn. On turn 2 of this skill, their harmful skills are stunned for 1 turn. On turn 4 of this skill, their helpful skills are stunned for 1 turn.",
                 "energy": [
                     "Genjutsu",
                     "Random"
@@ -3060,7 +3078,8 @@ const characters = [
                 "classes": [
                     "Energy",
                     "Ranged",
-                    "Instant"
+                    "Instant",
+                    "Bypassing"
                 ],
                 "ignoreInvulnerability": true,
                 "effects": [
@@ -3117,7 +3136,8 @@ const characters = [
                             }
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Energy, Ranged, Instant, Bypassing"
             },
             {
                 "id": "storm-lightning-strike-rainstorm",
@@ -3125,7 +3145,7 @@ const characters = [
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
                 "skillimage": "https://i.imgur.com/cIQ7sTM.png",
-                "skilldescription": "Storm calls down lightning, dealing 30 piercing damage to one enemy and fully stunning them for 1 turn. This also deals 10 piercing damage to all other enemies and ignores invulnerability.",
+                "skilldescription": "Storm calls down lightning, dealing 30 piercing damage to one enemy and fully stunning them for 1 turn. This also deals 10 piercing damage to all other enemies.",
                 "energy": [
                     "ninjutsu",
                     "random"
@@ -3136,7 +3156,8 @@ const characters = [
                 "classes": [
                     "Energy",
                     "Ranged",
-                    "Instant"
+                    "Instant",
+                    "Bypassing"
                 ],
                 "ignoreInvulnerability": true,
                 "effects": [
@@ -3167,7 +3188,8 @@ const characters = [
                             "ignoreDamageReduction": true
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Energy, Ranged, Instant, Bypassing"
             },
             {
                 "id": "storm-wind-funnel-rainstorm",
@@ -5882,7 +5904,7 @@ const characters = [
                 "id": "atom-eve-molecule-shield",
                 "name": "Molecule Shield",
                 "skillimage": "https://i.imgur.com/oeKbnxE.jpeg",
-                "skilldescription": "Eve grants her entire team 20 points of destructible defense for 1 turn. This skill is invisible.",
+                "skilldescription": "Eve grants her entire team 20 points of destructible defense for 1 turn.",
                 "energy": [
                     "Random",
                     "Random"
@@ -5892,7 +5914,8 @@ const characters = [
                 "cooldown": 2,
                 "classes": [
                     "Energy",
-                    "Instant"
+                    "Instant",
+                    "Invisible"
                 ],
                 "effects": [
                     {
@@ -5909,7 +5932,8 @@ const characters = [
                             "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense."
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Energy, Instant, Invisible"
             },
             {
                 "id": "atom-eve-molecule-battle-armor",
@@ -6109,7 +6133,7 @@ const characters = [
                 "id": "omni-man-omni-rush",
                 "name": "Omni-Rush",
                 "skillimage": "https://i.imgur.com/Z163Kpb.jpeg",
-                "skilldescription": "Omni-Man gains 50% unpierceable damage reduction and taunts one enemy for 1 turn. This ignores invulnerability. This cannot be used on an enemy that had this skill used on them last turn.",
+                "skilldescription": "Omni-Man gains 50% unpierceable damage reduction and taunts one enemy for 1 turn. This. This cannot be used on an enemy that had this skill used on them last turn.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -6123,7 +6147,8 @@ const characters = [
                 "classes": [
                     "Physical",
                     "Melee",
-                    "Instant"
+                    "Instant",
+                    "Bypassing"
                 ],
                 "effects": [
                     {
@@ -6158,13 +6183,14 @@ const characters = [
                             "tooltipText": "Omni-Rush cannot target this character this turn."
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Physical, Melee, Instant, Bypassing"
             },
             {
                 "id": "omni-man-omni-guard",
                 "name": "Omni-Guard",
                 "skillimage": "https://i.imgur.com/sHp09rW.jpeg",
-                "skilldescription": "Omni-Man targets one enemy for 1 turn, countering them if they use a new harmful skill. If successful, Omni-Man deals 10 additional damage permanently. This skill is invisible.",
+                "skilldescription": "Omni-Man targets one enemy for 1 turn, countering them.",
                 "energy": [
                     "Random"
                 ],
@@ -6174,7 +6200,8 @@ const characters = [
                 "classes": [
                     "Physical",
                     "Melee",
-                    "Instant"
+                    "Instant",
+                    "Invisible"
                 ],
                 "effects": [
                     {
@@ -6201,7 +6228,8 @@ const characters = [
                             "tooltipText": "If this character uses a new harmful skill this turn, it is countered and Omni-Man gains 10 additional damage permanently."
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Physical, Melee, Instant, Invisible"
             },
             {
                 "id": "omni-man-passive-omni-rage",
@@ -6283,7 +6311,7 @@ const characters = [
                 "id": "angstrom-levy-sneaky-portal",
                 "name": "Sneaky Portal",
                 "skillimage": "https://i.imgur.com/oSJHrpN.jpeg",
-                "skilldescription": "Targets one enemy for 1 turn, and if they use a new harmful skill they will be countered. If successful, 'Dimension Abandon' will be cast on the target. This skill is invisible.",
+                "skilldescription": "Targets one enemy for 1 turn, and.",
                 "energy": [
                     "Taijutsu"
                 ],
@@ -6293,7 +6321,8 @@ const characters = [
                 "classes": [
                     "Energy",
                     "Ranged",
-                    "Instant"
+                    "Instant",
+                    "Invisible"
                 ],
                 "effects": [
                     {
@@ -6337,13 +6366,14 @@ const characters = [
                             "tooltipText": "If this character uses a new harmful skill this turn, it is countered and they are banished for 1 turn."
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Energy, Ranged, Instant, Invisible"
             },
             {
                 "id": "angstrom-levy-multi-dimensional-rifts",
                 "name": "Multi-Dimensional Rifts",
                 "skillimage": "https://i.imgur.com/8gbeVqS.jpeg",
-                "skilldescription": "For 2 turns, 'Sneaky Portal' is cast on one random enemy each turn and 'Portal Save' has its cooldown reset. While active, 'Spy Drones' will have no cooldown. This skill is invisible.",
+                "skilldescription": "For 2 turns, 'Sneaky Portal' is cast on one random enemy each turn and 'Portal Save' has its cooldown reset. While active, 'Spy Drones' will have no cooldown.",
                 "energy": [
                     "Taijutsu",
                     "Taijutsu",
@@ -6355,7 +6385,8 @@ const characters = [
                 "classes": [
                     "Energy",
                     "Ranged",
-                    "Instant"
+                    "Instant",
+                    "Invisible"
                 ],
                 "effects": [
                     {
@@ -6426,7 +6457,8 @@ const characters = [
                             "tooltipText": "Each turn, Sneaky Portal is applied to one random enemy, Portal Save has its cooldown reset, and Spy Drones has no cooldown."
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Energy, Ranged, Instant, Invisible"
             },
             {
                 "id": "angstrom-levy-portal-save",
@@ -6722,7 +6754,7 @@ const characters = [
                 "id": "billy-butcher-yellow-death-lasers",
                 "name": "Yellow Death Lasers",
                 "skillimage": "https://i.imgur.com/1MFzKut.jpeg",
-                "skilldescription": "Butcher deals 35 affliction damage to one enemy that ignores invulnerability.",
+                "skilldescription": "Butcher deals 35 affliction damage to one enemy that.",
                 "energy": [
                     "Random",
                     "Random"
@@ -6735,7 +6767,8 @@ const characters = [
                     "Energy",
                     "Ranged",
                     "Instant",
-                    "Affliction"
+                    "Affliction",
+                    "Bypassing"
                 ],
                 "effects": [
                     {
@@ -6748,7 +6781,8 @@ const characters = [
                             "ignoreDestructibleDefense": true
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Energy, Ranged, Instant, Affliction, Bypassing"
             }
         ],
         "role": "Brawler",
@@ -7033,7 +7067,7 @@ const characters = [
                 "id": "carnage-blood-slash",
                 "name": "Blood Slash",
                 "skillimage": "https://i.imgur.com/f69xBeL.png",
-                "skilldescription": "Deals 35 bleed damage to one enemy. Carnage loses 15 HP. This skill cannot be countered or reflected. This executes enemies that fall to 15 HP or less during 'Blood Slinging'. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
+                "skilldescription": "Deals 35 bleed damage to one enemy. Carnage loses 15 HP. This executes enemies that fall to 15 HP or less during 'Blood Slinging'. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
                 "energy": [
                     "Bloodline",
                     "Random"
@@ -7044,7 +7078,8 @@ const characters = [
                 "classes": [
                     "Physical",
                     "Melee",
-                    "Instant"
+                    "Instant",
+                    "Uncounterable"
                 ],
                 "cannotBeCountered": true,
                 "effects": [
@@ -7091,13 +7126,14 @@ const characters = [
                             "cannotBeEvaded": true
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Physical, Melee, Instant, Uncounterable"
             },
             {
                 "id": "carnage-wide-area-cutting",
                 "name": "Wide-Area Cutting",
                 "skillimage": "https://i.imgur.com/9H59XyW.png",
-                "skilldescription": "Deals 20 bleed damage to the enemy team. Carnage loses 15 HP. This skill cannot be countered or reflected. This executes enemies that fall to 5 HP or less during 'Blood Slinging'. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
+                "skilldescription": "Deals 20 bleed damage to the enemy team. Carnage loses 15 HP. This executes enemies that fall to 5 HP or less during 'Blood Slinging'. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
                 "energy": [
                     "Bloodline",
                     "Random"
@@ -7108,7 +7144,8 @@ const characters = [
                 "classes": [
                     "Physical",
                     "Ranged",
-                    "Instant"
+                    "Instant",
+                    "Uncounterable"
                 ],
                 "cannotBeCountered": true,
                 "effects": [
@@ -7155,7 +7192,8 @@ const characters = [
                             "cannotBeEvaded": true
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Physical, Ranged, Instant, Uncounterable"
             },
             {
                 "id": "carnage-brain-devour",
@@ -7611,7 +7649,7 @@ const characters = [
                 "id": "sandman-sand-clone-counter",
                 "name": "Sand Clone Counter",
                 "skillimage": "https://i.imgur.com/8g6oZlb.png",
-                "skilldescription": "Target an ally, granting them 20 destructible defense and himself 10 destructible defense for 1 turn. Sandman and the Ally will swap places. This skill is invisible to the enemy for 1 turn.",
+                "skilldescription": "Target an ally, granting them 20 destructible defense and himself 10 destructible defense for 1 turn. Sandman and the Ally will swap places. to the enemy for 1 turn.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -7620,7 +7658,8 @@ const characters = [
                 "cooldown": 2,
                 "classes": [
                     "Physical",
-                    "Instant"
+                    "Instant",
+                    "Invisible"
                 ],
                 "effects": [
                     {
@@ -7658,7 +7697,8 @@ const characters = [
                             "tooltipText": "This skill is invisible."
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Physical, Instant, Invisible"
             },
             {
                 "id": "sandman-sand-smothering",
@@ -7696,7 +7736,7 @@ const characters = [
                 "id": "sandman-body-of-sand",
                 "name": "Body of Sand",
                 "skillimage": "https://i.imgur.com/nzJlnhN.png",
-                "skilldescription": "Sandman ignores all enemy physical skills for 2 turns. This effect is invisible on its first turn.",
+                "skilldescription": "Sandman ignores all enemy physical skills for 2 turns.",
                 "energy": [
                     "Random",
                     "Random"
@@ -7706,7 +7746,8 @@ const characters = [
                 "cooldown": 5,
                 "classes": [
                     "Physical",
-                    "Instant"
+                    "Instant",
+                    "Invisible"
                 ],
                 "effects": [
                     {
@@ -7723,13 +7764,14 @@ const characters = [
                             "tooltipText": "Sandman ignores enemy physical skills."
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Physical, Instant, Invisible"
             },
             {
                 "id": "sandman-sand-body-exit",
                 "name": "Sand Body Exit",
                 "skillimage": "https://i.imgur.com/LLIk8Nu.png",
-                "skilldescription": "Deals 45 affliction damage to the enemy marked by 'Sand Body Enter'. This skill ignores invulnerability and cannot be reflected.",
+                "skilldescription": "Deals 45 affliction damage to the enemy marked by 'Sand Body Enter'.",
                 "energy": [
                     "Genjutsu",
                     "Random"
@@ -7741,7 +7783,9 @@ const characters = [
                     "Physical",
                     "Melee",
                     "Instant",
-                    "Affliction"
+                    "Affliction",
+                    "Bypassing",
+                    "Unreflectable"
                 ],
                 "cannotBeReflected": true,
                 "ignoreInvulnerability": true,
@@ -7766,7 +7810,8 @@ const characters = [
                         "statusId": "sandman_sand_body_mark",
                         "count": 0
                     }
-                ]
+                ],
+                "classesHtml": "Physical, Melee, Instant, Affliction, Bypassing, Unreflectable"
             }
         ],
         "role": "Duelist Bruiser",
@@ -7784,7 +7829,7 @@ const characters = [
                 "id": "mysterio-illusion-of-choice",
                 "name": "Illusion of Choice",
                 "skillimage": "https://i.imgur.com/L6xYXGc.png",
-                "skilldescription": "Mysterio targets one enemy for 1 turn. During this time, their next harmful skill will be reflected to a random enemy and their next helpful skill will be re-directed to a random ally. This skill is invisible to the target team.",
+                "skilldescription": "Mysterio targets one enemy for 1 turn. During this time, their next harmful skill will be reflected to a random enemy and their next helpful skill will be re-directed to a random ally.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -7794,7 +7839,8 @@ const characters = [
                 "classes": [
                     "Mental",
                     "Ranged",
-                    "Instant"
+                    "Instant",
+                    "Invisible"
                 ],
                 "effects": [
                     {
@@ -7821,13 +7867,14 @@ const characters = [
                             "tooltipText": "The next helpful skill used on this character will target a random ally."
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Mental, Ranged, Instant, Invisible"
             },
             {
                 "id": "mysterio-script-rewrite",
                 "name": "Script Rewrite",
                 "skillimage": "https://i.imgur.com/pt6KJHc.png",
-                "skilldescription": "Mysterio targets one enemy for 2 turns. If they use a new harmful skill, they take 30 affliction damage, their cooldown is increased by 1, and this trap is consumed. This skill is invisible. This cannot be used on an already affected enemy.",
+                "skilldescription": "Mysterio targets one enemy for 2 turns.. This cannot be used on an already affected enemy.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -7838,7 +7885,8 @@ const characters = [
                     "Mental",
                     "Ranged",
                     "Instant",
-                    "Affliction"
+                    "Affliction",
+                    "Invisible"
                 ],
                 "effects": [
                     {
@@ -7872,13 +7920,14 @@ const characters = [
                             "tooltipText": "If this character uses a new harmful skill, they take 30 affliction damage and that skill's cooldown increases by 1."
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Mental, Ranged, Instant, Affliction, Invisible"
             },
             {
                 "id": "mysterio-hall-of-mirrors",
                 "name": "Hall of Mirrors",
                 "skillimage": "https://i.imgur.com/MV1gA5Q.png",
-                "skilldescription": "For 2 turns, your team gains 30% evasion. This skill is invisible on its first turn.",
+                "skilldescription": "For 2 turns, your team gains 30% evasion.",
                 "energy": [
                     "Ninjutsu",
                     "Genjutsu"
@@ -7888,7 +7937,8 @@ const characters = [
                 "cooldown": 4,
                 "classes": [
                     "Mental",
-                    "Instant"
+                    "Instant",
+                    "Invisible"
                 ],
                 "effects": [
                     {
@@ -7904,7 +7954,8 @@ const characters = [
                             "tooltipText": "This character has 30% evasion against enemy non-mental skills."
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Mental, Instant, Invisible"
             },
             {
                 "id": "mysterio-grand-illusion",
@@ -9316,9 +9367,9 @@ const characters = [
                 "nameHtml": "Predalien Screech",
                 "skillimage": "https://i.imgur.com/AT8pjLr.jpeg",
                 "url": "https://i.imgur.com/AT8pjLr.jpeg",
-                "skilldescription": "Taunts the enemy team and lowers their non-affliction damage by 15 for 1 turn. This skill ignores invulnerability.",
-                "description": "Taunts the enemy team and lowers their non-affliction damage by 15 for 1 turn. This skill ignores invulnerability.",
-                "descriptionHtml": "Taunts the enemy team and lowers their non-affliction damage by 15 for 1 turn. This skill ignores invulnerability.",
+                "skilldescription": "Taunts the enemy team and lowers their non-affliction damage by 15 for 1 turn.",
+                "description": "Taunts the enemy team and lowers their non-affliction damage by 15 for 1 turn.",
+                "descriptionHtml": "Taunts the enemy team and lowers their non-affliction damage by 15 for 1 turn.",
                 "energy": [
                     "Random",
                     "Random"
@@ -9330,9 +9381,10 @@ const characters = [
                 "classes": [
                     "Physical",
                     "Ranged",
-                    "Instant"
+                    "Instant",
+                    "Bypassing"
                 ],
-                "classesHtml": "Physical, Ranged, Instant",
+                "classesHtml": "Physical, Ranged, Instant, Bypassing",
                 "ignoreInvulnerability": true,
                 "effects": [
                     {
@@ -9565,9 +9617,9 @@ const characters = [
                 "nameHtml": "Murderous Rage",
                 "skillimage": "https://i.imgur.com/39yHcrF_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
                 "url": "https://i.imgur.com/39yHcrF_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "skilldescription": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP. While active, if they use a new harmful skill, this effect is refreshed and they take 5 additional damage from Rage Infected permanently. This skill is invisible and cannot be used while active.",
-                "description": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP. While active, if they use a new harmful skill, this effect is refreshed and they take 5 additional damage from Rage Infected permanently. This skill is invisible and cannot be used while active.",
-                "descriptionHtml": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP.<br>While active, if they use a new harmful skill, this effect is refreshed and they take 5 additional damage from Rage Infected permanently.<br>This skill is invisible and cannot be used while active.",
+                "skilldescription": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP. While active. cannot be used while active.",
+                "description": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP. While active. cannot be used while active.",
+                "descriptionHtml": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP.<br>While active.<br> and cannot be used while active.",
                 "energy": [
                     "Random"
                 ],
@@ -9578,9 +9630,10 @@ const characters = [
                 "classes": [
                     "Mental",
                     "Ranged",
-                    "Instant"
+                    "Instant",
+                    "Invisible"
                 ],
-                "classesHtml": "Mental, Ranged, Instant",
+                "classesHtml": "Mental, Ranged, Instant, Invisible",
                 "effects": [
                     {
                         "type": "apply_status",
@@ -10192,9 +10245,9 @@ const characters = [
                 "nameHtml": "Smartgun Lock-On",
                 "skillimage": "https://i.imgur.com/Oq1tldJ.png",
                 "url": "https://i.imgur.com/Oq1tldJ.png",
-                "skilldescription": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn. This skill ignores invulnerability and cannot be countered or reflected. This skill has no cooldown and can be cancelled by using it again while active.",
-                "description": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn. This skill ignores invulnerability and cannot be countered or reflected. This skill has no cooldown and can be cancelled by using it again while active.",
-                "descriptionHtml": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn.<br>This skill ignores invulnerability and cannot be countered or reflected.<br>This skill has no cooldown and can be cancelled by using it again while active.",
+                "skilldescription": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn. This skill can be cancelled by using it again while active.",
+                "description": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn. This skill can be cancelled by using it again while active.",
+                "descriptionHtml": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn.<br>This skill can be cancelled by using it again while active.",
                 "energy": [],
                 "target": "self",
                 "damage": 0,
@@ -10203,9 +10256,11 @@ const characters = [
                 "classes": [
                     "Mental",
                     "Ranged",
-                    "Instant"
+                    "Instant",
+                    "Bypassing",
+                    "Uncounterable"
                 ],
-                "classesHtml": "Mental, Ranged, Instant",
+                "classesHtml": "Mental, Ranged, Instant, Bypassing, Uncounterable",
                 "ignoreInvulnerability": true,
                 "cannotBeCountered": true,
                 "cannotBeReflected": true,
@@ -10330,9 +10385,9 @@ const characters = [
                 "nameHtml": "Flashlight Attachment",
                 "skillimage": "https://i.imgur.com/pqhEl50.png",
                 "url": "https://i.imgur.com/pqhEl50.png",
-                "skilldescription": "Immediately ends all active counter and reflect skills being used by the enemy team. For 2 turns, all enemy skills become visible. This skill cannot be countered or reflected.",
-                "description": "Immediately ends all active counter and reflect skills being used by the enemy team. For 2 turns, all enemy skills become visible. This skill cannot be countered or reflected.",
-                "descriptionHtml": "Immediately ends all active counter and reflect skills being used by the enemy team.<br>For 2 turns, all enemy skills become visible.<br>This skill cannot be countered or reflected.",
+                "skilldescription": "Immediately ends all active counter and reflect skills being used by the enemy team. For 2 turns, all enemy skills become visible.",
+                "description": "Immediately ends all active counter and reflect skills being used by the enemy team. For 2 turns, all enemy skills become visible.",
+                "descriptionHtml": "Immediately ends all active counter and reflect skills being used by the enemy team.<br>For 2 turns, all enemy skills become visible.<br>",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -10343,9 +10398,10 @@ const characters = [
                 "classes": [
                     "Physical",
                     "Ranged",
-                    "Instant"
+                    "Instant",
+                    "Uncounterable"
                 ],
-                "classesHtml": "Physical, Ranged, Instant",
+                "classesHtml": "Physical, Ranged, Instant, Uncounterable",
                 "cannotBeCountered": true,
                 "cannotBeReflected": true,
                 "effects": [
@@ -10595,7 +10651,7 @@ const characters = [
                 "id": "predator-stalker-cloaking-assassination",
                 "name": "Cloaking Assassination",
                 "skillimage": "https://i.imgur.com/uDof8fR_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "skilldescription": "Requires Cloaking Tech. Deals 50 piercing damage to one enemy and ignores invulnerability. If this kills the target, Cloaking Tech lasts 1 additional turn.",
+                "skilldescription": "Requires Cloaking Tech. Deals 50 piercing damage to one enemy.",
                 "energy": [
                     "Genjutsu",
                     "Genjutsu"
@@ -10610,7 +10666,8 @@ const characters = [
                 "classes": [
                     "Physical",
                     "Melee",
-                    "Instant"
+                    "Instant",
+                    "Bypassing"
                 ],
                 "effects": [
                     {
@@ -10622,7 +10679,8 @@ const characters = [
                             "ignoreDestructibleDefense": true
                         }
                     }
-                ]
+                ],
+                "classesHtml": "Physical, Melee, Instant, Bypassing"
             },
             {
                 "id": "predator-stalker-cloaking-tech",
@@ -10887,9 +10945,9 @@ const characters = [
                 "nameHtml": "Fear the Reaper",
                 "skillimage": "https://i.imgur.com/cImcBvC.png",
                 "url": "https://i.imgur.com/cImcBvC.png",
-                "skilldescription": "Sinestro conjures an avatar of death to harvest the weak. Deals 10 damage to a single enemy. This attack deals an additional 5 damage for every stack of 'Passive: Yellow Lantern Ring' currently applied to the target and ignores invulnerability.",
-                "description": "Sinestro conjures an avatar of death to harvest the weak. Deals 10 damage to a single enemy. This attack deals an additional 5 damage for every stack of 'Passive: Yellow Lantern Ring' currently applied to the target and ignores invulnerability.",
-                "descriptionHtml": "Sinestro conjures an avatar of death to harvest the weak.<br>Deals 10 damage to a single enemy.<br>This attack deals an additional 5 damage for every stack of 'Passive: Yellow Lantern Ring' currently applied to the target and ignores invulnerability.",
+                "skilldescription": "Sinestro conjures an avatar of death to harvest the weak. Deals 10 damage to a single enemy. This attack deals an additional 5 damage for every stack of 'Passive: Yellow Lantern Ring' currently applied to the target.",
+                "description": "Sinestro conjures an avatar of death to harvest the weak. Deals 10 damage to a single enemy. This attack deals an additional 5 damage for every stack of 'Passive: Yellow Lantern Ring' currently applied to the target.",
+                "descriptionHtml": "Sinestro conjures an avatar of death to harvest the weak.<br>Deals 10 damage to a single enemy.<br>This attack deals an additional 5 damage for every stack of 'Passive: Yellow Lantern Ring' currently applied to the target.",
                 "energy": [],
                 "target": "single-enemy",
                 "damage": 0,
@@ -10899,9 +10957,10 @@ const characters = [
                 "classes": [
                     "Energy",
                     "Ranged",
-                    "Instant"
+                    "Instant",
+                    "Bypassing"
                 ],
-                "classesHtml": "Energy, Ranged, Instant",
+                "classesHtml": "Energy, Ranged, Instant, Bypassing",
                 "effects": [
                     {
                         "type": "damage",
@@ -11396,9 +11455,9 @@ const characters = [
                 "nameHtml": "Radiant Hope",
                 "skillimage": "https://i.imgur.com/4th9J63.jpeg",
                 "url": "https://i.imgur.com/4th9J63.jpeg",
-                "skilldescription": "At the start of your next turn choose one option: - Grant one ally 20 points of permanent destructible defense - Grant an enemy 20 points of Barrier - Prevent an ally from dying for 1 turn. This skill is invisible and its effects are invisible.",
-                "description": "At the start of your next turn choose one option: - Grant one ally 20 points of permanent destructible defense - Grant an enemy 20 points of Barrier - Prevent an ally from dying for 1 turn. This skill is invisible and its effects are invisible.",
-                "descriptionHtml": "At the start of your next turn choose one option:<br>- Grant one ally 20 points of permanent destructible defense<br>- Grant an enemy 20 points of Barrier<br>- Prevent an ally from dying for 1 turn<br>This skill is invisible and its effects are invisible.",
+                "skilldescription": "At the start of your next turn choose one option: - Grant one ally 20 points of permanent destructible defense - Grant an enemy 20 points of Barrier - Prevent an ally from dying for 1 turn. its effects are.",
+                "description": "At the start of your next turn choose one option: - Grant one ally 20 points of permanent destructible defense - Grant an enemy 20 points of Barrier - Prevent an ally from dying for 1 turn. its effects are.",
+                "descriptionHtml": "At the start of your next turn choose one option:<br>- Grant one ally 20 points of permanent destructible defense<br>- Grant an enemy 20 points of Barrier<br>- Prevent an ally from dying for 1 turn<br> and its effects are.",
                 "energy": [
                     "Ninjutsu",
                     "Random"
@@ -11410,9 +11469,10 @@ const characters = [
                 "classes": [
                     "Energy",
                     "Ranged",
-                    "Instant"
+                    "Instant",
+                    "Invisible"
                 ],
-                "classesHtml": "Energy, Ranged, Instant",
+                "classesHtml": "Energy, Ranged, Instant, Invisible",
                 "effects": [
                     {
                         "type": "apply_status",
@@ -12094,9 +12154,9 @@ const characters = [
                 "nameHtml": "Unseen Guard",
                 "skillimage": "https://i.imgur.com/hKwdORa.jpeg",
                 "url": "https://i.imgur.com/hKwdORa.jpeg",
-                "skilldescription": "John Stewart gains 20 points of destructible defense for 1 turn. The first enemy to use a new skill on him during this time is given 'Emotional Possession'. This skill is invisible.",
-                "description": "John Stewart gains 20 points of destructible defense for 1 turn. The first enemy to use a new skill on him during this time is given 'Emotional Possession'. This skill is invisible.",
-                "descriptionHtml": "John Stewart gains 20 points of destructible defense for 1 turn.<br>The first enemy to use a new skill on him during this time is given 'Emotional Possession'.<br>This skill is invisible.",
+                "skilldescription": "John Stewart gains 20 points of destructible defense for 1 turn. The first enemy to use a new skill on him during this time is given 'Emotional Possession'.",
+                "description": "John Stewart gains 20 points of destructible defense for 1 turn. The first enemy to use a new skill on him during this time is given 'Emotional Possession'.",
+                "descriptionHtml": "John Stewart gains 20 points of destructible defense for 1 turn.<br>The first enemy to use a new skill on him during this time is given 'Emotional Possession'.<br>",
                 "energy": [
                     "Random"
                 ],
@@ -12106,9 +12166,10 @@ const characters = [
                 "cooldownHtml": "2",
                 "classes": [
                     "Energy",
-                    "Instant"
+                    "Instant",
+                    "Invisible"
                 ],
-                "classesHtml": "Energy, Instant",
+                "classesHtml": "Energy, Instant, Invisible",
                 "effects": [
                     {
                         "type": "apply_status",
@@ -12346,8 +12407,8 @@ const characters = [
                 "nameHtml": "Sorrow Spikes",
                 "skillimage": "https://i.imgur.com/ubRYRX3.jpeg",
                 "url": "https://i.imgur.com/ubRYRX3.jpeg",
-                "skilldescription": "Marks an enemy for 1 turn. If they do not use a new skill, they take 25 piercing damage and gain a Stack of Sorrow. This skill is invisible.",
-                "description": "Marks an enemy for 1 turn. If they do not use a new skill, they take 25 piercing damage and gain a Stack of Sorrow. This skill is invisible.",
+                "skilldescription": "Marks an enemy for 1 turn.",
+                "description": "Marks an enemy for 1 turn.",
                 "energy": [
                     "Random"
                 ],
@@ -12358,9 +12419,10 @@ const characters = [
                 "classes": [
                     "Energy",
                     "Ranged",
-                    "Instant"
+                    "Instant",
+                    "Invisible"
                 ],
-                "classesHtml": "Energy, Ranged, Instant",
+                "classesHtml": "Energy, Ranged, Instant, Invisible",
                 "effects": [
                     {
                         "type": "apply_status",
@@ -12407,8 +12469,8 @@ const characters = [
                 "nameHtml": "Depression Coffin",
                 "skillimage": "https://i.imgur.com/fBlXOmL.jpeg",
                 "url": "https://i.imgur.com/fBlXOmL.jpeg",
-                "skilldescription": "Marks an enemy for 1 turn. If they use a new skill, its damage is reduced by 25 and they gain a Stack of Sorrow. This skill is invisible.",
-                "description": "Marks an enemy for 1 turn. If they use a new skill, its damage is reduced by 25 and they gain a Stack of Sorrow. This skill is invisible.",
+                "skilldescription": "Marks an enemy for 1 turn.",
+                "description": "Marks an enemy for 1 turn.",
                 "energy": [
                     "Random"
                 ],
@@ -12419,9 +12481,10 @@ const characters = [
                 "classes": [
                     "Energy",
                     "Ranged",
-                    "Instant"
+                    "Instant",
+                    "Invisible"
                 ],
-                "classesHtml": "Energy, Ranged, Instant",
+                "classesHtml": "Energy, Ranged, Instant, Invisible",
                 "effects": [
                     {
                         "type": "apply_status",
@@ -12552,7 +12615,7 @@ const characters = [
         "role": "Hybrid",
         "universe": "dc",
         "roleCategory": "hybrid"
-    },
+    }
 ];
 
 if (typeof module !== 'undefined') {
