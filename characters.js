@@ -11431,6 +11431,23 @@ const characters = [
                                 ],
                                 "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Blue Lantern Ring."
                             }
+                        },
+                        {
+                            "statusId": "green_lantern_hal_jordan_green_lantern_ring_damage_bonus",
+                            "duration": 99,
+                            "condition": {
+                                "scope": "target",
+                                "statusId": "green_lantern_hal_jordan_passive_green_lantern_ring"
+                            },
+                            "metadata": {
+                                "infiniteDuration": true,
+                                "lanternEffectVisual": "green",
+                                "damageBonusFlat": 1,
+                                "mergeNumericAddKeys": [
+                                    "damageBonusFlat"
+                                ],
+                                "tooltipTextTemplate": "Green Lantern deals {damageBonusFlat} additional damage."
+                            }
                         }
                     ],
                     "tooltipText": "Saint Walker grants his team 1 permanent destructible defense at the end of each of his turns.",
@@ -11604,6 +11621,44 @@ const characters = [
                         "metadata": {
                             "infiniteDuration": true,
                             "blueLanternRingDefensePerTurn": 1,
+                            "turnEndApplyStatusToAllies": [
+                                {
+                                    "statusId": "saint_walker_blue_lantern_ring_defense",
+                                    "duration": 99,
+                                    "metadata": {
+                                        "destructibleDefensePoints": 0,
+                                        "lanternEffectVisual": "blue",
+                                        "scaleFromSourceStatusMetadata": {
+                                            "metadataKey": "blueLanternRingDefensePerTurn",
+                                            "multiplier": 1,
+                                            "targetKeys": [
+                                                "destructibleDefensePoints"
+                                            ]
+                                        },
+                                        "mergeNumericAddKeys": [
+                                            "destructibleDefensePoints"
+                                        ],
+                                        "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Blue Lantern Ring."
+                                    }
+                                },
+                                {
+                                    "statusId": "green_lantern_hal_jordan_green_lantern_ring_damage_bonus",
+                                    "duration": 99,
+                                    "condition": {
+                                        "scope": "target",
+                                        "statusId": "green_lantern_hal_jordan_passive_green_lantern_ring"
+                                    },
+                                    "metadata": {
+                                        "infiniteDuration": true,
+                                        "lanternEffectVisual": "green",
+                                        "damageBonusFlat": 1,
+                                        "mergeNumericAddKeys": [
+                                            "damageBonusFlat"
+                                        ],
+                                        "tooltipTextTemplate": "Green Lantern deals {damageBonusFlat} additional damage."
+                                    }
+                                }
+                            ],
                             "mergeNumericAddKeys": [
                                 "blueLanternRingDefensePerTurn"
                             ],

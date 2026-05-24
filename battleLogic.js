@@ -3631,7 +3631,6 @@ const queueTurnStartChoicePrompts = ({ match, startingUsername }) => {
         for (const status of statuses) {
             if (!isStatusActiveForMetadata(status, unit)) continue;
             const metadata = status?.metadata || {};
-            if (!Boolean(metadata.onTeamMemberDeathQueueTurnStartChoice)) continue;
             const maxUses = Math.max(0, Number(metadata.turnStartChoiceMaxUses) || 0);
             const usesUsed = Math.max(0, Number(metadata.turnStartChoiceUsesUsed) || 0);
             if (maxUses > 0 && usesUsed >= maxUses) continue;
@@ -6468,6 +6467,18 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                         const allyState = ensureUnitStateShape(allyUnit);
                         turnEndApplyStatusToAllies.forEach((entry) => {
                             if (!entry || !entry.statusId) return;
+                            if (
+                                entry.condition &&
+                                !doesEffectConditionMatch({
+                                    match,
+                                    actingUsername: username,
+                                    actorUnit: unit,
+                                    targetUnit: allyUnit,
+                                    condition: entry.condition,
+                                })
+                            ) {
+                                return;
+                            }
                             applyStatus({
                                 targetState: allyState,
                                 statusId: entry.statusId,
@@ -6495,6 +6506,18 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                         const enemyState = ensureUnitStateShape(enemyUnit);
                         turnEndApplyStatusToEnemies.forEach((entry) => {
                             if (!entry || !entry.statusId) return;
+                            if (
+                                entry.condition &&
+                                !doesEffectConditionMatch({
+                                    match,
+                                    actingUsername: username,
+                                    actorUnit: unit,
+                                    targetUnit: enemyUnit,
+                                    condition: entry.condition,
+                                })
+                            ) {
+                                return;
+                            }
                             applyStatus({
                                 targetState: enemyState,
                                 statusId: entry.statusId,
