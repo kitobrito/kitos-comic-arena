@@ -1274,8 +1274,8 @@ const characters = [
                 "duration": 999,
                 "metadata": {
                     "infiniteDuration": true,
-                    "unpierceableDamageReductionFlat": 10,
-                    "tooltipText": "Superman has 10 unpierceable damage reduction."
+                    "unpierceableDamageReductionFlat": 12,
+                    "tooltipText": "Superman has 12 unpierceable damage reduction."
                 }
             }
         ],
@@ -9228,9 +9228,9 @@ const characters = [
                 "nameHtml": "Tail Ravage",
                 "skillimage": "https://i.imgur.com/jOZDXEw.jpeg",
                 "url": "https://i.imgur.com/jOZDXEw.jpeg",
-                "skilldescription": "Deals 45 piercing damage to one enemy. If this kills the target, Predalien gains 1 stack of 'Plated Armor' permanently and deals 5 bonus damage permanently that stacks.",
-                "description": "Deals 45 piercing damage to one enemy. If this kills the target, Predalien gains 1 stack of 'Plated Armor' permanently and deals 5 bonus damage permanently that stacks.",
-                "descriptionHtml": "Deals 45 piercing damage to one enemy. If this kills the target, Predalien gains 1 stack of 'Plated Armor' permanently and deals 5 bonus damage permanently that stacks.",
+                "skilldescription": "Deals 45 piercing damage to one enemy. If this kills the target, Predalien gains 1 stack of 'Plated Armor' permanently and deals 10 bonus damage permanently that stacks.",
+                "description": "Deals 45 piercing damage to one enemy. If this kills the target, Predalien gains 1 stack of 'Plated Armor' permanently and deals 10 bonus damage permanently that stacks.",
+                "descriptionHtml": "Deals 45 piercing damage to one enemy. If this kills the target, Predalien gains 1 stack of 'Plated Armor' permanently and deals 10 bonus damage permanently that stacks.",
                 "energy": [
                     "Genjutsu",
                     "Genjutsu"
@@ -9275,7 +9275,7 @@ const characters = [
                                     "duration": 999,
                                     "metadata": {
                                         "infiniteDuration": true,
-                                        "damageBonusFlat": 5,
+                                        "damageBonusFlat": 10,
                                         "mergeNumericAddKeys": [
                                             "damageBonusFlat"
                                         ],
