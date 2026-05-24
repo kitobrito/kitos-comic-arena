@@ -10236,7 +10236,31 @@ const characters = [
                             "preferEnemyWithStatusId": "sergeant_william_hillford_smartgun_lock_on_mark",
                             "turnEndRandomEnemyIgnoreDamageImmunityIfPreferredStatus": true,
                             "turnEndRandomEnemyExecuteBelowHpThreshold": 5,
-                            "tooltipText": "Every turn, this character deals 27 piercing damage to a new random enemy. Smartgun Lock-On marks are targeted first."
+                            "tooltipText": "Every turn, this character deals 27 piercing damage to a new random enemy. Smartgun Lock-On marks are targeted first.",
+                            "onOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillIdsAny": [
+                                "sergeant-william-hillford-smartgunner-spray"
+                            ],
+                            "persistOnOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillApplyStatusToOwnerCondition": {
+                                "statusId": "sergeant_william_hillford_smartgunner_spray_active"
+                            },
+                            "onOwnerUseSkillApplyStatusToOwner": {
+                                "statusId": "sergeant_william_hillford_smartgunner_spray_cost_increase",
+                                "duration": 1,
+                                "metadata": {
+                                    "skillCostOverridesBySkillId": {
+                                        "sergeant-william-hillford-smartgunner-spray": {
+                                            "energy": [
+                                                "Taijutsu",
+                                                "Genjutsu",
+                                                "Random",
+                                                "Random"
+                                            ]
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 ]
