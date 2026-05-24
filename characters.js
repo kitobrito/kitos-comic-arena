@@ -4064,7 +4064,9 @@ const characters = [
                 "name": ".357 Revolver",
                 "skillimage": "https://i.imgur.com/J7oYkQt.png",
                 "skilldescription": "Rick fires his signature weapon at one enemy, dealing 20 piercing damage. This has an 80% chance to successfully hit and a 20% chance to miss. If successful, this has a 25% chance to be a 'Headshot'. If it misses, it has a 10% chance to hit a random different enemy (and 5% chance for that to then be a 'Headshot'). Rick only carries six bullets with him per game.",
-                "energy": [],
+                "energy": [
+                    "Random"
+                ],
                 "target": "single-enemy",
                 "damage": 0,
                 "cooldown": 0,
@@ -4587,7 +4589,7 @@ const characters = [
                 ],
                 "target": "self",
                 "damage": 0,
-                "cooldown": 2,
+                "cooldown": 3,
                 "classes": [
                     "Physical",
                     "Melee",
@@ -5035,7 +5037,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/cT2uA4x.png",
                 "skilldescription": "Hershel targets himself or an ally. For 3 turns, they gain 60% unpierceable damage reduction that decays by 20% each turn. Swaps to 'Antibiotics' once used.",
                 "energy": [
-                    "Random"
+                    "Genjutsu"
                 ],
                 "target": "self-or-single-ally",
                 "damage": 0,
@@ -5153,7 +5155,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/fzgNljs.png",
                 "skilldescription": "Hershel targets himself or an ally. For 3 turns, the target has all enemy affliction skills removed from them and heals 15 HP each turn. Swaps to 'Morphine Shot' once used.",
                 "energy": [
-                    "Random"
+                    "Genjutsu"
                 ],
                 "target": "self-or-single-ally",
                 "damage": 0,
