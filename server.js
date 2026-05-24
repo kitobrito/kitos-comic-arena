@@ -2551,10 +2551,14 @@ const saveCharactersDataFile = async (nextCharacters, options = {}) => {
 };
 
 const refreshCharactersDataFromFile = () => {
-    try {
-        rebuildCharacterCatalog(applyCharacterOverrides(loadCharactersDataFromFile()));
-    } catch (error) {
-        console.error('Character data refresh error:', error);
+    // Optimization: Only reload from file if we don't have data yet
+    // Otherwise, rely on rebuildCharacterCatalog calls during saves
+    if (!Array.isArray(charactersData) || charactersData.length === 0) {
+        try {
+            rebuildCharacterCatalog(applyCharacterOverrides(loadCharactersDataFromFile()));
+        } catch (error) {
+            console.error('Character data refresh error:', error);
+        }
     }
     return Array.isArray(charactersData) ? charactersData : [];
 };
