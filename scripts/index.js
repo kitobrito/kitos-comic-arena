@@ -206,6 +206,7 @@
   var characterEditorJson = document.getElementById("character-editor-json");
   var characterEditorSave = document.getElementById("character-editor-save");
   var characterEditorExport = document.getElementById("character-editor-export");
+  var characterEditorSyncGithub = document.getElementById("character-editor-sync-github");
   var characterEditorClose = document.getElementById("character-editor-close");
   var characterEditorModalStatus = document.getElementById("character-editor-modal-status");
   var selectedAdminCharacterId = "";
@@ -1901,6 +1902,42 @@
       setCharacterEditorStatus("Unable to reach the server.", "error");
     } finally {
       characterEditorExport.disabled = false;
+    }
+  }
+
+  async function syncAdminCharactersToGithub() {
+    if (!characterEditorSyncGithub) {
+      return;
+    }
+
+    if (!confirm("Are you sure you want to commit and push all character changes to GitHub?")) {
+      return;
+    }
+
+    characterEditorSyncGithub.disabled = true;
+    setCharacterEditorStatus("Syncing with GitHub...");
+    try {
+      var response = await fetch("/api/admin/git/sync", {
+        method: "POST",
+        credentials: "same-origin"
+      });
+      var data = await response.json().catch(function () {
+        return {};
+      });
+
+      if (!response.ok) {
+        setCharacterEditorStatus(
+          data && data.error ? data.error : "Unable to sync with GitHub.",
+          "error"
+        );
+        return;
+      }
+
+      setCharacterEditorStatus(data && data.message ? data.message : "Changes synced to GitHub.", "success");
+    } catch (error) {
+      setCharacterEditorStatus("Unable to reach the server.", "error");
+    } finally {
+      characterEditorSyncGithub.disabled = false;
     }
   }
 
@@ -3835,6 +3872,12 @@
   if (characterEditorExport) {
     characterEditorExport.addEventListener("click", function () {
       exportAdminCharacters();
+    });
+  }
+
+  if (characterEditorSyncGithub) {
+    characterEditorSyncGithub.addEventListener("click", function () {
+      syncAdminCharactersToGithub();
     });
   }
 

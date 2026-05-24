@@ -1,6 +1,9 @@
 const fs = require('fs');
 const https = require('https');
 const path = require('path');
+const { exec } = require('child_process');
+const util = require('util');
+const execPromise = util.promisify(exec);
 
 // Diagnostic logging for environment variables
 console.log('--- Startup Diagnostics ---');
@@ -7978,6 +7981,36 @@ app.get('/api/admin/characters/export', requireSession, (req, res) => {
     res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
     res.setHeader('Content-Disposition', 'attachment; filename="characters.js"');
     return res.send(serialized);
+});
+
+app.post('/api/admin/git/sync', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    try {
+        // 1. Ensure file is written
+        const serialized = serializeCharactersDataFile(Array.isArray(charactersData) ? charactersData : []);
+        await fs.promises.writeFile(CHARACTERS_FILE_PATH, serialized, 'utf8');
+
+        // 2. Git operations
+        // Note: This assumes git is configured and has credentials in the environment
+        const commitMessage = `Admin: Update character data by ${req.authUser.username}`;
+        
+        await execPromise('git add characters.js');
+        await execPromise(`git commit -m "${commitMessage.replace(/"/g, '\\"')}"`);
+        await execPromise('git push');
+
+        return res.json({
+            ok: true,
+            message: 'Changes committed and pushed to GitHub.',
+        });
+    } catch (error) {
+        console.error('Git sync error:', error);
+        return res.status(500).json({
+            error: 'Failed to sync with GitHub. ' + (error.stderr || error.message),
+        });
+    }
 });
 
 app.get('/api/admin/characters/:characterId', requireSession, (req, res) => {
