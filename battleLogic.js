@@ -3763,7 +3763,7 @@ const cleanseHarmfulStatuses = (unit, count = 1) => {
     targetState.statuses = targetState.statuses.filter((status) => {
         if (removed >= maxCount) return true;
         const harmful = Boolean(status?.metadata?.harmful);
-        if (!harmful) return true;
+        if (!harmful || Boolean(status?.metadata?.unremovable)) return true;
         removed += 1;
         return false;
     });
@@ -3782,6 +3782,7 @@ const cleanseEnemyAfflictionStatuses = (unit, ownerUsername, count = 0) => {
         const sourceUsername = typeof status?.sourceUsername === 'string' ? status.sourceUsername : '';
         if (!sourceUsername || sourceUsername === ownerUsername) return true;
         if (!Boolean(status?.metadata?.afflictionDamage)) return true;
+        if (Boolean(status?.metadata?.unremovable)) return true;
         removed += 1;
         return false;
     });
@@ -6759,6 +6760,26 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                             metadata: onSuccessTurnEndApplyStatusToSelf.metadata || {},
                             fresh: false,
                         });
+                    }
+
+                    const transformationChance = Number(status?.metadata?.transformationChance) || 0;
+                    if (transformationChance > 0 && Math.random() < transformationChance) {
+                        const transformationId = status?.metadata?.transformationCharacterId;
+                        const transformationFace = status?.metadata?.transformationFacePicture;
+                        if (transformationId) {
+                            applyStatus({
+                                targetState: actorState,
+                                statusId: `transformation_into_${transformationId}_permanent`,
+                                duration: 999,
+                                metadata: {
+                                    infiniteDuration: true,
+                                    effectiveCharacterId: transformationId,
+                                    facePictureOverride: transformationFace,
+                                    unremovable: true,
+                                    tooltipText: `This character has been turned into ${transformationId.replace(/-/g, ' ')}.`,
+                                },
+                            });
+                        }
                     }
                 }
                 if (Boolean(status?.metadata?.turnEndDestroyDestructibleDefense)) {

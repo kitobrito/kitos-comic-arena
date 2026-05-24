@@ -4732,6 +4732,12 @@ const characters = [
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
                             "triggerOnApply": true,
+                            "transformationChance": 0.01,
+                            "transformationCharacterId": "walker",
+                            "transformationFacePicture": "https://i.imgur.com/wTmLyGl.jpeg",
+                            "mergeNumericAddKeys": [
+                                "turnEndDamage"
+                            ],
                             "healReceivedMultiplier": 0.75,
                             "healReceivedMultiplierWhenOwnerCurrentHpAtMostThreshold": 40,
                             "healReceivedMultiplierWhenOwnerCurrentHpAtMost": 0.5,
@@ -4741,7 +4747,7 @@ const characters = [
                                 "walker-surprise-chomp-all"
                             ],
                             "bonusDamageFromSourceSkillsFlat": 5,
-                            "tooltipText": "This character takes 2 affliction damage each turn, receives 25% less healing or 50% less healing at 40 HP or below, and Walker's Surprise Chomp steals 5 additional HP from them."
+                            "tooltipTextTemplate": "This character takes {turnEndDamage} affliction damage each turn, receives 25% less healing or 50% less healing at 40 HP or below, and Walker's Surprise Chomp steals 5 additional HP from them. Each turn there is a 1% chance this character turns into a Walker."
                         }
                     }
                 ]
@@ -4937,6 +4943,12 @@ const characters = [
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
                             "triggerOnApply": true,
+                            "transformationChance": 0.01,
+                            "transformationCharacterId": "walker",
+                            "transformationFacePicture": "https://i.imgur.com/wTmLyGl.jpeg",
+                            "mergeNumericAddKeys": [
+                                "turnEndDamage"
+                            ],
                             "healReceivedMultiplier": 0.75,
                             "healReceivedMultiplierWhenOwnerCurrentHpAtMostThreshold": 40,
                             "healReceivedMultiplierWhenOwnerCurrentHpAtMost": 0.5,
@@ -4946,7 +4958,7 @@ const characters = [
                                 "walker-surprise-chomp-all"
                             ],
                             "bonusDamageFromSourceSkillsFlat": 5,
-                            "tooltipText": "This character takes 2 affliction damage each turn, receives 25% less healing or 50% less healing at 40 HP or below, and Walker's Surprise Chomp steals 5 additional HP from them."
+                            "tooltipTextTemplate": "This character takes {turnEndDamage} affliction damage each turn, receives 25% less healing or 50% less healing at 40 HP or below, and Walker's Surprise Chomp steals 5 additional HP from them. Each turn there is a 1% chance this character turns into a Walker."
                         }
                     }
                 ]
@@ -10259,9 +10271,9 @@ const characters = [
                 "nameHtml": "Smartgun Lock-On",
                 "skillimage": "https://i.imgur.com/Oq1tldJ.png",
                 "url": "https://i.imgur.com/Oq1tldJ.png",
-                "skilldescription": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn.  This skill has no cooldown and can be cancelled by using it again while active.",
-                "description": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn.  This skill has no cooldown and can be cancelled by using it again while active.",
-                "descriptionHtml": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn.<br><br>This skill has no cooldown and can be cancelled by using it again while active.",
+                "skilldescription": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn. This skill has no cooldown and can be cancelled by using it again while active.",
+                "description": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn. This skill has no cooldown and can be cancelled by using it again while active.",
+                "descriptionHtml": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn.<br>This skill has no cooldown and can be cancelled by using it again while active.",
                 "energy": [],
                 "target": "self",
                 "damage": 0,
@@ -11166,9 +11178,9 @@ const characters = [
                 "nameHtml": "Napalm Blood Vomit",
                 "skillimage": "https://i.imgur.com/4kS6GoG.jpeg",
                 "url": "https://i.imgur.com/4kS6GoG.jpeg",
-                "skilldescription": "Atrocitus spews volatile plasma blood at an enemy, dealing 20 affliction damage and applying Burning Rage, which deals 10 affliction damage the following 2 turns. If Atrocitus has 3 or more Rage stacks, the burn becomes unremovable and silences the target for 1 turn.",
-                "description": "Atrocitus spews volatile plasma blood at an enemy, dealing 20 affliction damage and applying Burning Rage, which deals 10 affliction damage the following 2 turns. If Atrocitus has 3 or more Rage stacks, the burn becomes unremovable and silences the target for 1 turn.",
-                "descriptionHtml": "Atrocitus spews volatile plasma blood at an enemy, dealing 20 affliction damage and applying Burning Rage, which deals 10 affliction damage the following 2 turns.<br>If Atrocitus has 3 or more Rage stacks, the burn becomes unremovable and silences the target for 1 turn.",
+                "skilldescription": "Atrocitus spews volatile plasma blood at an enemy, dealing 20 affliction damage and applying Burning Rage, which deals 10 affliction damage the following 2 turns.",
+                "description": "Atrocitus spews volatile plasma blood at an enemy, dealing 20 affliction damage and applying Burning Rage, which deals 10 affliction damage the following 2 turns.",
+                "descriptionHtml": "Atrocitus spews volatile plasma blood at an enemy, dealing 20 affliction damage and applying Burning Rage, which deals 10 affliction damage the following 2 turns.<br>If Atrocitus has 3 or more Rage stacks, and silences the target for 1 turn.",
                 "energy": [
                     "Bloodline",
                     "Random"
@@ -11181,9 +11193,10 @@ const characters = [
                     "Energy",
                     "Ranged",
                     "Instant",
-                    "Affliction"
+                    "Affliction",
+                    "Unremovable"
                 ],
-                "classesHtml": "Energy, Ranged, Instant, Affliction",
+                "classesHtml": "Energy, Ranged, Instant, Affliction, Unremovable",
                 "effects": [
                     {
                         "type": "damage",
