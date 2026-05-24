@@ -5134,7 +5134,7 @@ const characters = [
                 "id": "hershel-greene-doctor-s-bag",
                 "name": "Doctor's Bag",
                 "skillimage": "https://i.imgur.com/neBRimV.png",
-                "skilldescription": "Each time an ally dies, at the start of your next turn, choose one of the following: 1. Heal an ally 35 HP. 2. Remove all enemy skills from an ally and make them invulnerable for 1 turn. 3. Revive a dead ally to 30 HP. Can only activate twice in a game.",
+                "skilldescription": "Each time an ally dies, at the start of your next turn, choose one of the following: 1. Heal Hershel or an ally 35 HP. 2. Remove all enemy skills from Hershel or an ally and make them invulnerable for 1 turn. 3. Revive a dead ally to 30 HP. Can only activate twice in a game.",
                 "energy": [],
                 "target": "all-allies",
                 "damage": 0,
@@ -5158,7 +5158,7 @@ const characters = [
                             "turnStartChoiceOptions": [
                                 {
                                     "key": "heal",
-                                    "label": "Heal an ally 35 HP",
+                                    "label": "Heal Hershel or an ally 35 HP",
                                     "targetStrategy": "alive-ally-lowest-hp",
                                     "effect": {
                                         "type": "heal",
@@ -5167,7 +5167,7 @@ const characters = [
                                 },
                                 {
                                     "key": "cleanse_invuln",
-                                    "label": "Remove all enemy skills from an ally and make them invulnerable for 1 turn",
+                                    "label": "Remove all enemy skills from Hershel or an ally and make them invulnerable for 1 turn",
                                     "targetStrategy": "alive-ally-most-harmful",
                                     "effects": [
                                         {
