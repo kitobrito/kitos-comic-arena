@@ -5436,34 +5436,28 @@ const resolveTurnStartChoiceForUser = ({ match, username, choiceKey }) => {
     }
     const targetUnit = targetPick.unit;
     const targetState = battleLogic.getUnitState(match, targetPick.username, targetPick.slot);
-    const effect = option.effect || {};
-    const effectType = typeof effect.type === 'string' ? effect.type.trim().toLowerCase() : '';
-    if ((effectType === 'heal' || effectType === 'cleanse_harmful') && targetUnit.alive === false) {
-        throw new Error('No valid living ally is available.');
-    }
-    if (effectType === 'revive' && targetUnit.alive !== false) {
-        throw new Error('No dead ally is available.');
-    }
-    if (effectType === 'heal') {
-        battleLogic.applyHealToUnit(targetUnit, Math.max(0, Number(effect.amount) || 0));
-    } else if (effectType === 'cleanse_harmful') {
-        battleLogic.cleanseHarmfulStatuses(targetUnit, effect.count);
-    } else if (effectType === 'revive') {
-        battleLogic.reviveUnitToHp(targetUnit, Math.max(1, Number(effect.amount) || 30));
-        targetState.statuses = Array.isArray(targetState.statuses) ? targetState.statuses : [];
-    } else if (effectType === 'apply_status') {
-        battleLogic.applyStatus({
-            targetState,
-            statusId: effect.statusId,
-            duration: effect.duration,
-            sourceSkillId: prompt.sourceSkillId,
-            sourceUsername: username,
-            sourceSlot: prompt.actorSlot,
-            metadata: effect.metadata,
-        });
-    } else {
-        throw new Error('Unsupported choice effect.');
-    }
+    const effects = Array.isArray(option.effects) ? option.effects : [option.effect || {}];
+    effects.forEach((effect) => {
+        const effectType = typeof effect.type === 'string' ? effect.type.trim().toLowerCase() : '';
+        if (effectType === 'heal') {
+            battleLogic.applyHealToUnit(targetUnit, Math.max(0, Number(effect.amount) || 0));
+        } else if (effectType === 'cleanse_harmful') {
+            battleLogic.cleanseHarmfulStatuses(targetUnit, effect.count);
+        } else if (effectType === 'revive') {
+            battleLogic.reviveUnitToHp(targetUnit, Math.max(1, Number(effect.amount) || 30));
+            targetState.statuses = Array.isArray(targetState.statuses) ? targetState.statuses : [];
+        } else if (effectType === 'apply_status') {
+            battleLogic.applyStatus({
+                targetState,
+                statusId: effect.statusId,
+                duration: effect.duration,
+                sourceSkillId: prompt.sourceSkillId,
+                sourceUsername: username,
+                sourceSlot: prompt.actorSlot,
+                metadata: effect.metadata,
+            });
+        }
+    });
 
     match.players.forEach((player) => {
         if (!player?.username) return;

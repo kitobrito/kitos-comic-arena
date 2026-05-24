@@ -5134,7 +5134,7 @@ const characters = [
                 "id": "hershel-greene-doctor-s-bag",
                 "name": "Doctor's Bag",
                 "skillimage": "https://i.imgur.com/neBRimV.png",
-                "skilldescription": "Each time an ally dies, at the start of your next turn, choose one of the following: 1. Grant an ally 20 permanent destructible defense. 2. Grant an enemy 20 points of Barrier. 3. Prevent an ally from dying for 1 turn. Can only activate twice in a game.",
+                "skilldescription": "Each time an ally dies, at the start of your next turn, choose one of the following: 1. Heal an ally 35 HP. 2. Remove all enemy skills from an ally and make them invulnerable for 1 turn. 3. Revive a dead ally to 30 HP. Can only activate twice in a game.",
                 "energy": [],
                 "target": "all-allies",
                 "damage": 0,
@@ -5157,47 +5157,41 @@ const characters = [
                             "onTeamMemberDeathQueueTurnStartChoice": true,
                             "turnStartChoiceOptions": [
                                 {
-                                    "key": "defense",
-                                    "label": "Grant one ally 20 points of permanent destructible defense",
+                                    "key": "heal",
+                                    "label": "Heal an ally 35 HP",
                                     "targetStrategy": "alive-ally-lowest-hp",
                                     "effect": {
-                                        "type": "apply_status",
-                                        "statusId": "hershel_greene_doctor_s_bag_defense",
-                                        "duration": 99,
-                                        "metadata": {
-                                            "destructibleDefensePoints": 20,
-                                            "infiniteDuration": true,
-                                            "tooltipText": "This character has 20 points of permanent destructible defense from Doctor's Bag."
-                                        }
+                                        "type": "heal",
+                                        "amount": 35
                                     }
                                 },
                                 {
-                                    "key": "barrier",
-                                    "label": "Grant an enemy 20 points of Barrier",
-                                    "targetStrategy": "alive-enemy-first",
-                                    "effect": {
-                                        "type": "apply_status",
-                                        "statusId": "hershel_greene_doctor_s_bag_barrier",
-                                        "duration": 99,
-                                        "metadata": {
-                                            "barrierPoints": 20,
-                                            "infiniteDuration": true,
-                                            "tooltipText": "This character has 20 points of Barrier from Doctor's Bag."
+                                    "key": "cleanse_invuln",
+                                    "label": "Remove all enemy skills from an ally and make them invulnerable for 1 turn",
+                                    "targetStrategy": "alive-ally-most-harmful",
+                                    "effects": [
+                                        {
+                                            "type": "cleanse_harmful",
+                                            "count": 0
+                                        },
+                                        {
+                                            "type": "apply_status",
+                                            "statusId": "hershel_greene_doctor_s_bag_invulnerable",
+                                            "duration": 1,
+                                            "metadata": {
+                                                "invulnerable": true,
+                                                "tooltipText": "This character is invulnerable."
+                                            }
                                         }
-                                    }
+                                    ]
                                 },
                                 {
-                                    "key": "survival",
-                                    "label": "Prevent an ally from dying for 1 turn",
-                                    "targetStrategy": "alive-ally-lowest-hp",
+                                    "key": "revive",
+                                    "label": "Revive a dead ally to 30 HP",
+                                    "targetStrategy": "dead-ally-first",
                                     "effect": {
-                                        "type": "apply_status",
-                                        "statusId": "hershel_greene_doctor_s_bag_survival",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "minimumHp": 1,
-                                            "tooltipText": "This character cannot be killed this turn."
-                                        }
+                                        "type": "revive",
+                                        "amount": 30
                                     }
                                 }
                             ],
