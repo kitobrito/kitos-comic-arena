@@ -11473,10 +11473,9 @@ const characters = [
                 "url": "https://i.imgur.com/4th9J63.jpeg",
                 "skilldescription": "At the start of your next turn choose one option: - Grant one ally 20 points of permanent destructible defense - Grant an enemy 20 points of Barrier - Prevent an ally from dying for 1 turn.",
                 "description": "At the start of your next turn choose one option: - Grant one ally 20 points of permanent destructible defense - Grant an enemy 20 points of Barrier - Prevent an ally from dying for 1 turn.",
-                "descriptionHtml": "At the start of your next turn choose one option:<br>- Grant one ally 20 points of permanent destructible defense<br>- Grant an enemy 20 points of Barrier<br>- Prevent an ally from dying for 1 turn<br> and",
+                "descriptionHtml": "At the start of your next turn choose one option:<br>- Grant one ally 20 points of permanent destructible defense<br>- Grant an enemy 20 points of Barrier<br>- Prevent an ally from dying for 1 turn.",
                 "energy": [
-                    "Ninjutsu",
-                    "Random"
+                    "Ninjutsu"
                 ],
                 "target": "self-or-single-ally",
                 "damage": 0,
