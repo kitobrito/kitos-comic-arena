@@ -10142,6 +10142,193 @@ const characters = [
         "roleCategory": "support"
     },
     {
+        "id": "sergeant-william-hillford",
+        "characterId": "sergeant-william-hillford",
+        "name": "Sergeant William Hillford",
+        "facePicture": "https://i.imgur.com/xhy4DuC.png",
+        "characterdeescription": "A hardened urban warfare sergeant who specializes in locking down weakened enemies and systematically eliminating anyone left exposed on the battlefield. William Hillford controls the pace of combat through tactical suppression, relentless target marking, and brutal close-range enforcement, turning vulnerable opponents into guaranteed kills while protecting himself from retaliation.",
+        "skills": [
+            {
+                "id": "sergeant-william-hillford-smartgun-lock-on",
+                "name": "Smartgun Lock-On",
+                "nameHtml": "Smartgun Lock-On",
+                "skillimage": "https://i.imgur.com/Oq1tldJ.png",
+                "url": "https://i.imgur.com/Oq1tldJ.png",
+                "skilldescription": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn. This skill ignores invulnerability and cannot be countered or reflected.",
+                "description": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn. This skill ignores invulnerability and cannot be countered or reflected.",
+                "descriptionHtml": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn.<br>This skill ignores invulnerability and cannot be countered or reflected.",
+                "energy": [],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 3,
+                "cooldownHtml": "3",
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "classesHtml": "Mental, Ranged, Instant",
+                "ignoreInvulnerability": true,
+                "cannotBeCountered": true,
+                "cannotBeReflected": true,
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "sergeant_william_hillford_smartgun_lock_on_active",
+                        "duration": 3,
+                        "scope": "self",
+                        "metadata": {
+                            "turnEndApplyStatusToRandomEnemy": {
+                                "statusId": "sergeant_william_hillford_smartgun_lock_on_mark",
+                                "duration": 1,
+                                "targetStrategy": "lowest-hp",
+                                "trackingMetadataKey": "_hillfordSmartgunLockTarget",
+                                "metadata": {
+                                    "harmful": true,
+                                    "tooltipText": "This character is marked by Smartgun Lock-On."
+                                }
+                            },
+                            "tooltipText": "At the end of each turn, the lowest health enemy is marked by Smartgun Lock-On."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "sergeant-william-hillford-smartgunner-spray",
+                "name": "Smartgunner Spray",
+                "nameHtml": "Smartgunner Spray",
+                "skillimage": "https://i.imgur.com/2hGgaIj.png",
+                "url": "https://i.imgur.com/2hGgaIj.png",
+                "skilldescription": "Deals 27 piercing damage to a new random enemy every turn for 3 turns. This skill stacks. If a target is marked by Smartgun Lock-On, this will target them instead and ignore their invulnerability. This executes any enemy that falls to 5 HP or below.",
+                "description": "Deals 27 piercing damage to a new random enemy every turn for 3 turns. This skill stacks. If a target is marked by Smartgun Lock-On, this will target them instead and ignore their invulnerability. This executes any enemy that falls to 5 HP or below.",
+                "descriptionHtml": "Deals 27 piercing damage to a new random enemy every turn for 3 turns.<br>This skill stacks.<br>If a target is marked by Smartgun Lock-On, this will target them instead and ignore their invulnerability.<br>This executes any enemy that falls to 5 HP or below.",
+                "energy": [
+                    "Taijutsu",
+                    "Genjutsu"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "None",
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Control"
+                ],
+                "classesHtml": "Physical, Ranged, Control",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "sergeant_william_hillford_smartgunner_spray_active",
+                        "duration": 3,
+                        "scope": "self",
+                        "metadata": {
+                            "allowDuplicateStatusInstances": true,
+                            "turnEndRandomEnemyDamage": 27,
+                            "turnEndRandomEnemySkillClasses": [
+                                "Physical",
+                                "Ranged",
+                                "Control"
+                            ],
+                            "turnEndRandomEnemyIgnoreDamageReduction": true,
+                            "turnEndRandomEnemyIgnoreDestructibleDefense": true,
+                            "turnEndRandomEnemyMustChangeTarget": true,
+                            "preferEnemyWithStatusId": "sergeant_william_hillford_smartgun_lock_on_mark",
+                            "turnEndRandomEnemyIgnoreDamageImmunityIfPreferredStatus": true,
+                            "turnEndRandomEnemyExecuteBelowHpThreshold": 5,
+                            "tooltipText": "Every turn, this character deals 27 piercing damage to a new random enemy. Smartgun Lock-On marks are targeted first."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "sergeant-william-hillford-flashlight-attachment",
+                "name": "Flashlight Attachment",
+                "nameHtml": "Flashlight Attachment",
+                "skillimage": "https://i.imgur.com/pqhEl50.png",
+                "url": "https://i.imgur.com/pqhEl50.png",
+                "skilldescription": "Immediately ends all active counter and reflect skills being used by the enemy team. For 2 turns, all enemy skills become visible. This skill cannot be countered or reflected.",
+                "description": "Immediately ends all active counter and reflect skills being used by the enemy team. For 2 turns, all enemy skills become visible. This skill cannot be countered or reflected.",
+                "descriptionHtml": "Immediately ends all active counter and reflect skills being used by the enemy team.<br>For 2 turns, all enemy skills become visible.<br>This skill cannot be countered or reflected.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "cooldownHtml": "3",
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Ranged, Instant",
+                "cannotBeCountered": true,
+                "cannotBeReflected": true,
+                "effects": [
+                    {
+                        "type": "cleanse_statuses",
+                        "scope": "all-enemy",
+                        "count": 0,
+                        "metadataAny": [
+                            "counterCancelsSkill",
+                            "reflectNextIncomingSkill",
+                            "reflectDamagePercent",
+                            "reflectFirstHarmfulDamage"
+                        ]
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "sergeant_william_hillford_flashlight_attachment_revealed",
+                        "duration": 2,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "tooltipText": "This character's hidden skills are revealed by Flashlight Attachment."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "sergeant-william-hillford-smartgun-block",
+                "name": "Smartgun Block",
+                "nameHtml": "Smartgun Block",
+                "skillimage": "https://i.imgur.com/qGHbWEk.png",
+                "url": "https://i.imgur.com/qGHbWEk.png",
+                "skilldescription": "This skill makes Sergeant Hillford invulnerable for 1 turn.",
+                "description": "This skill makes Sergeant Hillford invulnerable for 1 turn.",
+                "descriptionHtml": "This skill makes Sergeant Hillford invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "cooldownHtml": "4",
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "sergeant_william_hillford_smartgun_block_invulnerable",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Sergeant Hillford is invulnerable."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Control / Executioner",
+        "universe": "alien",
+        "roleCategory": "control"
+    }
+    {
         "id": "predator-stalker",
         "characterId": "predator-stalker",
         "name": "Predator Stalker",
@@ -12282,193 +12469,6 @@ const characters = [
         "universe": "dc",
         "roleCategory": "hybrid"
     },
-    {
-        "id": "sergeant-william-hillford",
-        "characterId": "sergeant-william-hillford",
-        "name": "Sergeant William Hillford",
-        "facePicture": "https://i.imgur.com/xhy4DuC.png",
-        "characterdeescription": "A hardened urban warfare sergeant who specializes in locking down weakened enemies and systematically eliminating anyone left exposed on the battlefield. William Hillford controls the pace of combat through tactical suppression, relentless target marking, and brutal close-range enforcement, turning vulnerable opponents into guaranteed kills while protecting himself from retaliation.",
-        "skills": [
-            {
-                "id": "sergeant-william-hillford-smartgun-lock-on",
-                "name": "Smartgun Lock-On",
-                "nameHtml": "Smartgun Lock-On",
-                "skillimage": "https://i.imgur.com/Oq1tldJ.png",
-                "url": "https://i.imgur.com/Oq1tldJ.png",
-                "skilldescription": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn. This skill ignores invulnerability and cannot be countered or reflected.",
-                "description": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn. This skill ignores invulnerability and cannot be countered or reflected.",
-                "descriptionHtml": "For 3 turns, the current lowest health enemy is locked onto each turn and marked for 1 turn.<br>This skill ignores invulnerability and cannot be countered or reflected.",
-                "energy": [],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 3,
-                "cooldownHtml": "3",
-                "classes": [
-                    "Mental",
-                    "Ranged",
-                    "Instant"
-                ],
-                "classesHtml": "Mental, Ranged, Instant",
-                "ignoreInvulnerability": true,
-                "cannotBeCountered": true,
-                "cannotBeReflected": true,
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "sergeant_william_hillford_smartgun_lock_on_active",
-                        "duration": 3,
-                        "scope": "self",
-                        "metadata": {
-                            "turnEndApplyStatusToRandomEnemy": {
-                                "statusId": "sergeant_william_hillford_smartgun_lock_on_mark",
-                                "duration": 1,
-                                "targetStrategy": "lowest-hp",
-                                "trackingMetadataKey": "_hillfordSmartgunLockTarget",
-                                "metadata": {
-                                    "harmful": true,
-                                    "tooltipText": "This character is marked by Smartgun Lock-On."
-                                }
-                            },
-                            "tooltipText": "At the end of each turn, the lowest health enemy is marked by Smartgun Lock-On."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "sergeant-william-hillford-smartgunner-spray",
-                "name": "Smartgunner Spray",
-                "nameHtml": "Smartgunner Spray",
-                "skillimage": "https://i.imgur.com/2hGgaIj.png",
-                "url": "https://i.imgur.com/2hGgaIj.png",
-                "skilldescription": "Deals 27 piercing damage to a new random enemy every turn for 3 turns. This skill stacks. If a target is marked by Smartgun Lock-On, this will target them instead and ignore their invulnerability. This executes any enemy that falls to 5 HP or below.",
-                "description": "Deals 27 piercing damage to a new random enemy every turn for 3 turns. This skill stacks. If a target is marked by Smartgun Lock-On, this will target them instead and ignore their invulnerability. This executes any enemy that falls to 5 HP or below.",
-                "descriptionHtml": "Deals 27 piercing damage to a new random enemy every turn for 3 turns.<br>This skill stacks.<br>If a target is marked by Smartgun Lock-On, this will target them instead and ignore their invulnerability.<br>This executes any enemy that falls to 5 HP or below.",
-                "energy": [
-                    "Taijutsu",
-                    "Genjutsu"
-                ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 0,
-                "cooldownHtml": "None",
-                "classes": [
-                    "Physical",
-                    "Ranged",
-                    "Control"
-                ],
-                "classesHtml": "Physical, Ranged, Control",
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "sergeant_william_hillford_smartgunner_spray_active",
-                        "duration": 3,
-                        "scope": "self",
-                        "metadata": {
-                            "allowDuplicateStatusInstances": true,
-                            "turnEndRandomEnemyDamage": 27,
-                            "turnEndRandomEnemySkillClasses": [
-                                "Physical",
-                                "Ranged",
-                                "Control"
-                            ],
-                            "turnEndRandomEnemyIgnoreDamageReduction": true,
-                            "turnEndRandomEnemyIgnoreDestructibleDefense": true,
-                            "turnEndRandomEnemyMustChangeTarget": true,
-                            "preferEnemyWithStatusId": "sergeant_william_hillford_smartgun_lock_on_mark",
-                            "turnEndRandomEnemyIgnoreDamageImmunityIfPreferredStatus": true,
-                            "turnEndRandomEnemyExecuteBelowHpThreshold": 5,
-                            "tooltipText": "Every turn, this character deals 27 piercing damage to a new random enemy. Smartgun Lock-On marks are targeted first."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "sergeant-william-hillford-flashlight-attachment",
-                "name": "Flashlight Attachment",
-                "nameHtml": "Flashlight Attachment",
-                "skillimage": "https://i.imgur.com/pqhEl50.png",
-                "url": "https://i.imgur.com/pqhEl50.png",
-                "skilldescription": "Immediately ends all active counter and reflect skills being used by the enemy team. For 2 turns, all enemy skills become visible. This skill cannot be countered or reflected.",
-                "description": "Immediately ends all active counter and reflect skills being used by the enemy team. For 2 turns, all enemy skills become visible. This skill cannot be countered or reflected.",
-                "descriptionHtml": "Immediately ends all active counter and reflect skills being used by the enemy team.<br>For 2 turns, all enemy skills become visible.<br>This skill cannot be countered or reflected.",
-                "energy": [
-                    "Genjutsu"
-                ],
-                "target": "all-enemy",
-                "damage": 0,
-                "cooldown": 3,
-                "cooldownHtml": "3",
-                "classes": [
-                    "Physical",
-                    "Ranged",
-                    "Instant"
-                ],
-                "classesHtml": "Physical, Ranged, Instant",
-                "cannotBeCountered": true,
-                "cannotBeReflected": true,
-                "effects": [
-                    {
-                        "type": "cleanse_statuses",
-                        "scope": "all-enemy",
-                        "count": 0,
-                        "metadataAny": [
-                            "counterCancelsSkill",
-                            "reflectNextIncomingSkill",
-                            "reflectDamagePercent",
-                            "reflectFirstHarmfulDamage"
-                        ]
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "sergeant_william_hillford_flashlight_attachment_revealed",
-                        "duration": 2,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "tooltipText": "This character's hidden skills are revealed by Flashlight Attachment."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "sergeant-william-hillford-smartgun-block",
-                "name": "Smartgun Block",
-                "nameHtml": "Smartgun Block",
-                "skillimage": "https://i.imgur.com/qGHbWEk.png",
-                "url": "https://i.imgur.com/qGHbWEk.png",
-                "skilldescription": "This skill makes Sergeant Hillford invulnerable for 1 turn.",
-                "description": "This skill makes Sergeant Hillford invulnerable for 1 turn.",
-                "descriptionHtml": "This skill makes Sergeant Hillford invulnerable for 1 turn.",
-                "energy": [
-                    "Random"
-                ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 4,
-                "cooldownHtml": "4",
-                "classes": [
-                    "Physical",
-                    "Instant"
-                ],
-                "classesHtml": "Physical, Instant",
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "sergeant_william_hillford_smartgun_block_invulnerable",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "invulnerable": true,
-                            "tooltipText": "Sergeant Hillford is invulnerable."
-                        }
-                    }
-                ]
-            }
-        ],
-        "role": "Control / Executioner",
-        "universe": "alien",
-        "roleCategory": "control"
-    }
 ];
 
 if (typeof module !== 'undefined') {
