@@ -378,7 +378,8 @@ body.skill-effects-muted .storm-hail-weather::before {
     accent-color: #c41e3a;
 }
 
-.ingame-ui-options-toggle {
+.ingame-ui-options-toggle,
+.ingame-status-reveal-toggle {
     min-height: 24px;
     border: 1px solid #000;
     background: #f8f3e4;
@@ -388,7 +389,12 @@ body.skill-effects-muted .storm-hail-weather::before {
     cursor: pointer;
 }
 
-.ingame-ui-options-toggle.active {
+.ingame-status-reveal-toggle {
+    margin-left: 4px;
+}
+
+.ingame-ui-options-toggle.active,
+.ingame-status-reveal-toggle.active {
     background: #111;
     color: #f7de9d;
 }
@@ -4709,6 +4715,41 @@ body.ui-disable-skill-cast-animations .seraphina-road-flare {
     border: 1px solid black;
     position: relative;
     cursor: help;
+}
+
+.status-reveal-active .skilltooltips {
+    z-index: 9300;
+}
+
+.status-reveal-panel {
+    position: absolute;
+    left: 0;
+    top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 280px;
+    max-height: 230px;
+    overflow-y: auto;
+    padding: 5px;
+    background: rgba(239, 239, 239, 0.98);
+    border: 1px solid #2d1507;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.48);
+    color: #2d1507;
+    font-size: 12px;
+    text-transform: none;
+    pointer-events: auto;
+}
+
+.enemy-characters .status-reveal-panel {
+    top: auto;
+    bottom: 24px;
+}
+
+.status-reveal-panel .status-tooltip-item {
+    background: rgba(255, 255, 255, 0.58);
+    border: 1px solid rgba(45, 21, 7, 0.2);
+    padding: 4px;
 }
 
 @keyframes status-icon-turn-pop {

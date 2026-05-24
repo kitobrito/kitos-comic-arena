@@ -636,7 +636,9 @@ const computeTargetOptions = ({ match, actingUsername, actorSlot, skillIndex, ch
         return result;
     }
     const bypassEnemyInvulnerability =
-        canActorIgnoreEnemyInvulnerability(actorUnit) || Boolean(effectiveSkill?.ignoreInvulnerability);
+        canActorIgnoreEnemyInvulnerability(actorUnit) ||
+        Boolean(effectiveSkill?.ignoreInvulnerability) ||
+        hasSkillClass(effectiveSkill?.classes || [], 'bypassing');
     const targetType = effectiveSkill?.target || null;
     result.targetType = targetType;
 
@@ -1668,6 +1670,9 @@ const resolveEffectDamageAmount = ({
     actorSlot = null,
 }) => {
     let amount = Number(effect?.amount) || 0;
+    if (Boolean(effect?.metadata?.fixedDamage)) {
+        return Math.max(0, amount);
+    }
     const effectiveSkillClasses = Array.isArray(skillClasses) ? [...skillClasses] : [];
     if (Boolean(effect?.metadata?.afflictionDamage) && !hasSkillClass(effectiveSkillClasses, 'affliction')) {
         effectiveSkillClasses.push('affliction');
@@ -2919,6 +2924,7 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
     if (
         (dealt > 0 || damageForReflection > 0) &&
         !Boolean(context?.skipDamageReflection) &&
+        !hasSkillClass(skillClasses, 'unreflectable') &&
         context?.match &&
         context?.sourceUsername &&
         context?.targetUsername &&
@@ -3698,6 +3704,11 @@ const queueTurnStartChoicePrompts = ({ match, startingUsername }) => {
                                   choice.effect && typeof choice.effect === 'object'
                                       ? { ...choice.effect }
                                       : null,
+                              effects: Array.isArray(choice.effects)
+                                  ? choice.effects
+                                        .filter((effect) => effect && typeof effect === 'object')
+                                        .map((effect) => ({ ...effect }))
+                                  : null,
                           };
                       })
                       .filter(Boolean)
@@ -4291,7 +4302,8 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         const effects = Array.isArray(skill.effects) ? skill.effects : [];
         if (!effects.length) continue;
         if (!doesActorSatisfySkillCondition(actorUnit, actorState, skill)) continue;
-        const skillCannotBeCountered = Boolean(skill?.cannotBeCountered);
+        const skillCannotBeCountered =
+            Boolean(skill?.cannotBeCountered) || hasSkillClass(skill?.classes || [], 'uncounterable');
         const actingCharacterId =
             (typeof characters?.[actorUnit?.rosterIndex]?.id === 'string' &&
                 characters[actorUnit.rosterIndex].id) ||
@@ -4310,7 +4322,9 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         );
         const selection = normalizeTargetSelection(queued.targetSelection);
         const bypassEnemyInvulnerability =
-            canActorIgnoreEnemyInvulnerability(actorUnit) || Boolean(skill?.ignoreInvulnerability);
+            canActorIgnoreEnemyInvulnerability(actorUnit) ||
+            Boolean(skill?.ignoreInvulnerability) ||
+            hasSkillClass(skill?.classes || [], 'bypassing');
         const opponentEntry = (match.players || []).find((p) => p.username !== actingUsername);
         const opponentUsername = opponentEntry?.username;
         const actorAllies = (match.board?.[actingUsername] || [])
@@ -4451,7 +4465,8 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 if (mentalGuardReflectHolder) break;
             }
         }
-        const skillCannotBeReflected = Boolean(skill?.cannotBeReflected);
+        const skillCannotBeReflected =
+            Boolean(skill?.cannotBeReflected) || hasSkillClass(skill?.classes || [], 'unreflectable');
         const shouldReflectTargetsByPersonalStatus = !skillCannotBeReflected && canReflectByPersonalStatus;
         const shouldReflectTargetsByMentalGuard = !skillCannotBeReflected && Boolean(mentalGuardReflectHolder);
         const targetReflectStatusByKey = new Map();
@@ -4695,10 +4710,13 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             if (!recipient?.unit || recipient.unit.alive === false) return;
             const numericAmount = Math.max(0, Number(amount) || 0);
             if (numericAmount <= 0) return;
+            const fixedDamage = Boolean(effect?.metadata?.fixedDamage);
             const ignoreDamageReduction =
                 Boolean(effect?.metadata?.ignoreDamageReduction) ||
                 hasSkillSpecificStatusFlag(actorState, skill.id || null, 'ignoreDamageReductionForSkillIds');
             const ignoreDestructibleDefense = Boolean(effect?.metadata?.ignoreDestructibleDefense);
+            const ignoreDamageImmunity = Boolean(effect?.metadata?.ignoreDamageImmunity);
+            const ignoreAfflictionDamageImmunity = Boolean(effect?.metadata?.ignoreAfflictionDamageImmunity);
             const effectSkillClasses = Array.isArray(effect?.metadata?.skillClasses)
                 ? effect.metadata.skillClasses
                       .map((entry) => (typeof entry === 'string' ? entry.trim().toLowerCase() : ''))
@@ -4714,11 +4732,15 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             ) {
                 effectSkillClasses.push('affliction');
             }
+            const bypassingDamage = hasSkillClass(effectSkillClasses, 'bypassing');
             const key = [
                 recipient.username || '',
                 Number.isInteger(recipient.slot) ? recipient.slot : '',
+                fixedDamage ? 1 : 0,
                 ignoreDamageReduction ? 1 : 0,
                 ignoreDestructibleDefense ? 1 : 0,
+                ignoreDamageImmunity || bypassingDamage ? 1 : 0,
+                ignoreAfflictionDamageImmunity ? 1 : 0,
                 effect?.type === 'health_steal_damage' || Boolean(effect?.metadata?.healthStealDamage) ? 1 : 0,
                 effectSkillClasses.slice().sort().join(','),
                 effect?.metadata?.onSuccessfulDamageApplyStatusToTarget?.statusId || '',
@@ -4732,8 +4754,11 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 recipient,
                 amount: numericAmount,
                 sourceBaseDamage: Math.max(0, Number(effect?.amount) || 0),
+                fixedDamage,
                 ignoreDamageReduction,
                 ignoreDestructibleDefense,
+                ignoreDamageImmunity: ignoreDamageImmunity || bypassingDamage,
+                ignoreAfflictionDamageImmunity,
                 afflictionDamage: Boolean(effect?.metadata?.afflictionDamage),
                 skillClasses: effectSkillClasses,
                 sourceSkillId: skill?.id || null,
@@ -5006,7 +5031,9 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         sourceUsername: actingUsername,
                         targetUsername: recipient.username,
                     });
-                    const totalAmount = Math.max(0, amount + skillSpecificBonus + targetSourceBonus);
+                    const totalAmount = Boolean(effect?.metadata?.fixedDamage)
+                        ? Math.max(0, amount)
+                        : Math.max(0, amount + skillSpecificBonus + targetSourceBonus);
                     queueDamage(recipient, totalAmount, effect);
                 });
                 return;
@@ -5063,7 +5090,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     );
                     if (!appliesToSelf && isHarmfulEffect(effect)) {
                         if (targetHasHarmfulEffectImmunity) {
-                            return;
+                            if (!hasSkillClass(skill?.classes || [], 'bypassing')) return;
                         }
                         if (skillCannotBeCountered) {
                             // This skill bypasses reactive counter mechanics.
@@ -5112,7 +5139,11 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             consumeStatus(scopedState, condition.statusId);
                         }
                     }
-                    if (targetHasHarmfulEffectImmunity && isHarmfulEffect(effect)) {
+                    if (
+                        targetHasHarmfulEffectImmunity &&
+                        isHarmfulEffect(effect) &&
+                        !hasSkillClass(skill?.classes || [], 'bypassing')
+                    ) {
                         return;
                     }
                     let runtimeStatusId = effect.statusId;
@@ -5275,6 +5306,12 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         runtimeMetadata = {
                             ...(runtimeMetadata || {}),
                             _sourceSkillClasses: sourceSkillClassesSnapshot,
+                        };
+                    }
+                    if (hasSkillClass(skill?.classes || [], 'unremovable')) {
+                        runtimeMetadata = {
+                            ...(runtimeMetadata || {}),
+                            unremovable: true,
                         };
                     }
                     const copySourceCurrentHpToKeys = Array.isArray(runtimeMetadata?.copySourceCurrentHpToKeys)
@@ -6210,6 +6247,9 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         targetSlot: entry.recipient.slot,
                         sourceBaseDamage: entry.sourceBaseDamage,
                         skillClasses: entry.skillClasses || skill.classes || [],
+                        fixedDamage: Boolean(entry.fixedDamage),
+                        ignoreDamageImmunity: Boolean(entry.ignoreDamageImmunity),
+                        ignoreAfflictionDamageImmunity: Boolean(entry.ignoreAfflictionDamageImmunity),
                         ignoreDamageReduction:
                             Boolean(entry.ignoreDamageReduction) || Boolean(entry.healthStealDamage),
                         ignoreDestructibleDefense: entry.ignoreDestructibleDefense,

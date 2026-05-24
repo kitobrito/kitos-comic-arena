@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         battleIntro: true,
         customCursor: true,
         clickSounds: true,
+        shiftStatusReveal: true,
     };
     const readUiSettings = () => {
         try {
@@ -1195,6 +1196,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         let matchSocketReconnectTimer = null;
         let matchSocketReconnectDelay = 1000;
         let matchSocketManuallyClosed = false;
+        let pendingSocketMatchState = null;
+        let pendingSocketMatchStateFrame = null;
         let currentPlayerUsername = null;
         let currentTurnUsername = null;
         let currentOpponentUsername = null;
@@ -1281,6 +1284,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const classChoicePopupTitleEl = classChoicePopupEl?.querySelector('.class-choice-popup-title');
         const classChoicePopupOptionsEl = classChoicePopupEl?.querySelector('.class-choice-popup-options');
         const classChoicePopupCancelButton = classChoicePopupEl?.querySelector('.class-choice-popup-cancel');
+        const statusRevealToggleButton = document.querySelector('.ingame-status-reveal-toggle');
         const endTurnChooseCountEl = endTurnModalEl?.querySelector('.chakrachoosered');
         const timerBar = document.querySelector('.timer-bar');
         const timerCountdown = document.querySelector('.timer-countdown');
@@ -1317,6 +1321,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         let draggingQueueActorSlot = null;
         let latestBoardState = null;
         let globalStatusTooltipEl = null;
+        let statusRevealHeld = false;
+        let statusRevealPinned = false;
         let battleEndShown = false;
         let selectedExchangeType = 'taijutsu';
         let isPlayingResolutionSequence = false;
@@ -4416,6 +4422,28 @@ document.addEventListener('DOMContentLoaded', async () => {
             return tooltip;
         };
 
+        const clearStatusRevealPanels = () => {
+            if (!document.body.classList.contains('status-reveal-active')) return;
+            document.querySelectorAll('.status-reveal-panel').forEach((node) => node.remove());
+            document.body.classList.remove('status-reveal-active');
+        };
+
+        const syncStatusRevealButton = () => {
+            if (!statusRevealToggleButton) return;
+            const active = statusRevealHeld || statusRevealPinned;
+            statusRevealToggleButton.classList.toggle('active', active);
+            statusRevealToggleButton.setAttribute('aria-pressed', active ? 'true' : 'false');
+        };
+
+        const hideStatusReveal = ({ clearPinned = false, clearHeld = false } = {}) => {
+            if (clearPinned) statusRevealPinned = false;
+            if (clearHeld) statusRevealHeld = false;
+            if (!statusRevealHeld && !statusRevealPinned) {
+                clearStatusRevealPanels();
+            }
+            syncStatusRevealButton();
+        };
+
         const getTemplateMetadataValue = (metadata = {}, key = '') => {
             if (!metadata || typeof metadata !== 'object' || !key) return undefined;
             if (metadata[key] !== undefined && metadata[key] !== null) {
@@ -4770,6 +4798,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             groupedStatuses.forEach((group, index) => {
                 const statusSkill = findSkillById(group?.sourceSkillId);
+                const tooltipHtml = buildStatusTooltipHtml(group, statusSkill);
+                group.tooltipHtml = tooltipHtml;
                 const iconEl =
                     index === 0 ? tooltipImgTemplate : tooltipImgTemplate.cloneNode(true);
                 if (index > 0) {
@@ -4821,7 +4851,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                         iconEl.classList.remove('passive-trigger-flash');
                     }, 760);
                 }
-                const tooltipHtml = buildStatusTooltipHtml(group, statusSkill);
                 iconEl.onmouseenter = (event) => {
                     const tooltip = ensureGlobalStatusTooltip();
                     tooltip.innerHTML = tooltipHtml;
@@ -4843,9 +4872,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                     tooltipWrap.appendChild(iconEl);
                 }
             });
+            if (statusRevealHeld || statusRevealPinned) {
+                const panel = document.createElement('div');
+                panel.className = 'status-reveal-panel';
+                panel.innerHTML = groupedStatuses.map((group) => group.tooltipHtml || '').join('');
+                tooltipWrap.appendChild(panel);
+            }
         };
 
         const renderBoardStatuses = (data, options = {}) => {
+            clearStatusRevealPanels();
             if (!data || typeof data !== 'object') return;
             const board = data.board && typeof data.board === 'object' ? data.board : null;
             if (!board) return;
@@ -4862,9 +4898,47 @@ document.addEventListener('DOMContentLoaded', async () => {
                     renderStatusTooltipForCard(card, opponentUnits[slot], opponentUsername || '', slot, options)
                 );
             }
-            renderPredatorRicochetPreviews(board, data.pendingTurn);
+            if (statusRevealHeld || statusRevealPinned) {
+                document.body.classList.add('status-reveal-active');
+            }
+            syncStatusRevealButton();
             syncStormWeather(board);
         };
+
+        const refreshStatusRevealPanels = () => {
+            if (!latestBoardState) {
+                clearStatusRevealPanels();
+                syncStatusRevealButton();
+                return;
+            }
+            renderBoardStatuses({ board: latestBoardState, opponent: { username: currentOpponentUsername } });
+        };
+
+        if (statusRevealToggleButton) {
+            statusRevealToggleButton.addEventListener('click', () => {
+                statusRevealPinned = !statusRevealPinned;
+                refreshStatusRevealPanels();
+            });
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Shift' || event.repeat || !uiSettings.shiftStatusReveal) return;
+            const target = event.target;
+            if (target instanceof Element && target.closest('input, textarea, select, [contenteditable="true"]')) {
+                return;
+            }
+            statusRevealHeld = true;
+            refreshStatusRevealPanels();
+        });
+
+        document.addEventListener('keyup', (event) => {
+            if (event.key !== 'Shift') return;
+            hideStatusReveal({ clearHeld: true });
+        });
+
+        window.addEventListener('blur', () => {
+            hideStatusReveal({ clearHeld: true });
+        });
 
         const parseUnitKey = (value = '') => {
             if (typeof value !== 'string' || !value.includes(':')) return null;
@@ -5547,6 +5621,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderDynamicSkillIcons();
         };
 
+        const scheduleIncomingMatchState = (data) => {
+            if (!data || typeof data !== 'object') return;
+            pendingSocketMatchState = data;
+            if (pendingSocketMatchStateFrame !== null) return;
+            pendingSocketMatchStateFrame = window.requestAnimationFrame(() => {
+                const nextState = pendingSocketMatchState;
+                pendingSocketMatchState = null;
+                pendingSocketMatchStateFrame = null;
+                applyIncomingMatchState(nextState);
+            });
+        };
+
         const clearMatchSocketReconnect = () => {
             if (matchSocketReconnectTimer) {
                 clearTimeout(matchSocketReconnectTimer);
@@ -5800,7 +5886,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 try {
                     const message = JSON.parse(event.data);
                     if (message?.type === 'match_state' && message.payload) {
-                        applyIncomingMatchState(message.payload);
+                        scheduleIncomingMatchState(message.payload);
                     } else if (message?.type === 'chat_message' && message.payload) {
                         appendMatchChatMessage(message.payload);
                     } else if (message?.type === 'chat_error') {

@@ -4837,7 +4837,7 @@ const characters = [
                 "id": "walker-passive-infected-bite",
                 "name": "Passive: Infected Bite",
                 "skillimage": "https://i.imgur.com/zeUfS91.png",
-                "skilldescription": "This character takes 2 affliction damage every turn, receives 25% less healing or 50% less healing at 40 HP or below, and Walker's Surprise Chomp steals 5 additional HP from them. This effect does not stack.",
+                "skilldescription": "This character takes stacking affliction damage every turn, receives 25% less healing or 50% less healing at 40 HP or below, and Walker's Surprise Chomp steals 5 additional HP from them. Each turn, there is a 1% chance they permanently turn into a Walker.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -5146,56 +5146,13 @@ const characters = [
                 "id": "hershel-greene-doctor-s-bag",
                 "name": "Doctor's Bag",
                 "skillimage": "https://i.imgur.com/neBRimV.png",
-                "skilldescription": "Hershel targets himself or an ally. For 2 turns, the next time the target dies, they will instead have their health set to 30 HP. If this triggers, for 1 turn, Doctor's Bag will be replaced by a new effect that costs 2 random energy. This skill can only be used twice per game and is invisible.",
-                "description": "Hershel targets himself or an ally. For 2 turns, the next time the target dies, they will instead have their health set to 30 HP. If this triggers, for 1 turn, Doctor's Bag will be replaced by a new effect that costs 2 random energy. This skill can only be used twice per game and is invisible.",
-                "descriptionHtml": "Hershel targets himself or an ally. For 2 turns, the next time the target dies, they will instead have their health set to 30 HP. If this triggers, for 1 turn, Doctor's Bag will be replaced by a new effect that costs 2 random energy. This skill can only be used twice per game and is invisible.",
+                "skilldescription": "Each time an ally dies, at the start of your next turn choose one of the following: Heal Hershel or an ally 35 HP; remove all enemy skills from Hershel or an ally and make them invulnerable for 1 turn; or revive a dead ally to 30 HP. Can only activate twice in a game.",
+                "description": "Each time an ally dies, at the start of your next turn choose one of the following: Heal Hershel or an ally 35 HP; remove all enemy skills from Hershel or an ally and make them invulnerable for 1 turn; or revive a dead ally to 30 HP. Can only activate twice in a game.",
+                "descriptionHtml": "Each time an ally dies, at the start of your next turn choose one of the following:<br>Heal Hershel or an ally 35 HP.<br>Remove all enemy skills from Hershel or an ally and make them invulnerable for 1 turn.<br>Revive a dead ally to 30 HP.<br>Can only activate twice in a game.",
                 "energy": [],
-                "target": "self-or-single-ally",
+                "target": "all-allies",
                 "damage": 0,
-                "maxUses": 2,
-                "cooldown": 0,
-                "classes": [
-                    "Physical",
-                    "Instant",
-                    "Invisible"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "hershel_greene_doctor_s_bag_buff",
-                        "duration": 2,
-                        "scope": "target",
-                        "metadata": {
-                            "hidden": true,
-                            "onOwnerDeathReviveToHp": 30,
-                            "onOwnerDeathApplyStatusToSource": {
-                                "statusId": "hershel_greene_doctor_s_bag_replacement_active",
-                                "duration": 1,
-                                "metadata": {
-                                    "skillReplacements": {
-                                        "hershel-greene-doctor-s-bag": "hershel-greene-doctor-s-bag-transformed"
-                                    },
-                                    "tooltipText": "Doctor's Bag has been transformed."
-                                }
-                            },
-                            "tooltipText": "If this character dies, they will revive with 30 HP."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "hershel-greene-doctor-s-bag-transformed",
-                "name": "Doctor's Bag (Transformed)",
-                "skillimage": "https://i.imgur.com/neBRimV.png",
-                "skilldescription": "Hershel heals one member of his team 35 HP, removes all enemy skills from them, and makes them invulnerable for 1 turn. This skill does not count towards the use limit of Doctor's Bag.",
-                "description": "Hershel heals one member of his team 35 HP, removes all enemy skills from them, and makes them invulnerable for 1 turn. This skill does not count towards the use limit of Doctor's Bag.",
-                "descriptionHtml": "Hershel heals one member of his team 35 HP, removes all enemy skills from them, and makes them invulnerable for 1 turn. This skill does not count towards the use limit of Doctor's Bag.",
-                "energy": [
-                    "Random",
-                    "Random"
-                ],
-                "target": "self-or-single-ally",
-                "damage": 0,
+                "maxUses": 1,
                 "cooldown": 0,
                 "classes": [
                     "Physical",
@@ -5203,23 +5160,56 @@ const characters = [
                 ],
                 "effects": [
                     {
-                        "type": "heal",
-                        "amount": 35,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "cleanse_harmful",
-                        "count": 0,
-                        "scope": "target"
-                    },
-                    {
                         "type": "apply_status",
-                        "statusId": "hershel_greene_doctor_s_bag_invulnerable",
-                        "duration": 1,
-                        "scope": "target",
+                        "statusId": "hershel_greene_doctor_s_bag_active",
+                        "duration": 99,
+                        "scope": "self",
                         "metadata": {
-                            "invulnerable": true,
-                            "tooltipText": "This character is invulnerable."
+                            "turnStartChoicePromptText": "Choose one Doctor's Bag effect.",
+                            "turnStartChoiceMaxUses": 2,
+                            "turnStartChoiceUsesUsed": 0,
+                            "onTeamMemberDeathQueueTurnStartChoice": true,
+                            "turnStartChoiceOptions": [
+                                {
+                                    "key": "heal",
+                                    "label": "Heal Hershel or an ally 35 HP",
+                                    "targetStrategy": "alive-ally-lowest-hp",
+                                    "effect": {
+                                        "type": "heal",
+                                        "amount": 35
+                                    }
+                                },
+                                {
+                                    "key": "cleanse_invuln",
+                                    "label": "Remove enemy skills and become invulnerable",
+                                    "targetStrategy": "alive-ally-most-harmful",
+                                    "effects": [
+                                        {
+                                            "type": "cleanse_harmful",
+                                            "count": 0
+                                        },
+                                        {
+                                            "type": "apply_status",
+                                            "statusId": "hershel_greene_doctor_s_bag_invulnerable",
+                                            "duration": 1,
+                                            "metadata": {
+                                                "invulnerable": true,
+                                                "tooltipText": "This character is invulnerable."
+                                            }
+                                        }
+                                    ]
+                                },
+                                {
+                                    "key": "revive",
+                                    "label": "Revive a dead ally to 30 HP",
+                                    "targetStrategy": "dead-ally-first",
+                                    "effect": {
+                                        "type": "revive",
+                                        "amount": 30
+                                    }
+                                }
+                            ],
+                            "tooltipText": "When an ally dies, choose a Doctor's Bag effect at the start of your next turn."
                         }
                     }
                 ]
@@ -11517,9 +11507,9 @@ const characters = [
                 "nameHtml": "Radiant Hope",
                 "skillimage": "https://i.imgur.com/4th9J63.jpeg",
                 "url": "https://i.imgur.com/4th9J63.jpeg",
-                "skilldescription": "Saint Walker grants an ally 20 permanent destructible defense after 1 turn. If an enemy targets them with a skill before then, they become unable to be killed for 1 turn. This skill is invisible.",
-                "description": "Saint Walker grants an ally 20 permanent destructible defense after 1 turn. If an enemy targets them with a skill before then, they become unable to be killed for 1 turn. This skill is invisible.",
-                "descriptionHtml": "Saint Walker grants an ally 20 permanent destructible defense after 1 turn. If an enemy targets them with a skill before then, they become unable to be killed for 1 turn. This skill is invisible.",
+                "skilldescription": "At the start of your next turn choose one option: Grant one ally 20 permanent destructible defense; grant an enemy 20 barrier; or prevent an ally from dying for 1 turn. This skill is invisible.",
+                "description": "At the start of your next turn choose one option: Grant one ally 20 permanent destructible defense; grant an enemy 20 barrier; or prevent an ally from dying for 1 turn. This skill is invisible.",
+                "descriptionHtml": "At the start of your next turn choose one option:<br>Grant one ally 20 permanent destructible defense.<br>Grant an enemy 20 barrier.<br>Prevent an ally from dying for 1 turn.<br>This skill is invisible.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -11537,28 +11527,61 @@ const characters = [
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "saint_walker_radiant_hope_delayed",
+                        "statusId": "saint_walker_radiant_hope_active",
                         "duration": 2,
-                        "scope": "target",
+                        "scope": "self",
                         "metadata": {
-                            "hidden": true,
-                            "onEnemySkillTargetedApplyStatusToOwner": {
-                                "statusId": "saint_walker_radiant_hope_survival_option",
-                                "duration": 1,
-                                "metadata": {
-                                    "minimumHp": 1,
-                                    "tooltipText": "This character cannot be killed this turn."
+                            "turnStartChoicePromptText": "Choose one Radiant Hope effect.",
+                            "turnStartChoiceMaxUses": 1,
+                            "turnStartChoiceUsesUsed": 0,
+                            "turnStartChoiceQueued": true,
+                            "turnStartChoiceOptions": [
+                                {
+                                    "key": "defense",
+                                    "label": "Grant ally 20 defense",
+                                    "targetStrategy": "alive-ally-lowest-hp",
+                                    "effect": {
+                                        "type": "apply_status",
+                                        "statusId": "saint_walker_radiant_hope_defense_option",
+                                        "duration": 99,
+                                        "metadata": {
+                                            "destructibleDefensePoints": 20,
+                                            "infiniteDuration": true,
+                                            "tooltipText": "This character has 20 points of permanent destructible defense from Radiant Hope."
+                                        }
+                                    }
+                                },
+                                {
+                                    "key": "barrier",
+                                    "label": "Grant enemy 20 barrier",
+                                    "targetStrategy": "alive-enemy-first",
+                                    "effect": {
+                                        "type": "apply_status",
+                                        "statusId": "saint_walker_radiant_hope_barrier_option",
+                                        "duration": 99,
+                                        "metadata": {
+                                            "barrierPoints": 20,
+                                            "infiniteDuration": true,
+                                            "tooltipText": "This character has 20 points of barrier from Radiant Hope."
+                                        }
+                                    }
+                                },
+                                {
+                                    "key": "survival",
+                                    "label": "Prevent ally death",
+                                    "targetStrategy": "alive-ally-lowest-hp",
+                                    "effect": {
+                                        "type": "apply_status",
+                                        "statusId": "saint_walker_radiant_hope_survival_option",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "minimumHp": 1,
+                                            "tooltipText": "This character cannot be killed this turn."
+                                        }
+                                    }
                                 }
-                            },
-                            "onExpireApplyStatusToSelf": {
-                                "statusId": "saint_walker_radiant_hope_defense_option",
-                                "duration": 99,
-                                "metadata": {
-                                    "destructibleDefensePoints": 20,
-                                    "infiniteDuration": true,
-                                    "tooltipText": "This character has 20 points of permanent destructible defense from Radiant Hope."
-                                }
-                            }
+                            ],
+                            "tooltipText": "At the start of your next turn, choose a Radiant Hope effect."
                         }
                     }
                 ]
