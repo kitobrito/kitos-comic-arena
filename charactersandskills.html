@@ -612,7 +612,7 @@
             var classLine = document.createElement("div");
             var visibleClasses = Array.isArray(skill.classes)
               ? skill.classes.filter(function (entry) {
-                  return String(entry || "").trim().toLowerCase() !== "invisible";
+                  return !!String(entry || "").trim();
                 })
               : [];
             classLine.innerHTML = "<strong>Classes:</strong> " + (visibleClasses.length ? visibleClasses.join(", ") : "None");

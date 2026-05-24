@@ -2400,6 +2400,7 @@ const buildCharacterCatalog = () =>
             id: typeof skill.id === 'string' ? skill.id : '',
             name: typeof skill.name === 'string' ? skill.name : '',
             skillimage: typeof skill.skillimage === 'string' ? skill.skillimage : '',
+            classes: Array.isArray(skill.classes) ? skill.classes : [],
         })),
     }));
 

@@ -792,7 +792,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const getVisibleSkillClasses = (classes = []) =>
         (Array.isArray(classes) ? classes : []).filter((entry) => {
             const normalized = typeof entry === 'string' ? entry.trim().toLowerCase() : '';
-            return normalized && normalized !== 'invisible';
+            return !!normalized;
         });
 
     const shouldUseWideRankHatOffset = (rankHatUrl = '') => {
