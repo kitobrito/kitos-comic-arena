@@ -2046,20 +2046,18 @@ const characters = [
                 "id": "the-flash-barry-allen-infinite-mass-punch",
                 "name": "Infinite Mass Punch",
                 "skillimage": "https://i.imgur.com/tZfTTzm.jpeg",
-                "skilldescription": "Deals 45 piercing damage to one enemy.",
+                "skilldescription": "Deals 45 damage to one enemy. If The Flash has 'Speed Up' then this deals 10 bonus damage, cannot be countered or reflected, and bypasses invulnerability. ",
                 "energy": [
                     "Taijutsu",
                     "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
+                "cooldown": 0,
                 "classes": [
                     "Physical",
                     "Melee",
-                    "Instant",
-                    "Bypassing",
-                    "Uncounterable"
+                    "Instant"
                 ],
                 "effects": [
                     {
@@ -2067,17 +2065,16 @@ const characters = [
                         "amount": 45,
                         "scope": "target",
                         "metadata": {
-                            "ignoreDamageReduction": true
                         }
                     }
                 ],
-                "classesHtml": "Physical, Melee, Instant, Bypassing, Uncounterable"
+                "classesHtml": "Physical, Melee, Instant"
             },
             {
                 "id": "the-flash-barry-allen-lightning-rush",
                 "name": "Lightning Rush",
                 "skillimage": "https://i.imgur.com/Pwzbd89.jpeg",
-                "skilldescription": "The Flash strikes one enemy 4 times in quick succession, dealing 5 damage each time. Each hit has a 25% chance to apply 'Shock': dealing 3 piercing damage for 4 turns. The Flash gains 'Speed Up' for 1 turn.",
+                "skilldescription": "The Flash strikes one enemy 4 times in quick succession, dealing 5 damage each time. Each hit has a 25% chance to apply 'Shock': dealing 4 piercing damage for 4 turns. The Flash gains 'Speed Up' for 1 turn.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -2118,9 +2115,8 @@ const characters = [
                         "chance": 25,
                         "metadata": {
                             "harmful": true,
-                            "turnEndDamage": 3,
+                            "turnEndDamage": 4,
                             "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
                             "mergeNumericAddKeys": [
@@ -2137,9 +2133,8 @@ const characters = [
                         "chance": 25,
                         "metadata": {
                             "harmful": true,
-                            "turnEndDamage": 3,
+                            "turnEndDamage": 4,
                             "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
                             "mergeNumericAddKeys": [
@@ -2156,9 +2151,8 @@ const characters = [
                         "chance": 25,
                         "metadata": {
                             "harmful": true,
-                            "turnEndDamage": 3,
+                            "turnEndDamage": 4,
                             "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
                             "mergeNumericAddKeys": [
@@ -2175,9 +2169,8 @@ const characters = [
                         "chance": 25,
                         "metadata": {
                             "harmful": true,
-                            "turnEndDamage": 3,
+                            "turnEndDamage": 4,
                             "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
                             "mergeNumericAddKeys": [
@@ -2332,14 +2325,14 @@ const characters = [
                 "cannotBeReflected": true,
                 "ignoreInvulnerability": true,
                 "skillimage": "https://i.imgur.com/vwUOYsd.png",
-                "skilldescription": "Deals 45 piercing damage to one enemy. while Speed Up is active.",
+                "skilldescription": "Deals 55 piercing damage to one enemy.",
                 "energy": [
                     "Taijutsu",
                     "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
+                "cooldown": 0,
                 "classes": [
                     "Physical",
                     "Melee",
@@ -2351,7 +2344,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 45,
+                        "amount": 55,
                         "scope": "target",
                         "metadata": {
                             "ignoreDamageReduction": true
@@ -2678,7 +2671,7 @@ const characters = [
                 "id": "aquaman-drown",
                 "name": "Drown",
                 "skillimage": "https://i.imgur.com/Quiv9Wj.jpeg",
-                "skilldescription": "Aquaman forces one enemy's head underwater, removing 1 random energy from them and dealing 15 affliction damage. If they are marked by 'Trident Strike', they are given a stack of 'Sea Sharks'.",
+                "skilldescription": "Aquaman forces one enemy's head underwater, removing 1 random energy from them and dealing 20 affliction damage. If they are marked by 'Trident Strike', they are given a stack of 'Sea Sharks'.",
                 "energy": [
                     "Ninjutsu"
                 ],
