@@ -3855,7 +3855,7 @@ const characters = [
                 "id": "negan-you-got-no-guts",
                 "name": "You Got No Guts",
                 "skillimage": "https://i.imgur.com/VoLDAm3.png",
-                "skilldescription": "Negan cuts open an enemy's bowels, dealing 10 piercing damage and then 5 piercing damage the following 3 turns. While affected, if the target's HP falls to 15 or less they are executed. This ends on the previous target if used on a new one.",
+                "skilldescription": "Negan cuts open an enemy's bowels, dealing 10 bleed damage and then 5 bleed damage the following 3 turns. While affected, if the target's HP falls to 15 or less they are executed. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect. This ends on the previous target if used on a new one.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -3870,10 +3870,13 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 0,
+                        "amount": 10,
                         "scope": "target",
                         "metadata": {
-                            "ignoreDamageReduction": true
+                            "ignoreDamageImmunity": true,
+                            "ignoreAfflictionDamageImmunity": true,
+                            "ignoreDamageReduction": true,
+                            "fixedDamage": true
                         }
                     },
                     {
@@ -3884,11 +3887,16 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "uniqueEnemyMarkFromSource": true,
+                            "afflictionDamage": true,
+                            "fixedTurnEndDamage": true,
+                            "ignoreDamageImmunity": true,
+                            "ignoreAfflictionDamageImmunity": true,
+                            "removeOnHealingEffect": true,
                             "turnEndDamage": 5,
-                            "ignoreTargetDamageReduction": true,
                             "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
                             "executeBelowHpThreshold": 15,
-                            "tooltipText": "This character takes 5 piercing damage and is executed if their HP falls to 15 or below. This will end if Negan uses this on a new target."
+                            "tooltipText": "This character takes 5 bleed damage each turn and is executed if their HP falls to 15 or below. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect."
                         }
                     }
                 ]
@@ -4253,7 +4261,7 @@ const characters = [
                 "id": "rick-grimes-throat-slit",
                 "name": "Throat Slit",
                 "skillimage": "https://i.imgur.com/xcN920R.png",
-                "skilldescription": "Rick slashes an enemy's throat, dealing 10 damage this turn then making them bleed 10 affliction damage next turn. While bleeding, the target's harmful skills are silenced, '.357 Revolver' cannot miss them, and has a 15% bonus chance to 'Headshot'.",
+                "skilldescription": "Rick slashes an enemy's throat, dealing 10 bleed damage this turn then making them bleed 10 bleed damage next turn. While bleeding, the target's harmful skills are silenced, '.357 Revolver' cannot miss them, and has a 15% bonus chance to 'Headshot'. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
                 "energy": [
                     "Random"
                 ],
@@ -4263,14 +4271,19 @@ const characters = [
                 "classes": [
                     "Physical",
                     "Melee",
-                    "Instant",
-                    "Affliction"
+                    "Instant"
                 ],
                 "effects": [
                     {
                         "type": "damage",
                         "amount": 10,
-                        "scope": "target"
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageImmunity": true,
+                            "ignoreAfflictionDamageImmunity": true,
+                            "ignoreDamageReduction": true,
+                            "fixedDamage": true
+                        }
                     },
                     {
                         "type": "apply_status",
@@ -4280,13 +4293,15 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "cannotUseHarmfulSkills": true,
-                            "turnEndDamage": 10,
                             "afflictionDamage": true,
-                            "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
+                            "fixedTurnEndDamage": true,
+                            "ignoreDamageImmunity": true,
+                            "ignoreAfflictionDamageImmunity": true,
+                            "removeOnHealingEffect": true,
+                            "turnEndDamage": 10,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character will take 10 affliction damage next turn, their harmful skills are silenced, Rick's .357 Revolver cannot miss them, and it has a 40% chance to Headshot them."
+                            "tooltipText": "This character will take 10 bleed damage next turn, their harmful skills are silenced, Rick's .357 Revolver cannot miss them, and it has a 40% chance to Headshot them. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect."
                         }
                     }
                 ]
@@ -7018,7 +7033,7 @@ const characters = [
                 "id": "carnage-blood-slash",
                 "name": "Blood Slash",
                 "skillimage": "https://i.imgur.com/f69xBeL.png",
-                "skilldescription": "Deals 35 piercing damage to one enemy. Carnage loses 15 HP. This skill cannot be countered or reflected. This executes enemies that fall to 15 HP or less during 'Blood Slinging'.",
+                "skilldescription": "Deals 35 bleed damage to one enemy. Carnage loses 15 HP. This skill cannot be countered or reflected. This executes enemies that fall to 15 HP or less during 'Blood Slinging'. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
                 "energy": [
                     "Bloodline",
                     "Random"
@@ -7038,8 +7053,11 @@ const characters = [
                         "amount": 35,
                         "scope": "target",
                         "metadata": {
+                            "ignoreDamageImmunity": true,
+                            "ignoreAfflictionDamageImmunity": true,
                             "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
+                            "fixedDamage": true,
+                            "removeOnHealingEffect": true
                         }
                     },
                     {
@@ -7079,14 +7097,14 @@ const characters = [
                 "id": "carnage-wide-area-cutting",
                 "name": "Wide-Area Cutting",
                 "skillimage": "https://i.imgur.com/9H59XyW.png",
-                "skilldescription": "Deals 25 piercing damage to the enemy team. Carnage loses 15 HP. This skill cannot be countered or reflected. This executes enemies that fall to 5 HP or less during 'Blood Slinging'.",
+                "skilldescription": "Deals 20 bleed damage to the enemy team. Carnage loses 15 HP. This skill cannot be countered or reflected. This executes enemies that fall to 5 HP or less during 'Blood Slinging'. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
                 "energy": [
                     "Bloodline",
                     "Random"
                 ],
                 "target": "all-enemy",
                 "damage": 0,
-                "cooldown": 2,
+                "cooldown": 1,
                 "classes": [
                     "Physical",
                     "Ranged",
@@ -7096,11 +7114,14 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 25,
+                        "amount": 20,
                         "scope": "all-enemy",
                         "metadata": {
+                            "ignoreDamageImmunity": true,
+                            "ignoreAfflictionDamageImmunity": true,
                             "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
+                            "fixedDamage": true,
+                            "removeOnHealingEffect": true
                         }
                     },
                     {
@@ -9442,9 +9463,9 @@ const characters = [
                 "nameHtml": "Blood Vomit",
                 "skillimage": "https://i.imgur.com/5L1V6jg_d.png?maxwidth=520&shape=thumb&fidelity=high",
                 "url": "https://i.imgur.com/5L1V6jg_d.png?maxwidth=520&shape=thumb&fidelity=high",
-                "skilldescription": "For 2 turns, one enemy takes 15 affliction damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams.",
-                "description": "For 2 turns, one enemy takes 15 affliction damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams.",
-                "descriptionHtml": "For 2 turns, one enemy takes 15 affliction damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams.",
+                "skilldescription": "For 2 turns, one enemy takes 15 bleed damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
+                "description": "For 2 turns, one enemy takes 15 bleed damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
+                "descriptionHtml": "For 2 turns, one enemy takes 15 bleed damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams.<br>Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
                 "energy": [
                     "Bloodline",
                     "Random"
@@ -9456,8 +9477,7 @@ const characters = [
                 "classes": [
                     "Physical",
                     "Ranged",
-                    "Instant",
-                    "Affliction"
+                    "Instant"
                 ],
                 "classesHtml": "Physical, Ranged, Instant",
                 "effects": [
@@ -9470,11 +9490,15 @@ const characters = [
                             "harmful": true,
                             "fullBlind": true,
                             "nonAfflictionDamageBonusFlat": 10,
+                            "afflictionDamage": true,
+                            "fixedTurnEndDamage": true,
+                            "ignoreDamageImmunity": true,
+                            "ignoreAfflictionDamageImmunity": true,
+                            "removeOnHealingEffect": true,
                             "turnEndDamage": 15,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
-                            "afflictionDamage": true,
-                            "tooltipText": "This character takes 15 affliction damage each turn, deals 10 additional non-affliction damage, and harmful skills randomly target either team."
+                            "tooltipText": "This character takes 15 bleed damage each turn, deals 10 additional non-affliction damage, and harmful skills randomly target either team. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect."
                         }
                     }
                 ]
@@ -9485,9 +9509,9 @@ const characters = [
                 "nameHtml": "Eye Gouge",
                 "skillimage": "https://i.imgur.com/3f7cgd3_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
                 "url": "https://i.imgur.com/3f7cgd3_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "skilldescription": "Deals 30 damage to one enemy. For 1 turn, they are partially-blinded, causing their new harmful skills to randomly select their target from the opposing team only.",
-                "description": "Deals 30 damage to one enemy. For 1 turn, they are partially-blinded, causing their new harmful skills to randomly select their target from the opposing team only.",
-                "descriptionHtml": "Deals 30 damage to one enemy.<br>For 1 turn, they are partially-blinded, causing their new harmful skills to randomly select their target from the opposing team only.",
+                "skilldescription": "Deals 25 bleed damage to one enemy and 5 bleed damage the following turn. For 1 turn, they are partially-blinded, causing their new harmful skills to randomly select their target from the opposing team only. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
+                "description": "Deals 25 bleed damage to one enemy and 5 bleed damage the following turn. For 1 turn, they are partially-blinded, causing their new harmful skills to randomly select their target from the opposing team only. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
+                "descriptionHtml": "Deals 25 bleed damage to one enemy and 5 bleed damage the following turn.<br>For 1 turn, they are partially-blinded, causing their new harmful skills to randomly select their target from the opposing team only.<br>Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
                 "energy": [
                     "Taijutsu",
                     "Random"
@@ -9505,18 +9529,32 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 30,
-                        "scope": "target"
+                        "amount": 25,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageImmunity": true,
+                            "ignoreAfflictionDamageImmunity": true,
+                            "ignoreDamageReduction": true,
+                            "fixedDamage": true
+                        }
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "rage_infected_eye_gouge_blind",
+                        "statusId": "rage_infected_eye_gouge_bleed",
                         "duration": 1,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
                             "harmfulBlind": true,
-                            "tooltipText": "This character's harmful skills randomly target the opposing team."
+                            "afflictionDamage": true,
+                            "fixedTurnEndDamage": true,
+                            "ignoreDamageImmunity": true,
+                            "ignoreAfflictionDamageImmunity": true,
+                            "removeOnHealingEffect": true,
+                            "turnEndDamage": 5,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "This character's harmful skills randomly target the opposing team and they take 5 bleed damage next turn. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect."
                         }
                     }
                 ]
@@ -10484,7 +10522,7 @@ const characters = [
                 "id": "predator-stalker-bleeder-spear",
                 "name": "Bleeder Spear",
                 "skillimage": "https://i.imgur.com/wcV1Ubk_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "skilldescription": "Deals 10 piercing damage to one enemy. That enemy takes 10 affliction damage at the end of each of Predator Stalker's turns permanently. This effect stacks.",
+                "skilldescription": "Deals 10 piercing damage to one enemy. That enemy takes 10 bleed damage at the end of each of Predator Stalker's turns permanently. This effect stacks. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
                 "energy": [
                     "Random",
                     "Random"
@@ -10495,8 +10533,7 @@ const characters = [
                 "classes": [
                     "Physical",
                     "Ranged",
-                    "Instant",
-                    "Affliction"
+                    "Instant"
                 ],
                 "effects": [
                     {
@@ -10518,15 +10555,17 @@ const characters = [
                             "ongoingClass": "action",
                             "turnEndDamage": 10,
                             "afflictionDamage": true,
-                            "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
+                            "fixedTurnEndDamage": true,
+                            "ignoreDamageImmunity": true,
+                            "ignoreAfflictionDamageImmunity": true,
+                            "removeOnHealingEffect": true,
                             "triggerOnApply": true,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
                             "mergeNumericAddKeys": [
                                 "turnEndDamage"
                             ],
-                            "tooltipTextTemplate": "This character takes {turnEndDamage} affliction damage at the end of each of Predator Stalker's turns."
+                            "tooltipTextTemplate": "This character takes {turnEndDamage} bleed damage at the end of each of Predator Stalker's turns. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect."
                         }
                     }
                 ]
