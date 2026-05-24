@@ -3605,6 +3605,10 @@ const selectTurnStartChoiceTarget = ({ match, actingUsername, choice = {} }) => 
     if (targetStrategy === 'alive-ally-first' || targetStrategy === 'single-ally') {
         return aliveAllies[0] || null;
     }
+    if (targetStrategy === 'alive-enemy-first' || targetStrategy === 'single-enemy') {
+        const enemies = getAliveEnemyRecipients({ match, username: actingUsername });
+        return enemies[0] || null;
+    }
     return aliveAllies[0] || deadAllies[0] || null;
 };
 

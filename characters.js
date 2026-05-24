@@ -5134,7 +5134,7 @@ const characters = [
                 "id": "hershel-greene-doctor-s-bag",
                 "name": "Doctor's Bag",
                 "skillimage": "https://i.imgur.com/neBRimV.png",
-                "skilldescription": "Hershel activates this skill. Each time an ally dies, at the start of your next turn, choose one of the following: 1. Heal an ally 35 HP. 2. Remove all harmful damaging skills on an ally. 3. Revive a dead ally to 30 HP. Only activates once per turn and can only activate twice in a game.",
+                "skilldescription": "Each time an ally dies, at the start of your next turn, choose one of the following: 1. Grant an ally 20 permanent destructible defense. 2. Grant an enemy 20 points of Barrier. 3. Prevent an ally from dying for 1 turn. Can only activate twice in a game.",
                 "energy": [],
                 "target": "all-allies",
                 "damage": 0,
@@ -5157,30 +5157,47 @@ const characters = [
                             "onTeamMemberDeathQueueTurnStartChoice": true,
                             "turnStartChoiceOptions": [
                                 {
-                                    "key": "heal",
-                                    "label": "Heal an ally 35 HP",
+                                    "key": "defense",
+                                    "label": "Grant one ally 20 points of permanent destructible defense",
                                     "targetStrategy": "alive-ally-lowest-hp",
                                     "effect": {
-                                        "type": "heal",
-                                        "amount": 35
+                                        "type": "apply_status",
+                                        "statusId": "hershel_greene_doctor_s_bag_defense",
+                                        "duration": 99,
+                                        "metadata": {
+                                            "destructibleDefensePoints": 20,
+                                            "infiniteDuration": true,
+                                            "tooltipText": "This character has 20 points of permanent destructible defense from Doctor's Bag."
+                                        }
                                     }
                                 },
                                 {
-                                    "key": "cleanse",
-                                    "label": "Remove harmful damaging skills",
-                                    "targetStrategy": "alive-ally-most-harmful",
+                                    "key": "barrier",
+                                    "label": "Grant an enemy 20 points of Barrier",
+                                    "targetStrategy": "alive-enemy-first",
                                     "effect": {
-                                        "type": "cleanse_harmful",
-                                        "count": 0
+                                        "type": "apply_status",
+                                        "statusId": "hershel_greene_doctor_s_bag_barrier",
+                                        "duration": 99,
+                                        "metadata": {
+                                            "barrierPoints": 20,
+                                            "infiniteDuration": true,
+                                            "tooltipText": "This character has 20 points of Barrier from Doctor's Bag."
+                                        }
                                     }
                                 },
                                 {
-                                    "key": "revive",
-                                    "label": "Revive a dead ally to 30 HP",
-                                    "targetStrategy": "dead-ally-first",
+                                    "key": "survival",
+                                    "label": "Prevent an ally from dying for 1 turn",
+                                    "targetStrategy": "alive-ally-lowest-hp",
                                     "effect": {
-                                        "type": "revive",
-                                        "amount": 30
+                                        "type": "apply_status",
+                                        "statusId": "hershel_greene_doctor_s_bag_survival",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "minimumHp": 1,
+                                            "tooltipText": "This character cannot be killed this turn."
+                                        }
                                     }
                                 }
                             ],
@@ -11460,9 +11477,9 @@ const characters = [
                 "nameHtml": "Radiant Hope",
                 "skillimage": "https://i.imgur.com/4th9J63.jpeg",
                 "url": "https://i.imgur.com/4th9J63.jpeg",
-                "skilldescription": "At the start of your next turn choose one option: - Grant one ally 20 points of permanent destructible defense - Grant an enemy 20 points of Barrier - Prevent an ally from dying for 1 turn. its effects are.",
-                "description": "At the start of your next turn choose one option: - Grant one ally 20 points of permanent destructible defense - Grant an enemy 20 points of Barrier - Prevent an ally from dying for 1 turn. its effects are.",
-                "descriptionHtml": "At the start of your next turn choose one option:<br>- Grant one ally 20 points of permanent destructible defense<br>- Grant an enemy 20 points of Barrier<br>- Prevent an ally from dying for 1 turn<br> and its effects are.",
+                "skilldescription": "At the start of your next turn choose one option: - Grant one ally 20 points of permanent destructible defense - Grant an enemy 20 points of Barrier - Prevent an ally from dying for 1 turn.",
+                "description": "At the start of your next turn choose one option: - Grant one ally 20 points of permanent destructible defense - Grant an enemy 20 points of Barrier - Prevent an ally from dying for 1 turn.",
+                "descriptionHtml": "At the start of your next turn choose one option:<br>- Grant one ally 20 points of permanent destructible defense<br>- Grant an enemy 20 points of Barrier<br>- Prevent an ally from dying for 1 turn<br> and",
                 "energy": [
                     "Ninjutsu",
                     "Random"
@@ -11481,16 +11498,61 @@ const characters = [
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "saint_walker_radiant_hope_defense",
-                        "duration": 99,
-                        "scope": "target",
+                        "statusId": "saint_walker_radiant_hope_active",
+                        "duration": 1,
+                        "scope": "self",
                         "metadata": {
-                            "destructibleDefensePoints": 20,
-                            "mergeNumericAddKeys": [
-                                "destructibleDefensePoints"
+                            "turnStartChoicePromptText": "Choose one Radiant Hope effect.",
+                            "turnStartChoiceMaxUses": 1,
+                            "turnStartChoiceUsesUsed": 0,
+                            "turnStartChoiceQueued": true,
+                            "turnStartChoiceOptions": [
+                                {
+                                    "key": "defense",
+                                    "label": "Grant one ally 20 points of permanent destructible defense",
+                                    "targetStrategy": "alive-ally-lowest-hp",
+                                    "effect": {
+                                        "type": "apply_status",
+                                        "statusId": "saint_walker_radiant_hope_defense_option",
+                                        "duration": 99,
+                                        "metadata": {
+                                            "destructibleDefensePoints": 20,
+                                            "infiniteDuration": true,
+                                            "tooltipText": "This character has 20 points of permanent destructible defense from Radiant Hope."
+                                        }
+                                    }
+                                },
+                                {
+                                    "key": "barrier",
+                                    "label": "Grant an enemy 20 points of Barrier",
+                                    "targetStrategy": "alive-enemy-first",
+                                    "effect": {
+                                        "type": "apply_status",
+                                        "statusId": "saint_walker_radiant_hope_barrier_option",
+                                        "duration": 99,
+                                        "metadata": {
+                                            "barrierPoints": 20,
+                                            "infiniteDuration": true,
+                                            "tooltipText": "This character has 20 points of Barrier from Radiant Hope."
+                                        }
+                                    }
+                                },
+                                {
+                                    "key": "survival",
+                                    "label": "Prevent an ally from dying for 1 turn",
+                                    "targetStrategy": "alive-ally-lowest-hp",
+                                    "effect": {
+                                        "type": "apply_status",
+                                        "statusId": "saint_walker_radiant_hope_survival_option",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "minimumHp": 1,
+                                            "tooltipText": "This character cannot be killed this turn."
+                                        }
+                                    }
+                                }
                             ],
-                            "hideTooltip": true,
-                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Radiant Hope."
+                            "tooltipText": "At the start of your next turn, you will choose an effect."
                         }
                     }
                 ]

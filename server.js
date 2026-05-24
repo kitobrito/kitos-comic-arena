@@ -5451,6 +5451,16 @@ const resolveTurnStartChoiceForUser = ({ match, username, choiceKey }) => {
     } else if (effectType === 'revive') {
         battleLogic.reviveUnitToHp(targetUnit, Math.max(1, Number(effect.amount) || 30));
         targetState.statuses = Array.isArray(targetState.statuses) ? targetState.statuses : [];
+    } else if (effectType === 'apply_status') {
+        battleLogic.applyStatus({
+            targetState,
+            statusId: effect.statusId,
+            duration: effect.duration,
+            sourceSkillId: prompt.sourceSkillId,
+            sourceUsername: username,
+            sourceSlot: prompt.actorSlot,
+            metadata: effect.metadata,
+        });
     } else {
         throw new Error('Unsupported choice effect.');
     }
