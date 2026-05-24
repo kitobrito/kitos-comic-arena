@@ -6470,10 +6470,12 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                             if (
                                 entry.condition &&
                                 !doesEffectConditionMatch({
-                                    match,
-                                    actingUsername: username,
+                                    actorState: unitState,
+                                    targetState: allyState,
                                     actorUnit: unit,
                                     targetUnit: allyUnit,
+                                    actorUsername: username,
+                                    targetUsername: username,
                                     condition: entry.condition,
                                 })
                             ) {
@@ -6509,10 +6511,12 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                             if (
                                 entry.condition &&
                                 !doesEffectConditionMatch({
-                                    match,
-                                    actingUsername: username,
+                                    actorState: unitState,
+                                    targetState: enemyState,
                                     actorUnit: unit,
                                     targetUnit: enemyUnit,
+                                    actorUsername: username,
+                                    targetUsername: opponentUsername,
                                     condition: entry.condition,
                                 })
                             ) {

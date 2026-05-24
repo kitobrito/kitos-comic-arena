@@ -3718,6 +3718,11 @@ const CLIENT_SAFE_STATUS_METADATA_KEYS = new Set([
     'turnEndDamage',
     'turnEndApplyStatusToAllies',
     'turnEndApplyStatusToEnemies',
+    'turnStartChoiceOptions',
+    'turnStartChoicePromptText',
+    'turnStartChoiceMaxUses',
+    'turnStartChoiceUsesUsed',
+    'turnStartChoiceQueued',
 ]);
 
 const extractTooltipPlaceholderKeys = (template) => {

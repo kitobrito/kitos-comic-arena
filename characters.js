@@ -11526,7 +11526,7 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "saint_walker_radiant_hope_active",
-                        "duration": 1,
+                        "duration": 2,
                         "scope": "self",
                         "metadata": {
                             "turnStartChoicePromptText": "Choose one Radiant Hope effect.",
