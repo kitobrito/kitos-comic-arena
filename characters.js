@@ -9928,8 +9928,8 @@ const characters = [
         "roleCategory": "damage"
     },
     {
-        "id": "lieutenant-seraphina-vale",
-        "characterId": "lieutenant-seraphina-vale",
+        "id": "space-marine-medic",
+        "characterId": "space-marine-medic",
         "name": "Lieutenant Seraphina Vale",
         "nameHtml": "Lieutenant Seraphina Vale",
         "facePicture": "https://i.imgur.com/04OvCP9.jpeg",
@@ -9942,7 +9942,7 @@ const characters = [
         "startStatuses": [
             {
                 "statusId": "seraphina_vale_battlefield_triage_passive",
-                "sourceSkillId": "seraphina-vale-passive-battlefield-triage",
+                "sourceSkillId": "space-marine-medic-passive-battlefield-triage",
                 "duration": 999,
                 "metadata": {
                     "infiniteDuration": true,
@@ -9965,7 +9965,7 @@ const characters = [
         ],
         "skills": [
             {
-                "id": "seraphina-vale-pump-shotgun",
+                "id": "space-marine-medic-pump-shotgun",
                 "name": "Pump Shotgun",
                 "nameHtml": "Pump Shotgun",
                 "skillimage": "https://i.imgur.com/qu9wKKN.png",
@@ -10033,7 +10033,7 @@ const characters = [
                 ]
             },
             {
-                "id": "seraphina-vale-marking-flares",
+                "id": "space-marine-medic-marking-flares",
                 "name": "Marking Flares",
                 "nameHtml": "Marking Flares",
                 "skillimage": "https://i.imgur.com/uJQI6Ul.png",
@@ -10071,7 +10071,7 @@ const characters = [
                 ]
             },
             {
-                "id": "seraphina-vale-emergency-medical-station",
+                "id": "space-marine-medic-emergency-medical-station",
                 "name": "Emergency Medical Station",
                 "nameHtml": "Emergency Medical Station",
                 "skillimage": "https://i.imgur.com/gWp1vfu.png",
@@ -10121,7 +10121,7 @@ const characters = [
                 ]
             },
             {
-                "id": "seraphina-vale-motion-tracker",
+                "id": "space-marine-medic-motion-tracker",
                 "name": "Motion Tracker",
                 "nameHtml": "Motion Tracker",
                 "skillimage": "https://i.imgur.com/3IZPq6V.png",
@@ -10155,7 +10155,7 @@ const characters = [
                 ]
             },
             {
-                "id": "seraphina-vale-passive-battlefield-triage",
+                "id": "space-marine-medic-passive-battlefield-triage",
                 "name": "Passive: Battlefield Triage",
                 "nameHtml": "Passive: Battlefield Triage",
                 "skillimage": "https://i.imgur.com/Ga0m3ad.png",
@@ -10180,14 +10180,14 @@ const characters = [
         "roleCategory": "support"
     },
     {
-        "id": "sergeant-william-hillford",
-        "characterId": "sergeant-william-hillford",
+        "id": "space-marine-smartgunner",
+        "characterId": "space-marine-smartgunner",
         "name": "Sergeant William Hillford",
         "facePicture": "https://i.imgur.com/xhy4DuC.png",
         "characterdeescription": "A hardened urban warfare sergeant who specializes in locking down weakened enemies and systematically eliminating anyone left exposed on the battlefield. William Hillford controls the pace of combat through tactical suppression, relentless target marking, and brutal close-range enforcement, turning vulnerable opponents into guaranteed kills while protecting himself from retaliation.",
         "skills": [
             {
-                "id": "sergeant-william-hillford-smartgun-lock-on",
+                "id": "space-marine-smartgunner-smartgun-lock-on",
                 "name": "Smartgun Lock-On",
                 "nameHtml": "Smartgun Lock-On",
                 "skillimage": "https://i.imgur.com/Oq1tldJ.png",
@@ -10232,7 +10232,7 @@ const characters = [
                 ]
             },
             {
-                "id": "sergeant-william-hillford-smartgunner-spray",
+                "id": "space-marine-smartgunner-smartgunner-spray",
                 "name": "Smartgunner Spray",
                 "nameHtml": "Smartgunner Spray",
                 "skillimage": "https://i.imgur.com/2hGgaIj.png",
@@ -10277,7 +10277,7 @@ const characters = [
                             "tooltipText": "Every turn, this character deals 27 piercing damage to a new random enemy. Smartgun Lock-On marks are targeted first.",
                             "onOwnerUseSkillTrigger": true,
                             "onOwnerUseSkillIdsAny": [
-                                "sergeant-william-hillford-smartgunner-spray"
+                                "space-marine-smartgunner-smartgunner-spray"
                             ],
                             "persistOnOwnerUseSkillTrigger": true,
                             "onOwnerUseSkillApplyStatusToOwnerCondition": {
@@ -10288,7 +10288,7 @@ const characters = [
                                 "duration": 1,
                                 "metadata": {
                                     "skillCostOverridesBySkillId": {
-                                        "sergeant-william-hillford-smartgunner-spray": {
+                                        "space-marine-smartgunner-smartgunner-spray": {
                                             "energy": [
                                                 "Taijutsu",
                                                 "Genjutsu",
@@ -10304,7 +10304,7 @@ const characters = [
                 ]
             },
             {
-                "id": "sergeant-william-hillford-flashlight-attachment",
+                "id": "space-marine-smartgunner-flashlight-attachment",
                 "name": "Flashlight Attachment",
                 "nameHtml": "Flashlight Attachment",
                 "skillimage": "https://i.imgur.com/pqhEl50.png",
@@ -10352,7 +10352,7 @@ const characters = [
                 ]
             },
             {
-                "id": "sergeant-william-hillford-smartgun-block",
+                "id": "space-marine-smartgunner-smartgun-block",
                 "name": "Smartgun Block",
                 "nameHtml": "Smartgun Block",
                 "skillimage": "https://i.imgur.com/qGHbWEk.png",
