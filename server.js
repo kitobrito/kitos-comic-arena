@@ -47,6 +47,7 @@ const MATCHES_COLLECTION = process.env.MONGODB_MATCHES_COLLECTION || 'matches';
 const APP_STATE_COLLECTION = process.env.MONGODB_APP_STATE_COLLECTION || 'app_state';
 const NEWS_POSTS_COLLECTION = process.env.MONGODB_NEWS_POSTS_COLLECTION || 'news_posts';
 const CHARACTERS_FILE_PATH = path.join(__dirname, 'characters.js');
+const CHARACTER_OVERRIDES_STATE_KEY = 'character_overrides';
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRY = process.env.JWT_EXPIRY || '7d';
 const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME || 'comic_session';
@@ -141,6 +142,7 @@ let usersCollection;
 let matchesCollection;
 let appStateCollection;
 let newsPostsCollection;
+let characterOverrideCache = new Map();
 const matchSocketRooms = new Map();
 const wsConnections = new Set();
 const MATCH_CHAT_MAX_LENGTH = 240;
@@ -166,7 +168,18 @@ const XENOMORPH_DRONE_SPECIAL_PVE = {
     botTeamCharacterId: 'xenomorph-drone',
     botTeamSize: 3,
     backgroundImage: 'assets/images/xenonest.png',
+    playerTeamCharacterIds: [
+        'sergeant-william-hillford',
+        'space-marine-infantry',
+        'lieutenant-seraphina-vale',
+    ],
 };
+const XENOMORPH_HIVE_MISSION_GOALS = [
+    {
+        type: 'text',
+        text: 'Beat 3 Xenomorphs in the Xenomorph Hive using Sergeant William Hillford, Pvt. Saunders, and Lieutenant Seraphina Vale.',
+    },
+];
 
 const DEFAULT_CLAN_RANK_NAMES = {
     clanLeader: 'Clan Leader',
@@ -840,6 +853,20 @@ const normalizeMissionSpecialPve = (source = {}, rewardCharacterId = '') => {
             ) || 3
         )
     );
+    const rawPlayerTeamCharacterIds =
+        Array.isArray(raw.playerTeamCharacterIds)
+            ? raw.playerTeamCharacterIds
+            : Array.isArray(raw.player_team_character_ids)
+                ? raw.player_team_character_ids
+                : Array.isArray(raw.requiredPlayerTeamCharacterIds)
+                    ? raw.requiredPlayerTeamCharacterIds
+                    : Array.isArray(defaults.playerTeamCharacterIds)
+                        ? defaults.playerTeamCharacterIds
+                        : [];
+    const playerTeamCharacterIds = rawPlayerTeamCharacterIds
+        .map((entry) => normalizeCharacterId(entry))
+        .filter(Boolean)
+        .slice(0, 3);
     return {
         enabled,
         buttonLabel:
@@ -864,6 +891,7 @@ const normalizeMissionSpecialPve = (source = {}, rewardCharacterId = '') => {
                 : typeof raw.background_image === 'string' && raw.background_image.trim()
                     ? raw.background_image.trim()
                     : defaults.backgroundImage,
+        playerTeamCharacterIds,
     };
 };
 
@@ -930,6 +958,9 @@ const normalizeMissionCatalogEntry = (mission = {}, index = 0) => {
         source.requirements || source.requirementNotes || source.notes
     );
     const goals = normalizeMissionGoalList(source.goals || source.objectives);
+    const finalGoals = isXenomorphMission
+        ? XENOMORPH_HIVE_MISSION_GOALS.map((goal) => ({ ...goal }))
+        : goals;
     const legacyGoalCharacterId = normalizeCharacterId(
         source.character_used ??
             source.characterUsed ??
@@ -938,14 +969,14 @@ const normalizeMissionCatalogEntry = (mission = {}, index = 0) => {
     );
     if (
         legacyGoalCharacterId &&
-        !goals.some(
+        !finalGoals.some(
             (goal) =>
                 goal &&
                 goal.type === 'win_streak' &&
                 normalizeCharacterId(goal.character_id) === legacyGoalCharacterId
         )
     ) {
-        goals.push({
+        finalGoals.push({
             type: 'win_streak',
             character_id: legacyGoalCharacterId,
             character_name: getCharacterDisplayNameById(legacyGoalCharacterId),
@@ -991,7 +1022,7 @@ const normalizeMissionCatalogEntry = (mission = {}, index = 0) => {
                 ? source.portraitAlt.trim()
                 : `${finalMissionTitle} portrait`,
         requirements: requirementNotes,
-        goals,
+        goals: finalGoals,
         special_pve: specialPve,
         sortOrder: Number.isFinite(Number(source.sortOrder)) ? Number(source.sortOrder) : index + 1,
     };
@@ -1072,7 +1103,7 @@ const XENOMORPH_DRONE_MISSION_ENTRY = {
     portrait: 'assets/images/xenomission.jpg',
     portraitAlt: 'Xenomorph Drone portrait',
     requirements: [],
-    goals: [],
+    goals: XENOMORPH_HIVE_MISSION_GOALS,
     special_pve: XENOMORPH_DRONE_SPECIAL_PVE,
     sortOrder: 999,
 };
@@ -2379,21 +2410,145 @@ const serializeCharactersDataFile = (nextCharacters) =>
     JSON.stringify(nextCharacters, null, 4) +
     ';\n\nif (typeof module !== \'undefined\') {\n    module.exports = characters;\n}\n';
 
-const saveCharactersDataFile = async (nextCharacters) => {
+const getCharacterRecordId = (character = {}) =>
+    typeof character?.characterId === 'string' && character.characterId.trim()
+        ? character.characterId.trim()
+        : typeof character?.id === 'string' && character.id.trim()
+            ? character.id.trim()
+            : '';
+
+const loadCharactersDataFromFile = () => {
+    delete require.cache[require.resolve(CHARACTERS_FILE_PATH)];
+    const fileCharacters = require(CHARACTERS_FILE_PATH);
+    return Array.isArray(fileCharacters) ? fileCharacters : [];
+};
+
+const applyCharacterOverrides = (baseCharacters = []) => {
+    const nextCharacters = (Array.isArray(baseCharacters) ? baseCharacters : []).slice();
+    characterOverrideCache.forEach((overrideCharacter, characterId) => {
+        if (!characterId || !overrideCharacter || typeof overrideCharacter !== 'object') {
+            return;
+        }
+        const existingIndex = nextCharacters.findIndex(
+            (entry) => getCharacterRecordId(entry) === characterId
+        );
+        if (existingIndex === -1) {
+            nextCharacters.push(overrideCharacter);
+            return;
+        }
+        nextCharacters[existingIndex] = overrideCharacter;
+    });
+    return nextCharacters;
+};
+
+const rebuildCharacterCatalog = (nextCharacters) => {
+    charactersData = Array.isArray(nextCharacters) ? nextCharacters : [];
+    characterCatalog = buildCharacterCatalog();
+};
+
+const normalizeStoredCharacterOverrides = (entries = []) =>
+    (Array.isArray(entries) ? entries : [])
+        .map((entry) => {
+            const character =
+                entry && typeof entry === 'object' && entry.character && typeof entry.character === 'object'
+                    ? entry.character
+                    : entry;
+            const characterId = getCharacterRecordId(character);
+            return characterId ? { characterId, character } : null;
+        })
+        .filter(Boolean);
+
+const loadStoredCharacterOverrides = async () => {
+    if (!appStateCollection) {
+        characterOverrideCache = new Map();
+        return characterOverrideCache;
+    }
+
+    const state = await appStateCollection.findOne({ key: CHARACTER_OVERRIDES_STATE_KEY });
+    const overrides = normalizeStoredCharacterOverrides(
+        state && Array.isArray(state.overrides)
+            ? state.overrides
+            : state?.value && Array.isArray(state.value.overrides)
+                ? state.value.overrides
+                : []
+    );
+    characterOverrideCache = new Map(
+        overrides.map((entry) => [entry.characterId, entry.character])
+    );
+    return characterOverrideCache;
+};
+
+const hydrateCharactersDataFromStoredOverrides = async () => {
+    await loadStoredCharacterOverrides();
+    const fileCharacters = loadCharactersDataFromFile();
+    const mergedCharacters = applyCharacterOverrides(fileCharacters);
+    rebuildCharacterCatalog(mergedCharacters);
+
+    if (characterOverrideCache.size > 0) {
+        try {
+            await fs.promises.writeFile(
+                CHARACTERS_FILE_PATH,
+                serializeCharactersDataFile(mergedCharacters),
+                'utf8'
+            );
+        } catch (error) {
+            console.error('Character data startup file sync error:', error);
+        }
+    }
+};
+
+const saveCharacterOverride = async ({ character, previousCharacterId = '', updatedBy = '' }) => {
+    if (!appStateCollection || !character || typeof character !== 'object') {
+        return;
+    }
+    const characterId = getCharacterRecordId(character);
+    if (!characterId) {
+        return;
+    }
+
+    characterOverrideCache.set(characterId, character);
+    if (previousCharacterId && previousCharacterId !== characterId) {
+        characterOverrideCache.delete(previousCharacterId);
+    }
+
+    const now = new Date();
+    const overrides = Array.from(characterOverrideCache.entries()).map(([id, overrideCharacter]) => ({
+        characterId: id,
+        character: overrideCharacter,
+        updatedAt: now,
+        updatedBy: updatedBy || '',
+    }));
+
+    await appStateCollection.updateOne(
+        { key: CHARACTER_OVERRIDES_STATE_KEY },
+        {
+            $set: {
+                key: CHARACTER_OVERRIDES_STATE_KEY,
+                overrides,
+                updatedAt: now,
+                updatedBy: updatedBy || '',
+            },
+        },
+        { upsert: true }
+    );
+};
+
+const saveCharactersDataFile = async (nextCharacters, options = {}) => {
     const serialized = serializeCharactersDataFile(nextCharacters);
     await fs.promises.writeFile(CHARACTERS_FILE_PATH, serialized, 'utf8');
-    charactersData = nextCharacters;
-    characterCatalog = buildCharacterCatalog();
+    rebuildCharacterCatalog(nextCharacters);
+    if (options.characterOverride) {
+        await saveCharacterOverride({
+            character: options.characterOverride,
+            previousCharacterId: options.previousCharacterId,
+            updatedBy: options.updatedBy,
+        });
+    }
 };
 
 const refreshCharactersDataFromFile = () => {
     try {
-        delete require.cache[require.resolve(CHARACTERS_FILE_PATH)];
-        const fileCharacters = require(CHARACTERS_FILE_PATH);
-        if (Array.isArray(fileCharacters)) {
-            charactersData = fileCharacters;
-            characterCatalog = buildCharacterCatalog();
-        }
+        rebuildCharacterCatalog(applyCharacterOverrides(loadCharactersDataFromFile()));
     } catch (error) {
         console.error('Character data refresh error:', error);
     }
@@ -3161,6 +3316,11 @@ app.use(
         },
     })
 );
+app.get('/characters.js', (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    res.type('application/javascript');
+    return res.send(serializeCharactersDataFile(Array.isArray(charactersData) ? charactersData : []));
+});
 app.use(express.static(path.join(__dirname)));
 app.use(express.json());
 app.use(cookieParser());
@@ -5957,6 +6117,7 @@ async function initDb() {
     await matchesCollection.createIndex({ matchId: 1 }, { unique: true });
     await appStateCollection.createIndex({ key: 1 }, { unique: true });
     await newsPostsCollection.createIndex({ createdAt: -1 });
+    await hydrateCharactersDataFromStoredOverrides();
     await backfillUserProfiles();
     console.log('Connected to MongoDB.');
 }
@@ -7591,9 +7752,21 @@ app.post('/api/missions/:missionId/pve/start', requireSession, async (req, res) 
             return res.status(403).json({ error: `Requires level ${levelRequirement}.` });
         }
 
-        const team = Array.isArray(req.body?.team)
-            ? req.body.team.map((slot) => Number.parseInt(slot, 10))
+        const presetTeamCharacterIds = Array.isArray(specialPve.playerTeamCharacterIds)
+            ? specialPve.playerTeamCharacterIds.map((entry) => normalizeCharacterId(entry)).filter(Boolean)
             : [];
+        const presetTeam =
+            presetTeamCharacterIds.length > 0
+                ? presetTeamCharacterIds.map((characterId) => getRosterIndexByCharacterId(characterId))
+                : [];
+        if (presetTeam.some((rosterIndex) => !Number.isInteger(rosterIndex) || rosterIndex < 0)) {
+            return res.status(400).json({ error: 'Mission preset team is missing a roster character.' });
+        }
+        const team = presetTeam.length > 0
+            ? presetTeam
+            : Array.isArray(req.body?.team)
+                ? req.body.team.map((slot) => Number.parseInt(slot, 10))
+                : [];
         await assertTeamCanBeUsed(profile, team, user.role);
 
         const botRosterIndex = getRosterIndexByCharacterId(specialPve.botTeamCharacterId);
@@ -7827,7 +8000,11 @@ app.put('/api/admin/characters/:characterId', requireSession, async (req, res) =
             ...nextCharacter,
             characterId: nextCharacter.characterId.trim(),
         };
-        await saveCharactersDataFile(updatedCharacters);
+        await saveCharactersDataFile(updatedCharacters, {
+            characterOverride: updatedCharacters[saveIndex],
+            previousCharacterId: characterId,
+            updatedBy: req.authUser.username,
+        });
         return res.json({
             ok: true,
             character: updatedCharacters[saveIndex],

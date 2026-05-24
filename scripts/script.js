@@ -2600,6 +2600,29 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const CAPTAIN_AMERICA_SHIELD_PROJECTILE_SRC = 'assets/images/captainamericashield.png';
 
+        const skillHasCustomCastFx = (skill) => {
+            const skillId = skill?.id || '';
+            if (!skillId) return false;
+            return [
+                'superman-laser-eyes',
+                'superman-laser-eyes-empowered',
+                'homelander-laser-death-beam',
+                'homelander-laser-death-beam-empowered',
+                'billy-butcher-yellow-death-lasers',
+                'superman-frost-breath',
+                'superman-frost-breath-empowered',
+                'superman-solar-flare',
+                'andrea-snipe',
+                'andrea-quick-shot',
+                'rick-grimes-357-revolver',
+                'seraphina-vale-pump-shotgun',
+                'rick-grimes-throat-slit',
+                'negan-you-re-already-fucked',
+                'negan-you-got-no-guts',
+                'aquaman-tidal-wave',
+            ].includes(skillId) || skillId.startsWith('storm-lightning-strike') || skillId.startsWith('storm-wind-funnel');
+        };
+
         const animateSkillCastTrail = ({ actorSlot, skillIdx, selection }) => {
             const actorCard = Number.isInteger(actorSlot) ? playerCards[actorSlot] : null;
             const meta = playerSkillMetaByKey.get(`${actorSlot}:${skillIdx}`);
@@ -2637,33 +2660,35 @@ document.addEventListener('DOMContentLoaded', async () => {
                     };
                 })
                 .filter(Boolean);
-            targets.forEach((targetPoint, index) => {
-                const sourceX = isCaptainShieldThrow && index > 0 ? targets[index - 1].x : initialSourceX;
-                const sourceY = isCaptainShieldThrow && index > 0 ? targets[index - 1].y : initialSourceY;
-                const projectileHalfSize = isCaptainShieldProjectile ? 24 : 17;
-                const projectile = document.createElement('img');
-                projectile.className = 'skill-cast-projectile';
-                projectile.src = isCaptainShieldProjectile
-                    ? CAPTAIN_AMERICA_SHIELD_PROJECTILE_SRC
-                    : meta?.skill?.skillimage || skillEl.src || '';
-                projectile.alt = '';
-                projectile.style.left = `${sourceX - projectileHalfSize}px`;
-                projectile.style.top = `${sourceY - projectileHalfSize}px`;
-                projectile.style.setProperty('--cast-dx', `${targetPoint.x - sourceX}px`);
-                projectile.style.setProperty('--cast-dy', `${targetPoint.y - sourceY}px`);
-                const animationDelay = isCaptainShieldThrow ? index * 520 : Math.min(index, 3) * (isCaptainShieldBash ? 80 : 120);
-                projectile.style.animationDelay = `${animationDelay}ms`;
-                if (isCaptainShieldThrow) {
-                    projectile.classList.add('captain-shield-throw-projectile');
-                } else if (isCaptainShieldBash) {
-                    projectile.classList.add('captain-shield-bash-projectile');
-                }
-                document.body.appendChild(projectile);
-                window.setTimeout(
-                    () => projectile.remove(),
-                    (isCaptainShieldThrow ? 2300 : isCaptainShieldBash ? 980 : 1450) + animationDelay
-                );
-            });
+            if (!skillHasCustomCastFx(effectiveSkill) || isCaptainShieldProjectile) {
+                targets.forEach((targetPoint, index) => {
+                    const sourceX = isCaptainShieldThrow && index > 0 ? targets[index - 1].x : initialSourceX;
+                    const sourceY = isCaptainShieldThrow && index > 0 ? targets[index - 1].y : initialSourceY;
+                    const projectileHalfSize = isCaptainShieldProjectile ? 24 : 17;
+                    const projectile = document.createElement('img');
+                    projectile.className = 'skill-cast-projectile';
+                    projectile.src = isCaptainShieldProjectile
+                        ? CAPTAIN_AMERICA_SHIELD_PROJECTILE_SRC
+                        : meta?.skill?.skillimage || skillEl.src || '';
+                    projectile.alt = '';
+                    projectile.style.left = `${sourceX - projectileHalfSize}px`;
+                    projectile.style.top = `${sourceY - projectileHalfSize}px`;
+                    projectile.style.setProperty('--cast-dx', `${targetPoint.x - sourceX}px`);
+                    projectile.style.setProperty('--cast-dy', `${targetPoint.y - sourceY}px`);
+                    const animationDelay = isCaptainShieldThrow ? index * 520 : Math.min(index, 3) * (isCaptainShieldBash ? 80 : 120);
+                    projectile.style.animationDelay = `${animationDelay}ms`;
+                    if (isCaptainShieldThrow) {
+                        projectile.classList.add('captain-shield-throw-projectile');
+                    } else if (isCaptainShieldBash) {
+                        projectile.classList.add('captain-shield-bash-projectile');
+                    }
+                    document.body.appendChild(projectile);
+                    window.setTimeout(
+                        () => projectile.remove(),
+                        (isCaptainShieldThrow ? 2300 : isCaptainShieldBash ? 980 : 1450) + animationDelay
+                    );
+                });
+            }
             const skillId = effectiveSkill?.id || '';
             if (skillId === 'captain-america-shield-throw') {
                 playGeneratedIngameSound('shield');
@@ -3377,6 +3402,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const MAX_HP = 100;
         const HEALTH_BAR_MAX_WIDTH = 75;
+        const roundCombatDisplayAmountUp = (amount) => {
+            const numericAmount = Number(amount) || 0;
+            if (numericAmount > 0) return Math.ceil(numericAmount);
+            if (numericAmount < 0) return -Math.ceil(Math.abs(numericAmount));
+            return 0;
+        };
+
         const showFloatingCombatText = (card, text, variant = '') => {
             if (!card || !text) return;
             const popup = document.createElement('div');
@@ -3398,7 +3430,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     : isDamage
                     ? 'damage'
                     : 'heal';
-            showFloatingCombatText(card, `${isDamage ? '' : '+'}${delta}`, variant);
+            const displayDelta = roundCombatDisplayAmountUp(delta);
+            showFloatingCombatText(card, `${isDamage ? '' : '+'}${displayDelta}`, variant);
             playGeneratedIngameSound(isDamage ? 'damage' : 'heal');
         };
 
@@ -3750,6 +3783,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 'seraphina-med-station-fx',
                 'seraphina-buckshot-fx',
                 'seraphina-flare-fx',
+                'taunted-fx',
             ];
             const activeFxStatuses = getActiveStatuses(unit);
             const isBanishedForFx = activeFxStatuses.some((status) => Boolean(status?.metadata?.banished));
@@ -3760,7 +3794,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 (Number.isFinite(hpForFx) && hpForFx <= 0 && !isBanishedForFx);
             if (isDeadForFx) {
                 fxClasses.forEach((className) => card.classList.remove(className));
-                ['joker-detonator-light', 'space-marine-channel-bar', 'rex-charge-counter', 'aquaman-sea-shark-ring', 'xenomorph-facehugger-overlay', 'seraphina-med-plus-overlay', 'seraphina-buckshot-pattern', 'seraphina-road-flare'].forEach((className) =>
+                ['joker-detonator-light', 'space-marine-channel-bar', 'rex-charge-counter', 'aquaman-sea-shark-ring', 'xenomorph-facehugger-overlay', 'seraphina-med-plus-overlay', 'seraphina-buckshot-pattern', 'seraphina-road-flare', 'taunt-callout'].forEach((className) =>
                     removeCharacterFxElement(card, className)
                 );
                 return;
@@ -3771,6 +3805,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             const hasStatus = (predicate) => statuses.some(predicate);
             const idStarts = (prefix) => (status) => typeof status?.id === 'string' && status.id.startsWith(prefix);
             const sourceStarts = (prefix) => (status) => typeof status?.sourceSkillId === 'string' && status.sourceSkillId.startsWith(prefix);
+
+            const isTaunted = hasStatus((status) => Boolean(status?.metadata?.taunt));
+            card.classList.toggle('taunted-fx', isTaunted);
+            if (isTaunted) {
+                ensureCharacterFxElement(card, 'taunt-callout', '<span>TAUNTED</span>');
+            } else {
+                removeCharacterFxElement(card, 'taunt-callout');
+            }
 
             const isBatmanSmoke = hasStatus((status) => status?.id === 'batman_smoke_bomb_blind');
             const isBatmanEmp = hasStatus((status) => typeof status?.id === 'string' && status.id.startsWith('batman_pocket_emp'));
@@ -3930,7 +3972,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderEvadePercentBadge(card, unit);
             syncCharacterSpecificFx(card, unit);
             const rawHp = isUnitBanished(unit) ? 0 : Number(unit?.hp);
-            const hp = Math.max(0, Math.min(MAX_HP, Number.isFinite(rawHp) ? rawHp : MAX_HP));
+            const hp = Math.max(0, Math.min(MAX_HP, Number.isFinite(rawHp) ? Math.ceil(rawHp) : MAX_HP));
             const ratio = hp / MAX_HP;
             const width = Math.max(0, Math.round(HEALTH_BAR_MAX_WIDTH * ratio));
             healthBar.style.width = `${width}px`;
@@ -4025,7 +4067,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!previousUnit) return 0;
                 const previousHp = Math.max(0, Number(previousUnit?.hp) || 0);
                 const nextHp = Math.max(0, Number(nextUnit?.hp) || 0);
-                return nextHp - previousHp;
+                return roundCombatDisplayAmountUp(nextHp - previousHp);
             };
             const getDefenseDelta = (username, slot, nextUnit) => {
                 if (!showHpAnimations || !username || !Number.isInteger(slot)) return 0;

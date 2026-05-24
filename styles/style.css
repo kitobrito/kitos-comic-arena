@@ -2419,6 +2419,39 @@ text-transform: uppercase;
     cursor: pointer;
 }
 
+.character-card.taunted-fx .character-face {
+    border-color: #ff1f1f;
+    box-shadow: 0 0 0 2px rgba(255, 234, 72, 0.95), 0 0 13px rgba(255, 31, 31, 0.92);
+    animation: taunted-face-pulse 980ms ease-in-out infinite;
+}
+
+.taunt-callout {
+    position: absolute;
+    left: 50%;
+    top: -23px;
+    z-index: 46;
+    min-width: 76px;
+    transform: translateX(-50%);
+    display: grid;
+    place-items: center;
+    pointer-events: none;
+}
+
+.taunt-callout span {
+    display: block;
+    padding: 3px 7px 2px;
+    border: 2px solid #1a0b05;
+    background: linear-gradient(180deg, #fff04f 0%, #ff3b22 72%, #9f0d0d 100%);
+    color: #ffffff;
+    font-family: 'Pedra', 'Libre Franklin', serif;
+    font-size: 13px;
+    line-height: 1;
+    letter-spacing: 0;
+    text-shadow: 1px 1px 0 #000, -1px -1px 0 #000;
+    box-shadow: 0 2px 0 #000, 0 0 10px rgba(255, 55, 35, 0.82);
+    animation: taunt-callout-flash 740ms steps(2, end) infinite;
+}
+
 .character-card {
     margin-left: 32px;
     margin-top: -28px;
@@ -6498,6 +6531,28 @@ body.ui-disable-skill-cast-animations .seraphina-road-flare {
     }
 }
 
+@keyframes taunted-face-pulse {
+    0%, 100% {
+        filter: saturate(1.1);
+        transform: translateZ(0) scale(1);
+    }
+    50% {
+        filter: saturate(1.45) contrast(1.08);
+        transform: translateZ(0) scale(1.04);
+    }
+}
+
+@keyframes taunt-callout-flash {
+    0%, 100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        opacity: 0.72;
+        transform: translateY(-2px) scale(1.08);
+    }
+}
+
 .hp-delta-popup {
     position: absolute;
     left: 38px;
@@ -7200,6 +7255,8 @@ body.ui-disable-skill-cast-animations .seraphina-road-flare {
 .skilltooltipimage.status-icon-turn-pop,
 .skilltooltipimage.passive-trigger-flash,
 .target-lock-marker,
+.taunt-callout span,
+.character-card.taunted-fx .character-face,
 .skillpreview.skillpreview-added,
 .character-face.damage-impact,
 .character-face.heal-impact,

@@ -3,6 +3,11 @@ const defaultCharacters = require('./characters.js');
 const DEFAULT_HP = 100;
 const chakraTypes = ['taijutsu', 'ninjutsu', 'bloodline', 'genjutsu'];
 
+const roundCombatAmountUp = (amount) => {
+    const numericAmount = Math.max(0, Number(amount) || 0);
+    return numericAmount > 0 ? Math.ceil(numericAmount) : 0;
+};
+
 const createEmptyChakraCost = () => ({
     taijutsu: 0,
     ninjutsu: 0,
@@ -966,6 +971,18 @@ const pickTrackedEnemyEntry = ({
             .filter((entry) => entry.distance === nearestDistance)
             .map((entry) => entry.entry);
         return pickRandomEntry(nearestEntries);
+    }
+    if (normalizedStrategy === 'lowest-hp' || normalizedStrategy === 'alive-enemy-lowest-hp') {
+        const sortedByHp = pool
+            .map((entry) => ({
+                entry,
+                hp: Math.max(0, Number(entry?.enemyUnit?.hp) || 0),
+            }))
+            .sort((left, right) => {
+                if (left.hp !== right.hp) return left.hp - right.hp;
+                return (Number(left.entry?.enemySlot) || 0) - (Number(right.entry?.enemySlot) || 0);
+            });
+        return sortedByHp[0]?.entry || null;
     }
     return pickRandomEntry(pool);
 };
@@ -2841,7 +2858,7 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
     } else {
         appliedUnpierceableMitigation = Math.min(baseUnpierceableMitigation, postStandardMitigation);
     }
-    const dealt = Math.max(0, postStandardMitigation - appliedUnpierceableMitigation);
+    const dealt = roundCombatAmountUp(postStandardMitigation - appliedUnpierceableMitigation);
     unit.hp = Math.max(contextualMinimumHp, (Number(unit.hp) || 0) - dealt);
     if (dealt > 0) {
         setLastDamageDebug(targetState, dealt, context);
@@ -3031,7 +3048,7 @@ const applyHealthStealToUnit = ({ targetUnit, sourceUnit, rawAmount, context = {
 const applyHealthLossToUnit = (unit, rawAmount, context = {}) => {
     if (!unit || unit.alive === false || isUnitBanished(unit)) return 0;
     const wasAlive = unit.alive !== false;
-    const loss = Math.max(0, Number(rawAmount) || 0);
+    const loss = roundCombatAmountUp(rawAmount);
     if (loss <= 0) return 0;
     const before = Math.max(0, Number(unit.hp) || 0);
     const targetState = ensureUnitStateShape(unit);
@@ -3068,7 +3085,7 @@ const applyHealthLossToUnit = (unit, rawAmount, context = {}) => {
 const applyHealthCapLossToUnit = (unit, rawAmount, context = {}) => {
     if (!unit || unit.alive === false || isUnitBanished(unit)) return 0;
     const wasAlive = unit.alive !== false;
-    const loss = Math.max(0, Number(rawAmount) || 0);
+    const loss = roundCombatAmountUp(rawAmount);
     if (loss <= 0) return 0;
     const beforeCap = Math.max(0, Number(unit.hpCap) || DEFAULT_HP);
     const nextCap = Math.max(0, beforeCap - loss);
@@ -6808,6 +6825,9 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                             if (status?.metadata && typeof status.metadata === 'object') {
                                 status.metadata._lastRandomEnemyKey = `${opponentUsername}:${picked.enemySlot}`;
                             }
+                            const pickedState = ensureUnitStateShape(picked.enemyUnit);
+                            const pickedHasPreferredStatus =
+                                preferredStatusId && hasStatus(pickedState, preferredStatusId);
                             const mitigationBudgetKey = `${opponentUsername || ''}:${
                                 Number.isInteger(picked?.enemySlot) ? picked.enemySlot : ''
                             }`;
@@ -6820,6 +6840,10 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                                 afflictionDamage: randomEnemyIsAffliction,
                                 skillClasses: status?.metadata?.turnEndRandomEnemySkillClasses || [],
                                 damageDebugReason: 'turn end random',
+                                ignoreDamageImmunity:
+                                    Boolean(status?.metadata?.turnEndRandomEnemyIgnoreDamageImmunity) ||
+                                    (Boolean(status?.metadata?.turnEndRandomEnemyIgnoreDamageImmunityIfPreferredStatus) &&
+                                        pickedHasPreferredStatus),
                                 ignoreDamageReduction: Boolean(status?.metadata?.turnEndRandomEnemyIgnoreDamageReduction),
                                 ignoreDestructibleDefense: Boolean(
                                     status?.metadata?.turnEndRandomEnemyIgnoreDestructibleDefense
@@ -6831,6 +6855,37 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                                 percentMitigationStateMap: turnEndPercentMitigationStateByRecipient,
                                 percentMitigationStateKey: mitigationBudgetKey,
                             });
+                            const executeThreshold = Number(
+                                status?.metadata?.turnEndRandomEnemyExecuteBelowHpThreshold
+                            );
+                            if (
+                                Number.isFinite(executeThreshold) &&
+                                executeThreshold >= 0 &&
+                                picked.enemyUnit.alive !== false &&
+                                Math.max(0, Number(picked.enemyUnit.hp) || 0) <= executeThreshold
+                            ) {
+                                picked.enemyUnit.hp = 0;
+                                picked.enemyUnit.alive = false;
+                                triggerTeamMemberDeathHooks({
+                                    match,
+                                    deadUsername: opponentUsername,
+                                    deadSlot: picked.enemySlot,
+                                });
+                                triggerOwnerDeathHooks({
+                                    unit: picked.enemyUnit,
+                                    match,
+                                    username: opponentUsername,
+                                    slot: picked.enemySlot,
+                                });
+                                triggerSourceKillHooks({
+                                    match,
+                                    sourceUsername: username,
+                                    sourceSlot: unitSlot,
+                                    targetUsername: opponentUsername,
+                                    sourceSkillId: status?.sourceSkillId || null,
+                                    sourceSkillClasses: status?.metadata?.turnEndRandomEnemySkillClasses || [],
+                                });
+                            }
                         }
                     }
                 }
