@@ -10351,7 +10351,7 @@ const characters = [
         "role": "Control / Executioner",
         "universe": "alien",
         "roleCategory": "control"
-    }
+    },
     {
         "id": "predator-stalker",
         "characterId": "predator-stalker",
