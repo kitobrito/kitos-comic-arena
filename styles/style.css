@@ -379,6 +379,7 @@ body.skill-effects-muted .storm-hail-weather::before {
 }
 
 .ingame-ui-options-toggle,
+.ingame-fullscreen-toggle,
 .ingame-status-reveal-toggle {
     min-height: 24px;
     border: 1px solid #000;
@@ -389,11 +390,13 @@ body.skill-effects-muted .storm-hail-weather::before {
     cursor: pointer;
 }
 
+.ingame-fullscreen-toggle,
 .ingame-status-reveal-toggle {
     margin-left: 4px;
 }
 
 .ingame-ui-options-toggle.active,
+.ingame-fullscreen-toggle.active,
 .ingame-status-reveal-toggle.active {
     background: #111;
     color: #f7de9d;

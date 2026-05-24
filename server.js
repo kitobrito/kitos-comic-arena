@@ -1,9 +1,9 @@
 const fs = require('fs');
 const https = require('https');
 const path = require('path');
-const { exec } = require('child_process');
+const { execFile } = require('child_process');
 const util = require('util');
-const execPromise = util.promisify(exec);
+const execFilePromise = util.promisify(execFile);
 
 // Diagnostic logging for environment variables
 console.log('--- Startup Diagnostics ---');
@@ -61,11 +61,12 @@ const ALLOW_INSECURE_HTTP = !IS_PRODUCTION && process.env.ALLOW_INSECURE_HTTP ==
 const HTTPS_KEY_PATH = process.env.HTTPS_KEY_PATH;
 const HTTPS_CERT_PATH = process.env.HTTPS_CERT_PATH;
 const LATEST_CHARACTER_RELEASES = [
-    { label: 'Billy Butcher', characterId: 'billy-butcher' },
-    { label: 'Predalien', characterId: 'predalien' },
+    { label: 'Lieutenant Seraphina Vale', characterId: 'lieutenant-seraphina-vale' },
     { label: 'Pvt. Saunders', characterId: 'space-marine-infantry' },
+    { label: 'Sergeant William Hillford', characterId: 'sergeant-william-hillford' },
 ];
 const LATEST_CHARACTER_RELEASES_STATE_KEY = 'latest_character_releases';
+const LATEST_CHARACTER_RELEASES_VERSION = 'marine-release-v1';
 const MAINTENANCE_MODE_STATE_KEY = 'maintenance_mode';
 const MAINTENANCE_MODE_CACHE_TTL_MS = 10 * 1000;
 const DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/3JqVcPXm/default.png';
@@ -2550,6 +2551,43 @@ const saveCharactersDataFile = async (nextCharacters, options = {}) => {
     }
 };
 
+const runGitCommand = (args) =>
+    execFilePromise('git', args, {
+        cwd: __dirname,
+        maxBuffer: 10 * 1024 * 1024,
+    });
+
+const syncCharactersDataToGitHub = async ({ updatedBy = '' } = {}) => {
+    await runGitCommand(['add', '--', 'characters.js']);
+    let hasStagedCharacterChanges = false;
+    try {
+        await runGitCommand(['diff', '--cached', '--quiet', '--', 'characters.js']);
+    } catch (error) {
+        if (error && error.code === 1) {
+            hasStagedCharacterChanges = true;
+        } else {
+            throw error;
+        }
+    }
+
+    if (!hasStagedCharacterChanges) {
+        return {
+            committed: false,
+            pushed: false,
+            message: 'No character file changes to commit.',
+        };
+    }
+
+    const safeUsername = String(updatedBy || 'admin').replace(/\s+/g, ' ').trim() || 'admin';
+    await runGitCommand(['commit', '-m', `Admin: Update character data by ${safeUsername}`]);
+    await runGitCommand(['push']);
+    return {
+        committed: true,
+        pushed: true,
+        message: 'Changes committed and pushed to GitHub.',
+    };
+};
+
 const refreshCharactersDataFromFile = () => {
     // Optimization: Only reload from file if we don't have data yet
     // Otherwise, rely on rebuildCharacterCatalog calls during saves
@@ -3017,9 +3055,13 @@ const getLatestCharacterReleases = async () => {
     }
     const state = await appStateCollection.findOne({ key: LATEST_CHARACTER_RELEASES_STATE_KEY });
     const entries =
-        state && Array.isArray(state.releases)
+        state &&
+        state.version === LATEST_CHARACTER_RELEASES_VERSION &&
+        Array.isArray(state.releases)
             ? state.releases
-            : state?.value && Array.isArray(state.value.releases)
+            : state?.value &&
+              state.value.version === LATEST_CHARACTER_RELEASES_VERSION &&
+              Array.isArray(state.value.releases)
             ? state.value.releases
             : LATEST_CHARACTER_RELEASES;
     return normalizeLatestCharacterReleases(entries);
@@ -6189,6 +6231,7 @@ app.put('/api/admin/latest-releases', requireSession, async (req, res) => {
         {
             $set: {
                 key: LATEST_CHARACTER_RELEASES_STATE_KEY,
+                version: LATEST_CHARACTER_RELEASES_VERSION,
                 releases: normalizedReleases.map((entry) => ({
                     characterId: entry.characterId,
                 })),
@@ -7993,21 +8036,15 @@ app.post('/api/admin/git/sync', requireSession, async (req, res) => {
     }
 
     try {
-        // 1. Ensure file is written
         const serialized = serializeCharactersDataFile(Array.isArray(charactersData) ? charactersData : []);
         await fs.promises.writeFile(CHARACTERS_FILE_PATH, serialized, 'utf8');
-
-        // 2. Git operations
-        // Note: This assumes git is configured and has credentials in the environment
-        const commitMessage = `Admin: Update character data by ${req.authUser.username}`;
-        
-        await execPromise('git add characters.js');
-        await execPromise(`git commit -m "${commitMessage.replace(/"/g, '\\"')}"`);
-        await execPromise('git push');
+        const syncResult = await syncCharactersDataToGitHub({
+            updatedBy: req.authUser.username,
+        });
 
         return res.json({
             ok: true,
-            message: 'Changes committed and pushed to GitHub.',
+            ...syncResult,
         });
     } catch (error) {
         console.error('Git sync error:', error);
@@ -8075,13 +8112,19 @@ app.put('/api/admin/characters/:characterId', requireSession, async (req, res) =
             previousCharacterId: characterId,
             updatedBy: req.authUser.username,
         });
+        const syncResult = await syncCharactersDataToGitHub({
+            updatedBy: req.authUser.username,
+        });
         return res.json({
             ok: true,
             character: updatedCharacters[saveIndex],
+            git: syncResult,
         });
     } catch (error) {
         console.error('Admin character update error:', error);
-        return res.status(500).json({ error: 'Unable to update character.' });
+        return res.status(500).json({
+            error: 'Unable to update character. ' + (error.stderr || error.message || ''),
+        });
     }
 });
 

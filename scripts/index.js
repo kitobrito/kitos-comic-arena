@@ -1853,7 +1853,8 @@
       if (characterEditorFace) {
         characterEditorFace.src = savedCharacter && savedCharacter.facePicture ? savedCharacter.facePicture : defaultProfileAvatar;
       }
-      setCharacterEditorModalStatus("Character updated.");
+      var gitMessage = data && data.git && data.git.message ? String(data.git.message) : "";
+      setCharacterEditorModalStatus(gitMessage ? "Character updated. " + gitMessage : "Character updated.");
       loadAdminCharacters();
       loadCharacterCatalog();
     } catch (error) {

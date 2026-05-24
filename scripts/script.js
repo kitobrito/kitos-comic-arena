@@ -1284,6 +1284,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const classChoicePopupTitleEl = classChoicePopupEl?.querySelector('.class-choice-popup-title');
         const classChoicePopupOptionsEl = classChoicePopupEl?.querySelector('.class-choice-popup-options');
         const classChoicePopupCancelButton = classChoicePopupEl?.querySelector('.class-choice-popup-cancel');
+        const fullscreenToggleButton = document.querySelector('.ingame-fullscreen-toggle');
         const statusRevealToggleButton = document.querySelector('.ingame-status-reveal-toggle');
         const endTurnChooseCountEl = endTurnModalEl?.querySelector('.chakrachoosered');
         const timerBar = document.querySelector('.timer-bar');
@@ -1333,6 +1334,59 @@ document.addEventListener('DOMContentLoaded', async () => {
         const playGeneratedIngameSound = (name) => {
             soundManager.playGeneratedEffect(name);
         };
+
+        const getFullscreenElement = () =>
+            document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            document.msFullscreenElement ||
+            null;
+
+        const syncFullscreenButton = () => {
+            if (!fullscreenToggleButton) return;
+            const active = Boolean(getFullscreenElement());
+            fullscreenToggleButton.classList.toggle('active', active);
+            fullscreenToggleButton.setAttribute('aria-pressed', active ? 'true' : 'false');
+            fullscreenToggleButton.textContent = active ? 'Exit Full' : 'Full';
+        };
+
+        const requestGameFullscreen = async () => {
+            const target = document.querySelector('.backgroundingame') || document.documentElement;
+            const request =
+                target.requestFullscreen ||
+                target.webkitRequestFullscreen ||
+                target.msRequestFullscreen;
+            if (!request) return;
+            await request.call(target);
+        };
+
+        const exitGameFullscreen = async () => {
+            const exit =
+                document.exitFullscreen ||
+                document.webkitExitFullscreen ||
+                document.msExitFullscreen;
+            if (!exit) return;
+            await exit.call(document);
+        };
+
+        if (fullscreenToggleButton) {
+            fullscreenToggleButton.addEventListener('click', async () => {
+                try {
+                    if (getFullscreenElement()) {
+                        await exitGameFullscreen();
+                    } else {
+                        await requestGameFullscreen();
+                    }
+                } catch (error) {
+                    console.warn('Unable to toggle fullscreen.', error);
+                } finally {
+                    syncFullscreenButton();
+                }
+            });
+            document.addEventListener('fullscreenchange', syncFullscreenButton);
+            document.addEventListener('webkitfullscreenchange', syncFullscreenButton);
+            document.addEventListener('MSFullscreenChange', syncFullscreenButton);
+            syncFullscreenButton();
+        }
         const chakraCountEls = chakraDisplay
             ? {
                   taijutsu: chakraDisplay.querySelector('[data-chakra="taijutsu"] .chakra-count'),
