@@ -4621,7 +4621,7 @@ const characters = [
                 "id": "walker-infected-horde",
                 "name": "Infected Horde",
                 "skillimage": "https://i.imgur.com/e4sEkft.png",
-                "skilldescription": "For the rest of the game, Walker and his team gain 10 damage reduction and the enemy team takes 10 damage at the end of Walker's turns. The next Surprise Chomp or Overpower Walker uses will target all enemies. This effect stacks up to 3 times and ends when Walker dies.",
+                "skilldescription": "For the rest of the game, Walker and his team gain 10 damage reduction and the enemy team takes 10 damage at the end of Walker's turns. Walker's next skill will become AOE. This effect stacks up to 3 times and ends when Walker dies.",
                 "energy": [
                     "Random",
                     "Random",
@@ -4689,7 +4689,7 @@ const characters = [
                                 "walker-overpower": "walker-overpower-all",
                                 "walker-group-banquet": "walker-group-banquet-all"
                             },
-                            "tooltipText": "Walker's next used skill targets all enemies."
+                            "tooltipText": "Walker's next skill will become AOE."
                         }
                     }
                 ]
@@ -7900,7 +7900,9 @@ const characters = [
                 "id": "mysterio-script-rewrite",
                 "name": "Script Rewrite",
                 "skillimage": "https://i.imgur.com/pt6KJHc.png",
-                "skilldescription": "Mysterio targets one enemy for 2 turns.. This cannot be used on an already affected enemy.",
+                "skilldescription": "Mysterio targets one enemy for 2 turns. If that enemy uses a new harmful skill, that skill will target themselves or an ally instead, they take 30 affliction damage, and that skill's cooldown increases by 1. This cannot be used on an already affected enemy.",
+                "description": "Mysterio targets one enemy for 2 turns. If that enemy uses a new harmful skill, that skill will target themselves or an ally instead, they take 30 affliction damage, and that skill's cooldown increases by 1. This cannot be used on an already affected enemy.",
+                "descriptionHtml": "Mysterio targets one enemy for 2 turns. If that enemy uses a new harmful skill, that skill will target themselves or an ally instead, they take 30 affliction damage, and that skill's cooldown increases by 1.<br>This cannot be used on an already affected enemy.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -7953,7 +7955,9 @@ const characters = [
                 "id": "mysterio-hall-of-mirrors",
                 "name": "Hall of Mirrors",
                 "skillimage": "https://i.imgur.com/MV1gA5Q.png",
-                "skilldescription": "For 2 turns, your team gains 30% evasion.",
+                "skilldescription": "For 2 turns, your team gains 30% evasion. This skill becomes visible on the second turn.",
+                "description": "For 2 turns, your team gains 30% evasion. This skill becomes visible on the second turn.",
+                "descriptionHtml": "For 2 turns, your team gains 30% evasion.<br>This skill becomes visible on the second turn.",
                 "energy": [
                     "Ninjutsu",
                     "Genjutsu"
@@ -12480,8 +12484,8 @@ const characters = [
                 "nameHtml": "Sorrow Spikes",
                 "skillimage": "https://i.imgur.com/ubRYRX3.jpeg",
                 "url": "https://i.imgur.com/ubRYRX3.jpeg",
-                "skilldescription": "Marks an enemy for 1 turn.",
-                "description": "Marks an enemy for 1 turn.",
+                "skilldescription": "Marks an enemy for 1 turn. If this character does not use a new skill, they take 25 piercing damage and gain a Stack of Sorrow.",
+                "description": "Marks an enemy for 1 turn. If this character does not use a new skill, they take 25 piercing damage and gain a Stack of Sorrow.",
                 "energy": [
                     "Random"
                 ],
@@ -12542,8 +12546,8 @@ const characters = [
                 "nameHtml": "Depression Coffin",
                 "skillimage": "https://i.imgur.com/fBlXOmL.jpeg",
                 "url": "https://i.imgur.com/fBlXOmL.jpeg",
-                "skilldescription": "Marks an enemy for 1 turn.",
-                "description": "Marks an enemy for 1 turn.",
+                "skilldescription": "Marks an enemy for 1 turn. If this character uses a new skill, that skill deals 25 less damage and they gain a Stack of Sorrow.",
+                "description": "Marks an enemy for 1 turn. If this character uses a new skill, that skill deals 25 less damage and they gain a Stack of Sorrow.",
                 "energy": [
                     "Random"
                 ],
