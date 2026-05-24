@@ -3347,24 +3347,52 @@ const triggerOwnerDeathHooks = ({ unit, match, username, slot }) => {
         if (!isStatusActiveForMetadata(status, unit)) return;
         const metadata = status?.metadata || {};
         const onOwnerDeathApplyStatusToSelf = metadata?.onOwnerDeathApplyStatusToSelf;
-        if (!onOwnerDeathApplyStatusToSelf?.statusId) return;
+        const onOwnerDeathApplyStatusToSource = metadata?.onOwnerDeathApplyStatusToSource;
+        const reviveToHp = Number(metadata?.onOwnerDeathReviveToHp);
+
+        const hasRevive = Number.isFinite(reviveToHp) && reviveToHp > 0;
+        const hasApplyToSelf = onOwnerDeathApplyStatusToSelf?.statusId;
+        const hasApplyToSource = onOwnerDeathApplyStatusToSource?.statusId;
+
+        if (!hasRevive && !hasApplyToSelf && !hasApplyToSource) return;
         if (Boolean(metadata?._onOwnerDeathTriggered)) return;
+
         metadata._onOwnerDeathTriggered = true;
         status.metadata = metadata;
-        const reviveToHp = Number(metadata?.onOwnerDeathReviveToHp);
-        if (Number.isFinite(reviveToHp) && reviveToHp > 0) {
+
+        if (hasRevive) {
             reviveUnitToHp(unit, reviveToHp);
         }
-        applyStatus({
-            targetState,
-            statusId: onOwnerDeathApplyStatusToSelf.statusId,
-            duration: onOwnerDeathApplyStatusToSelf.duration,
-            sourceSkillId: status?.sourceSkillId || null,
-            sourceUsername: status?.sourceUsername || null,
-            sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
-            metadata: onOwnerDeathApplyStatusToSelf.metadata || {},
-            fresh: false,
-        });
+
+        if (hasApplyToSelf) {
+            applyStatus({
+                targetState,
+                statusId: onOwnerDeathApplyStatusToSelf.statusId,
+                duration: onOwnerDeathApplyStatusToSelf.duration,
+                sourceSkillId: status?.sourceSkillId || null,
+                sourceUsername: status?.sourceUsername || null,
+                sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
+                metadata: onOwnerDeathApplyStatusToSelf.metadata || {},
+                fresh: false,
+            });
+        }
+
+        if (hasApplyToSource && status.sourceUsername) {
+            const sourceUnit = (match.board?.[status.sourceUsername] || [])[status.sourceSlot];
+            if (sourceUnit) {
+                applyStatus({
+                    targetState: ensureUnitStateShape(sourceUnit),
+                    statusId: onOwnerDeathApplyStatusToSource.statusId,
+                    duration: onOwnerDeathApplyStatusToSource.duration,
+                    sourceSkillId: status?.sourceSkillId || null,
+                    sourceUsername: status?.sourceUsername || null,
+                    sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
+                    metadata: onOwnerDeathApplyStatusToSource.metadata || {},
+                    fresh: false,
+                });
+            }
+        }
+
         changed = true;
     });
     if (changed) {
@@ -3553,8 +3581,19 @@ const reviveUnitToHp = (unit, rawAmount) => {
     return Math.max(0, unit.hp - before);
 };
 
-const selectTurnStartChoiceTarget = ({ match, actingUsername, choice = {} }) => {
+const selectTurnStartChoiceTarget = ({ match, actingUsername, choice = {}, manualTarget = null }) => {
     if (!match || !actingUsername || !choice || typeof choice !== 'object') return null;
+
+    if (manualTarget && typeof manualTarget === 'object') {
+        const { username, slot } = manualTarget;
+        if (typeof username === 'string' && Number.isInteger(slot)) {
+            const unit = match.board?.[username]?.[slot];
+            if (unit) {
+                return { unit, slot, username };
+            }
+        }
+    }
+
     const teamUnits = Array.isArray(match.board?.[actingUsername]) ? match.board[actingUsername] : [];
     if (!teamUnits.length) return null;
     const targetStrategy =

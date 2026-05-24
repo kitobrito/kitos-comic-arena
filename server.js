@@ -5418,7 +5418,13 @@ const assignBattleBotRandomChakra = ({ match, username }) => {
     }
 };
 
-const resolveTurnStartChoiceForUser = ({ match, username, choiceKey }) => {
+const resolveTurnStartChoiceForUser = ({
+    match,
+    username,
+    choiceKey,
+    targetUsername = null,
+    targetSlot = null,
+}) => {
     const pendingTurn = getPendingTurn(match, username);
     const prompt = pendingTurn.turnStartChoice;
     if (!hasPendingTurnStartChoice(pendingTurn) || !prompt) {
@@ -5430,11 +5436,18 @@ const resolveTurnStartChoiceForUser = ({ match, username, choiceKey }) => {
     if (!option) {
         throw new Error('Invalid turn-start choice.');
     }
+
+    const manualTarget =
+        typeof targetUsername === 'string' && Number.isInteger(targetSlot)
+            ? { username: targetUsername, slot: targetSlot }
+            : null;
+
     const sourceUnit = Array.isArray(match.board?.[username]) ? match.board[username][prompt.actorSlot] : null;
     const targetPick = battleLogic.selectTurnStartChoiceTarget({
         match,
         actingUsername: username,
         choice: option,
+        manualTarget,
     });
     if (!targetPick?.unit) {
         throw new Error('No valid target available.');
@@ -7240,6 +7253,10 @@ app.post('/api/match/:matchId/turn/start-choice', requireSession, async (req, re
         if (hydrated.currentTurn !== username) {
             return res.status(403).json({ error: 'Not your turn.' });
         }
+
+        const targetUsername = typeof req.body?.targetUsername === 'string' ? req.body.targetUsername : null;
+        const targetSlot = Number.isInteger(req.body?.targetSlot) ? req.body.targetSlot : null;
+
         const pendingTurn = getPendingTurn(hydrated, username);
         const prompt = pendingTurn.turnStartChoice;
         if (!hasPendingTurnStartChoice(pendingTurn) || !prompt) {
@@ -7251,7 +7268,13 @@ app.post('/api/match/:matchId/turn/start-choice', requireSession, async (req, re
         if (!option) {
             return res.status(400).json({ error: 'Invalid choice.' });
         }
-        resolveTurnStartChoiceForUser({ match: hydrated, username, choiceKey });
+        resolveTurnStartChoiceForUser({
+            match: hydrated,
+            username,
+            choiceKey,
+            targetUsername,
+            targetSlot,
+        });
         await persistMatchState(hydrated, {
             board: hydrated.board,
             players: hydrated.players,

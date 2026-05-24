@@ -6079,6 +6079,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             } catch (error) {
                 console.warn('Failed to resolve turn start choice.', error);
             } finally {
+                activeChoicePopupMode = null;
+                activeTurnStartChoiceKey = '';
                 closeClassChoicePopup();
                 clearTargetHighlights();
                 activeTargetOptions = null;
@@ -6354,6 +6356,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                                         skillIdx
                                     );
                                     if (!currentPlayerUsername || !usernamesMatch(currentPlayerUsername, currentTurnUsername)) {
+                                        triggerBlockedSkillFeedback(imgEl);
+                                        return;
+                                    }
+                                    if (normalizePendingTurn(pendingTurnState).turnStartChoice) {
                                         triggerBlockedSkillFeedback(imgEl);
                                         return;
                                     }
