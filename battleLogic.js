@@ -6470,7 +6470,7 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                             if (
                                 entry.condition &&
                                 !doesEffectConditionMatch({
-                                    actorState: unitState,
+                                    actorState: actorState,
                                     targetState: allyState,
                                     actorUnit: unit,
                                     targetUnit: allyUnit,
@@ -6511,7 +6511,7 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                             if (
                                 entry.condition &&
                                 !doesEffectConditionMatch({
-                                    actorState: unitState,
+                                    actorState: actorState,
                                     targetState: enemyState,
                                     actorUnit: unit,
                                     targetUnit: enemyUnit,
