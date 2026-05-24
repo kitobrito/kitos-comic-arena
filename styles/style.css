@@ -917,7 +917,8 @@ body.skill-effects-muted .storm-hail-weather::before {
     color: #f7de9d;
 }
 
-.roster-filter-tab.ui-options-toggle.active {
+.roster-filter-tab.ui-options-toggle.active,
+.roster-filter-tab.selection-fullscreen-toggle.active {
     background: #111;
     color: #f7de9d;
 }

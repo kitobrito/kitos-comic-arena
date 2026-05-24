@@ -43,6 +43,60 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Ignore storage failures.
         }
     };
+    const setupSelectionFullscreenToggle = () => {
+        const fullscreenToggleButton = document.querySelector('.selection-fullscreen-toggle');
+        if (!fullscreenToggleButton) return;
+
+        const getFullscreenElement = () =>
+            document.fullscreenElement ||
+            document.webkitFullscreenElement ||
+            document.msFullscreenElement ||
+            null;
+
+        const syncFullscreenButton = () => {
+            const active = Boolean(getFullscreenElement());
+            fullscreenToggleButton.classList.toggle('active', active);
+            fullscreenToggleButton.setAttribute('aria-pressed', active ? 'true' : 'false');
+            fullscreenToggleButton.textContent = active ? 'Exit Full' : 'Full';
+        };
+
+        const requestSelectionFullscreen = async () => {
+            const target = document.querySelector('.background') || document.documentElement;
+            const request =
+                target.requestFullscreen ||
+                target.webkitRequestFullscreen ||
+                target.msRequestFullscreen;
+            if (!request) return;
+            await request.call(target);
+        };
+
+        const exitSelectionFullscreen = async () => {
+            const exit =
+                document.exitFullscreen ||
+                document.webkitExitFullscreen ||
+                document.msExitFullscreen;
+            if (!exit) return;
+            await exit.call(document);
+        };
+
+        fullscreenToggleButton.addEventListener('click', async () => {
+            try {
+                if (getFullscreenElement()) {
+                    await exitSelectionFullscreen();
+                } else {
+                    await requestSelectionFullscreen();
+                }
+            } catch (error) {
+                console.warn('Unable to toggle fullscreen.', error);
+            } finally {
+                syncFullscreenButton();
+            }
+        });
+        document.addEventListener('fullscreenchange', syncFullscreenButton);
+        document.addEventListener('webkitfullscreenchange', syncFullscreenButton);
+        document.addEventListener('MSFullscreenChange', syncFullscreenButton);
+        syncFullscreenButton();
+    };
     const applyUiSettings = () => {
         document.body.classList.toggle('ui-disable-target-fade', !uiSettings.targetFade);
         document.body.classList.toggle('ui-disable-skill-cast-animations', !uiSettings.skillCastAnimations);
@@ -107,6 +161,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         applyUiSettings();
     };
     applyUiSettings();
+    setupSelectionFullscreenToggle();
 
     const shouldUseCustomCursor = (isIngamePage || isSelectionPage) && uiSettings.customCursor;
     const shouldUseGameClickSound = isIngamePage || isSelectionPage;

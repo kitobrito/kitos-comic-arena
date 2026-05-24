@@ -10346,9 +10346,9 @@ const characters = [
                 "nameHtml": "Smartgunner Spray",
                 "skillimage": "https://i.imgur.com/2hGgaIj.png",
                 "url": "https://i.imgur.com/2hGgaIj.png",
-                "skilldescription": "Deals 27 piercing damage to a new random enemy every turn for 3 turns. This skill stacks. If a target is marked by Smartgun Lock-On, this will target them instead and ignore their invulnerability. This executes any enemy that falls to 5 HP or below.",
-                "description": "Deals 27 piercing damage to a new random enemy every turn for 3 turns. This skill stacks. If a target is marked by Smartgun Lock-On, this will target them instead and ignore their invulnerability. This executes any enemy that falls to 5 HP or below.",
-                "descriptionHtml": "Deals 27 piercing damage to a new random enemy every turn for 3 turns.<br>This skill stacks.<br>If a target is marked by Smartgun Lock-On, this will target them instead and ignore their invulnerability.<br>This executes any enemy that falls to 5 HP or below.",
+                "skilldescription": "Deals 27 piercing damage to a new random enemy every turn for 3 turns. This skill stacks. If a target is marked by Smartgun Lock-On, this will target them instead and ignore their invulnerability. This executes any enemy that falls to 5 HP or below. After use, this costs 2 random energy for 1 turn.",
+                "description": "Deals 27 piercing damage to a new random enemy every turn for 3 turns. This skill stacks. If a target is marked by Smartgun Lock-On, this will target them instead and ignore their invulnerability. This executes any enemy that falls to 5 HP or below. After use, this costs 2 random energy for 1 turn.",
+                "descriptionHtml": "Deals 27 piercing damage to a new random enemy every turn for 3 turns.<br>This skill stacks.<br>If a target is marked by Smartgun Lock-On, this will target them instead and ignore their invulnerability.<br>This executes any enemy that falls to 5 HP or below.<br>After use, this costs 2 random energy for 1 turn.",
                 "energy": [
                     "Taijutsu",
                     "Genjutsu"
@@ -10383,31 +10383,24 @@ const characters = [
                             "preferEnemyWithStatusId": "sergeant_william_hillford_smartgun_lock_on_mark",
                             "turnEndRandomEnemyIgnoreDamageImmunityIfPreferredStatus": true,
                             "turnEndRandomEnemyExecuteBelowHpThreshold": 5,
-                            "tooltipText": "Every turn, this character deals 27 piercing damage to a new random enemy. Smartgun Lock-On marks are targeted first.",
-                            "onOwnerUseSkillTrigger": true,
-                            "onOwnerUseSkillIdsAny": [
-                                "space-marine-smartgunner-smartgunner-spray"
-                            ],
-                            "persistOnOwnerUseSkillTrigger": true,
-                            "onOwnerUseSkillApplyStatusToOwnerCondition": {
-                                "statusId": "sergeant_william_hillford_smartgunner_spray_active"
-                            },
-                            "onOwnerUseSkillApplyStatusToOwner": {
-                                "statusId": "sergeant_william_hillford_smartgunner_spray_cost_increase",
-                                "duration": 1,
-                                "metadata": {
-                                    "skillCostOverridesBySkillId": {
-                                        "space-marine-smartgunner-smartgunner-spray": {
-                                            "energy": [
-                                                "Taijutsu",
-                                                "Genjutsu",
-                                                "Random",
-                                                "Random"
-                                            ]
-                                        }
-                                    }
+                            "tooltipText": "Every turn, this character deals 27 piercing damage to a new random enemy. Smartgun Lock-On marks are targeted first."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "sergeant_william_hillford_smartgunner_spray_random_cost",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "skillCostOverridesBySkillId": {
+                                "space-marine-smartgunner-smartgunner-spray": {
+                                    "energy": [
+                                        "Random",
+                                        "Random"
+                                    ]
                                 }
-                            }
+                            },
+                            "tooltipText": "Smartgunner Spray costs 2 random energy for 1 turn."
                         }
                     }
                 ]
