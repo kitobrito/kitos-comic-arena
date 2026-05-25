@@ -1520,6 +1520,46 @@ const applyExpireReplacementStatus = ({
     });
 };
 
+const queueExpireReplacementStatuses = ({
+    pendingExpireStatuses,
+    sourceStatus,
+    actorState,
+    targetState,
+    actorUnit,
+    targetUnit,
+    actorUsername,
+    targetUsername,
+    replacements,
+}) => {
+    const entries = Array.isArray(replacements)
+        ? replacements
+        : replacements?.statusId
+        ? [replacements]
+        : [];
+    entries.forEach((replacement) => {
+        if (!replacement?.statusId) return;
+        if (
+            replacement.condition &&
+            !doesEffectConditionMatch({
+                condition: replacement.condition,
+                actorState,
+                targetState,
+                actorUnit,
+                targetUnit,
+                actorUsername,
+                targetUsername,
+            })
+        ) {
+            return;
+        }
+        applyExpireReplacementStatus({
+            pendingExpireStatuses,
+            sourceStatus,
+            replacement,
+        });
+    });
+};
+
 const refreshStatusOnTeam = ({ match, username, statusId, duration }) => {
     if (!match || !username || !statusId) return;
     const units = Array.isArray(match.board?.[username]) ? match.board[username] : [];
@@ -3587,29 +3627,63 @@ const reviveUnitToHp = (unit, rawAmount) => {
     return Math.max(0, unit.hp - before);
 };
 
-const selectTurnStartChoiceTarget = ({ match, actingUsername, choice = {}, manualTarget = null }) => {
-    if (!match || !actingUsername || !choice || typeof choice !== 'object') return null;
-
-    if (manualTarget && typeof manualTarget === 'object') {
-        const { username, slot } = manualTarget;
-        if (typeof username === 'string' && Number.isInteger(slot)) {
-            const unit = match.board?.[username]?.[slot];
-            if (unit) {
-                return { unit, slot, username };
-            }
-        }
-    }
-
+const getTurnStartChoiceTargetOptions = ({ match, actingUsername, choice = {} }) => {
+    if (!match || !actingUsername || !choice || typeof choice !== 'object') return [];
     const teamUnits = Array.isArray(match.board?.[actingUsername]) ? match.board[actingUsername] : [];
-    if (!teamUnits.length) return null;
+    if (!teamUnits.length) return [];
     const targetStrategy =
         typeof choice?.targetStrategy === 'string' ? choice.targetStrategy.trim().toLowerCase() : '';
+    const isAliveTarget = (unit) => unit && unit.alive !== false && !isUnitBanished(unit);
     const allies = teamUnits
         .map((unit, slot) => ({ unit, slot, username: actingUsername }))
         .filter((entry) => entry?.unit);
 
-    const aliveAllies = allies.filter((entry) => entry.unit && entry.unit.alive !== false);
+    const aliveAllies = allies.filter((entry) => isAliveTarget(entry.unit));
     const deadAllies = allies.filter((entry) => entry.unit && entry.unit.alive === false);
+    const aliveEnemies = getAliveEnemyRecipients({ match, username: actingUsername }).filter((entry) =>
+        isAliveTarget(entry.unit)
+    );
+
+    if (targetStrategy === 'dead-ally-first' || targetStrategy === 'dead-ally-lowest-slot') {
+        return deadAllies;
+    }
+    if (
+        targetStrategy === 'alive-enemy-first' ||
+        targetStrategy === 'single-enemy' ||
+        targetStrategy === 'enemy'
+    ) {
+        return aliveEnemies;
+    }
+    if (
+        targetStrategy === 'alive-ally-most-harmful' ||
+        targetStrategy === 'alive-ally-lowest-hp' ||
+        targetStrategy === 'alive-ally-first' ||
+        targetStrategy === 'single-ally' ||
+        targetStrategy === 'ally'
+    ) {
+        return aliveAllies;
+    }
+    return [...aliveAllies, ...deadAllies];
+};
+
+const selectTurnStartChoiceTarget = ({ match, actingUsername, choice = {}, manualTarget = null }) => {
+    if (!match || !actingUsername || !choice || typeof choice !== 'object') return null;
+
+    const availableTargets = getTurnStartChoiceTargetOptions({ match, actingUsername, choice });
+
+    if (manualTarget && typeof manualTarget === 'object') {
+        const { username, slot } = manualTarget;
+        if (typeof username === 'string' && Number.isInteger(slot)) {
+            return (
+                availableTargets.find(
+                    (entry) => entry?.username === username && Number(entry?.slot) === slot && entry?.unit
+                ) || null
+            );
+        }
+    }
+
+    const targetStrategy =
+        typeof choice?.targetStrategy === 'string' ? choice.targetStrategy.trim().toLowerCase() : '';
     const harmfulCountForUnit = (unit) => {
         const state = ensureUnitStateShape(unit);
         return (Array.isArray(state.statuses) ? state.statuses : []).reduce((sum, status) => {
@@ -3620,10 +3694,10 @@ const selectTurnStartChoiceTarget = ({ match, actingUsername, choice = {}, manua
     };
 
     if (targetStrategy === 'dead-ally-first' || targetStrategy === 'dead-ally-lowest-slot') {
-        return deadAllies[0] || null;
+        return availableTargets[0] || null;
     }
     if (targetStrategy === 'alive-ally-most-harmful') {
-        const sorted = aliveAllies
+        const sorted = availableTargets
             .slice()
             .sort((a, b) => {
                 const harmA = harmfulCountForUnit(a.unit);
@@ -3637,7 +3711,7 @@ const selectTurnStartChoiceTarget = ({ match, actingUsername, choice = {}, manua
         return sorted[0] || null;
     }
     if (targetStrategy === 'alive-ally-lowest-hp') {
-        const sorted = aliveAllies
+        const sorted = availableTargets
             .slice()
             .sort((a, b) => {
                 const hpA = Math.max(0, Number(a.unit?.hp) || 0);
@@ -3648,13 +3722,12 @@ const selectTurnStartChoiceTarget = ({ match, actingUsername, choice = {}, manua
         return sorted[0] || null;
     }
     if (targetStrategy === 'alive-ally-first' || targetStrategy === 'single-ally') {
-        return aliveAllies[0] || null;
+        return availableTargets[0] || null;
     }
     if (targetStrategy === 'alive-enemy-first' || targetStrategy === 'single-enemy') {
-        const enemies = getAliveEnemyRecipients({ match, username: actingUsername });
-        return enemies[0] || null;
+        return availableTargets[0] || null;
     }
-    return aliveAllies[0] || deadAllies[0] || null;
+    return availableTargets[0] || null;
 };
 
 const queueTurnStartChoicePrompts = ({ match, startingUsername }) => {
@@ -7274,16 +7347,21 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                             pendingStatuses: pendingExpireStatuses,
                         });
                     }
-                    if (
-                        nextRemaining <= 0 &&
-                        status?.metadata?.onExpireApplyStatusToSelf?.statusId
-                        ) {
-                            applyExpireReplacementStatus({
-                                pendingExpireStatuses,
-                                sourceStatus: status,
-                                replacement: status.metadata.onExpireApplyStatusToSelf,
-                            });
-                        }
+                    if (nextRemaining <= 0) {
+                        queueExpireReplacementStatuses({
+                            pendingExpireStatuses,
+                            sourceStatus: status,
+                            actorState,
+                            targetState: actorState,
+                            actorUnit: unit,
+                            targetUnit: unit,
+                            actorUsername: username,
+                            targetUsername: username,
+                            replacements:
+                                status?.metadata?.onExpireApplyStatusesToSelf ||
+                                status?.metadata?.onExpireApplyStatusToSelf,
+                        });
+                    }
                         return {
                             ...status,
                             fresh: false,
@@ -7355,11 +7433,19 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                             pendingStatuses: pendingExpireStatuses,
                         });
                     }
-                    if (nextRemaining <= 0 && status?.metadata?.onExpireApplyStatusToSelf?.statusId) {
-                        applyExpireReplacementStatus({
+                    if (nextRemaining <= 0) {
+                        queueExpireReplacementStatuses({
                             pendingExpireStatuses,
                             sourceStatus: status,
-                            replacement: status.metadata.onExpireApplyStatusToSelf,
+                            actorState,
+                            targetState: actorState,
+                            actorUnit: unit,
+                            targetUnit: unit,
+                            actorUsername: username,
+                            targetUsername: username,
+                            replacements:
+                                status?.metadata?.onExpireApplyStatusesToSelf ||
+                                status?.metadata?.onExpireApplyStatusToSelf,
                         });
                     }
                     return { ...status, remainingTurns: nextRemaining };
@@ -8150,6 +8236,7 @@ module.exports = {
     applyHealToUnit,
     cleanseHarmfulStatuses,
     reviveUnitToHp,
+    getTurnStartChoiceTargetOptions,
     selectTurnStartChoiceTarget,
     queueTurnStartChoicePrompts,
 };

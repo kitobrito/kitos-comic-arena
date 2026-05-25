@@ -76,7 +76,7 @@ const characters = [
                 "energy": [
                     "Ninjutsu"
                 ],
-                "target": "self",
+                "target": "self-or-single-ally",
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
@@ -2046,7 +2046,7 @@ const characters = [
                 "id": "the-flash-barry-allen-infinite-mass-punch",
                 "name": "Infinite Mass Punch",
                 "skillimage": "https://i.imgur.com/tZfTTzm.jpeg",
-                "skilldescription": "Deals 45 damage to one enemy. This has no cooldown.",
+                "skilldescription": "Deals 45 damage to one enemy.",
                 "energy": [
                     "Taijutsu",
                     "Bloodline"
@@ -2063,7 +2063,8 @@ const characters = [
                     {
                         "type": "damage",
                         "amount": 45,
-                        "scope": "target"
+                        "scope": "target",
+                        "metadata": {}
                     }
                 ],
                 "classesHtml": "Physical, Melee, Instant"
@@ -2072,7 +2073,7 @@ const characters = [
                 "id": "the-flash-barry-allen-lightning-rush",
                 "name": "Lightning Rush",
                 "skillimage": "https://i.imgur.com/Pwzbd89.jpeg",
-                "skilldescription": "The Flash strikes one enemy 4 times in quick succession, dealing 5 damage each time. Each hit has a 25% chance to apply 'Shock': dealing 4 piercing damage for 4 turns. The Flash gains 'Speed Up' for 1 turn.",
+                "skilldescription": "The Flash strikes one enemy 4 times in quick succession, dealing 5 damage each time. Each hit has a 25% chance to apply 'Shock': dealing 3 piercing damage for 4 turns. The Flash gains 'Speed Up' for 1 turn.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -2113,8 +2114,9 @@ const characters = [
                         "chance": 25,
                         "metadata": {
                             "harmful": true,
-                            "turnEndDamage": 4,
+                            "turnEndDamage": 3,
                             "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
                             "mergeNumericAddKeys": [
@@ -2131,8 +2133,9 @@ const characters = [
                         "chance": 25,
                         "metadata": {
                             "harmful": true,
-                            "turnEndDamage": 4,
+                            "turnEndDamage": 3,
                             "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
                             "mergeNumericAddKeys": [
@@ -2149,8 +2152,9 @@ const characters = [
                         "chance": 25,
                         "metadata": {
                             "harmful": true,
-                            "turnEndDamage": 4,
+                            "turnEndDamage": 3,
                             "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
                             "mergeNumericAddKeys": [
@@ -2167,8 +2171,9 @@ const characters = [
                         "chance": 25,
                         "metadata": {
                             "harmful": true,
-                            "turnEndDamage": 4,
+                            "turnEndDamage": 3,
                             "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
                             "mergeNumericAddKeys": [
@@ -2323,14 +2328,14 @@ const characters = [
                 "cannotBeReflected": true,
                 "ignoreInvulnerability": true,
                 "skillimage": "https://i.imgur.com/vwUOYsd.png",
-                "skilldescription": "Deals 55 damage to one enemy while Speed Up is active. This skill is Bypassing, Uncounterable, and Unreflectable.",
+                "skilldescription": "Deals 55 piercing damage to one enemy that cannot be countered, reflected, and ignores invulnerability.",
                 "energy": [
                     "Taijutsu",
                     "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
+                "cooldown": 1,
                 "classes": [
                     "Physical",
                     "Melee",
@@ -2345,7 +2350,7 @@ const characters = [
                         "amount": 55,
                         "scope": "target",
                         "metadata": {
-                            "ignoreDamageImmunity": true
+                            "ignoreDamageReduction": true
                         }
                     }
                 ],
@@ -3378,6 +3383,7 @@ const characters = [
                             ],
                             "destructibleDefensePoints": 0,
                             "additionalRandomChakraPerTurn": 1,
+                            "specialStatusVisual": "venom-ally-symbiosis",
                             "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense and gains 1 additional random chakra each turn."
                         }
                     },
@@ -3694,7 +3700,7 @@ const characters = [
                 "name": "Chattering Teeth",
                 "useBaseSkillCooldown": true,
                 "skillimage": "https://i.imgur.com/vh7qbuR.png",
-                "skilldescription": "Marks the enemy team for 2 turns. If a marked enemy uses a new skill, they take 5 damage, have their harmful skills silenced the following turn, and the mark is removed. Swaps to 'Remote Bomb'.",
+                "skilldescription": "Marks the enemy team for 1 turn. If a marked enemy uses a new harmful skill, they take 5 damage and are silenced for 1 turn. Swaps to 'Remote Bomb'.",
                 "energy": [
                     "Random"
                 ],
@@ -3710,11 +3716,12 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "the_joker_chattering_teeth_mark",
-                        "duration": 2,
+                        "duration": 1,
                         "scope": "all-enemy",
                         "metadata": {
                             "harmful": true,
                             "onOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillHarmfulOnly": true,
                             "onOwnerUseSkillSelfDamage": 5,
                             "onOwnerUseSkillSelfDamageIgnoreDamageReduction": true,
                             "onOwnerUseSkillSelfDamageIgnoreDestructibleDefense": true,
@@ -3728,7 +3735,7 @@ const characters = [
                                     "tooltipText": "This character's harmful skills are silenced."
                                 }
                             },
-                            "tooltipText": "If this character uses a new skill, they take 5 damage, their harmful skills are silenced the following turn, and this mark is removed."
+                            "tooltipText": "If this character uses a new harmful skill, they take 5 damage and their harmful skills are silenced for 1 turn."
                         }
                     },
                     {
@@ -3953,6 +3960,16 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "healReceivedMultiplier": 0,
+                            "specialStatusVisual": "negan-the-iron",
+                            "onExpireApplyStatusToSelf": {
+                                "statusId": "negan_the_iron_burn_scar",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "specialStatusVisual": "negan-the-iron-scar",
+                                    "tooltipText": "This portrait is permanently scarred by The Iron."
+                                }
+                            },
                             "tooltipText": "This character cannot be healed."
                         }
                     }
@@ -4828,7 +4845,7 @@ const characters = [
                 "id": "walker-passive-infected-bite",
                 "name": "Passive: Infected Bite",
                 "skillimage": "https://i.imgur.com/zeUfS91.png",
-                "skilldescription": "This character takes stacking affliction damage every turn, receives 25% less healing or 50% less healing at 40 HP or below, and Walker's Surprise Chomp steals 5 additional HP from them. Each turn, there is a 1% chance they permanently turn into a Walker.",
+                "skilldescription": "This character takes 2 affliction damage every turn, receives 25% less healing or 50% less healing at 40 HP or below, and Walker's Surprise Chomp steals 5 additional HP from them. This effects damage stacks. Each turn there is a 1% chance this character turns into a Walker.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -4977,13 +4994,13 @@ const characters = [
                         "type": "apply_status",
                         "statusId": "walker_group_banquet_regen",
                         "duration": 2,
-                        "scope": "all-allies",
+                        "scope": "self",
                         "metadata": {
                             "turnEndHealFlat": 15,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
                             "triggerOnApply": true,
-                            "tooltipText": "This character heals 15 HP at the end of each of Walker's turns."
+                            "tooltipText": "Walker heals 15 HP at the end of each of his turns."
                         }
                     }
                 ]
@@ -5137,13 +5154,56 @@ const characters = [
                 "id": "hershel-greene-doctor-s-bag",
                 "name": "Doctor's Bag",
                 "skillimage": "https://i.imgur.com/neBRimV.png",
-                "skilldescription": "Each time an ally dies, at the start of your next turn choose one of the following: Heal Hershel or an ally 35 HP; remove all enemy skills from Hershel or an ally and make them invulnerable for 1 turn; or revive a dead ally to 30 HP. Can only activate twice in a game.",
-                "description": "Each time an ally dies, at the start of your next turn choose one of the following: Heal Hershel or an ally 35 HP; remove all enemy skills from Hershel or an ally and make them invulnerable for 1 turn; or revive a dead ally to 30 HP. Can only activate twice in a game.",
-                "descriptionHtml": "Each time an ally dies, at the start of your next turn choose one of the following:<br>Heal Hershel or an ally 35 HP.<br>Remove all enemy skills from Hershel or an ally and make them invulnerable for 1 turn.<br>Revive a dead ally to 30 HP.<br>Can only activate twice in a game.",
+                "skilldescription": "Hershel targets himself or an ally. For 2 turns, the next time the target dies, they will instead have their health set to 30 HP. If this triggers, for 1 turn, Doctor's Bag will be replaced by a new effect that costs 2 random energy. This skill can only be used twice per game.",
+                "description": "Hershel targets himself or an ally. For 2 turns, the next time the target dies, they will instead have their health set to 30 HP. If this triggers, for 1 turn, Doctor's Bag will be replaced by a new effect that costs 2 random energy. This skill can only be used twice per game.",
+                "descriptionHtml": "Hershel targets himself or an ally. For 2 turns, the next time the target dies, they will instead have their health set to 30 HP. If this triggers, for 1 turn, Doctor's Bag will be replaced by a new effect that costs 2 random energy. This skill can only be used twice per game.",
                 "energy": [],
-                "target": "all-allies",
+                "target": "self-or-single-ally",
                 "damage": 0,
-                "maxUses": 1,
+                "maxUses": 2,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "hershel_greene_doctor_s_bag_buff",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "hidden": true,
+                            "onOwnerDeathReviveToHp": 30,
+                            "onOwnerDeathApplyStatusToSource": {
+                                "statusId": "hershel_greene_doctor_s_bag_replacement_active",
+                                "duration": 1,
+                                "metadata": {
+                                    "skillReplacements": {
+                                        "hershel-greene-doctor-s-bag": "hershel-greene-doctor-s-bag-transformed"
+                                    },
+                                    "tooltipText": "Doctor's Bag has been transformed."
+                                }
+                            },
+                            "tooltipText": "If this character dies, they will revive with 30 HP."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "hershel-greene-doctor-s-bag-transformed",
+                "name": "Doctor's Bag (Transformed)",
+                "skillimage": "https://i.imgur.com/neBRimV.png",
+                "skilldescription": "Hershel heals one member of his team 30 HP and removes all enemy skills from them. This skill does not count towards the use limit of Doctor's Bag.",
+                "description": "Hershel heals one member of his team 30 HP and removes all enemy skills from them. This skill does not count towards the use limit of Doctor's Bag.",
+                "descriptionHtml": "Hershel heals one member of his team 30 HP and removes all enemy skills from them. This skill does not count towards the use limit of Doctor's Bag.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "self-or-single-ally",
+                "damage": 0,
                 "cooldown": 0,
                 "classes": [
                     "Physical",
@@ -5151,57 +5211,14 @@ const characters = [
                 ],
                 "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "hershel_greene_doctor_s_bag_active",
-                        "duration": 99,
-                        "scope": "self",
-                        "metadata": {
-                            "turnStartChoicePromptText": "Choose one Doctor's Bag effect.",
-                            "turnStartChoiceMaxUses": 2,
-                            "turnStartChoiceUsesUsed": 0,
-                            "onTeamMemberDeathQueueTurnStartChoice": true,
-                            "turnStartChoiceOptions": [
-                                {
-                                    "key": "heal",
-                                    "label": "Heal Hershel or an ally 35 HP",
-                                    "targetStrategy": "alive-ally-lowest-hp",
-                                    "effect": {
-                                        "type": "heal",
-                                        "amount": 35
-                                    }
-                                },
-                                {
-                                    "key": "cleanse_invuln",
-                                    "label": "Remove enemy skills and become invulnerable",
-                                    "targetStrategy": "alive-ally-most-harmful",
-                                    "effects": [
-                                        {
-                                            "type": "cleanse_harmful",
-                                            "count": 0
-                                        },
-                                        {
-                                            "type": "apply_status",
-                                            "statusId": "hershel_greene_doctor_s_bag_invulnerable",
-                                            "duration": 1,
-                                            "metadata": {
-                                                "invulnerable": true,
-                                                "tooltipText": "This character is invulnerable."
-                                            }
-                                        }
-                                    ]
-                                },
-                                {
-                                    "key": "revive",
-                                    "label": "Revive a dead ally to 30 HP",
-                                    "targetStrategy": "dead-ally-first",
-                                    "effect": {
-                                        "type": "revive",
-                                        "amount": 30
-                                    }
-                                }
-                            ],
-                            "tooltipText": "When an ally dies, choose a Doctor's Bag effect at the start of your next turn."
-                        }
+                        "type": "heal",
+                        "amount": 30,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "cleanse_harmful",
+                        "count": 0,
+                        "scope": "target"
                     }
                 ]
             },
@@ -11491,9 +11508,9 @@ const characters = [
                 "nameHtml": "Radiant Hope",
                 "skillimage": "https://i.imgur.com/4th9J63.jpeg",
                 "url": "https://i.imgur.com/4th9J63.jpeg",
-                "skilldescription": "At the start of your next turn choose one option: Grant one ally 20 permanent destructible defense; grant an enemy 20 barrier; or prevent an ally from dying for 1 turn. This skill is invisible.",
-                "description": "At the start of your next turn choose one option: Grant one ally 20 permanent destructible defense; grant an enemy 20 barrier; or prevent an ally from dying for 1 turn. This skill is invisible.",
-                "descriptionHtml": "At the start of your next turn choose one option:<br>Grant one ally 20 permanent destructible defense.<br>Grant an enemy 20 barrier.<br>Prevent an ally from dying for 1 turn.<br>This skill is invisible.",
+                "skilldescription": "Marks himself or an ally for 1 turn. When this mark ends, the target gains 20 points of permanent destructible defense. If an enemy used a new skill on them while they were marked, the target becomes unable to be killed for 1 turn. Invisible class.",
+                "description": "Marks himself or an ally for 1 turn. When this mark ends, the target gains 20 points of permanent destructible defense. If an enemy used a new skill on them while they were marked, the target becomes unable to be killed for 1 turn. Invisible class.",
+                "descriptionHtml": "Marks himself or an ally for 1 turn.<br>When this mark ends, the target gains 20 points of permanent destructible defense.<br>If an enemy used a new skill on them while they were marked, the target becomes unable to be killed for 1 turn.<br>Invisible class.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -11511,61 +11528,48 @@ const characters = [
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "saint_walker_radiant_hope_active",
-                        "duration": 2,
-                        "scope": "self",
+                        "statusId": "saint_walker_radiant_hope_mark",
+                        "duration": 1,
+                        "scope": "target",
                         "metadata": {
-                            "turnStartChoicePromptText": "Choose one Radiant Hope effect.",
-                            "turnStartChoiceMaxUses": 1,
-                            "turnStartChoiceUsesUsed": 0,
-                            "turnStartChoiceQueued": true,
-                            "turnStartChoiceOptions": [
+                            "onEnemySkillTargetedApplyStatusToOwner": {
+                                "statusId": "saint_walker_radiant_hope_mark",
+                                "duration": 1,
+                                "metadata": {
+                                    "radiantHopeEnemySkillUsed": true
+                                }
+                            },
+                            "onExpireApplyStatusesToSelf": [
                                 {
-                                    "key": "defense",
-                                    "label": "Grant ally 20 defense",
-                                    "targetStrategy": "alive-ally-lowest-hp",
-                                    "effect": {
-                                        "type": "apply_status",
-                                        "statusId": "saint_walker_radiant_hope_defense_option",
-                                        "duration": 99,
-                                        "metadata": {
-                                            "destructibleDefensePoints": 20,
-                                            "infiniteDuration": true,
-                                            "tooltipText": "This character has 20 points of permanent destructible defense from Radiant Hope."
-                                        }
+                                    "statusId": "saint_walker_radiant_hope_defense",
+                                    "duration": 99,
+                                    "metadata": {
+                                        "destructibleDefensePoints": 20,
+                                        "infiniteDuration": true,
+                                        "mergeNumericAddKeys": [
+                                            "destructibleDefensePoints"
+                                        ],
+                                        "tooltipTextTemplate": "This character has {destructibleDefensePoints} permanent destructible defense from Radiant Hope."
                                     }
                                 },
                                 {
-                                    "key": "barrier",
-                                    "label": "Grant enemy 20 barrier",
-                                    "targetStrategy": "alive-enemy-first",
-                                    "effect": {
-                                        "type": "apply_status",
-                                        "statusId": "saint_walker_radiant_hope_barrier_option",
-                                        "duration": 99,
-                                        "metadata": {
-                                            "barrierPoints": 20,
-                                            "infiniteDuration": true,
-                                            "tooltipText": "This character has 20 points of barrier from Radiant Hope."
+                                    "statusId": "saint_walker_radiant_hope_unkillable",
+                                    "duration": 1,
+                                    "condition": {
+                                        "scope": "self",
+                                        "statusMetadataEquals": {
+                                            "statusId": "saint_walker_radiant_hope_mark",
+                                            "metadataKey": "radiantHopeEnemySkillUsed",
+                                            "value": true
                                         }
-                                    }
-                                },
-                                {
-                                    "key": "survival",
-                                    "label": "Prevent ally death",
-                                    "targetStrategy": "alive-ally-lowest-hp",
-                                    "effect": {
-                                        "type": "apply_status",
-                                        "statusId": "saint_walker_radiant_hope_survival_option",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "minimumHp": 1,
-                                            "tooltipText": "This character cannot be killed this turn."
-                                        }
+                                    },
+                                    "metadata": {
+                                        "minimumHp": 1,
+                                        "tooltipText": "This character cannot be killed this turn."
                                     }
                                 }
                             ],
-                            "tooltipText": "At the start of your next turn, choose a Radiant Hope effect."
+                            "tooltipText": "When this mark ends, this character gains 20 permanent destructible defense. If an enemy used a new skill on them while marked, they cannot be killed for 1 turn."
                         }
                     }
                 ]

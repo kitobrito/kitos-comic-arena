@@ -2753,6 +2753,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 'the-flash-barry-allen-flashpoint-surge',
                 'scorpion-scorpion-sting',
                 'scorpion-tail-laser',
+                'venom-ravenous-bite',
+                'venom-ravenous-bite-empowered',
+                'venom-pulling-tendrils',
+                'venom-venom-web-wrap',
+                'negan-the-iron',
             ].includes(skillId) || skillId.startsWith('storm-lightning-strike') || skillId.startsWith('storm-wind-funnel');
         };
 
@@ -3205,6 +3210,77 @@ document.addEventListener('DOMContentLoaded', async () => {
             playGeneratedIngameSound('laser-red');
         };
 
+        const showVenomBiteFx = (targetCards = []) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'venom-bite-crunch-fx',
+                    '<span class="venom-teeth upper-left"></span><span class="venom-teeth upper-right"></span><span class="venom-teeth lower-left"></span><span class="venom-teeth lower-right"></span><span class="venom-bite-goo a"></span><span class="venom-bite-goo b"></span>',
+                    1500
+                );
+            });
+            playGeneratedIngameSound('damage');
+        };
+
+        const showVenomTendrilConnection = (sourceCard, targetCard, variant = 'pull', duration = 1600) => {
+            const source = getCardCenterPoint(sourceCard, 0.5, 0.48);
+            const target = getCardCenterPoint(targetCard, 0.5, 0.48);
+            if (!source || !target) return;
+            const dx = target.x - source.x;
+            const dy = target.y - source.y;
+            const length = Math.max(34, Math.sqrt(dx * dx + dy * dy));
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            const tendril = document.createElement('div');
+            tendril.className = `venom-symbiote-tendril ${variant}`;
+            tendril.style.left = `${source.x}px`;
+            tendril.style.top = `${source.y}px`;
+            tendril.style.width = `${length}px`;
+            tendril.style.transform = `rotate(${angle}deg)`;
+            tendril.innerHTML = '<span class="venom-tendril-core"></span><span class="venom-tendril-vein a"></span><span class="venom-tendril-vein b"></span><span class="venom-tendril-drip a"></span><span class="venom-tendril-drip b"></span>';
+            document.body.appendChild(tendril);
+            window.setTimeout(() => tendril.remove(), duration);
+        };
+
+        const showVenomPullingTendrilsFx = ({ actorCard, targetCards = [] }) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    showVenomTendrilConnection(actorCard, targetCard, 'pull', 1750);
+                    showTemporaryCardFx(
+                        targetCard,
+                        'venom-tendril-latch-fx',
+                        '<span class="venom-latch-ring"></span><span class="venom-latch-hook a"></span><span class="venom-latch-hook b"></span><span class="venom-latch-goo a"></span><span class="venom-latch-goo b"></span>',
+                        1800
+                    );
+                }, index * 90);
+            });
+            playGeneratedIngameSound('web');
+        };
+
+        const showVenomWebWrapFx = ({ actorCard, targetCards = [] }) => {
+            targetCards.forEach((targetCard) => {
+                showVenomTendrilConnection(actorCard, targetCard, 'web', 1450);
+                showTemporaryCardFx(
+                    targetCard,
+                    'venom-web-cocoon-fx',
+                    '<span class="venom-web-strand a"></span><span class="venom-web-strand b"></span><span class="venom-web-strand c"></span><span class="venom-web-strand d"></span><span class="venom-web-goo a"></span><span class="venom-web-goo b"></span>',
+                    2100
+                );
+            });
+            playGeneratedIngameSound('web');
+        };
+
+        const showNeganTheIronCastFx = (targetCards = []) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'negan-iron-slam-fx',
+                    '<img src="https://i.imgur.com/jHlzlE9.png" alt=""><span class="negan-iron-slam-glow"></span><span class="negan-iron-slam-smoke a"></span><span class="negan-iron-slam-smoke b"></span>',
+                    1900
+                );
+            });
+            playGeneratedIngameSound('damage');
+        };
+
         const showAquamanTidalWaveFx = () => {
             const existing = document.querySelector('.aquaman-tidal-wave-screen-fx');
             if (existing) existing.remove();
@@ -3254,6 +3330,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 skillId === 'the-flash-barry-allen-flashpoint-surge';
             const isScorpionSting = skillId === 'scorpion-scorpion-sting';
             const isScorpionTailLaser = skillId === 'scorpion-tail-laser';
+            const isVenomBite = skillId === 'venom-ravenous-bite' || skillId === 'venom-ravenous-bite-empowered';
+            const isVenomPullingTendrils = skillId === 'venom-pulling-tendrils';
+            const isVenomWebWrap = skillId === 'venom-venom-web-wrap';
+            const isNeganTheIron = skillId === 'negan-the-iron';
             const isGenericLaser = !isRedLaser && !isYellowLaser && skillId.includes('laser');
             if (
                 !isRedLaser &&
@@ -3278,11 +3358,31 @@ document.addEventListener('DOMContentLoaded', async () => {
                 !isFlashSpeedSteal &&
                 !isScorpionSting &&
                 !isScorpionTailLaser &&
+                !isVenomBite &&
+                !isVenomPullingTendrils &&
+                !isVenomWebWrap &&
+                !isNeganTheIron &&
                 !isGenericLaser
             ) {
                 return;
             }
             const targetCards = getTargetCardsFromSelection(selection);
+            if (isVenomBite) {
+                showVenomBiteFx(targetCards);
+                return;
+            }
+            if (isVenomPullingTendrils) {
+                showVenomPullingTendrilsFx({ actorCard, targetCards });
+                return;
+            }
+            if (isVenomWebWrap) {
+                showVenomWebWrapFx({ actorCard, targetCards });
+                return;
+            }
+            if (isNeganTheIron) {
+                showNeganTheIronCastFx(targetCards);
+                return;
+            }
             if (isAquamanTidalWave) {
                 showAquamanTidalWaveFx();
                 return;
@@ -4238,6 +4338,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 'hulk-rage-high-fx',
                 'hulk-rage-max-fx',
                 'xenomorph-facehugger-fx',
+                'venom-ally-symbiosis-fx',
+                'negan-the-iron-fx',
+                'negan-the-iron-scar-fx',
                 'seraphina-med-station-fx',
                 'seraphina-buckshot-fx',
                 'seraphina-flare-fx',
@@ -4252,7 +4355,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 (Number.isFinite(hpForFx) && hpForFx <= 0 && !isBanishedForFx);
             if (isDeadForFx) {
                 fxClasses.forEach((className) => card.classList.remove(className));
-                ['joker-detonator-light', 'space-marine-channel-bar', 'rex-charge-counter', 'aquaman-sea-shark-ring', 'predator-bleeder-spears', 'xenomorph-facehugger-overlay', 'seraphina-med-plus-overlay', 'seraphina-buckshot-pattern', 'seraphina-road-flare', 'taunt-callout', 'flash-phase-speed-lines', 'scorpion-venom-drop', 'scorpion-poison-drops'].forEach((className) =>
+                ['joker-detonator-light', 'space-marine-channel-bar', 'rex-charge-counter', 'aquaman-sea-shark-ring', 'predator-bleeder-spears', 'xenomorph-facehugger-overlay', 'venom-ally-symbiosis-marker', 'negan-iron-overlay', 'negan-iron-scar-overlay', 'seraphina-med-plus-overlay', 'seraphina-buckshot-pattern', 'seraphina-road-flare', 'taunt-callout', 'flash-phase-speed-lines', 'scorpion-venom-drop', 'scorpion-poison-drops'].forEach((className) =>
                     removeCharacterFxElement(card, className)
                 );
                 return;
@@ -4331,6 +4434,50 @@ document.addEventListener('DOMContentLoaded', async () => {
                 );
             } else {
                 removeCharacterFxElement(card, 'xenomorph-facehugger-overlay');
+            }
+
+            const isVenomAllySymbiosis = hasStatus((status) =>
+                status?.id === 'venom_ally_symbiosis_transfer' ||
+                status?.metadata?.specialStatusVisual === 'venom-ally-symbiosis'
+            );
+            card.classList.toggle('venom-ally-symbiosis-fx', isVenomAllySymbiosis);
+            if (isVenomAllySymbiosis) {
+                ensureCharacterFxElement(
+                    card,
+                    'venom-ally-symbiosis-marker',
+                    '<img src="https://i.imgur.com/ESFy9nw.png" alt="">'
+                );
+            } else {
+                removeCharacterFxElement(card, 'venom-ally-symbiosis-marker');
+            }
+
+            const isNeganIron = hasStatus((status) =>
+                status?.id === 'negan_the_iron_lock' ||
+                status?.metadata?.specialStatusVisual === 'negan-the-iron'
+            );
+            const isNeganIronScar = hasStatus((status) =>
+                status?.id === 'negan_the_iron_burn_scar' ||
+                status?.metadata?.specialStatusVisual === 'negan-the-iron-scar'
+            );
+            card.classList.toggle('negan-the-iron-fx', isNeganIron);
+            card.classList.toggle('negan-the-iron-scar-fx', isNeganIronScar);
+            if (isNeganIron) {
+                ensureCharacterFxElement(
+                    card,
+                    'negan-iron-overlay',
+                    '<img src="https://i.imgur.com/jHlzlE9.png" alt=""><span class="negan-iron-glow"></span><span class="negan-iron-steam a"></span><span class="negan-iron-steam b"></span><span class="negan-iron-smoke a"></span><span class="negan-iron-smoke b"></span><span class="negan-iron-scorch"></span>'
+                );
+            } else {
+                removeCharacterFxElement(card, 'negan-iron-overlay');
+            }
+            if (isNeganIronScar) {
+                ensureCharacterFxElement(
+                    card,
+                    'negan-iron-scar-overlay',
+                    '<span class="negan-scar-burn a"></span><span class="negan-scar-burn b"></span><span class="negan-scar-tear a"></span><span class="negan-scar-tear b"></span>'
+                );
+            } else {
+                removeCharacterFxElement(card, 'negan-iron-scar-overlay');
             }
 
             const isSeraphinaMedStation = hasStatus((status) =>
@@ -4422,7 +4569,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                 removeCharacterFxElement(card, 'scorpion-venom-drop');
             }
 
-            const targetVenom = statuses.some((status) =>
+            const getScorpionVenomFromStatusSource = (status) => {
+                const sourceUnit =
+                    status?.sourceUsername && Number.isInteger(status?.sourceSlot)
+                        ? latestBoardState?.[status.sourceUsername]?.[status.sourceSlot]
+                        : null;
+                const sourceVenomStatus = getActiveStatuses(sourceUnit).find(
+                    (entry) => entry?.id === 'scorpion_passive_scorpion_venom'
+                );
+                return sourceVenomStatus ? normalizeScorpionVenom(sourceVenomStatus?.metadata?.currentVenom) : '';
+            };
+            const activeScorpionPoisonStatus = statuses.find((status) =>
+                typeof status?.id === 'string' &&
+                (
+                    status.id.startsWith('scorpion_scorpion_sting_') ||
+                    status.id.startsWith('scorpion_tail_laser_')
+                )
+            );
+            const sourceVenom = getScorpionVenomFromStatusSource(activeScorpionPoisonStatus);
+            const targetVenom = sourceVenom || (statuses.some((status) =>
                 status?.id === 'scorpion_scorpion_sting_neurotoxin' ||
                 status?.id === 'scorpion_tail_laser_neurotoxin'
             )
@@ -4439,7 +4604,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                       status?.id === 'scorpion_tail_laser_paralytic'
                   )
                 ? 'paralytic'
-                : '';
+                : '');
             card.classList.toggle('scorpion-poison-neurotoxin-fx', targetVenom === 'neurotoxin');
             card.classList.toggle('scorpion-poison-acid-fx', targetVenom === 'acid');
             card.classList.toggle('scorpion-poison-paralytic-fx', targetVenom === 'paralytic');
@@ -4625,6 +4790,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const previousUnit = Array.isArray(previousBoard[username]) ? previousBoard[username][slot] : null;
                 return getAquamanSeaSharkStacks(nextUnit) - getAquamanSeaSharkStacks(previousUnit);
             };
+            const hasActiveStatusId = (unit, statusId) =>
+                getActiveStatuses(unit).some((status) => status?.id === statusId);
+            const didNeganIronRipAway = (username, slot, nextUnit) => {
+                if (!showHpAnimations || !username || !Number.isInteger(slot) || !nextUnit) return false;
+                const previousUnit = Array.isArray(previousBoard[username]) ? previousBoard[username][slot] : null;
+                return (
+                    hasActiveStatusId(previousUnit, 'negan_the_iron_lock') &&
+                    !hasActiveStatusId(nextUnit, 'negan_the_iron_lock')
+                );
+            };
 
             if (Array.isArray(playerCards) && Array.isArray(playerUnits)) {
                 playerCards.forEach((card, slot) => {
@@ -4633,7 +4808,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const died = unitDiedBetweenStates(previousBoard?.[currentPlayerUsername]?.[slot], playerUnits[slot]);
                     const evaded = gainedEvadeNotification(currentPlayerUsername, slot, playerUnits[slot]);
                     const seaSharkDelta = getSeaSharkStackDelta(currentPlayerUsername, slot, playerUnits[slot]);
+                    const ironRippedAway = didNeganIronRipAway(currentPlayerUsername, slot, playerUnits[slot]);
                     renderUnitHealth(card, playerUnits[slot]);
+                    if (ironRippedAway) {
+                        showTemporaryCardFx(
+                            card,
+                            'negan-iron-rip-away-fx',
+                            '<img src="https://i.imgur.com/jHlzlE9.png" alt=""><span class="negan-iron-rip-burn a"></span><span class="negan-iron-rip-burn b"></span><span class="negan-iron-rip-smoke"></span>',
+                            1700
+                        );
+                    }
                     if (seaSharkDelta > 0) {
                         renderAquamanSeaSharkFx(card, getAquamanSeaSharkStacks(playerUnits[slot]), seaSharkDelta);
                     }
@@ -4667,7 +4851,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const died = unitDiedBetweenStates(previousBoard?.[opponentUsername]?.[slot], opponentUnits[slot]);
                     const evaded = gainedEvadeNotification(opponentUsername, slot, opponentUnits[slot]);
                     const seaSharkDelta = getSeaSharkStackDelta(opponentUsername, slot, opponentUnits[slot]);
+                    const ironRippedAway = didNeganIronRipAway(opponentUsername, slot, opponentUnits[slot]);
                     renderUnitHealth(card, opponentUnits[slot]);
+                    if (ironRippedAway) {
+                        showTemporaryCardFx(
+                            card,
+                            'negan-iron-rip-away-fx',
+                            '<img src="https://i.imgur.com/jHlzlE9.png" alt=""><span class="negan-iron-rip-burn a"></span><span class="negan-iron-rip-burn b"></span><span class="negan-iron-rip-smoke"></span>',
+                            1700
+                        );
+                    }
                     if (seaSharkDelta > 0) {
                         renderAquamanSeaSharkFx(card, getAquamanSeaSharkStacks(opponentUnits[slot]), seaSharkDelta);
                     }
@@ -6663,8 +6856,83 @@ document.addEventListener('DOMContentLoaded', async () => {
             classChoicePopupEl.setAttribute('aria-hidden', 'false');
         };
 
-        const resolveTurnStartChoice = async (choiceKey) => {
+        const getTurnStartChoiceTargets = (option = {}) => {
+            const strategy =
+                typeof option?.targetStrategy === 'string' ? option.targetStrategy.trim().toLowerCase() : '';
+            const playerUnits = Array.isArray(latestBoardState?.[currentPlayerUsername])
+                ? latestBoardState[currentPlayerUsername]
+                : [];
+            const enemyUnits = Array.isArray(latestBoardState?.[currentOpponentUsername])
+                ? latestBoardState[currentOpponentUsername]
+                : [];
+            const mapUnits = (units, username, aliveMode = 'alive') =>
+                units
+                    .map((unit, slot) => ({ unit, slot, username }))
+                    .filter((entry) => {
+                        if (!entry.unit) return false;
+                        const isDead = isUnitDeadLike(entry.unit);
+                        if (aliveMode === 'dead') return isDead;
+                        return !isDead;
+                    })
+                    .map((entry) => ({
+                        username: entry.username,
+                        slot: entry.slot,
+                        rosterIndex: entry.unit?.rosterIndex,
+                        alive: !isUnitDeadLike(entry.unit),
+                    }));
+
+            if (strategy === 'dead-ally-first' || strategy === 'dead-ally-lowest-slot') {
+                return mapUnits(playerUnits, currentPlayerUsername, 'dead');
+            }
+            if (strategy === 'alive-enemy-first' || strategy === 'single-enemy' || strategy === 'enemy') {
+                return mapUnits(enemyUnits, currentOpponentUsername, 'alive');
+            }
+            return mapUnits(playerUnits, currentPlayerUsername, 'alive');
+        };
+
+        const hideTurnStartChoicePopupForTargeting = () => {
+            if (!classChoicePopupEl) return;
+            classChoicePopupEl.classList.remove('visible');
+            classChoicePopupEl.setAttribute('aria-hidden', 'true');
+            if (classChoicePopupCancelButton) {
+                classChoicePopupCancelButton.style.display = '';
+            }
+        };
+
+        const beginTurnStartChoiceTargeting = (optionValue = {}) => {
+            const choiceKey = optionValue.key || '';
+            if (!choiceKey) return;
+            const targets = getTurnStartChoiceTargets(optionValue);
+            if (!targets.length) {
+                resolveTurnStartChoice(choiceKey);
+                return;
+            }
+            pendingTurnStartChoicePayload = {
+                ...(pendingTurnStartChoicePayload || {}),
+                choiceKey,
+                option: optionValue,
+            };
+            activeChoicePopupMode = 'turn-start-target';
+            activeTargetOptions = {
+                targetType: optionValue.targetStrategy || 'single-character',
+                mode: 'single',
+                targets,
+            };
+            activeCastingSkill = {
+                turnStartChoice: true,
+                choiceKey,
+                classChoiceOptions: [],
+            };
+            hideTurnStartChoicePopupForTargeting();
+            renderTargetHighlights(activeTargetOptions);
+        };
+
+        const resolveTurnStartChoice = async (choiceKey, targetSelection = null) => {
             if (!matchIdFromUrl || !choiceKey || !pendingTurnStartChoicePayload) return;
+            const selectedTarget =
+                targetSelection && typeof targetSelection === 'object' && !Array.isArray(targetSelection)
+                    ? targetSelection
+                    : null;
             try {
                 const response = await fetch(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/start-choice`,
@@ -6672,7 +6940,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         credentials: 'include',
-                        body: JSON.stringify({ choiceKey }),
+                        body: JSON.stringify({
+                            choiceKey,
+                            targetUsername: selectedTarget?.username || undefined,
+                            targetSlot: Number.isInteger(selectedTarget?.slot)
+                                ? selectedTarget.slot
+                                : Number.parseInt(selectedTarget?.slot, 10),
+                        }),
                     }
                 );
                 const data = await response.json();
@@ -6723,7 +6997,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 button.textContent = optionValue.label || formatClassChoiceLabel(optionValue.key);
                 button.addEventListener('click', () => {
                     activeTurnStartChoiceKey = optionValue.key || '';
-                    resolveTurnStartChoice(optionValue.key || '');
+                    beginTurnStartChoiceTargeting(optionValue);
                 });
                 classChoicePopupOptionsEl.appendChild(button);
             });
@@ -6741,6 +7015,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 activeTargetOptions.mode === 'all'
                     ? activeTargetOptions.targets.map((t) => ({ username: t.username, slot: t.slot }))
                     : { username: target.username, slot: Number.parseInt(target.slot, 10) };
+            if (activeCastingSkill?.turnStartChoice) {
+                resolveTurnStartChoice(activeCastingSkill.choiceKey || '', selection);
+                return true;
+            }
             const classChoiceOptions = Array.isArray(activeCastingSkill.classChoiceOptions)
                 ? activeCastingSkill.classChoiceOptions
                 : [];
@@ -6819,6 +7097,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const clearActiveSkillTargeting = () => {
             if (!activeTargetOptions && !activeCastingSkill) return;
+            if (activeChoicePopupMode === 'turn-start-target') return;
             clearTargetHighlights();
             activeTargetOptions = null;
             activeCastingSkill = null;
@@ -6844,6 +7123,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ].join(',')
             );
             if (shouldKeepTargeting) return;
+            if (activeChoicePopupMode === 'turn-start-target') return;
             clearActiveSkillTargeting();
         });
 
