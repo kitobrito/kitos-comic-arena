@@ -1376,6 +1376,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const playerSkillMetaByKey = new Map();
         const visibleStatusIconKeysByUnit = new Map();
         const statusRenderSignatureByUnit = new Map();
+        const statusTooltipHtmlCache = new Map();
         const cooldownValueBySkillKey = new Map();
         let activeTurnStartChoiceKey = '';
         let activeChoicePopupMode = '';
@@ -5309,6 +5310,30 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         };
 
+        const getStatusTooltipCacheKey = (group, statusSkill) =>
+            JSON.stringify({
+                sourceSkillId: group?.sourceSkillId || '',
+                skillName: statusSkill?.name || '',
+                statuses: (Array.isArray(group?.statuses) ? group.statuses : []).map((status) => ({
+                    id: status?.id || '',
+                    remainingTurns: Number(status?.remainingTurns) || 0,
+                    metadata: stableSerializeForRender(status?.metadata || {}),
+                })),
+            });
+
+        const getCachedStatusTooltipHtml = (group, statusSkill, buildTooltipHtml) => {
+            const key = getStatusTooltipCacheKey(group, statusSkill);
+            const cached = statusTooltipHtmlCache.get(key);
+            if (cached) return cached;
+            const html = buildTooltipHtml(group, statusSkill);
+            statusTooltipHtmlCache.set(key, html);
+            if (statusTooltipHtmlCache.size > 180) {
+                const firstKey = statusTooltipHtmlCache.keys().next().value;
+                statusTooltipHtmlCache.delete(firstKey);
+            }
+            return html;
+        };
+
         const ensureGlobalStatusTooltip = () => {
             if (globalStatusTooltipEl) return globalStatusTooltipEl;
             const tooltip = document.createElement('div');
@@ -5712,7 +5737,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             groupedStatuses.forEach((group, index) => {
                 const statusSkill = findSkillById(group?.sourceSkillId);
-                const tooltipHtml = buildStatusTooltipHtml(group, statusSkill);
+                const tooltipHtml = getCachedStatusTooltipHtml(group, statusSkill, buildStatusTooltipHtml);
                 group.tooltipHtml = tooltipHtml;
                 const iconEl =
                     index === 0 ? tooltipImgTemplate : tooltipImgTemplate.cloneNode(true);
