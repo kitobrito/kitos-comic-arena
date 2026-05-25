@@ -61,9 +61,9 @@ const ALLOW_INSECURE_HTTP = !IS_PRODUCTION && process.env.ALLOW_INSECURE_HTTP ==
 const HTTPS_KEY_PATH = process.env.HTTPS_KEY_PATH;
 const HTTPS_CERT_PATH = process.env.HTTPS_CERT_PATH;
 const LATEST_CHARACTER_RELEASES = [
-    { label: 'Lieutenant Seraphina Vale', characterId: 'space-marine-medic' },
     { label: 'Pvt. Saunders', characterId: 'space-marine-infantry' },
     { label: 'Sergeant William Hillford', characterId: 'space-marine-smartgunner' },
+    { label: 'Lieutenant Seraphina Vale', characterId: 'space-marine-medic' },
 ];
 const LATEST_CHARACTER_RELEASES_STATE_KEY = 'latest_character_releases';
 const LATEST_CHARACTER_RELEASES_VERSION = 'marine-release-v1';
