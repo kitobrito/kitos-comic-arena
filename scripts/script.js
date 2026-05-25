@@ -1379,6 +1379,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         let activeTurnStartChoiceKey = '';
         let activeChoicePopupMode = '';
         let queuedSkillKeySet = new Set();
+        const optimisticQueuedByActorSlot = new Map();
+        const optimisticCancelledActorSlots = new Set();
+        const inFlightSkillRequestByActorSlot = new Set();
+        const targetOptionsCache = new Map();
         let draggingQueueActorSlot = null;
         let latestBoardState = null;
         let globalStatusTooltipEl = null;
@@ -2034,8 +2038,34 @@ document.addEventListener('DOMContentLoaded', async () => {
             return totalPool(leftover) >= reservedRandomTotal + random;
         };
 
-        const getQueuedSkillForActorSlot = (actorSlot) => {
+        const getPendingTurnWithOptimisticQueues = () => {
             const pending = normalizePendingTurn(pendingTurnState);
+            const queuedByActorSlot = { ...(pending.queuedByActorSlot || {}) };
+            const queueOrder = Array.isArray(pending.queueOrder) ? [...pending.queueOrder] : [];
+            optimisticCancelledActorSlots.forEach((slot) => {
+                delete queuedByActorSlot[String(slot)];
+            });
+            optimisticQueuedByActorSlot.forEach((queued, slot) => {
+                const key = String(slot);
+                if (queuedByActorSlot[key]) return;
+                queuedByActorSlot[key] = queued;
+                if (!queueOrder.some((entry) => Number(entry) === Number(slot))) {
+                    queueOrder.push(slot);
+                }
+            });
+            return {
+                ...pending,
+                queuedByActorSlot,
+                queueOrder,
+            };
+        };
+
+        const clearSkillInteractionCache = () => {
+            targetOptionsCache.clear();
+        };
+
+        const getQueuedSkillForActorSlot = (actorSlot) => {
+            const pending = getPendingTurnWithOptimisticQueues();
             return pending.queuedByActorSlot?.[String(actorSlot)] || null;
         };
 
@@ -2369,7 +2399,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const applyQueuedSkillVisuals = () => {
-            const pending = normalizePendingTurn(pendingTurnState);
+            const pending = getPendingTurnWithOptimisticQueues();
             const nextQueuedKeys = new Set();
             const queuedActorSlots = new Set();
             playerSkillMetaByKey.forEach((meta) => {
@@ -5895,6 +5925,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderBoardStatuses(data, { animateNewIcons: shouldAnimateNewTurnStatusIcons });
             renderSkillCooldownBadges(data, { animateTicks: shouldAnimateNewTurnStatusIcons });
             pendingTurnState = normalizePendingTurn(data.pendingTurn);
+            optimisticQueuedByActorSlot.clear();
+            optimisticCancelledActorSlots.clear();
+            clearSkillInteractionCache();
             applyQueuedSkillVisuals();
             if (endTurnModalEl && endTurnModalEl.style.visibility === 'visible') {
                 renderEndTurnModal(pool, pendingTurnState);
@@ -6169,6 +6202,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const button = document.createElement('button');
                 button.type = 'button';
                 button.className = 'skill-browser-icon';
+                button.dataset.skillIdx = String(index);
                 if (selectedSkillIdx !== null && Number(index) === Number(selectedSkillIdx)) {
                     button.classList.add('active');
                 }
@@ -6183,6 +6217,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                     renderSkillBrowserForCharacter(character, actorSlot, index);
                 });
                 skillInfo.browserIconsEl.appendChild(button);
+            });
+        };
+
+        const updateSkillBrowserActiveIcon = (selectedSkillIdx = null) => {
+            if (!skillInfo.browserIconsEl) return;
+            Array.from(skillInfo.browserIconsEl.querySelectorAll('.skill-browser-icon')).forEach((button, index) => {
+                const buttonSkillIdx = Number.parseInt(button.dataset.skillIdx, 10);
+                button.classList.toggle(
+                    'active',
+                    selectedSkillIdx !== null &&
+                        (Number.isInteger(buttonSkillIdx)
+                            ? buttonSkillIdx === Number(selectedSkillIdx)
+                            : Number(index) === Number(selectedSkillIdx))
+                );
             });
         };
 
@@ -6713,6 +6761,33 @@ document.addEventListener('DOMContentLoaded', async () => {
             clearTargetHighlights();
             activeTargetOptions = null;
             activeCastingSkill = null;
+            const cacheKey = `${currentTurnUsername || ''}:${actorSlot}:${skillIdx}`;
+            const cachedOptions = targetOptionsCache.get(cacheKey);
+            const applyTargetOptions = (data) => {
+                pendingTurnState = normalizePendingTurn(data.pendingTurn);
+                applyQueuedSkillVisuals();
+                activeTargetOptions = data;
+                const skillEl = playerSkillMetaByKey.get(`${actorSlot}:${skillIdx}`)?.imgEl || null;
+                const classChoiceOptions = getClassChoiceOptions(skill);
+                const key = getClassChoiceKey(actorSlot, skillIdx);
+                const classChoice = normalizeClassChoice(classChoiceBySkillKey.get(key));
+                activeCastingSkill = {
+                    actorSlot,
+                    skillIdx,
+                    skill,
+                    skillEl,
+                    classChoiceOptions,
+                    classChoice:
+                        classChoiceOptions.length > 0 && classChoiceOptions.includes(classChoice)
+                            ? classChoice
+                            : classChoiceOptions[0] || null,
+                };
+                renderTargetHighlights(data);
+            };
+            if (cachedOptions) {
+                applyTargetOptions(cachedOptions);
+                return;
+            }
             try {
                 const res = await fetch(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/targets`,
@@ -6735,25 +6810,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!data?.ok) {
                     throw new Error(data?.error || 'Unable to fetch targets.');
                 }
-                pendingTurnState = normalizePendingTurn(data.pendingTurn);
-                applyQueuedSkillVisuals();
-                activeTargetOptions = data;
-                const skillEl = playerSkillMetaByKey.get(`${actorSlot}:${skillIdx}`)?.imgEl || null;
-                const classChoiceOptions = getClassChoiceOptions(skill);
-                const key = getClassChoiceKey(actorSlot, skillIdx);
-                const classChoice = normalizeClassChoice(classChoiceBySkillKey.get(key));
-                activeCastingSkill = {
-                    actorSlot,
-                    skillIdx,
-                    skill,
-                    skillEl,
-                    classChoiceOptions,
-                    classChoice:
-                        classChoiceOptions.length > 0 && classChoiceOptions.includes(classChoice)
-                            ? classChoice
-                            : classChoiceOptions[0] || null,
-                };
-                renderTargetHighlights(data);
+                targetOptionsCache.set(cacheKey, data);
+                applyTargetOptions(data);
             } catch (error) {
                 console.warn('Target fetch failed.', error);
                 if (skillInfo.descEl) {
@@ -6791,6 +6849,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const queueSelectedSkill = ({ actorSlot, skillIdx, selection, classChoice = null }) => {
             if (!matchIdFromUrl) return Promise.resolve();
+            if (inFlightSkillRequestByActorSlot.has(actorSlot)) return Promise.resolve();
+            clearSkillInteractionCache();
+            inFlightSkillRequestByActorSlot.add(actorSlot);
+            optimisticCancelledActorSlots.delete(actorSlot);
+            optimisticQueuedByActorSlot.set(actorSlot, {
+                actorSlot,
+                skillIndex: skillIdx,
+                targetSelection: selection,
+                ...(classChoice ? { classChoice } : {}),
+            });
+            applyQueuedSkillVisuals();
             return fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/queue`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -6808,15 +6877,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                         throw new Error(data?.error || 'Unable to queue skill.');
                     }
                     playIngameSound(applySkillSound);
+                    optimisticQueuedByActorSlot.delete(actorSlot);
                     renderChakra(data.chakraPools?.[currentPlayerUsername] || emptyPool());
                     pendingTurnState = normalizePendingTurn(data.pendingTurn);
                     applyQueuedSkillVisuals();
                     syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
                 })
                 .catch((error) => {
+                    optimisticQueuedByActorSlot.delete(actorSlot);
+                    applyQueuedSkillVisuals();
                     console.warn('Failed to queue skill.', error);
                 })
                 .finally(() => {
+                    inFlightSkillRequestByActorSlot.delete(actorSlot);
                     closeClassChoicePopup();
                     clearTargetHighlights();
                     activeTargetOptions = null;
@@ -7247,11 +7320,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     const effectiveSkill =
                                         getEffectiveSkillForActorSlot(slotIndex, skillIdx) || skill;
                                     renderSkillInfo(character, effectiveSkill, slotIndex, skillIdx);
-                                    renderSkillBrowserForCharacter(
-                                        getEffectiveCharacterForUnit(latestBoardState?.[currentPlayerUsername]?.[slotIndex]) || character,
-                                        slotIndex,
-                                        skillIdx
-                                    );
+                                    updateSkillBrowserActiveIcon(skillIdx);
                                     if (!currentPlayerUsername || !usernamesMatch(currentPlayerUsername, currentTurnUsername)) {
                                         triggerBlockedSkillFeedback(imgEl);
                                         return;
@@ -7262,9 +7331,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     }
                                     const queued = getQueuedSkillForActorSlot(slotIndex);
                                     if (queued && queued.skillIndex === skillIdx) {
+                                        if (inFlightSkillRequestByActorSlot.has(slotIndex)) return;
+                                        clearSkillInteractionCache();
                                         clearTargetHighlights();
                                         activeTargetOptions = null;
                                         activeCastingSkill = null;
+                                        inFlightSkillRequestByActorSlot.add(slotIndex);
+                                        optimisticQueuedByActorSlot.delete(slotIndex);
+                                        optimisticCancelledActorSlots.add(slotIndex);
+                                        applyQueuedSkillVisuals();
                                         fetch(
                                             `${API_BASE_URL}/api/match/${encodeURIComponent(
                                                 matchIdFromUrl
@@ -7281,6 +7356,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                                 if (!response.ok || !data?.ok) {
                                                     throw new Error(data?.error || 'Unable to cancel skill.');
                                                 }
+                                                optimisticCancelledActorSlots.delete(slotIndex);
                                                 renderChakra(
                                                     data.chakraPools?.[currentPlayerUsername] || emptyPool()
                                                 );
@@ -7288,7 +7364,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                                                 applyQueuedSkillVisuals();
                                                 syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
                                             })
-                                            .catch((error) => console.warn('Failed to cancel skill.', error));
+                                            .catch((error) => {
+                                                optimisticCancelledActorSlots.delete(slotIndex);
+                                                applyQueuedSkillVisuals();
+                                                console.warn('Failed to cancel skill.', error);
+                                            })
+                                            .finally(() => {
+                                                inFlightSkillRequestByActorSlot.delete(slotIndex);
+                                            });
                                         return;
                                     }
                                     if (queued) {
