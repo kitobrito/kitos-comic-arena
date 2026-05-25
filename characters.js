@@ -2046,7 +2046,7 @@ const characters = [
                 "id": "the-flash-barry-allen-infinite-mass-punch",
                 "name": "Infinite Mass Punch",
                 "skillimage": "https://i.imgur.com/tZfTTzm.jpeg",
-                "skilldescription": "Deals 45 damage to one enemy. If The Flash has 'Speed Up' then this deals 10 bonus damage, cannot be countered or reflected, and bypasses invulnerability. ",
+                "skilldescription": "Deals 45 damage to one enemy. This has no cooldown.",
                 "energy": [
                     "Taijutsu",
                     "Bloodline"
@@ -2063,9 +2063,7 @@ const characters = [
                     {
                         "type": "damage",
                         "amount": 45,
-                        "scope": "target",
-                        "metadata": {
-                        }
+                        "scope": "target"
                     }
                 ],
                 "classesHtml": "Physical, Melee, Instant"
@@ -2325,7 +2323,7 @@ const characters = [
                 "cannotBeReflected": true,
                 "ignoreInvulnerability": true,
                 "skillimage": "https://i.imgur.com/vwUOYsd.png",
-                "skilldescription": "Deals 55 piercing damage to one enemy.",
+                "skilldescription": "Deals 55 damage to one enemy while Speed Up is active. This skill is Bypassing, Uncounterable, and Unreflectable.",
                 "energy": [
                     "Taijutsu",
                     "Bloodline"
@@ -2347,7 +2345,7 @@ const characters = [
                         "amount": 55,
                         "scope": "target",
                         "metadata": {
-                            "ignoreDamageReduction": true
+                            "ignoreDamageImmunity": true
                         }
                     }
                 ],

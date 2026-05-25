@@ -339,6 +339,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                         playTone({ frequency: 880, duration: 0.08, type: 'square', amount: 0.06 });
                         playTone({ frequency: 1320, duration: 0.08, type: 'square', amount: 0.055, delay: 0.12 });
                         break;
+                    case 'speed-steal-alarm':
+                        playTone({ frequency: 980, duration: 0.09, type: 'square', amount: 0.075 });
+                        playTone({ frequency: 980, duration: 0.09, type: 'square', amount: 0.075, delay: 0.22 });
+                        playTone({ frequency: 1240, duration: 0.12, type: 'square', amount: 0.085, delay: 0.44 });
+                        break;
                     case 'cloak':
                         playNoise({ duration: 0.42, amount: 0.055, filterType: 'bandpass', frequency: 1900, q: 4 });
                         playTone({ frequency: 560, endFrequency: 960, duration: 0.32, type: 'sine', amount: 0.045 });
@@ -1380,6 +1385,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let statusRevealHeld = false;
         let statusRevealPinned = false;
         let battleEndShown = false;
+        let lastSpeedStealPressureTurnKey = '';
         let selectedExchangeType = 'taijutsu';
         let isPlayingResolutionSequence = false;
         let deferredResolutionMatchState = null;
@@ -2735,6 +2741,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 'negan-you-re-already-fucked',
                 'negan-you-got-no-guts',
                 'aquaman-tidal-wave',
+                'space-marine-smartgunner-smartgun-lock-on',
+                'predator-stalker-bleeder-spear',
+                'carnage-blood-slash',
+                'carnage-wide-area-cutting',
+                'carnage-brain-devour',
+                'the-flash-barry-allen-lightning-rush',
+                'the-flash-barry-allen-infinite-mass-punch',
+                'the-flash-barry-allen-infinite-mass-punch-speed-up',
+                'the-flash-barry-allen-speed-steal',
+                'the-flash-barry-allen-flashpoint-surge',
+                'scorpion-scorpion-sting',
+                'scorpion-tail-laser',
             ].includes(skillId) || skillId.startsWith('storm-lightning-strike') || skillId.startsWith('storm-wind-funnel');
         };
 
@@ -2822,10 +2840,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 playGeneratedIngameSound('portal');
             } else if (skillId.startsWith('andrea') && skillId !== 'andrea-snipe' && skillId !== 'andrea-quick-shot') {
                 playGeneratedIngameSound('target-lock');
+            } else if (skillId.startsWith('the-flash-barry-allen')) {
+                playGeneratedIngameSound('lightning');
             } else if (skillId.includes('cloak') && skillId !== 'predator-stalker-cloaking-tech') {
                 playGeneratedIngameSound('cloak');
             }
-            showDirectionalSkillFx({ actorCard, skill: effectiveSkill, selection });
+            if (skillId.startsWith('the-flash-barry-allen')) {
+                showTemporaryCardFx(
+                    actorCard,
+                    'flash-red-speed-aura',
+                    '<span></span><span></span><span></span>',
+                    1200
+                );
+            }
+            showDirectionalSkillFx({ actorCard, actorSlot, skill: effectiveSkill, selection });
             showStormSkillPortraitFx(effectiveSkill, selection);
         };
 
@@ -2956,6 +2984,227 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         };
 
+        const getCardCenterPoint = (card, xRatio = 0.5, yRatio = 0.5) => {
+            const face = card?.querySelector?.('.character-face') || card;
+            const rect = face?.getBoundingClientRect?.();
+            if (!rect) return null;
+            return {
+                x: rect.left + rect.width * xRatio,
+                y: rect.top + rect.height * yRatio,
+                rect,
+            };
+        };
+
+        const showSmartgunLockOnFx = (targetCards = []) => {
+            targetCards.forEach((targetCard) => {
+                if (!targetCard) return;
+                showTemporaryCardFx(
+                    targetCard,
+                    'smartgun-lock-cast-fx',
+                    '<span class="smartgun-lock-ring"></span><span class="smartgun-lock-corner a"></span><span class="smartgun-lock-corner b"></span><span class="smartgun-lock-corner c"></span><span class="smartgun-lock-corner d"></span><span class="smartgun-lock-dot"></span>',
+                    1550
+                );
+            });
+            playGeneratedIngameSound('target-lock');
+        };
+
+        const showPredatorBleederSpearCastFx = ({ actorCard, targetCards = [] }) => {
+            const source = getCardCenterPoint(actorCard);
+            if (!source) return;
+            targetCards.forEach((targetCard, index) => {
+                const target = getCardCenterPoint(targetCard, 0.32, 0.45);
+                if (!target) return;
+                const dx = target.x - source.x;
+                const dy = target.y - source.y;
+                const spear = document.createElement('div');
+                spear.className = 'predator-bleeder-spear-projectile';
+                spear.style.left = `${source.x}px`;
+                spear.style.top = `${source.y}px`;
+                spear.style.setProperty('--spear-dx', `${dx}px`);
+                spear.style.setProperty('--spear-dy', `${dy}px`);
+                spear.style.animationDelay = `${index * 90}ms`;
+                spear.innerHTML = '<span class="spear-shaft"></span><span class="spear-tip"></span>';
+                document.body.appendChild(spear);
+                window.setTimeout(() => spear.remove(), 920 + index * 90);
+            });
+            playGeneratedIngameSound('damage');
+        };
+
+        const showCarnageBloodSlashFx = ({ actorCard, targetCards = [] }) => {
+            targetCards.forEach((targetCard) => {
+                showCarnageTendrilConnection(actorCard, targetCard, 'slash', 1450);
+                showTemporaryCardFx(
+                    targetCard,
+                    'carnage-blood-slash-impact-fx',
+                    '<span class="carnage-slash-tendril"></span><span class="carnage-slash-cut"></span><span class="carnage-blood-splash a"></span><span class="carnage-blood-splash b"></span><span class="carnage-blood-splash c"></span>',
+                    1700
+                );
+            });
+            playGeneratedIngameSound('damage');
+        };
+
+        const showCarnageWideAreaCuttingFx = ({ actorCard, targetCards = [] }) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    showCarnageTendrilConnection(actorCard, targetCard, 'wide', 1700);
+                    showTemporaryCardFx(
+                        targetCard,
+                        'carnage-wide-cut-impact-fx',
+                        '<span class="carnage-wide-cut a"></span><span class="carnage-wide-cut b"></span><span class="carnage-wide-cut c"></span><span class="carnage-blood-splash a"></span><span class="carnage-blood-splash b"></span>',
+                        1900
+                    );
+                }, index * 120);
+            });
+            playGeneratedIngameSound('damage');
+        };
+
+        const showCarnageBrainDevourFx = ({ actorCard, targetCards = [] }) => {
+            const targetCard = targetCards[0];
+            if (!targetCard) return;
+            showCarnageTendrilConnection(actorCard, targetCard, 'devour', 2500);
+            showTemporaryCardFx(
+                targetCard,
+                'carnage-brain-devour-impact-fx',
+                '<span class="carnage-devour-mouth"></span><span class="carnage-devour-pulse a"></span><span class="carnage-devour-pulse b"></span><span class="carnage-devour-drip a"></span><span class="carnage-devour-drip b"></span>',
+                2600
+            );
+            playGeneratedIngameSound('damage');
+        };
+
+        const showCarnageTendrilConnection = (sourceCard, targetCard, variant = 'slash', duration = 1600) => {
+            const source = getCardCenterPoint(sourceCard, 0.5, 0.48);
+            const target = getCardCenterPoint(targetCard, 0.5, 0.46);
+            if (!source || !target) return;
+            const dx = target.x - source.x;
+            const dy = target.y - source.y;
+            const length = Math.max(32, Math.sqrt(dx * dx + dy * dy));
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            const tendril = document.createElement('div');
+            tendril.className = `carnage-blood-tendril ${variant}`;
+            tendril.style.left = `${source.x}px`;
+            tendril.style.top = `${source.y}px`;
+            tendril.style.width = `${length}px`;
+            tendril.style.transform = `rotate(${angle}deg)`;
+            tendril.innerHTML = '<span class="tendril-core"></span><span class="tendril-vein one"></span><span class="tendril-vein two"></span><span class="tendril-drip one"></span><span class="tendril-drip two"></span>';
+            document.body.appendChild(tendril);
+            window.setTimeout(() => tendril.remove(), duration);
+        };
+
+        const showFlashLightningRushFx = (targetCards = []) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'flash-lightning-rush-hit-fx',
+                    '<span class="flash-fist hit-one"></span><span class="flash-fist hit-two"></span><span class="flash-fist hit-three"></span><span class="flash-fist hit-four"></span><span class="flash-red-bolt a"></span><span class="flash-red-bolt b"></span>',
+                    1500
+                );
+            });
+            playGeneratedIngameSound('lightning');
+        };
+
+        const showFlashInfiniteMassPunchFx = ({ actorCard, targetCards = [] }) => {
+            const targetCard = targetCards[0];
+            const source = getCardCenterPoint(actorCard);
+            const target = getCardCenterPoint(targetCard);
+            if (!source || !target) return;
+            const run = document.createElement('div');
+            run.className = 'flash-infinite-run-screen-fx';
+            run.innerHTML = '<span class="flash-runner"></span><span class="flash-run-trail a"></span><span class="flash-run-trail b"></span><span class="flash-run-trail c"></span>';
+            document.body.appendChild(run);
+            window.setTimeout(() => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'flash-infinite-punch-impact-fx',
+                    '<span class="flash-impact-fist"></span><span class="flash-impact-ring"></span><span class="flash-red-bolt a"></span><span class="flash-red-bolt b"></span><span class="flash-red-bolt c"></span>',
+                    1700
+                );
+            }, 760);
+            window.setTimeout(() => run.remove(), 1700);
+            playGeneratedIngameSound('lightning');
+        };
+
+        const showFlashSpeedStealCastFx = ({ actorCard }) => {
+            showTemporaryCardFx(
+                actorCard,
+                'flash-speed-steal-cast-fx',
+                '<span></span><span></span><span></span>',
+                1450
+            );
+            showFlashSpeedStealPressureOverlay(1800, true);
+        };
+
+        const showFlashSpeedStealPressureOverlay = (duration = 1700, castOnly = false) => {
+            const existing = document.querySelector('.flash-speed-steal-pressure-fx');
+            existing?.remove();
+            const overlay = document.createElement('div');
+            overlay.className = 'flash-speed-steal-pressure-fx';
+            if (castOnly) overlay.classList.add('cast-only');
+            overlay.innerHTML = '<span class="speed-steal-warning">-20 SEC</span><span class="speed-steal-subtext">MOVE NOW</span>';
+            document.body.appendChild(overlay);
+            playGeneratedIngameSound('speed-steal-alarm');
+            window.setTimeout(() => overlay.remove(), duration);
+        };
+
+        const normalizeScorpionVenom = (value = '') => {
+            const normalized = String(value || '').trim().toLowerCase();
+            if (normalized.includes('neuro')) return 'neurotoxin';
+            if (normalized.includes('acid')) return 'acid';
+            if (normalized.includes('paralytic')) return 'paralytic';
+            return 'acid';
+        };
+
+        const getScorpionVenomForActorSlot = (actorSlot) => {
+            const unit = Number.isInteger(actorSlot) && currentPlayerUsername
+                ? latestBoardState?.[currentPlayerUsername]?.[actorSlot]
+                : null;
+            const venomStatus = getActiveStatuses(unit).find((status) => status?.id === 'scorpion_passive_scorpion_venom');
+            return normalizeScorpionVenom(venomStatus?.metadata?.currentVenom);
+        };
+
+        const showScorpionTailStingFx = ({ actorCard, actorSlot, targetCards = [] }) => {
+            const venom = getScorpionVenomForActorSlot(actorSlot);
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    `scorpion-tail-sting-fx venom-${venom}`,
+                    '<span class="scorpion-tail-arc"></span><span class="scorpion-stinger"></span><span class="scorpion-venom-splash a"></span><span class="scorpion-venom-splash b"></span><span class="scorpion-venom-splash c"></span>',
+                    1700
+                );
+            });
+            showTemporaryCardFx(actorCard, `scorpion-tail-ready-fx venom-${venom}`, '<span></span>', 1050);
+            playGeneratedIngameSound('damage');
+        };
+
+        const showScorpionTailLaserFx = ({ actorCard, actorSlot, targetCards = [] }) => {
+            const venom = getScorpionVenomForActorSlot(actorSlot);
+            const source = getCardCenterPoint(actorCard, 0.56, 0.32);
+            if (!source) return;
+            targetCards.forEach((targetCard) => {
+                const target = getCardCenterPoint(targetCard, 0.5, 0.45);
+                if (!target) return;
+                const dx = target.x - source.x;
+                const dy = target.y - source.y;
+                const length = Math.max(28, Math.sqrt(dx * dx + dy * dy));
+                const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                const beam = document.createElement('div');
+                beam.className = `scorpion-tail-laser-beam venom-${venom}`;
+                beam.style.left = `${source.x}px`;
+                beam.style.top = `${source.y}px`;
+                beam.style.width = `${length}px`;
+                beam.style.transform = `rotate(${angle}deg)`;
+                beam.innerHTML = '<span></span><span></span>';
+                document.body.appendChild(beam);
+                showTemporaryCardFx(
+                    targetCard,
+                    `scorpion-tail-laser-impact-fx venom-${venom}`,
+                    '<span></span><span></span><span></span>',
+                    1350
+                );
+                window.setTimeout(() => beam.remove(), 1150);
+            });
+            playGeneratedIngameSound('laser-red');
+        };
+
         const showAquamanTidalWaveFx = () => {
             const existing = document.querySelector('.aquaman-tidal-wave-screen-fx');
             if (existing) existing.remove();
@@ -2972,7 +3221,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.setTimeout(() => wave.remove(), 2600);
         };
 
-        const showDirectionalSkillFx = ({ actorCard, skill, selection }) => {
+        const showDirectionalSkillFx = ({ actorCard, actorSlot, skill, selection }) => {
             const skillId = skill?.id || '';
             const isRedLaser = [
                 'superman-laser-eyes',
@@ -2991,6 +3240,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isNeganAlreadyFucked = skillId === 'negan-you-re-already-fucked';
             const isNeganYouGotNoGuts = skillId === 'negan-you-got-no-guts';
             const isAquamanTidalWave = skillId === 'aquaman-tidal-wave';
+            const isSmartgunLockOn = skillId === 'space-marine-smartgunner-smartgun-lock-on';
+            const isPredatorBleederSpear = skillId === 'predator-stalker-bleeder-spear';
+            const isCarnageBloodSlash = skillId === 'carnage-blood-slash';
+            const isCarnageWideAreaCutting = skillId === 'carnage-wide-area-cutting';
+            const isCarnageBrainDevour = skillId === 'carnage-brain-devour';
+            const isFlashLightningRush = skillId === 'the-flash-barry-allen-lightning-rush';
+            const isFlashInfiniteMassPunch =
+                skillId === 'the-flash-barry-allen-infinite-mass-punch' ||
+                skillId === 'the-flash-barry-allen-infinite-mass-punch-speed-up';
+            const isFlashSpeedSteal =
+                skillId === 'the-flash-barry-allen-speed-steal' ||
+                skillId === 'the-flash-barry-allen-flashpoint-surge';
+            const isScorpionSting = skillId === 'scorpion-scorpion-sting';
+            const isScorpionTailLaser = skillId === 'scorpion-tail-laser';
             const isGenericLaser = !isRedLaser && !isYellowLaser && skillId.includes('laser');
             if (
                 !isRedLaser &&
@@ -3005,19 +3268,69 @@ document.addEventListener('DOMContentLoaded', async () => {
                 !isNeganAlreadyFucked &&
                 !isNeganYouGotNoGuts &&
                 !isAquamanTidalWave &&
+                !isSmartgunLockOn &&
+                !isPredatorBleederSpear &&
+                !isCarnageBloodSlash &&
+                !isCarnageWideAreaCutting &&
+                !isCarnageBrainDevour &&
+                !isFlashLightningRush &&
+                !isFlashInfiniteMassPunch &&
+                !isFlashSpeedSteal &&
+                !isScorpionSting &&
+                !isScorpionTailLaser &&
                 !isGenericLaser
             ) {
                 return;
             }
+            const targetCards = getTargetCardsFromSelection(selection);
             if (isAquamanTidalWave) {
                 showAquamanTidalWaveFx();
+                return;
+            }
+            if (isFlashSpeedSteal) {
+                showFlashSpeedStealCastFx({ actorCard });
                 return;
             }
             if (isSolarFlare) {
                 showSolarFlareFx(actorCard);
                 return;
             }
-            const targetCards = getTargetCardsFromSelection(selection);
+            if (isSmartgunLockOn) {
+                showSmartgunLockOnFx(targetCards);
+                return;
+            }
+            if (isPredatorBleederSpear) {
+                showPredatorBleederSpearCastFx({ actorCard, targetCards });
+                return;
+            }
+            if (isCarnageBloodSlash) {
+                showCarnageBloodSlashFx({ actorCard, targetCards });
+                return;
+            }
+            if (isCarnageWideAreaCutting) {
+                showCarnageWideAreaCuttingFx({ actorCard, targetCards });
+                return;
+            }
+            if (isCarnageBrainDevour) {
+                showCarnageBrainDevourFx({ actorCard, targetCards });
+                return;
+            }
+            if (isFlashLightningRush) {
+                showFlashLightningRushFx(targetCards);
+                return;
+            }
+            if (isFlashInfiniteMassPunch) {
+                showFlashInfiniteMassPunchFx({ actorCard, targetCards });
+                return;
+            }
+            if (isScorpionSting) {
+                showScorpionTailStingFx({ actorCard, actorSlot, targetCards });
+                return;
+            }
+            if (isScorpionTailLaser) {
+                showScorpionTailLaserFx({ actorCard, actorSlot, targetCards });
+                return;
+            }
             if (isAndreaSnipe) {
                 showAndreaSnipeFx(targetCards);
                 return;
@@ -3211,6 +3524,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (turnChanged && hasInitializedTurnState) {
                 animateTurnStartSweep(turnOwner);
+            }
+            const pressureTurnKey = `${turnOwner || ''}:${turnExpiresAt || ''}:${resolvedDurationMs}`;
+            if (
+                turnChanged &&
+                hasInitializedTurnState &&
+                isPlayersTurn &&
+                resolvedDurationMs < TURN_DURATION_MS &&
+                lastSpeedStealPressureTurnKey !== pressureTurnKey
+            ) {
+                lastSpeedStealPressureTurnKey = pressureTurnKey;
+                showFlashSpeedStealPressureOverlay(2300);
             }
             if (turnOwner && !hasInitializedTurnState) {
                 hasInitializedTurnState = true;
@@ -3834,6 +4158,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return sum + 1;
             }, 0);
 
+        const getPredatorBleederSpearStacks = (unit) =>
+            getActiveStatuses(unit).reduce((sum, status) => {
+                if (status?.id !== 'predator_stalker_bleeder_spear_dot') return sum;
+                const damage = Number(status?.metadata?.turnEndDamage);
+                if (Number.isFinite(damage) && damage > 0) {
+                    return sum + Math.max(1, Math.round(damage / 10));
+                }
+                return sum + 1;
+            }, 0);
+
         const renderAquamanSeaSharkFx = (card, stackCount = 0, newStacks = 0) => {
             if (!card) return;
             const count = Math.max(0, Math.min(9, Number(stackCount) || 0));
@@ -3890,6 +4224,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 'predator-cloak-fx',
                 'spider-web-fx',
                 'andrea-lock-fx',
+                'smartgun-lock-fx',
+                'predator-bleeder-spear-fx',
+                'flash-phase-shift-fx',
+                'scorpion-venom-neurotoxin-fx',
+                'scorpion-venom-acid-fx',
+                'scorpion-venom-paralytic-fx',
+                'scorpion-poison-neurotoxin-fx',
+                'scorpion-poison-acid-fx',
+                'scorpion-poison-paralytic-fx',
                 'angstrom-banish-fx',
                 'storm-ice-fx',
                 'hulk-rage-high-fx',
@@ -3909,7 +4252,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 (Number.isFinite(hpForFx) && hpForFx <= 0 && !isBanishedForFx);
             if (isDeadForFx) {
                 fxClasses.forEach((className) => card.classList.remove(className));
-                ['joker-detonator-light', 'space-marine-channel-bar', 'rex-charge-counter', 'aquaman-sea-shark-ring', 'xenomorph-facehugger-overlay', 'seraphina-med-plus-overlay', 'seraphina-buckshot-pattern', 'seraphina-road-flare', 'taunt-callout'].forEach((className) =>
+                ['joker-detonator-light', 'space-marine-channel-bar', 'rex-charge-counter', 'aquaman-sea-shark-ring', 'predator-bleeder-spears', 'xenomorph-facehugger-overlay', 'seraphina-med-plus-overlay', 'seraphina-buckshot-pattern', 'seraphina-road-flare', 'taunt-callout', 'flash-phase-speed-lines', 'scorpion-venom-drop', 'scorpion-poison-drops'].forEach((className) =>
                     removeCharacterFxElement(card, className)
                 );
                 return;
@@ -3949,6 +4292,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             const isAndreaLocked = hasStatus((status) => status?.id === 'andrea_locked_on_mark');
             card.classList.toggle('andrea-lock-fx', isAndreaLocked);
+
+            const isSmartgunLocked = hasStatus((status) => status?.id === 'sergeant_william_hillford_smartgun_lock_on_mark');
+            card.classList.toggle('smartgun-lock-fx', isSmartgunLocked);
+
+            const bleederSpearStacks = getPredatorBleederSpearStacks(unit);
+            card.classList.toggle('predator-bleeder-spear-fx', bleederSpearStacks > 0);
+            if (bleederSpearStacks > 0) {
+                const spearEl = ensureCharacterFxElement(card, 'predator-bleeder-spears', '');
+                if (spearEl && spearEl.dataset.stackCount !== String(bleederSpearStacks)) {
+                    spearEl.dataset.stackCount = String(bleederSpearStacks);
+                    spearEl.innerHTML = Array.from(
+                        { length: Math.min(6, bleederSpearStacks) },
+                        (_, index) => `<span class="bleeder-spear spear-${index + 1}"><i></i><b></b></span>`
+                    ).join('');
+                }
+            } else {
+                removeCharacterFxElement(card, 'predator-bleeder-spears');
+            }
 
             const isAngstromBanished = hasStatus((status) =>
                 Boolean(status?.metadata?.banished) &&
@@ -4030,6 +4391,67 @@ document.addEventListener('DOMContentLoaded', async () => {
                 characterId === 'predator-stalker' &&
                 hasStatus((status) => status?.id === 'predator_stalker_cloaking_tech_active');
             card.classList.toggle('predator-cloak-fx', isPredatorCloaked);
+
+            const isFlashPhaseShift =
+                characterId === 'the-flash-barry-allen' &&
+                hasStatus((status) => status?.id === 'the_flash_barry_allen_phase_shift');
+            card.classList.toggle('flash-phase-shift-fx', isFlashPhaseShift);
+            if (isFlashPhaseShift) {
+                ensureCharacterFxElement(
+                    card,
+                    'flash-phase-speed-lines',
+                    '<span class="phase-line a"></span><span class="phase-line b"></span><span class="phase-line c"></span><span class="phase-afterimage"></span>'
+                );
+            } else {
+                removeCharacterFxElement(card, 'flash-phase-speed-lines');
+            }
+
+            const scorpionVenomStatus = statuses.find((status) => status?.id === 'scorpion_passive_scorpion_venom');
+            const scorpionVenom = normalizeScorpionVenom(scorpionVenomStatus?.metadata?.currentVenom);
+            const hasScorpionVenom = characterId === 'scorpion' && Boolean(scorpionVenomStatus);
+            card.classList.toggle('scorpion-venom-neurotoxin-fx', hasScorpionVenom && scorpionVenom === 'neurotoxin');
+            card.classList.toggle('scorpion-venom-acid-fx', hasScorpionVenom && scorpionVenom === 'acid');
+            card.classList.toggle('scorpion-venom-paralytic-fx', hasScorpionVenom && scorpionVenom === 'paralytic');
+            if (hasScorpionVenom) {
+                ensureCharacterFxElement(
+                    card,
+                    'scorpion-venom-drop',
+                    '<span class="scorpion-drop-main"></span><span class="scorpion-drop-drip a"></span><span class="scorpion-drop-drip b"></span>'
+                );
+            } else {
+                removeCharacterFxElement(card, 'scorpion-venom-drop');
+            }
+
+            const targetVenom = statuses.some((status) =>
+                status?.id === 'scorpion_scorpion_sting_neurotoxin' ||
+                status?.id === 'scorpion_tail_laser_neurotoxin'
+            )
+                ? 'neurotoxin'
+                : statuses.some((status) =>
+                      status?.id === 'scorpion_scorpion_sting_acid_primary' ||
+                      status?.id === 'scorpion_scorpion_sting_acid_secondary' ||
+                      status?.id === 'scorpion_tail_laser_acid_burn'
+                  )
+                ? 'acid'
+                : statuses.some((status) =>
+                      status?.id === 'scorpion_scorpion_sting_paralytic_primary' ||
+                      status?.id === 'scorpion_scorpion_sting_paralytic_secondary' ||
+                      status?.id === 'scorpion_tail_laser_paralytic'
+                  )
+                ? 'paralytic'
+                : '';
+            card.classList.toggle('scorpion-poison-neurotoxin-fx', targetVenom === 'neurotoxin');
+            card.classList.toggle('scorpion-poison-acid-fx', targetVenom === 'acid');
+            card.classList.toggle('scorpion-poison-paralytic-fx', targetVenom === 'paralytic');
+            if (targetVenom) {
+                ensureCharacterFxElement(
+                    card,
+                    'scorpion-poison-drops',
+                    '<span class="scorpion-drop-main"></span><span class="scorpion-drop-drip a"></span><span class="scorpion-drop-drip b"></span><span class="scorpion-drop-drip c"></span>'
+                );
+            } else {
+                removeCharacterFxElement(card, 'scorpion-poison-drops');
+            }
 
             const isSpaceMarine = characterId === 'space-marine-infantry';
             const channelStatus = statuses.find((status) => {
