@@ -1375,6 +1375,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let pendingTurnStartChoicePayload = null;
         const playerSkillMetaByKey = new Map();
         const visibleStatusIconKeysByUnit = new Map();
+        const statusRenderSignatureByUnit = new Map();
         const cooldownValueBySkillKey = new Map();
         let activeTurnStartChoiceKey = '';
         let activeChoicePopupMode = '';
@@ -1393,6 +1394,49 @@ document.addEventListener('DOMContentLoaded', async () => {
         let selectedExchangeType = 'taijutsu';
         let isPlayingResolutionSequence = false;
         let deferredResolutionMatchState = null;
+        let lastTargetHighlightSignature = '';
+        const preloadedIngameImageUrls = new Set();
+        const perfEntries = [];
+        let ingamePerfDebug =
+            new URLSearchParams(window.location.search).get('perf') === '1' ||
+            localStorage.getItem('comicArenaPerfDebug') === 'true';
+        const measureIngamePerf = (name, fn) => {
+            if (!ingamePerfDebug || typeof performance === 'undefined') return fn();
+            const startedAt = performance.now();
+            const result = fn();
+            const duration = performance.now() - startedAt;
+            const entry = { name, duration, at: Date.now() };
+            perfEntries.push(entry);
+            if (perfEntries.length > 200) perfEntries.shift();
+            if (duration >= 8) {
+                console.debug(`[comic-arena perf] ${name}: ${duration.toFixed(1)}ms`);
+            }
+            return result;
+        };
+        window.comicArenaPerf = {
+            enable() {
+                ingamePerfDebug = true;
+                localStorage.setItem('comicArenaPerfDebug', 'true');
+            },
+            disable() {
+                ingamePerfDebug = false;
+                localStorage.removeItem('comicArenaPerfDebug');
+            },
+            clear() {
+                perfEntries.length = 0;
+            },
+            summary() {
+                return perfEntries.reduce((acc, entry) => {
+                    const bucket = acc[entry.name] || { count: 0, total: 0, max: 0 };
+                    bucket.count += 1;
+                    bucket.total += entry.duration;
+                    bucket.max = Math.max(bucket.max, entry.duration);
+                    acc[entry.name] = bucket;
+                    return acc;
+                }, {});
+            },
+            entries: perfEntries,
+        };
         const playIngameSound = (audio) => {
             soundManager.play(audio);
         };
@@ -2588,6 +2632,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const clearTargetHighlights = () => {
+            lastTargetHighlightSignature = '';
             document.querySelectorAll('.target-overlay, .target-lock-marker, .blind-potential-skill-icon').forEach((el) => el.remove());
             [...playerCards, ...enemyCards].forEach((card) => {
                 card?.classList.remove('targetable', 'target-invalid', 'blind-random-target');
@@ -2626,7 +2671,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const renderTargetHighlights = (options) => {
+            const targetsSignature = Array.isArray(options?.targets)
+                ? JSON.stringify({
+                    actorSlot: activeCastingSkill?.actorSlot ?? null,
+                    skillIdx: activeCastingSkill?.skillIdx ?? null,
+                    blind: activeCastingSkill
+                        ? getActorBlindModeForSkill(
+                            latestBoardState?.[currentPlayerUsername]?.[activeCastingSkill.actorSlot],
+                            activeCastingSkill.skill
+                        )
+                        : '',
+                    targets: options.targets.map((target) => ({
+                        username: target?.username || '',
+                        slot: Number.parseInt(target?.slot, 10),
+                        valid: target?.valid !== false,
+                        reason: target?.reason || '',
+                    })),
+                })
+                : '';
+            if (targetsSignature && targetsSignature === lastTargetHighlightSignature) return;
+            lastTargetHighlightSignature = targetsSignature;
             clearTargetHighlights();
+            lastTargetHighlightSignature = targetsSignature;
             if (!options || !Array.isArray(options.targets)) return;
             const actorUnit = activeCastingSkill
                 ? latestBoardState?.[currentPlayerUsername]?.[activeCastingSkill.actorSlot]
@@ -5166,6 +5232,83 @@ document.addEventListener('DOMContentLoaded', async () => {
                 .replaceAll('"', '&quot;')
                 .replaceAll("'", '&#39;');
 
+        const stableSerializeForRender = (value) => {
+            if (Array.isArray(value)) {
+                return value.map(stableSerializeForRender);
+            }
+            if (value && typeof value === 'object') {
+                return Object.keys(value)
+                    .sort()
+                    .reduce((acc, key) => {
+                        const item = value[key];
+                        if (typeof item !== 'function') {
+                            acc[key] = stableSerializeForRender(item);
+                        }
+                        return acc;
+                    }, {});
+            }
+            return value;
+        };
+
+        const getStatusRenderSignature = ({
+            unit,
+            statuses,
+            unitUsername,
+            unitSlot,
+            isEnemySide,
+            revealActive,
+            dead,
+        }) =>
+            JSON.stringify({
+                username: unitUsername || '',
+                slot: Number.isInteger(unitSlot) ? unitSlot : null,
+                enemy: Boolean(isEnemySide),
+                owner: currentPlayerUsername || '',
+                dead: Boolean(dead),
+                reveal: Boolean(revealActive),
+                character: unit?.character?.id || unit?.character?.name || '',
+                statuses: (Array.isArray(statuses) ? statuses : []).map((status, index) => ({
+                    index,
+                    id: status?.id || '',
+                    remainingTurns: Number(status?.remainingTurns) || 0,
+                    sourceSkillId: status?.sourceSkillId || '',
+                    sourceUsername: status?.sourceUsername || '',
+                    sourceSlot: status?.sourceSlot ?? null,
+                    metadata: stableSerializeForRender(status?.metadata || {}),
+                })),
+            });
+
+        const preloadIngameImage = (url) => {
+            if (typeof url !== 'string') return;
+            const trimmed = url.trim();
+            if (!trimmed || preloadedIngameImageUrls.has(trimmed)) return;
+            preloadedIngameImageUrls.add(trimmed);
+            const img = new Image();
+            img.decoding = 'async';
+            img.src = trimmed;
+        };
+
+        const preloadMatchVisualImages = (data) => {
+            if (!data || typeof data !== 'object') return;
+            const board = data.board && typeof data.board === 'object' ? data.board : null;
+            if (!board) return;
+            Object.values(board).forEach((units) => {
+                if (!Array.isArray(units)) return;
+                units.forEach((unit) => {
+                    if (!unit || typeof unit !== 'object') return;
+                    preloadIngameImage(unit.character?.image || unit.character?.profileImage || '');
+                    const skills = Array.isArray(unit.character?.skills) ? unit.character.skills : [];
+                    skills.forEach((skill) => preloadIngameImage(skill?.skillimage || ''));
+                    const statuses = Array.isArray(unit.state?.statuses) ? unit.state.statuses : [];
+                    statuses.forEach((status) => {
+                        preloadIngameImage(status?.metadata?.statusIconUrl || '');
+                        const sourceSkill = findSkillById(status?.sourceSkillId);
+                        preloadIngameImage(sourceSkill?.skillimage || '');
+                    });
+                });
+            });
+        };
+
         const ensureGlobalStatusTooltip = () => {
             if (globalStatusTooltipEl) return globalStatusTooltipEl;
             const tooltip = document.createElement('div');
@@ -5321,22 +5464,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 tooltipImgTemplate.classList.add('status-icon-template');
             }
             const dead = isUnitDeadLike(unit);
-            if (dead) {
-                syncLanternPassiveAura(card, []);
-                syncGreenGoblinBombMarker(card, false);
-                tooltipWrap
-                    .querySelectorAll('.skilltooltipimage.dynamic-status-icon')
-                    .forEach((node) => node.remove());
-                tooltipWrap.style.visibility = 'hidden';
-                tooltipWrap.classList.remove('has-status');
-                tooltipImgTemplate.removeAttribute('title');
-                tooltipImgTemplate.style.display = 'none';
-                if (globalStatusTooltipEl) {
-                    globalStatusTooltipEl.style.display = 'none';
-                    globalStatusTooltipEl.innerHTML = '';
-                }
-                return;
-            }
             const isEnemySide = Boolean(tooltipWrap.closest('.enemy-characters'));
             const statuses = Array.isArray(unit?.state?.statuses)
                 ? unit.state.statuses.filter(
@@ -5353,6 +5480,39 @@ document.addEventListener('DOMContentLoaded', async () => {
                 : [];
             const unitStatusIconKey =
                 unitUsername && Number.isInteger(unitSlot) ? `${unitUsername}:${unitSlot}` : '';
+            const revealActive = statusRevealHeld || statusRevealPinned;
+            const renderSignature = getStatusRenderSignature({
+                unit,
+                statuses,
+                unitUsername,
+                unitSlot,
+                isEnemySide,
+                revealActive,
+                dead,
+            });
+            if (!options.forceRender && !options.animateNewIcons && unitStatusIconKey) {
+                const previousSignature = statusRenderSignatureByUnit.get(unitStatusIconKey);
+                if (previousSignature === renderSignature) return;
+            }
+            if (unitStatusIconKey) {
+                statusRenderSignatureByUnit.set(unitStatusIconKey, renderSignature);
+            }
+            if (dead) {
+                syncLanternPassiveAura(card, []);
+                syncGreenGoblinBombMarker(card, false);
+                tooltipWrap
+                    .querySelectorAll('.skilltooltipimage.dynamic-status-icon')
+                    .forEach((node) => node.remove());
+                tooltipWrap.style.visibility = 'hidden';
+                tooltipWrap.classList.remove('has-status');
+                tooltipImgTemplate.removeAttribute('title');
+                tooltipImgTemplate.style.display = 'none';
+                if (globalStatusTooltipEl) {
+                    globalStatusTooltipEl.style.display = 'none';
+                    globalStatusTooltipEl.innerHTML = '';
+                }
+                return;
+            }
             const previousStatusIconKeys = unitStatusIconKey
                 ? visibleStatusIconKeysByUnit.get(unitStatusIconKey) || new Set()
                 : new Set();
@@ -5635,7 +5795,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const renderBoardStatuses = (data, options = {}) => {
-            clearStatusRevealPanels();
+            const revealActive = statusRevealHeld || statusRevealPinned;
+            if (!revealActive || options.forceRender) {
+                clearStatusRevealPanels();
+            }
             if (!data || typeof data !== 'object') return;
             const board = data.board && typeof data.board === 'object' ? data.board : null;
             if (!board) return;
@@ -5665,7 +5828,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 syncStatusRevealButton();
                 return;
             }
-            renderBoardStatuses({ board: latestBoardState, opponent: { username: currentOpponentUsername } });
+            renderBoardStatuses(
+                { board: latestBoardState, opponent: { username: currentOpponentUsername } },
+                { forceRender: true }
+            );
         };
 
         if (statusRevealToggleButton) {
@@ -5920,20 +6086,27 @@ document.addEventListener('DOMContentLoaded', async () => {
                 data.currentTurn !== lastTurnOwner &&
                 hasInitializedTurnState
             );
-            renderChakra(pool);
-            renderBoardHealth(data);
-            renderBoardStatuses(data, { animateNewIcons: shouldAnimateNewTurnStatusIcons });
-            renderSkillCooldownBadges(data, { animateTicks: shouldAnimateNewTurnStatusIcons });
+            measureIngamePerf('preload:match-visuals', () => preloadMatchVisualImages(data));
+            measureIngamePerf('render:chakra', () => renderChakra(pool));
+            measureIngamePerf('render:health', () => renderBoardHealth(data));
+            measureIngamePerf('render:statuses', () =>
+                renderBoardStatuses(data, { animateNewIcons: shouldAnimateNewTurnStatusIcons })
+            );
+            measureIngamePerf('render:cooldowns', () =>
+                renderSkillCooldownBadges(data, { animateTicks: shouldAnimateNewTurnStatusIcons })
+            );
             pendingTurnState = normalizePendingTurn(data.pendingTurn);
             optimisticQueuedByActorSlot.clear();
             optimisticCancelledActorSlots.clear();
             clearSkillInteractionCache();
-            applyQueuedSkillVisuals();
+            measureIngamePerf('render:queued-skills', () => applyQueuedSkillVisuals());
             if (endTurnModalEl && endTurnModalEl.style.visibility === 'visible') {
-                renderEndTurnModal(pool, pendingTurnState);
+                measureIngamePerf('render:end-turn-modal', () => renderEndTurnModal(pool, pendingTurnState));
             }
             if (data.board && typeof data.board === 'object') {
-                renderPredatorRicochetPreviews(data.board, pendingTurnState);
+                measureIngamePerf('render:predator-ricochet', () =>
+                    renderPredatorRicochetPreviews(data.board, pendingTurnState)
+                );
             }
             if (data.status === 'ended') {
                 const didWin = Boolean(data.winner && usernamesMatch(data.winner, currentPlayerUsername));
@@ -6758,14 +6931,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const fetchTargetOptions = async (actorSlot, skillIdx, skill = null) => {
             if (!matchIdFromUrl) return;
-            clearTargetHighlights();
-            activeTargetOptions = null;
-            activeCastingSkill = null;
             const cacheKey = `${currentTurnUsername || ''}:${actorSlot}:${skillIdx}`;
             const cachedOptions = targetOptionsCache.get(cacheKey);
             const applyTargetOptions = (data) => {
                 pendingTurnState = normalizePendingTurn(data.pendingTurn);
-                applyQueuedSkillVisuals();
+                measureIngamePerf('target:queued-skills', () => applyQueuedSkillVisuals());
                 activeTargetOptions = data;
                 const skillEl = playerSkillMetaByKey.get(`${actorSlot}:${skillIdx}`)?.imgEl || null;
                 const classChoiceOptions = getClassChoiceOptions(skill);
@@ -6782,12 +6952,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                             ? classChoice
                             : classChoiceOptions[0] || null,
                 };
-                renderTargetHighlights(data);
+                measureIngamePerf('target:highlights', () => renderTargetHighlights(data));
             };
             if (cachedOptions) {
                 applyTargetOptions(cachedOptions);
                 return;
             }
+            clearTargetHighlights();
+            activeTargetOptions = null;
+            activeCastingSkill = null;
             try {
                 const res = await fetch(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/targets`,
@@ -6997,7 +7170,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 classChoiceOptions: [],
             };
             hideTurnStartChoicePopupForTargeting();
-            renderTargetHighlights(activeTargetOptions);
+            measureIngamePerf('target:turn-start-highlights', () => renderTargetHighlights(activeTargetOptions));
         };
 
         const resolveTurnStartChoice = async (choiceKey, targetSelection = null) => {
@@ -7319,8 +7492,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     event.stopPropagation();
                                     const effectiveSkill =
                                         getEffectiveSkillForActorSlot(slotIndex, skillIdx) || skill;
-                                    renderSkillInfo(character, effectiveSkill, slotIndex, skillIdx);
-                                    updateSkillBrowserActiveIcon(skillIdx);
+                                    measureIngamePerf('click:skill-info', () =>
+                                        renderSkillInfo(character, effectiveSkill, slotIndex, skillIdx)
+                                    );
+                                    measureIngamePerf('click:active-skill-icon', () =>
+                                        updateSkillBrowserActiveIcon(skillIdx)
+                                    );
                                     if (!currentPlayerUsername || !usernamesMatch(currentPlayerUsername, currentTurnUsername)) {
                                         triggerBlockedSkillFeedback(imgEl);
                                         return;
