@@ -12960,8 +12960,6 @@ const characters = [
             {
                 "id": "parasite-predatory-overload",
                 "name": "Predatory Overload",
-                "isHidden": true,
-                "hiddenFromSelectionViewer": true,
                 "skillimage": "assets/images/parasite1.png",
                 "skilldescription": "One-time ultimate. For 2 turns, allies ignore non-damage effects from harmful skills, enemy helpful effects are ignored, and enemy damage is capped at 15.",
                 "energy": [
