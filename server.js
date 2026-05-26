@@ -81,73 +81,319 @@ let maintenanceModeCache = {
 let maintenanceModeStatePromise = null;
 const DEFAULT_MISSION_CATALOG = [
     {
-        missionId: 'adored-elder-sister',
-        title: 'The Adored Elder Sister',
+        missionId: 'walker',
+        title: 'A Simple Walker',
         level_requirement: 1,
-        mode_restriction: { allowed_modes: ['quick', 'ladder'] },
-        reward: 'Mission "The Adored Elder Sister" completion.',
-        image: 'assets/images/ingamebgexample.png',
-        imageAlt: 'The Adored Elder Sister mission artwork',
-        characterName: 'Hyuuga Hanabi',
-        portrait: 'assets/images/deadcharacter.png',
-        portraitAlt: 'Hyuuga Hanabi portrait',
-        requirements: [],
-        goals: [
-            'Use Hyuuga Neji\'s "Gentle Fist" 8 times. (0/8)',
-            'Use Hyuuga Hinata\'s "Gentle Fist" 8 times. (0/8)',
-        ],
-        sortOrder: 1,
-    },
-    {
-        missionId: 'yellow-flash',
-        title: 'The Yellow Flash',
-        level_requirement: 16,
-        mode_restriction: { allowed_modes: ['quick', 'ladder'] },
-        reward: 'Mission "The Yellow Flash" completion.',
-        image: 'assets/images/ingamebgexample2.png',
-        imageAlt: 'The Yellow Flash mission artwork',
-        characterName: 'Minato Namikaze',
-        portrait: 'assets/images/deadcharacter.png',
-        portraitAlt: 'Minato Namikaze portrait',
-        requirements: [],
-        goals: [
-            'Win the battle against Minato.',
-            'Finish the mission to unlock its reward.',
-        ],
-        sortOrder: 2,
-    },
-    {
-        missionId: 'negan',
-        title: 'Negan',
-        level_requirement: 16,
-        mode_restriction: { allowed_modes: ['quick', 'ladder'] },
-        reward_character: 'negan',
-        reward_character_name: 'Negan',
-        reward: 'Unlock Negan.',
-        image: 'https://i.imgur.com/csZvbwl.png',
-        imageAlt: 'Negan mission artwork',
-        characterName: 'Rick Grimes',
-        portrait: 'https://i.imgur.com/4p90X9r.png',
-        portraitAlt: 'Rick Grimes portrait',
+        rank: '1',
+        reward_character: 'walker',
+        reward_character_name: 'Walker',
+        reward: 'Unlock Walker',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'rick-grimes',
+            character_name: 'Rick Grimes',
+            wins: 2
+        },
+        image: 'https://i.imgur.com/IV0ZLi5_d.png?maxwidth=520&shape=thumb&fidelity=high',
+        imageAlt: 'Walker mission artwork',
+        characterName: 'Walker',
+        portrait: 'https://i.imgur.com/NqFhNs6.png',
+        portraitAlt: 'Walker Mission portrait',
         requirements: [],
         goals: [
             {
-                type: 'win_streak',
-                character_id: 'rick-grimes',
-                character_name: 'Rick Grimes',
-                wins: 4,
-            },
+                type: 'text',
+                text: 'Clear the outbreak by defeating 3 Walkers at the Greene Farm using Rick Grimes, Andrea, and Hershel Greene.'
+            }
         ],
-        sortOrder: 3,
+        special_pve: {
+            enabled: true,
+            buttonLabel: 'Clear the Farm',
+            botName: 'Walker Herd',
+            botTeamCharacterId: 'walker',
+            botTeamSize: 3,
+            backgroundImage: 'https://i.imgur.com/IV0ZLi5_d.png?maxwidth=520&shape=thumb&fidelity=high',
+            playerTeamCharacterIds: [
+                'rick-grimes',
+                'andrea',
+                'hershel-greene'
+            ]
+        },
+        sortOrder: 1
+    },
+    {
+        missionId: 'venom',
+        title: 'The Symbiote',
+        level_requirement: 1,
+        rank: '1',
+        reward_character: 'venom',
+        reward_character_name: 'Venom',
+        reward: 'Unlock Venom',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'spider-man',
+            character_name: 'Spider-Man',
+            wins: 2
+        },
+        image: 'https://i.imgur.com/UShiq12.png',
+        imageAlt: 'Venom Mission Artwork',
+        characterName: 'Venom',
+        portrait: 'https://i.imgur.com/T7RpFwn.png',
+        portraitAlt: 'Venom Portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: 'spider-man',
+                character_name: 'Spider-Man',
+                wins: 4
+            },
+            {
+                type: 'win_streak',
+                character_id: 'spider-man',
+                character_name: 'Spider-Man',
+                wins: 2
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 2
+    },
+    {
+        missionId: 'joker',
+        title: 'The Last Laugh',
+        level_requirement: 2,
+        rank: '2',
+        reward_character: 'the-joker',
+        reward_character_name: 'The Joker',
+        reward: 'Unlock Joker',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'batman',
+            character_name: 'Batman',
+            wins: 3
+        },
+        image: 'https://i.imgur.com/6JLRKuP_d.png?maxwidth=520&shape=thumb&fidelity=high',
+        imageAlt: 'Joker MIssion Artwork',
+        characterName: 'The Joker',
+        portrait: 'https://i.imgur.com/DSEdkUO.png',
+        portraitAlt: 'Joker portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: 'batman',
+                character_name: 'Batman',
+                wins: 5
+            },
+            {
+                type: 'win_matches_same_team',
+                character_ids: [
+                    'batman',
+                    'wonder-woman'
+                ],
+                character_names: [
+                    'Batman',
+                    'Wonder Woman'
+                ],
+                wins: 3
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 3
+    },
+    {
+        missionId: 'omniman',
+        title: 'Where I Really Come From',
+        level_requirement: 3,
+        rank: '3',
+        reward_character: 'omni-man',
+        reward_character_name: 'Omni-Man',
+        reward: 'Unlock Omni-Man',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'invincible',
+            character_name: 'Invincible',
+            wins: 3
+        },
+        image: 'https://i.imgur.com/tW20gY2.jpeg',
+        imageAlt: 'Omni-Man mission artwork',
+        characterName: 'Omni-Man',
+        portrait: 'https://i.imgur.com/YwXook2.png',
+        portraitAlt: 'Omni-Man Mission portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: 'invincible',
+                character_name: 'Invincible',
+                wins: 5
+            },
+            {
+                type: 'win_matches_same_team',
+                character_ids: [
+                    'atom-eve',
+                    'rex-splode'
+                ],
+                character_names: [
+                    'Atom Eve',
+                    'Rex Splode'
+                ],
+                wins: 3
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 4
+    },
+    {
+        missionId: 'rage-infected-mission',
+        title: 'The Rage Virus',
+        level_requirement: 4,
+        rank: '4',
+        reward_character: 'rage-infected',
+        reward_character_name: 'Rage Infected',
+        reward: 'Unlock Rage Infected',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'walker',
+            character_name: 'Walker',
+            wins: 2
+        },
+        image: 'https://i.imgur.com/V33bQFx.png',
+        imageAlt: 'Rage Infected mission artwork',
+        characterName: 'Rage Infected',
+        portrait: 'https://i.imgur.com/k4lrBvO_d.png?maxwidth=520&shape=thumb&fidelity=high',
+        portraitAlt: 'Rage Infected Mission portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'text',
+                text: 'Contain the Rage Virus by defeating 3 Rage Infected using Rick Grimes, Andrea, and Hershel Greene.'
+            }
+        ],
+        special_pve: {
+            enabled: true,
+            buttonLabel: 'Contain the Virus',
+            botName: 'Rage Outbreak',
+            botTeamCharacterId: 'rage-infected',
+            botTeamSize: 3,
+            backgroundImage: 'https://i.imgur.com/V33bQFx.png',
+            playerTeamCharacterIds: [
+                'rick-grimes',
+                'andrea',
+                'hershel-greene'
+            ]
+        },
+        sortOrder: 5
+    },
+    {
+        missionId: 'thegreenlantern',
+        title: "Green Lantern's Light",
+        level_requirement: 6,
+        rank: '6',
+        reward_character: 'green-lantern-hal-jordan',
+        reward_character_name: 'Green Lantern (Hal Jordan)',
+        reward: 'Unlock The Green Lantern (Hal Jordan)',
+        mode_restriction: {
+            allowed_modes: [
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: '',
+            character_name: '',
+            wins: 0
+        },
+        image: 'https://i.imgur.com/8E5HHDl.jpeg',
+        imageAlt: 'The Green lantern mission artwork',
+        characterName: 'The Green Lantern (Hal Jordan)',
+        portrait: 'https://i.imgur.com/G4WAQZH.jpeg',
+        portraitAlt: 'The Green Lantern Mission portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'reach_rank',
+                rank: 6
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 6
     },
     {
         missionId: 'parasite',
         title: 'Parasite',
         level_requirement: 6,
-        mode_restriction: { allowed_modes: ['quick', 'ladder'] },
+        rank: '6',
         reward_character: 'parasite',
         reward_character_name: 'Parasite',
         reward: 'Unlock Parasite.',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: '',
+            character_name: '',
+            wins: 0
+        },
         image: 'assets/images/parasitemission.png',
         imageAlt: 'Parasite mission artwork',
         characterName: 'Parasite',
@@ -156,30 +402,1048 @@ const DEFAULT_MISSION_CATALOG = [
         requirements: [],
         goals: [
             {
-                type: 'reach_rank',
-                rank: 6,
-            },
-            {
                 type: 'win_matches',
                 character_id: 'superman',
                 character_name: 'Superman',
-                wins: 8,
+                wins: 5
             },
             {
                 type: 'win_matches_same_team',
-                character_ids: ['batman', 'wonder-woman'],
-                character_names: ['Batman', 'Wonder Woman'],
-                wins: 6,
-            },
-            {
-                type: 'win_matches_same_team',
-                character_ids: ['green-lantern-hal-jordan', 'saint-walker'],
-                character_names: ['Green Lantern (Hal Jordan)', 'Saint Walker'],
-                wins: 6,
-            },
+                character_ids: [
+                    'superman',
+                    'wonder-woman'
+                ],
+                character_names: [
+                    'Superman',
+                    'Wonder Woman'
+                ],
+                wins: 3
+            }
         ],
-        sortOrder: 5,
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 7
     },
+    {
+        missionId: 'hopes-light',
+        title: "Hope's Light",
+        level_requirement: 6,
+        rank: '6',
+        reward_character: 'saint-walker',
+        reward_character_name: 'Saint Walker',
+        reward: 'Unlock Saint Walker',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'green-lantern-hal-jordan',
+            character_name: 'Green Lantern (Hal Jordan)',
+            wins: 3
+        },
+        image: 'https://i.imgur.com/PmVfCAU.png',
+        imageAlt: 'Saint Walker mission artwork',
+        characterName: 'Saint Walker',
+        portrait: 'https://i.imgur.com/unzClm5.jpeg',
+        portraitAlt: 'Saint Walker Mission portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: 'green-lantern-hal-jordan',
+                character_name: 'Green Lantern (Hal Jordan)',
+                wins: 5
+            },
+            {
+                type: 'win_matches_same_team',
+                character_ids: [
+                    'green-lantern-hal-jordan',
+                    'superman'
+                ],
+                character_names: [
+                    'Green Lantern (Hal Jordan)',
+                    'Superman'
+                ],
+                wins: 3
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 8
+    },
+    {
+        missionId: 'space-marine-medic',
+        title: 'Colonial Marines Medic',
+        level_requirement: 7,
+        rank: '7',
+        reward_character: 'space-marine-medic',
+        reward_character_name: 'Lieutenant Seraphina Vale',
+        reward: 'Unlock Lieutenant Seraphine Vale',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'space-marine-infantry',
+            character_name: 'Pvt. Saunders',
+            wins: 2
+        },
+        image: 'https://i.imgur.com/XEBuicU.jpeg',
+        imageAlt: 'Space Marine Medic Mission mission artwork',
+        characterName: 'Lieutenant Seraphine Vale',
+        portrait: 'https://i.imgur.com/04OvCP9_d.webp?maxwidth=760&fidelity=grand',
+        portraitAlt: 'Lieutenant Seraphine Vale Mission portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: 'space-marine-infantry',
+                character_name: 'Pvt. Saunders',
+                wins: 5
+            },
+            {
+                type: 'win_matches_same_team',
+                character_ids: [
+                    'space-marine-infantry',
+                    'space-marine-smartgunner'
+                ],
+                character_names: [
+                    'Pvt. Saunders',
+                    'Sergeant William Hillford'
+                ],
+                wins: 3
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 9
+    },
+    {
+        missionId: 'negan',
+        title: "Here's Negan",
+        level_requirement: 8,
+        rank: '8',
+        reward_character: 'negan',
+        reward_character_name: 'Negan',
+        reward: 'Unlock Negan.',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'rick-grimes',
+            character_name: 'Rick Grimes',
+            wins: 3
+        },
+        image: 'https://i.imgur.com/GyQcDQR_d.jpeg?maxwidth=520&shape=thumb&fidelity=high',
+        imageAlt: 'Negan mission artwork',
+        characterName: 'Negan',
+        portrait: 'https://i.imgur.com/csZvbwl.png',
+        portraitAlt: 'Negan portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: 'rick-grimes',
+                character_name: 'Rick Grimes',
+                wins: 5
+            },
+            {
+                type: 'win_matches_same_team',
+                character_ids: [
+                    'rick-grimes',
+                    'walker'
+                ],
+                character_names: [
+                    'Rick Grimes',
+                    'Walker'
+                ],
+                wins: 3
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 10
+    },
+    {
+        missionId: 'docock',
+        title: 'Doctor Octopus',
+        level_requirement: 11,
+        rank: '11',
+        reward_character: 'doctor-octopus',
+        reward_character_name: 'Doctor Octopus',
+        reward: 'Unlock Doctor Octopus',
+        mode_restriction: {
+            allowed_modes: [
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: '',
+            character_name: '',
+            wins: 0
+        },
+        image: 'https://i.imgur.com/claIiiZ.png',
+        imageAlt: 'Doctor Octopus Mission artwork',
+        characterName: 'Doctor Octopus',
+        portrait: 'https://i.imgur.com/0rcAM48.png',
+        portraitAlt: 'Doctor Octopus portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'reach_rank',
+                rank: 11
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 11
+    },
+    {
+        missionId: 'greengoblin',
+        title: 'The Green Goblin',
+        level_requirement: 10,
+        rank: '10',
+        reward_character: 'the-green-goblin',
+        reward_character_name: 'The Green Goblin',
+        reward: 'Unlock The Green Goblin',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'doctor-octopus',
+            character_name: 'Doctor Octopus',
+            wins: 4
+        },
+        image: 'https://i.imgur.com/I4fukyT_d.png?maxwidth=520&shape=thumb&fidelity=high',
+        imageAlt: 'New Mission mission artwork',
+        characterName: 'The Green Goblin',
+        portrait: 'https://i.imgur.com/DvnhkRP.png',
+        portraitAlt: 'The Green Goblin portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: 'doctor-octopus',
+                character_name: 'Doctor Octopus',
+                wins: 5
+            },
+            {
+                type: 'win_streak',
+                character_id: 'doctor-octopus',
+                character_name: 'Doctor Octopus',
+                wins: 2
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 12
+    },
+    {
+        missionId: 'sandman',
+        title: 'Enter the Sandman',
+        level_requirement: 11,
+        rank: '11',
+        reward_character: 'sandman',
+        reward_character_name: 'Sandman',
+        reward: 'Unlock Sandman',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'the-green-goblin',
+            character_name: 'The Green Goblin',
+            wins: 4
+        },
+        image: 'https://i.imgur.com/NPTMsi8_d.png?maxwidth=520&shape=thumb&fidelity=high',
+        imageAlt: 'Sandman mission artwork',
+        characterName: 'Sandman',
+        portrait: 'https://i.imgur.com/pJj5Wz0.png',
+        portraitAlt: 'Sandman portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: 'the-green-goblin',
+                character_name: 'The Green Goblin',
+                wins: 5
+            },
+            {
+                type: 'win_matches_same_team',
+                character_ids: [
+                    'the-green-goblin',
+                    'doctor-octopus'
+                ],
+                character_names: [
+                    'The Green Goblin',
+                    'Doctor Octopus'
+                ],
+                wins: 3
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 13
+    },
+    {
+        missionId: 'mysterio',
+        title: 'Mysterio',
+        level_requirement: 12,
+        rank: '12',
+        reward_character: 'mysterio',
+        reward_character_name: 'Mysterio',
+        reward: 'Unlock Mysterio',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'sandman',
+            character_name: 'Sandman',
+            wins: 4
+        },
+        image: 'https://i.imgur.com/m9nVuSV.png',
+        imageAlt: 'Mysterio mission artwork',
+        characterName: 'Mysterio',
+        portrait: 'https://i.imgur.com/QOsgmSs.png',
+        portraitAlt: 'Mysterio portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: 'spider-man',
+                character_name: 'Spider-Man',
+                wins: 7
+            },
+            {
+                type: 'win_matches',
+                character_id: 'sandman',
+                character_name: 'Sandman',
+                wins: 4
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 14
+    },
+    {
+        missionId: 'scorpion',
+        title: 'Scorpion',
+        level_requirement: 13,
+        rank: '13',
+        reward_character: 'scorpion',
+        reward_character_name: 'Scorpion',
+        reward: 'Unlock Scorpion',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'mysterio',
+            character_name: 'Mysterio',
+            wins: 4
+        },
+        image: 'https://i.imgur.com/fM7sTno_d.png?maxwidth=520&shape=thumb&fidelity=high',
+        imageAlt: 'Scorpion mission artwork',
+        characterName: 'Scorpion',
+        portrait: 'https://i.imgur.com/ZlrriRW.png',
+        portraitAlt: 'Scorpion Mission portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: 'mysterio',
+                character_name: 'Mysterio',
+                wins: 5
+            },
+            {
+                type: 'win_matches_same_team',
+                character_ids: [
+                    'spider-man',
+                    'mysterio'
+                ],
+                character_names: [
+                    'Spider-Man',
+                    'Mysterio'
+                ],
+                wins: 3
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 15
+    },
+    {
+        missionId: 'carnage',
+        title: 'Maximum Carnage',
+        level_requirement: 14,
+        rank: '14',
+        reward_character: 'carnage',
+        reward_character_name: 'Carnage',
+        reward: 'Unlock Carnage',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'venom',
+            character_name: 'Venom',
+            wins: 4
+        },
+        image: 'https://i.imgur.com/TSG2XPO_d.jpeg?maxwidth=520&shape=thumb&fidelity=high',
+        imageAlt: 'Carnage mission artwork',
+        characterName: 'Carnage',
+        portrait: 'https://i.imgur.com/ECJOkvk.png',
+        portraitAlt: 'Carnage Mission portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: 'venom',
+                character_name: 'Venom',
+                wins: 7
+            },
+            {
+                type: 'win_matches_same_team',
+                character_ids: [
+                    'venom',
+                    'spider-man'
+                ],
+                character_names: [
+                    'Venom',
+                    'Spider-Man'
+                ],
+                wins: 4
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 16
+    },
+    {
+        missionId: 'light-of-compassion',
+        title: 'Light of Compassion',
+        level_requirement: 15,
+        rank: '15',
+        reward_character: 'indigo-1',
+        reward_character_name: 'Indigo-1',
+        reward: 'Unlock Indigo-1',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'saint-walker',
+            character_name: 'Saint Walker',
+            wins: 5
+        },
+        image: 'https://i.imgur.com/SBKdx9H.png',
+        imageAlt: 'Indigo-1 mission artwork',
+        characterName: 'Indigo-1',
+        portrait: 'https://i.imgur.com/nOzu8z7.jpeg',
+        portraitAlt: 'Indigo-1 Mission portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: 'saint-walker',
+                character_name: 'Saint Walker',
+                wins: 6
+            },
+            {
+                type: 'win_matches_same_team',
+                character_ids: [
+                    'green-lantern-hal-jordan',
+                    'saint-walker'
+                ],
+                character_names: [
+                    'Green Lantern (Hal Jordan)',
+                    'Saint Walker'
+                ],
+                wins: 4
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 17
+    },
+    {
+        missionId: 'light-of-rage',
+        title: 'Light of Rage',
+        level_requirement: 16,
+        rank: '16',
+        reward_character: 'atrocitus',
+        reward_character_name: 'Atrocitus',
+        reward: 'Unlock Atrocitus',
+        mode_restriction: {
+            allowed_modes: [
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'indigo-1',
+            character_name: 'Indigo-1',
+            wins: 5
+        },
+        image: 'https://i.imgur.com/ANKGdua.png',
+        imageAlt: 'Atrocitus mission artwork',
+        characterName: 'Atrocitus',
+        portrait: 'https://i.imgur.com/nS6xXG6.png',
+        portraitAlt: 'Atrocitus Mission portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'reach_rank',
+                rank: 16
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 18
+    },
+    {
+        missionId: 'sinestro-mission',
+        title: 'Sinestro Corps',
+        level_requirement: 17,
+        rank: '17',
+        reward_character: 'sinestro',
+        reward_character_name: 'Sinestro',
+        reward: 'Unlock Sinestro',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'green-lantern-hal-jordan',
+            character_name: 'Green Lantern (Hal Jordan)',
+            wins: 5
+        },
+        image: 'https://i.imgur.com/R8ndweR.png',
+        imageAlt: 'Sinestro mission artwork',
+        characterName: 'Sinestro',
+        portrait: 'https://i.imgur.com/v9pUryk.jpeg',
+        portraitAlt: 'Sinestro Mission portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: 'green-lantern-hal-jordan',
+                character_name: 'Green Lantern (Hal Jordan)',
+                wins: 8
+            },
+            {
+                type: 'win_matches_same_team',
+                character_ids: [
+                    'green-lantern-hal-jordan',
+                    'saint-walker'
+                ],
+                character_names: [
+                    'Green Lantern (Hal Jordan)',
+                    'Saint Walker'
+                ],
+                wins: 4
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 19
+    },
+    {
+        missionId: 'sorrow-mission',
+        title: 'Sorrow',
+        level_requirement: 18,
+        rank: '18',
+        reward_character: 'sorrow',
+        reward_character_name: 'Sorrow',
+        reward: 'Unlock Sorrow',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'atrocitus',
+            character_name: 'Atrocitus',
+            wins: 5
+        },
+        image: 'https://i.imgur.com/1kzcYy8.png',
+        imageAlt: 'Sorrow mission artwork',
+        characterName: 'Sorrow',
+        portrait: 'https://i.imgur.com/1T6Wf9Y.jpeg',
+        portraitAlt: 'Sorrow Mission portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: 'atrocitus',
+                character_name: 'Atrocitus',
+                wins: 7
+            },
+            {
+                type: 'win_streak',
+                character_id: 'atrocitus',
+                character_name: 'Atrocitus',
+                wins: 3
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 20
+    },
+    {
+        missionId: 'unseen-light-mission',
+        title: 'Unseen Light',
+        level_requirement: 19,
+        rank: '19',
+        reward_character: 'john-stewart',
+        reward_character_name: 'John Stewart',
+        reward: 'Unlock John Stewart',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'sorrow',
+            character_name: 'Sorrow',
+            wins: 5
+        },
+        image: 'https://i.imgur.com/MgDOxZR.png',
+        imageAlt: 'John Stewart mission artwork',
+        characterName: 'John Stewart',
+        portrait: 'https://i.imgur.com/s2MM50x.jpeg',
+        portraitAlt: 'John Stewart Mission portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: 'sinestro',
+                character_name: 'Sinestro',
+                wins: 6
+            },
+            {
+                type: 'win_matches_same_team',
+                character_ids: [
+                    'indigo-1',
+                    'sinestro'
+                ],
+                character_names: [
+                    'Indigo-1',
+                    'Sinestro'
+                ],
+                wins: 3
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 21
+    },
+    {
+        missionId: 'angstromlevy',
+        title: 'Angstrom Levy',
+        level_requirement: 21,
+        rank: '21',
+        reward_character: 'angstrom-levy',
+        reward_character_name: 'Angstrom Levy',
+        reward: 'Unlock Angstrom Levy',
+        mode_restriction: {
+            allowed_modes: [
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'invincible',
+            character_name: 'Invincible',
+            wins: 6
+        },
+        image: 'https://i.imgur.com/mWmxCy8_d.png?maxwidth=520&shape=thumb&fidelity=high',
+        imageAlt: 'Angstrom Levy Mission artwork',
+        characterName: 'Angstrom Levy',
+        portrait: 'https://i.imgur.com/Rg974iR.png',
+        portraitAlt: 'Angstrom Levy portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'reach_rank',
+                rank: 21
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 22
+    },
+    {
+        missionId: 'predatorstalker',
+        title: 'Hunted',
+        level_requirement: 21,
+        rank: '21',
+        reward_character: 'predator-stalker',
+        reward_character_name: 'Predator Stalker',
+        reward: 'Unlock Predator',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: '',
+            character_name: '',
+            wins: 0
+        },
+        image: 'https://i.imgur.com/XhDMIxf.jpeg',
+        imageAlt: 'Predator mission artwork',
+        characterName: 'Predator Stalker',
+        portrait: 'https://i.imgur.com/1NssQOv.jpeg',
+        portraitAlt: 'Predator Mission portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'text',
+                text: 'Survive the hunt by defeating 3 Predator Stalkers using Sergeant William Hillford, Pvt. Saunders, and Lieutenant Seraphina Vale.'
+            }
+        ],
+        special_pve: {
+            enabled: true,
+            buttonLabel: 'Enter the Hunting Grounds',
+            botName: 'Predator Hunting Party',
+            botTeamCharacterId: 'predator-stalker',
+            botTeamSize: 3,
+            backgroundImage: 'https://i.imgur.com/XhDMIxf.jpeg',
+            playerTeamCharacterIds: [
+                'space-marine-smartgunner',
+                'space-marine-infantry',
+                'space-marine-medic'
+            ]
+        },
+        sortOrder: 23
+    },
+    {
+        missionId: 'raid-on-the-xenomorph-hive',
+        title: 'Raid on the Xenomorph Hive',
+        level_requirement: 21,
+        rank: '21',
+        reward_character: 'xenomorph-drone',
+        reward_character_name: 'Xenomorph Drone',
+        reward: 'Unlock Xenomorph Drone',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: '',
+            character_name: '',
+            wins: 0
+        },
+        image: 'assets/images/xenomission.jpg',
+        imageAlt: 'Xenomorph Drone mission artwork',
+        characterName: 'Xenomorph Drone',
+        portrait: 'https://i.imgur.com/WMixx6V_d.png?maxwidth=520&shape=thumb&fidelity=high',
+        portraitAlt: 'Xenomorph Drone Mission portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'text',
+                text: 'Beat 3 Xenomorphs in the Xenomorph Hive using Sergeant William Hillford, Pvt. Saunders, and Lieutenant Seraphina Vale.'
+            }
+        ],
+        special_pve: {
+            enabled: true,
+            buttonLabel: 'Enter the Nest',
+            botName: 'Xenomorph Nest',
+            botTeamCharacterId: 'xenomorph-drone',
+            botTeamSize: 3,
+            backgroundImage: 'assets/images/xenonest.png',
+            playerTeamCharacterIds: [
+                'sergeant-william-hillford',
+                'space-marine-infantry',
+                'lieutenant-seraphina-vale'
+            ]
+        },
+        sortOrder: 14
+    },
+    {
+        missionId: 'predalien-mission',
+        title: 'Abomination',
+        level_requirement: 23,
+        rank: '23',
+        reward_character: 'predalien',
+        reward_character_name: 'Predalien',
+        reward: 'Unlock Predalien',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'xenomorph-drone',
+            character_name: 'Xenomorph Drone',
+            wins: 6
+        },
+        image: 'https://i.imgur.com/KgKHqzO.jpeg',
+        imageAlt: 'Predalien mission artwork',
+        characterName: 'Predalien',
+        portrait: 'https://i.imgur.com/Rq2FZug.jpeg',
+        portraitAlt: 'predalien portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'win_matches_same_team',
+                character_ids: [
+                    'xenomorph-drone',
+                    'predator-stalker'
+                ],
+                character_names: [
+                    'Xenomorph Drone',
+                    'Predator Stalker'
+                ],
+                wins: 10
+            },
+            {
+                type: 'win_streak',
+                character_id: 'xenomorph-drone',
+                character_name: 'Xenomorph Drone',
+                wins: 4
+            },
+            {
+                type: 'win_streak',
+                character_id: 'predator-stalker',
+                character_name: 'Predator Stalker',
+                wins: 4
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 25
+    },
+    {
+        missionId: 'god',
+        title: '\'God\'',
+        level_requirement: 26,
+        rank: '26',
+        reward_character: 'homelander',
+        reward_character_name: 'Homelander',
+        reward: 'Unlock Homelander',
+        mode_restriction: {
+            allowed_modes: [
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'omni-man',
+            character_name: 'Omni-Man',
+            wins: 7
+        },
+        image: 'https://i.imgur.com/I44oULS.jpeg',
+        imageAlt: 'Homelander Mission mission artwork',
+        characterName: 'Homelander',
+        portrait: 'https://i.imgur.com/DI93KSQ.jpeg',
+        portraitAlt: 'Homelander Mission portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'reach_rank',
+                rank: 26
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 26
+    },
+    {
+        missionId: 'hulk-mission',
+        title: 'The Incredible Hulk',
+        level_requirement: 31,
+        rank: '31',
+        reward_character: 'the-hulk',
+        reward_character_name: 'The Hulk',
+        reward: 'Unlock The Hulk',
+        mode_restriction: {
+            allowed_modes: [
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: '',
+            character_name: '',
+            wins: 0
+        },
+        image: 'https://i.imgur.com/dALRS3t.jpeg',
+        imageAlt: 'Hulk Mission mission artwork',
+        characterName: 'The Hulk',
+        portrait: 'https://i.imgur.com/SIkUVer.jpeg',
+        portraitAlt: 'Hulk Mission portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'reach_rank',
+                rank: 31
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 27
+    }
 ];
 
 let mongoClient;
