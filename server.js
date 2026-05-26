@@ -117,7 +117,7 @@ const DEFAULT_MISSION_CATALOG = [
             botName: 'Walker Herd',
             botTeamCharacterId: 'walker',
             botTeamSize: 3,
-            backgroundImage: 'https://i.imgur.com/IV0ZLi5_d.png?maxwidth=520&shape=thumb&fidelity=high',
+            backgroundImage: 'assets/images/walkermissionpic.jpeg',
             playerTeamCharacterIds: [
                 'rick-grimes',
                 'andrea',
@@ -325,7 +325,7 @@ const DEFAULT_MISSION_CATALOG = [
             botName: 'Rage Outbreak',
             botTeamCharacterId: 'rage-infected',
             botTeamSize: 3,
-            backgroundImage: 'https://i.imgur.com/V33bQFx.png',
+            backgroundImage: 'assets/images/rageinfectedmissionpic.jpeg',
             playerTeamCharacterIds: [
                 'rick-grimes',
                 'andrea',
@@ -1245,7 +1245,7 @@ const DEFAULT_MISSION_CATALOG = [
             botName: 'Predator Hunting Party',
             botTeamCharacterId: 'predator-stalker',
             botTeamSize: 3,
-            backgroundImage: 'https://i.imgur.com/XhDMIxf.jpeg',
+            backgroundImage: 'assets/images/predatorstalkermissionpic.jpeg',
             playerTeamCharacterIds: [
                 'space-marine-smartgunner',
                 'space-marine-infantry',
@@ -1291,7 +1291,7 @@ const DEFAULT_MISSION_CATALOG = [
             botName: 'Xenomorph Nest',
             botTeamCharacterId: 'xenomorph-drone',
             botTeamSize: 3,
-            backgroundImage: 'assets/images/xenonest.png',
+            backgroundImage: 'assets/images/xenomorphdronemissionpic.jpeg',
             playerTeamCharacterIds: [
                 'sergeant-william-hillford',
                 'space-marine-infantry',
@@ -1476,7 +1476,7 @@ const XENOMORPH_DRONE_SPECIAL_PVE = {
     botName: 'Xenomorph Nest',
     botTeamCharacterId: 'xenomorph-drone',
     botTeamSize: 3,
-    backgroundImage: 'assets/images/xenonest.png',
+    backgroundImage: 'assets/images/xenomorphdronemissionpic.jpeg',
     playerTeamCharacterIds: [
         'sergeant-william-hillford',
         'space-marine-infantry',
