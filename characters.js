@@ -12963,15 +12963,15 @@ const characters = [
                 "isHidden": true,
                 "hiddenFromSelectionViewer": true,
                 "skillimage": "assets/images/parasite1.png",
-                "skilldescription": "One-time ultimate. For 2 turns, allies ignore non-damage effects from harmful skills, enemy helpful effects are ignored, and enemy damage is capped at 20.",
+                "skilldescription": "One-time ultimate. For 2 turns, allies ignore non-damage effects from harmful skills, enemy helpful effects are ignored, and enemy damage is capped at 15.",
                 "energy": [
+                    "Taijutsu",
                     "Bloodline",
-                    "Random",
-                    "Taijutsu"
+                    "Random"
                 ],
                 "target": "all-enemy",
                 "damage": 0,
-                "cooldown": 8,
+                "cooldown": 0,
                 "classes": [
                     "Mental",
                     "Ranged",
@@ -13004,10 +13004,10 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "invulnerableToHelpfulSkills": true,
-                            "maxDamageOutput": 20,
+                            "maxDamageOutput": 15,
                             "specialStatusVisual": "parasite-overload-enemy",
                             "statusIconUrl": "assets/images/parasite-neg-complete.svg",
-                            "tooltipText": "Predatory Overload: this character ignores helpful effects and their damage is capped at 20."
+                            "tooltipText": "Predatory Overload: this character ignores helpful effects and their damage is capped at 15."
                         }
                     }
                 ]
@@ -13016,7 +13016,7 @@ const characters = [
                 "id": "parasite-passive-absorption-states",
                 "name": "Passive: Absorption States",
                 "skillimage": "assets/images/parasite7.png",
-                "skilldescription": "Negative absorption states: one makes the target take 5 affliction damage each turn, one makes the target deal 5 less non-affliction damage, and one makes the target take 5 more non-affliction damage. Positive absorption states: one makes the affected character deal +5 additional non-affliction damage, one grants +5% unpierceable damage reduction, and one heals them for 5 HP each turn. Complete absorption states apply all three effects of their type.",
+                "skilldescription": "Negative absorption states: 1. makes the target take 5 affliction damage each turn, 2. makes the target deal 5 less non-affliction damage, 3. makes the target take 5 more non-affliction damage. Positive absorption states: 1. makes the affected character deal +5 additional non-affliction damage, 2. grants +5% unpierceable damage reduction, 3. heals them for 5 HP each turn. Complete absorption states apply all three effects of their type.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
