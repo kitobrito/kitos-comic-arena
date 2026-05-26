@@ -2114,6 +2114,22 @@ const hasSkillClass = (skillClasses = [], className = '') =>
 const normalizeSkillClassName = (value) =>
     typeof value === 'string' ? value.trim().toLowerCase() : '';
 
+const normalizeAbsorptionChoice = (value) =>
+    typeof value === 'string' ? value.trim().toLowerCase() : '';
+
+const getParasiteAbsorptionChoiceOptions = (kind = 'negative') =>
+    kind === 'positive' ? ['damage', 'defense', 'regen'] : ['damage', 'nonaffliction', 'affliction'];
+
+const resolveParasiteAbsorptionVariant = ({ kind = 'negative', configuredVariant = 'random', queued = null }) => {
+    const variant = normalizeAbsorptionChoice(configuredVariant);
+    const options = getParasiteAbsorptionChoiceOptions(kind);
+    if (variant === 'choice') {
+        const queuedChoice = normalizeAbsorptionChoice(queued?.absorptionChoice);
+        return options.includes(queuedChoice) ? queuedChoice : 'random';
+    }
+    return options.includes(variant) || variant === 'complete' ? variant : 'random';
+};
+
 const formatSkillClassLabel = (value = '') => {
     const normalized = normalizeSkillClassName(value);
     if (!normalized) return '';
@@ -3848,7 +3864,7 @@ const triggerOnEnemySkillTargetedBonuses = ({
             applyParasiteAbsorptionState({
                 targetState,
                 kind: 'positive',
-                variant: 'random',
+                variant: metadata.onEnemySkillTargetedApplyParasitePositiveStateToOwnerVariant || 'random',
                 sourceSkillId: status?.sourceSkillId || null,
                 sourceUsername: recipient.username,
                 sourceSlot: Number.isInteger(recipient.slot) ? recipient.slot : null,
@@ -4200,6 +4216,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 skillIndex: queued.skillIndex,
                 targetSelection: queued.targetSelection,
                 classChoice: queued.classChoice,
+                absorptionChoice: queued.absorptionChoice,
                 isAutoCast: false,
             };
         })
@@ -5376,7 +5393,11 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     applyParasiteAbsorptionState({
                         targetState,
                         kind: effect.kind === 'positive' ? 'positive' : 'negative',
-                        variant: effect.variant || 'random',
+                        variant: resolveParasiteAbsorptionVariant({
+                            kind: effect.kind === 'positive' ? 'positive' : 'negative',
+                            configuredVariant: effect.variant || 'random',
+                            queued,
+                        }),
                         sourceSkillId: skill.id || null,
                         sourceUsername: actingUsername,
                         sourceSlot: actorSlot,
@@ -5601,7 +5622,31 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     }
                     let runtimeStatusId = effect.statusId;
                     let runtimeDuration = effect.duration;
-                    let runtimeMetadata = effect.metadata || {};
+                    let runtimeMetadata =
+                        effect?.metadata && typeof effect.metadata === 'object' ? { ...effect.metadata } : {};
+                    if (runtimeMetadata?.useQueuedAbsorptionChoiceForParasitePositiveTrigger) {
+                        const selectedPositiveState = resolveParasiteAbsorptionVariant({
+                            kind: 'positive',
+                            configuredVariant: 'choice',
+                            queued,
+                        });
+                        const selectedPositiveLabel = {
+                            damage: '+5 non-affliction damage',
+                            defense: '+5% unpierceable damage reduction',
+                            regen: '5 HP healing each turn',
+                        }[selectedPositiveState];
+                        runtimeMetadata = {
+                            ...(runtimeMetadata || {}),
+                            onEnemySkillTargetedApplyParasitePositiveStateToOwnerVariant:
+                                selectedPositiveState === 'random' ? 'random' : selectedPositiveState,
+                            ...(selectedPositiveLabel && typeof runtimeMetadata?.tooltipText === 'string'
+                                ? {
+                                      tooltipText: `${runtimeMetadata.tooltipText} Chosen absorption: ${selectedPositiveLabel}.`,
+                                  }
+                                : {}),
+                        };
+                        delete runtimeMetadata.useQueuedAbsorptionChoiceForParasitePositiveTrigger;
+                    }
                     const statusMetadataDuration = resolveDurationFromStatusMetadata({
                         effect,
                         actorState,

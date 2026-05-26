@@ -1662,10 +1662,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         const normalizeClassChoice = (value) =>
             typeof value === 'string' ? value.trim().toLowerCase() : '';
+        const normalizeAbsorptionChoice = (value) =>
+            typeof value === 'string' ? value.trim().toLowerCase() : '';
         const formatClassChoiceLabel = (value) => {
             const normalized = normalizeClassChoice(value);
             if (!normalized) return '';
             return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+        };
+        const formatAbsorptionChoiceLabel = (option) => {
+            if (option && typeof option === 'object' && typeof option.label === 'string' && option.label.trim()) {
+                return option.label.trim();
+            }
+            const value = normalizeAbsorptionChoice(typeof option === 'string' ? option : option?.key);
+            if (value === 'nonaffliction') return 'Non-Affliction Damage Down';
+            if (value === 'affliction') return 'Non-Affliction Vulnerability';
+            if (value === 'defense') return 'Damage Reduction';
+            if (value === 'regen') return 'Regeneration';
+            if (value === 'damage') return 'Damage';
+            return value ? value.charAt(0).toUpperCase() + value.slice(1) : '';
         };
         const getClassChoiceOptions = (skill) =>
             Array.isArray(skill?.classChoiceOptions)
@@ -1673,6 +1687,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                       .map((entry) => normalizeClassChoice(entry))
                       .filter(Boolean)
                 : [];
+        const normalizeAbsorptionChoiceOption = (option) => {
+            const key = normalizeAbsorptionChoice(typeof option === 'string' ? option : option?.key);
+            if (!key) return null;
+            return {
+                key,
+                label: formatAbsorptionChoiceLabel(option),
+            };
+        };
+        const getAbsorptionChoiceOptionsForSelection = (skill, selection) => {
+            const config =
+                skill?.absorptionChoiceOptions && typeof skill.absorptionChoiceOptions === 'object'
+                    ? skill.absorptionChoiceOptions
+                    : null;
+            if (!config) return [];
+            const selected = Array.isArray(selection) ? selection[0] : selection;
+            const targetUsername = typeof selected?.username === 'string' ? selected.username : '';
+            const relation = usernamesMatch(targetUsername, currentPlayerUsername) ? 'positive' : 'negative';
+            const options = Array.isArray(config[relation]) ? config[relation] : [];
+            return options.map(normalizeAbsorptionChoiceOption).filter(Boolean);
+        };
         const getClassChoiceKey = (actorSlot, skillIdx) => {
             if (!Number.isInteger(actorSlot) || actorSlot < 0) return '';
             if (!Number.isInteger(skillIdx) || skillIdx < 0) return '';
@@ -7234,7 +7268,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         };
 
-        const queueSelectedSkill = ({ actorSlot, skillIdx, selection, classChoice = null }) => {
+        const queueSelectedSkill = ({
+            actorSlot,
+            skillIdx,
+            selection,
+            classChoice = null,
+            absorptionChoice = null,
+        }) => {
             if (!matchIdFromUrl) return Promise.resolve();
             if (inFlightSkillRequestByActorSlot.has(actorSlot)) return Promise.resolve();
             clearSkillInteractionCache();
@@ -7245,6 +7285,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 skillIndex: skillIdx,
                 targetSelection: selection,
                 ...(classChoice ? { classChoice } : {}),
+                ...(absorptionChoice ? { absorptionChoice } : {}),
             });
             applyQueuedSkillVisuals();
             return fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/queue`, {
@@ -7256,6 +7297,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     skillIndex: skillIdx,
                     targetSelection: selection,
                     ...(classChoice ? { classChoice } : {}),
+                    ...(absorptionChoice ? { absorptionChoice } : {}),
                 }),
             })
                 .then(async (response) => {
@@ -7308,6 +7350,36 @@ document.addEventListener('DOMContentLoaded', async () => {
                         skillIdx,
                         selection,
                         classChoice: optionValue,
+                    });
+                });
+                classChoicePopupOptionsEl.appendChild(button);
+            });
+            classChoicePopupEl.classList.add('visible');
+            classChoicePopupEl.setAttribute('aria-hidden', 'false');
+        };
+
+        const openAbsorptionChoicePopup = ({ actorSlot, skillIdx, selection, options = [] }) => {
+            if (!classChoicePopupEl || !classChoicePopupOptionsEl || !options.length) return;
+            activeChoicePopupMode = 'absorption-state';
+            pendingQueuePayload = { actorSlot, skillIdx, selection };
+            pendingTurnStartChoicePayload = null;
+            classChoicePopupOptionsEl.innerHTML = '';
+            if (classChoicePopupTitleEl) {
+                classChoicePopupTitleEl.textContent = 'Choose One';
+            }
+            if (classChoicePopupCancelButton) {
+                classChoicePopupCancelButton.style.display = '';
+            }
+            options.forEach((option) => {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.textContent = option.label || formatAbsorptionChoiceLabel(option.key);
+                button.addEventListener('click', () => {
+                    queueSelectedSkill({
+                        actorSlot,
+                        skillIdx,
+                        selection,
+                        absorptionChoice: option.key,
                     });
                 });
                 classChoicePopupOptionsEl.appendChild(button);
@@ -7489,6 +7561,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                     skillIdx: activeCastingSkill.skillIdx,
                     selection,
                     options: classChoiceOptions,
+                });
+                return true;
+            }
+            const absorptionChoiceOptions = getAbsorptionChoiceOptionsForSelection(
+                activeCastingSkill.skill,
+                selection
+            );
+            if (absorptionChoiceOptions.length > 0) {
+                clearTargetHighlights();
+                openAbsorptionChoicePopup({
+                    actorSlot: activeCastingSkill.actorSlot,
+                    skillIdx: activeCastingSkill.skillIdx,
+                    selection,
+                    options: absorptionChoiceOptions,
                 });
                 return true;
             }

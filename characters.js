@@ -12749,7 +12749,37 @@ const characters = [
                 "id": "parasite-life-leech",
                 "name": "Life Leech",
                 "skillimage": "assets/images/parasite3.png",
-                "skilldescription": "Steals 15 health from one enemy and applies 1 random negative absorption state to them. Alternatively, grants an ally 15 permanent destructible defense and applies 1 random positive absorption state to them.",
+                "skilldescription": "Steals 15 health from one enemy and lets Parasite choose 1 negative absorption state to apply to them. Alternatively, grants an ally 15 permanent destructible defense and lets Parasite choose 1 positive absorption state to apply to them.",
+                "absorptionChoiceOptions": {
+                    "negative": [
+                        {
+                            "key": "damage",
+                            "label": "5 Affliction Damage"
+                        },
+                        {
+                            "key": "nonaffliction",
+                            "label": "-5 Non-Affliction Damage"
+                        },
+                        {
+                            "key": "affliction",
+                            "label": "+5 Non-Affliction Damage Taken"
+                        }
+                    ],
+                    "positive": [
+                        {
+                            "key": "damage",
+                            "label": "+5 Non-Affliction Damage"
+                        },
+                        {
+                            "key": "defense",
+                            "label": "+5% Damage Reduction"
+                        },
+                        {
+                            "key": "regen",
+                            "label": "Heal 5 HP Each Turn"
+                        }
+                    ]
+                },
                 "energy": [
                     "Random"
                 ],
@@ -12774,7 +12804,7 @@ const characters = [
                     {
                         "type": "parasite_absorption_state",
                         "kind": "negative",
-                        "variant": "random",
+                        "variant": "choice",
                         "scope": "target",
                         "condition": {
                             "scope": "target",
@@ -12803,7 +12833,7 @@ const characters = [
                     {
                         "type": "parasite_absorption_state",
                         "kind": "positive",
-                        "variant": "random",
+                        "variant": "choice",
                         "scope": "target",
                         "condition": {
                             "scope": "target",
@@ -12874,7 +12904,23 @@ const characters = [
                 "id": "parasite-host-mutation",
                 "name": "Host Mutation",
                 "skillimage": "assets/images/parasite8.png",
-                "skilldescription": "Parasite gains 15 destructible defense and 15 damage reduction for 2 turns. While active, the first enemy each turn who uses a new skill on Parasite loses 5 HP and grants Parasite 1 random positive absorption state. Transforms into Predatory Overload while active.",
+                "skilldescription": "Parasite gains 15 destructible defense and 15 damage reduction for 2 turns and chooses 1 positive absorption state. While active, the first enemy each turn who uses a new skill on Parasite loses 5 HP and grants Parasite the chosen positive absorption state. Transforms into Predatory Overload while active.",
+                "absorptionChoiceOptions": {
+                    "positive": [
+                        {
+                            "key": "damage",
+                            "label": "+5 Non-Affliction Damage"
+                        },
+                        {
+                            "key": "defense",
+                            "label": "+5% Damage Reduction"
+                        },
+                        {
+                            "key": "regen",
+                            "label": "Heal 5 HP Each Turn"
+                        }
+                    ]
+                },
                 "energy": [
                     "Random"
                 ],
@@ -12902,10 +12948,11 @@ const characters = [
                             "onEnemySkillTargetedDamageToSourceAmount": 5,
                             "onEnemySkillTargetedDamageToSourceIgnoreDamageReduction": true,
                             "onEnemySkillTargetedApplyRandomParasitePositiveStateToOwner": true,
+                            "useQueuedAbsorptionChoiceForParasitePositiveTrigger": true,
                             "specialStatusVisual": "parasite-host-mutation",
                             "facePictureOverride": "assets/images/parasite8.png",
                             "statusIconUrl": "assets/images/parasite8.png",
-                            "tooltipText": "Parasite has 15 destructible defense and 15 damage reduction. The first enemy each turn who uses a new skill on Parasite loses 5 HP and grants Parasite a random positive absorption state. Host Mutation is replaced by Predatory Overload."
+                            "tooltipText": "Parasite has 15 destructible defense and 15 damage reduction. The first enemy each turn who uses a new skill on Parasite loses 5 HP and grants Parasite the chosen positive absorption state. Host Mutation is replaced by Predatory Overload."
                         }
                     }
                 ]

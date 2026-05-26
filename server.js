@@ -5429,6 +5429,7 @@ const chooseBattleBotSkillCandidate = ({ match, username, actorSlot, actorUnit, 
         const classChoiceOptions = Array.isArray(skill?.classChoiceOptions)
             ? skill.classChoiceOptions.map((entry) => normalizeClassChoice(entry)).filter(Boolean)
             : [];
+        const absorptionChoiceKeys = getAbsorptionChoiceKeysForSkill(skill);
         const scored = scoreBattleBotSkillCandidate({
             match,
             username,
@@ -5443,6 +5444,7 @@ const chooseBattleBotSkillCandidate = ({ match, username, actorSlot, actorUnit, 
             skillIndex,
             targetSelection,
             classChoice: classChoiceOptions[0] || null,
+            absorptionChoice: absorptionChoiceKeys[0] || null,
             score: scored.score,
             defensive: scored.defensive || skillIndex === 3,
         });
@@ -5664,6 +5666,7 @@ const runBattleBotTurn = async (matchId) => {
                     skillIndex: candidate.skillIndex,
                     targetSelection: candidate.targetSelection,
                     classChoice: candidate.classChoice,
+                    absorptionChoice: candidate.absorptionChoice,
                 });
             } catch (error) {
                 return;
@@ -5708,12 +5711,42 @@ function scheduleBattleBotTurn(match) {
 const normalizeClassChoice = (value) =>
     typeof value === 'string' ? value.trim().toLowerCase() : '';
 
+const normalizeAbsorptionChoice = (value) =>
+    typeof value === 'string' ? value.trim().toLowerCase() : '';
+
+const getAbsorptionChoiceKeysForSkill = (skill = {}) => {
+    const config =
+        skill?.absorptionChoiceOptions && typeof skill.absorptionChoiceOptions === 'object'
+            ? skill.absorptionChoiceOptions
+            : null;
+    if (!config) return [];
+    const entries = [
+        ...(Array.isArray(config.negative) ? config.negative : []),
+        ...(Array.isArray(config.positive) ? config.positive : []),
+    ];
+    return Array.from(
+        new Set(
+            entries
+                .map((entry) => normalizeAbsorptionChoice(typeof entry === 'string' ? entry : entry?.key))
+                .filter(Boolean)
+        )
+    );
+};
+
 const usernamesEqual = (left, right) =>
     typeof left === 'string' &&
     typeof right === 'string' &&
     left.trim().toLowerCase() === right.trim().toLowerCase();
 
-const queueSkillForActorSlot = ({ match, username, actorSlot, skillIndex, targetSelection, classChoice }) => {
+const queueSkillForActorSlot = ({
+    match,
+    username,
+    actorSlot,
+    skillIndex,
+    targetSelection,
+    classChoice,
+    absorptionChoice,
+}) => {
     const pool = match.chakraPools?.[username];
     if (!pool) {
         throw new Error('Chakra pool unavailable.');
@@ -5759,6 +5792,15 @@ const queueSkillForActorSlot = ({ match, username, actorSlot, skillIndex, target
     if (normalizedClassChoice && classChoiceOptions.length > 0 && !classChoiceOptions.includes(normalizedClassChoice)) {
         throw new Error('Invalid class choice.');
     }
+    const absorptionChoiceKeys = getAbsorptionChoiceKeysForSkill(skill);
+    const normalizedAbsorptionChoice = normalizeAbsorptionChoice(absorptionChoice);
+    if (
+        normalizedAbsorptionChoice &&
+        absorptionChoiceKeys.length > 0 &&
+        !absorptionChoiceKeys.includes(normalizedAbsorptionChoice)
+    ) {
+        throw new Error('Invalid absorption choice.');
+    }
     if (battleLogic.isSkillIndexBlockedForActor(actorState, skillIndex)) {
         throw new Error('This skill is unusable this turn.');
     }
@@ -5793,6 +5835,7 @@ const queueSkillForActorSlot = ({ match, username, actorSlot, skillIndex, target
         skillIndex,
         targetSelection,
         ...(normalizedClassChoice ? { classChoice: normalizedClassChoice } : {}),
+        ...(normalizedAbsorptionChoice ? { absorptionChoice: normalizedAbsorptionChoice } : {}),
         reservedSpecific,
         requiredRandom,
     };
@@ -7246,6 +7289,7 @@ app.post('/api/match/:matchId/skill/queue', requireSession, async (req, res) => 
     const skillIndex = Number.parseInt(req.body?.skillIndex, 10);
     const targetSelection = req.body?.targetSelection;
     const classChoice = req.body?.classChoice;
+    const absorptionChoice = req.body?.absorptionChoice;
     if (!Number.isInteger(actorSlot) || actorSlot < 0 || !Number.isInteger(skillIndex) || skillIndex < 0) {
         return res.status(400).json({ error: 'actorSlot and skillIndex are required.' });
     }
@@ -7297,6 +7341,7 @@ app.post('/api/match/:matchId/skill/queue', requireSession, async (req, res) => 
             skillIndex,
             targetSelection,
             classChoice,
+            absorptionChoice,
         });
         await persistMatchState(hydrated, {
             chakraPools: hydrated.chakraPools,
