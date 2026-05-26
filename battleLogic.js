@@ -2,6 +2,20 @@ const defaultCharacters = require('./characters.js');
 
 const DEFAULT_HP = 100;
 const chakraTypes = ['taijutsu', 'ninjutsu', 'bloodline', 'genjutsu'];
+const PARASITE_ASSET_BASE = 'assets/images/';
+const PARASITE_ICONS = {
+    negativeDamage: `${PARASITE_ASSET_BASE}parasite-neg-damage.svg`,
+    negativeNonAffliction: `${PARASITE_ASSET_BASE}parasite-neg-nonaffliction.svg`,
+    negativeAffliction: `${PARASITE_ASSET_BASE}parasite-neg-affliction.svg`,
+    negativeComplete: `${PARASITE_ASSET_BASE}parasite-neg-complete.svg`,
+    positiveDamage: `${PARASITE_ASSET_BASE}parasite-pos-damage.svg`,
+    positiveDefense: `${PARASITE_ASSET_BASE}parasite-pos-defense.svg`,
+    positiveRegen: `${PARASITE_ASSET_BASE}parasite-pos-regen.svg`,
+    positiveComplete: `${PARASITE_ASSET_BASE}parasite-pos-complete.svg`,
+    debuffCooldown: `${PARASITE_ASSET_BASE}parasite-debuff-cooldown.svg`,
+    debuffHeal: `${PARASITE_ASSET_BASE}parasite-debuff-heal.svg`,
+    debuffDefense: `${PARASITE_ASSET_BASE}parasite-debuff-defense.svg`,
+};
 
 const roundCombatAmountUp = (amount) => {
     const numericAmount = Math.max(0, Number(amount) || 0);
@@ -683,6 +697,19 @@ const computeTargetOptions = ({ match, actingUsername, actorSlot, skillIndex, ch
             }));
 
     switch (targetType) {
+        case 'single-enemy-or-ally': {
+            result.mode = 'single';
+            result.targets = [
+                ...mapTargets(actingUsername, actorBoard, { helpfulTargeting: true }).filter(
+                    (t) => t.slot !== actorSlot
+                ),
+                ...mapTargets(opponentUsername, opponentBoard, {
+                    enemyTargeting: true,
+                    skillClasses: effectiveSkill?.classes || [],
+                }),
+            ];
+            break;
+        }
         case 'single-enemy': {
             result.mode = 'single';
             result.targets = mapTargets(opponentUsername, opponentBoard, {
@@ -1482,6 +1509,182 @@ const applyStatus = ({
     refreshDerivedStatusTooltips(targetState);
 };
 
+const applyParasiteAbsorptionState = ({
+    targetState,
+    kind = 'negative',
+    variant = 'random',
+    sourceSkillId = null,
+    sourceUsername = null,
+    sourceSlot = null,
+    fresh = true,
+}) => {
+    if (!targetState) return;
+    const negativeStates = {
+        damage: {
+            statusId: 'parasite_negative_absorption_damage',
+            icon: PARASITE_ICONS.negativeDamage,
+            metadata: {
+                harmful: true,
+                infiniteDuration: true,
+                turnEndDamage: 5,
+                mergeNumericAddKeys: ['turnEndDamage'],
+                statusIconUrl: PARASITE_ICONS.negativeDamage,
+                specialStatusVisual: 'parasite-negative-single',
+                tooltipTextTemplate:
+                    'Negative Absorption: This character takes {turnEndDamage} non-affliction damage each turn.',
+            },
+        },
+        nonaffliction: {
+            statusId: 'parasite_negative_absorption_nonaffliction',
+            icon: PARASITE_ICONS.negativeNonAffliction,
+            metadata: {
+                harmful: true,
+                infiniteDuration: true,
+                bonusDamageFromSourceCharacterId: 'parasite',
+                bonusDamageFromSourceEnemyOnly: true,
+                bonusDamageFromSourceNonAfflictionOnly: true,
+                bonusDamageFromSourceSkillsFlatNonAffliction: 5,
+                mergeNumericAddKeys: ['bonusDamageFromSourceSkillsFlatNonAffliction'],
+                statusIconUrl: PARASITE_ICONS.negativeNonAffliction,
+                specialStatusVisual: 'parasite-negative-single',
+                tooltipTextTemplate:
+                    'Negative Absorption: Parasite deals {bonusDamageFromSourceSkillsFlatNonAffliction} additional non-affliction damage to this character.',
+            },
+        },
+        affliction: {
+            statusId: 'parasite_negative_absorption_affliction',
+            icon: PARASITE_ICONS.negativeAffliction,
+            metadata: {
+                harmful: true,
+                infiniteDuration: true,
+                bonusDamageFromSourceCharacterId: 'parasite',
+                bonusDamageFromSourceEnemyOnly: true,
+                bonusDamageFromSourceAfflictionOnly: true,
+                bonusDamageFromSourceSkillsFlatAffliction: 5,
+                mergeNumericAddKeys: ['bonusDamageFromSourceSkillsFlatAffliction'],
+                statusIconUrl: PARASITE_ICONS.negativeAffliction,
+                specialStatusVisual: 'parasite-negative-single',
+                tooltipTextTemplate:
+                    'Negative Absorption: Parasite deals {bonusDamageFromSourceSkillsFlatAffliction} additional affliction damage to this character.',
+            },
+        },
+    };
+    const positiveStates = {
+        damage: {
+            statusId: 'parasite_positive_absorption_damage',
+            icon: PARASITE_ICONS.positiveDamage,
+            metadata: {
+                infiniteDuration: true,
+                nonAfflictionDamageBonusFlat: 5,
+                mergeNumericAddKeys: ['nonAfflictionDamageBonusFlat'],
+                statusIconUrl: PARASITE_ICONS.positiveDamage,
+                specialStatusVisual: 'parasite-positive-single',
+                tooltipTextTemplate:
+                    'Positive Absorption: This character deals {nonAfflictionDamageBonusFlat} additional non-affliction damage.',
+            },
+        },
+        defense: {
+            statusId: 'parasite_positive_absorption_defense',
+            icon: PARASITE_ICONS.positiveDefense,
+            metadata: {
+                infiniteDuration: true,
+                unpierceableDamageReductionPercent: 5,
+                mergeNumericAddKeys: ['unpierceableDamageReductionPercent'],
+                statusIconUrl: PARASITE_ICONS.positiveDefense,
+                specialStatusVisual: 'parasite-positive-single',
+                tooltipTextTemplate:
+                    'Positive Absorption: This character has {unpierceableDamageReductionPercent}% unpierceable damage reduction.',
+            },
+        },
+        regen: {
+            statusId: 'parasite_positive_absorption_regen',
+            icon: PARASITE_ICONS.positiveRegen,
+            metadata: {
+                infiniteDuration: true,
+                turnEndHealFlat: 5,
+                mergeNumericAddKeys: ['turnEndHealFlat'],
+                statusIconUrl: PARASITE_ICONS.positiveRegen,
+                specialStatusVisual: 'parasite-positive-single',
+                tooltipTextTemplate:
+                    'Positive Absorption: This character heals {turnEndHealFlat} HP each turn.',
+            },
+        },
+    };
+    const selectedPool = kind === 'positive' ? positiveStates : negativeStates;
+    const selectedKeys = Object.keys(selectedPool);
+    const applyEntry = (entry) => {
+        applyStatus({
+            targetState,
+            statusId: entry.statusId,
+            duration: 99,
+            sourceSkillId,
+            sourceUsername,
+            sourceSlot,
+            metadata: entry.metadata,
+            fresh,
+        });
+    };
+    if (variant === 'complete') {
+        if (kind === 'positive') {
+            applyStatus({
+                targetState,
+                statusId: 'parasite_positive_absorption_complete',
+                duration: 99,
+                sourceSkillId,
+                sourceUsername,
+                sourceSlot,
+                metadata: {
+                    infiniteDuration: true,
+                    nonAfflictionDamageBonusFlat: 5,
+                    unpierceableDamageReductionPercent: 5,
+                    turnEndHealFlat: 5,
+                    mergeNumericAddKeys: [
+                        'nonAfflictionDamageBonusFlat',
+                        'unpierceableDamageReductionPercent',
+                        'turnEndHealFlat',
+                    ],
+                    statusIconUrl: PARASITE_ICONS.positiveComplete,
+                    specialStatusVisual: 'parasite-positive-complete',
+                    tooltipTextTemplate:
+                        'Complete Positive Absorption: This character deals {nonAfflictionDamageBonusFlat} additional non-affliction damage, has {unpierceableDamageReductionPercent}% unpierceable damage reduction, and heals {turnEndHealFlat} HP each turn.',
+                },
+                fresh,
+            });
+            return;
+        }
+        applyStatus({
+            targetState,
+            statusId: 'parasite_negative_absorption_complete',
+            duration: 99,
+            sourceSkillId,
+            sourceUsername,
+            sourceSlot,
+            metadata: {
+                harmful: true,
+                infiniteDuration: true,
+                turnEndDamage: 5,
+                bonusDamageFromSourceCharacterId: 'parasite',
+                bonusDamageFromSourceEnemyOnly: true,
+                bonusDamageFromSourceSkillsFlatNonAffliction: 5,
+                bonusDamageFromSourceSkillsFlatAffliction: 5,
+                mergeNumericAddKeys: [
+                    'turnEndDamage',
+                    'bonusDamageFromSourceSkillsFlatNonAffliction',
+                    'bonusDamageFromSourceSkillsFlatAffliction',
+                ],
+                statusIconUrl: PARASITE_ICONS.negativeComplete,
+                specialStatusVisual: 'parasite-negative-complete',
+                tooltipTextTemplate:
+                    'Complete Negative Absorption: This character takes {turnEndDamage} non-affliction damage each turn. Parasite deals {bonusDamageFromSourceSkillsFlatNonAffliction} additional non-affliction damage and {bonusDamageFromSourceSkillsFlatAffliction} additional affliction damage to this character.',
+            },
+            fresh,
+        });
+        return;
+    }
+    const resolvedKey = selectedPool[variant] ? variant : selectedKeys[Math.floor(Math.random() * selectedKeys.length)];
+    applyEntry(selectedPool[resolvedKey]);
+};
+
 const applyExpireReplacementStatus = ({
     pendingExpireStatuses,
     sourceStatus,
@@ -1861,8 +2064,18 @@ const getTargetBonusDamageFromSource = ({
         ) {
             return sum;
         }
+        if (
+            Boolean(metadata?.bonusDamageFromSourceAfflictionOnly) &&
+            !hasSkillClass(sourceSkillClasses, 'affliction')
+        ) {
+            return sum;
+        }
         const flatBonus = Number(metadata?.bonusDamageFromSourceSkillsFlat) || 0;
-        let bonus = flatBonus;
+        let bonus =
+            flatBonus +
+            (hasSkillClass(sourceSkillClasses, 'affliction')
+                ? Number(metadata?.bonusDamageFromSourceSkillsFlatAffliction) || 0
+                : Number(metadata?.bonusDamageFromSourceSkillsFlatNonAffliction) || 0);
         const perStack = Number(metadata?.bonusDamageFromSourceSkillsPerStack) || 0;
         const stackKey =
             typeof metadata?.bonusDamageFromSourceSkillsPerStackMetadataKey === 'string'
@@ -2346,6 +2559,16 @@ const getTeamStatusMetadataMax = ({ match, username, metadataKey }) => {
         });
     });
     return maxValue;
+};
+
+const getStatusMetadataSum = (actorState, metadataKey) => {
+    if (!actorState || !metadataKey) return 0;
+    const statuses = Array.isArray(actorState.statuses) ? actorState.statuses : [];
+    return statuses.reduce((sum, status) => {
+        const remaining = Number(status?.remainingTurns) || 0;
+        if (remaining <= 0) return sum;
+        return sum + Math.max(0, Number(status?.metadata?.[metadataKey]) || 0);
+    }, 0);
 };
 
 const maybeTriggerReflectDamage = ({ match, turnMarker, actingUsername, recipient, actorUnit }) => {
@@ -3569,6 +3792,13 @@ const triggerOnEnemySkillTargetedBonuses = ({
         if (classFilter.length > 0 && !classFilter.some((entry) => hasSkillClass(skill?.classes || [], entry))) {
             return;
         }
+        if (Boolean(metadata.onEnemySkillTargetedOncePerTurn)) {
+            const turnCount = Math.max(0, Number(match?.economy?.turnCounts?.[actingUsername] || 0));
+            const triggerKey = `${actingUsername}:${turnCount}`;
+            if (metadata._lastOnEnemySkillTargetedTurnKey === triggerKey) return;
+            metadata._lastOnEnemySkillTargetedTurnKey = triggerKey;
+            status.metadata = metadata;
+        }
         const retaliateDamage = Math.max(0, Number(metadata.onEnemySkillTargetedDamageToSourceAmount) || 0);
         if (retaliateDamage > 0) {
             applyDamageToUnit(actorUnit, retaliateDamage, {
@@ -3612,6 +3842,17 @@ const triggerOnEnemySkillTargetedBonuses = ({
                 sourceSlot: Number.isInteger(recipient.slot) ? recipient.slot : null,
                 metadata: applyStatusToOwner.metadata || {},
                 fresh: Boolean(applyStatusToOwner.fresh),
+            });
+        }
+        if (Boolean(metadata.onEnemySkillTargetedApplyRandomParasitePositiveStateToOwner)) {
+            applyParasiteAbsorptionState({
+                targetState,
+                kind: 'positive',
+                variant: 'random',
+                sourceSkillId: status?.sourceSkillId || null,
+                sourceUsername: recipient.username,
+                sourceSlot: Number.isInteger(recipient.slot) ? recipient.slot : null,
+                fresh: true,
             });
         }
     });
@@ -5112,6 +5353,141 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 return;
             }
 
+            if (effectType === 'parasite_absorption_state') {
+                const recipients = resolveRecipients(effect);
+                recipients.forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    const condition = effect?.condition;
+                    if (
+                        condition &&
+                        !doesEffectConditionMatch({
+                            condition,
+                            actorState,
+                            targetState,
+                            actorUnit,
+                            actorUsername: actingUsername,
+                            targetUnit: recipient.unit,
+                            targetUsername: recipient.username,
+                        })
+                    ) {
+                        return;
+                    }
+                    applyParasiteAbsorptionState({
+                        targetState,
+                        kind: effect.kind === 'positive' ? 'positive' : 'negative',
+                        variant: effect.variant || 'random',
+                        sourceSkillId: skill.id || null,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        fresh: true,
+                    });
+                });
+                return;
+            }
+
+            if (effectType === 'parasite_metabolic_collapse') {
+                const recipients = resolveRecipients(effect);
+                recipients.forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    applyParasiteAbsorptionState({
+                        targetState,
+                        kind: 'negative',
+                        variant: 'complete',
+                        sourceSkillId: skill.id || null,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        fresh: true,
+                    });
+                    const trackerId = 'parasite_metabolic_collapse_tracker';
+                    const tracker = (Array.isArray(targetState.statuses) ? targetState.statuses : []).find(
+                        (status) =>
+                            status?.id === trackerId &&
+                            status?.sourceUsername === actingUsername &&
+                            Number(status?.sourceSlot) === actorSlot
+                    );
+                    const nextStack = Math.min(3, Math.max(0, Number(tracker?.metadata?.stacks) || 0) + 1);
+                    applyStatus({
+                        targetState,
+                        statusId: trackerId,
+                        duration: 99,
+                        sourceSkillId: skill.id || null,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: {
+                            harmful: true,
+                            infiniteDuration: true,
+                            stacks: nextStack,
+                            statusIconUrl: PARASITE_ICONS.negativeComplete,
+                            tooltipTextTemplate:
+                                'Metabolic Collapse has escalated {stacks}/3 times on this character.',
+                        },
+                        fresh: false,
+                    });
+                    if (nextStack === 1) {
+                        applyStatus({
+                            targetState,
+                            statusId: 'parasite_metabolic_cooldown_chain',
+                            duration: 99,
+                            sourceSkillId: skill.id || null,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            metadata: {
+                                harmful: true,
+                                infiniteDuration: true,
+                                newSkillCooldownIncrease: 1,
+                                statusIconUrl: PARASITE_ICONS.debuffCooldown,
+                                specialStatusVisual: 'parasite-metabolic-cooldown',
+                                tooltipText:
+                                    "Metabolic Collapse: this character's new skills gain +1 cooldown.",
+                            },
+                            fresh: true,
+                        });
+                    } else if (nextStack === 2) {
+                        applyStatus({
+                            targetState,
+                            statusId: 'parasite_metabolic_healing_reduction',
+                            duration: 99,
+                            sourceSkillId: skill.id || null,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            metadata: {
+                                harmful: true,
+                                infiniteDuration: true,
+                                healReceivedMultiplier: 0.5,
+                                statusIconUrl: PARASITE_ICONS.debuffHeal,
+                                specialStatusVisual: 'parasite-metabolic-heal',
+                                tooltipText:
+                                    'Metabolic Collapse: this character receives 50% less healing.',
+                            },
+                            fresh: true,
+                        });
+                    } else if (nextStack === 3) {
+                        applyStatus({
+                            targetState,
+                            statusId: 'parasite_metabolic_anti_defense',
+                            duration: 99,
+                            sourceSkillId: skill.id || null,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            metadata: {
+                                harmful: true,
+                                infiniteDuration: true,
+                                cannotReduceDamage: true,
+                                cannotBecomeInvulnerable: true,
+                                statusIconUrl: PARASITE_ICONS.debuffDefense,
+                                specialStatusVisual: 'parasite-metabolic-defense',
+                                tooltipText:
+                                    'Metabolic Collapse: this character cannot reduce damage or become invulnerable.',
+                            },
+                            fresh: true,
+                        });
+                    }
+                });
+                return;
+            }
+
             if (effectType === 'apply_status') {
                 const statusTargets =
                     effect?.scope === 'self' && effect?.condition?.scope === 'target'
@@ -5161,8 +5537,12 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         destinationState,
                         'invulnerableToHarmfulEffects'
                     );
+                    const targetIgnoresHarmfulNonDamageEffects = hasStatusMetadataFlag(
+                        destinationState,
+                        'ignoreHarmfulNonDamageEffects'
+                    );
                     if (!appliesToSelf && isHarmfulEffect(effect)) {
-                        if (targetHasHarmfulEffectImmunity) {
+                        if (targetHasHarmfulEffectImmunity || targetIgnoresHarmfulNonDamageEffects) {
                             if (!hasSkillClass(skill?.classes || [], 'bypassing')) return;
                         }
                         if (skillCannotBeCountered) {
@@ -6107,23 +6487,34 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 const amount = Math.max(0, Number(effect?.amount) || 0);
                 if (amount <= 0) return;
                 const rawType = typeof effect?.chakraType === 'string' ? effect.chakraType.trim().toLowerCase() : '';
+                const chakraRecipients =
+                    effect?.scope && effect.scope !== 'self'
+                        ? resolveRecipients(effect).filter((recipient) => recipient?.username)
+                        : [{ username: actingUsername }];
+                const grantChakra = (username, chakraType) => {
+                    applyChakraGainToMatch({
+                        match,
+                        username,
+                        chakraType,
+                        amount: 1,
+                    });
+                };
                 if (rawType === 'random') {
-                    for (let i = 0; i < amount; i += 1) {
-                        const pick = chakraTypes[Math.floor(Math.random() * chakraTypes.length)];
-                        applyChakraGainToMatch({
-                            match,
-                            username: actingUsername,
-                            chakraType: pick,
-                            amount: 1,
-                        });
-                    }
+                    chakraRecipients.forEach((recipient) => {
+                        for (let i = 0; i < amount; i += 1) {
+                            const pick = chakraTypes[Math.floor(Math.random() * chakraTypes.length)];
+                            grantChakra(recipient.username, pick);
+                        }
+                    });
                     return;
                 }
-                applyChakraGainToMatch({
-                    match,
-                    username: actingUsername,
-                    chakraType: rawType,
-                    amount,
+                chakraRecipients.forEach((recipient) => {
+                    applyChakraGainToMatch({
+                        match,
+                        username: recipient.username,
+                        chakraType: rawType,
+                        amount,
+                    });
                 });
                 return;
             }
@@ -6369,7 +6760,17 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             config: skill?.metadata?.cooldownReductionFromStatusMetadataThresholds,
             valueKey: 'amount',
         });
-        const adjustedCooldownTurns = Math.max(0, cooldownTurns - Math.max(0, Number(cooldownReduction) || 0));
+        const useScalingCooldownIncrease = Boolean(skill?.metadata?.cooldownIncreaseAfterEachUse);
+        const useScalingCooldownBonus =
+            useScalingCooldownIncrease && skill?.id ? Math.max(0, getSkillUseCount(actorState, skill.id)) : 0;
+        const selfStatusCooldownIncrease = getStatusMetadataSum(actorState, 'newSkillCooldownIncrease');
+        const adjustedCooldownTurns = Math.max(
+            0,
+            cooldownTurns -
+                Math.max(0, Number(cooldownReduction) || 0) +
+                useScalingCooldownBonus +
+                selfStatusCooldownIncrease
+        );
         if (cooldownSkillId && adjustedCooldownTurns > 0) {
             actorState.cooldowns[cooldownSkillId] = Math.max(
                 getSkillCooldownRemaining(actorState, cooldownSkillId),

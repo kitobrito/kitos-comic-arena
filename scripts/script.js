@@ -3378,6 +3378,107 @@ document.addEventListener('DOMContentLoaded', async () => {
             playGeneratedIngameSound('damage');
         };
 
+        const showParasiteTendrilConnection = (sourceCard, targetCard, variant = 'drain', duration = 1250) => {
+            const source = getCardCenterPoint(sourceCard, 0.5, 0.48);
+            const target = getCardCenterPoint(targetCard, 0.5, 0.48);
+            if (!source || !target) return;
+            const dx = target.x - source.x;
+            const dy = target.y - source.y;
+            const length = Math.max(34, Math.sqrt(dx * dx + dy * dy));
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            const tendril = document.createElement('div');
+            tendril.className = `parasite-drain-tendril ${variant}`;
+            tendril.style.left = `${source.x}px`;
+            tendril.style.top = `${source.y}px`;
+            tendril.style.width = `${length}px`;
+            tendril.style.transform = `rotate(${angle}deg)`;
+            tendril.innerHTML = '<span class="parasite-tendril-core"></span><span class="parasite-tendril-pulse"></span>';
+            document.body.appendChild(tendril);
+            window.setTimeout(() => tendril.remove(), duration);
+        };
+
+        const showParasiteLifeLeechFx = ({ actorCard, selection, targetCards = [] }) => {
+            actorCard?.classList.remove('parasite-toxic-flash');
+            if (actorCard) {
+                void actorCard.offsetWidth;
+                actorCard.classList.add('parasite-toxic-flash');
+                window.setTimeout(() => actorCard.classList.remove('parasite-toxic-flash'), 760);
+            }
+            targetCards.forEach((targetCard) => {
+                const isEnemyTarget = targetCard.closest('.enemy-characters');
+                if (isEnemyTarget) {
+                    showParasiteTendrilConnection(actorCard, targetCard, 'drain', 1350);
+                    showTemporaryCardFx(
+                        targetCard,
+                        'parasite-life-leech-enemy-fx',
+                        '<span class="parasite-darken"></span><span class="parasite-return-orb"></span>',
+                        1500
+                    );
+                } else {
+                    showTemporaryCardFx(
+                        targetCard,
+                        'parasite-life-leech-ally-fx',
+                        '<span class="parasite-biomass-wrap"></span><span class="parasite-green-pulse"></span><span class="parasite-dd-pop">+15 DD</span>',
+                        1500
+                    );
+                }
+            });
+            playGeneratedIngameSound('status-helpful');
+        };
+
+        const showParasiteMetabolicCollapseFx = (targetCards = []) => {
+            const flash = document.createElement('div');
+            flash.className = 'parasite-metabolic-screen-flash';
+            document.body.appendChild(flash);
+            window.setTimeout(() => flash.remove(), 780);
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'parasite-metabolic-collapse-fx',
+                    '<span class="parasite-corruption-symbol a"></span><span class="parasite-corruption-symbol b"></span><span class="parasite-corruption-symbol c"></span><span class="parasite-crack-overlay"></span><span class="parasite-debuff-stamp chain"></span><span class="parasite-debuff-stamp cross"></span><span class="parasite-debuff-stamp shield"></span>',
+                    1900
+                );
+            });
+            playGeneratedIngameSound('damage');
+        };
+
+        const showParasiteEnergyTransferFx = ({ actorCard, targetCards = [] }) => {
+            actorCard?.classList.add('parasite-toxic-flash');
+            window.setTimeout(() => actorCard?.classList.remove('parasite-toxic-flash'), 780);
+            targetCards.forEach((targetCard) => {
+                showParasiteTendrilConnection(actorCard, targetCard, 'transfer', 1350);
+                showTemporaryCardFx(
+                    targetCard,
+                    'parasite-energy-transfer-fx',
+                    '<span class="parasite-shield-shimmer"></span><span class="parasite-complete-icon one"></span><span class="parasite-complete-icon two"></span><span class="parasite-complete-icon three"></span>',
+                    1800
+                );
+            });
+            playGeneratedIngameSound('status-helpful');
+        };
+
+        const showParasiteHostMutationFx = (actorCard) => {
+            if (!actorCard) return;
+            showTemporaryCardFx(
+                actorCard,
+                'parasite-host-mutation-cast-fx',
+                '<span class="parasite-mutation-burst"></span><span class="parasite-mutation-jaw"></span><span class="parasite-mutation-eyes"></span>',
+                1700
+            );
+            playGeneratedIngameSound('status-helpful');
+        };
+
+        const showParasitePredatoryOverloadFx = () => {
+            const existing = document.querySelector('.parasite-overload-screen-fx');
+            existing?.remove();
+            const overlay = document.createElement('div');
+            overlay.className = 'parasite-overload-screen-fx';
+            overlay.innerHTML = '<span class="parasite-overload-wave"></span><span class="parasite-overload-text">PREDATORY OVERLOAD</span>';
+            document.body.appendChild(overlay);
+            window.setTimeout(() => overlay.remove(), 2300);
+            playGeneratedIngameSound('status-harmful');
+        };
+
         const showAquamanTidalWaveFx = () => {
             const existing = document.querySelector('.aquaman-tidal-wave-screen-fx');
             if (existing) existing.remove();
@@ -3431,6 +3532,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isVenomPullingTendrils = skillId === 'venom-pulling-tendrils';
             const isVenomWebWrap = skillId === 'venom-venom-web-wrap';
             const isNeganTheIron = skillId === 'negan-the-iron';
+            const isParasiteLifeLeech = skillId === 'parasite-life-leech';
+            const isParasiteMetabolicCollapse = skillId === 'parasite-metabolic-collapse';
+            const isParasiteEnergyTransfer = skillId === 'parasite-energy-transfer';
+            const isParasiteHostMutation = skillId === 'parasite-host-mutation';
+            const isParasitePredatoryOverload = skillId === 'parasite-predatory-overload';
             const isGenericLaser = !isRedLaser && !isYellowLaser && skillId.includes('laser');
             if (
                 !isRedLaser &&
@@ -3459,11 +3565,36 @@ document.addEventListener('DOMContentLoaded', async () => {
                 !isVenomPullingTendrils &&
                 !isVenomWebWrap &&
                 !isNeganTheIron &&
+                !isParasiteLifeLeech &&
+                !isParasiteMetabolicCollapse &&
+                !isParasiteEnergyTransfer &&
+                !isParasiteHostMutation &&
+                !isParasitePredatoryOverload &&
                 !isGenericLaser
             ) {
                 return;
             }
             const targetCards = getTargetCardsFromSelection(selection);
+            if (isParasiteLifeLeech) {
+                showParasiteLifeLeechFx({ actorCard, selection, targetCards });
+                return;
+            }
+            if (isParasiteMetabolicCollapse) {
+                showParasiteMetabolicCollapseFx(targetCards);
+                return;
+            }
+            if (isParasiteEnergyTransfer) {
+                showParasiteEnergyTransferFx({ actorCard, targetCards });
+                return;
+            }
+            if (isParasiteHostMutation) {
+                showParasiteHostMutationFx(actorCard);
+                return;
+            }
+            if (isParasitePredatoryOverload) {
+                showParasitePredatoryOverloadFx();
+                return;
+            }
             if (isVenomBite) {
                 showVenomBiteFx(targetCards);
                 return;
@@ -4438,6 +4569,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 'venom-ally-symbiosis-fx',
                 'negan-the-iron-fx',
                 'negan-the-iron-scar-fx',
+                'parasite-host-mutation-fx',
+                'parasite-overload-ally-fx',
+                'parasite-overload-enemy-fx',
+                'parasite-negative-absorption-fx',
+                'parasite-positive-absorption-fx',
                 'seraphina-med-station-fx',
                 'seraphina-buckshot-fx',
                 'seraphina-flare-fx',
@@ -4452,7 +4588,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 (Number.isFinite(hpForFx) && hpForFx <= 0 && !isBanishedForFx);
             if (isDeadForFx) {
                 fxClasses.forEach((className) => card.classList.remove(className));
-                ['joker-detonator-light', 'space-marine-channel-bar', 'rex-charge-counter', 'aquaman-sea-shark-ring', 'predator-bleeder-spears', 'xenomorph-facehugger-overlay', 'venom-ally-symbiosis-marker', 'negan-iron-overlay', 'negan-iron-scar-overlay', 'seraphina-med-plus-overlay', 'seraphina-buckshot-pattern', 'seraphina-road-flare', 'taunt-callout', 'flash-phase-speed-lines', 'scorpion-venom-drop', 'scorpion-poison-drops'].forEach((className) =>
+                ['joker-detonator-light', 'space-marine-channel-bar', 'rex-charge-counter', 'aquaman-sea-shark-ring', 'predator-bleeder-spears', 'xenomorph-facehugger-overlay', 'venom-ally-symbiosis-marker', 'negan-iron-overlay', 'negan-iron-scar-overlay', 'parasite-host-mutation-marker', 'parasite-overload-marker', 'parasite-absorption-marker', 'seraphina-med-plus-overlay', 'seraphina-buckshot-pattern', 'seraphina-road-flare', 'taunt-callout', 'flash-phase-speed-lines', 'scorpion-venom-drop', 'scorpion-poison-drops'].forEach((className) =>
                     removeCharacterFxElement(card, className)
                 );
                 return;
@@ -4575,6 +4711,57 @@ document.addEventListener('DOMContentLoaded', async () => {
                 );
             } else {
                 removeCharacterFxElement(card, 'negan-iron-scar-overlay');
+            }
+
+            const isParasiteHostMutation = hasStatus((status) =>
+                status?.id === 'parasite_host_mutation_active' ||
+                status?.metadata?.specialStatusVisual === 'parasite-host-mutation'
+            );
+            const isParasiteOverloadAlly = hasStatus((status) =>
+                status?.id === 'parasite_predatory_overload_ally' ||
+                status?.metadata?.specialStatusVisual === 'parasite-overload-ally'
+            );
+            const isParasiteOverloadEnemy = hasStatus((status) =>
+                status?.id === 'parasite_predatory_overload_enemy' ||
+                status?.metadata?.specialStatusVisual === 'parasite-overload-enemy'
+            );
+            const isParasiteNegativeAbsorption = hasStatus((status) =>
+                typeof status?.id === 'string' && status.id.startsWith('parasite_negative_absorption')
+            );
+            const isParasitePositiveAbsorption = hasStatus((status) =>
+                typeof status?.id === 'string' && status.id.startsWith('parasite_positive_absorption')
+            );
+            card.classList.toggle('parasite-host-mutation-fx', isParasiteHostMutation);
+            card.classList.toggle('parasite-overload-ally-fx', isParasiteOverloadAlly);
+            card.classList.toggle('parasite-overload-enemy-fx', isParasiteOverloadEnemy);
+            card.classList.toggle('parasite-negative-absorption-fx', isParasiteNegativeAbsorption);
+            card.classList.toggle('parasite-positive-absorption-fx', isParasitePositiveAbsorption);
+            if (isParasiteHostMutation) {
+                ensureCharacterFxElement(
+                    card,
+                    'parasite-host-mutation-marker',
+                    '<span class="parasite-mutated-border"></span><span class="parasite-mutated-eye a"></span><span class="parasite-mutated-eye b"></span>'
+                );
+            } else {
+                removeCharacterFxElement(card, 'parasite-host-mutation-marker');
+            }
+            if (isParasiteOverloadAlly || isParasiteOverloadEnemy) {
+                ensureCharacterFxElement(
+                    card,
+                    'parasite-overload-marker',
+                    '<span></span><span></span>'
+                );
+            } else {
+                removeCharacterFxElement(card, 'parasite-overload-marker');
+            }
+            if (isParasiteNegativeAbsorption || isParasitePositiveAbsorption) {
+                ensureCharacterFxElement(
+                    card,
+                    'parasite-absorption-marker',
+                    `<span class="${isParasiteNegativeAbsorption ? 'negative' : 'positive'}"></span>`
+                );
+            } else {
+                removeCharacterFxElement(card, 'parasite-absorption-marker');
             }
 
             const isSeraphinaMedStation = hasStatus((status) =>
@@ -8920,6 +9107,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         'captain-america',
         'storm',
         'venom',
+        'parasite',
         'carnage',
         'doctor-octopus',
         'the-green-goblin',

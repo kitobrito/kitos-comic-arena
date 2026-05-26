@@ -12737,6 +12737,252 @@ const characters = [
         "role": "Hybrid",
         "universe": "dc",
         "roleCategory": "hybrid"
+    },
+    {
+        "id": "parasite",
+        "characterId": "parasite",
+        "name": "Parasite",
+        "facePicture": "assets/images/parasiteFP.png",
+        "characterdeescription": "Parasite feeds on the life force of others, siphoning vitality and adapting stolen energy into overwhelming power. Weakening enemies while reinforcing himself and allies, he becomes increasingly dangerous the longer he remains active.",
+        "skills": [
+            {
+                "id": "parasite-life-leech",
+                "name": "Life Leech",
+                "skillimage": "assets/images/parasite3.png",
+                "skilldescription": "Steals 15 health from one enemy and applies 1 random negative absorption state to them. Alternatively, grants an ally 15 permanent destructible defense and applies 1 random positive absorption state to them.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy-or-ally",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "health_steal_damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy"
+                        }
+                    },
+                    {
+                        "type": "parasite_absorption_state",
+                        "kind": "negative",
+                        "variant": "random",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy"
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "parasite_life_leech_ally_defense",
+                        "duration": 99,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "destructibleDefensePoints": 15,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "statusIconUrl": "assets/images/parasite-pos-defense.svg",
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} permanent destructible defense from Life Leech."
+                        }
+                    },
+                    {
+                        "type": "parasite_absorption_state",
+                        "kind": "positive",
+                        "variant": "random",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally"
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "parasite-metabolic-collapse",
+                "name": "Metabolic Collapse",
+                "skillimage": "assets/images/parasite2.png",
+                "skilldescription": "Applies a complete negative absorption state to one enemy containing all negative effects. The first 3 times this skill is used on an enemy, they suffer an additional permanent debuff: 1st: +1 cooldown on their new skills. 2nd: Healing received reduced by 50%. 3rd: Cannot reduce damage or become invulnerable. Parasite gains +1 cooldown on this skill after each use.",
+                "energy": [
+                    "Bloodline",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "metadata": {
+                    "cooldownIncreaseAfterEachUse": true
+                },
+                "effects": [
+                    {
+                        "type": "parasite_metabolic_collapse",
+                        "scope": "target"
+                    }
+                ]
+            },
+            {
+                "id": "parasite-energy-transfer",
+                "name": "Energy Transfer",
+                "skillimage": "assets/images/parasite4.png",
+                "skilldescription": "Applies a complete positive absorption state to one ally containing all positive effects and grants them 1 random energy.",
+                "energy": [
+                    "Taijutsu",
+                    "Random"
+                ],
+                "target": "single-ally",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "parasite_absorption_state",
+                        "kind": "positive",
+                        "variant": "complete",
+                        "scope": "target"
+                    },
+                    {
+                        "type": "gain_chakra",
+                        "chakraType": "random",
+                        "amount": 1,
+                        "scope": "target"
+                    }
+                ]
+            },
+            {
+                "id": "parasite-host-mutation",
+                "name": "Host Mutation",
+                "skillimage": "assets/images/parasite8.png",
+                "skilldescription": "Parasite gains 15 destructible defense and 15 damage reduction for 2 turns. While active, the first enemy each turn who uses a new skill on Parasite loses 5 HP and grants Parasite 1 random positive absorption state. Transforms into Predatory Overload while active.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "parasite_host_mutation_active",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "destructibleDefensePoints": 15,
+                            "damageReductionFlat": 15,
+                            "skillReplacements": {
+                                "parasite-host-mutation": "parasite-predatory-overload"
+                            },
+                            "onEnemySkillTargetedHarmfulOnly": false,
+                            "onEnemySkillTargetedOncePerTurn": true,
+                            "onEnemySkillTargetedDamageToSourceAmount": 5,
+                            "onEnemySkillTargetedDamageToSourceIgnoreDamageReduction": true,
+                            "onEnemySkillTargetedApplyRandomParasitePositiveStateToOwner": true,
+                            "specialStatusVisual": "parasite-host-mutation",
+                            "facePictureOverride": "assets/images/parasite8.png",
+                            "statusIconUrl": "assets/images/parasite8.png",
+                            "tooltipText": "Parasite has 15 destructible defense and 15 damage reduction. The first enemy each turn who uses a new skill on Parasite loses 5 HP and grants Parasite a random positive absorption state. Host Mutation is replaced by Predatory Overload."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "parasite-predatory-overload",
+                "name": "Predatory Overload",
+                "isHidden": true,
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/parasite1.png",
+                "skilldescription": "One-time ultimate. For 2 turns, allies ignore non-damage effects from harmful skills, enemy helpful effects are ignored, and enemy damage is capped at 20.",
+                "energy": [
+                    "Bloodline",
+                    "Random",
+                    "Taijutsu"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 8,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "condition": {
+                    "sourceSkillUsesAtMost": {
+                        "skillId": "parasite-predatory-overload",
+                        "value": 0
+                    }
+                },
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "parasite_predatory_overload_ally",
+                        "duration": 2,
+                        "scope": "all-allies",
+                        "metadata": {
+                            "ignoreHarmfulNonDamageEffects": true,
+                            "specialStatusVisual": "parasite-overload-ally",
+                            "statusIconUrl": "assets/images/parasite-pos-complete.svg",
+                            "tooltipText": "Predatory Overload: this character ignores non-damage effects from harmful skills."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "parasite_predatory_overload_enemy",
+                        "duration": 2,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "invulnerableToHelpfulSkills": true,
+                            "maxDamageOutput": 20,
+                            "specialStatusVisual": "parasite-overload-enemy",
+                            "statusIconUrl": "assets/images/parasite-neg-complete.svg",
+                            "tooltipText": "Predatory Overload: this character ignores helpful effects and their damage is capped at 20."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "parasite-passive-absorption-states",
+                "name": "Passive: Absorption States",
+                "skillimage": "assets/images/parasite7.png",
+                "skilldescription": "Negative absorption states weaken enemies with damage, Parasite-focused damage vulnerability, or affliction vulnerability. Positive absorption states grant damage, unpierceable damage reduction, or regeneration. Complete absorption states combine all effects of their type.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            }
+        ],
+        "role": "Adaptive Drain Tank / Adaptive Stat Vampire",
+        "universe": "dc",
+        "roleCategory": "tank"
     }
 ];
 

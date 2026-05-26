@@ -61,12 +61,13 @@ const ALLOW_INSECURE_HTTP = !IS_PRODUCTION && process.env.ALLOW_INSECURE_HTTP ==
 const HTTPS_KEY_PATH = process.env.HTTPS_KEY_PATH;
 const HTTPS_CERT_PATH = process.env.HTTPS_CERT_PATH;
 const LATEST_CHARACTER_RELEASES = [
+    { label: 'Parasite', characterId: 'parasite' },
     { label: 'Pvt. Saunders', characterId: 'space-marine-infantry' },
     { label: 'Lieutenant Seraphina Vale', characterId: 'space-marine-medic' },
     { label: 'Sergeant William Hillford', characterId: 'space-marine-smartgunner' },
 ];
 const LATEST_CHARACTER_RELEASES_STATE_KEY = 'latest_character_releases';
-const LATEST_CHARACTER_RELEASES_VERSION = 'marine-release-v2';
+const LATEST_CHARACTER_RELEASES_VERSION = 'parasite-release-v1';
 const MAINTENANCE_MODE_STATE_KEY = 'maintenance_mode';
 const MAINTENANCE_MODE_CACHE_TTL_MS = 10 * 1000;
 const DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/3JqVcPXm/default.png';
