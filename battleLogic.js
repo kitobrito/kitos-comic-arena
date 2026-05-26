@@ -284,6 +284,7 @@ const getStatusMetadataTotals = (actorState, ownerUnit = null) => {
         unpierceableDamageReductionPercent: 0,
         physicalDamageReductionFlat: 0,
         damageTakenBonusFlat: 0,
+        nonAfflictionDamageTakenBonusFlat: 0,
         damageTakenMultiplier: 1,
         healReceivedMultiplier: 1,
         healingBonusFlat: 0,
@@ -331,6 +332,8 @@ const getStatusMetadataTotals = (actorState, ownerUnit = null) => {
         );
         totals.physicalDamageReductionFlat += Number(metadata.physicalDamageReductionFlat) || 0;
         totals.damageTakenBonusFlat += Number(metadata.damageTakenBonusFlat) || 0;
+        totals.nonAfflictionDamageTakenBonusFlat +=
+            Number(metadata.nonAfflictionDamageTakenBonusFlat) || 0;
         if (Number.isFinite(metadata.damageTakenMultiplier)) {
             totals.damageTakenMultiplier *= Math.max(0, Number(metadata.damageTakenMultiplier) || 1);
         }
@@ -1527,11 +1530,12 @@ const applyParasiteAbsorptionState = ({
                 harmful: true,
                 infiniteDuration: true,
                 turnEndDamage: 5,
+                afflictionDamage: true,
                 mergeNumericAddKeys: ['turnEndDamage'],
                 statusIconUrl: PARASITE_ICONS.negativeDamage,
                 specialStatusVisual: 'parasite-negative-single',
                 tooltipTextTemplate:
-                    'Negative Absorption: This character takes {turnEndDamage} non-affliction damage each turn.',
+                    'Negative Absorption: This character takes {turnEndDamage} affliction damage each turn.',
             },
         },
         nonaffliction: {
@@ -1540,15 +1544,12 @@ const applyParasiteAbsorptionState = ({
             metadata: {
                 harmful: true,
                 infiniteDuration: true,
-                bonusDamageFromSourceCharacterId: 'parasite',
-                bonusDamageFromSourceEnemyOnly: true,
-                bonusDamageFromSourceNonAfflictionOnly: true,
-                bonusDamageFromSourceSkillsFlatNonAffliction: 5,
-                mergeNumericAddKeys: ['bonusDamageFromSourceSkillsFlatNonAffliction'],
+                NonAfflictionDamageDebuff: 5,
+                mergeNumericAddKeys: ['NonAfflictionDamageDebuff'],
                 statusIconUrl: PARASITE_ICONS.negativeNonAffliction,
                 specialStatusVisual: 'parasite-negative-single',
                 tooltipTextTemplate:
-                    'Negative Absorption: Parasite deals {bonusDamageFromSourceSkillsFlatNonAffliction} additional non-affliction damage to this character.',
+                    'Negative Absorption: This character deals {NonAfflictionDamageDebuff} less non-affliction damage.',
             },
         },
         affliction: {
@@ -1557,15 +1558,12 @@ const applyParasiteAbsorptionState = ({
             metadata: {
                 harmful: true,
                 infiniteDuration: true,
-                bonusDamageFromSourceCharacterId: 'parasite',
-                bonusDamageFromSourceEnemyOnly: true,
-                bonusDamageFromSourceAfflictionOnly: true,
-                bonusDamageFromSourceSkillsFlatAffliction: 5,
-                mergeNumericAddKeys: ['bonusDamageFromSourceSkillsFlatAffliction'],
+                nonAfflictionDamageTakenBonusFlat: 5,
+                mergeNumericAddKeys: ['nonAfflictionDamageTakenBonusFlat'],
                 statusIconUrl: PARASITE_ICONS.negativeAffliction,
                 specialStatusVisual: 'parasite-negative-single',
                 tooltipTextTemplate:
-                    'Negative Absorption: Parasite deals {bonusDamageFromSourceSkillsFlatAffliction} additional affliction damage to this character.',
+                    'Negative Absorption: This character takes {nonAfflictionDamageTakenBonusFlat} more non-affliction damage.',
             },
         },
     };
@@ -1663,19 +1661,18 @@ const applyParasiteAbsorptionState = ({
                 harmful: true,
                 infiniteDuration: true,
                 turnEndDamage: 5,
-                bonusDamageFromSourceCharacterId: 'parasite',
-                bonusDamageFromSourceEnemyOnly: true,
-                bonusDamageFromSourceSkillsFlatNonAffliction: 5,
-                bonusDamageFromSourceSkillsFlatAffliction: 5,
+                afflictionDamage: true,
+                NonAfflictionDamageDebuff: 5,
+                nonAfflictionDamageTakenBonusFlat: 5,
                 mergeNumericAddKeys: [
                     'turnEndDamage',
-                    'bonusDamageFromSourceSkillsFlatNonAffliction',
-                    'bonusDamageFromSourceSkillsFlatAffliction',
+                    'NonAfflictionDamageDebuff',
+                    'nonAfflictionDamageTakenBonusFlat',
                 ],
                 statusIconUrl: PARASITE_ICONS.negativeComplete,
                 specialStatusVisual: 'parasite-negative-complete',
                 tooltipTextTemplate:
-                    'Complete Negative Absorption: This character takes {turnEndDamage} non-affliction damage each turn. Parasite deals {bonusDamageFromSourceSkillsFlatNonAffliction} additional non-affliction damage and {bonusDamageFromSourceSkillsFlatAffliction} additional affliction damage to this character.',
+                    'Complete Negative Absorption: This character takes {turnEndDamage} affliction damage each turn, deals {NonAfflictionDamageDebuff} less non-affliction damage, and takes {nonAfflictionDamageTakenBonusFlat} more non-affliction damage.',
             },
             fresh,
         });
@@ -3011,6 +3008,9 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
         : Math.max(0, Number(totals.damageTakenBonusFlat) || 0);
     if (damageTakenBonusFlat > 0) {
         incoming += damageTakenBonusFlat;
+    }
+    if (!afflictionDamage) {
+        incoming += Math.max(0, Number(totals.nonAfflictionDamageTakenBonusFlat) || 0);
     }
     const standardPercentReduction = ignoreDamageReduction
         ? 0
