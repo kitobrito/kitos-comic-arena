@@ -95,9 +95,9 @@ const DEFAULT_MISSION_CATALOG = [
             ]
         },
         win_streak: {
-            character_id: 'rick-grimes',
-            character_name: 'Rick Grimes',
-            wins: 2
+            character_id: '',
+            character_name: '',
+            wins: 0
         },
         image: 'https://i.imgur.com/IV0ZLi5_d.png?maxwidth=520&shape=thumb&fidelity=high',
         imageAlt: 'Walker mission artwork',
@@ -141,9 +141,9 @@ const DEFAULT_MISSION_CATALOG = [
             ]
         },
         win_streak: {
-            character_id: 'spider-man',
-            character_name: 'Spider-Man',
-            wins: 2
+            character_id: '',
+            character_name: '',
+            wins: 0
         },
         image: 'https://i.imgur.com/UShiq12.png',
         imageAlt: 'Venom Mission Artwork',
@@ -191,9 +191,9 @@ const DEFAULT_MISSION_CATALOG = [
             ]
         },
         win_streak: {
-            character_id: 'batman',
-            character_name: 'Batman',
-            wins: 3
+            character_id: '',
+            character_name: '',
+            wins: 0
         },
         image: 'https://i.imgur.com/6JLRKuP_d.png?maxwidth=520&shape=thumb&fidelity=high',
         imageAlt: 'Joker MIssion Artwork',
@@ -247,9 +247,9 @@ const DEFAULT_MISSION_CATALOG = [
             ]
         },
         win_streak: {
-            character_id: 'invincible',
-            character_name: 'Invincible',
-            wins: 3
+            character_id: '',
+            character_name: '',
+            wins: 0
         },
         image: 'https://i.imgur.com/tW20gY2.jpeg',
         imageAlt: 'Omni-Man mission artwork',
@@ -303,9 +303,9 @@ const DEFAULT_MISSION_CATALOG = [
             ]
         },
         win_streak: {
-            character_id: 'walker',
-            character_name: 'Walker',
-            wins: 2
+            character_id: '',
+            character_name: '',
+            wins: 0
         },
         image: 'https://i.imgur.com/V33bQFx.png',
         imageAlt: 'Rage Infected mission artwork',
@@ -446,9 +446,9 @@ const DEFAULT_MISSION_CATALOG = [
             ]
         },
         win_streak: {
-            character_id: 'green-lantern-hal-jordan',
-            character_name: 'Green Lantern (Hal Jordan)',
-            wins: 3
+            character_id: '',
+            character_name: '',
+            wins: 0
         },
         image: 'https://i.imgur.com/PmVfCAU.png',
         imageAlt: 'Saint Walker mission artwork',
@@ -459,19 +459,19 @@ const DEFAULT_MISSION_CATALOG = [
         goals: [
             {
                 type: 'win_matches',
-                character_id: 'green-lantern-hal-jordan',
-                character_name: 'Green Lantern (Hal Jordan)',
+                character_id: 'superman',
+                character_name: 'Superman',
                 wins: 5
             },
             {
                 type: 'win_matches_same_team',
                 character_ids: [
-                    'green-lantern-hal-jordan',
-                    'superman'
+                    'superman',
+                    'wonder-woman'
                 ],
                 character_names: [
-                    'Green Lantern (Hal Jordan)',
-                    'Superman'
+                    'Superman',
+                    'Wonder Woman'
                 ],
                 wins: 3
             }
@@ -502,9 +502,9 @@ const DEFAULT_MISSION_CATALOG = [
             ]
         },
         win_streak: {
-            character_id: 'space-marine-infantry',
-            character_name: 'Pvt. Saunders',
-            wins: 2
+            character_id: '',
+            character_name: '',
+            wins: 0
         },
         image: 'https://i.imgur.com/XEBuicU.jpeg',
         imageAlt: 'Space Marine Medic Mission mission artwork',
@@ -558,9 +558,9 @@ const DEFAULT_MISSION_CATALOG = [
             ]
         },
         win_streak: {
-            character_id: 'rick-grimes',
-            character_name: 'Rick Grimes',
-            wins: 3
+            character_id: '',
+            character_name: '',
+            wins: 0
         },
         image: 'https://i.imgur.com/GyQcDQR_d.jpeg?maxwidth=520&shape=thumb&fidelity=high',
         imageAlt: 'Negan mission artwork',
@@ -655,9 +655,9 @@ const DEFAULT_MISSION_CATALOG = [
             ]
         },
         win_streak: {
-            character_id: 'doctor-octopus',
-            character_name: 'Doctor Octopus',
-            wins: 4
+            character_id: '',
+            character_name: '',
+            wins: 0
         },
         image: 'https://i.imgur.com/I4fukyT_d.png?maxwidth=520&shape=thumb&fidelity=high',
         imageAlt: 'New Mission mission artwork',
@@ -668,15 +668,21 @@ const DEFAULT_MISSION_CATALOG = [
         goals: [
             {
                 type: 'win_matches',
-                character_id: 'doctor-octopus',
-                character_name: 'Doctor Octopus',
-                wins: 5
+                character_id: 'spider-man',
+                character_name: 'Spider-Man',
+                wins: 6
             },
             {
-                type: 'win_streak',
-                character_id: 'doctor-octopus',
-                character_name: 'Doctor Octopus',
-                wins: 2
+                type: 'win_matches_same_team',
+                character_ids: [
+                    'spider-man',
+                    'venom'
+                ],
+                character_names: [
+                    'Spider-Man',
+                    'Venom'
+                ],
+                wins: 3
             }
         ],
         special_pve: {
@@ -705,9 +711,9 @@ const DEFAULT_MISSION_CATALOG = [
             ]
         },
         win_streak: {
-            character_id: 'the-green-goblin',
-            character_name: 'The Green Goblin',
-            wins: 4
+            character_id: '',
+            character_name: '',
+            wins: 0
         },
         image: 'https://i.imgur.com/NPTMsi8_d.png?maxwidth=520&shape=thumb&fidelity=high',
         imageAlt: 'Sandman mission artwork',
@@ -726,11 +732,11 @@ const DEFAULT_MISSION_CATALOG = [
                 type: 'win_matches_same_team',
                 character_ids: [
                     'the-green-goblin',
-                    'doctor-octopus'
+                    'spider-man'
                 ],
                 character_names: [
                     'The Green Goblin',
-                    'Doctor Octopus'
+                    'Spider-Man'
                 ],
                 wins: 3
             }
@@ -761,9 +767,9 @@ const DEFAULT_MISSION_CATALOG = [
             ]
         },
         win_streak: {
-            character_id: 'sandman',
-            character_name: 'Sandman',
-            wins: 4
+            character_id: '',
+            character_name: '',
+            wins: 0
         },
         image: 'https://i.imgur.com/m9nVuSV.png',
         imageAlt: 'Mysterio mission artwork',
@@ -811,9 +817,9 @@ const DEFAULT_MISSION_CATALOG = [
             ]
         },
         win_streak: {
-            character_id: 'mysterio',
-            character_name: 'Mysterio',
-            wins: 4
+            character_id: '',
+            character_name: '',
+            wins: 0
         },
         image: 'https://i.imgur.com/fM7sTno_d.png?maxwidth=520&shape=thumb&fidelity=high',
         imageAlt: 'Scorpion mission artwork',
@@ -838,6 +844,12 @@ const DEFAULT_MISSION_CATALOG = [
                     'Spider-Man',
                     'Mysterio'
                 ],
+                wins: 3
+            },
+            {
+                type: 'win_streak',
+                character_id: 'mysterio',
+                character_name: 'Mysterio',
                 wins: 3
             }
         ],
@@ -867,9 +879,9 @@ const DEFAULT_MISSION_CATALOG = [
             ]
         },
         win_streak: {
-            character_id: 'venom',
-            character_name: 'Venom',
-            wins: 4
+            character_id: '',
+            character_name: '',
+            wins: 0
         },
         image: 'https://i.imgur.com/TSG2XPO_d.jpeg?maxwidth=520&shape=thumb&fidelity=high',
         imageAlt: 'Carnage mission artwork',
@@ -895,6 +907,12 @@ const DEFAULT_MISSION_CATALOG = [
                     'Spider-Man'
                 ],
                 wins: 4
+            },
+            {
+                type: 'win_streak',
+                character_id: 'venom',
+                character_name: 'Venom',
+                wins: 3
             }
         ],
         special_pve: {
@@ -923,9 +941,9 @@ const DEFAULT_MISSION_CATALOG = [
             ]
         },
         win_streak: {
-            character_id: 'saint-walker',
-            character_name: 'Saint Walker',
-            wins: 5
+            character_id: '',
+            character_name: '',
+            wins: 0
         },
         image: 'https://i.imgur.com/SBKdx9H.png',
         imageAlt: 'Indigo-1 mission artwork',
@@ -951,6 +969,12 @@ const DEFAULT_MISSION_CATALOG = [
                     'Saint Walker'
                 ],
                 wins: 4
+            },
+            {
+                type: 'win_streak',
+                character_id: 'saint-walker',
+                character_name: 'Saint Walker',
+                wins: 3
             }
         ],
         special_pve: {
@@ -978,9 +1002,9 @@ const DEFAULT_MISSION_CATALOG = [
             ]
         },
         win_streak: {
-            character_id: 'indigo-1',
-            character_name: 'Indigo-1',
-            wins: 5
+            character_id: '',
+            character_name: '',
+            wins: 0
         },
         image: 'https://i.imgur.com/ANKGdua.png',
         imageAlt: 'Atrocitus mission artwork',
@@ -1020,9 +1044,9 @@ const DEFAULT_MISSION_CATALOG = [
             ]
         },
         win_streak: {
-            character_id: 'green-lantern-hal-jordan',
-            character_name: 'Green Lantern (Hal Jordan)',
-            wins: 5
+            character_id: '',
+            character_name: '',
+            wins: 0
         },
         image: 'https://i.imgur.com/R8ndweR.png',
         imageAlt: 'Sinestro mission artwork',
@@ -1048,6 +1072,12 @@ const DEFAULT_MISSION_CATALOG = [
                     'Saint Walker'
                 ],
                 wins: 4
+            },
+            {
+                type: 'win_streak',
+                character_id: 'green-lantern-hal-jordan',
+                character_name: 'Green Lantern (Hal Jordan)',
+                wins: 3
             }
         ],
         special_pve: {
@@ -1076,9 +1106,9 @@ const DEFAULT_MISSION_CATALOG = [
             ]
         },
         win_streak: {
-            character_id: 'atrocitus',
-            character_name: 'Atrocitus',
-            wins: 5
+            character_id: '',
+            character_name: '',
+            wins: 0
         },
         image: 'https://i.imgur.com/1kzcYy8.png',
         imageAlt: 'Sorrow mission artwork',
@@ -1126,9 +1156,9 @@ const DEFAULT_MISSION_CATALOG = [
             ]
         },
         win_streak: {
-            character_id: 'sorrow',
-            character_name: 'Sorrow',
-            wins: 5
+            character_id: '',
+            character_name: '',
+            wins: 0
         },
         image: 'https://i.imgur.com/MgDOxZR.png',
         imageAlt: 'John Stewart mission artwork',
@@ -1153,6 +1183,12 @@ const DEFAULT_MISSION_CATALOG = [
                     'Indigo-1',
                     'Sinestro'
                 ],
+                wins: 3
+            },
+            {
+                type: 'win_streak',
+                character_id: 'sinestro',
+                character_name: 'Sinestro',
                 wins: 3
             }
         ],
@@ -1181,9 +1217,9 @@ const DEFAULT_MISSION_CATALOG = [
             ]
         },
         win_streak: {
-            character_id: 'invincible',
-            character_name: 'Invincible',
-            wins: 6
+            character_id: '',
+            character_name: '',
+            wins: 0
         },
         image: 'https://i.imgur.com/mWmxCy8_d.png?maxwidth=520&shape=thumb&fidelity=high',
         imageAlt: 'Angstrom Levy Mission artwork',
@@ -1315,9 +1351,9 @@ const DEFAULT_MISSION_CATALOG = [
             ]
         },
         win_streak: {
-            character_id: 'xenomorph-drone',
-            character_name: 'Xenomorph Drone',
-            wins: 6
+            character_id: '',
+            character_name: '',
+            wins: 0
         },
         image: 'https://i.imgur.com/KgKHqzO.jpeg',
         imageAlt: 'Predalien mission artwork',
@@ -1340,14 +1376,14 @@ const DEFAULT_MISSION_CATALOG = [
             },
             {
                 type: 'win_streak',
-                character_id: 'xenomorph-drone',
-                character_name: 'Xenomorph Drone',
+                character_id: 'predator-stalker',
+                character_name: 'Predator Stalker',
                 wins: 4
             },
             {
                 type: 'win_streak',
-                character_id: 'predator-stalker',
-                character_name: 'Predator Stalker',
+                character_id: 'xenomorph-drone',
+                character_name: 'Xenomorph Drone',
                 wins: 4
             }
         ],
@@ -1376,9 +1412,9 @@ const DEFAULT_MISSION_CATALOG = [
             ]
         },
         win_streak: {
-            character_id: 'omni-man',
-            character_name: 'Omni-Man',
-            wins: 7
+            character_id: '',
+            character_name: '',
+            wins: 0
         },
         image: 'https://i.imgur.com/I44oULS.jpeg',
         imageAlt: 'Homelander Mission mission artwork',
