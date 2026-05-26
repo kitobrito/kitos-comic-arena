@@ -6708,6 +6708,10 @@ const chooseBattleBotSkillCandidate = ({ match, username, actorSlot, actorUnit, 
     const candidates = [];
 
     shuffleList(skills.map((_, index) => index)).forEach((skillIndex) => {
+        const baseSkill = skills[skillIndex];
+        if (baseSkill?.hiddenFromSelectionViewer) {
+            return;
+        }
         const options = battleLogic.computeTargetOptions({
             match,
             actingUsername: username,

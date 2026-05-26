@@ -1387,6 +1387,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const optimisticCancelledActorSlots = new Set();
         const inFlightSkillRequestByActorSlot = new Set();
         const targetOptionsCache = new Map();
+        let targetOptionsRequestVersion = 0;
         let draggingQueueActorSlot = null;
         let latestBoardState = null;
         let globalStatusTooltipEl = null;
@@ -7177,11 +7178,59 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         window.addEventListener('beforeunload', closeMatchSocket);
 
+        const buildImmediateTargetOptions = ({ actorSlot, skillIdx, skill }) => {
+            if (!latestBoardState || !currentPlayerUsername || !currentOpponentUsername || !skill) return null;
+            const targetType = String(skill.target || '').trim();
+            if (!targetType) return null;
+            const playerUnits = Array.isArray(latestBoardState[currentPlayerUsername])
+                ? latestBoardState[currentPlayerUsername]
+                : [];
+            const opponentUnits = Array.isArray(latestBoardState[currentOpponentUsername])
+                ? latestBoardState[currentOpponentUsername]
+                : [];
+            const mapTargets = (username, units) =>
+                (Array.isArray(units) ? units : [])
+                    .map((unit, slot) => ({ unit, slot }))
+                    .filter(({ unit }) => unit && !isUnitDeadLike(unit))
+                    .map(({ unit, slot }) => ({
+                        username,
+                        slot,
+                        rosterIndex: unit.rosterIndex,
+                        alive: true,
+                    }));
+            const playerTargets = mapTargets(currentPlayerUsername, playerUnits);
+            const enemyTargets = mapTargets(currentOpponentUsername, opponentUnits);
+            const selfTargets = playerTargets.filter((target) => Number(target.slot) === Number(actorSlot));
+            const allyTargets = playerTargets.filter((target) => Number(target.slot) !== Number(actorSlot));
+            switch (targetType) {
+                case 'single-enemy':
+                    return { ok: true, targetType, mode: 'single', targets: enemyTargets, skillIndex: skillIdx };
+                case 'all-enemy':
+                    return { ok: true, targetType, mode: 'all', targets: enemyTargets, skillIndex: skillIdx };
+                case 'self':
+                    return { ok: true, targetType, mode: 'self', targets: selfTargets, skillIndex: skillIdx };
+                case 'single-ally':
+                    return { ok: true, targetType, mode: 'single', targets: allyTargets, skillIndex: skillIdx };
+                case 'self-or-single-ally':
+                    return { ok: true, targetType, mode: 'single', targets: playerTargets, skillIndex: skillIdx };
+                case 'all-allies':
+                    return { ok: true, targetType, mode: 'all', targets: playerTargets, skillIndex: skillIdx };
+                case 'single-enemy-or-ally':
+                    return { ok: true, targetType, mode: 'single', targets: [...allyTargets, ...enemyTargets], skillIndex: skillIdx };
+                case 'single-character':
+                    return { ok: true, targetType, mode: 'single', targets: [...playerTargets, ...enemyTargets], skillIndex: skillIdx };
+                default:
+                    return null;
+            }
+        };
+
         const fetchTargetOptions = async (actorSlot, skillIdx, skill = null) => {
             if (!matchIdFromUrl) return;
             const cacheKey = `${currentTurnUsername || ''}:${actorSlot}:${skillIdx}`;
             const cachedOptions = targetOptionsCache.get(cacheKey);
+            const requestVersion = ++targetOptionsRequestVersion;
             const applyTargetOptions = (data) => {
+                if (requestVersion !== targetOptionsRequestVersion) return;
                 pendingTurnState = normalizePendingTurn(data.pendingTurn);
                 measureIngamePerf('target:queued-skills', () => applyQueuedSkillVisuals());
                 activeTargetOptions = data;
@@ -7206,9 +7255,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 applyTargetOptions(cachedOptions);
                 return;
             }
-            clearTargetHighlights();
-            activeTargetOptions = null;
-            activeCastingSkill = null;
+            const immediateOptions = buildImmediateTargetOptions({ actorSlot, skillIdx, skill });
+            if (immediateOptions?.targets?.length) {
+                applyTargetOptions({
+                    ...immediateOptions,
+                    pendingTurn: pendingTurnState,
+                    optimistic: true,
+                });
+            } else {
+                clearTargetHighlights();
+                activeTargetOptions = null;
+                activeCastingSkill = null;
+            }
             try {
                 const res = await fetch(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/targets`,
@@ -7234,6 +7292,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 targetOptionsCache.set(cacheKey, data);
                 applyTargetOptions(data);
             } catch (error) {
+                if (requestVersion !== targetOptionsRequestVersion) return;
                 console.warn('Target fetch failed.', error);
                 if (skillInfo.descEl) {
                     const baseDescription = getSkillDescriptionText(skill) || skillInfo.descEl.textContent || '';
@@ -7543,6 +7602,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             event.stopPropagation();
             const target = getTargetForCardFromOptions(card);
             if (!target) return true;
+            targetOptionsRequestVersion += 1;
             const selection =
                 activeTargetOptions.mode === 'all'
                     ? activeTargetOptions.targets.map((t) => ({ username: t.username, slot: t.slot }))
@@ -7644,6 +7704,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const clearActiveSkillTargeting = () => {
             if (!activeTargetOptions && !activeCastingSkill) return;
             if (activeChoicePopupMode === 'turn-start-target') return;
+            targetOptionsRequestVersion += 1;
             clearTargetHighlights();
             activeTargetOptions = null;
             activeCastingSkill = null;
