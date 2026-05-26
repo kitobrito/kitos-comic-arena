@@ -12853,7 +12853,7 @@ const characters = [
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
+                "cooldown": 0,
                 "classes": [
                     "Physical",
                     "Melee",
@@ -12880,7 +12880,7 @@ const characters = [
                 ],
                 "target": "single-ally",
                 "damage": 0,
-                "cooldown": 1,
+                "cooldown": 2,
                 "classes": [
                     "Physical",
                     "Instant"
