@@ -140,6 +140,46 @@ const DEFAULT_MISSION_CATALOG = [
         ],
         sortOrder: 3,
     },
+    {
+        missionId: 'parasite',
+        title: 'Parasite',
+        level_requirement: 6,
+        mode_restriction: { allowed_modes: ['quick', 'ladder'] },
+        reward_character: 'parasite',
+        reward_character_name: 'Parasite',
+        reward: 'Unlock Parasite.',
+        image: 'assets/images/parasitemission.png',
+        imageAlt: 'Parasite mission artwork',
+        characterName: 'Parasite',
+        portrait: 'assets/images/parasiteFP.png',
+        portraitAlt: 'Parasite portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'reach_rank',
+                rank: 6,
+            },
+            {
+                type: 'win_matches',
+                character_id: 'superman',
+                character_name: 'Superman',
+                wins: 8,
+            },
+            {
+                type: 'win_matches_same_team',
+                character_ids: ['batman', 'wonder-woman'],
+                character_names: ['Batman', 'Wonder Woman'],
+                wins: 6,
+            },
+            {
+                type: 'win_matches_same_team',
+                character_ids: ['green-lantern-hal-jordan', 'saint-walker'],
+                character_names: ['Green Lantern (Hal Jordan)', 'Saint Walker'],
+                wins: 6,
+            },
+        ],
+        sortOrder: 5,
+    },
 ];
 
 let mongoClient;

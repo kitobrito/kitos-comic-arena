@@ -12969,7 +12969,7 @@ const characters = [
                 "id": "parasite-passive-absorption-states",
                 "name": "Passive: Absorption States",
                 "skillimage": "assets/images/parasite7.png",
-                "skilldescription": "Negative absorption states weaken enemies with damage, Parasite-focused damage vulnerability, or affliction vulnerability. Positive absorption states grant damage, unpierceable damage reduction, or regeneration. Complete absorption states combine all effects of their type.",
+                "skilldescription": "Negative absorption states: one makes the target take 5 non-affliction damage each turn, one makes Parasite deal +5 additional non-affliction damage to that target, and one makes Parasite deal +5 additional affliction damage to that target. Positive absorption states: one makes the affected character deal +5 additional non-affliction damage, one grants +5% unpierceable damage reduction, and one heals them for 5 HP each turn. Complete absorption states apply all three effects of their type.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
