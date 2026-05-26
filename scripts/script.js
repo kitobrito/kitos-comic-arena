@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         customCursor: true,
         clickSounds: true,
         shiftStatusReveal: true,
+        skillQueueTrail: false,
     };
     const readUiSettings = () => {
         try {
@@ -2829,22 +2830,55 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const animateSkillToQueue = (skillEl) => {
-            if (!uiSettings.skillCastAnimations) return;
-            const skillScroll = skillEl?.closest('.skillscrollingame');
+            if (!uiSettings.skillCastAnimations || !skillEl) return;
+            const skillScroll = skillEl.closest('.skillscrollingame');
             if (!skillScroll) return;
             const queueEl = skillScroll.querySelector('.skillqueue');
             if (!queueEl) return;
-            // Reset before measuring
-            skillEl.style.transform = '';
-            const skillRect = skillEl.getBoundingClientRect();
-            const queueRect = queueEl.getBoundingClientRect();
-            const dx = queueRect.left - skillRect.left;
-            const dy = queueRect.top - skillRect.top;
-            skillEl.classList.remove('skill-queue-trail');
-            void skillEl.offsetWidth;
-            skillEl.classList.add('skill-queue-trail');
-            skillEl.style.transform = `translate(${dx}px, ${dy}px)`;
-            window.setTimeout(() => skillEl.classList.remove('skill-queue-trail'), 760);
+
+            if (uiSettings.skillQueueTrail) {
+                // Restore sliding trail logic
+                const prevTransition = skillEl.style.transition;
+                skillEl.style.transition = 'none';
+                skillEl.style.transform = '';
+                
+                const skillRect = skillEl.getBoundingClientRect();
+                const queueRect = queueEl.getBoundingClientRect();
+                const dx = queueRect.left - skillRect.left;
+                const dy = queueRect.top - skillRect.top;
+
+                skillEl.classList.remove('skill-queue-trail');
+                void skillEl.offsetWidth;
+                
+                skillEl.style.transition = prevTransition;
+                skillEl.classList.add('skill-queue-trail');
+                
+                requestAnimationFrame(() => {
+                    skillEl.style.transform = `translate(${dx}px, ${dy}px)`;
+                });
+
+                window.setTimeout(() => {
+                    if (skillEl) {
+                        skillEl.classList.remove('skill-queue-trail');
+                    }
+                }, 760);
+            } else {
+                // New Fade out/in logic
+                skillEl.classList.add('skill-queue-fade-out');
+                
+                queueEl.classList.remove('skill-queue-fade-in');
+                void queueEl.offsetWidth;
+                queueEl.classList.add('skill-queue-fade-in');
+
+                window.setTimeout(() => {
+                    if (skillEl) {
+                        skillEl.classList.remove('skill-queue-fade-out');
+                    }
+                    if (queueEl) {
+                        queueEl.classList.remove('skill-queue-fade-in');
+                    }
+                }, 650);
+            }
         };
 
         const normalizeTargetSelectionList = (selection) => {
@@ -10225,6 +10259,61 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (lastPageButton) {
+        lastPageButton.addEventListener('click', () => {
+            if (currentRosterPage <= 0) return;
+            currentRosterPage -= 1;
+            renderRosterPage();
+        });
+    }
+
+    rosterFilterTabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+            const mode = tab.dataset.rosterFilterMode || 'role';
+            activeRosterFilterMode = mode;
+            activeRosterFilterValue = 'all';
+            rosterFilterTabs.forEach((entry) => entry.classList.toggle('active', entry === tab));
+            applyRosterFilter();
+        });
+    });
+
+    if (rosterFilterSelect) {
+        rosterFilterSelect.addEventListener('change', () => {
+            activeRosterFilterValue = rosterFilterSelect.value || 'all';
+            applyRosterFilter();
+        });
+    }
+
+    await loadMissionLockedCharacterIds();
+    await loadCharacterPlayRates();
+    rebuildRosterDisplayIndices();
+    syncRosterFilterSelect();
+    renderRosterPage();
+    updateGameButtons();
+    persistTeamSelection();
+    applySavedTeam();
+    resumeMatchIfActive();
+    
+    document.body.classList.remove('app-loading', 'app-loading-selection');
+});
+
+            activeRosterFilterValue = rosterFilterSelect.value || 'all';
+            applyRosterFilter();
+        });
+    }
+
+    await loadMissionLockedCharacterIds();
+    await loadCharacterPlayRates();
+    rebuildRosterDisplayIndices();
+    syncRosterFilterSelect();
+    renderRosterPage();
+    updateGameButtons();
+    persistTeamSelection();
+    applySavedTeam();
+    resumeMatchIfActive();
+    
+    document.body.classList.remove('app-loading', 'app-loading-selection');
+});
+if (lastPageButton) {
         lastPageButton.addEventListener('click', () => {
             if (currentRosterPage <= 0) return;
             currentRosterPage -= 1;

@@ -11,6 +11,14 @@ Comic-Arena beta 1.2 expands the mission and in-game experience with special PvE
 - Added in-game match chat with timestamps, quick emoji buttons, unread count, and opponent mute controls.
 - Moved the in-game chat button under the music, SFX, skill FX, and volume controls.
 
+## UI And Targeting Polish (New!)
+
+- **Enhanced Skill Targeting:** Skill icons now appear instantly on character portraits when targeted, providing immediate visual confirmation of your actions.
+- **Visual Feedback:** Active target icons on portraits are now larger and feature a pulsing golden highlight, making it easier to track your queued moves.
+- **Smooth Queue Transitions:** Replaced the legacy sliding skill animation with a high-performance fade-out/fade-in sequence for a significantly snappier and more modern feel.
+- **Transition Toggle:** Added a new "Skill queue trail" option in the UI settings menu, allowing players to choose between the classic sliding trail and the new fade transitions.
+- **Performance Optimizations:** Refactored core UI animations (pulses, transitions) to use hardware-accelerated CSS properties, ensuring smooth performance even in complex battle states.
+
 ## Mission And PvE Updates
 
 - Special PvE missions now preserve their mission metadata on the mission list.

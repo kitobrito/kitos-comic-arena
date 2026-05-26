@@ -2577,6 +2577,15 @@ text-transform: uppercase;
     box-shadow: 0 0 0 1px #111, 0 0 8px rgba(177, 142, 255, 0.9);
 }
 
+.skilltooltipimage.active-target-skill-icon {
+    width: 28px;
+    height: 28px;
+    border-color: #ffd94d;
+    box-shadow: 0 0 0 1px #111, 0 0 10px rgba(255, 217, 77, 0.9);
+    animation: queued-target-icon-pulse 1s ease-in-out infinite;
+    z-index: 21;
+}
+
 .revolver-cylinder {
     display: none;
     position: absolute;
@@ -3267,8 +3276,32 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     animation: skill-blocked-shake 520ms ease both;
 }
 
+.skillimage.skill-queue-fade-out {
+    opacity: 0 !important;
+    transition: opacity 0.32s ease !important;
+}
+
+.skillqueue.skill-queue-fade-in {
+    animation: skill-queue-fade-in 0.45s ease forwards;
+}
+
+@keyframes skill-queue-fade-in {
+    0% {
+        opacity: 0;
+        scale: 0.85;
+        filter: brightness(1.5);
+    }
+    100% {
+        opacity: 1;
+        scale: 1;
+        filter: brightness(1);
+    }
+}
+
 .skillimage.skill-queue-trail {
+    transition: transform 0.48s cubic-bezier(0.18, 0.89, 0.32, 1.28);
     box-shadow: 0 0 18px rgba(255, 236, 89, 0.95), 0 0 30px rgba(255, 91, 46, 0.65);
+    z-index: 1000;
 }
 
 .character-face.skill-caster-surge {
@@ -3918,15 +3951,15 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 
 @keyframes skill-cast-pulse {
     0% {
-        transform: scale(1);
+        scale: 1;
         filter: brightness(1);
     }
     45% {
-        transform: scale(1.12);
+        scale: 1.12;
         filter: brightness(1.45) saturate(1.25);
     }
     100% {
-        transform: scale(1);
+        scale: 1;
         filter: brightness(1);
     }
 }
@@ -4040,6 +4073,7 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     touch-action: manipulation;
     cursor: pointer;
     pointer-events: auto;
+    will-change: transform;
 }
 
 .skill-cooldown-badge {
@@ -7212,22 +7246,22 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 
 @keyframes ricochet-target-pulse {
     0%, 100% {
-        transform: scale(1);
+        scale: 1;
         filter: brightness(1);
     }
     50% {
-        transform: scale(1.18);
+        scale: 1.18;
         filter: brightness(1.3);
     }
 }
 
 @keyframes queued-target-icon-pulse {
     0%, 100% {
-        transform: scale(1);
+        scale: 1;
         filter: brightness(1);
     }
     50% {
-        transform: scale(1.12);
+        scale: 1.12;
         filter: brightness(1.22);
     }
 }
