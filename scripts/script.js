@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const defaultUiSettings = {
         targetFade: true,
         skillCastAnimations: true,
+        skillIconProjectiles: true,
         queuedTargetMarkers: true,
         lowHpPulse: true,
         battleIntro: true,
@@ -100,6 +101,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const applyUiSettings = () => {
         document.body.classList.toggle('ui-disable-target-fade', !uiSettings.targetFade);
         document.body.classList.toggle('ui-disable-skill-cast-animations', !uiSettings.skillCastAnimations);
+        document.body.classList.toggle('ui-disable-skill-icon-projectiles', !uiSettings.skillIconProjectiles);
         document.body.classList.toggle('ui-disable-queued-target-markers', !uiSettings.queuedTargetMarkers);
         document.body.classList.toggle('ui-disable-low-hp-pulse', !uiSettings.lowHpPulse);
         document.body.classList.toggle('ui-disable-custom-cursor', !uiSettings.customCursor);
@@ -2895,7 +2897,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     };
                 })
                 .filter(Boolean);
-            if (!skillHasCustomCastFx(effectiveSkill) || isCaptainShieldProjectile) {
+            if (uiSettings.skillIconProjectiles && (!skillHasCustomCastFx(effectiveSkill) || isCaptainShieldProjectile)) {
                 targets.forEach((targetPoint, index) => {
                     const sourceX = isCaptainShieldThrow && index > 0 ? targets[index - 1].x : initialSourceX;
                     const sourceY = isCaptainShieldThrow && index > 0 ? targets[index - 1].y : initialSourceY;
