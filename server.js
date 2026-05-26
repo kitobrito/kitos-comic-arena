@@ -117,6 +117,7 @@ const DEFAULT_MISSION_CATALOG = [
             botName: 'Walker Herd',
             botTeamCharacterId: 'walker',
             botTeamSize: 3,
+            botMaxQueuedSkillsPerTurn: 1,
             backgroundImage: 'assets/images/walkermissionpic.jpeg',
             playerTeamCharacterIds: [
                 'rick-grimes',
@@ -325,6 +326,7 @@ const DEFAULT_MISSION_CATALOG = [
             botName: 'Rage Outbreak',
             botTeamCharacterId: 'rage-infected',
             botTeamSize: 3,
+            botMaxQueuedSkillsPerTurn: 1,
             backgroundImage: 'assets/images/rageinfectedmissionpic.jpeg',
             playerTeamCharacterIds: [
                 'rick-grimes',
@@ -1281,6 +1283,7 @@ const DEFAULT_MISSION_CATALOG = [
             botName: 'Predator Hunting Party',
             botTeamCharacterId: 'predator-stalker',
             botTeamSize: 3,
+            botMaxQueuedSkillsPerTurn: 2,
             backgroundImage: 'assets/images/predatorstalkermissionpic.jpeg',
             playerTeamCharacterIds: [
                 'space-marine-smartgunner',
@@ -1327,6 +1330,7 @@ const DEFAULT_MISSION_CATALOG = [
             botName: 'Xenomorph Nest',
             botTeamCharacterId: 'xenomorph-drone',
             botTeamSize: 3,
+            botMaxQueuedSkillsPerTurn: 2,
             backgroundImage: 'assets/images/xenomorphdronemissionpic.jpeg',
             playerTeamCharacterIds: [
                 'sergeant-william-hillford',
@@ -1505,6 +1509,7 @@ const DEFAULT_SPECIAL_PVE_BATTLE = {
     botTeamCharacterId: '',
     botTeamSize: 3,
     backgroundImage: '',
+    botMaxQueuedSkillsPerTurn: 1,
 };
 const XENOMORPH_DRONE_SPECIAL_PVE = {
     enabled: true,
@@ -1513,6 +1518,7 @@ const XENOMORPH_DRONE_SPECIAL_PVE = {
     botTeamCharacterId: 'xenomorph-drone',
     botTeamSize: 3,
     backgroundImage: 'assets/images/xenomorphdronemissionpic.jpeg',
+    botMaxQueuedSkillsPerTurn: 2,
     playerTeamCharacterIds: [
         'sergeant-william-hillford',
         'space-marine-infantry',
@@ -2212,6 +2218,13 @@ const normalizeMissionSpecialPve = (source = {}, rewardCharacterId = '') => {
         .map((entry) => normalizeCharacterId(entry))
         .filter(Boolean)
         .slice(0, 3);
+    const rawMaxQueuedSkills =
+        raw.botMaxQueuedSkillsPerTurn ??
+        raw.bot_max_queued_skills_per_turn ??
+        raw.maxQueuedSkillsPerTurn ??
+        raw.max_queued_skills_per_turn ??
+        defaults.botMaxQueuedSkillsPerTurn;
+    const botMaxQueuedSkillsPerTurn = Math.max(1, Math.min(3, Number(rawMaxQueuedSkills) || 1));
     return {
         enabled,
         buttonLabel:
@@ -2228,6 +2241,7 @@ const normalizeMissionSpecialPve = (source = {}, rewardCharacterId = '') => {
                     : defaults.botName,
         botTeamCharacterId,
         botTeamSize,
+        botMaxQueuedSkillsPerTurn,
         backgroundImage:
             normalizedRewardCharacterId === 'xenomorph-drone'
                 ? XENOMORPH_DRONE_SPECIAL_PVE.backgroundImage
@@ -6898,6 +6912,21 @@ const resolveTurnStartChoiceForUser = ({
     match.pendingTurns[username] = pendingTurn;
 };
 
+const getBattleBotMaxQueuedSkillsForMatch = (match = {}) => {
+    const pveMissionId = slugifyMissionId(match.specialPveMissionId || match.pveBattle?.missionId || '');
+    if (!pveMissionId) {
+        return Number.POSITIVE_INFINITY;
+    }
+    const explicitLimit = Number(match.pveBattle?.botMaxQueuedSkillsPerTurn);
+    if (Number.isFinite(explicitLimit) && explicitLimit > 0) {
+        return Math.max(1, Math.min(3, Math.floor(explicitLimit)));
+    }
+    if (pveMissionId === 'predatorstalker' || pveMissionId === 'raid-on-the-xenomorph-hive') {
+        return 2;
+    }
+    return 1;
+};
+
 const runBattleBotTurn = async (matchId) => {
     if (!matchId || activeBattleBotTurns.has(matchId)) {
         return;
@@ -6937,14 +6966,19 @@ const runBattleBotTurn = async (matchId) => {
                 .map((unit, slot) => (unit && unit.alive !== false ? slot : null))
                 .filter((slot) => Number.isInteger(slot))
         );
-        actorSlots.forEach((actorSlot) => {
+        const maxQueuedSkills = getBattleBotMaxQueuedSkillsForMatch(hydrated);
+        let queuedSkills = 0;
+        for (const actorSlot of actorSlots) {
+            if (queuedSkills >= maxQueuedSkills) {
+                break;
+            }
             const actorUnit = hydrated.board?.[username]?.[actorSlot];
             if (!actorUnit || actorUnit.alive === false) {
-                return;
+                continue;
             }
             const actorState = battleLogic.getUnitState(hydrated, username, actorSlot);
             if (battleLogic.isActorUnableToUseSkills(actorState)) {
-                return;
+                continue;
             }
             const character = charactersData?.[actorUnit.rosterIndex];
             const candidate = chooseBattleBotSkillCandidate({
@@ -6956,7 +6990,7 @@ const runBattleBotTurn = async (matchId) => {
                 character,
             });
             if (!candidate) {
-                return;
+                continue;
             }
             try {
                 queueSkillForActorSlot({
@@ -6968,10 +7002,11 @@ const runBattleBotTurn = async (matchId) => {
                     classChoice: candidate.classChoice,
                     absorptionChoice: candidate.absorptionChoice,
                 });
+                queuedSkills += 1;
             } catch (error) {
-                return;
+                continue;
             }
-        });
+        }
 
         assignBattleBotRandomChakra({ match: hydrated, username });
         const updated = await finalizeTurn(hydrated, username);
@@ -9272,6 +9307,10 @@ app.post('/api/missions/:missionId/pve/start', requireSession, async (req, res) 
                     missionId: mission.missionId,
                     rewardCharacterId: normalizeCharacterId(mission.reward_character),
                     botName,
+                    botMaxQueuedSkillsPerTurn: Math.max(
+                        1,
+                        Math.min(3, Number(specialPve.botMaxQueuedSkillsPerTurn) || 1)
+                    ),
                 },
             },
         });
