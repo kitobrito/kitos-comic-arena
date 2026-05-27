@@ -8711,6 +8711,7 @@ module.exports = {
     applyHealToUnit,
     cleanseHarmfulStatuses,
     reviveUnitToHp,
+    applyStatus,
     getTurnStartChoiceTargetOptions,
     selectTurnStartChoiceTarget,
     queueTurnStartChoicePrompts,
