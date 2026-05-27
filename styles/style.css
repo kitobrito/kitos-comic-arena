@@ -2702,10 +2702,10 @@ text-transform: uppercase;
 
 .aquaman-sea-shark-projectile {
     position: absolute;
-    left: -58px;
-    top: 20px;
-    width: 42px;
-    height: 42px;
+    left: -75px;
+    top: 5px;
+    width: 80px;
+    height: 80px;
     z-index: 82;
     pointer-events: none;
     object-fit: contain;
@@ -2799,18 +2799,18 @@ text-transform: uppercase;
 @keyframes aquaman-shark-attack {
     0% {
         opacity: 0;
-        transform: translate(-18px, -18px) rotate(-20deg) scale(0.55);
+        transform: translate(-30px, -30px) rotate(-20deg) scale(0.65);
     }
     18% {
         opacity: 1;
     }
     72% {
         opacity: 1;
-        transform: translate(74px, 13px) rotate(11deg) scale(1.12);
+        transform: translate(110px, 18px) rotate(11deg) scale(1.15);
     }
     100% {
         opacity: 0;
-        transform: translate(86px, 15px) rotate(18deg) scale(0.35);
+        transform: translate(135px, 22px) rotate(18deg) scale(0.4);
     }
 }
 
@@ -5548,8 +5548,8 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     position: absolute;
     left: 50%;
     top: 49%;
-    width: 124px;
-    height: 112px;
+    width: 75px;
+    height: 75px;
     z-index: 76;
     pointer-events: none;
     transform: translate(-50%, -50%) rotate(-2deg);

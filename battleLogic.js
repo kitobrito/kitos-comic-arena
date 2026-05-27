@@ -7325,6 +7325,35 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                 if (ongoingClass === 'action' && (sourceStunned || targetInvulnerable)) return;
                 const baseTurnEndDamage = Math.max(0, Number(status?.metadata?.turnEndDamage) || 0);
                 let turnEndDamage = baseTurnEndDamage;
+
+                if (baseTurnEndDamage > 0) {
+                    actorState.statuses.forEach((s) => {
+                        if (
+                            s &&
+                            (Number(s.remainingTurns) || 0) > 0 &&
+                            s.metadata?.statusTurnEndDamageBonus &&
+                            typeof s.metadata.statusTurnEndDamageBonus === 'object'
+                        ) {
+                            const bonusConfig = s.metadata.statusTurnEndDamageBonus[status.id];
+                            if (bonusConfig) {
+                                if (Number.isFinite(bonusConfig.flat)) {
+                                    turnEndDamage += bonusConfig.flat;
+                                }
+                                if (Number.isFinite(bonusConfig.multiplier)) {
+                                    turnEndDamage *= bonusConfig.multiplier;
+                                }
+                                if (
+                                    Number.isFinite(bonusConfig.flatPerStack) &&
+                                    Number.isFinite(bonusConfig.stackValue)
+                                ) {
+                                    const stacks = baseTurnEndDamage / bonusConfig.stackValue;
+                                    turnEndDamage += stacks * bonusConfig.flatPerStack;
+                                }
+                            }
+                        }
+                    });
+                }
+
                 const turnEndIsAffliction = Boolean(status?.metadata?.afflictionDamage);
                 const fixedTurnEndDamage = Boolean(status?.metadata?.fixedTurnEndDamage);
                 const ignoreSourceNonAfflictionDamageBonus = Boolean(

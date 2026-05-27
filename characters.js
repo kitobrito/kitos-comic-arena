@@ -2621,7 +2621,7 @@ const characters = [
                 "id": "aquaman-trident-strike",
                 "name": "Trident Strike",
                 "skillimage": "https://i.imgur.com/fvvaagh.jpeg",
-                "skilldescription": "Aquaman strikes one enemy with his trident, dealing 17 piercing damage and marking them for 1 turn. If used on a marked enemy, Aquaman also stuns their helpful skills for 1 turn.",
+                "skilldescription": "Aquaman strikes one enemy with his trident, dealing 17 piercing damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn.",
                 "energy": [
                     "Random"
                 ],
@@ -2644,28 +2644,19 @@ const characters = [
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "aquaman_trident_strike_helpful_stun",
-                        "duration": 1,
-                        "scope": "target",
-                        "condition": {
-                            "statusId": "aquaman_trident_strike_mark",
-                            "scope": "target"
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "cannotUseHelpfulSkills": true,
-                            "tooltipText": "This character helpful skills are stunned."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
                         "statusId": "aquaman_trident_strike_mark",
                         "duration": 1,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
                             "skipFirstTurnEndTick": true,
-                            "tooltipText": "This character is marked by Trident Strike."
+                            "statusTurnEndDamageBonus": {
+                                "aquaman_sea_sharks": {
+                                    "flatPerStack": 5,
+                                    "stackValue": 4
+                                }
+                            },
+                            "tooltipText": "This character is marked by Trident Strike and takes 5 bonus damage from each stack of Sea Sharks."
                         }
                     }
                 ]
