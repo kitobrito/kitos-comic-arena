@@ -9365,6 +9365,11 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     .venom-symbiote-tendril,
     .venom-tendril-latch-fx,
     .venom-web-cocoon-fx,
+    .ghost-rider-skull-surge,
+    .ghost-rider-hellfire-breath,
+    .ghost-rider-hellfire-breath-move,
+    .ghost-rider-hellfire-aura,
+    .ghost-rider-chainsaw-slice,
     .negan-iron-overlay,
     .negan-iron-glow,
     .negan-iron-steam,
@@ -9384,4 +9389,8 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     .parasite-absorption-marker {
         animation: none;
     }
+}
+
+@media (max-width: 768px) {
+    .ghost-rider-chainsaw-slice .chainsaw-blade { width: 100px; height: 35px; }
 }

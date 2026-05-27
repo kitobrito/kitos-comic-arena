@@ -11499,13 +11499,13 @@ const characters = [
                 "nameHtml": "Radiant Hope",
                 "skillimage": "https://i.imgur.com/4th9J63.jpeg",
                 "url": "https://i.imgur.com/4th9J63.jpeg",
-                "skilldescription": "Saint Walker marks a target for 1 turn and chooses one effect. After 1 turn, the chosen effect triggers: Grant an ally 20 permanent destructible defense; grant an enemy 15 barrier and increase their skill costs; or make an ally unable to die for 1 turn. This skill is invisible.",
-                "description": "Saint Walker marks a target for 1 turn and chooses one effect. After 1 turn, the chosen effect triggers: Grant an ally 20 permanent destructible defense; grant an enemy 15 barrier and increase their skill costs; or make an ally unable to die for 1 turn. This skill is invisible.",
-                "descriptionHtml": "Saint Walker marks a target for 1 turn and chooses one effect.<br>After 1 turn, the chosen effect triggers:<br>Grant an ally 20 permanent destructible defense.<br>Grant an enemy 15 barrier and increase their skill costs.<br>Make an ally unable to die for 1 turn.<br>This skill is invisible.",
+                "skilldescription": "At the start of your next turn choose one option, then select its target: Grant one ally 20 permanent destructible defense; grant one enemy 15 barrier and increase the cost of their skills while they have this barrier; or make one ally unable to die for 1 turn. This skill is invisible.",
+                "description": "At the start of your next turn choose one option, then select its target: Grant one ally 20 permanent destructible defense; grant one enemy 15 barrier and increase the cost of their skills while they have this barrier; or make one ally unable to die for 1 turn. This skill is invisible.",
+                "descriptionHtml": "At the start of your next turn choose one option, then select its target:<br>Grant one ally 20 permanent destructible defense.<br>Grant one enemy 15 barrier and increase the cost of their skills while they have this barrier.<br>Make one ally unable to die for 1 turn.<br>This skill is invisible.",
                 "energy": [
                     "Ninjutsu"
                 ],
-                "target": "single-character",
+                "target": "self",
                 "damage": 0,
                 "cooldown": 1,
                 "cooldownHtml": "1",
@@ -11516,78 +11516,65 @@ const characters = [
                     "Invisible"
                 ],
                 "classesHtml": "Energy, Ranged, Instant, Invisible",
-                "classChoiceOptions": [
-                    "Defense",
-                    "Barrier",
-                    "Survival"
-                ],
                 "effects": [
                     {
-                        "requiredChosenSkillClass": "Defense",
                         "type": "apply_status",
-                        "statusId": "saint_walker_radiant_hope_mark",
-                        "duration": 1,
-                        "scope": "target",
+                        "statusId": "saint_walker_radiant_hope_active",
+                        "duration": 2,
+                        "scope": "self",
                         "metadata": {
-                            "tooltipText": "Saint Walker will grant this character 20 permanent destructible defense in 1 turn.",
-                            "onExpireEffects": [
+                            "turnStartChoicePromptText": "Select 1 Radiant Hope effect.",
+                            "turnStartChoiceMaxUses": 1,
+                            "turnStartChoiceUsesUsed": 0,
+                            "turnStartChoiceQueued": true,
+                            "turnStartChoiceOptions": [
                                 {
-                                    "type": "apply_status",
-                                    "statusId": "saint_walker_radiant_hope_defense_option",
-                                    "duration": 99,
-                                    "metadata": {
-                                        "destructibleDefensePoints": 20,
-                                        "infiniteDuration": true,
-                                        "tooltipText": "This character has 20 points of permanent destructible defense from Radiant Hope."
+                                    "key": "defense",
+                                    "label": "Grant one ally 20 permanent destructible defense",
+                                    "targetStrategy": "alive-ally-lowest-hp",
+                                    "effect": {
+                                        "type": "apply_status",
+                                        "statusId": "saint_walker_radiant_hope_defense_option",
+                                        "duration": 99,
+                                        "metadata": {
+                                            "destructibleDefensePoints": 20,
+                                            "infiniteDuration": true,
+                                            "tooltipText": "This character has 20 points of permanent destructible defense from Radiant Hope."
+                                        }
+                                    }
+                                },
+                                {
+                                    "key": "barrier",
+                                    "label": "Grant one enemy 15 barrier and increase skill costs",
+                                    "targetStrategy": "alive-enemy-first",
+                                    "effect": {
+                                        "type": "apply_status",
+                                        "statusId": "saint_walker_radiant_hope_barrier_option",
+                                        "duration": 99,
+                                        "metadata": {
+                                            "barrierPoints": 15,
+                                            "randomCostIncrease": 1,
+                                            "infiniteDuration": true,
+                                            "tooltipTextTemplate": "This character has {barrierPoints} barrier from Radiant Hope. Their skills cost 1 additional random energy while this barrier remains."
+                                        }
+                                    }
+                                },
+                                {
+                                    "key": "survival",
+                                    "label": "Make one ally unable to die for 1 turn",
+                                    "targetStrategy": "alive-ally-lowest-hp",
+                                    "effect": {
+                                        "type": "apply_status",
+                                        "statusId": "saint_walker_radiant_hope_survival_option",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "minimumHp": 1,
+                                            "tooltipText": "This character cannot be killed this turn."
+                                        }
                                     }
                                 }
-                            ]
-                        }
-                    },
-                    {
-                        "requiredChosenSkillClass": "Barrier",
-                        "type": "apply_status",
-                        "statusId": "saint_walker_radiant_hope_mark",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "tooltipText": "Saint Walker will grant this character a barrier and increase their skill costs in 1 turn.",
-                            "onExpireEffects": [
-                                {
-                                    "type": "apply_status",
-                                    "statusId": "saint_walker_radiant_hope_barrier_option",
-                                    "duration": 99,
-                                    "metadata": {
-                                        "harmful": true,
-                                        "barrierPoints": 15,
-                                        "randomCostIncrease": 1,
-                                        "infiniteDuration": true,
-                                        "tooltipTextTemplate": "This character has {barrierPoints} barrier from Radiant Hope. Their skills cost 1 additional random energy while this barrier remains."
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "requiredChosenSkillClass": "Survival",
-                        "type": "apply_status",
-                        "statusId": "saint_walker_radiant_hope_mark",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "tooltipText": "Saint Walker will make this character unable to die in 1 turn.",
-                            "onExpireEffects": [
-                                {
-                                    "type": "apply_status",
-                                    "statusId": "saint_walker_radiant_hope_survival_option",
-                                    "duration": 1,
-                                    "metadata": {
-                                        "minimumHp": 1,
-                                        "tooltipText": "This character cannot be killed this turn."
-                                    }
-                                }
-                            ]
+                            ],
+                            "tooltipText": "At the start of your next turn, select 1 Radiant Hope effect."
                         }
                     }
                 ]

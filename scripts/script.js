@@ -3566,6 +3566,49 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.setTimeout(() => wave.remove(), 2600);
         };
 
+        const getCastDeltas = (sourceCard, targetCard) => {
+            const sourceRect = sourceCard.getBoundingClientRect();
+            const targetRect = targetCard.getBoundingClientRect();
+            return {
+                dx: targetRect.left + targetRect.width / 2 - (sourceRect.left + sourceRect.width / 2),
+                dy: targetRect.top + targetRect.height / 2 - (sourceRect.top + sourceRect.height / 2),
+            };
+        };
+
+        const showGhostRiderHellfireChainsFx = ({ actorCard, selection }) => {
+            // Part 1: Skull appears on caster
+            showTemporaryCardFx(actorCard, 'ghost-rider-skull-surge', '', 800);
+
+            // Part 2: Flames to target(s)
+            window.setTimeout(() => {
+                const targetCards = getTargetCardsFromSelection(selection);
+                targetCards.forEach((targetCard) => {
+                    const { dx, dy } = getCastDeltas(actorCard, targetCard);
+                    const flameMove = document.createElement('div');
+                    flameMove.className = 'ghost-rider-hellfire-breath-move';
+                    flameMove.style.setProperty('--cast-dx', `${dx}px`);
+                    flameMove.style.setProperty('--cast-dy', `${dy}px`);
+                    flameMove.innerHTML = '<div class="ghost-rider-hellfire-breath"></div>';
+                    document.body.appendChild(flameMove);
+                    window.setTimeout(() => flameMove.remove(), 1200);
+                });
+                playGeneratedIngameSound('fire-ignite');
+            }, 400);
+        };
+
+        const showGhostRiderSoulConsumptionFx = ({ actorCard, selection }) => {
+            const targetCards = getTargetCardsFromSelection(selection);
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'ghost-rider-chainsaw-slice',
+                    '<div class="chainsaw-blade"></div><div class="slice-line"></div>',
+                    1200
+                );
+            });
+            playGeneratedIngameSound('chainsaw-rev');
+        };
+
         const showDirectionalSkillFx = ({ actorCard, actorSlot, skill, selection }) => {
             const skillId = skill?.id || '';
             const isRedLaser = [
@@ -3608,6 +3651,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isParasiteEnergyTransfer = skillId === 'parasite-energy-transfer';
             const isParasiteHostMutation = skillId === 'parasite-host-mutation';
             const isParasitePredatoryOverload = skillId === 'parasite-predatory-overload';
+            const isGhostRiderHellfireChains = skillId === 'ghost-rider-hellfire-chains';
+            const isGhostRiderPenanceStare = skillId === 'ghost-rider-penance-stare';
+            const isGhostRiderSoulConsumption = skillId === 'ghost-rider-soul-consumption';
             const isGenericLaser = !isRedLaser && !isYellowLaser && skillId.includes('laser');
             if (
                 !isRedLaser &&
@@ -3641,11 +3687,29 @@ document.addEventListener('DOMContentLoaded', async () => {
                 !isParasiteEnergyTransfer &&
                 !isParasiteHostMutation &&
                 !isParasitePredatoryOverload &&
+                !isGhostRiderHellfireChains &&
+                !isGhostRiderPenanceStare &&
+                !isGhostRiderSoulConsumption &&
                 !isGenericLaser
             ) {
                 return;
             }
             const targetCards = getTargetCardsFromSelection(selection);
+            if (isGhostRiderHellfireChains) {
+                showGhostRiderHellfireChainsFx({ actorCard, selection });
+                return;
+            }
+            if (isGhostRiderPenanceStare) {
+                targetCards.forEach((targetCard) => {
+                    showTemporaryCardFx(targetCard, 'damage-impact', '', 600);
+                });
+                playGeneratedIngameSound('death-glare');
+                return;
+            }
+            if (isGhostRiderSoulConsumption) {
+                showGhostRiderSoulConsumptionFx({ actorCard, selection });
+                return;
+            }
             if (isParasiteLifeLeech) {
                 showParasiteLifeLeechFx({ actorCard, selection, targetCards });
                 return;
@@ -5382,6 +5446,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             ].includes(status?.id);
         };
 
+        const syncGhostRiderPersistentFx = (card, statuses = []) => {
+            const hasPenanceStare = statuses.some((s) => s.statusId === 'ghost_rider_penance_stare_debuff');
+            let aura = card.querySelector('.ghost-rider-hellfire-aura');
+            if (hasPenanceStare) {
+                if (!aura) {
+                    aura = document.createElement('div');
+                    aura.className = 'ghost-rider-hellfire-aura';
+                    card.appendChild(aura);
+                }
+            } else if (aura) {
+                aura.remove();
+            }
+        };
+
         const syncGreenGoblinBombMarker = (card, bombActive, animateLob = false) => {
             if (!card) return;
             let marker = card.querySelector('.goblin-bomb-marker');
@@ -5783,6 +5861,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (dead) {
                 syncLanternPassiveAura(card, []);
                 syncGreenGoblinBombMarker(card, false);
+                syncGhostRiderPersistentFx(card, []);
                 tooltipWrap
                     .querySelectorAll('.skilltooltipimage.dynamic-status-icon')
                     .forEach((node) => node.remove());
@@ -5805,6 +5884,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!statuses.length) {
                 syncLanternPassiveAura(card, []);
                 syncGreenGoblinBombMarker(card, false);
+                syncGhostRiderPersistentFx(card, []);
                 tooltipWrap.style.visibility = 'hidden';
                 tooltipImgTemplate.removeAttribute('title');
                 tooltipWrap.classList.remove('has-status');
@@ -5817,6 +5897,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             tooltipWrap.style.visibility = 'visible';
             tooltipWrap.classList.add('has-status');
             syncLanternPassiveAura(card, statuses);
+            syncGhostRiderPersistentFx(card, statuses);
             const groupedStatuses = [];
             const groupByKey = new Map();
             statuses.forEach((status, index) => {
