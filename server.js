@@ -73,7 +73,9 @@ const MAINTENANCE_MODE_CACHE_TTL_MS = 10 * 1000;
 const DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/3JqVcPXm/default.png';
 const LEGACY_DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/zG3W1w6K/itachi.png';
 const MISSION_CATALOG_STATE_KEY = 'missions';
+const BOT_TEAMS_STATE_KEY = 'bot_teams';
 let missionCatalogCache = null;
+let botTeamsCache = null;
 let maintenanceModeCache = {
     enabled: false,
     expiresAt: 0,
@@ -118,7 +120,7 @@ const DEFAULT_MISSION_CATALOG = [
             botTeamCharacterId: 'walker',
             botTeamSize: 3,
             botMaxQueuedSkillsPerTurn: 1,
-            backgroundImage: 'assets/images/walkermissionpic.jpeg',
+            backgroundImage: 'assets/images/WalkerBG.png',
             playerTeamCharacterIds: [
                 'rick-grimes',
                 'andrea',
@@ -327,7 +329,7 @@ const DEFAULT_MISSION_CATALOG = [
             botTeamCharacterId: 'rage-infected',
             botTeamSize: 3,
             botMaxQueuedSkillsPerTurn: 1,
-            backgroundImage: 'assets/images/rageinfectedmissionpic.jpeg',
+            backgroundImage: 'assets/images/RageInfectedBG.png',
             playerTeamCharacterIds: [
                 'rick-grimes',
                 'andrea',
@@ -1284,7 +1286,7 @@ const DEFAULT_MISSION_CATALOG = [
             botTeamCharacterId: 'predator-stalker',
             botTeamSize: 3,
             botMaxQueuedSkillsPerTurn: 2,
-            backgroundImage: 'assets/images/predatorstalkermissionpic.jpeg',
+            backgroundImage: 'assets/images/PredatorStalkerBG.png',
             playerTeamCharacterIds: [
                 'space-marine-smartgunner',
                 'space-marine-infantry',
@@ -1331,7 +1333,7 @@ const DEFAULT_MISSION_CATALOG = [
             botTeamCharacterId: 'xenomorph-drone',
             botTeamSize: 3,
             botMaxQueuedSkillsPerTurn: 2,
-            backgroundImage: 'assets/images/xenomorphdronemissionpic.jpeg',
+            backgroundImage: 'assets/images/XenomorphDroneBG.png',
             playerTeamCharacterIds: [
                 'sergeant-william-hillford',
                 'space-marine-infantry',
@@ -1541,6 +1543,18 @@ const DEFAULT_MISSION_CATALOG = [
     }
 ];
 
+const REGULAR_MATCH_BACKGROUNDS = [
+    'assets/images/NewYorkBG.png',
+    'assets/images/SpeedForceBG.png',
+    'assets/images/gothamcityBG.png',
+    'assets/images/metropolisBG.png',
+    'assets/images/TheWalkingDeadBG.png',
+    'assets/images/AlienBattleBG.png'
+];
+
+const getRandomRegularBackground = () =>
+    REGULAR_MATCH_BACKGROUNDS[Math.floor(Math.random() * REGULAR_MATCH_BACKGROUNDS.length)];
+
 let mongoClient;
 let usersCollection;
 let matchesCollection;
@@ -1572,7 +1586,7 @@ const XENOMORPH_DRONE_SPECIAL_PVE = {
     botName: 'Xenomorph Nest',
     botTeamCharacterId: 'xenomorph-drone',
     botTeamSize: 3,
-    backgroundImage: 'assets/images/xenomorphdronemissionpic.jpeg',
+    backgroundImage: 'assets/images/XenomorphDroneBG.png',
     botMaxQueuedSkillsPerTurn: 2,
     playerTeamCharacterIds: [
         'sergeant-william-hillford',
@@ -2586,6 +2600,63 @@ const saveMissionCatalog = async (missions, updatedBy) => {
 
     missionCatalogCache = normalizedCatalog;
     return normalizedCatalog;
+};
+
+const normalizeBotTeam = (team = {}, index = 0) => {
+    const source = team && typeof team === 'object' ? team : {};
+    const teamId = typeof source.teamId === 'string' && source.teamId.trim()
+        ? source.teamId.trim()
+        : `team-${index + 1}`;
+    const name = typeof source.name === 'string' && source.name.trim()
+        ? source.name.trim()
+        : `Bot Team ${index + 1}`;
+    const characterIds = (Array.isArray(source.characterIds) ? source.characterIds : [])
+        .map((id) => normalizeCharacterId(id))
+        .filter(Boolean)
+        .slice(0, 3);
+    
+    return {
+        teamId,
+        name,
+        characterIds,
+    };
+};
+
+const getStoredBotTeams = async () => {
+    if (botTeamsCache && Array.isArray(botTeamsCache)) {
+        return botTeamsCache;
+    }
+    if (!appStateCollection) {
+        return [];
+    }
+
+    const storedState = await appStateCollection.findOne({ key: BOT_TEAMS_STATE_KEY });
+    const teams = (storedState && Array.isArray(storedState.teams) ? storedState.teams : [])
+        .map((team, index) => normalizeBotTeam(team, index));
+    
+    botTeamsCache = teams;
+    return teams;
+};
+
+const saveBotTeams = async (teams, updatedBy) => {
+    const normalizedTeams = (Array.isArray(teams) ? teams : [])
+        .map((team, index) => normalizeBotTeam(team, index));
+
+    await appStateCollection.updateOne(
+        { key: BOT_TEAMS_STATE_KEY },
+        {
+            $set: {
+                key: BOT_TEAMS_STATE_KEY,
+                teams: normalizedTeams,
+                updatedAt: new Date(),
+                updatedBy: updatedBy || '',
+            },
+        },
+        { upsert: true }
+    );
+
+    botTeamsCache = normalizedTeams;
+    return normalizedTeams;
 };
 
 const getMissionLockedCharacterIds = async () => {
@@ -5649,7 +5720,19 @@ const shuffleList = (items = []) => {
     return next;
 };
 
-const buildBattleBotTeam = () => {
+const buildBattleBotTeam = async () => {
+    const storedTeams = await getStoredBotTeams();
+    if (storedTeams.length > 0) {
+        const team = storedTeams[Math.floor(Math.random() * storedTeams.length)];
+        const indices = team.characterIds
+            .map((id) => getRosterIndexByCharacterId(id))
+            .filter((idx) => idx !== -1);
+        if (indices.length >= 3) {
+            return indices.slice(0, 3);
+        }
+        // Fallback to random if stored team is invalid/incomplete
+    }
+
     const candidates = shuffleList(
         (Array.isArray(charactersData) ? charactersData : [])
             .map((character, rosterIndex) => ({
@@ -6049,7 +6132,7 @@ const buildBattleBotMatch = async ({ username, team, mode, playerProfile }) => {
     const matchId = `match-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const botPlayer = createBattleBotPlayer({
         matchId,
-        team: buildBattleBotTeam(),
+        team: await buildBattleBotTeam(),
         ladderLevel: Number(playerProfile?.ladder?.level) || 1,
     });
     const aliveLookup = {
@@ -6085,6 +6168,7 @@ const buildBattleBotMatch = async ({ username, team, mode, playerProfile }) => {
             enabled: true,
             displayName: GAME_BOT_DISPLAY_NAME,
         },
+        backgroundOverride: getRandomRegularBackground(),
     };
     await matchesCollection.insertOne(matchDocument);
     return matchDocument;
@@ -6125,6 +6209,12 @@ const createMatchDocumentFromTeams = async ({ mode, players, botMatch = null, ex
     if (botMatch) {
         matchDocument.botMatch = botMatch;
     }
+
+    // Assign random background for regular matches if not already set by extraFields (like PvE missions)
+    if (!matchDocument.backgroundOverride && (mode === 'quick' || mode === 'ladder' || mode === 'private')) {
+        matchDocument.backgroundOverride = getRandomRegularBackground();
+    }
+
     await matchesCollection.insertOne(matchDocument);
     return matchDocument;
 };
@@ -6152,7 +6242,7 @@ const maybeCreateBattleBotMatch = async ({ username, mode, userProfile = null })
     if (queued.entry.draftMode) {
         const botPlayer = createBattleBotPlayer({
             matchId: `draft-bot-${Date.now()}`,
-            team: buildBattleBotTeam(),
+            team: await buildBattleBotTeam(),
             ladderLevel: Number(userProfile?.ladder?.level) || 1,
         });
         return createDraftSession({
@@ -8227,7 +8317,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                 { username: opponent.username, team: opponent.team, aliveCount: aliveLookup[opponent.username] },
             ];
             const board = battleLogic.buildInitialBoard(playerDocs);
-            await matchesCollection.insertOne({
+            const matchDocument = {
                 matchId,
                 mode,
                 status: 'active',
@@ -8241,22 +8331,10 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                 turnExpiresAt,
                 board,
                 players: playerDocs,
-            });
-            const createdMatch = {
-                matchId,
-                mode,
-                status: 'active',
-                createdAt: new Date(),
-                matchStartsAt,
-                chakraPools,
-                economy,
-                pendingTurns,
-                currentTurn,
-                turnOrder,
-                turnExpiresAt,
-                board,
-                players: playerDocs,
+                backgroundOverride: getRandomRegularBackground(),
             };
+            await matchesCollection.insertOne(matchDocument);
+            const createdMatch = matchDocument;
             scheduleBattleBotTurn(createdMatch);
             const opponentName = opponent.username;
             return res.json({
@@ -8272,6 +8350,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                 turnExpiresAt,
                 turnDurationMs: getTurnDurationMsForUser({ players: playerDocs, board }, currentTurn),
                 pendingTurn: makeEmptyPendingTurn(),
+                backgroundOverride: matchDocument.backgroundOverride,
             });
         }
 
@@ -9433,6 +9512,45 @@ app.put('/api/admin/missions', requireSession, async (req, res) => {
     } catch (error) {
         console.error('Admin mission catalog save error:', error);
         return res.status(400).json({ error: error.message || 'Unable to save missions.' });
+    }
+});
+
+app.get('/api/admin/bot-teams', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    try {
+        const teams = await getStoredBotTeams();
+        return res.json({
+            ok: true,
+            teams,
+        });
+    } catch (error) {
+        console.error('Admin bot teams load error:', error);
+        return res.status(500).json({ error: 'Unable to load bot teams.' });
+    }
+});
+
+app.put('/api/admin/bot-teams', requireSession, async (req, res) => {
+    if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
+        return res.status(403).json({ error: 'Admin access required.' });
+    }
+
+    const teams = Array.isArray(req.body?.teams) ? req.body.teams : null;
+    if (!teams) {
+        return res.status(400).json({ error: 'Teams are required.' });
+    }
+
+    try {
+        const savedTeams = await saveBotTeams(teams, req.authUser.username);
+        return res.json({
+            ok: true,
+            teams: savedTeams,
+        });
+    } catch (error) {
+        console.error('Admin bot teams save error:', error);
+        return res.status(400).json({ error: error.message || 'Unable to save bot teams.' });
     }
 });
 
