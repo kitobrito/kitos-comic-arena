@@ -1355,8 +1355,11 @@ const applyStatus = ({
             const incomingValue = Number(metadata?.[key]) || 0;
             nextMetadata[key] = previousValue + incomingValue;
         });
-        if (typeof metadata?.stackMetadataKey === 'string' && metadata.stackMetadataKey) {
-            const stackKey = metadata.stackMetadataKey;
+        const stackKey =
+            typeof metadata?.stackMetadataKey === 'string' && metadata.stackMetadataKey
+                ? metadata.stackMetadataKey
+                : '';
+        if (stackKey) {
             const delta = Number(metadata?.stackDelta) || 0;
             const cap = Math.max(1, Number(metadata?.stackMax) || 1);
             const previous = Math.max(0, Number(existing?.metadata?.[stackKey]) || 0);
