@@ -2530,6 +2530,17 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     if (!hasXenomorphMission) {
         catalog.push(normalizeMissionCatalogEntry(XENOMORPH_DRONE_MISSION_ENTRY, catalog.length));
     }
+    const hasGhostRiderMission = catalog.some(
+        (mission) => normalizeCharacterId(mission?.reward_character) === 'ghost-rider'
+    );
+    if (!hasGhostRiderMission) {
+        const ghostRiderMission = DEFAULT_MISSION_CATALOG.find(
+            (m) => normalizeCharacterId(m.reward_character) === 'ghost-rider'
+        );
+        if (ghostRiderMission) {
+            catalog.push(normalizeMissionCatalogEntry(ghostRiderMission, catalog.length));
+        }
+    }
     return normalizeMissionCatalog(catalog);
 };
 

@@ -11499,13 +11499,13 @@ const characters = [
                 "nameHtml": "Radiant Hope",
                 "skillimage": "https://i.imgur.com/4th9J63.jpeg",
                 "url": "https://i.imgur.com/4th9J63.jpeg",
-                "skilldescription": "Marks himself or an ally for 1 turn. When this mark ends, the target gains 20 points of permanent destructible defense. If an enemy used a new skill on them while they were marked, the target becomes unable to be killed for 1 turn. Invisible class.",
-                "description": "Marks himself or an ally for 1 turn. When this mark ends, the target gains 20 points of permanent destructible defense. If an enemy used a new skill on them while they were marked, the target becomes unable to be killed for 1 turn. Invisible class.",
-                "descriptionHtml": "Marks himself or an ally for 1 turn.<br>When this mark ends, the target gains 20 points of permanent destructible defense.<br>If an enemy used a new skill on them while they were marked, the target becomes unable to be killed for 1 turn.<br>Invisible class.",
+                "skilldescription": "At the start of your next turn choose one option, then select its target: Grant one ally 20 permanent destructible defense; grant one enemy 15 barrier and increase the cost of their skills while they have this barrier; or make one ally unable to die for 1 turn. This skill is invisible.",
+                "description": "At the start of your next turn choose one option, then select its target: Grant one ally 20 permanent destructible defense; grant one enemy 15 barrier and increase the cost of their skills while they have this barrier; or make one ally unable to die for 1 turn. This skill is invisible.",
+                "descriptionHtml": "At the start of your next turn choose one option, then select its target:<br>Grant one ally 20 permanent destructible defense.<br>Grant one enemy 15 barrier and increase the cost of their skills while they have this barrier.<br>Make one ally unable to die for 1 turn.<br>This skill is invisible.",
                 "energy": [
                     "Ninjutsu"
                 ],
-                "target": "self-or-single-ally",
+                "target": "self",
                 "damage": 0,
                 "cooldown": 1,
                 "cooldownHtml": "1",
@@ -11519,48 +11519,62 @@ const characters = [
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "saint_walker_radiant_hope_mark",
-                        "duration": 1,
-                        "scope": "target",
+                        "statusId": "saint_walker_radiant_hope_active",
+                        "duration": 2,
+                        "scope": "self",
                         "metadata": {
-                            "onEnemySkillTargetedApplyStatusToOwner": {
-                                "statusId": "saint_walker_radiant_hope_mark",
-                                "duration": 1,
-                                "metadata": {
-                                    "radiantHopeEnemySkillUsed": true
-                                }
-                            },
-                            "onExpireApplyStatusesToSelf": [
+                            "turnStartChoicePromptText": "Select 1 Radiant Hope effect.",
+                            "turnStartChoiceMaxUses": 1,
+                            "turnStartChoiceUsesUsed": 0,
+                            "turnStartChoiceQueued": true,
+                            "turnStartChoiceOptions": [
                                 {
-                                    "statusId": "saint_walker_radiant_hope_defense",
-                                    "duration": 99,
-                                    "metadata": {
-                                        "destructibleDefensePoints": 20,
-                                        "infiniteDuration": true,
-                                        "mergeNumericAddKeys": [
-                                            "destructibleDefensePoints"
-                                        ],
-                                        "tooltipTextTemplate": "This character has {destructibleDefensePoints} permanent destructible defense from Radiant Hope."
+                                    "key": "defense",
+                                    "label": "Grant one ally 20 permanent destructible defense",
+                                    "targetStrategy": "alive-ally-lowest-hp",
+                                    "effect": {
+                                        "type": "apply_status",
+                                        "statusId": "saint_walker_radiant_hope_defense_option",
+                                        "duration": 99,
+                                        "metadata": {
+                                            "destructibleDefensePoints": 20,
+                                            "infiniteDuration": true,
+                                            "tooltipText": "This character has 20 points of permanent destructible defense from Radiant Hope."
+                                        }
                                     }
                                 },
                                 {
-                                    "statusId": "saint_walker_radiant_hope_unkillable",
-                                    "duration": 1,
-                                    "condition": {
-                                        "scope": "self",
-                                        "statusMetadataEquals": {
-                                            "statusId": "saint_walker_radiant_hope_mark",
-                                            "metadataKey": "radiantHopeEnemySkillUsed",
-                                            "value": true
+                                    "key": "barrier",
+                                    "label": "Grant one enemy 15 barrier and increase skill costs",
+                                    "targetStrategy": "alive-enemy-first",
+                                    "effect": {
+                                        "type": "apply_status",
+                                        "statusId": "saint_walker_radiant_hope_barrier_option",
+                                        "duration": 99,
+                                        "metadata": {
+                                            "barrierPoints": 15,
+                                            "randomCostIncrease": 1,
+                                            "infiniteDuration": true,
+                                            "tooltipTextTemplate": "This character has {barrierPoints} barrier from Radiant Hope. Their skills cost 1 additional random energy while this barrier remains."
                                         }
-                                    },
-                                    "metadata": {
-                                        "minimumHp": 1,
-                                        "tooltipText": "This character cannot be killed this turn."
+                                    }
+                                },
+                                {
+                                    "key": "survival",
+                                    "label": "Make one ally unable to die for 1 turn",
+                                    "targetStrategy": "alive-ally-lowest-hp",
+                                    "effect": {
+                                        "type": "apply_status",
+                                        "statusId": "saint_walker_radiant_hope_survival_option",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "minimumHp": 1,
+                                            "tooltipText": "This character cannot be killed this turn."
+                                        }
                                     }
                                 }
                             ],
-                            "tooltipText": "When this mark ends, this character gains 20 permanent destructible defense. If an enemy used a new skill on them while marked, they cannot be killed for 1 turn."
+                            "tooltipText": "At the start of your next turn, select 1 Radiant Hope effect."
                         }
                     }
                 ]
