@@ -1483,6 +1483,61 @@ const DEFAULT_MISSION_CATALOG = [
             playerTeamCharacterIds: []
         },
         sortOrder: 27
+    },
+    {
+        missionId: 'ghost-rider',
+        title: 'Spirit of Vengeance',
+        level_requirement: 5,
+        rank: '5',
+        reward_character: 'ghost-rider',
+        reward_character_name: 'Ghost Rider',
+        reward: 'Unlock Ghost Rider',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: '',
+            character_name: '',
+            wins: 0
+        },
+        image: 'assets/images/ghostridermissionpic.png',
+        imageAlt: 'Ghost Rider mission artwork',
+        characterName: 'Ghost Rider',
+        portrait: 'assets/images/ghostriderfp.png',
+        portraitAlt: 'Ghost Rider portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: 'the-hulk',
+                character_name: 'The Hulk',
+                wins: 5
+            },
+            {
+                type: 'win_matches',
+                character_id: 'spider-man',
+                character_name: 'Spider-Man',
+                wins: 5
+            }
+        ],
+        special_pve: {
+            enabled: true,
+            buttonLabel: 'Trial of Sin',
+            botName: 'The Penitent',
+            botTeamCharacterId: 'ghost-rider',
+            botTeamSize: 1,
+            botMaxQueuedSkillsPerTurn: 1,
+            backgroundImage: 'assets/images/ghostridermissionpic.png',
+            playerTeamCharacterIds: [
+                'the-hulk',
+                'spider-man',
+                'captain-america'
+            ]
+        },
+        sortOrder: 28
     }
 ];
 
