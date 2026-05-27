@@ -4790,8 +4790,7 @@ app.use(
 app.get('/characters.js', (req, res) => {
     res.set('Cache-Control', 'no-store');
     res.type('application/javascript');
-    const latestCharacters = applyCharacterOverrides(loadCharactersDataFromFile());
-    return res.send(serializeCharactersDataFile(latestCharacters));
+    return res.send(serializeCharactersDataFile(Array.isArray(charactersData) ? charactersData : []));
 });
 app.use(express.static(path.join(__dirname)));
 app.use(express.json());
