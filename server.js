@@ -1512,8 +1512,8 @@ const DEFAULT_MISSION_CATALOG = [
         goals: [
             {
                 type: 'win_matches',
-                character_id: 'the-hulk',
-                character_name: 'The Hulk',
+                character_id: 'captain-america',
+                character_name: 'Captain America',
                 wins: 5
             },
             {
