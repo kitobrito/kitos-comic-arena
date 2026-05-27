@@ -2201,18 +2201,36 @@ const resolveSkillClassChoiceForCast = ({ skill, queued }) => {
 
 const materializeEffectWithSkillClassChoice = (effect, chosenSkillClass) => {
     if (!effect || !chosenSkillClass) return effect;
+    if (
+        effect.requiredChosenSkillClass &&
+        normalizeSkillClassName(effect.requiredChosenSkillClass) !== chosenSkillClass
+    ) {
+        return null;
+    }
     const metadata = effect?.metadata && typeof effect.metadata === 'object' ? { ...effect.metadata } : null;
     let next = effect;
     const placeholders = {
         '{selectedSkillClass}': chosenSkillClass,
         '{selectedSkillClassLabel}': formatSkillClassLabel(chosenSkillClass),
     };
-    const replacePlaceholders = (text) => {
-        if (typeof text !== 'string') return text;
-        return Object.entries(placeholders).reduce((result, [token, value]) => {
-            if (!token) return result;
-            return result.split(token).join(value);
-        }, text);
+    const replacePlaceholders = (value) => {
+        if (typeof value === 'string') {
+            return Object.entries(placeholders).reduce((result, [token, replacement]) => {
+                if (!token) return result;
+                return result.split(token).join(replacement);
+            }, value);
+        }
+        if (Array.isArray(value)) {
+            return value.map(replacePlaceholders);
+        }
+        if (value && typeof value === 'object') {
+            const result = {};
+            Object.entries(value).forEach(([key, val]) => {
+                result[key] = replacePlaceholders(val);
+            });
+            return result;
+        }
+        return value;
     };
     if (effect?.useChosenSkillClassForSourceSkillClassesAny) {
         const { useChosenSkillClassForSourceSkillClassesAny, ...rest } = next;
@@ -2233,10 +2251,7 @@ const materializeEffectWithSkillClassChoice = (effect, chosenSkillClass) => {
             delete metadata.useChosenSkillClassForDamageDebuffBySkillClass;
             delete metadata.chosenSkillClassDamageDebuffAmount;
         }
-        if (typeof metadata.tooltipText === 'string') {
-            metadata.tooltipText = replacePlaceholders(metadata.tooltipText);
-        }
-        next = { ...next, metadata };
+        next = { ...next, metadata: replacePlaceholders(metadata) };
     }
     if (typeof next?.statusId === 'string') {
         next = { ...next, statusId: replacePlaceholders(next.statusId) };
@@ -5257,6 +5272,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         const chosenSkillClass = resolveSkillClassChoiceForCast({ skill, queued });
         effects.forEach((rawEffect) => {
             const effect = materializeEffectWithSkillClassChoice(rawEffect, chosenSkillClass);
+            if (!effect) return;
             if (skillCancelledByEvade) return;
             const effectType = effect?.type;
             if (
