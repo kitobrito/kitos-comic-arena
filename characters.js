@@ -591,15 +591,6 @@ const characters = [
         "descriptionHtml": "Bruce Banner lives a life caught between the soft-spoken scientist he's always been and the uncontrollable green monster powered by his rage.<br>Exposed to heavy doses of gamma radiation, scientist Bruce Banner transforms into the mean, green rage machine called the Hulk.",
         "startStatuses": [
             {
-                "statusId": "starting_bonus_health_20",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 20,
-                    "tooltipText": "This character has 20 bonus starting health."
-                }
-            },
-            {
                 "statusId": "hulk_anger_management",
                 "duration": 999,
                 "sourceSkillId": "the-hulk-passive-anger-management",
@@ -997,15 +988,6 @@ const characters = [
         "facePicture": "https://i.imgur.com/7j5pcra.jpeg",
         "characterdeescription": "Captain America serves as a disciplined frontline protector who excels at controlling the pace of battle through precise, well-timed defensive plays. Rather than building long-term power, he focuses on creating short windows of advantage that allow his team to safely pressure the enemy. His abilities provide a versatile mix of disruption and protection—silencing key threats, forcing enemies to target him, and reducing incoming damage at critical moments. With low cooldowns across his kit, he can consistently adapt to the flow of combat and respond to enemy actions in real time.",
         "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_20",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 20,
-                    "tooltipText": "This character has 20 bonus starting health."
-                }
-            },
             {
                 "statusId": "captain_america_america_shield_passive",
                 "sourceSkillId": "captain_america_america_shield_passive2",
@@ -2391,17 +2373,6 @@ const characters = [
         "characterdeescription": "A battle-hardened warrior from Themyscira, Wonder Woman leads the charge with unmatched strength and strategy. On any team, she serves as the frontline powerhouse, able to dish out heavy damage while shielding allies from harm. Her spear and combat prowess allow her to strike key targets relentlessly, while her Lasso of Truth can neutralize the enemy's biggest threats.",
         "description": "A battle-hardened warrior from Themyscira, Wonder Woman leads the charge with unmatched strength and strategy. On any team, she serves as the frontline powerhouse, able to dish out heavy damage while shielding allies from harm. Her spear and combat prowess allow her to strike key targets relentlessly, while her Lasso of Truth can neutralize the enemy's biggest threats.",
         "descriptionHtml": "A battle-hardened warrior from Themyscira, Wonder Woman leads the charge with unmatched strength and strategy.<br>On any team, she serves as the frontline powerhouse, able to dish out heavy damage while shielding allies from harm.<br>Her spear and combat prowess allow her to strike key targets relentlessly, while her Lasso of Truth can neutralize the enemy's biggest threats.",
-        "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_10",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 10,
-                    "tooltipText": "This character has 10 bonus starting health."
-                }
-            }
-        ],
         "skills": [
             {
                 "id": "wonder-woman-spear-thrust",
@@ -2645,17 +2616,6 @@ const characters = [
         "name": "Aquaman",
         "facePicture": "https://i.imgur.com/76Svd5q.jpeg",
         "characterdeescription": "Ruler of Atlantis and master of the oceans, Aquaman dominates the battlefield through relentless pressure and crushing tidal control. Wielding his legendary trident, he marks enemies for punishment, drags them beneath the waves, and unleashes swarms of sea creatures to finish them off. Whether shielding himself with rushing currents or drowning foes in mounting afflictions, Aquaman excels at overwhelming teams that rely on defense or invulnerability.",
-        "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_10",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 10,
-                    "tooltipText": "This character has 10 bonus starting health."
-                }
-            }
-        ],
         "skills": [
             {
                 "id": "aquaman-trident-strike",
@@ -2918,29 +2878,7 @@ const characters = [
         "name": "Storm",
         "facePicture": "https://i.imgur.com/5v5AXWu.png",
         "characterdeescription": "Storm is a support-controller who heals allies over time, removes harmful effects, and disrupts enemy actions. Her abilities reward smart timing and positioning, allowing her to sustain her team while limiting enemy options.",
-        "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_5",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 5,
-                    "tooltipText": "This character has 5 bonus starting health."
-                }
-            }
-        ],
-                "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_5",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 5,
-                    "tooltipText": "This character has 5 bonus starting health."
-                }
-            }
-        ],
-                "skills": [
+        "skills": [
             {
                 "id": "storm-lightning-strike",
                 "name": "Lightning Strike",
@@ -3292,17 +3230,6 @@ const characters = [
         "name": "Venom",
         "facePicture": "https://i.imgur.com/T7RpFwn.png",
         "characterdeescription": "Venom excels as a self-sustaining bruiser who draws aggression, disrupts enemies, and converts his own survival into team advantage. He thrives in the chaos of focus fire, feeding on damage to keep himself standing while forcing enemies to deal with him. His presence is oppressive but calculated—taunting teams into attacking him, isolating threats with precise control, and sustaining through relentless lifesteal. When the tide turns or his body begins to fail, Venom becomes something even more dangerous, sacrificing himself to empower an ally with overwhelming defense and energy. Whether anchoring the front line or enabling a decisive swing, he ensures that ignoring him is never an option—and killing him may be even worse.",
-        "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_20",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 20,
-                    "tooltipText": "This character has 20 bonus starting health."
-                }
-            }
-        ],
         "skills": [
             {
                 "id": "venom-ravenous-bite",
@@ -5080,29 +5007,7 @@ const characters = [
         "name": "Hershel Greene",
         "facePicture": "https://i.imgur.com/6SJSKyY.jpeg",
         "characterdeescription": "A steady hand in the chaos, Hershel Greene keeps his team alive through sheer experience and resolve. Though not a frontline fighter, his medical expertise allows him to stabilize allies, mitigate incoming damage, and even bring the fallen back into the fight. Hershel excels at sustaining his team over extended battles—delaying damage, cleansing afflictions, and turning lethal situations into survivable ones. However, his reliance on timing and limited supplies means every decision matters. Misuse his tools, and his team will crumble. Use them wisely, and they simply won’t die.",
-        "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_5",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 5,
-                    "tooltipText": "This character has 5 bonus starting health."
-                }
-            }
-        ],
-                "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_5",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 5,
-                    "tooltipText": "This character has 5 bonus starting health."
-                }
-            }
-        ],
-                "skills": [
+        "skills": [
             {
                 "id": "hershel-greene-reluctant-bullet",
                 "name": "Reluctant Bullet",
@@ -5385,17 +5290,6 @@ const characters = [
                         }
                     },
                     "tooltipText": "Invincible deals 5 bonus damage every time an ally recieves new non-affliction damage."
-                }
-            }
-        ],
-        "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_10",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 10,
-                    "tooltipText": "This character has 10 bonus starting health."
                 }
             }
         ],
@@ -5955,29 +5849,7 @@ const characters = [
                 }
             }
         ],
-        "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_5",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 5,
-                    "tooltipText": "This character has 5 bonus starting health."
-                }
-            }
-        ],
-                "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_5",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 5,
-                    "tooltipText": "This character has 5 bonus starting health."
-                }
-            }
-        ],
-                "skills": [
+        "skills": [
             {
                 "id": "atom-eve-molecule-crush",
                 "name": "Molecule Crush",
@@ -6201,17 +6073,6 @@ const characters = [
                         }
                     },
                     "tooltipText": "Omni-Man gains 5 additional damage each time he receives new enemy non-affliction damage."
-                }
-            }
-        ],
-        "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_20",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 20,
-                    "tooltipText": "This character has 20 bonus starting health."
                 }
             }
         ],
@@ -6744,17 +6605,6 @@ const characters = [
         "name": "Billy Butcher",
         "facePicture": "https://i.imgur.com/MblvOMD.png",
         "characterdeescription": "Leader of The Boys and driven by a relentless, bloody vendetta against Supes, Billy Butcher is a fierce melee brawler who uses everything from a crowbar to temporary V24 to get the job done. While V24 gives him access to devastating ranged laser attacks, it ravages his body over time, eventually forcing him to rely on the horrific, parasitic tumorous tentacles growing inside him to crush his enemies.",
-        "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_10",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 10,
-                    "tooltipText": "This character has 10 bonus starting health."
-                }
-            }
-        ],
         "skills": [
             {
                 "id": "billy-butcher-crowbar-maim",
@@ -7773,17 +7623,6 @@ const characters = [
         "name": "Sandman",
         "facePicture": "https://i.imgur.com/achNzMq.png",
         "characterdeescription": "Sandman excels at isolating key enemies and forcing them into unfavorable situations, using his shifting form to control engagements and dictate the flow of combat. Rather than overwhelming entire teams, he focuses on a single target—marking them, limiting their effectiveness, and isetting up unavoidable punishment through well-timed ability sequences.",
-        "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_10",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 10,
-                    "tooltipText": "This character has 10 bonus starting health."
-                }
-            }
-        ],
         "skills": [
             {
                 "id": "sandman-sand-body-enter",
@@ -9487,17 +9326,6 @@ const characters = [
         "characterdeescription": "Predalien is a relentless bruiser-disruptor that grows stronger the longer combat continues, combining overwhelming physical aggression with stacking defenses and teamwide pressure. It excels at forcing enemies into unfavorable trades while becoming increasingly difficult to bring down.",
         "description": "Predalien is a relentless bruiser-disruptor that grows stronger the longer combat continues, combining overwhelming physical aggression with stacking defenses and teamwide pressure. It excels at forcing enemies into unfavorable trades while becoming increasingly difficult to bring down.",
         "descriptionHtml": "Predalien is a relentless bruiser-disruptor that grows stronger the longer combat continues, combining overwhelming physical aggression with stacking defenses and teamwide pressure.<br>It excels at forcing enemies into unfavorable trades while becoming increasingly difficult to bring down.",
-        "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_10",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 10,
-                    "tooltipText": "This character has 10 bonus starting health."
-                }
-            }
-        ],
         "skills": [
             {
                 "id": "predalien-tail-ravage",
@@ -9711,17 +9539,6 @@ const characters = [
         "characterdeescription": "Infected with the Rage Virus is a relentless berserker who overwhelms enemies through pain, chaos, and psychological pressure. Using brutal attacks, blindness effects, and self-destructive rage, he punishes opponents for trying to fight back while growing deadlier the longer combat continues. Though vulnerable to sustained focus and burst damage, Rage Infected excels at disrupting enemy coordination and forcing reckless decisions through constant pressure and unpredictable aggression.",
         "description": "Infected with the Rage Virus is a relentless berserker who overwhelms enemies through pain, chaos, and psychological pressure. Using brutal attacks, blindness effects, and self-destructive rage, he punishes opponents for trying to fight back while growing deadlier the longer combat continues. Though vulnerable to sustained focus and burst damage, Rage Infected excels at disrupting enemy coordination and forcing reckless decisions through constant pressure and unpredictable aggression.",
         "descriptionHtml": "Infected with the Rage Virus is a relentless berserker who overwhelms enemies through pain, chaos, and psychological pressure. Using brutal attacks, blindness effects, and self-destructive rage, he punishes opponents for trying to fight back while growing deadlier the longer combat continues. Though vulnerable to sustained focus and burst damage, Rage Infected excels at disrupting enemy coordination and forcing reckless decisions through constant pressure and unpredictable aggression.",
-        "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_10",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 10,
-                    "tooltipText": "This character has 10 bonus starting health."
-                }
-            }
-        ],
         "skills": [
             {
                 "id": "rage-infected-blood-vomit",
@@ -10230,18 +10047,7 @@ const characters = [
                 }
             }
         ],
-        "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_5",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 5,
-                    "tooltipText": "This character has 5 bonus starting health."
-                }
-            }
-        ],
-                "skills": [
+        "skills": [
             {
                 "id": "space-marine-medic-pump-shotgun",
                 "name": "Pump Shotgun",
@@ -11297,17 +11103,6 @@ const characters = [
                 }
             }
         ],
-        "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_10",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 10,
-                    "tooltipText": "This character has 10 bonus starting health."
-                }
-            }
-        ],
         "skills": [
             {
                 "id": "atrocitus-rage-of-ysmault",
@@ -11654,29 +11449,7 @@ const characters = [
                 }
             }
         ],
-        "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_5",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 5,
-                    "tooltipText": "This character has 5 bonus starting health."
-                }
-            }
-        ],
-                "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_5",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 5,
-                    "tooltipText": "This character has 5 bonus starting health."
-                }
-            }
-        ],
-                "skills": [
+        "skills": [
             {
                 "id": "saint-walker-fist-of-hope",
                 "name": "Fist of Hope",
@@ -12035,29 +11808,7 @@ const characters = [
                 }
             }
         ],
-        "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_5",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 5,
-                    "tooltipText": "This character has 5 bonus starting health."
-                }
-            }
-        ],
-                "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_5",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 5,
-                    "tooltipText": "This character has 5 bonus starting health."
-                }
-            }
-        ],
-                "skills": [
+        "skills": [
             {
                 "id": "indigo-1-compassion-staff",
                 "name": "Compassion Staff",
@@ -12998,17 +12749,6 @@ const characters = [
         "name": "Parasite",
         "facePicture": "assets/images/parasiteFP.png",
         "characterdeescription": "Parasite feeds on the life force of others, siphoning vitality and adapting stolen energy into overwhelming power. Weakening enemies while reinforcing himself and allies, he becomes increasingly dangerous the longer he remains active.",
-        "startStatuses": [
-            {
-                "statusId": "starting_bonus_health_20",
-                "duration": 999,
-                "metadata": {
-                    "infiniteDuration": true,
-                    "destructibleDefensePoints": 20,
-                    "tooltipText": "This character has 20 bonus starting health."
-                }
-            }
-        ],
         "skills": [
             {
                 "id": "parasite-life-leech",
@@ -13350,7 +13090,7 @@ const characters = [
                 "id": "ghost-rider-hellfire-chains",
                 "name": "Hellfire Flame",
                 "skillimage": "assets/images/ghostriderhellfireflame.png",
-                "skilldescription": "Ghost Rider lashes out with mystical fire, dealing 10 affliction damage to one enemy and 5 to their allies. Next turn, all affected targets take an additional 5 affliction damage.",
+                "skilldescription": "Ghost Rider lashes out with mystical chains, dealing 10 affliction damage to one enemy and 5 to their allies. Next turn, all affected targets take an additional 5 affliction damage. This skill bypasses invulnerability.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -13359,11 +13099,11 @@ const characters = [
                 "cooldown": 0,
                 "classes": [
                     "Energy",
-                    "Melee",
+                    "Ranged",
                     "Instant",
-                    "Affliction",
-                    "Bypassing"
+                    "Affliction"
                 ],
+                "effects": [
                     {
                         "type": "apply_status",
                         "statusId": "ghost_rider_hellfire_chains_target_marker",
@@ -13423,10 +13163,11 @@ const characters = [
                 "cooldown": 1,
                 "classes": [
                     "Energy",
-                    "Ranged",
+                    "Gaze",
                     "Instant",
-                    "Affliction"
+                    "Control"
                 ],
+                "effects": [
                     {
                         "type": "damage",
                         "amount": 0,
@@ -13528,19 +13269,17 @@ const characters = [
                 "id": "ghost-rider-infernal-ride",
                 "name": "Infernal Ride",
                 "skillimage": "assets/images/ghostriderhellfiretruck.png",
-                "skilldescription": "Ghost Rider traps an enemy in a supernatural high-speed chase. For 2 turns, both are invulnerable to other characters. All other enemies take 5 affliction damage each turn. Ghost Rider ignores stun effects during this time.",
+                "skilldescription": "Ghost Rider traps an enemy in a supernatural high-speed chase. For 2 turns, both are invulnerable to other characters and take 5 affliction damage each turn. Ghost Rider ignores stun effects during this time.",
                 "energy": [
                     "Random",
                     "Random"
-                "energy": [
-                    "Random"
                 ],
                 "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
                 "classes": [
                     "Energy",
-                    "Ranged",
-                    "Instant",
-                    "Affliction"
+                    "Instant"
                 ],
                 "effects": [
                     {
@@ -13552,19 +13291,9 @@ const characters = [
                             "harmful": true,
                             "invulnerable": true,
                             "ignoreInvulnerabilityFromSourceCharacterId": "ghost-rider",
-                            "tooltipText": "This character is in an Infernal Ride with Ghost Rider."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "ghost_rider_infernal_ride_passive_damage",
-                        "duration": 2,
-                        "scope": "all-enemies-except-target",
-                        "metadata": {
-                            "harmful": true,
                             "turnEndDamage": 5,
                             "afflictionDamage": true,
-                            "tooltipText": "This character takes 5 affliction damage from Ghost Rider's Infernal Ride."
+                            "tooltipText": "This character is in an Infernal Ride with Ghost Rider."
                         }
                     },
                     {

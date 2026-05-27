@@ -4366,7 +4366,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             activeCastingSkill = null;
         };
 
-        const MAX_HP = 120;
+        const MAX_HP = 100;
         const HEALTH_BAR_MAX_WIDTH = 75;
         const roundCombatDisplayAmountUp = (amount) => {
             const numericAmount = Number(amount) || 0;
@@ -8501,9 +8501,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const privateMatchCancelButton = document.querySelector('.private-match-cancel');
     const defaultCancelButtonLabel = cancelSearchingButton ? cancelSearchingButton.textContent : '';
     let activeSearchTargetUsername = '';
-    const foundMatchSound = new Audio('assets/audio/SciFIUISounds/Stereo/mp3/JDSherbert - Sci Fi UI SFX Pack - Popup Open - 1.mp3');
-    const skillViewerOpenSound = new Audio('assets/audio/SciFIUISounds/Stereo/mp3/JDSherbert - Sci Fi UI SFX Pack - Swipe - 1.mp3');
-    const skillViewerCloseSound = new Audio('assets/audio/SciFIUISounds/Stereo/mp3/JDSherbert - Sci Fi UI SFX Pack - Swipe - 2.mp3');
+    const foundMatchSound = new Audio('assets/audio/sounds/found-match.mp3');
+    const skillViewerOpenSound = new Audio('assets/audio/sounds/scroll_open.mp3');
+    const skillViewerCloseSound = new Audio('assets/audio/sounds/scroll_close.mp3');
     let matchmakingPoll = null;
     let isSearching = false;
     let pendingMatchRedirect = null;
@@ -10434,13 +10434,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     syncRosterFilterSelect();
     renderRosterPage();
     updateGameButtons();
-    persistTeamSelection();
-    applySavedTeam();
-    resumeMatchIfActive();
-    
-    document.body.classList.remove('app-loading', 'app-loading-selection');
-});
-s();
     persistTeamSelection();
     applySavedTeam();
     resumeMatchIfActive();
