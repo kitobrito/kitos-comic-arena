@@ -13024,7 +13024,7 @@ const characters = [
         "id": "ghost-rider",
         "characterId": "ghost-rider",
         "name": "Ghost Rider",
-        "facePicture": "https://cdn.discordapp.com/attachments/971753063046066266/1133392619016306820/25_75x75.png",
+        "facePicture": "assets/images/ghostriderfp.png",
         "characterdeescription": "Johnathon 'Johnny' Blaze, the Spirit of Vengeance, wields Hellfire and the Penance Stare to punish the wicked. Bound to the demon Zarathos, he hunts those who have spilled innocent blood, forcing them to feel the pain they have caused. With his supernatural motorcycle and mystical chains, Ghost Rider is a relentless force of justice that cannot be escaped.",
         "startStatuses": [
             {
@@ -13074,8 +13074,8 @@ const characters = [
         "skills": [
             {
                 "id": "ghost-rider-hellfire-chains",
-                "name": "Hellfire Chains",
-                "skillimage": "https://cdn.discordapp.com/attachments/971753063046066266/1130183670943199342/10_2_75x75.png",
+                "name": "Hellfire Flame",
+                "skillimage": "assets/images/ghostriderhellfireflame.png",
                 "skilldescription": "Ghost Rider lashes out with mystical chains, dealing 10 affliction damage to one enemy and 5 to their allies. Next turn, all affected targets take an additional 5 affliction damage. This skill bypasses invulnerability.",
                 "energy": [
                     "Genjutsu"
@@ -13139,7 +13139,7 @@ const characters = [
             {
                 "id": "ghost-rider-penance-stare",
                 "name": "Penance Stare",
-                "skillimage": "https://cdn.discordapp.com/attachments/1110383735909654681/1133347648250839091/16_75x75.png",
+                "skillimage": "assets/images/ghostriderpenancestare.png",
                 "skilldescription": "Ghost Rider forces an enemy to experience all the pain they have caused. Deals 0 piercing damage, silences harmful skills, reduces damage by 5, and increases affliction damage taken by 5. For every harmful skill the target has used this game, this skill's damage increases by 10 and its duration increases by 1. Ghost Rider gains 5 permanent unpierceable damage reduction upon use.",
                 "energy": [
                     "Genjutsu"
@@ -13203,8 +13203,8 @@ const characters = [
             },
             {
                 "id": "ghost-rider-soul-consumption",
-                "name": "Soul Consumption",
-                "skillimage": "https://cdn.discordapp.com/attachments/971753063046066266/1130183779235930132/5_3_75x75.png",
+                "name": "Hellfire Chainsaw",
+                "skillimage": "assets/images/ghostriderhellfirechainsaw2.png",
                 "skilldescription": "Consumes the soul of a weakened foe, dealing 35 piercing damage. If the target is affected by 'Infernal Ride' or 'Penance Stare', Ghost Rider steals 35 HP instead.",
                 "energy": [
                     "Genjutsu",
@@ -13254,7 +13254,7 @@ const characters = [
             {
                 "id": "ghost-rider-infernal-ride",
                 "name": "Infernal Ride",
-                "skillimage": "https://cdn.discordapp.com/attachments/1110383735909654681/1133348392932741181/2_3_75x75.png",
+                "skillimage": "assets/images/ghostriderhellfiretruck.png",
                 "skilldescription": "Ghost Rider traps an enemy in a supernatural high-speed chase. For 2 turns, both are invulnerable to other characters and take 5 affliction damage each turn. Ghost Rider ignores stun effects during this time.",
                 "energy": [
                     "Random",
@@ -13294,6 +13294,20 @@ const characters = [
                             "tooltipText": "Ghost Rider is in an Infernal Ride."
                         }
                     }
+                ]
+            },
+            {
+                "id": "ghost-rider-passive-spirit-of-vengeance",
+                "name": "Passive: Spirit of Vengeance",
+                "skillimage": "assets/images/ghostridermotorcycle.png",
+                "skilldescription": "Ghost Rider tracks the sins of every enemy from the start of the match to power up his Penance Stare. He also accumulates permanent damage reduction throughout the fight.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
                 ]
             }
         ],
