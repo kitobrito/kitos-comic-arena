@@ -8364,6 +8364,204 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     }
 }
 
+/* Upgraded Damage Impact (Global) */
+.character-face.damage-impact {
+    animation: damage-impact-enhanced 450ms steps(7) both;
+    background-image: url('../assets/Animations/Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/symmetrical_impact_001/symmetrical_impact_001_large_yellow/spritesheet.png');
+    background-size: 672px 96px;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: absolute;
+    inset: -10px;
+    z-index: 100;
+    filter: drop-shadow(0 0 6px #ffcc00);
+}
+
+@keyframes damage-impact-enhanced {
+    from { background-position: 0 0; opacity: 1; }
+    to { background-position: -576px 0; opacity: 0; }
+}
+
+/* Upgraded Heal Impact (Global) */
+.character-face.heal-impact {
+    animation: heal-impact-enhanced 600ms steps(16) both;
+    background-image: url('../assets/Animations/Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/spell_heal_001/spell_heal_001_large_red/spritesheet.png');
+    background-size: 2048px 128px;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: absolute;
+    inset: -20px;
+    z-index: 100;
+    filter: hue-rotate(140deg) drop-shadow(0 0 8px #00ff88);
+}
+
+@keyframes heal-impact-enhanced {
+    from { background-position: 0 0; opacity: 1; }
+    to { background-position: -1920px 0; opacity: 0; }
+}
+
+/* Global Animation Upgrades */
+
+/* Upgraded Lightning Strike (Storm / Flash) */
+.storm-lightning-strike-enhanced {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 128px;
+    height: 128px;
+    margin-left: -64px;
+    margin-top: -64px;
+    background-image: url('../assets/Animations/Super Pixel Effects Gigapack (Free Version)/spritesheet/Lightning/lightning_strike_001/lightning_strike_001_large_violet/spritesheet.png');
+    background-repeat: no-repeat;
+    background-size: 896px 128px;
+    z-index: 120;
+    pointer-events: none;
+    animation: storm-lightning-strike-anim 600ms steps(7) forwards;
+    filter: drop-shadow(0 0 12px #9d00ff) brightness(1.2);
+}
+
+@keyframes storm-lightning-strike-anim {
+    from { background-position: 0 0; }
+    to { background-position: -896px 0; }
+}
+
+/* Upgraded Wind Gust (Storm) */
+.storm-wind-gust-enhanced {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 64px;
+    height: 64px;
+    margin-left: -32px;
+    margin-top: -32px;
+    background-image: url('../assets/Animations/Super Pixel Effects Gigapack (Free Version)/spritesheet/Smoke Bursts/directional_smoke_burst_001/directional_smoke_burst_001_large_white/spritesheet.png');
+    background-repeat: no-repeat;
+    background-size: 1344px 64px;
+    z-index: 110;
+    pointer-events: none;
+    animation: storm-wind-gust-anim 1000ms steps(21) forwards;
+    filter: drop-shadow(0 0 8px #00e5ff) opacity(0.8);
+    transform: rotate(var(--wind-rot, 0deg)) scale(2);
+}
+
+@keyframes storm-wind-gust-anim {
+    from { background-position: 0 0; }
+    to { background-position: -1344px 0; }
+}
+
+/* Upgraded Blood Splatter (Rick / Negan / Carnage) */
+.blood-splatter-enhanced {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 64px;
+    height: 64px;
+    margin-left: -32px;
+    margin-top: -32px;
+    background-image: url('../assets/Animations/Super Pixel Effects Gigapack (Free Version)/spritesheet/Splatters/burst_splatter_001/burst_splatter_001_large_red/spritesheet.png');
+    background-repeat: no-repeat;
+    background-size: 640px 64px;
+    z-index: 115;
+    pointer-events: none;
+    animation: blood-splatter-anim 700ms steps(10) forwards;
+    filter: drop-shadow(2px 2px 4px rgba(139, 0, 0, 0.8));
+    transform: rotate(var(--splatter-rot, 0deg)) scale(1.5);
+}
+
+@keyframes blood-splatter-anim {
+    from { background-position: 0 0; }
+    to { background-position: -640px 0; }
+}
+
+/* Upgraded Explosion (Joker / Green Goblin / Rex Splode) */
+.explosion-enhanced {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 96px;
+    height: 96px;
+    margin-left: -48px;
+    margin-top: -48px;
+    background-image: url('../assets/Animations/Super Pixel Effects Gigapack (Free Version)/spritesheet/Explosions/stylized_explosion_001/stylized_explosion_001_large_yellow/spritesheet.png');
+    background-repeat: no-repeat;
+    background-size: 864px 96px;
+    z-index: 130;
+    pointer-events: none;
+    animation: explosion-anim 800ms steps(9) forwards;
+    filter: drop-shadow(0 0 10px #ffaa00);
+}
+
+@keyframes explosion-anim {
+    from { background-position: 0 0; }
+    to { background-position: -864px 0; }
+}
+
+/* Upgraded Muzzle Flash (Rick / Andrea / Seraphina) */
+.muzzle-flash-enhanced {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    background-image: url('../assets/Animations/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_muzzle_flash_001/scifi_muzzle_flash_001_large_yellow/spritesheet.png');
+    background-repeat: no-repeat;
+    background-size: 128px 64px;
+    z-index: 125;
+    pointer-events: none;
+    animation: muzzle-flash-anim 200ms steps(4) forwards;
+    filter: drop-shadow(0 0 5px #fff700) brightness(1.5);
+    transform: rotate(var(--flash-rot, 0deg)) scale(2);
+}
+
+@keyframes muzzle-flash-anim {
+    from { background-position: 0 0; }
+    to { background-position: -128px 0; }
+}
+
+/* Upgraded Targeting Alert (Smartgunner) */
+.targeting-alert-enhanced {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 80px;
+    height: 80px;
+    margin-left: -40px;
+    margin-top: -40px;
+    background-image: url('../assets/Animations/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_alert_001/symbol_alert_001_large_red/spritesheet.png');
+    background-repeat: no-repeat;
+    background-size: 1120px 80px;
+    z-index: 105;
+    pointer-events: none;
+    animation: targeting-alert-anim 1000ms steps(14) forwards;
+    filter: drop-shadow(0 0 8px #ff0000);
+}
+
+@keyframes targeting-alert-anim {
+    from { background-position: 0 0; }
+    to { background-position: -1120px 0; }
+}
+
+/* Upgraded Energy Charge (Rex Splode) */
+.energy-charge-enhanced {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 64px;
+    height: 64px;
+    margin-left: -32px;
+    margin-top: -32px;
+    background-image: url('../assets/Animations/Super Pixel Effects Gigapack (Free Version)/spritesheet/Smoke Bursts/symmetrical_smoke_burst_001/symmetrical_smoke_burst_001_large_brown/spritesheet.png');
+    background-repeat: no-repeat;
+    background-size: 640px 64px;
+    z-index: 108;
+    pointer-events: none;
+    animation: energy-charge-anim 800ms steps(10) infinite;
+    filter: hue-rotate(180deg) brightness(1.5) drop-shadow(0 0 6px #ff00ea);
+}
+
+@keyframes energy-charge-anim {
+    from { background-position: 0 0; }
+    to { background-position: -640px 0; }
+}
+
 @keyframes damage-impact {
     0% {
         transform: translateX(0);

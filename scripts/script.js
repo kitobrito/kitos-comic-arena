@@ -2685,6 +2685,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             return null;
         };
 
+        const showMuzzleFlashFx = (card) => {
+            if (!card) return;
+            const rot = Math.floor(Math.random() * 360);
+            showTemporaryCardFx(card, 'muzzle-flash-enhanced', '', 200);
+            const el = card.querySelector('.muzzle-flash-enhanced:last-child');
+            if (el) el.style.setProperty('--flash-rot', `${rot}deg`);
+        };
+
+        const showBloodSplatterFx = (card) => {
+            if (!card) return;
+            const rot = Math.floor(Math.random() * 360);
+            showTemporaryCardFx(card, 'blood-splatter-enhanced', '', 700);
+            const el = card.querySelector('.blood-splatter-enhanced:last-child');
+            if (el) el.style.setProperty('--splatter-rot', `${rot}deg`);
+        };
+
+        const showExplosionFx = (card) => {
+            if (!card) return;
+            showTemporaryCardFx(card, 'explosion-enhanced', '', 800);
+        };
+
         const getTargetForCardFromOptions = (card, options = activeTargetOptions) => {
             if (!card || !options || !Array.isArray(options.targets)) return null;
             const slot = Number.parseInt(card.dataset.slot, 10);
@@ -3108,7 +3129,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const buildSeraphinaBuckshotHtml = () =>
             Array.from({ length: 9 }, (_, index) => `<span class="seraphina-buckshot-pellet pellet-${index + 1}"></span>`).join('');
 
-        const showAndreaSnipeFx = (targetCards = []) => {
+        const showAndreaSnipeFx = ({ actorCard, targetCards = [] }) => {
             const targetCard = targetCards[0];
             if (!targetCard) return;
             const face = targetCard.querySelector('.character-face') || targetCard;
@@ -3121,6 +3142,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.body.appendChild(scope);
             window.setTimeout(() => {
                 playGeneratedIngameSound('sniper-shot');
+                showMuzzleFlashFx(actorCard);
                 showBulletImpactFx(targetCard, 'sniper');
             }, 620);
             window.setTimeout(() => scope.remove(), 1700);
@@ -3173,9 +3195,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!targetCard) return;
                 showTemporaryCardFx(
                     targetCard,
-                    'smartgun-lock-cast-fx',
-                    '<span class="smartgun-lock-ring"></span><span class="smartgun-lock-corner a"></span><span class="smartgun-lock-corner b"></span><span class="smartgun-lock-corner c"></span><span class="smartgun-lock-corner d"></span><span class="smartgun-lock-dot"></span>',
-                    1550
+                    'targeting-alert-enhanced',
+                    '',
+                    1000
                 );
             });
             playGeneratedIngameSound('target-lock');
@@ -3386,8 +3408,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     '<span class="venom-teeth upper-left"></span><span class="venom-teeth upper-right"></span><span class="venom-teeth lower-left"></span><span class="venom-teeth lower-right"></span><span class="venom-bite-goo a"></span><span class="venom-bite-goo b"></span>',
                     1500
                 );
+                showBloodSplatterFx(targetCard);
             });
-            playGeneratedIngameSound('damage');
+            playGeneratedIngameSound('bite-crunch');
         };
 
         const showVenomTendrilConnection = (sourceCard, targetCard, variant = 'pull', duration = 1600) => {
@@ -3655,6 +3678,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isGhostRiderPenanceStare = skillId === 'ghost-rider-penance-stare';
             const isGhostRiderSoulConsumption = skillId === 'ghost-rider-soul-consumption';
             const isGenericLaser = !isRedLaser && !isYellowLaser && skillId.includes('laser');
+            const isJokerExplosion = ['the-joker-bang', 'the-joker-remote-bomb'].includes(skillId);
+            const isGoblinExplosion = ['the-green-goblin-pumpkin-bomb', 'the-green-goblin-carpet-bombing'].includes(skillId);
+            const isRexExplosion = ['rex-splode-explosive-baton', 'rex-splode-explosive-pocket-change', 'rex-splode-floor-detonation', 'rex-splode-explosive-debris'].includes(skillId);
             if (
                 !isRedLaser &&
                 !isYellowLaser &&
@@ -3690,6 +3716,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 !isGhostRiderHellfireChains &&
                 !isGhostRiderPenanceStare &&
                 !isGhostRiderSoulConsumption &&
+                !isJokerExplosion &&
+                !isGoblinExplosion &&
+                !isRexExplosion &&
                 !isGenericLaser
             ) {
                 return;
@@ -3709,6 +3738,48 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (isGhostRiderSoulConsumption) {
                 showGhostRiderSoulConsumptionFx({ actorCard, selection });
                 return;
+            }
+            if (isJokerExplosion || isGoblinExplosion || isRexExplosion) {
+                targetCards.forEach((targetCard) => showExplosionFx(targetCard));
+                if (isJokerExplosion) playGeneratedIngameSound('explosion-laugh');
+                else playGeneratedIngameSound('explosion');
+                return;
+            }
+            if (isAndreaQuickShot) {
+                playGeneratedIngameSound('quick-shot');
+                showMuzzleFlashFx(actorCard);
+                targetCards.forEach((targetCard) => showBulletImpactFx(targetCard, 'quick'));
+                return;
+            }
+            if (isRickRevolver) {
+                playGeneratedIngameSound('revolver');
+                showMuzzleFlashFx(actorCard);
+                targetCards.forEach((targetCard) => showBulletImpactFx(targetCard, 'revolver'));
+                return;
+            }
+            if (isSeraphinaShotgun) {
+                playGeneratedIngameSound('shotgun');
+                showMuzzleFlashFx(actorCard);
+                targetCards.forEach((targetCard) => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        'seraphina-buckshot-impact-fx burst',
+                        buildSeraphinaBuckshotHtml(),
+                        2100
+                    );
+                });
+                return;
+            }
+            if (isRickThroatSlit || isNeganYouGotNoGuts) {
+                showKnifeWoundFx(targetCards, isRickThroatSlit ? 'throat' : 'gut');
+                targetCards.forEach((targetCard) => showBloodSplatterFx(targetCard));
+                return;
+            }
+            if (isCarnageBloodSlash || isCarnageWideAreaCutting || isCarnageBrainDevour) {
+                targetCards.forEach((targetCard) => showBloodSplatterFx(targetCard));
+                if (isCarnageBrainDevour) playGeneratedIngameSound('bite-crunch');
+                else playGeneratedIngameSound('slash');
+                // Allow it to fall through if other effects are chained, otherwise it's just blood
             }
             if (isParasiteLifeLeech) {
                 showParasiteLifeLeechFx({ actorCard, selection, targetCards });
@@ -3795,21 +3866,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
             if (isAndreaSnipe) {
-                showAndreaSnipeFx(targetCards);
+                showAndreaSnipeFx({ actorCard, targetCards });
                 return;
             }
             if (isAndreaQuickShot) {
                 playGeneratedIngameSound('quick-shot');
+                showMuzzleFlashFx(actorCard);
                 targetCards.forEach((targetCard) => showBulletImpactFx(targetCard, 'quick'));
                 return;
             }
             if (isRickRevolver) {
                 playGeneratedIngameSound('revolver');
+                showMuzzleFlashFx(actorCard);
                 targetCards.forEach((targetCard) => showBulletImpactFx(targetCard, 'revolver'));
                 return;
             }
             if (isSeraphinaShotgun) {
                 playGeneratedIngameSound('shotgun');
+                showMuzzleFlashFx(actorCard);
                 targetCards.forEach((targetCard) => {
                     showTemporaryCardFx(targetCard, 'seraphina-buckshot-impact-fx burst', buildSeraphinaBuckshotHtml(), 2100);
                 });
@@ -3817,6 +3891,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (isRickThroatSlit) {
                 showKnifeWoundFx(targetCards, 'throat');
+                targetCards.forEach((targetCard) => showBloodSplatterFx(targetCard));
                 return;
             }
             if (isNeganAlreadyFucked) {
@@ -3825,6 +3900,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (isNeganYouGotNoGuts) {
                 showKnifeWoundFx(targetCards, 'gut');
+                targetCards.forEach((targetCard) => showBloodSplatterFx(targetCard));
                 return;
             }
             if (isGenericLaser) {
@@ -3866,12 +3942,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (!unit || isUnitDeadLike(unit)) return;
                     const targetCard = getCardByUsernameSlot(currentOpponentUsername || '', slot);
                     if (!targetCard) return;
-                    showTemporaryCardFx(
-                        targetCard,
-                        'storm-lightning-fx',
-                        '<span class="storm-lightning-cloud"></span><span class="storm-lightning-bolt"></span>',
-                        1900
-                    );
+                    showTemporaryCardFx(targetCard, 'storm-lightning-strike-enhanced', '', 600);
                 });
                 return;
             }
@@ -3881,20 +3952,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!targetCard) return;
                 if (skillId.startsWith('storm-lightning-strike')) {
                     playGeneratedIngameSound('lightning');
-                    showTemporaryCardFx(
-                        targetCard,
-                        'storm-lightning-fx',
-                        '<span class="storm-lightning-cloud"></span><span class="storm-lightning-bolt"></span>',
-                        1900
-                    );
+                    showTemporaryCardFx(targetCard, 'storm-lightning-strike-enhanced', '', 600);
                 } else if (skillId.startsWith('storm-wind-funnel')) {
                     playGeneratedIngameSound('wind');
-                    showTemporaryCardFx(
-                        targetCard,
-                        'storm-wind-fx',
-                        '<span></span><span></span><span></span>',
-                        1900
-                    );
+                    const rot = Math.floor(Math.random() * 360);
+                    showTemporaryCardFx(targetCard, 'storm-wind-gust-enhanced', '', 1000);
+                    const el = targetCard.querySelector('.storm-wind-gust-enhanced:last-child');
+                    if (el) el.style.setProperty('--wind-rot', `${rot}deg`);
                 }
             });
         };
