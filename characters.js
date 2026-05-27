@@ -13019,6 +13019,287 @@ const characters = [
         "role": "Adaptive Drain Tank / Adaptive Stat Vampire",
         "universe": "dc",
         "roleCategory": "tank"
+    },
+    {
+        "id": "ghost-rider",
+        "characterId": "ghost-rider",
+        "name": "Ghost Rider",
+        "facePicture": "https://cdn.discordapp.com/attachments/971753063046066266/1133392619016306820/25_75x75.png",
+        "characterdeescription": "Johnathon 'Johnny' Blaze, the Spirit of Vengeance, wields Hellfire and the Penance Stare to punish the wicked. Bound to the demon Zarathos, he hunts those who have spilled innocent blood, forcing them to feel the pain they have caused. With his supernatural motorcycle and mystical chains, Ghost Rider is a relentless force of justice that cannot be escaped.",
+        "startStatuses": [
+            {
+                "statusId": "ghost_rider_vengeance_tracker",
+                "duration": 999,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "drBonus": 0,
+                    "unpierceableDamageReductionFlatPerStatusMetadataKey": "drBonus",
+                    "unpierceableDamageReductionFlatPerStatusMetadataStep": 1,
+                    "unpierceableDamageReductionFlatPerStatusMetadataAmount": 1,
+                    "tooltipTextTemplate": "Ghost Rider has {drBonus} bonus unpierceable damage reduction from his Penance Stare."
+                }
+            },
+            {
+                "statusId": "ghost_rider_sin_manager",
+                "duration": 999,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "hideTooltip": true,
+                    "turnEndApplyStatusToEnemies": [
+                        {
+                            "statusId": "ghost_rider_sin_tracker",
+                            "duration": 999,
+                            "metadata": {
+                                "infiniteDuration": true,
+                                "harmfulUsed": 0,
+                                "onOwnerUseSkillTrigger": true,
+                                "onOwnerUseSkillHarmfulOnly": true,
+                                "persistOnOwnerUseSkillTrigger": true,
+                                "onOwnerUseSkillApplyStatusToOwner": {
+                                    "statusId": "ghost_rider_sin_tracker",
+                                    "duration": 999,
+                                    "metadata": {
+                                        "stackMetadataKey": "harmfulUsed",
+                                        "stackDelta": 1,
+                                        "infiniteDuration": true,
+                                        "tooltipTextTemplate": "This character has used {harmfulUsed} harmful skills this game, feeding the Spirit of Vengeance."
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "ghost-rider-hellfire-chains",
+                "name": "Hellfire Chains",
+                "skillimage": "https://cdn.discordapp.com/attachments/971753063046066266/1130183670943199342/10_2_75x75.png",
+                "skilldescription": "Ghost Rider lashes out with mystical chains, dealing 10 affliction damage to one enemy and 5 to their allies. Next turn, all affected targets take an additional 5 affliction damage. This skill bypasses invulnerability.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "ghost_rider_hellfire_chains_target_marker",
+                        "duration": 0,
+                        "scope": "target",
+                        "metadata": {
+                            "hideTooltip": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreInvulnerability": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "all-enemy",
+                        "condition": {
+                            "scope": "target",
+                            "missingStatusId": "ghost_rider_hellfire_chains_target_marker"
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreInvulnerability": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "ghost_rider_hellfire_chains_burn",
+                        "duration": 1,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "turnEndDamage": 5,
+                            "afflictionDamage": true,
+                            "ignoreInvulnerability": true,
+                            "tooltipText": "This character is burning and will take 5 affliction damage next turn."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "ghost-rider-penance-stare",
+                "name": "Penance Stare",
+                "skillimage": "https://cdn.discordapp.com/attachments/1110383735909654681/1133347648250839091/16_75x75.png",
+                "skilldescription": "Ghost Rider forces an enemy to experience all the pain they have caused. Deals 0 piercing damage, silences harmful skills, reduces damage by 5, and increases affliction damage taken by 5. For every harmful skill the target has used this game, this skill's damage increases by 10 and its duration increases by 1. Ghost Rider gains 5 permanent unpierceable damage reduction upon use.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Energy",
+                    "Gaze",
+                    "Instant",
+                    "Control"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 0,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "bonusPerStatusMetadata": {
+                                "statusId": "ghost_rider_sin_tracker",
+                                "metadataKey": "harmfulUsed",
+                                "multiplier": 10,
+                                "scope": "target"
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "ghost_rider_penance_stare_debuff",
+                        "duration": 1,
+                        "scope": "target",
+                        "durationFromStatusMetadata": {
+                            "statusId": "ghost_rider_sin_tracker",
+                            "metadataKey": "harmfulUsed",
+                            "multiplier": 1,
+                            "scope": "target",
+                            "minimum": 1
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseHarmfulSkills": true,
+                            "damageDebuffFlat": 5,
+                            "afflictionDamageTakenBonusFlat": 5,
+                            "tooltipText": "This character is suffering from Penance Stare. They cannot use harmful skills and take increased affliction damage."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "ghost_rider_vengeance_tracker",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "stackMetadataKey": "drBonus",
+                            "stackDelta": 5
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "ghost-rider-soul-consumption",
+                "name": "Soul Consumption",
+                "skillimage": "https://cdn.discordapp.com/attachments/971753063046066266/1130183779235930132/5_3_75x75.png",
+                "skilldescription": "Consumes the soul of a weakened foe, dealing 35 piercing damage. If the target is affected by 'Infernal Ride' or 'Penance Stare', Ghost Rider steals 35 HP instead.",
+                "energy": [
+                    "Genjutsu",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Energy",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "missingStatusIdsAny": [
+                                "ghost_rider_penance_stare_debuff",
+                                "ghost_rider_infernal_ride_active"
+                            ]
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusIdsAny": [
+                                "ghost_rider_penance_stare_debuff",
+                                "ghost_rider_infernal_ride_active"
+                            ]
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "steal": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "ghost-rider-infernal-ride",
+                "name": "Infernal Ride",
+                "skillimage": "https://cdn.discordapp.com/attachments/1110383735909654681/1133348392932741181/2_3_75x75.png",
+                "skilldescription": "Ghost Rider traps an enemy in a supernatural high-speed chase. For 2 turns, both are invulnerable to other characters and take 5 affliction damage each turn. Ghost Rider ignores stun effects during this time.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Energy",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "ghost_rider_infernal_ride_active",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "invulnerable": true,
+                            "ignoreInvulnerabilityFromSourceCharacterId": "ghost-rider",
+                            "turnEndDamage": 5,
+                            "afflictionDamage": true,
+                            "tooltipText": "This character is in an Infernal Ride with Ghost Rider."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "ghost_rider_infernal_ride_self",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "ignoreEnemyInvulnerability": true,
+                            "ignoreStun": true,
+                            "tooltipText": "Ghost Rider is in an Infernal Ride."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Scaling Bruiser / Assassin",
+        "universe": "marvel",
+        "roleCategory": "damage"
     }
 ];
 
