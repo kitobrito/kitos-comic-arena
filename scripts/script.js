@@ -3599,16 +3599,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const showGhostRiderHellfireChainsFx = ({ actorCard, selection }) => {
-            // Part 1: Skull appears on caster
             showTemporaryCardFx(actorCard, 'ghost-rider-skull-surge', '', 800);
 
-            // Part 2: Flames to target(s)
             window.setTimeout(() => {
                 const targetCards = getTargetCardsFromSelection(selection);
                 targetCards.forEach((targetCard) => {
                     const { dx, dy } = getCastDeltas(actorCard, targetCard);
+                    const source = getCardCenterPoint(actorCard);
                     const flameMove = document.createElement('div');
                     flameMove.className = 'ghost-rider-hellfire-breath-move';
+                    if (source) {
+                        flameMove.style.left = `${source.x - 32}px`;
+                        flameMove.style.top = `${source.y - 32}px`;
+                    }
                     flameMove.style.setProperty('--cast-dx', `${dx}px`);
                     flameMove.style.setProperty('--cast-dy', `${dy}px`);
                     flameMove.innerHTML = '<div class="ghost-rider-hellfire-breath"></div>';
@@ -3630,6 +3633,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 );
             });
             playGeneratedIngameSound('chainsaw-rev');
+        };
+
+        const showGhostRiderInfernalRideFx = ({ actorCard, selection }) => {
+            showTemporaryCardFx(actorCard, 'ghost-rider-infernal-ride-cast', '', 1100);
+            getTargetCardsFromSelection(selection).forEach((targetCard) => {
+                showTemporaryCardFx(targetCard, 'ghost-rider-infernal-ride-impact', '', 1100);
+            });
+            playGeneratedIngameSound('fire-ignite');
         };
 
         const showDirectionalSkillFx = ({ actorCard, actorSlot, skill, selection }) => {
@@ -3677,6 +3688,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isGhostRiderHellfireChains = skillId === 'ghost-rider-hellfire-chains';
             const isGhostRiderPenanceStare = skillId === 'ghost-rider-penance-stare';
             const isGhostRiderSoulConsumption = skillId === 'ghost-rider-soul-consumption';
+            const isGhostRiderInfernalRide = skillId === 'ghost-rider-infernal-ride';
             const isGenericLaser = !isRedLaser && !isYellowLaser && skillId.includes('laser');
             const isJokerExplosion = ['the-joker-bang', 'the-joker-remote-bomb'].includes(skillId);
             const isGoblinExplosion = ['the-green-goblin-pumpkin-bomb', 'the-green-goblin-carpet-bombing'].includes(skillId);
@@ -3716,6 +3728,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 !isGhostRiderHellfireChains &&
                 !isGhostRiderPenanceStare &&
                 !isGhostRiderSoulConsumption &&
+                !isGhostRiderInfernalRide &&
                 !isJokerExplosion &&
                 !isGoblinExplosion &&
                 !isRexExplosion &&
@@ -3737,6 +3750,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (isGhostRiderSoulConsumption) {
                 showGhostRiderSoulConsumptionFx({ actorCard, selection });
+                return;
+            }
+            if (isGhostRiderInfernalRide) {
+                showGhostRiderInfernalRideFx({ actorCard, selection });
                 return;
             }
             if (isJokerExplosion || isGoblinExplosion || isRexExplosion) {
@@ -5511,7 +5528,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const syncGhostRiderPersistentFx = (card, statuses = []) => {
-            const hasPenanceStare = statuses.some((s) => s.statusId === 'ghost_rider_penance_stare_debuff');
+            const hasPenanceStare = statuses.some((s) => s?.id === 'ghost_rider_penance_stare_debuff' || s?.statusId === 'ghost_rider_penance_stare_debuff');
             let aura = card.querySelector('.ghost-rider-hellfire-aura');
             if (hasPenanceStare) {
                 if (!aura) {

@@ -13090,7 +13090,7 @@ const characters = [
                 "id": "ghost-rider-hellfire-chains",
                 "name": "Hellfire Flame",
                 "skillimage": "assets/images/ghostriderhellfireflame.png",
-                "skilldescription": "Ghost Rider lashes out with mystical chains, dealing 10 affliction damage to one enemy and 5 to their allies. Next turn, all affected targets take an additional 5 affliction damage. This skill bypasses invulnerability.",
+                "skilldescription": "Ghost Rider unleashes hellfire on one enemy, dealing 10 affliction damage to them and 5 affliction damage to all other enemies. All enemies burn for 5 affliction damage for 2 turns. This skill bypasses invulnerability.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -13105,15 +13105,6 @@ const characters = [
                 ],
                 "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "ghost_rider_hellfire_chains_target_marker",
-                        "duration": 0,
-                        "scope": "target",
-                        "metadata": {
-                            "hideTooltip": true
-                        }
-                    },
-                    {
                         "type": "damage",
                         "amount": 10,
                         "scope": "target",
@@ -13125,11 +13116,7 @@ const characters = [
                     {
                         "type": "damage",
                         "amount": 5,
-                        "scope": "all-enemy",
-                        "condition": {
-                            "scope": "target",
-                            "missingStatusId": "ghost_rider_hellfire_chains_target_marker"
-                        },
+                        "scope": "other-enemies",
                         "metadata": {
                             "afflictionDamage": true,
                             "ignoreInvulnerability": true
@@ -13138,14 +13125,14 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "ghost_rider_hellfire_chains_burn",
-                        "duration": 1,
+                        "duration": 2,
                         "scope": "all-enemy",
                         "metadata": {
                             "harmful": true,
                             "turnEndDamage": 5,
                             "afflictionDamage": true,
                             "ignoreInvulnerability": true,
-                            "tooltipText": "This character is burning and will take 5 affliction damage next turn."
+                            "tooltipText": "This character is burning and will take 5 affliction damage each turn."
                         }
                     }
                 ]
@@ -13163,9 +13150,8 @@ const characters = [
                 "cooldown": 1,
                 "classes": [
                     "Energy",
-                    "Gaze",
-                    "Instant",
-                    "Control"
+                    "Ranged",
+                    "Instant"
                 ],
                 "effects": [
                     {
@@ -13219,7 +13205,7 @@ const characters = [
                 "id": "ghost-rider-soul-consumption",
                 "name": "Hellfire Chainsaw",
                 "skillimage": "assets/images/ghostriderhellfirechainsaw2.png",
-                "skilldescription": "Consumes the soul of a weakened foe, dealing 35 piercing damage. If the target is affected by 'Infernal Ride' or 'Penance Stare', Ghost Rider steals 35 HP instead.",
+                "skilldescription": "Ghost Rider tears into a weakened foe with a hellfire chainsaw, dealing 35 piercing damage. If the target is affected by 'Infernal Ride' or 'Penance Stare', Ghost Rider steals 35 HP instead.",
                 "energy": [
                     "Genjutsu",
                     "Random"
@@ -13229,7 +13215,9 @@ const characters = [
                 "cooldown": 1,
                 "classes": [
                     "Energy",
-                    "Instant"
+                    "Melee",
+                    "Instant",
+                    "Affliction"
                 ],
                 "effects": [
                     {
@@ -13269,7 +13257,7 @@ const characters = [
                 "id": "ghost-rider-infernal-ride",
                 "name": "Infernal Ride",
                 "skillimage": "assets/images/ghostriderhellfiretruck.png",
-                "skilldescription": "Ghost Rider traps an enemy in a supernatural high-speed chase. For 2 turns, both are invulnerable to other characters and take 5 affliction damage each turn. Ghost Rider ignores stun effects during this time.",
+                "skilldescription": "Ghost Rider traps an enemy in a supernatural high-speed chase and deals 5 affliction damage to all other enemies. For 2 turns, Ghost Rider and the target are invulnerable to other characters, and the target takes 5 affliction damage each turn. Ghost Rider ignores stun effects during this time.",
                 "energy": [
                     "Random",
                     "Random"
@@ -13279,9 +13267,18 @@ const characters = [
                 "cooldown": 3,
                 "classes": [
                     "Energy",
+                    "Melee",
                     "Instant"
                 ],
                 "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "other-enemies",
+                        "metadata": {
+                            "afflictionDamage": true
+                        }
+                    },
                     {
                         "type": "apply_status",
                         "statusId": "ghost_rider_infernal_ride_active",

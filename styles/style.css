@@ -254,6 +254,9 @@ h1, h2, h3 {
 
 .background {
     background-image: url('../assets/images/selectionbg.png');
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
     width: 770px;
     height: 560px;
     position: relative;
@@ -333,6 +336,15 @@ h1, h2, h3 {
 body.skill-effects-muted .skill-cast-projectile,
 body.skill-effects-muted .status-apply-burst,
 body.skill-effects-muted .combat-energy-beam,
+body.skill-effects-muted .damage-impact,
+body.skill-effects-muted .heal-impact,
+body.skill-effects-muted .storm-lightning-strike-enhanced,
+body.skill-effects-muted .storm-wind-gust-enhanced,
+body.skill-effects-muted .blood-splatter-enhanced,
+body.skill-effects-muted .explosion-enhanced,
+body.skill-effects-muted .muzzle-flash-enhanced,
+body.skill-effects-muted .targeting-alert-enhanced,
+body.skill-effects-muted .energy-charge-enhanced,
 body.skill-effects-muted .superman-solar-flare-screen-fx,
 body.skill-effects-muted .andrea-sniper-board-fx,
 body.skill-effects-muted .bullet-hole-impact-fx,
@@ -364,6 +376,13 @@ body.skill-effects-muted .venom-bite-crunch-fx,
 body.skill-effects-muted .venom-symbiote-tendril,
 body.skill-effects-muted .venom-tendril-latch-fx,
 body.skill-effects-muted .venom-web-cocoon-fx,
+body.skill-effects-muted .ghost-rider-skull-surge,
+body.skill-effects-muted .ghost-rider-hellfire-breath,
+body.skill-effects-muted .ghost-rider-hellfire-breath-move,
+body.skill-effects-muted .ghost-rider-hellfire-aura,
+body.skill-effects-muted .ghost-rider-chainsaw-slice,
+body.skill-effects-muted .ghost-rider-infernal-ride-cast,
+body.skill-effects-muted .ghost-rider-infernal-ride-impact,
 body.skill-effects-muted .negan-iron-slam-fx,
 body.skill-effects-muted .negan-iron-rip-away-fx,
 body.skill-effects-muted .xenomorph-facehugger-overlay,
@@ -2031,6 +2050,9 @@ text-transform: uppercase;
 
 .backgroundingame {
     background-image: url('../assets/images/ingamebg.png');
+    background-size: 100% 100%;
+    background-position: center;
+    background-repeat: no-repeat;
     width: 770px;
     height: 560px;
     position: relative;
@@ -8367,7 +8389,7 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 /* Upgraded Damage Impact (Global) */
 .character-face.damage-impact {
     animation: damage-impact-enhanced 450ms steps(7) both;
-    background-image: url('../assets/Animations/Super Pixel Effects Gigapack (Free Version)/spritesheet/Impacts/symmetrical_impact_001/symmetrical_impact_001_large_yellow/spritesheet.png');
+    background-image: url('../assets/Animations/spritesheet/Impacts/symmetrical_impact_001/symmetrical_impact_001_large_yellow/spritesheet.png');
     background-size: 672px 96px;
     background-repeat: no-repeat;
     background-position: center;
@@ -8385,7 +8407,7 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 /* Upgraded Heal Impact (Global) */
 .character-face.heal-impact {
     animation: heal-impact-enhanced 600ms steps(16) both;
-    background-image: url('../assets/Animations/Super Pixel Effects Gigapack (Free Version)/spritesheet/Fantasy Spells/spell_heal_001/spell_heal_001_large_red/spritesheet.png');
+    background-image: url('../assets/Animations/spritesheet/Fantasy Spells/spell_heal_001/spell_heal_001_large_red/spritesheet.png');
     background-size: 2048px 128px;
     background-repeat: no-repeat;
     background-position: center;
@@ -8411,7 +8433,7 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     height: 128px;
     margin-left: -64px;
     margin-top: -64px;
-    background-image: url('../assets/Animations/Super Pixel Effects Gigapack (Free Version)/spritesheet/Lightning/lightning_strike_001/lightning_strike_001_large_violet/spritesheet.png');
+    background-image: url('../assets/Animations/spritesheet/Lightning/lightning_strike_001/lightning_strike_001_large_violet/spritesheet.png');
     background-repeat: no-repeat;
     background-size: 896px 128px;
     z-index: 120;
@@ -8434,7 +8456,7 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     height: 64px;
     margin-left: -32px;
     margin-top: -32px;
-    background-image: url('../assets/Animations/Super Pixel Effects Gigapack (Free Version)/spritesheet/Smoke Bursts/directional_smoke_burst_001/directional_smoke_burst_001_large_white/spritesheet.png');
+    background-image: url('../assets/Animations/spritesheet/Smoke Bursts/directional_smoke_burst_001/directional_smoke_burst_001_large_white/spritesheet.png');
     background-repeat: no-repeat;
     background-size: 1344px 64px;
     z-index: 110;
@@ -8458,7 +8480,7 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     height: 64px;
     margin-left: -32px;
     margin-top: -32px;
-    background-image: url('../assets/Animations/Super Pixel Effects Gigapack (Free Version)/spritesheet/Splatters/burst_splatter_001/burst_splatter_001_large_red/spritesheet.png');
+    background-image: url('../assets/Animations/spritesheet/Splatters/burst_splatter_001/burst_splatter_001_large_red/spritesheet.png');
     background-repeat: no-repeat;
     background-size: 640px 64px;
     z-index: 115;
@@ -8482,7 +8504,7 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     height: 96px;
     margin-left: -48px;
     margin-top: -48px;
-    background-image: url('../assets/Animations/Super Pixel Effects Gigapack (Free Version)/spritesheet/Explosions/stylized_explosion_001/stylized_explosion_001_large_yellow/spritesheet.png');
+    background-image: url('../assets/Animations/spritesheet/Explosions/stylized_explosion_001/stylized_explosion_001_large_yellow/spritesheet.png');
     background-repeat: no-repeat;
     background-size: 864px 96px;
     z-index: 130;
@@ -8501,7 +8523,7 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     position: absolute;
     width: 32px;
     height: 32px;
-    background-image: url('../assets/Animations/Super Pixel Effects Gigapack (Free Version)/spritesheet/Sci-fi/scifi_muzzle_flash_001/scifi_muzzle_flash_001_large_yellow/spritesheet.png');
+    background-image: url('../assets/Animations/spritesheet/Sci-fi/scifi_muzzle_flash_001/scifi_muzzle_flash_001_large_yellow/spritesheet.png');
     background-repeat: no-repeat;
     background-size: 128px 64px;
     z-index: 125;
@@ -8525,7 +8547,7 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     height: 80px;
     margin-left: -40px;
     margin-top: -40px;
-    background-image: url('../assets/Animations/Super Pixel Effects Gigapack (Free Version)/spritesheet/Symbols/symbol_alert_001/symbol_alert_001_large_red/spritesheet.png');
+    background-image: url('../assets/Animations/spritesheet/Symbols/symbol_alert_001/symbol_alert_001_large_red/spritesheet.png');
     background-repeat: no-repeat;
     background-size: 1120px 80px;
     z-index: 105;
@@ -8548,7 +8570,7 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     height: 64px;
     margin-left: -32px;
     margin-top: -32px;
-    background-image: url('../assets/Animations/Super Pixel Effects Gigapack (Free Version)/spritesheet/Smoke Bursts/symmetrical_smoke_burst_001/symmetrical_smoke_burst_001_large_brown/spritesheet.png');
+    background-image: url('../assets/Animations/spritesheet/Smoke Bursts/symmetrical_smoke_burst_001/symmetrical_smoke_burst_001_large_brown/spritesheet.png');
     background-repeat: no-repeat;
     background-size: 640px 64px;
     z-index: 108;
@@ -8560,6 +8582,183 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 @keyframes energy-charge-anim {
     from { background-position: 0 0; }
     to { background-position: -640px 0; }
+}
+
+.ghost-rider-skull-surge,
+.ghost-rider-hellfire-breath,
+.ghost-rider-chainsaw-slice,
+.ghost-rider-infernal-ride-cast,
+.ghost-rider-infernal-ride-impact,
+.ghost-rider-hellfire-aura::before {
+    background-repeat: no-repeat;
+    pointer-events: none;
+}
+
+.ghost-rider-skull-surge {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 64px;
+    height: 64px;
+    margin-left: -32px;
+    margin-top: -32px;
+    z-index: 132;
+    background-image: url('../assets/Animations/spritesheet/Smoke Bursts/stylized_skull_smoke_burst_001/stylized_skull_smoke_burst_001_large_white/spritesheet.png');
+    background-size: 768px 64px;
+    animation: ghost-rider-skull-surge-anim 800ms steps(12) both;
+    filter: sepia(1) saturate(5) hue-rotate(330deg) brightness(1.35) drop-shadow(0 0 10px #ff5a00);
+    transform: scale(1.45);
+}
+
+@keyframes ghost-rider-skull-surge-anim {
+    from { background-position: 0 0; opacity: 0.95; }
+    to { background-position: -768px 0; opacity: 0; }
+}
+
+.ghost-rider-hellfire-breath-move {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 8200;
+    width: 64px;
+    height: 64px;
+    transform: translate(var(--source-x, 0), var(--source-y, 0));
+    animation: ghost-rider-hellfire-move 1050ms cubic-bezier(0.16, 0.86, 0.2, 1) both;
+    pointer-events: none;
+}
+
+.ghost-rider-hellfire-breath {
+    width: 64px;
+    height: 64px;
+    background-image: url('../assets/Animations/spritesheet/Fantasy Spells/spell_death_001/spell_death_001_large_red/spritesheet.png');
+    background-size: 2048px 64px;
+    animation: ghost-rider-hellfire-breath-anim 1050ms steps(32) both;
+    filter: sepia(1) saturate(4.5) hue-rotate(338deg) brightness(1.4) drop-shadow(0 0 8px #ff3d00);
+    transform: scale(1.8);
+}
+
+@keyframes ghost-rider-hellfire-move {
+    from { transform: translate(0, 0) scale(0.82); opacity: 0; }
+    12% { opacity: 1; }
+    to { transform: translate(var(--cast-dx), var(--cast-dy)) scale(1.04); opacity: 0; }
+}
+
+@keyframes ghost-rider-hellfire-breath-anim {
+    from { background-position: 0 0; }
+    to { background-position: -2048px 0; }
+}
+
+.ghost-rider-chainsaw-slice {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 96px;
+    height: 96px;
+    margin-left: -48px;
+    margin-top: -48px;
+    z-index: 132;
+    background-image: url('../assets/Animations/spritesheet/Sci-fi/scifi_warp_002/scifi_warp_002_large_red/spritesheet.png');
+    background-size: 960px 96px;
+    animation: ghost-rider-chainsaw-warp-anim 820ms steps(10) both;
+    filter: sepia(1) saturate(4) hue-rotate(330deg) brightness(1.45) drop-shadow(0 0 8px #ff4c00);
+}
+
+.ghost-rider-chainsaw-slice .chainsaw-blade {
+    position: absolute;
+    left: -6px;
+    top: 40px;
+    width: 108px;
+    height: 14px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, transparent, #ffd7a3 14%, #fff 44%, #ff4a00 72%, transparent);
+    box-shadow: 0 0 12px rgba(255, 70, 0, 0.9);
+    transform: rotate(-18deg);
+    animation: ghost-rider-chainsaw-blade-anim 560ms ease-out both;
+}
+
+.ghost-rider-chainsaw-slice .slice-line {
+    position: absolute;
+    left: 5px;
+    top: 47px;
+    width: 86px;
+    height: 3px;
+    background: #ff2a00;
+    box-shadow: 0 0 10px #ff2a00;
+    transform: rotate(-18deg);
+    animation: ghost-rider-slice-line-anim 780ms ease-out both;
+}
+
+@keyframes ghost-rider-chainsaw-warp-anim {
+    from { background-position: 0 0; opacity: 1; }
+    to { background-position: -960px 0; opacity: 0; }
+}
+
+@keyframes ghost-rider-chainsaw-blade-anim {
+    from { transform: translate(-38px, -18px) rotate(-18deg) scaleX(0.35); opacity: 0; }
+    45% { opacity: 1; }
+    to { transform: translate(28px, 18px) rotate(-18deg) scaleX(1); opacity: 0; }
+}
+
+@keyframes ghost-rider-slice-line-anim {
+    from { transform: rotate(-18deg) scaleX(0); opacity: 0; }
+    35% { opacity: 1; }
+    to { transform: rotate(-18deg) scaleX(1.1); opacity: 0; }
+}
+
+.ghost-rider-infernal-ride-cast,
+.ghost-rider-infernal-ride-impact {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 128px;
+    height: 128px;
+    margin-left: -64px;
+    margin-top: -64px;
+    z-index: 131;
+    background-image: url('../assets/Animations/spritesheet/Explosions/epic_explosion_001/epic_explosion_001_large_orange/spritesheet.png');
+    background-size: 1664px 128px;
+    animation: ghost-rider-infernal-ride-anim 980ms steps(13) both;
+    filter: sepia(1) saturate(4) hue-rotate(330deg) brightness(1.25) drop-shadow(0 0 12px #ff4d00);
+    transform: scale(1.15);
+}
+
+.ghost-rider-infernal-ride-cast {
+    transform: scale(0.95);
+}
+
+@keyframes ghost-rider-infernal-ride-anim {
+    from { background-position: 0 0; opacity: 0.95; }
+    to { background-position: -1664px 0; opacity: 0; }
+}
+
+.ghost-rider-hellfire-aura {
+    position: absolute;
+    inset: -12px;
+    z-index: 9;
+    pointer-events: none;
+    mix-blend-mode: screen;
+}
+
+.ghost-rider-hellfire-aura::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 64px;
+    height: 64px;
+    margin-left: -32px;
+    margin-top: -32px;
+    background-image: url('../assets/Animations/spritesheet/Fantasy Spells/spell_death_001/spell_death_001_large_red/spritesheet.png');
+    background-size: 2048px 64px;
+    animation: ghost-rider-aura-anim 1200ms steps(32) infinite;
+    filter: sepia(1) saturate(4.5) hue-rotate(335deg) brightness(1.25) drop-shadow(0 0 7px #ff4b00);
+    opacity: 0.72;
+    transform: scale(1.55);
+}
+
+@keyframes ghost-rider-aura-anim {
+    from { background-position: 0 0; }
+    to { background-position: -2048px 0; }
 }
 
 @keyframes damage-impact {
@@ -8599,11 +8798,11 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 }
 
 .character-face.damage-impact {
-    animation: damage-impact 430ms ease both;
+    animation: damage-impact-enhanced 450ms steps(7) both;
 }
 
 .character-face.heal-impact {
-    animation: heal-impact 430ms ease both;
+    animation: heal-impact-enhanced 600ms steps(16) both;
 }
 
 @keyframes cooldown-tick-pop {
@@ -9590,5 +9789,5 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 }
 
 @media (max-width: 768px) {
-    .ghost-rider-chainsaw-slice .chainsaw-blade { width: 100px; height: 35px; }
+    .ghost-rider-chainsaw-slice .chainsaw-blade { width: 100px; height: 14px; }
 }
