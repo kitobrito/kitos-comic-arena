@@ -13216,8 +13216,7 @@ const characters = [
                 "classes": [
                     "Energy",
                     "Melee",
-                    "Instant",
-                    "Affliction"
+                    "Instant"
                 ],
                 "effects": [
                     {
@@ -13259,7 +13258,6 @@ const characters = [
                 "skillimage": "assets/images/ghostriderhellfiretruck.png",
                 "skilldescription": "Ghost Rider traps an enemy in a supernatural high-speed chase and deals 5 affliction damage to all other enemies. For 2 turns, Ghost Rider and the target are invulnerable to other characters, and the target takes 5 affliction damage each turn. Ghost Rider ignores stun effects during this time.",
                 "energy": [
-                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -13288,8 +13286,6 @@ const characters = [
                             "harmful": true,
                             "invulnerable": true,
                             "ignoreInvulnerabilityFromSourceCharacterId": "ghost-rider",
-                            "turnEndDamage": 5,
-                            "afflictionDamage": true,
                             "tooltipText": "This character is in an Infernal Ride with Ghost Rider."
                         }
                     },
