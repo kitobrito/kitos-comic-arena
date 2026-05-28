@@ -1335,9 +1335,9 @@ const DEFAULT_MISSION_CATALOG = [
             botMaxQueuedSkillsPerTurn: 2,
             backgroundImage: 'assets/images/XenomorphDroneBG.png',
             playerTeamCharacterIds: [
-                'sergeant-william-hillford',
+                'space-marine-smartgunner',
                 'space-marine-infantry',
-                'lieutenant-seraphina-vale'
+                'space-marine-medic'
             ]
         },
         sortOrder: 14

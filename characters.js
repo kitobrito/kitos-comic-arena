@@ -13044,9 +13044,11 @@ const characters = [
             {
                 "statusId": "ghost_rider_vengeance_tracker",
                 "duration": 999,
+                "sourceSkillId": "ghost-rider-passive-spirit-of-vengeance",
                 "metadata": {
                     "infiniteDuration": true,
                     "drBonus": 0,
+                    "sourceSkillName": "Passive: Spirit of Vengeance",
                     "unpierceableDamageReductionFlatPerStatusMetadataKey": "drBonus",
                     "unpierceableDamageReductionFlatPerStatusMetadataStep": 1,
                     "unpierceableDamageReductionFlatPerStatusMetadataAmount": 1,
@@ -13063,20 +13065,28 @@ const characters = [
                         {
                             "statusId": "ghost_rider_sin_tracker",
                             "duration": 999,
+                            "sourceSkillId": "ghost-rider-penance-stare",
                             "metadata": {
                                 "infiniteDuration": true,
                                 "harmfulUsed": 0,
+                                "sins": 0,
+                                "stackMetadataKey": "sins",
+                                "stackDelta": 1,
+                                "sourceSkillName": "Penance Stare",
                                 "onOwnerUseSkillTrigger": true,
                                 "onOwnerUseSkillHarmfulOnly": true,
                                 "persistOnOwnerUseSkillTrigger": true,
                                 "onOwnerUseSkillApplyStatusToOwner": {
                                     "statusId": "ghost_rider_sin_tracker",
                                     "duration": 999,
+                                    "sourceSkillId": "ghost-rider-penance-stare",
                                     "metadata": {
                                         "stackMetadataKey": "harmfulUsed",
                                         "stackDelta": 1,
                                         "infiniteDuration": true,
-                                        "tooltipTextTemplate": "This character has used {harmfulUsed} harmful skills this game, feeding the Spirit of Vengeance."
+                                        "sourceSkillName": "Penance Stare",
+                                        "sins": 0,
+                                        "tooltipTextTemplate": "This character has used {harmfulUsed} harmful skills and has {sins} sins. Ghost Rider deals {sins} additional affliction damage to them."
                                     }
                                 }
                             }
@@ -13127,9 +13137,11 @@ const characters = [
                         "type": "apply_status",
                         "statusId": "ghost_rider_hellfire_chains_burn",
                         "duration": 2,
+                        "sourceSkillId": "ghost-rider-hellfire-chains",
                         "scope": "all-enemy",
                         "metadata": {
                             "harmful": true,
+                            "sourceSkillName": "Hellfire Flame",
                             "turnEndDamage": 5,
                             "afflictionDamage": true,
                             "ignoreInvulnerability": true,
@@ -13173,6 +13185,7 @@ const characters = [
                         "type": "apply_status",
                         "statusId": "ghost_rider_penance_stare_debuff",
                         "duration": 1,
+                        "sourceSkillId": "ghost-rider-penance-stare",
                         "scope": "target",
                         "durationFromStatusMetadata": {
                             "statusId": "ghost_rider_sin_tracker",
@@ -13183,6 +13196,7 @@ const characters = [
                         },
                         "metadata": {
                             "harmful": true,
+                            "sourceSkillName": "Penance Stare",
                             "cannotUseHarmfulSkills": true,
                             "damageDebuffFlat": 5,
                             "afflictionDamageTakenBonusFlat": 5,
@@ -13193,9 +13207,11 @@ const characters = [
                         "type": "apply_status",
                         "statusId": "ghost_rider_vengeance_tracker",
                         "duration": 999,
+                        "sourceSkillId": "ghost-rider-passive-spirit-of-vengeance",
                         "scope": "self",
                         "metadata": {
                             "infiniteDuration": true,
+                            "sourceSkillName": "Passive: Spirit of Vengeance",
                             "stackMetadataKey": "drBonus",
                             "stackDelta": 5
                         }
@@ -13282,9 +13298,11 @@ const characters = [
                         "type": "apply_status",
                         "statusId": "ghost_rider_infernal_ride_active",
                         "duration": 2,
+                        "sourceSkillId": "ghost-rider-infernal-ride",
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
+                            "sourceSkillName": "Infernal Ride",
                             "invulnerable": true,
                             "ignoreInvulnerabilityFromSourceCharacterId": "ghost-rider",
                             "tooltipText": "This character is in an Infernal Ride with Ghost Rider."
@@ -13294,9 +13312,11 @@ const characters = [
                         "type": "apply_status",
                         "statusId": "ghost_rider_infernal_ride_self",
                         "duration": 2,
+                        "sourceSkillId": "ghost-rider-infernal-ride",
                         "scope": "self",
                         "metadata": {
                             "invulnerable": true,
+                            "sourceSkillName": "Infernal Ride",
                             "ignoreEnemyInvulnerability": true,
                             "ignoreStun": true,
                             "tooltipText": "Ghost Rider is in an Infernal Ride."

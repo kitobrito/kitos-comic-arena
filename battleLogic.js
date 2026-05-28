@@ -3198,6 +3198,9 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
         unit.alive = false;
     }
     if (wasAlive && unit.alive === false && context?.match && context?.targetUsername) {
+        if (typeof context?.sourceCharacterId === 'string' && context.sourceCharacterId) {
+            targetState.killedByCharacterId = context.sourceCharacterId;
+        }
         triggerTeamMemberDeathHooks({
             match: context.match,
             deadUsername: context.targetUsername,
@@ -3362,6 +3365,9 @@ const applyHealthLossToUnit = (unit, rawAmount, context = {}) => {
         unit.alive = false;
     }
     if (wasAlive && unit.alive === false && context?.match && context?.targetUsername) {
+        if (typeof context?.sourceCharacterId === 'string' && context.sourceCharacterId) {
+            targetState.killedByCharacterId = context.sourceCharacterId;
+        }
         triggerTeamMemberDeathHooks({
             match: context.match,
             deadUsername: context.targetUsername,
@@ -3401,6 +3407,9 @@ const applyHealthCapLossToUnit = (unit, rawAmount, context = {}) => {
         }
     }
     if (wasAlive && unit.alive === false && context?.match && context?.targetUsername) {
+        if (typeof context?.sourceCharacterId === 'string' && context.sourceCharacterId) {
+            targetState.killedByCharacterId = context.sourceCharacterId;
+        }
         triggerTeamMemberDeathHooks({
             match: context.match,
             deadUsername: context.targetUsername,
@@ -5102,6 +5111,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             pendingDamage.set(key, {
                 recipient,
                 amount: numericAmount,
+                sourceCharacterId: actingCharacterId,
                 sourceBaseDamage: Math.max(0, Number(effect?.amount) || 0),
                 fixedDamage,
                 ignoreDamageReduction,
@@ -5385,6 +5395,28 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         ? Math.max(0, amount)
                         : Math.max(0, amount + skillSpecificBonus + targetSourceBonus);
                     queueDamage(recipient, totalAmount, effect);
+
+                    if (
+                        actingCharacterId === 'ghost-rider' &&
+                        skill.id !== 'ghost-rider-penance-stare' &&
+                        !Boolean(effect?.metadata?.fixedDamage)
+                    ) {
+                        const sinStatus = (Array.isArray(targetState.statuses) ? targetState.statuses : []).find(
+                            (s) => s.id === 'ghost_rider_sin_tracker'
+                        );
+                        const sins = Number(sinStatus?.metadata?.sins) || 0;
+                        if (sins > 0) {
+                            queueDamage(recipient, sins, {
+                                type: 'damage',
+                                metadata: {
+                                    afflictionDamage: true,
+                                    ignoreInvulnerability: true,
+                                    ignoreDamageReduction: true,
+                                    damageDebugReason: 'sin scaling',
+                                },
+                            });
+                        }
+                    }
                 });
                 return;
             }
@@ -6770,6 +6802,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         match,
                         sourceUsername: actingUsername,
                         sourceSlot: actorSlot,
+                        sourceCharacterId: entry.sourceCharacterId,
                         sourceSkillId: entry.sourceSkillId || skill.id || null,
                         targetUsername: entry.recipient.username,
                         targetSlot: entry.recipient.slot,

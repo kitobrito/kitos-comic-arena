@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         customCursor: true,
         clickSounds: true,
         shiftStatusReveal: true,
-        skillQueueTrail: false,
+        skillQueueTrail: true,
     };
     const readUiSettings = () => {
         try {
@@ -2485,6 +2485,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const pending = getPendingTurnWithOptimisticQueues();
             const nextQueuedKeys = new Set();
             const queuedActorSlots = new Set();
+
+            document.querySelectorAll('.skillqueue').forEach((q) => {
+                q.src = 'assets/images/skillqqueue.png';
+            });
+
             playerSkillMetaByKey.forEach((meta) => {
                 if (!meta?.imgEl) return;
                 meta.imgEl.classList.remove('queued-skill-locked');
@@ -2495,6 +2500,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 queuedActorSlots.add(String(queued.actorSlot));
                 const meta = playerSkillMetaByKey.get(key);
                 if (!meta?.imgEl) return;
+
+                if (!uiSettings.skillQueueTrail) {
+                    const skillScroll = meta.imgEl.closest('.skillscrollingame');
+                    const queueEl = skillScroll?.querySelector('.skillqueue');
+                    if (queueEl) {
+                        queueEl.src = meta.imgEl.src;
+                    }
+                }
+
                 meta.imgEl.classList.add('selected-target');
                 if (!queuedSkillKeySet.has(key) || !meta.imgEl.style.transform) {
                     pulseSkillCast(meta.imgEl, meta.skill || meta.baseSkill);
@@ -2520,6 +2534,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             );
             queuedSkillKeySet = nextQueuedKeys;
             renderSkillOrderQueue(newlyQueuedKeys);
+            renderQueueOrderLabels();
             updateSkillAffordability();
             renderQueuedTargetTooltips();
             renderDynamicSkillIcons();
@@ -2887,6 +2902,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 // New Fade out/in logic
                 skillEl.classList.add('skill-queue-fade-out');
                 
+                queueEl.src = skillEl.src;
                 queueEl.classList.remove('skill-queue-fade-in');
                 void queueEl.offsetWidth;
                 queueEl.classList.add('skill-queue-fade-in');
@@ -4456,7 +4472,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const face = card.querySelector('.character-face');
             const portraitSrc = face?.dataset?.aliveSrc || face?.src || '';
             if (!portraitSrc) return;
-            card.querySelectorAll('.character-death-shatter').forEach((node) => node.remove());
+            card.querySelectorAll('.character-death-shatter, .ghost-rider-death-fire').forEach((node) => node.remove());
             const safeSrc = escapeCssUrl(portraitSrc);
             const overlay = document.createElement('div');
             overlay.className = 'character-death-shatter';
@@ -4473,6 +4489,29 @@ document.addEventListener('DOMContentLoaded', async () => {
             card.appendChild(overlay);
             playGeneratedIngameSound('death');
             window.setTimeout(() => overlay.remove(), 2500);
+        };
+
+        const showGhostRiderDeathAnimation = (card) => {
+            if (!card) return;
+            const face = card.querySelector('.character-face');
+            const portraitSrc = face?.dataset?.aliveSrc || face?.src || '';
+            if (!portraitSrc) return;
+            card.querySelectorAll('.character-death-shatter, .ghost-rider-death-fire').forEach((node) => node.remove());
+            const safeSrc = escapeCssUrl(portraitSrc);
+            const overlay = document.createElement('div');
+            overlay.className = 'ghost-rider-death-fire';
+            const label = card.closest('.enemy-characters') ? 'PURIFIED' : 'BURNING';
+            overlay.innerHTML =
+                `<div class="ghost-rider-death-portrait-wrap">` +
+                    `<div class="ghost-rider-death-portrait" style="background-image:url('${safeSrc}')"></div>` +
+                    `<div class="ghost-rider-death-slice-x"></div>` +
+                `</div>` +
+                `<div class="ghost-rider-death-fire-fx"></div>` +
+                `<div class="ghost-rider-death-ash"><span></span><span></span><span></span><span></span><span></span></div>` +
+                `<div class="death-kill-label ghost-rider-purified">${label}</div>`;
+            card.appendChild(overlay);
+            playGeneratedIngameSound('fire-blast');
+            window.setTimeout(() => overlay.remove(), 4500);
         };
 
         const getActiveStatuses = (unit) => {
@@ -5322,7 +5361,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                         renderAquamanSeaSharkFx(card, getAquamanSeaSharkStacks(playerUnits[slot]), seaSharkDelta);
                     }
                     if (died) {
-                        showCharacterDeathAnimation(card);
+                        const killerId = (playerUnits[slot] || opponentUnits[slot])?.state?.killedByCharacterId;
+                        if (killerId === 'ghost-rider') {
+                            showGhostRiderDeathAnimation(card);
+                        } else {
+                            showCharacterDeathAnimation(card);
+                        }
                         card.classList.remove('death-crack');
                         void card.offsetWidth;
                         card.classList.add('death-crack');
@@ -5365,7 +5409,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                         renderAquamanSeaSharkFx(card, getAquamanSeaSharkStacks(opponentUnits[slot]), seaSharkDelta);
                     }
                     if (died) {
-                        showCharacterDeathAnimation(card);
+                        const killerId = (playerUnits[slot] || opponentUnits[slot])?.state?.killedByCharacterId;
+                        if (killerId === 'ghost-rider') {
+                            showGhostRiderDeathAnimation(card);
+                        } else {
+                            showCharacterDeathAnimation(card);
+                        }
                         card.classList.remove('death-crack');
                         void card.offsetWidth;
                         card.classList.add('death-crack');
@@ -6600,6 +6649,38 @@ document.addEventListener('DOMContentLoaded', async () => {
             random: 'black',
         };
 
+        const renderQueueOrderLabels = () => {
+            const pending = normalizePendingTurn(pendingTurnState);
+            const queueOrder = pending.queueOrder || [];
+            
+            // Clear old labels
+            document.querySelectorAll('.skill-queue-order-label').forEach(el => el.remove());
+            
+            queueOrder.forEach((actorSlot, index) => {
+                const queued = pending.queuedByActorSlot[actorSlot];
+                if (!queued) return;
+                
+                const skillIdx = queued.skillIndex;
+                const key = `${actorSlot}:${skillIdx}`;
+                const meta = playerSkillMetaByKey.get(key);
+                
+                if (meta?.imgEl) {
+                    const label = document.createElement('div');
+                    label.className = 'skill-queue-order-label';
+                    label.textContent = String(index + 1);
+                    
+                    // Position it on the skill icon
+                    const parent = meta.imgEl.parentElement;
+                    if (parent) {
+                        if (window.getComputedStyle(parent).position === 'static') {
+                            parent.style.position = 'relative';
+                        }
+                        parent.appendChild(label);
+                    }
+                }
+            });
+        };
+
         const renderQueuedTargetTooltips = () => {
             const allCards = [...(Array.isArray(playerCards) ? playerCards : []), ...(Array.isArray(enemyCards) ? enemyCards : [])];
             allCards.forEach((card) => {
@@ -6608,7 +6689,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 wrap.querySelectorAll('.skilltooltipimage.dynamic-queued-target-icon').forEach((node) => node.remove());
             });
 
-            const pending = normalizePendingTurn(pendingTurnState);
+            const pending = getPendingTurnWithOptimisticQueues();
             const queuedByTargetKey = new Map();
             Object.values(pending.queuedByActorSlot || {}).forEach((queued) => {
                 const actorSlot = Number.parseInt(queued?.actorSlot, 10);
@@ -6648,13 +6729,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             queuedByTargetKey.forEach(({ card, entries }) => {
                 const tooltipWrap = card?.querySelector('.skilltooltips');
-                const tooltipImgTemplate =
-                    tooltipWrap?.querySelector('.skilltooltipimage.status-icon-template') ||
-                    tooltipWrap?.querySelector('.skilltooltipimage');
-                if (!tooltipWrap || !tooltipImgTemplate) return;
+                if (!tooltipWrap) return;
+                
+                let tooltipImgTemplate =
+                    tooltipWrap.querySelector('.skilltooltipimage.status-icon-template') ||
+                    tooltipWrap.querySelector('.skilltooltipimage');
+                
+                // If no template exists, create one
+                if (!tooltipImgTemplate) {
+                    tooltipImgTemplate = document.createElement('img');
+                    tooltipImgTemplate.className = 'skilltooltipimage status-icon-template';
+                    tooltipImgTemplate.style.display = 'none';
+                    tooltipWrap.appendChild(tooltipImgTemplate);
+                }
+
                 if (!tooltipImgTemplate.classList.contains('status-icon-template')) {
                     tooltipImgTemplate.classList.add('status-icon-template');
                 }
+                
                 tooltipWrap.style.visibility = 'visible';
                 entries.forEach((entry) => {
                     const iconEl = tooltipImgTemplate.cloneNode(true);
