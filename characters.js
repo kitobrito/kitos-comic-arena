@@ -13090,7 +13090,7 @@ const characters = [
                 "id": "ghost-rider-hellfire-chains",
                 "name": "Hellfire Flame",
                 "skillimage": "assets/images/ghostriderhellfireflame.png",
-                "skilldescription": "Ghost Rider unleashes hellfire on one enemy, dealing 10 affliction damage to them and 5 affliction damage to all other enemies. All enemies burn for 5 affliction damage for 2 turns. This skill bypasses invulnerability.",
+                "skilldescription": "Ghost Rider unleashes hellfire on one enemy, dealing 10 affliction damage to them and 5 affliction damage to all other enemies. All enemies burn for 5 affliction damage for 2 turns.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -13101,7 +13101,8 @@ const characters = [
                     "Energy",
                     "Ranged",
                     "Instant",
-                    "Affliction"
+                    "Affliction",
+                    "Bypassing"
                 ],
                 "effects": [
                     {
