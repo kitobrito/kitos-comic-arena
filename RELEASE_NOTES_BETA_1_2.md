@@ -19,8 +19,16 @@ Comic-Arena beta 1.2 expands the mission and in-game experience with special PvE
 - **Transition Toggle:** Added a new "Skill queue trail" option in the UI settings menu, allowing players to choose between the classic sliding trail and the new fade transitions.
 - **Performance Optimizations:** Refactored core UI animations (pulses, transitions) to use hardware-accelerated CSS properties, ensuring smooth performance even in complex battle states.
 
+## Ghost Rider Overhaul
+
+- **Thematic Damage Scaling:** Ghost Rider's power now grows with every turn. He deals +1 Affliction damage for every Sin stack on the target (targets gain 1 Sin every turn).
+- **Penance Stare Scaling:** Maintained the high-multiplier +10 damage per harmful skill for Penance Stare, now tracked separately from general Sins.
+- **Custom Death Animation:** Enemies killed by Ghost Rider are now "Purified" — they are lifted, sliced in an X by hellfire chains, and burned away to ash.
+- **Visual Feedback:** Ghost Rider's status icons and names now correctly reflect his passive ("Spirit of Vengeance") and active skills.
+
 ## Mission And PvE Updates
 
+- **Fix:** Corrected roster IDs for the "Raid on the Xenomorph Hive" mission, ensuring the specialized player team loads correctly.
 - Special PvE missions now preserve their mission metadata on the mission list.
 - Mission-list PvE buttons open character selection with the mission panel expanded.
 - Starting a PvE mission fight creates a bot match with the configured mission enemy team and mission background.
