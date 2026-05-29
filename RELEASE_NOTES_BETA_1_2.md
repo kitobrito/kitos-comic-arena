@@ -11,6 +11,12 @@ Comic-Arena beta 1.2 expands the mission and in-game experience with special PvE
 - Added in-game match chat with timestamps, quick emoji buttons, unread count, and opponent mute controls.
 - Moved the in-game chat button under the music, SFX, skill FX, and volume controls.
 
+## UI Sound Overhaul (New!)
+
+- **High-Fidelity Interaction:** Replaced legacy UI sounds with a professional SFX suite for a crisper, more modern audio experience.
+- **Improved Feedback:** Unique sounds for menu navigation (clicks, selects, and swipes) and scroll/popup interactions provide better tactile feedback.
+- **Combat Clarity:** Updated the "Apply Skill" sound to be more distinct, ensuring players have clear audio confirmation during fast-paced turns.
+
 ## Cinematic Killing Blows (New!)
 
 - **Predator "Hunted" Effect:** When Predator Stalker secures a killing blow, his iconic cloaking sound plays as a triple-bladed gauntlet pokes through the enemy's portrait, ripping them in half under the glowing text "HUNTED."
