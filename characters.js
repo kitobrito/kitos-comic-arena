@@ -13070,8 +13070,6 @@ const characters = [
                                 "infiniteDuration": true,
                                 "harmfulUsed": 0,
                                 "sins": 0,
-                                "stackMetadataKey": "sins",
-                                "stackDelta": 1,
                                 "sourceSkillName": "Penance Stare",
                                 "onOwnerUseSkillTrigger": true,
                                 "onOwnerUseSkillHarmfulOnly": true,
@@ -13081,11 +13079,11 @@ const characters = [
                                     "duration": 999,
                                     "sourceSkillId": "ghost-rider-penance-stare",
                                     "metadata": {
-                                        "stackMetadataKey": "harmfulUsed",
-                                        "stackDelta": 1,
+                                        "mergeNumericAddKeys": ["harmfulUsed", "sins"],
+                                        "harmfulUsed": 1,
+                                        "sins": 1,
                                         "infiniteDuration": true,
                                         "sourceSkillName": "Penance Stare",
-                                        "sins": 0,
                                         "tooltipTextTemplate": "This character has used {harmfulUsed} harmful skills and has {sins} sins. Ghost Rider deals {sins} additional affliction damage to them."
                                     }
                                 }
