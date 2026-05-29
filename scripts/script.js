@@ -4795,6 +4795,54 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         };
 
+        const triggerLaseredAnimation = (card, killerId) => {
+            if (!card) return;
+            const face = card.querySelector('.character-face');
+            const portraitSrc = face?.dataset?.aliveSrc || face?.src || '';
+            if (!portraitSrc) return;
+            card.querySelectorAll('.character-death-shatter, .ghost-rider-death-fire, .predator-hunted-overlay, .lasered-overlay').forEach((node) => node.remove());
+            const safeSrc = escapeCssUrl(portraitSrc);
+            card.classList.add('lasered-active');
+            const overlay = document.createElement('div');
+            overlay.className = 'lasered-overlay';
+            const laserClass = killerId === 'billy-butcher' ? 'yellow' : 'red';
+            overlay.innerHTML =
+                `<div class="lasered-half top" style="background-image:url('${safeSrc}')"></div>` +
+                `<div class="lasered-half bottom" style="background-image:url('${safeSrc}')"></div>` +
+                `<div class="laser-beams"><span class="laser-beam one ${laserClass}"></span><span class="laser-beam two ${laserClass}"></span></div>` +
+                `<div class="lasered-callout">LASERED</div>`;
+            card.appendChild(overlay);
+            window.setTimeout(() => {
+                overlay.remove();
+                card.classList.remove('lasered-active');
+            }, 3000);
+        };
+
+        const triggerPredatorHuntedAnimation = (card) => {
+            if (!card) return;
+            const face = card.querySelector('.character-face');
+            const portraitSrc = face?.dataset?.aliveSrc || face?.src || '';
+            if (!portraitSrc) return;
+            card.querySelectorAll('.character-death-shatter, .ghost-rider-death-fire, .predator-hunted-overlay').forEach((node) => node.remove());
+            const safeSrc = escapeCssUrl(portraitSrc);
+            card.classList.add('predator-hunted-active');
+            const overlay = document.createElement('div');
+            overlay.className = 'predator-hunted-overlay';
+            overlay.innerHTML =
+                `<div class="predator-hunted-half top" style="background-image:url('${safeSrc}')"></div>` +
+                `<div class="predator-hunted-half bottom" style="background-image:url('${safeSrc}')"></div>` +
+                `<div class="predator-gauntlet-blades"><span></span><span></span><span></span></div>` +
+                `<div class="predator-hunted-callout">HUNTED</div>`;
+            card.appendChild(overlay);
+            if (typeof predatorCloakSound !== 'undefined' && predatorCloakSound) {
+                playIngameSound(predatorCloakSound);
+            }
+            window.setTimeout(() => {
+                overlay.remove();
+                card.classList.remove('predator-hunted-active');
+            }, 3000);
+        };
+
         const syncCharacterSpecificFx = (card, unit) => {
             if (!card) return;
             const fxClasses = [
@@ -5361,8 +5409,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                         renderAquamanSeaSharkFx(card, getAquamanSeaSharkStacks(playerUnits[slot]), seaSharkDelta);
                     }
                     if (died) {
-                        const killerId = (playerUnits[slot] || opponentUnits[slot])?.state?.killedByCharacterId;
-                        if (killerId === 'ghost-rider') {
+                        const killerId = playerUnits[slot]?.state?.killedByCharacterId;
+                        if (killerId === 'predator-stalker') {
+                            triggerPredatorHuntedAnimation(card);
+                        } else if (killerId === 'homelander' || killerId === 'superman' || killerId === 'billy-butcher') {
+                            triggerLaseredAnimation(card, killerId);
+                        } else if (killerId === 'ghost-rider') {
                             showGhostRiderDeathAnimation(card);
                         } else {
                             showCharacterDeathAnimation(card);
@@ -5409,8 +5461,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                         renderAquamanSeaSharkFx(card, getAquamanSeaSharkStacks(opponentUnits[slot]), seaSharkDelta);
                     }
                     if (died) {
-                        const killerId = (playerUnits[slot] || opponentUnits[slot])?.state?.killedByCharacterId;
-                        if (killerId === 'ghost-rider') {
+                        const killerId = opponentUnits[slot]?.state?.killedByCharacterId;
+                        if (killerId === 'predator-stalker') {
+                            triggerPredatorHuntedAnimation(card);
+                        } else if (killerId === 'homelander' || killerId === 'superman' || killerId === 'billy-butcher') {
+                            triggerLaseredAnimation(card, killerId);
+                        } else if (killerId === 'ghost-rider') {
                             showGhostRiderDeathAnimation(card);
                         } else {
                             showCharacterDeathAnimation(card);

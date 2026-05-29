@@ -5325,6 +5325,9 @@ const sanitizeUnitStateForViewer = ({ unit, unitUsername, viewerUsername }) => {
               .filter(Boolean)
         : [];
     const state = { statuses };
+    if (unit?.state?.killedByCharacterId) {
+        state.killedByCharacterId = unit.state.killedByCharacterId;
+    }
     if (unitUsername === viewerUsername) {
         state.cooldowns =
             unit?.state?.cooldowns && typeof unit.state.cooldowns === 'object'

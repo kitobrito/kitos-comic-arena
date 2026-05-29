@@ -6043,6 +6043,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     if (hp > threshold) return;
                     recipient.unit.hp = 0;
                     recipient.unit.alive = false;
+                    targetState.killedByCharacterId = actingCharacterId || null;
                     triggerTeamMemberDeathHooks({
                         match,
                         deadUsername: recipient.username,
