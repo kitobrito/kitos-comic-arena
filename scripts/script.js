@@ -4467,12 +4467,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const escapeCssUrl = (value = '') => String(value).replaceAll('\\', '\\\\').replaceAll("'", "\\'");
 
+        const clearTransientDeathFx = (card) => {
+            if (!card) return;
+            card.querySelectorAll(
+                '.character-death-shatter, .ghost-rider-death-fire, .predator-hunted-overlay, .lasered-overlay'
+            ).forEach((node) => node.remove());
+            card.classList.remove('predator-hunted-active', 'lasered-active');
+        };
+
+        const scheduleTransientDeathFxCleanup = (card, overlay, delayMs) => {
+            window.setTimeout(() => {
+                if (overlay?.isConnected) overlay.remove();
+                if (!card?.querySelector?.('.predator-hunted-overlay')) {
+                    card?.classList.remove('predator-hunted-active');
+                }
+                if (!card?.querySelector?.('.lasered-overlay')) {
+                    card?.classList.remove('lasered-active');
+                }
+            }, delayMs);
+        };
+
         const showCharacterDeathAnimation = (card) => {
             if (!card) return;
             const face = card.querySelector('.character-face');
             const portraitSrc = face?.dataset?.aliveSrc || face?.src || '';
             if (!portraitSrc) return;
-            card.querySelectorAll('.character-death-shatter, .ghost-rider-death-fire').forEach((node) => node.remove());
+            clearTransientDeathFx(card);
             const safeSrc = escapeCssUrl(portraitSrc);
             const overlay = document.createElement('div');
             overlay.className = 'character-death-shatter';
@@ -4488,7 +4508,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `<div class="death-kill-label">${label}</div>`;
             card.appendChild(overlay);
             playGeneratedIngameSound('death');
-            window.setTimeout(() => overlay.remove(), 2500);
+            scheduleTransientDeathFxCleanup(card, overlay, 2500);
         };
 
         const showGhostRiderDeathAnimation = (card) => {
@@ -4496,7 +4516,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const face = card.querySelector('.character-face');
             const portraitSrc = face?.dataset?.aliveSrc || face?.src || '';
             if (!portraitSrc) return;
-            card.querySelectorAll('.character-death-shatter, .ghost-rider-death-fire').forEach((node) => node.remove());
+            clearTransientDeathFx(card);
             const safeSrc = escapeCssUrl(portraitSrc);
             const overlay = document.createElement('div');
             overlay.className = 'ghost-rider-death-fire';
@@ -4511,7 +4531,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `<div class="death-kill-label ghost-rider-purified">${label}</div>`;
             card.appendChild(overlay);
             playGeneratedIngameSound('fire-blast');
-            window.setTimeout(() => overlay.remove(), 4500);
+            scheduleTransientDeathFxCleanup(card, overlay, 4500);
         };
 
         const getActiveStatuses = (unit) => {
@@ -4800,7 +4820,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const face = card.querySelector('.character-face');
             const portraitSrc = face?.dataset?.aliveSrc || face?.src || '';
             if (!portraitSrc) return;
-            card.querySelectorAll('.character-death-shatter, .ghost-rider-death-fire, .predator-hunted-overlay, .lasered-overlay').forEach((node) => node.remove());
+            clearTransientDeathFx(card);
             const safeSrc = escapeCssUrl(portraitSrc);
             card.classList.add('lasered-active');
             const overlay = document.createElement('div');
@@ -4812,10 +4832,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `<div class="laser-beams"><span class="laser-beam one ${laserClass}"></span><span class="laser-beam two ${laserClass}"></span></div>` +
                 `<div class="lasered-callout">LASERED</div>`;
             card.appendChild(overlay);
-            window.setTimeout(() => {
-                overlay.remove();
-                card.classList.remove('lasered-active');
-            }, 3000);
+            scheduleTransientDeathFxCleanup(card, overlay, 3000);
         };
 
         const triggerPredatorHuntedAnimation = (card) => {
@@ -4823,7 +4840,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const face = card.querySelector('.character-face');
             const portraitSrc = face?.dataset?.aliveSrc || face?.src || '';
             if (!portraitSrc) return;
-            card.querySelectorAll('.character-death-shatter, .ghost-rider-death-fire, .predator-hunted-overlay').forEach((node) => node.remove());
+            clearTransientDeathFx(card);
             const safeSrc = escapeCssUrl(portraitSrc);
             card.classList.add('predator-hunted-active');
             const overlay = document.createElement('div');
@@ -4837,10 +4854,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (typeof predatorCloakSound !== 'undefined' && predatorCloakSound) {
                 playIngameSound(predatorCloakSound);
             }
-            window.setTimeout(() => {
-                overlay.remove();
-                card.classList.remove('predator-hunted-active');
-            }, 3000);
+            scheduleTransientDeathFxCleanup(card, overlay, 3000);
         };
 
         const syncCharacterSpecificFx = (card, unit) => {
@@ -5253,6 +5267,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const renderUnitHealth = (card, unit) => {
             if (!card) return;
+            clearTransientDeathFx(card);
             const healthBar = card.querySelector('.health-bar');
             const healthText = card.querySelector('.health-text');
             if (!healthBar || !healthText) return;

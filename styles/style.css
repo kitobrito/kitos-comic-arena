@@ -3005,22 +3005,23 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 
 .character-death-shatter {
     position: absolute;
-    left: -10px;
-    top: -13px;
-    width: 96px;
-    height: 108px;
+    left: 0;
+    top: 0;
+    width: 75px;
+    height: 75px;
     z-index: 90;
     pointer-events: none;
     perspective: 320px;
+    contain: layout paint;
 }
 
 .character-death-shatter::before {
     content: "";
     position: absolute;
-    left: 6px;
-    top: 9px;
-    width: 84px;
-    height: 84px;
+    left: -6px;
+    top: -6px;
+    width: 87px;
+    height: 87px;
     border-radius: 50%;
     background: radial-gradient(circle, rgba(255, 248, 178, 0.82) 0 12%, rgba(255, 51, 38, 0.45) 13% 38%, transparent 70%);
     filter: blur(1px);
@@ -3029,7 +3030,7 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 
 .death-slice {
     position: absolute;
-    top: 13px;
+    top: 0;
     width: 38px;
     height: 75px;
     border: 1px solid rgba(255, 255, 255, 0.72);
@@ -3040,14 +3041,14 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 }
 
 .death-slice-left {
-    left: 11px;
+    left: 0;
     background-position: left top;
     clip-path: polygon(0 0, 100% 0, 74% 100%, 0 100%);
     animation: death-slice-left 2250ms cubic-bezier(0.16, 0.8, 0.22, 1) both;
 }
 
 .death-slice-right {
-    left: 48px;
+    left: 37px;
     background-position: right top;
     clip-path: polygon(25% 0, 100% 0, 100% 100%, 0 100%);
     animation: death-slice-right 2250ms cubic-bezier(0.16, 0.8, 0.22, 1) both;
@@ -3060,8 +3061,8 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 
 .death-shards span {
     position: absolute;
-    left: 38px;
-    top: 43px;
+    left: 37px;
+    top: 37px;
     width: 18px;
     height: 18px;
     background-size: 75px 75px;
@@ -9818,19 +9819,20 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 /* Ghost Rider Special Death Animation */
 .ghost-rider-death-fire {
     position: absolute;
-    left: -10px;
-    top: -13px;
-    width: 96px;
-    height: 108px;
+    left: 0;
+    top: 0;
+    width: 75px;
+    height: 75px;
     z-index: 100;
     pointer-events: none;
     perspective: 500px;
+    contain: layout paint;
 }
 
 .ghost-rider-death-portrait-wrap {
     position: absolute;
-    left: 11px;
-    top: 13px;
+    left: 0;
+    top: 0;
     width: 75px;
     height: 75px;
     animation: ghost-rider-portrait-lift 4200ms ease-in-out both;
@@ -9965,11 +9967,12 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 75px;
+    height: 75px;
     z-index: 110;
     pointer-events: none;
     overflow: hidden;
+    contain: layout paint;
 }
 
 .predator-hunted-half {
@@ -10075,11 +10078,12 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 75px;
+    height: 75px;
     z-index: 110;
     pointer-events: none;
     overflow: hidden;
+    contain: layout paint;
 }
 
 .lasered-half {
