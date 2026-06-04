@@ -2621,9 +2621,9 @@ const characters = [
                 "id": "aquaman-trident-strike",
                 "name": "Trident Strike",
                 "skillimage": "https://i.imgur.com/fvvaagh.jpeg",
-                "skilldescription": "Aquaman strikes one enemy with his trident, dealing 17 piercing damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn.",
+                "skilldescription": "Aquaman strikes one enemy with his trident, dealing 27 damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn.",
                 "energy": [
-                    "Random"
+                    "Taijutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -2636,10 +2636,10 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 17,
+                        "amount": 27,
                         "scope": "target",
                         "metadata": {
-                            "ignoreDamageReduction": true
+                            
                         }
                     },
                     {
@@ -2686,7 +2686,7 @@ const characters = [
                     },
                     {
                         "type": "damage",
-                        "amount": 15,
+                        "amount": 20,
                         "scope": "target",
                         "metadata": {
                             "afflictionDamage": true,
