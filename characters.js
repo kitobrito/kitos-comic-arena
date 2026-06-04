@@ -6336,7 +6336,7 @@ const characters = [
                 "id": "angstrom-levy-sneaky-portal",
                 "name": "Sneaky Portal",
                 "skillimage": "https://i.imgur.com/oSJHrpN.jpeg",
-                "skilldescription": "Targets one enemy for 1 turn, and.",
+                "skilldescription": "Targets one enemy for 1 turn, and if they use a new harmful skill they are countered and have 'Dimension Abandon' cast on them.",
                 "energy": [
                     "Taijutsu"
                 ],
@@ -6706,7 +6706,7 @@ const characters = [
                 "id": "billy-butcher-cancerous-tentacles",
                 "name": "Cancerous Tentacles",
                 "skillimage": "https://i.imgur.com/MUVL2C6.png",
-                "skilldescription": "Deals 25 piercing damage to one enemy and stuns their harmful skills for 1 turn. Butcher loses 10HP.",
+                "skilldescription": "Deals 25 piercing damage to one enemy and stuns their harmful skills for 1 turn. Butcher loses 5HP.",
                 "energy": [
                     "Bloodline",
                     "Random"
@@ -6742,7 +6742,7 @@ const characters = [
                     },
                     {
                         "type": "HealthLoss",
-                        "amount": 10,
+                        "amount": 5,
                         "scope": "self"
                     }
                 ]
@@ -6779,7 +6779,7 @@ const characters = [
                 "id": "billy-butcher-yellow-death-lasers",
                 "name": "Yellow Death Lasers",
                 "skillimage": "https://i.imgur.com/1MFzKut.jpeg",
-                "skilldescription": "Butcher deals 35 affliction damage to one enemy that.",
+                "skilldescription": "Butcher deals 35 affliction damage to one enemy",
                 "energy": [
                     "Random",
                     "Random"
