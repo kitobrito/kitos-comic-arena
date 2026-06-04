@@ -2993,7 +2993,7 @@ const characters = [
                 "id": "storm-ice-barrier",
                 "name": "Ice Barrier",
                 "skillimage": "https://i.imgur.com/fsSRHNk.png",
-                "skilldescription": "Storm targets herself or one ally, countering the first enemy skill used on them for 1 turn. until triggered.",
+                "skilldescription": "Storm targets herself or one ally, countering the first enemy skill used on them for 1 turn. until triggered. If successful, the protected ally gains 15 permanent destructible defense.",
                 "energy": [
                     "random"
                 ],
