@@ -2813,7 +2813,7 @@ const characters = [
                 ],
                 "target": "self",
                 "damage": 0,
-                "cooldown": 4,
+                "cooldown": 5,
                 "classes": [
                     "Physical",
                     "Ranged",
