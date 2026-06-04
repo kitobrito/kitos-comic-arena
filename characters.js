@@ -2883,10 +2883,9 @@ const characters = [
                 "id": "storm-lightning-strike",
                 "name": "Lightning Strike",
                 "skillimage": "https://i.imgur.com/cIQ7sTM.png",
-                "skilldescription": "Storm calls down lightning, dealing 30 piercing damage to one enemy and fully stunning them for 1 turn.",
+                "skilldescription": "Storm calls down lightning, dealing 25 piercing damage to one enemy and fully stunning them for 1 turn. During 'Rainstorm' this also deals 10 piercing damage to the other enemies.",
                 "energy": [
-                    "ninjutsu",
-                    "random"
+                    "ninjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -2900,7 +2899,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 30,
+                        "amount": 25,
                         "scope": "target",
                         "metadata": {
                             "ignoreDamageReduction": true
@@ -2949,9 +2948,9 @@ const characters = [
                 "id": "storm-rainstorm",
                 "name": "Rainstorm",
                 "skillimage": "https://i.imgur.com/xB6A34j.png",
-                "skilldescription": "Storm heals her entire team for 12 HP per turn for 4 turns. While active, this becomes 'Hailstorm' and Storm's skills are improved.",
+                "skilldescription": "Storm heals her entire team for 10 HP per turn for 4 turns. While active, this becomes 'Hailstorm' and Storm's skills are improved.",
                 "energy": [
-                    "Ninjutsu"
+                    "Random"
                 ],
                 "target": "all-allies",
                 "damage": 0,
@@ -2982,8 +2981,8 @@ const characters = [
                         "duration": 4,
                         "scope": "all-allies",
                         "metadata": {
-                            "turnEndHealFlat": 12,
-                            "tooltipText": "This character will heal 12 health each turn."
+                            "turnEndHealFlat": 10,
+                            "tooltipText": "This character will heal 10 health each turn."
                         },
                         "ignoreHelpfulInvulnerability": true
                     }
@@ -3135,10 +3134,9 @@ const characters = [
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
                 "skillimage": "https://i.imgur.com/cIQ7sTM.png",
-                "skilldescription": "Storm calls down lightning, dealing 30 piercing damage to one enemy and fully stunning them for 1 turn. This also deals 10 piercing damage to all other enemies.",
+                "skilldescription": "Storm calls down lightning, dealing 25 piercing damage to one enemy and fully stunning them for 1 turn. This also deals 10 piercing damage to all other enemies.",
                 "energy": [
-                    "ninjutsu",
-                    "random"
+                    "ninjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -3153,7 +3151,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 30,
+                        "amount": 25,
                         "scope": "target",
                         "metadata": {
                             "ignoreDamageReduction": true
