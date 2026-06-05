@@ -13375,7 +13375,7 @@ const characters = [
             {
                 "id": "wolverine-adamantium-claws",
                 "name": "Adamantium Claws",
-                "skillimage": "assets/images/wolverineadamantiumclaws.png",
+                "skillimage": "https://i.imgur.com/uxuPBsC.jpeg",
                 "skilldescription": "Wolverine slashes one enemy twice, dealing 10 piercing damage each time and making them bleed 2 HP permanently. This bleed stacks. During Hot Claws, each claw hit also deals 5 affliction damage and makes the target ignore healing effects for 1 turn. During Berserker Rage, Adamantium Claws hits an extra time.",
                 "energy": [
                     "Taijutsu"
