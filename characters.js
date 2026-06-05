@@ -13527,7 +13527,7 @@ const characters = [
                         "scope": "self",
                         "metadata": {
                             "sourceSkillName": "Hot Claws",
-                            "statusIconUrl": "assets/images/wolverinehotclaws.png",
+                            "statusIconUrl": "https://i.imgur.com/vUNE0Ga.jpeg",
                             "tooltipText": "Wolverine's Adamantium Claws deals 5 affliction damage each time it deals damage and makes the target ignore healing effects."
                         }
                     }
