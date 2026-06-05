@@ -13536,7 +13536,7 @@ const characters = [
             {
                 "id": "wolverine-berserker-rage",
                 "name": "Berserker Rage",
-                "skillimage": "assets/images/wolverineberserkerrage.png",
+                "skillimage": "https://i.imgur.com/khN5z3w.jpeg",
                 "skilldescription": "For 2 turns, Wolverine ignores enemy stun effects and all enemy damage he takes is delayed until this effect ends. During this time, Adamantium Claws damages an enemy an extra time.",
                 "energy": [
                     "Bloodline"
