@@ -343,6 +343,9 @@ body.skill-effects-muted .storm-wind-gust-enhanced,
 body.skill-effects-muted .blood-splatter-enhanced,
 body.skill-effects-muted .explosion-enhanced,
 body.skill-effects-muted .muzzle-flash-enhanced,
+body.skill-effects-muted .pixel-impact-fx,
+body.skill-effects-muted .pixel-portal-fx,
+body.skill-effects-muted .pixel-status-fx,
 body.skill-effects-muted .targeting-alert-enhanced,
 body.skill-effects-muted .energy-charge-enhanced,
 body.skill-effects-muted .superman-solar-flare-screen-fx,
@@ -8463,7 +8466,7 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     z-index: 120;
     pointer-events: none;
     animation: storm-lightning-strike-anim 600ms steps(7) forwards;
-    filter: drop-shadow(0 0 12px #9d00ff) brightness(1.2);
+    filter: hue-rotate(172deg) saturate(0.65) brightness(1.95) contrast(1.18) drop-shadow(0 0 12px #7ee7ff);
 }
 
 @keyframes storm-lightning-strike-anim {
@@ -8524,22 +8527,155 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 96px;
-    height: 96px;
-    margin-left: -48px;
-    margin-top: -48px;
-    background-image: url('../assets/Animations/spritesheet/Explosions/stylized_explosion_001/stylized_explosion_001_large_yellow/spritesheet.png');
+    width: 192px;
+    height: 192px;
+    margin-left: -96px;
+    margin-top: -96px;
+    background-image: url('../assets/Animations/spritesheet/Explosions/epic_explosion_002/epic_explosion_002_large_yellow/spritesheet.png');
     background-repeat: no-repeat;
-    background-size: 864px 96px;
+    background-size: 2880px 192px;
     z-index: 130;
     pointer-events: none;
-    animation: explosion-anim 800ms steps(9) forwards;
+    animation: explosion-anim 1000ms steps(15) forwards;
     filter: drop-shadow(0 0 10px #ffaa00);
+    transform: scale(0.92);
 }
 
 @keyframes explosion-anim {
     from { background-position: 0 0; }
-    to { background-position: -864px 0; }
+    to { background-position: -2880px 0; }
+}
+
+.pixel-impact-fx,
+.pixel-portal-fx,
+.pixel-status-fx {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    pointer-events: none;
+    background-repeat: no-repeat;
+}
+
+.pixel-impact-fx {
+    width: 160px;
+    height: 160px;
+    margin-left: -80px;
+    margin-top: -80px;
+    z-index: 118;
+    background-image: url('../assets/Animations/spritesheet/Impacts/symmetrical_impact_006/symmetrical_impact_006_large_yellow/spritesheet.png');
+    background-size: 1280px 160px;
+    animation: pixel-impact-anim 700ms steps(8) forwards;
+    filter: brightness(1.25) drop-shadow(0 0 8px rgba(255, 212, 72, 0.9));
+    transform: scale(0.72);
+}
+
+.pixel-impact-fx.damage {
+    filter: hue-rotate(328deg) saturate(1.25) brightness(1.3) drop-shadow(0 0 8px rgba(255, 82, 46, 0.85));
+}
+
+.pixel-impact-fx.poison {
+    filter: hue-rotate(82deg) saturate(1.45) brightness(1.08) drop-shadow(0 0 8px rgba(66, 255, 96, 0.8));
+}
+
+.pixel-impact-fx.heal {
+    filter: hue-rotate(118deg) saturate(1.1) brightness(1.45) drop-shadow(0 0 9px rgba(68, 255, 170, 0.9));
+}
+
+.pixel-impact-fx.shield {
+    filter: hue-rotate(171deg) saturate(1.35) brightness(1.45) drop-shadow(0 0 10px rgba(90, 210, 255, 0.95));
+}
+
+.pixel-impact-fx.shield-break {
+    filter: saturate(0.85) brightness(1.7) drop-shadow(0 0 8px rgba(255, 255, 255, 0.9));
+}
+
+@keyframes pixel-impact-anim {
+    from { background-position: 0 0; opacity: 1; }
+    to { background-position: -1280px 0; opacity: 0; }
+}
+
+.pixel-portal-fx {
+    width: 128px;
+    height: 128px;
+    margin-left: -64px;
+    margin-top: -64px;
+    z-index: 122;
+    background-image: url('../assets/Animations/spritesheet/Sci-fi/scifi_warp_003/scifi_warp_003_large_blue/spritesheet.png');
+    background-size: 1536px 128px;
+    animation: pixel-portal-anim 900ms steps(12) forwards;
+    filter: brightness(1.3) drop-shadow(0 0 11px rgba(80, 200, 255, 0.95));
+    transform: scale(1.16);
+}
+
+.pixel-portal-fx.green {
+    filter: hue-rotate(78deg) saturate(1.35) brightness(1.35) drop-shadow(0 0 12px rgba(87, 255, 120, 0.95));
+}
+
+@keyframes pixel-portal-anim {
+    from { background-position: 0 0; opacity: 1; }
+    to { background-position: -1536px 0; opacity: 0; }
+}
+
+.pixel-status-fx {
+    width: 128px;
+    height: 128px;
+    margin-left: -64px;
+    margin-top: -64px;
+    z-index: 119;
+    transform: scale(0.92);
+}
+
+.pixel-status-fx.poison {
+    background-image: url('../assets/Animations/spritesheet/Fantasy Spells/spell_poison_001/spell_poison_001_large_green/spritesheet.png');
+    background-size: 2176px 128px;
+    animation: pixel-status-poison-anim 1135ms steps(17) forwards;
+    filter: drop-shadow(0 0 10px rgba(63, 255, 80, 0.88));
+}
+
+.pixel-status-fx.absorb {
+    background-image: url('../assets/Animations/spritesheet/Fantasy Spells/spell_absorb_001/spell_absorb_001_large_violet/spritesheet.png');
+    background-size: 3968px 128px;
+    animation: pixel-status-absorb-anim 2065ms steps(31) forwards;
+    filter: hue-rotate(34deg) brightness(1.35) drop-shadow(0 0 10px rgba(180, 70, 255, 0.9));
+}
+
+.pixel-status-fx.defense {
+    background-image: url('../assets/Animations/spritesheet/Fantasy Spells/spell_defense_up_001/spell_defense_up_001_large_blue/spritesheet.png');
+    background-size: 2304px 128px;
+    animation: pixel-status-defense-anim 1200ms steps(18) forwards;
+    filter: brightness(1.35) drop-shadow(0 0 10px rgba(80, 210, 255, 0.9));
+}
+
+.pixel-status-fx.harmful {
+    background-image: url('../assets/Animations/spritesheet/Fantasy Spells/spell_death_001/spell_death_001_large_red/spritesheet.png');
+    background-size: 1280px 64px;
+    width: 64px;
+    height: 64px;
+    margin-left: -32px;
+    margin-top: -32px;
+    animation: pixel-status-harmful-anim 1335ms steps(20) forwards;
+    filter: brightness(1.25) drop-shadow(0 0 9px rgba(255, 40, 40, 0.9));
+    transform: scale(1.42);
+}
+
+@keyframes pixel-status-poison-anim {
+    from { background-position: 0 0; opacity: 1; }
+    to { background-position: -2176px 0; opacity: 0; }
+}
+
+@keyframes pixel-status-absorb-anim {
+    from { background-position: 0 0; opacity: 1; }
+    to { background-position: -3968px 0; opacity: 0; }
+}
+
+@keyframes pixel-status-defense-anim {
+    from { background-position: 0 0; opacity: 1; }
+    to { background-position: -2304px 0; opacity: 0; }
+}
+
+@keyframes pixel-status-harmful-anim {
+    from { background-position: 0 0; opacity: 1; }
+    to { background-position: -1280px 0; opacity: 0; }
 }
 
 /* Upgraded Muzzle Flash (Rick / Andrea / Seraphina) */
@@ -9738,6 +9874,9 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     .hp-delta-popup,
     .combat-impact-burst,
     .status-apply-burst,
+    .pixel-impact-fx,
+    .pixel-portal-fx,
+    .pixel-status-fx,
     .character-face.damage-impact,
     .character-face.heal-impact,
     .character-face.skill-caster-surge,

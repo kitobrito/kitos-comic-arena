@@ -2738,6 +2738,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             showTemporaryCardFx(card, 'explosion-enhanced', '', 800);
         };
 
+        const showPixelImpactFx = (card, variant = 'damage') => {
+            if (!card) return;
+            showTemporaryCardFx(card, `pixel-impact-fx ${variant}`, '', 760);
+        };
+
+        const showPixelPortalFx = (card, variant = 'blue') => {
+            if (!card) return;
+            showTemporaryCardFx(card, `pixel-portal-fx ${variant}`, '', 950);
+        };
+
+        const showPixelStatusFx = (card, variant = 'neutral') => {
+            if (!card) return;
+            showTemporaryCardFx(card, `pixel-status-fx ${variant}`, '', 1250);
+        };
+
         const getTargetForCardFromOptions = (card, options = activeTargetOptions) => {
             if (!card || !options || !Array.isArray(options.targets)) return null;
             const slot = Number.parseInt(card.dataset.slot, 10);
@@ -3080,6 +3095,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     '<span></span><span></span><span></span>',
                     1200
                 );
+            }
+            if (skillId.startsWith('angstrom-levy')) {
+                getTargetCardsFromSelection(selection).forEach((targetCard) => showPixelPortalFx(targetCard, 'blue'));
             }
             showDirectionalSkillFx({ actorCard, actorSlot, skill: effectiveSkill, selection });
             showStormSkillPortraitFx(effectiveSkill, selection);
@@ -4472,6 +4490,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             ].filter(Boolean).join(' ');
             card.appendChild(burst);
             window.setTimeout(() => burst.remove(), 1050);
+            showPixelImpactFx(card, isDamage ? (isAffliction ? 'poison' : 'damage') : 'heal');
         };
 
         const animateDefenseImpact = (card, delta) => {
@@ -4480,6 +4499,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             burst.className = `combat-impact-burst shield ${delta < 0 ? 'break' : 'gain'}`;
             card.appendChild(burst);
             window.setTimeout(() => burst.remove(), 1100);
+            showPixelImpactFx(card, delta < 0 ? 'shield-break' : 'shield');
             playGeneratedIngameSound('shield-hit');
         };
 
@@ -5764,6 +5784,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             const hasAndreaLock = statuses.some((status) => status?.id === 'andrea_locked_on_mark');
             const hasPredatorCloak = statuses.some((status) => status?.id === 'predator_stalker_cloaking_tech_active');
             const hasStormIce = statuses.some((status) => status?.id === 'storm_ice_barrier_countered');
+            const hasPoison = statuses.some((status) => {
+                const statusText = `${status?.id || ''} ${status?.sourceSkillId || ''} ${status?.metadata?.sourceSkillName || ''}`.toLowerCase();
+                return statusText.includes('poison') || statusText.includes('venom') || statusText.includes('toxin');
+            });
+            const hasAbsorb = statuses.some((status) => {
+                const statusText = `${status?.id || ''} ${status?.sourceSkillId || ''} ${status?.metadata?.sourceSkillName || ''}`.toLowerCase();
+                return statusText.includes('absorb') || statusText.includes('leech') || statusText.includes('drain');
+            });
             const isPassive =
                 /passive/i.test(statusSkill?.name || '') ||
                 /passive/i.test(group?.sourceSkillId || '');
@@ -5788,6 +5816,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             burst.textContent = isBomb ? 'BOMB ACTIVE' : isPassive ? 'PASSIVE' : harmful ? 'DEBUFF' : helpful ? 'BUFF' : 'STATUS';
             card.appendChild(burst);
             window.setTimeout(() => burst.remove(), 1500);
+            if (hasAngstromPortal) {
+                showPixelPortalFx(card, 'green');
+            } else if (hasPoison) {
+                showPixelStatusFx(card, 'poison');
+            } else if (hasAbsorb) {
+                showPixelStatusFx(card, 'absorb');
+            } else if (helpful) {
+                showPixelStatusFx(card, 'defense');
+            } else if (harmful) {
+                showPixelStatusFx(card, 'harmful');
+            }
             if (isBomb) {
                 playGeneratedIngameSound('bomb-arm');
             } else if (hasSpiderWeb) {
