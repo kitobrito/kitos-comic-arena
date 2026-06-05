@@ -1543,7 +1543,9 @@ const DEFAULT_MISSION_CATALOG = [
     }
 ];
 
-const REGULAR_MATCH_BACKGROUNDS = [
+const IMAGE_ASSET_EXTENSIONS = new Set(['.avif', '.gif', '.jpeg', '.jpg', '.png', '.svg', '.webp']);
+const REGULAR_MATCH_BACKGROUND_DIRECTORY = 'assets/images/NewINgames';
+const LEGACY_REGULAR_MATCH_BACKGROUNDS = [
     'assets/images/NewYorkBG.png',
     'assets/images/SpeedForceBG.png',
     'assets/images/gothamcityBG.png',
@@ -1551,9 +1553,88 @@ const REGULAR_MATCH_BACKGROUNDS = [
     'assets/images/TheWalkingDeadBG.png',
     'assets/images/AlienBattleBG.png'
 ];
+const PVE_MISSION_BACKGROUND_ASSETS = {
+    walker: 'assets/images/WalkerPVEMIssion',
+    'rage-infected': 'assets/images/RageinfectedPVEMission',
+    'predator-stalker': 'assets/images/predatorpvemission',
+    'xenomorph-drone': 'assets/images/xenomorphpvemission',
+};
 
-const getRandomRegularBackground = () =>
-    REGULAR_MATCH_BACKGROUNDS[Math.floor(Math.random() * REGULAR_MATCH_BACKGROUNDS.length)];
+const normalizeAssetPathForClient = (assetPath = '') =>
+    String(assetPath || '').replace(/\\/g, '/').replace(/^\/+/, '');
+
+const getAssetFileSystemPath = (assetPath = '') =>
+    path.join(__dirname, normalizeAssetPathForClient(assetPath));
+
+const isImageAssetPath = (assetPath = '') => IMAGE_ASSET_EXTENSIONS.has(path.extname(assetPath).toLowerCase());
+
+const listImageAssetsInDirectory = (assetDirectory = '') => {
+    const normalizedDirectory = normalizeAssetPathForClient(assetDirectory);
+    const directoryPath = getAssetFileSystemPath(normalizedDirectory);
+    try {
+        if (!fs.existsSync(directoryPath) || !fs.statSync(directoryPath).isDirectory()) {
+            return [];
+        }
+        return fs
+            .readdirSync(directoryPath, { withFileTypes: true })
+            .filter((entry) => entry.isFile() && isImageAssetPath(entry.name))
+            .map((entry) => `${normalizedDirectory}/${entry.name}`)
+            .sort((left, right) => left.localeCompare(right));
+    } catch (error) {
+        console.warn('Unable to read image asset directory:', normalizedDirectory, error.message);
+        return [];
+    }
+};
+
+const findNamedImageAsset = (assetName = '') => {
+    const normalizedName = normalizeAssetPathForClient(assetName);
+    const directPath = getAssetFileSystemPath(normalizedName);
+    try {
+        if (fs.existsSync(directPath)) {
+            const stats = fs.statSync(directPath);
+            if (stats.isFile() && isImageAssetPath(normalizedName)) {
+                return normalizedName;
+            }
+            if (stats.isDirectory()) {
+                return listImageAssetsInDirectory(normalizedName)[0] || '';
+            }
+        }
+        const parentAssetDirectory = path.posix.dirname(normalizedName);
+        const basename = path.posix.basename(normalizedName).toLowerCase();
+        const parentFsDirectory = getAssetFileSystemPath(parentAssetDirectory);
+        if (!fs.existsSync(parentFsDirectory) || !fs.statSync(parentFsDirectory).isDirectory()) {
+            return '';
+        }
+        const matchingFile = fs
+            .readdirSync(parentFsDirectory, { withFileTypes: true })
+            .filter((entry) => entry.isFile() && isImageAssetPath(entry.name))
+            .map((entry) => entry.name)
+            .find((filename) => path.basename(filename, path.extname(filename)).toLowerCase() === basename);
+        return matchingFile ? `${parentAssetDirectory}/${matchingFile}` : '';
+    } catch (error) {
+        console.warn('Unable to resolve image asset:', normalizedName, error.message);
+        return '';
+    }
+};
+
+const getRegularMatchBackgroundPool = () => {
+    const newIngameBackgrounds = listImageAssetsInDirectory(REGULAR_MATCH_BACKGROUND_DIRECTORY);
+    if (newIngameBackgrounds.length) {
+        return newIngameBackgrounds;
+    }
+    const namedNewIngameBackground = findNamedImageAsset(REGULAR_MATCH_BACKGROUND_DIRECTORY);
+    return namedNewIngameBackground ? [namedNewIngameBackground] : LEGACY_REGULAR_MATCH_BACKGROUNDS;
+};
+
+const getRandomRegularBackground = () => {
+    const backgroundPool = getRegularMatchBackgroundPool();
+    return backgroundPool[Math.floor(Math.random() * backgroundPool.length)] || '';
+};
+
+const getPveMissionBackgroundForReward = (rewardCharacterId = '', fallback = '') => {
+    const replacementAsset = PVE_MISSION_BACKGROUND_ASSETS[normalizeCharacterId(rewardCharacterId)];
+    return (replacementAsset && findNamedImageAsset(replacementAsset)) || fallback || '';
+};
 
 let mongoClient;
 let usersCollection;
@@ -2294,6 +2375,16 @@ const normalizeMissionSpecialPve = (source = {}, rewardCharacterId = '') => {
         raw.max_queued_skills_per_turn ??
         defaults.botMaxQueuedSkillsPerTurn;
     const botMaxQueuedSkillsPerTurn = Math.max(1, Math.min(3, Number(rawMaxQueuedSkills) || 1));
+    const requestedBackgroundImage =
+        typeof raw.backgroundImage === 'string' && raw.backgroundImage.trim()
+            ? raw.backgroundImage.trim()
+            : typeof raw.background_image === 'string' && raw.background_image.trim()
+                ? raw.background_image.trim()
+                : defaults.backgroundImage;
+    const backgroundImage = getPveMissionBackgroundForReward(
+        normalizedRewardCharacterId,
+        requestedBackgroundImage
+    );
     return {
         enabled,
         buttonLabel:
@@ -2311,14 +2402,7 @@ const normalizeMissionSpecialPve = (source = {}, rewardCharacterId = '') => {
         botTeamCharacterId,
         botTeamSize,
         botMaxQueuedSkillsPerTurn,
-        backgroundImage:
-            normalizedRewardCharacterId === 'xenomorph-drone'
-                ? XENOMORPH_DRONE_SPECIAL_PVE.backgroundImage
-                : typeof raw.backgroundImage === 'string' && raw.backgroundImage.trim()
-                ? raw.backgroundImage.trim()
-                : typeof raw.background_image === 'string' && raw.background_image.trim()
-                    ? raw.background_image.trim()
-                    : defaults.backgroundImage,
+        backgroundImage,
         playerTeamCharacterIds,
     };
 };

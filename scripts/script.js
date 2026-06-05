@@ -2584,6 +2584,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         const waitForMs = (durationMs) =>
             new Promise((resolve) => window.setTimeout(resolve, durationMs));
 
+        const clearTransientPortraitAnimationState = () => {
+            document
+                .querySelectorAll('.character-face.skill-caster-surge, .character-face.damage-impact, .character-face.heal-impact, .character-face.evade-dodge')
+                .forEach((face) => {
+                    face.classList.remove('skill-caster-surge', 'damage-impact', 'heal-impact', 'evade-dodge');
+                    face.style.transform = '';
+                });
+            document
+                .querySelectorAll('.skillimage')
+                .forEach((skillEl) => {
+                    if (!skillEl.classList.contains('skill-queue-trail') && !skillEl.style.transform) return;
+                    skillEl.classList.remove('skill-queue-trail');
+                    skillEl.style.transform = '';
+                });
+        };
+
         const playQueuedResolutionSequence = async (entries = []) => {
             const sequence = Array.isArray(entries) ? entries : [];
             if (!sequence.length) return;
@@ -2598,6 +2614,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 await waitForMs(980);
             }
             await waitForMs(260);
+            clearTransientPortraitAnimationState();
             isPlayingResolutionSequence = false;
         };
 
@@ -2896,6 +2913,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 window.setTimeout(() => {
                     if (skillEl) {
                         skillEl.classList.remove('skill-queue-trail');
+                        skillEl.style.transform = '';
                     }
                 }, 760);
             } else {
@@ -5999,6 +6017,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 tenten_weapon_last_scythe: 'https://i.imgur.com/NXDITvE.png',
                 tenten_weapon_last_mace: 'https://i.imgur.com/iRZ8SMk.png',
             };
+            const fallbackFace = card.querySelector('.character-face');
+            const fallbackStatusIconSrc =
+                fallbackFace?.dataset?.aliveSrc || fallbackFace?.src || 'assets/images/skillqqueue.png';
             const rexAmmoStatusIconById = {
                 rex_splode_explosive_baton_usage: 'https://i.imgur.com/rSLzlpG.png',
                 rex_splode_explosive_baton_usage_tracker: 'https://i.imgur.com/rSLzlpG.png',
@@ -6289,10 +6310,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 iconEl.style.display = 'block';
                 iconEl.removeAttribute('title');
-                const iconSrc = resolveStatusIconSrc(group, statusSkill);
-                if (iconSrc) {
-                    iconEl.src = iconSrc;
-                }
+                const iconSrc = resolveStatusIconSrc(group, statusSkill) || fallbackStatusIconSrc;
+                iconEl.src = iconSrc;
                 const isNewStatusIcon = !previousStatusIconKeys.has(group.key);
                 const isPassiveStatus =
                     /passive/i.test(statusSkill?.name || '') ||
@@ -6606,6 +6625,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 deferredResolutionMatchState = data;
                 return;
             }
+            clearTransientPortraitAnimationState();
             if (data.player?.username) {
                 currentPlayerUsername = data.player.username;
             }
