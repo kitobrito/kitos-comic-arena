@@ -13355,7 +13355,7 @@ const characters = [
         "id": "wolverine",
         "characterId": "wolverine",
         "name": "Wolverine",
-        "facePicture": "assets/images/wolverinefp.png",
+        "facePicture": "https://i.imgur.com/f7VtSN1.jpeg",
         "characterdeescription": "Logan, the Wolverine, is a relentless mutant brawler with adamantium bones, razor claws, and a healing factor that lets him keep fighting through punishment that would stop almost anyone else. He pressures enemies with stacking bleed wounds, turns his claws white-hot when pushed, and can enter a berserker rage that delays incoming damage until his fury finally burns out.",
         "startStatuses": [
             {
