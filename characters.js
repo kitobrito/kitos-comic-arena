@@ -13569,7 +13569,7 @@ const characters = [
             {
                 "id": "wolverine-healing-factor",
                 "name": "Healing Factor",
-                "skillimage": "assets/images/wolverinehealingfactor.png",
+                "skillimage": "https://i.imgur.com/eCcmhup.jpeg",
                 "skilldescription": "Wolverine heals 10 HP for 3 turns. This effect stacks.",
                 "energy": [
                     "Random"
