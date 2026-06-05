@@ -13507,7 +13507,7 @@ const characters = [
             {
                 "id": "wolverine-hot-claws",
                 "name": "Hot Claws",
-                "skillimage": "assets/images/wolverinehotclaws.png",
+                "skillimage": "https://i.imgur.com/vUNE0Ga.jpeg",
                 "skilldescription": "For 3 turns, Wolverine's Adamantium Claws deals 5 affliction damage each time it deals damage and makes the target ignore healing effects for 1 turn.",
                 "energy": [],
                 "target": "self",
