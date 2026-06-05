@@ -9709,6 +9709,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         'mysterio',
         'scorpion',
         'the-hulk',
+        'wolverine',
         'superman',
         'batman',
         'aquaman',

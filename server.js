@@ -5358,6 +5358,8 @@ const CLIENT_SAFE_STATUS_METADATA_KEYS = new Set([
     'cannotUseSkills',
     'DamageDebuff',
     'destructibleDefenseRestore',
+    'delayedDamage',
+    'delayEnemyDamageUntilExpire',
     'effectiveCharacterId',
     'evadeAgainstNonMental',
     'evadeChancePercent',

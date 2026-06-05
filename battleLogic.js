@@ -338,7 +338,7 @@ const getStatusMetadataTotals = (actorState, ownerUnit = null) => {
             totals.damageTakenMultiplier *= Math.max(0, Number(metadata.damageTakenMultiplier) || 1);
         }
         if (Number.isFinite(metadata.healReceivedMultiplier)) {
-            statusHealReceivedMultiplier = Math.max(0, Number(metadata.healReceivedMultiplier) || 1);
+            statusHealReceivedMultiplier = Math.max(0, Number(metadata.healReceivedMultiplier));
         }
         const healMultiplierAtMostThreshold = Number(
             metadata.healReceivedMultiplierWhenOwnerCurrentHpAtMostThreshold
@@ -1149,6 +1149,13 @@ const doesEffectConditionMatch = ({
         Array.isArray(condition?.statusIdsAny) &&
         condition.statusIdsAny.length > 0 &&
         !condition.statusIdsAny.some((statusId) => hasStatus(scopedState, statusId))
+    ) {
+        return false;
+    }
+    if (
+        Array.isArray(condition?.statusIdsAll) &&
+        condition.statusIdsAll.length > 0 &&
+        !condition.statusIdsAll.every((statusId) => hasStatus(scopedState, statusId))
     ) {
         return false;
     }
@@ -3161,6 +3168,31 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
         appliedUnpierceableMitigation = Math.min(baseUnpierceableMitigation, postStandardMitigation);
     }
     const dealt = roundCombatAmountUp(postStandardMitigation - appliedUnpierceableMitigation);
+    if (
+        dealt > 0 &&
+        !Boolean(context?.ignoreDamageDelay) &&
+        context?.sourceUsername &&
+        context?.targetUsername &&
+        context.sourceUsername !== context.targetUsername
+    ) {
+        const delayStatus = (Array.isArray(targetState.statuses) ? targetState.statuses : []).find(
+            (status) =>
+                isStatusActiveForMetadata(status, unit) &&
+                Boolean(status?.metadata?.delayEnemyDamageUntilExpire)
+        );
+        if (delayStatus) {
+            const metadata =
+                delayStatus?.metadata && typeof delayStatus.metadata === 'object'
+                    ? { ...delayStatus.metadata }
+                    : {};
+            metadata.delayedDamage = Math.max(0, Number(metadata.delayedDamage) || 0) + dealt;
+            if (typeof metadata.tooltipTextTemplate === 'string' && metadata.tooltipTextTemplate) {
+                metadata.tooltipText = renderTooltipTemplate(metadata.tooltipTextTemplate, metadata);
+            }
+            delayStatus.metadata = metadata;
+            return 0;
+        }
+    }
     unit.hp = Math.max(contextualMinimumHp, (Number(unit.hp) || 0) - dealt);
     if (dealt > 0) {
         setLastDamageDebug(targetState, dealt, context);
@@ -7666,6 +7698,30 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                         targetSlot: unitSlot,
                         damageDebugReason: 'turn end health loss',
                     });
+                }
+                const delayedDamage = Math.max(0, Number(status?.metadata?.delayedDamage) || 0);
+                if (
+                    delayedDamage > 0 &&
+                    Boolean(status?.metadata?.delayEnemyDamageUntilExpire) &&
+                    Math.max(0, Number(status?.remainingTurns) || 0) <= 1
+                ) {
+                    applyHealthLossToUnit(unit, delayedDamage, {
+                        match,
+                        sourceSkillId: status?.sourceSkillId || null,
+                        sourceUsername: status?.sourceUsername || null,
+                        sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
+                        targetUsername: username,
+                        targetSlot: unitSlot,
+                        damageDebugLabel:
+                            typeof status?.metadata?.sourceSkillName === 'string'
+                                ? status.metadata.sourceSkillName
+                                : 'Delayed Damage',
+                        damageDebugReason: 'delayed',
+                    });
+                    status.metadata = {
+                        ...(status.metadata || {}),
+                        delayedDamage: 0,
+                    };
                 }
                 const turnEndHealthCapLoss = Math.max(
                     0,

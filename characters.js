@@ -13350,6 +13350,274 @@ const characters = [
         "role": "Scaling Bruiser / Assassin",
         "universe": "marvel",
         "roleCategory": "damage"
+    },
+    {
+        "id": "wolverine",
+        "characterId": "wolverine",
+        "name": "Wolverine",
+        "facePicture": "assets/images/wolverinefp.png",
+        "characterdeescription": "Logan, the Wolverine, is a relentless mutant brawler with adamantium bones, razor claws, and a healing factor that lets him keep fighting through punishment that would stop almost anyone else. He pressures enemies with stacking bleed wounds, turns his claws white-hot when pushed, and can enter a berserker rage that delays incoming damage until his fury finally burns out.",
+        "startStatuses": [
+            {
+                "statusId": "wolverine_adamantium_skeleton",
+                "duration": 999,
+                "sourceSkillId": "wolverine-passive-adamantium-skeleton",
+                "metadata": {
+                    "infiniteDuration": true,
+                    "sourceSkillName": "Passive: Adamantium Skeleton",
+                    "statusIconUrl": "assets/images/wolverineadamantiumskeleton.png",
+                    "unpierceableDamageReductionFlat": 5,
+                    "tooltipText": "Wolverine has 5 permanent unpierceable damage reduction."
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "wolverine-adamantium-claws",
+                "name": "Adamantium Claws",
+                "skillimage": "assets/images/wolverineadamantiumclaws.png",
+                "skilldescription": "Wolverine slashes one enemy twice, dealing 10 piercing damage each time and making them bleed 2 HP permanently. This bleed stacks. During Hot Claws, each claw hit also deals 5 affliction damage and makes the target ignore healing effects for 1 turn. During Berserker Rage, Adamantium Claws hits an extra time.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "wolverine_berserker_rage"
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "wolverine_adamantium_claws_bleed",
+                        "duration": 999,
+                        "sourceSkillId": "wolverine-adamantium-claws",
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "sourceSkillName": "Adamantium Claws",
+                            "statusIconUrl": "assets/images/wolverineadamantiumclaws.png",
+                            "turnEndDamage": 2,
+                            "afflictionDamage": true,
+                            "fixedTurnEndDamage": true,
+                            "ignoreDamageImmunity": true,
+                            "ignoreAfflictionDamageImmunity": true,
+                            "triggerOnApply": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "mergeNumericAddKeys": [
+                                "turnEndDamage"
+                            ],
+                            "tooltipTextTemplate": "This character bleeds for {turnEndDamage} HP at the end of each of Wolverine's turns. This bleed is permanent and stacks."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "wolverine_hot_claws"
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "wolverine_hot_claws"
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusIdsAll": [
+                                "wolverine_hot_claws",
+                                "wolverine_berserker_rage"
+                            ]
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "wolverine_hot_claws_healing_block",
+                        "duration": 1,
+                        "sourceSkillId": "wolverine-hot-claws",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "wolverine_hot_claws"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "sourceSkillName": "Hot Claws",
+                            "statusIconUrl": "assets/images/wolverinehotclaws.png",
+                            "healReceivedMultiplier": 0,
+                            "tooltipText": "This character ignores healing effects."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "wolverine-hot-claws",
+                "name": "Hot Claws",
+                "skillimage": "assets/images/wolverinehotclaws.png",
+                "skilldescription": "For 3 turns, Wolverine's Adamantium Claws deals 5 affliction damage each time it deals damage and makes the target ignore healing effects for 1 turn.",
+                "energy": [],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 5,
+                "classes": [
+                    "Energy",
+                    "Instant",
+                    "Affliction"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "wolverine_hot_claws",
+                        "duration": 3,
+                        "sourceSkillId": "wolverine-hot-claws",
+                        "scope": "self",
+                        "metadata": {
+                            "sourceSkillName": "Hot Claws",
+                            "statusIconUrl": "assets/images/wolverinehotclaws.png",
+                            "tooltipText": "Wolverine's Adamantium Claws deals 5 affliction damage each time it deals damage and makes the target ignore healing effects."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "wolverine-berserker-rage",
+                "name": "Berserker Rage",
+                "skillimage": "assets/images/wolverineberserkerrage.png",
+                "skilldescription": "For 2 turns, Wolverine ignores enemy stun effects and all enemy damage he takes is delayed until this effect ends. During this time, Adamantium Claws damages an enemy an extra time.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Mental",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "wolverine_berserker_rage",
+                        "duration": 2,
+                        "sourceSkillId": "wolverine-berserker-rage",
+                        "scope": "self",
+                        "metadata": {
+                            "sourceSkillName": "Berserker Rage",
+                            "statusIconUrl": "assets/images/wolverineberserkerrage.png",
+                            "cannotBeStunned": true,
+                            "delayEnemyDamageUntilExpire": true,
+                            "delayedDamage": 0,
+                            "tooltipTextTemplate": "Wolverine ignores enemy stun effects, delays enemy damage until this effect ends, and Adamantium Claws hits an extra time. Delayed damage: {delayedDamage}."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "wolverine-healing-factor",
+                "name": "Healing Factor",
+                "skillimage": "assets/images/wolverinehealingfactor.png",
+                "skilldescription": "Wolverine heals 10 HP for 3 turns. This effect stacks.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "wolverine_healing_factor",
+                        "duration": 3,
+                        "sourceSkillId": "wolverine-healing-factor",
+                        "scope": "self",
+                        "metadata": {
+                            "sourceSkillName": "Healing Factor",
+                            "statusIconUrl": "assets/images/wolverinehealingfactor.png",
+                            "turnEndHealFlat": 10,
+                            "mergeNumericAddKeys": [
+                                "turnEndHealFlat"
+                            ],
+                            "tooltipTextTemplate": "Wolverine heals {turnEndHealFlat} HP each turn from Healing Factor."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "wolverine-passive-adamantium-skeleton",
+                "name": "Passive: Adamantium Skeleton",
+                "skillimage": "assets/images/wolverineadamantiumskeleton.png",
+                "skilldescription": "Wolverine starts the game with 5 permanent unpierceable damage reduction.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            }
+        ],
+        "role": "Regenerating Bleed Bruiser",
+        "universe": "marvel",
+        "roleCategory": "damage"
     }
 ];
 
