@@ -4139,6 +4139,54 @@ const runGitCommand = (args) =>
         maxBuffer: 10 * 1024 * 1024,
     });
 
+const getGitCommandOutput = async (args) => {
+    const result = await runGitCommand(args);
+    return String(result?.stdout || '').trim();
+};
+
+const getConfiguredGitPushTarget = async () => {
+    const configuredRemote = String(
+        process.env.GIT_PUSH_REMOTE ||
+            process.env.GITHUB_PUSH_REMOTE ||
+            process.env.GITHUB_REMOTE ||
+            ''
+    ).trim();
+    const configuredBranch = String(
+        process.env.GIT_PUSH_BRANCH ||
+            process.env.GITHUB_PUSH_BRANCH ||
+            process.env.RENDER_GIT_BRANCH ||
+            process.env.BRANCH ||
+            ''
+    ).trim();
+
+    const remoteList = (await getGitCommandOutput(['remote']).catch(() => ''))
+        .split(/\s+/)
+        .map((remote) => remote.trim())
+        .filter(Boolean);
+    const currentBranch = await getGitCommandOutput(['branch', '--show-current']).catch(() => '');
+    const upstreamRemote = currentBranch
+        ? await getGitCommandOutput(['config', '--get', `branch.${currentBranch}.remote`]).catch(() => '')
+        : '';
+    const upstreamMerge = currentBranch
+        ? await getGitCommandOutput(['config', '--get', `branch.${currentBranch}.merge`]).catch(() => '')
+        : '';
+    const upstreamBranch = upstreamMerge.replace(/^refs\/heads\//, '').trim();
+    const remote =
+        configuredRemote ||
+        upstreamRemote ||
+        (remoteList.includes('kitos-comic-arena') ? 'kitos-comic-arena' : '') ||
+        (remoteList.includes('origin') ? 'origin' : '') ||
+        remoteList[0] ||
+        '';
+    const branch = configuredBranch || upstreamBranch || currentBranch || 'main';
+
+    if (!remote) {
+        throw new Error('No Git remote is configured. Set GIT_PUSH_REMOTE or add a repository remote.');
+    }
+
+    return { remote, branch };
+};
+
 const syncCharactersDataToGitHub = async ({ updatedBy = '' } = {}) => {
     await runGitCommand(['add', '--', 'characters.js']);
     let hasStagedCharacterChanges = false;
@@ -4162,11 +4210,12 @@ const syncCharactersDataToGitHub = async ({ updatedBy = '' } = {}) => {
 
     const safeUsername = String(updatedBy || 'admin').replace(/\s+/g, ' ').trim() || 'admin';
     await runGitCommand(['commit', '-m', `Admin: Update character data by ${safeUsername}`]);
-    await runGitCommand(['push']);
+    const pushTarget = await getConfiguredGitPushTarget();
+    await runGitCommand(['push', pushTarget.remote, `HEAD:${pushTarget.branch}`]);
     return {
         committed: true,
         pushed: true,
-        message: 'Changes committed and pushed to GitHub.',
+        message: `Changes committed and pushed to ${pushTarget.remote}/${pushTarget.branch}.`,
     };
 };
 
