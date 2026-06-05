@@ -13603,7 +13603,7 @@ const characters = [
             {
                 "id": "wolverine-passive-adamantium-skeleton",
                 "name": "Passive: Adamantium Skeleton",
-                "skillimage": "assets/images/wolverineadamantiumskeleton.png",
+                "skillimage": "https://i.imgur.com/hkbOrMO.jpeg",
                 "skilldescription": "Wolverine starts the game with 5 permanent unpierceable damage reduction.",
                 "energy": [],
                 "target": "",
