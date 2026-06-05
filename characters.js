@@ -13047,6 +13047,7 @@ const characters = [
                     "infiniteDuration": true,
                     "drBonus": 0,
                     "sourceSkillName": "Passive: Spirit of Vengeance",
+                    "statusIconUrl": "assets/images/ghostridermotorcycle.png",
                     "unpierceableDamageReductionFlatPerStatusMetadataKey": "drBonus",
                     "unpierceableDamageReductionFlatPerStatusMetadataStep": 1,
                     "unpierceableDamageReductionFlatPerStatusMetadataAmount": 1,
@@ -13069,6 +13070,7 @@ const characters = [
                                 "harmfulUsed": 0,
                                 "sins": 0,
                                 "sourceSkillName": "Penance Stare",
+                                "statusIconUrl": "assets/images/ghostriderpenancestare.png",
                                 "onOwnerUseSkillTrigger": true,
                                 "onOwnerUseSkillHarmfulOnly": true,
                                 "persistOnOwnerUseSkillTrigger": true,
@@ -13077,11 +13079,15 @@ const characters = [
                                     "duration": 999,
                                     "sourceSkillId": "ghost-rider-penance-stare",
                                     "metadata": {
-                                        "mergeNumericAddKeys": ["harmfulUsed", "sins"],
+                                        "mergeNumericAddKeys": [
+                                            "harmfulUsed",
+                                            "sins"
+                                        ],
                                         "harmfulUsed": 1,
                                         "sins": 1,
                                         "infiniteDuration": true,
                                         "sourceSkillName": "Penance Stare",
+                                        "statusIconUrl": "assets/images/ghostriderpenancestare.png",
                                         "tooltipTextTemplate": "This character has used {harmfulUsed} harmful skills and has {sins} sins. Ghost Rider deals {sins} additional affliction damage to them."
                                     }
                                 }
@@ -13138,6 +13144,7 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "sourceSkillName": "Hellfire Flame",
+                            "statusIconUrl": "assets/images/ghostriderhellfireflame.png",
                             "turnEndDamage": 5,
                             "afflictionDamage": true,
                             "ignoreInvulnerability": true,
@@ -13193,6 +13200,7 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "sourceSkillName": "Penance Stare",
+                            "statusIconUrl": "assets/images/ghostriderpenancestare.png",
                             "cannotUseHarmfulSkills": true,
                             "damageDebuffFlat": 5,
                             "afflictionDamageTakenBonusFlat": 5,
@@ -13208,8 +13216,10 @@ const characters = [
                         "metadata": {
                             "infiniteDuration": true,
                             "sourceSkillName": "Passive: Spirit of Vengeance",
+                            "statusIconUrl": "assets/images/ghostridermotorcycle.png",
                             "stackMetadataKey": "drBonus",
-                            "stackDelta": 5
+                            "stackDelta": 5,
+                            "stackMax": 999
                         }
                     }
                 ]
@@ -13299,6 +13309,7 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "sourceSkillName": "Infernal Ride",
+                            "statusIconUrl": "assets/images/ghostriderhellfiretruck.png",
                             "invulnerable": true,
                             "ignoreInvulnerabilityFromSourceCharacterId": "ghost-rider",
                             "tooltipText": "This character is in an Infernal Ride with Ghost Rider."
@@ -13313,6 +13324,7 @@ const characters = [
                         "metadata": {
                             "invulnerable": true,
                             "sourceSkillName": "Infernal Ride",
+                            "statusIconUrl": "assets/images/ghostriderhellfiretruck.png",
                             "ignoreEnemyInvulnerability": true,
                             "ignoreStun": true,
                             "tooltipText": "Ghost Rider is in an Infernal Ride."

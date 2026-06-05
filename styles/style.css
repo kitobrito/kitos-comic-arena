@@ -5594,8 +5594,8 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     position: absolute;
     left: 50%;
     top: 49%;
-    width: 75px;
-    height: 75px;
+    width: 110px;
+    height: 156px;
     z-index: 76;
     pointer-events: none;
     transform: translate(-50%, -50%) rotate(-2deg);
@@ -5606,9 +5606,9 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 }
 
 .xenomorph-facehugger-overlay img {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
+    width: 110px;
+    height: 156px;
+    object-fit: fill;
     display: block;
 }
 
@@ -10149,6 +10149,10 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     box-shadow: 0 0 15px #ff0000, 0 0 30px #ff0000, 0 0 5px #ff0000 inset;
 }
 
+.laser-beam.blue {
+    box-shadow: 0 0 15px #66d9ff, 0 0 30px #1f6fff, 0 0 5px #ffffff inset;
+}
+
 .laser-beam.yellow {
     box-shadow: 0 0 15px #ffcc00, 0 0 30px #ffcc00, 0 0 5px #ffcc00 inset;
 }
@@ -10156,21 +10160,23 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 .laser-beam.one {
     top: 45%;
     left: -25%;
-    transform: rotate(5deg);
+    --laser-rotation: 5deg;
+    transform: rotate(var(--laser-rotation));
 }
 
 .laser-beam.two {
     top: 55%;
     left: -25%;
-    transform: rotate(-3deg);
+    --laser-rotation: -3deg;
+    transform: rotate(var(--laser-rotation));
     animation-delay: 0.1s;
 }
 
 @keyframes laser-cut {
-    0% { transform: translateX(-100%) rotate(inherit); opacity: 0; }
+    0% { transform: translateX(-100%) rotate(var(--laser-rotation, 0deg)); opacity: 0; }
     20% { opacity: 1; }
     80% { opacity: 1; }
-    100% { transform: translateX(100%) rotate(inherit); opacity: 0; }
+    100% { transform: translateX(100%) rotate(var(--laser-rotation, 0deg)); opacity: 0; }
 }
 
 .lasered-callout {

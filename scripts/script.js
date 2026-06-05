@@ -2584,6 +2584,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         const waitForMs = (durationMs) =>
             new Promise((resolve) => window.setTimeout(resolve, durationMs));
 
+        const clearTransientPortraitAnimationState = () => {
+            document
+                .querySelectorAll('.character-face.skill-caster-surge, .character-face.damage-impact, .character-face.heal-impact, .character-face.evade-dodge')
+                .forEach((face) => {
+                    face.classList.remove('skill-caster-surge', 'damage-impact', 'heal-impact', 'evade-dodge');
+                    face.style.transform = '';
+                });
+            document
+                .querySelectorAll('.skillimage')
+                .forEach((skillEl) => {
+                    if (!skillEl.classList.contains('skill-queue-trail') && !skillEl.style.transform) return;
+                    skillEl.classList.remove('skill-queue-trail');
+                    skillEl.style.transform = '';
+                });
+        };
+
         const playQueuedResolutionSequence = async (entries = []) => {
             const sequence = Array.isArray(entries) ? entries : [];
             if (!sequence.length) return;
@@ -2598,6 +2614,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 await waitForMs(980);
             }
             await waitForMs(260);
+            clearTransientPortraitAnimationState();
             isPlayingResolutionSequence = false;
         };
 
@@ -2896,6 +2913,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 window.setTimeout(() => {
                     if (skillEl) {
                         skillEl.classList.remove('skill-queue-trail');
+                        skillEl.style.transform = '';
                     }
                 }, 760);
             } else {
@@ -4467,12 +4485,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const escapeCssUrl = (value = '') => String(value).replaceAll('\\', '\\\\').replaceAll("'", "\\'");
 
+        const LASER_DEATH_KILLER_IDS = new Set(['homelander', 'superman', 'billy-butcher']);
+        const PREDATOR_DEATH_KILLER_IDS = new Set(['predator-stalker', 'predator']);
+        const GHOST_RIDER_DEATH_KILLER_IDS = new Set(['ghost-rider', 'ghost rider']);
+
+        const getSpecialDeathAnimationType = (killerId) => {
+            const normalizedKillerId = String(killerId || '').trim().toLowerCase();
+            if (!normalizedKillerId) return '';
+            if (PREDATOR_DEATH_KILLER_IDS.has(normalizedKillerId)) return 'predator';
+            if (LASER_DEATH_KILLER_IDS.has(normalizedKillerId)) return 'laser';
+            if (GHOST_RIDER_DEATH_KILLER_IDS.has(normalizedKillerId)) return 'ghost-rider';
+            return '';
+        };
+
         const clearTransientDeathFx = (card) => {
             if (!card) return;
             card.querySelectorAll(
                 '.character-death-shatter, .ghost-rider-death-fire, .predator-hunted-overlay, .lasered-overlay'
             ).forEach((node) => node.remove());
-            card.classList.remove('predator-hunted-active', 'lasered-active');
+            card.classList.remove('death-crack', 'predator-hunted-active', 'lasered-active');
         };
 
         const scheduleTransientDeathFxCleanup = (card, overlay, delayMs) => {
@@ -4485,6 +4516,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     card?.classList.remove('lasered-active');
                 }
             }, delayMs);
+        };
+
+        const restartDeathCrackAnimation = (card) => {
+            if (!card) return;
+            card.classList.remove('death-crack');
+            void card.offsetWidth;
+            card.classList.add('death-crack');
+            window.setTimeout(() => card.classList.remove('death-crack'), 700);
         };
 
         const showCharacterDeathAnimation = (card) => {
@@ -4825,7 +4864,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             card.classList.add('lasered-active');
             const overlay = document.createElement('div');
             overlay.className = 'lasered-overlay';
-            const laserClass = killerId === 'billy-butcher' ? 'yellow' : 'red';
+            const laserClass =
+                killerId === 'billy-butcher'
+                    ? 'yellow'
+                    : killerId === 'superman'
+                    ? 'blue'
+                    : 'red';
             overlay.innerHTML =
                 `<div class="lasered-half top" style="background-image:url('${safeSrc}')"></div>` +
                 `<div class="lasered-half bottom" style="background-image:url('${safeSrc}')"></div>` +
@@ -4855,6 +4899,23 @@ document.addEventListener('DOMContentLoaded', async () => {
                 playIngameSound(predatorCloakSound);
             }
             scheduleTransientDeathFxCleanup(card, overlay, 3000);
+        };
+
+        const triggerSpecialDeathAnimation = (card, killerId) => {
+            const animationType = getSpecialDeathAnimationType(killerId);
+            if (animationType === 'predator') {
+                triggerPredatorHuntedAnimation(card);
+                return true;
+            }
+            if (animationType === 'laser') {
+                triggerLaseredAnimation(card, String(killerId || '').trim().toLowerCase());
+                return true;
+            }
+            if (animationType === 'ghost-rider') {
+                showGhostRiderDeathAnimation(card);
+                return true;
+            }
+            return false;
         };
 
         const syncCharacterSpecificFx = (card, unit) => {
@@ -5425,18 +5486,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                     if (died) {
                         const killerId = playerUnits[slot]?.state?.killedByCharacterId;
-                        if (killerId === 'predator-stalker') {
-                            triggerPredatorHuntedAnimation(card);
-                        } else if (killerId === 'homelander' || killerId === 'superman' || killerId === 'billy-butcher') {
-                            triggerLaseredAnimation(card, killerId);
-                        } else if (killerId === 'ghost-rider') {
-                            showGhostRiderDeathAnimation(card);
-                        } else {
+                        if (!triggerSpecialDeathAnimation(card, killerId)) {
                             showCharacterDeathAnimation(card);
                         }
-                        card.classList.remove('death-crack');
-                        void card.offsetWidth;
-                        card.classList.add('death-crack');
+                        restartDeathCrackAnimation(card);
                     }
                     if (delta) {
                         showFloatingHpDelta(card, delta);
@@ -5477,18 +5530,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                     if (died) {
                         const killerId = opponentUnits[slot]?.state?.killedByCharacterId;
-                        if (killerId === 'predator-stalker') {
-                            triggerPredatorHuntedAnimation(card);
-                        } else if (killerId === 'homelander' || killerId === 'superman' || killerId === 'billy-butcher') {
-                            triggerLaseredAnimation(card, killerId);
-                        } else if (killerId === 'ghost-rider') {
-                            showGhostRiderDeathAnimation(card);
-                        } else {
+                        if (!triggerSpecialDeathAnimation(card, killerId)) {
                             showCharacterDeathAnimation(card);
                         }
-                        card.classList.remove('death-crack');
-                        void card.offsetWidth;
-                        card.classList.add('death-crack');
+                        restartDeathCrackAnimation(card);
                     }
                     if (delta) {
                         showFloatingHpDelta(card, delta);
@@ -5999,6 +6044,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 tenten_weapon_last_scythe: 'https://i.imgur.com/NXDITvE.png',
                 tenten_weapon_last_mace: 'https://i.imgur.com/iRZ8SMk.png',
             };
+            const fallbackFace = card.querySelector('.character-face');
+            const fallbackStatusIconSrc =
+                fallbackFace?.dataset?.aliveSrc || fallbackFace?.src || 'assets/images/skillqqueue.png';
             const rexAmmoStatusIconById = {
                 rex_splode_explosive_baton_usage: 'https://i.imgur.com/rSLzlpG.png',
                 rex_splode_explosive_baton_usage_tracker: 'https://i.imgur.com/rSLzlpG.png',
@@ -6289,10 +6337,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 iconEl.style.display = 'block';
                 iconEl.removeAttribute('title');
-                const iconSrc = resolveStatusIconSrc(group, statusSkill);
-                if (iconSrc) {
-                    iconEl.src = iconSrc;
-                }
+                const iconSrc = resolveStatusIconSrc(group, statusSkill) || fallbackStatusIconSrc;
+                iconEl.src = iconSrc;
                 const isNewStatusIcon = !previousStatusIconKeys.has(group.key);
                 const isPassiveStatus =
                     /passive/i.test(statusSkill?.name || '') ||
@@ -6606,6 +6652,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 deferredResolutionMatchState = data;
                 return;
             }
+            clearTransientPortraitAnimationState();
             if (data.player?.username) {
                 currentPlayerUsername = data.player.username;
             }
