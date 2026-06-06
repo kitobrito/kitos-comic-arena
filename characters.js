@@ -13355,7 +13355,7 @@ const characters = [
         "id": "wolverine",
         "characterId": "wolverine",
         "name": "Wolverine",
-        "facePicture": "https://i.imgur.com/f7VtSN1.jpeg",
+        "facePicture": "assets/images/wolverinefp.webp",
         "characterdeescription": "Logan, the Wolverine, is a relentless mutant brawler with adamantium bones, razor claws, and a healing factor that lets him keep fighting through punishment that would stop almost anyone else. He pressures enemies with stacking bleed wounds, turns his claws white-hot when pushed, and can enter a berserker rage that delays incoming damage until his fury finally burns out.",
         "startStatuses": [
             {
@@ -13365,7 +13365,7 @@ const characters = [
                 "metadata": {
                     "infiniteDuration": true,
                     "sourceSkillName": "Passive: Adamantium Skeleton",
-                    "statusIconUrl": "assets/images/wolverineadamantiumskeleton.png",
+                    "statusIconUrl": "assets/images/wolverineadamantiumskeleton.webp",
                     "unpierceableDamageReductionFlat": 5,
                     "tooltipText": "Wolverine has 5 permanent unpierceable damage reduction."
                 }
@@ -13375,7 +13375,7 @@ const characters = [
             {
                 "id": "wolverine-adamantium-claws",
                 "name": "Adamantium Claws",
-                "skillimage": "https://i.imgur.com/uxuPBsC.jpeg",
+                "skillimage": "assets/images/wolverineadamantiumclaws.webp",
                 "skilldescription": "Wolverine slashes one enemy twice, dealing 10 piercing damage each time and making them bleed 2 HP permanently. This bleed stacks. During Hot Claws, each claw hit also deals 5 affliction damage and makes the target ignore healing effects for 1 turn. During Berserker Rage, Adamantium Claws hits an extra time.",
                 "energy": [
                     "Taijutsu"
@@ -13427,7 +13427,7 @@ const characters = [
                             "harmful": true,
                             "infiniteDuration": true,
                             "sourceSkillName": "Adamantium Claws",
-                            "statusIconUrl": "assets/images/wolverineadamantiumclaws.png",
+                            "statusIconUrl": "assets/images/wolverineadamantiumclaws.webp",
                             "turnEndDamage": 2,
                             "afflictionDamage": true,
                             "fixedTurnEndDamage": true,
@@ -13497,7 +13497,7 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "sourceSkillName": "Hot Claws",
-                            "statusIconUrl": "assets/images/wolverinehotclaws.png",
+                            "statusIconUrl": "assets/images/wolverinehotclaws.webp",
                             "healReceivedMultiplier": 0,
                             "tooltipText": "This character ignores healing effects."
                         }
@@ -13507,7 +13507,7 @@ const characters = [
             {
                 "id": "wolverine-hot-claws",
                 "name": "Hot Claws",
-                "skillimage": "https://i.imgur.com/vUNE0Ga.jpeg",
+                "skillimage": "assets/images/wolverinehotclaws.webp",
                 "skilldescription": "For 3 turns, Wolverine's Adamantium Claws deals 5 affliction damage each time it deals damage and makes the target ignore healing effects for 1 turn.",
                 "energy": [],
                 "target": "self",
@@ -13527,7 +13527,7 @@ const characters = [
                         "scope": "self",
                         "metadata": {
                             "sourceSkillName": "Hot Claws",
-                            "statusIconUrl": "https://i.imgur.com/vUNE0Ga.jpeg",
+                            "statusIconUrl": "assets/images/wolverinehotclaws.webp",
                             "tooltipText": "Wolverine's Adamantium Claws deals 5 affliction damage each time it deals damage and makes the target ignore healing effects."
                         }
                     }
@@ -13536,8 +13536,8 @@ const characters = [
             {
                 "id": "wolverine-berserker-rage",
                 "name": "Berserker Rage",
-                "skillimage": "https://i.imgur.com/khN5z3w.jpeg",
-                "skilldescription": "For 2 turns, Wolverine ignores enemy stun effects and all enemy damage he takes is delayed until this effect ends. During this time, Adamantium Claws damages an enemy an extra time.",
+                "skillimage": "assets/images/wolverineberserkerrage.webp",
+                "skilldescription": "For 2 turns, Wolverine ignores enemy stun effects and all enemy damage he takes is delayed until this effect ends. During this time, Adamantium Claws damages an enemy an extra time and Wolverine gains one stack of Healing Factor.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -13557,11 +13557,27 @@ const characters = [
                         "scope": "self",
                         "metadata": {
                             "sourceSkillName": "Berserker Rage",
-                            "statusIconUrl": "assets/images/wolverineberserkerrage.png",
+                            "statusIconUrl": "assets/images/wolverineberserkerrage.webp",
                             "cannotBeStunned": true,
                             "delayEnemyDamageUntilExpire": true,
                             "delayedDamage": 0,
                             "tooltipTextTemplate": "Wolverine ignores enemy stun effects, delays enemy damage until this effect ends, and Adamantium Claws hits an extra time. Delayed damage: {delayedDamage}."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "wolverine_healing_factor",
+                        "duration": 3,
+                        "sourceSkillId": "wolverine-healing-factor",
+                        "scope": "self",
+                        "metadata": {
+                            "sourceSkillName": "Healing Factor",
+                            "statusIconUrl": "assets/images/wolverinehealingfactor.webp",
+                            "turnEndHealFlat": 10,
+                            "mergeNumericAddKeys": [
+                                "turnEndHealFlat"
+                            ],
+                            "tooltipTextTemplate": "Wolverine heals {turnEndHealFlat} HP each turn from Healing Factor."
                         }
                     }
                 ]
@@ -13569,7 +13585,7 @@ const characters = [
             {
                 "id": "wolverine-healing-factor",
                 "name": "Healing Factor",
-                "skillimage": "https://i.imgur.com/eCcmhup.jpeg",
+                "skillimage": "assets/images/wolverinehealingfactor.webp",
                 "skilldescription": "Wolverine heals 10 HP for 3 turns. This effect stacks.",
                 "energy": [
                     "Random"
@@ -13590,7 +13606,7 @@ const characters = [
                         "scope": "self",
                         "metadata": {
                             "sourceSkillName": "Healing Factor",
-                            "statusIconUrl": "assets/images/wolverinehealingfactor.png",
+                            "statusIconUrl": "assets/images/wolverinehealingfactor.webp",
                             "turnEndHealFlat": 10,
                             "mergeNumericAddKeys": [
                                 "turnEndHealFlat"
@@ -13603,7 +13619,7 @@ const characters = [
             {
                 "id": "wolverine-passive-adamantium-skeleton",
                 "name": "Passive: Adamantium Skeleton",
-                "skillimage": "https://i.imgur.com/hkbOrMO.jpeg",
+                "skillimage": "assets/images/wolverineadamantiumskeleton.webp",
                 "skilldescription": "Wolverine starts the game with 5 permanent unpierceable damage reduction.",
                 "energy": [],
                 "target": "",
