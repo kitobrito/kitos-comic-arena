@@ -8,6 +8,7 @@ const dbName = process.env.MONGODB_DB || 'comic-arena';
 const newsCollectionName = process.env.MONGODB_NEWS_POSTS_COLLECTION || 'news_posts';
 const appStateCollectionName = process.env.MONGODB_APP_STATE_COLLECTION || 'app_state';
 const latestReleasesKey = 'latest_character_releases';
+const characterOverridesKey = 'character_overrides';
 
 const wolverine = characters.find((character) => character && character.characterId === 'wolverine');
 
@@ -168,7 +169,36 @@ async function syncWolverineNews() {
             { upsert: true }
         );
 
-        console.log('Synced Wolverine into the current news post and latest releases.');
+        const overrideState = await appState.findOne({ key: characterOverridesKey });
+        const currentOverrides = Array.isArray(overrideState && overrideState.overrides)
+            ? overrideState.overrides
+            : overrideState && overrideState.value && Array.isArray(overrideState.value.overrides)
+                ? overrideState.value.overrides
+                : [];
+        const nextOverrides = [
+            ...currentOverrides.filter((entry) => entry && entry.characterId !== wolverine.characterId),
+            {
+                characterId: wolverine.characterId,
+                character: wolverine,
+                updatedAt: new Date(),
+                updatedBy: 'sync_wolverine_news',
+            },
+        ];
+
+        await appState.updateOne(
+            { key: characterOverridesKey },
+            {
+                $set: {
+                    key: characterOverridesKey,
+                    overrides: nextOverrides,
+                    updatedAt: new Date(),
+                    updatedBy: 'sync_wolverine_news',
+                },
+            },
+            { upsert: true }
+        );
+
+        console.log('Synced Wolverine into the current news post, latest releases, and character overrides.');
     } finally {
         await client.close();
     }
