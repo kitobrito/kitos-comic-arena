@@ -9869,7 +9869,7 @@ const characters = [
         ],
         "role": "Beserker",
         "roleCategory": "bruiser",
-        "universe": "other"
+        "universe": "aliens-vs-predator"
     },
     {
         "id": "space-marine-infantry",
@@ -10346,7 +10346,7 @@ const characters = [
             }
         ],
         "role": "Frontline Support",
-        "universe": "comic-arena",
+        "universe": "aliens-vs-predator",
         "roleCategory": "support"
     },
     {
