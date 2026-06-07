@@ -6900,7 +6900,7 @@ const characters = [
         ],
         "role": "Brawler",
         "roleCategory": "bruiser",
-        "universe": "other"
+        "universe": "the-boys"
     },
     {
         "id": "doctor-octopus",
@@ -9029,7 +9029,7 @@ const characters = [
         ],
         "role": "Executioner",
         "roleCategory": "assassin",
-        "universe": "other"
+        "universe": "the-boys"
     },
     {
         "id": "xenomorph-drone",
@@ -9400,7 +9400,7 @@ const characters = [
         ],
         "role": "Swarm DPS",
         "roleCategory": "damage",
-        "universe": "other"
+        "universe": "aliens-vs-predator"
     },
     {
         "id": "predalien",
@@ -10576,7 +10576,7 @@ const characters = [
             }
         ],
         "role": "Control / Executioner",
-        "universe": "alien",
+        "universe": "aliens-vs-predator",
         "roleCategory": "control"
     },
     {

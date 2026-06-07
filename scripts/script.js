@@ -10733,6 +10733,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             ['marvel', 'Marvel'],
             ['dc', 'DC'],
             ['image', 'Image'],
+            ['the-boys', 'The Boys'],
+            ['aliens-vs-predator', 'Aliens vs Predator'],
             ['star-wars', 'Star Wars'],
             ['other', 'Other'],
         ],
