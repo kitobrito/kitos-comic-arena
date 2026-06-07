@@ -21,7 +21,9 @@ const starWarsCharacters = starWarsIds.map((characterId) => {
 });
 
 const getCharacter = (characterId) => {
-    const character = starWarsCharacters.find((entry) => entry.characterId === characterId);
+    const character = characters.find(
+        (entry) => entry && (entry.characterId === characterId || entry.id === characterId)
+    );
     if (!character) {
         throw new Error(`Missing Star Wars character: ${characterId}`);
     }
@@ -165,36 +167,24 @@ const newsPost = {
     changes: [
         skillShowcase('darth-vader', 'darth-vader-saber-strike-down', 'Saber Strike-Down now deals 40 bleed damage and still applies permanent Health Cap pressure.'),
         skillShowcase('darth-vader', 'darth-vader-force-choke', 'Force Choke now makes Saber Strike-Down cost 1 bloodline and 1 random energy on the next turn.'),
+        skillShowcase('ghost-rider', 'ghost-rider-penance-stare', 'Penance Stare now silences the target instead of blocking harmful-skill use entirely, while still reducing their damage and increasing affliction damage taken.'),
         {
-            text: 'Ghost Rider: Penance Stare now applies a silence effect instead of preventing harmful-skill use entirely, while still reducing damage and increasing affliction damage taken.',
+            text: 'Superman: Passive The Man of Steel now grants 8 unpierceable damage reduction instead of 12, including after Solar Flare reactivates it.',
             changeType: 'balance',
         },
+        skillShowcase('aquaman', 'aquaman-trident-strike', 'Trident Strike now deals 24 damage and also adds Sea Sharks if the target is already affected by Tidal Wave.'),
+        skillShowcase('aquaman', 'aquaman-drown', 'Drown now adds Sea Sharks to enemies affected by either Trident Strike or Tidal Wave.'),
+        skillShowcase('aquaman', 'aquaman-tidal-wave', 'Tidal Wave now applies 15 damage per turn for 2 turns while also increasing enemy cooldowns by 1 and costs by 1 random energy.'),
+        skillShowcase('rex-splode', 'rex-splode-explosive-baton', 'Explosive Baton now splashes 10 affliction damage to one different enemy and 5 affliction damage to another different enemy.'),
+        skillShowcase('iron-man', 'iron-man-armor-upgrade', 'Armor Upgrade is now a self-only permanent suit upgrade that grants 25% damage reduction, swaps to Proton Cannon and Energy Burst, and immediately casts Overcharge.'),
+        skillShowcase('iron-man', 'iron-man-repulsor-blast', 'Repulsor Blast now costs 2 random energy and deals 18 damage per turn to the main target plus 8 damage per turn to other enemies for 2 turns.'),
+        skillShowcase('iron-man', 'iron-man-proton-cannon', 'Proton Cannon remains the upgraded replacement after Armor Upgrade, while Overcharge keeps its immediate 38 affliction burst.'),
         {
-            text: 'Superman: Passive The Man of Steel now grants 8 unpierceable damage reduction instead of 12.',
-            changeType: 'balance',
-        },
-        {
-            text: 'Aquaman: Trident Strike now deals 24 damage, Tidal Wave now applies 15 damage per turn plus cost and cooldown pressure for 2 turns, and both Trident Strike and Drown now add Sea Sharks to Tidal Wave targets.',
-            changeType: 'balance',
-        },
-        {
-            text: 'Rex Splode: Explosive Baton now splashes 10 affliction damage to one different enemy and 5 affliction damage to another different enemy.',
-            changeType: 'balance',
-        },
-        {
-            text: 'Iron Man: Armor Upgrade is now a self-only permanent suit upgrade that grants 25% damage reduction, swaps to Proton Cannon and Energy Burst, and immediately casts Overcharge.',
-            changeType: 'balance',
-        },
-        {
-            text: 'Iron Man: Repulsor Blast now costs 2 random energy, deals 18 damage per turn to the main target and 8 damage per turn to other enemies for 2 turns, while Overcharge converts it into an immediate affliction burst with a stun on the main target.',
-            changeType: 'balance',
-        },
-        {
-            text: 'Green Goblin: Passive Mad Bomber now has a 25% chance to plant a Bomb when Green Goblin uses a skill.',
+            text: 'Green Goblin: Passive Mad Bomber now has a 25% chance to plant a Bomb whenever Green Goblin uses a skill.',
             changeType: 'balance',
         },
     ],
-    author: 'system',
+    author: 'kito',
     createdAt: now,
     updatedAt: now,
 };
