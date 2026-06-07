@@ -5143,7 +5143,16 @@ app.use(
 app.get('/characters.js', (req, res) => {
     res.set('Cache-Control', 'no-store');
     res.type('application/javascript');
-    return res.send(serializeCharactersDataFile(Array.isArray(charactersData) ? charactersData : []));
+    try {
+        const fileCharacters = loadCharactersDataFromFile();
+        const mergedCharacters = applyCharacterOverrides(fileCharacters);
+        return res.send(serializeCharactersDataFile(mergedCharacters));
+    } catch (error) {
+        console.error('Failed to serve current characters.js payload:', error);
+        return res
+            .status(500)
+            .send('window.characters = [];');
+    }
 });
 app.use(express.static(path.join(__dirname)));
 app.use(express.json());
