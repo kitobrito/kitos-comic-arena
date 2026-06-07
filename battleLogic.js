@@ -1373,8 +1373,14 @@ const applyStatus = ({
             nextMetadata[stackKey] = Math.min(cap, Math.max(0, previous + delta));
         }
         nextMetadata = applyStackDerivedNumericKeys(nextMetadata);
-        if (typeof metadata?.tooltipTextTemplate === 'string' && metadata.tooltipTextTemplate) {
-            nextMetadata.tooltipText = renderTooltipTemplate(metadata.tooltipTextTemplate, nextMetadata);
+        const tooltipTemplate =
+            typeof metadata?.tooltipTextTemplate === 'string' && metadata.tooltipTextTemplate
+                ? metadata.tooltipTextTemplate
+                : typeof existing?.metadata?.tooltipTextTemplate === 'string' && existing.metadata.tooltipTextTemplate
+                ? existing.metadata.tooltipTextTemplate
+                : '';
+        if (tooltipTemplate) {
+            nextMetadata.tooltipText = renderTooltipTemplate(tooltipTemplate, nextMetadata);
         }
         const prevBonuses =
             existing?.metadata?.skillDamageBonuses &&
@@ -3426,10 +3432,53 @@ const applyHealthLossToUnit = (unit, rawAmount, context = {}) => {
 const applyHealthCapLossToUnit = (unit, rawAmount, context = {}) => {
     if (!unit || unit.alive === false || isUnitBanished(unit)) return 0;
     const wasAlive = unit.alive !== false;
+    const targetState = ensureUnitStateShape(unit);
     const loss = roundCombatAmountUp(rawAmount);
     if (loss <= 0) return 0;
     const beforeCap = Math.max(0, Number(unit.hpCap) || DEFAULT_HP);
     const nextCap = Math.max(0, beforeCap - loss);
+    unit.hpCap = nextCap;
+    const hpBeforeClamp = Math.max(0, Number(unit.hp) || 0);
+    if (hpBeforeClamp > nextCap) {
+        unit.hp = nextCap;
+        if (unit.hp <= 0) {
+            unit.alive = false;
+        }
+    }
+    if (wasAlive && unit.alive === false && context?.match && context?.targetUsername) {
+        if (typeof context?.sourceCharacterId === 'string' && context.sourceCharacterId) {
+            targetState.killedByCharacterId = context.sourceCharacterId;
+        }
+        triggerTeamMemberDeathHooks({
+            match: context.match,
+            deadUsername: context.targetUsername,
+            deadSlot: Number.isInteger(context?.targetSlot) ? context.targetSlot : null,
+        });
+        triggerOwnerDeathHooks({
+            unit,
+            match: context.match,
+            username: context.targetUsername,
+            slot: Number.isInteger(context?.targetSlot) ? context.targetSlot : null,
+        });
+        triggerSourceKillHooks({
+            match: context.match,
+            sourceUsername: context?.sourceUsername || null,
+            sourceSlot: Number.isInteger(context?.sourceSlot) ? context.sourceSlot : null,
+            targetUsername: context.targetUsername,
+            sourceSkillId: context?.sourceSkillId || null,
+            sourceSkillClasses: Array.isArray(context?.skillClasses) ? context.skillClasses : [],
+        });
+    }
+    return Math.max(0, beforeCap - nextCap);
+};
+
+const applyHealthCapSetToUnit = (unit, rawAmount, context = {}) => {
+    if (!unit || unit.alive === false || isUnitBanished(unit)) return 0;
+    const wasAlive = unit.alive !== false;
+    const targetState = ensureUnitStateShape(unit);
+    const requestedCap = Math.max(0, roundCombatAmountUp(rawAmount));
+    const beforeCap = Math.max(0, Number(unit.hpCap) || DEFAULT_HP);
+    const nextCap = Math.min(beforeCap, requestedCap);
     unit.hpCap = nextCap;
     const hpBeforeClamp = Math.max(0, Number(unit.hp) || 0);
     if (hpBeforeClamp > nextCap) {
@@ -5089,7 +5138,11 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         const pendingDamage = new Map();
         const evadedRecipients = new Set();
         const evadeDecisionByRecipient = new Map();
-        let skillCancelledByEvade = false;
+        let skillInterrupted = false;
+        const cancelEntireSkill = () => {
+            skillInterrupted = true;
+            pendingDamage.clear();
+        };
         const skillCannotBeEvaded =
             skillIsHarmful &&
             effects.length > 0 &&
@@ -5265,8 +5318,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 allowSelfTrapTrigger: true,
             })
         ) {
-            skillCancelledByEvade = true;
-            pendingDamage.clear();
+            cancelEntireSkill();
         }
         for (const recipient of preflightRecipientsByTargetType) {
             if (!recipient?.unit || recipient.unit.alive === false) continue;
@@ -5302,9 +5354,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     sourceSkillId: skill.id || null,
                 })
             ) {
-                skillCancelledByEvade = true;
-                pendingDamage.clear();
-                break;
+                continue;
             }
             if (!shouldCancelByEvade(recipient)) continue;
             continue;
@@ -5315,7 +5365,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         effects.forEach((rawEffect) => {
             const effect = materializeEffectWithSkillClassChoice(rawEffect, chosenSkillClass);
             if (!effect) return;
-            if (skillCancelledByEvade) return;
+            if (skillInterrupted) return;
             const effectType = effect?.type;
             if (
                 actorSilencedToNonDamage &&
@@ -5335,7 +5385,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 const isHealthStealDamage = effectType === 'health_steal_damage';
                 const recipients = resolveRecipients(effect);
                 recipients.forEach((recipient) => {
-                    if (skillCancelledByEvade) return;
+                    if (skillInterrupted) return;
                     if (!recipient?.unit || recipient.unit.alive === false) return;
                     if (rollPerRecipient && Number.isFinite(chance) && chance >= 0 && chance < 100) {
                         if (!rollPercentSuccess(chance)) return;
@@ -5380,8 +5430,6 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             sourceSkillId: skill.id || null,
                         });
                         if (counterCancelled) {
-                            skillCancelledByEvade = true;
-                            pendingDamage.clear();
                             return;
                         }
                         }
@@ -5603,7 +5651,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         : resolveRecipients(effect);
                 const recipients = statusTargets;
                 recipients.forEach((recipient) => {
-                    if (skillCancelledByEvade) return;
+                    if (skillInterrupted) return;
                     if (!recipient?.unit || recipient.unit.alive === false) return;
                     if (rollPerRecipient && Number.isFinite(chance) && chance >= 0 && chance < 100) {
                         if (!rollPercentSuccess(chance)) return;
@@ -5663,8 +5711,6 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             sourceSkillId: skill.id || null,
                         });
                         if (counterCancelled) {
-                            skillCancelledByEvade = true;
-                            pendingDamage.clear();
                             return;
                         }
                         }
@@ -6056,7 +6102,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 const recipients = resolveRecipients(effect);
                 const threshold = Math.max(0, Number(effect?.threshold) || 0);
                 recipients.forEach((recipient) => {
-                    if (skillCancelledByEvade) return;
+                    if (skillInterrupted) return;
                     if (!recipient?.unit || recipient.unit.alive === false) return;
                     const targetState = ensureUnitStateShape(recipient.unit);
                     if (
@@ -6219,6 +6265,37 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             targetSlot: recipient.slot,
                         }
                     );
+                });
+                return;
+            }
+
+            if (effectType === 'SetHealthCapToCurrentHpIfLower') {
+                const recipients = resolveRecipients(effect);
+                recipients.forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    if (
+                        doesTargetIgnoreSkillByClass({
+                            targetState,
+                            skillClasses: skill.classes || [],
+                            isEnemySkill: recipient.username !== actingUsername,
+                        })
+                    ) {
+                        return;
+                    }
+                    if (!Boolean(effect?.metadata?.cannotBeEvaded) && shouldCancelByEvade(recipient)) {
+                        return;
+                    }
+                    applyHealthCapSetToUnit(recipient.unit, Math.max(0, Number(recipient.unit?.hp) || 0), {
+                        match,
+                        sourceSkillId: skill.id || null,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        sourceCharacterId: actingCharacterId,
+                        targetUsername: recipient.username,
+                        targetSlot: recipient.slot,
+                        skillClasses: skill.classes || [],
+                    });
                 });
                 return;
             }
@@ -6431,7 +6508,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     ? effect.skillIds.filter((entry) => typeof entry === 'string' && entry)
                     : [];
                 recipients.forEach((recipient) => {
-                    if (skillCancelledByEvade) return;
+                    if (skillInterrupted) return;
                     if (!recipient?.unit || recipient.unit.alive === false) return;
                     if (rollPerRecipient && Number.isFinite(chance) && chance >= 0 && chance < 100) {
                         if (!rollPercentSuccess(chance)) return;
@@ -6473,8 +6550,6 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             sourceSkillId: skill.id || null,
                         });
                         if (counterCancelled) {
-                            skillCancelledByEvade = true;
-                            pendingDamage.clear();
                             return;
                         }
                         }
@@ -8470,6 +8545,18 @@ const applyTriggeredEffectsFromStatus = ({
             if (amount <= 0) return;
             applyHealthCapLossToUnit(targetUnit, amount, {
                 match,
+                targetUsername,
+                targetSlot,
+            });
+            return;
+        }
+        if (effect.type === 'SetHealthCapToCurrentHpIfLower') {
+            const nextCap = Math.max(0, Number(targetUnit?.hp) || 0);
+            applyHealthCapSetToUnit(targetUnit, nextCap, {
+                match,
+                sourceSkillId: status?.sourceSkillId || null,
+                sourceUsername: status?.sourceUsername || null,
+                sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
                 targetUsername,
                 targetSlot,
             });

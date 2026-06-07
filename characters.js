@@ -10183,7 +10183,7 @@ const characters = [
                         "scope": "target",
                         "metadata": {
                             "turnEndHealFlat": 25,
-                            "tooltipText": "This character is healed by Emergency Medical Station each turn."
+                            "tooltipTextTemplate": "This character heals {turnEndHealFlat} HP each turn from Emergency Medical Station."
                         }
                     },
                     {
@@ -10197,7 +10197,7 @@ const characters = [
                         },
                         "metadata": {
                             "turnEndHealFlat": 10,
-                            "tooltipText": "Battlefield Triage increases Emergency Medical Station healing by 10."
+                            "tooltipTextTemplate": "Battlefield Triage adds {turnEndHealFlat} extra healing each turn."
                         }
                     }
                 ]
@@ -13672,8 +13672,7 @@ const characters = [
                         }
                     },
                     {
-                        "type": "HealthCapLoss",
-                        "amount": 10,
+                        "type": "SetHealthCapToCurrentHpIfLower",
                         "scope": "target"
                     }
                 ]
@@ -14355,8 +14354,7 @@ const characters = [
                         }
                     },
                     {
-                        "type": "HealthCapLoss",
-                        "amount": 10,
+                        "type": "SetHealthCapToCurrentHpIfLower",
                         "scope": "target"
                     }
                 ]

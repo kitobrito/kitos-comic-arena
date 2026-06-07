@@ -2500,13 +2500,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 queuedActorSlots.add(String(queued.actorSlot));
                 const meta = playerSkillMetaByKey.get(key);
                 if (!meta?.imgEl) return;
-
-                if (!uiSettings.skillQueueTrail) {
-                    const skillScroll = meta.imgEl.closest('.skillscrollingame');
-                    const queueEl = skillScroll?.querySelector('.skillqueue');
-                    if (queueEl) {
-                        queueEl.src = meta.imgEl.src;
-                    }
+                const skillScroll = meta.imgEl.closest('.skillscrollingame');
+                const queueEl = skillScroll?.querySelector('.skillqueue');
+                if (queueEl) {
+                    queueEl.src = meta.imgEl.src;
                 }
 
                 meta.imgEl.classList.add('selected-target');
@@ -2898,57 +2895,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const animateSkillToQueue = (skillEl) => {
-            if (!uiSettings.skillCastAnimations || !skillEl) return;
+            if (!skillEl) return;
             const skillScroll = skillEl.closest('.skillscrollingame');
             if (!skillScroll) return;
             const queueEl = skillScroll.querySelector('.skillqueue');
             if (!queueEl) return;
-
-            if (uiSettings.skillQueueTrail) {
-                // Restore sliding trail logic
-                const prevTransition = skillEl.style.transition;
-                skillEl.style.transition = 'none';
-                skillEl.style.transform = '';
-                
-                const skillRect = skillEl.getBoundingClientRect();
-                const queueRect = queueEl.getBoundingClientRect();
-                const dx = queueRect.left - skillRect.left;
-                const dy = queueRect.top - skillRect.top;
-
-                skillEl.classList.remove('skill-queue-trail');
-                void skillEl.offsetWidth;
-                
-                skillEl.style.transition = prevTransition;
-                skillEl.classList.add('skill-queue-trail');
-                
-                requestAnimationFrame(() => {
-                    skillEl.style.transform = `translate(${dx}px, ${dy}px)`;
-                });
-
-                window.setTimeout(() => {
-                    if (skillEl) {
-                        skillEl.classList.remove('skill-queue-trail');
-                        skillEl.style.transform = '';
-                    }
-                }, 760);
-            } else {
-                // New Fade out/in logic
-                skillEl.classList.add('skill-queue-fade-out');
-                
-                queueEl.src = skillEl.src;
-                queueEl.classList.remove('skill-queue-fade-in');
-                void queueEl.offsetWidth;
-                queueEl.classList.add('skill-queue-fade-in');
-
-                window.setTimeout(() => {
-                    if (skillEl) {
-                        skillEl.classList.remove('skill-queue-fade-out');
-                    }
-                    if (queueEl) {
-                        queueEl.classList.remove('skill-queue-fade-in');
-                    }
-                }, 650);
+            queueEl.src = skillEl.src;
+            if (!uiSettings.skillCastAnimations || document.body.classList.contains('ui-disable-skill-cast-animations')) {
+                return;
             }
+            const skillRect = skillEl.getBoundingClientRect();
+            const queueRect = queueEl.getBoundingClientRect();
+            const flight = document.createElement('img');
+            flight.className = 'skill-queue-flight';
+            flight.src = skillEl.src;
+            flight.alt = skillEl.alt || 'Queued skill';
+            flight.style.left = `${skillRect.left}px`;
+            flight.style.top = `${skillRect.top}px`;
+            flight.style.width = `${skillRect.width}px`;
+            flight.style.height = `${skillRect.height}px`;
+            document.body.appendChild(flight);
+            const dx = (queueRect.left + (queueRect.width - skillRect.width) / 2) - skillRect.left;
+            const dy = (queueRect.top + (queueRect.height - skillRect.height) / 2) - skillRect.top;
+            requestAnimationFrame(() => {
+                flight.style.transform = `translate(${dx}px, ${dy}px) scale(0.72)`;
+                flight.style.opacity = '0.2';
+            });
+            window.setTimeout(() => flight.remove(), 340);
         };
 
         const normalizeTargetSelectionList = (selection) => {
@@ -3118,8 +3091,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             const primaryClassName = String(className).trim().split(/\s+/)[0];
             const existing = primaryClassName ? card.querySelector(`.${primaryClassName}`) : null;
             if (existing) existing.remove();
+            const activeTransientFx = Array.from(card.querySelectorAll('[data-transient-card-fx="true"]'));
+            if (activeTransientFx.length >= 6) {
+                activeTransientFx.slice(0, activeTransientFx.length - 5).forEach((node) => node.remove());
+            }
             const effect = document.createElement('div');
             effect.className = className;
+            effect.dataset.transientCardFx = 'true';
             effect.innerHTML = html;
             card.appendChild(effect);
             window.setTimeout(() => effect.remove(), duration);
@@ -4850,7 +4828,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const evadeChance = dead ? 0 : getEvadeChanceValue(unit);
             card.classList.toggle('has-evade-percent', evadeChance > 0);
             badge.textContent = `${evadeChance}%`;
-            badge.title = `${evadeChance}% evasion`;
+            badge.title = evadeChance > 0 ? `${evadeChance}% evasion active` : '';
         };
 
         const findEvadeNotificationStatus = (unit) =>
@@ -5028,6 +5006,70 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const removeCharacterFxElement = (card, className) => {
             card?.querySelectorAll?.(`.${className}`).forEach((node) => node.remove());
+        };
+
+        const renderQueuedTargetCardMarkers = () => {
+            const allCards = [...(Array.isArray(playerCards) ? playerCards : []), ...(Array.isArray(enemyCards) ? enemyCards : [])];
+            allCards.forEach((card) => {
+                removeCharacterFxElement(card, 'queued-target-marker-host');
+                const wrap = card?.querySelector('.skilltooltips');
+                wrap?.querySelectorAll('.skilltooltipimage.dynamic-queued-target-icon').forEach((node) => node.remove());
+            });
+
+            const pending = getPendingTurnWithOptimisticQueues();
+            const queuedByTargetKey = new Map();
+            Object.values(pending.queuedByActorSlot || {}).forEach((queued) => {
+                const actorSlot = Number.parseInt(queued?.actorSlot, 10);
+                const skillIdx = Number.parseInt(queued?.skillIndex, 10);
+                const effectiveSkill = getEffectiveSkillForActorSlot(actorSlot, skillIdx);
+                const iconSrc = effectiveSkill?.skillimage || '';
+                const selection = Array.isArray(queued?.targetSelection)
+                    ? queued.targetSelection
+                    : queued?.targetSelection
+                        ? [queued.targetSelection]
+                        : [];
+                selection.forEach((target) => {
+                    const username = target?.username;
+                    const slot = Number.parseInt(target?.slot, 10);
+                    if (!username || !Number.isInteger(slot) || slot < 0) return;
+                    const unit = latestBoardState?.[username]?.[slot];
+                    if (unit && isUnitDeadLike(unit)) return;
+                    const card = getCardByUsernameSlot(username, slot) || (
+                        username === currentPlayerUsername
+                            ? (Array.isArray(playerCards) ? playerCards[slot] : null)
+                            : (Array.isArray(enemyCards) ? enemyCards[slot] : null)
+                    );
+                    if (!card) return;
+                    const key = `${username}:${slot}`;
+                    if (!queuedByTargetKey.has(key)) {
+                        queuedByTargetKey.set(key, { card, entries: [] });
+                    }
+                    queuedByTargetKey.get(key).entries.push({
+                        iconSrc,
+                        skillName: effectiveSkill?.name || 'Queued Skill',
+                    });
+                });
+            });
+
+            queuedByTargetKey.forEach(({ card, entries }) => {
+                const host = ensureCharacterFxElement(card, 'queued-target-marker-host', '<div class="queued-target-marker-stack"></div>');
+                const stack = host?.querySelector('.queued-target-marker-stack');
+                if (!host || !stack) return;
+                stack.innerHTML = '';
+                entries.slice(0, 3).forEach((entry) => {
+                    const marker = document.createElement('div');
+                    marker.className = 'queued-target-card-icon';
+                    marker.title = `Queued on this target: ${entry.skillName}`;
+                    marker.innerHTML = `<img src="${entry.iconSrc}" alt="${entry.skillName}">`;
+                    stack.appendChild(marker);
+                });
+                if (entries.length > 3) {
+                    const overflow = document.createElement('div');
+                    overflow.className = 'queued-target-card-overflow';
+                    overflow.textContent = `+${entries.length - 3}`;
+                    stack.appendChild(overflow);
+                }
+            });
         };
 
         const getAquamanSeaSharkStacks = (unit) =>
@@ -5610,13 +5652,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             clearTransientDeathFx(card);
             const healthBar = card.querySelector('.health-bar');
             const healthText = card.querySelector('.health-text');
-            if (!healthBar || !healthText) return;
+            const healthContainer = card.querySelector('.health-bar-container');
+            if (!healthBar || !healthText || !healthContainer) return;
             renderHulkRageMeter(card, unit);
             renderRickRevolverCylinder(card, unit);
             renderEvadePercentBadge(card, unit);
             syncCharacterSpecificFx(card, unit);
             const rawHp = isUnitBanished(unit) ? 0 : Number(unit?.hp);
             const hp = Math.max(0, Math.min(MAX_HP, Number.isFinite(rawHp) ? Math.ceil(rawHp) : MAX_HP));
+            const hpCap = Math.max(0, Math.min(MAX_HP, Number(unit?.hpCap) || MAX_HP));
             const ratio = hp / MAX_HP;
             const width = Math.max(0, Math.round(HEALTH_BAR_MAX_WIDTH * ratio));
             healthBar.style.width = `${width}px`;
@@ -5626,7 +5670,26 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else if (hp <= 60) {
                 healthBar.classList.add('hp-mid');
             }
-            healthText.textContent = `${hp}/${MAX_HP}`;
+            healthText.textContent = hpCap < MAX_HP ? `${hp}/${hpCap}` : `${hp}/${MAX_HP}`;
+            let capMarker = healthContainer.querySelector('.health-cap-marker');
+            if (hpCap > 0 && hpCap < MAX_HP) {
+                if (!capMarker) {
+                    capMarker = document.createElement('span');
+                    capMarker.className = 'health-cap-marker';
+                    healthContainer.appendChild(capMarker);
+                }
+                capMarker.style.left = `${Math.max(0, Math.round((HEALTH_BAR_MAX_WIDTH * hpCap) / MAX_HP) - 2)}px`;
+                capMarker.title = `Healing capped at ${hpCap} HP for the rest of the match`;
+                const capIcon = ensureCharacterFxElement(card, 'health-cap-icon', '<span>CAP</span>');
+                if (capIcon) {
+                    capIcon.title = `Healing capped at ${hpCap} HP for the rest of the match`;
+                }
+                card.classList.add('has-health-cap');
+            } else {
+                capMarker?.remove();
+                removeCharacterFxElement(card, 'health-cap-icon');
+                card.classList.remove('has-health-cap');
+            }
             const face = card.querySelector('.character-face');
             const dead = isUnitDeadLike(unit) || hp <= 0;
             card.classList.toggle('low-hp-danger', !dead && hp > 0 && hp <= 25);
@@ -6064,6 +6127,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                         Boolean(status?.metadata?.unpierceableDamageReductionPercent) ||
                         Boolean(status?.metadata?.unpierceableDamageReductionFlat))
             );
+            const resolveBurstLabel = () => {
+                const combinedText = statuses
+                    .map((status) =>
+                        `${status?.id || ''} ${status?.sourceSkillId || ''} ${status?.metadata?.sourceSkillName || ''} ${status?.metadata?.tooltipText || ''}`
+                    )
+                    .join(' ')
+                    .toLowerCase();
+                if (combinedText.includes('taunt')) return 'TAUNT';
+                if (combinedText.includes('paraly')) return 'PARALYZE';
+                if (combinedText.includes('delay')) return 'DELAY';
+                if (combinedText.includes('blind')) return 'BLIND';
+                if (combinedText.includes('stun')) return 'STUN';
+                if (combinedText.includes('evade')) return 'EVADE';
+                if (combinedText.includes('drain') || combinedText.includes('leech') || combinedText.includes('absorb')) return 'DRAIN';
+                if (combinedText.includes('banish') || combinedText.includes('portal')) return 'BANISH';
+                if (combinedText.includes('remove') || combinedText.includes('cleanse')) return 'REMOVE';
+                if (isBomb) return 'BOMB ACTIVE';
+                if (isPassive) return 'PASSIVE';
+                if (harmful) return 'DEBUFF';
+                if (helpful) return 'BUFF';
+                return 'STATUS';
+            };
             const burst = document.createElement('div');
             burst.className = [
                 'status-apply-burst',
@@ -6072,7 +6157,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (card.closest('.enemy-characters')) {
                 burst.classList.add('enemy-side');
             }
-            burst.textContent = isBomb ? 'BOMB ACTIVE' : isPassive ? 'PASSIVE' : harmful ? 'DEBUFF' : helpful ? 'BUFF' : 'STATUS';
+            burst.textContent = resolveBurstLabel();
             card.appendChild(burst);
             window.setTimeout(() => burst.remove(), 1500);
             if (hasAngstromPortal) {
@@ -7101,84 +7186,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const renderQueuedTargetTooltips = () => {
-            const allCards = [...(Array.isArray(playerCards) ? playerCards : []), ...(Array.isArray(enemyCards) ? enemyCards : [])];
-            allCards.forEach((card) => {
-                const wrap = card?.querySelector('.skilltooltips');
-                if (!wrap) return;
-                wrap.querySelectorAll('.skilltooltipimage.dynamic-queued-target-icon').forEach((node) => node.remove());
-            });
-
-            const pending = getPendingTurnWithOptimisticQueues();
-            const queuedByTargetKey = new Map();
-            Object.values(pending.queuedByActorSlot || {}).forEach((queued) => {
-                const actorSlot = Number.parseInt(queued?.actorSlot, 10);
-                const skillIdx = Number.parseInt(queued?.skillIndex, 10);
-                const effectiveSkill = getEffectiveSkillForActorSlot(actorSlot, skillIdx);
-                const iconSrc = effectiveSkill?.skillimage || '';
-                const selection = Array.isArray(queued?.targetSelection)
-                    ? queued.targetSelection
-                    : queued?.targetSelection
-                        ? [queued.targetSelection]
-                        : [];
-                selection.forEach((target) => {
-                    const username = target?.username;
-                    const slot = Number.parseInt(target?.slot, 10);
-                    if (!username || !Number.isInteger(slot) || slot < 0) return;
-                    const unit = latestBoardState?.[username]?.[slot];
-                    if (unit && isUnitDeadLike(unit)) return;
-                    const card = getCardByUsernameSlot(username, slot) || (
-                        username === currentPlayerUsername
-                            ? (Array.isArray(playerCards) ? playerCards[slot] : null)
-                            : (Array.isArray(enemyCards) ? enemyCards[slot] : null)
-                    );
-                    if (!card) return;
-                    const key = `${username}:${slot}`;
-                    if (!queuedByTargetKey.has(key)) {
-                        queuedByTargetKey.set(key, {
-                            card,
-                            entries: [],
-                        });
-                    }
-                    queuedByTargetKey.get(key).entries.push({
-                        iconSrc,
-                        skillName: effectiveSkill?.name || 'Queued Skill',
-                    });
-                });
-            });
-
-            queuedByTargetKey.forEach(({ card, entries }) => {
-                const tooltipWrap = card?.querySelector('.skilltooltips');
-                if (!tooltipWrap) return;
-                
-                let tooltipImgTemplate =
-                    tooltipWrap.querySelector('.skilltooltipimage.status-icon-template') ||
-                    tooltipWrap.querySelector('.skilltooltipimage');
-                
-                // If no template exists, create one
-                if (!tooltipImgTemplate) {
-                    tooltipImgTemplate = document.createElement('img');
-                    tooltipImgTemplate.className = 'skilltooltipimage status-icon-template';
-                    tooltipImgTemplate.style.display = 'none';
-                    tooltipWrap.appendChild(tooltipImgTemplate);
-                }
-
-                if (!tooltipImgTemplate.classList.contains('status-icon-template')) {
-                    tooltipImgTemplate.classList.add('status-icon-template');
-                }
-                
-                tooltipWrap.style.visibility = 'visible';
-                entries.forEach((entry) => {
-                    const iconEl = tooltipImgTemplate.cloneNode(true);
-                    iconEl.classList.remove('status-icon-template', 'dynamic-status-icon');
-                    iconEl.classList.add('dynamic-queued-target-icon');
-                    iconEl.style.display = 'block';
-                    if (entry.iconSrc) {
-                        iconEl.src = entry.iconSrc;
-                    }
-                    iconEl.title = `Targeted by: ${entry.skillName}`;
-                    tooltipWrap.appendChild(iconEl);
-                });
-            });
+            renderQueuedTargetCardMarkers();
         };
 
         const renderSkillInfo = (character, skill, actorSlot = null, skillIdx = null) => {
@@ -8553,17 +8561,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 const existingSkillClickHandler = imgEl._skillClickHandler;
                                 if (typeof existingSkillClickHandler === 'function') {
                                     imgEl.removeEventListener('pointerdown', existingSkillClickHandler);
-                                    imgEl.removeEventListener('click', existingSkillClickHandler);
                                 }
                                 const onSkillClick = (event) => {
                                     if (event?.button !== undefined && event.button !== 0) return;
-                                    const now = Date.now();
-                                    if (event?.type === 'click' && now - (imgEl._lastPointerSkillClickAt || 0) < 500) {
-                                        return;
-                                    }
-                                    if (event?.type === 'pointerdown') {
-                                        imgEl._lastPointerSkillClickAt = now;
-                                    }
                                     event.preventDefault();
                                     event.stopPropagation();
                                     const effectiveSkill =
@@ -8639,7 +8639,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 };
                                 imgEl._skillClickHandler = onSkillClick;
                                 imgEl.addEventListener('pointerdown', onSkillClick);
-                                imgEl.addEventListener('click', onSkillClick);
                             }
                         });
                     }
