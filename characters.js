@@ -191,6 +191,8 @@ const characters = [
                 "name": "Iron Suit Mobility",
                 "skillimage": "https://i.imgur.com/JC495sM.png",
                 "skilldescription": "This skill makes Iron Man invulnerable for 1 turn.",
+                "description": "This skill makes Iron Man invulnerable for 1 turn.",
+                "descriptionHtml": "This skill makes Iron Man invulnerable for 1 turn.",
                 "energy": [
                     "Random"
                 ],
