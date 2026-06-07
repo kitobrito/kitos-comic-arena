@@ -5003,7 +5003,7 @@ const characters = [
         "id": "hershel-greene",
         "characterId": "hershel-greene",
         "name": "Hershel Greene",
-        "facePicture": "https://i.imgur.com/6SJSKyY.jpeg",
+        "facePicture": "https://i.imgur.com/kWbQbG5.png",
         "characterdeescription": "A steady hand in the chaos, Hershel Greene keeps his team alive through sheer experience and resolve. Though not a frontline fighter, his medical expertise allows him to stabilize allies, mitigate incoming damage, and even bring the fallen back into the fight. Hershel excels at sustaining his team over extended battles—delaying damage, cleansing afflictions, and turning lethal situations into survivable ones. However, his reliance on timing and limited supplies means every decision matters. Misuse his tools, and his team will crumble. Use them wisely, and they simply won’t die.",
         "skills": [
             {
