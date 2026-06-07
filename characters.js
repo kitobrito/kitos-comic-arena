@@ -141,9 +141,9 @@ const characters = [
                 "id": "iron-man-armor-upgrade",
                 "name": "Armor Upgrade",
                 "skillimage": "https://i.imgur.com/cUWpevS.png",
-                "skilldescription": "Iron Man upgrades his armor, granting himself 25% damage reduction for the rest of the game. Repulsor Blast becomes Proton Cannon, Armor Upgrade becomes Energy Burst, and Overcharge is also cast on Iron Man.",
-                "description": "Iron Man upgrades his armor, granting himself 25% damage reduction for the rest of the game. Repulsor Blast becomes Proton Cannon, Armor Upgrade becomes Energy Burst, and Overcharge is also cast on Iron Man.",
-                "descriptionHtml": "Iron Man upgrades his armor, granting himself 25% damage reduction for the rest of the game.<br>Repulsor Blast becomes Proton Cannon, Armor Upgrade becomes Energy Burst, and Overcharge is also cast on Iron Man.",
+                "skilldescription": "For the rest of the game, Iron Man gains 25% damage reduction, upgrades Repulsor Blast, and swaps this skill to Energy Burst. Overcharge is also cast on Iron Man when used.",
+                "description": "For the rest of the game, Iron Man gains 25% damage reduction, upgrades Repulsor Blast, and swaps this skill to Energy Burst. Overcharge is also cast on Iron Man when used.",
+                "descriptionHtml": "For the rest of the game, Iron Man gains 25% damage reduction, upgrades Repulsor Blast, and swaps this skill to Energy Burst.<br>Overcharge is also cast on Iron Man when used.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -190,7 +190,7 @@ const characters = [
                 "id": "iron-man-iron-suit-mobility",
                 "name": "Iron Suit Mobility",
                 "skillimage": "https://i.imgur.com/JC495sM.png",
-                "skilldescription": "Iron Man and any ally affected by Armor Upgrade become invulnerable for 1 turn.",
+                "skilldescription": "This skill makes Iron Man invulnerable for 1 turn.",
                 "energy": [
                     "Random"
                 ],
