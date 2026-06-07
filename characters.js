@@ -4135,10 +4135,8 @@ const characters = [
                 "id": "rick-grimes-357-revolver",
                 "name": ".357 Revolver",
                 "skillimage": "https://i.imgur.com/J7oYkQt.png",
-                "skilldescription": "Rick fires his signature weapon at one enemy, dealing 20 piercing damage. This has an 80% chance to successfully hit and a 20% chance to miss. If successful, this has a 25% chance to be a 'Headshot'. If it misses, it has a 10% chance to hit a random different enemy (and 5% chance for that to then be a 'Headshot'). Rick only carries six bullets with him per game.",
-                "energy": [
-                    "Random"
-                ],
+                "skilldescription": "Rick fires his signature weapon at one enemy, dealing 20 piercing damage. This has a 70% chance to successfully hit and a 30% chance to miss. If successful, this has a 25% chance to be a 'Headshot'. If it misses, it has a 10% chance to hit a random different enemy (and 5% chance for that to then be a 'Headshot'). Rick only carries six bullets with him per game.",
+                "energy": [],
                 "target": "single-enemy",
                 "damage": 0,
                 "cooldown": 0,
@@ -4154,7 +4152,7 @@ const characters = [
                         "statusId": "rick_grimes_revolver_hit_confirmed",
                         "duration": 1,
                         "scope": "self",
-                        "chance": 80,
+                        "chance": 70,
                         "condition": {
                             "missingStatusId": "rick_grimes_throat_slit_bleed",
                             "scope": "target"
@@ -4325,8 +4323,9 @@ const characters = [
                 "id": "rick-grimes-throat-slit",
                 "name": "Throat Slit",
                 "skillimage": "https://i.imgur.com/xcN920R.png",
-                "skilldescription": "Rick slashes an enemy's throat, dealing 10 bleed damage this turn then making them bleed 10 bleed damage next turn. While bleeding, the target's harmful skills are silenced, '.357 Revolver' cannot miss them, and has a 15% bonus chance to 'Headshot'. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
+                "skilldescription": "Rick slashes an enemy's throat, dealing 20 piercing damage this turn then making them bleed 5 bleed damage the following turn. If either the piercing or bleed damage brings the target to 15 HP or below, they are executed. Their harmful skills are silenced for 1 turn. While bleeding, '.357 Revolver' cannot miss them and has a 15% bonus chance to 'Headshot'. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -4340,14 +4339,17 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 10,
+                        "amount": 20,
                         "scope": "target",
                         "metadata": {
-                            "ignoreDamageImmunity": true,
-                            "ignoreAfflictionDamageImmunity": true,
                             "ignoreDamageReduction": true,
-                            "fixedDamage": true
+                            "ignoreDestructibleDefense": true
                         }
+                    },
+                    {
+                        "type": "execute_below_hp",
+                        "threshold": 15,
+                        "scope": "target"
                     },
                     {
                         "type": "apply_status",
@@ -4362,10 +4364,11 @@ const characters = [
                             "ignoreDamageImmunity": true,
                             "ignoreAfflictionDamageImmunity": true,
                             "removeOnHealingEffect": true,
-                            "turnEndDamage": 10,
+                            "turnEndDamage": 5,
+                            "executeBelowHpThreshold": 15,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character will take 10 bleed damage next turn, their harmful skills are silenced, Rick's .357 Revolver cannot miss them, and it has a 40% chance to Headshot them. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect."
+                            "tooltipText": "This character will take 5 bleed damage next turn, their harmful skills are silenced for 1 turn, Rick's .357 Revolver cannot miss them, and it has a 40% chance to Headshot them. If the target falls to 15 HP or below from this bleed, they are executed. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect."
                         }
                     }
                 ]
