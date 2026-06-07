@@ -13649,7 +13649,7 @@ const characters = [
                 "skilldescription": "Deals 35 bleed damage to one enemy and applies Health Cap to them.",
                 "energy": [
                     "Bloodline",
-                    "Random"
+                    "Genjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -13681,9 +13681,9 @@ const characters = [
                 "id": "darth-vader-force-choke",
                 "name": "Force Choke",
                 "skillimage": "assets/images/forcechoke.webp",
-                "skilldescription": "For 2 turns, one enemy is silenced and takes 10 affliction damage per turn. Next turn, Saber Strike-Down costs 1 red/1 random instead.",
+                "skilldescription": "For 2 turns, one enemy is silenced and takes 10 affliction damage per turn. Next turn, Saber Strike-Down costs 1 red/1 white instead.",
                 "energy": [
-                    "Random"
+                    "Genjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -14435,7 +14435,7 @@ const characters = [
                 "skillimage": "assets/images/forcepush.webp",
                 "skilldescription": "Obi-Wan deals 25 damage to one enemy and cancels all active harmful skills applied by that enemy.",
                 "energy": [
-                    "Random",
+                    "Genjutsu",
                     "Random"
                 ],
                 "target": "single-enemy",

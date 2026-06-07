@@ -67,8 +67,8 @@ const starWarsMissions = [
     {
         missionId: 'darth-vader',
         title: 'Dark Lord of the Sith',
-        level_requirement: 12,
-        rank: '12',
+        level_requirement: 18,
+        rank: '18',
         reward_character: 'darth-vader',
         reward_character_name: 'Darth Vader',
         reward: 'Unlock Darth Vader',
@@ -81,8 +81,8 @@ const starWarsMissions = [
         portraitAlt: 'Darth Vader portrait',
         requirements: [],
         goals: [
-            { type: 'reach_rank', rank: 12 },
-            { type: 'win_matches', character_id: 'the-joker', character_name: 'The Joker', wins: 3 },
+            { type: 'reach_rank', rank: 18 },
+            { type: 'win_matches', character_id: 'the-joker', character_name: 'The Joker', wins: 8 },
         ],
         special_pve: { ...disabledPve },
         sortOrder: 29,
