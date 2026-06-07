@@ -5076,8 +5076,18 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         .filter((entry) => entry?.username && Number.isInteger(entry?.slot))
                         .map((entry) => `${entry.username}:${entry.slot}`)
                 );
+                const excludedRandomScopeGroupKeys = Array.isArray(effect?.metadata?.excludeRandomScopeGroupKeys)
+                    ? effect.metadata.excludeRandomScopeGroupKeys.filter((entry) => typeof entry === 'string' && entry)
+                    : [];
+                const excludedRecipientKeys = new Set(selectedKeys);
+                excludedRandomScopeGroupKeys.forEach((groupKey) => {
+                    const picked = randomScopeGroupPicks.get(groupKey);
+                    if (picked?.username && Number.isInteger(picked?.slot)) {
+                        excludedRecipientKeys.add(`${picked.username}:${picked.slot}`);
+                    }
+                });
                 const pool = opponentUnits.filter(
-                    (entry) => !selectedKeys.has(`${entry.username}:${entry.slot}`)
+                    (entry) => !excludedRecipientKeys.has(`${entry.username}:${entry.slot}`)
                 );
                 if (!pool.length) return [];
                 const randomGroupKey = effect?.metadata?.randomScopeGroupKey;
@@ -5086,7 +5096,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     if (
                         savedPick?.unit &&
                         savedPick.unit.alive !== false &&
-                        !selectedKeys.has(`${savedPick.username}:${savedPick.slot}`)
+                        !excludedRecipientKeys.has(`${savedPick.username}:${savedPick.slot}`)
                     ) {
                         return filterHelpfulImmuneRecipients({
                             effect,

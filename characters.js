@@ -10,8 +10,9 @@ const characters = [
                 "id": "iron-man-repulsor-blast",
                 "name": "Repulsor Blast",
                 "skillimage": "https://i.imgur.com/3ulWurz.png",
-                "skilldescription": "Deals 15 damage to one enemy per turn for 2 turns. If Overcharge is active, this instead deals 30 energy damage and stuns the target for 1 turn.",
+                "skilldescription": "Deals 18 damage to one enemy and 8 damage to the other enemies each turn for 2 turns. If Overcharge is active, this instead deals 38 affliction damage to one enemy, 8 affliction damage to the other enemies, and stuns the main target for 1 turn.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -34,21 +35,59 @@ const characters = [
                         },
                         "metadata": {
                             "harmful": true,
-                            "turnEndDamage": 15,
+                            "turnEndDamage": 18,
                             "triggerOnApply": true,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
                             "ongoingClass": "action",
-                            "tooltipText": "This character takes 15 damage each turn."
+                            "tooltipText": "This character takes 18 damage each turn."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "iron_man_repulsor_blast_splash_dot",
+                        "duration": 2,
+                        "scope": "other-enemies",
+                        "condition": {
+                            "scope": "self",
+                            "missingStatusId": "iron_man_overcharge_active"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "turnEndDamage": 8,
+                            "triggerOnApply": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "ongoingClass": "action",
+                            "tooltipText": "This character takes 8 damage each turn."
                         }
                     },
                     {
                         "type": "damage",
-                        "amount": 30,
+                        "amount": 38,
                         "scope": "target",
                         "condition": {
                             "scope": "self",
                             "statusId": "iron_man_overcharge_active"
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 8,
+                        "scope": "other-enemies",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "iron_man_overcharge_active"
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
                         }
                     },
                     {
@@ -100,11 +139,11 @@ const characters = [
                 "id": "iron-man-armor-upgrade",
                 "name": "Armor Upgrade",
                 "skillimage": "https://i.imgur.com/cUWpevS.png",
-                "skilldescription": "Iron Man may use this skill on himself or an ally. If used on himself, Repulsor Blast becomes Proton Cannon, this skill becomes Energy Burst, and Iron Man gains 10 points of unpierceable damage reduction. If used on an ally, they gain 2 bonus non-affliction damage and 10 permanent destructible defense. This effect stacks on allies and is permanent.",
+                "skilldescription": "Iron Man upgrades his armor, granting himself 25% damage reduction for the rest of the game. Repulsor Blast becomes Proton Cannon, Armor Upgrade becomes Energy Burst, and Overcharge is also cast on Iron Man.",
                 "energy": [
                     "Bloodline"
                 ],
-                "target": "self-or-single-ally",
+                "target": "self",
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
@@ -123,32 +162,22 @@ const characters = [
                         },
                         "metadata": {
                             "infiniteDuration": true,
-                            "unpierceableDamageReductionFlat": 10,
+                            "damageReductionPercent": 25,
                             "skillReplacements": {
                                 "iron-man-repulsor-blast": "iron-man-proton-cannon",
                                 "iron-man-armor-upgrade": "iron-man-energy-burst"
                             },
-                            "tooltipText": "Iron Man has 10 unpierceable damage reduction, Repulsor Blast is replaced by Proton Cannon, and Armor Upgrade is replaced by Energy Burst."
+                            "tooltipText": "Iron Man has 25% damage reduction, Repulsor Blast is replaced by Proton Cannon, and Armor Upgrade is replaced by Energy Burst."
                         }
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "iron_man_armor_upgrade_ally",
-                        "duration": 99,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "targetRelation": "ally"
-                        },
+                        "statusId": "iron_man_overcharge_active",
+                        "duration": 1,
+                        "scope": "self",
                         "metadata": {
-                            "infiniteDuration": true,
-                            "nonAfflictionDamageBonusFlat": 2,
-                            "destructibleDefensePoints": 10,
-                            "mergeNumericAddKeys": [
-                                "nonAfflictionDamageBonusFlat",
-                                "destructibleDefensePoints"
-                            ],
-                            "tooltipTextTemplate": "This character deals {nonAfflictionDamageBonusFlat} additional non-affliction damage and has {destructibleDefensePoints} destructible defense."
+                            "infiniteDuration": false,
+                            "tooltipText": "Iron Man's Repulsor Blast and Proton Cannon is overcharged for 1 turn."
                         }
                     }
                 ]
@@ -1276,8 +1305,8 @@ const characters = [
                 "duration": 999,
                 "metadata": {
                     "infiniteDuration": true,
-                    "unpierceableDamageReductionFlat": 12,
-                    "tooltipText": "Superman has 12 unpierceable damage reduction."
+                    "unpierceableDamageReductionFlat": 8,
+                    "tooltipText": "Superman has 8 unpierceable damage reduction."
                 }
             }
         ],
@@ -1423,8 +1452,8 @@ const characters = [
                                 "sourceSkillId": "superman-passive-the-man-of-steel",
                                 "metadata": {
                                     "infiniteDuration": true,
-                                    "unpierceableDamageReductionFlat": 12,
-                                    "tooltipText": "Superman has 12 unpierceable damage reduction."
+                                    "unpierceableDamageReductionFlat": 8,
+                                    "tooltipText": "Superman has 8 unpierceable damage reduction."
                                 }
                             },
                             "tooltipText": "Superman's Man of Steel passive is de-activated."
@@ -1471,7 +1500,7 @@ const characters = [
                 "id": "superman-passive-the-man-of-steel",
                 "name": "Passive: The Man of Steel",
                 "skillimage": "https://i.imgur.com/ACqPlGK.jpeg",
-                "skilldescription": "Superman has 12 unpierceable damage reduction.",
+                "skilldescription": "Superman has 8 unpierceable damage reduction.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -2621,7 +2650,7 @@ const characters = [
                 "id": "aquaman-trident-strike",
                 "name": "Trident Strike",
                 "skillimage": "https://i.imgur.com/fvvaagh.jpeg",
-                "skilldescription": "Aquaman strikes one enemy with his trident, dealing 27 damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn.",
+                "skilldescription": "Aquaman strikes one enemy with his trident, dealing 24 damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn. If the target is affected by Tidal Wave, they are given a stack of Sea Sharks.",
                 "energy": [
                     "Taijutsu"
                 ],
@@ -2636,7 +2665,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 27,
+                        "amount": 24,
                         "scope": "target",
                         "metadata": {
                             
@@ -2658,6 +2687,30 @@ const characters = [
                             },
                             "tooltipText": "This character is marked by Trident Strike and takes 5 bonus damage from each stack of Sea Sharks."
                         }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "aquaman_sea_sharks",
+                        "sourceSkillId": "aquaman-sea-sharks",
+                        "duration": 99,
+                        "scope": "target",
+                        "condition": {
+                            "statusId": "aquaman_tidal_wave",
+                            "scope": "target"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "turnEndDamage": 4,
+                            "ignoreTargetDamageReduction": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "triggerOnApply": true,
+                            "mergeNumericAddKeys": [
+                                "turnEndDamage"
+                            ],
+                            "tooltipTextTemplate": "This character takes {turnEndDamage} piercing damage each turn from Sea Sharks."
+                        }
                     }
                 ]
             },
@@ -2665,7 +2718,7 @@ const characters = [
                 "id": "aquaman-drown",
                 "name": "Drown",
                 "skillimage": "https://i.imgur.com/Quiv9Wj.jpeg",
-                "skilldescription": "Aquaman forces one enemy's head underwater, removing 1 random energy from them and dealing 20 affliction damage. If they are marked by 'Trident Strike', they are given a stack of 'Sea Sharks'.",
+                "skilldescription": "Aquaman forces one enemy's head underwater, removing 1 random energy from them and dealing 20 affliction damage. If they are marked by 'Trident Strike' or affected by 'Tidal Wave', they are given a stack of 'Sea Sharks'.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -2717,6 +2770,30 @@ const characters = [
                             ],
                             "tooltipTextTemplate": "This character takes {turnEndDamage} piercing damage each turn from Sea Sharks."
                         }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "aquaman_sea_sharks",
+                        "sourceSkillId": "aquaman-sea-sharks",
+                        "duration": 99,
+                        "scope": "target",
+                        "condition": {
+                            "statusId": "aquaman_tidal_wave",
+                            "scope": "target"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "turnEndDamage": 4,
+                            "ignoreTargetDamageReduction": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "triggerOnApply": true,
+                            "mergeNumericAddKeys": [
+                                "turnEndDamage"
+                            ],
+                            "tooltipTextTemplate": "This character takes {turnEndDamage} piercing damage each turn from Sea Sharks."
+                        }
                     }
                 ]
             },
@@ -2724,7 +2801,7 @@ const characters = [
                 "id": "aquaman-tidal-wave",
                 "name": "Tidal Wave",
                 "skillimage": "https://i.imgur.com/CaFUaKo.jpeg",
-                "skilldescription": "Aquaman makes the enemy team unable to reduce damage or become invulnerable, increases their cooldowns by 1 and their energy costs by 1 random energy for 2 turns. When this skill ends, they have their harmful skills stunned for 1 turn and are granted a stack of 'Sea Sharks'. If an enemy is marked by 'Trident Strike' at the end of the second turn, they take 30 damage.",
+                "skilldescription": "For 2 turns, the enemy team cannot reduce damage or become invulnerable, their cooldowns are increased by 1, their skills cost 1 additional random energy, and they take 15 damage each turn. If Aquaman uses Trident Strike or Drown on an enemy affected by this skill, they are given a stack of Sea Sharks.",
                 "energy": [
                     "Ninjutsu",
                     "Ninjutsu"
@@ -2759,46 +2836,11 @@ const characters = [
                             "cannotReduceDamage": true,
                             "cannotBecomeInvulnerable": true,
                             "usedSkillCooldownPenalty": 1,
-                            "onExpireEffects": [
-                                {
-                                    "type": "apply_status",
-                                    "statusId": "aquaman_tidal_wave_harmful_stun",
-                                    "duration": 1,
-                                    "metadata": {
-                                        "harmful": true,
-                                        "cannotUseHarmfulSkills": true,
-                                        "tooltipText": "This character harmful skills are stunned."
-                                    }
-                                },
-                                {
-                                    "type": "apply_status",
-                                    "statusId": "aquaman_sea_sharks",
-                                    "sourceSkillId": "aquaman-sea-sharks",
-                                    "duration": 99,
-                                    "metadata": {
-                                        "harmful": true,
-                                        "infiniteDuration": true,
-                                        "turnEndDamage": 4,
-                                        "ignoreTargetDamageReduction": true,
-                                        "turnEndTrigger": "source_turn",
-                                        "turnDurationAnchor": "source_turn",
-                                        "triggerOnApply": true,
-                                        "mergeNumericAddKeys": [
-                                            "turnEndDamage"
-                                        ],
-                                        "tooltipTextTemplate": "This character takes {turnEndDamage} piercing damage each turn from Sea Sharks."
-                                    }
-                                },
-                                {
-                                    "type": "damage",
-                                    "amount": 30,
-                                    "condition": {
-                                        "statusId": "aquaman_trident_strike_mark",
-                                        "scope": "target"
-                                    }
-                                }
-                            ],
-                            "tooltipText": "This character cannot reduce damage or become invulnerable and the skills they use have their cooldown increased by 1 turn. When this skill ends, this character will be stunned for 1 turn"
+                            "turnEndDamage": 15,
+                            "triggerOnApply": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "This character cannot reduce damage or become invulnerable, their used skill cooldowns are increased by 1, and they take 15 damage each turn from Tidal Wave."
                         }
                     }
                 ]
@@ -5595,7 +5637,7 @@ const characters = [
                 "id": "rex-splode-explosive-baton",
                 "name": "Explosive Baton",
                 "skillimage": "https://i.imgur.com/N0bWSfK.jpeg",
-                "skilldescription": "Rex throws a charged baton at one enemy, dealing 30 piercing damage and reducing their non-affliction damage by 15 for 1 turn. Rex can only use this skill twice per game.",
+                "skilldescription": "Rex throws a charged baton at one enemy, dealing 30 piercing damage and reducing their non-affliction damage by 15 for 1 turn. A random different enemy takes 10 affliction damage and another random different enemy takes 5 affliction damage. Rex can only use this skill twice per game.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -5632,6 +5674,31 @@ const characters = [
                             "harmful": true,
                             "nonAfflictionDamageDebuffFlat": 15,
                             "tooltipText": "This character deals 15 less non-affliction damage."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "random-other-enemy",
+                        "metadata": {
+                            "randomScopeGroupKey": "rex_baton_splash_one",
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "random-other-enemy",
+                        "metadata": {
+                            "randomScopeGroupKey": "rex_baton_splash_two",
+                            "excludeRandomScopeGroupKeys": [
+                                "rex_baton_splash_one"
+                            ],
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
                         }
                     }
                 ]
@@ -6158,7 +6225,7 @@ const characters = [
                 "id": "omni-man-omni-rush",
                 "name": "Omni-Rush",
                 "skillimage": "https://i.imgur.com/Z163Kpb.jpeg",
-                "skilldescription": "Omni-Man gains 50% unpierceable damage reduction and taunts one enemy for 1 turn. This. This cannot be used on an enemy that had this skill used on them last turn.",
+                "skilldescription": "For 2 turns, Omni-Man gains 50% unpierceable damage reduction and taunts one enemy. This cannot be used on an enemy that is currently affected by it.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -6179,7 +6246,7 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "omni_man_omni_rush_defense",
-                        "duration": 1,
+                        "duration": 2,
                         "scope": "self",
                         "metadata": {
                             "unpierceableDamageReductionPercent": 50,
@@ -6189,7 +6256,7 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "omni_man_omni_rush_taunt",
-                        "duration": 1,
+                        "duration": 2,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
@@ -6201,11 +6268,11 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "omni_man_omni_rush_recent_target",
-                        "duration": 1,
+                        "duration": 2,
                         "scope": "target",
                         "metadata": {
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "Omni-Rush cannot target this character this turn."
+                            "tooltipText": "Omni-Rush cannot target this character while this effect is active."
                         }
                     }
                 ],
@@ -6215,7 +6282,7 @@ const characters = [
                 "id": "omni-man-omni-guard",
                 "name": "Omni-Guard",
                 "skillimage": "https://i.imgur.com/sHp09rW.jpeg",
-                "skilldescription": "Omni-Man targets one enemy for 1 turn, countering them.",
+                "skilldescription": "Omni-Man targets one enemy for 1 turn. If they use a new harmful skill, it is countered and Omni-Man gains 10 additional damage permanently.",
                 "energy": [
                     "Random"
                 ],
@@ -7339,13 +7406,13 @@ const characters = [
                 "sourceSkillId": "the-green-goblin-passive-mad-bomber",
                 "metadata": {
                     "infiniteDuration": true,
-                    "tooltipText": "Whenever Green Goblin uses a skill, he has a 15% chance to plant a Bomb on a random enemy for 2 turns. If that enemy uses a harmful skill, or when the Bomb ends, Green Goblin deals 15 affliction damage to the enemy team.",
+                    "tooltipText": "Whenever Green Goblin uses a skill, he has a 25% chance to plant a Bomb on a random enemy for 2 turns. If that enemy uses a harmful skill, or when the Bomb ends, Green Goblin deals 15 affliction damage to the enemy team.",
                     "onOwnerUseSkillTrigger": true,
                     "persistOnOwnerUseSkillTrigger": true,
                     "onOwnerUseSkillApplyStatusToRandomEnemy": {
                         "statusId": "the_green_goblin_mad_bomber_bomb",
                         "duration": 2,
-                        "chancePercent": 15,
+                        "chancePercent": 25,
                         "sourceSkillId": "the-green-goblin-passive-mad-bomber",
                         "metadata": {
                             "harmful": true,
@@ -7600,7 +7667,7 @@ const characters = [
                 "id": "the-green-goblin-passive-mad-bomber",
                 "name": "Passive: Mad Bomber",
                 "skillimage": "https://i.imgur.com/oAcpnSv.png",
-                "skilldescription": "The Green Goblin has a 15% chance to toss a Bomb onto a random enemy for 2 turns whenever he uses a skill. If the target uses a harmful skill → Bomb explodes (15 affliction damage AoE). If it expires → explodes anyway.",
+                "skilldescription": "The Green Goblin has a 25% chance to toss a Bomb onto a random enemy for 2 turns whenever he uses a skill. If the target uses a harmful skill -> Bomb explodes (15 affliction damage AoE). If it expires -> explodes anyway.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -13158,7 +13225,7 @@ const characters = [
                 "id": "ghost-rider-penance-stare",
                 "name": "Penance Stare",
                 "skillimage": "assets/images/ghostriderpenancestare.png",
-                "skilldescription": "Ghost Rider forces an enemy to experience all the pain they have caused. Deals 0 piercing damage, silences harmful skills, reduces damage by 5, and increases affliction damage taken by 5. For every harmful skill the target has used this game, this skill's damage increases by 10 and its duration increases by 1. Ghost Rider gains 5 permanent unpierceable damage reduction upon use.",
+                "skilldescription": "Ghost Rider forces an enemy to experience all the pain they have caused. Deals 0 piercing damage, silences them, reduces damage by 5, and increases affliction damage taken by 5. For every harmful skill the target has used this game, this skill's damage increases by 10 and its duration increases by 1. Ghost Rider gains 5 permanent unpierceable damage reduction upon use.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -13202,10 +13269,10 @@ const characters = [
                             "harmful": true,
                             "sourceSkillName": "Penance Stare",
                             "statusIconUrl": "assets/images/ghostriderpenancestare.png",
-                            "cannotUseHarmfulSkills": true,
+                            "silenceNonDamageEffects": true,
                             "damageDebuffFlat": 5,
                             "afflictionDamageTakenBonusFlat": 5,
-                            "tooltipText": "This character is suffering from Penance Stare. They cannot use harmful skills and take increased affliction damage."
+                            "tooltipText": "This character is silenced by Penance Stare, deals 5 less damage, and takes increased affliction damage."
                         }
                     },
                     {
@@ -13647,7 +13714,7 @@ const characters = [
                 "id": "darth-vader-saber-strike-down",
                 "name": "Saber Strike-Down",
                 "skillimage": "assets/images/saberstrikedown.webp",
-                "skilldescription": "Deals 35 bleed damage to one enemy and applies Health Cap to them.",
+                "skilldescription": "Deals 40 bleed damage to one enemy and applies Health Cap to them.",
                 "energy": [
                     "Bloodline",
                     "Genjutsu"
@@ -13664,7 +13731,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 35,
+                        "amount": 40,
                         "scope": "target",
                         "metadata": {
                             "afflictionDamage": true,
@@ -13681,7 +13748,7 @@ const characters = [
                 "id": "darth-vader-force-choke",
                 "name": "Force Choke",
                 "skillimage": "assets/images/forcechoke.webp",
-                "skilldescription": "For 2 turns, one enemy is silenced and takes 10 affliction damage per turn. Next turn, Saber Strike-Down costs 1 red/1 white instead.",
+                "skilldescription": "For 2 turns, one enemy is silenced and takes 10 affliction damage per turn. Next turn, Saber Strike-Down costs 1 blood/1 random instead.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -13708,6 +13775,23 @@ const characters = [
                             "ignoreDamageReduction": true,
                             "statusIconUrl": "assets/images/forcechoke.webp",
                             "tooltipText": "This character is silenced and takes 10 affliction damage each turn."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "darth_vader_force_choke_saber_discount",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "skillCostOverridesBySkillId": {
+                                "darth-vader-saber-strike-down": {
+                                    "energy": [
+                                        "Bloodline",
+                                        "Random"
+                                    ]
+                                }
+                            },
+                            "tooltipText": "Saber Strike-Down costs 1 bloodline and 1 random energy for 1 turn."
                         }
                     }
                 ]
