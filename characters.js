@@ -9716,9 +9716,9 @@ const characters = [
                 "nameHtml": "Murderous Rage",
                 "skillimage": "https://i.imgur.com/39yHcrF_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
                 "url": "https://i.imgur.com/39yHcrF_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "skilldescription": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP. While active. cannot be used while active.",
-                "description": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP. While active. cannot be used while active.",
-                "descriptionHtml": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP.<br>While active.<br> and cannot be used while active.",
+                "skilldescription": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP. If that enemy uses a harmful skill while this is active, the protection is refreshed for 1 turn and Rage Infected permanently gains 5 additional damage against them. This skill cannot be used while active.",
+                "description": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP. If that enemy uses a harmful skill while this is active, the protection is refreshed for 1 turn and Rage Infected permanently gains 5 additional damage against them. This skill cannot be used while active.",
+                "descriptionHtml": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP.<br>If that enemy uses a harmful skill while this is active, the protection is refreshed for 1 turn and Rage Infected permanently gains 5 additional damage against them.<br>This skill cannot be used while active.",
                 "energy": [
                     "Random"
                 ],
@@ -9800,9 +9800,7 @@ const characters = [
                 "skilldescription": "For 3 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 10 additional non-affliction damage from enemy skills.",
                 "description": "For 3 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 10 additional non-affliction damage from enemy skills.",
                 "descriptionHtml": "For 3 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 10 additional non-affliction damage from enemy skills.",
-                "energy": [
-                    "Random"
-                ],
+                "energy": [],
                 "target": "self",
                 "damage": 0,
                 "cooldown": 4,
