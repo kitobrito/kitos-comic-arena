@@ -8291,9 +8291,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 const existingSkillClickHandler = imgEl._skillClickHandler;
                                 if (typeof existingSkillClickHandler === 'function') {
                                     imgEl.removeEventListener('pointerdown', existingSkillClickHandler);
+                                    imgEl.removeEventListener('click', existingSkillClickHandler);
                                 }
                                 const onSkillClick = (event) => {
                                     if (event?.button !== undefined && event.button !== 0) return;
+                                    const now = Date.now();
+                                    if (event?.type === 'click' && now - (imgEl._lastPointerSkillClickAt || 0) < 500) {
+                                        return;
+                                    }
+                                    if (event?.type === 'pointerdown') {
+                                        imgEl._lastPointerSkillClickAt = now;
+                                    }
                                     event.preventDefault();
                                     event.stopPropagation();
                                     const effectiveSkill =
@@ -8369,6 +8377,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 };
                                 imgEl._skillClickHandler = onSkillClick;
                                 imgEl.addEventListener('pointerdown', onSkillClick);
+                                imgEl.addEventListener('click', onSkillClick);
                             }
                         });
                     }

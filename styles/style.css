@@ -2490,9 +2490,10 @@ text-transform: uppercase;
 
 .character-card {
     width: 75px;
+    height: 92px;
+    flex: 0 0 92px;
     position: relative;
     z-index: 1;
-    
 }
 
 .character-face {
@@ -3178,10 +3179,12 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 
 .rage-bar-container {
     display: none;
-    position: relative;
+    position: absolute;
+    left: 0;
+    top: 62px;
+    z-index: 10;
     width: 75px;
     height: 13px;
-    top: 1px;
     background-color: #1d2a11;
     border: 1px solid #000;
     box-sizing: content-box;
@@ -4150,7 +4153,7 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     gap: 34px;
     display: flex;
     flex-direction: column;
-    top: 92px;
+    top: 84px;
     position: absolute;
     transform: scaleX(-1);
     left: 661px;
@@ -9085,9 +9088,29 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     transform: scaleX(-1);
 }
 
-.enemy-characters,
 .enemy-characters .character-card {
-    overflow: visible;
+    height: 92px;
+    flex-basis: 92px;
+}
+
+.combat-impact-burst,
+.hp-delta-popup,
+.status-apply-burst,
+.evade-slash-overlay,
+.character-death-shatter,
+.ghost-rider-death-fire,
+.predator-hunted-overlay,
+.lasered-overlay,
+.blood-splatter-enhanced,
+.explosion-enhanced,
+.muzzle-flash-enhanced,
+.pixel-impact-fx,
+.pixel-portal-fx,
+.pixel-status-fx,
+.targeting-alert-enhanced,
+.storm-lightning-strike-enhanced,
+.storm-wind-gust-enhanced {
+    pointer-events: none;
 }
 
 .global-status-tooltip {
