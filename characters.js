@@ -11,6 +11,8 @@ const characters = [
                 "name": "Repulsor Blast",
                 "skillimage": "https://i.imgur.com/3ulWurz.png",
                 "skilldescription": "Deals 18 damage to one enemy and 8 damage to the other enemies each turn for 2 turns. If Overcharge is active, this instead deals 38 affliction damage to one enemy, 8 affliction damage to the other enemies, and stuns the main target for 1 turn.",
+                "description": "Deals 18 damage to one enemy and 8 damage to the other enemies each turn for 2 turns. If Overcharge is active, this instead deals 38 affliction damage to one enemy, 8 affliction damage to the other enemies, and stuns the main target for 1 turn.",
+                "descriptionHtml": "Deals 18 damage to one enemy and 8 damage to the other enemies each turn for 2 turns.<br>If Overcharge is active, this instead deals 38 affliction damage to one enemy, 8 affliction damage to the other enemies, and stuns the main target for 1 turn.",
                 "energy": [
                     "Random",
                     "Random"
@@ -140,6 +142,8 @@ const characters = [
                 "name": "Armor Upgrade",
                 "skillimage": "https://i.imgur.com/cUWpevS.png",
                 "skilldescription": "Iron Man upgrades his armor, granting himself 25% damage reduction for the rest of the game. Repulsor Blast becomes Proton Cannon, Armor Upgrade becomes Energy Burst, and Overcharge is also cast on Iron Man.",
+                "description": "Iron Man upgrades his armor, granting himself 25% damage reduction for the rest of the game. Repulsor Blast becomes Proton Cannon, Armor Upgrade becomes Energy Burst, and Overcharge is also cast on Iron Man.",
+                "descriptionHtml": "Iron Man upgrades his armor, granting himself 25% damage reduction for the rest of the game.<br>Repulsor Blast becomes Proton Cannon, Armor Upgrade becomes Energy Burst, and Overcharge is also cast on Iron Man.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -1501,6 +1505,8 @@ const characters = [
                 "name": "Passive: The Man of Steel",
                 "skillimage": "https://i.imgur.com/ACqPlGK.jpeg",
                 "skilldescription": "Superman has 8 unpierceable damage reduction.",
+                "description": "Superman has 8 unpierceable damage reduction.",
+                "descriptionHtml": "Superman has 8 unpierceable damage reduction.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -2651,6 +2657,8 @@ const characters = [
                 "name": "Trident Strike",
                 "skillimage": "https://i.imgur.com/fvvaagh.jpeg",
                 "skilldescription": "Aquaman strikes one enemy with his trident, dealing 24 damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn. If the target is affected by Tidal Wave, they are given a stack of Sea Sharks.",
+                "description": "Aquaman strikes one enemy with his trident, dealing 24 damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn. If the target is affected by Tidal Wave, they are given a stack of Sea Sharks.",
+                "descriptionHtml": "Aquaman strikes one enemy with his trident, dealing 24 damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn.<br>If the target is affected by Tidal Wave, they are given a stack of Sea Sharks.",
                 "energy": [
                     "Taijutsu"
                 ],
@@ -2719,6 +2727,8 @@ const characters = [
                 "name": "Drown",
                 "skillimage": "https://i.imgur.com/Quiv9Wj.jpeg",
                 "skilldescription": "Aquaman forces one enemy's head underwater, removing 1 random energy from them and dealing 20 affliction damage. If they are marked by 'Trident Strike' or affected by 'Tidal Wave', they are given a stack of 'Sea Sharks'.",
+                "description": "Aquaman forces one enemy's head underwater, removing 1 random energy from them and dealing 20 affliction damage. If they are marked by 'Trident Strike' or affected by 'Tidal Wave', they are given a stack of 'Sea Sharks'.",
+                "descriptionHtml": "Aquaman forces one enemy's head underwater, removing 1 random energy from them and dealing 20 affliction damage.<br>If they are marked by 'Trident Strike' or affected by 'Tidal Wave', they are given a stack of 'Sea Sharks'.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -2802,6 +2812,8 @@ const characters = [
                 "name": "Tidal Wave",
                 "skillimage": "https://i.imgur.com/CaFUaKo.jpeg",
                 "skilldescription": "For 2 turns, the enemy team cannot reduce damage or become invulnerable, their cooldowns are increased by 1, their skills cost 1 additional random energy, and they take 15 damage each turn. If Aquaman uses Trident Strike or Drown on an enemy affected by this skill, they are given a stack of Sea Sharks.",
+                "description": "For 2 turns, the enemy team cannot reduce damage or become invulnerable, their cooldowns are increased by 1, their skills cost 1 additional random energy, and they take 15 damage each turn. If Aquaman uses Trident Strike or Drown on an enemy affected by this skill, they are given a stack of Sea Sharks.",
+                "descriptionHtml": "For 2 turns, the enemy team cannot reduce damage or become invulnerable, their cooldowns are increased by 1, their skills cost 1 additional random energy, and they take 15 damage each turn.<br>If Aquaman uses Trident Strike or Drown on an enemy affected by this skill, they are given a stack of Sea Sharks.",
                 "energy": [
                     "Ninjutsu",
                     "Ninjutsu"
@@ -4136,6 +4148,8 @@ const characters = [
                 "name": ".357 Revolver",
                 "skillimage": "https://i.imgur.com/J7oYkQt.png",
                 "skilldescription": "Rick fires his signature weapon at one enemy, dealing 20 piercing damage. This has a 70% chance to successfully hit and a 30% chance to miss. If successful, this has a 25% chance to be a 'Headshot'. If it misses, it has a 10% chance to hit a random different enemy (and 5% chance for that to then be a 'Headshot'). Rick only carries six bullets with him per game.",
+                "description": "Rick fires his signature weapon at one enemy, dealing 20 piercing damage. This has a 70% chance to successfully hit and a 30% chance to miss. If successful, this has a 25% chance to be a 'Headshot'. If it misses, it has a 10% chance to hit a random different enemy (and 5% chance for that to then be a 'Headshot'). Rick only carries six bullets with him per game.",
+                "descriptionHtml": "Rick fires his signature weapon at one enemy, dealing 20 piercing damage.<br>This has a 70% chance to successfully hit and a 30% chance to miss.<br>If successful, this has a 25% chance to be a 'Headshot'.<br>If it misses, it has a 10% chance to hit a random different enemy (and 5% chance for that to then be a 'Headshot').<br>Rick only carries six bullets with him per game.",
                 "energy": [],
                 "target": "single-enemy",
                 "damage": 0,
@@ -4324,6 +4338,8 @@ const characters = [
                 "name": "Throat Slit",
                 "skillimage": "https://i.imgur.com/xcN920R.png",
                 "skilldescription": "Rick slashes an enemy's throat, dealing 20 piercing damage this turn then making them bleed 5 bleed damage the following turn. If either the piercing or bleed damage brings the target to 15 HP or below, they are executed. Their harmful skills are silenced for 1 turn. While bleeding, '.357 Revolver' cannot miss them and has a 15% bonus chance to 'Headshot'. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
+                "description": "Rick slashes an enemy's throat, dealing 20 piercing damage this turn then making them bleed 5 bleed damage the following turn. If either the piercing or bleed damage brings the target to 15 HP or below, they are executed. Their harmful skills are silenced for 1 turn. While bleeding, '.357 Revolver' cannot miss them and has a 15% bonus chance to 'Headshot'. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
+                "descriptionHtml": "Rick slashes an enemy's throat, dealing 20 piercing damage this turn then making them bleed 5 bleed damage the following turn.<br>If either the piercing or bleed damage brings the target to 15 HP or below, they are executed.<br>Their harmful skills are silenced for 1 turn.<br>While bleeding, '.357 Revolver' cannot miss them and has a 15% bonus chance to 'Headshot'.<br>Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
                 "energy": [
                     "Random",
                     "Random"
@@ -5641,6 +5657,8 @@ const characters = [
                 "name": "Explosive Baton",
                 "skillimage": "https://i.imgur.com/N0bWSfK.jpeg",
                 "skilldescription": "Rex throws a charged baton at one enemy, dealing 30 piercing damage and reducing their non-affliction damage by 15 for 1 turn. A random different enemy takes 10 affliction damage and another random different enemy takes 5 affliction damage. Rex can only use this skill twice per game.",
+                "description": "Rex throws a charged baton at one enemy, dealing 30 piercing damage and reducing their non-affliction damage by 15 for 1 turn. A random different enemy takes 10 affliction damage and another random different enemy takes 5 affliction damage. Rex can only use this skill twice per game.",
+                "descriptionHtml": "Rex throws a charged baton at one enemy, dealing 30 piercing damage and reducing their non-affliction damage by 15 for 1 turn.<br>A random different enemy takes 10 affliction damage and another random different enemy takes 5 affliction damage.<br>Rex can only use this skill twice per game.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -7671,6 +7689,8 @@ const characters = [
                 "name": "Passive: Mad Bomber",
                 "skillimage": "https://i.imgur.com/oAcpnSv.png",
                 "skilldescription": "The Green Goblin has a 25% chance to toss a Bomb onto a random enemy for 2 turns whenever he uses a skill. If the target uses a harmful skill -> Bomb explodes (15 affliction damage AoE). If it expires -> explodes anyway.",
+                "description": "The Green Goblin has a 25% chance to toss a Bomb onto a random enemy for 2 turns whenever he uses a skill. If the target uses a harmful skill -> Bomb explodes (15 affliction damage AoE). If it expires -> explodes anyway.",
+                "descriptionHtml": "The Green Goblin has a 25% chance to toss a Bomb onto a random enemy for 2 turns whenever he uses a skill.<br>If the target uses a harmful skill -> Bomb explodes (15 affliction damage AoE).<br>If it expires -> explodes anyway.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -13227,6 +13247,8 @@ const characters = [
                 "name": "Penance Stare",
                 "skillimage": "assets/images/ghostriderpenancestare.png",
                 "skilldescription": "Ghost Rider forces an enemy to experience all the pain they have caused. Deals 0 piercing damage, silences them, reduces damage by 5, and increases affliction damage taken by 5. For every harmful skill the target has used this game, this skill's damage increases by 10 and its duration increases by 1. Ghost Rider gains 5 permanent unpierceable damage reduction upon use.",
+                "description": "Ghost Rider forces an enemy to experience all the pain they have caused. Deals 0 piercing damage, silences them, reduces damage by 5, and increases affliction damage taken by 5. For every harmful skill the target has used this game, this skill's damage increases by 10 and its duration increases by 1. Ghost Rider gains 5 permanent unpierceable damage reduction upon use.",
+                "descriptionHtml": "Ghost Rider forces an enemy to experience all the pain they have caused.<br>Deals 0 piercing damage, silences them, reduces damage by 5, and increases affliction damage taken by 5.<br>For every harmful skill the target has used this game, this skill's damage increases by 10 and its duration increases by 1.<br>Ghost Rider gains 5 permanent unpierceable damage reduction upon use.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -13716,6 +13738,8 @@ const characters = [
                 "name": "Saber Strike-Down",
                 "skillimage": "assets/images/saberstrikedown.webp",
                 "skilldescription": "Deals 40 bleed damage to one enemy and applies Health Cap to them.",
+                "description": "Deals 40 bleed damage to one enemy and applies Health Cap to them.",
+                "descriptionHtml": "Deals 40 bleed damage to one enemy and applies Health Cap to them.",
                 "energy": [
                     "Bloodline",
                     "Genjutsu"
@@ -13750,6 +13774,8 @@ const characters = [
                 "name": "Force Choke",
                 "skillimage": "assets/images/forcechoke.webp",
                 "skilldescription": "For 2 turns, one enemy is silenced and takes 10 affliction damage per turn. Next turn, Saber Strike-Down costs 1 blood/1 random instead.",
+                "description": "For 2 turns, one enemy is silenced and takes 10 affliction damage per turn. Next turn, Saber Strike-Down costs 1 blood/1 random instead.",
+                "descriptionHtml": "For 2 turns, one enemy is silenced and takes 10 affliction damage per turn.<br>Next turn, Saber Strike-Down costs 1 blood/1 random instead.",
                 "energy": [
                     "Genjutsu"
                 ],
