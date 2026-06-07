@@ -1526,20 +1526,163 @@ const DEFAULT_MISSION_CATALOG = [
             }
         ],
         special_pve: {
-            enabled: true,
-            buttonLabel: 'Trial of Sin',
-            botName: 'The Penitent',
-            botTeamCharacterId: 'ghost-rider',
-            botTeamSize: 1,
-            botMaxQueuedSkillsPerTurn: 1,
-            backgroundImage: 'assets/images/ghostridermissionpic.png',
-            playerTeamCharacterIds: [
-                'the-hulk',
-                'spider-man',
-                'captain-america'
-            ]
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
         },
         sortOrder: 28
+    },
+    {
+        missionId: 'darth-vader',
+        title: 'Dark Lord of the Sith',
+        level_requirement: 12,
+        rank: '12',
+        reward_character: 'darth-vader',
+        reward_character_name: 'Darth Vader',
+        reward: 'Unlock Darth Vader',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: '',
+            character_name: '',
+            wins: 0
+        },
+        image: 'assets/images/darthvadermission.jpeg',
+        imageAlt: 'Darth Vader mission artwork',
+        characterName: 'Darth Vader',
+        portrait: 'assets/images/darthvaderfp.webp',
+        portraitAlt: 'Darth Vader portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'reach_rank',
+                rank: 12
+            },
+            {
+                type: 'win_matches',
+                character_id: 'the-joker',
+                character_name: 'The Joker',
+                wins: 3
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 29
+    },
+    {
+        missionId: 'boba-fett',
+        title: 'Dead or Alive',
+        level_requirement: 10,
+        rank: '10',
+        reward_character: 'boba-fett',
+        reward_character_name: 'Boba Fett',
+        reward: 'Unlock Boba Fett',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'ghost-rider',
+            character_name: 'Ghost Rider',
+            wins: 2
+        },
+        image: 'assets/images/bobafettmission.avif',
+        imageAlt: 'Boba Fett mission artwork',
+        characterName: 'Boba Fett',
+        portrait: 'assets/images/bobafettfp.webp',
+        portraitAlt: 'Boba Fett portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: 'ghost-rider',
+                character_name: 'Ghost Rider',
+                wins: 4
+            },
+            {
+                type: 'win_streak',
+                character_id: 'ghost-rider',
+                character_name: 'Ghost Rider',
+                wins: 2
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 30
+    },
+    {
+        missionId: 'obi-wan-kenobi',
+        title: 'The Negotiator',
+        level_requirement: 10,
+        rank: '10',
+        reward_character: 'obi-wan-kenobi',
+        reward_character_name: 'Obi-Wan Kenobi',
+        reward: 'Unlock Obi-Wan Kenobi',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: 'wonder-woman',
+            character_name: 'Wonder Woman',
+            wins: 2
+        },
+        image: 'assets/images/obiwankenobimission.jpg',
+        imageAlt: 'Obi-Wan Kenobi mission artwork',
+        characterName: 'Obi-Wan Kenobi',
+        portrait: 'assets/images/obiwankenobifp.webp',
+        portraitAlt: 'Obi-Wan Kenobi portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: 'wonder-woman',
+                character_name: 'Wonder Woman',
+                wins: 4
+            },
+            {
+                type: 'win_streak',
+                character_id: 'wonder-woman',
+                character_name: 'Wonder Woman',
+                wins: 2
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 31
     }
 ];
 

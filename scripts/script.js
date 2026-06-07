@@ -2996,6 +2996,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 'venom-pulling-tendrils',
                 'venom-venom-web-wrap',
                 'negan-the-iron',
+                'darth-vader-saber-strike-down',
+                'obi-wan-kenobi-soresu-style-cut',
+                'boba-fett-bounty-hunter-blaster',
+                'boba-fett-bounty-hunter-blaster-upgraded',
+                'boba-fett-wrist-flamethrower',
+                'boba-fett-wrist-flamethrower-upgraded',
+                'boba-fett-missile-backpack',
+                'boba-fett-missile-backpack-upgraded',
+                'boba-fett-looted-lightsaber',
+                'boba-fett-looted-lightsaber-upgraded',
             ].includes(skillId) || skillId.startsWith('storm-lightning-strike') || skillId.startsWith('storm-wind-funnel');
         };
 
@@ -3695,6 +3705,32 @@ document.addEventListener('DOMContentLoaded', async () => {
             playGeneratedIngameSound('fire-ignite');
         };
 
+        const showLightsaberPortraitSlashFx = (targetCards = [], variant = 'blue-horizontal') => {
+            const isRed = variant.includes('red');
+            const isVertical = variant.includes('vertical');
+            targetCards.forEach((targetCard, index) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    `lightsaber-portrait-slash-fx ${isRed ? 'red' : 'blue'} ${isVertical ? 'vertical' : 'horizontal'}`,
+                    '<span class="lightsaber-core"></span><span class="lightsaber-glow"></span>',
+                    900 + index * 80
+                );
+            });
+            playGeneratedIngameSound('slash');
+        };
+
+        const showBobaWaterBountyFx = (targetCards = [], variant = 'bounty') => {
+            targetCards.forEach((targetCard, index) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    `boba-water-bounty-fx ${variant}`,
+                    '<span class="boba-water-ring"></span><span class="boba-water-splash one"></span><span class="boba-water-splash two"></span><span class="boba-water-splash three"></span>',
+                    1250 + index * 90
+                );
+            });
+            playGeneratedIngameSound(variant === 'bounty' ? 'target-lock' : 'damage');
+        };
+
         const showDirectionalSkillFx = ({ actorCard, actorSlot, skill, selection }) => {
             const skillId = skill?.id || '';
             const isRedLaser = [
@@ -3741,6 +3777,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isGhostRiderPenanceStare = skillId === 'ghost-rider-penance-stare';
             const isGhostRiderSoulConsumption = skillId === 'ghost-rider-soul-consumption';
             const isGhostRiderInfernalRide = skillId === 'ghost-rider-infernal-ride';
+            const isVaderSaberStrikeDown = skillId === 'darth-vader-saber-strike-down';
+            const isObiWanSoresuStyleCut = skillId === 'obi-wan-kenobi-soresu-style-cut';
+            const isBobaBountyBlaster = skillId === 'boba-fett-bounty-hunter-blaster' || skillId === 'boba-fett-bounty-hunter-blaster-upgraded';
+            const isBobaWaterSkill =
+                isBobaBountyBlaster ||
+                skillId === 'boba-fett-wrist-flamethrower' ||
+                skillId === 'boba-fett-wrist-flamethrower-upgraded' ||
+                skillId === 'boba-fett-missile-backpack' ||
+                skillId === 'boba-fett-missile-backpack-upgraded' ||
+                skillId === 'boba-fett-looted-lightsaber' ||
+                skillId === 'boba-fett-looted-lightsaber-upgraded';
             const isGenericLaser = !isRedLaser && !isYellowLaser && skillId.includes('laser');
             const isJokerExplosion = ['the-joker-bang', 'the-joker-remote-bomb'].includes(skillId);
             const isGoblinExplosion = ['the-green-goblin-pumpkin-bomb', 'the-green-goblin-carpet-bombing'].includes(skillId);
@@ -3781,6 +3828,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 !isGhostRiderPenanceStare &&
                 !isGhostRiderSoulConsumption &&
                 !isGhostRiderInfernalRide &&
+                !isVaderSaberStrikeDown &&
+                !isObiWanSoresuStyleCut &&
+                !isBobaWaterSkill &&
                 !isJokerExplosion &&
                 !isGoblinExplosion &&
                 !isRexExplosion &&
@@ -3789,6 +3839,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
             const targetCards = getTargetCardsFromSelection(selection);
+            if (isVaderSaberStrikeDown) {
+                showLightsaberPortraitSlashFx(targetCards, 'red-vertical');
+                return;
+            }
+            if (isObiWanSoresuStyleCut) {
+                showLightsaberPortraitSlashFx(targetCards, 'blue-horizontal');
+                return;
+            }
+            if (isBobaWaterSkill) {
+                showBobaWaterBountyFx(targetCards, isBobaBountyBlaster ? 'bounty' : 'splash');
+                return;
+            }
             if (isGhostRiderHellfireChains) {
                 showGhostRiderHellfireChainsFx({ actorCard, selection });
                 return;
@@ -4508,10 +4570,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         const LASER_DEATH_KILLER_IDS = new Set(['homelander', 'superman', 'billy-butcher']);
         const PREDATOR_DEATH_KILLER_IDS = new Set(['predator-stalker', 'predator']);
         const GHOST_RIDER_DEATH_KILLER_IDS = new Set(['ghost-rider', 'ghost rider']);
+        const COMIC_EXPLOSION_DEATH_KILLER_IDS = new Set(['the-joker', 'the-green-goblin', 'rex-splode']);
 
         const getSpecialDeathAnimationType = (killerId) => {
             const normalizedKillerId = String(killerId || '').trim().toLowerCase();
             if (!normalizedKillerId) return '';
+            if (normalizedKillerId === 'darth-vader') return 'saber-red';
+            if (normalizedKillerId === 'obi-wan-kenobi') return 'saber-blue';
+            if (normalizedKillerId === 'wolverine') return 'eviscerated';
+            if (normalizedKillerId === 'boba-fett') return 'claimed';
+            if (normalizedKillerId === 'carnage') return 'devoured';
+            if (normalizedKillerId === 'batman') return 'vanished';
+            if (normalizedKillerId === 'venom') return 'consumed';
+            if (normalizedKillerId === 'negan') return 'lucilled';
+            if (normalizedKillerId === 'the-flash-barry-allen') return 'speed-blitz';
+            if (COMIC_EXPLOSION_DEATH_KILLER_IDS.has(normalizedKillerId)) return 'comic-boom';
             if (PREDATOR_DEATH_KILLER_IDS.has(normalizedKillerId)) return 'predator';
             if (LASER_DEATH_KILLER_IDS.has(normalizedKillerId)) return 'laser';
             if (GHOST_RIDER_DEATH_KILLER_IDS.has(normalizedKillerId)) return 'ghost-rider';
@@ -4521,9 +4594,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         const clearTransientDeathFx = (card) => {
             if (!card) return;
             card.querySelectorAll(
-                '.character-death-shatter, .ghost-rider-death-fire, .predator-hunted-overlay, .lasered-overlay'
+                '.character-death-shatter, .ghost-rider-death-fire, .predator-hunted-overlay, .lasered-overlay, .sabered-overlay, .special-kill-overlay'
             ).forEach((node) => node.remove());
-            card.classList.remove('death-crack', 'predator-hunted-active', 'lasered-active');
+            card.classList.remove('death-crack', 'predator-hunted-active', 'lasered-active', 'sabered-active', 'special-kill-active');
         };
 
         const scheduleTransientDeathFxCleanup = (card, overlay, delayMs) => {
@@ -4534,6 +4607,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 if (!card?.querySelector?.('.lasered-overlay')) {
                     card?.classList.remove('lasered-active');
+                }
+                if (!card?.querySelector?.('.sabered-overlay')) {
+                    card?.classList.remove('sabered-active');
+                }
+                if (!card?.querySelector?.('.special-kill-overlay')) {
+                    card?.classList.remove('special-kill-active');
                 }
             }, delayMs);
         };
@@ -4579,11 +4658,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             const safeSrc = escapeCssUrl(portraitSrc);
             const overlay = document.createElement('div');
             overlay.className = 'ghost-rider-death-fire';
-            const label = card.closest('.enemy-characters') ? 'PURIFIED' : 'BURNING';
+            const label = card.closest('.enemy-characters') ? 'JUDGED' : 'JUDGED';
             overlay.innerHTML =
                 `<div class="ghost-rider-death-portrait-wrap">` +
                     `<div class="ghost-rider-death-portrait" style="background-image:url('${safeSrc}')"></div>` +
                     `<div class="ghost-rider-death-slice-x"></div>` +
+                    `<div class="ghost-rider-judged-eyes"><span></span><span></span></div>` +
                 `</div>` +
                 `<div class="ghost-rider-death-fire-fx"></div>` +
                 `<div class="ghost-rider-death-ash"><span></span><span></span><span></span><span></span><span></span></div>` +
@@ -4593,9 +4673,149 @@ document.addEventListener('DOMContentLoaded', async () => {
             scheduleTransientDeathFxCleanup(card, overlay, 4500);
         };
 
+        const triggerSaberedAnimation = (card, variant = 'blue') => {
+            if (!card) return;
+            const face = card.querySelector('.character-face');
+            const portraitSrc = face?.dataset?.aliveSrc || face?.src || '';
+            if (!portraitSrc) return;
+            clearTransientDeathFx(card);
+            const safeSrc = escapeCssUrl(portraitSrc);
+            const isRed = variant === 'red';
+            const splitClass = isRed ? 'vertical' : 'horizontal';
+            card.classList.add('sabered-active');
+            const overlay = document.createElement('div');
+            overlay.className = `sabered-overlay ${isRed ? 'red' : 'blue'} ${splitClass}`;
+            const halves = isRed
+                ? `<div class="sabered-half left" style="background-image:url('${safeSrc}')"></div><div class="sabered-half right" style="background-image:url('${safeSrc}')"></div>`
+                : `<div class="sabered-half top" style="background-image:url('${safeSrc}')"></div><div class="sabered-half bottom" style="background-image:url('${safeSrc}')"></div>`;
+            overlay.innerHTML =
+                halves +
+                `<div class="sabered-slash-line"></div>` +
+                `<div class="death-kill-label sabered-label">Sabered</div>`;
+            card.appendChild(overlay);
+            playGeneratedIngameSound('slash');
+            scheduleTransientDeathFxCleanup(card, overlay, 3200);
+        };
+
+        const triggerPortraitKillOverlay = (card, type, label, html, duration = 3200, sound = 'death') => {
+            if (!card || !type) return false;
+            const face = card.querySelector('.character-face');
+            const portraitSrc = face?.dataset?.aliveSrc || face?.src || '';
+            if (!portraitSrc) return false;
+            clearTransientDeathFx(card);
+            const safeSrc = escapeCssUrl(portraitSrc);
+            card.classList.add('special-kill-active');
+            const overlay = document.createElement('div');
+            overlay.className = `special-kill-overlay ${type}`;
+            overlay.innerHTML =
+                `<div class="special-kill-portrait" style="background-image:url('${safeSrc}')"></div>` +
+                html +
+                `<div class="death-kill-label special-kill-label">${label}</div>`;
+            card.appendChild(overlay);
+            if (sound) playGeneratedIngameSound(sound);
+            scheduleTransientDeathFxCleanup(card, overlay, duration);
+            return true;
+        };
+
+        const triggerEvisceratedAnimation = (card) =>
+            triggerPortraitKillOverlay(
+                card,
+                'eviscerated-kill',
+                'Eviscerated',
+                '<div class="eviscerated-gashes"><span></span><span></span><span></span></div><div class="eviscerated-sparks"><span></span><span></span><span></span><span></span></div>',
+                3300,
+                'slash'
+            );
+
+        const triggerClaimedAnimation = (card) =>
+            triggerPortraitKillOverlay(
+                card,
+                'claimed-kill',
+                'Claimed',
+                '<div class="claimed-poster-stamp">WANTED</div><div class="claimed-reticle"><span></span><span></span><span></span></div><div class="claimed-credit-flash"></div>',
+                3400,
+                'target-lock'
+            );
+
+        const triggerDevouredAnimation = (card) =>
+            triggerPortraitKillOverlay(
+                card,
+                'devoured-kill',
+                'Devoured',
+                '<div class="devoured-tendrils"><span></span><span></span><span></span><span></span></div><div class="devoured-splatter"></div>',
+                3400,
+                'bite-crunch'
+            );
+
+        const triggerVanishedAnimation = (card) =>
+            triggerPortraitKillOverlay(
+                card,
+                'vanished-kill',
+                'Vanished',
+                '<div class="vanished-smoke"><span></span><span></span><span></span></div><div class="vanished-bat"></div>',
+                3200,
+                'cloak'
+            );
+
+        const triggerConsumedAnimation = (card) =>
+            triggerPortraitKillOverlay(
+                card,
+                'consumed-kill',
+                'Consumed',
+                '<div class="consumed-jaws top"></div><div class="consumed-jaws bottom"></div><div class="consumed-slime"></div>',
+                3400,
+                'bite-crunch'
+            );
+
+        const triggerSpeedBlitzAnimation = (card) =>
+            triggerPortraitKillOverlay(
+                card,
+                'speed-blitz-kill',
+                'Speed Blitz',
+                '<div class="speed-blitz-afterimages"><span></span><span></span></div><div class="speed-blitz-lightning"></div>',
+                3000,
+                'lightning'
+            );
+
+        const triggerComicBoomAnimation = (card) =>
+            triggerPortraitKillOverlay(
+                card,
+                'comic-boom-kill',
+                'BOOM',
+                '<div class="comic-boom-burst"></div><div class="comic-boom-cracks"><span></span><span></span><span></span></div>',
+                3100,
+                'explosion'
+            );
+
+        const triggerLucilledAnimation = (card) =>
+            triggerPortraitKillOverlay(
+                card,
+                'lucilled-kill',
+                "Lucille'd",
+                '<div class="lucilled-bat"><span></span></div><div class="lucilled-impact"></div><div class="lucilled-cracks"><span></span><span></span><span></span></div>',
+                3300,
+                'damage'
+            );
+
         const getActiveStatuses = (unit) => {
             const statuses = Array.isArray(unit?.state?.statuses) ? unit.state.statuses : [];
             return statuses.filter((status) => (Number(status?.remainingTurns) || 0) > 0);
+        };
+
+        const syncBobaWantedMarker = (card, statuses = []) => {
+            if (!card) return;
+            const hasWanted = statuses.some((status) => status?.id === 'boba_fett_wanted_dead_or_alive');
+            let marker = card.querySelector('.boba-wanted-marker');
+            if (!hasWanted) {
+                marker?.remove();
+                return;
+            }
+            if (!marker) {
+                marker = document.createElement('div');
+                marker.className = 'boba-wanted-marker';
+                marker.innerHTML = '<span class="boba-wanted-title">WANTED</span><span class="boba-wanted-subtitle">Dead or Alive</span><span class="boba-wanted-scan"></span>';
+                card.appendChild(marker);
+            }
         };
 
         const getDestructibleDefenseValue = (unit) =>
@@ -4890,11 +5110,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                     : killerId === 'superman'
                     ? 'blue'
                     : 'red';
+            const laserLabel =
+                killerId === 'billy-butcher'
+                    ? 'BUTCHERED'
+                    : killerId === 'superman'
+                    ? 'SCORCHED'
+                    : 'LASERED';
             overlay.innerHTML =
                 `<div class="lasered-half top" style="background-image:url('${safeSrc}')"></div>` +
                 `<div class="lasered-half bottom" style="background-image:url('${safeSrc}')"></div>` +
                 `<div class="laser-beams"><span class="laser-beam one ${laserClass}"></span><span class="laser-beam two ${laserClass}"></span></div>` +
-                `<div class="lasered-callout">LASERED</div>`;
+                `<div class="lasered-callout">${laserLabel}</div>`;
             card.appendChild(overlay);
             scheduleTransientDeathFxCleanup(card, overlay, 3000);
         };
@@ -4912,6 +5138,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             overlay.innerHTML =
                 `<div class="predator-hunted-half top" style="background-image:url('${safeSrc}')"></div>` +
                 `<div class="predator-hunted-half bottom" style="background-image:url('${safeSrc}')"></div>` +
+                `<div class="predator-thermal-scan"><span></span><span></span><span></span></div>` +
                 `<div class="predator-gauntlet-blades"><span></span><span></span><span></span></div>` +
                 `<div class="predator-hunted-callout">HUNTED</div>`;
             card.appendChild(overlay);
@@ -4923,6 +5150,38 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const triggerSpecialDeathAnimation = (card, killerId) => {
             const animationType = getSpecialDeathAnimationType(killerId);
+            if (animationType === 'saber-red') {
+                triggerSaberedAnimation(card, 'red');
+                return true;
+            }
+            if (animationType === 'saber-blue') {
+                triggerSaberedAnimation(card, 'blue');
+                return true;
+            }
+            if (animationType === 'eviscerated') {
+                return triggerEvisceratedAnimation(card);
+            }
+            if (animationType === 'claimed') {
+                return triggerClaimedAnimation(card);
+            }
+            if (animationType === 'devoured') {
+                return triggerDevouredAnimation(card);
+            }
+            if (animationType === 'vanished') {
+                return triggerVanishedAnimation(card);
+            }
+            if (animationType === 'consumed') {
+                return triggerConsumedAnimation(card);
+            }
+            if (animationType === 'lucilled') {
+                return triggerLucilledAnimation(card);
+            }
+            if (animationType === 'speed-blitz') {
+                return triggerSpeedBlitzAnimation(card);
+            }
+            if (animationType === 'comic-boom') {
+                return triggerComicBoomAnimation(card);
+            }
             if (animationType === 'predator') {
                 triggerPredatorHuntedAnimation(card);
                 return true;
@@ -6150,6 +6409,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 syncLanternPassiveAura(card, []);
                 syncGreenGoblinBombMarker(card, false);
                 syncGhostRiderPersistentFx(card, []);
+                syncBobaWantedMarker(card, []);
                 tooltipWrap
                     .querySelectorAll('.skilltooltipimage.dynamic-status-icon')
                     .forEach((node) => node.remove());
@@ -6173,6 +6433,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 syncLanternPassiveAura(card, []);
                 syncGreenGoblinBombMarker(card, false);
                 syncGhostRiderPersistentFx(card, []);
+                syncBobaWantedMarker(card, []);
                 tooltipWrap.style.visibility = 'hidden';
                 tooltipImgTemplate.removeAttribute('title');
                 tooltipWrap.classList.remove('has-status');
@@ -6186,6 +6447,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             tooltipWrap.classList.add('has-status');
             syncLanternPassiveAura(card, statuses);
             syncGhostRiderPersistentFx(card, statuses);
+            syncBobaWantedMarker(card, statuses);
             const groupedStatuses = [];
             const groupByKey = new Map();
             statuses.forEach((status, index) => {
@@ -10472,6 +10734,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             ['marvel', 'Marvel'],
             ['dc', 'DC'],
             ['image', 'Image'],
+            ['star-wars', 'Star Wars'],
             ['other', 'Other'],
         ],
         'play-rate': [

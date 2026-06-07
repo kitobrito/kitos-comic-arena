@@ -315,6 +315,7 @@
               <button class="universe-tab" data-universe="marvel">Marvel</button>
               <button class="universe-tab" data-universe="dc">DC</button>
               <button class="universe-tab" data-universe="image">Image</button>
+              <button class="universe-tab" data-universe="star-wars">Star Wars</button>
               <button class="universe-tab" data-universe="other">Other</button>
             </div>
             <div class="character-search-row">
@@ -692,8 +693,9 @@
           var role = getCharacterRole(character).toLowerCase();
           var roleCategory = getCharacterRoleCategory(character);
           var universe = character && typeof character.universe === "string" ? character.universe.toLowerCase() : "other";
+          var universeLabel = universe.replace(/-/g, " ");
           
-          var matchesSearch = !query || name.indexOf(query) !== -1 || role.indexOf(query) !== -1 || roleCategory.indexOf(query) !== -1;
+          var matchesSearch = !query || name.indexOf(query) !== -1 || role.indexOf(query) !== -1 || roleCategory.indexOf(query) !== -1 || universe.indexOf(query) !== -1 || universeLabel.indexOf(query) !== -1;
           var matchesRole = activeRoleFilter === "all" || roleCategory === activeRoleFilter;
           var matchesUniverse = activeUniverseFilter === "all" || universe === activeUniverseFilter;
           

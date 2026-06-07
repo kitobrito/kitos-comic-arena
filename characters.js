@@ -13634,6 +13634,951 @@ const characters = [
         "role": "Regenerating Bleed Bruiser",
         "universe": "marvel",
         "roleCategory": "damage"
+    },
+    {
+        "id": "darth-vader",
+        "characterId": "darth-vader",
+        "name": "Darth Vader",
+        "facePicture": "assets/images/darthvaderfp.webp",
+        "characterdeescription": "Once the heroic Anakin Skywalker, Darth Vader now serves as the Emperor's ruthless enforcer. A relentless juggernaut of the dark side, Vader overwhelms his enemies through fear, pain, and sheer power. Those who survive his assaults often find themselves unable to escape his grasp.",
+        "skills": [
+            {
+                "id": "darth-vader-saber-strike-down",
+                "name": "Saber Strike-Down",
+                "skillimage": "assets/images/saberstrikedown.webp",
+                "skilldescription": "Deals 35 bleed damage to one enemy and applies Health Cap to them.",
+                "energy": [
+                    "Bloodline",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Energy",
+                    "Melee",
+                    "Instant",
+                    "Unreflectable"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "HealthCapLoss",
+                        "amount": 10,
+                        "scope": "target"
+                    }
+                ]
+            },
+            {
+                "id": "darth-vader-force-choke",
+                "name": "Force Choke",
+                "skillimage": "assets/images/forcechoke.webp",
+                "skilldescription": "For 2 turns, one enemy is silenced and takes 10 affliction damage per turn. Next turn, Saber Strike-Down costs 1 red/1 random instead.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Control"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "darth_vader_force_choke",
+                        "duration": 2,
+                        "sourceSkillId": "darth-vader-force-choke",
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "silenceNonDamageEffects": true,
+                            "turnEndDamage": 10,
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "statusIconUrl": "assets/images/forcechoke.webp",
+                            "tooltipText": "This character is silenced and takes 10 affliction damage each turn."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "darth-vader-sith-brutality",
+                "name": "Sith Brutality",
+                "skillimage": "assets/images/sithbrutality.webp",
+                "skilldescription": "Targets himself or an ally for 1 turn. The first new enemy skill used on the target will be countered. If successful, the countered enemy is dealt 20 bleed damage and is executed if their health falls to 15 HP or less. Next turn, Saber Strike-Down costs 1 white/1 random instead.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Melee",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "darth_vader_sith_brutality_counter",
+                        "duration": 1,
+                        "sourceSkillId": "darth-vader-sith-brutality",
+                        "scope": "target",
+                        "metadata": {
+                            "triggerOnEnemyHarmfulSkill": true,
+                            "counterCancelsSkill": true,
+                            "counterEffectsToSourceOwner": [
+                                {
+                                    "type": "damage",
+                                    "amount": 20,
+                                    "metadata": {
+                                        "afflictionDamage": true,
+                                        "ignoreDamageReduction": true
+                                    }
+                                },
+                                {
+                                    "type": "execute_below_hp",
+                                    "threshold": 15
+                                }
+                            ],
+                            "hideTooltipFromEnemy": true,
+                            "statusIconUrl": "assets/images/sithbrutality.webp",
+                            "tooltipText": "The first new enemy harmful skill used on this character is countered."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "darth-vader-force-parry",
+                "name": "Force Parry",
+                "skillimage": "assets/images/forceparry.webp",
+                "skilldescription": "This skill makes Darth Vader invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Energy",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "darth_vader_force_parry_invulnerable",
+                        "duration": 1,
+                        "sourceSkillId": "darth-vader-force-parry",
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "statusIconUrl": "assets/images/forceparry.webp",
+                            "tooltipText": "Darth Vader is invulnerable."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Dark Side Control Bruiser",
+        "universe": "star-wars",
+        "roleCategory": "bruiser"
+    },
+    {
+        "id": "boba-fett",
+        "characterId": "boba-fett",
+        "name": "Boba Fett",
+        "facePicture": "assets/images/bobafettfp.webp",
+        "characterdeescription": "The most feared bounty hunter in the galaxy, Boba Fett relies on an arsenal of advanced weaponry, explosives, and Mandalorian technology to track down and eliminate his targets. By claiming bounties and scavenging trophies from fallen enemies, Boba continually upgrades his equipment, becoming more dangerous with every successful hunt.",
+        "skills": [
+            {
+                "id": "boba-fett-bounty-hunter-blaster",
+                "name": "Bounty Hunter Blaster",
+                "skillimage": "assets/images/bountyhunterblaster.webp",
+                "skilldescription": "Boba Fett deals 20 piercing damage to one enemy and marks them as 'Wanted: Dead or Alive' for 4 turns. Only one enemy may be marked this way at a time. If a 'Wanted: Dead or Alive' target is killed, Boba Fett upgrades one of his abilities at random.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "boba_fett_wanted_dead_or_alive",
+                        "duration": 4,
+                        "sourceSkillId": "boba-fett-bounty-hunter-blaster",
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "statusIconUrl": "assets/images/bountyhunterblaster.webp",
+                            "onOwnerDeathApplyStatusToSource": {
+                                "statusId": "boba_fett_bounty_claimed_upgrade",
+                                "duration": 999,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "skillReplacements": {
+                                        "boba-fett-bounty-hunter-blaster": "boba-fett-bounty-hunter-blaster-upgraded",
+                                        "boba-fett-wrist-flamethrower": "boba-fett-wrist-flamethrower-upgraded",
+                                        "boba-fett-missile-backpack": "boba-fett-missile-backpack-upgraded",
+                                        "boba-fett-mandalorian-armor-jetpack": "boba-fett-mandalorian-armor-jetpack-upgraded",
+                                        "boba-fett-looted-lightsaber": "boba-fett-looted-lightsaber-upgraded"
+                                    },
+                                    "tooltipText": "Boba Fett has claimed a bounty and upgraded his equipment."
+                                }
+                            },
+                            "tooltipText": "This character is Wanted: Dead or Alive. If they die, Boba Fett upgrades his equipment."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "boba-fett-wrist-flamethrower",
+                "name": "Wrist Flamethrower",
+                "skillimage": "assets/images/wristflamethrower.webp",
+                "skilldescription": "For 2 turns, one enemy takes 10 affliction damage each turn and all other enemies take 3 affliction damage each turn. If the target is marked as 'Wanted: Dead or Alive', they take 5 additional affliction damage each turn.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Channeled",
+                    "Affliction"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "boba_fett_wrist_flamethrower_burn",
+                        "duration": 2,
+                        "sourceSkillId": "boba-fett-wrist-flamethrower",
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "turnEndDamage": 10,
+                            "afflictionDamage": true,
+                            "statusIconUrl": "assets/images/wristflamethrower.webp",
+                            "tooltipText": "This character takes 10 affliction damage each turn from Wrist Flamethrower."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "boba_fett_wrist_flamethrower_splash",
+                        "duration": 2,
+                        "sourceSkillId": "boba-fett-wrist-flamethrower",
+                        "scope": "other-enemies",
+                        "metadata": {
+                            "harmful": true,
+                            "turnEndDamage": 3,
+                            "afflictionDamage": true,
+                            "statusIconUrl": "assets/images/wristflamethrower.webp",
+                            "tooltipText": "This character takes 3 affliction damage each turn from Wrist Flamethrower."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "boba_fett_wrist_flamethrower_wanted_bonus",
+                        "duration": 2,
+                        "sourceSkillId": "boba-fett-wrist-flamethrower",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "boba_fett_wanted_dead_or_alive"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "turnEndDamage": 5,
+                            "afflictionDamage": true,
+                            "statusIconUrl": "assets/images/wristflamethrower.webp",
+                            "tooltipText": "This character takes 5 additional affliction damage each turn because they are Wanted: Dead or Alive."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "boba-fett-missile-backpack",
+                "name": "Missile Backpack",
+                "skillimage": "assets/images/missilebackpack.webp",
+                "skilldescription": "Mark one enemy for 2 turns. When this effect ends, the target takes 40 piercing damage. If the target is marked as 'Wanted: Dead or Alive', they are stunned for 1 turn. This skill becomes 'Looted Lightsaber' until it is used.",
+                "energy": [
+                    "Bloodline",
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant",
+                    "Bypassing",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "boba_fett_missile_backpack_mark",
+                        "duration": 2,
+                        "sourceSkillId": "boba-fett-missile-backpack",
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "statusIconUrl": "assets/images/missilebackpack.webp",
+                            "onExpireEffects": [
+                                {
+                                    "type": "damage",
+                                    "amount": 40,
+                                    "metadata": {
+                                        "ignoreDamageReduction": true
+                                    }
+                                },
+                                {
+                                    "type": "apply_status",
+                                    "statusId": "boba_fett_missile_backpack_stun",
+                                    "duration": 1,
+                                    "condition": {
+                                        "scope": "target",
+                                        "statusId": "boba_fett_wanted_dead_or_alive"
+                                    },
+                                    "metadata": {
+                                        "harmful": true,
+                                        "cannotUseSkills": true,
+                                        "tooltipText": "This character is stunned."
+                                    }
+                                }
+                            ],
+                            "tooltipText": "When this effect ends, this character takes 40 piercing damage."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "boba_fett_looted_lightsaber_ready",
+                        "duration": 999,
+                        "sourceSkillId": "boba-fett-missile-backpack",
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "skillReplacements": {
+                                "boba-fett-missile-backpack": "boba-fett-looted-lightsaber"
+                            },
+                            "tooltipText": "Missile Backpack is replaced by Looted Lightsaber until used."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "boba-fett-mandalorian-armor-jetpack",
+                "name": "Mandalorian Armor Jetpack",
+                "skillimage": "assets/images/mandalorianarmorjetpack.webp",
+                "skilldescription": "This skill makes Boba Fett invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "boba_fett_mandalorian_armor_jetpack_invulnerable",
+                        "duration": 1,
+                        "sourceSkillId": "boba-fett-mandalorian-armor-jetpack",
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "statusIconUrl": "assets/images/mandalorianarmorjetpack.webp",
+                            "tooltipText": "Boba Fett is invulnerable."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "boba-fett-looted-lightsaber",
+                "name": "Looted Lightsaber",
+                "isHidden": true,
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/lootedlightsaber.webp",
+                "skilldescription": "Boba Fett has a 50% chance to deal 35 bleed damage to one enemy and a 50% chance to do nothing. If the target is marked as 'Wanted: Dead or Alive' and their health falls to 10 or less, they are executed. This skill becomes 'Missile Backpack' after use.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Energy",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "cleanse_statuses",
+                        "statusId": "boba_fett_looted_lightsaber_ready",
+                        "scope": "self"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "chance": 50,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "execute_below_hp",
+                        "threshold": 10,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "boba_fett_wanted_dead_or_alive"
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "boba-fett-bounty-hunter-blaster-upgraded",
+                "name": "Bounty Hunter Blaster",
+                "isHidden": true,
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/bountyhunterblaster.webp",
+                "skilldescription": "Upgraded: Boba Fett deals 30 piercing damage instead.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "boba_fett_wanted_dead_or_alive",
+                        "duration": 4,
+                        "sourceSkillId": "boba-fett-bounty-hunter-blaster-upgraded",
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "statusIconUrl": "assets/images/bountyhunterblaster.webp",
+                            "onOwnerDeathApplyStatusToSource": {
+                                "statusId": "boba_fett_bounty_claimed_upgrade",
+                                "duration": 999,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "tooltipText": "Boba Fett has claimed a bounty and upgraded his equipment."
+                                }
+                            },
+                            "tooltipText": "This character is Wanted: Dead or Alive."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "boba-fett-wrist-flamethrower-upgraded",
+                "name": "Wrist Flamethrower",
+                "isHidden": true,
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/wristflamethrower.webp",
+                "skilldescription": "Upgraded: For 3 turns, the target takes 13 affliction damage each turn and all other enemies take 8 affliction damage each turn.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Channeled",
+                    "Affliction"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "boba_fett_wrist_flamethrower_burn_upgraded",
+                        "duration": 3,
+                        "sourceSkillId": "boba-fett-wrist-flamethrower-upgraded",
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "turnEndDamage": 13,
+                            "afflictionDamage": true,
+                            "statusIconUrl": "assets/images/wristflamethrower.webp",
+                            "tooltipText": "This character takes 13 affliction damage each turn from Wrist Flamethrower."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "boba_fett_wrist_flamethrower_splash_upgraded",
+                        "duration": 3,
+                        "sourceSkillId": "boba-fett-wrist-flamethrower-upgraded",
+                        "scope": "other-enemies",
+                        "metadata": {
+                            "harmful": true,
+                            "turnEndDamage": 8,
+                            "afflictionDamage": true,
+                            "statusIconUrl": "assets/images/wristflamethrower.webp",
+                            "tooltipText": "This character takes 8 affliction damage each turn from Wrist Flamethrower."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "boba-fett-missile-backpack-upgraded",
+                "name": "Missile Backpack",
+                "isHidden": true,
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/missilebackpack.webp",
+                "skilldescription": "Upgraded: This effect activates 1 turn sooner.",
+                "energy": [
+                    "Bloodline",
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant",
+                    "Bypassing",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "boba_fett_missile_backpack_mark_upgraded",
+                        "duration": 1,
+                        "sourceSkillId": "boba-fett-missile-backpack-upgraded",
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "statusIconUrl": "assets/images/missilebackpack.webp",
+                            "onExpireEffects": [
+                                {
+                                    "type": "damage",
+                                    "amount": 40,
+                                    "metadata": {
+                                        "ignoreDamageReduction": true
+                                    }
+                                }
+                            ],
+                            "tooltipText": "When this effect ends, this character takes 40 piercing damage."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "boba_fett_looted_lightsaber_ready",
+                        "duration": 999,
+                        "sourceSkillId": "boba-fett-missile-backpack-upgraded",
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "skillReplacements": {
+                                "boba-fett-missile-backpack": "boba-fett-looted-lightsaber-upgraded"
+                            },
+                            "tooltipText": "Missile Backpack is replaced by Looted Lightsaber until used."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "boba-fett-mandalorian-armor-jetpack-upgraded",
+                "name": "Mandalorian Armor Jetpack",
+                "isHidden": true,
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/mandalorianarmorjetpack.webp",
+                "skilldescription": "Upgraded: Lasts for 1 additional turn.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "boba_fett_mandalorian_armor_jetpack_invulnerable_upgraded",
+                        "duration": 2,
+                        "sourceSkillId": "boba-fett-mandalorian-armor-jetpack-upgraded",
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "statusIconUrl": "assets/images/mandalorianarmorjetpack.webp",
+                            "tooltipText": "Boba Fett is invulnerable."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "boba-fett-looted-lightsaber-upgraded",
+                "name": "Looted Lightsaber",
+                "isHidden": true,
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/lootedlightsaber.webp",
+                "skilldescription": "Upgraded: This skill always deals 35 bleed damage.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Energy",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "cleanse_statuses",
+                        "statusId": "boba_fett_looted_lightsaber_ready",
+                        "scope": "self"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "execute_below_hp",
+                        "threshold": 10,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "boba_fett_wanted_dead_or_alive"
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Bounty Upgrade Specialist",
+        "universe": "star-wars",
+        "roleCategory": "specialist"
+    },
+    {
+        "id": "obi-wan-kenobi",
+        "characterId": "obi-wan-kenobi",
+        "name": "Obi-Wan Kenobi",
+        "facePicture": "assets/images/obiwankenobifp.webp",
+        "characterdeescription": "A legendary Jedi Master and one of the greatest practitioners of the defensive Soresu lightsaber form. Obi-Wan excels at protecting his allies and turning an opponent's aggression against them. Through patience, discipline, and flawless defense, he creates openings that allow him to strike with decisive precision.",
+        "skills": [
+            {
+                "id": "obi-wan-kenobi-soresu-style-cut",
+                "name": "Soresu Style Cut",
+                "skillimage": "assets/images/soresustylecut.webp",
+                "skilldescription": "Obi-Wan deals 20 bleed damage to one enemy and applies Health Cap to them. If Obi-Wan evaded or reflected that enemy's skill during the previous turn, this skill deals 20 additional damage.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Energy",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "obi_wan_defensive_opening"
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "HealthCapLoss",
+                        "amount": 10,
+                        "scope": "target"
+                    }
+                ]
+            },
+            {
+                "id": "obi-wan-kenobi-saber-deflect",
+                "name": "Saber Deflect",
+                "skillimage": "assets/images/saberdeflect.webp",
+                "skilldescription": "For 1 turn, all new Ranged enemy skills used on Obi-Wan or a targeted ally are reflected back to their user. Enemies whose skills are reflected become Marked for 1 turn. For the next turn only, this skill becomes 'Jedi Guardian'.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "obi_wan_saber_deflect",
+                        "duration": 1,
+                        "sourceSkillId": "obi-wan-kenobi-saber-deflect",
+                        "scope": "target",
+                        "metadata": {
+                            "triggerOnEnemyHarmfulSkill": true,
+                            "triggerOnEnemyHarmfulSkillClassesAny": [
+                                "Ranged"
+                            ],
+                            "counterCancelsSkill": true,
+                            "counterStatusId": "obi_wan_marked",
+                            "counterStatusDuration": 1,
+                            "counterStatusMetadata": {
+                                "harmful": true,
+                                "statusIconUrl": "assets/images/saberdeflect.webp",
+                                "tooltipText": "This character is Marked by Obi-Wan."
+                            },
+                            "counterApplyStatusToSourceOwner": {
+                                "statusId": "obi_wan_defensive_opening",
+                                "duration": 2,
+                                "metadata": {
+                                    "statusIconUrl": "assets/images/soresustylecut.webp",
+                                    "tooltipText": "Soresu Style Cut deals 20 additional damage."
+                                }
+                            },
+                            "hideTooltipFromEnemy": true,
+                            "statusIconUrl": "assets/images/saberdeflect.webp",
+                            "tooltipText": "The next new enemy Ranged harmful skill used on this character is deflected."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "obi_wan_jedi_guardian_ready",
+                        "duration": 2,
+                        "sourceSkillId": "obi-wan-kenobi-saber-deflect",
+                        "scope": "self",
+                        "metadata": {
+                            "skillReplacementsByRemainingTurns": {
+                                "1": {
+                                    "obi-wan-kenobi-jedi-guardian": "obi-wan-kenobi-saber-deflect"
+                                },
+                                "2": {
+                                    "obi-wan-kenobi-saber-deflect": "obi-wan-kenobi-jedi-guardian"
+                                }
+                            },
+                            "tooltipText": "Saber Deflect becomes Jedi Guardian next turn."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "obi-wan-kenobi-force-push",
+                "name": "Force Push",
+                "skillimage": "assets/images/forcepush.webp",
+                "skilldescription": "Obi-Wan deals 25 damage to one enemy and cancels all active harmful skills applied by that enemy.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "cleanse_statuses",
+                        "count": 0,
+                        "harmfulOnly": true,
+                        "sourceRelation": "enemy",
+                        "scope": "self",
+                        "condition": {
+                            "scope": "target"
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "obi-wan-kenobi-jedi-maneuver",
+                "name": "Jedi Maneuver",
+                "skillimage": "assets/images/jedimaneuver.webp",
+                "skilldescription": "Choose one enemy. For 1 turn, Obi-Wan will evade the next harmful skill that enemy uses on him. If a skill is evaded this way, that enemy becomes Marked for 1 turn.",
+                "energy": [],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "obi_wan_jedi_maneuver_guard",
+                        "duration": 1,
+                        "sourceSkillId": "obi-wan-kenobi-jedi-maneuver",
+                        "scope": "self",
+                        "metadata": {
+                            "triggerOnEnemyHarmfulSkill": true,
+                            "counterCancelsSkill": true,
+                            "counterStatusId": "obi_wan_marked",
+                            "counterStatusDuration": 1,
+                            "counterStatusMetadata": {
+                                "harmful": true,
+                                "statusIconUrl": "assets/images/jedimaneuver.webp",
+                                "tooltipText": "This character is Marked by Obi-Wan."
+                            },
+                            "counterApplyStatusToSourceOwner": {
+                                "statusId": "obi_wan_defensive_opening",
+                                "duration": 2,
+                                "metadata": {
+                                    "statusIconUrl": "assets/images/soresustylecut.webp",
+                                    "tooltipText": "Soresu Style Cut deals 20 additional damage."
+                                }
+                            },
+                            "hideTooltipFromEnemy": true,
+                            "statusIconUrl": "assets/images/jedimaneuver.webp",
+                            "tooltipText": "Obi-Wan will evade the next harmful enemy skill used on him."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "obi-wan-kenobi-jedi-guardian",
+                "name": "Jedi Guardian",
+                "skillimage": "assets/images/jediguardian.webp",
+                "skilldescription": "Target one ally. That ally gains 15 permanent destructible defense and, for the next 2 turns, will evade the first harmful enemy skill used on them each turn. Enemies whose skills are evaded this way become Marked for 1 turn.",
+                "energy": [
+                    "Ninjutsu",
+                    "Random"
+                ],
+                "target": "single-ally",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Energy",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "obi_wan_jedi_guardian_defense",
+                        "duration": 999,
+                        "sourceSkillId": "obi-wan-kenobi-jedi-guardian",
+                        "scope": "target",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "destructibleDefensePoints": 15,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "statusIconUrl": "assets/images/jediguardian.webp",
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "obi_wan_jedi_guardian_evade",
+                        "duration": 2,
+                        "sourceSkillId": "obi-wan-kenobi-jedi-guardian",
+                        "scope": "target",
+                        "metadata": {
+                            "triggerOnEnemyHarmfulSkill": true,
+                            "counterCancelsSkill": true,
+                            "persistOnTrigger": true,
+                            "counterStatusId": "obi_wan_marked",
+                            "counterStatusDuration": 1,
+                            "counterStatusMetadata": {
+                                "harmful": true,
+                                "statusIconUrl": "assets/images/jediguardian.webp",
+                                "tooltipText": "This character is Marked by Obi-Wan."
+                            },
+                            "counterApplyStatusToSourceOwner": {
+                                "statusId": "obi_wan_defensive_opening",
+                                "duration": 2,
+                                "metadata": {
+                                    "statusIconUrl": "assets/images/soresustylecut.webp",
+                                    "tooltipText": "Soresu Style Cut deals 20 additional damage."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/jediguardian.webp",
+                            "tooltipText": "This character evades harmful enemy skills."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Defensive Jedi Counter",
+        "universe": "star-wars",
+        "roleCategory": "support"
     }
 ];
 
