@@ -13071,6 +13071,7 @@ const characters = [
                                 "sins": 0,
                                 "sourceSkillName": "Penance Stare",
                                 "statusIconUrl": "assets/images/ghostriderpenancestare.png",
+                                "tooltipTextTemplate": "This character has used {harmfulUsed} harmful skills.",
                                 "onOwnerUseSkillTrigger": true,
                                 "onOwnerUseSkillHarmfulOnly": true,
                                 "persistOnOwnerUseSkillTrigger": true,
