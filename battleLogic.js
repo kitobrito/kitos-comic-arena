@@ -1216,6 +1216,19 @@ const doesEffectConditionMatch = ({
         const metadataValue = Math.max(0, Number(status?.metadata?.[metadataKey]) || 0);
         if (metadataValue < minValue) return false;
     }
+    if (condition.statusMetadataAtMost && typeof condition.statusMetadataAtMost === 'object') {
+        const statusId = condition.statusMetadataAtMost.statusId;
+        const metadataKey = condition.statusMetadataAtMost.metadataKey;
+        const maxValue = Number(condition.statusMetadataAtMost.value) || 0;
+        if (!statusId || !metadataKey) return false;
+        const status = Array.isArray(scopedState.statuses)
+            ? scopedState.statuses.find(
+                  (entry) => entry?.id === statusId && (Number(entry?.remainingTurns) || 0) > 0
+              )
+            : null;
+        const metadataValue = Math.max(0, Number(status?.metadata?.[metadataKey]) || 0);
+        if (metadataValue > maxValue) return false;
+    }
     if (condition.statusMetadataEquals && typeof condition.statusMetadataEquals === 'object') {
         const statusId = condition.statusMetadataEquals.statusId;
         const metadataKey = condition.statusMetadataEquals.metadataKey;
@@ -2722,7 +2735,22 @@ const maybeTriggerReactiveDefenses = ({
             match,
             username: recipient.username,
             sourceSlot: Number.isInteger(recipient.slot) ? recipient.slot : null,
-        });
+        }) +
+        (() => {
+            const stackBonus = trapMetadata?.counterDamageMetadata?.bonusPerStatusMetadata;
+            if (!stackBonus || typeof stackBonus !== 'object') return 0;
+            const statusId = stackBonus.statusId;
+            const metadataKey = stackBonus.metadataKey;
+            const multiplier = Number(stackBonus.multiplier) || 0;
+            if (!statusId || !metadataKey || multiplier === 0) return 0;
+            const holderState = ensureUnitStateShape(recipient.unit);
+            const status = Array.isArray(holderState.statuses)
+                ? holderState.statuses.find(
+                      (entry) => entry?.id === statusId && (Number(entry?.remainingTurns) || 0) > 0
+                  )
+                : null;
+            return Math.max(0, Number(status?.metadata?.[metadataKey]) || 0) * multiplier;
+        })();
     if (counterDamage > 0) {
         applyDamageToUnit(actorUnit, counterDamage, {
             match,
@@ -5197,6 +5225,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 effect?.type === 'health_steal_damage' || Boolean(effect?.metadata?.healthStealDamage) ? 1 : 0,
                 effectSkillClasses.slice().sort().join(','),
                 effect?.metadata?.onSuccessfulDamageApplyStatusToTarget?.statusId || '',
+                effect?.metadata?.onSuccessfulDamageApplyStatusToOwner?.statusId || '',
             ].join('|');
             const existing = pendingDamage.get(key);
             if (existing) {
@@ -5218,6 +5247,13 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 sourceSkillId: skill?.id || null,
                 onSuccessfulDamageApplyStatusToTarget:
                     effect?.metadata?.onSuccessfulDamageApplyStatusToTarget || null,
+                onSuccessfulDamageApplyStatusToOwner:
+                    effect?.metadata?.onSuccessfulDamageApplyStatusToOwner || null,
+                onSuccessfulDamageApplyStatusesToOwner: Array.isArray(
+                    effect?.metadata?.onSuccessfulDamageApplyStatusesToOwner
+                )
+                    ? effect.metadata.onSuccessfulDamageApplyStatusesToOwner.filter((entry) => entry?.statusId)
+                    : [],
                 healthStealDamage:
                     effect?.type === 'health_steal_damage' ||
                     Boolean(effect?.metadata?.healthStealDamage),
@@ -6939,11 +6975,11 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         percentMitigationStateMap: percentMitigationStateByRecipient,
                         percentMitigationStateKey: mitigationBudgetKey,
                     });
-                    if (dealt > 0 && entry.healthStealDamage) {
-                        applyDirectHpGainToUnit(actorUnit, dealt);
-                    }
-                    const onSuccess = entry?.onSuccessfulDamageApplyStatusToTarget;
-                    if (dealt > 0 && onSuccess?.statusId) {
+            if (dealt > 0 && entry.healthStealDamage) {
+                applyDirectHpGainToUnit(actorUnit, dealt);
+            }
+            const onSuccess = entry?.onSuccessfulDamageApplyStatusToTarget;
+            if (dealt > 0 && onSuccess?.statusId) {
                         applyStatus({
                             targetState: ensureUnitStateShape(entry.recipient.unit),
                     statusId: onSuccess.statusId,
@@ -6953,6 +6989,42 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     sourceSlot: actorSlot,
                     metadata: onSuccess.metadata || {},
                     fresh: false,
+                });
+            }
+            const ownerSuccessStatuses = [
+                ...(entry?.onSuccessfulDamageApplyStatusToOwner?.statusId
+                    ? [entry.onSuccessfulDamageApplyStatusToOwner]
+                    : []),
+                ...(Array.isArray(entry?.onSuccessfulDamageApplyStatusesToOwner)
+                    ? entry.onSuccessfulDamageApplyStatusesToOwner
+                    : []),
+            ];
+            if (dealt > 0 && ownerSuccessStatuses.length > 0) {
+                ownerSuccessStatuses.forEach((applyStatusToOwner) => {
+                    if (
+                        applyStatusToOwner.condition &&
+                        !doesEffectConditionMatch({
+                            condition: applyStatusToOwner.condition,
+                            actorState,
+                            targetState: ensureUnitStateShape(entry.recipient.unit),
+                            actorUnit,
+                            targetUnit: entry.recipient.unit,
+                            actorUsername: actingUsername,
+                            targetUsername: entry.recipient.username,
+                        })
+                    ) {
+                        return;
+                    }
+                    applyStatus({
+                        targetState: actorState,
+                        statusId: applyStatusToOwner.statusId,
+                        duration: applyStatusToOwner.duration,
+                        sourceSkillId: skill.id || null,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: applyStatusToOwner.metadata || {},
+                        fresh: false,
+                    });
                 });
             }
             if (dealt > 0) {
@@ -8288,6 +8360,12 @@ const applyOnTeamMemberSuccessfulDamageBonuses = ({
             const metadata = status?.metadata || {};
             const applyStatusToTarget = metadata.onTeamMemberSuccessfulDamageApplyStatusToTarget;
             if (!applyStatusToTarget?.statusId) return;
+            if (
+                Boolean(metadata.onTeamMemberSuccessfulDamageOwnerOnly) &&
+                Number(teamSlot) !== Number(sourceSlot)
+            ) {
+                return;
+            }
             const classFilter = Array.isArray(metadata.onTeamMemberSuccessfulDamageSkillClassesAny)
                 ? metadata.onTeamMemberSuccessfulDamageSkillClassesAny
                       .map((entry) => normalizeSkillClassName(entry))
@@ -8296,6 +8374,20 @@ const applyOnTeamMemberSuccessfulDamageBonuses = ({
             if (
                 classFilter.length > 0 &&
                 !classFilter.some((entry) => hasSkillClass(sourceSkillClasses, entry))
+            ) {
+                return;
+            }
+            if (
+                applyStatusToTarget.condition &&
+                !doesEffectConditionMatch({
+                    condition: applyStatusToTarget.condition,
+                    actorState: teamState,
+                    targetState,
+                    actorUnit: teamUnit,
+                    targetUnit,
+                    actorUsername: actingUsername,
+                    targetUsername,
+                })
             ) {
                 return;
             }
@@ -8317,6 +8409,30 @@ const applyOnTeamMemberSuccessfulDamageBonuses = ({
                 metadata: applyStatusToTarget.metadata || {},
                 fresh: false,
             });
+            const bonusDamage = Math.max(0, Number(applyStatusToTarget.damageToTarget) || 0);
+            if (bonusDamage > 0) {
+                applyDamageToUnit(targetUnit, bonusDamage, {
+                    match,
+                    sourceUsername: status?.sourceUsername || actingUsername || null,
+                    sourceSlot: Number.isInteger(status?.sourceSlot)
+                        ? status.sourceSlot
+                        : Number.isInteger(teamSlot)
+                        ? teamSlot
+                        : null,
+                    sourceSkillId: resolveTriggeredEffectSourceSkillId({
+                        status,
+                        config: applyStatusToTarget,
+                        fallbackSkillId: sourceSkillId,
+                    }),
+                    targetUsername,
+                    targetSlot,
+                    afflictionDamage: Boolean(applyStatusToTarget.afflictionDamage),
+                    ignoreDamageReduction: Boolean(applyStatusToTarget.ignoreDamageReduction),
+                    ignoreDestructibleDefense: Boolean(applyStatusToTarget.ignoreDestructibleDefense),
+                    ignoreDamageImmunity: Boolean(applyStatusToTarget.ignoreDamageImmunity),
+                    ignoreAfflictionDamageImmunity: Boolean(applyStatusToTarget.ignoreAfflictionDamageImmunity),
+                });
+            }
         });
     });
 };

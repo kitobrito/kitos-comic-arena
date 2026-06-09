@@ -10,11 +10,8 @@ const characters = [
                 "id": "iron-man-repulsor-blast",
                 "name": "Repulsor Blast",
                 "skillimage": "https://i.imgur.com/3ulWurz.png",
-                "skilldescription": "Deals 18 damage to one enemy and 8 damage to the other enemies each turn for 2 turns. If Overcharge is active, this instead deals 38 affliction damage to one enemy, 8 affliction damage to the other enemies, and stuns the main target for 1 turn.",
-                "description": "Deals 18 damage to one enemy and 8 damage to the other enemies each turn for 2 turns. If Overcharge is active, this instead deals 38 affliction damage to one enemy, 8 affliction damage to the other enemies, and stuns the main target for 1 turn.",
-                "descriptionHtml": "Deals 18 damage to one enemy and 8 damage to the other enemies each turn for 2 turns.<br>If Overcharge is active, this instead deals 38 affliction damage to one enemy, 8 affliction damage to the other enemies, and stuns the main target for 1 turn.",
+                "skilldescription": "Deals 15 damage to one enemy per turn for 2 turns. If Overcharge is active, this instead deals 30 energy damage and stuns the target for 1 turn.",
                 "energy": [
-                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -37,59 +34,21 @@ const characters = [
                         },
                         "metadata": {
                             "harmful": true,
-                            "turnEndDamage": 18,
+                            "turnEndDamage": 15,
                             "triggerOnApply": true,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
                             "ongoingClass": "action",
-                            "tooltipText": "This character takes 18 damage each turn."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "iron_man_repulsor_blast_splash_dot",
-                        "duration": 2,
-                        "scope": "other-enemies",
-                        "condition": {
-                            "scope": "self",
-                            "missingStatusId": "iron_man_overcharge_active"
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "turnEndDamage": 8,
-                            "triggerOnApply": true,
-                            "turnEndTrigger": "source_turn",
-                            "turnDurationAnchor": "source_turn",
-                            "ongoingClass": "action",
-                            "tooltipText": "This character takes 8 damage each turn."
+                            "tooltipText": "This character takes 15 damage each turn."
                         }
                     },
                     {
                         "type": "damage",
-                        "amount": 38,
+                        "amount": 30,
                         "scope": "target",
                         "condition": {
                             "scope": "self",
                             "statusId": "iron_man_overcharge_active"
-                        },
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 8,
-                        "scope": "other-enemies",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "iron_man_overcharge_active"
-                        },
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
                         }
                     },
                     {
@@ -141,13 +100,11 @@ const characters = [
                 "id": "iron-man-armor-upgrade",
                 "name": "Armor Upgrade",
                 "skillimage": "https://i.imgur.com/cUWpevS.png",
-                "skilldescription": "For the rest of the game, Iron Man gains 25% damage reduction, upgrades Repulsor Blast, and swaps this skill to Energy Burst. Overcharge is also cast on Iron Man when used.",
-                "description": "For the rest of the game, Iron Man gains 25% damage reduction, upgrades Repulsor Blast, and swaps this skill to Energy Burst. Overcharge is also cast on Iron Man when used.",
-                "descriptionHtml": "For the rest of the game, Iron Man gains 25% damage reduction, upgrades Repulsor Blast, and swaps this skill to Energy Burst.<br>Overcharge is also cast on Iron Man when used.",
+                "skilldescription": "Iron Man may use this skill on himself or an ally. If used on himself, Repulsor Blast becomes Proton Cannon, this skill becomes Energy Burst, and Iron Man gains 10 points of unpierceable damage reduction. If used on an ally, they gain 2 bonus non-affliction damage and 10 permanent destructible defense. This effect stacks on allies and is permanent.",
                 "energy": [
                     "Bloodline"
                 ],
-                "target": "self",
+                "target": "self-or-single-ally",
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
@@ -166,22 +123,32 @@ const characters = [
                         },
                         "metadata": {
                             "infiniteDuration": true,
-                            "damageReductionPercent": 25,
+                            "unpierceableDamageReductionFlat": 10,
                             "skillReplacements": {
                                 "iron-man-repulsor-blast": "iron-man-proton-cannon",
                                 "iron-man-armor-upgrade": "iron-man-energy-burst"
                             },
-                            "tooltipText": "Iron Man has 25% damage reduction, Repulsor Blast is replaced by Proton Cannon, and Armor Upgrade is replaced by Energy Burst."
+                            "tooltipText": "Iron Man has 10 unpierceable damage reduction, Repulsor Blast is replaced by Proton Cannon, and Armor Upgrade is replaced by Energy Burst."
                         }
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "iron_man_overcharge_active",
-                        "duration": 1,
-                        "scope": "self",
+                        "statusId": "iron_man_armor_upgrade_ally",
+                        "duration": 99,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally"
+                        },
                         "metadata": {
-                            "infiniteDuration": false,
-                            "tooltipText": "Iron Man's Repulsor Blast and Proton Cannon is overcharged for 1 turn."
+                            "infiniteDuration": true,
+                            "nonAfflictionDamageBonusFlat": 2,
+                            "destructibleDefensePoints": 10,
+                            "mergeNumericAddKeys": [
+                                "nonAfflictionDamageBonusFlat",
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "This character deals {nonAfflictionDamageBonusFlat} additional non-affliction damage and has {destructibleDefensePoints} destructible defense."
                         }
                     }
                 ]
@@ -190,9 +157,7 @@ const characters = [
                 "id": "iron-man-iron-suit-mobility",
                 "name": "Iron Suit Mobility",
                 "skillimage": "https://i.imgur.com/JC495sM.png",
-                "skilldescription": "This skill makes Iron Man invulnerable for 1 turn.",
-                "description": "This skill makes Iron Man invulnerable for 1 turn.",
-                "descriptionHtml": "This skill makes Iron Man invulnerable for 1 turn.",
+                "skilldescription": "Iron Man and any ally affected by Armor Upgrade become invulnerable for 1 turn.",
                 "energy": [
                     "Random"
                 ],
@@ -2677,9 +2642,7 @@ const characters = [
                         "type": "damage",
                         "amount": 24,
                         "scope": "target",
-                        "metadata": {
-                            
-                        }
+                        "metadata": {}
                     },
                     {
                         "type": "apply_status",
@@ -5066,7 +5029,7 @@ const characters = [
         "id": "hershel-greene",
         "characterId": "hershel-greene",
         "name": "Hershel Greene",
-        "facePicture": "https://i.imgur.com/kWbQbG5.png",
+        "facePicture": "https://i.imgur.com/6SJSKyY.jpeg",
         "characterdeescription": "A steady hand in the chaos, Hershel Greene keeps his team alive through sheer experience and resolve. Though not a frontline fighter, his medical expertise allows him to stabilize allies, mitigate incoming damage, and even bring the fallen back into the fight. Hershel excels at sustaining his team over extended battles—delaying damage, cleansing afflictions, and turning lethal situations into survivable ones. However, his reliance on timing and limited supplies means every decision matters. Misuse his tools, and his team will crumble. Use them wisely, and they simply won’t die.",
         "skills": [
             {
@@ -13740,8 +13703,6 @@ const characters = [
                 "name": "Saber Strike-Down",
                 "skillimage": "assets/images/saberstrikedown.webp",
                 "skilldescription": "Deals 40 bleed damage to one enemy and applies Health Cap to them.",
-                "description": "Deals 40 bleed damage to one enemy and applies Health Cap to them.",
-                "descriptionHtml": "Deals 40 bleed damage to one enemy and applies Health Cap to them.",
                 "energy": [
                     "Bloodline",
                     "Genjutsu"
@@ -13776,8 +13737,6 @@ const characters = [
                 "name": "Force Choke",
                 "skillimage": "assets/images/forcechoke.webp",
                 "skilldescription": "For 2 turns, one enemy is silenced and takes 10 affliction damage per turn. Next turn, Saber Strike-Down costs 1 blood/1 random instead.",
-                "description": "For 2 turns, one enemy is silenced and takes 10 affliction damage per turn. Next turn, Saber Strike-Down costs 1 blood/1 random instead.",
-                "descriptionHtml": "For 2 turns, one enemy is silenced and takes 10 affliction damage per turn.<br>Next turn, Saber Strike-Down costs 1 blood/1 random instead.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -14691,6 +14650,884 @@ const characters = [
         "role": "Defensive Jedi Counter",
         "universe": "star-wars",
         "roleCategory": "support"
+    },
+    {
+        "id": "grand-master-yoda",
+        "characterId": "grand-master-yoda",
+        "name": "Grand Master Yoda",
+        "facePicture": "assets/images/YodaFP.webp",
+        "characterdeescription": "The wisest and most respected Jedi Master of his era. Yoda uses his unparalleled connection to the Force to guide his allies and outmaneuver his enemies. Though small in stature, his mastery of the Force allows him to transform patience and wisdom into overwhelming strength.",
+        "skills": [
+            {
+                "id": "grand-master-yoda-ataru-strike",
+                "name": "Ataru Strike",
+                "skillimage": "assets/images/AtaruStrike.webp",
+                "skilldescription": "Yoda deals 20 damage to one enemy. If Harmony is active, this skill instead deals 35 bleed damage. Harmony is removed.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Energy",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "missingStatusId": "grand_master_yoda_harmony"
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "grand_master_yoda_harmony"
+                        },
+                        "metadata": {
+                            "ignoreDamageImmunity": true,
+                            "ignoreAfflictionDamageImmunity": true,
+                            "ignoreDamageReduction": true,
+                            "fixedDamage": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "grand_master_yoda_harmony_consumed",
+                        "duration": 0,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "grand_master_yoda_harmony"
+                        },
+                        "metadata": {
+                            "removeStatusIdsOnApply": [
+                                "grand_master_yoda_harmony"
+                            ],
+                            "hideTooltipFromEnemy": true,
+                            "tooltipText": "Harmony has been consumed."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "grand-master-yoda-grand-masters-wisdom",
+                "name": "Grand Master's Wisdom",
+                "skillimage": "assets/images/GrandMastersWIsdom.webp",
+                "skilldescription": "One ally's next instance of damage is increased by 10 for 2 turns. Yoda gains Harmony.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Mental",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "grand_master_yoda_grand_masters_wisdom",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "damageBonusFlat": 10,
+                            "statusIconUrl": "assets/images/GrandMastersWIsdom.webp",
+                            "tooltipText": "This character deals 10 additional damage."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "grand_master_yoda_harmony",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "statusIconUrl": "assets/images/Harmony.webp",
+                            "tooltipText": "Yoda's damaging skills gain additional effects."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "grand-master-yoda-force-barrier",
+                "name": "Force Barrier",
+                "skillimage": "assets/images/ForceBarrier.webp",
+                "skilldescription": "One ally or Yoda gains 20 destructible defense and becomes immune to enemy non-damage effects for 1 turn. Yoda gains Harmony.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "grand_master_yoda_force_barrier",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "destructibleDefensePoints": 20,
+                            "ignoreHarmfulNonDamageEffects": true,
+                            "statusIconUrl": "assets/images/ForceBarrier.webp",
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense and ignores enemy non-damage effects."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "grand_master_yoda_harmony",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "statusIconUrl": "assets/images/Harmony.webp",
+                            "tooltipText": "Yoda's damaging skills gain additional effects."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "grand-master-yoda-master-of-the-force",
+                "name": "Master of the Force",
+                "skillimage": "assets/images/MasteroftheForce.webp",
+                "skilldescription": "Yoda deals 35 piercing damage to one enemy. If Harmony is active, this skill deals 20 additional damage and stuns the target for 1 turn. Harmony is removed.",
+                "energy": [
+                    "Taijutsu",
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "missingStatusId": "grand_master_yoda_harmony"
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 55,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "grand_master_yoda_harmony"
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "stunned",
+                        "duration": 1,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "grand_master_yoda_harmony"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "tooltipText": "This character is stunned."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "grand_master_yoda_harmony_consumed",
+                        "duration": 0,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "grand_master_yoda_harmony"
+                        },
+                        "metadata": {
+                            "removeStatusIdsOnApply": [
+                                "grand_master_yoda_harmony"
+                            ],
+                            "hideTooltipFromEnemy": true,
+                            "tooltipText": "Harmony has been consumed."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "grand-master-yoda-passive-harmony",
+                "name": "Passive: Harmony",
+                "skillimage": "assets/images/Harmony.webp",
+                "skilldescription": "Whenever Yoda uses a skill that does not deal damage, he gains Harmony for 1 turn. While Harmony is active, Yoda's damaging skills gain additional effects.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            }
+        ],
+        "role": "Force Support",
+        "universe": "star-wars",
+        "roleCategory": "support"
+    },
+    {
+        "id": "darth-sidious",
+        "characterId": "darth-sidious",
+        "name": "Darth Sidious",
+        "facePicture": "assets/images/darthsidiousfp.png",
+        "characterdeescription": "The Dark Lord of the Sith and architect of the Galactic Empire, Darth Sidious bends others to his will through manipulation, fear, and the dark side of the Force. His enemies slowly succumb to Corruption, becoming little more than pawns in his grand design before being consumed by his devastating Crimson Force Lightning.",
+        "skills": [
+            {
+                "id": "darth-sidious-force-lightning",
+                "name": "Force Lightning",
+                "skillimage": "assets/images/darthsidiousforcelightning.png",
+                "skilldescription": "Darth Sidious deals 20 affliction damage to one enemy and applies 1 stack of Corruption. If the target already has Corruption, this skill deals 10 additional damage.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "darth_sidious_corruption"
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusMetadataAtMost": {
+                                "statusId": "darth_sidious_corruption",
+                                "metadataKey": "sidiousCorruptionStacks",
+                                "value": 2
+                            }
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "darth_sidious_corruption",
+                        "duration": 99,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusMetadataAtMost": {
+                                "statusId": "darth_sidious_corruption",
+                                "metadataKey": "sidiousCorruptionStacks",
+                                "value": 2
+                            }
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "sidiousCorruptionStacks": 1,
+                            "stackMetadataKey": "sidiousCorruptionStacks",
+                            "stackDelta": 1,
+                            "stackMax": 3,
+                            "statusIconUrl": "assets/images/corruption.png",
+                            "tooltipTextTemplate": "This character has {sidiousCorruptionStacks} Corruption."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "darth-sidious-dark-manipulation",
+                "name": "Dark Manipulation",
+                "skillimage": "assets/images/darkmanipulation.png",
+                "skilldescription": "For 2 turns, one enemy deals 10 less damage with harmful skills. Applies 1 stack of Corruption.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "darth_sidious_dark_manipulation",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "damageDebuffFlat": 10,
+                            "statusIconUrl": "assets/images/darkmanipulation.png",
+                            "tooltipText": "This character deals 10 less damage."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusMetadataAtMost": {
+                                "statusId": "darth_sidious_corruption",
+                                "metadataKey": "sidiousCorruptionStacks",
+                                "value": 2
+                            }
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "darth_sidious_corruption",
+                        "duration": 99,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusMetadataAtMost": {
+                                "statusId": "darth_sidious_corruption",
+                                "metadataKey": "sidiousCorruptionStacks",
+                                "value": 2
+                            }
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "sidiousCorruptionStacks": 1,
+                            "stackMetadataKey": "sidiousCorruptionStacks",
+                            "stackDelta": 1,
+                            "stackMax": 3,
+                            "statusIconUrl": "assets/images/corruption.png",
+                            "tooltipTextTemplate": "This character has {sidiousCorruptionStacks} Corruption."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "darth-sidious-rule-of-two",
+                "name": "Rule of Two",
+                "skillimage": "assets/images/ruleoftwo.png",
+                "skilldescription": "For 2 turns, whenever one target ally damages an enemy, that enemy gains 1 stack of Corruption.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-ally",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Energy",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "darth_sidious_rule_of_two",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "onTeamMemberSuccessfulDamageOwnerOnly": true,
+                            "onTeamMemberSuccessfulDamageApplyStatusToTarget": {
+                                "statusId": "darth_sidious_corruption",
+                                "duration": 99,
+                                "condition": {
+                                    "scope": "target",
+                                    "statusMetadataAtMost": {
+                                        "statusId": "darth_sidious_corruption",
+                                        "metadataKey": "sidiousCorruptionStacks",
+                                        "value": 2
+                                    }
+                                },
+                                "metadata": {
+                                    "harmful": true,
+                                    "infiniteDuration": true,
+                                    "sidiousCorruptionStacks": 1,
+                                    "stackMetadataKey": "sidiousCorruptionStacks",
+                                    "stackDelta": 1,
+                                    "stackMax": 3,
+                                    "statusIconUrl": "assets/images/corruption.png",
+                                    "tooltipTextTemplate": "This character has {sidiousCorruptionStacks} Corruption."
+                                },
+                                "damageToTarget": 5,
+                                "afflictionDamage": true,
+                                "ignoreDamageReduction": true,
+                                "ignoreDestructibleDefense": true
+                            },
+                            "statusIconUrl": "assets/images/ruleoftwo.png",
+                            "tooltipText": "When this character damages an enemy, that enemy gains Corruption."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "darth-sidious-crimson-force-lightning",
+                "name": "Crimson Force Lightning",
+                "skillimage": "assets/images/crimsonforcelightning.png",
+                "skilldescription": "Darth Sidious deals 15 affliction damage to all enemies. This skill deals 10 additional damage to each enemy for every stack of Corruption they possess. Enemies with 3 stacks of Corruption take 15 additional affliction damage and become stunned for 1 turn. Afterward, all Corruption is removed.",
+                "energy": [
+                    "Ninjutsu",
+                    "Genjutsu"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                            "bonusFromStatusMetadataThresholds": {
+                                "scope": "target",
+                                "statusId": "darth_sidious_corruption",
+                                "metadataKey": "sidiousCorruptionStacks",
+                                "thresholds": [
+                                    {
+                                        "atLeast": 3,
+                                        "bonus": 30
+                                    },
+                                    {
+                                        "atLeast": 2,
+                                        "bonus": 20
+                                    },
+                                    {
+                                        "atLeast": 1,
+                                        "bonus": 10
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "all-enemy",
+                        "condition": {
+                            "scope": "target",
+                            "statusMetadataAtLeast": {
+                                "statusId": "darth_sidious_corruption",
+                                "metadataKey": "sidiousCorruptionStacks",
+                                "value": 3
+                            }
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "stunned",
+                        "duration": 1,
+                        "scope": "all-enemy",
+                        "condition": {
+                            "scope": "target",
+                            "statusMetadataAtLeast": {
+                                "statusId": "darth_sidious_corruption",
+                                "metadataKey": "sidiousCorruptionStacks",
+                                "value": 3
+                            }
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "tooltipText": "This character is stunned."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "darth_sidious_corruption_removed",
+                        "duration": 0,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "removeStatusIdsOnApply": [
+                                "darth_sidious_corruption"
+                            ],
+                            "hideTooltipFromEnemy": true,
+                            "tooltipText": "Corruption has been removed."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "darth-sidious-passive-corruption",
+                "name": "Passive: Corruption",
+                "skillimage": "assets/images/corruption.png",
+                "skilldescription": "Enemies can gain Corruption. Whenever an enemy gains Corruption, they take 5 affliction damage. Corruption stacks up to 3 times.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            }
+        ],
+        "role": "Corruption Controller",
+        "universe": "star-wars",
+        "roleCategory": "control"
+    },
+    {
+        "id": "general-grievous",
+        "characterId": "general-grievous",
+        "name": "General Grievous",
+        "facePicture": "assets/images/generalgrievousfp.png",
+        "characterdeescription": "A ruthless cyborg warlord obsessed with collecting the lightsabers of fallen Jedi. General Grievous relentlessly pursues his prey, building momentum throughout battle as he expands his collection and overwhelms his enemies with a storm of blades.",
+        "skills": [
+            {
+                "id": "general-grievous-four-armed-assault",
+                "name": "Four-Armed Assault",
+                "skillimage": "assets/images/fourarmedassault.jpg",
+                "skilldescription": "General Grievous deals 10 damage to one enemy. This skill deals 10 additional damage for each Collected Lightsaber. After dealing damage, Grievous gains 1 Collected Lightsaber. Maximum damage: 50.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "metadata": {
+                            "bonusPerStatusMetadata": {
+                                "scope": "self",
+                                "statusId": "general_grievous_collected_lightsabers",
+                                "metadataKey": "grievousCollectedLightsabers",
+                                "multiplier": 10
+                            },
+                            "onSuccessfulDamageApplyStatusToOwner": {
+                                "statusId": "general_grievous_collected_lightsabers",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "grievousCollectedLightsabers": 1,
+                                    "stackMetadataKey": "grievousCollectedLightsabers",
+                                    "stackDelta": 1,
+                                    "stackMax": 4,
+                                    "statusIconUrl": "assets/images/collectedlightsabers.png",
+                                    "tooltipTextTemplate": "General Grievous has {grievousCollectedLightsabers} Collected Lightsaber(s)."
+                                }
+                            },
+                            "onSuccessfulDamageApplyStatusesToOwner": [
+                                {
+                                    "statusId": "general_grievous_collected_lightsabers",
+                                    "duration": 99,
+                                    "condition": {
+                                        "scope": "target",
+                                        "statusId": "general_grievous_prey"
+                                    },
+                                    "metadata": {
+                                        "infiniteDuration": true,
+                                        "grievousCollectedLightsabers": 1,
+                                        "stackMetadataKey": "grievousCollectedLightsabers",
+                                        "stackDelta": 1,
+                                        "stackMax": 4,
+                                        "statusIconUrl": "assets/images/collectedlightsabers.png",
+                                        "tooltipTextTemplate": "General Grievous has {grievousCollectedLightsabers} Collected Lightsaber(s)."
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "general-grievous-jedi-hunter",
+                "name": "Jedi Hunter",
+                "skillimage": "assets/images/jedihunter.jpeg",
+                "skilldescription": "General Grievous deals 20 damage to one enemy and marks them as Prey for 2 turns. Whenever Grievous damages his Prey with a Melee skill, he gains 1 additional Collected Lightsaber.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "onSuccessfulDamageApplyStatusesToOwner": [
+                                {
+                                    "statusId": "general_grievous_collected_lightsabers",
+                                    "duration": 99,
+                                    "metadata": {
+                                        "infiniteDuration": true,
+                                        "grievousCollectedLightsabers": 1,
+                                        "stackMetadataKey": "grievousCollectedLightsabers",
+                                        "stackDelta": 1,
+                                        "stackMax": 4,
+                                        "statusIconUrl": "assets/images/collectedlightsabers.png",
+                                        "tooltipTextTemplate": "General Grievous has {grievousCollectedLightsabers} Collected Lightsaber(s)."
+                                    }
+                                },
+                                {
+                                    "statusId": "general_grievous_collected_lightsabers",
+                                    "duration": 99,
+                                    "condition": {
+                                        "scope": "target",
+                                        "statusId": "general_grievous_prey"
+                                    },
+                                    "metadata": {
+                                        "infiniteDuration": true,
+                                        "grievousCollectedLightsabers": 1,
+                                        "stackMetadataKey": "grievousCollectedLightsabers",
+                                        "stackDelta": 1,
+                                        "stackMax": 4,
+                                        "statusIconUrl": "assets/images/collectedlightsabers.png",
+                                        "tooltipTextTemplate": "General Grievous has {grievousCollectedLightsabers} Collected Lightsaber(s)."
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "general_grievous_prey",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "statusIconUrl": "assets/images/jedihunter.jpeg",
+                            "tooltipText": "This character is marked as Prey by General Grievous."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "general-grievous-whirling-blades",
+                "name": "Whirling Blades",
+                "skillimage": "assets/images/whirlingblades.jpg",
+                "skilldescription": "For 1 turn, the first harmful skill used on General Grievous is countered. The attacker takes 15 damage plus 10 additional damage for each Collected Lightsaber. Afterward, all Collected Lightsabers are removed.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "general_grievous_whirling_blades",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "triggerOnEnemyHarmfulSkill": true,
+                            "counterCancelsSkill": true,
+                            "counterDamage": 15,
+                            "counterDamageMetadata": {
+                                "bonusPerStatusMetadata": {
+                                    "statusId": "general_grievous_collected_lightsabers",
+                                    "metadataKey": "grievousCollectedLightsabers",
+                                    "multiplier": 10
+                                }
+                            },
+                            "counterApplyStatusToSourceOwner": {
+                                "statusId": "general_grievous_lightsabers_consumed",
+                                "duration": 0,
+                                "metadata": {
+                                    "removeStatusIdsOnApply": [
+                                        "general_grievous_collected_lightsabers"
+                                    ],
+                                    "hideTooltipFromEnemy": true,
+                                    "tooltipText": "Collected Lightsabers have been consumed."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/whirlingblades.jpg",
+                            "tooltipText": "The first harmful enemy skill used on General Grievous will be countered."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "general-grievous-trophy-execution",
+                "name": "Trophy Execution",
+                "skillimage": "assets/images/trophyexecution.png",
+                "skilldescription": "General Grievous deals 20 damage to one enemy. This skill deals 15 additional damage for each Collected Lightsaber. If the target is marked as Prey, they are afflicted with Health Cap. Afterward, all Collected Lightsabers are removed.",
+                "energy": [
+                    "Taijutsu",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "onSuccessfulDamageApplyStatusToOwner": {
+                                "statusId": "general_grievous_collected_lightsabers",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "grievousCollectedLightsabers": 1,
+                                    "stackMetadataKey": "grievousCollectedLightsabers",
+                                    "stackDelta": 1,
+                                    "stackMax": 4,
+                                    "statusIconUrl": "assets/images/collectedlightsabers.png",
+                                    "tooltipTextTemplate": "General Grievous has {grievousCollectedLightsabers} Collected Lightsaber(s)."
+                                }
+                            },
+                            "bonusPerStatusMetadata": {
+                                "scope": "self",
+                                "statusId": "general_grievous_collected_lightsabers",
+                                "metadataKey": "grievousCollectedLightsabers",
+                                "multiplier": 15
+                            },
+                            "onSuccessfulDamageApplyStatusesToOwner": [
+                                {
+                                    "statusId": "general_grievous_collected_lightsabers",
+                                    "duration": 99,
+                                    "condition": {
+                                        "scope": "target",
+                                        "statusId": "general_grievous_prey"
+                                    },
+                                    "metadata": {
+                                        "infiniteDuration": true,
+                                        "grievousCollectedLightsabers": 1,
+                                        "stackMetadataKey": "grievousCollectedLightsabers",
+                                        "stackDelta": 1,
+                                        "stackMax": 4,
+                                        "statusIconUrl": "assets/images/collectedlightsabers.png",
+                                        "tooltipTextTemplate": "General Grievous has {grievousCollectedLightsabers} Collected Lightsaber(s)."
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "type": "SetHealthCapToCurrentHpIfLower",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "general_grievous_prey"
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "general_grievous_lightsabers_consumed",
+                        "duration": 0,
+                        "scope": "self",
+                        "metadata": {
+                            "removeStatusIdsOnApply": [
+                                "general_grievous_collected_lightsabers"
+                            ],
+                            "hideTooltipFromEnemy": true,
+                            "tooltipText": "Collected Lightsabers have been consumed."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "general-grievous-passive-collected-lightsabers",
+                "name": "Passive: Collected Lightsabers",
+                "skillimage": "assets/images/collectedlightsabers.png",
+                "skilldescription": "Whenever General Grievous damages an enemy with a Melee skill, he gains 1 Collected Lightsaber. Maximum: 4. Certain skills consume Collected Lightsabers for additional effects.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            }
+        ],
+        "role": "Melee Finisher",
+        "universe": "star-wars",
+        "roleCategory": "damage"
     }
 ];
 
