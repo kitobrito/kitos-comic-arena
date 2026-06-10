@@ -10059,7 +10059,7 @@ const characters = [
             }
         ],
         "role": "Damage",
-        "universe": "other",
+        "universe": "aliens-vs-predator",
         "roleCategory": "damage"
     },
     {
