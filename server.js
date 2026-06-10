@@ -61,13 +61,12 @@ const ALLOW_INSECURE_HTTP = !IS_PRODUCTION && process.env.ALLOW_INSECURE_HTTP ==
 const HTTPS_KEY_PATH = process.env.HTTPS_KEY_PATH;
 const HTTPS_CERT_PATH = process.env.HTTPS_CERT_PATH;
 const LATEST_CHARACTER_RELEASES = [
-    { label: 'Parasite', characterId: 'parasite' },
-    { label: 'Pvt. Saunders', characterId: 'space-marine-infantry' },
-    { label: 'Lieutenant Seraphina Vale', characterId: 'space-marine-medic' },
-    { label: 'Sergeant William Hillford', characterId: 'space-marine-smartgunner' },
+    { label: 'Grand Master Yoda', characterId: 'grand-master-yoda' },
+    { label: 'Darth Sidious', characterId: 'darth-sidious' },
+    { label: 'General Grievous', characterId: 'general-grievous' },
 ];
 const LATEST_CHARACTER_RELEASES_STATE_KEY = 'latest_character_releases';
-const LATEST_CHARACTER_RELEASES_VERSION = 'parasite-release-v1';
+const LATEST_CHARACTER_RELEASES_VERSION = 'balance-v3-1-1';
 const MAINTENANCE_MODE_STATE_KEY = 'maintenance_mode';
 const MAINTENANCE_MODE_CACHE_TTL_MS = 10 * 1000;
 const DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/3JqVcPXm/default.png';
@@ -4830,8 +4829,8 @@ const getLatestCharacterReleases = async () => {
     const state = await appStateCollection.findOne({ key: LATEST_CHARACTER_RELEASES_STATE_KEY });
     const entries =
         state &&
-        state.version === LATEST_CHARACTER_RELEASES_VERSION &&
-        Array.isArray(state.releases)
+        Array.isArray(state.releases) &&
+        (state.version === LATEST_CHARACTER_RELEASES_VERSION || state.updatedBy === 'sync_balance_3_1_1_news')
             ? state.releases
             : state?.value &&
               state.value.version === LATEST_CHARACTER_RELEASES_VERSION &&
@@ -10021,9 +10020,21 @@ app.put('/api/admin/characters/:characterId', requireSession, async (req, res) =
             previousCharacterId: characterId,
             updatedBy: req.authUser.username,
         });
-        const syncResult = await syncCharactersDataToGitHub({
-            updatedBy: req.authUser.username,
-        });
+        let syncResult;
+        try {
+            syncResult = await syncCharactersDataToGitHub({
+                updatedBy: req.authUser.username,
+            });
+        } catch (gitError) {
+            console.error('Admin character Git sync warning:', gitError);
+            syncResult = {
+                committed: false,
+                pushed: false,
+                warning: true,
+                message: 'Character saved locally, but Git sync did not complete.',
+                error: String(gitError?.stderr || gitError?.message || gitError || '').trim(),
+            };
+        }
         return res.json({
             ok: true,
             character: updatedCharacters[saveIndex],

@@ -1854,7 +1854,16 @@
         characterEditorFace.src = savedCharacter && savedCharacter.facePicture ? savedCharacter.facePicture : defaultProfileAvatar;
       }
       var gitMessage = data && data.git && data.git.message ? String(data.git.message) : "";
-      setCharacterEditorModalStatus(gitMessage ? "Character updated. " + gitMessage : "Character updated.");
+      var gitError = data && data.git && data.git.error ? String(data.git.error) : "";
+      var gitWarning = data && data.git && data.git.warning;
+      setCharacterEditorModalStatus(
+        gitWarning
+          ? "Character updated locally. " + (gitError || gitMessage || "Git sync did not complete.")
+          : gitMessage
+            ? "Character updated. " + gitMessage
+            : "Character updated.",
+        gitWarning ? "warning" : "success"
+      );
       loadAdminCharacters();
       loadCharacterCatalog();
     } catch (error) {

@@ -9577,7 +9577,7 @@ const characters = [
             }
         ],
         "role": "Bruiser",
-        "universe": "other",
+        "universe": "aliens-vs-predator",
         "roleCategory": "bruiser"
     },
     {
@@ -9834,7 +9834,7 @@ const characters = [
         ],
         "role": "Beserker",
         "roleCategory": "bruiser",
-        "universe": "aliens-vs-predator"
+        "universe": "other"
     },
     {
         "id": "space-marine-infantry",
@@ -10820,7 +10820,7 @@ const characters = [
         ],
         "role": "Evasion Assassin",
         "roleCategory": "assassin",
-        "universe": "other"
+        "universe": "aliens-vs-predator"
     },
     {
         "id": "sinestro",
@@ -14903,7 +14903,7 @@ const characters = [
                 "id": "darth-sidious-force-lightning",
                 "name": "Force Lightning",
                 "skillimage": "assets/images/darthsidiousforcelightning.png",
-                "skilldescription": "Darth Sidious deals 20 affliction damage to one enemy and applies 1 stack of Corruption. If the target already has Corruption, this skill deals 10 additional damage.",
+                "skilldescription": "Darth Sidious deals 15 affliction damage to one enemy and applies 1 stack of Corruption. If the target already has Corruption, this skill deals 10 additional damage.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -14919,7 +14919,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 20,
+                        "amount": 15,
                         "scope": "target",
                         "metadata": {
                             "afflictionDamage": true,
@@ -15121,7 +15121,8 @@ const characters = [
                 "skilldescription": "Darth Sidious deals 15 affliction damage to all enemies. This skill deals 10 additional damage to each enemy for every stack of Corruption they possess. Enemies with 3 stacks of Corruption take 15 additional affliction damage and become stunned for 1 turn. Afterward, all Corruption is removed.",
                 "energy": [
                     "Ninjutsu",
-                    "Genjutsu"
+                    "Genjutsu",
+                    "Random"
                 ],
                 "target": "all-enemy",
                 "damage": 0,

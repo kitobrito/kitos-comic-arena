@@ -9190,6 +9190,7 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 .explosion-enhanced,
 .muzzle-flash-enhanced,
 .lightsaber-portrait-slash-fx,
+.sidious-lightning-fx,
 .boba-water-bounty-fx,
 .boba-wanted-marker,
 .pixel-impact-fx,
@@ -10456,6 +10457,7 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 }
 
 .lightsaber-portrait-slash-fx,
+.sidious-lightning-fx,
 .boba-water-bounty-fx,
 .boba-wanted-marker,
 .sabered-overlay,
@@ -10470,6 +10472,7 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 }
 
 .lightsaber-portrait-slash-fx,
+.sidious-lightning-fx,
 .boba-water-bounty-fx,
 .boba-wanted-marker {
     z-index: 88;
@@ -10520,6 +10523,62 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 }
 
 .lightsaber-portrait-slash-fx.vertical { --saber-rot: 90deg; }
+
+.sidious-lightning-fx {
+    overflow: visible;
+    color: #42b8ff;
+    filter: drop-shadow(0 0 6px currentColor);
+}
+
+.sidious-lightning-fx.red {
+    color: #ff2a3d;
+}
+
+.sidious-lightning-bolt {
+    position: absolute;
+    left: -10px;
+    top: 8px;
+    width: 96px;
+    height: 58px;
+    opacity: 0;
+    background:
+        linear-gradient(112deg, transparent 0 20%, currentColor 21% 24%, transparent 25% 36%, currentColor 37% 41%, transparent 42% 55%, currentColor 56% 60%, transparent 61%),
+        linear-gradient(72deg, transparent 0 33%, #fff 34% 36%, transparent 37% 48%, #fff 49% 51%, transparent 52%);
+    clip-path: polygon(0 43%, 25% 36%, 17% 53%, 47% 38%, 40% 62%, 80% 22%, 67% 50%, 100% 43%, 70% 62%, 78% 42%, 44% 75%, 50% 52%, 18% 72%, 29% 50%);
+    animation: sidious-lightning-strike 900ms ease-out both;
+}
+
+.sidious-lightning-bolt.two {
+    top: 2px;
+    transform: rotate(-14deg);
+    animation-delay: 90ms;
+}
+
+.sidious-lightning-bolt.three {
+    top: 17px;
+    transform: rotate(13deg);
+    animation-delay: 160ms;
+}
+
+.sidious-lightning-flash {
+    position: absolute;
+    inset: -5px;
+    border-radius: 8px;
+    background: radial-gradient(circle, currentColor 0 18%, transparent 62%);
+    opacity: 0;
+    animation: sidious-lightning-flash 900ms ease-out both;
+}
+
+@keyframes sidious-lightning-strike {
+    0% { opacity: 0; transform: translateX(-18px) scaleX(0.2); }
+    18%, 62% { opacity: 1; }
+    100% { opacity: 0; transform: translateX(18px) scaleX(1.1); }
+}
+
+@keyframes sidious-lightning-flash {
+    0%, 100% { opacity: 0; transform: scale(0.75); }
+    24%, 54% { opacity: 0.34; transform: scale(1.12); }
+}
 
 .boba-water-ring {
     position: absolute;
@@ -10675,6 +10734,105 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     inset: 0;
     filter: contrast(1.1) saturate(1.1);
     animation: special-kill-portrait-fade 3200ms ease-out both;
+}
+
+.advanced-sabered-kill .special-kill-portrait {
+    animation: advanced-sabered-portrait 3500ms cubic-bezier(0.16, 0.8, 0.22, 1) both;
+}
+
+.advanced-sabered-kill.grievous .special-kill-portrait {
+    animation-duration: 3800ms;
+}
+
+.advanced-saber-slashes {
+    position: absolute;
+    inset: -10px;
+    z-index: 3;
+}
+
+.advanced-saber-slashes span {
+    position: absolute;
+    left: -16%;
+    top: 50%;
+    width: 132%;
+    height: 6px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 0 8px #fff, 0 0 18px currentColor, 0 0 34px currentColor;
+    transform-origin: center;
+    opacity: 0;
+    animation: advanced-saber-slash 1000ms ease-out both;
+}
+
+.advanced-saber-slashes.yoda span {
+    color: #5dff57;
+    --slash-rot: -42deg;
+}
+
+.advanced-saber-slashes.grievous span {
+    --slash-rot: 90deg;
+}
+
+.advanced-saber-slashes.grievous span:nth-child(1) { top: 28%; animation-delay: 0ms; }
+.advanced-saber-slashes.grievous span:nth-child(2) { top: 42%; animation-delay: 130ms; }
+.advanced-saber-slashes.grievous span:nth-child(3) { top: 56%; animation-delay: 260ms; }
+.advanced-saber-slashes.grievous span:nth-child(4) { top: 70%; animation-delay: 390ms; }
+.advanced-saber-slashes .blue { color: #38a7ff; }
+.advanced-saber-slashes .green { color: #5dff57; }
+.advanced-saber-slashes .yellow { color: #ffe04f; }
+.advanced-saber-slashes .purple { color: #b15cff; }
+
+.advanced-sabered-shards {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+}
+
+.advanced-sabered-shards span {
+    position: absolute;
+    width: 21px;
+    height: 24px;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.65), 0 0 10px currentColor;
+    opacity: 0;
+    clip-path: polygon(12% 0, 100% 18%, 76% 100%, 0 72%);
+    animation: advanced-sabered-shard 1800ms ease-out both;
+    animation-delay: 900ms;
+}
+
+.advanced-sabered-shards span:nth-child(1) { left: 0; top: 0; --sx: -28px; --sy: -42px; --rot: -54deg; }
+.advanced-sabered-shards span:nth-child(2) { left: 18px; top: 0; --sx: -10px; --sy: -46px; --rot: -28deg; }
+.advanced-sabered-shards span:nth-child(3) { left: 36px; top: 0; --sx: 12px; --sy: -44px; --rot: 30deg; }
+.advanced-sabered-shards span:nth-child(4) { left: 54px; top: 0; --sx: 30px; --sy: -38px; --rot: 58deg; }
+.advanced-sabered-shards span:nth-child(5) { left: 0; top: 24px; --sx: -40px; --sy: -12px; --rot: -36deg; }
+.advanced-sabered-shards span:nth-child(6) { left: 18px; top: 24px; --sx: -16px; --sy: -22px; --rot: -14deg; }
+.advanced-sabered-shards span:nth-child(7) { left: 36px; top: 24px; --sx: 18px; --sy: -18px; --rot: 18deg; }
+.advanced-sabered-shards span:nth-child(8) { left: 54px; top: 24px; --sx: 42px; --sy: -8px; --rot: 42deg; }
+.advanced-sabered-shards span:nth-child(9) { left: 0; top: 48px; --sx: -34px; --sy: 28px; --rot: -68deg; }
+.advanced-sabered-shards span:nth-child(10) { left: 18px; top: 48px; --sx: -8px; --sy: 36px; --rot: -24deg; }
+.advanced-sabered-shards span:nth-child(11) { left: 36px; top: 48px; --sx: 14px; --sy: 34px; --rot: 24deg; }
+.advanced-sabered-shards span:nth-child(12) { left: 54px; top: 48px; --sx: 36px; --sy: 24px; --rot: 64deg; }
+
+.advanced-sabered-kill.yoda { color: #5dff57; }
+.advanced-sabered-kill.grievous { color: #b15cff; }
+
+@keyframes advanced-saber-slash {
+    0% { opacity: 0; transform: translate(42px, -34px) rotate(var(--slash-rot, 0deg)) scaleX(0.05); }
+    20%, 72% { opacity: 1; }
+    100% { opacity: 0; transform: translate(-42px, 34px) rotate(var(--slash-rot, 0deg)) scaleX(1.08); }
+}
+
+@keyframes advanced-sabered-portrait {
+    0%, 35% { opacity: 1; transform: translateY(0) scale(1); filter: saturate(1.1) contrast(1.1); }
+    58% { opacity: 1; transform: translateY(-14px) scale(1.04); filter: saturate(1.4) contrast(1.18); }
+    100% { opacity: 0; transform: translateY(-34px) scale(0.92); filter: blur(3px) saturate(0.8); }
+}
+
+@keyframes advanced-sabered-shard {
+    0% { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(0.7); }
+    22% { opacity: 0.9; }
+    100% { opacity: 0; transform: translate(var(--sx), var(--sy)) rotate(var(--rot)) scale(0.2); }
 }
 
 @keyframes special-kill-portrait-fade {

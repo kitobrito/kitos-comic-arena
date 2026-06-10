@@ -10,6 +10,7 @@ const appStateCollectionName = process.env.MONGODB_APP_STATE_COLLECTION || 'app_
 const latestReleasesKey = 'latest_character_releases';
 const characterOverridesKey = 'character_overrides';
 const missionCatalogKey = 'missions';
+const latestReleasesVersion = 'balance-v3-1-1';
 
 const releaseIds = ['grand-master-yoda', 'darth-sidious', 'general-grievous'];
 
@@ -154,6 +155,9 @@ const paragraphs = [
     'Comic Arena Balance v 3.1.1 expands the Star Wars roster with three new characters: Grand Master Yoda, Darth Sidious, and General Grievous.',
     'Yoda brings Harmony-based support, Sidious spreads Corruption before cashing it out with Crimson Force Lightning, and Grievous builds Collected Lightsabers to overwhelm marked prey.',
     'This update focuses on complete new-character kits, including all passives, costs, cooldowns, and in-battle effects for the new Star Wars releases.',
+    'Follow-up polish adds character-specific visuals: Sidious now fires blue Force Lightning and red Crimson Force Lightning, while Yoda and Grievous can finish enemies with sabered killing-blow portrait animations.',
+    'Roster cleanup moved Ghost Rider directly before Hulk, moved Predalien, Pvt. Saunders, and Predator Stalker into Aliens vs Predator, and moved Rage Infected into Other.',
+    'Admin character editor saves now complete locally even if Git sync cannot push, and the latest releases panel now points to Grand Master Yoda, Darth Sidious, and General Grievous.',
 ];
 
 const changes = [
@@ -185,7 +189,7 @@ const changes = [
     skillShowcase(
         'darth-sidious',
         'darth-sidious-force-lightning',
-        'Force Lightning costs 1 Ninjutsu, deals 20 affliction damage, applies 1 Corruption, and deals 10 additional damage if the target already has Corruption.'
+        'Force Lightning costs 1 Ninjutsu, deals 15 affliction damage, applies 1 Corruption, and deals 10 additional damage if the target already has Corruption.'
     ),
     skillShowcase(
         'darth-sidious',
@@ -200,7 +204,7 @@ const changes = [
     skillShowcase(
         'darth-sidious',
         'darth-sidious-crimson-force-lightning',
-        'Crimson Force Lightning costs 1 Ninjutsu and 1 Genjutsu, deals 15 affliction damage to all enemies, gains 10 damage per Corruption stack, stuns enemies at 3 stacks, and removes Corruption afterward.'
+        'Crimson Force Lightning costs 1 Ninjutsu, 1 Genjutsu, and 1 Random, deals 15 affliction damage to all enemies, gains 10 damage per Corruption stack, stuns enemies at 3 stacks, and removes Corruption afterward.'
     ),
     skillShowcase(
         'darth-sidious',
@@ -268,10 +272,13 @@ async function syncBalance311News() {
             {
                 $set: {
                     key: latestReleasesKey,
-                    version: 2,
+                    version: latestReleasesVersion,
                     releases: releaseIds.map((characterId) => ({ characterId })),
                     updatedAt: new Date(),
                     updatedBy: 'sync_balance_3_1_1_news',
+                },
+                $unset: {
+                    value: '',
                 },
             },
             { upsert: true }

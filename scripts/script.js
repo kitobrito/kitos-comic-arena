@@ -3697,6 +3697,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             playGeneratedIngameSound('slash');
         };
 
+        const showSidiousLightningFx = (targetCards = [], variant = 'blue') => {
+            targetCards.forEach((targetCard, index) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    `sidious-lightning-fx ${variant}`,
+                    '<span class="sidious-lightning-bolt one"></span><span class="sidious-lightning-bolt two"></span><span class="sidious-lightning-bolt three"></span><span class="sidious-lightning-flash"></span>',
+                    1050 + index * 90
+                );
+            });
+            playGeneratedIngameSound('lightning');
+        };
+
         const showBobaWaterBountyFx = (targetCards = [], variant = 'bounty') => {
             targetCards.forEach((targetCard, index) => {
                 showTemporaryCardFx(
@@ -3757,6 +3769,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isGhostRiderInfernalRide = skillId === 'ghost-rider-infernal-ride';
             const isVaderSaberStrikeDown = skillId === 'darth-vader-saber-strike-down';
             const isObiWanSoresuStyleCut = skillId === 'obi-wan-kenobi-soresu-style-cut';
+            const isSidiousForceLightning = skillId === 'darth-sidious-force-lightning';
+            const isSidiousCrimsonForceLightning = skillId === 'darth-sidious-crimson-force-lightning';
             const isBobaBountyBlaster = skillId === 'boba-fett-bounty-hunter-blaster' || skillId === 'boba-fett-bounty-hunter-blaster-upgraded';
             const isBobaWaterSkill =
                 isBobaBountyBlaster ||
@@ -3808,6 +3822,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 !isGhostRiderInfernalRide &&
                 !isVaderSaberStrikeDown &&
                 !isObiWanSoresuStyleCut &&
+                !isSidiousForceLightning &&
+                !isSidiousCrimsonForceLightning &&
                 !isBobaWaterSkill &&
                 !isJokerExplosion &&
                 !isGoblinExplosion &&
@@ -3823,6 +3839,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (isObiWanSoresuStyleCut) {
                 showLightsaberPortraitSlashFx(targetCards, 'blue-horizontal');
+                return;
+            }
+            if (isSidiousForceLightning) {
+                showSidiousLightningFx(targetCards, 'blue');
+                return;
+            }
+            if (isSidiousCrimsonForceLightning) {
+                showSidiousLightningFx(targetCards, 'red');
                 return;
             }
             if (isBobaWaterSkill) {
@@ -4555,6 +4579,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!normalizedKillerId) return '';
             if (normalizedKillerId === 'darth-vader') return 'saber-red';
             if (normalizedKillerId === 'obi-wan-kenobi') return 'saber-blue';
+            if (normalizedKillerId === 'grand-master-yoda') return 'saber-yoda';
+            if (normalizedKillerId === 'general-grievous') return 'saber-grievous';
             if (normalizedKillerId === 'wolverine') return 'eviscerated';
             if (normalizedKillerId === 'boba-fett') return 'claimed';
             if (normalizedKillerId === 'carnage') return 'devoured';
@@ -4693,6 +4719,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (sound) playGeneratedIngameSound(sound);
             scheduleTransientDeathFxCleanup(card, overlay, duration);
             return true;
+        };
+
+        const triggerAdvancedSaberedAnimation = (card, variant = 'yoda') => {
+            const isGrievous = variant === 'grievous';
+            const slashes = isGrievous
+                ? '<div class="advanced-saber-slashes grievous"><span class="blue"></span><span class="green"></span><span class="yellow"></span><span class="purple"></span></div>'
+                : '<div class="advanced-saber-slashes yoda"><span class="green"></span></div>';
+            const shards = Array.from({ length: 12 }, (_, index) => `<span style="--piece:${index};"></span>`).join('');
+            return triggerPortraitKillOverlay(
+                card,
+                `advanced-sabered-kill ${variant}`,
+                'sabered',
+                `${slashes}<div class="advanced-sabered-shards">${shards}</div>`,
+                isGrievous ? 3800 : 3500,
+                'slash'
+            );
         };
 
         const triggerEvisceratedAnimation = (card) =>
@@ -5199,6 +5241,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (animationType === 'saber-blue') {
                 triggerSaberedAnimation(card, 'blue');
                 return true;
+            }
+            if (animationType === 'saber-yoda') {
+                return triggerAdvancedSaberedAnimation(card, 'yoda');
+            }
+            if (animationType === 'saber-grievous') {
+                return triggerAdvancedSaberedAnimation(card, 'grievous');
             }
             if (animationType === 'eviscerated') {
                 return triggerEvisceratedAnimation(card);
@@ -9978,6 +10026,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         'sandman',
         'mysterio',
         'scorpion',
+        'ghost-rider',
         'the-hulk',
         'wolverine',
         'superman',
