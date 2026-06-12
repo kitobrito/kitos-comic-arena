@@ -1160,13 +1160,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         return null;
     };
 
-    const getBattleBotPreference = () => {
-        const cachedUser = readCachedUser();
-        return normalizeMatchmakingPresentation(
-            profileCache?.profile?.matchmaking || cachedUser?.matchmaking
-        ).battleBotEnabled;
-    };
-
     const hydratePlayerIdentity = async () => {
         const cachedUser = readCachedUser();
         if (cachedUser?.username) {
@@ -1225,27 +1218,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    const hydrateOpponentIdentity = async (username) => {
+    const hydrateOpponentIdentity = async (username, fallbackProfile = null, fallbackDisplayName = '') => {
         if (!username) {
             applyOpponentIdentity({
+                name: fallbackDisplayName || null,
                 avatarUrl: defaultProfileAvatar,
-                ladder: null,
+                ladder: fallbackProfile?.ladder || null,
             });
             return;
         }
         if (isGameBotUsername(username)) {
             applyOpponentIdentity({
-                name: 'Game Bot',
-                avatarUrl: defaultProfileAvatar,
-                ladder: null,
+                name: fallbackDisplayName || username,
+                avatarUrl: fallbackProfile?.avatarUrl || defaultProfileAvatar,
+                ladder: fallbackProfile?.ladder || null,
             });
             return;
         }
         const user = await fetchPublicProfile(username);
         applyOpponentIdentity({
-            name: user?.username || username,
-            avatarUrl: user?.profile?.avatarUrl || defaultProfileAvatar,
-            ladder: user?.profile?.ladder || null,
+            name: user?.username || fallbackDisplayName || username,
+            avatarUrl: user?.profile?.avatarUrl || fallbackProfile?.avatarUrl || defaultProfileAvatar,
+            ladder: user?.profile?.ladder || fallbackProfile?.ladder || null,
         });
     };
 
@@ -7110,20 +7104,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const nextOpponentUsername = data.opponent.username;
                 const nextOpponentDisplayName =
                     data.opponent.displayName ||
-                    (isGameBotUsername(nextOpponentUsername) ? 'Game Bot' : nextOpponentUsername);
+                    nextOpponentUsername;
                 const opponentChanged = nextOpponentUsername !== currentOpponentUsername;
                 currentOpponentUsername = nextOpponentUsername;
                 currentOpponentDisplayName = nextOpponentDisplayName;
                 if (opponentChanged) {
-                    if (data.opponent.isBot) {
-                        applyOpponentIdentity({
-                            name: nextOpponentDisplayName,
-                            avatarUrl: defaultProfileAvatar,
-                            ladder: null,
-                        });
-                    } else {
-                        hydrateOpponentIdentity(nextOpponentUsername).catch(() => {});
-                    }
+                    hydrateOpponentIdentity(
+                        nextOpponentUsername,
+                        data.opponent.profile || null,
+                        nextOpponentDisplayName
+                    ).catch(() => {});
                 }
             }
             const pool = data.chakraPools?.[currentPlayerUsername] || playerPoolState || emptyPool();
@@ -7160,9 +7150,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 showBattleEndOverlay({
                     didWin,
                     opponentUsername:
-                        (data.opponent?.isBot ? data.opponent.displayName : null) ||
-                        (opponentFromResult && isGameBotUsername(opponentFromResult) ? 'Game Bot' : opponentFromResult) ||
                         data.opponent?.displayName ||
+                        (opponentFromResult && !isGameBotUsername(opponentFromResult) ? opponentFromResult : '') ||
                         data.opponent?.username ||
                         currentOpponentDisplayName ||
                         currentOpponentUsername,
@@ -7469,7 +7458,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const getOpponentIntroAvatarUrl = async (opponent = {}) => {
-            if (!opponent?.username || opponent?.isBot || isGameBotUsername(opponent.username)) {
+            if (opponent?.profile?.avatarUrl) {
+                return opponent.profile.avatarUrl;
+            }
+            if (!opponent?.username || isGameBotUsername(opponent.username)) {
                 return defaultProfileAvatar;
             }
             const profile = await fetchPublicProfile(opponent.username);
@@ -7495,7 +7487,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const hydrateOpponentIntroStats = async (opponent = {}) => {
-            if (opponent?.isBot || isGameBotUsername(opponent?.username)) {
+            if (opponent?.profile?.ladder) {
+                setBattleIntroLadderStats({
+                    recordEl: battleIntroTopRecordEl,
+                    streakEl: battleIntroTopStreakEl,
+                    ladder: opponent.profile.ladder,
+                });
+                return;
+            }
+            if (isGameBotUsername(opponent?.username)) {
                 setBattleIntroLadderStats({
                     recordEl: battleIntroTopRecordEl,
                     streakEl: battleIntroTopStreakEl,
@@ -7522,13 +7522,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             const playerName = data?.player?.username || readCachedUser()?.username || 'Player';
             const opponentName =
                 data?.opponent?.displayName ||
-                (isGameBotUsername(data?.opponent?.username) ? 'Game Bot' : data?.opponent?.username) ||
+                data?.opponent?.username ||
                 'Opponent';
 
             if (battleIntroTopNameEl) battleIntroTopNameEl.textContent = opponentName;
             if (battleIntroBottomNameEl) battleIntroBottomNameEl.textContent = playerName;
             if (battleIntroBottomAvatarEl) battleIntroBottomAvatarEl.src = getCurrentPlayerAvatarUrl();
-            if (battleIntroTopAvatarEl) battleIntroTopAvatarEl.src = defaultProfileAvatar;
+            if (battleIntroTopAvatarEl) battleIntroTopAvatarEl.src = data?.opponent?.profile?.avatarUrl || defaultProfileAvatar;
             setBattleIntroLadderStats({
                 recordEl: battleIntroBottomRecordEl,
                 streakEl: battleIntroBottomStreakEl,
@@ -7537,7 +7537,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             setBattleIntroLadderStats({
                 recordEl: battleIntroTopRecordEl,
                 streakEl: battleIntroTopStreakEl,
-                ladder: null,
+                ladder: data?.opponent?.profile?.ladder || null,
             });
             renderBattleIntroTeam(battleIntroTopTeamEl, data?.opponent?.team || [], 'top');
             renderBattleIntroTeam(battleIntroBottomTeamEl, data?.player?.team || [], 'bottom');
@@ -8534,21 +8534,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const enemyNameEl = document.querySelector('.player-right .player-name.red');
                 if (enemyNameEl && data.opponent?.username) {
                     const nextOpponentUsername = data.opponent.username;
-                    const nextOpponentDisplayName = data.opponent.displayName || (isGameBotUsername(nextOpponentUsername) ? 'Game Bot' : nextOpponentUsername);
+                    const nextOpponentDisplayName = data.opponent.displayName || nextOpponentUsername;
                     enemyNameEl.textContent = nextOpponentDisplayName;
                     const opponentChanged = nextOpponentUsername !== currentOpponentUsername;
                     currentOpponentUsername = nextOpponentUsername;
                     currentOpponentDisplayName = nextOpponentDisplayName;
                     if (opponentChanged) {
-                        if (data.opponent.isBot) {
-                            applyOpponentIdentity({
-                                name: nextOpponentDisplayName,
-                                avatarUrl: defaultProfileAvatar,
-                                ladder: null,
-                            });
-                        } else {
-                            hydrateOpponentIdentity(nextOpponentUsername).catch(() => {});
-                        }
+                        hydrateOpponentIdentity(
+                            nextOpponentUsername,
+                            data.opponent.profile || null,
+                            nextOpponentDisplayName
+                        ).catch(() => {});
                     }
                 }
 
@@ -9057,13 +9053,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const searchingMessage = document.querySelector('.searching');
     const searchingSpinner = document.querySelector('.sharingan');
     const cancelSearchingButton = document.querySelector('.cancel-button');
-    const battleBotWheelButton = document.getElementById('battle-bot-wheel-button');
-    const battleBotWheelStatus = document.getElementById('battle-bot-wheel-status');
-    const battleBotChoicePopup = document.getElementById('battle-bot-choice-popup');
-    const battleBotChoiceCloseButton = document.getElementById('battle-bot-choice-close');
-    const battleBotChoiceButtons = Array.from(
-        document.querySelectorAll('[data-battle-bot-choice]')
-    );
     const draftModeButton = document.getElementById('draft-mode-button');
     const draftBackdrop = document.querySelector('.draft-backdrop');
     const draftOpponentEl = document.querySelector('.draft-opponent');
@@ -9298,55 +9287,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    const setBattleBotWheelStatus = (message = '', variant = 'info') => {
-        if (!battleBotWheelStatus) return;
-        battleBotWheelStatus.textContent = message;
-        battleBotWheelStatus.dataset.variant = variant;
-    };
-
-    const syncBattleBotWheel = () => {
-        const enabled = getBattleBotPreference();
-        if (battleBotWheelButton) {
-            battleBotWheelButton.classList.toggle('enabled', enabled);
-            battleBotWheelButton.classList.toggle('disabled', !enabled);
-            battleBotWheelButton.setAttribute('aria-expanded', 'false');
-        }
-    };
-
     const syncDraftModeButton = () => {
         if (!draftModeButton) return;
         draftModeButton.classList.toggle('enabled', draftModeEnabled);
         draftModeButton.classList.toggle('disabled', !draftModeEnabled);
         draftModeButton.setAttribute('aria-pressed', draftModeEnabled ? 'true' : 'false');
-    };
-
-    const setBattleBotChoicePopupVisible = (visible) => {
-        if (!battleBotChoicePopup) return;
-        battleBotChoicePopup.classList.toggle('visible', visible);
-        battleBotChoicePopup.setAttribute('aria-hidden', visible ? 'false' : 'true');
-        if (battleBotWheelButton) {
-            battleBotWheelButton.setAttribute('aria-expanded', visible ? 'true' : 'false');
-        }
-    };
-
-    const saveBattleBotPreference = async (enabled) => {
-        const response = await fetch(`${API_BASE_URL}/api/profile/matchmaking`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-                battleBotEnabled: Boolean(enabled),
-            }),
-        });
-        const data = await response.json().catch(() => null);
-        if (!response.ok || !data?.ok || !data?.user) {
-            throw new Error(data?.error || 'Unable to update battle bot preference.');
-        }
-        profileCache = data.user;
-        writeCachedUser(data.user);
-        syncBattleBotWheel();
     };
     const handleLogout = async () => {
         try {
@@ -9366,7 +9311,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         logoutButton.addEventListener('click', handleLogout);
     }
 
-    syncBattleBotWheel();
     syncDraftModeButton();
 
     if (draftModeButton) {
@@ -9374,12 +9318,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             draftModeEnabled = !draftModeEnabled;
             localStorage.setItem('comicDraftModeEnabled', draftModeEnabled ? 'true' : 'false');
             syncDraftModeButton();
-        });
-    }
-
-    if (battleBotWheelButton) {
-        battleBotWheelButton.addEventListener('click', () => {
-            setBattleBotChoicePopupVisible(true);
         });
     }
 
@@ -9400,33 +9338,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             loadSelectionMissions();
         }
     }
-
-    if (battleBotChoiceCloseButton) {
-        battleBotChoiceCloseButton.addEventListener('click', () => {
-            setBattleBotChoicePopupVisible(false);
-        });
-    }
-
-    if (battleBotChoicePopup) {
-        battleBotChoicePopup.addEventListener('click', (event) => {
-            if (event.target !== battleBotChoicePopup) return;
-            setBattleBotChoicePopupVisible(false);
-        });
-    }
-
-    battleBotChoiceButtons.forEach((button) => {
-        button.addEventListener('click', async () => {
-            const enabled = button.dataset.battleBotChoice === 'enabled';
-            try {
-                await saveBattleBotPreference(enabled);
-            } catch (error) {
-                console.warn('Failed to update battle bot preference.', error);
-                setBattleBotWheelStatus('Unable to update Game Bot setting.', 'error');
-            } finally {
-                setBattleBotChoicePopupVisible(false);
-            }
-        });
-    });
 
     const clearPendingMatchRedirect = () => {
         if (!pendingMatchRedirect) return;

@@ -1799,7 +1799,7 @@ let turnSweepTimer = null;
 const activeBattleBotTurns = new Set();
 const scheduledBattleBotTurns = new Set();
 const GAME_BOT_USERNAME_PREFIX = '__game_bot__:';
-const GAME_BOT_DISPLAY_NAME = 'Game Bot';
+const GAME_BOT_DISPLAY_NAME = 'Opponent';
 const DEFAULT_SPECIAL_PVE_BATTLE = {
     enabled: false,
     buttonLabel: 'Start Fight',
@@ -1885,6 +1885,62 @@ const getRankInfoForLevel = (level, isHokage = false) => {
         return HOKAGE_RANK_INFO;
     }
     return getBaseRankInfoForLevel(normalizedLevel);
+};
+
+const FAKE_BATTLE_PLAYER_ACCOUNTS = [
+    { username: 'Plastic', avatarUrl: 'https://i.imgur.com/rt5r1bu.png', level: 7, wins: 18, losses: 12, streak: 2 },
+    { username: 'Mastermind', avatarUrl: 'https://i.imgur.com/10hGC1C.jpeg', level: 11, wins: 31, losses: 24, streak: -1 },
+    { username: 'Lian', avatarUrl: 'https://i.imgur.com/SIkUVer.jpeg', level: 14, wins: 43, losses: 38, streak: 3 },
+    { username: 'TheDarkLegend', avatarUrl: 'https://i.imgur.com/7j5pcra.jpeg', level: 18, wins: 64, losses: 51, streak: 1 },
+    { username: 'Wespro', avatarUrl: 'https://i.imgur.com/mDgc01K.jpeg', level: 21, wins: 82, losses: 70, streak: -2 },
+    { username: 'Spiritinblack', avatarUrl: 'https://i.imgur.com/uV53DZN.jpeg', level: 24, wins: 101, losses: 83, streak: 4 },
+    { username: 'Mark', avatarUrl: 'https://i.imgur.com/hYpELKX.jpeg', level: 27, wins: 126, losses: 96, streak: 2 },
+    { username: 'Luapman', avatarUrl: 'https://i.imgur.com/ZAAWc5G.jpeg', level: 30, wins: 139, losses: 111, streak: -1 },
+    { username: 'Gametester', avatarUrl: 'https://i.imgur.com/76Svd5q.jpeg', level: 33, wins: 158, losses: 129, streak: 5 },
+    { username: 'SplashPage', avatarUrl: 'https://i.imgur.com/5v5AXWu.png', level: 36, wins: 184, losses: 141, streak: 1 },
+    { username: 'KOBurst', avatarUrl: 'https://i.imgur.com/T7RpFwn.png', level: 39, wins: 207, losses: 163, streak: -3 },
+    { username: 'FrameTrap', avatarUrl: 'https://i.imgur.com/kbaUc1f.png', level: 42, wins: 231, losses: 177, streak: 6 },
+    { username: 'ClashCaster', avatarUrl: 'https://i.imgur.com/SHLVdT9.jpeg', level: 45, wins: 260, losses: 198, streak: 2 },
+    { username: 'VoidMeter', avatarUrl: 'assets/images/wolverinefp.webp', level: 47, wins: 288, losses: 216, streak: -1 },
+    { username: 'OmegaDraft', avatarUrl: 'assets/images/YodaFP.webp', level: 49, wins: 316, losses: 241, streak: 7 },
+];
+
+const hashStringForIndex = (value = '') => {
+    const text = String(value || '');
+    let hash = 0;
+    for (let index = 0; index < text.length; index += 1) {
+        hash = (hash * 31 + text.charCodeAt(index)) >>> 0;
+    }
+    return hash;
+};
+
+const getFakeBattlePlayerAccount = (seed = '') => {
+    const index = hashStringForIndex(seed) % FAKE_BATTLE_PLAYER_ACCOUNTS.length;
+    return FAKE_BATTLE_PLAYER_ACCOUNTS[index] || FAKE_BATTLE_PLAYER_ACCOUNTS[0];
+};
+
+const buildFakeBattlePlayerProfile = (account = {}) => {
+    const level = Math.max(1, Number(account.level) || 1);
+    const rankInfo = getRankInfoForLevel(level);
+    const wins = Math.max(0, Number(account.wins) || 0);
+    const losses = Math.max(0, Number(account.losses) || 0);
+    return {
+        avatarUrl: account.avatarUrl || DEFAULT_PROFILE_AVATAR,
+        ladder: {
+            level,
+            rank: rankInfo.rank,
+            rankHatUrl: rankInfo.hatUrl,
+            experiencePoints: getCumulativeExperienceForLevel(level),
+            ladderRank: null,
+            wins,
+            losses,
+            streak: Number(account.streak) || 0,
+            highestStreak: Math.max(Math.abs(Number(account.streak) || 0), 1),
+            highestLevel: level,
+            famePoints: wins * 3,
+            isHokage: false,
+        },
+    };
 };
 
 const getExperienceRequiredForNextLevel = (level) => {
@@ -5669,6 +5725,18 @@ const sanitizeLastChakraGainForViewer = (lastChakraGain, viewerUsername) => {
     return ownGain ? { [viewerUsername]: ownGain } : null;
 };
 
+const serializeMatchPlayerForViewer = (player = {}) => {
+    if (!player || typeof player !== 'object') return null;
+    const safePlayer = {
+        ...cloneSerializable(player),
+        displayName: getPlayerDisplayName(player),
+    };
+    if (safePlayer.isBot) {
+        delete safePlayer.isBot;
+    }
+    return safePlayer;
+};
+
 const buildMatchPayloadForUser = (match, username) => {
     if (!match || !username) return null;
     const playerEntry = Array.isArray(match.players)
@@ -5687,8 +5755,8 @@ const buildMatchPayloadForUser = (match, username) => {
         surrenderedBy: match.surrenderedBy || null,
         endReason: match.endReason || null,
         endedAt: match.endedAt || null,
-        player: playerEntry,
-        opponent: opponentEntry,
+        player: serializeMatchPlayerForViewer(playerEntry),
+        opponent: serializeMatchPlayerForViewer(opponentEntry),
         currentTurn: match.currentTurn || null,
         turnOrder: match.turnOrder || null,
         turnStartedAt: match.turnStartedAt || null,
@@ -6414,14 +6482,18 @@ const dequeueOpponent = (username, mode = 'quick', draftMode = false) => {
     return opponent;
 };
 
-const createBattleBotPlayer = ({ matchId, team, ladderLevel = 1 }) => ({
-    username: createGameBotUsername(matchId),
-    displayName: GAME_BOT_DISPLAY_NAME,
-    isBot: true,
-    team,
-    aliveCount: Array.isArray(team) ? team.length : 3,
-    ladderLevel: Math.max(1, Number(ladderLevel) || 1),
-});
+const createBattleBotPlayer = ({ matchId, team, ladderLevel = 1 }) => {
+    const account = getFakeBattlePlayerAccount(matchId);
+    return {
+        username: createGameBotUsername(matchId),
+        displayName: account.username,
+        isBot: true,
+        team,
+        aliveCount: Array.isArray(team) ? team.length : 3,
+        ladderLevel: Math.max(1, Number(ladderLevel) || Number(account.level) || 1),
+        profile: buildFakeBattlePlayerProfile(account),
+    };
+};
 
 const buildBattleBotMatch = async ({ username, team, mode, playerProfile }) => {
     const matchId = `match-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -6461,7 +6533,7 @@ const buildBattleBotMatch = async ({ username, team, mode, playerProfile }) => {
         players: playerDocs,
         botMatch: {
             enabled: true,
-            displayName: GAME_BOT_DISPLAY_NAME,
+            displayName: botPlayer.displayName,
         },
         backgroundOverride: getRandomRegularBackground(),
     };
@@ -6526,9 +6598,6 @@ const maybeCreateBattleBotMatch = async ({ username, mode, userProfile = null })
     if (Number.isNaN(queuedAtMs) || Date.now() - queuedAtMs < BATTLE_BOT_QUEUE_TIMEOUT_MS) {
         return null;
     }
-    if (queued.entry.allowBattleBot === false) {
-        return null;
-    }
     if (!isValidTeamSelectionForMatch(queued.entry.team)) {
         removeQueuedEntry(username, mode);
         return null;
@@ -6563,7 +6632,7 @@ const maybeCreateBattleBotMatch = async ({ username, mode, userProfile = null })
 const getDraftOpponentName = (draft, username) => {
     const opponent = (draft?.players || []).find((player) => player.username !== username);
     if (!opponent) return null;
-    return opponent.isBot ? GAME_BOT_DISPLAY_NAME : opponent.username;
+    return getPlayerDisplayName(opponent);
 };
 
 const serializeDraftForUser = (draft, username) => {
@@ -6634,7 +6703,10 @@ const finishDraftWithMatch = async (draft) => {
         mode: draft.mode,
         players,
         botMatch: players.some((player) => player.isBot)
-            ? { enabled: true, displayName: GAME_BOT_DISPLAY_NAME }
+            ? {
+                  enabled: true,
+                  displayName: getPlayerDisplayName(players.find((player) => player.isBot)),
+              }
             : null,
     });
     draft.phase = 'completed';
@@ -6645,7 +6717,7 @@ const finishDraftWithMatch = async (draft) => {
         const opponent = players.find((entry) => entry.username !== player.username);
         userToMatch.set(player.username, {
             matchId: matchDocument.matchId,
-            opponent: opponent?.isBot ? GAME_BOT_DISPLAY_NAME : opponent?.username || null,
+            opponent: opponent ? getPlayerDisplayName(opponent) : null,
         });
     });
     scheduleBattleBotTurn(matchDocument);
@@ -8581,7 +8653,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                             draftMode: true,
                             targetUsername,
                             queuedAt: new Date(),
-                            allowBattleBot: Boolean(profile.matchmaking?.battleBotEnabled),
+                            allowBattleBot: true,
                             ladderLevel: Number(profile.ladder?.level) || 1,
                         },
                         {
@@ -8665,7 +8737,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                 matchFound: true,
                 matchId: queuedBotMatch.matchId,
                 mode: queuedBotMatch.mode || mode,
-                opponent: GAME_BOT_DISPLAY_NAME,
+                opponent: safePayload?.opponent?.displayName || getPlayerDisplayName(queuedBotMatch.players?.find((player) => player.isBot)),
                 matchStartsAt: queuedBotMatch.matchStartsAt || queuedBotMatch.createdAt || null,
                 matchReady:
                     !queuedBotMatch.matchStartsAt ||
@@ -8688,7 +8760,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
             draftMode,
             targetUsername,
             queuedAt: new Date(),
-            allowBattleBot: Boolean(profile.matchmaking?.battleBotEnabled),
+            allowBattleBot: true,
             ladderLevel: Number(profile.ladder?.level) || 1,
         });
         return res.json({ ok: true, queued: true, mode });
@@ -8776,7 +8848,7 @@ app.get('/api/match/status', requireSession, async (req, res) => {
                 matchFound: true,
                 matchId: botMatch.matchId,
                 mode: botMatch.mode || 'quick',
-                opponent: GAME_BOT_DISPLAY_NAME,
+                opponent: safePayload?.opponent?.displayName || getPlayerDisplayName(botMatch.players?.find((player) => player.isBot)),
                 matchStartsAt: botMatch.matchStartsAt || botMatch.createdAt || null,
                 matchReady:
                     !botMatch.matchStartsAt ||
