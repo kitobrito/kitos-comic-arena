@@ -3171,6 +3171,15 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 .death-shards span:nth-child(7) { --x: -38px; --y: 34px; --r: -132deg; background-position: 0 -52px; }
 .death-shards span:nth-child(8) { --x: 12px; --y: 48px; --r: 58deg; background-position: -28px -52px; }
 .death-shards span:nth-child(9) { --x: 54px; --y: 31px; --r: 142deg; background-position: -52px -52px; }
+.death-shards span:nth-child(10) { --x: -60px; --y: -38px; --r: 96deg; background-position: -8px -8px; }
+.death-shards span:nth-child(11) { --x: -30px; --y: -74px; --r: -118deg; background-position: -30px -8px; }
+.death-shards span:nth-child(12) { --x: 8px; --y: -82px; --r: 172deg; background-position: -48px -8px; }
+.death-shards span:nth-child(13) { --x: 62px; --y: -40px; --r: -96deg; background-position: -56px -10px; }
+.death-shards span:nth-child(14) { --x: -68px; --y: 18px; --r: 154deg; background-position: -8px -34px; }
+.death-shards span:nth-child(15) { --x: -18px; --y: 16px; --r: -176deg; background-position: -34px -34px; }
+.death-shards span:nth-child(16) { --x: 32px; --y: 18px; --r: 112deg; background-position: -50px -34px; }
+.death-shards span:nth-child(17) { --x: -18px; --y: 66px; --r: 204deg; background-position: -20px -56px; }
+.death-shards span:nth-child(18) { --x: 68px; --y: 58px; --r: -164deg; background-position: -50px -56px; }
 
 .death-kill-label {
     position: absolute;
@@ -5457,16 +5466,16 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
         filter: saturate(1) brightness(1);
     }
     20% {
-        transform: translate(-5px, -10px) rotate(-8deg) scale(1.05);
+        transform: translate(-5px, -18px) rotate(-8deg) scale(1.08);
         filter: saturate(1.5) brightness(1.22);
     }
     58% {
         opacity: 1;
-        transform: translate(-14px, -38px) rotate(-19deg) scale(1.08);
+        transform: translate(-16px, -56px) rotate(-19deg) scale(1.1);
     }
     100% {
         opacity: 0;
-        transform: translate(-34px, -78px) rotate(-42deg) scale(0.8);
+        transform: translate(-42px, -112px) rotate(-48deg) scale(0.68);
         filter: saturate(0.4) brightness(0.25);
     }
 }
@@ -5478,16 +5487,16 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
         filter: saturate(1) brightness(1);
     }
     20% {
-        transform: translate(6px, -11px) rotate(9deg) scale(1.05);
+        transform: translate(6px, -19px) rotate(9deg) scale(1.08);
         filter: saturate(1.5) brightness(1.22);
     }
     58% {
         opacity: 1;
-        transform: translate(16px, -37px) rotate(20deg) scale(1.08);
+        transform: translate(18px, -55px) rotate(20deg) scale(1.1);
     }
     100% {
         opacity: 0;
-        transform: translate(38px, -76px) rotate(45deg) scale(0.8);
+        transform: translate(46px, -110px) rotate(51deg) scale(0.68);
         filter: saturate(0.4) brightness(0.25);
     }
 }
@@ -5499,15 +5508,15 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     }
     28% {
         opacity: 1;
-        transform: translate(calc(var(--x) * 0.42), calc(var(--y) * 0.42 - 14px)) rotate(calc(var(--r) * 0.34)) scale(1.08);
+        transform: translate(calc(var(--x) * 0.42), calc(var(--y) * 0.42 - 26px)) rotate(calc(var(--r) * 0.34)) scale(1.12);
     }
     74% {
         opacity: 0.92;
-        transform: translate(var(--x), calc(var(--y) - 32px)) rotate(var(--r)) scale(0.92);
+        transform: translate(var(--x), calc(var(--y) - 58px)) rotate(var(--r)) scale(0.9);
     }
     100% {
         opacity: 0;
-        transform: translate(calc(var(--x) * 1.35), calc(var(--y) - 62px)) rotate(calc(var(--r) * 1.55)) scale(0.28);
+        transform: translate(calc(var(--x) * 1.48), calc(var(--y) - 112px)) rotate(calc(var(--r) * 1.75)) scale(0.2);
     }
 }
 

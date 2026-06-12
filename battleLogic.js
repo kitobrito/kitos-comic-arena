@@ -2573,6 +2573,7 @@ const isHarmfulEffect = (effect) => {
     if (type === 'damage' || type === 'health_steal_damage') return true;
     if (type === 'execute_below_hp') return true;
     if (type === 'destroy_destructible_defense') return true;
+    if (type === 'reduce_destructible_defense') return true;
     if (type === 'modify_cooldowns') {
         const amount = Number(effect?.amount) || 0;
         return amount > 0 || Boolean(effect?.metadata?.harmful);
@@ -2927,6 +2928,11 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
     if (!unit || unit.alive === false || isUnitBanished(unit)) return 0;
     const targetState = ensureUnitStateShape(unit);
     const fixedDamage = Boolean(context?.fixedDamage);
+    const ownerDamagedReactiveStatuses = (Array.isArray(targetState.statuses) ? targetState.statuses : []).filter((status) => {
+        if (!isStatusActiveForMetadata(status, unit)) return false;
+        const amount = Math.max(0, Number(status?.metadata?.onOwnerDamagedDamageToSourceAmount) || 0);
+        return amount > 0;
+    });
     applyOnOwnerDamagedByBaseDamageBonuses({
         match: context?.match || null,
         targetState,
@@ -3046,6 +3052,51 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
             }
             status.metadata = nextMetadata;
             if (remainingPoints <= 0) {
+                const breakDamageToSource = Math.max(0, Number(status?.metadata?.onBreakDamageToSourceAmount) || 0);
+                if (
+                    breakDamageToSource > 0 &&
+                    context?.match &&
+                    context?.sourceUsername &&
+                    context?.targetUsername &&
+                    context.sourceUsername !== context.targetUsername
+                ) {
+                    const sourceUnit =
+                        context.match.board?.[context.sourceUsername]?.[Number(context?.sourceSlot)] || null;
+                    if (sourceUnit && sourceUnit.alive !== false) {
+                        applyDamageToUnit(sourceUnit, breakDamageToSource, {
+                            match: context.match,
+                            sourceUsername: context.targetUsername,
+                            sourceSlot: Number.isInteger(context?.targetSlot) ? context.targetSlot : null,
+                            targetUsername: context.sourceUsername,
+                            targetSlot: Number.isInteger(context?.sourceSlot) ? context.sourceSlot : null,
+                            sourceSkillId: status?.sourceSkillId || context?.sourceSkillId || null,
+                            skillClasses: Array.isArray(status?.metadata?.onBreakDamageToSourceSkillClasses)
+                                ? status.metadata.onBreakDamageToSourceSkillClasses
+                                : [],
+                            damageDebugLabel:
+                                typeof status?.metadata?.onBreakDamageToSourceLabel === 'string'
+                                    ? status.metadata.onBreakDamageToSourceLabel
+                                    : 'Destructible Defense Break',
+                            damageDebugReason:
+                                typeof status?.metadata?.onBreakDamageToSourceReason === 'string'
+                                    ? status.metadata.onBreakDamageToSourceReason
+                                    : 'defense break',
+                            skipDamageReflection: true,
+                        });
+                    }
+                }
+                const removeStatusIdsFromEnemyTeamOnBreak = Array.isArray(
+                    status?.metadata?.removeStatusIdsFromEnemyTeamOnBreak
+                )
+                    ? status.metadata.removeStatusIdsFromEnemyTeamOnBreak.filter((id) => typeof id === 'string' && id)
+                    : [];
+                if (removeStatusIdsFromEnemyTeamOnBreak.length > 0) {
+                    removeStatusIdsFromTeamsExcept({
+                        match: context?.match || null,
+                        exceptUsername: context?.targetUsername || '',
+                        statusIds: removeStatusIdsFromEnemyTeamOnBreak,
+                    });
+                }
                 const removeStatusIdsOnBreak = Array.isArray(status?.metadata?.removeStatusIdsOnBreak)
                     ? status.metadata.removeStatusIdsOnBreak.filter((id) => typeof id === 'string' && id)
                     : [];
@@ -3357,6 +3408,54 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
         const sourceUnit = context?.match?.board?.[context.sourceUsername]?.[Number(context?.sourceSlot)] || null;
         const sourceState = sourceUnit ? ensureUnitStateShape(sourceUnit) : null;
         const sourceSkillClasses = Array.isArray(context?.skillClasses) ? context.skillClasses : [];
+        if (sourceUnit && sourceUnit.alive !== false) {
+            ownerDamagedReactiveStatuses.forEach((status) => {
+                const metadata = status?.metadata || {};
+                const sourceRequiredStatuses = Array.isArray(metadata.onOwnerDamagedDamageToSourceBonusIfSourceStatusIdsAny)
+                    ? metadata.onOwnerDamagedDamageToSourceBonusIfSourceStatusIdsAny.filter(
+                          (entry) => typeof entry === 'string' && entry
+                      )
+                    : [];
+                const hasSourceRequiredStatus =
+                    sourceState &&
+                    sourceRequiredStatuses.some((statusId) =>
+                        Array.isArray(sourceState.statuses)
+                            ? sourceState.statuses.some(
+                                  (entry) => entry?.id === statusId && (Number(entry?.remainingTurns) || 0) > 0
+                              )
+                            : false
+                    );
+                const bonus = hasSourceRequiredStatus
+                    ? Math.max(0, Number(metadata.onOwnerDamagedDamageToSourceBonusAmount) || 0)
+                    : 0;
+                const amount = Math.max(0, Number(metadata.onOwnerDamagedDamageToSourceAmount) || 0) + bonus;
+                if (amount <= 0) return;
+                applyDamageToUnit(sourceUnit, amount, {
+                    match: context.match,
+                    sourceUsername: context.targetUsername,
+                    sourceSlot: Number.isInteger(context?.targetSlot) ? context.targetSlot : null,
+                    targetUsername: context.sourceUsername,
+                    targetSlot: Number.isInteger(context?.sourceSlot) ? context.sourceSlot : null,
+                    sourceSkillId: status?.sourceSkillId || context?.sourceSkillId || null,
+                    skillClasses: Array.isArray(metadata.onOwnerDamagedDamageToSourceSkillClasses)
+                        ? metadata.onOwnerDamagedDamageToSourceSkillClasses
+                        : ['affliction'],
+                    afflictionDamage: Boolean(metadata.onOwnerDamagedDamageToSourceAfflictionDamage),
+                    ignoreDamageReduction: metadata.onOwnerDamagedDamageToSourceIgnoreDamageReduction !== false,
+                    ignoreDestructibleDefense:
+                        metadata.onOwnerDamagedDamageToSourceIgnoreDestructibleDefense !== false,
+                    damageDebugLabel:
+                        typeof metadata.onOwnerDamagedDamageToSourceLabel === 'string'
+                            ? metadata.onOwnerDamagedDamageToSourceLabel
+                            : 'Reactive Damage',
+                    damageDebugReason:
+                        typeof metadata.onOwnerDamagedDamageToSourceReason === 'string'
+                            ? metadata.onOwnerDamagedDamageToSourceReason
+                            : 'owner damaged',
+                    skipDamageReflection: true,
+                });
+            });
+        }
         applyOnTeamMemberDamageTakenBonuses({
             match: context.match,
             actingUsername: context.sourceUsername,
@@ -3540,6 +3639,59 @@ const applyHealthCapSetToUnit = (unit, rawAmount, context = {}) => {
         });
     }
     return Math.max(0, beforeCap - nextCap);
+};
+
+const removeStatusIdsFromTeamsExcept = ({ match, exceptUsername, statusIds = [] }) => {
+    if (!match || !exceptUsername || !Array.isArray(statusIds) || statusIds.length === 0) return;
+    const removeIds = new Set(statusIds.filter((id) => typeof id === 'string' && id));
+    if (removeIds.size === 0) return;
+    Object.entries(match.board || {}).forEach(([username, units]) => {
+        if (username === exceptUsername || !Array.isArray(units)) return;
+        units.forEach((unit) => {
+            if (!unit) return;
+            const state = ensureUnitStateShape(unit);
+            state.statuses = (Array.isArray(state.statuses) ? state.statuses : []).filter(
+                (status) => !removeIds.has(status?.id)
+            );
+            refreshDerivedStatusTooltips(state);
+        });
+    });
+};
+
+const reduceDestructibleDefenseOnUnit = (unit, amount) => {
+    if (!unit || unit.alive === false) return 0;
+    let remaining = Math.max(0, Number(amount) || 0);
+    if (remaining <= 0) return 0;
+    const targetState = ensureUnitStateShape(unit);
+    let removedPoints = 0;
+    for (let i = 0; i < targetState.statuses.length && remaining > 0; i += 1) {
+        const status = targetState.statuses[i];
+        const points = Math.max(0, Number(status?.metadata?.destructibleDefensePoints) || 0);
+        if (points <= 0) continue;
+        const removed = Math.min(points, remaining);
+        remaining -= removed;
+        removedPoints += removed;
+        const nextPoints = points - removed;
+        if (nextPoints <= 0) {
+            const removeStatusIdsOnBreak = Array.isArray(status?.metadata?.removeStatusIdsOnBreak)
+                ? status.metadata.removeStatusIdsOnBreak.filter((id) => typeof id === 'string' && id)
+                : [];
+            targetState.statuses = targetState.statuses.filter(
+                (entry) => entry !== status && !removeStatusIdsOnBreak.includes(entry?.id)
+            );
+            i = -1;
+            continue;
+        }
+        status.metadata = {
+            ...(status.metadata || {}),
+            destructibleDefensePoints: nextPoints,
+        };
+        if (typeof status.metadata.tooltipTextTemplate === 'string' && status.metadata.tooltipTextTemplate) {
+            status.metadata.tooltipText = renderTooltipTemplate(status.metadata.tooltipTextTemplate, status.metadata);
+        }
+    }
+    refreshDerivedStatusTooltips(targetState);
+    return removedPoints;
 };
 
 const destroyAllDestructibleDefenseOnUnit = (unit) => {
@@ -4123,8 +4275,48 @@ const selectTurnStartChoiceTarget = ({ match, actingUsername, choice = {}, manua
     return availableTargets[0] || null;
 };
 
+const processTurnStartStatusEffects = ({ match, startingUsername }) => {
+    if (!match || !startingUsername) return;
+    const units = Array.isArray(match.board?.[startingUsername]) ? match.board[startingUsername] : [];
+    const turnCount = Math.max(0, Number(match?.economy?.turnCounts?.[startingUsername]) || 0);
+    units.forEach((unit, unitSlot) => {
+        if (!unit || unit.alive === false || isUnitBanished(unit)) return;
+        const state = ensureUnitStateShape(unit);
+        const statuses = Array.isArray(state.statuses) ? state.statuses : [];
+        statuses.forEach((status) => {
+            if (!isStatusActiveForMetadata(status, unit)) return;
+            const turnStartDamage = Math.max(0, Number(status?.metadata?.turnStartDamage) || 0);
+            if (turnStartDamage <= 0) return;
+            const lastApplied = Number(status?.metadata?._lastTurnStartDamageTurnCount);
+            if (Number.isFinite(lastApplied) && lastApplied === turnCount) return;
+            status.metadata = {
+                ...(status.metadata || {}),
+                _lastTurnStartDamageTurnCount: turnCount,
+            };
+            const affliction = Boolean(status?.metadata?.afflictionDamage);
+            applyDamageToUnit(unit, turnStartDamage, {
+                match,
+                sourceSkillId: status?.sourceSkillId || null,
+                sourceUsername: status?.sourceUsername || startingUsername,
+                sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : unitSlot,
+                targetUsername: startingUsername,
+                targetSlot: unitSlot,
+                afflictionDamage: affliction,
+                damageDebugReason: 'turn start',
+                fixedDamage: Boolean(status?.metadata?.fixedTurnStartDamage),
+                ignoreDamageImmunity: Boolean(status?.metadata?.ignoreDamageImmunity),
+                ignoreAfflictionDamageImmunity: Boolean(status?.metadata?.ignoreAfflictionDamageImmunity),
+                ignoreDamageReduction: affliction || Boolean(status?.metadata?.ignoreTargetDamageReduction),
+                ignoreDestructibleDefense:
+                    affliction || Boolean(status?.metadata?.ignoreTargetDestructibleDefense),
+            });
+        });
+    });
+};
+
 const queueTurnStartChoicePrompts = ({ match, startingUsername }) => {
     if (!match || !startingUsername) return null;
+    processTurnStartStatusEffects({ match, startingUsername });
     if (!match.pendingTurns || typeof match.pendingTurns !== 'object') {
         match.pendingTurns = {};
     }
@@ -6361,6 +6553,40 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         return;
                     }
                     destroyAllDestructibleDefenseOnUnit(recipient.unit);
+                });
+                return;
+            }
+
+            if (effectType === 'reduce_destructible_defense') {
+                const recipients = resolveRecipients(effect);
+                recipients.forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    if (
+                        doesTargetIgnoreSkillByClass({
+                            targetState,
+                            skillClasses: skill.classes || [],
+                            isEnemySkill: recipient.username !== actingUsername,
+                        })
+                    ) {
+                        return;
+                    }
+                    const condition = effect?.condition;
+                    if (
+                        condition &&
+                        !doesEffectConditionMatch({
+                            condition,
+                            actorState,
+                            targetState,
+                            actorUnit,
+                            actorUsername: actingUsername,
+                            targetUnit: recipient.unit,
+                            targetUsername: recipient.username,
+                        })
+                    ) {
+                        return;
+                    }
+                    reduceDestructibleDefenseOnUnit(recipient.unit, effect.amount);
                 });
                 return;
             }
@@ -9037,4 +9263,5 @@ module.exports = {
     getTurnStartChoiceTargetOptions,
     selectTurnStartChoiceTarget,
     queueTurnStartChoicePrompts,
+    processTurnStartStatusEffects,
 };

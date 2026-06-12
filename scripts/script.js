@@ -2173,6 +2173,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (type === 'damage' || type === 'health_steal_damage') return true;
             if (type === 'execute_below_hp') return true;
             if (type === 'destroy_destructible_defense') return true;
+            if (type === 'reduce_destructible_defense') return true;
             if (type === 'modify_cooldowns') {
                 const amount = Number(effect?.amount) || 0;
                 return amount > 0 || Boolean(effect?.metadata?.harmful);
@@ -4623,7 +4624,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             window.setTimeout(() => card.classList.remove('death-crack'), 700);
         };
 
-        const showCharacterDeathAnimation = (card) => {
+        const showCharacterDeathAnimation = (card, options = {}) => {
             if (!card) return;
             const face = card.querySelector('.character-face');
             const portraitSrc = face?.dataset?.aliveSrc || face?.src || '';
@@ -4637,14 +4638,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `<div class="death-slice death-slice-left" style="background-image:url('${safeSrc}')"></div>` +
                 `<div class="death-slice death-slice-right" style="background-image:url('${safeSrc}')"></div>` +
                 `<div class="death-shards">` +
-                    Array.from({ length: 9 }, (_, index) =>
+                    Array.from({ length: 18 }, (_, index) =>
                         `<span style="background-image:url('${safeSrc}');--piece:${index};"></span>`
                     ).join('') +
                 `</div>` +
                 `<div class="death-kill-label">${label}</div>`;
             card.appendChild(overlay);
-            playGeneratedIngameSound('death');
+            if (options?.playSound !== false) {
+                playGeneratedIngameSound('death');
+            }
             scheduleTransientDeathFxCleanup(card, overlay, 2500);
+        };
+
+        const scheduleCharacterDeathFinale = (card, delayMs = 1050) => {
+            if (!card) return;
+            window.setTimeout(() => {
+                if (!card?.isConnected) return;
+                showCharacterDeathAnimation(card, { playSound: false });
+                restartDeathCrackAnimation(card);
+            }, Math.max(0, Number(delayMs) || 0));
         };
 
         const showGhostRiderDeathAnimation = (card) => {
@@ -5230,52 +5242,77 @@ document.addEventListener('DOMContentLoaded', async () => {
             const animationType = getSpecialDeathAnimationType(killerId);
             if (animationType === 'saber-red') {
                 triggerSaberedAnimation(card, 'red');
+                scheduleCharacterDeathFinale(card, 920);
                 return true;
             }
             if (animationType === 'saber-blue') {
                 triggerSaberedAnimation(card, 'blue');
+                scheduleCharacterDeathFinale(card, 920);
                 return true;
             }
             if (animationType === 'saber-yoda') {
-                return triggerAdvancedSaberedAnimation(card, 'yoda');
+                const triggered = triggerAdvancedSaberedAnimation(card, 'yoda');
+                if (triggered) scheduleCharacterDeathFinale(card, 980);
+                return triggered;
             }
             if (animationType === 'saber-grievous') {
-                return triggerAdvancedSaberedAnimation(card, 'grievous');
+                const triggered = triggerAdvancedSaberedAnimation(card, 'grievous');
+                if (triggered) scheduleCharacterDeathFinale(card, 1120);
+                return triggered;
             }
             if (animationType === 'eviscerated') {
-                return triggerEvisceratedAnimation(card);
+                const triggered = triggerEvisceratedAnimation(card);
+                if (triggered) scheduleCharacterDeathFinale(card, 1050);
+                return triggered;
             }
             if (animationType === 'claimed') {
-                return triggerClaimedAnimation(card);
+                const triggered = triggerClaimedAnimation(card);
+                if (triggered) scheduleCharacterDeathFinale(card, 1050);
+                return triggered;
             }
             if (animationType === 'devoured') {
-                return triggerDevouredAnimation(card);
+                const triggered = triggerDevouredAnimation(card);
+                if (triggered) scheduleCharacterDeathFinale(card, 1050);
+                return triggered;
             }
             if (animationType === 'vanished') {
-                return triggerVanishedAnimation(card);
+                const triggered = triggerVanishedAnimation(card);
+                if (triggered) scheduleCharacterDeathFinale(card, 920);
+                return triggered;
             }
             if (animationType === 'consumed') {
-                return triggerConsumedAnimation(card);
+                const triggered = triggerConsumedAnimation(card);
+                if (triggered) scheduleCharacterDeathFinale(card, 1050);
+                return triggered;
             }
             if (animationType === 'lucilled') {
-                return triggerLucilledAnimation(card);
+                const triggered = triggerLucilledAnimation(card);
+                if (triggered) scheduleCharacterDeathFinale(card, 1050);
+                return triggered;
             }
             if (animationType === 'speed-blitz') {
-                return triggerSpeedBlitzAnimation(card);
+                const triggered = triggerSpeedBlitzAnimation(card);
+                if (triggered) scheduleCharacterDeathFinale(card, 900);
+                return triggered;
             }
             if (animationType === 'comic-boom') {
-                return triggerComicBoomAnimation(card);
+                const triggered = triggerComicBoomAnimation(card);
+                if (triggered) scheduleCharacterDeathFinale(card, 1000);
+                return triggered;
             }
             if (animationType === 'predator') {
                 triggerPredatorHuntedAnimation(card);
+                scheduleCharacterDeathFinale(card, 1050);
                 return true;
             }
             if (animationType === 'laser') {
                 triggerLaseredAnimation(card, String(killerId || '').trim().toLowerCase());
+                scheduleCharacterDeathFinale(card, 920);
                 return true;
             }
             if (animationType === 'ghost-rider') {
                 showGhostRiderDeathAnimation(card);
+                scheduleCharacterDeathFinale(card, 1250);
                 return true;
             }
             return false;

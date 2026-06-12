@@ -13692,6 +13692,797 @@ const characters = [
         "roleCategory": "damage"
     },
     {
+        "id": "doctor-fate",
+        "characterId": "doctor-fate",
+        "name": "Doctor Fate",
+        "facePicture": "assets/images/doctorfatefp.webp",
+        "characterdeescription": "Empowered by the ancient Lord of Order known as Nabu, Doctor Fate bends reality according to destiny itself. Through powerful seals and ancient magic, Fate weakens those he has judged before delivering their inevitable punishment.",
+        "skills": [
+            {
+                "id": "doctor-fate-judgment-of-nabu",
+                "name": "Judgment of Nabu",
+                "skillimage": "assets/images/judgementofnabu.webp",
+                "skilldescription": "One enemy becomes Judged for 2 turns. Judged enemies deal 5 less damage with their harmful skills. Only one enemy may be Judged at a time. If the target is already Judged, this skill instead deals 30 damage to them and refreshes Judged for 2 turns.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "doctor_fate_judged"
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_fate_judged",
+                        "duration": 2,
+                        "sourceSkillId": "doctor-fate-judgment-of-nabu",
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "uniqueEnemyMarkFromSource": true,
+                            "damageDebuffFlat": 5,
+                            "statusIconUrl": "assets/images/judgementofnabu.webp",
+                            "tooltipText": "This character is Judged by Nabu and deals 5 less damage with harmful skills."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-fate-seal-of-order",
+                "name": "Seal of Order",
+                "skillimage": "assets/images/sealoforder.webp",
+                "skilldescription": "One enemy is silenced for 1 turn. If the target is Judged, they take 15 affliction damage and are silenced for 2 turns instead.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_fate_seal_of_order_silence",
+                        "duration": 1,
+                        "sourceSkillId": "doctor-fate-seal-of-order",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "missingStatusId": "doctor_fate_judged"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "silenceNonDamageEffects": true,
+                            "statusIconUrl": "assets/images/sealoforder.webp",
+                            "tooltipText": "Silenced: only damage from this character's skills will work."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "doctor_fate_judged"
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_fate_seal_of_order_silence",
+                        "duration": 2,
+                        "sourceSkillId": "doctor-fate-seal-of-order",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "doctor_fate_judged"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "silenceNonDamageEffects": true,
+                            "statusIconUrl": "assets/images/sealoforder.webp",
+                            "tooltipText": "Silenced by Seal of Order: only damage from this character's skills will work."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-fate-ankh-of-protection",
+                "name": "Ankh of Protection",
+                "skillimage": "assets/images/ankhofprotection.webp",
+                "skilldescription": "Target ally gains 25 destructible defense. For 2 turns, whenever that ally is damaged, the attacker takes 10 affliction damage. If the attacker is Judged, they take 15 additional affliction damage.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Energy",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_fate_ankh_of_protection",
+                        "duration": 2,
+                        "sourceSkillId": "doctor-fate-ankh-of-protection",
+                        "scope": "target",
+                        "metadata": {
+                            "destructibleDefensePoints": 25,
+                            "onOwnerDamagedDamageToSourceAmount": 10,
+                            "onOwnerDamagedDamageToSourceBonusIfSourceStatusIdsAny": [
+                                "doctor_fate_judged"
+                            ],
+                            "onOwnerDamagedDamageToSourceBonusAmount": 15,
+                            "onOwnerDamagedDamageToSourceAfflictionDamage": true,
+                            "onOwnerDamagedDamageToSourceSkillClasses": [
+                                "Affliction"
+                            ],
+                            "onOwnerDamagedDamageToSourceLabel": "Ankh of Protection",
+                            "onOwnerDamagedDamageToSourceReason": "ankh",
+                            "statusIconUrl": "assets/images/ankhofprotection.webp",
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense. When damaged, the attacker takes 10 affliction damage, plus 15 more if they are Judged."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-fate-verdict-of-nabu",
+                "name": "Verdict of Nabu",
+                "skillimage": "assets/images/verdictofnabu.webp",
+                "skilldescription": "Doctor Fate deals 20 damage to all enemies. Judged enemies take 30 additional damage and become stunned for 1 turn. The duration of Judged on affected enemies is refreshed for 2 turns.",
+                "energy": [
+                    "Ninjutsu",
+                    "Genjutsu"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "all-enemy"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "all-enemy",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "doctor_fate_judged"
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "stunned",
+                        "duration": 1,
+                        "sourceSkillId": "doctor-fate-verdict-of-nabu",
+                        "scope": "all-enemy",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "doctor_fate_judged"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "statusIconUrl": "assets/images/verdictofnabu.webp",
+                            "tooltipText": "This character is stunned by Verdict of Nabu."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_fate_judged",
+                        "duration": 2,
+                        "sourceSkillId": "doctor-fate-judgment-of-nabu",
+                        "scope": "all-enemy",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "doctor_fate_judged"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "uniqueEnemyMarkFromSource": true,
+                            "damageDebuffFlat": 5,
+                            "statusIconUrl": "assets/images/judgementofnabu.webp",
+                            "tooltipText": "This character is Judged by Nabu and deals 5 less damage with harmful skills."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Mystic Judgment Controller",
+        "universe": "dc",
+        "roleCategory": "control"
+    },
+    {
+        "id": "doctor-doom",
+        "characterId": "doctor-doom",
+        "name": "Doctor Doom",
+        "facePicture": "assets/images/drdoomfp.webp",
+        "characterdeescription": "The ruler of Latveria and one of the greatest minds in existence, Doctor Doom combines scientific genius with mastery of the mystic arts. Through a network of Doombots and arcane technology, Doom ensures that every battle unfolds according to his design.",
+        "skills": [
+            {
+                "id": "doctor-doom-doombot-decoy",
+                "name": "Doombot Decoy",
+                "skillimage": "assets/images/doombotdecoy.webp",
+                "skilldescription": "Doctor Doom summons a Doombot with 30 destructible defense for 2 turns. While the Doombot is active, all enemies are taunted toward it. If the Doombot is destroyed by an enemy skill, the attacker takes 20 damage.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_doom_doombot_active",
+                        "duration": 2,
+                        "sourceSkillId": "doctor-doom-doombot-decoy",
+                        "scope": "self",
+                        "metadata": {
+                            "destructibleDefensePoints": 30,
+                            "removeStatusIdsOnBreak": [
+                                "doctor_doom_doombot_active"
+                            ],
+                            "removeStatusIdsFromEnemyTeamOnBreak": [
+                                "doctor_doom_doombot_taunt"
+                            ],
+                            "onBreakDamageToSourceAmount": 20,
+                            "onBreakDamageToSourceSkillClasses": [
+                                "Physical"
+                            ],
+                            "onBreakDamageToSourceLabel": "Doombot Decoy",
+                            "onBreakDamageToSourceReason": "doombot destroyed",
+                            "statusIconUrl": "assets/images/doombotdecoy.webp",
+                            "tooltipTextTemplate": "Doctor Doom has a Doombot with {destructibleDefensePoints} destructible defense. If an enemy destroys it with a skill, they take 20 damage."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_doom_doombot_taunt",
+                        "duration": 2,
+                        "sourceSkillId": "doctor-doom-doombot-decoy",
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "taunt": true,
+                            "statusIconUrl": "assets/images/doombotdecoy.webp",
+                            "tooltipText": "This character is taunted toward Doctor Doom's Doombot."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-doom-arcane-tech-blast",
+                "name": "Arcane-Tech Blast",
+                "skillimage": "assets/images/arcanetechblast.webp",
+                "skilldescription": "Doctor Doom deals 25 damage to one enemy. If a Doombot is active, a random enemy takes 15 affliction damage.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "random-enemy",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "doctor_doom_doombot_active"
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-doom-latverian-lockdown",
+                "name": "Latverian Lockdown",
+                "skillimage": "assets/images/latverianlockdown.webp",
+                "skilldescription": "One enemy is silenced for 1 turn. If a Doombot is active, this skill first removes 15 destructible defense from the target, then deals 15 damage to them.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_doom_latverian_lockdown_silence",
+                        "duration": 1,
+                        "sourceSkillId": "doctor-doom-latverian-lockdown",
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "silenceNonDamageEffects": true,
+                            "statusIconUrl": "assets/images/latverianlockdown.webp",
+                            "tooltipText": "Silenced: only damage from this character's skills will work."
+                        }
+                    },
+                    {
+                        "type": "reduce_destructible_defense",
+                        "amount": 15,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "doctor_doom_doombot_active"
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "doctor_doom_doombot_active"
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-doom-dooms-command",
+                "name": "Doom's Command",
+                "skillimage": "assets/images/doomscommand.webp",
+                "skilldescription": "If a Doombot is active, it is destroyed and unleashed upon Doom's enemies. All enemies take 25 damage and are stunned for 1 turn. If no Doombot is active, this skill cannot be used.",
+                "energy": [
+                    "Taijutsu",
+                    "Ninjutsu"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 4,
+                "actorCondition": {
+                    "statusId": "doctor_doom_doombot_active"
+                },
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "all-enemy"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "stunned",
+                        "duration": 1,
+                        "sourceSkillId": "doctor-doom-dooms-command",
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "statusIconUrl": "assets/images/doomscommand.webp",
+                            "tooltipText": "This character is stunned by Doom's Command."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_doom_doombot_cleanup",
+                        "duration": 0,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "removeStatusIdsOnApply": [
+                                "doctor_doom_doombot_taunt",
+                                "doctor_doom_doombot_cleanup"
+                            ],
+                            "hideTooltipFromEnemy": true,
+                            "tooltipText": "Doombot taunts have been removed."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_doom_doombot_cleanup",
+                        "duration": 0,
+                        "scope": "self",
+                        "metadata": {
+                            "removeStatusIdsOnApply": [
+                                "doctor_doom_doombot_active",
+                                "doctor_doom_doombot_cleanup"
+                            ],
+                            "hideTooltipFromEnemy": true,
+                            "tooltipText": "The Doombot has been unleashed."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Doombot Control Strategist",
+        "universe": "marvel",
+        "roleCategory": "control"
+    },
+    {
+        "id": "doctor-strange",
+        "characterId": "doctor-strange",
+        "name": "Doctor Strange",
+        "facePicture": "assets/images/doctorstrangefp.webp",
+        "characterdeescription": "The Sorcerer Supreme protects reality through mastery of the mystic arts. While Strange prefers discipline and wisdom over brute force, there are times when even he must draw upon forbidden powers. By gathering Arcane Energy, Strange can channel the eldritch entity Zom, unleashing devastating magic at tremendous personal risk.",
+        "skills": [
+            {
+                "id": "doctor-strange-crimson-bands-of-cyttorak",
+                "name": "Crimson Bands of Cyttorak",
+                "skillimage": "assets/images/crimsonbandsofcyttorak.webp",
+                "skilldescription": "One enemy becomes stunned for 1 turn. Doctor Strange gains 1 Arcane Energy. While Empowered by Zom, this affects all enemies.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Control"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_crimson_bands_stun",
+                        "duration": 1,
+                        "sourceSkillId": "doctor-strange-crimson-bands-of-cyttorak",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "missingStatusId": "doctor_strange_empowered_by_zom"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "statusIconUrl": "assets/images/crimsonbandsofcyttorak.webp",
+                            "tooltipText": "This character is stunned by Crimson Bands of Cyttorak."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_crimson_bands_stun",
+                        "duration": 1,
+                        "sourceSkillId": "doctor-strange-crimson-bands-of-cyttorak",
+                        "scope": "all-enemy",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "doctor_strange_empowered_by_zom"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "statusIconUrl": "assets/images/crimsonbandsofcyttorak.webp",
+                            "tooltipText": "This character is stunned by Crimson Bands of Cyttorak."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_arcane_energy",
+                        "duration": 999,
+                        "sourceSkillId": "doctor-strange-passive-arcane-energy",
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "arcaneEnergy": 1,
+                            "stackMetadataKey": "arcaneEnergy",
+                            "stackDelta": 1,
+                            "stackMax": 3,
+                            "statusIconUrl": "assets/images/arcaneenergy.webp",
+                            "tooltipTextTemplate": "Doctor Strange has {arcaneEnergy} Arcane Energy.",
+                            "applyStatusAtStack": {
+                                "metadataKey": "arcaneEnergy",
+                                "value": 3,
+                                "statusId": "doctor_strange_channel_zom_ready",
+                                "duration": 999,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "statusIconUrl": "assets/images/channelzom.webp",
+                                    "tooltipText": "Doctor Strange may use Channel Zom."
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-strange-shield-of-the-seraphim",
+                "name": "Shield of the Seraphim",
+                "skillimage": "assets/images/shieldofseraphim.webp",
+                "skilldescription": "Target ally gains 25 destructible defense for 2 turns. Doctor Strange gains 1 Arcane Energy.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Energy",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_shield_of_the_seraphim",
+                        "duration": 2,
+                        "sourceSkillId": "doctor-strange-shield-of-the-seraphim",
+                        "scope": "target",
+                        "metadata": {
+                            "destructibleDefensePoints": 25,
+                            "statusIconUrl": "assets/images/shieldofseraphim.webp",
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Shield of the Seraphim."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_arcane_energy",
+                        "duration": 999,
+                        "sourceSkillId": "doctor-strange-passive-arcane-energy",
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "arcaneEnergy": 1,
+                            "stackMetadataKey": "arcaneEnergy",
+                            "stackDelta": 1,
+                            "stackMax": 3,
+                            "statusIconUrl": "assets/images/arcaneenergy.webp",
+                            "tooltipTextTemplate": "Doctor Strange has {arcaneEnergy} Arcane Energy.",
+                            "applyStatusAtStack": {
+                                "metadataKey": "arcaneEnergy",
+                                "value": 3,
+                                "statusId": "doctor_strange_channel_zom_ready",
+                                "duration": 999,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "statusIconUrl": "assets/images/channelzom.webp",
+                                    "tooltipText": "Doctor Strange may use Channel Zom."
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-strange-bolts-of-balthakk",
+                "name": "Bolts of Balthakk",
+                "skillimage": "assets/images/boltsofbalthakk.webp",
+                "skilldescription": "Doctor Strange deals 25 damage to one enemy. If Strange is empowered by Zom, this skill deals 20 additional affliction damage.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "doctor_strange_empowered_by_zom"
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-strange-channel-zom",
+                "name": "Channel Zom",
+                "skillimage": "assets/images/channelzom.webp",
+                "skilldescription": "Requires 3 Arcane Energy. Doctor Strange transforms into Empowered by Zom for 3 turns. Arcane Energy is removed. While transformed, Doctor Strange gains 20 permanent destructible defense, Bolts of Balthakk deals 20 additional affliction damage, Crimson Bands of Cyttorak affects all enemies, and Strange takes 10 affliction damage at the start of each turn. This skill becomes Zom's Wrath while transformed.",
+                "energy": [],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 5,
+                "classes": [
+                    "Energy",
+                    "Instant",
+                    "Unremovable"
+                ],
+                "actorCondition": {
+                    "statusId": "doctor_strange_channel_zom_ready",
+                    "missingStatusId": "doctor_strange_empowered_by_zom"
+                },
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_empowered_by_zom",
+                        "duration": 3,
+                        "sourceSkillId": "doctor-strange-channel-zom",
+                        "scope": "self",
+                        "metadata": {
+                            "unremovable": true,
+                            "turnStartDamage": 10,
+                            "afflictionDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "skillReplacements": {
+                                "doctor-strange-channel-zom": "doctor-strange-zoms-wrath"
+                            },
+                            "statusIconUrl": "assets/images/channelzom.webp",
+                            "tooltipText": "Doctor Strange is Empowered by Zom. Bolts of Balthakk deals additional affliction damage, Crimson Bands of Cyttorak affects all enemies, Channel Zom is replaced by Zom's Wrath, and Strange takes 10 affliction damage at the start of each turn."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_zom_defense",
+                        "duration": 999,
+                        "sourceSkillId": "doctor-strange-channel-zom",
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "destructibleDefensePoints": 20,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "statusIconUrl": "assets/images/channelzom.webp",
+                            "tooltipTextTemplate": "Doctor Strange has {destructibleDefensePoints} permanent destructible defense from Zom."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_arcane_energy_consumed",
+                        "duration": 0,
+                        "scope": "self",
+                        "metadata": {
+                            "removeStatusIdsOnApply": [
+                                "doctor_strange_arcane_energy",
+                                "doctor_strange_channel_zom_ready"
+                            ],
+                            "hideTooltipFromEnemy": true,
+                            "tooltipText": "Arcane Energy has been consumed."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-strange-zoms-wrath",
+                "name": "Zom's Wrath",
+                "isHidden": true,
+                "hiddenFromSelectionViewer": true,
+                "actorCondition": {
+                    "statusId": "doctor_strange_empowered_by_zom"
+                },
+                "skillimage": "assets/images/zomswrath.jpg",
+                "skilldescription": "Doctor Strange deals 25 affliction damage to all enemies. Enemies stunned by Crimson Bands of Cyttorak take 20 additional damage. Using this skill immediately ends Empowered by Zom.",
+                "energy": [
+                    "Ninjutsu",
+                    "Genjutsu"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "all-enemy",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "doctor_strange_crimson_bands_stun"
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_zom_wrath_ended",
+                        "duration": 0,
+                        "scope": "self",
+                        "metadata": {
+                            "removeStatusIdsOnApply": [
+                                "doctor_strange_empowered_by_zom"
+                            ],
+                            "hideTooltipFromEnemy": true,
+                            "tooltipText": "Empowered by Zom has ended."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-strange-passive-arcane-energy",
+                "name": "Passive: Arcane Energy",
+                "skillimage": "assets/images/arcaneenergy.webp",
+                "skilldescription": "Whenever Doctor Strange uses a non-damaging skill, he gains 1 Arcane Energy. Maximum: 3. At 3 Arcane Energy, Doctor Strange may use Channel Zom.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            }
+        ],
+        "role": "Mystic Control Caster",
+        "universe": "marvel",
+        "roleCategory": "control"
+    },
+    {
         "id": "darth-vader",
         "characterId": "darth-vader",
         "name": "Darth Vader",
