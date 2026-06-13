@@ -155,9 +155,19 @@ const paragraphs = [
     'Comic Arena Update V.3.1.2 opens the mystic gates with Doctor Strange, Doctor Fate, and Doctor Doom joining the roster.',
     'Doctor Strange builds Arcane Energy into Zom-powered magic, Doctor Fate marks enemies with Judgment before sealing or sentencing them, and Doctor Doom controls the board through Doombot pressure and Latverian tech.',
     'This update also adds missions for all three doctors and moves them into the latest character releases panel.',
+    'Tonight also brings a roster presentation pass: every character now has a short lore-style description, and character roles have been cleaned into clearer team-building categories with Controller added as a full role.',
+    'A targeted balance pass adjusts Aquaman, The Joker, Wolverine, Scorpion, Rage Infected, Angstrom Levy, and Mysterio to smooth out outliers from the latest audit.',
 ];
 
 const changes = [
+    {
+        text: 'Every character description has been rewritten into a short lore-style intro matching the Doctor Strange, Doctor Fate, and Doctor Doom format.',
+        changeType: 'new',
+    },
+    {
+        text: 'Roles have been normalized into broad player-facing categories: Tank, Damage, Support, Controller, Bruiser, Assassin, Specialist, and Hybrid.',
+        changeType: 'new',
+    },
     skillShowcase(
         'doctor-strange',
         'doctor-strange-crimson-bands-of-cyttorak',
@@ -227,6 +237,61 @@ const changes = [
         'doctor-doom',
         'doctor-doom-dooms-command',
         'Doom\'s Command costs 1 Taijutsu and 1 Ninjutsu and can only be used while a Doombot is active. Doom destroys the Doombot to deal 25 damage to all enemies and stun them for 1 turn.'
+    ),
+    skillShowcase(
+        'aquaman',
+        'aquaman-tidal-wave',
+        'Tidal Wave now costs 1 Ninjutsu and 2 Random energy.'
+    ),
+    skillShowcase(
+        'aquaman',
+        'aquaman-sea-sharks',
+        'Sea Sharks now deals 3 piercing damage each turn for 4 turns instead of dealing 4 piercing damage permanently.'
+    ),
+    skillShowcase(
+        'the-joker',
+        'the-joker-hand-buzzer',
+        'Hand Buzzer now costs 1 Random energy.'
+    ),
+    skillShowcase(
+        'the-joker',
+        'the-joker-acid-flower',
+        'Acid Flower now deals 8 permanent affliction damage instead of 12.'
+    ),
+    skillShowcase(
+        'wolverine',
+        'wolverine-adamantium-claws',
+        'Adamantium Claws now applies 1 permanent bleed damage per stack instead of 2.'
+    ),
+    skillShowcase(
+        'scorpion',
+        'scorpion-scorpion-sting',
+        'Scorpion Sting now has a 1-turn cooldown.'
+    ),
+    skillShowcase(
+        'rage-infected',
+        'rage-infected-blood-vomit',
+        'Blood Vomit now deals 20 bleed damage each turn, up from 15.'
+    ),
+    skillShowcase(
+        'rage-infected',
+        'rage-infected-relentless-pursuit',
+        'Relentless Pursuit now lasts 4 turns and makes Rage Infected take 5 additional non-affliction damage from enemy skills instead of 10.'
+    ),
+    skillShowcase(
+        'angstrom-levy',
+        'angstrom-levy-spy-drones',
+        'Spy Drones now costs 1 Bloodline energy only.'
+    ),
+    skillShowcase(
+        'angstrom-levy',
+        'angstrom-levy-multi-dimensional-rifts',
+        'Multi-Dimensional Rifts now costs 2 Taijutsu energy only.'
+    ),
+    skillShowcase(
+        'mysterio',
+        'mysterio-script-rewrite',
+        'Script Rewrite now has no cooldown and directly increases one enemy\'s cooldowns by 2 instead of triggering when they use a harmful skill.'
     ),
 ];
 

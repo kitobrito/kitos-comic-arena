@@ -304,7 +304,7 @@
               <button class="role-tab" data-role="tank">Tank</button>
               <button class="role-tab" data-role="damage">Damage</button>
               <button class="role-tab" data-role="support">Support</button>
-              <button class="role-tab" data-role="strategic">Strategic</button>
+              <button class="role-tab" data-role="controller">Controller</button>
               <button class="role-tab" data-role="hybrid">Hybrid</button>
               <button class="role-tab" data-role="assassin">Assassin</button>
               <button class="role-tab" data-role="bruiser">Bruiser</button>
@@ -477,8 +477,14 @@
         return role || "None";
       }
 
+      function normalizeRoleCategory(category) {
+        var value = typeof category === "string" ? category.trim().toLowerCase() : "";
+        if (value === "control" || value === "strategic" || value === "disruptor") return "controller";
+        return value;
+      }
+
       function getCharacterRoleCategory(character) {
-        var category = character && typeof character.roleCategory === "string" ? character.roleCategory.trim().toLowerCase() : "";
+        var category = normalizeRoleCategory(character && typeof character.roleCategory === "string" ? character.roleCategory : "");
         if (category) {
           return category;
         }
@@ -488,7 +494,7 @@
         if (role.indexOf("assassin") !== -1 || role.indexOf("execution") !== -1) return "assassin";
         if (role.indexOf("bruiser") !== -1 || role.indexOf("brawler") !== -1 || role.indexOf("beserker") !== -1 || role.indexOf("berserker") !== -1) return "bruiser";
         if (role.indexOf("hybrid") !== -1) return "hybrid";
-        if (role.indexOf("disrupt") !== -1 || role.indexOf("control") !== -1 || role.indexOf("trickster") !== -1 || role.indexOf("remover") !== -1) return "strategic";
+        if (role.indexOf("controller") !== -1 || role.indexOf("disrupt") !== -1 || role.indexOf("control") !== -1 || role.indexOf("trickster") !== -1 || role.indexOf("remover") !== -1) return "controller";
         if (role.indexOf("specialist") !== -1 || role.indexOf("punisher") !== -1) return "specialist";
         if (role.indexOf("dps") !== -1 || role.indexOf("damage") !== -1 || role.indexOf("carry") !== -1 || role.indexOf("mage") !== -1) return "damage";
         return "specialist";

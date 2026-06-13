@@ -10173,8 +10173,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     const labelEnergyFilterSignature = (signature = '') =>
         signature === 'none' ? 'No Cost' : signature.split('+').map(labelEnergyFilterKey).join(' + ');
 
+    const normalizeSelectionRoleCategory = (category = '') => {
+        const value = String(category || '').trim().toLowerCase();
+        if (value === 'control' || value === 'strategic' || value === 'disruptor') return 'controller';
+        return value;
+    };
+
     const getSelectionRoleCategory = (character) => {
-        const category = typeof character?.roleCategory === 'string' ? character.roleCategory.trim().toLowerCase() : '';
+        const category = normalizeSelectionRoleCategory(
+            typeof character?.roleCategory === 'string' ? character.roleCategory : ''
+        );
         if (category) return category;
         const role = getSelectionCharacterRole(character).toLowerCase();
         if (role.includes('tank') || role.includes('juggernaut')) return 'tank';
@@ -10182,7 +10190,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (role.includes('assassin') || role.includes('execution')) return 'assassin';
         if (role.includes('bruiser') || role.includes('brawler') || role.includes('beserker') || role.includes('berserker')) return 'bruiser';
         if (role.includes('hybrid')) return 'hybrid';
-        if (role.includes('disrupt') || role.includes('control') || role.includes('trickster') || role.includes('remover')) return 'strategic';
+        if (
+            role.includes('controller') ||
+            role.includes('disrupt') ||
+            role.includes('control') ||
+            role.includes('trickster') ||
+            role.includes('remover')
+        ) {
+            return 'controller';
+        }
         if (role.includes('specialist') || role.includes('punisher')) return 'specialist';
         if (role.includes('dps') || role.includes('damage') || role.includes('carry') || role.includes('mage')) return 'damage';
         return 'specialist';
@@ -10712,7 +10728,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             ['tank', 'Tank'],
             ['damage', 'Damage'],
             ['support', 'Support'],
-            ['strategic', 'Strategic'],
+            ['controller', 'Controller'],
             ['hybrid', 'Hybrid'],
             ['assassin', 'Assassin'],
             ['bruiser', 'Bruiser'],

@@ -4,7 +4,7 @@ const characters = [
         "characterId": "iron-man",
         "name": "Iron Man",
         "facePicture": "https://i.imgur.com/rt5r1bu.png",
-        "characterdeescription": "Iron Man serves as a versatile control damage dealer, applying sustained pressure with energy-based attacks while adapting his suit mid-battle. Through Armor Upgrade, he evolves into a stronger form, gaining access to devastating abilities like Proton Cannon and Energy Burst. While his damage can be interrupted, Iron Man excels when protected, using mobility and precision to control the flow of combat and support his team.",
+        "characterdeescription": "Tony Stark turns genius, ego, and impossible engineering into a weaponized suit of armor. With repulsor systems, overcharged reactors, and battlefield upgrades, Iron Man adapts mid-fight and turns technology into survival.",
         "skills": [
             {
                 "id": "iron-man-repulsor-blast",
@@ -292,7 +292,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Hybrid DPS",
+        "role": "Hybrid",
         "roleCategory": "hybrid",
         "universe": "marvel"
     },
@@ -341,7 +341,7 @@ const characters = [
                 }
             }
         ],
-        "characterdeescription": "Agile, reactive, and relentlessly disruptive, Spider-Man excels at controlling the flow of battle through precision and timing. Rather than overpowering enemies, he weakens them—restricting their options, increasing their costs, and punishing every misstep. With abilities that hinder enemy actions and amplify his own evasiveness, Spider-Man thrives in drawn-out encounters where his Spider Senses can fully take over.",
+        "characterdeescription": "Bitten by a radioactive spider, Peter Parker carries great power with a conscience that never lets him look away. Spider-Man uses webbing, reflexes, and quick thinking to protect his allies while keeping enemies off balance.",
         "skills": [
             {
                 "id": "spider-man-spider-strike",
@@ -573,8 +573,8 @@ const characters = [
                 ]
             }
         ],
-        "role": "Evasion Disruptor",
-        "roleCategory": "strategic",
+        "role": "Controller",
+        "roleCategory": "controller",
         "universe": "marvel"
     },
     {
@@ -586,9 +586,9 @@ const characters = [
         "url": "https://i.imgur.com/SIkUVer.jpeg",
         "unlockRequirement": "None",
         "unlockRequirementHtml": "None",
-        "characterdeescription": "Bruce Banner lives a life caught between the soft-spoken scientist he's always been and the uncontrollable green monster powered by his rage. Exposed to heavy doses of gamma radiation, scientist Bruce Banner transforms into the mean, green rage machine called the Hulk.",
-        "description": "Bruce Banner lives a life caught between the soft-spoken scientist he's always been and the uncontrollable green monster powered by his rage. Exposed to heavy doses of gamma radiation, scientist Bruce Banner transforms into the mean, green rage machine called the Hulk.",
-        "descriptionHtml": "Bruce Banner lives a life caught between the soft-spoken scientist he's always been and the uncontrollable green monster powered by his rage.<br>Exposed to heavy doses of gamma radiation, scientist Bruce Banner transforms into the mean, green rage machine called the Hulk.",
+        "characterdeescription": "Bruce Banner's gamma curse turns fear and anger into the unstoppable force called the Hulk. The more punishment Hulk takes, the more his rage breaks through, leaving enemies to face raw strength they cannot contain.",
+        "description": "Bruce Banner's gamma curse turns fear and anger into the unstoppable force called the Hulk. The more punishment Hulk takes, the more his rage breaks through, leaving enemies to face raw strength they cannot contain.",
+        "descriptionHtml": "Bruce Banner's gamma curse turns fear and anger into the unstoppable force called the Hulk. The more punishment Hulk takes, the more his rage breaks through, leaving enemies to face raw strength they cannot contain.",
         "startStatuses": [
             {
                 "statusId": "hulk_anger_management",
@@ -977,7 +977,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Juggernaut",
+        "role": "Tank",
         "roleCategory": "tank",
         "universe": "marvel"
     },
@@ -986,7 +986,7 @@ const characters = [
         "characterId": "captain-america",
         "name": "Captain America",
         "facePicture": "https://i.imgur.com/7j5pcra.jpeg",
-        "characterdeescription": "Captain America serves as a disciplined frontline protector who excels at controlling the pace of battle through precise, well-timed defensive plays. Rather than building long-term power, he focuses on creating short windows of advantage that allow his team to safely pressure the enemy. His abilities provide a versatile mix of disruption and protection—silencing key threats, forcing enemies to target him, and reducing incoming damage at critical moments. With low cooldowns across his kit, he can consistently adapt to the flow of combat and respond to enemy actions in real time.",
+        "characterdeescription": "Steve Rogers carries the ideals of a soldier who refused to stay down, even before the serum made him strong. With his vibranium shield and steady command, Captain America protects his team and turns courage into a weapon.",
         "startStatuses": [
             {
                 "statusId": "captain_america_america_shield_passive",
@@ -1260,7 +1260,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Protection Tank",
+        "role": "Tank",
         "roleCategory": "tank",
         "universe": "marvel"
     },
@@ -1281,7 +1281,7 @@ const characters = [
                 }
             }
         ],
-        "characterdeescription": "Superman plays as a tempo enforcer—opening fights with debilitating control like Frost Breath, then following with consistent, unavoidable damage from Laser Eyes and Solar Flare to wear down entire teams. His Man of Steel passive anchors everything, giving him the durability to stay aggressive longer than most damage dealers",
+        "characterdeescription": "Born on Krypton and raised in Kansas, Clark Kent stands between Earth and anything that threatens it. Superman channels solar power through impossible strength, frost breath, and heat vision while his compassion keeps him grounded.",
         "skills": [
             {
                 "id": "superman-laser-eyes",
@@ -1565,7 +1565,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Battle Mage",
+        "role": "Damage",
         "roleCategory": "damage",
         "universe": "dc"
     },
@@ -1593,7 +1593,7 @@ const characters = [
                 }
             }
         ],
-        "characterdeescription": "Batman is a master tactician who controls the battlefield with gadgets, evasive maneuvers, and precision strikes. Using advanced technology and relentless preparation, he can disrupt enemy teams, reflect attacks, and pressure opponents with bursts of damage. Batman excels at manipulating enemy positioning and punishing careless aggression, making him a highly adaptable fighter who thrives when staying one step ahead.",
+        "characterdeescription": "Bruce Wayne forged grief into discipline and became Gotham's shadow. Through preparation, fear, and a vault of specialized gadgets, Batman dismantles stronger enemies before they understand the trap around them.",
         "skills": [
             {
                 "id": "batman-explosive-batarangs",
@@ -2033,8 +2033,8 @@ const characters = [
                 ]
             }
         ],
-        "role": "Gadget Disruptor",
-        "roleCategory": "strategic",
+        "role": "Controller",
+        "roleCategory": "controller",
         "universe": "dc"
     },
     {
@@ -2042,7 +2042,7 @@ const characters = [
         "characterId": "the-flash-barry-allen",
         "name": "The Flash (Barry Allen)",
         "facePicture": "https://i.imgur.com/hYpELKX.jpeg",
-        "characterdeescription": "The Flash dominates the pace of battle through unmatched speed and relentless momentum. Rather than relying on raw durability, he overwhelms opponents by acting faster, striking repeatedly, and disrupting their ability to keep up. His abilities create rapid pressure windows, forcing enemies into reactive play while he dictates the flow of combat. With tools that accelerate his own actions and interfere with enemy timing, The Flash thrives in fast-paced encounters where every second matters. He can evade danger, reset momentum, and enable his team to act more efficiently, turning brief openings into decisive advantages.",
+        "characterdeescription": "Barry Allen taps into the Speed Force and moves faster than the world can follow. The Flash turns momentum into rescue, disruption, and sudden strikes that leave enemies trying to react to a blur.",
         "skills": [
             {
                 "id": "the-flash-barry-allen-infinite-mass-punch",
@@ -2359,7 +2359,7 @@ const characters = [
                 "classesHtml": "Physical, Melee, Instant, Bypassing, Uncounterable, Unreflectable"
             }
         ],
-        "role": "Tempo DPS",
+        "role": "Damage",
         "roleCategory": "damage",
         "universe": "dc"
     },
@@ -2372,9 +2372,9 @@ const characters = [
         "url": "https://i.imgur.com/ZAAWc5G.jpeg",
         "unlockRequirement": "None",
         "unlockRequirementHtml": "None",
-        "characterdeescription": "A battle-hardened warrior from Themyscira, Wonder Woman leads the charge with unmatched strength and strategy. On any team, she serves as the frontline powerhouse, able to dish out heavy damage while shielding allies from harm. Her spear and combat prowess allow her to strike key targets relentlessly, while her Lasso of Truth can neutralize the enemy's biggest threats.",
-        "description": "A battle-hardened warrior from Themyscira, Wonder Woman leads the charge with unmatched strength and strategy. On any team, she serves as the frontline powerhouse, able to dish out heavy damage while shielding allies from harm. Her spear and combat prowess allow her to strike key targets relentlessly, while her Lasso of Truth can neutralize the enemy's biggest threats.",
-        "descriptionHtml": "A battle-hardened warrior from Themyscira, Wonder Woman leads the charge with unmatched strength and strategy.<br>On any team, she serves as the frontline powerhouse, able to dish out heavy damage while shielding allies from harm.<br>Her spear and combat prowess allow her to strike key targets relentlessly, while her Lasso of Truth can neutralize the enemy's biggest threats.",
+        "characterdeescription": "Diana of Themyscira enters battle as an Amazon champion blessed by gods and hardened by war. With divine weapons, fearless resolve, and the Lasso of Truth, Wonder Woman shields allies while forcing enemies to face her strength.",
+        "description": "Diana of Themyscira enters battle as an Amazon champion blessed by gods and hardened by war. With divine weapons, fearless resolve, and the Lasso of Truth, Wonder Woman shields allies while forcing enemies to face her strength.",
+        "descriptionHtml": "Diana of Themyscira enters battle as an Amazon champion blessed by gods and hardened by war. With divine weapons, fearless resolve, and the Lasso of Truth, Wonder Woman shields allies while forcing enemies to face her strength.",
         "skills": [
             {
                 "id": "wonder-woman-spear-thrust",
@@ -2608,7 +2608,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Frontline Bruiser",
+        "role": "Bruiser",
         "roleCategory": "bruiser",
         "universe": "dc"
     },
@@ -2617,277 +2617,274 @@ const characters = [
         "characterId": "aquaman",
         "name": "Aquaman",
         "facePicture": "https://i.imgur.com/76Svd5q.jpeg",
-        "characterdeescription": "Ruler of Atlantis and master of the oceans, Aquaman dominates the battlefield through relentless pressure and crushing tidal control. Wielding his legendary trident, he marks enemies for punishment, drags them beneath the waves, and unleashes swarms of sea creatures to finish them off. Whether shielding himself with rushing currents or drowning foes in mounting afflictions, Aquaman excels at overwhelming teams that rely on defense or invulnerability.",
+        "characterdeescription": "Arthur Curry rules Atlantis with a king's burden and the fury of the deep. Armed with his trident and command over ocean life, Aquaman drags enemies into tides, teeth, and pressure they cannot escape.",
         "skills": [
             {
-                "id": "aquaman-trident-strike",
-                "name": "Trident Strike",
-                "skillimage": "https://i.imgur.com/fvvaagh.jpeg",
-                "skilldescription": "Aquaman strikes one enemy with his trident, dealing 24 damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn. If the target is affected by Tidal Wave, they are given a stack of Sea Sharks.",
-                "description": "Aquaman strikes one enemy with his trident, dealing 24 damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn. If the target is affected by Tidal Wave, they are given a stack of Sea Sharks.",
-                "descriptionHtml": "Aquaman strikes one enemy with his trident, dealing 24 damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn.<br>If the target is affected by Tidal Wave, they are given a stack of Sea Sharks.",
-                "energy": [
+          "id": "aquaman-trident-strike",
+          "name": "Trident Strike",
+          "skillimage": "https://i.imgur.com/fvvaagh.jpeg",
+          "skilldescription": "Aquaman strikes one enemy with his trident, dealing 24 damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn. If the target is affected by Tidal Wave, they are given a stack of Sea Sharks.",
+          "description": "Aquaman strikes one enemy with his trident, dealing 24 damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn. If the target is affected by Tidal Wave, they are given a stack of Sea Sharks.",
+          "descriptionHtml": "Aquaman strikes one enemy with his trident, dealing 24 damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn.<br>If the target is affected by Tidal Wave, they are given a stack of Sea Sharks.",
+          "energy": [
                     "Taijutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
+          ],
+          "target": "single-enemy",
+          "damage": 0,
+          "cooldown": 0,
+          "classes": [
                     "Physical",
                     "Melee",
                     "Instant"
-                ],
-                "effects": [
+          ],
+          "effects": [
                     {
-                        "type": "damage",
-                        "amount": 24,
-                        "scope": "target",
-                        "metadata": {}
+                              "type": "damage",
+                              "amount": 24,
+                              "scope": "target",
+                              "metadata": {}
                     },
                     {
-                        "type": "apply_status",
-                        "statusId": "aquaman_trident_strike_mark",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "skipFirstTurnEndTick": true,
-                            "statusTurnEndDamageBonus": {
-                                "aquaman_sea_sharks": {
-                                    "flatPerStack": 5,
-                                    "stackValue": 4
-                                }
-                            },
-                            "tooltipText": "This character is marked by Trident Strike and takes 5 bonus damage from each stack of Sea Sharks."
-                        }
+                              "type": "apply_status",
+                              "statusId": "aquaman_trident_strike_mark",
+                              "duration": 1,
+                              "scope": "target",
+                              "metadata": {
+                                        "harmful": true,
+                                        "skipFirstTurnEndTick": true,
+                                        "statusTurnEndDamageBonus": {
+                                                  "aquaman_sea_sharks": {
+                                                            "flatPerStack": 5,
+                                                            "stackValue": 4
+                                                  }
+                                        },
+                                        "tooltipText": "This character is marked by Trident Strike and takes 5 bonus damage from each stack of Sea Sharks."
+                              }
                     },
                     {
-                        "type": "apply_status",
-                        "statusId": "aquaman_sea_sharks",
-                        "sourceSkillId": "aquaman-sea-sharks",
-                        "duration": 99,
-                        "scope": "target",
-                        "condition": {
-                            "statusId": "aquaman_tidal_wave",
-                            "scope": "target"
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "turnEndDamage": 4,
-                            "ignoreTargetDamageReduction": true,
-                            "turnEndTrigger": "source_turn",
-                            "turnDurationAnchor": "source_turn",
-                            "triggerOnApply": true,
-                            "mergeNumericAddKeys": [
-                                "turnEndDamage"
-                            ],
-                            "tooltipTextTemplate": "This character takes {turnEndDamage} piercing damage each turn from Sea Sharks."
-                        }
+                              "type": "apply_status",
+                              "statusId": "aquaman_sea_sharks",
+                              "sourceSkillId": "aquaman-sea-sharks",
+                              "duration": 4,
+                              "scope": "target",
+                              "condition": {
+                                        "statusId": "aquaman_tidal_wave",
+                                        "scope": "target"
+                              },
+                              "metadata": {
+                                        "harmful": true,
+                                        "turnEndDamage": 3,
+                                        "ignoreTargetDamageReduction": true,
+                                        "turnEndTrigger": "source_turn",
+                                        "turnDurationAnchor": "source_turn",
+                                        "triggerOnApply": true,
+                                        "mergeNumericAddKeys": [
+                                                  "turnEndDamage"
+                                        ],
+                                        "tooltipTextTemplate": "This character takes {turnEndDamage} piercing damage each turn from Sea Sharks."
+                              }
                     }
-                ]
-            },
+          ]
+},
             {
-                "id": "aquaman-drown",
-                "name": "Drown",
-                "skillimage": "https://i.imgur.com/Quiv9Wj.jpeg",
-                "skilldescription": "Aquaman forces one enemy's head underwater, removing 1 random energy from them and dealing 20 affliction damage. If they are marked by 'Trident Strike' or affected by 'Tidal Wave', they are given a stack of 'Sea Sharks'.",
-                "description": "Aquaman forces one enemy's head underwater, removing 1 random energy from them and dealing 20 affliction damage. If they are marked by 'Trident Strike' or affected by 'Tidal Wave', they are given a stack of 'Sea Sharks'.",
-                "descriptionHtml": "Aquaman forces one enemy's head underwater, removing 1 random energy from them and dealing 20 affliction damage.<br>If they are marked by 'Trident Strike' or affected by 'Tidal Wave', they are given a stack of 'Sea Sharks'.",
-                "energy": [
+          "id": "aquaman-drown",
+          "name": "Drown",
+          "skillimage": "https://i.imgur.com/Quiv9Wj.jpeg",
+          "skilldescription": "Aquaman forces one enemy's head underwater, removing 1 random energy from them and dealing 20 affliction damage. If they are marked by 'Trident Strike' or affected by 'Tidal Wave', they are given a stack of 'Sea Sharks'.",
+          "description": "Aquaman forces one enemy's head underwater, removing 1 random energy from them and dealing 20 affliction damage. If they are marked by 'Trident Strike' or affected by 'Tidal Wave', they are given a stack of 'Sea Sharks'.",
+          "descriptionHtml": "Aquaman forces one enemy's head underwater, removing 1 random energy from them and dealing 20 affliction damage.<br>If they are marked by 'Trident Strike' or affected by 'Tidal Wave', they are given a stack of 'Sea Sharks'.",
+          "energy": [
                     "Ninjutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
+          ],
+          "target": "single-enemy",
+          "damage": 0,
+          "cooldown": 1,
+          "classes": [
                     "Physical",
                     "Melee",
                     "Instant",
                     "Affliction"
-                ],
-                "effects": [
+          ],
+          "effects": [
                     {
-                        "type": "remove_random_chakra",
-                        "amount": 1,
-                        "scope": "target"
+                              "type": "remove_random_chakra",
+                              "amount": 1,
+                              "scope": "target"
                     },
                     {
-                        "type": "damage",
-                        "amount": 20,
-                        "scope": "target",
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
-                        }
+                              "type": "damage",
+                              "amount": 20,
+                              "scope": "target",
+                              "metadata": {
+                                        "afflictionDamage": true,
+                                        "ignoreDamageReduction": true,
+                                        "ignoreDestructibleDefense": true
+                              }
                     },
                     {
-                        "type": "apply_status",
-                        "statusId": "aquaman_sea_sharks",
-                        "sourceSkillId": "aquaman-sea-sharks",
-                        "duration": 99,
-                        "scope": "target",
-                        "condition": {
-                            "statusId": "aquaman_trident_strike_mark",
-                            "scope": "target"
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "turnEndDamage": 4,
-                            "ignoreTargetDamageReduction": true,
-                            "turnEndTrigger": "source_turn",
-                            "turnDurationAnchor": "source_turn",
-                            "triggerOnApply": true,
-                            "mergeNumericAddKeys": [
-                                "turnEndDamage"
-                            ],
-                            "tooltipTextTemplate": "This character takes {turnEndDamage} piercing damage each turn from Sea Sharks."
-                        }
+                              "type": "apply_status",
+                              "statusId": "aquaman_sea_sharks",
+                              "sourceSkillId": "aquaman-sea-sharks",
+                              "duration": 4,
+                              "scope": "target",
+                              "condition": {
+                                        "statusId": "aquaman_trident_strike_mark",
+                                        "scope": "target"
+                              },
+                              "metadata": {
+                                        "harmful": true,
+                                        "turnEndDamage": 3,
+                                        "ignoreTargetDamageReduction": true,
+                                        "turnEndTrigger": "source_turn",
+                                        "turnDurationAnchor": "source_turn",
+                                        "triggerOnApply": true,
+                                        "mergeNumericAddKeys": [
+                                                  "turnEndDamage"
+                                        ],
+                                        "tooltipTextTemplate": "This character takes {turnEndDamage} piercing damage each turn from Sea Sharks."
+                              }
                     },
                     {
-                        "type": "apply_status",
-                        "statusId": "aquaman_sea_sharks",
-                        "sourceSkillId": "aquaman-sea-sharks",
-                        "duration": 99,
-                        "scope": "target",
-                        "condition": {
-                            "statusId": "aquaman_tidal_wave",
-                            "scope": "target"
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "turnEndDamage": 4,
-                            "ignoreTargetDamageReduction": true,
-                            "turnEndTrigger": "source_turn",
-                            "turnDurationAnchor": "source_turn",
-                            "triggerOnApply": true,
-                            "mergeNumericAddKeys": [
-                                "turnEndDamage"
-                            ],
-                            "tooltipTextTemplate": "This character takes {turnEndDamage} piercing damage each turn from Sea Sharks."
-                        }
+                              "type": "apply_status",
+                              "statusId": "aquaman_sea_sharks",
+                              "sourceSkillId": "aquaman-sea-sharks",
+                              "duration": 4,
+                              "scope": "target",
+                              "condition": {
+                                        "statusId": "aquaman_tidal_wave",
+                                        "scope": "target"
+                              },
+                              "metadata": {
+                                        "harmful": true,
+                                        "turnEndDamage": 3,
+                                        "ignoreTargetDamageReduction": true,
+                                        "turnEndTrigger": "source_turn",
+                                        "turnDurationAnchor": "source_turn",
+                                        "triggerOnApply": true,
+                                        "mergeNumericAddKeys": [
+                                                  "turnEndDamage"
+                                        ],
+                                        "tooltipTextTemplate": "This character takes {turnEndDamage} piercing damage each turn from Sea Sharks."
+                              }
                     }
-                ]
-            },
+          ]
+},
             {
-                "id": "aquaman-tidal-wave",
-                "name": "Tidal Wave",
-                "skillimage": "https://i.imgur.com/CaFUaKo.jpeg",
-                "skilldescription": "For 2 turns, the enemy team cannot reduce damage or become invulnerable, their cooldowns are increased by 1, their skills cost 1 additional random energy, and they take 15 damage each turn. If Aquaman uses Trident Strike or Drown on an enemy affected by this skill, they are given a stack of Sea Sharks.",
-                "description": "For 2 turns, the enemy team cannot reduce damage or become invulnerable, their cooldowns are increased by 1, their skills cost 1 additional random energy, and they take 15 damage each turn. If Aquaman uses Trident Strike or Drown on an enemy affected by this skill, they are given a stack of Sea Sharks.",
-                "descriptionHtml": "For 2 turns, the enemy team cannot reduce damage or become invulnerable, their cooldowns are increased by 1, their skills cost 1 additional random energy, and they take 15 damage each turn.<br>If Aquaman uses Trident Strike or Drown on an enemy affected by this skill, they are given a stack of Sea Sharks.",
-                "energy": [
+          "id": "aquaman-tidal-wave",
+          "name": "Tidal Wave",
+          "skillimage": "https://i.imgur.com/CaFUaKo.jpeg",
+          "skilldescription": "For 2 turns, the enemy team cannot reduce damage or become invulnerable, their cooldowns are increased by 1, their skills cost 1 additional random energy, and they take 15 damage each turn. If Aquaman uses Trident Strike or Drown on an enemy affected by this skill, they are given a stack of Sea Sharks.",
+          "description": "For 2 turns, the enemy team cannot reduce damage or become invulnerable, their cooldowns are increased by 1, their skills cost 1 additional random energy, and they take 15 damage each turn. If Aquaman uses Trident Strike or Drown on an enemy affected by this skill, they are given a stack of Sea Sharks.",
+          "descriptionHtml": "For 2 turns, the enemy team cannot reduce damage or become invulnerable, their cooldowns are increased by 1, their skills cost 1 additional random energy, and they take 15 damage each turn.<br>If Aquaman uses Trident Strike or Drown on an enemy affected by this skill, they are given a stack of Sea Sharks.",
+          "energy": [
                     "Ninjutsu",
-                    "Ninjutsu"
-                ],
-                "target": "all-enemy",
-                "damage": 0,
-                "cooldown": 4,
-                "classes": [
-                    "Physical",
-                    "Ranged",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "aquaman_tidal_wave_cost_increase",
-                        "duration": 2,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "randomCostIncrease": 1,
-                            "tooltipText": "This character's skills cost 1 additional random energy from Tidal Wave."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "aquaman_tidal_wave",
-                        "duration": 2,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "cannotReduceDamage": true,
-                            "cannotBecomeInvulnerable": true,
-                            "usedSkillCooldownPenalty": 1,
-                            "turnEndDamage": 15,
-                            "triggerOnApply": true,
-                            "turnEndTrigger": "source_turn",
-                            "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character cannot reduce damage or become invulnerable, their used skill cooldowns are increased by 1, and they take 15 damage each turn from Tidal Wave."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "aquaman-water-jet",
-                "name": "Water Jet",
-                "skillimage": "https://i.imgur.com/0NmOe89.jpeg",
-                "skilldescription": "This skill makes Aquaman invulnerable for 1 turn and grants all enemies a stack of 'Sea Sharks'.",
-                "energy": [
+                    "Random",
                     "Random"
-                ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 5,
-                "classes": [
+          ],
+          "target": "all-enemy",
+          "damage": 0,
+          "cooldown": 4,
+          "classes": [
                     "Physical",
                     "Ranged",
                     "Instant"
-                ],
-                "effects": [
+          ],
+          "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "aquaman_water_jet_invulnerable",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "invulnerable": true,
-                            "tooltipText": "This character is invulnerable."
-                        }
+                              "type": "apply_status",
+                              "statusId": "aquaman_tidal_wave_cost_increase",
+                              "duration": 2,
+                              "scope": "all-enemy",
+                              "metadata": {
+                                        "harmful": true,
+                                        "randomCostIncrease": 1,
+                                        "tooltipText": "This character's skills cost 1 additional random energy from Tidal Wave."
+                              }
                     },
                     {
-                        "type": "apply_status",
-                        "statusId": "aquaman_sea_sharks",
-                        "sourceSkillId": "aquaman-sea-sharks",
-                        "duration": 99,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "turnEndDamage": 4,
-                            "ignoreTargetDamageReduction": true,
-                            "turnEndTrigger": "source_turn",
-                            "turnDurationAnchor": "source_turn",
-                            "triggerOnApply": true,
-                            "mergeNumericAddKeys": [
-                                "turnEndDamage"
-                            ],
-                            "tooltipTextTemplate": "This character takes {turnEndDamage} piercing damage each turn from Sea Sharks."
-                        }
+                              "type": "apply_status",
+                              "statusId": "aquaman_tidal_wave",
+                              "duration": 2,
+                              "scope": "all-enemy",
+                              "metadata": {
+                                        "harmful": true,
+                                        "cannotReduceDamage": true,
+                                        "cannotBecomeInvulnerable": true,
+                                        "usedSkillCooldownPenalty": 1,
+                                        "turnEndDamage": 15,
+                                        "triggerOnApply": true,
+                                        "turnEndTrigger": "source_turn",
+                                        "turnDurationAnchor": "source_turn",
+                                        "tooltipText": "This character cannot reduce damage or become invulnerable, their used skill cooldowns are increased by 1, and they take 15 damage each turn from Tidal Wave."
+                              }
                     }
-                ]
-            },
+          ]
+},
             {
-                "id": "aquaman-sea-sharks",
-                "name": "Sea Sharks",
-                "skillimage": "https://i.imgur.com/38s3F0Z.jpeg",
-                "skilldescription": "Deals 4 piercing damage permanently (stacks).",
-                "energy": [],
-                "target": "",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
+          "id": "aquaman-water-jet",
+          "name": "Water Jet",
+          "skillimage": "https://i.imgur.com/0NmOe89.jpeg",
+          "skilldescription": "This skill makes Aquaman invulnerable for 1 turn and grants all enemies a stack of 'Sea Sharks'.",
+          "energy": [
+                    "Random"
+          ],
+          "target": "self",
+          "damage": 0,
+          "cooldown": 5,
+          "classes": [
                     "Physical",
                     "Ranged",
                     "Instant"
-                ]
-            }
+          ],
+          "effects": [
+                    {
+                              "type": "apply_status",
+                              "statusId": "aquaman_water_jet_invulnerable",
+                              "duration": 1,
+                              "scope": "self",
+                              "metadata": {
+                                        "invulnerable": true,
+                                        "tooltipText": "This character is invulnerable."
+                              }
+                    },
+                    {
+                              "type": "apply_status",
+                              "statusId": "aquaman_sea_sharks",
+                              "sourceSkillId": "aquaman-sea-sharks",
+                              "duration": 4,
+                              "scope": "all-enemy",
+                              "metadata": {
+                                        "harmful": true,
+                                        "turnEndDamage": 3,
+                                        "ignoreTargetDamageReduction": true,
+                                        "turnEndTrigger": "source_turn",
+                                        "turnDurationAnchor": "source_turn",
+                                        "triggerOnApply": true,
+                                        "mergeNumericAddKeys": [
+                                                  "turnEndDamage"
+                                        ],
+                                        "tooltipTextTemplate": "This character takes {turnEndDamage} piercing damage each turn from Sea Sharks."
+                              }
+                    }
+          ]
+},
+            {
+          "id": "aquaman-sea-sharks",
+          "name": "Sea Sharks",
+          "skillimage": "https://i.imgur.com/38s3F0Z.jpeg",
+          "skilldescription": "Deals 3 piercing damage each turn for 4 turns (stacks).",
+          "energy": [],
+          "target": "",
+          "damage": 0,
+          "cooldown": 0,
+          "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+          ]
+}
         ],
-        "role": "Anti-Tank",
+        "role": "Bruiser",
         "roleCategory": "bruiser",
         "universe": "dc"
     },
@@ -2896,7 +2893,7 @@ const characters = [
         "characterId": "storm",
         "name": "Storm",
         "facePicture": "https://i.imgur.com/5v5AXWu.png",
-        "characterdeescription": "Storm is a support-controller who heals allies over time, removes harmful effects, and disrupts enemy actions. Her abilities reward smart timing and positioning, allowing her to sustain her team while limiting enemy options.",
+        "characterdeescription": "Ororo Munroe carries the sky in her blood and the poise of a queen. Storm bends wind, rain, lightning, and hail to shield her allies, cleanse danger, and punish enemies who challenge the weather itself.",
         "skills": [
             {
                 "id": "storm-lightning-strike",
@@ -3237,7 +3234,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Heal Support",
+        "role": "Support",
         "roleCategory": "support",
         "universe": "marvel"
     },
@@ -3246,7 +3243,7 @@ const characters = [
         "characterId": "venom",
         "name": "Venom",
         "facePicture": "https://i.imgur.com/T7RpFwn.png",
-        "characterdeescription": "Venom excels as a self-sustaining bruiser who draws aggression, disrupts enemies, and converts his own survival into team advantage. He thrives in the chaos of focus fire, feeding on damage to keep himself standing while forcing enemies to deal with him. His presence is oppressive but calculated—taunting teams into attacking him, isolating threats with precise control, and sustaining through relentless lifesteal. When the tide turns or his body begins to fail, Venom becomes something even more dangerous, sacrificing himself to empower an ally with overwhelming defense and energy. Whether anchoring the front line or enabling a decisive swing, he ensures that ignoring him is never an option—and killing him may be even worse.",
+        "characterdeescription": "Eddie Brock and the alien symbiote become Venom, a predator bound by hunger, rage, and twisted loyalty. Venom lashes out with tendrils, fangs, and living armor, forcing enemies to deal with a monster that refuses to die.",
         "skills": [
             {
                 "id": "venom-ravenous-bite",
@@ -3465,7 +3462,7 @@ const characters = [
                 }
             }
         ],
-        "role": "Sustain Tank",
+        "role": "Tank",
         "roleCategory": "tank",
         "universe": "marvel"
     },
@@ -3474,56 +3471,58 @@ const characters = [
         "characterId": "the-joker",
         "name": "The Joker",
         "facePicture": "https://i.imgur.com/kbaUc1f.png",
-        "characterdeescription": "The Joker specializes in destabilizing enemies through unpredictable traps, afflictions, and psychological pressure. Rather than overwhelming opponents with raw damage, he punishes decision-making itself—forcing enemies into lose-lose situations where every action carries risk. By planting hidden threats and disrupting key abilities, The Joker excels at dismantling coordinated strategies and isolating high-value targets. His toxins weaken offensive output over time, while his gadgets interrupt, silence, and invalidate enemy actions at critical moments. The longer a fight drags on, the more control he exerts, turning chaos into a weapon and forcing opponents to play on his terms.",
+        "characterdeescription": "The Joker turns Gotham's worst joke into a weapon no one can predict. With toxins, traps, bombs, and theatrical cruelty, he makes every enemy decision feel like part of a punchline only he understands.",
         "skills": [
             {
-                "id": "the-joker-hand-buzzer",
-                "name": "Hand Buzzer",
-                "skillimage": "https://i.imgur.com/t0AM8jf.png",
-                "skilldescription": "Deals 1 piercing damage to one enemy and stuns their harmful skills for 1 turn. Swaps to 'Acid Flower'.",
-                "energy": [],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
+          "id": "the-joker-hand-buzzer",
+          "name": "Hand Buzzer",
+          "skillimage": "https://i.imgur.com/t0AM8jf.png",
+          "skilldescription": "Deals 1 piercing damage to one enemy and stuns their harmful skills for 1 turn. Swaps to 'Acid Flower'.",
+          "energy": [
+                    "Random"
+          ],
+          "target": "single-enemy",
+          "damage": 0,
+          "cooldown": 0,
+          "classes": [
                     "Physical",
                     "Melee",
                     "Instant"
-                ],
-                "effects": [
+          ],
+          "effects": [
                     {
-                        "type": "damage",
-                        "amount": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
+                              "type": "damage",
+                              "amount": 1,
+                              "scope": "target",
+                              "metadata": {
+                                        "ignoreDamageReduction": true
+                              }
                     },
                     {
-                        "type": "apply_status",
-                        "statusId": "the_joker_hand_buzzer_lock",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "cannotUseHarmfulSkills": true,
-                            "tooltipText": "This character harmful skills are stunned."
-                        }
+                              "type": "apply_status",
+                              "statusId": "the_joker_hand_buzzer_lock",
+                              "duration": 1,
+                              "scope": "target",
+                              "metadata": {
+                                        "harmful": true,
+                                        "cannotUseHarmfulSkills": true,
+                                        "tooltipText": "This character harmful skills are stunned."
+                              }
                     },
                     {
-                        "type": "apply_status",
-                        "statusId": "the_joker_gag_cycle",
-                        "duration": 99,
-                        "scope": "self",
-                        "metadata": {
-                            "skillReplacements": {
-                                "the-joker-hand-buzzer": "the-joker-acid-flower"
-                            },
-                            "tooltipText": "Hand Buzzer is replaced by Acid Flower."
-                        }
+                              "type": "apply_status",
+                              "statusId": "the_joker_gag_cycle",
+                              "duration": 99,
+                              "scope": "self",
+                              "metadata": {
+                                        "skillReplacements": {
+                                                  "the-joker-hand-buzzer": "the-joker-acid-flower"
+                                        },
+                                        "tooltipText": "Hand Buzzer is replaced by Acid Flower."
+                              }
                     }
-                ]
-            },
+          ]
+},
             {
                 "id": "the-joker-crowbar",
                 "name": "Crowbar",
@@ -3641,68 +3640,68 @@ const characters = [
                 ]
             },
             {
-                "id": "the-joker-acid-flower",
-                "name": "Acid Flower",
-                "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/GIOcMgw.png",
-                "skilldescription": "Deals 12 affliction damage to one enemy permanently. For 1 turn, the target has their helpful skills stunned. Swaps to 'Chattering Teeth'.",
-                "energy": [
+          "id": "the-joker-acid-flower",
+          "name": "Acid Flower",
+          "useBaseSkillCooldown": true,
+          "skillimage": "https://i.imgur.com/GIOcMgw.png",
+          "skilldescription": "Deals 8 affliction damage to one enemy permanently. For 1 turn, the target has their helpful skills stunned. Swaps to 'Chattering Teeth'.",
+          "energy": [
                     "Genjutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
+          ],
+          "target": "single-enemy",
+          "damage": 0,
+          "cooldown": 0,
+          "classes": [
                     "Physical",
                     "Ranged",
                     "Instant",
                     "Affliction"
-                ],
-                "effects": [
+          ],
+          "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "the_joker_acid_flower_burn",
-                        "duration": 99,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "mergeNumericAddKeys": [
-                                "turnEndDamage"
-                            ],
-                            "turnEndDamage": 12,
-                            "afflictionDamage": true,
-                            "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
-                            "turnEndTrigger": "source_turn",
-                            "tooltipTextTemplate": "This character takes {turnEndDamage} permanent affliction damage each turn."
-                        }
+                              "type": "apply_status",
+                              "statusId": "the_joker_acid_flower_burn",
+                              "duration": 99,
+                              "scope": "target",
+                              "metadata": {
+                                        "harmful": true,
+                                        "infiniteDuration": true,
+                                        "mergeNumericAddKeys": [
+                                                  "turnEndDamage"
+                                        ],
+                                        "turnEndDamage": 8,
+                                        "afflictionDamage": true,
+                                        "ignoreTargetDamageReduction": true,
+                                        "ignoreTargetDestructibleDefense": true,
+                                        "turnEndTrigger": "source_turn",
+                                        "tooltipTextTemplate": "This character takes {turnEndDamage} permanent affliction damage each turn."
+                              }
                     },
                     {
-                        "type": "apply_status",
-                        "statusId": "the_joker_acid_flower_helpful_lock",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "cannotUseHelpfulSkills": true,
-                            "tooltipText": "This character helpful skills are stunned."
-                        }
+                              "type": "apply_status",
+                              "statusId": "the_joker_acid_flower_helpful_lock",
+                              "duration": 1,
+                              "scope": "target",
+                              "metadata": {
+                                        "harmful": true,
+                                        "cannotUseHelpfulSkills": true,
+                                        "tooltipText": "This character helpful skills are stunned."
+                              }
                     },
                     {
-                        "type": "apply_status",
-                        "statusId": "the_joker_gag_cycle",
-                        "duration": 99,
-                        "scope": "self",
-                        "metadata": {
-                            "skillReplacements": {
-                                "the-joker-hand-buzzer": "the-joker-chattering-teeth"
-                            },
-                            "tooltipText": "Hand Buzzer is replaced by Chattering Teeth."
-                        }
+                              "type": "apply_status",
+                              "statusId": "the_joker_gag_cycle",
+                              "duration": 99,
+                              "scope": "self",
+                              "metadata": {
+                                        "skillReplacements": {
+                                                  "the-joker-hand-buzzer": "the-joker-chattering-teeth"
+                                        },
+                                        "tooltipText": "Hand Buzzer is replaced by Chattering Teeth."
+                              }
                     }
-                ]
-            },
+          ]
+},
             {
                 "id": "the-joker-chattering-teeth",
                 "name": "Chattering Teeth",
@@ -3823,8 +3822,8 @@ const characters = [
                 ]
             }
         ],
-        "role": "Gadget Disruptor",
-        "roleCategory": "strategic",
+        "role": "Controller",
+        "roleCategory": "controller",
         "universe": "dc"
     },
     {
@@ -3832,7 +3831,7 @@ const characters = [
         "characterId": "negan",
         "name": "Negan",
         "facePicture": "https://i.imgur.com/SHLVdT9.jpeg",
-        "characterdeescription": "Negan excels at isolating and eliminating priority targets through relentless, no-nonsense pressure. He doesn’t overwhelm enemies with flashy bursts—he breaks them down, step by step, until they’re completely screwed and out of options. With abilities that apply sustained damage and shut down healing, Negan forces opponents into dangerous territory fast. Once a target is marked, they’re on borrowed time—and if they don’t deal with him quickly, they’re as good as dead. Negan thrives on punishing mistakes. One bad move, one wrong target, one moment of hesitation—and he’ll capitalize immediately, ending the fight before the enemy team can recover.",
+        "characterdeescription": "Negan rules through swagger, terror, and the barbed-wire bite of Lucille. He marks weakness with a grin, breaks resistance piece by piece, and makes every survivor understand the cost of crossing him.",
         "skills": [
             {
                 "id": "negan-you-re-already-fucked",
@@ -4058,7 +4057,7 @@ const characters = [
                 }
             }
         ],
-        "role": "Executioner",
+        "role": "Assassin",
         "roleCategory": "assassin",
         "universe": "image"
     },
@@ -4067,7 +4066,7 @@ const characters = [
         "characterId": "rick-grimes",
         "name": "Rick Grimes",
         "facePicture": "https://i.imgur.com/jJpqV3f.jpeg",
-        "characterdeescription": "A hardened survivor from a world overrun by the dead, Rick Grimes leads with grit, instinct, and relentless will. He excels as a precision damage dealer who balances risky shots with calculated setup and late-game sustain. A man forged in chaos, Rick walks the line between control and desperation—each bullet a gamble, each decision a fight to stay alive. When his aim is steady, enemies fall in an instant; when the odds turn against him, he adapts, enduring through sheer brutality and resolve. In the end, whether by skill or sheer luck, Rick is the one still standing.",
+        "characterdeescription": "Rick Grimes wakes into a dead world and keeps choosing the living, no matter what it costs him. With a revolver, a blade, and a leader's stubborn will, Rick survives by making the hard call before anyone else can.",
         "startStatuses": [
             {
                 "statusId": "rick_grimes_revolver_bullets",
@@ -4434,7 +4433,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "DPS",
+        "role": "Damage",
         "roleCategory": "damage",
         "universe": "image"
     },
@@ -4443,7 +4442,7 @@ const characters = [
         "characterId": "andrea",
         "name": "Andrea",
         "facePicture": "https://i.imgur.com/pO911Ro.jpeg",
-        "characterdeescription": "Andrea excels at punishing exposed targets with precise, high-impact shots, capitalizing on moments when enemies leave themselves vulnerable. Rather than applying constant pressure, she waits for the right opportunity—marking targets who act and striking them down with devastating force. Through her ‘Locked On’ passive, Andrea rewards awareness and timing, turning enemy actions into openings for lethal follow-ups. When positioned safely, she can enter a focused state that enhances her accuracy and enables her most powerful attacks, but this advantage is fragile and easily disrupted.",
+        "characterdeescription": "Andrea survives the end of the world by learning when to wait, when to aim, and when to fire. Her rifle turns patience into punishment, picking off exposed enemies the moment they give her a clean shot.",
         "startStatuses": [
             {
                 "statusId": "andrea_passive_locked_on",
@@ -4629,7 +4628,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Marksman Assassin",
+        "role": "Assassin",
         "roleCategory": "assassin",
         "universe": "image"
     },
@@ -4638,7 +4637,7 @@ const characters = [
         "characterId": "walker",
         "name": "Walker",
         "facePicture": "https://i.imgur.com/wTmLyGl.jpeg",
-        "characterdeescription": "Walker is an undead vanguard spawned from the endless hunger of the infected masses. On a team, Walker functions as a scaling pressure engine and anti-healing disruptor, gradually overwhelming enemies through persistent damage and infection. He excels in longer fights, where his effects stack and compound, forcing opponents into a losing war of attrition.",
+        "characterdeescription": "A Walker is death stripped of memory and driven by hunger. It spreads infection through every bite and scratch, wearing enemies down until panic, wounds, and attrition pull them into the herd.",
         "skills": [
             {
                 "id": "walker-infected-horde",
@@ -5021,7 +5020,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Attrition DPS",
+        "role": "Specialist",
         "roleCategory": "specialist",
         "universe": "image"
     },
@@ -5030,7 +5029,7 @@ const characters = [
         "characterId": "hershel-greene",
         "name": "Hershel Greene",
         "facePicture": "https://i.imgur.com/6SJSKyY.jpeg",
-        "characterdeescription": "A steady hand in the chaos, Hershel Greene keeps his team alive through sheer experience and resolve. Though not a frontline fighter, his medical expertise allows him to stabilize allies, mitigate incoming damage, and even bring the fallen back into the fight. Hershel excels at sustaining his team over extended battles—delaying damage, cleansing afflictions, and turning lethal situations into survivable ones. However, his reliance on timing and limited supplies means every decision matters. Misuse his tools, and his team will crumble. Use them wisely, and they simply won’t die.",
+        "characterdeescription": "Hershel Greene brings a farmer's patience and a doctor's hands to a world that keeps bleeding. He steadies allies through injury, grief, and panic, proving that mercy can keep a group alive as surely as a weapon.",
         "skills": [
             {
                 "id": "hershel-greene-reluctant-bullet",
@@ -5283,7 +5282,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Heal Support",
+        "role": "Support",
         "roleCategory": "support",
         "universe": "image"
     },
@@ -5292,7 +5291,7 @@ const characters = [
         "characterId": "invincible",
         "name": "Invincible",
         "facePicture": "https://i.imgur.com/lFKn0A0.png",
-        "characterdeescription": "Invincible thrives in the chaos of battle, growing stronger as his team endures enemy pressure. Rather than avoiding damage, he embraces it—using each hit his allies take as fuel to amplify his own power. With the ability to shield teammates at critical moments and retaliate with increasingly devastating force, Invincible rewards calculated risk and precise timing.",
+        "characterdeescription": "Mark Grayson inherits Viltrumite power before he understands the weight behind it. As Invincible, he absorbs impossible punishment, protects the people beside him, and hits back harder each time the fight demands it.",
         "startStatuses": [
             {
                 "statusId": "invincible_passive_something_to_fight_for",
@@ -5496,7 +5495,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Bruiser/Scaling Carry",
+        "role": "Bruiser",
         "roleCategory": "bruiser",
         "universe": "image"
     },
@@ -5505,7 +5504,7 @@ const characters = [
         "characterId": "rex-splode",
         "name": "Rex Splode",
         "facePicture": "https://i.imgur.com/ntQvjKH.jpeg",
-        "characterdeescription": "On a team, Rex excels as a burst damage and disruption specialist, ideal for breaking through durable targets and creating openings for allies. Played well, he controls the pace of the fight—forcing opponents to react or risk getting blown apart. Rex Splode is a high-pressure ranged damage dealer who thrives on controlled bursts of explosive power. Rather than relying on sustained output, he manages limited resources—charged batons and coins—to deliver precise, piercing attacks that weaken and disrupt enemies",
+        "characterdeescription": "Rex Sloan charges anything he touches with explosive force and backs it up with a mouth that never stops. Coins, batons, and reckless confidence become weapons in his hands, turning small openings into violent blasts.",
         "startStatuses": [
             {
                 "statusId": "rex_splode_explosive_baton_usage_tracker",
@@ -5862,7 +5861,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "DPS",
+        "role": "Damage",
         "roleCategory": "damage",
         "universe": "image"
     },
@@ -5871,7 +5870,7 @@ const characters = [
         "characterId": "atom-eve",
         "name": "Atom Eve",
         "facePicture": "https://i.imgur.com/O08XwjS.jpeg",
-        "characterdeescription": "Atom Eve is a battlefield control support who reshapes fights through precise molecular constructs. Rather than overwhelming enemies with raw damage, she dominates through disruption, protection, and inevitability—shutting down key threats while reinforcing her team with layered defenses. Her constructs allow her to disable high-impact enemies, create protective barriers, and mitigate incoming damage across her team, making her especially valuable in slower, control-oriented compositions. Eve thrives when dictating tempo—forcing opponents into unfavorable positions while her allies capitalize on the openings she creates.",
+        "characterdeescription": "Samantha Eve Wilkins sees matter as something she can rewrite. Atom Eve shapes energy into barriers, constructs, and molecular changes, protecting allies while bending the battlefield to her will.",
         "startStatuses": [
             {
                 "statusId": "atom_eve_passive_near_death_awakening",
@@ -6091,7 +6090,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Shield Support",
+        "role": "Support",
         "roleCategory": "support",
         "universe": "image"
     },
@@ -6100,7 +6099,7 @@ const characters = [
         "characterId": "omni-man",
         "name": "Omni-Man",
         "facePicture": "https://i.imgur.com/n0iErJ8.png",
-        "characterdeescription": "Omni-Man dominates the battlefield through overwhelming force and relentless punishment, thriving in direct confrontation where he can dismantle enemies over time. Rather than relying on burst or utility alone, he pressures opponents with sustained damage, disruptive control, and permanent stat reduction that weakens enemies the longer the fight continues. With abilities that force engagement and punish enemy actions, Omni-Man excels at drawing attention and turning it into an advantage. As he takes damage, his power escalates, transforming him into an increasingly dangerous threat that cannot be ignored.",
+        "characterdeescription": "Nolan Grayson came to Earth as Omni-Man, a Viltrumite conqueror wearing the face of a hero. His strength, speed, and ruthless discipline let him crush resistance while testing whether anyone can survive his true purpose.",
         "startStatuses": [
             {
                 "statusId": "omni_man_passive_omni_rage",
@@ -6324,7 +6323,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Juggernaut",
+        "role": "Tank",
         "roleCategory": "tank",
         "universe": "image"
     },
@@ -6333,58 +6332,57 @@ const characters = [
         "characterId": "angstrom-levy",
         "name": "Angstrom Levy",
         "facePicture": "https://i.imgur.com/HZ86RDV.jpeg",
-        "characterdeescription": "Levy controls the tempo of combat by manipulating space and timing. His portals counter enemy abilities, banish priority targets, and create openings for his team to strike safely. Enemies who act without caution risk being erased from the battlefield entirely, making Angstrom a constant threat to coordinated teams.",
+        "characterdeescription": "Angstrom Levy carries the knowledge of countless versions of himself and the wounds that knowledge left behind. With portals between realities, he removes enemies from reach and turns space into a weapon of revenge.",
         "skills": [
             {
-                "id": "angstrom-levy-spy-drones",
-                "name": "Spy Drones",
-                "skillimage": "https://i.imgur.com/UpCFN5q.jpeg",
-                "skilldescription": "For 2 turns, deals 10 normal and 10 piercing damage to one enemy each turn. 'Sneaky Portal' will instantly cast 'Dimension Abandon' on an enemy affected by this skill.",
-                "energy": [
-                    "Bloodline",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
+          "id": "angstrom-levy-spy-drones",
+          "name": "Spy Drones",
+          "skillimage": "https://i.imgur.com/UpCFN5q.jpeg",
+          "skilldescription": "For 2 turns, deals 10 normal and 10 piercing damage to one enemy each turn. 'Sneaky Portal' will instantly cast 'Dimension Abandon' on an enemy affected by this skill.",
+          "energy": [
+                    "Bloodline"
+          ],
+          "target": "single-enemy",
+          "damage": 0,
+          "cooldown": 1,
+          "classes": [
                     "Physical",
                     "Ranged",
                     "Action"
-                ],
-                "effects": [
+          ],
+          "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "angstrom_levy_spy_drones_damage",
-                        "duration": 2,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "turnEndTrigger": "source_turn",
-                            "turnDurationAnchor": "source_turn",
-                            "triggerOnApply": true,
-                            "turnEndDamage": 10,
-                            "tooltipText": "This character takes 10 damage from Spy Drones."
-                        }
+                              "type": "apply_status",
+                              "statusId": "angstrom_levy_spy_drones_damage",
+                              "duration": 2,
+                              "scope": "target",
+                              "metadata": {
+                                        "harmful": true,
+                                        "turnEndTrigger": "source_turn",
+                                        "turnDurationAnchor": "source_turn",
+                                        "triggerOnApply": true,
+                                        "turnEndDamage": 10,
+                                        "tooltipText": "This character takes 10 damage from Spy Drones."
+                              }
                     },
                     {
-                        "type": "apply_status",
-                        "statusId": "angstrom_levy_spy_drones_piercing_damage",
-                        "duration": 2,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "turnEndTrigger": "source_turn",
-                            "turnDurationAnchor": "source_turn",
-                            "triggerOnApply": true,
-                            "turnEndDamage": 10,
-                            "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
-                            "tooltipText": "This character takes 10 piercing damage from Spy Drones."
-                        }
+                              "type": "apply_status",
+                              "statusId": "angstrom_levy_spy_drones_piercing_damage",
+                              "duration": 2,
+                              "scope": "target",
+                              "metadata": {
+                                        "harmful": true,
+                                        "turnEndTrigger": "source_turn",
+                                        "turnDurationAnchor": "source_turn",
+                                        "triggerOnApply": true,
+                                        "turnEndDamage": 10,
+                                        "ignoreTargetDamageReduction": true,
+                                        "ignoreTargetDestructibleDefense": true,
+                                        "tooltipText": "This character takes 10 piercing damage from Spy Drones."
+                              }
                     }
-                ]
-            },
+          ]
+},
             {
                 "id": "angstrom-levy-sneaky-portal",
                 "name": "Sneaky Portal",
@@ -6448,96 +6446,95 @@ const characters = [
                 "classesHtml": "Energy, Ranged, Instant, Invisible"
             },
             {
-                "id": "angstrom-levy-multi-dimensional-rifts",
-                "name": "Multi-Dimensional Rifts",
-                "skillimage": "https://i.imgur.com/8gbeVqS.jpeg",
-                "skilldescription": "For 2 turns, 'Sneaky Portal' is cast on one random enemy each turn and 'Portal Save' has its cooldown reset. While active, 'Spy Drones' will have no cooldown.",
-                "energy": [
+          "id": "angstrom-levy-multi-dimensional-rifts",
+          "name": "Multi-Dimensional Rifts",
+          "skillimage": "https://i.imgur.com/8gbeVqS.jpeg",
+          "skilldescription": "For 2 turns, 'Sneaky Portal' is cast on one random enemy each turn and 'Portal Save' has its cooldown reset. While active, 'Spy Drones' will have no cooldown.",
+          "energy": [
                     "Taijutsu",
-                    "Taijutsu",
-                    "Random"
-                ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 5,
-                "classes": [
+                    "Taijutsu"
+          ],
+          "target": "self",
+          "damage": 0,
+          "cooldown": 5,
+          "classes": [
                     "Energy",
                     "Ranged",
                     "Instant",
                     "Invisible"
-                ],
-                "effects": [
+          ],
+          "effects": [
                     {
-                        "type": "modify_cooldowns",
-                        "amount": 0,
-                        "operation": "set",
-                        "skillIds": [
-                            "angstrom-levy-portal-save"
-                        ],
-                        "scope": "self"
+                              "type": "modify_cooldowns",
+                              "amount": 0,
+                              "operation": "set",
+                              "skillIds": [
+                                        "angstrom-levy-portal-save"
+                              ],
+                              "scope": "self"
                     },
                     {
-                        "type": "apply_status",
-                        "statusId": "angstrom_levy_multi_dimensional_rifts_active",
-                        "duration": 2,
-                        "scope": "self",
-                        "metadata": {
-                            "turnDurationAnchor": "source_turn",
-                            "skillReplacements": {
-                                "angstrom-levy-spy-drones": "angstrom-levy-spy-drones-rifts"
-                            },
-                            "turnEndApplyStatusesToRandomEnemy": [
-                                {
-                                    "statusId": "angstrom_levy_dimension_abandon_banish",
-                                    "duration": 1,
-                                    "condition": {
-                                        "scope": "target",
-                                        "statusIdsAny": [
-                                            "angstrom_levy_spy_drones_damage",
-                                            "angstrom_levy_spy_drones_piercing_damage"
-                                        ]
-                                    },
-                                    "metadata": {
-                                        "harmful": true,
-                                        "banished": true,
-                                        "tooltipText": "This character is banished and is treated as if dead until this effect ends."
-                                    }
-                                },
-                                {
-                                    "statusId": "angstrom_levy_sneaky_portal_trap",
-                                    "duration": 1,
-                                    "condition": {
-                                        "scope": "target",
-                                        "missingStatusId": "angstrom_levy_spy_drones_damage"
-                                    },
-                                    "metadata": {
-                                        "triggerOnEnemyHarmfulSkill": true,
-                                        "counterCancelsSkill": true,
-                                        "counterStatusId": "angstrom_levy_dimension_abandon_banish",
-                                        "counterStatusDuration": 1,
-                                        "counterStatusMetadata": {
-                                            "harmful": true,
-                                            "banished": true,
-                                            "tooltipText": "This character is banished and is treated as if dead until this effect ends."
+                              "type": "apply_status",
+                              "statusId": "angstrom_levy_multi_dimensional_rifts_active",
+                              "duration": 2,
+                              "scope": "self",
+                              "metadata": {
+                                        "turnDurationAnchor": "source_turn",
+                                        "skillReplacements": {
+                                                  "angstrom-levy-spy-drones": "angstrom-levy-spy-drones-rifts"
                                         },
-                                        "hideTooltipFromUnit": true,
-                                        "tooltipText": "If this character uses a new harmful skill this turn, it is countered and they are banished for 1 turn."
-                                    }
-                                }
-                            ],
-                            "turnEndModifyCooldownsSelf": {
-                                "operation": "set",
-                                "amount": 0,
-                                "skillIds": [
-                                    "angstrom-levy-portal-save"
-                                ]
-                            },
-                            "tooltipText": "Each turn, Sneaky Portal is applied to one random enemy, Portal Save has its cooldown reset, and Spy Drones has no cooldown."
-                        }
+                                        "turnEndApplyStatusesToRandomEnemy": [
+                                                  {
+                                                            "statusId": "angstrom_levy_dimension_abandon_banish",
+                                                            "duration": 1,
+                                                            "condition": {
+                                                                      "scope": "target",
+                                                                      "statusIdsAny": [
+                                                                                "angstrom_levy_spy_drones_damage",
+                                                                                "angstrom_levy_spy_drones_piercing_damage"
+                                                                      ]
+                                                            },
+                                                            "metadata": {
+                                                                      "harmful": true,
+                                                                      "banished": true,
+                                                                      "tooltipText": "This character is banished and is treated as if dead until this effect ends."
+                                                            }
+                                                  },
+                                                  {
+                                                            "statusId": "angstrom_levy_sneaky_portal_trap",
+                                                            "duration": 1,
+                                                            "condition": {
+                                                                      "scope": "target",
+                                                                      "missingStatusId": "angstrom_levy_spy_drones_damage"
+                                                            },
+                                                            "metadata": {
+                                                                      "triggerOnEnemyHarmfulSkill": true,
+                                                                      "counterCancelsSkill": true,
+                                                                      "counterStatusId": "angstrom_levy_dimension_abandon_banish",
+                                                                      "counterStatusDuration": 1,
+                                                                      "counterStatusMetadata": {
+                                                                                "harmful": true,
+                                                                                "banished": true,
+                                                                                "tooltipText": "This character is banished and is treated as if dead until this effect ends."
+                                                                      },
+                                                                      "hideTooltipFromUnit": true,
+                                                                      "tooltipText": "If this character uses a new harmful skill this turn, it is countered and they are banished for 1 turn."
+                                                            }
+                                                  }
+                                        ],
+                                        "turnEndModifyCooldownsSelf": {
+                                                  "operation": "set",
+                                                  "amount": 0,
+                                                  "skillIds": [
+                                                            "angstrom-levy-portal-save"
+                                                  ]
+                                        },
+                                        "tooltipText": "Each turn, Sneaky Portal is applied to one random enemy, Portal Save has its cooldown reset, and Spy Drones has no cooldown."
+                              }
                     }
-                ],
-                "classesHtml": "Energy, Ranged, Instant, Invisible"
-            },
+          ],
+          "classesHtml": "Energy, Ranged, Instant, Invisible"
+},
             {
                 "id": "angstrom-levy-portal-save",
                 "name": "Portal Save",
@@ -6595,59 +6592,58 @@ const characters = [
                 ]
             },
             {
-                "id": "angstrom-levy-spy-drones-rifts",
-                "name": "Spy Drones",
-                "hiddenFromSelectionViewer": true,
-                "skillimage": "https://i.imgur.com/Wyhuo5P.png",
-                "skilldescription": "For 2 turns, deals 10 normal and 10 piercing damage to one enemy each turn. 'Sneaky Portal' will instantly cast 'Dimension Abandon' on an enemy affected by this skill. This skill has no cooldown while Multi-Dimensional Rifts is active.",
-                "energy": [
-                    "Bloodline",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
+          "id": "angstrom-levy-spy-drones-rifts",
+          "name": "Spy Drones",
+          "hiddenFromSelectionViewer": true,
+          "skillimage": "https://i.imgur.com/Wyhuo5P.png",
+          "skilldescription": "For 2 turns, deals 10 normal and 10 piercing damage to one enemy each turn. 'Sneaky Portal' will instantly cast 'Dimension Abandon' on an enemy affected by this skill. This skill has no cooldown while Multi-Dimensional Rifts is active.",
+          "energy": [
+                    "Bloodline"
+          ],
+          "target": "single-enemy",
+          "damage": 0,
+          "cooldown": 0,
+          "classes": [
                     "Physical",
                     "Ranged",
                     "Action"
-                ],
-                "effects": [
+          ],
+          "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "angstrom_levy_spy_drones_damage",
-                        "duration": 2,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "turnEndTrigger": "source_turn",
-                            "turnDurationAnchor": "source_turn",
-                            "triggerOnApply": true,
-                            "turnEndDamage": 10,
-                            "tooltipText": "This character takes 10 damage and 10 piercing damage from Spy Drones each turn."
-                        }
+                              "type": "apply_status",
+                              "statusId": "angstrom_levy_spy_drones_damage",
+                              "duration": 2,
+                              "scope": "target",
+                              "metadata": {
+                                        "harmful": true,
+                                        "turnEndTrigger": "source_turn",
+                                        "turnDurationAnchor": "source_turn",
+                                        "triggerOnApply": true,
+                                        "turnEndDamage": 10,
+                                        "tooltipText": "This character takes 10 damage and 10 piercing damage from Spy Drones each turn."
+                              }
                     },
                     {
-                        "type": "apply_status",
-                        "statusId": "angstrom_levy_spy_drones_piercing_damage",
-                        "duration": 2,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "turnEndTrigger": "source_turn",
-                            "turnDurationAnchor": "source_turn",
-                            "triggerOnApply": true,
-                            "turnEndDamage": 10,
-                            "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
-                            "tooltipText": "This character takes 10 piercing damage from Spy Drones each turn."
-                        }
+                              "type": "apply_status",
+                              "statusId": "angstrom_levy_spy_drones_piercing_damage",
+                              "duration": 2,
+                              "scope": "target",
+                              "metadata": {
+                                        "harmful": true,
+                                        "turnEndTrigger": "source_turn",
+                                        "turnDurationAnchor": "source_turn",
+                                        "triggerOnApply": true,
+                                        "turnEndDamage": 10,
+                                        "ignoreTargetDamageReduction": true,
+                                        "ignoreTargetDestructibleDefense": true,
+                                        "tooltipText": "This character takes 10 piercing damage from Spy Drones each turn."
+                              }
                     }
-                ]
-            }
+          ]
+}
         ],
-        "role": "Remover",
-        "roleCategory": "strategic",
+        "role": "Controller",
+        "roleCategory": "controller",
         "universe": "image"
     },
     {
@@ -6655,7 +6651,7 @@ const characters = [
         "characterId": "billy-butcher",
         "name": "Billy Butcher",
         "facePicture": "https://i.imgur.com/MblvOMD.png",
-        "characterdeescription": "Leader of The Boys and driven by a relentless, bloody vendetta against Supes, Billy Butcher is a fierce melee brawler who uses everything from a crowbar to temporary V24 to get the job done. While V24 gives him access to devastating ranged laser attacks, it ravages his body over time, eventually forcing him to rely on the horrific, parasitic tumorous tentacles growing inside him to crush his enemies.",
+        "characterdeescription": "Billy Butcher hunts Supes with a smile sharp enough to draw blood. Armed with dirty tricks, V24 power, and a hatred that keeps him standing, he turns every fight into payback.",
         "skills": [
             {
                 "id": "billy-butcher-crowbar-maim",
@@ -6863,7 +6859,7 @@ const characters = [
                 "classesHtml": "Energy, Ranged, Instant, Affliction, Bypassing"
             }
         ],
-        "role": "Brawler",
+        "role": "Bruiser",
         "roleCategory": "bruiser",
         "universe": "the-boys"
     },
@@ -6903,7 +6899,7 @@ const characters = [
                 }
             }
         ],
-        "characterdeescription": "Play Doctor Octopus as a strategic controller—manage your tentacles wisely, disrupt at the right moments, and outmaneuver your opponents through superior planning. Doctor Octopus dominates the battlefield through calculated control and mechanical superiority. His ever-present tentacles enhance his resilience and empower his abilities, allowing him to pressure enemies while protecting himself and his team.",
+        "characterdeescription": "Otto Octavius built mechanical arms to extend a mind already convinced of its own superiority. As Doctor Octopus, he uses those tentacles to shield himself, control the field, and prove that intellect can strangle brute force.",
         "skills": [
             {
                 "id": "doctor-octopus-tentacle-assault",
@@ -7118,8 +7114,8 @@ const characters = [
                 ]
             }
         ],
-        "role": "Defensive Controller",
-        "roleCategory": "strategic",
+        "role": "Controller",
+        "roleCategory": "controller",
         "universe": "marvel"
     },
     {
@@ -7139,7 +7135,7 @@ const characters = [
                 }
             }
         ],
-        "characterdeescription": "Play Carnage as a high-risk finisher—wait for the right moment, then unleash unstoppable carnage. Carnage thrives in chaos, trading his own life force for overwhelming offense. His attacks are relentless and impossible to stop, carving through enemies while setting up lethal execution windows. Through Blood Slinging, he becomes evasive and unpredictable, striking at the perfect moment to finish off weakened foes.",
+        "characterdeescription": "Cletus Kasady bonded with a symbiote that only made his bloodlust louder. Carnage turns his own body into blades, tendrils, and slaughter, trading safety for the chance to carve through anything in reach.",
         "skills": [
             {
                 "id": "carnage-blood-slash",
@@ -7376,7 +7372,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Execution Beserker",
+        "role": "Assassin",
         "roleCategory": "assassin",
         "universe": "marvel"
     },
@@ -7443,7 +7439,7 @@ const characters = [
                 }
             }
         ],
-        "characterdeescription": "Green Goblin dominates the battlefield by turning every action into a risk, layering delayed threats that punish enemies for acting without caution. Rather than relying on direct control or overwhelming burst, he creates zones of danger through his bombs—forcing opponents to constantly weigh the consequences of every move.",
+        "characterdeescription": "Norman Osborn's genius curdled into madness behind the Green Goblin's grin. Gliders, bombs, and chemical cruelty let him fill the battlefield with traps that punish enemies for every step they take.",
         "skills": [
             {
                 "id": "the-green-goblin-pumpkin-bomb",
@@ -7666,7 +7662,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Punisher",
+        "role": "Specialist",
         "roleCategory": "specialist",
         "universe": "marvel"
     },
@@ -7675,7 +7671,7 @@ const characters = [
         "characterId": "sandman",
         "name": "Sandman",
         "facePicture": "https://i.imgur.com/achNzMq.png",
-        "characterdeescription": "Sandman excels at isolating key enemies and forcing them into unfavorable situations, using his shifting form to control engagements and dictate the flow of combat. Rather than overwhelming entire teams, he focuses on a single target—marking them, limiting their effectiveness, and isetting up unavoidable punishment through well-timed ability sequences.",
+        "characterdeescription": "Flint Marko became Sandman after his body merged with shifting grains and raw survival instinct. He swallows enemies in crushing storms, reforms through punishment, and turns the ground beneath them into a prison.",
         "skills": [
             {
                 "id": "sandman-sand-body-enter",
@@ -7894,7 +7890,7 @@ const characters = [
                 "classesHtml": "Physical, Melee, Instant, Affliction, Bypassing, Unreflectable"
             }
         ],
-        "role": "Duelist Bruiser",
+        "role": "Bruiser",
         "roleCategory": "bruiser",
         "universe": "marvel"
     },
@@ -7903,7 +7899,7 @@ const characters = [
         "characterId": "mysterio",
         "name": "Mysterio",
         "facePicture": "https://i.imgur.com/mc1rZn0.jpeg",
-        "characterdeescription": "Mysterio excels at destabilizing the battlefield through deception, punishing enemies for acting without caution. Rather than directly overpowering opponents, he manipulates outcomes—redirecting abilities, setting hidden traps, and turning enemy decisions against them. With tools that reward prediction and punish routine play.",
+        "characterdeescription": "Quentin Beck built Mysterio from smoke, mirrors, and wounded pride. His illusions turn certainty into doubt, making enemies waste their strength on tricks while the real danger waits behind the curtain.",
         "skills": [
             {
                 "id": "mysterio-illusion-of-choice",
@@ -7951,60 +7947,54 @@ const characters = [
                 "classesHtml": "Mental, Ranged, Instant, Invisible"
             },
             {
-                "id": "mysterio-script-rewrite",
-                "name": "Script Rewrite",
-                "skillimage": "https://i.imgur.com/pt6KJHc.png",
-                "skilldescription": "Mysterio targets one enemy for 2 turns. If that enemy uses a new harmful skill, that skill will target themselves or an ally instead, they take 30 affliction damage, and that skill's cooldown increases by 1. This cannot be used on an already affected enemy.",
-                "description": "Mysterio targets one enemy for 2 turns. If that enemy uses a new harmful skill, that skill will target themselves or an ally instead, they take 30 affliction damage, and that skill's cooldown increases by 1. This cannot be used on an already affected enemy.",
-                "descriptionHtml": "Mysterio targets one enemy for 2 turns. If that enemy uses a new harmful skill, that skill will target themselves or an ally instead, they take 30 affliction damage, and that skill's cooldown increases by 1.<br>This cannot be used on an already affected enemy.",
-                "energy": [
+          "id": "mysterio-script-rewrite",
+          "name": "Script Rewrite",
+          "skillimage": "https://i.imgur.com/pt6KJHc.png",
+          "skilldescription": "Mysterio increases one enemy's cooldowns by 2. This cannot be used on an already affected enemy.",
+          "description": "Mysterio increases one enemy's cooldowns by 2. This cannot be used on an already affected enemy.",
+          "descriptionHtml": "Mysterio increases one enemy's cooldowns by 2. This cannot be used on an already affected enemy.",
+          "energy": [
                     "Ninjutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
+          ],
+          "target": "single-enemy",
+          "damage": 0,
+          "cooldown": 0,
+          "classes": [
                     "Mental",
                     "Ranged",
                     "Instant",
                     "Affliction",
                     "Invisible"
-                ],
-                "effects": [
+          ],
+          "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "mysterio_script_rewrite_trap",
-                        "duration": 2,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "triggerOnEnemyHarmfulSkill": true,
-                            "counterCancelsSkill": true,
-                            "counterEffectsToSourceOwner": [
-                                {
-                                    "type": "damage",
-                                    "amount": 30,
-                                    "metadata": {
-                                        "afflictionDamage": true,
-                                        "ignoreDamageReduction": true,
-                                        "ignoreDestructibleDefense": true
-                                    }
-                                },
-                                {
-                                    "type": "modify_cooldowns",
-                                    "amount": 1,
-                                    "metadata": {
-                                        "targetTriggeredSkillOnly": true
-                                    }
-                                }
-                            ],
-                            "hideTooltipFromEnemy": true,
-                            "tooltipText": "If this character uses a new harmful skill, they take 30 affliction damage and that skill's cooldown increases by 1."
-                        }
+                              "type": "modify_cooldowns",
+                              "operation": "add",
+                              "amount": 2,
+                              "includeAllCharacterSkills": true,
+                              "scope": "target",
+                              "metadata": {
+                                        "harmful": true
+                              }
+                    },
+                    {
+                              "type": "apply_status",
+                              "statusId": "mysterio_script_rewrite_marker",
+                              "duration": 1,
+                              "scope": "target",
+                              "metadata": {
+                                        "harmful": true,
+                                        "hideTooltipFromEnemy": true,
+                                        "tooltipText": "This character has been affected by Script Rewrite."
+                              }
                     }
-                ],
-                "classesHtml": "Mental, Ranged, Instant, Affliction, Invisible"
-            },
+          ],
+          "classesHtml": "Mental, Ranged, Instant, Affliction, Invisible",
+          "targetCondition": {
+                    "scope": "target",
+                    "missingStatusId": "mysterio_script_rewrite_marker"
+          }
+},
             {
                 "id": "mysterio-hall-of-mirrors",
                 "name": "Hall of Mirrors",
@@ -8089,8 +8079,8 @@ const characters = [
                 ]
             }
         ],
-        "role": "Trickster Mage",
-        "roleCategory": "strategic",
+        "role": "Controller",
+        "roleCategory": "controller",
         "universe": "marvel"
     },
     {
@@ -8098,7 +8088,7 @@ const characters = [
         "characterId": "scorpion",
         "name": "Scorpion",
         "facePicture": "https://i.imgur.com/ZlrriRW.png",
-        "characterdeescription": "Scorpion controls the battlefield through unpredictable venom cycles, forcing enemies to adapt to constantly shifting effects. His abilities layer affliction, disruption, and scaling damage, making him a dangerous threat the longer he remains active.",
+        "characterdeescription": "Mac Gargan became Scorpion through experiments that left him armored, venomous, and furious. His tail cycles through toxins and precision strikes, turning each sting into a different kind of threat.",
         "startStatuses": [
             {
                 "statusId": "scorpion_passive_scorpion_venom",
@@ -8129,116 +8119,116 @@ const characters = [
         ],
         "skills": [
             {
-                "id": "scorpion-scorpion-sting",
-                "name": "Scorpion Sting",
-                "skillimage": "https://i.imgur.com/6GJ74IJ.jpeg",
-                "skilldescription": "Deals 15 piercing damage to one enemy and injects them with Scorpion's current venom for 2 turns.\n\nNeurotoxin: Target ignores healing effects and deals 10 less non-affliction damage.\nAcid: Deals 10 affliction damage the first turn and 5 the second.\nParalytic Agent: Stuns harmful skills the first turn and helpful skills the second.",
-                "energy": [
+          "id": "scorpion-scorpion-sting",
+          "name": "Scorpion Sting",
+          "skillimage": "https://i.imgur.com/6GJ74IJ.jpeg",
+          "skilldescription": "Deals 15 piercing damage to one enemy and injects them with Scorpion's current venom for 2 turns.\n\nNeurotoxin: Target ignores healing effects and deals 10 less non-affliction damage.\nAcid: Deals 10 affliction damage the first turn and 5 the second.\nParalytic Agent: Stuns harmful skills the first turn and helpful skills the second.",
+          "energy": [
                     "Taijutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
+          ],
+          "target": "single-enemy",
+          "damage": 0,
+          "cooldown": 1,
+          "classes": [
                     "Physical",
                     "Ranged",
                     "Instant"
-                ],
-                "effects": [
+          ],
+          "effects": [
                     {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "metadata": {
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
-                        }
+                              "type": "damage",
+                              "amount": 15,
+                              "scope": "target",
+                              "metadata": {
+                                        "ignoreDamageReduction": true,
+                                        "ignoreDestructibleDefense": true
+                              }
                     },
                     {
-                        "type": "apply_status",
-                        "statusId": "scorpion_scorpion_sting_neurotoxin",
-                        "duration": 2,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusMetadataEquals": {
-                                "statusId": "scorpion_passive_scorpion_venom",
-                                "metadataKey": "currentVenom",
-                                "value": "Neurotoxin"
-                            }
-                        },
-                        "metadata": {
-                            "healReceivedMultiplier": 0,
-                            "nonAfflictionDamageDebuffFlat": 10,
-                            "tooltipText": "This character ignores healing and deals 10 less non-affliction damage."
-                        }
+                              "type": "apply_status",
+                              "statusId": "scorpion_scorpion_sting_neurotoxin",
+                              "duration": 2,
+                              "scope": "target",
+                              "condition": {
+                                        "scope": "self",
+                                        "statusMetadataEquals": {
+                                                  "statusId": "scorpion_passive_scorpion_venom",
+                                                  "metadataKey": "currentVenom",
+                                                  "value": "Neurotoxin"
+                                        }
+                              },
+                              "metadata": {
+                                        "healReceivedMultiplier": 0,
+                                        "nonAfflictionDamageDebuffFlat": 10,
+                                        "tooltipText": "This character ignores healing and deals 10 less non-affliction damage."
+                              }
                     },
                     {
-                        "type": "apply_status",
-                        "statusId": "scorpion_scorpion_sting_acid_primary",
-                        "duration": 1,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusMetadataEquals": {
-                                "statusId": "scorpion_passive_scorpion_venom",
-                                "metadataKey": "currentVenom",
-                                "value": "Acid"
-                            }
-                        },
-                        "metadata": {
-                            "turnEndDamage": 10,
-                            "afflictionDamage": true,
-                            "turnEndTrigger": "source_turn",
-                            "turnDurationAnchor": "source_turn",
-                            "removeStatusIdsOnApply": [
-                                "scorpion_scorpion_sting_acid_secondary"
-                            ],
-                            "onExpireApplyStatusToSelf": {
-                                "statusId": "scorpion_scorpion_sting_acid_secondary",
-                                "duration": 1,
-                                "metadata": {
-                                    "turnEndDamage": 5,
-                                    "afflictionDamage": true,
-                                    "turnEndTrigger": "source_turn",
-                                    "turnDurationAnchor": "source_turn",
-                                    "tooltipText": "This character takes 5 affliction."
-                                }
-                            },
-                            "tooltipText": "This character takes 10 affliction damage this turn and 5 affliction damage the next turn."
-                        }
+                              "type": "apply_status",
+                              "statusId": "scorpion_scorpion_sting_acid_primary",
+                              "duration": 1,
+                              "scope": "target",
+                              "condition": {
+                                        "scope": "self",
+                                        "statusMetadataEquals": {
+                                                  "statusId": "scorpion_passive_scorpion_venom",
+                                                  "metadataKey": "currentVenom",
+                                                  "value": "Acid"
+                                        }
+                              },
+                              "metadata": {
+                                        "turnEndDamage": 10,
+                                        "afflictionDamage": true,
+                                        "turnEndTrigger": "source_turn",
+                                        "turnDurationAnchor": "source_turn",
+                                        "removeStatusIdsOnApply": [
+                                                  "scorpion_scorpion_sting_acid_secondary"
+                                        ],
+                                        "onExpireApplyStatusToSelf": {
+                                                  "statusId": "scorpion_scorpion_sting_acid_secondary",
+                                                  "duration": 1,
+                                                  "metadata": {
+                                                            "turnEndDamage": 5,
+                                                            "afflictionDamage": true,
+                                                            "turnEndTrigger": "source_turn",
+                                                            "turnDurationAnchor": "source_turn",
+                                                            "tooltipText": "This character takes 5 affliction."
+                                                  }
+                                        },
+                                        "tooltipText": "This character takes 10 affliction damage this turn and 5 affliction damage the next turn."
+                              }
                     },
                     {
-                        "type": "apply_status",
-                        "statusId": "scorpion_scorpion_sting_paralytic_primary",
-                        "duration": 1,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusMetadataEquals": {
-                                "statusId": "scorpion_passive_scorpion_venom",
-                                "metadataKey": "currentVenom",
-                                "value": "Paralytic Agent"
-                            }
-                        },
-                        "metadata": {
-                            "cannotUseHarmfulSkills": true,
-                            "removeStatusIdsOnApply": [
-                                "scorpion_scorpion_sting_paralytic_secondary"
-                            ],
-                            "onExpireApplyStatusToSelf": {
-                                "statusId": "scorpion_scorpion_sting_paralytic_secondary",
-                                "duration": 1,
-                                "metadata": {
-                                    "cannotUseHelpfulSkills": true,
-                                    "tooltipText": "This character cannot use helpful skills."
-                                }
-                            },
-                            "tooltipText": "This character cannot use harmful skills."
-                        }
+                              "type": "apply_status",
+                              "statusId": "scorpion_scorpion_sting_paralytic_primary",
+                              "duration": 1,
+                              "scope": "target",
+                              "condition": {
+                                        "scope": "self",
+                                        "statusMetadataEquals": {
+                                                  "statusId": "scorpion_passive_scorpion_venom",
+                                                  "metadataKey": "currentVenom",
+                                                  "value": "Paralytic Agent"
+                                        }
+                              },
+                              "metadata": {
+                                        "cannotUseHarmfulSkills": true,
+                                        "removeStatusIdsOnApply": [
+                                                  "scorpion_scorpion_sting_paralytic_secondary"
+                                        ],
+                                        "onExpireApplyStatusToSelf": {
+                                                  "statusId": "scorpion_scorpion_sting_paralytic_secondary",
+                                                  "duration": 1,
+                                                  "metadata": {
+                                                            "cannotUseHelpfulSkills": true,
+                                                            "tooltipText": "This character cannot use helpful skills."
+                                                  }
+                                        },
+                                        "tooltipText": "This character cannot use harmful skills."
+                              }
                     }
-                ]
-            },
+          ]
+},
             {
                 "id": "scorpion-tail-laser",
                 "name": "Tail Laser",
@@ -8458,7 +8448,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Affliction Specialist",
+        "role": "Specialist",
         "roleCategory": "specialist",
         "universe": "marvel"
     },
@@ -8467,7 +8457,7 @@ const characters = [
         "characterId": "green-lantern-hal-jordan",
         "name": "Green Lantern (Hal Jordan)",
         "facePicture": "https://i.imgur.com/G4WAQZH.jpeg",
-        "characterdeescription": "Green Lantern functions as a scaling control damage dealer who adapts to the needs of his team as the fight progresses. Through a rotating arsenal of constructs, he applies steady pressure, breaks through defenses, and disrupts key enemies before ramping into powerful finishing blows.",
+        "characterdeescription": "Hal Jordan wears a Green Lantern ring powered by will and limited only by imagination. He shapes hard-light constructs in the middle of battle, building weapons, shields, and answers from pure resolve.",
         "startStatuses": [
             {
                 "statusId": "green_lantern_hal_jordan_passive_green_lantern_ring",
@@ -8764,7 +8754,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Scaling Carry",
+        "role": "Hybrid",
         "roleCategory": "hybrid",
         "universe": "dc"
     },
@@ -8773,7 +8763,7 @@ const characters = [
         "characterId": "homelander",
         "name": "Homelander",
         "facePicture": "https://i.imgur.com/UEKWk6t.jpeg",
-        "characterdeescription": "Homelander functions as a snowball executioner who grows deadlier every time he finishes off a weakened target. Starting as a strong single-target threat, he uses brutal burst damage and intimidation tools to pick off vulnerable enemies, then converts each kill into permanent bonus damage and self-healing. The longer he is allowed to secure eliminations, the faster he spirals into an overwhelming late-game menace.",
+        "characterdeescription": "Homelander wears a hero's smile over a bottomless need to be worshiped. With flight, heat vision, and terrifying strength, he turns every fight into a performance where fear matters more than justice.",
         "startStatuses": [
             {
                 "statusId": "homelander_passive_finish_the_weak",
@@ -8992,7 +8982,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Executioner",
+        "role": "Assassin",
         "roleCategory": "assassin",
         "universe": "the-boys"
     },
@@ -9005,9 +8995,9 @@ const characters = [
         "url": "https://i.imgur.com/IwSu3G7_d.png?maxwidth=520&shape=thumb&fidelity=high",
         "unlockRequirement": "None",
         "unlockRequirementHtml": "None",
-        "characterdeescription": "Xenomorph Drone is a scaling swarm-based fighter that punishes enemies with affliction and executes weakened targets. It becomes stronger as more drones are present.",
-        "description": "Xenomorph Drone is a scaling swarm-based fighter that punishes enemies with affliction and executes weakened targets. It becomes stronger as more drones are present.",
-        "descriptionHtml": "Xenomorph Drone is a scaling swarm-based fighter that punishes enemies with affliction and executes weakened targets.<br>It becomes stronger as more drones are present.",
+        "characterdeescription": "The Xenomorph Drone is a perfect predator born from darkness, acid, and instinct. It spreads the hive's pressure through relentless attacks, weakening prey until the swarm can finish the hunt.",
+        "description": "The Xenomorph Drone is a perfect predator born from darkness, acid, and instinct. It spreads the hive's pressure through relentless attacks, weakening prey until the swarm can finish the hunt.",
+        "descriptionHtml": "The Xenomorph Drone is a perfect predator born from darkness, acid, and instinct. It spreads the hive's pressure through relentless attacks, weakening prey until the swarm can finish the hunt.",
         "startStatuses": [
             {
                 "statusId": "xenomorph_drone_acid_blood_passive",
@@ -9363,7 +9353,7 @@ const characters = [
                 "classesHtml": "Passive, Instant"
             }
         ],
-        "role": "Swarm DPS",
+        "role": "Damage",
         "roleCategory": "damage",
         "universe": "aliens-vs-predator"
     },
@@ -9376,9 +9366,9 @@ const characters = [
         "url": "https://i.imgur.com/Rq2FZug.jpeg",
         "unlockRequirement": "None",
         "unlockRequirementHtml": "None",
-        "characterdeescription": "Predalien is a relentless bruiser-disruptor that grows stronger the longer combat continues, combining overwhelming physical aggression with stacking defenses and teamwide pressure. It excels at forcing enemies into unfavorable trades while becoming increasingly difficult to bring down.",
-        "description": "Predalien is a relentless bruiser-disruptor that grows stronger the longer combat continues, combining overwhelming physical aggression with stacking defenses and teamwide pressure. It excels at forcing enemies into unfavorable trades while becoming increasingly difficult to bring down.",
-        "descriptionHtml": "Predalien is a relentless bruiser-disruptor that grows stronger the longer combat continues, combining overwhelming physical aggression with stacking defenses and teamwide pressure.<br>It excels at forcing enemies into unfavorable trades while becoming increasingly difficult to bring down.",
+        "characterdeescription": "The Predalien carries Xenomorph hunger inside a Predator's brutal frame. Stronger and more cunning than a common drone, it tears through enemies while the hive's instincts drive it toward dominance.",
+        "description": "The Predalien carries Xenomorph hunger inside a Predator's brutal frame. Stronger and more cunning than a common drone, it tears through enemies while the hive's instincts drive it toward dominance.",
+        "descriptionHtml": "The Predalien carries Xenomorph hunger inside a Predator's brutal frame. Stronger and more cunning than a common drone, it tears through enemies while the hive's instincts drive it toward dominance.",
         "skills": [
             {
                 "id": "predalien-tail-ravage",
@@ -9589,56 +9579,56 @@ const characters = [
         "url": "https://i.imgur.com/k4lrBvO_d.png?maxwidth=520&shape=thumb&fidelity=high",
         "unlockRequirement": "None",
         "unlockRequirementHtml": "None",
-        "characterdeescription": "Infected with the Rage Virus is a relentless berserker who overwhelms enemies through pain, chaos, and psychological pressure. Using brutal attacks, blindness effects, and self-destructive rage, he punishes opponents for trying to fight back while growing deadlier the longer combat continues. Though vulnerable to sustained focus and burst damage, Rage Infected excels at disrupting enemy coordination and forcing reckless decisions through constant pressure and unpredictable aggression.",
-        "description": "Infected with the Rage Virus is a relentless berserker who overwhelms enemies through pain, chaos, and psychological pressure. Using brutal attacks, blindness effects, and self-destructive rage, he punishes opponents for trying to fight back while growing deadlier the longer combat continues. Though vulnerable to sustained focus and burst damage, Rage Infected excels at disrupting enemy coordination and forcing reckless decisions through constant pressure and unpredictable aggression.",
-        "descriptionHtml": "Infected with the Rage Virus is a relentless berserker who overwhelms enemies through pain, chaos, and psychological pressure. Using brutal attacks, blindness effects, and self-destructive rage, he punishes opponents for trying to fight back while growing deadlier the longer combat continues. Though vulnerable to sustained focus and burst damage, Rage Infected excels at disrupting enemy coordination and forcing reckless decisions through constant pressure and unpredictable aggression.",
+        "characterdeescription": "The Rage Virus leaves nothing but violence in the body it claims. Rage Infected enemies lash out with blind fury, spreading panic, pain, and reckless pressure until the fight collapses into chaos.",
+        "description": "The Rage Virus leaves nothing but violence in the body it claims. Rage Infected enemies lash out with blind fury, spreading panic, pain, and reckless pressure until the fight collapses into chaos.",
+        "descriptionHtml": "The Rage Virus leaves nothing but violence in the body it claims. Rage Infected enemies lash out with blind fury, spreading panic, pain, and reckless pressure until the fight collapses into chaos.",
         "skills": [
             {
-                "id": "rage-infected-blood-vomit",
-                "name": "Blood Vomit",
-                "nameHtml": "Blood Vomit",
-                "skillimage": "https://i.imgur.com/5L1V6jg_d.png?maxwidth=520&shape=thumb&fidelity=high",
-                "url": "https://i.imgur.com/5L1V6jg_d.png?maxwidth=520&shape=thumb&fidelity=high",
-                "skilldescription": "For 2 turns, one enemy takes 15 bleed damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
-                "description": "For 2 turns, one enemy takes 15 bleed damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
-                "descriptionHtml": "For 2 turns, one enemy takes 15 bleed damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams.<br>Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
-                "energy": [
+          "id": "rage-infected-blood-vomit",
+          "name": "Blood Vomit",
+          "nameHtml": "Blood Vomit",
+          "skillimage": "https://i.imgur.com/5L1V6jg_d.png?maxwidth=520&shape=thumb&fidelity=high",
+          "url": "https://i.imgur.com/5L1V6jg_d.png?maxwidth=520&shape=thumb&fidelity=high",
+          "skilldescription": "For 2 turns, one enemy takes 20 bleed damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
+          "description": "For 2 turns, one enemy takes 20 bleed damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
+          "descriptionHtml": "For 2 turns, one enemy takes 20 bleed damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams.<br>Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
+          "energy": [
                     "Bloodline",
                     "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 3,
-                "cooldownHtml": "3",
-                "classes": [
+          ],
+          "target": "single-enemy",
+          "damage": 0,
+          "cooldown": 3,
+          "cooldownHtml": "3",
+          "classes": [
                     "Physical",
                     "Ranged",
                     "Instant"
-                ],
-                "classesHtml": "Physical, Ranged, Instant",
-                "effects": [
+          ],
+          "classesHtml": "Physical, Ranged, Instant",
+          "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "rage_infected_blood_vomit",
-                        "duration": 2,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "fullBlind": true,
-                            "nonAfflictionDamageBonusFlat": 10,
-                            "afflictionDamage": true,
-                            "fixedTurnEndDamage": true,
-                            "ignoreDamageImmunity": true,
-                            "ignoreAfflictionDamageImmunity": true,
-                            "removeOnHealingEffect": true,
-                            "turnEndDamage": 15,
-                            "turnEndTrigger": "source_turn",
-                            "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character takes 15 bleed damage each turn, deals 10 additional non-affliction damage, and harmful skills randomly target either team. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect."
-                        }
+                              "type": "apply_status",
+                              "statusId": "rage_infected_blood_vomit",
+                              "duration": 2,
+                              "scope": "target",
+                              "metadata": {
+                                        "harmful": true,
+                                        "fullBlind": true,
+                                        "nonAfflictionDamageBonusFlat": 10,
+                                        "afflictionDamage": true,
+                                        "fixedTurnEndDamage": true,
+                                        "ignoreDamageImmunity": true,
+                                        "ignoreAfflictionDamageImmunity": true,
+                                        "removeOnHealingEffect": true,
+                                        "turnEndDamage": 20,
+                                        "turnEndTrigger": "source_turn",
+                                        "turnDurationAnchor": "source_turn",
+                                        "tooltipText": "This character takes 20 bleed damage each turn, deals 10 additional non-affliction damage, and harmful skills randomly target either team. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect."
+                              }
                     }
-                ]
-            },
+          ]
+},
             {
                 "id": "rage-infected-eye-gouge",
                 "name": "Eye Gouge",
@@ -9777,41 +9767,41 @@ const characters = [
                 ]
             },
             {
-                "id": "rage-infected-relentless-pursuit",
-                "name": "Relentless Pursuit",
-                "nameHtml": "Relentless Pursuit",
-                "skillimage": "https://i.imgur.com/osxi6DC_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "url": "https://i.imgur.com/osxi6DC_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "skilldescription": "For 3 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 10 additional non-affliction damage from enemy skills.",
-                "description": "For 3 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 10 additional non-affliction damage from enemy skills.",
-                "descriptionHtml": "For 3 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 10 additional non-affliction damage from enemy skills.",
-                "energy": [],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 4,
-                "cooldownHtml": "4",
-                "classes": [
+          "id": "rage-infected-relentless-pursuit",
+          "name": "Relentless Pursuit",
+          "nameHtml": "Relentless Pursuit",
+          "skillimage": "https://i.imgur.com/osxi6DC_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+          "url": "https://i.imgur.com/osxi6DC_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+          "skilldescription": "For 4 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 5 additional non-affliction damage from enemy skills.",
+          "description": "For 4 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 5 additional non-affliction damage from enemy skills.",
+          "descriptionHtml": "For 4 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 5 additional non-affliction damage from enemy skills.",
+          "energy": [],
+          "target": "self",
+          "damage": 0,
+          "cooldown": 4,
+          "cooldownHtml": "4",
+          "classes": [
                     "Physical",
                     "Instant"
-                ],
-                "classesHtml": "Physical, Instant",
-                "effects": [
+          ],
+          "classesHtml": "Physical, Instant",
+          "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "rage_infected_relentless_pursuit",
-                        "duration": 3,
-                        "scope": "self",
-                        "metadata": {
-                            "cannotBeStunned": true,
-                            "randomCostReduction": 1,
-                            "bonusDamageFromSourceSkillsFlat": 10,
-                            "bonusDamageFromSourceNonAfflictionOnly": true,
-                            "bonusDamageFromSourceEnemyOnly": true,
-                            "tooltipText": "Rage Infected ignores stuns, his skills cost 1 less random energy, and enemy skills deal 10 additional non-affliction damage to him."
-                        }
+                              "type": "apply_status",
+                              "statusId": "rage_infected_relentless_pursuit",
+                              "duration": 4,
+                              "scope": "self",
+                              "metadata": {
+                                        "cannotBeStunned": true,
+                                        "randomCostReduction": 1,
+                                        "bonusDamageFromSourceSkillsFlat": 5,
+                                        "bonusDamageFromSourceNonAfflictionOnly": true,
+                                        "bonusDamageFromSourceEnemyOnly": true,
+                                        "tooltipText": "Rage Infected ignores stuns, his skills cost 1 less random energy, and enemy skills deal 5 additional non-affliction damage to him."
+                              }
                     }
-                ]
-            },
+          ]
+},
             {
                 "id": "rage-infected-murderous-rage-active",
                 "name": "Murderous Rage",
@@ -9832,7 +9822,7 @@ const characters = [
                 "effects": []
             }
         ],
-        "role": "Beserker",
+        "role": "Bruiser",
         "roleCategory": "bruiser",
         "universe": "other"
     },
@@ -9845,9 +9835,9 @@ const characters = [
         "url": "https://i.imgur.com/Ch1wobl.png",
         "unlockRequirement": "None",
         "unlockRequirementHtml": "None",
-        "characterdeescription": "A frontline shock trooper equipped with brutal anti-infantry weaponry and battlefield support tools, the Space Marine Infantry overwhelms enemies through sustained pressure and explosive area damage. Whether suppressing targets with disciplined rifle fire, burning entire teams with incendiary attacks, or shielding allies with emergency extraction protocols, this soldier turns every engagement into a warzone.",
-        "description": "A frontline shock trooper equipped with brutal anti-infantry weaponry and battlefield support tools, the Space Marine Infantry overwhelms enemies through sustained pressure and explosive area damage. Whether suppressing targets with disciplined rifle fire, burning entire teams with incendiary attacks, or shielding allies with emergency extraction protocols, this soldier turns every engagement into a warzone.",
-        "descriptionHtml": "A frontline shock trooper equipped with brutal anti-infantry weaponry and battlefield support tools, the Space Marine Infantry overwhelms enemies through sustained pressure and explosive area damage. Whether suppressing targets with disciplined rifle fire, burning entire teams with incendiary attacks, or shielding allies with emergency extraction protocols, this soldier turns every engagement into a warzone.",
+        "characterdeescription": "Pvt. Saunders survives the outer-colony wars by trusting armor, discipline, and overwhelming firepower. Flamers, rifle bursts, and extraction protocols let him turn hostile ground into a kill zone.",
+        "description": "Pvt. Saunders survives the outer-colony wars by trusting armor, discipline, and overwhelming firepower. Flamers, rifle bursts, and extraction protocols let him turn hostile ground into a kill zone.",
+        "descriptionHtml": "Pvt. Saunders survives the outer-colony wars by trusting armor, discipline, and overwhelming firepower. Flamers, rifle bursts, and extraction protocols let him turn hostile ground into a kill zone.",
         "skills": [
             {
                 "id": "space-marine-infantry-m41a-pulse-rifle",
@@ -10071,9 +10061,9 @@ const characters = [
         "url": "https://i.imgur.com/04OvCP9.jpeg",
         "unlockRequirement": "None",
         "unlockRequirementHtml": "None",
-        "characterdeescription": "Lieutenant Seraphina Vale is a battlefield surgeon forged in the endless wars between the outer colonies and hostile alien forces. Calm under pressure and feared by enemy commanders, she serves on the front lines beside assault squads, patching wounds while laying down suppressive fire. Soldiers call her The Guardian Angel of the Void because no marine under her watch is ever left behind.",
-        "description": "Lieutenant Seraphina Vale is a battlefield surgeon forged in the endless wars between the outer colonies and hostile alien forces. Calm under pressure and feared by enemy commanders, she serves on the front lines beside assault squads, patching wounds while laying down suppressive fire. Soldiers call her The Guardian Angel of the Void because no marine under her watch is ever left behind.",
-        "descriptionHtml": "Lieutenant Seraphina Vale is a battlefield surgeon forged in the endless wars between the outer colonies and hostile alien forces.<br>Calm under pressure and feared by enemy commanders, she patches wounds while laying down suppressive fire.<br>Soldiers call her The Guardian Angel of the Void because no marine under her watch is ever left behind.",
+        "characterdeescription": "Lieutenant Seraphina Vale walks into gunfire with medical tools in one hand and a weapon in the other. Marines call her the Guardian Angel of the Void because she keeps soldiers breathing where no one should survive.",
+        "description": "Lieutenant Seraphina Vale walks into gunfire with medical tools in one hand and a weapon in the other. Marines call her the Guardian Angel of the Void because she keeps soldiers breathing where no one should survive.",
+        "descriptionHtml": "Lieutenant Seraphina Vale walks into gunfire with medical tools in one hand and a weapon in the other. Marines call her the Guardian Angel of the Void because she keeps soldiers breathing where no one should survive.",
         "startStatuses": [
             {
                 "statusId": "seraphina_vale_battlefield_triage_passive",
@@ -10310,7 +10300,7 @@ const characters = [
                 "classesHtml": "Passive, Instant"
             }
         ],
-        "role": "Frontline Support",
+        "role": "Support",
         "universe": "aliens-vs-predator",
         "roleCategory": "support"
     },
@@ -10319,7 +10309,7 @@ const characters = [
         "characterId": "space-marine-smartgunner",
         "name": "Sergeant William Hillford",
         "facePicture": "https://i.imgur.com/xhy4DuC.png",
-        "characterdeescription": "A hardened urban warfare sergeant who specializes in locking down weakened enemies and systematically eliminating anyone left exposed on the battlefield. William Hillford controls the pace of combat through tactical suppression, relentless target marking, and brutal close-range enforcement, turning vulnerable opponents into guaranteed kills while protecting himself from retaliation.",
+        "characterdeescription": "Sergeant William Hillford learned urban war one locked target at a time. His smartgun systems mark exposed enemies, suppress counterattacks, and turn wounded targets into confirmed kills.",
         "skills": [
             {
                 "id": "space-marine-smartgunner-smartgun-lock-on",
@@ -10540,16 +10530,16 @@ const characters = [
                 ]
             }
         ],
-        "role": "Control / Executioner",
+        "role": "Controller",
         "universe": "aliens-vs-predator",
-        "roleCategory": "control"
+        "roleCategory": "controller"
     },
     {
         "id": "predator-stalker",
         "characterId": "predator-stalker",
         "name": "Predator Stalker",
         "facePicture": "https://i.imgur.com/1NssQOv_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-        "characterdeescription": "Predator Stalker is a calculated hunter who chains multi-turn damage and lethal burst through stealth. He excels at softening multiple targets before executing a priority enemy while remaining highly evasive.",
+        "characterdeescription": "Predator Stalker hunts by patience, technology, and ritual pride. Cloaked from sight and armed with alien weapons, he weakens prey from a distance before stepping in for the trophy.",
         "startStatuses": [
             {
                 "statusId": "predator_stalker_trophy_hunter_passive",
@@ -10818,7 +10808,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Evasion Assassin",
+        "role": "Assassin",
         "roleCategory": "assassin",
         "universe": "aliens-vs-predator"
     },
@@ -10831,9 +10821,9 @@ const characters = [
         "url": "https://i.imgur.com/v9pUryk.jpeg",
         "unlockRequirement": "None",
         "unlockRequirementHtml": "None",
-        "characterdeescription": "Sinestro is a fear-based pressure fighter who weakens enemies over time, punishes healing, and builds escalating damage reduction through his Yellow Lantern Ring.",
-        "description": "Sinestro is a fear-based pressure fighter who weakens enemies over time, punishes healing, and builds escalating damage reduction through his Yellow Lantern Ring.",
-        "descriptionHtml": "Sinestro is a fear-based pressure fighter who weakens enemies over time, punishes healing, and builds escalating damage reduction through his Yellow Lantern Ring.",
+        "characterdeescription": "Thaal Sinestro forged fear into an empire after deciding willpower was too merciful. His yellow ring feeds on terror, punishing hope and turning enemy hesitation into power.",
+        "description": "Thaal Sinestro forged fear into an empire after deciding willpower was too merciful. His yellow ring feeds on terror, punishing hope and turning enemy hesitation into power.",
+        "descriptionHtml": "Thaal Sinestro forged fear into an empire after deciding willpower was too merciful. His yellow ring feeds on terror, punishing hope and turning enemy hesitation into power.",
         "startStatuses": [
             {
                 "statusId": "sinestro_yellow_lantern_ring_passive",
@@ -11108,8 +11098,8 @@ const characters = [
                 "classesHtml": "Passive, Instant"
             }
         ],
-        "role": "De-Buff DPS",
-        "roleCategory": "strategic",
+        "role": "Controller",
+        "roleCategory": "controller",
         "universe": "dc"
     },
     {
@@ -11121,9 +11111,9 @@ const characters = [
         "url": "https://i.imgur.com/nS6xXG6.png",
         "unlockRequirement": "None",
         "unlockRequirementHtml": "None",
-        "characterdeescription": "Atrocitus is a relentless rage-fueled bruiser who grows stronger the more he is attacked. By building Rage stacks through damage taken, he steadily increases the power of his abilities and forces enemies to think twice before focusing him.",
-        "description": "Atrocitus is a relentless rage-fueled bruiser who grows stronger the more he is attacked. By building Rage stacks through damage taken, he steadily increases the power of his abilities and forces enemies to think twice before focusing him.",
-        "descriptionHtml": "Atrocitus is a relentless rage-fueled bruiser who grows stronger the more he is attacked.<br>By building Rage stacks through damage taken, he steadily increases the power of his abilities and forces enemies to think twice before focusing him.",
+        "characterdeescription": "Atrocitus leads the Red Lanterns with rage born from massacre and loss. Blood magic and wrath fuel every strike, making each wound against him another spark for vengeance.",
+        "description": "Atrocitus leads the Red Lanterns with rage born from massacre and loss. Blood magic and wrath fuel every strike, making each wound against him another spark for vengeance.",
+        "descriptionHtml": "Atrocitus leads the Red Lanterns with rage born from massacre and loss. Blood magic and wrath fuel every strike, making each wound against him another spark for vengeance.",
         "startStatuses": [
             {
                 "statusId": "atrocitus_red_lantern_ring_passive",
@@ -11432,7 +11422,7 @@ const characters = [
                 "classesHtml": "Passive, Energy, Instant"
             }
         ],
-        "role": "Rage Scaling Bruiser",
+        "role": "Bruiser",
         "roleCategory": "bruiser",
         "universe": "dc"
     },
@@ -11445,9 +11435,9 @@ const characters = [
         "url": "https://i.imgur.com/unzClm5.jpeg",
         "unlockRequirement": "None",
         "unlockRequirementHtml": "None",
-        "characterdeescription": "Saint Walker is a Hope-powered support protector who specializes in shielding allies, preventing death, and empowering his team through permanent defensive growth.",
-        "description": "Saint Walker is a Hope-powered support protector who specializes in shielding allies, preventing death, and empowering his team through permanent defensive growth.",
-        "descriptionHtml": "Saint Walker is a Hope-powered support protector who specializes in shielding allies, preventing death, and empowering his team through permanent defensive growth.",
+        "characterdeescription": "Saint Walker carries the blue light of hope through battles that should break faith. His ring shields allies, preserves life, and strengthens those who still believe the fight can be won.",
+        "description": "Saint Walker carries the blue light of hope through battles that should break faith. His ring shields allies, preserves life, and strengthens those who still believe the fight can be won.",
+        "descriptionHtml": "Saint Walker carries the blue light of hope through battles that should break faith. His ring shields allies, preserves life, and strengthens those who still believe the fight can be won.",
         "startStatuses": [
             {
                 "statusId": "saint_walker_blue_lantern_ring_passive",
@@ -11831,7 +11821,7 @@ const characters = [
                 "classesHtml": "Passive, Instant"
             }
         ],
-        "role": "Shield Support",
+        "role": "Support",
         "roleCategory": "support",
         "universe": "dc"
     },
@@ -11844,9 +11834,9 @@ const characters = [
         "url": "https://i.imgur.com/nOzu8z7.jpeg",
         "unlockRequirement": "None",
         "unlockRequirementHtml": "None",
-        "characterdeescription": "Indigo-1 is a versatile empath support who alternates between healing allies and punishing enemies through mirrored suffering and powerful affliction effects.",
-        "description": "Indigo-1 is a versatile empath support who alternates between healing allies and punishing enemies through mirrored suffering and powerful affliction effects.",
-        "descriptionHtml": "Indigo-1 is a versatile empath support who alternates between healing allies and punishing enemies through mirrored suffering and powerful affliction effects.",
+        "characterdeescription": "Indigo-1 channels compassion through a light that heals, mirrors, and condemns. Her staff turns suffering into judgment, restoring allies while forcing enemies to feel the pain they cause.",
+        "description": "Indigo-1 channels compassion through a light that heals, mirrors, and condemns. Her staff turns suffering into judgment, restoring allies while forcing enemies to feel the pain they cause.",
+        "descriptionHtml": "Indigo-1 channels compassion through a light that heals, mirrors, and condemns. Her staff turns suffering into judgment, restoring allies while forcing enemies to feel the pain they cause.",
         "startStatuses": [
             {
                 "statusId": "indigo_1_indigo_lantern_ring_passive",
@@ -12135,7 +12125,7 @@ const characters = [
                 "classesHtml": "Passive, Instant"
             }
         ],
-        "role": "Heal Support",
+        "role": "Support",
         "roleCategory": "support",
         "universe": "dc"
     },
@@ -12148,9 +12138,9 @@ const characters = [
         "url": "https://i.imgur.com/s2MM50x.jpeg",
         "unlockRequirement": "None",
         "unlockRequirementHtml": "None",
-        "characterdeescription": "John Stewart is a methodical control fighter who spreads Emotional Possession across the battlefield, weakening enemies and manipulating their actions through Ultraviolet constructs.",
-        "description": "John Stewart is a methodical control fighter who spreads Emotional Possession across the battlefield, weakening enemies and manipulating their actions through Ultraviolet constructs.",
-        "descriptionHtml": "John Stewart is a methodical control fighter who spreads Emotional Possession across the battlefield, weakening enemies and manipulating their actions through Ultraviolet constructs.",
+        "characterdeescription": "John Stewart brings a Marine's discipline and an architect's precision to the Lantern Corps. His constructs land with purpose, shaping emotion and force into tactical control.",
+        "description": "John Stewart brings a Marine's discipline and an architect's precision to the Lantern Corps. His constructs land with purpose, shaping emotion and force into tactical control.",
+        "descriptionHtml": "John Stewart brings a Marine's discipline and an architect's precision to the Lantern Corps. His constructs land with purpose, shaping emotion and force into tactical control.",
         "startStatuses": [
             {
                 "statusId": "john_stewart_ultraviolet_lantern_ring_passive",
@@ -12464,9 +12454,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Hybrid",
+        "role": "Controller",
         "universe": "dc",
-        "roleCategory": "hybrid"
+        "roleCategory": "controller"
     },
     {
         "id": "sorrow",
@@ -12477,8 +12467,8 @@ const characters = [
         "url": "https://i.imgur.com/1T6Wf9Y.jpeg",
         "unlockRequirement": "None",
         "unlockRequirementHtml": "None",
-        "characterdeescription": "Sorrow is a manipulative control fighter who weakens enemies through despair, punishment effects, and escalating Stack of Sorrow debuffs that make targets increasingly vulnerable.",
-        "description": "Sorrow is a manipulative control fighter who weakens enemies through despair, punishment effects, and escalating Stack of Sorrow debuffs that make targets increasingly vulnerable.",
+        "characterdeescription": "Sorrow feeds on despair and leaves enemies carrying weight they cannot put down. Each curse deepens the ache, making every mistake feel heavier until hope gives way.",
+        "description": "Sorrow feeds on despair and leaves enemies carrying weight they cannot put down. Each curse deepens the ache, making every mistake feel heavier until hope gives way.",
         "startStatuses": [
             {
                 "statusId": "sorrow_grey_lantern_ring_passive",
@@ -12790,16 +12780,16 @@ const characters = [
                 "classesHtml": "Skill"
             }
         ],
-        "role": "Hybrid",
+        "role": "Controller",
         "universe": "dc",
-        "roleCategory": "hybrid"
+        "roleCategory": "controller"
     },
     {
         "id": "parasite",
         "characterId": "parasite",
         "name": "Parasite",
         "facePicture": "assets/images/parasiteFP.png",
-        "characterdeescription": "Parasite feeds on the life force of others, siphoning vitality and adapting stolen energy into overwhelming power. Weakening enemies while reinforcing himself and allies, he becomes increasingly dangerous the longer he remains active.",
+        "characterdeescription": "Parasite survives by stealing what makes others strong. Every touch drains life, power, and momentum, letting him adapt stolen energy into new forms of pressure.",
         "skills": [
             {
                 "id": "parasite-life-leech",
@@ -13081,7 +13071,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Adaptive Drain Tank / Adaptive Stat Vampire",
+        "role": "Tank",
         "universe": "dc",
         "roleCategory": "tank"
     },
@@ -13090,7 +13080,7 @@ const characters = [
         "characterId": "ghost-rider",
         "name": "Ghost Rider",
         "facePicture": "assets/images/ghostriderfp.png",
-        "characterdeescription": "Johnathon 'Johnny' Blaze, the Spirit of Vengeance, wields Hellfire and the Penance Stare to punish the wicked. Bound to the demon Zarathos, he hunts those who have spilled innocent blood, forcing them to feel the pain they have caused. With his supernatural motorcycle and mystical chains, Ghost Rider is a relentless force of justice that cannot be escaped.",
+        "characterdeescription": "Johnny Blaze rides as the Spirit of Vengeance, bound to hellfire and the demon Zarathos. With chains, a burning motorcycle, and the Penance Stare, Ghost Rider makes the guilty feel every sin they have dealt.",
         "startStatuses": [
             {
                 "statusId": "ghost_rider_vengeance_tracker",
@@ -13403,16 +13393,16 @@ const characters = [
                 ]
             }
         ],
-        "role": "Scaling Bruiser / Assassin",
+        "role": "Bruiser",
         "universe": "marvel",
-        "roleCategory": "damage"
+        "roleCategory": "bruiser"
     },
     {
         "id": "wolverine",
         "characterId": "wolverine",
         "name": "Wolverine",
         "facePicture": "assets/images/wolverinefp.webp",
-        "characterdeescription": "Logan, the Wolverine, is a relentless mutant brawler with adamantium bones, razor claws, and a healing factor that lets him keep fighting through punishment that would stop almost anyone else. He pressures enemies with stacking bleed wounds, turns his claws white-hot when pushed, and can enter a berserker rage that delays incoming damage until his fury finally burns out.",
+        "characterdeescription": "Logan carries adamantium bones, razor claws, and a healing factor that refuses to let him stay down. Wolverine fights through pain, rage, and memory, cutting deeper the longer enemies try to stop him.",
         "startStatuses": [
             {
                 "statusId": "wolverine_adamantium_skeleton",
@@ -13429,137 +13419,137 @@ const characters = [
         ],
         "skills": [
             {
-                "id": "wolverine-adamantium-claws",
-                "name": "Adamantium Claws",
-                "skillimage": "assets/images/wolverineadamantiumclaws.webp",
-                "skilldescription": "Wolverine slashes one enemy twice, dealing 10 piercing damage each time and making them bleed 2 HP permanently. This bleed stacks. During Hot Claws, each claw hit also deals 5 affliction damage and makes the target ignore healing effects for 1 turn. During Berserker Rage, Adamantium Claws hits an extra time.",
-                "energy": [
+          "id": "wolverine-adamantium-claws",
+          "name": "Adamantium Claws",
+          "skillimage": "assets/images/wolverineadamantiumclaws.webp",
+          "skilldescription": "Wolverine slashes one enemy twice, dealing 10 piercing damage each time and making them bleed 1 HP permanently. This bleed stacks. During Hot Claws, each claw hit also deals 5 affliction damage and makes the target ignore healing effects for 1 turn. During Berserker Rage, Adamantium Claws hits an extra time.",
+          "energy": [
                     "Taijutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
+          ],
+          "target": "single-enemy",
+          "damage": 0,
+          "cooldown": 0,
+          "classes": [
                     "Physical",
                     "Melee",
                     "Instant"
-                ],
-                "effects": [
+          ],
+          "effects": [
                     {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
+                              "type": "damage",
+                              "amount": 10,
+                              "scope": "target",
+                              "metadata": {
+                                        "ignoreDamageReduction": true
+                              }
                     },
                     {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
+                              "type": "damage",
+                              "amount": 10,
+                              "scope": "target",
+                              "metadata": {
+                                        "ignoreDamageReduction": true
+                              }
                     },
                     {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "wolverine_berserker_rage"
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
+                              "type": "damage",
+                              "amount": 10,
+                              "scope": "target",
+                              "condition": {
+                                        "scope": "self",
+                                        "statusId": "wolverine_berserker_rage"
+                              },
+                              "metadata": {
+                                        "ignoreDamageReduction": true
+                              }
                     },
                     {
-                        "type": "apply_status",
-                        "statusId": "wolverine_adamantium_claws_bleed",
-                        "duration": 999,
-                        "sourceSkillId": "wolverine-adamantium-claws",
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "sourceSkillName": "Adamantium Claws",
-                            "statusIconUrl": "assets/images/wolverineadamantiumclaws.webp",
-                            "turnEndDamage": 2,
-                            "afflictionDamage": true,
-                            "fixedTurnEndDamage": true,
-                            "ignoreDamageImmunity": true,
-                            "ignoreAfflictionDamageImmunity": true,
-                            "triggerOnApply": true,
-                            "turnEndTrigger": "source_turn",
-                            "turnDurationAnchor": "source_turn",
-                            "mergeNumericAddKeys": [
-                                "turnEndDamage"
-                            ],
-                            "tooltipTextTemplate": "This character bleeds for {turnEndDamage} HP at the end of each of Wolverine's turns. This bleed is permanent and stacks."
-                        }
+                              "type": "apply_status",
+                              "statusId": "wolverine_adamantium_claws_bleed",
+                              "duration": 999,
+                              "sourceSkillId": "wolverine-adamantium-claws",
+                              "scope": "target",
+                              "metadata": {
+                                        "harmful": true,
+                                        "infiniteDuration": true,
+                                        "sourceSkillName": "Adamantium Claws",
+                                        "statusIconUrl": "assets/images/wolverineadamantiumclaws.webp",
+                                        "turnEndDamage": 1,
+                                        "afflictionDamage": true,
+                                        "fixedTurnEndDamage": true,
+                                        "ignoreDamageImmunity": true,
+                                        "ignoreAfflictionDamageImmunity": true,
+                                        "triggerOnApply": true,
+                                        "turnEndTrigger": "source_turn",
+                                        "turnDurationAnchor": "source_turn",
+                                        "mergeNumericAddKeys": [
+                                                  "turnEndDamage"
+                                        ],
+                                        "tooltipTextTemplate": "This character bleeds for {turnEndDamage} HP at the end of each of Wolverine's turns. This bleed is permanent and stacks."
+                              }
                     },
                     {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "wolverine_hot_claws"
-                        },
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true
-                        }
+                              "type": "damage",
+                              "amount": 5,
+                              "scope": "target",
+                              "condition": {
+                                        "scope": "self",
+                                        "statusId": "wolverine_hot_claws"
+                              },
+                              "metadata": {
+                                        "afflictionDamage": true,
+                                        "ignoreDamageReduction": true
+                              }
                     },
                     {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "wolverine_hot_claws"
-                        },
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true
-                        }
+                              "type": "damage",
+                              "amount": 5,
+                              "scope": "target",
+                              "condition": {
+                                        "scope": "self",
+                                        "statusId": "wolverine_hot_claws"
+                              },
+                              "metadata": {
+                                        "afflictionDamage": true,
+                                        "ignoreDamageReduction": true
+                              }
                     },
                     {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusIdsAll": [
-                                "wolverine_hot_claws",
-                                "wolverine_berserker_rage"
-                            ]
-                        },
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true
-                        }
+                              "type": "damage",
+                              "amount": 5,
+                              "scope": "target",
+                              "condition": {
+                                        "scope": "self",
+                                        "statusIdsAll": [
+                                                  "wolverine_hot_claws",
+                                                  "wolverine_berserker_rage"
+                                        ]
+                              },
+                              "metadata": {
+                                        "afflictionDamage": true,
+                                        "ignoreDamageReduction": true
+                              }
                     },
                     {
-                        "type": "apply_status",
-                        "statusId": "wolverine_hot_claws_healing_block",
-                        "duration": 1,
-                        "sourceSkillId": "wolverine-hot-claws",
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "wolverine_hot_claws"
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "sourceSkillName": "Hot Claws",
-                            "statusIconUrl": "assets/images/wolverinehotclaws.webp",
-                            "healReceivedMultiplier": 0,
-                            "tooltipText": "This character ignores healing effects."
-                        }
+                              "type": "apply_status",
+                              "statusId": "wolverine_hot_claws_healing_block",
+                              "duration": 1,
+                              "sourceSkillId": "wolverine-hot-claws",
+                              "scope": "target",
+                              "condition": {
+                                        "scope": "self",
+                                        "statusId": "wolverine_hot_claws"
+                              },
+                              "metadata": {
+                                        "harmful": true,
+                                        "sourceSkillName": "Hot Claws",
+                                        "statusIconUrl": "assets/images/wolverinehotclaws.webp",
+                                        "healReceivedMultiplier": 0,
+                                        "tooltipText": "This character ignores healing effects."
+                              }
                     }
-                ]
-            },
+          ]
+},
             {
                 "id": "wolverine-hot-claws",
                 "name": "Hot Claws",
@@ -13687,9 +13677,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Regenerating Bleed Bruiser",
+        "role": "Bruiser",
         "universe": "marvel",
-        "roleCategory": "damage"
+        "roleCategory": "bruiser"
     },
     {
         "id": "doctor-fate",
@@ -13920,9 +13910,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Mystic Judgment Controller",
+        "role": "Controller",
         "universe": "dc",
-        "roleCategory": "control"
+        "roleCategory": "controller"
     },
     {
         "id": "doctor-doom",
@@ -14145,9 +14135,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Doombot Control Strategist",
+        "role": "Controller",
         "universe": "marvel",
-        "roleCategory": "control"
+        "roleCategory": "controller"
     },
     {
         "id": "doctor-strange",
@@ -14478,16 +14468,16 @@ const characters = [
                 ]
             }
         ],
-        "role": "Mystic Control Caster",
+        "role": "Controller",
         "universe": "marvel",
-        "roleCategory": "control"
+        "roleCategory": "controller"
     },
     {
         "id": "darth-vader",
         "characterId": "darth-vader",
         "name": "Darth Vader",
         "facePicture": "assets/images/darthvaderfp.webp",
-        "characterdeescription": "Once the heroic Anakin Skywalker, Darth Vader now serves as the Emperor's ruthless enforcer. A relentless juggernaut of the dark side, Vader overwhelms his enemies through fear, pain, and sheer power. Those who survive his assaults often find themselves unable to escape his grasp.",
+        "characterdeescription": "Once Anakin Skywalker, Darth Vader serves the Empire as a Sith enforcer wrapped in armor and pain. He crushes enemies with the Force, drags them into fear, and leaves no room for escape.",
         "skills": [
             {
                 "id": "darth-vader-saber-strike-down",
@@ -14654,7 +14644,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Dark Side Control Bruiser",
+        "role": "Bruiser",
         "universe": "star-wars",
         "roleCategory": "bruiser"
     },
@@ -14663,7 +14653,7 @@ const characters = [
         "characterId": "boba-fett",
         "name": "Boba Fett",
         "facePicture": "assets/images/bobafettfp.webp",
-        "characterdeescription": "The most feared bounty hunter in the galaxy, Boba Fett relies on an arsenal of advanced weaponry, explosives, and Mandalorian technology to track down and eliminate his targets. By claiming bounties and scavenging trophies from fallen enemies, Boba continually upgrades his equipment, becoming more dangerous with every successful hunt.",
+        "characterdeescription": "Boba Fett built his name one bounty at a time, hidden behind Mandalorian armor and a hunter's patience. Rockets, blasters, and trophies turn each target into another payday if they survive long enough to be claimed.",
         "skills": [
             {
                 "id": "boba-fett-bounty-hunter-blaster",
@@ -15166,7 +15156,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Bounty Upgrade Specialist",
+        "role": "Specialist",
         "universe": "star-wars",
         "roleCategory": "specialist"
     },
@@ -15175,7 +15165,7 @@ const characters = [
         "characterId": "obi-wan-kenobi",
         "name": "Obi-Wan Kenobi",
         "facePicture": "assets/images/obiwankenobifp.webp",
-        "characterdeescription": "A legendary Jedi Master and one of the greatest practitioners of the defensive Soresu lightsaber form. Obi-Wan excels at protecting his allies and turning an opponent's aggression against them. Through patience, discipline, and flawless defense, he creates openings that allow him to strike with decisive precision.",
+        "characterdeescription": "Obi-Wan Kenobi stands as a Jedi Master shaped by loss, discipline, and the defensive art of Soresu. He protects allies with patience and turns enemy aggression into the opening that ends the duel.",
         "skills": [
             {
                 "id": "obi-wan-kenobi-soresu-style-cut",
@@ -15438,7 +15428,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Defensive Jedi Counter",
+        "role": "Support",
         "universe": "star-wars",
         "roleCategory": "support"
     },
@@ -15447,7 +15437,7 @@ const characters = [
         "characterId": "grand-master-yoda",
         "name": "Grand Master Yoda",
         "facePicture": "assets/images/YodaFP.webp",
-        "characterdeescription": "The wisest and most respected Jedi Master of his era. Yoda uses his unparalleled connection to the Force to guide his allies and outmaneuver his enemies. Though small in stature, his mastery of the Force allows him to transform patience and wisdom into overwhelming strength.",
+        "characterdeescription": "Grand Master Yoda carries centuries of Jedi wisdom in a body enemies underestimate at their peril. Through the Force, he guides allies, redirects danger, and answers violence with sudden, precise power.",
         "skills": [
             {
                 "id": "grand-master-yoda-ataru-strike",
@@ -15679,7 +15669,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Force Support",
+        "role": "Support",
         "universe": "star-wars",
         "roleCategory": "support"
     },
@@ -15688,7 +15678,7 @@ const characters = [
         "characterId": "darth-sidious",
         "name": "Darth Sidious",
         "facePicture": "assets/images/darthsidiousfp.png",
-        "characterdeescription": "The Dark Lord of the Sith and architect of the Galactic Empire, Darth Sidious bends others to his will through manipulation, fear, and the dark side of the Force. His enemies slowly succumb to Corruption, becoming little more than pawns in his grand design before being consumed by his devastating Crimson Force Lightning.",
+        "characterdeescription": "Darth Sidious hides galactic ambition behind a senator's smile before revealing the Sith Lord beneath. He spreads corruption through fear, manipulation, and crimson lightning until enemies serve his design or burn inside it.",
         "skills": [
             {
                 "id": "darth-sidious-force-lightning",
@@ -16021,16 +16011,16 @@ const characters = [
                 ]
             }
         ],
-        "role": "Corruption Controller",
+        "role": "Controller",
         "universe": "star-wars",
-        "roleCategory": "control"
+        "roleCategory": "controller"
     },
     {
         "id": "general-grievous",
         "characterId": "general-grievous",
         "name": "General Grievous",
         "facePicture": "assets/images/generalgrievousfp.png",
-        "characterdeescription": "A ruthless cyborg warlord obsessed with collecting the lightsabers of fallen Jedi. General Grievous relentlessly pursues his prey, building momentum throughout battle as he expands his collection and overwhelms his enemies with a storm of blades.",
+        "characterdeescription": "General Grievous is a cyborg warlord who keeps the lightsabers of fallen Jedi as trophies. He hunts with four blades, mechanical fury, and a need to prove that even legends can be collected.",
         "skills": [
             {
                 "id": "general-grievous-four-armed-assault",
@@ -16317,7 +16307,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Melee Finisher",
+        "role": "Damage",
         "universe": "star-wars",
         "roleCategory": "damage"
     }
