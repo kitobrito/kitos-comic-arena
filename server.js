@@ -4208,6 +4208,55 @@ const loadCharactersDataFromFile = () => {
     return Array.isArray(fileCharacters) ? fileCharacters : [];
 };
 
+const CANONICAL_CHARACTER_ASSET_PATCHES = new Map([
+    [
+        'billy-butcher',
+        {
+            facePicture: 'assets/images/billybutchernewfp.png',
+            statusFacePictureOverrides: new Map([
+                ['billy_butcher_v24_active', 'assets/images/billybutcherv24fp.png'],
+            ]),
+        },
+    ],
+]);
+
+const applyCanonicalCharacterAssetPaths = (nextCharacters = []) =>
+    (Array.isArray(nextCharacters) ? nextCharacters : []).map((character = {}) => {
+        const characterId = getCharacterRecordId(character);
+        const patch = CANONICAL_CHARACTER_ASSET_PATCHES.get(characterId);
+        if (!patch) {
+            return character;
+        }
+
+        const nextCharacter = {
+            ...character,
+            facePicture: patch.facePicture || character.facePicture,
+        };
+
+        if (patch.statusFacePictureOverrides instanceof Map && Array.isArray(character.skills)) {
+            nextCharacter.skills = character.skills.map((skill = {}) => ({
+                ...skill,
+                effects: Array.isArray(skill.effects)
+                    ? skill.effects.map((effect = {}) => {
+                          const overridePath = patch.statusFacePictureOverrides.get(effect.statusId);
+                          if (!overridePath) {
+                              return effect;
+                          }
+                          return {
+                              ...effect,
+                              metadata: {
+                                  ...(effect.metadata || {}),
+                                  facePictureOverride: overridePath,
+                              },
+                          };
+                      })
+                    : skill.effects,
+            }));
+        }
+
+        return nextCharacter;
+    });
+
 const applyCharacterOverrides = (baseCharacters = []) => {
     const nextCharacters = (Array.isArray(baseCharacters) ? baseCharacters : []).slice();
     characterOverrideCache.forEach((overrideCharacter, characterId) => {
@@ -4223,7 +4272,7 @@ const applyCharacterOverrides = (baseCharacters = []) => {
         }
         nextCharacters[existingIndex] = overrideCharacter;
     });
-    return nextCharacters;
+    return applyCanonicalCharacterAssetPaths(nextCharacters);
 };
 
 const rebuildCharacterCatalog = (nextCharacters) => {
