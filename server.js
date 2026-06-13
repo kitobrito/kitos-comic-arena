@@ -41,7 +41,7 @@ const PORT = process.env.PORT || 4000;
 const TURN_DURATION_MS = 60 * 1000;
 const MATCH_FOUND_HOLD_MS = 3 * 1000;
 const BATTLE_BOT_QUEUE_TIMEOUT_MS = 20 * 1000;
-const BATTLE_BOT_ACTION_DELAY_MS = 15 * 1000;
+const BATTLE_BOT_ACTION_DELAY_MS = 2500;
 const BATTLE_BOTS_ENABLED = process.env.ENABLE_BATTLE_BOTS !== 'false';
 const DEFAULT_URI = process.env.MONGODB_URI;
 const DATABASE_NAME = process.env.MONGODB_DB || 'comic-arena';

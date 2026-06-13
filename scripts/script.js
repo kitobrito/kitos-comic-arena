@@ -1381,8 +1381,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const optimisticQueuedByActorSlot = new Map();
         const optimisticCancelledActorSlots = new Set();
         const inFlightSkillRequestByActorSlot = new Set();
+        const inFlightSkillRequestPromisesByActorSlot = new Map();
         const targetOptionsCache = new Map();
         let targetOptionsRequestVersion = 0;
+        let queuedSkillDeferredVisualsFrame = null;
         let draggingQueueActorSlot = null;
         let latestBoardState = null;
         let globalStatusTooltipEl = null;
@@ -2528,8 +2530,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderSkillOrderQueue(newlyQueuedKeys);
             renderQueueOrderLabels();
             updateSkillAffordability();
-            renderQueuedTargetTooltips();
-            renderDynamicSkillIcons();
+            scheduleQueuedSkillDeferredVisuals();
         };
 
         const getOrderedQueuedEntries = () => {
@@ -2576,6 +2577,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         const waitForMs = (durationMs) =>
             new Promise((resolve) => window.setTimeout(resolve, durationMs));
 
+        const waitForPendingSkillQueues = async () => {
+            const pendingRequests = Array.from(inFlightSkillRequestPromisesByActorSlot.values());
+            if (!pendingRequests.length) return;
+            await Promise.allSettled(pendingRequests);
+            if (inFlightSkillRequestPromisesByActorSlot.size > 0) {
+                await waitForPendingSkillQueues();
+            }
+        };
+
         const clearTransientPortraitAnimationState = () => {
             document
                 .querySelectorAll('.character-face.skill-caster-surge, .character-face.damage-impact, .character-face.heal-impact, .character-face.evade-dodge')
@@ -2603,9 +2613,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     skillIdx: entry.skillIndex,
                     selection: entry.targetSelection,
                 });
-                await waitForMs(980);
+                await waitForMs(420);
             }
-            await waitForMs(260);
+            await waitForMs(120);
             clearTransientPortraitAnimationState();
             isPlayingResolutionSequence = false;
         };
@@ -7263,6 +7273,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderQueuedTargetCardMarkers();
         };
 
+        const scheduleQueuedSkillDeferredVisuals = () => {
+            if (queuedSkillDeferredVisualsFrame !== null) return;
+            queuedSkillDeferredVisualsFrame = window.requestAnimationFrame(() => {
+                queuedSkillDeferredVisualsFrame = null;
+                renderQueuedTargetTooltips();
+                renderDynamicSkillIcons();
+            });
+        };
+
         const renderSkillInfo = (character, skill, actorSlot = null, skillIdx = null) => {
             if (!skill || !character) return;
             const actorUnit =
@@ -8135,7 +8154,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             absorptionChoice = null,
         }) => {
             if (!matchIdFromUrl) return Promise.resolve();
-            if (inFlightSkillRequestByActorSlot.has(actorSlot)) return Promise.resolve();
+            if (inFlightSkillRequestByActorSlot.has(actorSlot)) {
+                return inFlightSkillRequestPromisesByActorSlot.get(actorSlot) || Promise.resolve();
+            }
             clearSkillInteractionCache();
             inFlightSkillRequestByActorSlot.add(actorSlot);
             optimisticCancelledActorSlots.delete(actorSlot);
@@ -8147,7 +8168,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ...(absorptionChoice ? { absorptionChoice } : {}),
             });
             applyQueuedSkillVisuals();
-            return fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/queue`, {
+            const queueRequest = fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/queue`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -8178,11 +8199,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 })
                 .finally(() => {
                     inFlightSkillRequestByActorSlot.delete(actorSlot);
+                    inFlightSkillRequestPromisesByActorSlot.delete(actorSlot);
                     closeClassChoicePopup();
                     clearTargetHighlights();
                     activeTargetOptions = null;
                     activeCastingSkill = null;
                 });
+            inFlightSkillRequestPromisesByActorSlot.set(actorSlot, queueRequest);
+            return queueRequest;
         };
 
         const openClassChoicePopup = ({ actorSlot, skillIdx, selection, options = [] }) => {
@@ -8766,17 +8790,18 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const handleEndTurnConfirm = async () => {
             if (isEndingTurn || !matchIdFromUrl) return;
-            const pending = normalizePendingTurn(pendingTurnState);
-            if (pending.unresolvedRandom > 0) {
-                updateEndTurnButtons();
-                return;
-            }
             isEndingTurn = true;
             if (endTurnOkButton) {
                 endTurnOkButton.disabled = true;
             }
-            const resolutionAnimationEntries = getQueuedResolutionAnimationEntries();
             try {
+                await waitForPendingSkillQueues();
+                const pending = normalizePendingTurn(pendingTurnState);
+                if (pending.unresolvedRandom > 0) {
+                    updateEndTurnButtons();
+                    return;
+                }
+                const resolutionAnimationEntries = getQueuedResolutionAnimationEntries();
                 const response = await fetch(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/end`,
                     {
