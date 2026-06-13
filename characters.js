@@ -6662,7 +6662,7 @@ const characters = [
         "id": "billy-butcher",
         "characterId": "billy-butcher",
         "name": "Billy Butcher",
-        "facePicture": "assets/images/billybutchernewfp.webp",
+        "facePicture": "assets/images/billybutchernewfp.png",
         "characterdeescription": "Billy Butcher hunts Supes with a smile sharp enough to draw blood. Armed with dirty tricks, V24 power, and a hatred that keeps him standing, he turns every fight into payback.",
         "skills": [
             {
@@ -6759,7 +6759,7 @@ const characters = [
                                 }
                             ],
                             "tooltipText": "Butcher has 50% unpierceable damage reduction and V24 is replaced by Yellow Death Lasers.",
-                            "facePictureOverride": "assets/images/billybutcherv24fp.webp"
+                            "facePictureOverride": "assets/images/billybutcherv24fp.png"
                         }
                     }
                 ]
