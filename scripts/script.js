@@ -904,6 +904,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 role: typeof user.role === 'string' ? user.role : 'player',
                 avatarUrl: user.profile?.avatarUrl || defaultProfileAvatar,
                 clanAbbreviation: user.profile?.clan?.abbreviation || '',
+                savedTeamIndices: Array.isArray(user.savedTeamIndices) ? user.savedTeamIndices : [],
+                savedTeamIndicesByArena:
+                    user.savedTeamIndicesByArena && typeof user.savedTeamIndicesByArena === 'object'
+                        ? user.savedTeamIndicesByArena
+                        : {},
+                profile: user.profile || {},
                 ladder: normalizeLadderPresentation(user.profile?.ladder),
                 missions: user.profile?.missions || {
                     progress: {},
@@ -926,12 +932,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const getUnlockedCharacterIdSet = () => {
         const unlockedIds = new Set();
-        const cachedMissions = profileCache?.profile?.missions;
+        const cachedArenaMissions =
+            activeArenaMode === 'pokemon'
+                ? profileCache?.profile?.arenas?.pokemon?.missions
+                : profileCache?.profile?.missions;
+        const cachedMissions = cachedArenaMissions || profileCache?.profile?.missions;
         const cachedStorageUser = readCachedUser();
+        const cachedStorageArenaMissions =
+            activeArenaMode === 'pokemon'
+                ? cachedStorageUser?.profile?.arenas?.pokemon?.missions || cachedStorageUser?.arenas?.pokemon?.missions
+                : cachedStorageUser?.missions;
         const sourceIds = Array.isArray(cachedMissions?.unlockedCharacterIds)
             ? cachedMissions.unlockedCharacterIds
-            : Array.isArray(cachedStorageUser?.missions?.unlockedCharacterIds)
-                ? cachedStorageUser.missions.unlockedCharacterIds
+            : Array.isArray(cachedStorageArenaMissions?.unlockedCharacterIds)
+                ? cachedStorageArenaMissions.unlockedCharacterIds
                 : [];
         sourceIds.forEach((entry) => {
             const normalized = typeof entry === 'string' ? entry.trim().toLowerCase() : '';
@@ -944,7 +958,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const loadMissionLockedCharacterIds = async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/missions`, {
+            const response = await fetch(`${API_BASE_URL}/api/missions?arena=${encodeURIComponent(activeArenaMode)}`, {
                 credentials: 'include',
             });
             if (!response.ok) {
@@ -1260,6 +1274,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let currentOpponentUsername = null;
         let currentOpponentDisplayName = null;
         let currentMatchMode = 'quick';
+        let currentMatchArena = 'comic';
         const matchChatEl = document.querySelector('.match-chat');
         const matchChatToggle = document.querySelector('.match-chat-toggle');
         const matchChatUnreadEl = document.querySelector('.match-chat-unread');
@@ -1378,6 +1393,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let activeTurnStartChoiceKey = '';
         let activeChoicePopupMode = '';
         let queuedSkillKeySet = new Set();
+        const queuedSkillCancelClickState = new Map();
         const optimisticQueuedByActorSlot = new Map();
         const optimisticCancelledActorSlots = new Set();
         const inFlightSkillRequestByActorSlot = new Set();
@@ -2504,7 +2520,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
 
                 meta.imgEl.classList.add('selected-target');
-                if (!queuedSkillKeySet.has(key) || !meta.imgEl.style.transform) {
+                if (!queuedSkillKeySet.has(key)) {
                     pulseSkillCast(meta.imgEl, meta.skill || meta.baseSkill);
                     animateSkillToQueue(meta.imgEl);
                 }
@@ -2651,6 +2667,62 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         };
 
+        const cancelQueuedSkillForActor = (actorSlot) => {
+            if (!matchIdFromUrl || !Number.isInteger(actorSlot)) return;
+            if (inFlightSkillRequestByActorSlot.has(actorSlot)) return;
+            clearSkillInteractionCache();
+            clearTargetHighlights();
+            activeTargetOptions = null;
+            activeCastingSkill = null;
+            inFlightSkillRequestByActorSlot.add(actorSlot);
+            optimisticQueuedByActorSlot.delete(actorSlot);
+            optimisticCancelledActorSlots.add(actorSlot);
+            applyQueuedSkillVisuals();
+            fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/cancel`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ actorSlot }),
+            })
+                .then(async (response) => {
+                    const data = await response.json();
+                    if (!response.ok || !data?.ok) {
+                        throw new Error(data?.error || 'Unable to cancel skill.');
+                    }
+                    optimisticCancelledActorSlots.delete(actorSlot);
+                    renderChakra(data.chakraPools?.[currentPlayerUsername] || emptyPool());
+                    pendingTurnState = normalizePendingTurn(data.pendingTurn);
+                    applyQueuedSkillVisuals();
+                    syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
+                })
+                .catch((error) => {
+                    optimisticCancelledActorSlots.delete(actorSlot);
+                    applyQueuedSkillVisuals();
+                    console.warn('Failed to cancel skill.', error);
+                })
+                .finally(() => {
+                    inFlightSkillRequestByActorSlot.delete(actorSlot);
+                });
+        };
+
+        const handleQueuedSkillCancelGesture = (actorSlot, sourceEl = null) => {
+            if (!Number.isInteger(actorSlot)) return false;
+            const key = String(actorSlot);
+            const now = Date.now();
+            const previous = queuedSkillCancelClickState.get(key) || 0;
+            queuedSkillCancelClickState.set(key, now);
+            if (sourceEl) {
+                sourceEl.classList.add('queued-cancel-armed');
+                window.setTimeout(() => sourceEl.classList.remove('queued-cancel-armed'), 420);
+            }
+            if (now - previous > 420) {
+                return false;
+            }
+            queuedSkillCancelClickState.delete(key);
+            cancelQueuedSkillForActor(actorSlot);
+            return true;
+        };
+
         const renderSkillOrderQueue = (newlyQueuedKeys = new Set()) => {
             if (!skillOrderEl) return;
             const queuedEntries = getOrderedQueuedEntries();
@@ -2667,10 +2739,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 preview.draggable = true;
                 preview.dataset.actorSlot = String(actorSlot);
                 preview.dataset.skillIndex = String(skillIdx);
+                preview.title = 'Double-click to unqueue this skill.';
                 if (newlyQueuedKeys.has(`${actorSlot}:${skillIdx}`)) {
                     preview.classList.add('skillpreview-added');
                     window.setTimeout(() => preview.classList.remove('skillpreview-added'), 700);
                 }
+                preview.addEventListener('pointerdown', (event) => {
+                    if (event?.button !== undefined && event.button !== 0) return;
+                    event.stopPropagation();
+                    handleQueuedSkillCancelGesture(actorSlot, preview);
+                });
                 preview.addEventListener('dragstart', () => {
                     draggingQueueActorSlot = actorSlot;
                     preview.classList.add('dragging');
@@ -7159,6 +7237,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (typeof data.mode === 'string' && data.mode.trim()) {
                 currentMatchMode = data.mode.trim().toLowerCase();
             }
+            if (typeof data.arena === 'string' && data.arena.trim()) {
+                currentMatchArena = data.arena.trim().toLowerCase() === 'pokemon' ? 'pokemon' : 'comic';
+            }
             if (data.opponent?.username) {
                 const nextOpponentUsername = data.opponent.username;
                 const nextOpponentDisplayName =
@@ -7839,7 +7920,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!ingameMissionsListEl) return;
             setIngameMissionsStatus('Loading missions...');
             try {
-                const response = await fetch(`${API_BASE_URL}/api/missions`, {
+                const response = await fetch(`${API_BASE_URL}/api/missions?arena=${encodeURIComponent(currentMatchArena)}`, {
                     credentials: 'include',
                     cache: 'no-store',
                 });
@@ -7869,7 +7950,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         method: 'POST',
                         credentials: 'include',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ team: currentPlayerTeam }),
+                        body: JSON.stringify({ team: currentPlayerTeam, arena: currentMatchArena }),
                     }
                 );
                 const payload = await response.json().catch(() => ({}));
@@ -8701,47 +8782,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     }
                                     const queued = getQueuedSkillForActorSlot(slotIndex);
                                     if (queued && queued.skillIndex === skillIdx) {
-                                        if (inFlightSkillRequestByActorSlot.has(slotIndex)) return;
-                                        clearSkillInteractionCache();
-                                        clearTargetHighlights();
-                                        activeTargetOptions = null;
-                                        activeCastingSkill = null;
-                                        inFlightSkillRequestByActorSlot.add(slotIndex);
-                                        optimisticQueuedByActorSlot.delete(slotIndex);
-                                        optimisticCancelledActorSlots.add(slotIndex);
-                                        applyQueuedSkillVisuals();
-                                        fetch(
-                                            `${API_BASE_URL}/api/match/${encodeURIComponent(
-                                                matchIdFromUrl
-                                            )}/skill/cancel`,
-                                            {
-                                                method: 'POST',
-                                                headers: { 'Content-Type': 'application/json' },
-                                                credentials: 'include',
-                                                body: JSON.stringify({ actorSlot: slotIndex }),
-                                            }
-                                        )
-                                            .then(async (response) => {
-                                                const data = await response.json();
-                                                if (!response.ok || !data?.ok) {
-                                                    throw new Error(data?.error || 'Unable to cancel skill.');
-                                                }
-                                                optimisticCancelledActorSlots.delete(slotIndex);
-                                                renderChakra(
-                                                    data.chakraPools?.[currentPlayerUsername] || emptyPool()
-                                                );
-                                                pendingTurnState = normalizePendingTurn(data.pendingTurn);
-                                                applyQueuedSkillVisuals();
-                                                syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
-                                            })
-                                            .catch((error) => {
-                                                optimisticCancelledActorSlots.delete(slotIndex);
-                                                applyQueuedSkillVisuals();
-                                                console.warn('Failed to cancel skill.', error);
-                                            })
-                                            .finally(() => {
-                                                inFlightSkillRequestByActorSlot.delete(slotIndex);
-                                            });
+                                        handleQueuedSkillCancelGesture(slotIndex, imgEl);
                                         return;
                                     }
                                     if (queued) {
@@ -9146,6 +9187,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const privateMatchError = document.querySelector('.private-match-error');
     const privateMatchOkButton = document.querySelector('.private-match-ok');
     const privateMatchCancelButton = document.querySelector('.private-match-cancel');
+    const arenaModeButtons = Array.from(document.querySelectorAll('.arena-mode-button'));
     const defaultCancelButtonLabel = cancelSearchingButton ? cancelSearchingButton.textContent : '';
     let activeSearchTargetUsername = '';
     const foundMatchSound = new Audio('assets/audio/sounds/found-match.mp3');
@@ -9155,6 +9197,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let isSearching = false;
     let pendingMatchRedirect = null;
     let draftModeEnabled = localStorage.getItem('comicDraftModeEnabled') === 'true';
+    let activeArenaMode = localStorage.getItem('comicArenaMode') === 'pokemon' ? 'pokemon' : 'comic';
     let activeDraft = null;
     let activeDraftSelection = [];
     let activeDraftSelectionPhase = '';
@@ -9164,6 +9207,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     const setSelectionMissionsStatus = (message = '') => {
         if (!selectionMissionsStatusEl) return;
         selectionMissionsStatusEl.textContent = message;
+    };
+
+    const getArenaModeLabel = (arena = activeArenaMode) =>
+        arena === 'pokemon' ? 'Pokemon Arena' : 'Comic Arena';
+
+    const syncArenaModeButtons = () => {
+        arenaModeButtons.forEach((button) => {
+            const mode = button.dataset.arenaMode === 'pokemon' ? 'pokemon' : 'comic';
+            const active = mode === activeArenaMode;
+            button.classList.toggle('active', active);
+            button.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
     };
 
     const formatMissionGoalLines = (mission, progress = {}) => {
@@ -9248,7 +9303,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ team }),
+                    body: JSON.stringify({ team, arena: activeArenaMode }),
                 }
             );
             const payload = await response.json().catch(() => ({}));
@@ -9346,7 +9401,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!selectionMissionsListEl) return;
         setSelectionMissionsStatus('Loading missions...');
         try {
-            const response = await fetch(`${API_BASE_URL}/api/missions`, {
+            const response = await fetch(`${API_BASE_URL}/api/missions?arena=${encodeURIComponent(activeArenaMode)}`, {
                 credentials: 'include',
                 cache: 'no-store',
             });
@@ -9451,7 +9506,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         searchingMessage.textContent =
             mode === 'private' && activeSearchTargetUsername
                 ? `Searching for ${activeSearchTargetUsername}`
-                : 'Searching for an opponent';
+                : `Searching ${getArenaModeLabel()} for an opponent`;
         if (searchingSpinner) {
             searchingSpinner.src = 'assets/images/sharingan.png';
             searchingSpinner.style.visibility = 'visible';
@@ -9611,6 +9666,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 body: JSON.stringify({
                     team: getTeamIndices(),
                     mode,
+                    arena: activeArenaMode,
                     targetUsername: options.targetUsername || '',
                     draftMode: draftModeEnabled,
                 }),
@@ -10047,16 +10103,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         'predalien',
     ];
     const getCharacterDisplayId = (character) => character?.characterId || character?.id || '';
+    const getCharacterArenaMode = (character = {}) => {
+        const explicitArena = typeof character?.arena === 'string' ? character.arena.trim().toLowerCase() : '';
+        if (explicitArena === 'pokemon') return 'pokemon';
+        if (explicitArena === 'comic') return 'comic';
+        const universe = typeof character?.universe === 'string' ? character.universe.trim().toLowerCase() : '';
+        return universe === 'pokemon' ? 'pokemon' : 'comic';
+    };
+
     const getBaseRosterDisplayIndices = () => {
         const used = new Set();
         const ordered = preferredCharacterDisplayOrder
             .map((id) => roster.findIndex((character) => getCharacterDisplayId(character) === id))
             .filter((index) => {
                 if (!Number.isInteger(index) || index < 0 || used.has(index)) return false;
+                if (getCharacterArenaMode(roster[index]) !== activeArenaMode) return false;
                 used.add(index);
                 return true;
             });
         roster.forEach((character, index) => {
+            if (getCharacterArenaMode(character) !== activeArenaMode) return;
             if (!used.has(index)) ordered.push(index);
         });
         return ordered;
@@ -10415,7 +10481,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({ team: indices }),
+                body: JSON.stringify({ team: indices, arena: activeArenaMode }),
             });
         } catch (error) {
             console.warn('Failed to save team selection.', error);
@@ -10860,7 +10926,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         );
         currentRosterPage = Math.min(currentRosterPage, totalPages - 1);
         if (rosterFilterStatus) {
-            rosterFilterStatus.textContent = `${rosterDisplayIndices.length} character${rosterDisplayIndices.length === 1 ? '' : 's'}`;
+            rosterFilterStatus.textContent = `${getArenaModeLabel()}: ${rosterDisplayIndices.length} character${rosterDisplayIndices.length === 1 ? '' : 's'}`;
         }
     };
 
@@ -10965,7 +11031,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     const applySavedTeam = () => {
-        const saved = profileCache?.savedTeamIndices;
+        const savedByArena = profileCache?.savedTeamIndicesByArena || {};
+        const saved =
+            Array.isArray(savedByArena?.[activeArenaMode])
+                ? savedByArena[activeArenaMode]
+                : activeArenaMode === 'comic'
+                    ? profileCache?.savedTeamIndices
+                    : [];
         if (!Array.isArray(saved) || saved.length !== selectedSlots.length) {
             updateGameButtons();
             renderRosterPage();
@@ -10974,6 +11046,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const used = new Set();
         saved.forEach((rosterIdx, slotIdx) => {
             if (!Number.isInteger(rosterIdx) || rosterIdx < 0 || rosterIdx >= roster.length) return;
+            if (getCharacterArenaMode(roster[rosterIdx]) !== activeArenaMode) return;
             if (isCharacterLocked(roster[rosterIdx])) return;
             if (used.has(rosterIdx)) return;
             const assignment = { characterIndex: rosterIdx, rosterIndex: rosterIdx };
@@ -10984,6 +11057,46 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateGameButtons();
         renderRosterPage();
     };
+
+    const clearSelectedTeamForArenaMode = () => {
+        selectedAssignments.forEach((assignment, slotIndex) => {
+            if (!assignment) return;
+            setSelectedSlot(slotIndex, null);
+        });
+    };
+
+    const setArenaMode = (arenaMode = 'comic') => {
+        const nextArenaMode = arenaMode === 'pokemon' ? 'pokemon' : 'comic';
+        if (nextArenaMode === activeArenaMode) return;
+        activeArenaMode = nextArenaMode;
+        localStorage.setItem('comicArenaMode', activeArenaMode);
+        syncArenaModeButtons();
+        clearSelectedTeamForArenaMode();
+        activeRosterFilterMode = 'role';
+        activeRosterFilterValue = 'all';
+        currentRosterPage = 0;
+        rosterFilterTabs.forEach((entry) =>
+            entry.classList.toggle('active', entry.dataset.rosterFilterMode === activeRosterFilterMode)
+        );
+        loadMissionLockedCharacterIds()
+            .catch(() => {})
+            .finally(() => {
+                applyRosterFilter();
+                applySavedTeam();
+                updateGameButtons();
+                if (selectionMissionsEl && !selectionMissionsEl.classList.contains('collapsed')) {
+                    loadSelectionMissions();
+                }
+            });
+    };
+
+    arenaModeButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            setArenaMode(button.dataset.arenaMode);
+        });
+    });
+
+    syncArenaModeButtons();
 
     if (nextPageButton) {
         nextPageButton.addEventListener('click', () => {

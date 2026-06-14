@@ -680,6 +680,31 @@ body.skill-effects-muted .storm-hail-weather::before {
     font-size: 9px;
 }
 
+.arena-mode-switch {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.arena-mode-button {
+    min-height: 24px;
+    border: 2px solid #1b120b;
+    background: #f1d79b;
+    color: #1b120b;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.72);
+    padding: 3px 8px;
+    cursor: pointer;
+    font: 700 10px 'Franklin', Arial, sans-serif;
+    text-transform: uppercase;
+}
+
+.arena-mode-button.active {
+    background: #111;
+    color: #f7de9d;
+}
+
 .selection-missions-panel {
     position: absolute;
     right: 0;
@@ -4798,6 +4823,12 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 .skillpreview.dragging {
     opacity: 0.5;
     cursor: grabbing;
+}
+
+.skillpreview.queued-cancel-armed,
+.skillimage.queued-cancel-armed {
+    outline: 2px solid #ffd94f;
+    box-shadow: 0 0 10px rgba(255, 217, 79, 0.9);
 }
 
 @keyframes skillpreview-added-pop {

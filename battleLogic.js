@@ -4285,6 +4285,36 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
         const statuses = Array.isArray(state.statuses) ? state.statuses : [];
         statuses.forEach((status) => {
             if (!isStatusActiveForMetadata(status, unit)) return;
+            const turnStartStatus = status?.metadata?.turnStartApplyStatusToOwner;
+            if (turnStartStatus?.statusId) {
+                const minimumTurnCount = Math.max(0, Number(turnStartStatus.minimumOwnerTurnCount) || 0);
+                const alreadyAppliedStatus = state.statuses.some(
+                    (entry) =>
+                        entry?.id === turnStartStatus.statusId &&
+                        (Number(entry?.remainingTurns) || 0) > 0
+                );
+                const lastAppliedStatusTurnCount = Number(status?.metadata?._lastTurnStartApplyStatusTurnCount);
+                if (
+                    turnCount >= minimumTurnCount &&
+                    !alreadyAppliedStatus &&
+                    (!Number.isFinite(lastAppliedStatusTurnCount) || lastAppliedStatusTurnCount !== turnCount)
+                ) {
+                    status.metadata = {
+                        ...(status.metadata || {}),
+                        _lastTurnStartApplyStatusTurnCount: turnCount,
+                    };
+                    applyStatus({
+                        targetState: state,
+                        statusId: turnStartStatus.statusId,
+                        duration: turnStartStatus.duration,
+                        sourceSkillId: turnStartStatus.sourceSkillId || status?.sourceSkillId || null,
+                        sourceUsername: startingUsername,
+                        sourceSlot: unitSlot,
+                        metadata: turnStartStatus.metadata || {},
+                        fresh: false,
+                    });
+                }
+            }
             const turnStartDamage = Math.max(0, Number(status?.metadata?.turnStartDamage) || 0);
             if (turnStartDamage <= 0) return;
             const lastApplied = Number(status?.metadata?._lastTurnStartDamageTurnCount);
@@ -8757,6 +8787,17 @@ const applyOnOwnerDamagedByBaseDamageBonuses = ({
         if (Boolean(trigger.enemyOnly) && sourceUsername === targetUsername) return;
         const threshold = Math.max(0, Number(trigger.threshold) || 0);
         if (Math.max(0, Number(sourceBaseDamage) || 0) < threshold) return;
+        if (Boolean(trigger.oncePerOwnerTurn) && targetState?.snapshots) {
+            const turnCount = Math.max(0, Number(match?.economy?.turnCounts?.[targetUsername || '']) || 0);
+            const key = [
+                targetUsername || '',
+                Number.isInteger(status?.sourceSlot) ? status.sourceSlot : '',
+                turnCount,
+                status?.id || '',
+            ].join('|');
+            if (targetState.snapshots._ownerDamageThresholdOwnerTurnTriggerKey === key) return;
+            targetState.snapshots._ownerDamageThresholdOwnerTurnTriggerKey = key;
+        }
         if (Boolean(trigger.oncePerSourceSkillPerTurn) && sourceSkillId && targetState?.snapshots) {
             const turnCount = Math.max(0, Number(match?.economy?.turnCounts?.[sourceUsername || '']) || 0);
             const key = [

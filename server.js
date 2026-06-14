@@ -1904,6 +1904,21 @@ const FAKE_BATTLE_PLAYER_ACCOUNTS = [
     { username: 'ClashCaster', avatarUrl: 'https://i.imgur.com/SHLVdT9.jpeg', level: 45, wins: 260, losses: 198, streak: 2 },
     { username: 'VoidMeter', avatarUrl: 'assets/images/wolverinefp.webp', level: 47, wins: 288, losses: 216, streak: -1 },
     { username: 'OmegaDraft', avatarUrl: 'assets/images/YodaFP.webp', level: 49, wins: 316, losses: 241, streak: 7 },
+    { username: 'NightPanel', avatarUrl: 'https://i.imgur.com/jJpqV3f.jpeg', level: 6, wins: 15, losses: 9, streak: 1 },
+    { username: 'SkillIssue', avatarUrl: 'https://i.imgur.com/wTmLyGl.jpeg', level: 9, wins: 24, losses: 18, streak: -2 },
+    { username: 'ArcRunner', avatarUrl: 'https://i.imgur.com/6SJSKyY.jpeg', level: 13, wins: 39, losses: 29, streak: 2 },
+    { username: 'BluePanel', avatarUrl: 'https://i.imgur.com/lFKn0A0.png', level: 16, wins: 52, losses: 41, streak: 3 },
+    { username: 'ComboSmith', avatarUrl: 'https://i.imgur.com/ntQvjKH.jpeg', level: 19, wins: 70, losses: 55, streak: -1 },
+    { username: 'RedChakra', avatarUrl: 'https://i.imgur.com/O08XwjS.jpeg', level: 22, wins: 93, losses: 72, streak: 4 },
+    { username: 'DraftDemon', avatarUrl: 'https://i.imgur.com/n0iErJ8.png', level: 25, wins: 112, losses: 88, streak: 1 },
+    { username: 'PanelMage', avatarUrl: 'https://i.imgur.com/HZ86RDV.jpeg', level: 28, wins: 131, losses: 105, streak: -3 },
+    { username: 'CriticalHit', avatarUrl: 'https://i.imgur.com/MblvOMD.png', level: 31, wins: 149, losses: 116, streak: 2 },
+    { username: 'EnergyBender', avatarUrl: 'https://i.imgur.com/HdMCEue.jpeg', level: 34, wins: 171, losses: 132, streak: 5 },
+    { username: 'LastFrame', avatarUrl: 'https://i.imgur.com/053csjw.png', level: 37, wins: 196, losses: 151, streak: -1 },
+    { username: 'QueueMaster', avatarUrl: 'https://i.imgur.com/DvnhkRP.png', level: 40, wins: 218, losses: 169, streak: 3 },
+    { username: 'InkChampion', avatarUrl: 'https://i.imgur.com/achNzMq.png', level: 43, wins: 247, losses: 190, streak: 6 },
+    { username: 'StreakBreaker', avatarUrl: 'assets/images/ghostriderfp.png', level: 46, wins: 274, losses: 209, streak: -2 },
+    { username: 'FinalTurn', avatarUrl: 'assets/images/generalgrievousfp.png', level: 50, wins: 342, losses: 258, streak: 8 },
 ];
 
 const hashStringForIndex = (value = '') => {
@@ -2959,13 +2974,14 @@ const getMissionLockedCharacterIds = async () => {
     );
 };
 
-const profileHasUnlockedCharacter = (profile, characterId, lockedCharacterIds = new Set()) => {
+const profileHasUnlockedCharacter = (profile, characterId, lockedCharacterIds = new Set(), arena = DEFAULT_ARENA_MODE) => {
     const normalizedCharacterId =
         typeof characterId === 'string' ? normalizeCharacterId(characterId) : '';
     if (!normalizedCharacterId) {
         return true;
     }
-    const missions = profile && typeof profile.missions === 'object' ? profile.missions : {};
+    const arenaState = getProfileArenaState(profile, arena);
+    const missions = arenaState && typeof arenaState.missions === 'object' ? arenaState.missions : {};
     const unlocked = new Set(
         (Array.isArray(missions.unlockedCharacterIds) ? missions.unlockedCharacterIds : [])
             .map((entry) => normalizeCharacterId(entry))
@@ -2977,7 +2993,7 @@ const profileHasUnlockedCharacter = (profile, characterId, lockedCharacterIds = 
     return unlocked.has(normalizedCharacterId);
 };
 
-const assertTeamCanBeUsed = async (profile, team = [], userRole = 'player') => {
+const assertTeamCanBeUsed = async (profile, team = [], userRole = 'player', arena = DEFAULT_ARENA_MODE) => {
     if (teamHasDuplicateCharacters(team)) {
         throw new Error('Team characters must be unique.');
     }
@@ -3000,7 +3016,8 @@ const assertTeamCanBeUsed = async (profile, team = [], userRole = 'player') => {
               return !profileHasUnlockedCharacter(
                   normalizedProfile,
                   rosterCharacterId,
-                  lockedCharacterIds
+                  lockedCharacterIds,
+                  arena
               );
           })
         : null;
@@ -3050,6 +3067,111 @@ const buildDefaultUserProfile = (user = {}) => {
         activity: {
             lastOnlineAt: createdAt,
             currentPage: '',
+        },
+    };
+};
+
+const normalizeArenaProgressState = (source = {}, user = {}) => {
+    const defaults = buildDefaultUserProfile(user);
+    const arenaSource = source && typeof source === 'object' ? source : {};
+    const ladder = arenaSource.ladder && typeof arenaSource.ladder === 'object' ? arenaSource.ladder : {};
+    const storedExperiencePoints = Number.isFinite(Number(ladder.experiencePoints))
+        ? Math.max(0, Number(ladder.experiencePoints))
+        : defaults.ladder.experiencePoints;
+    const storedLevel = Number.isFinite(Number(ladder.level))
+        ? Math.max(1, Number(ladder.level))
+        : defaults.ladder.level;
+    const inferredExperiencePoints = Math.max(
+        storedExperiencePoints,
+        getCumulativeExperienceForLevel(storedLevel)
+    );
+    const normalizedLadderState = deriveLadderStateFromExperience(inferredExperiencePoints);
+    const recentLadderGames = normalizeRecentLadderGames(arenaSource.recentLadderGames);
+    const storedStreak = Number.isFinite(Number(ladder.streak)) ? Number(ladder.streak) : defaults.ladder.streak;
+    const inferredLossStreak = inferCurrentLadderLossStreak({
+        username: user.username,
+        recentLadderGames,
+    });
+    const resolvedStreak = storedStreak === 0 && inferredLossStreak < 0 ? inferredLossStreak : storedStreak;
+    const isHokage = Boolean(ladder.isHokage) && normalizedLadderState.level >= 46;
+    const rankInfo = getRankInfoForLevel(normalizedLadderState.level, isHokage);
+    return {
+        recentQuickGames: normalizeRecentQuickGames(arenaSource.recentQuickGames),
+        recentPrivateGames: normalizeRecentQuickGames(arenaSource.recentPrivateGames),
+        recentLadderGames,
+        recentQuickGamesCount24Hours: normalizeRecentQuickGames(arenaSource.recentQuickGames).length,
+        recentPrivateGamesCount24Hours: normalizeRecentQuickGames(arenaSource.recentPrivateGames).length,
+        recentLadderGamesCount24Hours: recentLadderGames.length,
+        missions: normalizeMissionState(arenaSource.missions),
+        ladder: {
+            level: normalizedLadderState.level,
+            rank: rankInfo.rank,
+            rankHatUrl: rankInfo.hatUrl,
+            experiencePoints: normalizedLadderState.experiencePoints,
+            experienceIntoLevel: normalizedLadderState.experienceIntoLevel,
+            experienceForNextLevel: normalizedLadderState.experienceForNextLevel,
+            experienceToNextLevel: normalizedLadderState.experienceToNextLevel,
+            ladderRank: Number.isFinite(Number(ladder.ladderRank))
+                ? Math.max(1, Number(ladder.ladderRank))
+                : null,
+            wins: Number.isFinite(Number(ladder.wins)) ? Math.max(0, Number(ladder.wins)) : defaults.ladder.wins,
+            losses: Number.isFinite(Number(ladder.losses))
+                ? Math.max(0, Number(ladder.losses))
+                : defaults.ladder.losses,
+            streak: resolvedStreak,
+            highestStreak: Number.isFinite(Number(ladder.highestStreak))
+                ? Number(ladder.highestStreak)
+                : defaults.ladder.highestStreak,
+            highestLevel: Math.max(
+                normalizedLadderState.level,
+                Number.isFinite(Number(ladder.highestLevel))
+                    ? Math.max(1, Number(ladder.highestLevel))
+                    : defaults.ladder.highestLevel
+            ),
+            famePoints: Number.isFinite(Number(ladder.famePoints))
+                ? Math.max(0, Number(ladder.famePoints))
+                : defaults.ladder.famePoints,
+            isHokage,
+        },
+    };
+};
+
+const normalizeArenaProgressStates = (arenas = {}, user = {}) => {
+    const source = arenas && typeof arenas === 'object' ? arenas : {};
+    return {
+        pokemon: normalizeArenaProgressState(source.pokemon, user),
+    };
+};
+
+const getProfileArenaState = (profile, arena = DEFAULT_ARENA_MODE) => {
+    if (normalizeArenaMode(arena) !== 'pokemon') {
+        return profile;
+    }
+    return {
+        ...profile,
+        ...(profile?.arenas?.pokemon || normalizeArenaProgressState({}, profile)),
+    };
+};
+
+const setProfileArenaState = (profile, arena = DEFAULT_ARENA_MODE, arenaState = {}) => {
+    if (normalizeArenaMode(arena) !== 'pokemon') {
+        return {
+            ...profile,
+            recentQuickGames: arenaState.recentQuickGames,
+            recentPrivateGames: arenaState.recentPrivateGames,
+            recentLadderGames: arenaState.recentLadderGames,
+            recentQuickGamesCount24Hours: arenaState.recentQuickGamesCount24Hours,
+            recentPrivateGamesCount24Hours: arenaState.recentPrivateGamesCount24Hours,
+            recentLadderGamesCount24Hours: arenaState.recentLadderGamesCount24Hours,
+            missions: arenaState.missions,
+            ladder: arenaState.ladder,
+        };
+    }
+    return {
+        ...profile,
+        arenas: {
+            ...(profile?.arenas || {}),
+            pokemon: normalizeArenaProgressState(arenaState, profile),
         },
     };
 };
@@ -3341,6 +3463,7 @@ const normalizeUserProfile = (user = {}) => {
         recentPrivateGamesCount24Hours: normalizeRecentQuickGames(source.recentPrivateGames).length,
         recentLadderGamesCount24Hours: recentLadderGames.length,
         missions: normalizeMissionState(source.missions),
+        arenas: normalizeArenaProgressStates(source.arenas, user),
         matchmaking: {
             battleBotEnabled:
                 typeof matchmaking.battleBotEnabled === 'boolean'
@@ -3399,7 +3522,7 @@ const getPlayerDisplayName = (player) => {
     return isGameBotUsername(username) ? GAME_BOT_DISPLAY_NAME : username;
 };
 
-const recordRecentQuickGameForUsers = async ({ players, winnerUsername, endedAt }) => {
+const recordRecentQuickGameForUsers = async ({ players, winnerUsername, endedAt, arena = DEFAULT_ARENA_MODE }) => {
     const usernames = Array.isArray(players)
         ? players
               .map((player) => (typeof player?.username === 'string' ? player.username : ''))
@@ -3434,19 +3557,24 @@ const recordRecentQuickGameForUsers = async ({ players, winnerUsername, endedAt 
                 (player) => player?.username && player.username === winnerUsername
             );
             const profile = normalizeUserProfile(user);
-            profile.recentQuickGames = normalizeRecentQuickGames([
+            const arenaState = getProfileArenaState(profile, arena);
+            arenaState.recentQuickGames = normalizeRecentQuickGames([
                 {
                     playedAt: endedDate,
                     opponentUsername,
                     winnerUsername: getPlayerDisplayName(winnerPlayer) || winnerUsername || '',
                 },
-                ...(Array.isArray(profile.recentQuickGames) ? profile.recentQuickGames : []),
+                ...(Array.isArray(arenaState.recentQuickGames) ? arenaState.recentQuickGames : []),
             ]);
+            const normalizedProfile = normalizeUserProfile({
+                ...user,
+                profile: setProfileArenaState(profile, arena, arenaState),
+            });
             await usersCollection.updateOne(
                 { _id: user._id },
                 {
                     $set: {
-                        profile,
+                        profile: normalizedProfile,
                     },
                 }
             );
@@ -3454,7 +3582,7 @@ const recordRecentQuickGameForUsers = async ({ players, winnerUsername, endedAt 
     );
 };
 
-const recordRecentPrivateGameForUsers = async ({ players, winnerUsername, endedAt }) => {
+const recordRecentPrivateGameForUsers = async ({ players, winnerUsername, endedAt, arena = DEFAULT_ARENA_MODE }) => {
     const usernames = Array.isArray(players)
         ? players
               .map((player) => (typeof player?.username === 'string' ? player.username : ''))
@@ -3489,19 +3617,24 @@ const recordRecentPrivateGameForUsers = async ({ players, winnerUsername, endedA
                 (player) => player?.username && player.username === winnerUsername
             );
             const profile = normalizeUserProfile(user);
-            profile.recentPrivateGames = normalizeRecentQuickGames([
+            const arenaState = getProfileArenaState(profile, arena);
+            arenaState.recentPrivateGames = normalizeRecentQuickGames([
                 {
                     playedAt: endedDate,
                     opponentUsername,
                     winnerUsername: getPlayerDisplayName(winnerPlayer) || winnerUsername || '',
                 },
-                ...(Array.isArray(profile.recentPrivateGames) ? profile.recentPrivateGames : []),
+                ...(Array.isArray(arenaState.recentPrivateGames) ? arenaState.recentPrivateGames : []),
             ]);
+            const normalizedProfile = normalizeUserProfile({
+                ...user,
+                profile: setProfileArenaState(profile, arena, arenaState),
+            });
             await usersCollection.updateOne(
                 { _id: user._id },
                 {
                     $set: {
-                        profile,
+                        profile: normalizedProfile,
                     },
                 }
             );
@@ -3527,6 +3660,7 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
     const specialPveMissionId = slugifyMissionId(
         match.specialPveMissionId || match.pveBattle?.missionId || ''
     );
+    const arena = normalizeArenaMode(match.arena);
     if (match.mode !== 'quick' && match.mode !== 'ladder' && !specialPveMissionId) {
         return null;
     }
@@ -3566,12 +3700,13 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
             }
 
             const profile = normalizeUserProfile(user);
-            const missionState = normalizeMissionState(profile.missions);
+            const arenaState = getProfileArenaState(profile, arena);
+            const missionState = normalizeMissionState(arenaState.missions);
             const progressByMissionId = {
                 ...(missionState.progressByMissionId || {}),
             };
             const unlockedIds = new Set(missionState.unlockedCharacterIds || []);
-            const userLevel = Number(profile?.ladder?.level) || 1;
+            const userLevel = Number(arenaState?.ladder?.level) || 1;
             const didWin = Boolean(winnerUsername) && winnerUsername === username;
             let mutated = false;
 
@@ -3763,8 +3898,8 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
                 return;
             }
 
-            profile.missions = {
-                ...profile.missions,
+            arenaState.missions = {
+                ...arenaState.missions,
                 progressByMissionId,
                 progress: progressByMissionId,
                 unlockedCharacterIds: Array.from(unlockedIds),
@@ -3772,7 +3907,7 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
 
             const normalizedProfile = normalizeUserProfile({
                 ...user,
-                profile,
+                profile: setProfileArenaState(profile, arena, arenaState),
             });
             await usersCollection.updateOne(
                 { _id: user._id },
@@ -3842,7 +3977,8 @@ const addClanExperience = async (clanName, clanExpDelta) => {
     return gain;
 };
 
-const recalculatePlayerLadderStandings = async () => {
+const recalculatePlayerLadderStandings = async (arena = DEFAULT_ARENA_MODE) => {
+    const normalizedArena = normalizeArenaMode(arena);
     const users = await usersCollection
         .find(
             {},
@@ -3867,8 +4003,8 @@ const recalculatePlayerLadderStandings = async () => {
     }));
 
     normalizedUsers.sort((left, right) => {
-        const leftLadder = left.profile.ladder || {};
-        const rightLadder = right.profile.ladder || {};
+        const leftLadder = getProfileArenaState(left.profile, normalizedArena).ladder || {};
+        const rightLadder = getProfileArenaState(right.profile, normalizedArena).ladder || {};
         if ((rightLadder.level || 0) !== (leftLadder.level || 0)) {
             return (rightLadder.level || 0) - (leftLadder.level || 0);
         }
@@ -3882,7 +4018,7 @@ const recalculatePlayerLadderStandings = async () => {
     });
 
     const hokageIndex = normalizedUsers.findIndex(
-        (entry) => (Number(entry.profile?.ladder?.level) || 0) >= 46
+        (entry) => (Number(getProfileArenaState(entry.profile, normalizedArena)?.ladder?.level) || 0) >= 46
     );
     const updates = [];
     const profileByUsername = new Map();
@@ -3890,11 +4026,13 @@ const recalculatePlayerLadderStandings = async () => {
     normalizedUsers.forEach((entry, index) => {
         const normalizedProfile = normalizeUserProfile(entry.user);
         const shouldBeHokage = hokageIndex >= 0 && index === hokageIndex;
-        normalizedProfile.ladder.ladderRank = index + 1;
-        normalizedProfile.ladder.isHokage = shouldBeHokage;
+        const arenaState = getProfileArenaState(normalizedProfile, normalizedArena);
+        arenaState.ladder.ladderRank = index + 1;
+        arenaState.ladder.isHokage = shouldBeHokage;
+        const rankedProfile = setProfileArenaState(normalizedProfile, normalizedArena, arenaState);
         const finalProfile = normalizeUserProfile({
             ...entry.user,
-            profile: normalizedProfile,
+            profile: rankedProfile,
         });
         profileByUsername.set(entry.user.username, finalProfile);
         const profileChanged =
@@ -3925,6 +4063,7 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
         return null;
     }
 
+    const arena = normalizeArenaMode(match.arena);
     await applyMissionProgressForUsers(match, winnerUsername, endedAt);
 
     if (match.mode === 'private') {
@@ -3932,6 +4071,7 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
             players: match.players || [],
             winnerUsername: winnerUsername || '',
             endedAt,
+            arena,
         });
         return null;
     }
@@ -3945,6 +4085,7 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
             players: match.players || [],
             winnerUsername: winnerUsername || '',
             endedAt,
+            arena,
         });
         return null;
     }
@@ -3974,57 +4115,62 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
     }
 
     const userByUsername = new Map(users.map((user) => [user.username, user]));
-    const initialProfiles = new Map(
-        users.map((user) => [user.username, normalizeUserProfile(user)])
+    const initialProfiles = new Map(users.map((user) => [user.username, normalizeUserProfile(user)]));
+    const initialArenaProfiles = new Map(
+        users.map((user) => {
+            const profile = initialProfiles.get(user.username);
+            return [user.username, getProfileArenaState(profile, arena)];
+        })
     );
     const preliminaryResults = new Map();
 
     for (const username of usernames) {
         const user = userByUsername.get(username);
         const profile = initialProfiles.get(username);
+        const arenaProfile = initialArenaProfiles.get(username);
         const opponentEntry = (Array.isArray(match.players) ? match.players : []).find(
             (entry) => entry?.username && entry.username !== username
         );
         const opponentUsername =
             typeof opponentEntry?.username === 'string' ? opponentEntry.username : '';
-        const opponentProfile = initialProfiles.get(opponentUsername) || {
+        const opponentProfile = initialArenaProfiles.get(opponentUsername) || {
             ...buildDefaultUserProfile(),
             ladder: {
                 ...buildDefaultUserProfile().ladder,
                 level: Math.max(
                     1,
-                    Number(opponentEntry?.ladderLevel) || Number(profile?.ladder?.level) || 1
+                    Number(opponentEntry?.ladderLevel) || Number(arenaProfile?.ladder?.level) || 1
                 ),
             },
         };
-        if (!user || !profile) {
+        if (!user || !profile || !arenaProfile) {
             continue;
         }
 
         const didWin = Boolean(winnerUsername) && winnerUsername === username;
         const expChange = winnerUsername
             ? resolveLadderExperienceDelta({
-                  playerLevel: profile.ladder.level,
+                  playerLevel: arenaProfile.ladder.level,
                   opponentLevel: opponentProfile.ladder.level,
                   didWin,
               })
             : 0;
-        const previousExperiencePoints = profile.ladder.experiencePoints;
+        const previousExperiencePoints = arenaProfile.ladder.experiencePoints;
         const nextExperiencePoints = Math.min(
             LADDER_MAX_EXPERIENCE_POINTS,
             Math.max(0, previousExperiencePoints + expChange)
         );
-        profile.ladder.experiencePoints = nextExperiencePoints;
+        arenaProfile.ladder.experiencePoints = nextExperiencePoints;
         if (didWin) {
-            profile.ladder.wins += 1;
-            profile.ladder.streak = Math.max(0, Number(profile.ladder.streak) || 0) + 1;
-            profile.ladder.highestStreak = Math.max(
-                Number(profile.ladder.highestStreak) || 0,
-                profile.ladder.streak
+            arenaProfile.ladder.wins += 1;
+            arenaProfile.ladder.streak = Math.max(0, Number(arenaProfile.ladder.streak) || 0) + 1;
+            arenaProfile.ladder.highestStreak = Math.max(
+                Number(arenaProfile.ladder.highestStreak) || 0,
+                arenaProfile.ladder.streak
             );
         } else if (winnerUsername) {
-            profile.ladder.losses += 1;
-            profile.ladder.streak = Math.min(0, Number(profile.ladder.streak) || 0) - 1;
+            arenaProfile.ladder.losses += 1;
+            arenaProfile.ladder.streak = Math.min(0, Number(arenaProfile.ladder.streak) || 0) - 1;
         }
 
         const expDelta = nextExperiencePoints - previousExperiencePoints;
@@ -4034,7 +4180,7 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
                 ? Math.floor(expDelta / 2)
                 : 0;
 
-        profile.recentLadderGames = normalizeRecentLadderGames([
+        arenaProfile.recentLadderGames = normalizeRecentLadderGames([
             {
                 playedAt: endedAt,
                 opponentUsername: getPlayerDisplayName(opponentEntry) || opponentUsername,
@@ -4049,12 +4195,12 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
                 expDelta,
                 clanExpDelta,
             },
-            ...(Array.isArray(profile.recentLadderGames) ? profile.recentLadderGames : []),
+            ...(Array.isArray(arenaProfile.recentLadderGames) ? arenaProfile.recentLadderGames : []),
         ]);
 
         const normalizedProfile = normalizeUserProfile({
             ...user,
-            profile,
+            profile: setProfileArenaState(profile, arena, arenaProfile),
         });
         await usersCollection.updateOne(
             { _id: user._id },
@@ -4074,12 +4220,12 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
             expDelta,
             clanExpDelta,
             previousExperiencePoints,
-            previousLevel: initialProfiles.get(username)?.ladder?.level || 1,
-            previousRank: initialProfiles.get(username)?.ladder?.rank || 'Academy Student',
+            previousLevel: initialArenaProfiles.get(username)?.ladder?.level || 1,
+            previousRank: initialArenaProfiles.get(username)?.ladder?.rank || 'Academy Student',
         });
     }
 
-    const refreshedProfiles = await recalculatePlayerLadderStandings();
+    const refreshedProfiles = await recalculatePlayerLadderStandings(arena);
     const results = {};
     usernames.forEach((username) => {
         const prelim = preliminaryResults.get(username);
@@ -4092,13 +4238,13 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
             expDelta: prelim.expDelta,
             clanExpDelta: prelim.clanExpDelta || 0,
             previousExperiencePoints: prelim.previousExperiencePoints,
-            currentExperiencePoints: finalProfile.ladder.experiencePoints,
+            currentExperiencePoints: getProfileArenaState(finalProfile, arena).ladder.experiencePoints,
             previousLevel: prelim.previousLevel,
-            currentLevel: finalProfile.ladder.level,
+            currentLevel: getProfileArenaState(finalProfile, arena).ladder.level,
             previousRank: prelim.previousRank,
-            currentRank: finalProfile.ladder.rank,
-            ladderRank: finalProfile.ladder.ladderRank || null,
-            rankHatUrl: finalProfile.ladder.rankHatUrl || '',
+            currentRank: getProfileArenaState(finalProfile, arena).ladder.rank,
+            ladderRank: getProfileArenaState(finalProfile, arena).ladder.ladderRank || null,
+            rankHatUrl: getProfileArenaState(finalProfile, arena).ladder.rankHatUrl || '',
         };
     });
 
@@ -4111,6 +4257,19 @@ const serializeUserForClient = (user = {}) => ({
     role: user.role || 'player',
     createdAt: user.createdAt,
     savedTeamIndices: Array.isArray(user.savedTeamIndices) ? user.savedTeamIndices : [],
+    savedTeamIndicesByArena: {
+        ...(user.savedTeamIndicesByArena && typeof user.savedTeamIndicesByArena === 'object'
+            ? user.savedTeamIndicesByArena
+            : {}),
+        comic: Array.isArray(user.savedTeamIndicesByArena?.comic)
+            ? user.savedTeamIndicesByArena.comic
+            : Array.isArray(user.savedTeamIndices)
+                ? user.savedTeamIndices
+                : [],
+        pokemon: Array.isArray(user.savedTeamIndicesByArena?.pokemon)
+            ? user.savedTeamIndicesByArena.pokemon
+            : [],
+    },
     profile: normalizeUserProfile(user),
 });
 
@@ -4706,7 +4865,8 @@ const buildPublicClanProfile = async (requestedClanName = '') => {
     };
 };
 
-const buildSidebarLeaderboards = async () => {
+const buildSidebarLeaderboards = async (arena = DEFAULT_ARENA_MODE) => {
+    const normalizedArena = normalizeArenaMode(arena);
     const users = await usersCollection
         .find(
             {},
@@ -4735,43 +4895,43 @@ const buildSidebarLeaderboards = async () => {
 
     const topPlayerLevels = normalizedUsers
         .slice()
-        .sort(byNumberDescThenName((entry) => entry.profile.ladder.level))
+        .sort(byNumberDescThenName((entry) => getProfileArenaState(entry.profile, normalizedArena).ladder.level))
         .slice(0, 10)
         .map((entry) => ({
             username: entry.username,
-            value: entry.profile.ladder.level,
+            value: getProfileArenaState(entry.profile, normalizedArena).ladder.level,
             progressPercent: getLevelProgressPercent(
-                entry.profile.ladder.experienceIntoLevel,
-                entry.profile.ladder.experienceForNextLevel,
-                entry.profile.ladder.level
+                getProfileArenaState(entry.profile, normalizedArena).ladder.experienceIntoLevel,
+                getProfileArenaState(entry.profile, normalizedArena).ladder.experienceForNextLevel,
+                getProfileArenaState(entry.profile, normalizedArena).ladder.level
             ),
         }));
 
     const topCurrentStreaks = normalizedUsers
         .slice()
-        .sort(byNumberDescThenName((entry) => entry.profile.ladder.streak))
+        .sort(byNumberDescThenName((entry) => getProfileArenaState(entry.profile, normalizedArena).ladder.streak))
         .slice(0, 10)
         .map((entry) => ({
             username: entry.username,
-            value: entry.profile.ladder.streak,
+            value: getProfileArenaState(entry.profile, normalizedArena).ladder.streak,
         }));
 
     const topWins = normalizedUsers
         .slice()
-        .sort(byNumberDescThenName((entry) => entry.profile.ladder.wins))
+        .sort(byNumberDescThenName((entry) => getProfileArenaState(entry.profile, normalizedArena).ladder.wins))
         .slice(0, 10)
         .map((entry) => ({
             username: entry.username,
-            value: entry.profile.ladder.wins,
+            value: getProfileArenaState(entry.profile, normalizedArena).ladder.wins,
         }));
 
     const topHighestStreaks = normalizedUsers
         .slice()
-        .sort(byNumberDescThenName((entry) => entry.profile.ladder.highestStreak))
+        .sort(byNumberDescThenName((entry) => getProfileArenaState(entry.profile, normalizedArena).ladder.highestStreak))
         .slice(0, 20)
         .map((entry) => ({
             username: entry.username,
-            value: entry.profile.ladder.highestStreak,
+            value: getProfileArenaState(entry.profile, normalizedArena).ladder.highestStreak,
         }));
 
     const clansByName = new Map();
@@ -4819,6 +4979,7 @@ const buildSidebarLeaderboards = async () => {
         .slice(0, 10);
 
     return {
+        arena: normalizedArena,
         topPlayerLevels,
         topClanLevels,
         topCurrentStreaks,
@@ -5800,6 +5961,7 @@ const buildMatchPayloadForUser = (match, username) => {
         ok: true,
         matchId: match.matchId || null,
         mode: match.mode || 'quick',
+        arena: normalizeArenaMode(match.arena),
         status: match.status || 'active',
         winner: match.winner || null,
         surrenderedBy: match.surrenderedBy || null,
@@ -5999,6 +6161,13 @@ const userToDraft = new Map(); // username -> draftId
 const DRAFT_BAN_COUNT = 5;
 const DRAFT_TEAM_SIZE = 3;
 const DRAFT_PHASE_DURATION_MS = 60 * 1000;
+const DEFAULT_ARENA_MODE = 'comic';
+const ARENA_MODES = new Set([DEFAULT_ARENA_MODE, 'pokemon']);
+
+const normalizeArenaMode = (value = DEFAULT_ARENA_MODE) => {
+    const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
+    return ARENA_MODES.has(normalized) ? normalized : DEFAULT_ARENA_MODE;
+};
 
 const chakraTypes = ['taijutsu', 'ninjutsu', 'bloodline', 'genjutsu'];
 
@@ -6056,15 +6225,17 @@ const setQueueForMode = (mode = 'quick', nextQueue = []) => {
     quickQueue = nextQueue;
 };
 
-const findQueuedEntry = (username, mode = null) => {
+const findQueuedEntry = (username, mode = null, arena = null) => {
     const normalizedUsername = typeof username === 'string' ? username.trim().toLowerCase() : '';
     const queues = mode ? [mode] : ['quick', 'ladder', 'private'];
+    const normalizedArena = arena ? normalizeArenaMode(arena) : '';
     for (const queueMode of queues) {
         const queue = getQueueForMode(queueMode);
         const entry = queue.find(
             (item) =>
                 typeof item?.username === 'string' &&
-                item.username.trim().toLowerCase() === normalizedUsername
+                item.username.trim().toLowerCase() === normalizedUsername &&
+                (!normalizedArena || normalizeArenaMode(item?.arena) === normalizedArena)
         );
         if (entry) {
             return { mode: queueMode, entry };
@@ -6498,31 +6669,41 @@ const enqueuePlayer = (entry) => {
     if (!isValidTeamSelectionForMatch(entry?.team)) {
         return;
     }
+    const normalizedEntry = {
+        ...entry,
+        arena: normalizeArenaMode(entry?.arena),
+    };
     quickQueue = quickQueue.filter((u) => u.username !== entry.username);
     ladderQueue = ladderQueue.filter((u) => u.username !== entry.username);
     privateQueue = privateQueue.filter((u) => u.username !== entry.username);
-    if (entry.mode === 'private') {
-        privateQueue.push(entry);
+    if (normalizedEntry.mode === 'private') {
+        privateQueue.push(normalizedEntry);
         return;
     }
-    if (entry.mode === 'ladder') {
-        ladderQueue.push(entry);
+    if (normalizedEntry.mode === 'ladder') {
+        ladderQueue.push(normalizedEntry);
         return;
     }
-    quickQueue.push(entry);
+    quickQueue.push(normalizedEntry);
 };
 
-const dequeueOpponent = (username, mode = 'quick', draftMode = false) => {
+const dequeueOpponent = (username, mode = 'quick', draftMode = false, arena = DEFAULT_ARENA_MODE) => {
     const wantsDraft = Boolean(draftMode);
+    const normalizedArena = normalizeArenaMode(arena);
     const queue = (mode === 'ladder' ? ladderQueue : quickQueue).filter((entry) =>
-        isValidTeamSelectionForMatch(entry?.team) && Boolean(entry?.draftMode) === wantsDraft
+        isValidTeamSelectionForMatch(entry?.team)
     );
     if (mode === 'ladder') {
         ladderQueue = queue;
     } else {
         quickQueue = queue;
     }
-    const opponent = queue.find((u) => u.username !== username);
+    const opponent = queue.find(
+        (u) =>
+            u.username !== username &&
+            Boolean(u?.draftMode) === wantsDraft &&
+            normalizeArenaMode(u?.arena) === normalizedArena
+    );
     if (!opponent) return null;
     if (mode === 'ladder') {
         ladderQueue = ladderQueue.filter((u) => u.username !== opponent.username);
@@ -6545,7 +6726,8 @@ const createBattleBotPlayer = ({ matchId, team, ladderLevel = 1 }) => {
     };
 };
 
-const buildBattleBotMatch = async ({ username, team, mode, playerProfile }) => {
+const buildBattleBotMatch = async ({ username, team, mode, arena, playerProfile }) => {
+    const normalizedArena = normalizeArenaMode(arena);
     const matchId = `match-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const botPlayer = createBattleBotPlayer({
         matchId,
@@ -6569,6 +6751,7 @@ const buildBattleBotMatch = async ({ username, team, mode, playerProfile }) => {
     const matchDocument = {
         matchId: built.matchId,
         mode,
+        arena: normalizedArena,
         status: 'active',
         createdAt: new Date(),
         matchStartsAt: built.matchStartsAt,
@@ -6591,7 +6774,8 @@ const buildBattleBotMatch = async ({ username, team, mode, playerProfile }) => {
     return matchDocument;
 };
 
-const createMatchDocumentFromTeams = async ({ mode, players, botMatch = null, extraFields = null }) => {
+const createMatchDocumentFromTeams = async ({ mode, arena, players, botMatch = null, extraFields = null }) => {
+    const normalizedArena = normalizeArenaMode(arena);
     const aliveLookup = Object.fromEntries(
         players.map((player) => [
             player.username,
@@ -6607,6 +6791,7 @@ const createMatchDocumentFromTeams = async ({ mode, players, botMatch = null, ex
     const matchDocument = {
         matchId: built.matchId,
         mode,
+        arena: normalizedArena,
         status: 'active',
         createdAt: new Date(),
         matchStartsAt: built.matchStartsAt,
@@ -6636,11 +6821,12 @@ const createMatchDocumentFromTeams = async ({ mode, players, botMatch = null, ex
     return matchDocument;
 };
 
-const maybeCreateBattleBotMatch = async ({ username, mode, userProfile = null }) => {
+const maybeCreateBattleBotMatch = async ({ username, mode, arena, userProfile = null }) => {
+    const normalizedArena = normalizeArenaMode(arena);
     if (!BATTLE_BOTS_ENABLED || (mode !== 'quick' && mode !== 'ladder')) {
         return null;
     }
-    const queued = findQueuedEntry(username, mode);
+    const queued = findQueuedEntry(username, mode, normalizedArena);
     if (!queued?.entry) {
         return null;
     }
@@ -6661,6 +6847,7 @@ const maybeCreateBattleBotMatch = async ({ username, mode, userProfile = null })
         });
         return createDraftSession({
             mode,
+            arena: normalizedArena,
             players: [
                 {
                     ...queued.entry,
@@ -6674,6 +6861,7 @@ const maybeCreateBattleBotMatch = async ({ username, mode, userProfile = null })
         username,
         team: queued.entry.team,
         mode,
+        arena: normalizedArena,
         playerProfile: userProfile,
     });
     return matchDocument;
@@ -6696,6 +6884,7 @@ const serializeDraftForUser = (draft, username) => {
         draft: true,
         draftId: draft.draftId,
         mode: draft.mode,
+        arena: normalizeArenaMode(draft.arena),
         phase: draft.phase,
         opponent: getDraftOpponentName(draft, username),
         phaseEndsAt: draft.phaseEndsAt,
@@ -6751,6 +6940,7 @@ const finishDraftWithMatch = async (draft) => {
     }));
     const matchDocument = await createMatchDocumentFromTeams({
         mode: draft.mode,
+        arena: draft.arena,
         players,
         botMatch: players.some((player) => player.isBot)
             ? {
@@ -6825,11 +7015,12 @@ const advanceDraftIfNeeded = async (draft) => {
     return draft;
 };
 
-const createDraftSession = ({ mode, players }) => {
+const createDraftSession = ({ mode, arena, players }) => {
     const draftId = `draft-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const draft = {
         draftId,
         mode,
+        arena: normalizeArenaMode(arena),
         players,
         phase: 'ban',
         phaseEndsAt: new Date(Date.now() + DRAFT_PHASE_DURATION_MS),
@@ -6853,8 +7044,9 @@ const createDraftSession = ({ mode, players }) => {
     return draft;
 };
 
-const dequeuePrivateOpponent = (username, targetUsername) => {
+const dequeuePrivateOpponent = (username, targetUsername, arena = DEFAULT_ARENA_MODE) => {
     const normalizedTarget = typeof targetUsername === 'string' ? targetUsername.trim().toLowerCase() : '';
+    const normalizedArena = normalizeArenaMode(arena);
     if (!normalizedTarget) return null;
     privateQueue = privateQueue.filter((entry) => isValidTeamSelectionForMatch(entry?.team));
     const opponent = privateQueue.find((entry) => {
@@ -6864,7 +7056,8 @@ const dequeuePrivateOpponent = (username, targetUsername) => {
         return (
             entry.username !== username &&
             entry.username.toLowerCase() === normalizedTarget &&
-            entryTarget === username.toLowerCase()
+            entryTarget === username.toLowerCase() &&
+            normalizeArenaMode(entry?.arena) === normalizedArena
         );
     });
     if (!opponent) return null;
@@ -8337,8 +8530,14 @@ const getTeamValidationErrorMessage = (validationError, fallback = 'Invalid team
 const matchJoinSchema = Joi.object({
     team: teamSchema.required(),
     mode: Joi.string().valid('quick', 'ladder', 'private').default('quick'),
+    arena: Joi.string().valid('comic', 'pokemon').default(DEFAULT_ARENA_MODE),
     targetUsername: Joi.string().trim().min(1).max(64).allow('').optional(),
     draftMode: Joi.boolean().default(false),
+});
+
+const teamSaveSchema = Joi.object({
+    team: teamSchema.required(),
+    arena: Joi.string().valid('comic', 'pokemon').default(DEFAULT_ARENA_MODE),
 });
 
 const publicProfileLookupSchema = Joi.object({
@@ -8530,11 +8729,13 @@ app.post('/api/register', registerLimiter, async (req, res) => {
 
 // Save preferred team
 app.post('/api/team/save', requireSession, async (req, res) => {
-    const { error: validationError, value } = teamSchema.validate(req.body?.team);
+    const { error: validationError, value } = teamSaveSchema.validate(req.body || {});
     if (validationError) {
         return res.status(400).json({ error: getTeamValidationErrorMessage(validationError) });
     }
-    if (!isValidTeamSelectionForMatch(value)) {
+    const team = value.team;
+    const arena = normalizeArenaMode(value.arena);
+    if (!isValidTeamSelectionForMatch(team)) {
         return res.status(400).json({ error: 'Invalid team selection.' });
     }
     const user = await usersCollection.findOne({ username: req.authUser.username });
@@ -8543,15 +8744,25 @@ app.post('/api/team/save', requireSession, async (req, res) => {
     }
     const profile = normalizeUserProfile(user);
     try {
-        await assertTeamCanBeUsed(profile, value, user.role);
+        await assertTeamCanBeUsed(profile, team, user.role, arena);
     } catch (error) {
         return res.status(403).json({ error: error.message || 'Character is locked.' });
+    }
+    const savedTeamIndicesByArena = {
+        ...(user.savedTeamIndicesByArena && typeof user.savedTeamIndicesByArena === 'object'
+            ? user.savedTeamIndicesByArena
+            : {}),
+        [arena]: team,
+    };
+    if (!Array.isArray(savedTeamIndicesByArena.comic)) {
+        savedTeamIndicesByArena.comic = Array.isArray(user.savedTeamIndices) ? user.savedTeamIndices : [];
     }
     await usersCollection.updateOne(
         { _id: user._id },
         {
             $set: {
-                savedTeamIndices: value,
+                savedTeamIndices: arena === DEFAULT_ARENA_MODE ? team : Array.isArray(user.savedTeamIndices) ? user.savedTeamIndices : [],
+                savedTeamIndicesByArena,
                 profile,
             },
         }
@@ -8578,6 +8789,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
             return res.status(400).json({ error: 'Invalid team selection.' });
         }
         const mode = value.mode;
+        const arena = normalizeArenaMode(value.arena);
         const targetUsername = typeof value.targetUsername === 'string' ? value.targetUsername.trim() : '';
         if (mode === 'private') {
             if (!targetUsername) {
@@ -8618,6 +8830,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                 matchFound: true,
                 matchId,
                 mode: existing.mode || 'quick',
+                arena: normalizeArenaMode(existing.arena),
                 opponent,
                 matchStartsAt: existing.matchStartsAt || existing.createdAt || null,
                 matchReady:
@@ -8658,6 +8871,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                 matchFound: true,
                 matchId: hydrated.matchId,
                 mode: hydrated.mode || 'quick',
+                arena: normalizeArenaMode(hydrated.arena),
                 opponent,
                 matchStartsAt: hydrated.matchStartsAt || hydrated.createdAt || null,
                 matchReady:
@@ -8679,15 +8893,15 @@ app.post('/api/match/join', requireSession, async (req, res) => {
         }
         const profile = normalizeUserProfile(user);
         try {
-            await assertTeamCanBeUsed(profile, team, user.role);
+            await assertTeamCanBeUsed(profile, team, user.role, arena);
         } catch (error) {
             return res.status(403).json({ error: error.message || 'Character is locked.' });
         }
 
         // Try to pair with waiting opponent
         const opponent = mode === 'private'
-            ? dequeuePrivateOpponent(username, targetUsername)
-            : dequeueOpponent(username, mode, draftMode);
+            ? dequeuePrivateOpponent(username, targetUsername, arena)
+            : dequeueOpponent(username, mode, draftMode, arena);
         if (opponent) {
             if (!isValidTeamSelectionForMatch(team) || !isValidTeamSelectionForMatch(opponent.team)) {
                 return res.status(400).json({ error: 'Invalid team selection.' });
@@ -8698,11 +8912,13 @@ app.post('/api/match/join', requireSession, async (req, res) => {
             if (shouldDraft) {
                 const draft = createDraftSession({
                     mode,
+                    arena,
                     players: [
                         {
                             username,
                             team,
                             mode,
+                            arena,
                             draftMode: true,
                             targetUsername,
                             queuedAt: new Date(),
@@ -8740,6 +8956,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
             const matchDocument = {
                 matchId,
                 mode,
+                arena,
                 status: 'active',
                 createdAt: new Date(),
                 matchStartsAt,
@@ -8762,6 +8979,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                 matchFound: true,
                 matchId,
                 mode,
+                arena,
                 opponent: opponentName,
                 matchStartsAt,
                 matchReady: new Date(matchStartsAt).getTime() <= Date.now(),
@@ -8777,6 +8995,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
         const queuedBotMatch = await maybeCreateBattleBotMatch({
             username,
             mode,
+            arena,
             userProfile: profile,
         });
         if (queuedBotMatch?.draftId) {
@@ -8790,6 +9009,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                 matchFound: true,
                 matchId: queuedBotMatch.matchId,
                 mode: queuedBotMatch.mode || mode,
+                arena: normalizeArenaMode(queuedBotMatch.arena || arena),
                 opponent: safePayload?.opponent?.displayName || getPlayerDisplayName(queuedBotMatch.players?.find((player) => player.isBot)),
                 matchStartsAt: queuedBotMatch.matchStartsAt || queuedBotMatch.createdAt || null,
                 matchReady:
@@ -8810,13 +9030,14 @@ app.post('/api/match/join', requireSession, async (req, res) => {
             username,
             team,
             mode,
+            arena,
             draftMode,
             targetUsername,
             queuedAt: new Date(),
             allowBattleBot: true,
             ladderLevel: Number(profile.ladder?.level) || 1,
         });
-        return res.json({ ok: true, queued: true, mode });
+        return res.json({ ok: true, queued: true, mode, arena });
     } catch (error) {
         console.error('Matchmaking error:', error);
         return res.status(500).json({ error: 'Internal server error.' });
@@ -8868,6 +9089,7 @@ app.get('/api/match/status', requireSession, async (req, res) => {
                 matchFound: true,
                 matchId: mapping.matchId,
                 mode: hydrated.mode || 'quick',
+                arena: normalizeArenaMode(hydrated.arena),
                 opponent: mapping.opponent,
                 matchStartsAt: hydrated.matchStartsAt || hydrated.createdAt || null,
                 matchReady:
@@ -8888,6 +9110,7 @@ app.get('/api/match/status', requireSession, async (req, res) => {
         const botMatch = await maybeCreateBattleBotMatch({
             username,
             mode: queuedEntry?.mode || 'quick',
+            arena: queuedEntry?.entry?.arena || DEFAULT_ARENA_MODE,
             userProfile: normalizedProfile,
         });
         if (botMatch?.draftId) {
@@ -8901,6 +9124,7 @@ app.get('/api/match/status', requireSession, async (req, res) => {
                 matchFound: true,
                 matchId: botMatch.matchId,
                 mode: botMatch.mode || 'quick',
+                arena: normalizeArenaMode(botMatch.arena),
                 opponent: safePayload?.opponent?.displayName || getPlayerDisplayName(botMatch.players?.find((player) => player.isBot)),
                 matchStartsAt: botMatch.matchStartsAt || botMatch.createdAt || null,
                 matchReady:
@@ -8942,6 +9166,7 @@ app.get('/api/match/status', requireSession, async (req, res) => {
             matchFound: true,
             matchId: hydrated.matchId,
             mode: hydrated.mode || 'quick',
+            arena: normalizeArenaMode(hydrated.arena),
             opponent,
             matchStartsAt: hydrated.matchStartsAt || hydrated.createdAt || null,
             matchReady:
@@ -9028,7 +9253,7 @@ app.post('/api/draft/:draftId/team', requireSession, async (req, res) => {
             return res.status(404).json({ error: 'User not found.' });
         }
         try {
-            await assertTeamCanBeUsed(normalizeUserProfile(user), team, user.role);
+            await assertTeamCanBeUsed(normalizeUserProfile(user), team, user.role, draft.arena);
         } catch (error) {
             return res.status(403).json({ error: error.message || 'Character is locked.' });
         }
@@ -9775,6 +10000,7 @@ app.get('/api/news', async (req, res) => {
 app.get('/api/missions', async (req, res) => {
     try {
         res.set('Cache-Control', 'no-store');
+        const arena = normalizeArenaMode(req.query?.arena);
         const missions = await getStoredMissionCatalog();
         let missionState = createDefaultMissionState();
         try {
@@ -9782,13 +10008,14 @@ app.get('/api/missions', async (req, res) => {
             const authUser = token ? await getSessionUserFromToken(token) : null;
             if (authUser) {
                 const normalizedProfile = normalizeUserProfile(authUser);
-                missionState = normalizeMissionState(normalizedProfile.missions);
+                missionState = normalizeMissionState(getProfileArenaState(normalizedProfile, arena).missions);
             }
         } catch (sessionError) {
             console.warn('Mission session lookup failed:', sessionError);
         }
         return res.json({
             ok: true,
+            arena,
             missions,
             missionProgressByMissionId: missionState.progressByMissionId,
             unlockedCharacterIds: missionState.unlockedCharacterIds,
@@ -9802,6 +10029,7 @@ app.get('/api/missions', async (req, res) => {
 app.post('/api/missions/:missionId/pve/start', requireSession, async (req, res) => {
     try {
         const missionId = slugifyMissionId(req.params?.missionId || '');
+        const arena = normalizeArenaMode(req.body?.arena || req.query?.arena);
         const missions = await getStoredMissionCatalog();
         const mission = missions.find((entry) => entry?.missionId === missionId);
         if (!mission) {
@@ -9818,7 +10046,8 @@ app.post('/api/missions/:missionId/pve/start', requireSession, async (req, res) 
             return res.status(401).json({ error: 'Session expired.' });
         }
         const profile = normalizeUserProfile(user);
-        const userLevel = Number(profile?.ladder?.level) || 1;
+        const arenaState = getProfileArenaState(profile, arena);
+        const userLevel = Number(arenaState?.ladder?.level) || 1;
         const levelRequirement = Math.max(0, Number(mission.level_requirement) || 0);
         const isAdmin = String(user.role || '').trim().toLowerCase() === 'admin';
         if (!isAdmin && levelRequirement > 0 && userLevel < levelRequirement) {
@@ -9840,7 +10069,7 @@ app.post('/api/missions/:missionId/pve/start', requireSession, async (req, res) 
             : Array.isArray(req.body?.team)
                 ? req.body.team.map((slot) => Number.parseInt(slot, 10))
                 : [];
-        await assertTeamCanBeUsed(profile, team, user.role);
+        await assertTeamCanBeUsed(profile, team, user.role, arena);
 
         const botRosterIndex = getRosterIndexByCharacterId(specialPve.botTeamCharacterId);
         if (!Number.isInteger(botRosterIndex) || botRosterIndex < 0) {
@@ -9858,6 +10087,7 @@ app.post('/api/missions/:missionId/pve/start', requireSession, async (req, res) 
 
         const matchDocument = await createMatchDocumentFromTeams({
             mode: 'pve',
+            arena,
             players: [
                 {
                     username,
@@ -10533,9 +10763,11 @@ app.get('/api/clans/:clanName/profile', async (req, res) => {
 
 app.get('/api/leaderboards/sidebar', async (req, res) => {
     try {
-        const leaderboards = await buildSidebarLeaderboards();
+        const arena = normalizeArenaMode(req.query?.arena);
+        const leaderboards = await buildSidebarLeaderboards(arena);
         return res.json({
             ok: true,
+            arena,
             leaderboards,
         });
     } catch (error) {

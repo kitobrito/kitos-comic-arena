@@ -9461,7 +9461,7 @@ const characters = [
                     "Random",
                     "Random"
                 ],
-                "target": "enemy-team",
+                "target": "all-enemy",
                 "damage": 0,
                 "cooldown": 2,
                 "cooldownHtml": "2",
@@ -16343,6 +16343,500 @@ const characters = [
         "roleCategory": "damage",
         "description": "A ruthless cyborg warlord obsessed with collecting the lightsabers of fallen Jedi. General Grievous relentlessly pursues his prey, building momentum throughout battle as he expands his collection and overwhelms his enemies with a storm of blades.",
         "descriptionHtml": "A ruthless cyborg warlord obsessed with collecting the lightsabers of fallen Jedi. General Grievous relentlessly pursues his prey, building momentum throughout battle as he expands his collection and overwhelms his enemies with a storm of blades."
+    },
+    {
+        "id": "charmander",
+        "characterId": "charmander",
+        "name": "Charmander",
+        "facePicture": "assets/images/PokemonArena/Charmander/charmanderfp.jpg",
+        "startStatuses": [
+            {
+                "statusId": "charmander_evolution_tracker",
+                "duration": 99,
+                "sourceSkillId": "charmander-passive-evolution-charmeleon",
+                "metadata": {
+                    "infiniteDuration": true,
+                    "turnStartApplyStatusToOwner": {
+                        "statusId": "charmander_charmeleon_evolution",
+                        "duration": 99,
+                        "minimumOwnerTurnCount": 2,
+                        "sourceSkillId": "charmander-passive-evolution-charmeleon",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "facePictureOverride": "assets/images/PokemonArena/Charmander/charmeleonfp.jpg",
+                            "skillReplacements": {
+                                "charmander-ember": "charmander-fire-punch",
+                                "charmander-scratch": "charmander-dragon-claw",
+                                "charmander-flamethrower": "charmander-charmeleon-flamethrower",
+                                "charmander-rage": "charmander-charmeleon-rage"
+                            },
+                            "tooltipText": "Charmander has evolved into Charmeleon. All of his skills have improved effects."
+                        }
+                    },
+                    "tooltipText": "At the beginning of Charmander's third turn, he evolves into Charmeleon."
+                }
+            }
+        ],
+        "characterdeescription": "A fiery and determined Pokémon whose burning tail reflects its fighting spirit. Though small and inexperienced, Charmander grows stronger as battle progresses, eventually evolving into the fierce Charmeleon.",
+        "skills": [
+            {
+                "id": "charmander-ember",
+                "name": "Ember",
+                "skillimage": "assets/images/PokemonArena/Charmander/ember.jpg",
+                "skilldescription": "Charmander deals 15 affliction damage to one enemy. This skill has a 35% chance to Burn the target. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                            "bonusPerStatusMetadata": {
+                                "scope": "self",
+                                "statusId": "charmander_rage_stacks",
+                                "metadataKey": "charmanderRageStacks",
+                                "multiplier": 5
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "charmander_burn",
+                        "duration": 99,
+                        "scope": "target",
+                        "chance": 35,
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "charmanderBurnStacks": 1,
+                            "stackMetadataKey": "charmanderBurnStacks",
+                            "stackDelta": 1,
+                            "stackMax": 99,
+                            "stackDerivedNumericKeys": {
+                                "turnEndDamage": 5,
+                                "nonAfflictionDamageDebuffFlat": 5
+                            },
+                            "afflictionDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "statusIconUrl": "assets/images/PokemonArena/Charmander/ember.jpg",
+                            "tooltipTextTemplate": "This character has {charmanderBurnStacks} Burn stack(s), takes {turnEndDamage} affliction damage each turn, and deals {nonAfflictionDamageDebuffFlat} less non-affliction damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "charmander-scratch",
+                "name": "Scratch",
+                "skillimage": "assets/images/PokemonArena/Charmander/scratch.webp",
+                "skilldescription": "Charmander deals 20 damage to one enemy. This skill has a 10% chance to critically strike, dealing 10 additional damage and becoming Piercing.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "bonusPerStatusMetadata": {
+                                "scope": "self",
+                                "statusId": "charmander_rage_stacks",
+                                "metadataKey": "charmanderRageStacks",
+                                "multiplier": 5
+                            }
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "chance": 10,
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "charmander-flamethrower",
+                "name": "Charmander's Flamethrower",
+                "skillimage": "assets/images/PokemonArena/Charmander/charmandersflamethrower.jpg",
+                "skilldescription": "Charmander deals 20 affliction damage to all enemies. Each enemy has a 35% chance to be Burned. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
+                "energy": [
+                    "Bloodline",
+                    "Random"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                            "bonusPerStatusMetadata": {
+                                "scope": "self",
+                                "statusId": "charmander_rage_stacks",
+                                "metadataKey": "charmanderRageStacks",
+                                "multiplier": 5
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "charmander_burn",
+                        "duration": 99,
+                        "scope": "all-enemy",
+                        "chance": 35,
+                        "rollPerRecipient": true,
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "charmanderBurnStacks": 1,
+                            "stackMetadataKey": "charmanderBurnStacks",
+                            "stackDelta": 1,
+                            "stackMax": 99,
+                            "stackDerivedNumericKeys": {
+                                "turnEndDamage": 5,
+                                "nonAfflictionDamageDebuffFlat": 5
+                            },
+                            "afflictionDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "statusIconUrl": "assets/images/PokemonArena/Charmander/charmandersflamethrower.jpg",
+                            "tooltipTextTemplate": "This character has {charmanderBurnStacks} Burn stack(s), takes {turnEndDamage} affliction damage each turn, and deals {nonAfflictionDamageDebuffFlat} less non-affliction damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "charmander-rage",
+                "name": "Charmander's Rage",
+                "skillimage": "assets/images/PokemonArena/Charmander/charmanderrage.webp",
+                "skilldescription": "For 1 turn, Charmander gains 25% damage reduction. The first time during this turn that Charmander takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 2 stacks.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "charmander_rage_active",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "damageReductionPercent": 25,
+                            "onOwnerDamagedByBaseDamageAtLeastApplyStatusToOwner": {
+                                "threshold": 1,
+                                "enemyOnly": true,
+                                "oncePerOwnerTurn": true,
+                                "statusId": "charmander_rage_stacks",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "charmanderRageStacks": 1,
+                                    "stackMetadataKey": "charmanderRageStacks",
+                                    "stackDelta": 1,
+                                    "stackMax": 2,
+                                    "statusIconUrl": "assets/images/PokemonArena/Charmander/charmanderrage.webp",
+                                    "tooltipTextTemplate": "Charmander's damaging skills deal {charmanderRageStacks} Rage stack(s) of additional damage."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/Charmander/charmanderrage.webp",
+                            "tooltipText": "Charmander has 25% damage reduction. The first time he takes damage this turn, his damaging skills gain 5 permanent damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "charmander-passive-evolution-charmeleon",
+                "name": "Evolution - Charmeleon",
+                "skillimage": "assets/images/PokemonArena/Charmander/passiveevolvecharmeleon.jpg",
+                "skilldescription": "At the beginning of Charmander's third turn, he evolves into Charmeleon. All of his skills gain improved effects.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            },
+            {
+                "id": "charmander-fire-punch",
+                "name": "Fire Punch",
+                "actorCondition": {
+                    "statusId": "charmander_charmeleon_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/Charmander/firepunch.jpg",
+                "skilldescription": "Charmeleon deals 15 physical damage and 15 affliction damage to one enemy. This skill has a 35% chance to Burn the target. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant",
+                    "Affliction"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "bonusPerStatusMetadata": {
+                                "scope": "self",
+                                "statusId": "charmander_rage_stacks",
+                                "metadataKey": "charmanderRageStacks",
+                                "multiplier": 5
+                            }
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "charmander_burn",
+                        "duration": 99,
+                        "scope": "target",
+                        "chance": 35,
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "charmanderBurnStacks": 1,
+                            "stackMetadataKey": "charmanderBurnStacks",
+                            "stackDelta": 1,
+                            "stackMax": 99,
+                            "stackDerivedNumericKeys": {
+                                "turnEndDamage": 5,
+                                "nonAfflictionDamageDebuffFlat": 5
+                            },
+                            "afflictionDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "statusIconUrl": "assets/images/PokemonArena/Charmander/firepunch.jpg",
+                            "tooltipTextTemplate": "This character has {charmanderBurnStacks} Burn stack(s), takes {turnEndDamage} affliction damage each turn, and deals {nonAfflictionDamageDebuffFlat} less non-affliction damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "charmander-dragon-claw",
+                "name": "Dragon Claw",
+                "actorCondition": {
+                    "statusId": "charmander_charmeleon_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/Charmander/dragonclaw.jpg",
+                "skilldescription": "Charmeleon deals 35 damage to one enemy. This skill has a 10% chance to critically strike, dealing 10 additional damage and becoming Piercing.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target",
+                        "metadata": {
+                            "bonusPerStatusMetadata": {
+                                "scope": "self",
+                                "statusId": "charmander_rage_stacks",
+                                "metadataKey": "charmanderRageStacks",
+                                "multiplier": 5
+                            }
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "chance": 10,
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "charmander-charmeleon-flamethrower",
+                "name": "Charmeleon's Flamethrower",
+                "actorCondition": {
+                    "statusId": "charmander_charmeleon_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/Charmander/charmeleonsflamethrower.jpg",
+                "skilldescription": "Deals 30 affliction damage to all enemies. Each enemy has a 35% chance to be Burned. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
+                "energy": [
+                    "Bloodline",
+                    "Random"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                            "bonusPerStatusMetadata": {
+                                "scope": "self",
+                                "statusId": "charmander_rage_stacks",
+                                "metadataKey": "charmanderRageStacks",
+                                "multiplier": 5
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "charmander_burn",
+                        "duration": 99,
+                        "scope": "all-enemy",
+                        "chance": 35,
+                        "rollPerRecipient": true,
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "charmanderBurnStacks": 1,
+                            "stackMetadataKey": "charmanderBurnStacks",
+                            "stackDelta": 1,
+                            "stackMax": 99,
+                            "stackDerivedNumericKeys": {
+                                "turnEndDamage": 5,
+                                "nonAfflictionDamageDebuffFlat": 5
+                            },
+                            "afflictionDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "statusIconUrl": "assets/images/PokemonArena/Charmander/charmeleonsflamethrower.jpg",
+                            "tooltipTextTemplate": "This character has {charmanderBurnStacks} Burn stack(s), takes {turnEndDamage} affliction damage each turn, and deals {nonAfflictionDamageDebuffFlat} less non-affliction damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "charmander-charmeleon-rage",
+                "name": "Charmeleon's Rage",
+                "actorCondition": {
+                    "statusId": "charmander_charmeleon_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/Charmander/charmeleonrage.jpg",
+                "skilldescription": "For 2 turns, Charmeleon gains 50% damage reduction. The first time each turn Charmeleon takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 4 stacks.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "charmander_charmeleon_rage_active",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "damageReductionPercent": 50,
+                            "onOwnerDamagedByBaseDamageAtLeastApplyStatusToOwner": {
+                                "threshold": 1,
+                                "enemyOnly": true,
+                                "oncePerOwnerTurn": true,
+                                "statusId": "charmander_rage_stacks",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "charmanderRageStacks": 1,
+                                    "stackMetadataKey": "charmanderRageStacks",
+                                    "stackDelta": 1,
+                                    "stackMax": 4,
+                                    "statusIconUrl": "assets/images/PokemonArena/Charmander/charmeleonrage.jpg",
+                                    "tooltipTextTemplate": "Charmeleon's damaging skills deal {charmanderRageStacks} Rage stack(s) of additional damage."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/Charmander/charmeleonrage.jpg",
+                            "tooltipText": "Charmeleon has 50% damage reduction. The first time each turn he takes damage, his damaging skills gain 5 permanent damage."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Damage",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "damage",
+        "description": "A fiery and determined Pokémon whose burning tail reflects its fighting spirit. Though small and inexperienced, Charmander grows stronger as battle progresses, eventually evolving into the fierce Charmeleon.",
+        "descriptionHtml": "A fiery and determined Pokémon whose burning tail reflects its fighting spirit. Though small and inexperienced, Charmander grows stronger as battle progresses, eventually evolving into the fierce Charmeleon."
     }
 ];
 
