@@ -3091,6 +3091,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             showStormSkillPortraitFx(effectiveSkill, selection);
         };
 
+        const COMBAT_FX_LINGER_MIN_MS = 2600;
+
+        const getCombatFxDurationMs = (duration = 0) =>
+            Math.max(COMBAT_FX_LINGER_MIN_MS, Number(duration) || 0);
+
+        const scheduleCombatFxRemoval = (node, duration = COMBAT_FX_LINGER_MIN_MS) => {
+            window.setTimeout(() => node?.remove(), getCombatFxDurationMs(duration));
+        };
+
         const showTemporaryCardFx = (card, className, html = '', duration = 1600) => {
             if (!card || !className) return;
             const primaryClassName = String(className).trim().split(/\s+/)[0];
@@ -3102,10 +3111,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             const effect = document.createElement('div');
             effect.className = className;
+            effect.classList.add('combat-fx-linger');
             effect.dataset.transientCardFx = 'true';
-            effect.innerHTML = html;
+            const lifetimeMs = getCombatFxDurationMs(duration);
+            effect.style.setProperty('--combat-fx-linger-duration', `${lifetimeMs}ms`);
+            effect.innerHTML = `${html}<span class="combat-fx-linger-halo"></span>`;
             card.appendChild(effect);
-            window.setTimeout(() => effect.remove(), duration);
+            scheduleCombatFxRemoval(effect, lifetimeMs);
         };
 
         const showCombatBeam = ({ sourceCard, targetCard, color = 'red', empowered = false, frost = false }) => {
@@ -3136,7 +3148,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 beam.innerHTML = '<span></span><span></span><span></span><span></span>';
             }
             document.body.appendChild(beam);
-            window.setTimeout(() => beam.remove(), frost ? 1150 : empowered ? 1050 : 820);
+            scheduleCombatFxRemoval(beam, frost ? 1150 : empowered ? 1050 : 820);
         };
 
         const getTargetCardsFromSelection = (selection) =>
@@ -3158,7 +3170,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             flare.innerHTML = '<span></span><span></span><span></span><span></span>';
             document.body.appendChild(flare);
             playGeneratedIngameSound('solar-flare');
-            window.setTimeout(() => flare.remove(), 1800);
+            scheduleCombatFxRemoval(flare, 1800);
         };
 
         const showBulletImpactFx = (targetCard, variant = 'small') => {
@@ -3190,7 +3202,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 showMuzzleFlashFx(actorCard);
                 showBulletImpactFx(targetCard, 'sniper');
             }, 620);
-            window.setTimeout(() => scope.remove(), 1700);
+            scheduleCombatFxRemoval(scope, 1700);
         };
 
         const showNeganLucilleFx = (targetCards = []) => {
@@ -3265,7 +3277,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 spear.style.animationDelay = `${index * 90}ms`;
                 spear.innerHTML = '<span class="spear-shaft"></span><span class="spear-tip"></span>';
                 document.body.appendChild(spear);
-                window.setTimeout(() => spear.remove(), 920 + index * 90);
+                scheduleCombatFxRemoval(spear, 920 + index * 90);
             });
             playGeneratedIngameSound('damage');
         };
@@ -3327,7 +3339,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             tendril.style.transform = `rotate(${angle}deg)`;
             tendril.innerHTML = '<span class="tendril-core"></span><span class="tendril-vein one"></span><span class="tendril-vein two"></span><span class="tendril-drip one"></span><span class="tendril-drip two"></span>';
             document.body.appendChild(tendril);
-            window.setTimeout(() => tendril.remove(), duration);
+            scheduleCombatFxRemoval(tendril, duration);
         };
 
         const showFlashLightningRushFx = (targetCards = []) => {
@@ -3359,7 +3371,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     1700
                 );
             }, 760);
-            window.setTimeout(() => run.remove(), 1700);
+            scheduleCombatFxRemoval(run, 1700);
             playGeneratedIngameSound('lightning');
         };
 
@@ -3382,7 +3394,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             overlay.innerHTML = '<span class="speed-steal-warning">-20 SEC</span><span class="speed-steal-subtext">MOVE NOW</span>';
             document.body.appendChild(overlay);
             playGeneratedIngameSound('speed-steal-alarm');
-            window.setTimeout(() => overlay.remove(), duration);
+            scheduleCombatFxRemoval(overlay, duration);
         };
 
         const normalizeScorpionVenom = (value = '') => {
@@ -3440,7 +3452,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     '<span></span><span></span><span></span>',
                     1350
                 );
-                window.setTimeout(() => beam.remove(), 1150);
+                scheduleCombatFxRemoval(beam, 1150);
             });
             playGeneratedIngameSound('laser-red');
         };
@@ -3474,7 +3486,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             tendril.style.transform = `rotate(${angle}deg)`;
             tendril.innerHTML = '<span class="venom-tendril-core"></span><span class="venom-tendril-vein a"></span><span class="venom-tendril-vein b"></span><span class="venom-tendril-drip a"></span><span class="venom-tendril-drip b"></span>';
             document.body.appendChild(tendril);
-            window.setTimeout(() => tendril.remove(), duration);
+            scheduleCombatFxRemoval(tendril, duration);
         };
 
         const showVenomPullingTendrilsFx = ({ actorCard, targetCards = [] }) => {
@@ -3533,7 +3545,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             tendril.style.transform = `rotate(${angle}deg)`;
             tendril.innerHTML = '<span class="parasite-tendril-core"></span><span class="parasite-tendril-pulse"></span>';
             document.body.appendChild(tendril);
-            window.setTimeout(() => tendril.remove(), duration);
+            scheduleCombatFxRemoval(tendril, duration);
         };
 
         const showParasiteLifeLeechFx = ({ actorCard, selection, targetCards = [] }) => {
@@ -3569,7 +3581,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const flash = document.createElement('div');
             flash.className = 'parasite-metabolic-screen-flash';
             document.body.appendChild(flash);
-            window.setTimeout(() => flash.remove(), 780);
+            scheduleCombatFxRemoval(flash, 780);
             targetCards.forEach((targetCard) => {
                 showTemporaryCardFx(
                     targetCard,
@@ -3614,7 +3626,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             overlay.className = 'parasite-overload-screen-fx';
             overlay.innerHTML = '<span class="parasite-overload-wave"></span><span class="parasite-overload-text">PREDATORY OVERLOAD</span>';
             document.body.appendChild(overlay);
-            window.setTimeout(() => overlay.remove(), 2300);
+            scheduleCombatFxRemoval(overlay, 2300);
             playGeneratedIngameSound('status-harmful');
         };
 
@@ -3631,7 +3643,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 '<span class="aquaman-tidal-wave-spray"></span>';
             document.body.appendChild(wave);
             playGeneratedIngameSound('tidal-wave');
-            window.setTimeout(() => wave.remove(), 2600);
+            scheduleCombatFxRemoval(wave, 2600);
         };
 
         const getCastDeltas = (sourceCard, targetCard) => {
@@ -3661,7 +3673,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     flameMove.style.setProperty('--cast-dy', `${dy}px`);
                     flameMove.innerHTML = '<div class="ghost-rider-hellfire-breath"></div>';
                     document.body.appendChild(flameMove);
-                    window.setTimeout(() => flameMove.remove(), 1200);
+                    scheduleCombatFxRemoval(flameMove, 1200);
                 });
                 playGeneratedIngameSound('fire-ignite');
             }, 400);
@@ -4558,7 +4570,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 isAffliction ? 'affliction' : '',
             ].filter(Boolean).join(' ');
             card.appendChild(burst);
-            window.setTimeout(() => burst.remove(), 1050);
+            scheduleCombatFxRemoval(burst, 1050);
             showPixelImpactFx(card, isDamage ? (isAffliction ? 'poison' : 'damage') : 'heal');
         };
 
@@ -4567,7 +4579,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const burst = document.createElement('div');
             burst.className = `combat-impact-burst shield ${delta < 0 ? 'break' : 'gain'}`;
             card.appendChild(burst);
-            window.setTimeout(() => burst.remove(), 1100);
+            scheduleCombatFxRemoval(burst, 1100);
             showPixelImpactFx(card, delta < 0 ? 'shield-break' : 'shield');
             playGeneratedIngameSound('shield-hit');
         };
@@ -4947,7 +4959,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const slash = document.createElement('div');
             slash.className = 'evade-slash-overlay';
             card.appendChild(slash);
-            window.setTimeout(() => slash.remove(), 1000);
+            scheduleCombatFxRemoval(slash, 1000);
 
             const evader = Number.isInteger(unit?.rosterIndex) ? rosterData?.[unit.rosterIndex] : null;
             const evaderName = evader?.name || 'Character';
@@ -5188,9 +5200,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     splash.className = 'aquaman-sea-shark-splash';
                     splash.innerHTML = '<span></span><span></span><span></span>';
                     card.appendChild(splash);
-                    window.setTimeout(() => splash.remove(), 900);
+                    scheduleCombatFxRemoval(splash, 900);
                 }, 620 + index * 120);
-                window.setTimeout(() => shark.remove(), 980 + index * 120);
+                scheduleCombatFxRemoval(shark, 980 + index * 120);
             }
         };
 
@@ -6178,7 +6190,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     '<span class="goblin-bomb-fuse"></span>' +
                     '<span class="goblin-bomb-spark"></span>';
                 card.appendChild(lob);
-                window.setTimeout(() => lob.remove(), 900);
+                scheduleCombatFxRemoval(lob, 900);
                 window.setTimeout(() => marker.classList.remove('fresh'), 780);
             }
         };
@@ -6248,7 +6260,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             burst.textContent = resolveBurstLabel();
             card.appendChild(burst);
-            window.setTimeout(() => burst.remove(), 1500);
+            scheduleCombatFxRemoval(burst, 1500);
             if (hasAngstromPortal) {
                 showPixelPortalFx(card, 'green');
             } else if (hasPoison) {

@@ -9539,6 +9539,28 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 .carnage-blood-tendril .tendril-drip.one { left: 38%; }
 .carnage-blood-tendril .tendril-drip.two { left: 72%; animation-delay: 210ms; }
 
+.combat-fx-linger {
+    isolation: isolate;
+}
+
+.combat-fx-linger > :not(.combat-fx-linger-halo) {
+    z-index: 1;
+}
+
+.combat-fx-linger-halo {
+    position: absolute;
+    inset: -12px;
+    z-index: 0;
+    pointer-events: none;
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at 50% 48%, rgba(255, 255, 255, 0.18), transparent 34%),
+        radial-gradient(circle at 50% 52%, rgba(255, 41, 24, 0.24), transparent 64%);
+    filter: blur(1px);
+    opacity: 0;
+    animation: combat-fx-linger-halo var(--combat-fx-linger-duration, 2600ms) ease-out both;
+}
+
 .carnage-blood-slash-impact-fx,
 .carnage-wide-cut-impact-fx,
 .carnage-brain-devour-impact-fx {
@@ -9831,6 +9853,13 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 @keyframes carnage-devour-pulse {
     0% { opacity: 0.9; transform: translate(-50%, -50%) scale(0.45); }
     100% { opacity: 0; transform: translate(-50%, -50%) scale(2.3); }
+}
+
+@keyframes combat-fx-linger-halo {
+    0% { opacity: 0; transform: scale(0.82); }
+    18% { opacity: 0.74; transform: scale(1); }
+    62% { opacity: 0.42; transform: scale(1.07); }
+    100% { opacity: 0; transform: scale(1.18); }
 }
 
 @keyframes flash-red-lightning-swipe {
