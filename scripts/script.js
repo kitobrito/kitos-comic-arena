@@ -742,6 +742,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const defaultProfileAvatar = 'https://i.postimg.cc/3JqVcPXm/default.png';
+    const POKEMON_SELECTION_BACKGROUND_URL = 'assets/images/PokemonArena/characterselectbgpokemonarena.png';
+    const POKEMON_INGAME_BACKGROUND_URL = 'assets/images/PokemonArena/ingamebattlebgpokemonarena.png';
+
+    const toBackgroundImageValue = (url = '') => {
+        const normalizedUrl = typeof url === 'string' ? url.trim() : '';
+        return normalizedUrl ? `url("${normalizedUrl}")` : '';
+    };
+
+    const setBackgroundImage = (element, url = '', important = false) => {
+        if (!element) return;
+        element.style.setProperty('background-image', toBackgroundImageValue(url), important ? 'important' : '');
+    };
 
     const textFromHtml = (value = '') => {
         const text = typeof value === 'string' ? value : '';
@@ -835,6 +847,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ? source.rankHatUrl.trim()
                     : defaultLadderRankHat,
         };
+    };
+
+    const getArenaProfileView = (profile = null, arena = 'comic') => {
+        const source = profile && typeof profile === 'object' ? profile : {};
+        if (arena !== 'pokemon') {
+            return source;
+        }
+        const pokemonState =
+            source.arenas && typeof source.arenas === 'object' && source.arenas.pokemon
+                ? source.arenas.pokemon
+                : {};
+        return {
+            ...source,
+            ...(pokemonState && typeof pokemonState === 'object' ? pokemonState : {}),
+        };
+    };
+
+    const getArenaLadder = (profile = null, arena = 'comic') => {
+        const arenaProfile = getArenaProfileView(profile, arena);
+        return arenaProfile?.ladder || profile?.ladder || null;
     };
 
     const normalizeMatchmakingPresentation = (matchmaking = null) => {
@@ -1104,14 +1136,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const selectionUrl = user?.profile?.backgrounds?.selectionUrl || '';
         const ingameUrl = user?.profile?.backgrounds?.ingameUrl || '';
         if (selectionBackground) {
-            selectionBackground.style.backgroundImage = selectionUrl
-                ? `url("${selectionUrl}")`
-                : '';
+            setBackgroundImage(selectionBackground, selectionUrl);
         }
         if (ingameBackground) {
-            ingameBackground.style.backgroundImage = ingameUrl
-                ? `url("${ingameUrl}")`
-                : '';
+            setBackgroundImage(ingameBackground, ingameUrl);
         }
     };
 
@@ -1250,10 +1278,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         const user = await fetchPublicProfile(username);
+        const fetchedLadder = getArenaLadder(user?.profile, currentMatchArena);
+        const fallbackLadder = getArenaLadder(fallbackProfile, currentMatchArena);
         applyOpponentIdentity({
             name: user?.username || fallbackDisplayName || username,
             avatarUrl: user?.profile?.avatarUrl || fallbackProfile?.avatarUrl || defaultProfileAvatar,
-            ladder: user?.profile?.ladder || fallbackProfile?.ladder || null,
+            ladder: fetchedLadder || fallbackLadder || null,
         });
     };
 
@@ -7226,19 +7256,38 @@ document.addEventListener('DOMContentLoaded', async () => {
                     .map((slot) => Number.parseInt(slot, 10))
                     .filter((slot) => Number.isInteger(slot) && slot >= 0);
             }
+            if (typeof data.arena === 'string' && data.arena.trim()) {
+                currentMatchArena = data.arena.trim().toLowerCase() === 'pokemon' ? 'pokemon' : 'comic';
+            }
+            if (data.player?.profile) {
+                const playerProfileView = getArenaProfileView(data.player.profile, currentMatchArena);
+                applyPlayerIdentity({
+                    name: data.player.username || currentPlayerUsername,
+                    avatarUrl: playerProfileView.avatarUrl || defaultProfileAvatar,
+                    clanAbbreviation: playerProfileView.clan?.abbreviation || 'None',
+                    ladder: playerProfileView.ladder || null,
+                });
+            } else if (profileCache?.profile) {
+                const playerProfileView = getArenaProfileView(profileCache.profile, currentMatchArena);
+                applyPlayerIdentity({
+                    name: profileCache.username || currentPlayerUsername,
+                    avatarUrl: playerProfileView.avatarUrl || defaultProfileAvatar,
+                    clanAbbreviation: playerProfileView.clan?.abbreviation || 'None',
+                    ladder: playerProfileView.ladder || null,
+                });
+            }
             const backgroundEl = document.querySelector('.backgroundingame');
             if (backgroundEl) {
                 const overrideUrl =
                     typeof data.backgroundOverride === 'string' ? data.backgroundOverride.trim() : '';
-                backgroundEl.style.backgroundImage = overrideUrl
-                    ? `url("${overrideUrl}")`
-                    : profileIngameBackgroundUrl;
+                const fallbackUrl =
+                    currentMatchArena === 'pokemon'
+                        ? POKEMON_INGAME_BACKGROUND_URL
+                        : profileIngameBackgroundUrl;
+                setBackgroundImage(backgroundEl, overrideUrl || fallbackUrl, currentMatchArena === 'pokemon');
             }
             if (typeof data.mode === 'string' && data.mode.trim()) {
                 currentMatchMode = data.mode.trim().toLowerCase();
-            }
-            if (typeof data.arena === 'string' && data.arena.trim()) {
-                currentMatchArena = data.arena.trim().toLowerCase() === 'pokemon' ? 'pokemon' : 'comic';
             }
             if (data.opponent?.username) {
                 const nextOpponentUsername = data.opponent.username;
@@ -7632,7 +7681,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const getCurrentPlayerIntroLadder = () => {
             const cachedUser = readCachedUser();
-            return profileCache?.profile?.ladder || cachedUser?.ladder || null;
+            return (
+                getArenaLadder(profileCache?.profile, currentMatchArena) ||
+                getArenaLadder(cachedUser?.profile, currentMatchArena) ||
+                cachedUser?.ladder ||
+                null
+            );
         };
 
         const hydrateOpponentIntroStats = async (opponent = {}) => {
@@ -7656,7 +7710,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             setBattleIntroLadderStats({
                 recordEl: battleIntroTopRecordEl,
                 streakEl: battleIntroTopStreakEl,
-                ladder: profile?.profile?.ladder || null,
+                ladder:
+                    getArenaLadder(profile?.profile, currentMatchArena) ||
+                    getArenaLadder(opponent?.profile, currentMatchArena) ||
+                    null,
             });
         };
 
@@ -7681,12 +7738,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             setBattleIntroLadderStats({
                 recordEl: battleIntroBottomRecordEl,
                 streakEl: battleIntroBottomStreakEl,
-                ladder: getCurrentPlayerIntroLadder(),
+                ladder: getArenaLadder(data?.player?.profile, currentMatchArena) || getCurrentPlayerIntroLadder(),
             });
             setBattleIntroLadderStats({
                 recordEl: battleIntroTopRecordEl,
                 streakEl: battleIntroTopStreakEl,
-                ladder: data?.opponent?.profile?.ladder || null,
+                ladder: getArenaLadder(data?.opponent?.profile, currentMatchArena) || null,
             });
             renderBattleIntroTeam(battleIntroTopTeamEl, data?.opponent?.team || [], 'top');
             renderBattleIntroTeam(battleIntroBottomTeamEl, data?.player?.team || [], 'bottom');
@@ -9212,6 +9269,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     const getArenaModeLabel = (arena = activeArenaMode) =>
         arena === 'pokemon' ? 'Pokemon Arena' : 'Comic Arena';
 
+    const syncArenaModeBackground = () => {
+        document.body.classList.toggle('arena-mode-pokemon', activeArenaMode === 'pokemon');
+        document.body.classList.toggle('arena-mode-comic', activeArenaMode !== 'pokemon');
+        const selectionBackground = document.querySelector('.background');
+        if (!selectionBackground) return;
+        if (activeArenaMode === 'pokemon') {
+            setBackgroundImage(selectionBackground, POKEMON_SELECTION_BACKGROUND_URL, true);
+            return;
+        }
+        setBackgroundImage(selectionBackground, profileCache?.profile?.backgrounds?.selectionUrl || '');
+    };
+
     const syncArenaModeButtons = () => {
         arenaModeButtons.forEach((button) => {
             const mode = button.dataset.arenaMode === 'pokemon' ? 'pokemon' : 'comic';
@@ -9219,6 +9288,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             button.classList.toggle('active', active);
             button.setAttribute('aria-pressed', active ? 'true' : 'false');
         });
+        syncArenaModeBackground();
     };
 
     const formatMissionGoalLines = (mission, progress = {}) => {
@@ -11067,7 +11137,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const setArenaMode = (arenaMode = 'comic') => {
         const nextArenaMode = arenaMode === 'pokemon' ? 'pokemon' : 'comic';
-        if (nextArenaMode === activeArenaMode) return;
+        if (nextArenaMode === activeArenaMode) {
+            syncArenaModeButtons();
+            return;
+        }
         activeArenaMode = nextArenaMode;
         localStorage.setItem('comicArenaMode', activeArenaMode);
         syncArenaModeButtons();

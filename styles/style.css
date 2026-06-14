@@ -262,6 +262,10 @@ h1, h2, h3 {
     position: relative;
 }
 
+body.arena-mode-pokemon .background {
+    background-image: url('../assets/images/PokemonArena/characterselectbgpokemonarena.png') !important;
+}
+
 .sound-controller {
     position: absolute;
     left: 8px;

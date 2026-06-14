@@ -1,5 +1,5 @@
 const characters = [
-    {
+{
         "id": "iron-man",
         "characterId": "iron-man",
         "name": "Iron Man",
@@ -298,7 +298,7 @@ const characters = [
         "description": "Genius inventor Tony Stark forged a suit of advanced armor to escape captivity and reinvented himself as Iron Man. Armed with cutting-edge technology, unmatched intellect, and an arsenal of powerful weapons, he fights to protect the world from threats no ordinary hero could face. Beneath the armor lies a man determined to use his brilliance to make a difference.",
         "descriptionHtml": "Genius inventor Tony Stark forged a suit of advanced armor to escape captivity and reinvented himself as Iron Man. Armed with cutting-edge technology, unmatched intellect, and an arsenal of powerful weapons, he fights to protect the world from threats no ordinary hero could face. Beneath the armor lies a man determined to use his brilliance to make a difference."
     },
-    {
+{
         "id": "spider-man",
         "characterId": "spider-man",
         "name": "Spider-Man",
@@ -581,411 +581,7 @@ const characters = [
         "description": "After a radioactive spider changed his life forever, Peter Parker became Spider-Man—a quick-witted hero who uses his incredible powers to protect the innocent. Guided by the belief that great power comes with great responsibility, he never backs down from a fight.",
         "descriptionHtml": "After a radioactive spider changed his life forever, Peter Parker became Spider-Man—a quick-witted hero who uses his incredible powers to protect the innocent. Guided by the belief that great power comes with great responsibility, he never backs down from a fight."
     },
-    {
-        "id": "the-hulk",
-        "characterId": "the-hulk",
-        "name": "The Hulk",
-        "nameHtml": "The Hulk",
-        "facePicture": "https://i.imgur.com/SIkUVer.jpeg",
-        "url": "https://i.imgur.com/SIkUVer.jpeg",
-        "unlockRequirement": "None",
-        "unlockRequirementHtml": "None",
-        "characterdeescription": "Bruce Banner's gamma curse turns fear and anger into the unstoppable force called the Hulk. The more punishment Hulk takes, the more his rage breaks through, leaving enemies to face raw strength they cannot contain.",
-        "description": "Bruce Banner's gamma curse turns fear and anger into the unstoppable force called the Hulk. The more punishment Hulk takes, the more his rage breaks through, leaving enemies to face raw strength they cannot contain.",
-        "descriptionHtml": "Bruce Banner's gamma curse turns fear and anger into the unstoppable force called the Hulk. The more punishment Hulk takes, the more his rage breaks through, leaving enemies to face raw strength they cannot contain.",
-        "startStatuses": [
-            {
-                "statusId": "hulk_anger_management",
-                "duration": 999,
-                "sourceSkillId": "the-hulk-passive-anger-management",
-                "metadata": {
-                    "infiniteDuration": true,
-                    "stackMetadataKey": "hulkRage",
-                    "stackMax": 100,
-                    "hulkRage": 0,
-                    "unpierceableDamageReductionFlatPerStatusMetadataKey": "hulkRage",
-                    "unpierceableDamageReductionFlatPerStatusMetadataStep": 25,
-                    "unpierceableDamageReductionFlatPerStatusMetadataAmount": 10,
-                    "onEnemySkillTargetedHarmfulOnly": true,
-                    "onEnemySkillTargetedApplyStatusToOwner": {
-                        "statusId": "hulk_anger_management",
-                        "duration": 999,
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "stackMetadataKey": "hulkRage",
-                            "stackDelta": 25,
-                            "stackMax": 100,
-                            "unpierceableDamageReductionFlatPerStatusMetadataKey": "hulkRage",
-                            "unpierceableDamageReductionFlatPerStatusMetadataStep": 25,
-                            "unpierceableDamageReductionFlatPerStatusMetadataAmount": 10,
-                            "tooltipTextTemplate": "Hulk has {hulkRage} rage and {currentUnpierceableDamageReductionFlat} unpierceable damage reduction."
-                        }
-                    },
-                    "onOwnerUseSkillTrigger": true,
-                    "onOwnerUseSkillHarmfulOnly": true,
-                    "persistOnOwnerUseSkillTrigger": true,
-                    "onOwnerUseSkillApplyStatusToOwner": {
-                        "statusId": "hulk_anger_management",
-                        "duration": 999,
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "stackMetadataKey": "hulkRage",
-                            "stackDelta": 10,
-                            "stackMax": 100,
-                            "unpierceableDamageReductionFlatPerStatusMetadataKey": "hulkRage",
-                            "unpierceableDamageReductionFlatPerStatusMetadataStep": 25,
-                            "unpierceableDamageReductionFlatPerStatusMetadataAmount": 10,
-                            "tooltipTextTemplate": "Hulk has {hulkRage} rage and {currentUnpierceableDamageReductionFlat} unpierceable damage reduction."
-                        }
-                    },
-                    "applyStatusAtStack": {
-                        "metadataKey": "hulkRage",
-                        "value": 100,
-                        "statusId": "hulk_worldbreaker_active",
-                        "duration": 999,
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "facePictureOverride": "https://i.imgur.com/SGK1J5U.jpeg",
-                            "silenceNonDamageEffects": true,
-                            "skillReplacements": {
-                                "the-hulk-debris-catapult": "the-hulk-world-break"
-                            },
-                            "skillCostOverridesBySkillId": {
-                                "the-hulk-hulk-smash": {
-                                    "energy": []
-                                },
-                                "the-hulk-thunder-clap": {
-                                    "energy": []
-                                },
-                                "the-hulk-debris-catapult": {
-                                    "energy": []
-                                },
-                                "the-hulk-hulk-leap": {
-                                    "energy": []
-                                },
-                                "the-hulk-world-break": {
-                                    "energy": []
-                                }
-                            },
-                            "tooltipText": "Worldbreaker is active. Hulk ignores enemy non-damage effects and his skills cost no energy."
-                        }
-                    },
-                    "tooltipTextTemplate": "Hulk has {hulkRage} rage and {currentUnpierceableDamageReductionFlat} unpierceable damage reduction."
-                }
-            }
-        ],
-        "skills": [
-            {
-                "id": "the-hulk-hulk-smash",
-                "name": "Hulk Smash",
-                "nameHtml": "Hulk Smash",
-                "skillimage": "https://i.imgur.com/JeNdeM5.jpeg",
-                "url": "https://i.imgur.com/JeNdeM5.jpeg",
-                "skilldescription": "Destroys all of one enemy's destructible defense, then deals 35 damage to them and stuns their non-mental skills for 1 turn. Consumes 50 rage to increase this skill's damage by 10 and 100 rage to increase it by 20.",
-                "description": "Destroys all of one enemy's destructible defense, then deals 35 damage to them and stuns their non-mental skills for 1 turn. Consumes 50 rage to increase this skill's damage by 10 and 100 rage to increase it by 20.",
-                "descriptionHtml": "Destroys all of one enemy's destructible defense, then deals 35 damage to them and stuns their non-mental skills for 1 turn.<br>Consumes 50 rage to increase this skill's damage by 10 and 100 rage to increase it by 20.",
-                "energy": [
-                    "Taijutsu",
-                    "Taijutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "cooldownHtml": "None",
-                "classes": [
-                    "Physical",
-                    "Instant"
-                ],
-                "classesHtml": "Physical, Instant",
-                "effects": [
-                    {
-                        "type": "destroy_destructible_defense",
-                        "scope": "target"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 35,
-                        "scope": "target",
-                        "metadata": {
-                            "bonusFromStatusMetadataThresholds": {
-                                "scope": "self",
-                                "statusId": "hulk_anger_management",
-                                "metadataKey": "hulkRage",
-                                "thresholds": [
-                                    {
-                                        "atLeast": 100,
-                                        "bonus": 20,
-                                        "consume": 100
-                                    },
-                                    {
-                                        "atLeast": 50,
-                                        "bonus": 10,
-                                        "consume": 50
-                                    }
-                                ]
-                            }
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "hulk_smash_non_mental_stun",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "cannotUseNonMentalSkills": true,
-                            "tooltipText": "This character's non-mental skills are stunned."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "the-hulk-thunder-clap",
-                "name": "Thunder Clap",
-                "nameHtml": "Thunder Clap",
-                "skillimage": "https://i.imgur.com/LQ7Pyik.jpeg",
-                "url": "https://i.imgur.com/LQ7Pyik.jpeg",
-                "skilldescription": "Hulk taunts the enemy team for 1 turn. Hulk heals 10 HP for every enemy hit. Consumes 50 rage to increase the duration of this skill's effect by 1 turn.",
-                "description": "Hulk taunts the enemy team for 1 turn. Hulk heals 10 HP for every enemy hit. Consumes 50 rage to increase the duration of this skill's effect by 1 turn.",
-                "descriptionHtml": "Hulk taunts the enemy team for 1 turn.<br>Hulk heals 10 HP for every enemy hit.<br>Consumes 50 rage to increase the duration of this skill's effect by 1 turn.",
-                "energy": [
-                    "Random",
-                    "Random"
-                ],
-                "target": "all-enemy",
-                "damage": 0,
-                "cooldown": 3,
-                "cooldownHtml": "3",
-                "classes": [
-                    "Physical",
-                    "Instant"
-                ],
-                "classesHtml": "Physical, Instant",
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "hulk_thunder_clap_taunt",
-                        "duration": 1,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "taunt": true,
-                            "durationBonusFromStatusMetadataThresholds": {
-                                "scope": "self",
-                                "statusId": "hulk_anger_management",
-                                "metadataKey": "hulkRage",
-                                "thresholds": [
-                                    {
-                                        "atLeast": 50,
-                                        "bonus": 1,
-                                        "consume": 50
-                                    }
-                                ]
-                            },
-                            "tooltipText": "This character is taunted by Hulk."
-                        }
-                    },
-                    {
-                        "type": "heal",
-                        "amount": 30,
-                        "scope": "self"
-                    }
-                ]
-            },
-            {
-                "id": "the-hulk-debris-catapult",
-                "name": "Debris Catapult",
-                "nameHtml": "Debris Catapult",
-                "skillimage": "https://i.imgur.com/6afyDto.jpeg",
-                "url": "https://i.imgur.com/6afyDto.jpeg",
-                "skilldescription": "Deals 35 damage to one enemy. Consumes 25 rage to reduce this skill's cooldown by 1 and 50 rage to reduce it by 2.",
-                "description": "Deals 35 damage to one enemy. Consumes 25 rage to reduce this skill's cooldown by 1 and 50 rage to reduce it by 2.",
-                "descriptionHtml": "Deals 35 damage to one enemy.<br>Consumes 25 rage to reduce this skill's cooldown by 1 and 50 rage to reduce it by 2.",
-                "energy": [
-                    "Random",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "cooldownHtml": "2",
-                "classes": [
-                    "Physical",
-                    "Instant"
-                ],
-                "classesHtml": "Physical, Instant",
-                "metadata": {
-                    "cooldownReductionFromStatusMetadataThresholds": {
-                        "scope": "self",
-                        "statusId": "hulk_anger_management",
-                        "metadataKey": "hulkRage",
-                        "thresholds": [
-                            {
-                                "atLeast": 50,
-                                "amount": 2,
-                                "consume": 50
-                            },
-                            {
-                                "atLeast": 25,
-                                "amount": 1,
-                                "consume": 25
-                            }
-                        ]
-                    }
-                },
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 35,
-                        "scope": "target"
-                    }
-                ]
-            },
-            {
-                "id": "the-hulk-hulk-leap",
-                "name": "Hulk Leap",
-                "nameHtml": "Hulk Leap",
-                "skillimage": "https://i.imgur.com/nOKU4B9.jpeg",
-                "url": "https://i.imgur.com/nOKU4B9.jpeg",
-                "skilldescription": "Hulk becomes invulnerable for 1 turn and marks an enemy. When this skill ends, the marked target is dealt 20 damage and has their non-strategic skills stunned for 1 turn.",
-                "description": "Hulk becomes invulnerable for 1 turn and marks an enemy. When this skill ends, the marked target is dealt 20 damage and has their non-strategic skills stunned for 1 turn.",
-                "descriptionHtml": "Hulk becomes invulnerable for 1 turn and marks an enemy.<br>When this skill ends, the marked target is dealt 20 damage and has their non-strategic skills stunned for 1 turn.",
-                "energy": [
-                    "Taijutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "cooldownHtml": "2",
-                "classes": [
-                    "Physical",
-                    "Instant"
-                ],
-                "classesHtml": "Physical, Instant",
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "hulk_leap_invulnerable",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "invulnerable": true,
-                            "tooltipText": "Hulk is invulnerable."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "hulk_leap_mark",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "onExpireEffects": [
-                                {
-                                    "type": "damage",
-                                    "amount": 20
-                                },
-                                {
-                                    "type": "apply_status",
-                                    "statusId": "hulk_leap_non_mental_stun",
-                                    "duration": 1,
-                                    "metadata": {
-                                        "harmful": true,
-                                        "cannotUseNonMentalSkills": true,
-                                        "tooltipText": "This character's non-mental skills are stunned."
-                                    }
-                                }
-                            ],
-                            "tooltipText": "When this expires, Hulk lands for 20 damage and stuns non-mental skills."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "the-hulk-passive-anger-management",
-                "name": "Passive: Anger Management",
-                "nameHtml": "Passive: Anger Management",
-                "skillimage": "https://i.imgur.com/SqCB3OU.jpeg",
-                "url": "https://i.imgur.com/SqCB3OU.jpeg",
-                "skilldescription": "Hulk starts the game with 0 rage, which can stack up to 100. Rage reduces by 35 at the end of Hulk's turns if he has any and did not use a skill, and he gains 25 every time an enemy uses a new skill on him. For every enemy he uses a new skill on, he gains 10 rage after any previous rage has been consumed. Hulk gains 10 points unpierceable damage reduction for every 25 points of rage he has.",
-                "description": "Hulk starts the game with 0 rage, which can stack up to 100. Rage reduces by 35 at the end of Hulk's turns if he has any and did not use a skill, and he gains 25 every time an enemy uses a new skill on him. For every enemy he uses a new skill on, he gains 10 rage after any previous rage has been consumed. Hulk gains 10 points unpierceable damage reduction for every 25 points of rage he has.",
-                "descriptionHtml": "Hulk starts the game with 0 rage, which can stack up to 100.<br>Rage reduces by 35 at the end of Hulk's turns if he has any and did not use a skill, and he gains 25 every time an enemy uses a new skill on him.<br>For every enemy he uses a new skill on, he gains 10 rage after any previous rage has been consumed.<br>Hulk gains 10 points unpierceable damage reduction for every 25 points of rage he has.",
-                "energy": [],
-                "target": "",
-                "damage": 0,
-                "cooldown": 0,
-                "cooldownHtml": "Passive",
-                "classes": [
-                    "Passive",
-                    "Instant"
-                ],
-                "classesHtml": "Passive, Instant"
-            },
-            {
-                "id": "the-hulk-passive-worldbreaker",
-                "name": "Passive: Worldbreaker",
-                "nameHtml": "Passive: Worldbreaker",
-                "skillimage": "https://i.imgur.com/rhYz0Af.jpeg",
-                "url": "https://i.imgur.com/rhYz0Af.jpeg",
-                "activatedFacePicture": "https://i.imgur.com/SGK1J5U.jpeg",
-                "skilldescription": "If Hulk's health is reduced to 25 HP or below while he has 100 rage, this will activate. Hulk removes all skills from himself, ignores enemy non-damage effects, and reduces the cost of all of his skills to no cost for the rest of the game. 'Debris Catapult' swaps to 'World-Break'.",
-                "description": "If Hulk's health is reduced to 25 HP or below while he has 100 rage, this will activate. Hulk removes all skills from himself, ignores enemy non-damage effects, and reduces the cost of all of his skills to no cost for the rest of the game. 'Debris Catapult' swaps to 'World-Break'.",
-                "descriptionHtml": "If Hulk's health is reduced to 25 HP or below while he has 100 rage, this will activate.<br>Hulk removes all skills from himself, ignores enemy non-damage effects, and reduces the cost of all of his skills to no cost for the rest of the game.<br>'Debris Catapult' swaps to 'World-Break'.",
-                "energy": [],
-                "target": "",
-                "damage": 0,
-                "cooldown": 0,
-                "cooldownHtml": "Passive",
-                "classes": [
-                    "Passive",
-                    "Instant"
-                ],
-                "classesHtml": "Passive, Instant"
-            },
-            {
-                "id": "the-hulk-world-break",
-                "name": "World-Break",
-                "nameHtml": "World-Break",
-                "actorCondition": {
-                    "statusId": "hulk_worldbreaker_active"
-                },
-                "skillimage": "https://i.imgur.com/Peb79BG.jpeg",
-                "url": "https://i.imgur.com/Peb79BG.jpeg",
-                "skilldescription": "Deals 25 piercing damage to the enemy team. Bypasses invulnerability.",
-                "description": "Deals 25 piercing damage to the enemy team. Bypasses invulnerability.",
-                "descriptionHtml": "Deals 25 piercing damage to the enemy team.<br>Bypasses invulnerability.",
-                "energy": [
-                    "Random"
-                ],
-                "ignoreInvulnerability": true,
-                "target": "all-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "cooldownHtml": "2",
-                "classes": [
-                    "Physical",
-                    "Instant",
-                    "Bypassing"
-                ],
-                "classesHtml": "Physical, Instant, Bypassing",
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 25,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
-                        }
-                    }
-                ]
-            }
-        ],
-        "role": "Tank",
-        "roleCategory": "tank",
-        "universe": "marvel"
-    },
-    {
+{
         "id": "captain-america",
         "characterId": "captain-america",
         "name": "Captain America",
@@ -1268,7 +864,7 @@ const characters = [
         "roleCategory": "tank",
         "universe": "marvel"
     },
-    {
+{
         "id": "superman",
         "characterId": "superman",
         "name": "Superman",
@@ -1573,7 +1169,7 @@ const characters = [
         "roleCategory": "damage",
         "universe": "dc"
     },
-    {
+{
         "id": "batman",
         "characterId": "batman",
         "name": "Batman",
@@ -2041,7 +1637,7 @@ const characters = [
         "roleCategory": "controller",
         "universe": "dc"
     },
-    {
+{
         "id": "the-flash-barry-allen",
         "characterId": "the-flash-barry-allen",
         "name": "The Flash (Barry Allen)",
@@ -2369,7 +1965,7 @@ const characters = [
         "description": "The Flash dominates the pace of battle through unmatched speed and relentless momentum. Rather than relying on raw durability, he overwhelms opponents by acting faster, striking repeatedly, and disrupting their ability to keep up. His abilities create rapid pressure windows, forcing enemies into reactive play while he dictates the flow of combat. With tools that accelerate his own actions and interfere with enemy timing, The Flash thrives in fast-paced encounters where every second matters. He can evade danger, reset momentum, and enable his team to act more efficiently, turning brief openings into decisive advantages.",
         "descriptionHtml": "The Flash dominates the pace of battle through unmatched speed and relentless momentum. Rather than relying on raw durability, he overwhelms opponents by acting faster, striking repeatedly, and disrupting their ability to keep up. His abilities create rapid pressure windows, forcing enemies into reactive play while he dictates the flow of combat. With tools that accelerate his own actions and interfere with enemy timing, The Flash thrives in fast-paced encounters where every second matters. He can evade danger, reset momentum, and enable his team to act more efficiently, turning brief openings into decisive advantages."
     },
-    {
+{
         "id": "wonder-woman",
         "characterId": "wonder-woman",
         "name": "Wonder Woman",
@@ -2618,7 +2214,7 @@ const characters = [
         "roleCategory": "bruiser",
         "universe": "dc"
     },
-    {
+{
         "id": "aquaman",
         "characterId": "aquaman",
         "name": "Aquaman",
@@ -2896,7 +2492,7 @@ const characters = [
         "description": "Arthur Curry rules Atlantis with a king's burden and the fury of the deep. Armed with his trident and command over ocean life, Aquaman drags enemies into tides, teeth, and pressure they cannot escape.",
         "descriptionHtml": "Arthur Curry rules Atlantis with a king's burden and the fury of the deep. Armed with his trident and command over ocean life, Aquaman drags enemies into tides, teeth, and pressure they cannot escape."
     },
-    {
+{
         "id": "storm",
         "characterId": "storm",
         "name": "Storm",
@@ -3246,7 +2842,7 @@ const characters = [
         "roleCategory": "support",
         "universe": "marvel"
     },
-    {
+{
         "id": "venom",
         "characterId": "venom",
         "name": "Venom",
@@ -3474,7 +3070,7 @@ const characters = [
         "roleCategory": "tank",
         "universe": "marvel"
     },
-    {
+{
         "id": "the-joker",
         "characterId": "the-joker",
         "name": "The Joker",
@@ -3834,7 +3430,7 @@ const characters = [
         "roleCategory": "controller",
         "universe": "dc"
     },
-    {
+{
         "id": "negan",
         "characterId": "negan",
         "name": "Negan",
@@ -4069,7 +3665,7 @@ const characters = [
         "roleCategory": "assassin",
         "universe": "image"
     },
-    {
+{
         "id": "rick-grimes",
         "characterId": "rick-grimes",
         "name": "Rick Grimes",
@@ -4445,7 +4041,7 @@ const characters = [
         "roleCategory": "damage",
         "universe": "image"
     },
-    {
+{
         "id": "andrea",
         "characterId": "andrea",
         "name": "Andrea",
@@ -4640,7 +4236,7 @@ const characters = [
         "roleCategory": "assassin",
         "universe": "image"
     },
-    {
+{
         "id": "walker",
         "characterId": "walker",
         "name": "Walker",
@@ -5034,7 +4630,7 @@ const characters = [
         "description": "Once ordinary people, Walkers are the relentless undead remnants of a fallen world. Driven only by instinct and an endless hunger, they roam in massive hordes, overwhelming the living through sheer numbers. Slow alone but deadly in groups, they serve as a constant reminder that humanity's greatest enemy may be the apocalypse itself.",
         "descriptionHtml": "Once ordinary people, Walkers are the relentless undead remnants of a fallen world. Driven only by instinct and an endless hunger, they roam in massive hordes, overwhelming the living through sheer numbers. Slow alone but deadly in groups, they serve as a constant reminder that humanity's greatest enemy may be the apocalypse itself."
     },
-    {
+{
         "id": "hershel-greene",
         "characterId": "hershel-greene",
         "name": "Hershel Greene",
@@ -5298,7 +4894,7 @@ const characters = [
         "description": "A farmer and veterinarian from rural Georgia, Hershel Greene became a pillar of wisdom and compassion in a world overrun by the dead. Guided by faith, experience, and an unwavering belief in humanity, he offered hope when others surrendered to despair. Though not a warrior by nature, Hershel's courage, guidance, and selflessness made him one of the group's most valued survivors.",
         "descriptionHtml": "A farmer and veterinarian from rural Georgia, Hershel Greene became a pillar of wisdom and compassion in a world overrun by the dead. Guided by faith, experience, and an unwavering belief in humanity, he offered hope when others surrendered to despair. Though not a warrior by nature, Hershel's courage, guidance, and selflessness made him one of the group's most valued survivors."
     },
-    {
+{
         "id": "invincible",
         "characterId": "invincible",
         "name": "Invincible",
@@ -5511,7 +5107,7 @@ const characters = [
         "roleCategory": "bruiser",
         "universe": "image"
     },
-    {
+{
         "id": "rex-splode",
         "characterId": "rex-splode",
         "name": "Rex Splode",
@@ -5877,7 +5473,7 @@ const characters = [
         "roleCategory": "damage",
         "universe": "image"
     },
-    {
+{
         "id": "atom-eve",
         "characterId": "atom-eve",
         "name": "Atom Eve",
@@ -6106,7 +5702,7 @@ const characters = [
         "roleCategory": "support",
         "universe": "image"
     },
-    {
+{
         "id": "omni-man",
         "characterId": "omni-man",
         "name": "Omni-Man",
@@ -6339,7 +5935,7 @@ const characters = [
         "roleCategory": "tank",
         "universe": "image"
     },
-    {
+{
         "id": "angstrom-levy",
         "characterId": "angstrom-levy",
         "name": "Angstrom Levy",
@@ -6658,7 +6254,7 @@ const characters = [
         "roleCategory": "controller",
         "universe": "image"
     },
-    {
+{
         "id": "billy-butcher",
         "characterId": "billy-butcher",
         "name": "Billy Butcher",
@@ -6876,7 +6472,7 @@ const characters = [
         "roleCategory": "bruiser",
         "universe": "the-boys"
     },
-    {
+{
         "id": "doctor-octopus",
         "characterId": "doctor-octopus",
         "name": "Doctor Octopus",
@@ -7131,7 +6727,7 @@ const characters = [
         "roleCategory": "controller",
         "universe": "marvel"
     },
-    {
+{
         "id": "carnage",
         "characterId": "carnage",
         "name": "Carnage",
@@ -7389,7 +6985,7 @@ const characters = [
         "roleCategory": "assassin",
         "universe": "marvel"
     },
-    {
+{
         "id": "the-green-goblin",
         "characterId": "the-green-goblin",
         "name": "The Green Goblin",
@@ -7679,7 +7275,7 @@ const characters = [
         "roleCategory": "specialist",
         "universe": "marvel"
     },
-    {
+{
         "id": "sandman",
         "characterId": "sandman",
         "name": "Sandman",
@@ -7907,7 +7503,7 @@ const characters = [
         "roleCategory": "bruiser",
         "universe": "marvel"
     },
-    {
+{
         "id": "mysterio",
         "characterId": "mysterio",
         "name": "Mysterio",
@@ -8096,7 +7692,7 @@ const characters = [
         "roleCategory": "controller",
         "universe": "marvel"
     },
-    {
+{
         "id": "scorpion",
         "characterId": "scorpion",
         "name": "Scorpion",
@@ -8465,7 +8061,7 @@ const characters = [
         "roleCategory": "specialist",
         "universe": "marvel"
     },
-    {
+{
         "id": "green-lantern-hal-jordan",
         "characterId": "green-lantern-hal-jordan",
         "name": "Green Lantern (Hal Jordan)",
@@ -8771,7 +8367,242 @@ const characters = [
         "roleCategory": "hybrid",
         "universe": "dc"
     },
-    {
+{
+        "id": "doctor-fate",
+        "characterId": "doctor-fate",
+        "name": "Doctor Fate",
+        "facePicture": "assets/images/doctorfatefp.webp",
+        "characterdeescription": "Empowered by the ancient Lord of Order known as Nabu, Doctor Fate bends reality according to destiny itself. Through powerful seals and ancient magic, Fate weakens those he has judged before delivering their inevitable punishment.",
+        "skills": [
+            {
+                "id": "doctor-fate-judgment-of-nabu",
+                "name": "Judgment of Nabu",
+                "skillimage": "assets/images/judgementofnabu.webp",
+                "skilldescription": "One enemy becomes Judged for 2 turns. Judged enemies deal 5 less damage with their harmful skills. Only one enemy may be Judged at a time. If the target is already Judged, this skill instead deals 30 damage to them and refreshes Judged for 2 turns.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "doctor_fate_judged"
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_fate_judged",
+                        "duration": 2,
+                        "sourceSkillId": "doctor-fate-judgment-of-nabu",
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "uniqueEnemyMarkFromSource": true,
+                            "damageDebuffFlat": 5,
+                            "statusIconUrl": "assets/images/judgementofnabu.webp",
+                            "tooltipText": "This character is Judged by Nabu and deals 5 less damage with harmful skills."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-fate-seal-of-order",
+                "name": "Seal of Order",
+                "skillimage": "assets/images/sealoforder.webp",
+                "skilldescription": "One enemy is silenced for 1 turn. If the target is Judged, they take 15 affliction damage and are silenced for 2 turns instead.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_fate_seal_of_order_silence",
+                        "duration": 1,
+                        "sourceSkillId": "doctor-fate-seal-of-order",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "missingStatusId": "doctor_fate_judged"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "silenceNonDamageEffects": true,
+                            "statusIconUrl": "assets/images/sealoforder.webp",
+                            "tooltipText": "Silenced: only damage from this character's skills will work."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "doctor_fate_judged"
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_fate_seal_of_order_silence",
+                        "duration": 2,
+                        "sourceSkillId": "doctor-fate-seal-of-order",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "doctor_fate_judged"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "silenceNonDamageEffects": true,
+                            "statusIconUrl": "assets/images/sealoforder.webp",
+                            "tooltipText": "Silenced by Seal of Order: only damage from this character's skills will work."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-fate-ankh-of-protection",
+                "name": "Ankh of Protection",
+                "skillimage": "assets/images/ankhofprotection.webp",
+                "skilldescription": "Target ally gains 25 destructible defense. For 2 turns, whenever that ally is damaged, the attacker takes 10 affliction damage. If the attacker is Judged, they take 15 additional affliction damage.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Energy",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_fate_ankh_of_protection",
+                        "duration": 2,
+                        "sourceSkillId": "doctor-fate-ankh-of-protection",
+                        "scope": "target",
+                        "metadata": {
+                            "destructibleDefensePoints": 25,
+                            "onOwnerDamagedDamageToSourceAmount": 10,
+                            "onOwnerDamagedDamageToSourceBonusIfSourceStatusIdsAny": [
+                                "doctor_fate_judged"
+                            ],
+                            "onOwnerDamagedDamageToSourceBonusAmount": 15,
+                            "onOwnerDamagedDamageToSourceAfflictionDamage": true,
+                            "onOwnerDamagedDamageToSourceSkillClasses": [
+                                "Affliction"
+                            ],
+                            "onOwnerDamagedDamageToSourceLabel": "Ankh of Protection",
+                            "onOwnerDamagedDamageToSourceReason": "ankh",
+                            "statusIconUrl": "assets/images/ankhofprotection.webp",
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense. When damaged, the attacker takes 10 affliction damage, plus 15 more if they are Judged."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-fate-verdict-of-nabu",
+                "name": "Verdict of Nabu",
+                "skillimage": "assets/images/verdictofnabu.webp",
+                "skilldescription": "Doctor Fate deals 20 damage to all enemies. Judged enemies take 30 additional damage and become stunned for 1 turn. The duration of Judged on affected enemies is refreshed for 2 turns.",
+                "energy": [
+                    "Ninjutsu",
+                    "Genjutsu"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "all-enemy"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "all-enemy",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "doctor_fate_judged"
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "stunned",
+                        "duration": 1,
+                        "sourceSkillId": "doctor-fate-verdict-of-nabu",
+                        "scope": "all-enemy",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "doctor_fate_judged"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "statusIconUrl": "assets/images/verdictofnabu.webp",
+                            "tooltipText": "This character is stunned by Verdict of Nabu."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_fate_judged",
+                        "duration": 2,
+                        "sourceSkillId": "doctor-fate-judgment-of-nabu",
+                        "scope": "all-enemy",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "doctor_fate_judged"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "uniqueEnemyMarkFromSource": true,
+                            "damageDebuffFlat": 5,
+                            "statusIconUrl": "assets/images/judgementofnabu.webp",
+                            "tooltipText": "This character is Judged by Nabu and deals 5 less damage with harmful skills."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Controller",
+        "universe": "dc",
+        "roleCategory": "controller",
+        "description": "Empowered by the ancient Lord of Order known as Nabu, Doctor Fate bends reality according to destiny itself. Through powerful seals and ancient magic, Fate weakens those he has judged before delivering their inevitable punishment.",
+        "descriptionHtml": "Empowered by the ancient Lord of Order known as Nabu, Doctor Fate bends reality according to destiny itself. Through powerful seals and ancient magic, Fate weakens those he has judged before delivering their inevitable punishment."
+    },
+{
         "id": "homelander",
         "characterId": "homelander",
         "name": "Homelander",
@@ -8999,7 +8830,7 @@ const characters = [
         "roleCategory": "assassin",
         "universe": "the-boys"
     },
-    {
+{
         "id": "xenomorph-drone",
         "characterId": "xenomorph-drone",
         "name": "Xenomorph Drone",
@@ -9370,7 +9201,7 @@ const characters = [
         "roleCategory": "damage",
         "universe": "aliens-vs-predator"
     },
-    {
+{
         "id": "predalien",
         "characterId": "predalien",
         "name": "Predalien",
@@ -9583,7 +9414,7 @@ const characters = [
         "universe": "aliens-vs-predator",
         "roleCategory": "bruiser"
     },
-    {
+{
         "id": "rage-infected",
         "characterId": "rage-infected",
         "name": "Rage Infected",
@@ -9839,7 +9670,7 @@ const characters = [
         "roleCategory": "bruiser",
         "universe": "other"
     },
-    {
+{
         "id": "space-marine-infantry",
         "characterId": "space-marine-infantry",
         "name": "Pvt. Saunders",
@@ -10065,7 +9896,7 @@ const characters = [
         "universe": "aliens-vs-predator",
         "roleCategory": "damage"
     },
-    {
+{
         "id": "space-marine-medic",
         "characterId": "space-marine-medic",
         "name": "Lieutenant Seraphina Vale",
@@ -10317,7 +10148,7 @@ const characters = [
         "universe": "aliens-vs-predator",
         "roleCategory": "support"
     },
-    {
+{
         "id": "space-marine-smartgunner",
         "characterId": "space-marine-smartgunner",
         "name": "Sergeant William Hillford",
@@ -10547,7 +10378,7 @@ const characters = [
         "universe": "aliens-vs-predator",
         "roleCategory": "controller"
     },
-    {
+{
         "id": "predator-stalker",
         "characterId": "predator-stalker",
         "name": "Predator Stalker",
@@ -10825,7 +10656,7 @@ const characters = [
         "roleCategory": "assassin",
         "universe": "aliens-vs-predator"
     },
-    {
+{
         "id": "sinestro",
         "characterId": "sinestro",
         "name": "Sinestro",
@@ -11115,7 +10946,7 @@ const characters = [
         "roleCategory": "controller",
         "universe": "dc"
     },
-    {
+{
         "id": "atrocitus",
         "characterId": "atrocitus",
         "name": "Atrocitus",
@@ -11439,7 +11270,7 @@ const characters = [
         "roleCategory": "bruiser",
         "universe": "dc"
     },
-    {
+{
         "id": "saint-walker",
         "characterId": "saint-walker",
         "name": "Saint Walker",
@@ -11838,7 +11669,7 @@ const characters = [
         "roleCategory": "support",
         "universe": "dc"
     },
-    {
+{
         "id": "indigo-1",
         "characterId": "indigo-1",
         "name": "Indigo-1",
@@ -12142,7 +11973,7 @@ const characters = [
         "roleCategory": "support",
         "universe": "dc"
     },
-    {
+{
         "id": "john-stewart",
         "characterId": "john-stewart",
         "name": "John Stewart",
@@ -12471,7 +12302,7 @@ const characters = [
         "universe": "dc",
         "roleCategory": "controller"
     },
-    {
+{
         "id": "sorrow",
         "characterId": "sorrow",
         "name": "Sorrow",
@@ -12797,7 +12628,7 @@ const characters = [
         "universe": "dc",
         "roleCategory": "controller"
     },
-    {
+{
         "id": "parasite",
         "characterId": "parasite",
         "name": "Parasite",
@@ -13088,7 +12919,7 @@ const characters = [
         "universe": "dc",
         "roleCategory": "tank"
     },
-    {
+{
         "id": "ghost-rider",
         "characterId": "ghost-rider",
         "name": "Ghost Rider",
@@ -13410,755 +13241,7 @@ const characters = [
         "universe": "marvel",
         "roleCategory": "bruiser"
     },
-    {
-        "id": "wolverine",
-        "characterId": "wolverine",
-        "name": "Wolverine",
-        "facePicture": "assets/images/wolverinefp.webp",
-        "characterdeescription": "Logan, the Wolverine, is a relentless mutant brawler with adamantium bones, razor claws, and a healing factor that lets him keep fighting through punishment that would stop almost anyone else. He pressures enemies with stacking bleed wounds, turns his claws white-hot when pushed, and can enter a berserker rage that delays incoming damage until his fury finally burns out.",
-        "startStatuses": [
-            {
-                "statusId": "wolverine_adamantium_skeleton",
-                "duration": 999,
-                "sourceSkillId": "wolverine-passive-adamantium-skeleton",
-                "metadata": {
-                    "infiniteDuration": true,
-                    "sourceSkillName": "Passive: Adamantium Skeleton",
-                    "statusIconUrl": "assets/images/wolverineadamantiumskeleton.webp",
-                    "unpierceableDamageReductionFlat": 5,
-                    "tooltipText": "Wolverine has 5 permanent unpierceable damage reduction."
-                }
-            }
-        ],
-        "skills": [
-            {
-                "id": "wolverine-adamantium-claws",
-                "name": "Adamantium Claws",
-                "skillimage": "assets/images/wolverineadamantiumclaws.webp",
-                "skilldescription": "Wolverine slashes one enemy twice, dealing 10 piercing damage each time and making them bleed 1 HP permanently. This bleed stacks. During Hot Claws, each claw hit also deals 5 affliction damage and makes the target ignore healing effects for 1 turn. During Berserker Rage, Adamantium Claws hits an extra time.",
-                "energy": [
-                    "Taijutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Physical",
-                    "Melee",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "wolverine_berserker_rage"
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "wolverine_adamantium_claws_bleed",
-                        "duration": 999,
-                        "sourceSkillId": "wolverine-adamantium-claws",
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "sourceSkillName": "Adamantium Claws",
-                            "statusIconUrl": "assets/images/wolverineadamantiumclaws.webp",
-                            "turnEndDamage": 1,
-                            "afflictionDamage": true,
-                            "fixedTurnEndDamage": true,
-                            "ignoreDamageImmunity": true,
-                            "ignoreAfflictionDamageImmunity": true,
-                            "triggerOnApply": true,
-                            "turnEndTrigger": "source_turn",
-                            "turnDurationAnchor": "source_turn",
-                            "mergeNumericAddKeys": [
-                                "turnEndDamage"
-                            ],
-                            "tooltipTextTemplate": "This character bleeds for {turnEndDamage} HP at the end of each of Wolverine's turns. This bleed is permanent and stacks."
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "wolverine_hot_claws"
-                        },
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "wolverine_hot_claws"
-                        },
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusIdsAll": [
-                                "wolverine_hot_claws",
-                                "wolverine_berserker_rage"
-                            ]
-                        },
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "wolverine_hot_claws_healing_block",
-                        "duration": 1,
-                        "sourceSkillId": "wolverine-hot-claws",
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "wolverine_hot_claws"
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "sourceSkillName": "Hot Claws",
-                            "statusIconUrl": "assets/images/wolverinehotclaws.webp",
-                            "healReceivedMultiplier": 0,
-                            "tooltipText": "This character ignores healing effects."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "wolverine-hot-claws",
-                "name": "Hot Claws",
-                "skillimage": "assets/images/wolverinehotclaws.webp",
-                "skilldescription": "For 3 turns, Wolverine's Adamantium Claws deals 5 affliction damage each time it deals damage and makes the target ignore healing effects for 1 turn.",
-                "energy": [],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 5,
-                "classes": [
-                    "Energy",
-                    "Instant",
-                    "Affliction"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "wolverine_hot_claws",
-                        "duration": 3,
-                        "sourceSkillId": "wolverine-hot-claws",
-                        "scope": "self",
-                        "metadata": {
-                            "sourceSkillName": "Hot Claws",
-                            "statusIconUrl": "assets/images/wolverinehotclaws.webp",
-                            "tooltipText": "Wolverine's Adamantium Claws deals 5 affliction damage each time it deals damage and makes the target ignore healing effects."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "wolverine-berserker-rage",
-                "name": "Berserker Rage",
-                "skillimage": "assets/images/wolverineberserkerrage.webp",
-                "skilldescription": "For 2 turns, Wolverine ignores enemy stun effects and all enemy damage he takes is delayed until this effect ends. During this time, Adamantium Claws damages an enemy an extra time and Wolverine gains one stack of Healing Factor.",
-                "energy": [
-                    "Bloodline"
-                ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 4,
-                "classes": [
-                    "Mental",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "wolverine_berserker_rage",
-                        "duration": 2,
-                        "sourceSkillId": "wolverine-berserker-rage",
-                        "scope": "self",
-                        "metadata": {
-                            "sourceSkillName": "Berserker Rage",
-                            "statusIconUrl": "assets/images/wolverineberserkerrage.webp",
-                            "cannotBeStunned": true,
-                            "delayEnemyDamageUntilExpire": true,
-                            "delayedDamage": 0,
-                            "tooltipTextTemplate": "Wolverine ignores enemy stun effects, delays enemy damage until this effect ends, and Adamantium Claws hits an extra time. Delayed damage: {delayedDamage}."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "wolverine_healing_factor",
-                        "duration": 3,
-                        "sourceSkillId": "wolverine-healing-factor",
-                        "scope": "self",
-                        "metadata": {
-                            "sourceSkillName": "Healing Factor",
-                            "statusIconUrl": "assets/images/wolverinehealingfactor.webp",
-                            "turnEndHealFlat": 10,
-                            "mergeNumericAddKeys": [
-                                "turnEndHealFlat"
-                            ],
-                            "tooltipTextTemplate": "Wolverine heals {turnEndHealFlat} HP each turn from Healing Factor."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "wolverine-healing-factor",
-                "name": "Healing Factor",
-                "skillimage": "assets/images/wolverinehealingfactor.webp",
-                "skilldescription": "Wolverine heals 10 HP for 3 turns. This effect stacks.",
-                "energy": [
-                    "Random"
-                ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "wolverine_healing_factor",
-                        "duration": 3,
-                        "sourceSkillId": "wolverine-healing-factor",
-                        "scope": "self",
-                        "metadata": {
-                            "sourceSkillName": "Healing Factor",
-                            "statusIconUrl": "assets/images/wolverinehealingfactor.webp",
-                            "turnEndHealFlat": 10,
-                            "mergeNumericAddKeys": [
-                                "turnEndHealFlat"
-                            ],
-                            "tooltipTextTemplate": "Wolverine heals {turnEndHealFlat} HP each turn from Healing Factor."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "wolverine-passive-adamantium-skeleton",
-                "name": "Passive: Adamantium Skeleton",
-                "skillimage": "assets/images/wolverineadamantiumskeleton.webp",
-                "skilldescription": "Wolverine starts the game with 5 permanent unpierceable damage reduction.",
-                "energy": [],
-                "target": "",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Passive",
-                    "Instant"
-                ]
-            }
-        ],
-        "role": "Bruiser",
-        "universe": "marvel",
-        "roleCategory": "bruiser",
-        "description": "Logan, the Wolverine, is a relentless mutant brawler with adamantium bones, razor claws, and a healing factor that lets him keep fighting through punishment that would stop almost anyone else. He pressures enemies with stacking bleed wounds, turns his claws white-hot when pushed, and can enter a berserker rage that delays incoming damage until his fury finally burns out.",
-        "descriptionHtml": "Logan, the Wolverine, is a relentless mutant brawler with adamantium bones, razor claws, and a healing factor that lets him keep fighting through punishment that would stop almost anyone else. He pressures enemies with stacking bleed wounds, turns his claws white-hot when pushed, and can enter a berserker rage that delays incoming damage until his fury finally burns out."
-    },
-    {
-        "id": "doctor-fate",
-        "characterId": "doctor-fate",
-        "name": "Doctor Fate",
-        "facePicture": "assets/images/doctorfatefp.webp",
-        "characterdeescription": "Empowered by the ancient Lord of Order known as Nabu, Doctor Fate bends reality according to destiny itself. Through powerful seals and ancient magic, Fate weakens those he has judged before delivering their inevitable punishment.",
-        "skills": [
-            {
-                "id": "doctor-fate-judgment-of-nabu",
-                "name": "Judgment of Nabu",
-                "skillimage": "assets/images/judgementofnabu.webp",
-                "skilldescription": "One enemy becomes Judged for 2 turns. Judged enemies deal 5 less damage with their harmful skills. Only one enemy may be Judged at a time. If the target is already Judged, this skill instead deals 30 damage to them and refreshes Judged for 2 turns.",
-                "energy": [
-                    "Genjutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Energy",
-                    "Ranged",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 30,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "doctor_fate_judged"
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "doctor_fate_judged",
-                        "duration": 2,
-                        "sourceSkillId": "doctor-fate-judgment-of-nabu",
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "uniqueEnemyMarkFromSource": true,
-                            "damageDebuffFlat": 5,
-                            "statusIconUrl": "assets/images/judgementofnabu.webp",
-                            "tooltipText": "This character is Judged by Nabu and deals 5 less damage with harmful skills."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "doctor-fate-seal-of-order",
-                "name": "Seal of Order",
-                "skillimage": "assets/images/sealoforder.webp",
-                "skilldescription": "One enemy is silenced for 1 turn. If the target is Judged, they take 15 affliction damage and are silenced for 2 turns instead.",
-                "energy": [
-                    "Ninjutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Energy",
-                    "Ranged",
-                    "Instant",
-                    "Affliction"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "doctor_fate_seal_of_order_silence",
-                        "duration": 1,
-                        "sourceSkillId": "doctor-fate-seal-of-order",
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "missingStatusId": "doctor_fate_judged"
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "silenceNonDamageEffects": true,
-                            "statusIconUrl": "assets/images/sealoforder.webp",
-                            "tooltipText": "Silenced: only damage from this character's skills will work."
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "doctor_fate_judged"
-                        },
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "doctor_fate_seal_of_order_silence",
-                        "duration": 2,
-                        "sourceSkillId": "doctor-fate-seal-of-order",
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "doctor_fate_judged"
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "silenceNonDamageEffects": true,
-                            "statusIconUrl": "assets/images/sealoforder.webp",
-                            "tooltipText": "Silenced by Seal of Order: only damage from this character's skills will work."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "doctor-fate-ankh-of-protection",
-                "name": "Ankh of Protection",
-                "skillimage": "assets/images/ankhofprotection.webp",
-                "skilldescription": "Target ally gains 25 destructible defense. For 2 turns, whenever that ally is damaged, the attacker takes 10 affliction damage. If the attacker is Judged, they take 15 additional affliction damage.",
-                "energy": [
-                    "Random"
-                ],
-                "target": "self-or-single-ally",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Energy",
-                    "Instant",
-                    "Invisible"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "doctor_fate_ankh_of_protection",
-                        "duration": 2,
-                        "sourceSkillId": "doctor-fate-ankh-of-protection",
-                        "scope": "target",
-                        "metadata": {
-                            "destructibleDefensePoints": 25,
-                            "onOwnerDamagedDamageToSourceAmount": 10,
-                            "onOwnerDamagedDamageToSourceBonusIfSourceStatusIdsAny": [
-                                "doctor_fate_judged"
-                            ],
-                            "onOwnerDamagedDamageToSourceBonusAmount": 15,
-                            "onOwnerDamagedDamageToSourceAfflictionDamage": true,
-                            "onOwnerDamagedDamageToSourceSkillClasses": [
-                                "Affliction"
-                            ],
-                            "onOwnerDamagedDamageToSourceLabel": "Ankh of Protection",
-                            "onOwnerDamagedDamageToSourceReason": "ankh",
-                            "statusIconUrl": "assets/images/ankhofprotection.webp",
-                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense. When damaged, the attacker takes 10 affliction damage, plus 15 more if they are Judged."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "doctor-fate-verdict-of-nabu",
-                "name": "Verdict of Nabu",
-                "skillimage": "assets/images/verdictofnabu.webp",
-                "skilldescription": "Doctor Fate deals 20 damage to all enemies. Judged enemies take 30 additional damage and become stunned for 1 turn. The duration of Judged on affected enemies is refreshed for 2 turns.",
-                "energy": [
-                    "Ninjutsu",
-                    "Genjutsu"
-                ],
-                "target": "all-enemy",
-                "damage": 0,
-                "cooldown": 4,
-                "classes": [
-                    "Energy",
-                    "Ranged",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 20,
-                        "scope": "all-enemy"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 30,
-                        "scope": "all-enemy",
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "doctor_fate_judged"
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "stunned",
-                        "duration": 1,
-                        "sourceSkillId": "doctor-fate-verdict-of-nabu",
-                        "scope": "all-enemy",
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "doctor_fate_judged"
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "cannotUseSkills": true,
-                            "statusIconUrl": "assets/images/verdictofnabu.webp",
-                            "tooltipText": "This character is stunned by Verdict of Nabu."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "doctor_fate_judged",
-                        "duration": 2,
-                        "sourceSkillId": "doctor-fate-judgment-of-nabu",
-                        "scope": "all-enemy",
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "doctor_fate_judged"
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "uniqueEnemyMarkFromSource": true,
-                            "damageDebuffFlat": 5,
-                            "statusIconUrl": "assets/images/judgementofnabu.webp",
-                            "tooltipText": "This character is Judged by Nabu and deals 5 less damage with harmful skills."
-                        }
-                    }
-                ]
-            }
-        ],
-        "role": "Controller",
-        "universe": "dc",
-        "roleCategory": "controller",
-        "description": "Empowered by the ancient Lord of Order known as Nabu, Doctor Fate bends reality according to destiny itself. Through powerful seals and ancient magic, Fate weakens those he has judged before delivering their inevitable punishment.",
-        "descriptionHtml": "Empowered by the ancient Lord of Order known as Nabu, Doctor Fate bends reality according to destiny itself. Through powerful seals and ancient magic, Fate weakens those he has judged before delivering their inevitable punishment."
-    },
-    {
-        "id": "doctor-doom",
-        "characterId": "doctor-doom",
-        "name": "Doctor Doom",
-        "facePicture": "assets/images/drdoomfp.webp",
-        "characterdeescription": "The ruler of Latveria and one of the greatest minds in existence, Doctor Doom combines scientific genius with mastery of the mystic arts. Through a network of Doombots and arcane technology, Doom ensures that every battle unfolds according to his design.",
-        "skills": [
-            {
-                "id": "doctor-doom-doombot-decoy",
-                "name": "Doombot Decoy",
-                "skillimage": "assets/images/doombotdecoy.webp",
-                "skilldescription": "Doctor Doom summons a Doombot with 30 destructible defense for 2 turns. While the Doombot is active, all enemies are taunted toward it. If the Doombot is destroyed by an enemy skill, the attacker takes 20 damage.",
-                "energy": [
-                    "Random",
-                    "Random"
-                ],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "doctor_doom_doombot_active",
-                        "duration": 2,
-                        "sourceSkillId": "doctor-doom-doombot-decoy",
-                        "scope": "self",
-                        "metadata": {
-                            "destructibleDefensePoints": 30,
-                            "removeStatusIdsOnBreak": [
-                                "doctor_doom_doombot_active"
-                            ],
-                            "removeStatusIdsFromEnemyTeamOnBreak": [
-                                "doctor_doom_doombot_taunt"
-                            ],
-                            "onBreakDamageToSourceAmount": 20,
-                            "onBreakDamageToSourceSkillClasses": [
-                                "Physical"
-                            ],
-                            "onBreakDamageToSourceLabel": "Doombot Decoy",
-                            "onBreakDamageToSourceReason": "doombot destroyed",
-                            "statusIconUrl": "assets/images/doombotdecoy.webp",
-                            "tooltipTextTemplate": "Doctor Doom has a Doombot with {destructibleDefensePoints} destructible defense. If an enemy destroys it with a skill, they take 20 damage."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "doctor_doom_doombot_taunt",
-                        "duration": 2,
-                        "sourceSkillId": "doctor-doom-doombot-decoy",
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "taunt": true,
-                            "statusIconUrl": "assets/images/doombotdecoy.webp",
-                            "tooltipText": "This character is taunted toward Doctor Doom's Doombot."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "doctor-doom-arcane-tech-blast",
-                "name": "Arcane-Tech Blast",
-                "skillimage": "assets/images/arcanetechblast.webp",
-                "skilldescription": "Doctor Doom deals 25 damage to one enemy. If a Doombot is active, a random enemy takes 15 affliction damage.",
-                "energy": [
-                    "Ninjutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Energy",
-                    "Ranged",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 25,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "random-enemy",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "doctor_doom_doombot_active"
-                        },
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "doctor-doom-latverian-lockdown",
-                "name": "Latverian Lockdown",
-                "skillimage": "assets/images/latverianlockdown.webp",
-                "skilldescription": "One enemy is silenced for 1 turn. If a Doombot is active, this skill first removes 15 destructible defense from the target, then deals 15 damage to them.",
-                "energy": [
-                    "Taijutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Energy",
-                    "Ranged",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "doctor_doom_latverian_lockdown_silence",
-                        "duration": 1,
-                        "sourceSkillId": "doctor-doom-latverian-lockdown",
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "silenceNonDamageEffects": true,
-                            "statusIconUrl": "assets/images/latverianlockdown.webp",
-                            "tooltipText": "Silenced: only damage from this character's skills will work."
-                        }
-                    },
-                    {
-                        "type": "reduce_destructible_defense",
-                        "amount": 15,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "doctor_doom_doombot_active"
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "doctor_doom_doombot_active"
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "doctor-doom-dooms-command",
-                "name": "Doom's Command",
-                "skillimage": "assets/images/doomscommand.webp",
-                "skilldescription": "If a Doombot is active, it is destroyed and unleashed upon Doom's enemies. All enemies take 25 damage and are stunned for 1 turn. If no Doombot is active, this skill cannot be used.",
-                "energy": [
-                    "Taijutsu",
-                    "Ninjutsu"
-                ],
-                "target": "all-enemy",
-                "damage": 0,
-                "cooldown": 4,
-                "actorCondition": {
-                    "statusId": "doctor_doom_doombot_active"
-                },
-                "classes": [
-                    "Physical",
-                    "Ranged",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 25,
-                        "scope": "all-enemy"
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "stunned",
-                        "duration": 1,
-                        "sourceSkillId": "doctor-doom-dooms-command",
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "cannotUseSkills": true,
-                            "statusIconUrl": "assets/images/doomscommand.webp",
-                            "tooltipText": "This character is stunned by Doom's Command."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "doctor_doom_doombot_cleanup",
-                        "duration": 0,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "removeStatusIdsOnApply": [
-                                "doctor_doom_doombot_taunt",
-                                "doctor_doom_doombot_cleanup"
-                            ],
-                            "hideTooltipFromEnemy": true,
-                            "tooltipText": "Doombot taunts have been removed."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "doctor_doom_doombot_cleanup",
-                        "duration": 0,
-                        "scope": "self",
-                        "metadata": {
-                            "removeStatusIdsOnApply": [
-                                "doctor_doom_doombot_active",
-                                "doctor_doom_doombot_cleanup"
-                            ],
-                            "hideTooltipFromEnemy": true,
-                            "tooltipText": "The Doombot has been unleashed."
-                        }
-                    }
-                ]
-            }
-        ],
-        "role": "Controller",
-        "universe": "marvel",
-        "roleCategory": "controller",
-        "description": "The ruler of Latveria and one of the greatest minds in existence, Doctor Doom combines scientific genius with mastery of the mystic arts. Through a network of Doombots and arcane technology, Doom ensures that every battle unfolds according to his design.",
-        "descriptionHtml": "The ruler of Latveria and one of the greatest minds in existence, Doctor Doom combines scientific genius with mastery of the mystic arts. Through a network of Doombots and arcane technology, Doom ensures that every battle unfolds according to his design."
-    },
-    {
+{
         "id": "doctor-strange",
         "characterId": "doctor-strange",
         "name": "Doctor Strange",
@@ -14493,7 +13576,924 @@ const characters = [
         "description": "The Sorcerer Supreme protects reality through mastery of the mystic arts. While Strange prefers discipline and wisdom over brute force, there are times when even he must draw upon forbidden powers. By gathering Arcane Energy, Strange can channel the eldritch entity Zom, unleashing devastating magic at tremendous personal risk.",
         "descriptionHtml": "The Sorcerer Supreme protects reality through mastery of the mystic arts. While Strange prefers discipline and wisdom over brute force, there are times when even he must draw upon forbidden powers. By gathering Arcane Energy, Strange can channel the eldritch entity Zom, unleashing devastating magic at tremendous personal risk."
     },
-    {
+{
+        "id": "doctor-doom",
+        "characterId": "doctor-doom",
+        "name": "Doctor Doom",
+        "facePicture": "assets/images/drdoomfp.webp",
+        "characterdeescription": "The ruler of Latveria and one of the greatest minds in existence, Doctor Doom combines scientific genius with mastery of the mystic arts. Through a network of Doombots and arcane technology, Doom ensures that every battle unfolds according to his design.",
+        "skills": [
+            {
+                "id": "doctor-doom-doombot-decoy",
+                "name": "Doombot Decoy",
+                "skillimage": "assets/images/doombotdecoy.webp",
+                "skilldescription": "Doctor Doom summons a Doombot with 30 destructible defense for 2 turns. While the Doombot is active, all enemies are taunted toward it. If the Doombot is destroyed by an enemy skill, the attacker takes 20 damage.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_doom_doombot_active",
+                        "duration": 2,
+                        "sourceSkillId": "doctor-doom-doombot-decoy",
+                        "scope": "self",
+                        "metadata": {
+                            "destructibleDefensePoints": 30,
+                            "removeStatusIdsOnBreak": [
+                                "doctor_doom_doombot_active"
+                            ],
+                            "removeStatusIdsFromEnemyTeamOnBreak": [
+                                "doctor_doom_doombot_taunt"
+                            ],
+                            "onBreakDamageToSourceAmount": 20,
+                            "onBreakDamageToSourceSkillClasses": [
+                                "Physical"
+                            ],
+                            "onBreakDamageToSourceLabel": "Doombot Decoy",
+                            "onBreakDamageToSourceReason": "doombot destroyed",
+                            "statusIconUrl": "assets/images/doombotdecoy.webp",
+                            "tooltipTextTemplate": "Doctor Doom has a Doombot with {destructibleDefensePoints} destructible defense. If an enemy destroys it with a skill, they take 20 damage."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_doom_doombot_taunt",
+                        "duration": 2,
+                        "sourceSkillId": "doctor-doom-doombot-decoy",
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "taunt": true,
+                            "statusIconUrl": "assets/images/doombotdecoy.webp",
+                            "tooltipText": "This character is taunted toward Doctor Doom's Doombot."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-doom-arcane-tech-blast",
+                "name": "Arcane-Tech Blast",
+                "skillimage": "assets/images/arcanetechblast.webp",
+                "skilldescription": "Doctor Doom deals 25 damage to one enemy. If a Doombot is active, a random enemy takes 15 affliction damage.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "random-enemy",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "doctor_doom_doombot_active"
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-doom-latverian-lockdown",
+                "name": "Latverian Lockdown",
+                "skillimage": "assets/images/latverianlockdown.webp",
+                "skilldescription": "One enemy is silenced for 1 turn. If a Doombot is active, this skill first removes 15 destructible defense from the target, then deals 15 damage to them.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_doom_latverian_lockdown_silence",
+                        "duration": 1,
+                        "sourceSkillId": "doctor-doom-latverian-lockdown",
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "silenceNonDamageEffects": true,
+                            "statusIconUrl": "assets/images/latverianlockdown.webp",
+                            "tooltipText": "Silenced: only damage from this character's skills will work."
+                        }
+                    },
+                    {
+                        "type": "reduce_destructible_defense",
+                        "amount": 15,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "doctor_doom_doombot_active"
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "doctor_doom_doombot_active"
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-doom-dooms-command",
+                "name": "Doom's Command",
+                "skillimage": "assets/images/doomscommand.webp",
+                "skilldescription": "If a Doombot is active, it is destroyed and unleashed upon Doom's enemies. All enemies take 25 damage and are stunned for 1 turn. If no Doombot is active, this skill cannot be used.",
+                "energy": [
+                    "Taijutsu",
+                    "Ninjutsu"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 4,
+                "actorCondition": {
+                    "statusId": "doctor_doom_doombot_active"
+                },
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "all-enemy"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "stunned",
+                        "duration": 1,
+                        "sourceSkillId": "doctor-doom-dooms-command",
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "statusIconUrl": "assets/images/doomscommand.webp",
+                            "tooltipText": "This character is stunned by Doom's Command."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_doom_doombot_cleanup",
+                        "duration": 0,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "removeStatusIdsOnApply": [
+                                "doctor_doom_doombot_taunt",
+                                "doctor_doom_doombot_cleanup"
+                            ],
+                            "hideTooltipFromEnemy": true,
+                            "tooltipText": "Doombot taunts have been removed."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_doom_doombot_cleanup",
+                        "duration": 0,
+                        "scope": "self",
+                        "metadata": {
+                            "removeStatusIdsOnApply": [
+                                "doctor_doom_doombot_active",
+                                "doctor_doom_doombot_cleanup"
+                            ],
+                            "hideTooltipFromEnemy": true,
+                            "tooltipText": "The Doombot has been unleashed."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Controller",
+        "universe": "marvel",
+        "roleCategory": "controller",
+        "description": "The ruler of Latveria and one of the greatest minds in existence, Doctor Doom combines scientific genius with mastery of the mystic arts. Through a network of Doombots and arcane technology, Doom ensures that every battle unfolds according to his design.",
+        "descriptionHtml": "The ruler of Latveria and one of the greatest minds in existence, Doctor Doom combines scientific genius with mastery of the mystic arts. Through a network of Doombots and arcane technology, Doom ensures that every battle unfolds according to his design."
+    },
+{
+        "id": "the-hulk",
+        "characterId": "the-hulk",
+        "name": "The Hulk",
+        "nameHtml": "The Hulk",
+        "facePicture": "https://i.imgur.com/SIkUVer.jpeg",
+        "url": "https://i.imgur.com/SIkUVer.jpeg",
+        "unlockRequirement": "None",
+        "unlockRequirementHtml": "None",
+        "characterdeescription": "Bruce Banner's gamma curse turns fear and anger into the unstoppable force called the Hulk. The more punishment Hulk takes, the more his rage breaks through, leaving enemies to face raw strength they cannot contain.",
+        "description": "Bruce Banner's gamma curse turns fear and anger into the unstoppable force called the Hulk. The more punishment Hulk takes, the more his rage breaks through, leaving enemies to face raw strength they cannot contain.",
+        "descriptionHtml": "Bruce Banner's gamma curse turns fear and anger into the unstoppable force called the Hulk. The more punishment Hulk takes, the more his rage breaks through, leaving enemies to face raw strength they cannot contain.",
+        "startStatuses": [
+            {
+                "statusId": "hulk_anger_management",
+                "duration": 999,
+                "sourceSkillId": "the-hulk-passive-anger-management",
+                "metadata": {
+                    "infiniteDuration": true,
+                    "stackMetadataKey": "hulkRage",
+                    "stackMax": 100,
+                    "hulkRage": 0,
+                    "unpierceableDamageReductionFlatPerStatusMetadataKey": "hulkRage",
+                    "unpierceableDamageReductionFlatPerStatusMetadataStep": 25,
+                    "unpierceableDamageReductionFlatPerStatusMetadataAmount": 10,
+                    "onEnemySkillTargetedHarmfulOnly": true,
+                    "onEnemySkillTargetedApplyStatusToOwner": {
+                        "statusId": "hulk_anger_management",
+                        "duration": 999,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "stackMetadataKey": "hulkRage",
+                            "stackDelta": 25,
+                            "stackMax": 100,
+                            "unpierceableDamageReductionFlatPerStatusMetadataKey": "hulkRage",
+                            "unpierceableDamageReductionFlatPerStatusMetadataStep": 25,
+                            "unpierceableDamageReductionFlatPerStatusMetadataAmount": 10,
+                            "tooltipTextTemplate": "Hulk has {hulkRage} rage and {currentUnpierceableDamageReductionFlat} unpierceable damage reduction."
+                        }
+                    },
+                    "onOwnerUseSkillTrigger": true,
+                    "onOwnerUseSkillHarmfulOnly": true,
+                    "persistOnOwnerUseSkillTrigger": true,
+                    "onOwnerUseSkillApplyStatusToOwner": {
+                        "statusId": "hulk_anger_management",
+                        "duration": 999,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "stackMetadataKey": "hulkRage",
+                            "stackDelta": 10,
+                            "stackMax": 100,
+                            "unpierceableDamageReductionFlatPerStatusMetadataKey": "hulkRage",
+                            "unpierceableDamageReductionFlatPerStatusMetadataStep": 25,
+                            "unpierceableDamageReductionFlatPerStatusMetadataAmount": 10,
+                            "tooltipTextTemplate": "Hulk has {hulkRage} rage and {currentUnpierceableDamageReductionFlat} unpierceable damage reduction."
+                        }
+                    },
+                    "applyStatusAtStack": {
+                        "metadataKey": "hulkRage",
+                        "value": 100,
+                        "statusId": "hulk_worldbreaker_active",
+                        "duration": 999,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "facePictureOverride": "https://i.imgur.com/SGK1J5U.jpeg",
+                            "silenceNonDamageEffects": true,
+                            "skillReplacements": {
+                                "the-hulk-debris-catapult": "the-hulk-world-break"
+                            },
+                            "skillCostOverridesBySkillId": {
+                                "the-hulk-hulk-smash": {
+                                    "energy": []
+                                },
+                                "the-hulk-thunder-clap": {
+                                    "energy": []
+                                },
+                                "the-hulk-debris-catapult": {
+                                    "energy": []
+                                },
+                                "the-hulk-hulk-leap": {
+                                    "energy": []
+                                },
+                                "the-hulk-world-break": {
+                                    "energy": []
+                                }
+                            },
+                            "tooltipText": "Worldbreaker is active. Hulk ignores enemy non-damage effects and his skills cost no energy."
+                        }
+                    },
+                    "tooltipTextTemplate": "Hulk has {hulkRage} rage and {currentUnpierceableDamageReductionFlat} unpierceable damage reduction."
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "the-hulk-hulk-smash",
+                "name": "Hulk Smash",
+                "nameHtml": "Hulk Smash",
+                "skillimage": "https://i.imgur.com/JeNdeM5.jpeg",
+                "url": "https://i.imgur.com/JeNdeM5.jpeg",
+                "skilldescription": "Destroys all of one enemy's destructible defense, then deals 35 damage to them and stuns their non-mental skills for 1 turn. Consumes 50 rage to increase this skill's damage by 10 and 100 rage to increase it by 20.",
+                "description": "Destroys all of one enemy's destructible defense, then deals 35 damage to them and stuns their non-mental skills for 1 turn. Consumes 50 rage to increase this skill's damage by 10 and 100 rage to increase it by 20.",
+                "descriptionHtml": "Destroys all of one enemy's destructible defense, then deals 35 damage to them and stuns their non-mental skills for 1 turn.<br>Consumes 50 rage to increase this skill's damage by 10 and 100 rage to increase it by 20.",
+                "energy": [
+                    "Taijutsu",
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "None",
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Instant",
+                "effects": [
+                    {
+                        "type": "destroy_destructible_defense",
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target",
+                        "metadata": {
+                            "bonusFromStatusMetadataThresholds": {
+                                "scope": "self",
+                                "statusId": "hulk_anger_management",
+                                "metadataKey": "hulkRage",
+                                "thresholds": [
+                                    {
+                                        "atLeast": 100,
+                                        "bonus": 20,
+                                        "consume": 100
+                                    },
+                                    {
+                                        "atLeast": 50,
+                                        "bonus": 10,
+                                        "consume": 50
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "hulk_smash_non_mental_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseNonMentalSkills": true,
+                            "tooltipText": "This character's non-mental skills are stunned."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "the-hulk-thunder-clap",
+                "name": "Thunder Clap",
+                "nameHtml": "Thunder Clap",
+                "skillimage": "https://i.imgur.com/LQ7Pyik.jpeg",
+                "url": "https://i.imgur.com/LQ7Pyik.jpeg",
+                "skilldescription": "Hulk taunts the enemy team for 1 turn. Hulk heals 10 HP for every enemy hit. Consumes 50 rage to increase the duration of this skill's effect by 1 turn.",
+                "description": "Hulk taunts the enemy team for 1 turn. Hulk heals 10 HP for every enemy hit. Consumes 50 rage to increase the duration of this skill's effect by 1 turn.",
+                "descriptionHtml": "Hulk taunts the enemy team for 1 turn.<br>Hulk heals 10 HP for every enemy hit.<br>Consumes 50 rage to increase the duration of this skill's effect by 1 turn.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "cooldownHtml": "3",
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "hulk_thunder_clap_taunt",
+                        "duration": 1,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "taunt": true,
+                            "durationBonusFromStatusMetadataThresholds": {
+                                "scope": "self",
+                                "statusId": "hulk_anger_management",
+                                "metadataKey": "hulkRage",
+                                "thresholds": [
+                                    {
+                                        "atLeast": 50,
+                                        "bonus": 1,
+                                        "consume": 50
+                                    }
+                                ]
+                            },
+                            "tooltipText": "This character is taunted by Hulk."
+                        }
+                    },
+                    {
+                        "type": "heal",
+                        "amount": 30,
+                        "scope": "self"
+                    }
+                ]
+            },
+            {
+                "id": "the-hulk-debris-catapult",
+                "name": "Debris Catapult",
+                "nameHtml": "Debris Catapult",
+                "skillimage": "https://i.imgur.com/6afyDto.jpeg",
+                "url": "https://i.imgur.com/6afyDto.jpeg",
+                "skilldescription": "Deals 35 damage to one enemy. Consumes 25 rage to reduce this skill's cooldown by 1 and 50 rage to reduce it by 2.",
+                "description": "Deals 35 damage to one enemy. Consumes 25 rage to reduce this skill's cooldown by 1 and 50 rage to reduce it by 2.",
+                "descriptionHtml": "Deals 35 damage to one enemy.<br>Consumes 25 rage to reduce this skill's cooldown by 1 and 50 rage to reduce it by 2.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "cooldownHtml": "2",
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Instant",
+                "metadata": {
+                    "cooldownReductionFromStatusMetadataThresholds": {
+                        "scope": "self",
+                        "statusId": "hulk_anger_management",
+                        "metadataKey": "hulkRage",
+                        "thresholds": [
+                            {
+                                "atLeast": 50,
+                                "amount": 2,
+                                "consume": 50
+                            },
+                            {
+                                "atLeast": 25,
+                                "amount": 1,
+                                "consume": 25
+                            }
+                        ]
+                    }
+                },
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target"
+                    }
+                ]
+            },
+            {
+                "id": "the-hulk-hulk-leap",
+                "name": "Hulk Leap",
+                "nameHtml": "Hulk Leap",
+                "skillimage": "https://i.imgur.com/nOKU4B9.jpeg",
+                "url": "https://i.imgur.com/nOKU4B9.jpeg",
+                "skilldescription": "Hulk becomes invulnerable for 1 turn and marks an enemy. When this skill ends, the marked target is dealt 20 damage and has their non-strategic skills stunned for 1 turn.",
+                "description": "Hulk becomes invulnerable for 1 turn and marks an enemy. When this skill ends, the marked target is dealt 20 damage and has their non-strategic skills stunned for 1 turn.",
+                "descriptionHtml": "Hulk becomes invulnerable for 1 turn and marks an enemy.<br>When this skill ends, the marked target is dealt 20 damage and has their non-strategic skills stunned for 1 turn.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "cooldownHtml": "2",
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "classesHtml": "Physical, Instant",
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "hulk_leap_invulnerable",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Hulk is invulnerable."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "hulk_leap_mark",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "onExpireEffects": [
+                                {
+                                    "type": "damage",
+                                    "amount": 20
+                                },
+                                {
+                                    "type": "apply_status",
+                                    "statusId": "hulk_leap_non_mental_stun",
+                                    "duration": 1,
+                                    "metadata": {
+                                        "harmful": true,
+                                        "cannotUseNonMentalSkills": true,
+                                        "tooltipText": "This character's non-mental skills are stunned."
+                                    }
+                                }
+                            ],
+                            "tooltipText": "When this expires, Hulk lands for 20 damage and stuns non-mental skills."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "the-hulk-passive-anger-management",
+                "name": "Passive: Anger Management",
+                "nameHtml": "Passive: Anger Management",
+                "skillimage": "https://i.imgur.com/SqCB3OU.jpeg",
+                "url": "https://i.imgur.com/SqCB3OU.jpeg",
+                "skilldescription": "Hulk starts the game with 0 rage, which can stack up to 100. Rage reduces by 35 at the end of Hulk's turns if he has any and did not use a skill, and he gains 25 every time an enemy uses a new skill on him. For every enemy he uses a new skill on, he gains 10 rage after any previous rage has been consumed. Hulk gains 10 points unpierceable damage reduction for every 25 points of rage he has.",
+                "description": "Hulk starts the game with 0 rage, which can stack up to 100. Rage reduces by 35 at the end of Hulk's turns if he has any and did not use a skill, and he gains 25 every time an enemy uses a new skill on him. For every enemy he uses a new skill on, he gains 10 rage after any previous rage has been consumed. Hulk gains 10 points unpierceable damage reduction for every 25 points of rage he has.",
+                "descriptionHtml": "Hulk starts the game with 0 rage, which can stack up to 100.<br>Rage reduces by 35 at the end of Hulk's turns if he has any and did not use a skill, and he gains 25 every time an enemy uses a new skill on him.<br>For every enemy he uses a new skill on, he gains 10 rage after any previous rage has been consumed.<br>Hulk gains 10 points unpierceable damage reduction for every 25 points of rage he has.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "Passive",
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
+                "classesHtml": "Passive, Instant"
+            },
+            {
+                "id": "the-hulk-passive-worldbreaker",
+                "name": "Passive: Worldbreaker",
+                "nameHtml": "Passive: Worldbreaker",
+                "skillimage": "https://i.imgur.com/rhYz0Af.jpeg",
+                "url": "https://i.imgur.com/rhYz0Af.jpeg",
+                "activatedFacePicture": "https://i.imgur.com/SGK1J5U.jpeg",
+                "skilldescription": "If Hulk's health is reduced to 25 HP or below while he has 100 rage, this will activate. Hulk removes all skills from himself, ignores enemy non-damage effects, and reduces the cost of all of his skills to no cost for the rest of the game. 'Debris Catapult' swaps to 'World-Break'.",
+                "description": "If Hulk's health is reduced to 25 HP or below while he has 100 rage, this will activate. Hulk removes all skills from himself, ignores enemy non-damage effects, and reduces the cost of all of his skills to no cost for the rest of the game. 'Debris Catapult' swaps to 'World-Break'.",
+                "descriptionHtml": "If Hulk's health is reduced to 25 HP or below while he has 100 rage, this will activate.<br>Hulk removes all skills from himself, ignores enemy non-damage effects, and reduces the cost of all of his skills to no cost for the rest of the game.<br>'Debris Catapult' swaps to 'World-Break'.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "cooldownHtml": "Passive",
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
+                "classesHtml": "Passive, Instant"
+            },
+            {
+                "id": "the-hulk-world-break",
+                "name": "World-Break",
+                "nameHtml": "World-Break",
+                "actorCondition": {
+                    "statusId": "hulk_worldbreaker_active"
+                },
+                "skillimage": "https://i.imgur.com/Peb79BG.jpeg",
+                "url": "https://i.imgur.com/Peb79BG.jpeg",
+                "skilldescription": "Deals 25 piercing damage to the enemy team. Bypasses invulnerability.",
+                "description": "Deals 25 piercing damage to the enemy team. Bypasses invulnerability.",
+                "descriptionHtml": "Deals 25 piercing damage to the enemy team.<br>Bypasses invulnerability.",
+                "energy": [
+                    "Random"
+                ],
+                "ignoreInvulnerability": true,
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "cooldownHtml": "2",
+                "classes": [
+                    "Physical",
+                    "Instant",
+                    "Bypassing"
+                ],
+                "classesHtml": "Physical, Instant, Bypassing",
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Tank",
+        "roleCategory": "tank",
+        "universe": "marvel"
+    },
+{
+        "id": "wolverine",
+        "characterId": "wolverine",
+        "name": "Wolverine",
+        "facePicture": "assets/images/wolverinefp.webp",
+        "characterdeescription": "Logan, the Wolverine, is a relentless mutant brawler with adamantium bones, razor claws, and a healing factor that lets him keep fighting through punishment that would stop almost anyone else. He pressures enemies with stacking bleed wounds, turns his claws white-hot when pushed, and can enter a berserker rage that delays incoming damage until his fury finally burns out.",
+        "startStatuses": [
+            {
+                "statusId": "wolverine_adamantium_skeleton",
+                "duration": 999,
+                "sourceSkillId": "wolverine-passive-adamantium-skeleton",
+                "metadata": {
+                    "infiniteDuration": true,
+                    "sourceSkillName": "Passive: Adamantium Skeleton",
+                    "statusIconUrl": "assets/images/wolverineadamantiumskeleton.webp",
+                    "unpierceableDamageReductionFlat": 5,
+                    "tooltipText": "Wolverine has 5 permanent unpierceable damage reduction."
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "wolverine-adamantium-claws",
+                "name": "Adamantium Claws",
+                "skillimage": "assets/images/wolverineadamantiumclaws.webp",
+                "skilldescription": "Wolverine slashes one enemy twice, dealing 10 piercing damage each time and making them bleed 1 HP permanently. This bleed stacks. During Hot Claws, each claw hit also deals 5 affliction damage and makes the target ignore healing effects for 1 turn. During Berserker Rage, Adamantium Claws hits an extra time.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "wolverine_berserker_rage"
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "wolverine_adamantium_claws_bleed",
+                        "duration": 999,
+                        "sourceSkillId": "wolverine-adamantium-claws",
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "sourceSkillName": "Adamantium Claws",
+                            "statusIconUrl": "assets/images/wolverineadamantiumclaws.webp",
+                            "turnEndDamage": 1,
+                            "afflictionDamage": true,
+                            "fixedTurnEndDamage": true,
+                            "ignoreDamageImmunity": true,
+                            "ignoreAfflictionDamageImmunity": true,
+                            "triggerOnApply": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "mergeNumericAddKeys": [
+                                "turnEndDamage"
+                            ],
+                            "tooltipTextTemplate": "This character bleeds for {turnEndDamage} HP at the end of each of Wolverine's turns. This bleed is permanent and stacks."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "wolverine_hot_claws"
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "wolverine_hot_claws"
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusIdsAll": [
+                                "wolverine_hot_claws",
+                                "wolverine_berserker_rage"
+                            ]
+                        },
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "wolverine_hot_claws_healing_block",
+                        "duration": 1,
+                        "sourceSkillId": "wolverine-hot-claws",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "wolverine_hot_claws"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "sourceSkillName": "Hot Claws",
+                            "statusIconUrl": "assets/images/wolverinehotclaws.webp",
+                            "healReceivedMultiplier": 0,
+                            "tooltipText": "This character ignores healing effects."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "wolverine-hot-claws",
+                "name": "Hot Claws",
+                "skillimage": "assets/images/wolverinehotclaws.webp",
+                "skilldescription": "For 3 turns, Wolverine's Adamantium Claws deals 5 affliction damage each time it deals damage and makes the target ignore healing effects for 1 turn.",
+                "energy": [],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 5,
+                "classes": [
+                    "Energy",
+                    "Instant",
+                    "Affliction"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "wolverine_hot_claws",
+                        "duration": 3,
+                        "sourceSkillId": "wolverine-hot-claws",
+                        "scope": "self",
+                        "metadata": {
+                            "sourceSkillName": "Hot Claws",
+                            "statusIconUrl": "assets/images/wolverinehotclaws.webp",
+                            "tooltipText": "Wolverine's Adamantium Claws deals 5 affliction damage each time it deals damage and makes the target ignore healing effects."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "wolverine-berserker-rage",
+                "name": "Berserker Rage",
+                "skillimage": "assets/images/wolverineberserkerrage.webp",
+                "skilldescription": "For 2 turns, Wolverine ignores enemy stun effects and all enemy damage he takes is delayed until this effect ends. During this time, Adamantium Claws damages an enemy an extra time and Wolverine gains one stack of Healing Factor.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Mental",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "wolverine_berserker_rage",
+                        "duration": 2,
+                        "sourceSkillId": "wolverine-berserker-rage",
+                        "scope": "self",
+                        "metadata": {
+                            "sourceSkillName": "Berserker Rage",
+                            "statusIconUrl": "assets/images/wolverineberserkerrage.webp",
+                            "cannotBeStunned": true,
+                            "delayEnemyDamageUntilExpire": true,
+                            "delayedDamage": 0,
+                            "tooltipTextTemplate": "Wolverine ignores enemy stun effects, delays enemy damage until this effect ends, and Adamantium Claws hits an extra time. Delayed damage: {delayedDamage}."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "wolverine_healing_factor",
+                        "duration": 3,
+                        "sourceSkillId": "wolverine-healing-factor",
+                        "scope": "self",
+                        "metadata": {
+                            "sourceSkillName": "Healing Factor",
+                            "statusIconUrl": "assets/images/wolverinehealingfactor.webp",
+                            "turnEndHealFlat": 10,
+                            "mergeNumericAddKeys": [
+                                "turnEndHealFlat"
+                            ],
+                            "tooltipTextTemplate": "Wolverine heals {turnEndHealFlat} HP each turn from Healing Factor."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "wolverine-healing-factor",
+                "name": "Healing Factor",
+                "skillimage": "assets/images/wolverinehealingfactor.webp",
+                "skilldescription": "Wolverine heals 10 HP for 3 turns. This effect stacks.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "wolverine_healing_factor",
+                        "duration": 3,
+                        "sourceSkillId": "wolverine-healing-factor",
+                        "scope": "self",
+                        "metadata": {
+                            "sourceSkillName": "Healing Factor",
+                            "statusIconUrl": "assets/images/wolverinehealingfactor.webp",
+                            "turnEndHealFlat": 10,
+                            "mergeNumericAddKeys": [
+                                "turnEndHealFlat"
+                            ],
+                            "tooltipTextTemplate": "Wolverine heals {turnEndHealFlat} HP each turn from Healing Factor."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "wolverine-passive-adamantium-skeleton",
+                "name": "Passive: Adamantium Skeleton",
+                "skillimage": "assets/images/wolverineadamantiumskeleton.webp",
+                "skilldescription": "Wolverine starts the game with 5 permanent unpierceable damage reduction.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            }
+        ],
+        "role": "Bruiser",
+        "universe": "marvel",
+        "roleCategory": "bruiser",
+        "description": "Logan, the Wolverine, is a relentless mutant brawler with adamantium bones, razor claws, and a healing factor that lets him keep fighting through punishment that would stop almost anyone else. He pressures enemies with stacking bleed wounds, turns his claws white-hot when pushed, and can enter a berserker rage that delays incoming damage until his fury finally burns out.",
+        "descriptionHtml": "Logan, the Wolverine, is a relentless mutant brawler with adamantium bones, razor claws, and a healing factor that lets him keep fighting through punishment that would stop almost anyone else. He pressures enemies with stacking bleed wounds, turns his claws white-hot when pushed, and can enter a berserker rage that delays incoming damage until his fury finally burns out."
+    },
+{
         "id": "darth-vader",
         "characterId": "darth-vader",
         "name": "Darth Vader",
@@ -14671,7 +14671,7 @@ const characters = [
         "description": "Once the heroic Anakin Skywalker, Darth Vader now serves as the Emperor's ruthless enforcer. A relentless juggernaut of the dark side, Vader overwhelms his enemies through fear, pain, and sheer power. Those who survive his assaults often find themselves unable to escape his grasp.",
         "descriptionHtml": "Once the heroic Anakin Skywalker, Darth Vader now serves as the Emperor's ruthless enforcer. A relentless juggernaut of the dark side, Vader overwhelms his enemies through fear, pain, and sheer power. Those who survive his assaults often find themselves unable to escape his grasp."
     },
-    {
+{
         "id": "boba-fett",
         "characterId": "boba-fett",
         "name": "Boba Fett",
@@ -15185,7 +15185,7 @@ const characters = [
         "description": "The most feared bounty hunter in the galaxy, Boba Fett relies on an arsenal of advanced weaponry, explosives, and Mandalorian technology to track down and eliminate his targets. By claiming bounties and scavenging trophies from fallen enemies, Boba continually upgrades his equipment, becoming more dangerous with every successful hunt.",
         "descriptionHtml": "The most feared bounty hunter in the galaxy, Boba Fett relies on an arsenal of advanced weaponry, explosives, and Mandalorian technology to track down and eliminate his targets. By claiming bounties and scavenging trophies from fallen enemies, Boba continually upgrades his equipment, becoming more dangerous with every successful hunt."
     },
-    {
+{
         "id": "obi-wan-kenobi",
         "characterId": "obi-wan-kenobi",
         "name": "Obi-Wan Kenobi",
@@ -15459,7 +15459,7 @@ const characters = [
         "description": "A legendary Jedi Master and one of the greatest practitioners of the defensive Soresu lightsaber form. Obi-Wan excels at protecting his allies and turning an opponent's aggression against them. Through patience, discipline, and flawless defense, he creates openings that allow him to strike with decisive precision.",
         "descriptionHtml": "A legendary Jedi Master and one of the greatest practitioners of the defensive Soresu lightsaber form. Obi-Wan excels at protecting his allies and turning an opponent's aggression against them. Through patience, discipline, and flawless defense, he creates openings that allow him to strike with decisive precision."
     },
-    {
+{
         "id": "grand-master-yoda",
         "characterId": "grand-master-yoda",
         "name": "Grand Master Yoda",
@@ -15702,7 +15702,7 @@ const characters = [
         "description": "The wisest and most respected Jedi Master of his era. Yoda uses his unparalleled connection to the Force to guide his allies and outmaneuver his enemies. Though small in stature, his mastery of the Force allows him to transform patience and wisdom into overwhelming strength.",
         "descriptionHtml": "The wisest and most respected Jedi Master of his era. Yoda uses his unparalleled connection to the Force to guide his allies and outmaneuver his enemies. Though small in stature, his mastery of the Force allows him to transform patience and wisdom into overwhelming strength."
     },
-    {
+{
         "id": "darth-sidious",
         "characterId": "darth-sidious",
         "name": "Darth Sidious",
@@ -16046,7 +16046,7 @@ const characters = [
         "description": "The Dark Lord of the Sith and architect of the Galactic Empire, Darth Sidious bends others to his will through manipulation, fear, and the dark side of the Force. His enemies slowly succumb to Corruption, becoming little more than pawns in his grand design before being consumed by his devastating Crimson Force Lightning.",
         "descriptionHtml": "The Dark Lord of the Sith and architect of the Galactic Empire, Darth Sidious bends others to his will through manipulation, fear, and the dark side of the Force. His enemies slowly succumb to Corruption, becoming little more than pawns in his grand design before being consumed by his devastating Crimson Force Lightning."
     },
-    {
+{
         "id": "general-grievous",
         "characterId": "general-grievous",
         "name": "General Grievous",
@@ -16344,7 +16344,7 @@ const characters = [
         "description": "A ruthless cyborg warlord obsessed with collecting the lightsabers of fallen Jedi. General Grievous relentlessly pursues his prey, building momentum throughout battle as he expands his collection and overwhelms his enemies with a storm of blades.",
         "descriptionHtml": "A ruthless cyborg warlord obsessed with collecting the lightsabers of fallen Jedi. General Grievous relentlessly pursues his prey, building momentum throughout battle as he expands his collection and overwhelms his enemies with a storm of blades."
     },
-    {
+{
         "id": "charmander",
         "characterId": "charmander",
         "name": "Charmander",
@@ -16838,6 +16838,7 @@ const characters = [
         "description": "A fiery and determined Pokémon whose burning tail reflects its fighting spirit. Though small and inexperienced, Charmander grows stronger as battle progresses, eventually evolving into the fierce Charmeleon.",
         "descriptionHtml": "A fiery and determined Pokémon whose burning tail reflects its fighting spirit. Though small and inexperienced, Charmander grows stronger as battle progresses, eventually evolving into the fierce Charmeleon."
     }
+
 ];
 
 if (typeof module !== 'undefined') {

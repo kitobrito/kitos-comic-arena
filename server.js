@@ -4280,6 +4280,22 @@ const serializePublicUserProfile = (user = {}) => ({
     profile: normalizeUserProfile(user),
 });
 
+const serializeArenaProfileForClient = (profile = {}, arena = DEFAULT_ARENA_MODE) => {
+    const normalizedProfile = normalizeUserProfile({ profile });
+    const arenaState = getProfileArenaState(normalizedProfile, arena);
+    return {
+        ...normalizedProfile,
+        recentQuickGames: arenaState.recentQuickGames,
+        recentPrivateGames: arenaState.recentPrivateGames,
+        recentLadderGames: arenaState.recentLadderGames,
+        recentQuickGamesCount24Hours: arenaState.recentQuickGamesCount24Hours,
+        recentPrivateGamesCount24Hours: arenaState.recentPrivateGamesCount24Hours,
+        recentLadderGamesCount24Hours: arenaState.recentLadderGamesCount24Hours,
+        missions: arenaState.missions,
+        ladder: arenaState.ladder,
+    };
+};
+
 const serializeCommunityUserSummary = (user = {}) => {
     const profile = normalizeUserProfile(user);
     const wins = Number(profile?.ladder?.wins) || 0;
@@ -5936,12 +5952,15 @@ const sanitizeLastChakraGainForViewer = (lastChakraGain, viewerUsername) => {
     return ownGain ? { [viewerUsername]: ownGain } : null;
 };
 
-const serializeMatchPlayerForViewer = (player = {}) => {
+const serializeMatchPlayerForViewer = (player = {}, arena = DEFAULT_ARENA_MODE) => {
     if (!player || typeof player !== 'object') return null;
     const safePlayer = {
         ...cloneSerializable(player),
         displayName: getPlayerDisplayName(player),
     };
+    if (safePlayer.profile && typeof safePlayer.profile === 'object') {
+        safePlayer.profile = serializeArenaProfileForClient(safePlayer.profile, arena);
+    }
     if (safePlayer.isBot) {
         delete safePlayer.isBot;
     }
@@ -5967,8 +5986,8 @@ const buildMatchPayloadForUser = (match, username) => {
         surrenderedBy: match.surrenderedBy || null,
         endReason: match.endReason || null,
         endedAt: match.endedAt || null,
-        player: serializeMatchPlayerForViewer(playerEntry),
-        opponent: serializeMatchPlayerForViewer(opponentEntry),
+        player: serializeMatchPlayerForViewer(playerEntry, match.arena),
+        opponent: serializeMatchPlayerForViewer(opponentEntry, match.arena),
         currentTurn: match.currentTurn || null,
         turnOrder: match.turnOrder || null,
         turnStartedAt: match.turnStartedAt || null,
@@ -6673,6 +6692,12 @@ const enqueuePlayer = (entry) => {
         ...entry,
         arena: normalizeArenaMode(entry?.arena),
     };
+    if (normalizedEntry.profile && typeof normalizedEntry.profile === 'object') {
+        normalizedEntry.profile = serializeArenaProfileForClient(
+            normalizedEntry.profile,
+            normalizedEntry.arena
+        );
+    }
     quickQueue = quickQueue.filter((u) => u.username !== entry.username);
     ladderQueue = ladderQueue.filter((u) => u.username !== entry.username);
     privateQueue = privateQueue.filter((u) => u.username !== entry.username);
@@ -6732,7 +6757,7 @@ const buildBattleBotMatch = async ({ username, team, mode, arena, playerProfile 
     const botPlayer = createBattleBotPlayer({
         matchId,
         team: await buildBattleBotTeam(),
-        ladderLevel: Number(playerProfile?.ladder?.level) || 1,
+        ladderLevel: Number(getProfileArenaState(playerProfile, normalizedArena)?.ladder?.level) || 1,
     });
     const aliveLookup = {
         [username]: Array.isArray(team) ? team.length : 3,
@@ -6744,6 +6769,7 @@ const buildBattleBotMatch = async ({ username, team, mode, arena, playerProfile 
             username,
             team,
             aliveCount: aliveLookup[username],
+            profile: serializeArenaProfileForClient(playerProfile, normalizedArena),
         },
         botPlayer,
     ];
@@ -6843,7 +6869,7 @@ const maybeCreateBattleBotMatch = async ({ username, mode, arena, userProfile = 
         const botPlayer = createBattleBotPlayer({
             matchId: `draft-bot-${Date.now()}`,
             team: await buildBattleBotTeam(),
-            ladderLevel: Number(userProfile?.ladder?.level) || 1,
+            ladderLevel: Number(getProfileArenaState(userProfile, normalizedArena)?.ladder?.level) || 1,
         });
         return createDraftSession({
             mode,
@@ -8919,11 +8945,12 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                             team,
                             mode,
                             arena,
+                            profile: serializeArenaProfileForClient(profile, arena),
                             draftMode: true,
                             targetUsername,
                             queuedAt: new Date(),
                             allowBattleBot: true,
-                            ladderLevel: Number(profile.ladder?.level) || 1,
+                            ladderLevel: Number(getProfileArenaState(profile, arena)?.ladder?.level) || 1,
                         },
                         {
                             ...opponent,
@@ -8949,8 +8976,21 @@ app.post('/api/match/join', requireSession, async (req, res) => {
             } =
                 buildMatch([username, opponent.username], aliveLookup);
             const playerDocs = [
-                { username, team, aliveCount: aliveLookup[username] },
-                { username: opponent.username, team: opponent.team, aliveCount: aliveLookup[opponent.username] },
+                {
+                    username,
+                    team,
+                    aliveCount: aliveLookup[username],
+                    profile: serializeArenaProfileForClient(profile, arena),
+                },
+                {
+                    username: opponent.username,
+                    team: opponent.team,
+                    aliveCount: aliveLookup[opponent.username],
+                    profile:
+                        opponent.profile && typeof opponent.profile === 'object'
+                            ? serializeArenaProfileForClient(opponent.profile, arena)
+                            : null,
+                },
             ];
             const board = battleLogic.buildInitialBoard(playerDocs);
             const matchDocument = {
@@ -9035,7 +9075,8 @@ app.post('/api/match/join', requireSession, async (req, res) => {
             targetUsername,
             queuedAt: new Date(),
             allowBattleBot: true,
-            ladderLevel: Number(profile.ladder?.level) || 1,
+            profile: serializeArenaProfileForClient(profile, arena),
+            ladderLevel: Number(getProfileArenaState(profile, arena)?.ladder?.level) || 1,
         });
         return res.json({ ok: true, queued: true, mode, arena });
     } catch (error) {
@@ -10092,6 +10133,7 @@ app.post('/api/missions/:missionId/pve/start', requireSession, async (req, res) 
                 {
                     username,
                     team,
+                    profile: serializeArenaProfileForClient(profile, arena),
                 },
                 botPlayer,
             ],
