@@ -41,7 +41,8 @@ const PORT = process.env.PORT || 4000;
 const TURN_DURATION_MS = 60 * 1000;
 const MATCH_FOUND_HOLD_MS = 3 * 1000;
 const BATTLE_BOT_QUEUE_TIMEOUT_MS = 20 * 1000;
-const BATTLE_BOT_ACTION_DELAY_MS = 2500;
+const BATTLE_BOT_ACTION_DELAY_MIN_MS = 15 * 1000;
+const BATTLE_BOT_ACTION_DELAY_MAX_MS = 40 * 1000;
 const BATTLE_BOTS_ENABLED = process.env.ENABLE_BATTLE_BOTS !== 'false';
 const DEFAULT_URI = process.env.MONGODB_URI;
 const DATABASE_NAME = process.env.MONGODB_DB || 'comic-arena';
@@ -7605,9 +7606,12 @@ function scheduleBattleBotTurn(match) {
     }
     const matchStartsAtMs = match.matchStartsAt ? new Date(match.matchStartsAt).getTime() : Date.now();
     const turnStartedAtMs = match.turnStartedAt ? new Date(match.turnStartedAt).getTime() : matchStartsAtMs;
+    const actionDelayMs =
+        BATTLE_BOT_ACTION_DELAY_MIN_MS +
+        Math.floor(Math.random() * (BATTLE_BOT_ACTION_DELAY_MAX_MS - BATTLE_BOT_ACTION_DELAY_MIN_MS + 1));
     const earliestActionAtMs = Math.max(
         matchStartsAtMs,
-        Number.isNaN(turnStartedAtMs) ? matchStartsAtMs : turnStartedAtMs + BATTLE_BOT_ACTION_DELAY_MS
+        Number.isNaN(turnStartedAtMs) ? matchStartsAtMs : turnStartedAtMs + actionDelayMs
     );
     const delayMs = Math.max(0, earliestActionAtMs - Date.now());
     scheduledBattleBotTurns.add(matchId);
