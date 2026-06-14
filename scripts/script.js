@@ -9281,6 +9281,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         setBackgroundImage(selectionBackground, profileCache?.profile?.backgrounds?.selectionUrl || '');
     };
 
+    const syncArenaModePlayerIdentity = () => {
+        if (!profileCache?.username || !profileCache?.profile) return;
+        const playerProfileView = getArenaProfileView(profileCache.profile, activeArenaMode);
+        applyPlayerIdentity({
+            name: profileCache.username,
+            avatarUrl: playerProfileView.avatarUrl || defaultProfileAvatar,
+            clanAbbreviation: playerProfileView.clan?.abbreviation || 'None',
+            ladder: playerProfileView.ladder || null,
+        });
+    };
+
     const syncArenaModeButtons = () => {
         arenaModeButtons.forEach((button) => {
             const mode = button.dataset.arenaMode === 'pokemon' ? 'pokemon' : 'comic';
@@ -9289,6 +9300,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             button.setAttribute('aria-pressed', active ? 'true' : 'false');
         });
         syncArenaModeBackground();
+        syncArenaModePlayerIdentity();
     };
 
     const formatMissionGoalLines = (mission, progress = {}) => {
@@ -10138,6 +10150,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         'mysterio',
         'scorpion',
         'ghost-rider',
+        'doctor-strange',
+        'doctor-doom',
         'the-hulk',
         'wolverine',
         'superman',
@@ -10146,6 +10160,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         'the-flash-barry-allen',
         'wonder-woman',
         'green-lantern-hal-jordan',
+        'doctor-fate',
         'sinestro',
         'atrocitus',
         'saint-walker',
