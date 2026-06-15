@@ -351,7 +351,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/FKv3P8m.png",
                 "skilldescription": "Deals 20 damage to one enemy. This deals 5 additional damage to an enemy affected by 'Web Shot' or 'Web Wrap' and becomes piercing if Spider-Man is under the effects of 'Web Slinging'. Increases 'Passive: Spider Senses' by 5%.",
                 "energy": [
-                    "Taijutsu"
+                    "Ninjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -17368,6 +17368,305 @@ const characters = [
         "roleCategory": "damage",
         "description": "A patient and resilient Grass-type Pokémon that draws strength from sunlight. Bulbasaur grows more powerful as the sun shines overhead, eventually evolving into Ivysaur and unleashing devastating solar attacks.",
         "descriptionHtml": "A patient and resilient Grass-type Pokémon that draws strength from sunlight. Bulbasaur grows more powerful as the sun shines overhead, eventually evolving into Ivysaur and unleashing devastating solar attacks."
+    },
+    {
+        "id": "pikachu",
+        "characterId": "pikachu",
+        "name": "Pikachu",
+        "facePicture": "assets/images/PokemonArena/Pikachu/pikachufp.jpeg",
+        "startStatuses": [
+            {
+                "statusId": "pikachu_static_passive",
+                "duration": 99,
+                "sourceSkillId": "pikachu-passive-static",
+                "metadata": {
+                    "infiniteDuration": true,
+                    "onEnemySkillTargetedChancePercent": 50,
+                    "onEnemySkillTargetedDamageToSourceAmount": 5,
+                    "onEnemySkillTargetedDamageToSourceIgnoreDamageReduction": true,
+                    "onEnemySkillTargetedDamageToSourceIgnoreDestructibleDefense": true,
+                    "onEnemySkillTargetedDamageToSourceSkillClasses": [
+                        "Physical",
+                        "Instant"
+                    ],
+                    "onEnemySkillTargetedApplyStatusToSource": {
+                        "statusId": "pikachu_static_mark",
+                        "duration": 1,
+                        "metadata": {
+                            "harmful": true,
+                            "statusIconUrl": "assets/images/PokemonArena/Pikachu/passivestatic.jpeg",
+                            "tooltipText": "This character is marked by Static."
+                        }
+                    },
+                    "tooltipText": "Any enemy who uses a new skill on Pikachu has a 50% chance to take 5 piercing damage and be marked by Static for 1 turn."
+                }
+            }
+        ],
+        "characterdeescription": "When several of these Pokémon gather, their electricity could build up and cause lightning storms. Forest dwellers, they are few in number and exceptionally rare. The pouches in their cheeks discharge electricity at their opponents. The Pikachu are believed to be highly intelligent.",
+        "skills": [
+            {
+                "id": "pikachu-thundershock",
+                "name": "Thundershock",
+                "skillimage": "assets/images/PokemonArena/Pikachu/thundershock.jpg",
+                "skilldescription": "Deals 15 piercing damage to one targeted enemy and 15 piercing damage to a random different enemy, paralyzes the targeted enemy's cooldowns, and makes Thunder cost 1 Ninjutsu and 1 Random energy for 1 turn. If the targeted enemy is affected by Passive: Static, their cooldowns are paralyzed for 2 turns instead.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Energy",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "scope": "target",
+                        "type": "damage",
+                        "amount": 15,
+                        "metadata": {
+                            "harmful": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "scope": "random-other-enemy",
+                        "type": "damage",
+                        "amount": 15,
+                        "metadata": {
+                            "harmful": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "scope": "target",
+                        "type": "apply_status",
+                        "statusId": "cooldown_paralyze",
+                        "duration": 1,
+                        "metadata": {
+                            "harmful": true,
+                            "paralyzeCooldowns": true,
+                            "tooltipText": "Cooldowns are paralyzed."
+                        }
+                    },
+                    {
+                        "scope": "target",
+                        "type": "apply_status",
+                        "statusId": "cooldown_paralyze",
+                        "duration": 2,
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "pikachu_static_mark"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "paralyzeCooldowns": true,
+                            "tooltipText": "Cooldowns are paralyzed by Static."
+                        }
+                    },
+                    {
+                        "scope": "self",
+                        "type": "apply_status",
+                        "statusId": "pikachu_thundershock_thunder_cost",
+                        "duration": 1,
+                        "metadata": {
+                            "skillCostOverridesBySkillId": {
+                                "pikachu-thunder": {
+                                    "energy": [
+                                        "Ninjutsu",
+                                        "Random"
+                                    ]
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/Pikachu/thundershock.jpg",
+                            "tooltipText": "Thunder costs 1 Ninjutsu and 1 Random energy."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "pikachu-volt-tackle",
+                "name": "Volt Tackle",
+                "skillimage": "assets/images/PokemonArena/Pikachu/volttackle.jpeg",
+                "skilldescription": "Pikachu deals 35 piercing damage to one enemy then loses 20 health. For 1 turn, if the target uses a new skill it will have its cooldown increased by 2 turns. If the target is affected by Passive: Static, their cooldowns are increased for 4 turns instead.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Energy",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "scope": "target",
+                        "type": "damage",
+                        "amount": 35,
+                        "metadata": {
+                            "harmful": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "scope": "self",
+                        "type": "damage",
+                        "amount": 20,
+                        "metadata": {
+                            "fixedDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "scope": "target",
+                        "type": "apply_status",
+                        "statusId": "pikachu_volt_tackle_cooldown_shock",
+                        "duration": 1,
+                        "metadata": {
+                            "harmful": true,
+                            "newSkillCooldownIncrease": 2,
+                            "tooltipText": "This character's new skills have their cooldown increased by 2 turns."
+                        }
+                    },
+                    {
+                        "scope": "target",
+                        "type": "apply_status",
+                        "statusId": "pikachu_volt_tackle_cooldown_shock",
+                        "duration": 4,
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "pikachu_static_mark"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "newSkillCooldownIncrease": 2,
+                            "tooltipText": "Static empowers Volt Tackle: this character's new skills have their cooldown increased by 2 turns."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "pikachu-thunder",
+                "name": "Thunder",
+                "skillimage": "assets/images/PokemonArena/Pikachu/thunder.jpg",
+                "skilldescription": "Deals 45 piercing damage to one enemy. If the target is affected by Passive: Static, they also take 5 piercing damage, have their harmful skills stunned for 1 turn, and Passive: Static is re-cast on them.",
+                "energy": [
+                    "Ninjutsu",
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Energy",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "scope": "target",
+                        "type": "damage",
+                        "amount": 45,
+                        "metadata": {
+                            "harmful": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "scope": "target",
+                        "type": "damage",
+                        "amount": 5,
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "pikachu_static_mark"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "scope": "target",
+                        "type": "apply_status",
+                        "statusId": "pikachu_thunder_harmful_stun",
+                        "duration": 1,
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "pikachu_static_mark"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseHarmfulSkills": true,
+                            "tooltipText": "This character's harmful skills are stunned."
+                        }
+                    },
+                    {
+                        "scope": "target",
+                        "type": "apply_status",
+                        "statusId": "pikachu_static_mark",
+                        "duration": 1,
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "pikachu_static_mark"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "statusIconUrl": "assets/images/PokemonArena/Pikachu/passivestatic.jpeg",
+                            "tooltipText": "This character is marked by Static."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "pikachu-agility",
+                "name": "Pikachu Agility",
+                "skillimage": "assets/images/PokemonArena/Pikachu/agility.jpeg",
+                "skilldescription": "Pikachu becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "scope": "self",
+                        "type": "apply_status",
+                        "statusId": "pikachu_agility_invulnerable",
+                        "duration": 1,
+                        "metadata": {
+                            "invulnerable": true,
+                            "tooltipText": "Pikachu is invulnerable."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "pikachu-passive-static",
+                "name": "Passive: Static",
+                "skillimage": "assets/images/PokemonArena/Pikachu/passivestatic.jpeg",
+                "skilldescription": "Any enemy who uses a new skill on Pikachu has a 50% chance to take 5 piercing damage and be marked by this skill for 1 turn.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            }
+        ],
+        "role": "Mage",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "damage",
+        "description": "When several of these Pokémon gather, their electricity could build up and cause lightning storms. Forest dwellers, they are few in number and exceptionally rare. The pouches in their cheeks discharge electricity at their opponents. The Pikachu are believed to be highly intelligent.",
+        "descriptionHtml": "When several of these Pokémon gather, their electricity could build up and cause lightning storms. Forest dwellers, they are few in number and exceptionally rare. The pouches in their cheeks discharge electricity at their opponents. The Pikachu are believed to be highly intelligent."
     }
 
 ];

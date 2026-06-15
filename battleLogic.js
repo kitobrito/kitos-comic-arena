@@ -4138,6 +4138,15 @@ const triggerOnEnemySkillTargetedBonuses = ({
         if (classFilter.length > 0 && !classFilter.some((entry) => hasSkillClass(skill?.classes || [], entry))) {
             return;
         }
+        const chancePercent = Number(metadata.onEnemySkillTargetedChancePercent);
+        if (
+            Number.isFinite(chancePercent) &&
+            chancePercent >= 0 &&
+            chancePercent < 100 &&
+            !rollPercentSuccess(chancePercent)
+        ) {
+            return;
+        }
         if (Boolean(metadata.onEnemySkillTargetedOncePerTurn)) {
             const turnCount = Math.max(0, Number(match?.economy?.turnCounts?.[actingUsername] || 0));
             const triggerKey = `${actingUsername}:${turnCount}`;
