@@ -16359,7 +16359,7 @@ const characters = [
                     "turnStartApplyStatusToOwner": {
                         "statusId": "charmander_charmeleon_evolution",
                         "duration": 99,
-                        "minimumOwnerTurnCount": 2,
+                        "minimumOwnerTurnCount": 3,
                         "sourceSkillId": "charmander-passive-evolution-charmeleon",
                         "metadata": {
                             "infiniteDuration": true,
@@ -16373,7 +16373,7 @@ const characters = [
                             "tooltipText": "Charmander has evolved into Charmeleon. All of his skills have improved effects."
                         }
                     },
-                    "tooltipText": "At the beginning of Charmander's third turn, he evolves into Charmeleon."
+                    "tooltipText": "At the beginning of Charmander's fourth turn, he evolves into Charmeleon."
                 }
             }
         ],
@@ -16592,7 +16592,7 @@ const characters = [
                 "id": "charmander-passive-evolution-charmeleon",
                 "name": "Evolution - Charmeleon",
                 "skillimage": "assets/images/PokemonArena/Charmander/passiveevolvecharmeleon.jpg",
-                "skilldescription": "At the beginning of Charmander's third turn, he evolves into Charmeleon. All of his skills gain improved effects.",
+                "skilldescription": "At the beginning of Charmander's fourth turn, he evolves into Charmeleon. All of his skills gain improved effects.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -16837,6 +16837,528 @@ const characters = [
         "roleCategory": "damage",
         "description": "A fiery and determined Pokémon whose burning tail reflects its fighting spirit. Though small and inexperienced, Charmander grows stronger as battle progresses, eventually evolving into the fierce Charmeleon.",
         "descriptionHtml": "A fiery and determined Pokémon whose burning tail reflects its fighting spirit. Though small and inexperienced, Charmander grows stronger as battle progresses, eventually evolving into the fierce Charmeleon."
+    },
+    {
+        "id": "bulbasaur",
+        "characterId": "bulbasaur",
+        "name": "Bulbasaur",
+        "facePicture": "assets/images/PokemonArena/Bulbasaur/bulbasaurfp.jpg",
+        "startStatuses": [
+            {
+                "statusId": "bulbasaur_sun_tracker",
+                "duration": 99,
+                "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
+                "metadata": {
+                    "infiniteDuration": true,
+                    "turnEndApplyStatusToOwnerIfNoManualSkill": {
+                        "statusId": "bulbasaur_sun_stacks",
+                        "duration": 99,
+                        "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "bulbasaurSunStacks": 1,
+                            "stackMetadataKey": "bulbasaurSunStacks",
+                            "stackDelta": 1,
+                            "stackMax": 5,
+                            "randomCostReductionPerStatusMetadata": {
+                                "skillIds": [
+                                    "bulbasaur-solar-beam",
+                                    "ivysaur-solar-beam"
+                                ],
+                                "metadataKey": "bulbasaurSunStacks",
+                                "multiplier": 1
+                            },
+                            "applyStatusAtStack": {
+                                "metadataKey": "bulbasaurSunStacks",
+                                "value": 5,
+                                "statusId": "bulbasaur_ivysaur_evolution",
+                                "duration": 99,
+                                "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "facePictureOverride": "assets/images/PokemonArena/Bulbasaur/ivysaurfp.jpg",
+                                    "skillReplacements": {
+                                        "bulbasaur-leech-seed": "ivysaur-leech-seed",
+                                        "bulbasaur-vine-whip": "ivysaur-vine-whip",
+                                        "bulbasaur-razor-leaf": "ivysaur-razor-leaf",
+                                        "bulbasaur-solar-beam": "ivysaur-solar-beam"
+                                    },
+                                    "tooltipText": "Bulbasaur has evolved into Ivysaur. All of his skills have improved effects."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
+                            "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur."
+                        }
+                    },
+                    "tooltipText": "Bulbasaur gains 1 Sun whenever Leech Seed damages an enemy. If he does not use a new skill during his turn, he gains 1 Sun instead."
+                }
+            }
+        ],
+        "characterdeescription": "A patient and resilient Grass-type Pokémon that draws strength from sunlight. Bulbasaur grows more powerful as the sun shines overhead, eventually evolving into Ivysaur and unleashing devastating solar attacks.",
+        "skills": [
+            {
+                "id": "bulbasaur-leech-seed",
+                "name": "Leech Seed",
+                "skillimage": "assets/images/PokemonArena/Bulbasaur/bulbasaurleechseed.jpg",
+                "skilldescription": "Bulbasaur plants a seed on one enemy for 2 turns. At the start of each turn, that enemy loses 15 health and Bulbasaur restores 15 health. Bulbasaur gains 1 Sun whenever Leech Seed deals damage.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "bulbasaur_leech_seed",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "turnStartDamage": 15,
+                            "turnStartHealSourceAmount": 15,
+                            "fixedTurnStartDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnStartApplyStatusToSourceOwner": {
+                                "statusId": "bulbasaur_sun_stacks",
+                                "duration": 99,
+                                "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "bulbasaurSunStacks": 1,
+                                    "stackMetadataKey": "bulbasaurSunStacks",
+                                    "stackDelta": 1,
+                                    "stackMax": 5,
+                                    "randomCostReductionPerStatusMetadata": {
+                                        "skillIds": [
+                                            "bulbasaur-solar-beam",
+                                            "ivysaur-solar-beam"
+                                        ],
+                                        "metadataKey": "bulbasaurSunStacks",
+                                        "multiplier": 1
+                                    },
+                                    "applyStatusAtStack": {
+                                        "metadataKey": "bulbasaurSunStacks",
+                                        "value": 5,
+                                        "statusId": "bulbasaur_ivysaur_evolution",
+                                        "duration": 99,
+                                        "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
+                                        "metadata": {
+                                            "infiniteDuration": true,
+                                            "facePictureOverride": "assets/images/PokemonArena/Bulbasaur/ivysaurfp.jpg",
+                                            "skillReplacements": {
+                                                "bulbasaur-leech-seed": "ivysaur-leech-seed",
+                                                "bulbasaur-vine-whip": "ivysaur-vine-whip",
+                                                "bulbasaur-razor-leaf": "ivysaur-razor-leaf",
+                                                "bulbasaur-solar-beam": "ivysaur-solar-beam"
+                                            },
+                                            "tooltipText": "Bulbasaur has evolved into Ivysaur. All of his skills have improved effects."
+                                        }
+                                    },
+                                    "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
+                                    "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/bulbasaurleechseed.jpg",
+                            "tooltipText": "This character loses 15 health at the start of each turn. Bulbasaur restores 15 health and gains 1 Sun whenever this deals damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "bulbasaur-vine-whip",
+                "name": "Vine Whip",
+                "skillimage": "assets/images/PokemonArena/Bulbasaur/bulbasaurvinewhip.jpg",
+                "skilldescription": "Bulbasaur deals 15 piercing damage to one enemy. That enemy's harmful skills are disabled for 1 turn. This skill has a 20% chance to critically strike for each Sun stack, dealing 15 additional damage.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "chance": 0,
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "chancePerStatusMetadata": {
+                                "scope": "self",
+                                "statusId": "bulbasaur_sun_stacks",
+                                "metadataKey": "bulbasaurSunStacks",
+                                "multiplier": 20
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "bulbasaur_vine_whip_harmful_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseHarmfulSkills": true,
+                            "tooltipText": "This character's harmful skills are disabled."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "bulbasaur-razor-leaf",
+                "name": "Razor Leaf",
+                "skillimage": "assets/images/PokemonArena/Bulbasaur/bulbasaurrazorleaf.jpg",
+                "skilldescription": "Bulbasaur deals 20 damage to one enemy and 15 damage to all other enemies. This skill has a 20% chance to critically strike each enemy for each Sun stack, dealing 10 additional damage and becoming Piercing.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "other-enemies"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "all-enemy",
+                        "chance": 0,
+                        "rollPerRecipient": true,
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "chancePerStatusMetadata": {
+                                "scope": "self",
+                                "statusId": "bulbasaur_sun_stacks",
+                                "metadataKey": "bulbasaurSunStacks",
+                                "multiplier": 20
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "bulbasaur-solar-beam",
+                "name": "Solar Beam",
+                "skillimage": "assets/images/PokemonArena/Bulbasaur/bulbasaursolarbeam.jpg",
+                "skilldescription": "This skill costs 1 less Random energy for each Sun stack Bulbasaur possesses. Bulbasaur deals 50 damage to one enemy. This skill cannot be countered. After using this skill, all Sun stacks are removed.",
+                "energy": [
+                    "Taijutsu",
+                    "Random",
+                    "Random",
+                    "Random",
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "cannotBeCountered": true,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 50,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "bulbasaur_sun_spent",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "removeStatusIdsOnApply": [
+                                "bulbasaur_sun_stacks"
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "bulbasaur-passive-evolution-ivysaur",
+                "name": "Evolution - Ivysaur",
+                "skillimage": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
+                "skilldescription": "Whenever Bulbasaur damages an enemy with Leech Seed, he gains 1 Sun stack. If Bulbasaur does not use a new skill during his turn, he gains 1 Sun stack instead. Maximum: 5 Sun. When Bulbasaur reaches 5 Sun, he immediately evolves into Ivysaur. Ivysaur gains improved versions of all skills.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            },
+            {
+                "id": "ivysaur-leech-seed",
+                "name": "Ivysaur's Leech Seed",
+                "actorCondition": {
+                    "statusId": "bulbasaur_ivysaur_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaurleechseed.png",
+                "skilldescription": "Ivysaur plants a seed on one enemy for 2 turns. At the start of each turn, that enemy loses 20 health and Ivysaur restores 20 health. Ivysaur gains 1 Sun whenever Leech Seed deals damage.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "ivysaur_leech_seed",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "turnStartDamage": 20,
+                            "turnStartHealSourceAmount": 20,
+                            "fixedTurnStartDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnStartApplyStatusToSourceOwner": {
+                                "statusId": "bulbasaur_sun_stacks",
+                                "duration": 99,
+                                "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "bulbasaurSunStacks": 1,
+                                    "stackMetadataKey": "bulbasaurSunStacks",
+                                    "stackDelta": 1,
+                                    "stackMax": 5,
+                                    "randomCostReductionPerStatusMetadata": {
+                                        "skillIds": [
+                                            "bulbasaur-solar-beam",
+                                            "ivysaur-solar-beam"
+                                        ],
+                                        "metadataKey": "bulbasaurSunStacks",
+                                        "multiplier": 1
+                                    },
+                                    "applyStatusAtStack": {
+                                        "metadataKey": "bulbasaurSunStacks",
+                                        "value": 5,
+                                        "statusId": "bulbasaur_ivysaur_evolution",
+                                        "duration": 99,
+                                        "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
+                                        "metadata": {
+                                            "infiniteDuration": true,
+                                            "facePictureOverride": "assets/images/PokemonArena/Bulbasaur/ivysaurfp.jpg",
+                                            "skillReplacements": {
+                                                "bulbasaur-leech-seed": "ivysaur-leech-seed",
+                                                "bulbasaur-vine-whip": "ivysaur-vine-whip",
+                                                "bulbasaur-razor-leaf": "ivysaur-razor-leaf",
+                                                "bulbasaur-solar-beam": "ivysaur-solar-beam"
+                                            },
+                                            "tooltipText": "Bulbasaur has evolved into Ivysaur. All of his skills have improved effects."
+                                        }
+                                    },
+                                    "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
+                                    "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/ivysaurleechseed.png",
+                            "tooltipText": "This character loses 20 health at the start of each turn. Ivysaur restores 20 health and gains 1 Sun whenever this deals damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "ivysaur-vine-whip",
+                "name": "Ivysaur's Vine Whip",
+                "actorCondition": {
+                    "statusId": "bulbasaur_ivysaur_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaurvinewhip.jpg",
+                "skilldescription": "Ivysaur deals 25 piercing damage to one enemy. That enemy's harmful skills are disabled for 1 turn. This skill has a 20% chance to critically strike for each Sun stack, dealing 20 additional damage.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "chance": 0,
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "chancePerStatusMetadata": {
+                                "scope": "self",
+                                "statusId": "bulbasaur_sun_stacks",
+                                "metadataKey": "bulbasaurSunStacks",
+                                "multiplier": 20
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "ivysaur_vine_whip_harmful_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseHarmfulSkills": true,
+                            "tooltipText": "This character's harmful skills are disabled."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "ivysaur-razor-leaf",
+                "name": "Ivysaur's Razor Leaf",
+                "actorCondition": {
+                    "statusId": "bulbasaur_ivysaur_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaurrazorleaf.jpg",
+                "skilldescription": "Ivysaur deals 30 damage to one enemy and 20 damage to all other enemies. This skill has a 20% chance to critically strike each enemy for each Sun stack, dealing 15 additional damage and becoming Piercing.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "other-enemies"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "all-enemy",
+                        "chance": 0,
+                        "rollPerRecipient": true,
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "chancePerStatusMetadata": {
+                                "scope": "self",
+                                "statusId": "bulbasaur_sun_stacks",
+                                "metadataKey": "bulbasaurSunStacks",
+                                "multiplier": 20
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "ivysaur-solar-beam",
+                "name": "Ivysaur's Solar Beam",
+                "actorCondition": {
+                    "statusId": "bulbasaur_ivysaur_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaursolarbeam.webp",
+                "skilldescription": "This skill costs 1 less Random energy for each Sun stack Ivysaur possesses. Ivysaur deals 65 damage to one enemy. This skill cannot be countered. After using this skill, all Sun stacks are removed.",
+                "energy": [
+                    "Taijutsu",
+                    "Random",
+                    "Random",
+                    "Random",
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "cannotBeCountered": true,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 65,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "bulbasaur_sun_spent",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "removeStatusIdsOnApply": [
+                                "bulbasaur_sun_stacks"
+                            ]
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Damage",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "damage",
+        "description": "A patient and resilient Grass-type Pokémon that draws strength from sunlight. Bulbasaur grows more powerful as the sun shines overhead, eventually evolving into Ivysaur and unleashing devastating solar attacks.",
+        "descriptionHtml": "A patient and resilient Grass-type Pokémon that draws strength from sunlight. Bulbasaur grows more powerful as the sun shines overhead, eventually evolving into Ivysaur and unleashing devastating solar attacks."
     }
 
 ];

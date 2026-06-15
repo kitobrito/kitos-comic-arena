@@ -899,7 +899,28 @@ const computeEffectiveEnergyCost = ({ skill, actorState }) => {
         const increase = Math.max(0, Number(totals[increaseKey]) || 0);
         reservedSpecific[type] = Math.max(0, (reservedSpecific[type] || 0) - reduction + increase);
     });
-    const randomReduction = Math.max(0, totals.randomCostReduction);
+    const stackBasedRandomReduction = (Array.isArray(actorState?.statuses) ? actorState.statuses : []).reduce(
+        (sum, status) => {
+            const remaining = Number(status?.remainingTurns) || 0;
+            if (remaining <= 0) return sum;
+            const config = status?.metadata?.randomCostReductionPerStatusMetadata;
+            if (!config || typeof config !== 'object') return sum;
+            const skillIds = Array.isArray(config.skillIds)
+                ? config.skillIds.filter((id) => typeof id === 'string' && id)
+                : typeof config.skillId === 'string' && config.skillId
+                ? [config.skillId]
+                : [];
+            if (skillIds.length > 0 && !skillIds.includes(skill?.id || '')) return sum;
+            const metadataKey =
+                typeof config.metadataKey === 'string' && config.metadataKey ? config.metadataKey : '';
+            const multiplier = Number(config.multiplier) || 0;
+            if (!metadataKey || multiplier === 0) return sum;
+            const value = Math.max(0, Number(status?.metadata?.[metadataKey]) || 0);
+            return sum + value * multiplier;
+        },
+        0
+    );
+    const randomReduction = Math.max(0, totals.randomCostReduction) + stackBasedRandomReduction;
     let randomIncrease = Math.max(0, totals.randomCostIncrease);
     const skillIsMental =
         Array.isArray(skill?.classes) &&
@@ -2060,6 +2081,27 @@ const resolveEffectDamageAmount = ({
     }
     const outgoingCap = getOutgoingDamageCap(actorState, actorUnit);
     return outgoingCap === null ? resolvedAmount : Math.min(resolvedAmount, outgoingCap);
+};
+
+const resolveEffectChancePercent = ({ effect, actorState, targetState = null }) => {
+    let chance = Number(effect?.chance);
+    if (!Number.isFinite(chance)) return chance;
+    const stackBonus = effect?.metadata?.chancePerStatusMetadata;
+    if (!stackBonus || typeof stackBonus !== 'object') return chance;
+    const statusId = typeof stackBonus.statusId === 'string' ? stackBonus.statusId : '';
+    const metadataKey = typeof stackBonus.metadataKey === 'string' ? stackBonus.metadataKey : '';
+    const multiplier = Number(stackBonus.multiplier) || 0;
+    if (!statusId || !metadataKey || multiplier === 0) return chance;
+    const scope = stackBonus.scope === 'target' ? 'target' : 'self';
+    const scopedState = scope === 'target' ? targetState : actorState;
+    const scopedStatus = Array.isArray(scopedState?.statuses)
+        ? scopedState.statuses.find(
+              (status) => status?.id === statusId && (Number(status?.remainingTurns) || 0) > 0
+          )
+        : null;
+    const value = Math.max(0, Number(scopedStatus?.metadata?.[metadataKey]) || 0);
+    chance += value * multiplier;
+    return Math.max(0, Math.min(100, chance));
 };
 
 const getTargetBonusDamageFromSource = ({
@@ -4283,6 +4325,7 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
         if (!unit || unit.alive === false || isUnitBanished(unit)) return;
         const state = ensureUnitStateShape(unit);
         const statuses = Array.isArray(state.statuses) ? state.statuses : [];
+        const turnStartStatusesToRemove = new Set();
         statuses.forEach((status) => {
             if (!isStatusActiveForMetadata(status, unit)) return;
             const turnStartStatus = status?.metadata?.turnStartApplyStatusToOwner;
@@ -4313,6 +4356,9 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
                         metadata: turnStartStatus.metadata || {},
                         fresh: false,
                     });
+                    if (status?.id && Boolean(turnStartStatus.removeSelfAfterApply)) {
+                        turnStartStatusesToRemove.add(status.id);
+                    }
                 }
             }
             const turnStartDamage = Math.max(0, Number(status?.metadata?.turnStartDamage) || 0);
@@ -4324,7 +4370,7 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
                 _lastTurnStartDamageTurnCount: turnCount,
             };
             const affliction = Boolean(status?.metadata?.afflictionDamage);
-            applyDamageToUnit(unit, turnStartDamage, {
+            const dealt = applyDamageToUnit(unit, turnStartDamage, {
                 match,
                 sourceSkillId: status?.sourceSkillId || null,
                 sourceUsername: status?.sourceUsername || startingUsername,
@@ -4340,7 +4386,35 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
                 ignoreDestructibleDefense:
                     affliction || Boolean(status?.metadata?.ignoreTargetDestructibleDefense),
             });
+            if (dealt > 0) {
+                const sourceUnit =
+                    status?.sourceUsername && Number.isInteger(status?.sourceSlot)
+                        ? match.board?.[status.sourceUsername]?.[Number(status.sourceSlot)] || null
+                        : null;
+                const sourceState = sourceUnit ? ensureUnitStateShape(sourceUnit) : null;
+                const healSourceAmount = Math.max(0, Number(status?.metadata?.turnStartHealSourceAmount) || 0);
+                if (healSourceAmount > 0 && sourceUnit && sourceUnit.alive !== false) {
+                    applyHealToUnit(sourceUnit, healSourceAmount);
+                }
+                const applyStatusToSourceOwner = status?.metadata?.turnStartApplyStatusToSourceOwner;
+                if (sourceState && applyStatusToSourceOwner?.statusId && sourceUnit?.alive !== false) {
+                    applyStatus({
+                        targetState: sourceState,
+                        statusId: applyStatusToSourceOwner.statusId,
+                        duration: applyStatusToSourceOwner.duration,
+                        sourceSkillId: applyStatusToSourceOwner.sourceSkillId || status?.sourceSkillId || null,
+                        sourceUsername: status?.sourceUsername || null,
+                        sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
+                        metadata: applyStatusToSourceOwner.metadata || {},
+                        fresh: false,
+                    });
+                }
+            }
         });
+        if (turnStartStatusesToRemove.size > 0) {
+            state.statuses = state.statuses.filter((status) => !turnStartStatusesToRemove.has(status?.id));
+            refreshDerivedStatusTooltips(state);
+        }
     });
 };
 
@@ -5641,7 +5715,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 effectType !== 'health_steal_damage'
             ) return;
             const rollPerRecipient = Boolean(effect?.rollPerRecipient);
-            const chance = Number(effect?.chance);
+            const chance = resolveEffectChancePercent({ effect, actorState });
             if (!rollPerRecipient && Number.isFinite(chance) && chance >= 0 && chance < 100) {
                 if (!rollPercentSuccess(chance)) return;
             }
@@ -5655,13 +5729,14 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 recipients.forEach((recipient) => {
                     if (skillInterrupted) return;
                     if (!recipient?.unit || recipient.unit.alive === false) return;
-                    if (rollPerRecipient && Number.isFinite(chance) && chance >= 0 && chance < 100) {
-                        if (!rollPercentSuccess(chance)) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    const recipientChance = resolveEffectChancePercent({ effect, actorState, targetState });
+                    if (rollPerRecipient && Number.isFinite(recipientChance) && recipientChance >= 0 && recipientChance < 100) {
+                        if (!rollPercentSuccess(recipientChance)) return;
                     }
                     if (rollPerRecipient && Number.isFinite(activationChance)) {
                         if (!rollPercentSuccess(activationChance)) return;
                     }
-                    const targetState = ensureUnitStateShape(recipient.unit);
                     if (hasStatusMetadataFlag(targetState, 'invulnerableToHarmfulEffects')) {
                         return;
                     }
@@ -9265,6 +9340,29 @@ const reduceHulkRageForInactiveTurn = ({ match, endingUsername, pendingTurn }) =
     units.forEach((unit, slot) => {
         if (!unit || unit.alive === false || usedActorSlots.has(slot)) return;
         const actorState = ensureUnitStateShape(unit);
+        const inactiveTurnApplyStatuses = Array.isArray(actorState.statuses) ? actorState.statuses : [];
+        inactiveTurnApplyStatuses.forEach((status) => {
+            if (!isStatusActiveForMetadata(status, unit)) return;
+            const applyStatusToOwner = status?.metadata?.turnEndApplyStatusToOwnerIfNoManualSkill;
+            if (!applyStatusToOwner?.statusId) return;
+            const turnCount = Math.max(0, Number(match?.economy?.turnCounts?.[endingUsername]) || 0);
+            const lastAppliedTurnCount = Number(status?.metadata?._lastTurnEndInactiveApplyStatusTurnCount);
+            if (Number.isFinite(lastAppliedTurnCount) && lastAppliedTurnCount === turnCount) return;
+            status.metadata = {
+                ...(status.metadata || {}),
+                _lastTurnEndInactiveApplyStatusTurnCount: turnCount,
+            };
+            applyStatus({
+                targetState: actorState,
+                statusId: applyStatusToOwner.statusId,
+                duration: applyStatusToOwner.duration,
+                sourceSkillId: applyStatusToOwner.sourceSkillId || status?.sourceSkillId || null,
+                sourceUsername: endingUsername,
+                sourceSlot: slot,
+                metadata: applyStatusToOwner.metadata || {},
+                fresh: false,
+            });
+        });
         const rageStatus = (Array.isArray(actorState.statuses) ? actorState.statuses : []).find(
             (status) => status?.id === 'hulk_anger_management' && (Number(status?.remainingTurns) || 0) > 0
         );
