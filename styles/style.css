@@ -3387,6 +3387,7 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     pointer-events: none;
     position: relative;
     z-index: 0;
+    image-rendering: auto;
 }
 
 .skillscrollingame {
@@ -3400,11 +3401,23 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     gap: 6px;
     display: flex;
     clip-path: inset(0 0 0 0);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
     transition: clip-path 0.35s ease, left 0.35s ease;
 }
 
 body.arena-mode-pokemon .skillscrollingame {
     background-image: url('../assets/images/PokemonArena/ingameskillscroll-pokeball.png');
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.22),
+        inset 0 -1px 0 rgba(41, 26, 12, 0.22),
+        0 6px 18px rgba(18, 14, 10, 0.16);
+}
+
+body.arena-mode-pokemon .ingamescrollbehind {
+    image-rendering: auto;
+    filter: drop-shadow(0 2px 4px rgba(18, 14, 10, 0.16));
 }
 
 .skillqueue {

@@ -6638,6 +6638,7 @@ const initializeEconomyState = (players, currentTurn, aliveLookup = {}) => {
 };
 
 const buildMatch = (players, aliveLookup = {}, options = {}) => {
+    const arena = normalizeArenaMode(options.arena);
     const { turnOrder, currentTurn } = pickInitialTurn(players);
     const matchId = options.matchId || `match-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const matchStartsAt = new Date(Date.now() + MATCH_FOUND_HOLD_MS);
@@ -6653,6 +6654,7 @@ const buildMatch = (players, aliveLookup = {}, options = {}) => {
     quickMatches.set(matchId, {
         players,
         createdAt: new Date(),
+        arena,
         matchStartsAt,
         turnOrder,
         currentTurn,
@@ -6668,6 +6670,7 @@ const buildMatch = (players, aliveLookup = {}, options = {}) => {
             userToMatch.set(p, {
                 matchId,
                 opponent: isGameBotUsername(opponent) ? GAME_BOT_DISPLAY_NAME : opponent,
+                arena,
             });
         }
     });
@@ -6763,7 +6766,10 @@ const buildBattleBotMatch = async ({ username, team, mode, arena, playerProfile 
         [username]: Array.isArray(team) ? team.length : 3,
         [botPlayer.username]: Array.isArray(botPlayer.team) ? botPlayer.team.length : 3,
     };
-    const built = buildMatch([username, botPlayer.username], aliveLookup, { matchId });
+    const built = buildMatch([username, botPlayer.username], aliveLookup, {
+        matchId,
+        arena: normalizedArena,
+    });
     const playerDocs = [
         {
             username,
@@ -6808,7 +6814,9 @@ const createMatchDocumentFromTeams = async ({ mode, arena, players, botMatch = n
             Array.isArray(player.team) ? player.team.length : DRAFT_TEAM_SIZE,
         ])
     );
-    const built = buildMatch(players.map((player) => player.username), aliveLookup);
+    const built = buildMatch(players.map((player) => player.username), aliveLookup, {
+        arena: normalizedArena,
+    });
     const playerDocs = players.map((player) => ({
         ...player,
         aliveCount: aliveLookup[player.username],
@@ -6984,6 +6992,7 @@ const finishDraftWithMatch = async (draft) => {
         userToMatch.set(player.username, {
             matchId: matchDocument.matchId,
             opponent: opponent ? getPlayerDisplayName(opponent) : null,
+            arena: normalizeArenaMode(draft.arena),
         });
     });
     scheduleBattleBotTurn(matchDocument);
@@ -8836,8 +8845,9 @@ app.post('/api/match/join', requireSession, async (req, res) => {
         }
 
         // Already matched
-        if (userToMatch.has(username)) {
-            const { matchId, opponent } = userToMatch.get(username);
+        const existingMapping = userToMatch.get(username);
+        if (existingMapping && (!existingMapping.arena || existingMapping.arena === arena)) {
+            const { matchId, opponent } = existingMapping;
             const existing = await matchesCollection.findOne({ matchId });
             if (!existing || existing.status === 'ended') {
                 userToMatch.delete(username);
@@ -8878,6 +8888,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
         const existingMatch = await matchesCollection.findOne({
             'players.username': username,
             status: { $ne: 'ended' },
+            arena,
         });
         if (existingMatch) {
             const hydratedTurn = await ensureMatchTurnData(existingMatch);
@@ -8889,7 +8900,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
             }
             const opponentEntry = hydrated.players.find((p) => p.username !== username);
             const opponent = opponentEntry ? getPlayerDisplayName(opponentEntry) : null;
-            userToMatch.set(username, { matchId: hydrated.matchId, opponent });
+            userToMatch.set(username, { matchId: hydrated.matchId, opponent, arena });
             scheduleBattleBotTurn(hydrated);
             const safePayload = buildMatchPayloadForUser(hydrated, username);
             return res.json({
@@ -9088,6 +9099,10 @@ app.post('/api/match/join', requireSession, async (req, res) => {
 app.get('/api/match/status', requireSession, async (req, res) => {
     try {
         const username = req.authUser.username;
+        const requestedArena =
+            typeof req.query?.arena === 'string' && req.query.arena.trim()
+                ? normalizeArenaMode(req.query.arena)
+                : '';
         const user = await usersCollection.findOne(
             { username },
             { projection: { _id: 1, username: 1, createdAt: 1, profile: 1 } }
@@ -9108,7 +9123,7 @@ app.get('/api/match/status', requireSession, async (req, res) => {
             userToDraft.delete(username);
         }
         const mapping = userToMatch.get(username);
-        if (mapping) {
+        if (mapping && (!requestedArena || !mapping.arena || mapping.arena === requestedArena)) {
             const match = await matchesCollection.findOne({ matchId: mapping.matchId });
             if (!match || match.status === 'ended') {
                 userToMatch.delete(username);
@@ -9147,11 +9162,11 @@ app.get('/api/match/status', requireSession, async (req, res) => {
             });
         }
 
-        const queuedEntry = findQueuedEntry(username);
+        const queuedEntry = findQueuedEntry(username, null, requestedArena || null);
         const botMatch = await maybeCreateBattleBotMatch({
             username,
             mode: queuedEntry?.mode || 'quick',
-            arena: queuedEntry?.entry?.arena || DEFAULT_ARENA_MODE,
+            arena: queuedEntry?.entry?.arena || requestedArena || DEFAULT_ARENA_MODE,
             userProfile: normalizedProfile,
         });
         if (botMatch?.draftId) {
@@ -9185,6 +9200,7 @@ app.get('/api/match/status', requireSession, async (req, res) => {
         const match = await matchesCollection.findOne({
             'players.username': username,
             status: { $ne: 'ended' },
+            ...(requestedArena ? { arena: requestedArena } : {}),
         });
         if (!match) {
             return res.json({ ok: true, matchFound: false });
@@ -9199,7 +9215,7 @@ app.get('/api/match/status', requireSession, async (req, res) => {
         }
         const opponentEntry = hydrated.players.find((p) => p.username !== username);
         const opponent = opponentEntry ? getPlayerDisplayName(opponentEntry) : null;
-        userToMatch.set(username, { matchId: hydrated.matchId, opponent });
+        userToMatch.set(username, { matchId: hydrated.matchId, opponent, arena: normalizeArenaMode(hydrated.arena) });
         scheduleBattleBotTurn(hydrated);
         const safePayload = buildMatchPayloadForUser(hydrated, username);
         return res.json({
@@ -10158,6 +10174,7 @@ app.post('/api/missions/:missionId/pve/start', requireSession, async (req, res) 
         userToMatch.set(username, {
             matchId: matchDocument.matchId,
             opponent: botName,
+            arena,
         });
         scheduleBattleBotTurn(matchDocument);
         const hydrated = await hydrateMatchForBroadcast(matchDocument.matchId);

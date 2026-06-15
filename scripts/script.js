@@ -748,6 +748,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const POKEMON_INGAME_SCROLL_BEHIND_URL = 'assets/images/PokemonArena/ingamescrollbehind-pokeball.png';
     const COMIC_FOUND_ICON_URL = 'assets/images/found.png';
     const POKEMON_FOUND_ICON_URL = 'assets/images/PokemonArena/found-pokeball.png';
+    const POKEMON_SEARCHING_ICON_URL = POKEMON_FOUND_ICON_URL;
 
     const toBackgroundImageValue = (url = '') => {
         const normalizedUrl = typeof url === 'string' ? url.trim() : '';
@@ -9607,7 +9608,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ? `Searching for ${activeSearchTargetUsername}`
                 : `Searching ${getArenaModeLabel()} for an opponent`;
         if (searchingSpinner) {
-            searchingSpinner.src = 'assets/images/sharingan.png';
+            searchingSpinner.src = activeArenaMode === 'pokemon' ? POKEMON_SEARCHING_ICON_URL : 'assets/images/sharingan.png';
             searchingSpinner.style.visibility = 'visible';
             searchingSpinner.style.animation = '';
         }
@@ -9710,9 +9711,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const resumeMatchIfActive = async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/match/status`, {
-                credentials: 'include',
-            });
+            const response = await fetch(
+                `${API_BASE_URL}/api/match/status?arena=${encodeURIComponent(activeArenaMode)}`,
+                {
+                    credentials: 'include',
+                    cache: 'no-store',
+                }
+            );
             const data = await response.json();
             if (data?.draft && data.draftId) {
                 handleMatchFound(data);
@@ -9734,9 +9739,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (matchmakingPoll) return;
         matchmakingPoll = setInterval(async () => {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/match/status`, {
-                    credentials: 'include',
-                });
+                const response = await fetch(
+                    `${API_BASE_URL}/api/match/status?arena=${encodeURIComponent(activeArenaMode)}`,
+                    {
+                        credentials: 'include',
+                        cache: 'no-store',
+                    }
+                );
                 const data = await response.json();
                 if (data?.draft && data.draftId) {
                     handleMatchFound(data);
@@ -10486,7 +10495,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             roleEl.style.visibility = 'visible';
         }
         if (portraitEl) {
-            portraitEl.src = character.facePicture || '';
+            portraitEl.src = character.facePicture || (activeArenaMode === 'pokemon' ? POKEMON_FOUND_ICON_URL : '');
             portraitEl.alt = character.name ? `${character.name} portrait` : 'Character portrait';
         }
         renderCharacterOverview(character);
