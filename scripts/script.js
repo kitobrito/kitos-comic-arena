@@ -744,6 +744,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const defaultProfileAvatar = 'https://i.postimg.cc/3JqVcPXm/default.png';
     const POKEMON_SELECTION_BACKGROUND_URL = 'assets/images/PokemonArena/characterselectbgpokemonarena.png';
     const POKEMON_INGAME_BACKGROUND_URL = 'assets/images/PokemonArena/ingamebattlebgpokemonarena.png';
+    const COMIC_INGAME_SCROLL_BEHIND_URL = 'assets/images/ingamescrollbehind.png';
+    const POKEMON_INGAME_SCROLL_BEHIND_URL = 'assets/images/PokemonArena/ingamescrollbehind-pokeball.png';
+    const COMIC_FOUND_ICON_URL = 'assets/images/found.png';
+    const POKEMON_FOUND_ICON_URL = 'assets/images/PokemonArena/found-pokeball.png';
 
     const toBackgroundImageValue = (url = '') => {
         const normalizedUrl = typeof url === 'string' ? url.trim() : '';
@@ -753,6 +757,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const setBackgroundImage = (element, url = '', important = false) => {
         if (!element) return;
         element.style.setProperty('background-image', toBackgroundImageValue(url), important ? 'important' : '');
+    };
+
+    const setIngameArenaUiAssets = (arena = 'comic') => {
+        const scrollBehindUrl =
+            arena === 'pokemon' ? POKEMON_INGAME_SCROLL_BEHIND_URL : COMIC_INGAME_SCROLL_BEHIND_URL;
+        document.querySelectorAll('.ingamescrollbehind').forEach((image) => {
+            image.src = scrollBehindUrl;
+        });
     };
 
     const textFromHtml = (value = '') => {
@@ -7259,6 +7271,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (typeof data.arena === 'string' && data.arena.trim()) {
                 currentMatchArena = data.arena.trim().toLowerCase() === 'pokemon' ? 'pokemon' : 'comic';
             }
+            setIngameArenaUiAssets(currentMatchArena);
             if (data.player?.profile) {
                 const playerProfileView = getArenaProfileView(data.player.profile, currentMatchArena);
                 applyPlayerIdentity({
@@ -9565,7 +9578,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (state === 'found') {
             searchingMessage.textContent = 'Opponent found!';
             if (searchingSpinner) {
-                searchingSpinner.src = 'assets/images/found.png';
+                searchingSpinner.src =
+                    activeArenaMode === 'pokemon' ? POKEMON_FOUND_ICON_URL : COMIC_FOUND_ICON_URL;
                 searchingSpinner.style.visibility = 'visible';
                 searchingSpinner.style.animation = 'none';
             }
