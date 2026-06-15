@@ -16876,6 +16876,9 @@ const characters = [
                                 "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
                                 "metadata": {
                                     "infiniteDuration": true,
+                                    "removeStatusIdsOnApply": [
+                                        "bulbasaur_sun_stacks"
+                                    ],
                                     "facePictureOverride": "assets/images/PokemonArena/Bulbasaur/ivysaurfp.jpg",
                                     "skillReplacements": {
                                         "bulbasaur-leech-seed": "ivysaur-leech-seed",
@@ -16951,6 +16954,9 @@ const characters = [
                                         "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
                                         "metadata": {
                                             "infiniteDuration": true,
+                                            "removeStatusIdsOnApply": [
+                                                "bulbasaur_sun_stacks"
+                                            ],
                                             "facePictureOverride": "assets/images/PokemonArena/Bulbasaur/ivysaurfp.jpg",
                                             "skillReplacements": {
                                                 "bulbasaur-leech-seed": "ivysaur-leech-seed",
@@ -17183,6 +17189,9 @@ const characters = [
                                         "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
                                         "metadata": {
                                             "infiniteDuration": true,
+                                            "removeStatusIdsOnApply": [
+                                                "bulbasaur_sun_stacks"
+                                            ],
                                             "facePictureOverride": "assets/images/PokemonArena/Bulbasaur/ivysaurfp.jpg",
                                             "skillReplacements": {
                                                 "bulbasaur-leech-seed": "ivysaur-leech-seed",
