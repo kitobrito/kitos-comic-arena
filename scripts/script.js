@@ -1447,6 +1447,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const targetOptionsCache = new Map();
         let targetOptionsRequestVersion = 0;
         let queuedSkillDeferredVisualsFrame = null;
+        let lastQueueOrderLabelSignature = '';
         let draggingQueueActorSlot = null;
         let latestBoardState = null;
         let globalStatusTooltipEl = null;
@@ -5886,16 +5887,31 @@ document.addEventListener('DOMContentLoaded', async () => {
             const rawHp = isUnitBanished(unit) ? 0 : Number(unit?.hp);
             const hp = Math.max(0, Math.min(MAX_HP, Number.isFinite(rawHp) ? Math.ceil(rawHp) : MAX_HP));
             const hpCap = Math.max(0, Math.min(MAX_HP, Number(unit?.hpCap) || MAX_HP));
+            const cachedHp = Number(card.dataset.renderedHp);
+            const cachedHpCap = Number(card.dataset.renderedHpCap);
+            const cachedDead = card.dataset.renderedDead === 'true';
+            const cachedFaceSrc = card.dataset.renderedFaceSrc || '';
             const ratio = hp / MAX_HP;
             const width = Math.max(0, Math.round(HEALTH_BAR_MAX_WIDTH * ratio));
-            healthBar.style.width = `${width}px`;
-            healthBar.classList.remove('hp-mid', 'hp-low');
-            if (hp <= 30) {
-                healthBar.classList.add('hp-low');
-            } else if (hp <= 60) {
-                healthBar.classList.add('hp-mid');
+            if (cachedHp !== hp || cachedHpCap !== hpCap) {
+                healthBar.style.width = `${width}px`;
+                card.dataset.renderedHp = String(hp);
+                card.dataset.renderedHpCap = String(hpCap);
             }
-            healthText.textContent = hpCap < MAX_HP ? `${hp}/${hpCap}` : `${hp}/${MAX_HP}`;
+            const nextHealthText = hpCap < MAX_HP ? `${hp}/${hpCap}` : `${hp}/${MAX_HP}`;
+            if (healthText.textContent !== nextHealthText) {
+                healthText.textContent = nextHealthText;
+            }
+            const hpBand = hp <= 30 ? 'low' : hp <= 60 ? 'mid' : 'high';
+            if (card.dataset.renderedHpBand !== hpBand) {
+                healthBar.classList.remove('hp-mid', 'hp-low');
+                if (hpBand === 'low') {
+                    healthBar.classList.add('hp-low');
+                } else if (hpBand === 'mid') {
+                    healthBar.classList.add('hp-mid');
+                }
+                card.dataset.renderedHpBand = hpBand;
+            }
             let capMarker = healthContainer.querySelector('.health-cap-marker');
             if (hpCap > 0 && hpCap < MAX_HP) {
                 if (!capMarker) {
@@ -5917,27 +5933,42 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             const face = card.querySelector('.character-face');
             const dead = isUnitDeadLike(unit) || hp <= 0;
-            card.classList.toggle('low-hp-danger', !dead && hp > 0 && hp <= 25);
-            card.classList.toggle('character-defeated', dead);
-            card.dataset.lastDamageDebug = unit?.state?.lastDamageDebugText || '';
+            if (cachedDead !== dead) {
+                card.classList.toggle('character-defeated', dead);
+                card.dataset.renderedDead = dead ? 'true' : 'false';
+            }
+            const lowHpDanger = !dead && hp > 0 && hp <= 25;
+            if (card.dataset.renderedLowHpDanger !== String(lowHpDanger)) {
+                card.classList.toggle('low-hp-danger', lowHpDanger);
+                card.dataset.renderedLowHpDanger = String(lowHpDanger);
+            }
+            const lastDamageDebug = unit?.state?.lastDamageDebugText || '';
+            if (card.dataset.lastDamageDebug !== lastDamageDebug) {
+                card.dataset.lastDamageDebug = lastDamageDebug;
+            }
             if (face) {
                 const aliveSrc = face.dataset.aliveSrc || face.src;
                 if (!face.dataset.aliveSrc) {
                     face.dataset.aliveSrc = aliveSrc;
                 }
+                let nextFaceSrc = aliveSrc;
                 if (dead) {
-                    face.src = 'assets/images/deadcharacter.png';
-                    return;
+                    nextFaceSrc = 'assets/images/deadcharacter.png';
+                } else {
+                    const statuses = getActiveStatuses(unit);
+                    const faceOverride = statuses
+                        .find(
+                            (status) =>
+                                typeof status?.metadata?.facePictureOverride === 'string' &&
+                                status.metadata.facePictureOverride.trim()
+                        )
+                        ?.metadata?.facePictureOverride;
+                    nextFaceSrc = faceOverride || face.dataset.aliveSrc;
                 }
-                const statuses = getActiveStatuses(unit);
-                const faceOverride = statuses
-                    .find(
-                        (status) =>
-                            typeof status?.metadata?.facePictureOverride === 'string' &&
-                            status.metadata.facePictureOverride.trim()
-                    )
-                    ?.metadata?.facePictureOverride;
-                face.src = faceOverride || face.dataset.aliveSrc;
+                if (cachedFaceSrc !== nextFaceSrc) {
+                    face.src = nextFaceSrc;
+                    card.dataset.renderedFaceSrc = nextFaceSrc;
+                }
             }
         };
 
@@ -7399,23 +7430,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         const renderQueueOrderLabels = () => {
             const pending = normalizePendingTurn(pendingTurnState);
             const queueOrder = pending.queueOrder || [];
-            
-            // Clear old labels
-            document.querySelectorAll('.skill-queue-order-label').forEach(el => el.remove());
-            
+            const nextSignature = queueOrder
+                .map((actorSlot) => {
+                    const queued = pending.queuedByActorSlot?.[actorSlot];
+                    return queued ? `${actorSlot}:${queued.skillIndex}` : '';
+                })
+                .join('|');
+            if (nextSignature === lastQueueOrderLabelSignature) {
+                return;
+            }
+            lastQueueOrderLabelSignature = nextSignature;
+            document.querySelectorAll('.skill-queue-order-label').forEach((el) => el.remove());
+
             queueOrder.forEach((actorSlot, index) => {
                 const queued = pending.queuedByActorSlot[actorSlot];
                 if (!queued) return;
-                
+
                 const skillIdx = queued.skillIndex;
                 const key = `${actorSlot}:${skillIdx}`;
                 const meta = playerSkillMetaByKey.get(key);
-                
+
                 if (meta?.imgEl) {
                     const label = document.createElement('div');
                     label.className = 'skill-queue-order-label';
                     label.textContent = String(index + 1);
-                    
+
                     // Position it on the skill icon
                     const parent = meta.imgEl.parentElement;
                     if (parent) {
@@ -7631,9 +7670,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const actorUnit = latestBoardState?.[currentPlayerUsername]?.[meta.actorSlot];
                 const usageState = getSkillUsageState(actorUnit, effectiveSkill);
                 meta.skill = effectiveSkill;
-                meta.imgEl.src = effectiveSkill.skillimage || '';
-                meta.imgEl.alt = effectiveSkill.name || `Skill ${meta.skillIdx + 1}`;
-                meta.imgEl.title = usageState.tooltipText || '';
+                const nextSrc = effectiveSkill.skillimage || '';
+                const nextAlt = effectiveSkill.name || `Skill ${meta.skillIdx + 1}`;
+                const nextTitle = usageState.tooltipText || '';
+                if (meta.imgEl.dataset.renderedSkillSrc !== nextSrc) {
+                    meta.imgEl.src = nextSrc;
+                    meta.imgEl.dataset.renderedSkillSrc = nextSrc;
+                }
+                if (meta.imgEl.alt !== nextAlt) {
+                    meta.imgEl.alt = nextAlt;
+                }
+                if (meta.imgEl.dataset.renderedSkillTitle !== nextTitle) {
+                    meta.imgEl.title = nextTitle;
+                    meta.imgEl.dataset.renderedSkillTitle = nextTitle;
+                }
             });
         };
 
