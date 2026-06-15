@@ -16890,7 +16890,7 @@ const characters = [
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
-                            "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur."
+                            "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
                         }
                     },
                     "tooltipText": "Bulbasaur gains 1 Sun whenever Leech Seed damages an enemy. If he does not use a new skill during his turn, he gains 1 Sun instead."
@@ -16968,7 +16968,7 @@ const characters = [
                                         }
                                     },
                                     "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
-                                    "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur."
+                                    "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/bulbasaurleechseed.jpg",
@@ -16981,7 +16981,7 @@ const characters = [
                 "id": "bulbasaur-vine-whip",
                 "name": "Vine Whip",
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/bulbasaurvinewhip.jpg",
-                "skilldescription": "Bulbasaur deals 15 piercing damage to one enemy. That enemy's harmful skills are disabled for 1 turn. This skill has a 20% chance to critically strike for each Sun stack, dealing 15 additional damage.",
+                "skilldescription": "Bulbasaur deals 15 piercing damage to one enemy. That enemy's harmful skills are disabled for 1 turn. This skill has a 10% chance to critically strike for each Sun stack, dealing 15 additional damage.",
                 "energy": [
                     "Taijutsu"
                 ],
@@ -17013,7 +17013,7 @@ const characters = [
                                 "scope": "self",
                                 "statusId": "bulbasaur_sun_stacks",
                                 "metadataKey": "bulbasaurSunStacks",
-                                "multiplier": 20
+                                "multiplier": 10
                             }
                         }
                     },
@@ -17034,7 +17034,7 @@ const characters = [
                 "id": "bulbasaur-razor-leaf",
                 "name": "Razor Leaf",
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/bulbasaurrazorleaf.jpg",
-                "skilldescription": "Bulbasaur deals 20 damage to one enemy and 15 damage to all other enemies. This skill has a 20% chance to critically strike each enemy for each Sun stack, dealing 10 additional damage and becoming Piercing.",
+                "skilldescription": "Bulbasaur deals 20 damage to one enemy and 15 damage to all other enemies. This skill has a 10% chance to critically strike each enemy for each Sun stack, dealing 10 additional damage and becoming Piercing.",
                 "energy": [
                     "Random",
                     "Random"
@@ -17070,7 +17070,7 @@ const characters = [
                                 "scope": "self",
                                 "statusId": "bulbasaur_sun_stacks",
                                 "metadataKey": "bulbasaurSunStacks",
-                                "multiplier": 20
+                                "multiplier": 10
                             }
                         }
                     }
@@ -17121,7 +17121,7 @@ const characters = [
                 "id": "bulbasaur-passive-evolution-ivysaur",
                 "name": "Evolution - Ivysaur",
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
-                "skilldescription": "Whenever Bulbasaur damages an enemy with Leech Seed, he gains 1 Sun stack. If Bulbasaur does not use a new skill during his turn, he gains 1 Sun stack instead. Maximum: 5 Sun. When Bulbasaur reaches 5 Sun, he immediately evolves into Ivysaur. Ivysaur gains improved versions of all skills.",
+                "skilldescription": "Whenever Bulbasaur damages an enemy with Leech Seed, he gains 1 Sun stack. If Bulbasaur does not use a new skill during his turn, he gains 1 Sun stack instead. Maximum: 5 Sun. When Bulbasaur reaches 5 Sun, he immediately evolves into Ivysaur and consumes all Sun stacks. Ivysaur gains improved versions of all skills.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -17203,7 +17203,7 @@ const characters = [
                                         }
                                     },
                                     "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
-                                    "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur."
+                                    "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/ivysaurleechseed.png",
@@ -17219,7 +17219,7 @@ const characters = [
                     "statusId": "bulbasaur_ivysaur_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaurvinewhip.jpg",
-                "skilldescription": "Ivysaur deals 25 piercing damage to one enemy. That enemy's harmful skills are disabled for 1 turn. This skill has a 20% chance to critically strike for each Sun stack, dealing 20 additional damage.",
+                "skilldescription": "Ivysaur deals 25 piercing damage to one enemy. That enemy's harmful skills are disabled for 1 turn. This skill has a 10% chance to critically strike for each Sun stack, dealing 20 additional damage.",
                 "energy": [
                     "Taijutsu"
                 ],
@@ -17251,7 +17251,7 @@ const characters = [
                                 "scope": "self",
                                 "statusId": "bulbasaur_sun_stacks",
                                 "metadataKey": "bulbasaurSunStacks",
-                                "multiplier": 20
+                                "multiplier": 10
                             }
                         }
                     },
@@ -17275,7 +17275,7 @@ const characters = [
                     "statusId": "bulbasaur_ivysaur_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaurrazorleaf.jpg",
-                "skilldescription": "Ivysaur deals 30 damage to one enemy and 20 damage to all other enemies. This skill has a 20% chance to critically strike each enemy for each Sun stack, dealing 15 additional damage and becoming Piercing.",
+                "skilldescription": "Ivysaur deals 30 damage to one enemy and 20 damage to all other enemies. This skill has a 10% chance to critically strike each enemy for each Sun stack, dealing 15 additional damage and becoming Piercing.",
                 "energy": [
                     "Random",
                     "Random"
@@ -17311,7 +17311,7 @@ const characters = [
                                 "scope": "self",
                                 "statusId": "bulbasaur_sun_stacks",
                                 "metadataKey": "bulbasaurSunStacks",
-                                "multiplier": 20
+                                "multiplier": 10
                             }
                         }
                     }

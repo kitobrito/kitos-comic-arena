@@ -3403,6 +3403,10 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     transition: clip-path 0.35s ease, left 0.35s ease;
 }
 
+body.arena-mode-pokemon .skillscrollingame {
+    background-image: url('../assets/images/PokemonArena/ingameskillscroll-pokeball.png');
+}
+
 .skillqueue {
     position: relative;
     z-index: 5;

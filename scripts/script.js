@@ -762,6 +762,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const setIngameArenaUiAssets = (arena = 'comic') => {
         const scrollBehindUrl =
             arena === 'pokemon' ? POKEMON_INGAME_SCROLL_BEHIND_URL : COMIC_INGAME_SCROLL_BEHIND_URL;
+        document.body.classList.toggle('arena-mode-pokemon', arena === 'pokemon');
+        document.body.classList.toggle('arena-mode-comic', arena !== 'pokemon');
         document.querySelectorAll('.ingamescrollbehind').forEach((image) => {
             image.src = scrollBehindUrl;
         });
@@ -1316,7 +1318,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         let currentOpponentUsername = null;
         let currentOpponentDisplayName = null;
         let currentMatchMode = 'quick';
-        let currentMatchArena = 'comic';
+        let currentMatchArena = localStorage.getItem('comicArenaMode') === 'pokemon' ? 'pokemon' : 'comic';
+        setIngameArenaUiAssets(currentMatchArena);
         const matchChatEl = document.querySelector('.match-chat');
         const matchChatToggle = document.querySelector('.match-chat-toggle');
         const matchChatUnreadEl = document.querySelector('.match-chat-unread');
