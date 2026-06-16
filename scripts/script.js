@@ -743,7 +743,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const defaultProfileAvatar = 'https://i.postimg.cc/3JqVcPXm/default.png';
     const POKEMON_SELECTION_BACKGROUND_URL = 'assets/images/PokemonArena/characterselectbgpokemonarena.png';
-    const POKEMON_INGAME_BACKGROUND_URL = 'assets/images/PokemonArena/ingamebattlebgpokemonarena.png';
+    const POKEMON_INGAME_BACKGROUND_URL = 'assets/images/PokemonArena/ingamebattlebgpokemon.png';
     const COMIC_INGAME_SCROLL_BEHIND_URL = 'assets/images/ingamescrollbehind.png';
     const POKEMON_INGAME_SCROLL_BEHIND_URL = 'assets/images/PokemonArena/ingamescrollbehind-pokeball.png';
     const COMIC_FOUND_ICON_URL = 'assets/images/found.png';
