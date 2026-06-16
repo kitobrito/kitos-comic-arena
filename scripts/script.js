@@ -7436,11 +7436,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return queued ? `${actorSlot}:${queued.skillIndex}` : '';
                 })
                 .join('|');
-            if (nextSignature === lastQueueOrderLabelSignature) {
+            const existingLabels = document.querySelectorAll('.skill-queue-order-label');
+            if (nextSignature === lastQueueOrderLabelSignature && existingLabels.length === queueOrder.length) {
                 return;
             }
             lastQueueOrderLabelSignature = nextSignature;
-            document.querySelectorAll('.skill-queue-order-label').forEach((el) => el.remove());
+            existingLabels.forEach((el) => el.remove());
 
             queueOrder.forEach((actorSlot, index) => {
                 const queued = pending.queuedByActorSlot[actorSlot];

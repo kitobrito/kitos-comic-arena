@@ -2641,6 +2641,97 @@ text-transform: uppercase;
     z-index: 21;
 }
 
+body.ui-stable-ingame .skillimage,
+body.ui-stable-ingame .skilltooltipimage,
+body.ui-stable-ingame .character-face,
+body.ui-stable-ingame .character-card,
+body.ui-stable-ingame .skillscrollingame,
+body.ui-stable-ingame .skillqueue,
+body.ui-stable-ingame .game-button,
+body.ui-stable-ingame .ok-button,
+body.ui-stable-ingame .ok-buttonendturn,
+body.ui-stable-ingame .cancel-buttonendturn,
+body.ui-stable-ingame .ok-buttonexchange,
+body.ui-stable-ingame .cancel-buttonexchange,
+body.ui-stable-ingame .cancel-button,
+body.ui-stable-ingame .surrenderbutton,
+body.ui-stable-ingame .battle-end-continue,
+body.ui-stable-ingame .battle-bot-check,
+body.ui-stable-ingame .battle-bot-choice-option,
+body.ui-stable-ingame .battle-bot-choice-close,
+body.ui-stable-ingame .private-match-ok,
+body.ui-stable-ingame .private-match-cancel,
+body.ui-stable-ingame .surrender-confirm-ok,
+body.ui-stable-ingame .surrender-confirm-cancel {
+    transition-duration: 0ms !important;
+    transition-property: none !important;
+}
+
+body.ui-stable-ingame .character-card.low-hp-danger .character-face,
+body.ui-stable-ingame .skillimage.skill-cast-pulse,
+body.ui-stable-ingame .skillimage.skill-blocked-shake,
+body.ui-stable-ingame .skillqueue.skill-queue-fade-in,
+body.ui-stable-ingame .skillimage.skill-queue-fade-out,
+body.ui-stable-ingame .skilltooltipimage.status-icon-turn-pop,
+body.ui-stable-ingame .skilltooltipimage.passive-trigger-flash,
+body.ui-stable-ingame .skilltooltipimage.active-target-skill-icon,
+body.ui-stable-ingame .skilltooltipimage.dynamic-queued-target-icon,
+body.ui-stable-ingame .player-characters.turn-start-sweep::after,
+body.ui-stable-ingame .enemy-characters.turn-start-sweep::after,
+body.ui-stable-ingame .target-overlay,
+body.ui-stable-ingame .target-lock-marker,
+body.ui-stable-ingame .skillscrollingame.not-turn {
+    animation: none !important;
+}
+
+body.ui-stable-ingame .character-card.targetable .character-face,
+body.ui-stable-ingame .character-card.targetable:hover .character-face,
+body.ui-stable-ingame .skillimage.selected-target {
+    transform: none !important;
+    filter: none !important;
+}
+
+body.ui-stable-ingame .character-card.target-invalid,
+body.ui-stable-ingame .character-card.low-hp-danger .character-face,
+body.ui-stable-ingame .skillimage.queued-skill-locked {
+    transition: none !important;
+}
+
+body.ui-stable-ingame .skillimage.skill-queue-fade-out {
+    opacity: 1 !important;
+}
+
+body.ui-stable-ingame .game-button:active,
+body.ui-stable-ingame .skillscroll:active,
+body.ui-stable-ingame .slot-item:not(.slot-locked):active,
+body.ui-stable-ingame .slot-image:not(.slot-locked):active,
+body.ui-stable-ingame .selected-character-slot:active,
+body.ui-stable-ingame .skillimage:active,
+body.ui-stable-ingame .character-card:active,
+body.ui-stable-ingame .character-face:active,
+body.ui-stable-ingame .skilltooltipimage:active,
+body.ui-stable-ingame .exchange_chakra_choice:active,
+body.ui-stable-ingame .minus-button:active,
+body.ui-stable-ingame .plus-button:active,
+body.ui-stable-ingame .ok-button:active,
+body.ui-stable-ingame .ok-buttonendturn:active,
+body.ui-stable-ingame .cancel-buttonendturn:active,
+body.ui-stable-ingame .ok-buttonexchange:active,
+body.ui-stable-ingame .cancel-buttonexchange:active,
+body.ui-stable-ingame .cancel-button:active,
+body.ui-stable-ingame .surrenderbutton:active,
+body.ui-stable-ingame .battle-end-continue:active,
+body.ui-stable-ingame .battle-bot-check:active,
+body.ui-stable-ingame .battle-bot-choice-option:active,
+body.ui-stable-ingame .battle-bot-choice-close:active,
+body.ui-stable-ingame .private-match-ok:active,
+body.ui-stable-ingame .private-match-cancel:active,
+body.ui-stable-ingame .surrender-confirm-ok:active,
+body.ui-stable-ingame .surrender-confirm-cancel:active {
+    transform: none !important;
+    filter: none !important;
+}
+
 .revolver-cylinder {
     display: none;
     position: absolute;
