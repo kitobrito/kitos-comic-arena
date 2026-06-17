@@ -1775,10 +1775,12 @@ const getRegularMatchBackgroundPool = () => {
     return namedNewIngameBackground ? [namedNewIngameBackground] : LEGACY_REGULAR_MATCH_BACKGROUNDS;
 };
 
-const getRandomRegularBackground = () => {
-    const backgroundPool = getRegularMatchBackgroundPool();
-    return backgroundPool[Math.floor(Math.random() * backgroundPool.length)] || '';
-};
+const getRegularMatchBackgroundForArena = (arena = DEFAULT_ARENA_MODE) =>
+    normalizeArenaMode(arena) === 'pokemon'
+        ? 'assets/images/PokemonArena/defaultbgPA.png'
+        : 'assets/images/defaultbgCA.png';
+
+const getRandomRegularBackground = (arena = DEFAULT_ARENA_MODE) => getRegularMatchBackgroundForArena(arena);
 
 const getPveMissionBackgroundForReward = (rewardCharacterId = '', fallback = '') => {
     const replacementAsset = PVE_MISSION_BACKGROUND_ASSETS[normalizeCharacterId(rewardCharacterId)];
@@ -6323,17 +6325,37 @@ const shuffleList = (items = []) => {
     return next;
 };
 
-const buildBattleBotTeam = async () => {
+const getBattleBotAllowedCharacterIdsForArena = (arena = DEFAULT_ARENA_MODE) => {
+    if (normalizeArenaMode(arena) !== 'pokemon') {
+        return null;
+    }
+    return new Set(['pikachu', 'charmander', 'bulbasaur']);
+};
+
+const buildBattleBotTeam = async (arena = DEFAULT_ARENA_MODE) => {
+    const normalizedArena = normalizeArenaMode(arena);
+    const allowedCharacterIds = getBattleBotAllowedCharacterIdsForArena(normalizedArena);
     const storedTeams = await getStoredBotTeams();
     if (storedTeams.length > 0) {
-        const team = storedTeams[Math.floor(Math.random() * storedTeams.length)];
-        const indices = team.characterIds
-            .map((id) => getRosterIndexByCharacterId(id))
-            .filter((idx) => idx !== -1);
-        if (indices.length >= 3) {
-            return indices.slice(0, 3);
+        const eligibleStoredTeams = storedTeams.filter((team) => {
+            if (!Array.isArray(team?.characterIds) || team.characterIds.length < 3) {
+                return false;
+            }
+            if (!allowedCharacterIds) {
+                return true;
+            }
+            return team.characterIds.every((characterId) => allowedCharacterIds.has(characterId));
+        });
+        if (eligibleStoredTeams.length > 0) {
+            const team = eligibleStoredTeams[Math.floor(Math.random() * eligibleStoredTeams.length)];
+            const indices = team.characterIds
+                .map((id) => getRosterIndexByCharacterId(id))
+                .filter((idx) => idx !== -1);
+            if (indices.length >= 3) {
+                return indices.slice(0, 3);
+            }
+            // Fallback to random if stored team is invalid/incomplete
         }
-        // Fallback to random if stored team is invalid/incomplete
     }
 
     const candidates = shuffleList(
@@ -6348,7 +6370,8 @@ const buildBattleBotTeam = async () => {
                     entry.character &&
                     typeof entry.character.characterId === 'string' &&
                     Array.isArray(entry.character.skills) &&
-                    entry.character.skills.length > 0
+                    entry.character.skills.length > 0 &&
+                    (!allowedCharacterIds || allowedCharacterIds.has(entry.character.characterId))
             )
     );
     const selected = [];
@@ -6759,7 +6782,7 @@ const buildBattleBotMatch = async ({ username, team, mode, arena, playerProfile 
     const matchId = `match-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const botPlayer = createBattleBotPlayer({
         matchId,
-        team: await buildBattleBotTeam(),
+        team: await buildBattleBotTeam(normalizedArena),
         ladderLevel: Number(getProfileArenaState(playerProfile, normalizedArena)?.ladder?.level) || 1,
     });
     const aliveLookup = {
@@ -6800,7 +6823,7 @@ const buildBattleBotMatch = async ({ username, team, mode, arena, playerProfile 
             enabled: true,
             displayName: botPlayer.displayName,
         },
-        backgroundOverride: getRandomRegularBackground(),
+        backgroundOverride: getRandomRegularBackground(normalizedArena),
     };
     await matchesCollection.insertOne(matchDocument);
     return matchDocument;
@@ -6848,7 +6871,7 @@ const createMatchDocumentFromTeams = async ({ mode, arena, players, botMatch = n
 
     // Assign random background for regular matches if not already set by extraFields (like PvE missions)
     if (!matchDocument.backgroundOverride && (mode === 'quick' || mode === 'ladder' || mode === 'private')) {
-        matchDocument.backgroundOverride = getRandomRegularBackground();
+        matchDocument.backgroundOverride = getRandomRegularBackground(normalizedArena);
     }
 
     await matchesCollection.insertOne(matchDocument);
@@ -6876,7 +6899,7 @@ const maybeCreateBattleBotMatch = async ({ username, mode, arena, userProfile = 
     if (queued.entry.draftMode) {
         const botPlayer = createBattleBotPlayer({
             matchId: `draft-bot-${Date.now()}`,
-            team: await buildBattleBotTeam(),
+            team: await buildBattleBotTeam(normalizedArena),
             ladderLevel: Number(getProfileArenaState(userProfile, normalizedArena)?.ladder?.level) || 1,
         });
         return createDraftSession({
@@ -9019,7 +9042,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                 turnExpiresAt,
                 board,
                 players: playerDocs,
-                backgroundOverride: getRandomRegularBackground(),
+                backgroundOverride: getRandomRegularBackground(arena),
             };
             await matchesCollection.insertOne(matchDocument);
             const createdMatch = matchDocument;
