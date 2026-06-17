@@ -3924,11 +3924,7 @@ const characters = [
                     {
                         "type": "damage",
                         "amount": 20,
-                        "scope": "target",
-                        "metadata": {
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
-                        }
+                        "scope": "target"
                     },
                     {
                         "type": "execute_below_hp",
@@ -16837,6 +16833,472 @@ const characters = [
         "roleCategory": "damage",
         "description": "A fiery and determined Pokémon whose burning tail reflects its fighting spirit. Though small and inexperienced, Charmander grows stronger as battle progresses, eventually evolving into the fierce Charmeleon.",
         "descriptionHtml": "A fiery and determined Pokémon whose burning tail reflects its fighting spirit. Though small and inexperienced, Charmander grows stronger as battle progresses, eventually evolving into the fierce Charmeleon."
+    },
+    {
+        "id": "squirtle",
+        "characterId": "squirtle",
+        "name": "Squirtle",
+        "facePicture": "assets/images/PokemonArena/squirtle/squirtlefp.jpg",
+        "startStatuses": [
+            {
+                "statusId": "squirtle_evolution_tracker",
+                "duration": 99,
+                "sourceSkillId": "squirtle-passive-evolution-wartortle",
+                "metadata": {
+                    "infiniteDuration": true,
+                    "squirtleEvolutionStacks": 0,
+                    "stackMetadataKey": "squirtleEvolutionStacks",
+                    "stackDelta": 1,
+                    "stackMax": 3,
+                    "applyStatusAtStack": {
+                        "metadataKey": "squirtleEvolutionStacks",
+                        "value": 3,
+                        "statusId": "squirtle_wartortle_evolution",
+                        "duration": 99,
+                        "sourceSkillId": "squirtle-passive-evolution-wartortle",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "removeStatusIdsOnApply": [
+                                "squirtle_evolution_tracker"
+                            ],
+                            "facePictureOverride": "assets/images/PokemonArena/squirtle/wartortlefp.jpg",
+                            "skillReplacements": {
+                                "squirtle-water-gun": "wartortle-hydro-pump",
+                                "squirtle-withdraw": "wartortle-shell-guard",
+                                "squirtle-bubble": "wartortle-bubblebeam",
+                                "squirtle-rapid-spin": "wartortle-aqua-spin"
+                            },
+                            "tooltipText": "Squirtle has evolved into Wartortle. All of his skills have improved effects."
+                        }
+                    },
+                    "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
+                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                }
+            }
+        ],
+        "characterdeescription": "A cautious Water-type Pokémon that turns defense into momentum. Squirtle grows stronger by shielding allies, breaking enemy guards, and cleansing harmful effects, eventually evolving into the sturdier Wartortle.",
+        "skills": [
+            {
+                "id": "squirtle-water-gun",
+                "name": "Water Gun",
+                "skillimage": "assets/images/PokemonArena/squirtle/squirtlefp.jpg",
+                "skilldescription": "Squirtle deals 20 damage to one enemy this turn and 10 damage next turn. For 1 turn, if the target uses a new harmful skill, they are affected by Guard Break for 2 turns.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "squirtle_water_gun_mark",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "turnStartDamage": 10,
+                            "fixedTurnStartDamage": true,
+                            "onOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillHarmfulOnly": true,
+                            "onOwnerUseSkillApplyStatusToOwner": {
+                                "statusId": "squirtle_guard_break",
+                                "duration": 2,
+                                "metadata": {
+                                    "harmful": true,
+                                    "cannotReduceDamage": true,
+                                    "cannotBecomeInvulnerable": true,
+                                    "statusIconUrl": "assets/images/PokemonArena/squirtle/squirtlefp.jpg",
+                                    "tooltipText": "This character cannot reduce damage or become invulnerable."
+                                }
+                            },
+                            "onOwnerUseSkillApplyStatusToSourceOwner": {
+                                "statusId": "squirtle_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "squirtleEvolutionStacks": 1,
+                                    "stackMetadataKey": "squirtleEvolutionStacks",
+                                    "stackDelta": 1,
+                                    "stackMax": 3,
+                                "statusIconUrl": "assets/images/PokemonArena/squirtle/squirtlefp.jpg",
+                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/squirtle/squirtlefp.jpg",
+                            "tooltipText": "This character takes 10 damage at the start of each turn. If this character uses a new harmful skill, they are affected by Guard Break for 2 turns."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "squirtle-withdraw",
+                "name": "Withdraw",
+                "skillimage": "assets/images/PokemonArena/squirtle/squirtlefp.jpg",
+                "skilldescription": "Squirtle or one ally blocks the next enemy harmful skill used on them for 1 turn. Invisible. Cooldown 2.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Strategic",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "squirtle_withdraw_guard",
+                        "duration": 1,
+                        "scope": "self-or-single-ally",
+                        "metadata": {
+                            "harmful": true,
+                            "triggerOnEnemyHarmfulSkill": true,
+                            "counterCancelsSkill": true,
+                            "counterApplyStatusToSourceOwner": {
+                                "statusId": "squirtle_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "squirtleEvolutionStacks": 1,
+                                    "stackMetadataKey": "squirtleEvolutionStacks",
+                                    "stackDelta": 1,
+                                    "stackMax": 3,
+                                    "statusIconUrl": "assets/images/PokemonArena/squirtle/squirtlefp.jpg",
+                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/squirtle/squirtlefp.jpg",
+                            "tooltipText": "This character blocks the next enemy harmful skill used on them."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "squirtle-bubble",
+                "name": "Bubble",
+                "skillimage": "assets/images/PokemonArena/squirtle/squirtlefp.jpg",
+                "skilldescription": "Squirtle deals 5 damage to one enemy for 3 turns. This skill stacks. Costs 1 Ninjutsu.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "squirtle_bubble",
+                        "duration": 3,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "squirtleBubbleStacks": 1,
+                            "stackMetadataKey": "squirtleBubbleStacks",
+                            "stackDelta": 1,
+                            "stackMax": 99,
+                            "stackDerivedNumericKeys": {
+                                "turnStartDamage": 5
+                            },
+                            "turnStartDamage": 5,
+                            "fixedTurnStartDamage": true,
+                            "statusIconUrl": "assets/images/PokemonArena/squirtle/squirtlefp.jpg",
+                            "tooltipTextTemplate": "This character has {squirtleBubbleStacks} Bubble stack(s) and takes {turnStartDamage} damage at the start of each turn."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "squirtle-rapid-spin",
+                "name": "Rapid Spin",
+                "skillimage": "assets/images/PokemonArena/squirtle/squirtlefp.jpg",
+                "skilldescription": "Squirtle removes all enemy harmful skills from himself or one ally and deals 15 damage to one enemy. Cooldown 4. Costs 1 Random.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "cleanse_statuses",
+                        "scope": "self-or-single-ally",
+                        "sourceRelation": "enemy",
+                        "harmfulOnly": true,
+                        "count": 0,
+                        "metadata": {
+                            "onCleanseApplyStatusToOwner": {
+                                "statusId": "squirtle_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "squirtleEvolutionStacks": 1,
+                                    "stackMetadataKey": "squirtleEvolutionStacks",
+                                    "stackDelta": 1,
+                                    "stackMax": 3,
+                                    "statusIconUrl": "assets/images/PokemonArena/squirtle/squirtlefp.jpg",
+                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target"
+                    }
+                ]
+            },
+            {
+                "id": "squirtle-passive-evolution-wartortle",
+                "name": "Evolution - Wartortle",
+                "skillimage": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
+                "skilldescription": "Whenever Squirtle blocks an enemy harmful skill, applies Guard Break to an enemy, or successfully removes enemy harmful skills from himself or an ally, he gains 1 evolution stack. At 3 stacks, Squirtle evolves into Wartortle and gains improved versions of all skills.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            },
+            {
+                "id": "wartortle-shell-guard",
+                "name": "Shell Guard",
+                "actorCondition": {
+                    "statusId": "squirtle_wartortle_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/squirtle/wartortlefp.jpg",
+                "skilldescription": "For 1 turn, Wartortle blocks all enemy harmful skills used on Wartortle or one ally. Invisible. Cooldown 2. Costs 2 Random.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Strategic",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "wartortle_shell_guard",
+                        "duration": 1,
+                        "scope": "self-or-single-ally",
+                        "metadata": {
+                            "harmful": true,
+                            "ignoreEnemyDamage": true,
+                            "ignoreHarmfulNonDamageEffects": true,
+                            "onEnemySkillTargetedHarmfulOnly": true,
+                            "onEnemySkillTargetedApplyStatusToOwner": {
+                                "statusId": "squirtle_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "squirtleEvolutionStacks": 1,
+                                    "stackMetadataKey": "squirtleEvolutionStacks",
+                                    "stackDelta": 1,
+                                    "stackMax": 3,
+                                    "statusIconUrl": "assets/images/PokemonArena/squirtle/squirtlefp.jpg",
+                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/squirtle/wartortlefp.jpg",
+                            "tooltipText": "This character ignores enemy harmful skills for 1 turn."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "wartortle-hydro-pump",
+                "name": "Hydro Pump",
+                "actorCondition": {
+                    "statusId": "squirtle_wartortle_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/squirtle/wartortlefp.jpg",
+                "skilldescription": "Wartortle deals 30 damage this turn and 20 damage next turn. For 1 turn, if the target uses a new harmful skill, they are affected by Guard Break for 3 turns. Costs 2 Ninjutsu.",
+                "energy": [
+                    "Ninjutsu",
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "wartortle_hydro_pump_mark",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "turnStartDamage": 20,
+                            "fixedTurnStartDamage": true,
+                            "onOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillHarmfulOnly": true,
+                            "onOwnerUseSkillApplyStatusToOwner": {
+                                "statusId": "squirtle_guard_break",
+                                "duration": 3,
+                                "metadata": {
+                                    "harmful": true,
+                                    "cannotReduceDamage": true,
+                                    "cannotBecomeInvulnerable": true,
+                                    "statusIconUrl": "assets/images/PokemonArena/squirtle/wartortlefp.jpg",
+                                    "tooltipText": "This character cannot reduce damage or become invulnerable."
+                                }
+                            },
+                            "onOwnerUseSkillApplyStatusToSourceOwner": {
+                                "statusId": "squirtle_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "squirtleEvolutionStacks": 1,
+                                    "stackMetadataKey": "squirtleEvolutionStacks",
+                                    "stackDelta": 1,
+                                    "stackMax": 3,
+                                    "statusIconUrl": "assets/images/PokemonArena/squirtle/squirtlefp.jpg",
+                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/squirtle/wartortlefp.jpg",
+                            "tooltipText": "This character takes 20 damage at the start of each turn. If this character uses a new harmful skill, they are affected by Guard Break for 3 turns."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "wartortle-bubblebeam",
+                "name": "Bubblebeam",
+                "actorCondition": {
+                    "statusId": "squirtle_wartortle_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/squirtle/wartortlefp.jpg",
+                "skilldescription": "Wartortle deals 10 damage to all enemies for 3 turns. Enemies affected by Guard Break take 10 additional damage each turn. Costs 1 Ninjutsu and 1 Random.",
+                "energy": [
+                    "Ninjutsu",
+                    "Random"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "wartortle_bubblebeam",
+                        "duration": 3,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "turnStartDamage": 10,
+                            "turnStartBonusDamageIfTargetHasStatusId": {
+                                "statusId": "squirtle_guard_break",
+                                "amount": 10
+                            },
+                            "fixedTurnStartDamage": true,
+                            "statusIconUrl": "assets/images/PokemonArena/squirtle/wartortlefp.jpg",
+                            "tooltipText": "This character takes 10 damage at the start of each turn. If this character has Guard Break, they take 10 additional damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "wartortle-aqua-spin",
+                "name": "Aqua Spin",
+                "actorCondition": {
+                    "statusId": "squirtle_wartortle_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/squirtle/wartortlefp.jpg",
+                "skilldescription": "Wartortle removes all enemy harmful skills from his team and deals 15 damage to the enemy team. Cooldown 4. Costs 2 Random.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "all-allies",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "cleanse_statuses",
+                        "scope": "all-allies",
+                        "sourceRelation": "enemy",
+                        "harmfulOnly": true,
+                        "count": 0,
+                        "metadata": {
+                            "onCleanseApplyStatusToOwner": {
+                                "statusId": "squirtle_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "squirtleEvolutionStacks": 1,
+                                    "stackMetadataKey": "squirtleEvolutionStacks",
+                                    "stackDelta": 1,
+                                    "stackMax": 3,
+                                    "statusIconUrl": "assets/images/PokemonArena/squirtle/squirtlefp.jpg",
+                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "all-enemy"
+                    }
+                ]
+            }
+        ],
+        "role": "Tank",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "tank",
+        "description": "A cautious Water-type Pokémon that turns defense into momentum. Squirtle grows stronger by shielding allies, breaking enemy guards, and cleansing harmful effects, eventually evolving into the sturdier Wartortle.",
+        "descriptionHtml": "A cautious Water-type Pokémon that turns defense into momentum. Squirtle grows stronger by shielding allies, breaking enemy guards, and cleansing harmful effects, eventually evolving into the sturdier Wartortle."
     },
     {
         "id": "bulbasaur",

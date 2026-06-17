@@ -4371,7 +4371,18 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
                 }
             }
             const turnStartDamage = Math.max(0, Number(status?.metadata?.turnStartDamage) || 0);
-            if (turnStartDamage <= 0) return;
+            const turnStartBonusDamageIfTargetHasStatusId =
+                status?.metadata?.turnStartBonusDamageIfTargetHasStatusId &&
+                typeof status.metadata.turnStartBonusDamageIfTargetHasStatusId === 'object'
+                    ? status.metadata.turnStartBonusDamageIfTargetHasStatusId
+                    : null;
+            const bonusDamageFromStatus =
+                turnStartBonusDamageIfTargetHasStatusId?.statusId &&
+                hasStatus(state, turnStartBonusDamageIfTargetHasStatusId.statusId)
+                    ? Math.max(0, Number(turnStartBonusDamageIfTargetHasStatusId.amount) || 0)
+                    : 0;
+            const totalTurnStartDamage = turnStartDamage + bonusDamageFromStatus;
+            if (totalTurnStartDamage <= 0) return;
             const lastApplied = Number(status?.metadata?._lastTurnStartDamageTurnCount);
             if (Number.isFinite(lastApplied) && lastApplied === turnCount) return;
             status.metadata = {
@@ -4379,7 +4390,7 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
                 _lastTurnStartDamageTurnCount: turnCount,
             };
             const affliction = Boolean(status?.metadata?.afflictionDamage);
-            const dealt = applyDamageToUnit(unit, turnStartDamage, {
+            const dealt = applyDamageToUnit(unit, totalTurnStartDamage, {
                 match,
                 sourceSkillId: status?.sourceSkillId || null,
                 sourceUsername: status?.sourceUsername || startingUsername,
@@ -6840,7 +6851,39 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             return false;
                         }
                     );
+                    if (removed > 0) {
+                        effect._removedAnyCount = Math.max(0, Number(effect._removedAnyCount) || 0) + removed;
+                    }
                 });
+                const cleanseApplyStatusToOwner = effect?.metadata?.onCleanseApplyStatusToOwner;
+                const cleanseApplyStatusToOwnerCondition = effect?.metadata?.onCleanseApplyStatusToOwnerCondition;
+                if (
+                    Math.max(0, Number(effect?._removedAnyCount) || 0) > 0 &&
+                    cleanseApplyStatusToOwner?.statusId &&
+                    (
+                        !cleanseApplyStatusToOwnerCondition ||
+                        doesEffectConditionMatch({
+                            condition: cleanseApplyStatusToOwnerCondition,
+                            actorState,
+                            targetState: actorState,
+                            actorUnit,
+                            targetUnit: actorUnit,
+                            actorUsername: actingUsername,
+                            targetUsername: actingUsername,
+                        })
+                    )
+                ) {
+                    applyStatus({
+                        targetState: actorState,
+                        statusId: cleanseApplyStatusToOwner.statusId,
+                        duration: cleanseApplyStatusToOwner.duration,
+                        sourceSkillId: skill?.id || null,
+                        sourceUsername: actingUsername || null,
+                        sourceSlot: Number.isInteger(actorSlot) ? actorSlot : null,
+                        metadata: cleanseApplyStatusToOwner.metadata || {},
+                        fresh: Boolean(cleanseApplyStatusToOwner.fresh),
+                    });
+                }
                 return;
             }
 
