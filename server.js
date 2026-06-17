@@ -1923,6 +1923,17 @@ const FAKE_BATTLE_PLAYER_ACCOUNTS = [
     { username: 'FinalTurn', avatarUrl: 'assets/images/generalgrievousfp.png', level: 50, wins: 342, losses: 258, streak: 8 },
 ];
 
+const POKEMON_BATTLE_PLAYER_ACCOUNTS = [
+    { username: 'Sprout', avatarUrl: 'assets/images/PokemonArena/Bulbasaur/bulbasaurfp.jpg', level: 7, wins: 18, losses: 12, streak: 2 },
+    { username: 'Blaze', avatarUrl: 'assets/images/PokemonArena/Charmander/charmanderfp.jpg', level: 11, wins: 31, losses: 24, streak: -1 },
+    { username: 'Shell', avatarUrl: 'assets/images/PokemonArena/squirtle/squirtlefp.jpg', level: 14, wins: 43, losses: 38, streak: 3 },
+    { username: 'Bolt', avatarUrl: 'assets/images/PokemonArena/Pikachu/pikachufp.jpeg', level: 18, wins: 64, losses: 51, streak: 1 },
+    { username: 'Torrent', avatarUrl: 'assets/images/PokemonArena/squirtle/wartortlefp.jpg', level: 21, wins: 82, losses: 70, streak: -2 },
+    { username: 'Bloom', avatarUrl: 'assets/images/PokemonArena/Bulbasaur/ivysaurfp.jpg', level: 24, wins: 101, losses: 83, streak: 4 },
+    { username: 'Ember', avatarUrl: 'assets/images/PokemonArena/Charmander/charmeleonfp.jpg', level: 27, wins: 126, losses: 96, streak: 2 },
+    { username: 'Spark', avatarUrl: 'assets/images/PokemonArena/Pikachu/pikachufp.jpeg', level: 30, wins: 139, losses: 111, streak: -1 },
+];
+
 const hashStringForIndex = (value = '') => {
     const text = String(value || '');
     let hash = 0;
@@ -1932,9 +1943,15 @@ const hashStringForIndex = (value = '') => {
     return hash;
 };
 
-const getFakeBattlePlayerAccount = (seed = '') => {
-    const index = hashStringForIndex(seed) % FAKE_BATTLE_PLAYER_ACCOUNTS.length;
-    return FAKE_BATTLE_PLAYER_ACCOUNTS[index] || FAKE_BATTLE_PLAYER_ACCOUNTS[0];
+const getFakeBattlePlayerAccountsForArena = (arena = DEFAULT_ARENA_MODE) =>
+    normalizeArenaMode(arena) === 'pokemon'
+        ? POKEMON_BATTLE_PLAYER_ACCOUNTS
+        : FAKE_BATTLE_PLAYER_ACCOUNTS;
+
+const getFakeBattlePlayerAccount = (seed = '', arena = DEFAULT_ARENA_MODE) => {
+    const pool = getFakeBattlePlayerAccountsForArena(arena);
+    const index = hashStringForIndex(seed) % pool.length;
+    return pool[index] || pool[0];
 };
 
 const buildFakeBattlePlayerProfile = (account = {}) => {
@@ -6329,7 +6346,7 @@ const getBattleBotAllowedCharacterIdsForArena = (arena = DEFAULT_ARENA_MODE) => 
     if (normalizeArenaMode(arena) !== 'pokemon') {
         return null;
     }
-    return new Set(['pikachu', 'charmander', 'bulbasaur']);
+    return new Set(['pikachu', 'charmander', 'bulbasaur', 'squirtle']);
 };
 
 const buildBattleBotTeam = async (arena = DEFAULT_ARENA_MODE) => {
@@ -6764,8 +6781,8 @@ const dequeueOpponent = (username, mode = 'quick', draftMode = false, arena = DE
     return opponent;
 };
 
-const createBattleBotPlayer = ({ matchId, team, ladderLevel = 1 }) => {
-    const account = getFakeBattlePlayerAccount(matchId);
+const createBattleBotPlayer = ({ matchId, team, ladderLevel = 1, arena = DEFAULT_ARENA_MODE }) => {
+    const account = getFakeBattlePlayerAccount(matchId, arena);
     return {
         username: createGameBotUsername(matchId),
         displayName: account.username,
@@ -6784,6 +6801,7 @@ const buildBattleBotMatch = async ({ username, team, mode, arena, playerProfile 
         matchId,
         team: await buildBattleBotTeam(normalizedArena),
         ladderLevel: Number(getProfileArenaState(playerProfile, normalizedArena)?.ladder?.level) || 1,
+        arena: normalizedArena,
     });
     const aliveLookup = {
         [username]: Array.isArray(team) ? team.length : 3,
@@ -6901,6 +6919,7 @@ const maybeCreateBattleBotMatch = async ({ username, mode, arena, userProfile = 
             matchId: `draft-bot-${Date.now()}`,
             team: await buildBattleBotTeam(normalizedArena),
             ladderLevel: Number(getProfileArenaState(userProfile, normalizedArena)?.ladder?.level) || 1,
+            arena: normalizedArena,
         });
         return createDraftSession({
             mode,
@@ -10162,6 +10181,7 @@ app.post('/api/missions/:missionId/pve/start', requireSession, async (req, res) 
             matchId: `${missionId}-${Date.now()}`,
             team: botTeam,
             ladderLevel: userLevel,
+            arena,
         });
         botPlayer.displayName = botName;
 
@@ -10182,7 +10202,7 @@ app.post('/api/missions/:missionId/pve/start', requireSession, async (req, res) 
             },
             extraFields: {
                 specialPveMissionId: mission.missionId,
-                backgroundOverride: specialPve.backgroundImage || '',
+                backgroundOverride: getRegularMatchBackgroundForArena(arena),
                 pveBattle: {
                     missionId: mission.missionId,
                     rewardCharacterId: normalizeCharacterId(mission.reward_character),

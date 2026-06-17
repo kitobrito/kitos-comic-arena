@@ -743,7 +743,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const defaultProfileAvatar = 'https://i.postimg.cc/3JqVcPXm/default.png';
     const POKEMON_SELECTION_BACKGROUND_URL = 'assets/images/PokemonArena/characterselectbgpokemonarena.png';
-    const POKEMON_INGAME_BACKGROUND_URL = 'assets/images/PokemonArena/ingamebattlebgpokemon.png';
+    const COMIC_INGAME_BACKGROUND_URL = 'assets/images/defaultbgCA.png';
+    const POKEMON_INGAME_BACKGROUND_URL = 'assets/images/PokemonArena/defaultbgPA.png';
     const COMIC_INGAME_SCROLL_BEHIND_URL = 'assets/images/ingamescrollbehind.png';
     const POKEMON_INGAME_SCROLL_BEHIND_URL = 'assets/images/PokemonArena/ingamescrollbehind-pokeball.png';
     const COMIC_FOUND_ICON_URL = 'assets/images/found.png';
@@ -757,7 +758,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const setBackgroundImage = (element, url = '', important = false) => {
         if (!element) return;
-        element.style.setProperty('background-image', toBackgroundImageValue(url), important ? 'important' : '');
+        const normalizedUrl = typeof url === 'string' ? url.trim() : '';
+        if (!normalizedUrl) {
+            element.style.removeProperty('background-image');
+            return;
+        }
+        element.style.setProperty(
+            'background-image',
+            toBackgroundImageValue(normalizedUrl),
+            important ? 'important' : ''
+        );
     };
 
     const setIngameArenaUiAssets = (arena = 'comic') => {
@@ -1147,14 +1157,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const applyCustomBackgrounds = (user) => {
         const selectionBackground = document.querySelector('.background');
-        const ingameBackground = document.querySelector('.backgroundingame');
         const selectionUrl = user?.profile?.backgrounds?.selectionUrl || '';
-        const ingameUrl = user?.profile?.backgrounds?.ingameUrl || '';
-        if (selectionBackground) {
-            setBackgroundImage(selectionBackground, selectionUrl);
+        if (activeArenaMode === 'pokemon') {
+            if (selectionBackground) {
+                setBackgroundImage(selectionBackground, POKEMON_SELECTION_BACKGROUND_URL, true);
+            }
+            return;
         }
-        if (ingameBackground) {
-            setBackgroundImage(ingameBackground, ingameUrl);
+        if (selectionBackground && selectionUrl) {
+            setBackgroundImage(selectionBackground, selectionUrl);
         }
     };
 
@@ -1337,7 +1348,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         let matchChatUnreadCount = 0;
         let matchChatOpponentMuted = localStorage.getItem('comicMatchChatOpponentMuted') === 'true';
         let currentPlayerTeam = [];
-        let profileIngameBackgroundUrl = '';
         const startFirstSound = new Audio('assets/audio/sounds/start-first.mp3');
         const secondPlayerStartSound = new Audio('assets/audio/sounds/yahoe.mp3');
         const nextRoundSound = new Audio('assets/audio/sounds/next-round.mp3');
@@ -1812,8 +1822,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         await hydratePlayerIdentity();
-        profileIngameBackgroundUrl = document.querySelector('.backgroundingame')?.style.backgroundImage || '';
-
         const getSkillReplacementMapFromUnit = (unit) => {
             const map = {};
             const statuses = Array.isArray(unit?.state?.statuses) ? unit.state.statuses : [];
@@ -7326,13 +7334,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             const backgroundEl = document.querySelector('.backgroundingame');
             if (backgroundEl) {
-                const overrideUrl =
-                    typeof data.backgroundOverride === 'string' ? data.backgroundOverride.trim() : '';
                 const fallbackUrl =
                     currentMatchArena === 'pokemon'
                         ? POKEMON_INGAME_BACKGROUND_URL
-                        : profileIngameBackgroundUrl;
-                setBackgroundImage(backgroundEl, overrideUrl || fallbackUrl, currentMatchArena === 'pokemon');
+                        : COMIC_INGAME_BACKGROUND_URL;
+                setBackgroundImage(backgroundEl, fallbackUrl, currentMatchArena === 'pokemon');
             }
             if (typeof data.mode === 'string' && data.mode.trim()) {
                 currentMatchMode = data.mode.trim().toLowerCase();
