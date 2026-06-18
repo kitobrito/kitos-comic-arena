@@ -1697,10 +1697,10 @@ const LEGACY_REGULAR_MATCH_BACKGROUNDS = [
     'assets/images/AlienBattleBG.png'
 ];
 const PVE_MISSION_BACKGROUND_ASSETS = {
-    walker: 'assets/images/WalkerPVEMIssion',
-    'rage-infected': 'assets/images/RageinfectedPVEMission',
-    'predator-stalker': 'assets/images/predatorpvemission',
-    'xenomorph-drone': 'assets/images/xenomorphpvemission',
+    walker: 'assets/images/special PvE mission bgs/walkerspecialbg.png',
+    'rage-infected': 'assets/images/special PvE mission bgs/Rageinfectedspecialbg.png',
+    'predator-stalker': 'assets/images/special PvE mission bgs/predatorstalkerspecialbg.png',
+    'xenomorph-drone': 'assets/images/special PvE mission bgs/xenomorphdronespecialpve.png',
 };
 
 const normalizeAssetPathForClient = (assetPath = '') =>
