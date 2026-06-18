@@ -5942,8 +5942,16 @@ const sanitizeBoardForViewer = (board, viewerUsername) => {
             unitUsername,
             Array.isArray(units)
                 ? units.map((unit) => ({
-                      slot: Number.isInteger(unit?.slot) ? unit.slot : null,
-                      rosterIndex: Number.isInteger(unit?.rosterIndex) ? unit.rosterIndex : null,
+                      slot: Number.isInteger(unit?.slot)
+                          ? unit.slot
+                          : Number.isInteger(Number.parseInt(unit?.slot, 10))
+                              ? Number.parseInt(unit.slot, 10)
+                              : null,
+                      rosterIndex: Number.isInteger(unit?.rosterIndex)
+                          ? unit.rosterIndex
+                          : Number.isInteger(Number.parseInt(unit?.rosterIndex, 10))
+                              ? Number.parseInt(unit.rosterIndex, 10)
+                              : null,
                       alive: unit?.alive !== false,
                       hp: Number.isFinite(Number(unit?.hp)) ? Number(unit.hp) : 0,
                       state: sanitizeUnitStateForViewer({ unit, unitUsername, viewerUsername }),
