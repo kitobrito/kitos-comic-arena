@@ -16945,7 +16945,7 @@ const characters = [
                 "id": "squirtle-withdraw",
                 "name": "Withdraw",
                 "skillimage": "assets/images/PokemonArena/squirtle/withdraw.webp",
-                "skilldescription": "Squirtle or one ally blocks the next enemy harmful skill used on them for 1 turn. Invisible. Cooldown 2.",
+                "skilldescription": "For 1 turn, one member of your team will block the first enemy harmful skill used on them for 1 turn, negating its damage and ignoring its effect completely that turn. Invisible. Cooldown 2.",
                 "energy": [
                     "Random"
                 ],
@@ -16990,7 +16990,7 @@ const characters = [
                 "id": "squirtle-bubble",
                 "name": "Bubble",
                 "skillimage": "assets/images/PokemonArena/squirtle/bubble.jpg",
-                "skilldescription": "Squirtle deals 5 damage to one enemy for 3 turns. This skill stacks. Costs 1 Ninjutsu.",
+                "skilldescription": "Squirtle deals 5 damage to one enemy for 3 turns. If the target is affected by Guard Break, this deals 10 bonus damage to them. This skill stacks.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -17018,9 +17018,13 @@ const characters = [
                                 "turnStartDamage": 5
                             },
                             "turnStartDamage": 5,
+                            "turnStartBonusDamageIfTargetHasStatusId": {
+                                "statusId": "squirtle_guard_break",
+                                "amount": 10
+                            },
                             "fixedTurnStartDamage": true,
                             "statusIconUrl": "assets/images/PokemonArena/squirtle/bubble.jpg",
-                            "tooltipTextTemplate": "This character has {squirtleBubbleStacks} Bubble stack(s) and takes {turnStartDamage} damage at the start of each turn."
+                            "tooltipTextTemplate": "This character has {squirtleBubbleStacks} Bubble stack(s) and takes {turnStartDamage} damage at the start of each turn. If this character has Guard Break, they take 10 additional damage."
                         }
                     }
                 ]
@@ -17029,7 +17033,7 @@ const characters = [
                 "id": "squirtle-rapid-spin",
                 "name": "Rapid Spin",
                 "skillimage": "assets/images/PokemonArena/squirtle/rapidspin.webp",
-                "skilldescription": "Squirtle removes all enemy harmful skills from himself or one ally and deals 15 damage to one enemy. Cooldown 4. Costs 1 Random.",
+                "skilldescription": "Squirtle removes all harmful skills from himself or one ally and deals 15 damage to one enemy.",
                 "energy": [
                     "Random"
                 ],
@@ -17092,7 +17096,7 @@ const characters = [
                     "statusId": "squirtle_wartortle_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/squirtle/shellguard.jpg",
-                "skilldescription": "For 1 turn, Wartortle blocks all enemy harmful skills used on Wartortle or one ally. Invisible. Cooldown 2. Costs 2 Random.",
+                "skilldescription": "For 1 turn, Wartortle blocks all enemy harmful skills used on himself and one selected ally. Invisible. Cooldown 2. Costs 2 Random.",
                 "energy": [
                     "Random",
                     "Random"
@@ -17142,7 +17146,7 @@ const characters = [
                     "statusId": "squirtle_wartortle_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/squirtle/hydropump.jpg",
-                "skilldescription": "Wartortle deals 30 damage this turn and 20 damage next turn. For 1 turn, if the target uses a new harmful skill, they are affected by Guard Break for 3 turns. Costs 2 Ninjutsu.",
+                "skilldescription": "Wartortle deals 30 damage this turn and 20 damage next turn. For 1 turn, if the target uses a new harmful skill, they are affected by Guard Break for 3 turns.",
                 "energy": [
                     "Ninjutsu",
                     "Ninjutsu"
@@ -17209,7 +17213,7 @@ const characters = [
                     "statusId": "squirtle_wartortle_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/squirtle/bubblebeam.jpeg",
-                "skilldescription": "Wartortle deals 10 damage to all enemies for 3 turns. Enemies affected by Guard Break take 10 additional damage each turn. Costs 1 Ninjutsu and 1 Random.",
+                "skilldescription": "Wartortle deals 10 damage to all enemies for 3 turns. Enemies affected by Guard Break take 10 additional damage each turn.",
                 "energy": [
                     "Ninjutsu",
                     "Random"
@@ -17249,7 +17253,7 @@ const characters = [
                     "statusId": "squirtle_wartortle_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/squirtle/aquaspin.jpg",
-                "skilldescription": "Wartortle removes all enemy harmful skills from his team and deals 15 damage to the enemy team. Cooldown 4. Costs 2 Random.",
+                "skilldescription": "Wartortle removes all harmful skills from his team and deals 20 damage to the enemy team. Cooldown 4.",
                 "energy": [
                     "Random",
                     "Random"
@@ -17287,7 +17291,7 @@ const characters = [
                     },
                     {
                         "type": "damage",
-                        "amount": 15,
+                        "amount": 20,
                         "scope": "all-enemy"
                     }
                 ]
