@@ -9292,7 +9292,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    await hydratePlayerIdentity();
+    void hydratePlayerIdentity().catch((error) => {
+        console.warn('Failed to hydrate player identity.', error);
+    });
 
     const logoutButton = document.querySelector('.logout-button');
     const quickButton = document.querySelector('.quick-button');
@@ -11308,8 +11310,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    await loadMissionLockedCharacterIds();
-    await loadCharacterPlayRates();
     rebuildRosterDisplayIndices();
     syncRosterFilterSelect();
     renderRosterPage();
@@ -11317,6 +11317,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     persistTeamSelection();
     applySavedTeam();
     resumeMatchIfActive();
-    
     document.body.classList.remove('app-loading', 'app-loading-selection');
+
+    void loadMissionLockedCharacterIds()
+        .catch((error) => {
+            console.warn('Failed to load mission lock data.', error);
+        })
+        .finally(() => {
+            rebuildRosterDisplayIndices();
+            syncRosterFilterSelect();
+            renderRosterPage();
+            updateGameButtons();
+            applySavedTeam();
+        });
+
+    void loadCharacterPlayRates()
+        .catch((error) => {
+            console.warn('Failed to load character play rates.', error);
+        })
+        .finally(() => {
+            rebuildRosterDisplayIndices();
+            renderRosterPage();
+        });
 });
