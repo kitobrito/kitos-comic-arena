@@ -1318,7 +1318,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const selectionMissionIdFromUrl = pageSearchParams.get('missionId');
 
     if (!slotList) {
-        const rosterData = typeof characters !== 'undefined' ? characters : window.characters;
+        const rosterData = typeof characters !== 'undefined'
+            ? characters
+            : Array.isArray(window.characters)
+                ? window.characters
+                : [];
         let matchSocket = null;
         let matchSocketReconnectTimer = null;
         let matchSocketReconnectDelay = 1000;
@@ -9979,6 +9983,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         roster = characters;
     } else if (Array.isArray(window.characters)) {
         roster = window.characters;
+    } else if (Array.isArray(globalThis.characters)) {
+        roster = globalThis.characters;
     }
 
     const clearDraftIntervals = () => {

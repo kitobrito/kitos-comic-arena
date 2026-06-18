@@ -18133,6 +18133,10 @@ const characters = [
 
 ];
 
+if (typeof window !== 'undefined') {
+    window.characters = characters;
+}
+
 if (typeof module !== 'undefined') {
     module.exports = characters;
 }
