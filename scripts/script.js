@@ -743,8 +743,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const defaultProfileAvatar = 'https://i.postimg.cc/3JqVcPXm/default.png';
     const POKEMON_SELECTION_BACKGROUND_URL = 'assets/images/PokemonArena/characterselectbgpokemonarena.png';
-    const COMIC_INGAME_BACKGROUND_URL = 'assets/images/defaultbgCA.png';
-    const POKEMON_INGAME_BACKGROUND_URL = 'assets/images/PokemonArena/defaultbgPA.png';
+    const COMIC_INGAME_BACKGROUND_URL = 'assets/images/newingamebgCA.png';
+    const POKEMON_INGAME_BACKGROUND_URL = 'assets/images/PokemonArena/newingamebgPA.png';
     const COMIC_INGAME_SCROLL_BEHIND_URL = 'assets/images/ingamescrollbehind.png';
     const POKEMON_INGAME_SCROLL_BEHIND_URL = 'assets/images/PokemonArena/ingamescrollbehind-pokeball.png';
     const COMIC_FOUND_ICON_URL = 'assets/images/found.png';
@@ -8810,10 +8810,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const enemyCardsLocal = Array.from(document.querySelectorAll('.enemy-characters .character-card'));
                 playerCardsLocal.forEach((card) => card && card.classList.remove('targetable'));
                 if (!playerCardsLocal.length || !enemyCardsLocal.length) return;
-                const team = data.player?.team || [];
-                const enemyTeam = data.opponent?.team || [];
-                if (!Array.isArray(team) || team.length !== playerCardsLocal.length) return;
-                if (!Array.isArray(enemyTeam) || enemyTeam.length !== enemyCardsLocal.length) return;
+                const team = Array.isArray(data.player?.team) ? data.player.team : [];
+                const enemyTeam = Array.isArray(data.opponent?.team) ? data.opponent.team : [];
+                const boardTeam = Array.isArray(data.board?.[data.player?.username])
+                    ? data.board[data.player.username]
+                    : [];
+                const boardEnemyTeam = Array.isArray(data.board?.[data.opponent?.username])
+                    ? data.board[data.opponent.username]
+                    : [];
+                const resolvedTeam =
+                    team.length > 0
+                        ? team
+                        : boardTeam.map((unit) => unit?.rosterIndex);
+                const resolvedEnemyTeam =
+                    enemyTeam.length > 0
+                        ? enemyTeam
+                        : boardEnemyTeam.map((unit) => unit?.rosterIndex);
                 playerSkillMetaByKey.clear();
 
                 const playerNameEl = document.querySelector('.player-name.red');
@@ -8937,8 +8949,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 };
 
-                playerCardsLocal.forEach((card, idx) => populateCard(card, team[idx], true, idx));
-                enemyCardsLocal.forEach((card, idx) => populateCard(card, enemyTeam[idx], false, idx));
+                playerCardsLocal.forEach((card, idx) => populateCard(card, resolvedTeam[idx], true, idx));
+                enemyCardsLocal.forEach((card, idx) => populateCard(card, resolvedEnemyTeam[idx], false, idx));
                 enemyCards = enemyCardsLocal;
                 playerCards = playerCardsLocal;
                 attachCardTargetHandlers(enemyCards, currentOpponentUsername || '');

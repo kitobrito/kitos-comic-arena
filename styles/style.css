@@ -2081,7 +2081,7 @@ text-transform: uppercase;
 }
 
 .backgroundingame {
-    background-image: url('../assets/images/ingamebg.png');
+    background-image: url('../assets/images/newingamebgCA.png');
     background-size: 100% 100%;
     background-position: center;
     background-repeat: no-repeat;
@@ -2118,7 +2118,7 @@ text-transform: uppercase;
     gap: 18px;
     background:
         linear-gradient(180deg, rgba(22, 11, 8, 0.94), rgba(76, 17, 14, 0.9) 48%, rgba(22, 11, 8, 0.94)),
-        url('../assets/images/ingamebg.png') center / cover;
+        url('../assets/images/newingamebgCA.png') center / cover;
     font-family: 'Pedra', 'Libre Franklin', serif;
     overflow: hidden;
 }

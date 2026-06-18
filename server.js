@@ -1777,8 +1777,8 @@ const getRegularMatchBackgroundPool = () => {
 
 const getRegularMatchBackgroundForArena = (arena = DEFAULT_ARENA_MODE) =>
     normalizeArenaMode(arena) === 'pokemon'
-        ? 'assets/images/PokemonArena/defaultbgPA.png'
-        : 'assets/images/defaultbgCA.png';
+        ? 'assets/images/PokemonArena/newingamebgPA.png'
+        : 'assets/images/newingamebgCA.png';
 
 const getRandomRegularBackground = (arena = DEFAULT_ARENA_MODE) => getRegularMatchBackgroundForArena(arena);
 
