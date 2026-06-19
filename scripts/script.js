@@ -1825,7 +1825,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             return unit?.alive === false || isUnitBanished(unit) || (Number.isFinite(hp) && hp <= 0);
         };
 
-        await hydratePlayerIdentity();
+        void hydratePlayerIdentity().catch((error) => {
+            console.warn('Failed to hydrate ingame player identity.', error);
+        });
         const getSkillReplacementMapFromUnit = (unit) => {
             const map = {};
             const statuses = Array.isArray(unit?.state?.statuses) ? unit.state.statuses : [];
