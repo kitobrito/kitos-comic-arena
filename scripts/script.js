@@ -7803,6 +7803,38 @@ document.addEventListener('DOMContentLoaded', async () => {
                 battleIntroOverlayEl.setAttribute('aria-hidden', 'true');
                 return;
             }
+            const normalizeRosterIndex = (value) => {
+                if (Number.isInteger(value)) return value;
+                const parsed = Number.parseInt(value, 10);
+                return Number.isInteger(parsed) && parsed >= 0 ? parsed : null;
+            };
+            const resolveRosterIndex = (entry) => {
+                const directIndex = normalizeRosterIndex(entry);
+                if (directIndex !== null) return directIndex;
+                if (!entry || typeof entry !== 'object') return null;
+                const objectIndex = normalizeRosterIndex(entry.rosterIndex ?? entry.slot ?? entry.index);
+                if (objectIndex !== null) return objectIndex;
+                const characterId =
+                    typeof entry.characterId === 'string'
+                        ? entry.characterId.trim().toLowerCase()
+                        : typeof entry.id === 'string'
+                            ? entry.id.trim().toLowerCase()
+                            : '';
+                if (!characterId) return null;
+                return rosterData.findIndex((character) => {
+                    const candidateId =
+                        typeof character?.characterId === 'string'
+                            ? character.characterId.trim().toLowerCase()
+                            : typeof character?.id === 'string'
+                                ? character.id.trim().toLowerCase()
+                                : '';
+                    return candidateId === characterId;
+                });
+            };
+            const resolveTeamRosterIndices = (entries = []) =>
+                (Array.isArray(entries) ? entries : [])
+                    .map((entry) => resolveRosterIndex(entry))
+                    .filter((index) => Number.isInteger(index) && index >= 0);
             const playerName = data?.player?.username || readCachedUser()?.username || 'Player';
             const opponentName =
                 data?.opponent?.displayName ||
@@ -7823,8 +7855,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 streakEl: battleIntroTopStreakEl,
                 ladder: getArenaLadder(data?.opponent?.profile, currentMatchArena) || null,
             });
-            renderBattleIntroTeam(battleIntroTopTeamEl, data?.opponent?.team || [], 'top');
-            renderBattleIntroTeam(battleIntroBottomTeamEl, data?.player?.team || [], 'bottom');
+            renderBattleIntroTeam(
+                battleIntroTopTeamEl,
+                resolveTeamRosterIndices(data?.opponent?.team),
+                'top'
+            );
+            renderBattleIntroTeam(
+                battleIntroBottomTeamEl,
+                resolveTeamRosterIndices(data?.player?.team),
+                'bottom'
+            );
 
             getOpponentIntroAvatarUrl(data?.opponent || {})
                 .then((avatarUrl) => {
@@ -8991,9 +9031,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (data.player?.username) {
                     currentPlayerUsername = data.player.username;
                 }
+                const battleIntroPromise = playBattleIntro(data).catch(() => {});
                 applyIncomingMatchState(data, { playEntrySound: true });
                 connectMatchSocket();
-                await playBattleIntro(data);
+                await battleIntroPromise;
             } catch (error) {
                 console.warn('Failed to load match data.', error);
             }
