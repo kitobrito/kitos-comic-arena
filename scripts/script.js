@@ -1318,10 +1318,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const selectionMissionIdFromUrl = pageSearchParams.get('missionId');
 
     if (!slotList) {
-        const rosterData = typeof characters !== 'undefined'
-            ? characters
-            : Array.isArray(window.characters)
-                ? window.characters
+        const rosterData = Array.isArray(window.characters)
+            ? window.characters
+            : typeof characters !== 'undefined' && Array.isArray(characters)
+                ? characters
                 : [];
         let matchSocket = null;
         let matchSocketReconnectTimer = null;
@@ -1825,7 +1825,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             return unit?.alive === false || isUnitBanished(unit) || (Number.isFinite(hp) && hp <= 0);
         };
 
-        await hydratePlayerIdentity();
+        void hydratePlayerIdentity().catch((error) => {
+            console.warn('Failed to hydrate ingame player identity.', error);
+        });
         const getSkillReplacementMapFromUnit = (unit) => {
             const map = {};
             const statuses = Array.isArray(unit?.state?.statuses) ? unit.state.statuses : [];
@@ -8838,13 +8840,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const loadMatchForIngame = async () => {
             const matchId = matchIdFromUrl;
-            if (!matchId || !Array.isArray(rosterData)) return;
+            if (!matchId || !Array.isArray(rosterData) || rosterData.length === 0) {
+                console.warn('Unable to initialize match: missing match ID or character roster.');
+                return;
+            }
             try {
-                const response = await fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchId)}`, {
-                    credentials: 'include',
-                });
-                const data = await response.json();
-                if (!data?.ok) return;
+                let data = null;
+                let lastLoadError = null;
+                for (let attempt = 0; attempt < 3; attempt += 1) {
+                    try {
+                        const response = await fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchId)}`, {
+                            credentials: 'include',
+                            cache: 'no-store',
+                        });
+                        const payload = await response.json();
+                        if (response.ok && payload?.ok) {
+                            data = payload;
+                            break;
+                        }
+                        lastLoadError = new Error(payload?.error || `Match request failed (${response.status}).`);
+                        if (response.status === 401 || response.status === 403) break;
+                    } catch (error) {
+                        lastLoadError = error;
+                    }
+                    await wait(400 * (attempt + 1));
+                }
+                if (!data) throw lastLoadError || new Error('Match data was unavailable.');
 
                 const normalizeRosterIndex = (value) => {
                     if (Number.isInteger(value)) return value;
@@ -8889,6 +8910,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const boardEnemyTeam = resolveTeamRosterIndices(data.board?.[data.opponent?.username]);
                 const resolvedTeam = team.length > 0 ? team : boardTeam;
                 const resolvedEnemyTeam = enemyTeam.length > 0 ? enemyTeam : boardEnemyTeam;
+                if (data.player?.username) currentPlayerUsername = data.player.username;
+
+                // Start the intro before card setup so a later UI error cannot suppress it.
+                const battleIntroPromise = playBattleIntro(data).catch((error) => {
+                    console.warn('Unable to play battle intro.', error);
+                });
+                connectMatchSocket();
                 playerSkillMetaByKey.clear();
 
                 const playerNameEl = document.querySelector('.player-name.red');
@@ -9028,12 +9056,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 }
 
-                if (data.player?.username) {
-                    currentPlayerUsername = data.player.username;
+                try {
+                    applyIncomingMatchState(data, { playEntrySound: true });
+                } catch (error) {
+                    console.warn('Unable to apply initial match state.', error);
                 }
-                const battleIntroPromise = playBattleIntro(data).catch(() => {});
-                applyIncomingMatchState(data, { playEntrySound: true });
-                connectMatchSocket();
                 await battleIntroPromise;
             } catch (error) {
                 console.warn('Failed to load match data.', error);

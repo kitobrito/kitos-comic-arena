@@ -4444,7 +4444,7 @@ let characterCatalog = buildCharacterCatalog();
 const serializeCharactersDataFile = (nextCharacters) =>
     'const characters = ' +
     JSON.stringify(nextCharacters, null, 4) +
-    ';\n\nif (typeof module !== \'undefined\') {\n    module.exports = characters;\n}\n';
+    ';\n\nif (typeof window !== \'undefined\') {\n    window.characters = characters;\n}\n\nif (typeof module !== \'undefined\') {\n    module.exports = characters;\n}\n';
 
 const getCharacterRecordId = (character = {}) =>
     typeof character?.characterId === 'string' && character.characterId.trim()
