@@ -632,6 +632,144 @@
       text-transform: uppercase;
     }
 
+    .arena-split {
+      display: grid;
+      gap: 16px;
+      padding: 20px;
+      border: 4px solid var(--line);
+      background:
+        linear-gradient(135deg, rgba(240, 75, 35, 0.16), transparent 38%),
+        linear-gradient(225deg, rgba(15, 99, 255, 0.16), transparent 38%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 243, 218, 0.95)),
+        var(--panel);
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .arena-split::before {
+      content: "Choose Your Arena";
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      padding: 6px 12px;
+      border: 3px solid var(--line);
+      background: var(--accent-4);
+      color: #fff;
+      font-family: "Bangers", cursive;
+      font-size: 22px;
+      letter-spacing: 0.06em;
+      transform: rotate(2deg);
+      z-index: 1;
+    }
+
+    .arena-split > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .arena-split-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .arena-split-card {
+      display: grid;
+      gap: 12px;
+      min-height: 100%;
+      padding: 18px;
+      border: 4px solid var(--line);
+      box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.95);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .arena-split-card.comic {
+      background:
+        radial-gradient(circle at top left, rgba(255, 216, 76, 0.48), transparent 30%),
+        linear-gradient(180deg, rgba(255, 240, 186, 0.98), rgba(255, 205, 105, 0.92));
+    }
+
+    .arena-split-card.pokemon {
+      background:
+        radial-gradient(circle at top right, rgba(255, 216, 76, 0.32), transparent 28%),
+        linear-gradient(180deg, rgba(122, 188, 255, 0.95), rgba(83, 113, 255, 0.94));
+      color: #fff;
+    }
+
+    .arena-split-card::after {
+      content: attr(data-arena);
+      position: absolute;
+      right: 14px;
+      bottom: 10px;
+      font-family: "Bangers", cursive;
+      font-size: 52px;
+      letter-spacing: 0.08em;
+      opacity: 0.12;
+      pointer-events: none;
+    }
+
+    .arena-split-badge {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 5px 10px;
+      border: 3px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .arena-split-title {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Bangers", cursive;
+      font-size: 38px;
+      line-height: 0.96;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .arena-split-card.pokemon .arena-split-title,
+    .arena-split-card.pokemon .arena-split-copy {
+      color: #fff;
+    }
+
+    .arena-split-copy {
+      margin: 0;
+      max-width: 520px;
+      color: var(--text);
+      font-size: 17px;
+      line-height: 1.35;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .arena-split-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      min-height: 44px;
+      padding: 0 16px;
+      border: 3px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--ink);
+      font-size: 16px;
+      font-weight: 800;
+      text-transform: uppercase;
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.95);
+    }
+
+    .arena-split-card.pokemon .arena-split-link {
+      background: #101318;
+      color: #fff;
+    }
+
     .feature-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1263,6 +1401,10 @@
         grid-template-columns: 1fr;
       }
 
+      .arena-split-grid {
+        grid-template-columns: 1fr;
+      }
+
       .hero-points {
         grid-template-columns: 1fr;
       }
@@ -1311,12 +1453,14 @@
       }
 
       .hero,
+      .arena-split,
       .release-panel,
       .news-shell {
         padding: 16px;
       }
 
       .hero::before,
+      .arena-split::before,
       .release-panel::before {
         position: static;
         display: inline-block;
@@ -1516,6 +1660,29 @@
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section class="arena-split">
+        <div class="section-heading">
+          <div>
+            <h2 class="release-title">Two Arenas, One Site</h2>
+            <p class="release-copy">Use the same home base, then jump into the comic roster or the Pokemon roster with one click.</p>
+          </div>
+        </div>
+        <div class="arena-split-grid">
+          <article class="arena-split-card comic" data-arena="Comic Arena">
+            <span class="arena-split-badge">Original roster</span>
+            <h2 class="arena-split-title">Comic Arena</h2>
+            <p class="arena-split-copy">The home lineup of heroes, villains, and all the weird little matchup puzzles that built the game.</p>
+            <a class="arena-split-link" href="selection.html?arena=comic">Enter Comic Arena</a>
+          </article>
+          <article class="arena-split-card pokemon" data-arena="Pokemon Arena">
+            <span class="arena-split-badge">New roster lane</span>
+            <h2 class="arena-split-title">Pokemon Arena</h2>
+            <p class="arena-split-copy">A separate battle lane with its own team flow, roster logic, and character kits.</p>
+            <a class="arena-split-link" href="selection.html?arena=pokemon">Enter Pokemon Arena</a>
+          </article>
         </div>
       </section>
 

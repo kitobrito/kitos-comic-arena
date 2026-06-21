@@ -1316,6 +1316,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const pageSearchParams = new URLSearchParams(window.location.search);
     const matchIdFromUrl = pageSearchParams.get('matchId');
     const selectionMissionIdFromUrl = pageSearchParams.get('missionId');
+    const arenaModeFromUrl = pageSearchParams.get('arena');
 
     if (!slotList) {
         const rosterData = Array.isArray(window.characters)
@@ -9437,7 +9438,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     let isSearching = false;
     let pendingMatchRedirect = null;
     let draftModeEnabled = localStorage.getItem('comicDraftModeEnabled') === 'true';
-    let activeArenaMode = localStorage.getItem('comicArenaMode') === 'pokemon' ? 'pokemon' : 'comic';
+    let activeArenaMode =
+        arenaModeFromUrl === 'pokemon'
+            ? 'pokemon'
+            : arenaModeFromUrl === 'comic'
+                ? 'comic'
+                : localStorage.getItem('comicArenaMode') === 'pokemon'
+                    ? 'pokemon'
+                    : 'comic';
+    if (arenaModeFromUrl === 'pokemon' || arenaModeFromUrl === 'comic') {
+        localStorage.setItem('comicArenaMode', activeArenaMode);
+    }
     let activeDraft = null;
     let activeDraftSelection = [];
     let activeDraftSelectionPhase = '';
