@@ -61,13 +61,20 @@ const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 const ALLOW_INSECURE_HTTP = !IS_PRODUCTION && process.env.ALLOW_INSECURE_HTTP === 'true';
 const HTTPS_KEY_PATH = process.env.HTTPS_KEY_PATH;
 const HTTPS_CERT_PATH = process.env.HTTPS_CERT_PATH;
-const LATEST_CHARACTER_RELEASES = [
-    { label: 'Grand Master Yoda', characterId: 'grand-master-yoda' },
-    { label: 'Darth Sidious', characterId: 'darth-sidious' },
-    { label: 'General Grievous', characterId: 'general-grievous' },
-];
+const LATEST_CHARACTER_RELEASES_BY_ARENA = {
+    comic: [
+        { label: 'Grand Master Yoda', characterId: 'grand-master-yoda' },
+        { label: 'Darth Sidious', characterId: 'darth-sidious' },
+        { label: 'General Grievous', characterId: 'general-grievous' },
+    ],
+    pokemon: [
+        { label: 'Squirtle', characterId: 'squirtle' },
+        { label: 'Butterfree', characterId: 'butterfree' },
+        { label: 'Pikachu', characterId: 'pikachu' },
+    ],
+};
 const LATEST_CHARACTER_RELEASES_STATE_KEY = 'latest_character_releases';
-const LATEST_CHARACTER_RELEASES_VERSION = 'balance-v3-1-1';
+const LATEST_CHARACTER_RELEASES_VERSION = 'balance-v3-1-1-arena-split';
 const MAINTENANCE_MODE_STATE_KEY = 'maintenance_mode';
 const MAINTENANCE_MODE_CACHE_TTL_MS = 10 * 1000;
 const DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/3JqVcPXm/default.png';
@@ -5156,9 +5163,15 @@ const buildCharacterSummaryMap = () =>
             .filter(Boolean)
     );
 
-const normalizeLatestCharacterReleases = (entries = []) => {
+const normalizeLatestReleasesArenaMode = (arena = '') =>
+    (String(arena || '').trim().toLowerCase() === 'pokemon' ? 'pokemon' : 'comic');
+
+const normalizeLatestCharacterReleases = (entries = [], arena = 'comic') => {
     const characterMap = buildCharacterSummaryMap();
-    const defaults = Array.isArray(LATEST_CHARACTER_RELEASES) ? LATEST_CHARACTER_RELEASES : [];
+    const normalizedArena = normalizeLatestReleasesArenaMode(arena);
+    const defaults = Array.isArray(LATEST_CHARACTER_RELEASES_BY_ARENA[normalizedArena])
+        ? LATEST_CHARACTER_RELEASES_BY_ARENA[normalizedArena]
+        : LATEST_CHARACTER_RELEASES_BY_ARENA.comic;
     return [0, 1, 2].map((index) => {
         const entry = Array.isArray(entries) ? entries[index] || {} : {};
         const fallback = defaults[index] || { label: `Latest Character ${index + 1}`, characterId: '' };
@@ -5180,22 +5193,41 @@ const normalizeLatestCharacterReleases = (entries = []) => {
     });
 };
 
-const getLatestCharacterReleases = async () => {
+const getLatestCharacterReleases = async (arena = 'comic') => {
     if (!appStateCollection) {
-        return normalizeLatestCharacterReleases(LATEST_CHARACTER_RELEASES);
+        return normalizeLatestCharacterReleases(
+            LATEST_CHARACTER_RELEASES_BY_ARENA[normalizeLatestReleasesArenaMode(arena)],
+            arena
+        );
     }
     const state = await appStateCollection.findOne({ key: LATEST_CHARACTER_RELEASES_STATE_KEY });
-    const entries =
-        state &&
-        Array.isArray(state.releases) &&
-        (state.version === LATEST_CHARACTER_RELEASES_VERSION || state.updatedBy === 'sync_balance_3_1_1_news')
-            ? state.releases
-            : state?.value &&
-              state.value.version === LATEST_CHARACTER_RELEASES_VERSION &&
-              Array.isArray(state.value.releases)
-            ? state.value.releases
-            : LATEST_CHARACTER_RELEASES;
-    return normalizeLatestCharacterReleases(entries);
+    const normalizedArena = normalizeLatestReleasesArenaMode(arena);
+    const stateValue = state?.value && typeof state.value === 'object' ? state.value : null;
+    const releasesByArena = {
+        comic: Array.isArray(state?.releasesByArena?.comic)
+            ? state.releasesByArena.comic
+            : Array.isArray(stateValue?.releasesByArena?.comic)
+                ? stateValue.releasesByArena.comic
+                : Array.isArray(state?.comicReleases)
+                    ? state.comicReleases
+                    : Array.isArray(stateValue?.comicReleases)
+                        ? stateValue.comicReleases
+                        : Array.isArray(state?.releases) && (state.version === LATEST_CHARACTER_RELEASES_VERSION || state.updatedBy === 'sync_balance_3_1_1_news')
+                            ? state.releases
+                            : Array.isArray(stateValue?.releases) && stateValue.version === LATEST_CHARACTER_RELEASES_VERSION
+                                ? stateValue.releases
+                                : LATEST_CHARACTER_RELEASES_BY_ARENA.comic,
+        pokemon: Array.isArray(state?.releasesByArena?.pokemon)
+            ? state.releasesByArena.pokemon
+            : Array.isArray(stateValue?.releasesByArena?.pokemon)
+                ? stateValue.releasesByArena.pokemon
+                : Array.isArray(state?.pokemonReleases)
+                    ? state.pokemonReleases
+                    : Array.isArray(stateValue?.pokemonReleases)
+                        ? stateValue.pokemonReleases
+                        : LATEST_CHARACTER_RELEASES_BY_ARENA.pokemon,
+    };
+    return normalizeLatestCharacterReleases(releasesByArena[normalizedArena], normalizedArena);
 };
 
 const getMaintenanceModeState = async () => {
@@ -8532,10 +8564,27 @@ app.get('/health', (req, res) => {
 });
 
 app.get('/api/latest-releases', async (req, res) => {
-    const releases = await getLatestCharacterReleases();
+    const arena = normalizeArenaMode(req.query?.arena || '');
+    if (req.query?.arena) {
+        const releases = await getLatestCharacterReleases(arena);
+        return res.json({
+            ok: true,
+            arena,
+            releases,
+        });
+    }
+    const comicReleases = await getLatestCharacterReleases('comic');
+    const pokemonReleases = await getLatestCharacterReleases('pokemon');
     return res.json({
         ok: true,
-        releases,
+        arena: 'all',
+        releases: comicReleases,
+        releasesByArena: {
+            comic: comicReleases,
+            pokemon: pokemonReleases,
+        },
+        comicReleases,
+        pokemonReleases,
     });
 });
 
@@ -8543,9 +8592,11 @@ app.get('/api/admin/latest-releases', requireSession, async (req, res) => {
     if (String(req.authUser?.role || '').trim().toLowerCase() !== 'admin') {
         return res.status(403).json({ error: 'Admin access required.' });
     }
-    const releases = await getLatestCharacterReleases();
+    const arena = normalizeArenaMode(req.query?.arena || '');
+    const releases = await getLatestCharacterReleases(arena);
     return res.json({
         ok: true,
+        arena,
         releases,
     });
 });
@@ -8558,16 +8609,44 @@ app.put('/api/admin/latest-releases', requireSession, async (req, res) => {
     if (validationError) {
         return res.status(400).json({ error: 'Invalid latest releases payload.' });
     }
-    const normalizedReleases = normalizeLatestCharacterReleases(value.releases);
+    const arena = normalizeArenaMode(value.arena);
+    const normalizedReleases = normalizeLatestCharacterReleases(value.releases, arena);
+    const existingState = appStateCollection
+        ? await appStateCollection.findOne({ key: LATEST_CHARACTER_RELEASES_STATE_KEY })
+        : null;
+    const existingValue =
+        existingState && typeof existingState.value === 'object' ? existingState.value : null;
+    const existingByArena =
+        existingState?.releasesByArena ||
+        existingValue?.releasesByArena ||
+        {};
+    const nextReleasesByArena = {
+        comic: arena === 'comic' ? normalizedReleases : normalizeLatestCharacterReleases(existingByArena.comic || existingState?.releases || existingValue?.releases || [], 'comic'),
+        pokemon: arena === 'pokemon' ? normalizedReleases : normalizeLatestCharacterReleases(existingByArena.pokemon || existingState?.pokemonReleases || existingValue?.pokemonReleases || [], 'pokemon'),
+    };
     await appStateCollection.updateOne(
         { key: LATEST_CHARACTER_RELEASES_STATE_KEY },
         {
             $set: {
                 key: LATEST_CHARACTER_RELEASES_STATE_KEY,
                 version: LATEST_CHARACTER_RELEASES_VERSION,
-                releases: normalizedReleases.map((entry) => ({
+                releases: nextReleasesByArena.comic.map((entry) => ({
                     characterId: entry.characterId,
                 })),
+                comicReleases: nextReleasesByArena.comic.map((entry) => ({
+                    characterId: entry.characterId,
+                })),
+                pokemonReleases: nextReleasesByArena.pokemon.map((entry) => ({
+                    characterId: entry.characterId,
+                })),
+                releasesByArena: {
+                    comic: nextReleasesByArena.comic.map((entry) => ({
+                        characterId: entry.characterId,
+                    })),
+                    pokemon: nextReleasesByArena.pokemon.map((entry) => ({
+                        characterId: entry.characterId,
+                    })),
+                },
                 updatedAt: new Date(),
             },
         },
@@ -8575,7 +8654,9 @@ app.put('/api/admin/latest-releases', requireSession, async (req, res) => {
     );
     return res.json({
         ok: true,
+        arena,
         releases: normalizedReleases,
+        releasesByArena: nextReleasesByArena,
     });
 });
 
@@ -8690,6 +8771,7 @@ const activityUpdateSchema = Joi.object({
 });
 
 const latestReleasesUpdateSchema = Joi.object({
+    arena: Joi.string().valid('comic', 'pokemon').default('comic'),
     releases: Joi.array()
         .length(3)
         .items(

@@ -18945,13 +18945,13 @@ const characters = [
                 "id": "butterfree-confusion",
                 "name": "Confusion",
                 "skillimage": "assets/images/PokemonArena/butterfree/confusion.webp",
-                "skilldescription": "Butterfree deals 20 damage to one enemy. This skill has a 25% chance to reflect the next harmful skill used on that enemy back onto its user for 1 turn. For 1 turn, Psybeam deals 10 additional damage.",
+                "skilldescription": "Butterfree deals 25 damage to one enemy. This skill has a 25% chance to reflect the next harmful skill used on that enemy back onto its user for 1 turn. For 1 turn, Psybeam deals 5 additional damage.",
                 "energy": [
                     "Genjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
+                "cooldown": 1,
                 "classes": [
                     "Mental",
                     "Ranged",
@@ -18961,7 +18961,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 20,
+                        "amount": 25,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
@@ -18990,10 +18990,10 @@ const characters = [
                         "scope": "self",
                         "metadata": {
                             "skillDamageBonuses": {
-                                "butterfree-psybeam": 10
+                                "butterfree-psybeam": 5
                             },
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "Psybeam deals 10 additional damage."
+                            "tooltipText": "Psybeam deals 5 additional damage."
                         }
                     }
                 ]
@@ -19002,13 +19002,13 @@ const characters = [
                 "id": "butterfree-psybeam",
                 "name": "Psybeam",
                 "skillimage": "assets/images/PokemonArena/butterfree/psybeam.webp",
-                "skilldescription": "Butterfree deals 20 damage to one enemy and increases their next skill cooldown by 2 turns for 1 turn. For 1 turn, Confusion deals 10 additional damage.",
+                "skilldescription": "Butterfree deals 25 damage to one enemy and increases their next skill cooldown by 2 turns for 1 turn. For 1 turn, Confusion deals 5 additional damage.",
                 "energy": [
                     "Ninjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
+                "cooldown": 1,
                 "classes": [
                     "Energy",
                     "Ranged",
@@ -19017,7 +19017,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 20,
+                        "amount": 25,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
@@ -19043,10 +19043,10 @@ const characters = [
                         "scope": "self",
                         "metadata": {
                             "skillDamageBonuses": {
-                                "butterfree-confusion": 10
+                                "butterfree-confusion": 5
                             },
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "Confusion deals 10 additional damage."
+                            "tooltipText": "Confusion deals 5 additional damage."
                         }
                     }
                 ]
@@ -19055,7 +19055,7 @@ const characters = [
                 "id": "butterfree-stun-spore",
                 "name": "Stun Spore",
                 "skillimage": "assets/images/PokemonArena/butterfree/stunspore.webp",
-                "skilldescription": "For 2 turns, one enemy takes 10 affliction damage each turn and their cooldowns are frozen for 1 turn each turn. This swaps to Sleep Powder after being used.",
+                "skilldescription": "For 2 turns, one enemy takes 10 affliction damage each turn and their cooldowns are paralyzed for 1 turn each turn. This swaps to Sleep Powder after being used.",
                 "energy": [
                     "Random"
                 ],
@@ -19083,7 +19083,7 @@ const characters = [
                             "freezeCooldowns": true,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character takes 10 affliction damage each turn and their cooldowns are frozen."
+                            "tooltipText": "This character takes 10 affliction damage each turn and their cooldowns are paralyzed."
                         }
                     },
                     {
@@ -19108,7 +19108,7 @@ const characters = [
                 "id": "butterfree-whirlwind",
                 "name": "Whirlwind",
                 "skillimage": "assets/images/PokemonArena/butterfree/whirlwind.webp",
-                "skilldescription": "For 1 turn, your team ignores enemy ranged skills.",
+                "skilldescription": "For 1 turn, all enemy non-mental skills are stunned.",
                 "energy": [
                     "Random"
                 ],
@@ -19124,13 +19124,11 @@ const characters = [
                         "type": "apply_status",
                         "statusId": "butterfree_whirlwind_cover",
                         "duration": 1,
-                        "scope": "all-allies",
+                        "scope": "all-enemy",
                         "metadata": {
-                            "ignoreSkillClasses": [
-                                "ranged"
-                            ],
+                            "cannotUseNonMentalSkills": true,
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "Your team ignores enemy ranged skills."
+                            "tooltipText": "This character's non-mental skills are stunned."
                         }
                     }
                 ]

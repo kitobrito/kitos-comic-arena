@@ -17,21 +17,42 @@
   var changeBackgroundsButton = document.getElementById("change-backgrounds-button");
   var resetAccountButton = document.getElementById("reset-account-button");
   var adminPanelSection = document.getElementById("admin-panel-section");
-  var releaseFaces = [
-    document.getElementById("release-face-1"),
-    document.getElementById("release-face-2"),
-    document.getElementById("release-face-3")
-  ];
-  var releaseLinks = [
-    document.getElementById("release-link-1"),
-    document.getElementById("release-link-2"),
-    document.getElementById("release-link-3")
-  ];
-  var releaseLabels = [
-    document.getElementById("release-label-1"),
-    document.getElementById("release-label-2"),
-    document.getElementById("release-label-3")
-  ];
+  var releaseGroups = {
+    comic: {
+      faces: [
+        document.getElementById("release-face-1"),
+        document.getElementById("release-face-2"),
+        document.getElementById("release-face-3")
+      ],
+      links: [
+        document.getElementById("release-link-1"),
+        document.getElementById("release-link-2"),
+        document.getElementById("release-link-3")
+      ],
+      labels: [
+        document.getElementById("release-label-1"),
+        document.getElementById("release-label-2"),
+        document.getElementById("release-label-3")
+      ]
+    },
+    pokemon: {
+      faces: [
+        document.getElementById("pokemon-release-face-1"),
+        document.getElementById("pokemon-release-face-2"),
+        document.getElementById("pokemon-release-face-3")
+      ],
+      links: [
+        document.getElementById("pokemon-release-link-1"),
+        document.getElementById("pokemon-release-link-2"),
+        document.getElementById("pokemon-release-link-3")
+      ],
+      labels: [
+        document.getElementById("pokemon-release-label-1"),
+        document.getElementById("pokemon-release-label-2"),
+        document.getElementById("pokemon-release-label-3")
+      ]
+    }
+  };
   var guestAuthView = document.getElementById("guest-auth-view");
   var accountPanel = document.getElementById("account-panel");
   var accountUsername = document.getElementById("account-username");
@@ -228,6 +249,11 @@
   var newsPostList = document.getElementById("news-post-list");
   var newsPostListStatus = document.getElementById("news-post-list-status");
   var latestReleasesForm = document.getElementById("latest-releases-form");
+  var latestReleasesArenaButtons = {
+    comic: document.getElementById("latest-releases-arena-comic"),
+    pokemon: document.getElementById("latest-releases-arena-pokemon")
+  };
+  var latestReleasesArenaTitle = document.getElementById("latest-releases-arena-title");
   var latestReleaseSelects = [
     document.getElementById("latest-release-1"),
     document.getElementById("latest-release-2"),
@@ -241,6 +267,7 @@
   var adminNewsPosts = [];
   var characterCatalog = [];
   var adminLatestReleases = [];
+  var activeLatestReleasesArena = "comic";
   var maintenanceModeEnabled = false;
   var publicNewsPosts = [];
   var currentNewsPostIndex = 0;
@@ -534,6 +561,19 @@
     return characterCatalog.find(function (entry) {
       return entry && entry.characterId && String(entry.characterId).trim().toLowerCase() === target;
     }) || null;
+  }
+
+  function getCatalogCharacterArena(character) {
+    var explicitArena = character && character.arena ? String(character.arena).trim().toLowerCase() : "";
+    if (explicitArena === "comic" || explicitArena === "pokemon") {
+      return explicitArena;
+    }
+    var universe = character && character.universe ? String(character.universe).trim().toLowerCase() : "";
+    return universe === "pokemon" ? "pokemon" : "comic";
+  }
+
+  function getLatestReleaseGroup(arena) {
+    return releaseGroups[arena === "pokemon" ? "pokemon" : "comic"];
   }
 
   function findCatalogSkillByName(character, skillName) {
@@ -1018,7 +1058,11 @@
     if (!latestReleaseSelects.length) {
       return;
     }
-    var characters = Array.isArray(characterCatalog) ? characterCatalog.slice() : [];
+    var characters = Array.isArray(characterCatalog)
+      ? characterCatalog.filter(function (character) {
+          return getCatalogCharacterArena(character) === activeLatestReleasesArena;
+        }).slice()
+      : [];
     characters.sort(function (left, right) {
       return String(left && left.name ? left.name : "").localeCompare(String(right && right.name ? right.name : ""));
     });
@@ -1057,13 +1101,34 @@
     setLatestReleasesStatus("");
   }
 
+  function setActiveLatestReleasesArena(arena) {
+    activeLatestReleasesArena = arena === "pokemon" ? "pokemon" : "comic";
+    if (latestReleasesArenaButtons.comic) {
+      latestReleasesArenaButtons.comic.classList.toggle("active", activeLatestReleasesArena === "comic");
+    }
+    if (latestReleasesArenaButtons.pokemon) {
+      latestReleasesArenaButtons.pokemon.classList.toggle("active", activeLatestReleasesArena === "pokemon");
+    }
+    if (latestReleasesArenaTitle) {
+      latestReleasesArenaTitle.textContent =
+        activeLatestReleasesArena === "pokemon"
+          ? "Latest Pokemon Character Releases"
+          : "Latest Comic Character Releases";
+    }
+    if (latestReleasesSaveButton) {
+      latestReleasesSaveButton.textContent =
+        activeLatestReleasesArena === "pokemon" ? "Save Pokemon Releases" : "Save Releases";
+    }
+    populateLatestReleaseSelectOptions();
+  }
+
   async function loadAdminLatestReleases() {
     if (!latestReleasesForm) {
       return;
     }
     setLatestReleasesStatus("Loading latest releases...");
     try {
-      var response = await fetch("/api/admin/latest-releases", {
+      var response = await fetch("/api/admin/latest-releases?arena=" + encodeURIComponent(activeLatestReleasesArena), {
         credentials: "same-origin"
       });
       var data = await response.json().catch(function () {
@@ -1073,6 +1138,7 @@
         setLatestReleasesStatus(data && data.error ? data.error : "Unable to load latest releases.", "error");
         return;
       }
+      setActiveLatestReleasesArena(data && data.arena ? data.arena : activeLatestReleasesArena);
       populateLatestReleasesEditor(data && Array.isArray(data.releases) ? data.releases : []);
     } catch (error) {
       setLatestReleasesStatus("Unable to reach the server.", "error");
@@ -1084,6 +1150,7 @@
       return;
     }
     var payload = {
+      arena: activeLatestReleasesArena,
       releases: latestReleaseSelects.map(function (select) {
         return {
           characterId: select && select.value ? String(select.value) : ""
@@ -1112,7 +1179,7 @@
       }
       populateLatestReleasesEditor(data && Array.isArray(data.releases) ? data.releases : []);
       setLatestReleasesStatus("Latest character releases updated.", "success");
-      loadLatestReleases();
+      loadAdminLatestReleases();
     } catch (error) {
       setLatestReleasesStatus("Unable to reach the server.", "error");
     } finally {
@@ -3375,16 +3442,17 @@
     }
   }
 
-  function updateReleasePreview(index, releaseItem, facePicture) {
-    var image = releaseFaces[index];
-    var link = releaseLinks[index];
-    var label = releaseLabels[index];
+  function updateReleasePreview(arena, index, releaseItem, facePicture) {
+    var group = getLatestReleaseGroup(arena);
+    var image = group && group.faces ? group.faces[index] : null;
+    var link = group && group.links ? group.links[index] : null;
+    var label = group && group.labels ? group.labels[index] : null;
     var name = releaseItem && releaseItem.label ? String(releaseItem.label) : "";
     var url = facePicture ? String(facePicture) : "";
     var characterId = releaseItem && releaseItem.characterId ? String(releaseItem.characterId) : "";
     var character = findCatalogCharacterById(characterId);
     var rosterPage =
-      character && String(character.arena || "").trim().toLowerCase() === "pokemon"
+      character && getCatalogCharacterArena(character) === "pokemon"
         ? "pokemon-charactersandskills.html"
         : "charactersandskills.html";
     if (label) {
@@ -3415,7 +3483,10 @@
   }
 
   async function initializeReleaseInputs() {
-    var releases = [];
+    var releasesByArena = {
+      comic: [],
+      pokemon: []
+    };
     try {
       var response = await fetch("/api/latest-releases", {
         credentials: "same-origin"
@@ -3424,16 +3495,27 @@
         var data = await response.json().catch(function () {
           return {};
         });
-        releases = Array.isArray(data && data.releases) ? data.releases : [];
+        if (data && data.releasesByArena) {
+          releasesByArena.comic = Array.isArray(data.releasesByArena.comic) ? data.releasesByArena.comic : [];
+          releasesByArena.pokemon = Array.isArray(data.releasesByArena.pokemon) ? data.releasesByArena.pokemon : [];
+        } else {
+          releasesByArena.comic = Array.isArray(data && data.releases) ? data.releases : [];
+          releasesByArena.pokemon = Array.isArray(data && data.pokemonReleases) ? data.pokemonReleases : [];
+        }
       }
     } catch (error) {}
 
-    releaseFaces.forEach(function (_, index) {
-      var releaseItem = releases[index] || null;
-      var facePicture = releaseItem && releaseItem.facePicture
-        ? releaseItem.facePicture
-        : "";
-      updateReleasePreview(index, releaseItem, facePicture);
+    Object.keys(releaseGroups).forEach(function (arena) {
+      var releases = Array.isArray(releasesByArena[arena]) ? releasesByArena[arena] : [];
+      releases.forEach(function (releaseItem, index) {
+        var facePicture = releaseItem && releaseItem.facePicture ? releaseItem.facePicture : "";
+        updateReleasePreview(arena, index, releaseItem, facePicture);
+      });
+      getLatestReleaseGroup(arena).faces.forEach(function (_, index) {
+        if (!releases[index]) {
+          updateReleasePreview(arena, index, null, "");
+        }
+      });
     });
   }
 
@@ -3951,6 +4033,20 @@
     latestReleasesForm.addEventListener("submit", function (event) {
       event.preventDefault();
       saveAdminLatestReleases();
+    });
+  }
+
+  if (latestReleasesArenaButtons.comic) {
+    latestReleasesArenaButtons.comic.addEventListener("click", function () {
+      setActiveLatestReleasesArena("comic");
+      loadAdminLatestReleases();
+    });
+  }
+
+  if (latestReleasesArenaButtons.pokemon) {
+    latestReleasesArenaButtons.pokemon.addEventListener("click", function () {
+      setActiveLatestReleasesArena("pokemon");
+      loadAdminLatestReleases();
     });
   }
 
@@ -4856,6 +4952,7 @@
   loadPublicNews();
   loadAdminNewsPosts();
   loadCharacterCatalog();
+  setActiveLatestReleasesArena(activeLatestReleasesArena);
   loadAdminLatestReleases();
   loadMaintenanceMode();
 

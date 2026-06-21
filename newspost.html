@@ -707,6 +707,17 @@
       text-transform: uppercase;
     }
 
+    .latest-releases-arena-switch {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .latest-releases-arena-switch .news-admin-button {
+      min-width: 132px;
+    }
+
     .news-admin-form {
       display: grid;
       gap: 14px;
@@ -1525,8 +1536,12 @@
           </section>
 
           <section class="news-list-card">
-            <h2 class="news-list-title">Latest Character Releases</h2>
+            <h2 class="news-list-title" id="latest-releases-arena-title">Latest Comic Character Releases</h2>
             <p class="news-card-note">Choose which three characters appear in the homepage release strip.</p>
+            <div class="latest-releases-arena-switch" aria-label="Choose release editor arena">
+              <button class="news-admin-button secondary" type="button" id="latest-releases-arena-comic">Comic Arena</button>
+              <button class="news-admin-button secondary" type="button" id="latest-releases-arena-pokemon">Pokemon Arena</button>
+            </div>
             <form class="news-admin-form" id="latest-releases-form">
               <label class="news-admin-label" for="latest-release-1">
                 Release Slot 1
