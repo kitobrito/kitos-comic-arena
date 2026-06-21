@@ -8,6 +8,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const pageName = pagePath.split('/').pop() || 'index.html';
     const isSelectionPage = pageName === 'selection.html' || pageName === 'selection';
     const isIngamePage = pageName === 'ingame.html' || pageName === 'ingame';
+    const defaultArenaModeFromPage =
+        pageName === 'pokemon-charactersandskills.html' || pageName === 'pokemoncharactersandskills.html'
+            ? 'pokemon'
+            : pageName === 'charactersandskills.html'
+                ? 'comic'
+                : '';
     const UI_SETTINGS_STORAGE_KEY = 'comicUiSettings';
     const defaultUiSettings = {
         targetFade: true,
@@ -1176,6 +1182,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             'clanprofile.html': 'Comic Arena > Clan Profile',
             'selection.html': 'Comic Arena > Selection',
             'ingame.html': 'Comic Arena > In Game',
+            'charactersandskills.html': 'Comic Arena > Characters and Skills',
+            'pokemon-charactersandskills.html': 'Pokemon Arena > Characters and Skills',
+            'pokemoncharactersandskills.html': 'Pokemon Arena > Characters and Skills',
         };
         return pageMap[pageName] || `Comic Arena > ${pageName.replace(/\.html$/i, '').replace(/[-_]+/g, ' ')}`;
     };
@@ -9443,9 +9452,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             ? 'pokemon'
             : arenaModeFromUrl === 'comic'
                 ? 'comic'
-                : localStorage.getItem('comicArenaMode') === 'pokemon'
-                    ? 'pokemon'
-                    : 'comic';
+                : defaultArenaModeFromPage || (localStorage.getItem('comicArenaMode') === 'pokemon' ? 'pokemon' : 'comic')
+                ;
     if (arenaModeFromUrl === 'pokemon' || arenaModeFromUrl === 'comic') {
         localStorage.setItem('comicArenaMode', activeArenaMode);
     }

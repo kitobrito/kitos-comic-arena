@@ -526,6 +526,16 @@
     }) || null;
   }
 
+  function findCatalogCharacterById(characterId) {
+    var target = String(characterId || "").trim().toLowerCase();
+    if (!target) {
+      return null;
+    }
+    return characterCatalog.find(function (entry) {
+      return entry && entry.characterId && String(entry.characterId).trim().toLowerCase() === target;
+    }) || null;
+  }
+
   function findCatalogSkillByName(character, skillName) {
     var target = String(skillName || "").trim().toLowerCase();
     if (!character || !Array.isArray(character.skills) || !target) {
@@ -3372,16 +3382,21 @@
     var name = releaseItem && releaseItem.label ? String(releaseItem.label) : "";
     var url = facePicture ? String(facePicture) : "";
     var characterId = releaseItem && releaseItem.characterId ? String(releaseItem.characterId) : "";
+    var character = findCatalogCharacterById(characterId);
+    var rosterPage =
+      character && String(character.arena || "").trim().toLowerCase() === "pokemon"
+        ? "pokemon-charactersandskills.html"
+        : "charactersandskills.html";
     if (label) {
       label.textContent = name || "Latest Character";
     }
     if (link) {
       if (characterId) {
-        link.href = "charactersandskills.html?characterId=" + encodeURIComponent(characterId);
+        link.href = rosterPage + "?characterId=" + encodeURIComponent(characterId);
         link.setAttribute("aria-label", "Open " + (name || "character") + " character page");
         link.title = "Open " + (name || "character") + " character page";
       } else {
-        link.href = "charactersandskills.html";
+        link.href = rosterPage;
         link.removeAttribute("aria-label");
         link.removeAttribute("title");
       }

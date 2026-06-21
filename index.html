@@ -670,8 +670,9 @@
 
     .arena-split-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: minmax(0, 1fr) 88px minmax(0, 1fr);
       gap: 14px;
+      align-items: stretch;
     }
 
     .arena-split-card {
@@ -768,6 +769,44 @@
     .arena-split-card.pokemon .arena-split-link {
       background: #101318;
       color: #fff;
+    }
+
+    .arena-vs-divider {
+      display: grid;
+      place-items: center;
+      align-self: stretch;
+      border: 4px solid var(--line);
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.45), transparent 30%),
+        linear-gradient(180deg, #ffdf3f 0%, #f04b23 100%);
+      box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.95);
+      color: #fff;
+      font-family: "Bangers", cursive;
+      font-size: 50px;
+      letter-spacing: 0.08em;
+      text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.9);
+      transform: rotate(-2deg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .arena-vs-divider::before,
+    .arena-vs-divider::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 16px;
+      background: rgba(255, 255, 255, 0.22);
+      transform: skewX(-18deg);
+    }
+
+    .arena-vs-divider::before {
+      left: -6px;
+    }
+
+    .arena-vs-divider::after {
+      right: -6px;
     }
 
     .feature-grid {
@@ -1405,6 +1444,11 @@
         grid-template-columns: 1fr;
       }
 
+      .arena-vs-divider {
+        min-height: 88px;
+        transform: rotate(0deg);
+      }
+
       .hero-points {
         grid-template-columns: 1fr;
       }
@@ -1468,6 +1512,10 @@
         transform: rotate(0deg);
       }
 
+      .arena-split-grid {
+        gap: 12px;
+      }
+
       .hero-title {
         font-size: 2.8rem;
       }
@@ -1529,7 +1577,11 @@
           </a>
           <a class="nav-link" href="charactersandskills.html">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h16" /><path d="M7.5 4v16" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg>
-            <span>Characters and Skills</span>
+            <span>Comic Characters</span>
+          </a>
+          <a class="nav-link" href="pokemon-charactersandskills.html">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" /><path d="M4 12h16" /><circle cx="12" cy="12" r="2.2" /></svg>
+            <span>Pokemon Characters</span>
           </a>
         </nav>
       </section>
@@ -1615,7 +1667,8 @@
           <div class="hero-actions">
             <button class="play-now" type="button" id="play-now-button">Play Now</button>
             <a class="hero-link is-accent" href="missions.html">Explore Missions</a>
-            <a class="hero-link" href="charactersandskills.html">Browse Characters</a>
+            <a class="hero-link" href="charactersandskills.html">Comic Characters</a>
+            <a class="hero-link" href="pokemon-charactersandskills.html">Pokemon Characters</a>
             <a class="hero-link" href="community.html">Meet The Community</a>
             <a class="hero-link is-discord" href="https://discord.gg/dabZKRDkf7" target="_blank" rel="noopener noreferrer">
               <img class="hero-link-icon" src="assets/images/discordlogo.png" alt="" aria-hidden="true">
@@ -1666,8 +1719,8 @@
       <section class="arena-split">
         <div class="section-heading">
           <div>
-            <h2 class="release-title">Two Arenas, One Site</h2>
-            <p class="release-copy">Use the same home base, then jump into the comic roster or the Pokemon roster with one click.</p>
+            <h2 class="release-title">Comic Arena vs Pokemon Arena</h2>
+            <p class="release-copy">Choose your side and jump straight into the roster that fits the battle you want to play.</p>
           </div>
         </div>
         <div class="arena-split-grid">
@@ -1675,13 +1728,14 @@
             <span class="arena-split-badge">Original roster</span>
             <h2 class="arena-split-title">Comic Arena</h2>
             <p class="arena-split-copy">The home lineup of heroes, villains, and all the weird little matchup puzzles that built the game.</p>
-            <a class="arena-split-link" href="selection.html?arena=comic">Enter Comic Arena</a>
+            <a class="arena-split-link" href="charactersandskills.html">Open Comic Roster</a>
           </article>
+          <div class="arena-vs-divider" aria-hidden="true">VS</div>
           <article class="arena-split-card pokemon" data-arena="Pokemon Arena">
             <span class="arena-split-badge">New roster lane</span>
             <h2 class="arena-split-title">Pokemon Arena</h2>
             <p class="arena-split-copy">A separate battle lane with its own team flow, roster logic, and character kits.</p>
-            <a class="arena-split-link" href="selection.html?arena=pokemon">Enter Pokemon Arena</a>
+            <a class="arena-split-link" href="pokemon-charactersandskills.html">Open Pokemon Roster</a>
           </article>
         </div>
       </section>
@@ -1716,7 +1770,7 @@
           <div class="feature-kicker">Mode 02</div>
           <h2 class="feature-title">Roster Intel</h2>
           <p class="feature-copy">Check kits, identities, and skill pressure before you commit to a composition.</p>
-          <a class="feature-link" href="charactersandskills.html">Study the characters</a>
+          <a class="feature-link" href="charactersandskills.html">Study the comic roster</a>
         </article>
         <article class="feature-card">
           <div class="feature-kicker">Mode 03</div>
