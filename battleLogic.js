@@ -541,6 +541,9 @@ const isUnitInvulnerableForSkill = (unit, skillClasses = []) => {
         const metadata = status?.metadata || {};
         if (metadata.invulnerable) return true;
         if (metadata.invulnerableToNonAffliction && !afflictionSkill) return true;
+        if (metadata.invulnerableToNonMentalSkills && hasSkillClass(skillClasses, 'mental') === false) {
+            return true;
+        }
         if (
             Array.isArray(metadata.invulnerableToSkillClasses) &&
             metadata.invulnerableToSkillClasses.some((entry) => hasSkillClass(skillClasses, entry))
@@ -5406,6 +5409,19 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             }
         );
         const canReflectByPersonalStatus = Boolean(personalReflectStatus);
+        const ownerReflectStatus = (Array.isArray(actorState.statuses) ? actorState.statuses : []).find(
+            (status) => {
+                const remaining = Number(status?.remainingTurns) || 0;
+                if (remaining <= 0) return false;
+                if (!Boolean(status?.metadata?.reflectNextOwnerUseSkill)) return false;
+                return skillMatchesReflectRule({
+                    statusMetadata: status?.metadata || {},
+                    skillClasses: skill.classes || [],
+                    skillIsHarmful,
+                });
+            }
+        );
+        const canReflectByOwnerStatus = Boolean(ownerReflectStatus);
         const enemyTargetUsernames = new Set(
             selectedTargets
                 .filter((entry) => entry?.username && entry.username !== actingUsername)
@@ -5439,6 +5455,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         const skillCannotBeReflected =
             Boolean(skill?.cannotBeReflected) || hasSkillClass(skill?.classes || [], 'unreflectable');
         const shouldReflectTargetsByPersonalStatus = !skillCannotBeReflected && canReflectByPersonalStatus;
+        const shouldReflectTargetsByOwnerStatus = !skillCannotBeReflected && canReflectByOwnerStatus;
         const shouldReflectTargetsByMentalGuard = !skillCannotBeReflected && Boolean(mentalGuardReflectHolder);
         const targetReflectStatusByKey = new Map();
         const getTargetReflectStatus = (recipient) => {
@@ -5465,6 +5482,9 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         if (shouldReflectTargetsByPersonalStatus && personalReflectStatus?.id) {
             consumeStatus(actorState, personalReflectStatus.id);
         }
+        if (shouldReflectTargetsByOwnerStatus && ownerReflectStatus?.id) {
+            consumeStatus(actorState, ownerReflectStatus.id);
+        }
         if (
             shouldReflectTargetsByMentalGuard &&
             mentalGuardReflectHolder?.state &&
@@ -5478,6 +5498,9 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             (Array.isArray(recipients) ? recipients : []).map((recipient) => {
                 if (!recipient?.unit || recipient.unit.alive === false) return recipient;
                 if (recipient.username === actingUsername) return recipient;
+                if (shouldReflectTargetsByOwnerStatus) {
+                    return { username: actingUsername, slot: actorSlot, unit: actorUnit };
+                }
                 const targetReflectStatus = getTargetReflectStatus(recipient);
                 if (targetReflectStatus?.id) {
                     const targetState = ensureUnitStateShape(recipient.unit);

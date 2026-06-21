@@ -74,7 +74,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/XxNKoKu.png",
                 "skilldescription": "For 1 turn, Iron Man's Repulsor Blast and Proton Cannon is improved and gains a new effect.",
                 "energy": [
-                    "Ninjutsu"
+                    "Genjutsu"
                 ],
                 "target": "self-or-single-ally",
                 "damage": 0,
@@ -12217,7 +12217,11 @@ const characters = [
                 "skilldescription": "Saint Walker grants his entire team 1 permanent destructible defense every turn. Also increases the damage of all 'Passive: Green Lantern Ring' by 1 each turn while he is alive.",
                 "description": "Saint Walker grants his entire team 1 permanent destructible defense every turn. Also increases the damage of all 'Passive: Green Lantern Ring' by 1 each turn while he is alive.",
                 "descriptionHtml": "Saint Walker grants his entire team 1 permanent destructible defense every turn.<br>Also increases the damage of all 'Passive: Green Lantern Ring' by 1 each turn while he is alive.",
-                "energy": [],
+                "energy": [
+                    "Bloodline",
+                    "Ninjutsu",
+                    "Genjutsu"
+                ],
                 "target": "",
                 "damage": 0,
                 "cooldown": 0,
@@ -17144,7 +17148,7 @@ const characters = [
         "id": "charmander",
         "characterId": "charmander",
         "name": "Charmander",
-        "facePicture": "assets/images/PokemonArena/Charmander/charmanderfp.jpg",
+        "facePicture": "assets/images/PokemonArena/newcharmanderfp.jpeg",
         "startStatuses": [
             {
                 "statusId": "charmander_evolution_tracker",
@@ -17638,7 +17642,7 @@ const characters = [
         "id": "squirtle",
         "characterId": "squirtle",
         "name": "Squirtle",
-        "facePicture": "assets/images/PokemonArena/squirtle/squirtlefp.jpg",
+        "facePicture": "assets/images/PokemonArena/newsquirtlefp.jpeg",
         "startStatuses": [
             {
                 "statusId": "squirtle_evolution_tracker",
@@ -18639,7 +18643,7 @@ const characters = [
         "id": "pikachu",
         "characterId": "pikachu",
         "name": "Pikachu",
-        "facePicture": "assets/images/PokemonArena/Pikachu/pikachufp.jpeg",
+        "facePicture": "assets/images/PokemonArena/newpikachufp.jpeg",
         "startStatuses": [
             {
                 "statusId": "pikachu_static_passive",
@@ -18945,7 +18949,7 @@ const characters = [
                 "id": "butterfree-confusion",
                 "name": "Confusion",
                 "skillimage": "assets/images/PokemonArena/butterfree/confusion.webp",
-                "skilldescription": "Butterfree deals 25 damage to one enemy. This skill has a 25% chance to reflect the next harmful skill used on that enemy back onto its user for 1 turn. For 1 turn, Psybeam deals 5 additional damage.",
+                "skilldescription": "Butterfree deals 25 damage to one enemy. This skill has a 25% chance to reflect the next harmful skill used by that enemy back onto its user for 1 turn. For 1 turn, Psybeam deals 5 additional damage.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -18976,11 +18980,11 @@ const characters = [
                         "chance": 25,
                         "metadata": {
                             "harmful": true,
-                            "reflectNextIncomingSkill": true,
+                            "reflectNextOwnerUseSkill": true,
                             "reflectOnlyHarmfulSkills": true,
                             "reflectBackToCaster": true,
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "The next harmful skill used on this character is reflected back to the user."
+                            "tooltipText": "The next harmful skill used by this character is reflected back to the user."
                         }
                     },
                     {
@@ -19108,9 +19112,9 @@ const characters = [
                 "id": "butterfree-whirlwind",
                 "name": "Whirlwind",
                 "skillimage": "assets/images/PokemonArena/butterfree/whirlwind.webp",
-                "skilldescription": "For 1 turn, all enemy non-mental skills are stunned.",
+                "skilldescription": "For 1 turn, your team is invulnerable to non-mental skills.",
                 "energy": [
-                    "Random"
+                    "Genjutsu"
                 ],
                 "target": "all-allies",
                 "damage": 0,
@@ -19124,11 +19128,11 @@ const characters = [
                         "type": "apply_status",
                         "statusId": "butterfree_whirlwind_cover",
                         "duration": 1,
-                        "scope": "all-enemy",
+                        "scope": "all-allies",
                         "metadata": {
-                            "cannotUseNonMentalSkills": true,
+                            "invulnerableToNonMentalSkills": true,
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character's non-mental skills are stunned."
+                            "tooltipText": "This character is invulnerable to non-mental skills."
                         }
                     }
                 ]
@@ -19136,7 +19140,6 @@ const characters = [
             {
                 "id": "butterfree-sleep-powder",
                 "name": "Sleep Powder",
-                "hiddenFromSelectionViewer": true,
                 "skillimage": "assets/images/PokemonArena/butterfree/sleeppowder.webp",
                 "skilldescription": "For 2 turns, one enemy is stunned. Any new damage will cancel this effect. This swaps to Stun Spore after being used.",
                 "energy": [

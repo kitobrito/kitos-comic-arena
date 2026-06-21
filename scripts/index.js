@@ -3451,10 +3451,9 @@
     var url = facePicture ? String(facePicture) : "";
     var characterId = releaseItem && releaseItem.characterId ? String(releaseItem.characterId) : "";
     var character = findCatalogCharacterById(characterId);
-    var rosterPage =
-      character && getCatalogCharacterArena(character) === "pokemon"
-        ? "pokemon-charactersandskills.html"
-        : "charactersandskills.html";
+    var rosterPage = arena === "pokemon"
+      ? "pokemon-charactersandskills.html"
+      : "charactersandskills.html";
     if (label) {
       label.textContent = name || "Latest Character";
     }
