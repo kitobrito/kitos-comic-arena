@@ -4476,6 +4476,9 @@ const CANONICAL_CHARACTER_ASSET_PATCHES = new Map([
             ]),
         },
     ],
+    ['charmander', { facePicture: 'assets/images/PokemonArena/newcharmanderfp.jpeg' }],
+    ['squirtle', { facePicture: 'assets/images/PokemonArena/newsquirtlefp.jpeg' }],
+    ['pikachu', { facePicture: 'assets/images/PokemonArena/newpikachufp.jpeg' }],
 ]);
 
 const applyCanonicalCharacterAssetPaths = (nextCharacters = []) =>
