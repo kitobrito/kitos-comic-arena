@@ -59,33 +59,45 @@ const newsPost = {
             type: 'paragraph',
             text: 'On top of the character work, Pokemon Arena is now part of the game too, with its own arena flow, selection screens, and battle presentation.',
         },
+        {
+            type: 'paragraph',
+            text: 'Below is a full skill-by-skill rundown for both new characters, including the improved forms Strange can unlock once the Book of the Vishanti starts mutating his kit.',
+        },
     ],
     paragraphs: [
         'Comic Arena Update V.3.1.3 adds Poison Ivy to the roster with her plant-heavy control kit, her new mission art, and the kind of battlefield pressure that keeps teams rooted in place.',
         'Doctor Strange has also been rebuilt from the ground up around the new redesign template, with a fresh mystic kit that leans on Arcane Energy, Zom, and a more aggressive spell loop.',
         'On top of the character work, Pokemon Arena is now part of the game too, with its own arena flow, selection screens, and battle presentation.',
+        'Below is a full skill-by-skill rundown for both new characters, including the improved forms Strange can unlock once the Book of the Vishanti starts mutating his kit.',
     ],
     changes: [
         skillShowcase(
             'poison-ivy',
             'poison-ivy-vine-forest-growth',
-            'Vine Forest Growth now opens Ivy\'s control loop, granting destructible defense to her team, dealing damage over time to enemies, and swapping her other plant skills into stronger forms.'
+            'Vine Forest Growth is Ivy\'s setup turn: she gives her team 5 destructible defense for 3 turns, starts chipping the enemy team for 5 damage per turn, and swaps her other plant skills into stronger versions while it is active.'
         ),
         skillShowcase(
             'poison-ivy',
             'poison-ivy-carnivorous-plant',
-            'Carnivorous Plant now steals energy while Vine Forest Growth is active, turning Ivy into a nasty control and resource-drain threat.'
+            'Carnivorous Plant hits one enemy for 35 damage and removes 1 non-blue energy from them. While Vine Forest Growth is active, it steals 1 random energy instead, turning it into a stronger drain tool.'
         ),
-        skillShowcase(
-            'doctor-strange',
-            'doctor-strange-eldritch-manifestation',
-            'Eldritch Manifestation now scales off the damage the target dealt this turn, stuns them, and sets Doctor Strange up for the Book of the Vishanti.'
-        ),
-        skillShowcase(
-            'doctor-strange',
-            'doctor-strange-channel-zom',
-            'Book of the Vishanti now builds toward Astral Form and eventually swaps into Zom\'s Wrath after enough uses.'
-        ),
+        skillShowcase('poison-ivy', 'poison-ivy-lashing-thorns', 'Lashing Thorns burns the whole enemy team for 5 affliction damage each turn for 2 turns, and if Vine Forest Growth is active the effect stays up until Ivy dies.'),
+        skillShowcase('poison-ivy', 'poison-ivy-vine-entanglement', 'Vine Entanglement deals 20 damage to one enemy and stuns their harmful skills for 1 turn. When Vine Forest Growth is active, it upgrades into the all-enemy version and costs an extra random energy.'),
+        skillShowcase('poison-ivy', 'poison-ivy-vine-entanglement-all', 'Vine Entanglement can also hit every enemy at once while Vine Forest Growth is active, keeping the 20 damage and harmful-skill stun on the whole enemy team.'),
+        skillShowcase('poison-ivy', 'poison-ivy-plant-doubles', 'Plant Doubles gives Ivy\'s whole team 15% unpierceable damage reduction for 3 turns, adds 5 more destructible defense from defense effects, and shuts off enemy energy drain and removal tricks.'),
+        skillShowcase('poison-ivy', 'poison-ivy-grasping-vines', 'Grasping Vines is the Vine Forest Growth upgrade to Lashing Thorns: it deals 5 piercing damage to the enemy team for 3 turns and punishes enemies that do not answer with a new skill by stunning their non-affliction skills for 1 turn.'),
+        skillShowcase('poison-ivy', 'poison-ivy-carnivorous-plant-steal', 'Carnivorous Plant\'s Vine Forest Growth version keeps the 35 damage but always steals 1 random energy, letting Ivy squeeze the enemy team harder while her forest is active.'),
+        skillShowcase('poison-ivy', 'poison-ivy-branch-entanglement', 'Branch Entanglement is the hidden follow-up after Carnivorous Plant: it deals 20 damage, stuns harmful skills for 1 turn, and then swaps back into Vine Entanglement.'),
+        skillShowcase('poison-ivy', 'poison-ivy-passive-healing-fruit', 'Passive: Healing Fruit gives Ivy 1 stack every time she uses a skill. At 3 stacks, she heals 30% of her missing HP and gains the same amount as destructible defense for 1 turn.'),
+        skillShowcase('doctor-strange', 'doctor-strange-eldritch-manifestation', 'Eldritch Manifestation deals 20 piercing damage to one enemy, then adds up to 15 more piercing damage based on how much damage they dealt this turn. If they are marked, it adds another 10 piercing damage, stuns them for 1 turn, and readies the Book of the Vishanti.'),
+        skillShowcase('doctor-strange', 'doctor-strange-shield-of-the-seraphim', 'Spell of the Seraphim protects allies by giving them 15 destructible defense and making their first damage turn into healing, while enemy targets lose helpful effects, get stunned for 1 turn, and receive Doctor Strange\'s mark.'),
+        skillShowcase('doctor-strange', 'doctor-strange-bolts-of-balthakk', 'Flames of the Faltine burns all enemies for 2 turns, dealing 15 affliction damage at the start of each turn and also applying Doctor Strange\'s mark so the rest of his kit can push harder.'),
+        skillShowcase('doctor-strange', 'doctor-strange-channel-zom', 'Book of the Vishanti is Strange\'s setup button: after another skill, it empowers his next skill for 2 turns, and after the third use it permanently transforms into Astral Form.'),
+        skillShowcase('doctor-strange', 'doctor-strange-zoms-wrath', 'Astral Form lasts 3 turns, blocks harmful and helpful non-damage effects on Strange, and randomly upgrades one of his other skills at the start of each turn while locking that skill for the turn.'),
+        skillShowcase('doctor-strange', 'doctor-strange-eldritch-manifestation-improved', 'Improved Eldritch Manifestation reflects the first harmful skill the target tries to use, hitting them back for 35 damage instead.'),
+        skillShowcase('doctor-strange', 'doctor-strange-shield-of-the-seraphim-improved', 'Improved Spell of the Seraphim keeps the ally shield, healing conversion, and defense, but enemy targets are stunned for 1 turn and marked as well.'),
+        skillShowcase('doctor-strange', 'doctor-strange-bolts-of-balthakk-improved', 'Improved Flames of the Faltine splits 60 affliction damage evenly across all enemies, making the burn much more explosive when Strange is in Astral Form.'),
+        skillShowcase('doctor-strange', 'doctor-strange-passive-vishanti-ready', 'Passive: Prepared for the Vishanti makes Doctor Strange ready to use the Book of the Vishanti whenever he uses one of his non-Book skills.'),
     ],
     author: 'kito',
     createdAt: now,
