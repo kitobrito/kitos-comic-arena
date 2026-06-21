@@ -3486,7 +3486,7 @@ const characters = [
                 "skillimage": "assets/images/vineforestgrowth.webp",
                 "skilldescription": "For 3 turns, Ivy's team gains 5 points of destructible defense and the enemy team takes 5 damage per turn. While this is active, Ivy's skills are improved and this swaps to 'Grasping Vines'.",
                 "energy": [
-                    "Genjutsu"
+                    "Taijutsu"
                 ],
                 "target": "self",
                 "damage": 0,
@@ -3554,7 +3554,7 @@ const characters = [
                 "skillimage": "assets/images/lashingthorns.webp",
                 "skilldescription": "Ivy deals 5 affliction damage to the enemy team for 2 turns. If Vine Forest Growth is active, this lasts until Ivy dies. This skill stacks.",
                 "energy": [
-                    "Genjutsu"
+                    "Random"
                 ],
                 "target": "all-enemy",
                 "damage": 0,
@@ -3632,7 +3632,7 @@ const characters = [
                 "skillimage": "assets/images/vineentanglement.webp",
                 "skilldescription": "One enemy has their harmful skills stunned for 1 turn and takes 20 damage. This swaps to 'Carnivorous Plant' until it is used. If Vine Forest Growth is active, this costs 1 additional random energy and targets all enemies.",
                 "energy": [
-                    "Genjutsu"
+                    "Taijutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -3735,7 +3735,7 @@ const characters = [
                 "skilldescription": "For 3 turns, Ivy's team gains 15% unpierceable damage reduction, ignores enemy energy removal and drain effects, and receives 5 additional destructible defense from destructible defense effects.",
                 "energy": [
                     "Bloodline",
-                    "Taijutsu"
+                    "Genjutsu"
                 ],
                 "target": "all-allies",
                 "damage": 0,
@@ -3774,7 +3774,7 @@ const characters = [
                 "skillimage": "assets/images/graspingvines.webp",
                 "skilldescription": "Deals 5 piercing damage to the enemy team for 3 turns. For 1 turn, if they do not use a new skill they have their non-affliction skills stunned for 1 turn. This skill stacks.",
                 "energy": [
-                    "Taijutsu"
+                    "Genjutsu"
                 ],
                 "target": "all-enemy",
                 "damage": 0,
@@ -3827,8 +3827,8 @@ const characters = [
                 "skillimage": "assets/images/carniverousplant.webp",
                 "skilldescription": "Deals 35 damage to one enemy and removes one non-blue energy from them. Swaps to 'Branch Entanglement'. If Vine Forest Growth is active, this will steal energy instead.",
                 "energy": [
-                    "Bloodline",
-                    "Genjutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -3889,8 +3889,8 @@ const characters = [
                 "skillimage": "assets/images/carniverousplant.webp",
                 "skilldescription": "Deals 35 damage to one enemy and removes one non-blue energy from them. Swaps to 'Branch Entanglement'. If Vine Forest Growth is active, this will steal energy instead.",
                 "energy": [
-                    "Bloodline",
-                    "Genjutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -13818,7 +13818,7 @@ const characters = [
                 "skillimage": "assets/images/eldritchcataclysm.webp",
                 "skilldescription": "One enemy is blasted by eldritch force, taking 20 piercing damage plus up to 15 more damage equal to damage they dealt this turn. If the target is marked by Doctor Strange, this skill deals 10 additional damage. The target is stunned for 1 turn and Strange is primed for the Book of the Vishanti.",
                 "energy": [
-                    "Genjutsu"
+                    "Ninjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -13894,6 +13894,7 @@ const characters = [
                 "skillimage": "assets/images/shieldofseraphim.webp",
                 "skilldescription": "May be used on an ally or an enemy. Allies gain 15 destructible defense for 1 turn. Enemies lose all helpful effects and are marked for Doctor Strange's other spells.",
                 "energy": [
+                    "Bloodline",
                     "Random"
                 ],
                 "target": "single-enemy-or-ally",
@@ -13983,6 +13984,7 @@ const characters = [
                 "skillimage": "assets/images/boltsofbalthakk.webp",
                 "skilldescription": "Doctor Strange scorches all enemies for 2 turns, dealing 15 affliction damage each turn. When Strange's magic is already on them, the flames become a mark of his power instead.",
                 "energy": [
+                    "Ninjutsu",
                     "Ninjutsu"
                 ],
                 "target": "all-enemy",
@@ -14096,7 +14098,11 @@ const characters = [
                 "hiddenFromSelectionViewer": true,
                 "skillimage": "assets/images/zomswrath.jpg",
                 "skilldescription": "For 3 turns, Doctor Strange ignores harmful and helpful effects except damage. At the start of each turn, one of his other skills is randomly replaced with an improved version and that skill is blocked for the turn.",
-                "energy": [],
+                "energy": [
+                    "Bloodline",
+                    "Ninjutsu",
+                    "Genjutsu"
+                ],
                 "target": "self",
                 "damage": 0,
                 "cooldown": 0,
@@ -14151,7 +14157,7 @@ const characters = [
                 "skillimage": "assets/images/eldritchcataclysm.webp",
                 "skilldescription": "Improved: the target is cursed to take 35 damage the first time they use a harmful skill.",
                 "energy": [
-                    "Genjutsu"
+                    "Ninjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -14199,6 +14205,7 @@ const characters = [
                 "skillimage": "assets/images/shieldofseraphim.webp",
                 "skilldescription": "Improved: allies gain 15 destructible defense and the first damage they take becomes healing instead. Enemies lose all helpful effects and are stunned for 1 turn.",
                 "energy": [
+                    "Bloodline",
                     "Random"
                 ],
                 "target": "single-enemy-or-ally",
@@ -14307,6 +14314,7 @@ const characters = [
                 "skillimage": "assets/images/boltsofbalthakk.webp",
                 "skilldescription": "Improved: Strange splits 60 affliction damage equally between all enemies.",
                 "energy": [
+                    "Ninjutsu",
                     "Ninjutsu"
                 ],
                 "target": "all-enemy",
