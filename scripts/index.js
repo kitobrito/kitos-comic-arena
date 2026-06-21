@@ -7,7 +7,7 @@
   var authTitle = document.getElementById("auth-title");
   var authDescription = document.getElementById("auth-description");
   var authStatus = document.getElementById("auth-status");
-  var playNowButton = document.getElementById("play-now-button");
+  var playArenaButtons = document.querySelectorAll("[data-play-arena]");
   var authForm = document.getElementById("auth-form");
   var authSubmit = document.getElementById("auth-submit");
   var authToggle = document.getElementById("auth-toggle");
@@ -4812,35 +4812,38 @@
     });
   }
 
-  if (playNowButton) {
-    playNowButton.addEventListener("click", function () {
-      var destination = accountPanel.hidden ? "selection-login.html" : "selection.html";
-      var targetInnerWidth = 760;
-      var targetInnerHeight = 580;
-      var chromeWidth = Math.max(0, window.outerWidth - window.innerWidth);
-      var chromeHeight = Math.max(0, window.outerHeight - window.innerHeight);
-      var popupWidth = targetInnerWidth + chromeWidth;
-      var popupHeight = targetInnerHeight + chromeHeight;
-      var left = Math.max(0, Math.round((window.screen.width - popupWidth) / 2));
-      var top = Math.max(0, Math.round((window.screen.height - popupHeight) / 2));
-      var features = [
-        "width=" + popupWidth,
-        "height=" + popupHeight,
-        "left=" + left,
-        "top=" + top,
-        "resizable=yes",
-        "scrollbars=yes"
-      ].join(",");
-      var popup = window.open(destination, "comicArenaPlayNow", features);
-      if (popup) {
-        try {
-          popup.resizeTo(popupWidth, popupHeight);
-          popup.moveTo(left, top);
-        } catch (error) {}
-        popup.focus();
-        return;
-      }
-      window.location.href = destination;
+  if (playArenaButtons && playArenaButtons.length) {
+    playArenaButtons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        var arena = button.getAttribute("data-play-arena") === "pokemon" ? "pokemon" : "comic";
+        var destination = (accountPanel.hidden ? "selection-login.html" : "selection.html") + "?arena=" + encodeURIComponent(arena);
+        var targetInnerWidth = 760;
+        var targetInnerHeight = 580;
+        var chromeWidth = Math.max(0, window.outerWidth - window.innerWidth);
+        var chromeHeight = Math.max(0, window.outerHeight - window.innerHeight);
+        var popupWidth = targetInnerWidth + chromeWidth;
+        var popupHeight = targetInnerHeight + chromeHeight;
+        var left = Math.max(0, Math.round((window.screen.width - popupWidth) / 2));
+        var top = Math.max(0, Math.round((window.screen.height - popupHeight) / 2));
+        var features = [
+          "width=" + popupWidth,
+          "height=" + popupHeight,
+          "left=" + left,
+          "top=" + top,
+          "resizable=yes",
+          "scrollbars=yes"
+        ].join(",");
+        var popup = window.open(destination, "comicArenaPlayNow", features);
+        if (popup) {
+          try {
+            popup.resizeTo(popupWidth, popupHeight);
+            popup.moveTo(left, top);
+          } catch (error) {}
+          popup.focus();
+          return;
+        }
+        window.location.href = destination;
+      });
     });
   }
 
