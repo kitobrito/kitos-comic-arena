@@ -8,8 +8,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const pageName = pagePath.split('/').pop() || 'index.html';
     const isSelectionPage = pageName === 'selection.html' || pageName === 'selection';
     const isIngamePage = pageName === 'ingame.html' || pageName === 'ingame';
+    const pageArenaMode =
+        document.body && document.body.dataset && typeof document.body.dataset.pageArena === 'string'
+            ? document.body.dataset.pageArena.trim().toLowerCase()
+            : '';
     const defaultArenaModeFromPage =
-        pageName === 'pokemon-charactersandskills.html' || pageName === 'pokemoncharactersandskills.html'
+        pageArenaMode === 'pokemon' || pageArenaMode === 'comic'
+            ? pageArenaMode
+            : pageName === 'pokemon-charactersandskills.html' || pageName === 'pokemoncharactersandskills.html'
             ? 'pokemon'
             : pageName === 'charactersandskills.html'
                 ? 'comic'
@@ -733,7 +739,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     battleBotEnabled: true,
                 },
             }));
-            window.location.href = 'selection.html';
+            const selectionReturnArena = pageSearchParams.get('arena') || activeArenaMode || 'comic';
+            window.location.href = `selection.html?arena=${encodeURIComponent(selectionReturnArena)}`;
         } catch (error) {
             console.error('Login failed:', error);
             setLoginStatus(error.message || 'Login failed. Please try again.', 'error');
@@ -9373,7 +9380,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             } catch (error) {
                 console.warn('Failed to surrender.', error);
-                window.location.href = 'selection.html';
+                window.location.href = `selection.html?arena=${encodeURIComponent(currentMatchArena)}`;
             }
         };
 
@@ -9386,7 +9393,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         if (battleEndContinueButton) {
             battleEndContinueButton.addEventListener('click', () => {
-                window.location.href = 'selection.html';
+                window.location.href = `selection.html?arena=${encodeURIComponent(currentMatchArena)}`;
             });
         }
 
@@ -9716,7 +9723,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.warn('Logout request failed; proceeding to clear session locally.', error);
         } finally {
             localStorage.removeItem('comicUser');
-            window.location.href = 'selection-login.html';
+            window.location.href = `selection-login.html?arena=${encodeURIComponent(currentMatchArena)}`;
         }
     };
 
