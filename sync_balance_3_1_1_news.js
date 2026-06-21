@@ -152,7 +152,7 @@ const mergeByMissionId = (currentMissions = []) => {
 };
 
 const paragraphs = [
-    'Comic Arena Balance v 3.1.1 expands the Star Wars roster with three new characters: Grand Master Yoda, Darth Sidious, and General Grievous.',
+    'Comic Arena Update V.3.1.1 expands the Star Wars roster with three new characters: Grand Master Yoda, Darth Sidious, and General Grievous.',
     'Yoda brings Harmony-based support, Sidious spreads Corruption before cashing it out with Crimson Force Lightning, and Grievous builds Collected Lightsabers to overwhelm marked prey.',
     'This update focuses on complete new-character kits, including all passives, costs, cooldowns, and in-battle effects for the new Star Wars releases.',
     'Follow-up polish adds character-specific visuals: Sidious now fires blue Force Lightning and red Crimson Force Lightning, while Yoda and Grievous can finish enemies with sabered killing-blow portrait animations.',
@@ -239,7 +239,7 @@ const changes = [
 ];
 
 const newsPost = {
-    title: 'comic arena balance v 3.1.1',
+    title: 'Comic Arena Update V.3.1.1',
     blocks: paragraphs.map((text) => ({ type: 'paragraph', text })),
     paragraphs,
     changes,
@@ -333,7 +333,7 @@ async function syncBalance311News() {
             { upsert: true }
         );
 
-        console.log('Synced Comic Arena Balance v 3.1.1 news, latest releases, character overrides, and missions.');
+        console.log('Synced Comic Arena Update V.3.1.1 news, latest releases, character overrides, and missions.');
     } finally {
         await client.close();
     }

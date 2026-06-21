@@ -139,11 +139,11 @@ const starWarsMissions = [
 
 const now = new Date();
 const newsPost = {
-    title: 'Comic-Arena Beta V 1.3',
+    title: 'Comic Arena Update V.3.1.0',
     blocks: [
         {
             type: 'paragraph',
-            text: 'Comic-Arena Beta V 1.3 continues the Star Wars rollout with a balance pass focused on Darth Vader, Ghost Rider, Aquaman, Iron Man, Rex Splode, Superman, and Green Goblin.',
+            text: 'Comic Arena Update V.3.1.0 continues the Star Wars rollout with a balance pass focused on Darth Vader, Ghost Rider, Aquaman, Iron Man, Rex Splode, Superman, and Green Goblin.',
         },
         {
             type: 'paragraph',
@@ -159,7 +159,7 @@ const newsPost = {
         },
     ],
     paragraphs: [
-        'Comic-Arena Beta V 1.3 continues the Star Wars rollout with a balance pass focused on Darth Vader, Ghost Rider, Aquaman, Iron Man, Rex Splode, Superman, and Green Goblin.',
+        'Comic Arena Update V.3.1.0 continues the Star Wars rollout with a balance pass focused on Darth Vader, Ghost Rider, Aquaman, Iron Man, Rex Splode, Superman, and Green Goblin.',
         'Darth Vader now hits harder with Saber Strike-Down, Force Choke sets up a cheaper follow-up, and Ghost Rider\'s Penance Stare now uses a true silence effect instead of locking out harmful skills entirely.',
         'Aquaman\'s Tidal Wave has been rebuilt into a 2-turn pressure tool, Rex Splode\'s baton now splashes two different extra enemies, and Iron Man\'s Armor Upgrade is now a permanent self-upgrade that immediately Overcharges him.',
         'This pass also trims Superman\'s passive durability, raises Green Goblin\'s Mad Bomber proc rate, and updates Rick Grimes with a cheaper revolver and a new execute-focused Throat Slit.',
@@ -283,7 +283,7 @@ async function syncBeta13News() {
             { upsert: true }
         );
 
-        console.log('Synced Beta V 1.3 news, Star Wars releases, overrides, and missions.');
+        console.log('Synced Comic Arena Update V.3.1.0 news, Star Wars releases, overrides, and missions.');
     } finally {
         await client.close();
     }
