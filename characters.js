@@ -3430,6 +3430,574 @@ const characters = [
         "roleCategory": "controller",
         "universe": "dc"
     },
+    {
+        "id": "poison-ivy",
+        "characterId": "poison-ivy",
+        "name": "Poison Ivy",
+        "facePicture": "assets/images/poisonivyfp.webp",
+        "characterdeescription": "Poison Ivy bends plant life, toxins, and living growth to control the battlefield, choking enemies while keeping her own side rooted in place.",
+        "description": "Poison Ivy bends plant life, toxins, and living growth to control the battlefield, choking enemies while keeping her own side rooted in place.",
+        "descriptionHtml": "Poison Ivy bends plant life, toxins, and living growth to control the battlefield, choking enemies while keeping her own side rooted in place.",
+        "startStatuses": [
+            {
+                "statusId": "poison_ivy_healing_fruit_tracker",
+                "duration": 99,
+                "sourceSkillId": "poison-ivy-passive-healing-fruit",
+                "metadata": {
+                    "infiniteDuration": true,
+                    "onOwnerUseSkillTrigger": true,
+                    "onOwnerUseSkillApplyStatusToOwner": {
+                        "statusId": "poison_ivy_healing_fruit_stacks",
+                        "duration": 99,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "stackMetadataKey": "poisonIvyHealingFruitStacks",
+                            "stackDelta": 1,
+                            "stackMax": 3,
+                            "applyStatusAtStack": {
+                                "metadataKey": "poisonIvyHealingFruitStacks",
+                                "value": 3,
+                                "statusId": "poison_ivy_healing_fruit_bloom",
+                                "duration": 1,
+                                "sourceSkillId": "poison-ivy-passive-healing-fruit",
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "removeStatusIdsOnApply": [
+                                        "poison_ivy_healing_fruit_stacks"
+                                    ],
+                                    "destructibleDefensePoints": 30,
+                                    "turnStartHealSourceAmount": 30,
+                                    "statusIconUrl": "assets/images/passivehealingfruit.webp",
+                                    "tooltipText": "Healing Fruit is ripe. Poison Ivy heals 30 HP and gains 30 destructible defense for 1 turn."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/passivehealingfruit.webp",
+                            "tooltipTextTemplate": "Poison Ivy has {poisonIvyHealingFruitStacks} Healing Fruit stack(s). At 3 stacks, she heals 30 HP and gains 30 destructible defense for 1 turn."
+                        }
+                    },
+                    "tooltipText": "Every time Poison Ivy uses a skill, she gains 1 Healing Fruit stack. At 3 stacks, all stacks are consumed and Poison Ivy heals."
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "poison-ivy-vine-forest-growth",
+                "name": "Vine Forest Growth",
+                "skillimage": "assets/images/vineforestgrowth.webp",
+                "skilldescription": "For 3 turns, Ivy's team gains 5 points of destructible defense and the enemy team takes 5 damage per turn. While this is active, Ivy's skills are improved and this swaps to 'Grasping Vines'.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "poison_ivy_vine_forest_growth_active",
+                        "duration": 3,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": false,
+                            "skillReplacements": {
+                                "poison-ivy-vine-forest-growth": "poison-ivy-grasping-vines",
+                                "poison-ivy-vine-entanglement": "poison-ivy-vine-entanglement-all",
+                                "poison-ivy-carnivorous-plant": "poison-ivy-carnivorous-plant-steal"
+                            },
+                            "turnEndApplyStatusToAllies": [
+                                {
+                                    "statusId": "poison_ivy_vine_forest_growth_defense",
+                                    "duration": 1,
+                                    "metadata": {
+                                        "destructibleDefensePoints": 5,
+                                        "mergeNumericAddKeys": [
+                                            "destructibleDefensePoints"
+                                        ],
+                                        "statusIconUrl": "assets/images/vineforestgrowth.webp",
+                                        "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Vine Forest Growth."
+                                    }
+                                }
+                            ],
+                            "turnEndApplyStatusToEnemies": [
+                                {
+                                    "statusId": "poison_ivy_vine_forest_growth_damage",
+                                    "duration": 3,
+                                    "metadata": {
+                                        "harmful": true,
+                                        "turnEndDamage": 5,
+                                        "afflictionDamage": true,
+                                        "ignoreTargetDamageReduction": true,
+                                        "ignoreTargetDestructibleDefense": true,
+                                        "turnEndTrigger": "source_turn",
+                                        "turnDurationAnchor": "source_turn",
+                                        "triggerOnApply": true,
+                                        "ongoingClass": "action",
+                                        "statusIconUrl": "assets/images/vineforestgrowth.webp",
+                                        "tooltipText": "This character takes 5 affliction damage each turn from Vine Forest Growth."
+                                    }
+                                }
+                            ],
+                            "statusIconUrl": "assets/images/vineforestgrowth.webp",
+                            "tooltipText": "Vine Forest Growth is active. Ivy's skills are improved and become Grasping Vines, Vine Entanglement targets all enemies, and Carnivorous Plant steals energy instead."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "poison-ivy-lashing-thorns",
+                "name": "Lashing Thorns",
+                "skillimage": "assets/images/lashingthorns.webp",
+                "skilldescription": "Ivy deals 5 affliction damage to the enemy team for 2 turns. If Vine Forest Growth is active, this lasts until Ivy dies. This skill stacks.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "poison_ivy_lashing_thorns",
+                        "duration": 2,
+                        "scope": "all-enemy",
+                        "condition": {
+                            "scope": "self",
+                            "missingStatusId": "poison_ivy_vine_forest_growth_active"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "turnEndDamage": 5,
+                            "afflictionDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "triggerOnApply": true,
+                            "ongoingClass": "action",
+                            "stackMetadataKey": "poisonIvyLashingThornsStacks",
+                            "stackDelta": 1,
+                            "stackMax": 99,
+                            "mergeNumericAddKeys": [
+                                "turnEndDamage"
+                            ],
+                            "statusIconUrl": "assets/images/lashingthorns.webp",
+                            "tooltipTextTemplate": "This character takes {turnEndDamage} affliction damage each turn from Lashing Thorns."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "poison_ivy_lashing_thorns",
+                        "duration": 99,
+                        "scope": "all-enemy",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "poison_ivy_vine_forest_growth_active"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "turnEndDamage": 5,
+                            "afflictionDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "triggerOnApply": true,
+                            "ongoingClass": "action",
+                            "stackMetadataKey": "poisonIvyLashingThornsStacks",
+                            "stackDelta": 1,
+                            "stackMax": 99,
+                            "mergeNumericAddKeys": [
+                                "turnEndDamage"
+                            ],
+                            "statusIconUrl": "assets/images/lashingthorns.webp",
+                            "tooltipTextTemplate": "This character takes {turnEndDamage} affliction damage each turn from Lashing Thorns."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "poison-ivy-vine-entanglement",
+                "name": "Vine Entanglement",
+                "skillimage": "assets/images/vineentanglement.webp",
+                "skilldescription": "One enemy has their harmful skills stunned for 1 turn and takes 20 damage. This swaps to 'Carnivorous Plant' until it is used. If Vine Forest Growth is active, this costs 1 additional random energy and targets all enemies.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "poison_ivy_vine_entanglement_harmful_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseHarmfulSkills": true,
+                            "tooltipText": "This character's harmful skills are stunned."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "poison_ivy_vine_entanglement_swap",
+                        "duration": 99,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "skillReplacements": {
+                                "poison-ivy-vine-entanglement": "poison-ivy-carnivorous-plant"
+                            },
+                            "tooltipText": "Vine Entanglement is replaced by Carnivorous Plant until it is used."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "poison-ivy-vine-entanglement-all",
+                "name": "Vine Entanglement",
+                "isHidden": true,
+                "hiddenFromSelectionViewer": true,
+                "actorCondition": {
+                    "statusId": "poison_ivy_vine_forest_growth_active"
+                },
+                "skillimage": "assets/images/vineentanglement.webp",
+                "skilldescription": "One enemy has their harmful skills stunned for 1 turn and takes 20 damage. This swaps to 'Carnivorous Plant' until it is used. If Vine Forest Growth is active, this costs 1 additional random energy and targets all enemies.",
+                "energy": [
+                    "Genjutsu",
+                    "Random"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "all-enemy"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "poison_ivy_vine_entanglement_harmful_stun",
+                        "duration": 1,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseHarmfulSkills": true,
+                            "tooltipText": "This character's harmful skills are stunned."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "poison_ivy_vine_entanglement_swap",
+                        "duration": 99,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "skillReplacements": {
+                                "poison-ivy-vine-entanglement": "poison-ivy-carnivorous-plant"
+                            },
+                            "tooltipText": "Vine Entanglement is replaced by Carnivorous Plant until it is used."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "poison-ivy-plant-doubles",
+                "name": "Plant Doubles",
+                "skillimage": "assets/images/plantdoubles.webp",
+                "skilldescription": "For 3 turns, Ivy's team gains 15% unpierceable damage reduction, ignores enemy energy removal and drain effects, and receives 5 additional destructible defense from destructible defense effects.",
+                "energy": [
+                    "Bloodline",
+                    "Taijutsu"
+                ],
+                "target": "all-allies",
+                "damage": 0,
+                "cooldown": 5,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "poison_ivy_plant_doubles",
+                        "duration": 3,
+                        "scope": "all-allies",
+                        "metadata": {
+                            "unpierceableDamageReductionPercent": 15,
+                            "destructibleDefensePoints": 5,
+                            "mergeNumericAddKeys": [
+                                "unpierceableDamageReductionPercent",
+                                "destructibleDefensePoints"
+                            ],
+                            "statusIconUrl": "assets/images/plantdoubles.webp",
+                            "tooltipTextTemplate": "This character has {unpierceableDamageReductionPercent}% unpierceable damage reduction and {destructibleDefensePoints} destructible defense."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "poison-ivy-grasping-vines",
+                "name": "Grasping Vines",
+                "isHidden": true,
+                "hiddenFromSelectionViewer": true,
+                "actorCondition": {
+                    "statusId": "poison_ivy_vine_forest_growth_active"
+                },
+                "skillimage": "assets/images/graspingvines.webp",
+                "skilldescription": "Deals 5 piercing damage to the enemy team for 3 turns. For 1 turn, if they do not use a new skill they have their non-affliction skills stunned for 1 turn. This skill stacks.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "poison_ivy_grasping_vines",
+                        "duration": 3,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "turnEndDamage": 5,
+                            "afflictionDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "triggerOnApply": true,
+                            "ongoingClass": "action",
+                            "stackMetadataKey": "poisonIvyGraspingVinesStacks",
+                            "stackDelta": 1,
+                            "stackMax": 99,
+                            "turnEndApplyStatusToOwnerIfNoManualSkill": {
+                                "statusId": "poison_ivy_grasping_vines_non_affliction_stun",
+                                "duration": 1,
+                                "metadata": {
+                                    "harmful": true,
+                                    "cannotUseNonAfflictionSkills": true,
+                                    "tooltipText": "This character's non-affliction skills are stunned."
+                                }
+                            },
+                            "mergeNumericAddKeys": [
+                                "turnEndDamage"
+                            ],
+                            "statusIconUrl": "assets/images/graspingvines.webp",
+                            "tooltipTextTemplate": "This character takes {turnEndDamage} piercing damage each turn from Grasping Vines."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "poison-ivy-carnivorous-plant",
+                "name": "Carnivorous Plant",
+                "skillimage": "assets/images/carniverousplant.webp",
+                "skilldescription": "Deals 35 damage to one enemy and removes one non-blue energy from them. Swaps to 'Branch Entanglement'. If Vine Forest Growth is active, this will steal energy instead.",
+                "energy": [
+                    "Bloodline",
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "drain_chakra_non_bloodline_from_target_to_self",
+                        "amount": 1,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "missingStatusId": "poison_ivy_vine_forest_growth_active"
+                        }
+                    },
+                    {
+                        "type": "drain_chakra",
+                        "amount": 1,
+                        "chakraType": "random",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "poison_ivy_vine_forest_growth_active"
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "poison_ivy_carnivorous_plant_swap",
+                        "duration": 99,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "skillReplacements": {
+                                "poison-ivy-carnivorous-plant": "poison-ivy-branch-entanglement"
+                            },
+                            "tooltipText": "Carnivorous Plant is replaced by Branch Entanglement until it is used."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "poison-ivy-carnivorous-plant-steal",
+                "name": "Carnivorous Plant",
+                "isHidden": true,
+                "hiddenFromSelectionViewer": true,
+                "actorCondition": {
+                    "statusId": "poison_ivy_vine_forest_growth_active"
+                },
+                "skillimage": "assets/images/carniverousplant.webp",
+                "skilldescription": "Deals 35 damage to one enemy and removes one non-blue energy from them. Swaps to 'Branch Entanglement'. If Vine Forest Growth is active, this will steal energy instead.",
+                "energy": [
+                    "Bloodline",
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "drain_chakra",
+                        "amount": 1,
+                        "chakraType": "random",
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "poison_ivy_carnivorous_plant_swap",
+                        "duration": 99,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "skillReplacements": {
+                                "poison-ivy-carnivorous-plant": "poison-ivy-branch-entanglement"
+                            },
+                            "tooltipText": "Carnivorous Plant is replaced by Branch Entanglement until it is used."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "poison-ivy-branch-entanglement",
+                "name": "Branch Entanglement",
+                "isHidden": true,
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/vineentanglement.webp",
+                "skilldescription": "Hidden swap skill used after Carnivorous Plant.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "poison_ivy_vine_entanglement_harmful_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseHarmfulSkills": true,
+                            "tooltipText": "This character's harmful skills are stunned."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "poison_ivy_branch_entanglement_swap",
+                        "duration": 99,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "skillReplacements": {
+                                "poison-ivy-branch-entanglement": "poison-ivy-vine-entanglement"
+                            },
+                            "tooltipText": "Branch Entanglement is replaced by Vine Entanglement until it is used."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "poison-ivy-passive-healing-fruit",
+                "name": "Passive: Healing Fruit",
+                "skillimage": "assets/images/passivehealingfruit.webp",
+                "skilldescription": "Every time Ivy uses a skill she gains 1 stack. At 3 stacks, all are consumed and Ivy heals 30% her missing HP and gains the same amount as destructible defense for 1 turn.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            }
+        ],
+        "role": "Controller",
+        "universe": "dc",
+        "roleCategory": "controller",
+        "description": "Poison Ivy bends plant life, toxins, and living growth to control the battlefield, choking enemies while keeping her own side rooted in place.",
+        "descriptionHtml": "Poison Ivy bends plant life, toxins, and living growth to control the battlefield, choking enemies while keeping her own side rooted in place."
+    },
 {
         "id": "negan",
         "characterId": "negan",
@@ -5099,8 +5667,8 @@ const characters = [
                 ]
             }
         ],
-        "role": "Bruiser",
-        "roleCategory": "bruiser",
+        "role": "Controller",
+        "roleCategory": "controller",
         "universe": "image"
     },
 {
@@ -6464,8 +7032,8 @@ const characters = [
                 "classesHtml": "Energy, Ranged, Instant, Affliction, Bypassing"
             }
         ],
-        "role": "Bruiser",
-        "roleCategory": "bruiser",
+        "role": "Controller",
+        "roleCategory": "controller",
         "universe": "the-boys"
     },
 {
@@ -7495,8 +8063,8 @@ const characters = [
                 "classesHtml": "Physical, Melee, Instant, Affliction, Bypassing, Unreflectable"
             }
         ],
-        "role": "Bruiser",
-        "roleCategory": "bruiser",
+        "role": "Controller",
+        "roleCategory": "controller",
         "universe": "marvel"
     },
 {
@@ -9406,9 +9974,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Bruiser",
+        "role": "Controller",
         "universe": "aliens-vs-predator",
-        "roleCategory": "bruiser"
+        "roleCategory": "controller"
     },
 {
         "id": "rage-infected",
@@ -9662,8 +10230,8 @@ const characters = [
                 "effects": []
             }
         ],
-        "role": "Bruiser",
-        "roleCategory": "bruiser",
+        "role": "Controller",
+        "roleCategory": "controller",
         "universe": "other"
     },
 {
@@ -11262,8 +11830,8 @@ const characters = [
                 "classesHtml": "Passive, Energy, Instant"
             }
         ],
-        "role": "Bruiser",
-        "roleCategory": "bruiser",
+        "role": "Controller",
+        "roleCategory": "controller",
         "universe": "dc"
     },
 {
@@ -13233,22 +13801,355 @@ const characters = [
                 ]
             }
         ],
-        "role": "Bruiser",
+        "role": "Controller",
         "universe": "marvel",
-        "roleCategory": "bruiser"
+        "roleCategory": "controller"
     },
 {
         "id": "doctor-strange",
         "characterId": "doctor-strange",
         "name": "Doctor Strange",
-        "facePicture": "assets/images/doctorstrangefp.webp",
-        "characterdeescription": "The Sorcerer Supreme protects reality through mastery of the mystic arts. While Strange prefers discipline and wisdom over brute force, there are times when even he must draw upon forbidden powers. By gathering Arcane Energy, Strange can channel the eldritch entity Zom, unleashing devastating magic at tremendous personal risk.",
+        "facePicture": "assets/images/Doctor_Strangenewdesign.png",
+        "characterdeescription": "Doctor Strange channels the mystic arts through disciplined spells, protective wards, and a dangerous brush with astral power.",
         "skills": [
             {
-                "id": "doctor-strange-crimson-bands-of-cyttorak",
-                "name": "Crimson Bands of Cyttorak",
-                "skillimage": "assets/images/crimsonbandsofcyttorak.webp",
-                "skilldescription": "One enemy becomes stunned for 1 turn. Doctor Strange gains 1 Arcane Energy. While Empowered by Zom, this affects all enemies.",
+                "id": "doctor-strange-eldritch-manifestation",
+                "name": "Eldritch Manifestation",
+                "skillimage": "assets/images/eldritchcataclysm.webp",
+                "skilldescription": "One enemy is blasted by eldritch force, taking 20 piercing damage plus up to 15 more damage equal to damage they dealt this turn. If the target is marked by Doctor Strange, this skill deals 10 additional damage. The target is stunned for 1 turn and Strange is primed for the Book of the Vishanti.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Control"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 0,
+                        "scope": "target",
+                        "metadata": {
+                            "amountFromTargetDamageDealtThisTurn": true,
+                            "amountFromTargetDamageDealtThisTurnMax": 15,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "doctor_strange_mystic_mark"
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_eldritch_stun",
+                        "duration": 1,
+                        "sourceSkillId": "doctor-strange-eldritch-manifestation",
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "statusIconUrl": "assets/images/eldritchcataclysm.webp",
+                            "tooltipText": "This character is stunned by Eldritch Manifestation."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_vishanti_ready",
+                        "duration": 1,
+                        "sourceSkillId": "doctor-strange-eldritch-manifestation",
+                        "scope": "self",
+                        "metadata": {
+                            "statusIconUrl": "assets/images/channelzom.webp",
+                            "tooltipText": "Book of the Vishanti is ready."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-strange-shield-of-the-seraphim",
+                "name": "Spell of the Seraphim",
+                "skillimage": "assets/images/shieldofseraphim.webp",
+                "skilldescription": "May be used on an ally or an enemy. Allies gain 15 destructible defense for 1 turn. Enemies lose all helpful effects and are marked for Doctor Strange's other spells.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy-or-ally",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Energy",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_seraphim_defense",
+                        "duration": 1,
+                        "sourceSkillId": "doctor-strange-shield-of-the-seraphim",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally"
+                        },
+                        "metadata": {
+                            "destructibleDefensePoints": 15,
+                            "statusIconUrl": "assets/images/shieldofseraphim.webp",
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Spell of the Seraphim."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_seraphim_first_hit_heal",
+                        "duration": 1,
+                        "sourceSkillId": "doctor-strange-shield-of-the-seraphim",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally"
+                        },
+                        "metadata": {
+                            "convertFirstDamageTakenToHeal": true,
+                            "statusIconUrl": "assets/images/shieldofseraphim.webp",
+                            "tooltipText": "The first damage this character takes is converted into healing instead."
+                        }
+                    },
+                    {
+                        "type": "cleanse_statuses",
+                        "count": 0,
+                        "helpfulOnly": true,
+                        "sourceRelation": "enemy",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy"
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_mystic_mark",
+                        "duration": 2,
+                        "sourceSkillId": "doctor-strange-shield-of-the-seraphim",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "statusIconUrl": "assets/images/shieldofseraphim.webp",
+                            "tooltipText": "This character is marked by Doctor Strange's magic."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_vishanti_ready",
+                        "duration": 1,
+                        "sourceSkillId": "doctor-strange-shield-of-the-seraphim",
+                        "scope": "self",
+                        "metadata": {
+                            "statusIconUrl": "assets/images/channelzom.webp",
+                            "tooltipText": "Book of the Vishanti is ready."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-strange-bolts-of-balthakk",
+                "name": "Flames of the Faltine",
+                "skillimage": "assets/images/boltsofbalthakk.webp",
+                "skilldescription": "Doctor Strange scorches all enemies for 2 turns, dealing 15 affliction damage each turn. When Strange's magic is already on them, the flames become a mark of his power instead.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_faltine_burn",
+                        "duration": 2,
+                        "sourceSkillId": "doctor-strange-bolts-of-balthakk",
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "turnStartDamage": 15,
+                            "afflictionDamage": true,
+                            "statusIconUrl": "assets/images/boltsofbalthakk.webp",
+                            "tooltipTextTemplate": "This character takes {turnStartDamage} affliction damage each turn from Flames of the Faltine."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_mystic_mark",
+                        "duration": 2,
+                        "sourceSkillId": "doctor-strange-bolts-of-balthakk",
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "statusIconUrl": "assets/images/boltsofbalthakk.webp",
+                            "tooltipText": "This character is marked by Doctor Strange's magic."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_vishanti_ready",
+                        "duration": 1,
+                        "sourceSkillId": "doctor-strange-bolts-of-balthakk",
+                        "scope": "self",
+                        "metadata": {
+                            "statusIconUrl": "assets/images/channelzom.webp",
+                            "tooltipText": "Book of the Vishanti is ready."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-strange-channel-zom",
+                "name": "Book of the Vishanti",
+                "skillimage": "assets/images/channelzom.webp",
+                "skilldescription": "Whenever Doctor Strange uses one of his other skills, this skill can be used. Using it improves his next skill, and using it three times transforms it into Astral Form permanently.",
+                "energy": [],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 0,
+                "maxUses": 3,
+                "classes": [
+                    "Energy",
+                    "Instant",
+                    "Unremovable"
+                ],
+                "actorCondition": {
+                    "statusId": "doctor_strange_vishanti_ready"
+                },
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_vishanti_next_skill_improved",
+                        "duration": 2,
+                        "sourceSkillId": "doctor-strange-channel-zom",
+                        "scope": "self",
+                        "metadata": {
+                            "onOwnerUseSkillTrigger": true,
+                            "statusIconUrl": "assets/images/channelzom.webp",
+                            "tooltipText": "Doctor Strange's next skill is improved."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_astral_form_unlocked",
+                        "duration": 999,
+                        "sourceSkillId": "doctor-strange-channel-zom",
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "sourceSkillUsesAtLeast": {
+                                "skillId": "doctor-strange-channel-zom",
+                                "value": 3
+                            }
+                        },
+                        "metadata": {
+                            "unremovable": true,
+                            "skillReplacements": {
+                                "doctor-strange-channel-zom": "doctor-strange-zoms-wrath"
+                            },
+                            "statusIconUrl": "assets/images/channelzom.webp",
+                            "tooltipText": "Book of the Vishanti has permanently transformed into Astral Form."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-strange-zoms-wrath",
+                "name": "Astral Form",
+                "isHidden": true,
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/zomswrath.jpg",
+                "skilldescription": "For 3 turns, Doctor Strange ignores harmful and helpful effects except damage. At the start of each turn, one of his other skills is randomly replaced with an improved version and that skill is blocked for the turn.",
+                "energy": [],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Energy",
+                    "Instant",
+                    "Unremovable"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_astral_form",
+                        "duration": 3,
+                        "sourceSkillId": "doctor-strange-zoms-wrath",
+                        "scope": "self",
+                        "metadata": {
+                            "unremovable": true,
+                            "ignoreHarmfulNonDamageEffects": true,
+                            "ignoreHelpfulNonDamageEffects": true,
+                            "statusIconUrl": "assets/images/zomswrath.jpg",
+                            "tooltipText": "Doctor Strange is in Astral Form.",
+                            "turnStartApplyRandomSkillReplacementToOwner": {
+                                "statusId": "doctor_strange_astral_random_improvement",
+                                "duration": 1,
+                                "options": [
+                                    {
+                                        "fromSkillId": "doctor-strange-eldritch-manifestation",
+                                        "toSkillId": "doctor-strange-eldritch-manifestation-improved",
+                                        "skillIndex": 0
+                                    },
+                                    {
+                                        "fromSkillId": "doctor-strange-shield-of-the-seraphim",
+                                        "toSkillId": "doctor-strange-shield-of-the-seraphim-improved",
+                                        "skillIndex": 1
+                                    },
+                                    {
+                                        "fromSkillId": "doctor-strange-bolts-of-balthakk",
+                                        "toSkillId": "doctor-strange-bolts-of-balthakk-improved",
+                                        "skillIndex": 2
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "doctor-strange-eldritch-manifestation-improved",
+                "name": "Eldritch Manifestation",
+                "isHidden": true,
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/eldritchcataclysm.webp",
+                "skilldescription": "Improved: the target is cursed to take 35 damage the first time they use a harmful skill.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -13263,76 +14164,44 @@ const characters = [
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "doctor_strange_crimson_bands_stun",
+                        "statusId": "doctor_strange_eldritch_mirror",
                         "duration": 1,
-                        "sourceSkillId": "doctor-strange-crimson-bands-of-cyttorak",
+                        "sourceSkillId": "doctor-strange-eldritch-manifestation",
                         "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "missingStatusId": "doctor_strange_empowered_by_zom"
-                        },
                         "metadata": {
                             "harmful": true,
-                            "cannotUseSkills": true,
-                            "statusIconUrl": "assets/images/crimsonbandsofcyttorak.webp",
-                            "tooltipText": "This character is stunned by Crimson Bands of Cyttorak."
+                            "onOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillHarmfulOnly": true,
+                            "onOwnerUseSkillSelfDamage": 35,
+                            "consumeOnOwnerUseSkillSelfDamage": true,
+                            "statusIconUrl": "assets/images/eldritchcataclysm.webp",
+                            "tooltipText": "The first harmful skill this character uses is turned back on them."
                         }
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "doctor_strange_crimson_bands_stun",
+                        "statusId": "doctor_strange_vishanti_ready",
                         "duration": 1,
-                        "sourceSkillId": "doctor-strange-crimson-bands-of-cyttorak",
-                        "scope": "all-enemy",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "doctor_strange_empowered_by_zom"
-                        },
-                        "metadata": {
-                            "harmful": true,
-                            "cannotUseSkills": true,
-                            "statusIconUrl": "assets/images/crimsonbandsofcyttorak.webp",
-                            "tooltipText": "This character is stunned by Crimson Bands of Cyttorak."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "doctor_strange_arcane_energy",
-                        "duration": 999,
-                        "sourceSkillId": "doctor-strange-passive-arcane-energy",
+                        "sourceSkillId": "doctor-strange-eldritch-manifestation",
                         "scope": "self",
                         "metadata": {
-                            "infiniteDuration": true,
-                            "arcaneEnergy": 1,
-                            "stackMetadataKey": "arcaneEnergy",
-                            "stackDelta": 1,
-                            "stackMax": 3,
-                            "statusIconUrl": "assets/images/arcaneenergy.webp",
-                            "tooltipTextTemplate": "Doctor Strange has {arcaneEnergy} Arcane Energy.",
-                            "applyStatusAtStack": {
-                                "metadataKey": "arcaneEnergy",
-                                "value": 3,
-                                "statusId": "doctor_strange_channel_zom_ready",
-                                "duration": 999,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "statusIconUrl": "assets/images/channelzom.webp",
-                                    "tooltipText": "Doctor Strange may use Channel Zom."
-                                }
-                            }
+                            "statusIconUrl": "assets/images/channelzom.webp",
+                            "tooltipText": "Book of the Vishanti is ready."
                         }
                     }
                 ]
             },
             {
-                "id": "doctor-strange-shield-of-the-seraphim",
-                "name": "Shield of the Seraphim",
+                "id": "doctor-strange-shield-of-the-seraphim-improved",
+                "name": "Spell of the Seraphim",
+                "isHidden": true,
+                "hiddenFromSelectionViewer": true,
                 "skillimage": "assets/images/shieldofseraphim.webp",
-                "skilldescription": "Target ally gains 25 destructible defense for 2 turns. Doctor Strange gains 1 Arcane Energy.",
+                "skilldescription": "Improved: allies gain 15 destructible defense and the first damage they take becomes healing instead. Enemies lose all helpful effects and are stunned for 1 turn.",
                 "energy": [
                     "Random"
                 ],
-                "target": "self-or-single-ally",
+                "target": "single-enemy-or-ally",
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
@@ -13343,170 +14212,106 @@ const characters = [
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "doctor_strange_shield_of_the_seraphim",
+                        "statusId": "doctor_strange_seraphim_defense_improved",
+                        "duration": 1,
+                        "sourceSkillId": "doctor-strange-shield-of-the-seraphim",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally"
+                        },
+                        "metadata": {
+                            "destructibleDefensePoints": 15,
+                            "statusIconUrl": "assets/images/shieldofseraphim.webp",
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Spell of the Seraphim."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_seraphim_first_hit_heal",
+                        "duration": 1,
+                        "sourceSkillId": "doctor-strange-shield-of-the-seraphim",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally"
+                        },
+                        "metadata": {
+                            "convertFirstDamageTakenToHeal": true,
+                            "statusIconUrl": "assets/images/shieldofseraphim.webp",
+                            "tooltipText": "The first damage this character takes is converted into healing instead."
+                        }
+                    },
+                    {
+                        "type": "cleanse_statuses",
+                        "count": 0,
+                        "helpfulOnly": true,
+                        "sourceRelation": "enemy",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy"
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_seraphim_stun",
+                        "duration": 1,
+                        "sourceSkillId": "doctor-strange-shield-of-the-seraphim",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "statusIconUrl": "assets/images/shieldofseraphim.webp",
+                            "tooltipText": "This character is stunned by Spell of the Seraphim."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "doctor_strange_mystic_mark",
                         "duration": 2,
                         "sourceSkillId": "doctor-strange-shield-of-the-seraphim",
                         "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy"
+                        },
                         "metadata": {
-                            "destructibleDefensePoints": 25,
+                            "harmful": true,
                             "statusIconUrl": "assets/images/shieldofseraphim.webp",
-                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Shield of the Seraphim."
+                            "tooltipText": "This character is marked by Doctor Strange's magic."
                         }
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "doctor_strange_arcane_energy",
-                        "duration": 999,
-                        "sourceSkillId": "doctor-strange-passive-arcane-energy",
+                        "statusId": "doctor_strange_vishanti_ready",
+                        "duration": 1,
+                        "sourceSkillId": "doctor-strange-shield-of-the-seraphim",
                         "scope": "self",
                         "metadata": {
-                            "infiniteDuration": true,
-                            "arcaneEnergy": 1,
-                            "stackMetadataKey": "arcaneEnergy",
-                            "stackDelta": 1,
-                            "stackMax": 3,
-                            "statusIconUrl": "assets/images/arcaneenergy.webp",
-                            "tooltipTextTemplate": "Doctor Strange has {arcaneEnergy} Arcane Energy.",
-                            "applyStatusAtStack": {
-                                "metadataKey": "arcaneEnergy",
-                                "value": 3,
-                                "statusId": "doctor_strange_channel_zom_ready",
-                                "duration": 999,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "statusIconUrl": "assets/images/channelzom.webp",
-                                    "tooltipText": "Doctor Strange may use Channel Zom."
-                                }
-                            }
+                            "statusIconUrl": "assets/images/channelzom.webp",
+                            "tooltipText": "Book of the Vishanti is ready."
                         }
                     }
                 ]
             },
             {
-                "id": "doctor-strange-bolts-of-balthakk",
-                "name": "Bolts of Balthakk",
+                "id": "doctor-strange-bolts-of-balthakk-improved",
+                "name": "Flames of the Faltine",
+                "isHidden": true,
+                "hiddenFromSelectionViewer": true,
                 "skillimage": "assets/images/boltsofbalthakk.webp",
-                "skilldescription": "Doctor Strange deals 25 damage to one enemy. If Strange is empowered by Zom, this skill deals 20 additional affliction damage.",
+                "skilldescription": "Improved: Strange splits 60 affliction damage equally between all enemies.",
                 "energy": [
                     "Ninjutsu"
                 ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Energy",
-                    "Ranged",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 25,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 20,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "doctor_strange_empowered_by_zom"
-                        },
-                        "metadata": {
-                            "afflictionDamage": true,
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "doctor-strange-channel-zom",
-                "name": "Channel Zom",
-                "skillimage": "assets/images/channelzom.webp",
-                "skilldescription": "Requires 3 Arcane Energy. Doctor Strange transforms into Empowered by Zom for 3 turns. Arcane Energy is removed. While transformed, Doctor Strange gains 20 permanent destructible defense, Bolts of Balthakk deals 20 additional affliction damage, Crimson Bands of Cyttorak affects all enemies, and Strange takes 10 affliction damage at the start of each turn. This skill becomes Zom's Wrath while transformed.",
-                "energy": [],
-                "target": "self",
-                "damage": 0,
-                "cooldown": 5,
-                "classes": [
-                    "Energy",
-                    "Instant",
-                    "Unremovable"
-                ],
-                "actorCondition": {
-                    "statusId": "doctor_strange_channel_zom_ready",
-                    "missingStatusId": "doctor_strange_empowered_by_zom"
-                },
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "doctor_strange_empowered_by_zom",
-                        "duration": 3,
-                        "sourceSkillId": "doctor-strange-channel-zom",
-                        "scope": "self",
-                        "metadata": {
-                            "unremovable": true,
-                            "turnStartDamage": 10,
-                            "afflictionDamage": true,
-                            "ignoreTargetDamageReduction": true,
-                            "ignoreTargetDestructibleDefense": true,
-                            "skillReplacements": {
-                                "doctor-strange-channel-zom": "doctor-strange-zoms-wrath"
-                            },
-                            "statusIconUrl": "assets/images/channelzom.webp",
-                            "tooltipText": "Doctor Strange is Empowered by Zom. Bolts of Balthakk deals additional affliction damage, Crimson Bands of Cyttorak affects all enemies, Channel Zom is replaced by Zom's Wrath, and Strange takes 10 affliction damage at the start of each turn."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "doctor_strange_zom_defense",
-                        "duration": 999,
-                        "sourceSkillId": "doctor-strange-channel-zom",
-                        "scope": "self",
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "destructibleDefensePoints": 20,
-                            "mergeNumericAddKeys": [
-                                "destructibleDefensePoints"
-                            ],
-                            "statusIconUrl": "assets/images/channelzom.webp",
-                            "tooltipTextTemplate": "Doctor Strange has {destructibleDefensePoints} permanent destructible defense from Zom."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "doctor_strange_arcane_energy_consumed",
-                        "duration": 0,
-                        "scope": "self",
-                        "metadata": {
-                            "removeStatusIdsOnApply": [
-                                "doctor_strange_arcane_energy",
-                                "doctor_strange_channel_zom_ready"
-                            ],
-                            "hideTooltipFromEnemy": true,
-                            "tooltipText": "Arcane Energy has been consumed."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "doctor-strange-zoms-wrath",
-                "name": "Zom's Wrath",
-                "isHidden": true,
-                "hiddenFromSelectionViewer": true,
-                "actorCondition": {
-                    "statusId": "doctor_strange_empowered_by_zom"
-                },
-                "skillimage": "assets/images/zomswrath.jpg",
-                "skilldescription": "Doctor Strange deals 25 affliction damage to all enemies. Enemies stunned by Crimson Bands of Cyttorak take 20 additional damage. Using this skill immediately ends Empowered by Zom.",
-                "energy": [
-                    "Ninjutsu",
-                    "Genjutsu"
-                ],
                 "target": "all-enemy",
                 "damage": 0,
-                "cooldown": 0,
+                "cooldown": 1,
                 "classes": [
                     "Energy",
                     "Ranged",
@@ -13516,46 +14321,33 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 25,
+                        "amount": 60,
                         "scope": "all-enemy",
                         "metadata": {
                             "afflictionDamage": true,
+                            "splitDamageEvenlyAcrossRecipients": true,
                             "ignoreDamageReduction": true,
                             "ignoreDestructibleDefense": true
                         }
                     },
                     {
-                        "type": "damage",
-                        "amount": 20,
-                        "scope": "all-enemy",
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "doctor_strange_crimson_bands_stun"
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
                         "type": "apply_status",
-                        "statusId": "doctor_strange_zom_wrath_ended",
-                        "duration": 0,
+                        "statusId": "doctor_strange_vishanti_ready",
+                        "duration": 1,
+                        "sourceSkillId": "doctor-strange-bolts-of-balthakk",
                         "scope": "self",
                         "metadata": {
-                            "removeStatusIdsOnApply": [
-                                "doctor_strange_empowered_by_zom"
-                            ],
-                            "hideTooltipFromEnemy": true,
-                            "tooltipText": "Empowered by Zom has ended."
+                            "statusIconUrl": "assets/images/channelzom.webp",
+                            "tooltipText": "Book of the Vishanti is ready."
                         }
                     }
                 ]
             },
             {
-                "id": "doctor-strange-passive-arcane-energy",
-                "name": "Passive: Arcane Energy",
-                "skillimage": "assets/images/arcaneenergy.webp",
-                "skilldescription": "Whenever Doctor Strange uses a non-damaging skill, he gains 1 Arcane Energy. Maximum: 3. At 3 Arcane Energy, Doctor Strange may use Channel Zom.",
+                "id": "doctor-strange-passive-vishanti-ready",
+                "name": "Passive: Prepared for the Vishanti",
+                "skillimage": "assets/images/channelzom.webp",
+                "skilldescription": "Whenever Doctor Strange uses one of his non-Book skills, he becomes ready to use the Book of the Vishanti.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -13569,8 +14361,8 @@ const characters = [
         "role": "Controller",
         "universe": "marvel",
         "roleCategory": "controller",
-        "description": "The Sorcerer Supreme protects reality through mastery of the mystic arts. While Strange prefers discipline and wisdom over brute force, there are times when even he must draw upon forbidden powers. By gathering Arcane Energy, Strange can channel the eldritch entity Zom, unleashing devastating magic at tremendous personal risk.",
-        "descriptionHtml": "The Sorcerer Supreme protects reality through mastery of the mystic arts. While Strange prefers discipline and wisdom over brute force, there are times when even he must draw upon forbidden powers. By gathering Arcane Energy, Strange can channel the eldritch entity Zom, unleashing devastating magic at tremendous personal risk."
+        "description": "Doctor Strange channels the mystic arts through disciplined spells, protective wards, and a dangerous brush with astral power.",
+        "descriptionHtml": "Doctor Strange channels the mystic arts through disciplined spells, protective wards, and a dangerous brush with astral power."
     },
 {
         "id": "doctor-doom",
@@ -14483,9 +15275,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Bruiser",
+        "role": "Controller",
         "universe": "marvel",
-        "roleCategory": "bruiser",
+        "roleCategory": "controller",
         "description": "Logan, the Wolverine, is a relentless mutant brawler with adamantium bones, razor claws, and a healing factor that lets him keep fighting through punishment that would stop almost anyone else. He pressures enemies with stacking bleed wounds, turns his claws white-hot when pushed, and can enter a berserker rage that delays incoming damage until his fury finally burns out.",
         "descriptionHtml": "Logan, the Wolverine, is a relentless mutant brawler with adamantium bones, razor claws, and a healing factor that lets him keep fighting through punishment that would stop almost anyone else. He pressures enemies with stacking bleed wounds, turns his claws white-hot when pushed, and can enter a berserker rage that delays incoming damage until his fury finally burns out."
     },
@@ -14661,9 +15453,9 @@ const characters = [
                 ]
             }
         ],
-        "role": "Bruiser",
+        "role": "Controller",
         "universe": "star-wars",
-        "roleCategory": "bruiser",
+        "roleCategory": "controller",
         "description": "Once the heroic Anakin Skywalker, Darth Vader now serves as the Emperor's ruthless enforcer. A relentless juggernaut of the dark side, Vader overwhelms his enemies through fear, pain, and sheer power. Those who survive his assaults often find themselves unable to escape his grasp.",
         "descriptionHtml": "Once the heroic Anakin Skywalker, Darth Vader now serves as the Emperor's ruthless enforcer. A relentless juggernaut of the dark side, Vader overwhelms his enemies through fear, pain, and sheer power. Those who survive his assaults often find themselves unable to escape his grasp."
     },
@@ -16340,7 +17132,7 @@ const characters = [
         "description": "A ruthless cyborg warlord obsessed with collecting the lightsabers of fallen Jedi. General Grievous relentlessly pursues his prey, building momentum throughout battle as he expands his collection and overwhelms his enemies with a storm of blades.",
         "descriptionHtml": "A ruthless cyborg warlord obsessed with collecting the lightsabers of fallen Jedi. General Grievous relentlessly pursues his prey, building momentum throughout battle as he expands his collection and overwhelms his enemies with a storm of blades."
     },
-{
+    {
         "id": "charmander",
         "characterId": "charmander",
         "name": "Charmander",
@@ -16945,7 +17737,7 @@ const characters = [
                 "id": "squirtle-withdraw",
                 "name": "Withdraw",
                 "skillimage": "assets/images/PokemonArena/squirtle/withdraw.webp",
-                "skilldescription": "For 1 turn, one member of your team will block the first enemy harmful skill used on them for 1 turn, negating its damage and ignoring its effect completely that turn. Invisible. Cooldown 2.",
+                "skilldescription": "For 1 turn, one member of your team will block the first enemy harmful skill used on them for 1 turn, negating its damage and ignoring its effect completely that turn.",
                 "energy": [
                     "Random"
                 ],
@@ -17096,7 +17888,7 @@ const characters = [
                     "statusId": "squirtle_wartortle_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/squirtle/shellguard.jpg",
-                "skilldescription": "For 1 turn, Wartortle blocks all enemy harmful skills used on himself and one selected ally. Invisible. Cooldown 2. Costs 2 Random.",
+                "skilldescription": "For 1 turn, Wartortle blocks all enemy harmful skills used on himself and one selected ally.",
                 "energy": [
                     "Random",
                     "Random"
@@ -17253,7 +18045,7 @@ const characters = [
                     "statusId": "squirtle_wartortle_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/squirtle/aquaspin.jpg",
-                "skilldescription": "Wartortle removes all harmful skills from his team and deals 20 damage to the enemy team. Cooldown 4.",
+                "skilldescription": "Wartortle removes all harmful skills from his team and deals 20 damage to the enemy team.",
                 "energy": [
                     "Random",
                     "Random"

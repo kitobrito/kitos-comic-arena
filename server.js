@@ -236,6 +236,62 @@ const DEFAULT_MISSION_CATALOG = [
         sortOrder: 3
     },
     {
+        missionId: 'poison-ivy',
+        title: 'Garden of Gotham',
+        level_requirement: 3,
+        rank: '3',
+        reward_character: 'poison-ivy',
+        reward_character_name: 'Poison Ivy',
+        reward: 'Unlock Poison Ivy',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: '',
+            character_name: '',
+            wins: 0
+        },
+        image: 'assets/images/poisonivymissionpic.jpeg',
+        imageAlt: 'Poison Ivy mission artwork',
+        characterName: 'Poison Ivy',
+        portrait: 'assets/images/poisonivyfp.webp',
+        portraitAlt: 'Poison Ivy mission portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: 'the-joker',
+                character_name: 'The Joker',
+                wins: 5
+            },
+            {
+                type: 'win_matches_same_team',
+                character_ids: [
+                    'the-joker',
+                    'batman'
+                ],
+                character_names: [
+                    'The Joker',
+                    'Batman'
+                ],
+                wins: 3
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 3.5
+    },
+    {
         missionId: 'omniman',
         title: 'Where I Really Come From',
         level_requirement: 3,
