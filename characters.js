@@ -18933,6 +18933,267 @@ const characters = [
         "roleCategory": "damage",
         "description": "When several of these Pokémon gather, their electricity could build up and cause lightning storms. Forest dwellers, they are few in number and exceptionally rare. The pouches in their cheeks discharge electricity at their opponents. The Pikachu are believed to be highly intelligent.",
         "descriptionHtml": "When several of these Pokémon gather, their electricity could build up and cause lightning storms. Forest dwellers, they are few in number and exceptionally rare. The pouches in their cheeks discharge electricity at their opponents. The Pikachu are believed to be highly intelligent."
+    },
+    {
+        "id": "butterfree",
+        "characterId": "butterfree",
+        "name": "Butterfree",
+        "facePicture": "assets/images/PokemonArena/butterfree/butterfreefp.webp",
+        "characterdeescription": "A graceful butterfly Pokemon that turns powder, psionic force, and careful positioning into battlefield control. Butterfree disorients enemies, disrupts their cooldowns, and puts threats to sleep while its wings keep allies safe from ranged attacks.",
+        "skills": [
+            {
+                "id": "butterfree-confusion",
+                "name": "Confusion",
+                "skillimage": "assets/images/PokemonArena/butterfree/confusion.webp",
+                "skilldescription": "Butterfree deals 20 damage to one enemy. This skill has a 25% chance to reflect the next harmful skill used on that enemy back onto its user for 1 turn. For 1 turn, Psybeam deals 10 additional damage.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "butterfree_confusion_reflect",
+                        "duration": 1,
+                        "scope": "target",
+                        "chance": 25,
+                        "metadata": {
+                            "harmful": true,
+                            "reflectNextIncomingSkill": true,
+                            "reflectOnlyHarmfulSkills": true,
+                            "reflectBackToCaster": true,
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "The next harmful skill used on this character is reflected back to the user."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "butterfree_confusion_psybeam_bonus",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "skillDamageBonuses": {
+                                "butterfree-psybeam": 10
+                            },
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "Psybeam deals 10 additional damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "butterfree-psybeam",
+                "name": "Psybeam",
+                "skillimage": "assets/images/PokemonArena/butterfree/psybeam.webp",
+                "skilldescription": "Butterfree deals 20 damage to one enemy and increases their next skill cooldown by 2 turns for 1 turn. For 1 turn, Confusion deals 10 additional damage.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "butterfree_psybeam_cooldown_wave",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "newSkillCooldownIncrease": 2,
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "This character's new skills cost 2 additional cooldown for 1 turn."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "butterfree_psybeam_confusion_bonus",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "skillDamageBonuses": {
+                                "butterfree-confusion": 10
+                            },
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "Confusion deals 10 additional damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "butterfree-stun-spore",
+                "name": "Stun Spore",
+                "skillimage": "assets/images/PokemonArena/butterfree/stunspore.webp",
+                "skilldescription": "For 2 turns, one enemy takes 10 affliction damage each turn and their cooldowns are frozen for 1 turn each turn. This swaps to Sleep Powder after being used.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant",
+                    "Affliction"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "butterfree_stun_spore_lock",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "turnEndDamage": 10,
+                            "afflictionDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "freezeCooldowns": true,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "This character takes 10 affliction damage each turn and their cooldowns are frozen."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "butterfree_stun_spore_swap",
+                        "duration": 99,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "skillReplacements": {
+                                "butterfree-stun-spore": "butterfree-sleep-powder"
+                            },
+                            "removeStatusIdsOnApply": [
+                                "butterfree_sleep_powder_swap"
+                            ],
+                            "tooltipText": "Stun Spore is replaced by Sleep Powder."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "butterfree-whirlwind",
+                "name": "Whirlwind",
+                "skillimage": "assets/images/PokemonArena/butterfree/whirlwind.webp",
+                "skilldescription": "For 1 turn, your team ignores enemy ranged skills.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "all-allies",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "butterfree_whirlwind_cover",
+                        "duration": 1,
+                        "scope": "all-allies",
+                        "metadata": {
+                            "ignoreSkillClasses": [
+                                "ranged"
+                            ],
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "Your team ignores enemy ranged skills."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "butterfree-sleep-powder",
+                "name": "Sleep Powder",
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/PokemonArena/butterfree/sleeppowder.webp",
+                "skilldescription": "For 2 turns, one enemy is stunned. Any new damage will cancel this effect. This swaps to Stun Spore after being used.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "butterfree_sleep_powder_stun",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "removeStatusIdsOnNewDamage": [
+                                "butterfree_sleep_powder_stun"
+                            ],
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "This character is stunned and any new damage will cancel this effect."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "butterfree_sleep_powder_swap",
+                        "duration": 99,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "skillReplacements": {
+                                "butterfree-sleep-powder": "butterfree-stun-spore"
+                            },
+                            "removeStatusIdsOnApply": [
+                                "butterfree_stun_spore_swap"
+                            ],
+                            "tooltipText": "Sleep Powder is replaced by Stun Spore."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Controller",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "controller",
+        "description": "A graceful butterfly Pokemon that turns powder, psionic force, and careful positioning into battlefield control. Butterfree disorients enemies, disrupts their cooldowns, and puts threats to sleep while its wings keep allies safe from ranged attacks.",
+        "descriptionHtml": "A graceful butterfly Pokemon that turns powder, psionic force, and careful positioning into battlefield control. Butterfree disorients enemies, disrupts their cooldowns, and puts threats to sleep while its wings keep allies safe from ranged attacks."
     }
 
 ];
