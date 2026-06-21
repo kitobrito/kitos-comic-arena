@@ -13809,13 +13809,13 @@ const characters = [
         "id": "doctor-strange",
         "characterId": "doctor-strange",
         "name": "Doctor Strange",
-        "facePicture": "assets/images/Doctor_Strangenewdesign.png",
+        "facePicture": "assets/images/doctorstrangefp.webp",
         "characterdeescription": "Doctor Strange channels the mystic arts through disciplined spells, protective wards, and a dangerous brush with astral power.",
         "skills": [
             {
                 "id": "doctor-strange-eldritch-manifestation",
                 "name": "Eldritch Manifestation",
-                "skillimage": "assets/images/eldritchcataclysm.webp",
+                "skillimage": "assets/images/doctorstrangeskill1.webp",
                 "skilldescription": "One enemy is blasted by eldritch force, taking 20 piercing damage plus up to 15 more damage equal to damage they dealt this turn. If the target is marked by Doctor Strange, this skill deals 10 additional damage. The target is stunned for 1 turn and Strange is primed for the Book of the Vishanti.",
                 "energy": [
                     "Ninjutsu"
@@ -13891,7 +13891,7 @@ const characters = [
             {
                 "id": "doctor-strange-shield-of-the-seraphim",
                 "name": "Spell of the Seraphim",
-                "skillimage": "assets/images/shieldofseraphim.webp",
+                "skillimage": "assets/images/doctorstrangeskill2.webp",
                 "skilldescription": "May be used on an ally or an enemy. Allies gain 15 destructible defense for 1 turn. Enemies lose all helpful effects and are marked for Doctor Strange's other spells.",
                 "energy": [
                     "Bloodline",
@@ -13981,7 +13981,7 @@ const characters = [
             {
                 "id": "doctor-strange-bolts-of-balthakk",
                 "name": "Flames of the Faltine",
-                "skillimage": "assets/images/boltsofbalthakk.webp",
+                "skillimage": "assets/images/doctorstrangeskill3.webp",
                 "skilldescription": "Doctor Strange scorches all enemies for 2 turns, dealing 15 affliction damage each turn. When Strange's magic is already on them, the flames become a mark of his power instead.",
                 "energy": [
                     "Ninjutsu",
@@ -14039,7 +14039,7 @@ const characters = [
             {
                 "id": "doctor-strange-channel-zom",
                 "name": "Book of the Vishanti",
-                "skillimage": "assets/images/channelzom.webp",
+                "skillimage": "assets/images/doctorstrangeskill4.webp",
                 "skilldescription": "Whenever Doctor Strange uses one of his other skills, this skill can be used. Using it improves his next skill, and using it three times transforms it into Astral Form permanently.",
                 "energy": [],
                 "target": "self",
@@ -14096,7 +14096,7 @@ const characters = [
                 "name": "Astral Form",
                 "isHidden": true,
                 "hiddenFromSelectionViewer": true,
-                "skillimage": "assets/images/zomswrath.jpg",
+                "skillimage": "assets/images/doctorstrangeskill5.webp",
                 "skilldescription": "For 3 turns, Doctor Strange ignores harmful and helpful effects except damage. At the start of each turn, one of his other skills is randomly replaced with an improved version and that skill is blocked for the turn.",
                 "energy": [
                     "Bloodline",
@@ -14154,7 +14154,7 @@ const characters = [
                 "name": "Eldritch Manifestation",
                 "isHidden": true,
                 "hiddenFromSelectionViewer": true,
-                "skillimage": "assets/images/eldritchcataclysm.webp",
+                "skillimage": "assets/images/doctorstrangeskill1.webp",
                 "skilldescription": "Improved: the target is cursed to take 35 damage the first time they use a harmful skill.",
                 "energy": [
                     "Ninjutsu"
@@ -14202,7 +14202,7 @@ const characters = [
                 "name": "Spell of the Seraphim",
                 "isHidden": true,
                 "hiddenFromSelectionViewer": true,
-                "skillimage": "assets/images/shieldofseraphim.webp",
+                "skillimage": "assets/images/doctorstrangeskill2.webp",
                 "skilldescription": "Improved: allies gain 15 destructible defense and the first damage they take becomes healing instead. Enemies lose all helpful effects and are stunned for 1 turn.",
                 "energy": [
                     "Bloodline",
@@ -14311,7 +14311,7 @@ const characters = [
                 "name": "Flames of the Faltine",
                 "isHidden": true,
                 "hiddenFromSelectionViewer": true,
-                "skillimage": "assets/images/boltsofbalthakk.webp",
+                "skillimage": "assets/images/doctorstrangeskill3.webp",
                 "skilldescription": "Improved: Strange splits 60 affliction damage equally between all enemies.",
                 "energy": [
                     "Ninjutsu",
