@@ -13816,7 +13816,7 @@ const characters = [
                 "id": "doctor-strange-eldritch-manifestation",
                 "name": "Eldritch Manifestation",
                 "skillimage": "assets/images/doctorstrangeskill1.webp",
-                "skilldescription": "One enemy is blasted by eldritch force, taking 20 piercing damage plus up to 15 more damage equal to damage they dealt this turn. If the target is marked by Doctor Strange, this skill deals 10 additional damage. The target is stunned for 1 turn and Strange is primed for the Book of the Vishanti.",
+                "skilldescription": "Deal 20 piercing damage to one enemy, then deal up to 15 additional piercing damage equal to damage they dealt this turn. If they are marked by Doctor Strange, deal 10 more piercing damage. Stun them for 1 turn and ready the Book of the Vishanti.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -13892,7 +13892,7 @@ const characters = [
                 "id": "doctor-strange-shield-of-the-seraphim",
                 "name": "Spell of the Seraphim",
                 "skillimage": "assets/images/doctorstrangeskill2.webp",
-                "skilldescription": "May be used on an ally or an enemy. Allies gain 15 destructible defense for 1 turn. Enemies lose all helpful effects and are marked for Doctor Strange's other spells.",
+                "skilldescription": "Target an ally or an enemy. Allies gain 15 destructible defense for 1 turn and convert the first damage they take into healing. Enemies lose all helpful effects, are stunned for 1 turn, and are marked by Doctor Strange.",
                 "energy": [
                     "Bloodline",
                     "Random"
@@ -13982,7 +13982,7 @@ const characters = [
                 "id": "doctor-strange-bolts-of-balthakk",
                 "name": "Flames of the Faltine",
                 "skillimage": "assets/images/doctorstrangeskill3.webp",
-                "skilldescription": "Doctor Strange scorches all enemies for 2 turns, dealing 15 affliction damage each turn. When Strange's magic is already on them, the flames become a mark of his power instead.",
+                "skilldescription": "Burn all enemies for 2 turns, dealing 15 affliction damage at the start of each turn. Also mark them and ready the Book of the Vishanti.",
                 "energy": [
                     "Ninjutsu",
                     "Ninjutsu"
@@ -14040,7 +14040,7 @@ const characters = [
                 "id": "doctor-strange-channel-zom",
                 "name": "Book of the Vishanti",
                 "skillimage": "assets/images/doctorstrangeskill4.webp",
-                "skilldescription": "Whenever Doctor Strange uses one of his other skills, this skill can be used. Using it improves his next skill, and using it three times transforms it into Astral Form permanently.",
+                "skilldescription": "Use this after one of Doctor Strange's other skills to empower his next skill for 2 turns. After the third use, it permanently transforms into Astral Form.",
                 "energy": [],
                 "target": "self",
                 "damage": 0,
@@ -14097,7 +14097,7 @@ const characters = [
                 "isHidden": true,
                 "hiddenFromSelectionViewer": true,
                 "skillimage": "assets/images/doctorstrangeskill5.webp",
-                "skilldescription": "For 3 turns, Doctor Strange ignores harmful and helpful effects except damage. At the start of each turn, one of his other skills is randomly replaced with an improved version and that skill is blocked for the turn.",
+                "skilldescription": "For 3 turns, Doctor Strange ignores harmful and helpful non-damage effects. At the start of each turn, one of his other skills is randomly upgraded and locked for that turn.",
                 "energy": [
                     "Bloodline",
                     "Ninjutsu",
@@ -14155,7 +14155,7 @@ const characters = [
                 "isHidden": true,
                 "hiddenFromSelectionViewer": true,
                 "skillimage": "assets/images/doctorstrangeskill1.webp",
-                "skilldescription": "Improved: the target is cursed to take 35 damage the first time they use a harmful skill.",
+                "skilldescription": "Improved: the target is cursed so the first harmful skill they use is reflected back on them for 35 damage.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -14203,7 +14203,7 @@ const characters = [
                 "isHidden": true,
                 "hiddenFromSelectionViewer": true,
                 "skillimage": "assets/images/doctorstrangeskill2.webp",
-                "skilldescription": "Improved: allies gain 15 destructible defense and the first damage they take becomes healing instead. Enemies lose all helpful effects and are stunned for 1 turn.",
+                "skilldescription": "Improved: allies gain 15 destructible defense and convert the first damage they take into healing instead. Enemies lose all helpful effects, are stunned for 1 turn, and are marked by Doctor Strange.",
                 "energy": [
                     "Bloodline",
                     "Random"
@@ -14312,7 +14312,7 @@ const characters = [
                 "isHidden": true,
                 "hiddenFromSelectionViewer": true,
                 "skillimage": "assets/images/doctorstrangeskill3.webp",
-                "skilldescription": "Improved: Strange splits 60 affliction damage equally between all enemies.",
+                "skilldescription": "Improved: deal 60 affliction damage split evenly among all enemies.",
                 "energy": [
                     "Ninjutsu",
                     "Ninjutsu"
