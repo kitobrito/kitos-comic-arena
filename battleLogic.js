@@ -3674,7 +3674,7 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
     return dealt;
 };
 
-const applyHealToUnit = (unit, rawAmount) => {
+const applyHealToUnit = (unit, rawAmount, context = {}) => {
     if (!unit || unit.alive === false || isUnitBanished(unit)) return 0;
     const targetState = ensureUnitStateShape(unit);
     if (Math.max(0, Number(rawAmount) || 0) > 0) {
@@ -3688,7 +3688,28 @@ const applyHealToUnit = (unit, rawAmount) => {
     const before = Number(unit.hp) || 0;
     const cap = Math.max(0, Number(unit?.hpCap) || DEFAULT_HP);
     unit.hp = Math.min(DEFAULT_HP, cap, before + heal);
-    return Math.max(0, unit.hp - before);
+    const healed = Math.max(0, unit.hp - before);
+    const nextMetadata =
+        context?.onSuccessfulHealApplyStatusToOwner?.metadata &&
+        typeof context.onSuccessfulHealApplyStatusToOwner.metadata === 'object'
+            ? { ...context.onSuccessfulHealApplyStatusToOwner.metadata }
+            : null;
+    if (healed > 0 && context?.sourceState && context?.onSuccessfulHealApplyStatusToOwner?.statusId) {
+        if (nextMetadata && Boolean(nextMetadata.stackDeltaFromHealingDone)) {
+            nextMetadata.stackDelta = healed;
+        }
+        applyStatus({
+            targetState: context.sourceState,
+            statusId: context.onSuccessfulHealApplyStatusToOwner.statusId,
+            duration: context.onSuccessfulHealApplyStatusToOwner.duration,
+            sourceSkillId: context.sourceSkillId || null,
+            sourceUsername: context.sourceUsername || null,
+            sourceSlot: Number.isInteger(context.sourceSlot) ? context.sourceSlot : null,
+            metadata: nextMetadata || context.onSuccessfulHealApplyStatusToOwner.metadata || {},
+            fresh: false,
+        });
+    }
+    return healed;
 };
 
 const applyDirectHpGainToUnit = (unit, rawAmount) => {
@@ -5634,6 +5655,17 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             if (scope === 'all-allies') {
                 return filterHelpfulImmuneRecipients({ effect, recipients: actorAllies, actingUsername });
             }
+            if (scope === 'all-allies-except-target') {
+                const primaryTarget = selectedTargets[0];
+                return filterHelpfulImmuneRecipients({
+                    effect,
+                    recipients: actorAllies.filter((entry) => {
+                        if (!primaryTarget?.unit) return true;
+                        return !(entry?.username === primaryTarget.username && entry?.slot === primaryTarget.slot);
+                    }),
+                    actingUsername,
+                });
+            }
             if (scope === 'target') {
                 return filterHelpfulImmuneRecipients({
                     effect,
@@ -6892,7 +6924,15 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             effect,
                             actorUnit,
                             targetUnit: recipient.unit,
-                        }) + sourceHealingBonus
+                        }) + sourceHealingBonus,
+                        {
+                            sourceState: actorState,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            sourceSkillId: skill.id || null,
+                            onSuccessfulHealApplyStatusToOwner:
+                                effect?.metadata?.onSuccessfulHealApplyStatusToOwner || null,
+                        }
                     );
                 });
                 return;
@@ -8580,15 +8620,33 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                     match.chakraPools[status.sourceUsername] = sourcePool;
                 }
 
+                const sourceUnitForHeal =
+                    status?.sourceUsername && Number.isInteger(status?.sourceSlot)
+                        ? match.board?.[status.sourceUsername]?.[Number(status.sourceSlot)] || null
+                        : null;
                 const turnEndHealPercentCurrent = Number(status?.metadata?.turnEndHealPercentCurrent) || 0;
                 if (turnEndHealPercentCurrent > 0) {
                     const currentHp = Math.max(0, Number(unit?.hp) || 0);
                     const healAmount = (currentHp * turnEndHealPercentCurrent) / 100;
-                    applyHealToUnit(unit, healAmount);
+                    applyHealToUnit(unit, healAmount, {
+                        sourceState: sourceUnitForHeal ? ensureUnitStateShape(sourceUnitForHeal) : null,
+                        sourceUsername: status?.sourceUsername || null,
+                        sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
+                        sourceSkillId: status?.sourceSkillId || null,
+                        onSuccessfulHealApplyStatusToOwner:
+                            status?.metadata?.onTurnEndHealApplyStatusToOwner || null,
+                    });
                 }
                 const turnEndHealFlat = Math.max(0, Number(status?.metadata?.turnEndHealFlat) || 0);
                 if (turnEndHealFlat > 0) {
-                    applyHealToUnit(unit, turnEndHealFlat);
+                    applyHealToUnit(unit, turnEndHealFlat, {
+                        sourceState: sourceUnitForHeal ? ensureUnitStateShape(sourceUnitForHeal) : null,
+                        sourceUsername: status?.sourceUsername || null,
+                        sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
+                        sourceSkillId: status?.sourceSkillId || null,
+                        onSuccessfulHealApplyStatusToOwner:
+                            status?.metadata?.onTurnEndHealApplyStatusToOwner || null,
+                    });
                 }
                 const turnEndHealthLoss = Math.max(0, Number(status?.metadata?.turnEndHealthLoss) || 0);
                 if (turnEndHealthLoss > 0) {
