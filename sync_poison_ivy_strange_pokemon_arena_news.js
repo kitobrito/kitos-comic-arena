@@ -6,6 +6,8 @@ const characters = require('./characters');
 const uri = process.env.MONGODB_URI;
 const dbName = process.env.MONGODB_DB || 'comic-arena';
 const newsCollectionName = process.env.MONGODB_NEWS_POSTS_COLLECTION || 'news_posts';
+const appStateCollectionName = process.env.MONGODB_APP_STATE_COLLECTION || 'app_state';
+const latestReleasesKey = 'latest_character_releases';
 
 const getCharacter = (characterId) => {
     const character = characters.find(
@@ -43,75 +45,134 @@ const skillShowcase = (characterId, skillId, text) => {
 };
 
 const now = new Date();
+const existingLatestPokemon = ['koffing', 'butterfree', 'squirtle'];
 
 const newsPost = {
-    title: 'Comic Arena Update V.3.1.3',
+    title: 'Comic Arena Update V.3.1.4',
     blocks: [
         {
             type: 'paragraph',
-            text: 'Comic Arena Update V.3.1.3 adds Poison Ivy to the roster with her plant-heavy control kit, her new mission art, and the kind of battlefield pressure that keeps teams rooted in place.',
+            text: 'Comic Arena Update V.3.1.4 adds Koffing to Pokemon Arena, bringing a full gas-based control kit that spreads poison pressure, blocks enemy setup, and explodes into Weezing once every move has been used.',
         },
         {
             type: 'paragraph',
-            text: 'Doctor Strange has also been rebuilt from the ground up around the new redesign template, with a fresh mystic kit that leans on Arcane Energy, Zom, and a more aggressive spell loop.',
+            text: 'Doctor Strange remains fully rebuilt around the new redesign template, with a mystic kit that leans on Arcane Energy, Zom, and a more aggressive spell loop.',
         },
         {
             type: 'paragraph',
-            text: 'On top of the character work, Pokemon Arena is now part of the game too, with its own arena flow, selection screens, and battle presentation.',
+            text: 'On top of the character work, Pokemon Arena keeps growing as a full second arena with its own flow, selection screens, and battle presentation.',
         },
         {
             type: 'paragraph',
-            text: 'Butterfree has also entered Pokemon Arena with a full control kit built around confusion, cooldown pressure, sleep powder, and a team-wide Whirlwind that protects allies from non-mental skills.',
+            text: 'The latest Pokemon releases panel now features Koffing alongside Butterfree and Squirtle, so the roster announcement section stays aligned with the arena\'s newest additions.',
         },
         {
             type: 'paragraph',
-            text: 'Below is a full skill-by-skill rundown for both new characters, including the improved forms Strange can unlock once the Book of the Vishanti starts mutating his kit.',
+            text: 'Below is a full skill-by-skill rundown for Koffing and Weezing, including the improved evolution form and the exact way Poison Gas changes the pace of a fight.',
         },
     ],
     paragraphs: [
-        'Comic Arena Update V.3.1.3 adds Poison Ivy to the roster with her plant-heavy control kit, her new mission art, and the kind of battlefield pressure that keeps teams rooted in place.',
-        'Doctor Strange has also been rebuilt from the ground up around the new redesign template, with a fresh mystic kit that leans on Arcane Energy, Zom, and a more aggressive spell loop.',
-        'On top of the character work, Pokemon Arena is now part of the game too, with its own arena flow, selection screens, and battle presentation.',
-        'Butterfree has also entered Pokemon Arena with a full control kit built around confusion, cooldown pressure, sleep powder, and a team-wide Whirlwind that protects allies from non-mental skills.',
-        'Below is a full skill-by-skill rundown for both new characters, including the improved forms Strange can unlock once the Book of the Vishanti starts mutating his kit.',
+        'Comic Arena Update V.3.1.4 adds Koffing to Pokemon Arena, bringing a full gas-based control kit that spreads poison pressure, blocks enemy setup, and explodes into Weezing once every move has been used.',
+        'Doctor Strange remains fully rebuilt around the new redesign template, with a mystic kit that leans on Arcane Energy, Zom, and a more aggressive spell loop.',
+        'On top of the character work, Pokemon Arena keeps growing as a full second arena with its own flow, selection screens, and battle presentation.',
+        'The latest Pokemon releases panel now features Koffing alongside Butterfree and Squirtle, so the roster announcement section stays aligned with the arena\'s newest additions.',
+        'Below is a full skill-by-skill rundown for Koffing and Weezing, including the improved evolution form and the exact way Poison Gas changes the pace of a fight.',
     ],
     changes: [
         skillShowcase(
-            'poison-ivy',
-            'poison-ivy-vine-forest-growth',
-            'Vine Forest Growth is Ivy\'s setup turn: she gives her team 5 destructible defense for 3 turns, starts chipping the enemy team for 5 damage per turn, and swaps her other plant skills into stronger versions while it is active.'
+            'koffing',
+            'koffing-smog',
+            'Smog costs 1 Bloodline and deals 5 affliction damage to all enemies each turn for 4 turns. The effect stacks, so Koffing can keep layering the cloud as long as the fight goes on.'
         ),
         skillShowcase(
-            'poison-ivy',
-            'poison-ivy-carnivorous-plant',
-            'Carnivorous Plant hits one enemy for 35 damage and removes 1 non-blue energy from them. While Vine Forest Growth is active, it steals 1 random energy instead, turning it into a stronger drain tool.'
+            'koffing',
+            'koffing-haze',
+            'Haze costs 1 Genjutsu and lets Koffing\'s team ignore all new enemy non-damaging effects for 1 turn, which is the clean anti-setup button in his kit.'
         ),
-        skillShowcase('poison-ivy', 'poison-ivy-lashing-thorns', 'Lashing Thorns burns the whole enemy team for 5 affliction damage each turn for 2 turns, and if Vine Forest Growth is active the effect stays up until Ivy dies.'),
-        skillShowcase('poison-ivy', 'poison-ivy-vine-entanglement', 'Vine Entanglement deals 20 damage to one enemy and stuns their harmful skills for 1 turn. When Vine Forest Growth is active, it upgrades into the all-enemy version and costs an extra random energy.'),
-        skillShowcase('poison-ivy', 'poison-ivy-vine-entanglement-all', 'Vine Entanglement can also hit every enemy at once while Vine Forest Growth is active, keeping the 20 damage and harmful-skill stun on the whole enemy team.'),
-        skillShowcase('poison-ivy', 'poison-ivy-plant-doubles', 'Plant Doubles gives Ivy\'s whole team 15% unpierceable damage reduction for 3 turns, adds 5 more destructible defense from defense effects, and shuts off enemy energy drain and removal tricks.'),
-        skillShowcase('poison-ivy', 'poison-ivy-grasping-vines', 'Grasping Vines is the Vine Forest Growth upgrade to Lashing Thorns: it deals 5 piercing damage to the enemy team for 3 turns and punishes enemies that do not answer with a new skill by stunning their non-affliction skills for 1 turn.'),
-        skillShowcase('poison-ivy', 'poison-ivy-carnivorous-plant-steal', 'Carnivorous Plant\'s Vine Forest Growth version keeps the 35 damage but always steals 1 random energy, letting Ivy squeeze the enemy team harder while her forest is active.'),
-        skillShowcase('poison-ivy', 'poison-ivy-branch-entanglement', 'Branch Entanglement is the hidden follow-up after Carnivorous Plant: it deals 20 damage, stuns harmful skills for 1 turn, and then swaps back into Vine Entanglement.'),
-        skillShowcase('poison-ivy', 'poison-ivy-passive-healing-fruit', 'Passive: Healing Fruit gives Ivy 1 stack every time she uses a skill. At 3 stacks, she heals 30% of her missing HP and gains the same amount as destructible defense for 1 turn.'),
-        skillShowcase('doctor-strange', 'doctor-strange-eldritch-manifestation', 'Eldritch Manifestation deals 20 piercing damage to one enemy, then adds up to 15 more piercing damage based on how much damage they dealt this turn. If they are marked, it adds another 10 piercing damage, stuns them for 1 turn, and readies the Book of the Vishanti.'),
-        skillShowcase('doctor-strange', 'doctor-strange-shield-of-the-seraphim', 'Spell of the Seraphim protects allies by giving them 15 destructible defense and making their first damage turn into healing, while enemy targets lose helpful effects, get stunned for 1 turn, and receive Doctor Strange\'s mark.'),
-        skillShowcase('doctor-strange', 'doctor-strange-bolts-of-balthakk', 'Flames of the Faltine burns all enemies for 2 turns, dealing 15 affliction damage at the start of each turn and also applying Doctor Strange\'s mark so the rest of his kit can push harder.'),
-        skillShowcase('doctor-strange', 'doctor-strange-channel-zom', 'Book of the Vishanti is Strange\'s setup button: after another skill, it empowers his next skill for 2 turns, and after the third use it permanently transforms into Astral Form.'),
-        skillShowcase('doctor-strange', 'doctor-strange-zoms-wrath', 'Astral Form lasts 3 turns, blocks harmful and helpful non-damage effects on Strange, and randomly upgrades one of his other skills at the start of each turn while locking that skill for the turn.'),
-        skillShowcase('doctor-strange', 'doctor-strange-eldritch-manifestation-improved', 'Improved Eldritch Manifestation reflects the first harmful skill the target tries to use, hitting them back for 35 damage instead.'),
-        skillShowcase('doctor-strange', 'doctor-strange-shield-of-the-seraphim-improved', 'Improved Spell of the Seraphim keeps the ally shield, healing conversion, and defense, but enemy targets are stunned for 1 turn and marked as well.'),
-        skillShowcase('doctor-strange', 'doctor-strange-bolts-of-balthakk-improved', 'Improved Flames of the Faltine splits 60 affliction damage evenly across all enemies, making the burn much more explosive when Strange is in Astral Form.'),
-        skillShowcase('doctor-strange', 'doctor-strange-passive-vishanti-ready', 'Passive: Prepared for the Vishanti makes Doctor Strange ready to use the Book of the Vishanti whenever he uses one of his non-Book skills.'),
-        skillShowcase('butterfree', 'butterfree-confusion', 'Confusion deals 25 damage to one enemy, has a 25% chance to reflect the next harmful skill used by that enemy back onto its user for 1 turn, and gives Psybeam 5 extra damage for 1 turn.'),
-        skillShowcase('butterfree', 'butterfree-psybeam', 'Psybeam deals 25 damage to one enemy, increases their next skill cooldown by 2 for 1 turn, and gives Confusion 5 extra damage for 1 turn.'),
-        skillShowcase('butterfree', 'butterfree-stun-spore', 'Stun Spore deals 10 affliction damage to one enemy each turn for 2 turns, paralyzes their cooldowns for 1 turn each turn, and swaps into Sleep Powder after use.'),
-        skillShowcase('butterfree', 'butterfree-whirlwind', 'Whirlwind costs 1 Genjutsu and makes Butterfree\'s team invulnerable to non-mental skills for 1 turn.'),
-        skillShowcase('butterfree', 'butterfree-sleep-powder', 'Sleep Powder stuns one enemy for 2 turns, cancels when new damage lands, and swaps back into Stun Spore after use.'),
+        skillShowcase(
+            'koffing',
+            'koffing-self-destruct',
+            'Self-Destruct costs 1 Random, deals 20 affliction damage to all enemies, and costs Koffing 20 HP. If it defeats him, the enemy team takes 5 extra affliction damage on top of the blast.'
+        ),
+        skillShowcase(
+            'koffing',
+            'koffing-smokescreen',
+            'Smokescreen costs 1 Random and gives Koffing\'s team 20% evasion for 2 turns, helping the squad slip past incoming attacks while the gas keeps spreading.'
+        ),
+        skillShowcase(
+            'koffing',
+            'koffing-passive-poison-gas',
+            'Passive: Poison Gas gives Koffing a 20% chance to add a random Gas Effect for 1 turn whenever he damages an enemy: cooldown paralysis, helpful-skill lock, 50% damage reduction, or a delay until their next turn.'
+        ),
+        skillShowcase(
+            'koffing',
+            'koffing-passive-evolution-weezing',
+            'Evolution - Weezing triggers after Koffing has used each of his skills at least once, then swaps him into Weezing and upgrades the whole kit.'
+        ),
+        skillShowcase(
+            'koffing',
+            'koffing-weezing-passive-poison-gas',
+            'Weezing\'s Passive: Poison Gas jumps to a 40% chance and keeps the same four Gas Effects, making every hit much more oppressive once the evolution lands.'
+        ),
+        skillShowcase(
+            'koffing',
+            'koffing-weezing-smog',
+            'Weezing\'s Smog keeps the 5 affliction damage cloud but swaps to 1 Random cost, letting the evolved form keep pressure up more easily.'
+        ),
+        skillShowcase(
+            'koffing',
+            'koffing-weezing-haze',
+            'Weezing\'s Haze extends the anti-setup shield to 2 turns, so the evolved form can stall enemy plans for longer.'
+        ),
+        skillShowcase(
+            'koffing',
+            'koffing-weezing-self-destruct',
+            'Weezing\'s Self-Destruct costs 2 Random, deals 30 affliction damage to all enemies, and still punishes a self-KO with the extra 5 affliction damage burst.'
+        ),
+        skillShowcase(
+            'koffing',
+            'koffing-weezing-smokescreen',
+            'Weezing\'s Smokescreen increases the team evasion to 25% for 3 turns, turning the evolved form into a much slipperier support piece.'
+        ),
     ],
     author: 'kito',
     createdAt: now,
     updatedAt: now,
+};
+
+const buildLatestReleasesState = (existingState = null) => {
+    const state = existingState && typeof existingState === 'object' ? existingState : {};
+    const currentComic = Array.isArray(state.releasesByArena?.comic)
+        ? state.releasesByArena.comic
+        : Array.isArray(state.comicReleases)
+            ? state.comicReleases
+            : Array.isArray(state.releases)
+                ? state.releases
+                : [];
+    const currentPokemon = Array.isArray(state.releasesByArena?.pokemon)
+        ? state.releasesByArena.pokemon
+        : Array.isArray(state.pokemonReleases)
+            ? state.pokemonReleases
+            : [];
+    const nextPokemon = [
+        ...existingLatestPokemon,
+        ...currentPokemon
+            .map((entry) => (entry && typeof entry.characterId === 'string' ? entry.characterId : ''))
+            .filter((characterId) => characterId && !existingLatestPokemon.includes(characterId)),
+    ].slice(0, 3);
+    return {
+        key: latestReleasesKey,
+        version: 'update-v3-1-4-koffing',
+        releases: currentComic.map((entry) => ({ characterId: entry.characterId })),
+        comicReleases: currentComic.map((entry) => ({ characterId: entry.characterId })),
+        pokemonReleases: nextPokemon.map((characterId) => ({ characterId })),
+        releasesByArena: {
+            comic: currentComic.map((entry) => ({ characterId: entry.characterId })),
+            pokemon: nextPokemon.map((characterId) => ({ characterId })),
+        },
+        updatedAt: new Date(),
+        updatedBy: 'sync_poison_ivy_strange_pokemon_arena_news',
+    };
 };
 
 async function syncPoisonIvyAndStrangeNews() {
@@ -124,6 +185,7 @@ async function syncPoisonIvyAndStrangeNews() {
         await client.connect();
         const db = client.db(dbName);
         const newsPosts = db.collection(newsCollectionName);
+        const appState = db.collection(appStateCollectionName);
 
         const { createdAt, ...newsPostUpdate } = newsPost;
         await newsPosts.updateOne(
@@ -132,7 +194,14 @@ async function syncPoisonIvyAndStrangeNews() {
             { upsert: true }
         );
 
-        console.log('Synced Comic Arena Update V.3.1.3 news.');
+        const latestState = await appState.findOne({ key: latestReleasesKey });
+        await appState.updateOne(
+            { key: latestReleasesKey },
+            { $set: buildLatestReleasesState(latestState) },
+            { upsert: true }
+        );
+
+        console.log('Synced Comic Arena Update V.3.1.4 news and Pokemon latest releases.');
     } finally {
         await client.close();
     }
