@@ -17186,7 +17186,7 @@ const characters = [
                 "id": "charmander-ember",
                 "name": "Ember",
                 "skillimage": "assets/images/PokemonArena/Charmander/ember.jpg",
-                "skilldescription": "Charmander deals 15 affliction damage to one enemy. This skill has a 35% chance to Burn the target. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
+                "skilldescription": "Charmander deals 15 affliction damage to one enemy. This skill has a 30% chance to Burn the target. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -17221,7 +17221,7 @@ const characters = [
                         "statusId": "charmander_burn",
                         "duration": 99,
                         "scope": "target",
-                        "chance": 35,
+                        "chance": 30,
                         "metadata": {
                             "harmful": true,
                             "infiniteDuration": true,
@@ -17257,9 +17257,9 @@ const characters = [
                 "id": "charmander-scratch",
                 "name": "Scratch",
                 "skillimage": "assets/images/PokemonArena/Charmander/scratch.webp",
-                "skilldescription": "Charmander deals 20 damage to one enemy. This skill has a 10% chance to critically strike, dealing 10 additional damage and becoming Piercing.",
+                "skilldescription": "Charmander deals 20 damage to one enemy. This skill has a 30% chance to critically strike, dealing 10 additional damage and becoming Piercing.",
                 "energy": [
-                    "Taijutsu"
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -17287,7 +17287,7 @@ const characters = [
                         "type": "damage",
                         "amount": 10,
                         "scope": "target",
-                        "chance": 10,
+                        "chance": 30,
                         "metadata": {
                             "ignoreDamageReduction": true,
                             "onSuccessfulDamageApplyStatusToOwner": {
@@ -17309,7 +17309,7 @@ const characters = [
                 "id": "charmander-flamethrower",
                 "name": "Charmander's Flamethrower",
                 "skillimage": "assets/images/PokemonArena/Charmander/charmandersflamethrower.jpg",
-                "skilldescription": "Charmander deals 20 affliction damage to all enemies. Each enemy has a 35% chance to be Burned. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
+                "skilldescription": "Charmander deals 20 affliction damage to all enemies. Each enemy has a 30% chance to be Burned. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
                 "energy": [
                     "Bloodline",
                     "Random"
@@ -17345,7 +17345,7 @@ const characters = [
                         "statusId": "charmander_burn",
                         "duration": 99,
                         "scope": "all-enemy",
-                        "chance": 35,
+                        "chance": 30,
                         "rollPerRecipient": true,
                         "metadata": {
                             "harmful": true,
@@ -17445,8 +17445,9 @@ const characters = [
                     "statusId": "charmander_charmeleon_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Charmander/firepunch.jpg",
-                "skilldescription": "Charmeleon deals 15 physical damage and 15 affliction damage to one enemy. This skill has a 35% chance to Burn the target. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
+                "skilldescription": "Charmeleon deals 15 physical damage and 30 affliction damage to one enemy. This skill has a 30% chance to Burn the target. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
                 "energy": [
+                    "Bloodline",
                     "Bloodline"
                 ],
                 "target": "single-enemy",
@@ -17474,7 +17475,7 @@ const characters = [
                     },
                     {
                         "type": "damage",
-                        "amount": 15,
+                        "amount": 30,
                         "scope": "target",
                         "metadata": {
                             "afflictionDamage": true,
@@ -17487,7 +17488,7 @@ const characters = [
                         "statusId": "charmander_burn",
                         "duration": 99,
                         "scope": "target",
-                        "chance": 35,
+                        "chance": 30,
                         "metadata": {
                             "harmful": true,
                             "infiniteDuration": true,
@@ -17515,9 +17516,10 @@ const characters = [
                     "statusId": "charmander_charmeleon_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Charmander/dragonclaw.jpg",
-                "skilldescription": "Charmeleon deals 35 damage to one enemy. This skill has a 10% chance to critically strike, dealing 10 additional damage and becoming Piercing.",
+                "skilldescription": "Charmeleon deals 30 damage to one enemy. This skill has a 30% chance to critically strike, dealing 10 additional damage and becoming Piercing.",
                 "energy": [
-                    "Taijutsu"
+                    "Random",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -17530,7 +17532,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 35,
+                        "amount": 30,
                         "scope": "target",
                         "metadata": {
                             "bonusPerStatusMetadata": {
@@ -17545,7 +17547,7 @@ const characters = [
                         "type": "damage",
                         "amount": 10,
                         "scope": "target",
-                        "chance": 10,
+                        "chance": 30,
                         "metadata": {
                             "ignoreDamageReduction": true
                         }
@@ -17559,9 +17561,10 @@ const characters = [
                     "statusId": "charmander_charmeleon_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Charmander/charmeleonsflamethrower.jpg",
-                "skilldescription": "Deals 30 affliction damage to all enemies. Each enemy has a 35% chance to be Burned. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
+                "skilldescription": "Deals 30 affliction damage to all enemies. Each enemy has a 30% chance to be Burned. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
                 "energy": [
                     "Bloodline",
+                    "Random",
                     "Random"
                 ],
                 "target": "all-enemy",
@@ -17595,7 +17598,7 @@ const characters = [
                         "statusId": "charmander_burn",
                         "duration": 99,
                         "scope": "all-enemy",
-                        "chance": 35,
+                        "chance": 30,
                         "rollPerRecipient": true,
                         "metadata": {
                             "harmful": true,
