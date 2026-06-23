@@ -19265,9 +19265,7 @@ const characters = [
                                 "chansey-eggbomb": "blissey-eggbomb",
                                 "chansey-pokemon-center-healing": "blissey-pokemon-center-healing",
                                 "chansey-softboil": "blissey-softboil",
-                                "chansey-pokemon-center-softboil": "blissey-pokemon-center-softboil",
-                                "chansey-emergency-life-support": "blissey-emergency-life-support",
-                                "chansey-pokemon-center-emergency-life-support": "blissey-pokemon-center-emergency-life-support"
+                                "chansey-emergency-life-support": "blissey-emergency-life-support"
                             },
                             "tooltipText": "Chansey has evolved into Blissey. Blissey's skills are improved."
                         }
@@ -19361,9 +19359,14 @@ const characters = [
                         "scope": "self",
                         "metadata": {
                             "infiniteDuration": false,
-                            "skillReplacements": {
-                                "chansey-softboil": "chansey-pokemon-center-softboil",
-                                "chansey-emergency-life-support": "chansey-pokemon-center-emergency-life-support"
+                            "skillCostOverridesBySkillId": {
+                                "chansey-emergency-life-support": {
+                                    "reservedSpecific": {
+                                        "bloodline": 1,
+                                        "genjutsu": 1
+                                    },
+                                    "requiredRandom": 0
+                                }
                             },
                             "turnEndApplyStatusToAllies": [
                                 {
@@ -19426,50 +19429,13 @@ const characters = [
                         "duration": 1,
                         "scope": "target",
                         "chance": 50,
+                        "condition": {
+                            "scope": "self",
+                            "missingStatusId": "chansey_pokemon_center_healing_active"
+                        },
                         "metadata": {
                             "minimumHp": 1,
                             "tooltipText": "This character cannot be killed."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "chansey-pokemon-center-softboil",
-                "name": "Softboil",
-                "actorCondition": {
-                    "statusId": "chansey_pokemon_center_healing_active"
-                },
-                "skillimage": "assets/images/PokemonArena/Chansey/softboilforchanseyandblissey.webp",
-                "skilldescription": "Heals one ally for 25 HP. That ally becomes unable to die for 1 turn.",
-                "energy": [
-                    "Genjutsu"
-                ],
-                "target": "single-ally",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "heal",
-                        "amount": 25,
-                        "scope": "target",
-                        "metadata": {
-                            "onSuccessfulHealApplyStatusToOwner": {
-                                "statusId": "chansey_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "chanseyHealedAmount": 0,
-                                    "stackMetadataKey": "chanseyHealedAmount",
-                                    "stackDeltaFromHealingDone": true,
-                                    "stackMax": 100,
-                                    "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
-                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
-                                }
-                            }
                         }
                     },
                     {
@@ -19477,6 +19443,10 @@ const characters = [
                         "statusId": "chansey_softboil_unable_to_die",
                         "duration": 1,
                         "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "chansey_pokemon_center_healing_active"
+                        },
                         "metadata": {
                             "minimumHp": 1,
                             "tooltipText": "This character cannot be killed."
@@ -19493,38 +19463,6 @@ const characters = [
                     "Bloodline",
                     "Genjutsu",
                     "Random"
-                ],
-                "target": "single-ally",
-                "damage": 0,
-                "cooldown": 4,
-                "classes": [
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "heal",
-                        "amount": 50,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "cleanse_statuses",
-                        "scope": "target",
-                        "sourceRelation": "enemy"
-                    }
-                ]
-            },
-            {
-                "id": "chansey-pokemon-center-emergency-life-support",
-                "name": "Pokémon Center Emergency Life Support",
-                "actorCondition": {
-                    "statusId": "chansey_pokemon_center_healing_active"
-                },
-                "skillimage": "assets/images/PokemonArena/Chansey/chanseyemergencypokemoncenterlifesupport.webp",
-                "skilldescription": "Heals one ally for 50 HP and removes all enemy skills currently affecting them. This skill costs 1 less Random energy while Pokémon Center Healing is active.",
-                "energy": [
-                    "Bloodline",
-                    "Genjutsu"
                 ],
                 "target": "single-ally",
                 "damage": 0,
@@ -19635,11 +19573,14 @@ const characters = [
                         "scope": "self",
                         "metadata": {
                             "infiniteDuration": false,
-                            "skillReplacements": {
-                                "chansey-softboil": "blissey-pokemon-center-softboil",
-                                "chansey-emergency-life-support": "blissey-pokemon-center-emergency-life-support",
-                                "chansey-pokemon-center-softboil": "blissey-pokemon-center-softboil",
-                                "chansey-pokemon-center-emergency-life-support": "blissey-pokemon-center-emergency-life-support"
+                            "skillCostOverridesBySkillId": {
+                                "blissey-emergency-life-support": {
+                                    "reservedSpecific": {
+                                        "bloodline": 1,
+                                        "genjutsu": 1
+                                    },
+                                    "requiredRandom": 0
+                                }
                             },
                             "turnEndApplyStatusToAllies": [
                                 {
@@ -19699,52 +19640,25 @@ const characters = [
                         "statusId": "blissey_softboil_unable_to_die",
                         "duration": 1,
                         "scope": "target",
+                        "chance": 50,
+                        "condition": {
+                            "scope": "self",
+                            "missingStatusId": "blissey_pokemon_center_healing_active"
+                        },
                         "metadata": {
                             "minimumHp": 1,
                             "tooltipText": "This character cannot be killed."
                         }
-                    }
-                ]
-            },
-            {
-                "id": "blissey-pokemon-center-softboil",
-                "name": "Softboil",
-                "actorCondition": {
-                    "statusId": "blissey_pokemon_center_healing_active"
-                },
-                "skillimage": "assets/images/PokemonArena/Chansey/softboilforchanseyandblissey.webp",
-                "skilldescription": "Heals one ally for 25 HP. Blissey and the other ally are also healed for 15 HP. The primary target becomes unable to die for 1 turn.",
-                "energy": [
-                    "Genjutsu"
-                ],
-                "target": "single-ally",
-                "damage": 0,
-                "cooldown": 1,
-                "classes": [
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "heal",
-                        "amount": 25,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "heal",
-                        "amount": 15,
-                        "scope": "self"
-                    },
-                    {
-                        "type": "heal",
-                        "amount": 15,
-                        "scope": "all-allies-except-target"
                     },
                     {
                         "type": "apply_status",
                         "statusId": "blissey_softboil_unable_to_die",
                         "duration": 1,
                         "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "blissey_pokemon_center_healing_active"
+                        },
                         "metadata": {
                             "minimumHp": 1,
                             "tooltipText": "This character cannot be killed."
@@ -19774,39 +19688,17 @@ const characters = [
                 ],
                 "effects": [
                     {
-                        "type": "revive",
+                        "type": "heal",
                         "amount": 50,
                         "scope": "target"
+                    },
+                    {
+                        "type": "cleanse_statuses",
+                        "scope": "target",
+                        "sourceRelation": "enemy"
                     }
                 ]
             },
-            {
-                "id": "blissey-pokemon-center-emergency-life-support",
-                "name": "Pokémon Center Emergency Life Support",
-                "actorCondition": {
-                    "statusId": "blissey_pokemon_center_healing_active"
-                },
-                "skillimage": "assets/images/PokemonArena/Chansey/blisseyemergencypokemoncenterlifesupport.webp",
-                "skilldescription": "Revives a defeated ally with 50 HP. This skill costs 1 less Random energy while Pokémon Center Healing is active.",
-                "energy": [
-                    "Bloodline",
-                    "Genjutsu"
-                ],
-                "target": "dead-ally-first",
-                "damage": 0,
-                "cooldown": 5,
-                "classes": [
-                    "Physical",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "revive",
-                        "amount": 50,
-                        "scope": "target"
-                    }
-                ]
-            }
         ],
         "role": "Support",
         "universe": "pokemon",
