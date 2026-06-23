@@ -61,6 +61,10 @@ const newsPost = {
         },
         {
             type: 'paragraph',
+            text: 'Butterfree has also entered Pokemon Arena with a full control kit built around confusion, cooldown pressure, sleep powder, and a team-wide Whirlwind that protects allies from non-mental skills.',
+        },
+        {
+            type: 'paragraph',
             text: 'Below is a full skill-by-skill rundown for both new characters, including the improved forms Strange can unlock once the Book of the Vishanti starts mutating his kit.',
         },
     ],
@@ -68,6 +72,7 @@ const newsPost = {
         'Comic Arena Update V.3.1.3 adds Poison Ivy to the roster with her plant-heavy control kit, her new mission art, and the kind of battlefield pressure that keeps teams rooted in place.',
         'Doctor Strange has also been rebuilt from the ground up around the new redesign template, with a fresh mystic kit that leans on Arcane Energy, Zom, and a more aggressive spell loop.',
         'On top of the character work, Pokemon Arena is now part of the game too, with its own arena flow, selection screens, and battle presentation.',
+        'Butterfree has also entered Pokemon Arena with a full control kit built around confusion, cooldown pressure, sleep powder, and a team-wide Whirlwind that protects allies from non-mental skills.',
         'Below is a full skill-by-skill rundown for both new characters, including the improved forms Strange can unlock once the Book of the Vishanti starts mutating his kit.',
     ],
     changes: [
@@ -98,6 +103,11 @@ const newsPost = {
         skillShowcase('doctor-strange', 'doctor-strange-shield-of-the-seraphim-improved', 'Improved Spell of the Seraphim keeps the ally shield, healing conversion, and defense, but enemy targets are stunned for 1 turn and marked as well.'),
         skillShowcase('doctor-strange', 'doctor-strange-bolts-of-balthakk-improved', 'Improved Flames of the Faltine splits 60 affliction damage evenly across all enemies, making the burn much more explosive when Strange is in Astral Form.'),
         skillShowcase('doctor-strange', 'doctor-strange-passive-vishanti-ready', 'Passive: Prepared for the Vishanti makes Doctor Strange ready to use the Book of the Vishanti whenever he uses one of his non-Book skills.'),
+        skillShowcase('butterfree', 'butterfree-confusion', 'Confusion deals 25 damage to one enemy, has a 25% chance to reflect the next harmful skill used by that enemy back onto its user for 1 turn, and gives Psybeam 5 extra damage for 1 turn.'),
+        skillShowcase('butterfree', 'butterfree-psybeam', 'Psybeam deals 25 damage to one enemy, increases their next skill cooldown by 2 for 1 turn, and gives Confusion 5 extra damage for 1 turn.'),
+        skillShowcase('butterfree', 'butterfree-stun-spore', 'Stun Spore deals 10 affliction damage to one enemy each turn for 2 turns, paralyzes their cooldowns for 1 turn each turn, and swaps into Sleep Powder after use.'),
+        skillShowcase('butterfree', 'butterfree-whirlwind', 'Whirlwind costs 1 Genjutsu and makes Butterfree\'s team invulnerable to non-mental skills for 1 turn.'),
+        skillShowcase('butterfree', 'butterfree-sleep-powder', 'Sleep Powder stuns one enemy for 2 turns, cancels when new damage lands, and swaps back into Stun Spore after use.'),
     ],
     author: 'kito',
     createdAt: now,
