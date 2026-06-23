@@ -87,7 +87,7 @@ const newsPost = {
         skillShowcase(
             'chansey',
             'chansey-pokemon-center-healing',
-            'Pokémon Center Healing costs 2 Random and heals Chansey\'s team for 10 HP while granting them 5 destructible defense each turn for 3 turns. While it is active, Softboil always makes its target unable to die.'
+            'Pokémon Center Healing costs 1 Random and heals Chansey\'s team for 5 HP while granting them 5 destructible defense each turn for 3 turns. While it is active, Softboil always makes its target unable to die.'
         ),
         skillShowcase(
             'chansey',

@@ -19322,9 +19322,8 @@ const characters = [
                 "id": "chansey-pokemon-center-healing",
                 "name": "Pokémon Center Healing",
                 "skillimage": "assets/images/PokemonArena/Chansey/chanseypokemoncenterhealing.webp",
-                "skilldescription": "Heals Chansey's team for 10 HP and grants them 5 destructible defense each turn for 3 turns. During this skill, Softboil will always make its target unable to die.",
+                "skilldescription": "Heals Chansey's team for 5 HP and grants them 5 destructible defense each turn for 3 turns. During this skill, Softboil will always make its target unable to die.",
                 "energy": [
-                    "Random",
                     "Random"
                 ],
                 "target": "all-allies",
@@ -19337,7 +19336,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "heal",
-                        "amount": 10,
+                        "amount": 5,
                         "scope": "all-allies",
                         "metadata": {
                             "onSuccessfulHealApplyStatusToOwner": {
@@ -19508,7 +19507,7 @@ const characters = [
                     "statusId": "chansey_blissey_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Chansey/blisseyeggbomb.webp",
-                "skilldescription": "Deals 35 affliction damage to one enemy and causes them to ignore all healing effects for 1 turn.",
+                "skilldescription": "Deals 30 affliction damage to one enemy and causes them to ignore all healing effects for 1 turn.",
                 "energy": [
                     "Random",
                     "Random"
@@ -19524,7 +19523,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 35,
+                        "amount": 30,
                         "scope": "target",
                         "metadata": {
                             "afflictionDamage": true,
