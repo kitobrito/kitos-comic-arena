@@ -19195,6 +19195,881 @@ const characters = [
         "roleCategory": "controller",
         "description": "A graceful butterfly Pokemon that turns powder, psionic force, and careful positioning into battlefield control. Butterfree disorients enemies, disrupts their cooldowns, and puts threats to sleep while its wings keep allies safe from ranged attacks.",
         "descriptionHtml": "A graceful butterfly Pokemon that turns powder, psionic force, and careful positioning into battlefield control. Butterfree disorients enemies, disrupts their cooldowns, and puts threats to sleep while its wings keep allies safe from ranged attacks."
+    },
+    {
+        "id": "koffing",
+        "characterId": "koffing",
+        "name": "Koffing",
+        "facePicture": "assets/images/PokemonArena/koffing/koffingfp.webp",
+        "characterdeescription": "A poisonous Gas-type Pokemon that clouds the battlefield, disrupts enemy setups, and evolves into a more volatile Weezing after fully using its tricks.",
+        "startStatuses": [
+            {
+                "statusId": "koffing_poison_gas_base",
+                "sourceSkillId": "koffing-passive-poison-gas",
+                "duration": 99,
+                "metadata": {
+                    "hidden": true,
+                    "infiniteDuration": true,
+                    "onTeamMemberSuccessfulDamageApplyRandomStatusToTarget": {
+                        "chancePercent": 20,
+                        "statusOptions": [
+                            {
+                                "statusId": "koffing_poison_gas_paralyze_cooldowns",
+                                "duration": 1,
+                                "metadata": {
+                                    "harmful": true,
+                                    "paralyzeCooldowns": true,
+                                    "tooltipText": "This character's cooldowns are paralyzed."
+                                }
+                            },
+                            {
+                                "statusId": "koffing_poison_gas_helpful_lock",
+                                "duration": 1,
+                                "metadata": {
+                                    "harmful": true,
+                                    "cannotUseHelpfulSkills": true,
+                                    "tooltipText": "This character cannot use helpful skills."
+                                }
+                            },
+                            {
+                                "statusId": "koffing_poison_gas_damage_reduction",
+                                "duration": 1,
+                                "metadata": {
+                                    "harmful": true,
+                                    "damageReductionPercent": 50,
+                                    "tooltipText": "This character has 50% damage reduction."
+                                }
+                            },
+                            {
+                                "statusId": "koffing_poison_gas_skill_delay",
+                                "duration": 1,
+                                "metadata": {
+                                    "harmful": true,
+                                    "cannotUseSkills": true,
+                                    "tooltipText": "This character's skills are delayed until their next turn."
+                                }
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "statusId": "koffing_smog_tracker",
+                "sourceSkillId": "koffing-smog",
+                "duration": 99,
+                "metadata": {
+                    "hidden": true,
+                    "infiniteDuration": true,
+                    "onOwnerUseSkillTrigger": true,
+                    "onOwnerUseSkillIdsAny": [
+                        "koffing-smog"
+                    ],
+                    "onOwnerUseSkillApplyStatusToOwner": {
+                        "statusId": "koffing_smog_used",
+                        "duration": 99,
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "tooltipText": "Koffing has used Smog."
+                        }
+                    }
+                }
+            },
+            {
+                "statusId": "koffing_haze_tracker",
+                "sourceSkillId": "koffing-haze",
+                "duration": 99,
+                "metadata": {
+                    "hidden": true,
+                    "infiniteDuration": true,
+                    "onOwnerUseSkillTrigger": true,
+                    "onOwnerUseSkillIdsAny": [
+                        "koffing-haze"
+                    ],
+                    "onOwnerUseSkillApplyStatusToOwner": {
+                        "statusId": "koffing_haze_used",
+                        "duration": 99,
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "tooltipText": "Koffing has used Haze."
+                        }
+                    }
+                }
+            },
+            {
+                "statusId": "koffing_self_destruct_tracker",
+                "sourceSkillId": "koffing-self-destruct",
+                "duration": 99,
+                "metadata": {
+                    "hidden": true,
+                    "infiniteDuration": true,
+                    "onOwnerUseSkillTrigger": true,
+                    "onOwnerUseSkillIdsAny": [
+                        "koffing-self-destruct"
+                    ],
+                    "onOwnerUseSkillApplyStatusToOwner": {
+                        "statusId": "koffing_self_destruct_used",
+                        "duration": 99,
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "tooltipText": "Koffing has used Self-Destruct."
+                        }
+                    }
+                }
+            },
+            {
+                "statusId": "koffing_smokescreen_tracker",
+                "sourceSkillId": "koffing-smokescreen",
+                "duration": 99,
+                "metadata": {
+                    "hidden": true,
+                    "infiniteDuration": true,
+                    "onOwnerUseSkillTrigger": true,
+                    "onOwnerUseSkillIdsAny": [
+                        "koffing-smokescreen"
+                    ],
+                    "onOwnerUseSkillApplyStatusToOwner": {
+                        "statusId": "koffing_smokescreen_used",
+                        "duration": 99,
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "tooltipText": "Koffing has used Smokescreen."
+                        }
+                    }
+                }
+            },
+            {
+                "statusId": "koffing_smog_evolution_check",
+                "sourceSkillId": "koffing-smog",
+                "duration": 99,
+                "metadata": {
+                    "hidden": true,
+                    "infiniteDuration": true,
+                    "onOwnerUseSkillTrigger": true,
+                    "onOwnerUseSkillIdsAny": [
+                        "koffing-smog"
+                    ],
+                    "onOwnerUseSkillApplyStatusToOwnerCondition": {
+                        "scope": "self",
+                        "statusIdsAll": [
+                            "koffing_smog_used",
+                            "koffing_haze_used",
+                            "koffing_self_destruct_used",
+                            "koffing_smokescreen_used"
+                        ]
+                    },
+                    "onOwnerUseSkillApplyStatusToOwner": {
+                        "statusId": "koffing_weezing_evolution",
+                        "duration": 99,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "facePictureOverride": "assets/images/PokemonArena/koffing/weezingfp.webp",
+                            "removeStatusIdsOnApply": [
+                                "koffing_poison_gas_base",
+                                "koffing_smog_tracker",
+                                "koffing_haze_tracker",
+                                "koffing_self_destruct_tracker",
+                                "koffing_smokescreen_tracker",
+                                "koffing_smog_used",
+                                "koffing_haze_used",
+                                "koffing_self_destruct_used",
+                                "koffing_smokescreen_used"
+                            ],
+                            "skillReplacements": {
+                                "koffing-passive-poison-gas": "koffing-weezing-passive-poison-gas",
+                                "koffing-smog": "koffing-weezing-smog",
+                                "koffing-haze": "koffing-weezing-haze",
+                                "koffing-self-destruct": "koffing-weezing-self-destruct",
+                                "koffing-smokescreen": "koffing-weezing-smokescreen"
+                            },
+                            "onTeamMemberSuccessfulDamageApplyRandomStatusToTarget": {
+                                "chancePercent": 40,
+                                "statusOptions": [
+                                    {
+                                        "statusId": "weezing_poison_gas_paralyze_cooldowns",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "paralyzeCooldowns": true,
+                                            "tooltipText": "This character's cooldowns are paralyzed."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_helpful_lock",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "cannotUseHelpfulSkills": true,
+                                            "tooltipText": "This character cannot use helpful skills."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_damage_reduction",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "damageReductionPercent": 50,
+                                            "tooltipText": "This character has 50% damage reduction."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_skill_delay",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "cannotUseSkills": true,
+                                            "tooltipText": "This character's skills are delayed until their next turn."
+                                        }
+                                    }
+                                ]
+                            },
+                            "tooltipText": "Koffing has evolved into Weezing. All of his skills have improved effects."
+                        }
+                    }
+                }
+            },
+            {
+                "statusId": "koffing_haze_evolution_check",
+                "sourceSkillId": "koffing-haze",
+                "duration": 99,
+                "metadata": {
+                    "hidden": true,
+                    "infiniteDuration": true,
+                    "onOwnerUseSkillTrigger": true,
+                    "onOwnerUseSkillIdsAny": [
+                        "koffing-haze"
+                    ],
+                    "onOwnerUseSkillApplyStatusToOwnerCondition": {
+                        "scope": "self",
+                        "statusIdsAll": [
+                            "koffing_smog_used",
+                            "koffing_haze_used",
+                            "koffing_self_destruct_used",
+                            "koffing_smokescreen_used"
+                        ]
+                    },
+                    "onOwnerUseSkillApplyStatusToOwner": {
+                        "statusId": "koffing_weezing_evolution",
+                        "duration": 99,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "facePictureOverride": "assets/images/PokemonArena/koffing/weezingfp.webp",
+                            "removeStatusIdsOnApply": [
+                                "koffing_poison_gas_base",
+                                "koffing_smog_tracker",
+                                "koffing_haze_tracker",
+                                "koffing_self_destruct_tracker",
+                                "koffing_smokescreen_tracker",
+                                "koffing_smog_used",
+                                "koffing_haze_used",
+                                "koffing_self_destruct_used",
+                                "koffing_smokescreen_used"
+                            ],
+                            "skillReplacements": {
+                                "koffing-passive-poison-gas": "koffing-weezing-passive-poison-gas",
+                                "koffing-smog": "koffing-weezing-smog",
+                                "koffing-haze": "koffing-weezing-haze",
+                                "koffing-self-destruct": "koffing-weezing-self-destruct",
+                                "koffing-smokescreen": "koffing-weezing-smokescreen"
+                            },
+                            "onTeamMemberSuccessfulDamageApplyRandomStatusToTarget": {
+                                "chancePercent": 40,
+                                "statusOptions": [
+                                    {
+                                        "statusId": "weezing_poison_gas_paralyze_cooldowns",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "paralyzeCooldowns": true,
+                                            "tooltipText": "This character's cooldowns are paralyzed."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_helpful_lock",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "cannotUseHelpfulSkills": true,
+                                            "tooltipText": "This character cannot use helpful skills."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_damage_reduction",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "damageReductionPercent": 50,
+                                            "tooltipText": "This character has 50% damage reduction."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_skill_delay",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "cannotUseSkills": true,
+                                            "tooltipText": "This character's skills are delayed until their next turn."
+                                        }
+                                    }
+                                ]
+                            },
+                            "tooltipText": "Koffing has evolved into Weezing. All of his skills have improved effects."
+                        }
+                    }
+                }
+            },
+            {
+                "statusId": "koffing_self_destruct_evolution_check",
+                "sourceSkillId": "koffing-self-destruct",
+                "duration": 99,
+                "metadata": {
+                    "hidden": true,
+                    "infiniteDuration": true,
+                    "onOwnerUseSkillTrigger": true,
+                    "onOwnerUseSkillIdsAny": [
+                        "koffing-self-destruct"
+                    ],
+                    "onOwnerUseSkillApplyStatusToOwnerCondition": {
+                        "scope": "self",
+                        "statusIdsAll": [
+                            "koffing_smog_used",
+                            "koffing_haze_used",
+                            "koffing_self_destruct_used",
+                            "koffing_smokescreen_used"
+                        ]
+                    },
+                    "onOwnerUseSkillApplyStatusToOwner": {
+                        "statusId": "koffing_weezing_evolution",
+                        "duration": 99,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "facePictureOverride": "assets/images/PokemonArena/koffing/weezingfp.webp",
+                            "removeStatusIdsOnApply": [
+                                "koffing_poison_gas_base",
+                                "koffing_smog_tracker",
+                                "koffing_haze_tracker",
+                                "koffing_self_destruct_tracker",
+                                "koffing_smokescreen_tracker",
+                                "koffing_smog_used",
+                                "koffing_haze_used",
+                                "koffing_self_destruct_used",
+                                "koffing_smokescreen_used"
+                            ],
+                            "skillReplacements": {
+                                "koffing-passive-poison-gas": "koffing-weezing-passive-poison-gas",
+                                "koffing-smog": "koffing-weezing-smog",
+                                "koffing-haze": "koffing-weezing-haze",
+                                "koffing-self-destruct": "koffing-weezing-self-destruct",
+                                "koffing-smokescreen": "koffing-weezing-smokescreen"
+                            },
+                            "onTeamMemberSuccessfulDamageApplyRandomStatusToTarget": {
+                                "chancePercent": 40,
+                                "statusOptions": [
+                                    {
+                                        "statusId": "weezing_poison_gas_paralyze_cooldowns",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "paralyzeCooldowns": true,
+                                            "tooltipText": "This character's cooldowns are paralyzed."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_helpful_lock",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "cannotUseHelpfulSkills": true,
+                                            "tooltipText": "This character cannot use helpful skills."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_damage_reduction",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "damageReductionPercent": 50,
+                                            "tooltipText": "This character has 50% damage reduction."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_skill_delay",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "cannotUseSkills": true,
+                                            "tooltipText": "This character's skills are delayed until their next turn."
+                                        }
+                                    }
+                                ]
+                            },
+                            "tooltipText": "Koffing has evolved into Weezing. All of his skills have improved effects."
+                        }
+                    }
+                }
+            },
+            {
+                "statusId": "koffing_smokescreen_evolution_check",
+                "sourceSkillId": "koffing-smokescreen",
+                "duration": 99,
+                "metadata": {
+                    "hidden": true,
+                    "infiniteDuration": true,
+                    "onOwnerUseSkillTrigger": true,
+                    "onOwnerUseSkillIdsAny": [
+                        "koffing-smokescreen"
+                    ],
+                    "onOwnerUseSkillApplyStatusToOwnerCondition": {
+                        "scope": "self",
+                        "statusIdsAll": [
+                            "koffing_smog_used",
+                            "koffing_haze_used",
+                            "koffing_self_destruct_used",
+                            "koffing_smokescreen_used"
+                        ]
+                    },
+                    "onOwnerUseSkillApplyStatusToOwner": {
+                        "statusId": "koffing_weezing_evolution",
+                        "duration": 99,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "facePictureOverride": "assets/images/PokemonArena/koffing/weezingfp.webp",
+                            "removeStatusIdsOnApply": [
+                                "koffing_poison_gas_base",
+                                "koffing_smog_tracker",
+                                "koffing_haze_tracker",
+                                "koffing_self_destruct_tracker",
+                                "koffing_smokescreen_tracker",
+                                "koffing_smog_used",
+                                "koffing_haze_used",
+                                "koffing_self_destruct_used",
+                                "koffing_smokescreen_used"
+                            ],
+                            "skillReplacements": {
+                                "koffing-passive-poison-gas": "koffing-weezing-passive-poison-gas",
+                                "koffing-smog": "koffing-weezing-smog",
+                                "koffing-haze": "koffing-weezing-haze",
+                                "koffing-self-destruct": "koffing-weezing-self-destruct",
+                                "koffing-smokescreen": "koffing-weezing-smokescreen"
+                            },
+                            "onTeamMemberSuccessfulDamageApplyRandomStatusToTarget": {
+                                "chancePercent": 40,
+                                "statusOptions": [
+                                    {
+                                        "statusId": "weezing_poison_gas_paralyze_cooldowns",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "paralyzeCooldowns": true,
+                                            "tooltipText": "This character's cooldowns are paralyzed."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_helpful_lock",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "cannotUseHelpfulSkills": true,
+                                            "tooltipText": "This character cannot use helpful skills."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_damage_reduction",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "damageReductionPercent": 50,
+                                            "tooltipText": "This character has 50% damage reduction."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_skill_delay",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "cannotUseSkills": true,
+                                            "tooltipText": "This character's skills are delayed until their next turn."
+                                        }
+                                    }
+                                ]
+                            },
+                            "tooltipText": "Koffing has evolved into Weezing. All of his skills have improved effects."
+                        }
+                    }
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "koffing-smog",
+                "name": "Smog",
+                "skillimage": "assets/images/PokemonArena/koffing/koffingsmog.webp",
+                "skilldescription": "Koffing deals 5 affliction damage to all enemies each turn for 4 turns. This effect stacks.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Affliction",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "koffing_smog_cloud",
+                        "duration": 4,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "allowDuplicateStatusInstances": true,
+                            "turnEndDamage": 5,
+                            "afflictionDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "This character takes 5 affliction damage each turn from Smog."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "koffing-haze",
+                "name": "Haze",
+                "skillimage": "assets/images/PokemonArena/koffing/koffinghaze.jpeg",
+                "skilldescription": "For 1 turn, Koffing's team ignores all new enemy non-damaging effects.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "all-allies",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "koffing_haze_cover",
+                        "duration": 1,
+                        "scope": "all-allies",
+                        "metadata": {
+                            "ignoreEnemyNonDamageEffects": true,
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "This character ignores new enemy non-damaging effects."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "koffing-self-destruct",
+                "name": "Self-Destruct",
+                "skillimage": "assets/images/PokemonArena/koffing/koffingexplosion.webp",
+                "skilldescription": "Koffing deals 20 affliction damage to all enemies and loses 20 HP. If this defeats Koffing, all enemies take 5 additional affliction damage.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Affliction",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "koffing_self_destruct_aftershock",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": false,
+                            "onOwnerDeathDealDamageToEnemyTeam": {
+                                "amount": 5,
+                                "afflictionDamage": true,
+                                "ignoreDamageReduction": true,
+                                "ignoreDestructibleDefense": true,
+                                "ignoreDamageImmunity": true,
+                                "ignoreAfflictionDamageImmunity": true
+                            },
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "If this character is defeated by Self-Destruct, all enemies take 5 additional affliction damage."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "self",
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                            "ignoreDamageImmunity": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "koffing-smokescreen",
+                "name": "Smokescreen",
+                "skillimage": "assets/images/PokemonArena/koffing/koffingsmokescreen.webp",
+                "skilldescription": "Koffing's team gains 20% evasion for 2 turns.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "all-allies",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "koffing_smokescreen_cover",
+                        "duration": 2,
+                        "scope": "all-allies",
+                        "metadata": {
+                            "evadeChancePercent": 20,
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "This character has 20% evasion."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "koffing-passive-poison-gas",
+                "name": "Passive: Poison Gas",
+                "skillimage": "assets/images/PokemonArena/koffing/koffingpassivepoisongas.webp",
+                "skilldescription": "Whenever Koffing damages an enemy, there is a 20% chance to inflict one random Gas Effect on them for 1 turn: their cooldowns are paralyzed, their helpful skills are disabled, their damage is reduced by 50%, or their skills are delayed until their next turn.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            },
+            {
+                "id": "koffing-passive-evolution-weezing",
+                "name": "Evolution - Weezing",
+                "skillimage": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
+                "skilldescription": "After Koffing has used each of his skills at least once during the battle, he evolves into Weezing. Weezing's skills are all improved.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            },
+            {
+                "id": "koffing-weezing-passive-poison-gas",
+                "name": "Passive: Poison Gas",
+                "actorCondition": {
+                    "statusId": "koffing_weezing_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/koffing/koffingpassivepoisongas.webp",
+                "skilldescription": "Whenever Weezing damages an enemy, there is a 40% chance to inflict one random Gas Effect on them for 1 turn: their cooldowns are paralyzed, their helpful skills are disabled, their damage is reduced by 50%, or their skills are delayed until their next turn.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            },
+            {
+                "id": "koffing-weezing-smog",
+                "name": "Smog",
+                "actorCondition": {
+                    "statusId": "koffing_weezing_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/koffing/weezingsmog.webp",
+                "skilldescription": "Weezing deals 5 affliction damage to all enemies each turn for 4 turns. This effect stacks.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Affliction",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "weezing_smog_cloud",
+                        "duration": 4,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "allowDuplicateStatusInstances": true,
+                            "turnEndDamage": 5,
+                            "afflictionDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "This character takes 5 affliction damage each turn from Smog."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "koffing-weezing-haze",
+                "name": "Haze",
+                "actorCondition": {
+                    "statusId": "koffing_weezing_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/koffing/weezinghaze.webp",
+                "skilldescription": "For 2 turns, Weezing's team ignores all new enemy non-damaging effects.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "all-allies",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "weezing_haze_cover",
+                        "duration": 2,
+                        "scope": "all-allies",
+                        "metadata": {
+                            "ignoreEnemyNonDamageEffects": true,
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "This character ignores new enemy non-damaging effects."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "koffing-weezing-self-destruct",
+                "name": "Self-Destruct",
+                "actorCondition": {
+                    "statusId": "koffing_weezing_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/koffing/weezingexplosion.webp",
+                "skilldescription": "Weezing deals 30 affliction damage to all enemies and loses 30 HP. If this defeats Weezing, all enemies take 5 additional affliction damage.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Affliction",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "weezing_self_destruct_aftershock",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": false,
+                            "onOwnerDeathDealDamageToEnemyTeam": {
+                                "amount": 5,
+                                "afflictionDamage": true,
+                                "ignoreDamageReduction": true,
+                                "ignoreDestructibleDefense": true,
+                                "ignoreDamageImmunity": true,
+                                "ignoreAfflictionDamageImmunity": true
+                            },
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "If this character is defeated by Self-Destruct, all enemies take 5 additional affliction damage."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "self",
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                            "ignoreDamageImmunity": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "koffing-weezing-smokescreen",
+                "name": "Smokescreen",
+                "actorCondition": {
+                    "statusId": "koffing_weezing_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/koffing/weezingsmokescreen.webp",
+                "skilldescription": "Weezing's team gains 25% evasion for 3 turns.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "all-allies",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "weezing_smokescreen_cover",
+                        "duration": 3,
+                        "scope": "all-allies",
+                        "metadata": {
+                            "evadeChancePercent": 25,
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "This character has 25% evasion."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Controller",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "controller",
+        "description": "A poisonous Gas-type Pokemon that clouds the battlefield, disrupts enemy setups, and evolves into a more volatile Weezing after fully using its tricks.",
+        "descriptionHtml": "A poisonous Gas-type Pokemon that clouds the battlefield, disrupts enemy setups, and evolves into a more volatile Weezing after fully using its tricks."
     }
 
 ];

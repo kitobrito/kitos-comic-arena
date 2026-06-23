@@ -4095,13 +4095,15 @@ const triggerOwnerDeathHooks = ({ unit, match, username, slot }) => {
         const metadata = status?.metadata || {};
         const onOwnerDeathApplyStatusToSelf = metadata?.onOwnerDeathApplyStatusToSelf;
         const onOwnerDeathApplyStatusToSource = metadata?.onOwnerDeathApplyStatusToSource;
+        const onOwnerDeathDealDamageToEnemyTeam = metadata?.onOwnerDeathDealDamageToEnemyTeam;
         const reviveToHp = Number(metadata?.onOwnerDeathReviveToHp);
 
         const hasRevive = Number.isFinite(reviveToHp) && reviveToHp > 0;
         const hasApplyToSelf = onOwnerDeathApplyStatusToSelf?.statusId;
         const hasApplyToSource = onOwnerDeathApplyStatusToSource?.statusId;
+        const hasDealDamageToEnemyTeam = onOwnerDeathDealDamageToEnemyTeam?.amount;
 
-        if (!hasRevive && !hasApplyToSelf && !hasApplyToSource) return;
+        if (!hasRevive && !hasApplyToSelf && !hasApplyToSource && !hasDealDamageToEnemyTeam) return;
         if (Boolean(metadata?._onOwnerDeathTriggered)) return;
 
         metadata._onOwnerDeathTriggered = true;
@@ -4138,6 +4140,31 @@ const triggerOwnerDeathHooks = ({ unit, match, username, slot }) => {
                     fresh: false,
                 });
             }
+        }
+
+        if (hasDealDamageToEnemyTeam) {
+            const enemies = getAliveEnemyRecipients({ match, username });
+            enemies.forEach((enemy) => {
+                if (!enemy?.unit) return;
+                applyDamageToUnit(enemy.unit, Math.max(0, Number(onOwnerDeathDealDamageToEnemyTeam.amount) || 0), {
+                    match,
+                    sourceUsername: status?.sourceUsername || username,
+                    sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : slot,
+                    sourceSkillId: resolveTriggeredEffectSourceSkillId({
+                        status,
+                        config: onOwnerDeathDealDamageToEnemyTeam,
+                    }),
+                    targetUsername: enemy.username,
+                    targetSlot: enemy.slot,
+                    afflictionDamage: Boolean(onOwnerDeathDealDamageToEnemyTeam.afflictionDamage),
+                    ignoreDamageReduction: Boolean(onOwnerDeathDealDamageToEnemyTeam.ignoreDamageReduction),
+                    ignoreDestructibleDefense: Boolean(onOwnerDeathDealDamageToEnemyTeam.ignoreDestructibleDefense),
+                    ignoreDamageImmunity: Boolean(onOwnerDeathDealDamageToEnemyTeam.ignoreDamageImmunity),
+                    ignoreAfflictionDamageImmunity: Boolean(
+                        onOwnerDeathDealDamageToEnemyTeam.ignoreAfflictionDamageImmunity
+                    ),
+                });
+            });
         }
 
         changed = true;
@@ -6332,6 +6359,14 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         targetHasHarmfulEffectImmunity &&
                         isHarmfulEffect(effect) &&
                         !hasSkillClass(skill?.classes || [], 'bypassing')
+                    ) {
+                        return;
+                    }
+                    if (
+                        effectType !== 'damage' &&
+                        effectType !== 'health_steal_damage' &&
+                        recipient.username !== actingUsername &&
+                        hasStatusMetadataFlag(targetState, 'ignoreEnemyNonDamageEffects')
                     ) {
                         return;
                     }
@@ -8913,6 +8948,13 @@ const applyOnEnemyTeamMemberUseSkillBonuses = ({
     const opponentUsername = opponent?.username;
     const opponentTeamUnits = opponentUsername ? match.board?.[opponentUsername] || [] : [];
     if (!opponentTeamUnits.length) return;
+    if (
+        actorUnit &&
+        actorUnit.alive !== false &&
+        hasStatusMetadataFlag(ensureUnitStateShape(actorUnit), 'ignoreEnemyNonDamageEffects')
+    ) {
+        return;
+    }
     opponentTeamUnits.forEach((teamUnit, teamSlot) => {
         if (!teamUnit || teamUnit.alive === false) return;
         const teamState = ensureUnitStateShape(teamUnit);
@@ -8968,6 +9010,12 @@ const applyOnTeamMemberSuccessfulDamageBonuses = ({
     const teamUnits = Array.isArray(match.board?.[actingUsername]) ? match.board[actingUsername] : [];
     if (!teamUnits.length) return;
     const targetState = ensureUnitStateShape(targetUnit);
+    if (
+        targetUsername !== actingUsername &&
+        hasStatusMetadataFlag(targetState, 'ignoreEnemyNonDamageEffects')
+    ) {
+        return;
+    }
     teamUnits.forEach((teamUnit, teamSlot) => {
         if (!teamUnit || teamUnit.alive === false) return;
         const teamState = ensureUnitStateShape(teamUnit);
@@ -9025,6 +9073,41 @@ const applyOnTeamMemberSuccessfulDamageBonuses = ({
                 metadata: applyStatusToTarget.metadata || {},
                 fresh: false,
             });
+            const applyRandomStatusToTarget = metadata.onTeamMemberSuccessfulDamageApplyRandomStatusToTarget;
+            if (applyRandomStatusToTarget?.statusOptions?.length) {
+                const chancePercent = Number(applyRandomStatusToTarget.chancePercent);
+                if (
+                    Number.isFinite(chancePercent) &&
+                    chancePercent >= 0 &&
+                    chancePercent < 100 &&
+                    !rollPercentSuccess(chancePercent)
+                ) {
+                    // No gas effect this time.
+                } else {
+                    const statusOptions = applyRandomStatusToTarget.statusOptions.filter((entry) => entry?.statusId);
+                    const pickedStatus = pickRandomEntry(statusOptions);
+                    if (pickedStatus?.statusId) {
+                        applyStatus({
+                            targetState,
+                            statusId: pickedStatus.statusId,
+                            duration: pickedStatus.duration,
+                            sourceSkillId: resolveTriggeredEffectSourceSkillId({
+                                status,
+                                config: pickedStatus,
+                                fallbackSkillId: sourceSkillId,
+                            }),
+                            sourceUsername: status?.sourceUsername || actingUsername || null,
+                            sourceSlot: Number.isInteger(status?.sourceSlot)
+                                ? status.sourceSlot
+                                : Number.isInteger(teamSlot)
+                                ? teamSlot
+                                : null,
+                            metadata: pickedStatus.metadata || {},
+                            fresh: false,
+                        });
+                    }
+                }
+            }
             const bonusDamage = Math.max(0, Number(applyStatusToTarget.damageToTarget) || 0);
             if (bonusDamage > 0) {
                 applyDamageToUnit(targetUnit, bonusDamage, {
@@ -9068,6 +9151,12 @@ const applyOnTeamMemberDamageTakenBonuses = ({
     if (!match || !actingUsername || !targetUnit || !targetUsername) return;
     const teamUnits = Array.isArray(match.board?.[targetUsername]) ? match.board[targetUsername] : [];
     if (!teamUnits.length) return;
+    if (
+        targetUsername !== actingUsername &&
+        hasStatusMetadataFlag(ensureUnitStateShape(targetUnit), 'ignoreEnemyNonDamageEffects')
+    ) {
+        return;
+    }
     teamUnits.forEach((teamUnit, teamSlot) => {
         if (!teamUnit || teamUnit.alive === false) return;
         const teamState = ensureUnitStateShape(teamUnit);
@@ -9564,8 +9653,10 @@ const tickCooldownsForTurnEnd = ({ match, endingUsername }) => {
             actorState._cooldownsStartedThisTurn && typeof actorState._cooldownsStartedThisTurn === 'object'
                 ? actorState._cooldownsStartedThisTurn
                 : {};
-        const freezeActive = hasStatusMetadataFlag(actorState, 'freezeCooldowns');
-        if (hasStatusMetadataFlag(actorState, 'freezeCooldowns')) {
+        const freezeActive =
+            hasStatusMetadataFlag(actorState, 'freezeCooldowns') ||
+            hasStatusMetadataFlag(actorState, 'paralyzeCooldowns');
+        if (freezeActive) {
             const cooldowns =
                 actorState.cooldowns && typeof actorState.cooldowns === 'object' ? actorState.cooldowns : {};
             Object.keys(cooldowns).forEach((skillId) => {
