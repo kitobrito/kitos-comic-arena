@@ -68,9 +68,9 @@ const LATEST_CHARACTER_RELEASES_BY_ARENA = {
         { label: 'General Grievous', characterId: 'general-grievous' },
     ],
     pokemon: [
+        { label: 'Chansey', characterId: 'chansey' },
         { label: 'Pidgey', characterId: 'pidgey' },
         { label: 'Koffing', characterId: 'koffing' },
-        { label: 'Butterfree', characterId: 'butterfree' },
     ],
 };
 const LATEST_CHARACTER_RELEASES_STATE_KEY = 'latest_character_releases';
