@@ -17156,11 +17156,14 @@ const characters = [
                 "sourceSkillId": "charmander-passive-evolution-charmeleon",
                 "metadata": {
                     "infiniteDuration": true,
-                    "turnStartApplyStatusToOwner": {
+                    "charmanderEvolutionProgress": 0,
+                    "stackMetadataKey": "charmanderEvolutionProgress",
+                    "stackMax": 2,
+                    "applyStatusAtStack": {
+                        "metadataKey": "charmanderEvolutionProgress",
+                        "value": 2,
                         "statusId": "charmander_charmeleon_evolution",
                         "duration": 99,
-                        "minimumOwnerTurnCount": 3,
-                        "sourceSkillId": "charmander-passive-evolution-charmeleon",
                         "metadata": {
                             "infiniteDuration": true,
                             "facePictureOverride": "assets/images/PokemonArena/Charmander/charmeleonfp.jpg",
@@ -17173,7 +17176,7 @@ const characters = [
                             "tooltipText": "Charmander has evolved into Charmeleon. All of his skills have improved effects."
                         }
                     },
-                    "tooltipText": "At the beginning of Charmander's fourth turn, he evolves into Charmeleon."
+                    "tooltipText": "Charmander evolves into Charmeleon after critically striking or burning enemies twice."
                 }
             }
         ],
@@ -17233,6 +17236,17 @@ const characters = [
                             "afflictionDamage": true,
                             "ignoreTargetDamageReduction": true,
                             "ignoreTargetDestructibleDefense": true,
+                            "onSuccessApplyStatusToOwner": {
+                                "statusId": "charmander_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "charmanderEvolutionProgress": 1,
+                                    "stackMetadataKey": "charmanderEvolutionProgress",
+                                    "stackDelta": 1,
+                                    "stackMax": 2
+                                }
+                            },
                             "statusIconUrl": "assets/images/PokemonArena/Charmander/ember.jpg",
                             "tooltipTextTemplate": "This character has {charmanderBurnStacks} Burn stack(s), takes {turnEndDamage} affliction damage each turn, and deals {nonAfflictionDamageDebuffFlat} less non-affliction damage."
                         }
@@ -17275,7 +17289,18 @@ const characters = [
                         "scope": "target",
                         "chance": 10,
                         "metadata": {
-                            "ignoreDamageReduction": true
+                            "ignoreDamageReduction": true,
+                            "onSuccessfulDamageApplyStatusToOwner": {
+                                "statusId": "charmander_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "charmanderEvolutionProgress": 1,
+                                    "stackMetadataKey": "charmanderEvolutionProgress",
+                                    "stackDelta": 1,
+                                    "stackMax": 2
+                                }
+                            }
                         }
                     }
                 ]
@@ -17336,6 +17361,17 @@ const characters = [
                             "afflictionDamage": true,
                             "ignoreTargetDamageReduction": true,
                             "ignoreTargetDestructibleDefense": true,
+                            "onSuccessApplyStatusToOwner": {
+                                "statusId": "charmander_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "charmanderEvolutionProgress": 1,
+                                    "stackMetadataKey": "charmanderEvolutionProgress",
+                                    "stackDelta": 1,
+                                    "stackMax": 2
+                                }
+                            },
                             "statusIconUrl": "assets/images/PokemonArena/Charmander/charmandersflamethrower.jpg",
                             "tooltipTextTemplate": "This character has {charmanderBurnStacks} Burn stack(s), takes {turnEndDamage} affliction damage each turn, and deals {nonAfflictionDamageDebuffFlat} less non-affliction damage."
                         }
@@ -17392,7 +17428,7 @@ const characters = [
                 "id": "charmander-passive-evolution-charmeleon",
                 "name": "Evolution - Charmeleon",
                 "skillimage": "assets/images/PokemonArena/Charmander/passiveevolvecharmeleon.jpg",
-                "skilldescription": "At the beginning of Charmander's fourth turn, he evolves into Charmeleon. All of his skills gain improved effects.",
+                "skilldescription": "After Charmander critically strikes or burns enemies twice, he evolves into Charmeleon. All of his skills gain improved effects.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
