@@ -1422,7 +1422,7 @@ const applyStatus = ({
     metadata,
     fresh = false,
 }) => {
-    if (!targetState || !statusId) return;
+    if (!targetState || !statusId) return false;
     const applyStackDerivedNumericKeys = (nextMetadata) => {
         if (!nextMetadata || typeof nextMetadata !== 'object') return nextMetadata;
         const stackKey =
@@ -1450,10 +1450,10 @@ const applyStatus = ({
     if (!bypassTargetNonDamageIgnores) {
         const harmful = Boolean(metadata?.harmful);
         if (harmful && hasStatusMetadataFlag(targetState, 'ignoreHarmfulNonDamageEffects')) {
-            return;
+            return false;
         }
         if (!harmful && doesTargetIgnoreHelpfulNonDamageEffects(targetState)) {
-            return;
+            return false;
         }
     }
     const existing = allowDuplicateStatusInstances
@@ -1546,7 +1546,7 @@ const applyStatus = ({
             }
         }
         refreshDerivedStatusTooltips(targetState);
-        return;
+        return true;
     }
     let createdMetadata =
         typeof metadata?.stackMetadataKey === 'string' &&
@@ -1637,6 +1637,7 @@ const applyStatus = ({
         }
     }
     refreshDerivedStatusTooltips(targetState);
+    return true;
 };
 
 const applyParasiteAbsorptionState = ({
@@ -6679,7 +6680,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             );
                         });
                     }
-                    applyStatus({
+                    const appliedStatus = applyStatus({
                         targetState: destinationState,
                         statusId: runtimeStatusId,
                         duration: runtimeDuration,
@@ -6691,10 +6692,40 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             typeof effect?.fresh === 'boolean'
                                 ? effect.fresh
                                 : recipient.username === actingUsername ||
-                                  Boolean(runtimeMetadata?.freezeCooldowns) ||
+                                Boolean(runtimeMetadata?.freezeCooldowns) ||
                                   (runtimeMetadata?.turnDurationAnchor === 'source_turn' &&
                                       !runtimeMetadata?.triggerOnApply),
                     });
+                    if (appliedStatus) {
+                        const onSuccessApplyStatusToOwner =
+                            effect?.metadata?.onSuccessApplyStatusToOwner ||
+                            ((skill.id === 'charmander-ember' || skill.id === 'charmander-flamethrower') &&
+                            effect?.statusId === 'charmander_burn'
+                                ? {
+                                      statusId: 'charmander_evolution_tracker',
+                                      duration: 99,
+                                      metadata: {
+                                          infiniteDuration: true,
+                                          charmanderEvolutionProgress: 1,
+                                          stackMetadataKey: 'charmanderEvolutionProgress',
+                                          stackDelta: 1,
+                                          stackMax: 2,
+                                      },
+                                  }
+                                : null);
+                        if (onSuccessApplyStatusToOwner?.statusId) {
+                            applyStatus({
+                                targetState: actorState,
+                                statusId: onSuccessApplyStatusToOwner.statusId,
+                                duration: onSuccessApplyStatusToOwner.duration,
+                                sourceSkillId: effect?.sourceSkillId || skill.id || null,
+                                sourceUsername: actingUsername,
+                                sourceSlot: actorSlot,
+                                metadata: onSuccessApplyStatusToOwner.metadata || {},
+                                fresh: false,
+                            });
+                        }
+                    }
                     if (Boolean(runtimeMetadata?.removeEnemyAfflictionStatusesOnApply)) {
                         cleanseEnemyAfflictionStatuses(
                             recipient.unit,
@@ -7676,6 +7707,34 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         metadata: applyStatusToOwner.metadata || {},
                         fresh: false,
                     });
+                });
+            }
+            if (
+                dealt > 0 &&
+                skill.id === 'charmander-scratch' &&
+                Number(effect?.chance) === 10 &&
+                Number(effect?.amount) === 10 &&
+                !Boolean(entry?.onSuccessfulDamageApplyStatusToOwner?.statusId) &&
+                !(
+                    Array.isArray(entry?.onSuccessfulDamageApplyStatusesToOwner) &&
+                    entry.onSuccessfulDamageApplyStatusesToOwner.length > 0
+                )
+            ) {
+                applyStatus({
+                    targetState: actorState,
+                    statusId: 'charmander_evolution_tracker',
+                    duration: 99,
+                    sourceSkillId: skill.id || null,
+                    sourceUsername: actingUsername,
+                    sourceSlot: actorSlot,
+                    metadata: {
+                        infiniteDuration: true,
+                        charmanderEvolutionProgress: 1,
+                        stackMetadataKey: 'charmanderEvolutionProgress',
+                        stackDelta: 1,
+                        stackMax: 2,
+                    },
+                    fresh: false,
                 });
             }
             if (dealt > 0) {
