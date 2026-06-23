@@ -19236,7 +19236,7 @@ const characters = [
         "id": "pidgey",
         "characterId": "pidgey",
         "name": "Pidgey",
-        "facePicture": "assets/images/PokemonArena/pidgey/pidgeyfp.jpg",
+        "facePicture": "assets/images/PokemonArena/pidgey/pidgeyfp.webp",
         "startStatuses": [
             {
                 "statusId": "pidgey_evolution_tracker",
@@ -19259,7 +19259,7 @@ const characters = [
                             "removeStatusIdsOnApply": [
                                 "pidgey_evolution_tracker"
                             ],
-                            "facePictureOverride": "assets/images/PokemonArena/pidgey/pidgeottofp.jpg",
+                            "facePictureOverride": "assets/images/PokemonArena/pidgey/pidgeottofp.webp",
                             "skillReplacements": {
                                 "pidgey-gust": "pidgeotto-gust",
                                 "pidgey-whirlwind": "pidgeotto-whirlwind",
@@ -19269,7 +19269,7 @@ const characters = [
                             "tooltipText": "Pidgey has evolved into Pidgeotto. All of his skills have improved effects."
                         }
                     },
-                    "statusIconUrl": "assets/images/PokemonArena/pidgey/pidgeyevolutionpidgeotto.jpg",
+                    "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
                     "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                 }
             }
@@ -19279,7 +19279,7 @@ const characters = [
             {
                 "id": "pidgey-gust",
                 "name": "Gust",
-                "skillimage": "assets/images/PokemonArena/pidgey/gust.jpg",
+                "skillimage": "assets/images/PokemonArena/pidgey/gust.webp",
                 "skilldescription": "Pidgey deals 20 piercing damage to one enemy and 10 physical damage to all other enemies. Pidgey becomes invulnerable to non-mental skills for 1 turn.",
                 "energy": [
                     "Ninjutsu"
@@ -19309,7 +19309,7 @@ const characters = [
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
                                     "stackMax": 100,
-                                    "statusIconUrl": "assets/images/PokemonArena/pidgey/pidgeyevolutionpidgeotto.jpg",
+                                    "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
                                     "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
@@ -19344,7 +19344,7 @@ const characters = [
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
                                     "stackMax": 100,
-                                    "statusIconUrl": "assets/images/PokemonArena/pidgey/pidgeyevolutionpidgeotto.jpg",
+                                    "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
                                     "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
@@ -19366,7 +19366,7 @@ const characters = [
             {
                 "id": "pidgey-whirlwind",
                 "name": "Whirlwind",
-                "skillimage": "assets/images/PokemonArena/pidgey/whirlwind.jpg",
+                "skillimage": "assets/images/PokemonArena/pidgey/whirlwind.webp",
                 "skilldescription": "For 2 turns, the enemy team's non-affliction damage is reduced by 50%. Pidgey's team becomes invulnerable for 1 turn.",
                 "energy": [
                     "Ninjutsu",
@@ -19409,7 +19409,7 @@ const characters = [
             {
                 "id": "pidgey-peck",
                 "name": "Peck",
-                "skillimage": "assets/images/PokemonArena/pidgey/peck.jpg",
+                "skillimage": "assets/images/PokemonArena/pidgey/peck.webp",
                 "skilldescription": "Pidgey deals 15 piercing damage to one enemy and marks them. Marks do not stack. Pidgey's next Gust used against a marked enemy consumes the mark and deals 10 additional piercing damage.",
                 "energy": [
                     "Random"
@@ -19439,7 +19439,7 @@ const characters = [
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
                                     "stackMax": 100,
-                                    "statusIconUrl": "assets/images/PokemonArena/pidgey/pidgeyevolutionpidgeotto.jpg",
+                                    "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
                                     "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
@@ -19453,7 +19453,7 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "infiniteDuration": true,
-                            "statusIconUrl": "assets/images/PokemonArena/pidgey/peckmark.jpg",
+                        "statusIconUrl": "assets/images/PokemonArena/pidgey/peck.webp",
                             "tooltipText": "This character is marked by Peck."
                         }
                     }
@@ -19462,7 +19462,7 @@ const characters = [
             {
                 "id": "pidgey-sand-attack",
                 "name": "Sand-Attack",
-                "skillimage": "assets/images/PokemonArena/pidgey/sandattack.jpg",
+                "skillimage": "assets/images/PokemonArena/pidgey/sandattack.webp",
                 "skilldescription": "For 1 turn, enemy attacks have a 30% chance to miss.",
                 "energy": [
                     "Random"
@@ -19493,7 +19493,7 @@ const characters = [
             {
                 "id": "pidgey-passive-evolution-pidgeotto",
                 "name": "Evolution - Pidgeotto",
-                "skillimage": "assets/images/PokemonArena/pidgey/pidgeyevolutionpidgeotto.jpg",
+                "skillimage": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
                 "skilldescription": "After Pidgey has dealt 100 total damage during battle, he evolves into Pidgeotto. Pidgeotto's skills are improved.",
                 "energy": [],
                 "target": "",
@@ -19510,7 +19510,7 @@ const characters = [
                 "actorCondition": {
                     "statusId": "pidgey_pidgeotto_evolution"
                 },
-                "skillimage": "assets/images/PokemonArena/pidgey/pidgeottogust.jpg",
+                "skillimage": "assets/images/PokemonArena/pidgey/pidgeottogust.webp",
                 "skilldescription": "Pidgeotto deals 25 piercing damage to one enemy and 15 physical damage to all other enemies. Pidgeotto becomes invulnerable to non-mental skills for 1 turn.",
                 "energy": [
                     "Ninjutsu"
@@ -19540,7 +19540,7 @@ const characters = [
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
                                     "stackMax": 100,
-                                    "statusIconUrl": "assets/images/PokemonArena/pidgey/pidgeyevolutionpidgeotto.jpg",
+                                    "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
                                     "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
@@ -19567,7 +19567,7 @@ const characters = [
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
                                     "stackMax": 100,
-                                    "statusIconUrl": "assets/images/PokemonArena/pidgey/pidgeyevolutionpidgeotto.jpg",
+                                    "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
                                     "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
@@ -19588,7 +19588,7 @@ const characters = [
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
                                     "stackMax": 100,
-                                    "statusIconUrl": "assets/images/PokemonArena/pidgey/pidgeyevolutionpidgeotto.jpg",
+                                    "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
                                     "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
@@ -19613,7 +19613,7 @@ const characters = [
                 "actorCondition": {
                     "statusId": "pidgey_pidgeotto_evolution"
                 },
-                "skillimage": "assets/images/PokemonArena/pidgey/pidgeottowhirlwind.jpg",
+                "skillimage": "assets/images/PokemonArena/pidgey/pidgeottowhirlwind.webp",
                 "skilldescription": "For 3 turns, the enemy team's non-affliction damage is reduced by 50%. Pidgeotto's team becomes invulnerable for 1 turn.",
                 "energy": [
                     "Ninjutsu",
@@ -19659,7 +19659,7 @@ const characters = [
                 "actorCondition": {
                     "statusId": "pidgey_pidgeotto_evolution"
                 },
-                "skillimage": "assets/images/PokemonArena/pidgey/pidgeottopeck.jpg",
+                "skillimage": "assets/images/PokemonArena/pidgey/pidgeottopeck.webp",
                 "skilldescription": "Pidgeotto deals 20 piercing damage to one enemy and marks them. Marks do not stack. Pidgeotto's next Gust used against a marked enemy consumes the mark and causes Gust to deal 20 additional piercing damage instead.",
                 "energy": [
                     "Random"
@@ -19689,7 +19689,7 @@ const characters = [
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
                                     "stackMax": 100,
-                                    "statusIconUrl": "assets/images/PokemonArena/pidgey/pidgeyevolutionpidgeotto.jpg",
+                                    "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
                                     "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
@@ -19703,7 +19703,7 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "infiniteDuration": true,
-                            "statusIconUrl": "assets/images/PokemonArena/pidgey/peckmark.jpg",
+                        "statusIconUrl": "assets/images/PokemonArena/pidgey/peck.webp",
                             "tooltipText": "This character is marked by Peck."
                         }
                     }
@@ -19715,7 +19715,7 @@ const characters = [
                 "actorCondition": {
                     "statusId": "pidgey_pidgeotto_evolution"
                 },
-                "skillimage": "assets/images/PokemonArena/pidgey/pidgeottosandattack.jpg",
+                "skillimage": "assets/images/PokemonArena/pidgey/pidgeottosandattack.webp",
                 "skilldescription": "For 1 turn, enemy attacks have a 60% chance to miss.",
                 "energy": [
                     "Random"
