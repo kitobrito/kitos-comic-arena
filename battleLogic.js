@@ -298,6 +298,7 @@ const getStatusMetadataTotals = (actorState, ownerUnit = null) => {
         damageTakenBonusFlat: 0,
         nonAfflictionDamageTakenBonusFlat: 0,
         damageTakenMultiplier: 1,
+        nonAfflictionDamageMultiplier: 1,
         healReceivedMultiplier: 1,
         healingBonusFlat: 0,
         minimumHp: 0,
@@ -348,6 +349,9 @@ const getStatusMetadataTotals = (actorState, ownerUnit = null) => {
             Number(metadata.nonAfflictionDamageTakenBonusFlat) || 0;
         if (Number.isFinite(metadata.damageTakenMultiplier)) {
             totals.damageTakenMultiplier *= Math.max(0, Number(metadata.damageTakenMultiplier) || 1);
+        }
+        if (Number.isFinite(metadata.nonAfflictionDamageMultiplier)) {
+            totals.nonAfflictionDamageMultiplier *= Math.max(0, Number(metadata.nonAfflictionDamageMultiplier) || 1);
         }
         if (Number.isFinite(metadata.healReceivedMultiplier)) {
             statusHealReceivedMultiplier = Math.max(0, Number(metadata.healReceivedMultiplier));
@@ -2068,6 +2072,9 @@ const resolveEffectDamageAmount = ({
         amount +=
             (Number(classScopedSourceTotals.nonAfflictionDamageBonusFlat) || 0) -
             (Number(classScopedSourceTotals.nonAfflictionDamageDebuffFlat) || 0);
+        amount *=
+            Math.max(0, Number(sourceTotals.nonAfflictionDamageMultiplier) || 1) *
+            Math.max(0, Number(classScopedSourceTotals.nonAfflictionDamageMultiplier) || 1);
     }
     const applyStackBonus = (currentAmount) => {
         let nextAmount = currentAmount;
@@ -2307,6 +2314,7 @@ const getSourceClassScopedDamageModifiers = (actorState, skillClasses = []) => {
         damageDebuffFlat: 0,
         nonAfflictionDamageBonusFlat: 0,
         nonAfflictionDamageDebuffFlat: 0,
+        nonAfflictionDamageMultiplier: 1,
     };
     const statuses = Array.isArray(actorState?.statuses) ? actorState.statuses : [];
     statuses.forEach((status) => {
@@ -2347,6 +2355,9 @@ const getSourceClassScopedDamageModifiers = (actorState, skillClasses = []) => {
             if (!hasSkillClass(skillClasses, className)) return;
             totals.nonAfflictionDamageDebuffFlat += Math.max(0, Number(amount) || 0);
         });
+        if (Number.isFinite(metadata.nonAfflictionDamageMultiplier)) {
+            totals.nonAfflictionDamageMultiplier *= Math.max(0, Number(metadata.nonAfflictionDamageMultiplier) || 1);
+        }
     });
     return totals;
 };
@@ -7697,6 +7708,13 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     ) {
                         return;
                     }
+                    const nextMetadata =
+                        applyStatusToOwner?.metadata && typeof applyStatusToOwner.metadata === 'object'
+                            ? { ...applyStatusToOwner.metadata }
+                            : {};
+                    if (Boolean(nextMetadata.stackDeltaFromDamageDealt)) {
+                        nextMetadata.stackDelta = dealt;
+                    }
                     applyStatus({
                         targetState: actorState,
                         statusId: applyStatusToOwner.statusId,
@@ -7704,7 +7722,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         sourceSkillId: skill.id || null,
                         sourceUsername: actingUsername,
                         sourceSlot: actorSlot,
-                        metadata: applyStatusToOwner.metadata || {},
+                        metadata: nextMetadata,
                         fresh: false,
                     });
                 });

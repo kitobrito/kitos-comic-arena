@@ -45,14 +45,18 @@ const skillShowcase = (characterId, skillId, text) => {
 };
 
 const now = new Date();
-const existingLatestPokemon = ['koffing', 'butterfree', 'squirtle'];
+const existingLatestPokemon = ['pidgey', 'koffing', 'butterfree'];
 
 const newsPost = {
-    title: 'Comic Arena Update V.3.1.4',
+    title: 'Comic Arena Update V.3.1.5',
     blocks: [
         {
             type: 'paragraph',
-            text: 'Comic Arena Update V.3.1.4 adds Koffing to Pokemon Arena, bringing a full gas-based control kit that spreads poison pressure, blocks enemy setup, and explodes into Weezing once every move has been used.',
+            text: 'Comic Arena Update V.3.1.5 adds Pidgey to Pokemon Arena, bringing a fast flying kit built around steady damage, marks that fuel Gust, and a damage-driven evolution into Pidgeotto.',
+        },
+        {
+            type: 'paragraph',
+            text: 'Koffing also remains in the Pokemon roster with its gas-based control kit, so the arena keeps its poison pressure and explosive evolution line intact.',
         },
         {
             type: 'paragraph',
@@ -64,21 +68,67 @@ const newsPost = {
         },
         {
             type: 'paragraph',
-            text: 'The latest Pokemon releases panel now features Koffing alongside Butterfree and Squirtle, so the roster announcement section stays aligned with the arena\'s newest additions.',
+            text: 'The latest Pokemon releases panel now features Pidgey, Koffing, and Butterfree, so the roster announcement section stays aligned with the arena\'s newest additions.',
         },
         {
             type: 'paragraph',
-            text: 'Below is a full skill-by-skill rundown for Koffing and Weezing, including the improved evolution form and the exact way Poison Gas changes the pace of a fight.',
+            text: 'Below is a full skill-by-skill rundown for Pidgey and Pidgeotto, plus the improved gas kit for Koffing and Weezing, so the release note stays tied to the actual battle flow.',
         },
     ],
     paragraphs: [
-        'Comic Arena Update V.3.1.4 adds Koffing to Pokemon Arena, bringing a full gas-based control kit that spreads poison pressure, blocks enemy setup, and explodes into Weezing once every move has been used.',
+        'Comic Arena Update V.3.1.5 adds Pidgey to Pokemon Arena, bringing a fast flying kit built around steady damage, marks that fuel Gust, and a damage-driven evolution into Pidgeotto.',
+        'Koffing also remains in the Pokemon roster with its gas-based control kit, so the arena keeps its poison pressure and explosive evolution line intact.',
         'Doctor Strange remains fully rebuilt around the new redesign template, with a mystic kit that leans on Arcane Energy, Zom, and a more aggressive spell loop.',
         'On top of the character work, Pokemon Arena keeps growing as a full second arena with its own flow, selection screens, and battle presentation.',
-        'The latest Pokemon releases panel now features Koffing alongside Butterfree and Squirtle, so the roster announcement section stays aligned with the arena\'s newest additions.',
-        'Below is a full skill-by-skill rundown for Koffing and Weezing, including the improved evolution form and the exact way Poison Gas changes the pace of a fight.',
+        'The latest Pokemon releases panel now features Pidgey, Koffing, and Butterfree, so the roster announcement section stays aligned with the arena\'s newest additions.',
+        'Below is a full skill-by-skill rundown for Pidgey and Pidgeotto, plus the improved gas kit for Koffing and Weezing, so the release note stays tied to the actual battle flow.',
     ],
     changes: [
+        skillShowcase(
+            'pidgey',
+            'pidgey-gust',
+            'Gust costs 1 Ninjutsu and deals 20 piercing damage to one enemy plus 10 physical damage to all other enemies. Pidgey becomes invulnerable to non-mental skills for 1 turn, which makes the opener both punchy and a little sticky.'
+        ),
+        skillShowcase(
+            'pidgey',
+            'pidgey-whirlwind',
+            'Whirlwind costs 2 Ninjutsu and 3 cooldown. For 2 turns, it cuts the enemy team\'s non-affliction damage by 50%, while Pidgey\'s team becomes invulnerable for 1 turn.'
+        ),
+        skillShowcase(
+            'pidgey',
+            'pidgey-peck',
+            'Peck costs 1 Random and deals 15 piercing damage to one enemy, then marks them. The mark does not stack, and the next Gust used against that marked enemy consumes the mark for extra piercing damage.'
+        ),
+        skillShowcase(
+            'pidgey',
+            'pidgey-sand-attack',
+            'Sand-Attack costs 1 Random and gives the enemy team a 30% chance to miss their attacks for 1 turn, making Pidgey\'s side harder to pin down.'
+        ),
+        skillShowcase(
+            'pidgey',
+            'pidgey-passive-evolution-pidgeotto',
+            'Evolution - Pidgeotto triggers after Pidgey has dealt 100 total damage during battle. Once the counter is filled, Pidgey evolves into Pidgeotto and upgrades the entire kit.'
+        ),
+        skillShowcase(
+            'pidgey',
+            'pidgeotto-gust',
+            'Pidgeotto\'s Gust increases to 25 piercing damage on the main target and 15 physical damage to all other enemies, keeping the same non-mental protection after the cast.'
+        ),
+        skillShowcase(
+            'pidgey',
+            'pidgeotto-whirlwind',
+            'Pidgeotto\'s Whirlwind extends the enemy damage reduction to 3 turns, so the evolved form can hold the pace of battle for longer.'
+        ),
+        skillShowcase(
+            'pidgey',
+            'pidgeotto-peck',
+            'Pidgeotto\'s Peck rises to 20 piercing damage, and if the target is marked, the next Gust spends the mark to add 20 more piercing damage instead of 10.'
+        ),
+        skillShowcase(
+            'pidgey',
+            'pidgeotto-sand-attack',
+            'Pidgeotto\'s Sand-Attack pushes the miss chance up to 60%, which turns the evolved bird into a much nastier disruption piece.'
+        ),
         skillShowcase(
             'koffing',
             'koffing-smog',
@@ -162,7 +212,7 @@ const buildLatestReleasesState = (existingState = null) => {
     ].slice(0, 3);
     return {
         key: latestReleasesKey,
-        version: 'update-v3-1-4-koffing',
+        version: 'update-v3-1-5-pidgey',
         releases: currentComic.map((entry) => ({ characterId: entry.characterId })),
         comicReleases: currentComic.map((entry) => ({ characterId: entry.characterId })),
         pokemonReleases: nextPokemon.map((characterId) => ({ characterId })),
@@ -201,7 +251,7 @@ async function syncPoisonIvyAndStrangeNews() {
             { upsert: true }
         );
 
-        console.log('Synced Comic Arena Update V.3.1.4 news and Pokemon latest releases.');
+        console.log('Synced Comic Arena Update V.3.1.5 news and Pokemon latest releases.');
     } finally {
         await client.close();
     }
