@@ -18690,7 +18690,7 @@ const characters = [
                 "sourceSkillId": "pikachu-passive-static",
                 "metadata": {
                     "infiniteDuration": true,
-                    "onEnemySkillTargetedChancePercent": 50,
+                    "onEnemySkillTargetedChancePercent": 100,
                     "onEnemySkillTargetedDamageToSourceAmount": 5,
                     "onEnemySkillTargetedDamageToSourceIgnoreDamageReduction": true,
                     "onEnemySkillTargetedDamageToSourceIgnoreDestructibleDefense": true,
@@ -18707,7 +18707,7 @@ const characters = [
                             "tooltipText": "This character is marked by Static."
                         }
                     },
-                    "tooltipText": "Any enemy who uses a new skill on Pikachu has a 50% chance to take 5 piercing damage and be marked by Static for 1 turn."
+                    "tooltipText": "Any enemy who uses a new skill on Pikachu has a 100% chance to take 5 piercing damage and be marked by Static for 1 turn."
                 }
             }
         ],
@@ -18717,7 +18717,7 @@ const characters = [
                 "id": "pikachu-thundershock",
                 "name": "Thundershock",
                 "skillimage": "assets/images/PokemonArena/Pikachu/thundershock.jpg",
-                "skilldescription": "Deals 15 piercing damage to one targeted enemy and 15 piercing damage to a random different enemy, paralyzes the targeted enemy's cooldowns, and makes Thunder cost 1 Ninjutsu and 1 Random energy for 1 turn. If the targeted enemy is affected by Passive: Static, their cooldowns are paralyzed for 2 turns instead.",
+                "skilldescription": "Deals 25 piercing damage to one targeted enemy and 10 piercing damage to a random different enemy, paralyzes the targeted enemy's cooldowns, and makes Thunder cost 1 Ninjutsu and 1 Random energy for 1 turn. If the targeted enemy is affected by Passive: Static, their cooldowns are paralyzed for 2 turns instead.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -18732,7 +18732,7 @@ const characters = [
                     {
                         "scope": "target",
                         "type": "damage",
-                        "amount": 15,
+                        "amount": 25,
                         "metadata": {
                             "harmful": true,
                             "ignoreDamageReduction": true
@@ -18741,7 +18741,7 @@ const characters = [
                     {
                         "scope": "random-other-enemy",
                         "type": "damage",
-                        "amount": 15,
+                        "amount": 10,
                         "metadata": {
                             "harmful": true,
                             "ignoreDamageReduction": true
@@ -19940,11 +19940,11 @@ const characters = [
                 "id": "pidgey-sand-attack",
                 "name": "Sand-Attack",
                 "skillimage": "assets/images/PokemonArena/pidgey/sandattack.webp",
-                "skilldescription": "For 1 turn, enemy attacks have a 30% chance to miss.",
+                "skilldescription": "For 2 turns, one enemy's attacks have a 30% chance to miss.",
                 "energy": [
                     "Random"
                 ],
-                "target": "all-enemy",
+                "target": "single-enemy",
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
@@ -19956,8 +19956,8 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "pidgey_sand_attack_evasion",
-                        "duration": 1,
-                        "scope": "all-enemy",
+                        "duration": 2,
+                        "scope": "target",
                         "metadata": {
                             "harmful": true,
                             "evadeChancePercent": 30,
@@ -19988,7 +19988,7 @@ const characters = [
                     "statusId": "pidgey_pidgeotto_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/pidgey/pidgeottogust.webp",
-                "skilldescription": "Pidgeotto deals 25 piercing damage to one enemy and 15 physical damage to all other enemies. Pidgeotto becomes invulnerable to non-mental skills for 1 turn.",
+                "skilldescription": "Pidgeotto deals 20 piercing damage to one enemy and 15 piercing damage to all other enemies. Pidgeotto becomes invulnerable to non-mental skills for 1 turn.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -20003,7 +20003,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 25,
+                        "amount": 20,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
@@ -20025,7 +20025,7 @@ const characters = [
                     },
                     {
                         "type": "damage",
-                        "amount": 20,
+                        "amount": 15,
                         "scope": "target",
                         "condition": {
                             "scope": "target",
@@ -20137,7 +20137,7 @@ const characters = [
                     "statusId": "pidgey_pidgeotto_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/pidgey/pidgeottopeck.webp",
-                "skilldescription": "Pidgeotto deals 20 piercing damage to one enemy and marks them. Marks do not stack. Pidgeotto's next Gust used against a marked enemy consumes the mark and causes Gust to deal 20 additional piercing damage instead.",
+                "skilldescription": "Pidgeotto deals 20 piercing damage to one enemy and marks them. Marks do not stack. Pidgeotto's next Gust used against a marked enemy consumes the mark and causes Gust to deal 15 additional piercing damage instead.",
                 "energy": [
                     "Random"
                 ],
@@ -20193,11 +20193,11 @@ const characters = [
                     "statusId": "pidgey_pidgeotto_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/pidgey/pidgeottosandattack.webp",
-                "skilldescription": "For 1 turn, enemy attacks have a 60% chance to miss.",
+                "skilldescription": "For 2 turns, one enemy's attacks have a 60% chance to miss.",
                 "energy": [
                     "Random"
                 ],
-                "target": "all-enemy",
+                "target": "single-enemy",
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
@@ -20209,8 +20209,8 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "pidgeotto_sand_attack_evasion",
-                        "duration": 1,
-                        "scope": "all-enemy",
+                        "duration": 2,
+                        "scope": "target",
                         "metadata": {
                             "harmful": true,
                             "evadeChancePercent": 60,
@@ -20774,7 +20774,7 @@ const characters = [
                 "id": "koffing-haze",
                 "name": "Haze",
                 "skillimage": "assets/images/PokemonArena/koffing/koffinghaze.jpeg",
-                "skilldescription": "For 1 turn, Koffing's team ignores all new enemy non-damaging effects.",
+                "skilldescription": "For 1 turn, Koffing's team ignores all enemy non-damaging effects.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -20794,8 +20794,14 @@ const characters = [
                         "metadata": {
                             "ignoreEnemyNonDamageEffects": true,
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character ignores new enemy non-damaging effects."
+                            "tooltipText": "This character ignores enemy non-damaging effects."
                         }
+                    },
+                    {
+                        "type": "cleanse_statuses",
+                        "scope": "all-allies",
+                        "sourceRelation": "enemy",
+                        "count": 0
                     }
                 ]
             },
@@ -20976,7 +20982,7 @@ const characters = [
                     "statusId": "koffing_weezing_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/koffing/weezinghaze.webp",
-                "skilldescription": "For 2 turns, Weezing's team ignores all new enemy non-damaging effects.",
+                "skilldescription": "For 2 turns, Weezing's team ignores all enemy non-damaging effects.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -20996,8 +21002,14 @@ const characters = [
                         "metadata": {
                             "ignoreEnemyNonDamageEffects": true,
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character ignores new enemy non-damaging effects."
+                            "tooltipText": "This character ignores enemy non-damaging effects."
                         }
+                    },
+                    {
+                        "type": "cleanse_statuses",
+                        "scope": "all-allies",
+                        "sourceRelation": "enemy",
+                        "count": 0
                     }
                 ]
             },
