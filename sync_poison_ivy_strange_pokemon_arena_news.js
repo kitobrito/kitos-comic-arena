@@ -29,15 +29,15 @@ const getSkill = (character, skillId) => {
     return skill;
 };
 
-const skillShowcase = (characterId, skillId, text) => {
+const skillShowcase = (characterId, skillId, text, options = {}) => {
     const character = getCharacter(characterId);
     const skill = getSkill(character, skillId);
     return {
         text,
         changeType: 'new',
-        characterId: character.characterId,
-        characterName: character.name,
-        facePicture: character.facePicture,
+        characterId: options.characterIdOverride || character.characterId,
+        characterName: options.characterNameOverride || character.name,
+        facePicture: options.facePictureOverride || character.facePicture,
         skillId: skill.id,
         skillName: skill.name,
         skillimage: skill.skillimage,
@@ -48,15 +48,15 @@ const now = new Date();
 const existingLatestPokemon = ['chansey', 'pidgey', 'koffing'];
 
 const newsPost = {
-    title: 'Comic Arena Update V.3.1.6',
+    title: 'Comic Arena Update V.3.1.7',
     blocks: [
         {
             type: 'paragraph',
-            text: 'Comic Arena Update V.3.1.6 adds Chansey to Pokemon Arena, bringing a support kit built around steady healing, emergency revives, and a safer Softboil while Pokemon Center Healing is active.',
+            text: 'Comic Arena Update V.3.1.7 adds the corrected Chansey and Blissey line to Pokemon Arena, with Chansey healing up the team, stripping enemy-applied effects, and evolving into Blissey after enough total healing during battle.',
         },
         {
             type: 'paragraph',
-            text: 'Pidgey and Koffing still remain in the Pokemon roster too, so the arena keeps its flying pressure and poison control intact while the new support role joins the lineup.',
+            text: 'Pidgey and Koffing still remain in the Pokemon roster too, so the arena keeps its flying pressure and poison control intact while the new support line joins the lineup.',
         },
         {
             type: 'paragraph',
@@ -72,16 +72,16 @@ const newsPost = {
         },
         {
             type: 'paragraph',
-            text: 'Below is a full skill-by-skill rundown for Chansey, plus the flying and gas kits for Pidgey and Koffing, so the release note stays tied to the actual battle flow.',
+            text: 'Below is a full skill-by-skill rundown for Chansey and Blissey, plus the flying and gas kits for Pidgey and Koffing, so the release note stays tied to the actual battle flow.',
         },
     ],
     paragraphs: [
-        'Comic Arena Update V.3.1.6 adds Chansey to Pokemon Arena, bringing a support kit built around steady healing, emergency revives, and a safer Softboil while Pokemon Center Healing is active.',
-        'Pidgey and Koffing still remain in the Pokemon roster too, so the arena keeps its flying pressure and poison control intact while the new support role joins the lineup.',
+        'Comic Arena Update V.3.1.7 adds the corrected Chansey and Blissey line to Pokemon Arena, with Chansey healing up the team, stripping enemy-applied effects, and evolving into Blissey after enough total healing during battle.',
+        'Pidgey and Koffing still remain in the Pokemon roster too, so the arena keeps its flying pressure and poison control intact while the new support line joins the lineup.',
         'Doctor Strange remains fully rebuilt around the new redesign template, with a mystic kit that leans on Arcane Energy, Zom, and a more aggressive spell loop.',
         'On top of the character work, Pokemon Arena keeps growing as a full second arena with its own flow, selection screens, and battle presentation.',
         'The latest Pokemon releases panel now features Chansey, Pidgey, and Koffing, so the roster announcement section stays aligned with the arena\'s newest additions.',
-        'Below is a full skill-by-skill rundown for Chansey, plus the flying and gas kits for Pidgey and Koffing, so the release note stays tied to the actual battle flow.',
+        'Below is a full skill-by-skill rundown for Chansey and Blissey, plus the flying and gas kits for Pidgey and Koffing, so the release note stays tied to the actual battle flow.',
     ],
     changes: [
         skillShowcase(
@@ -102,7 +102,48 @@ const newsPost = {
         skillShowcase(
             'chansey',
             'chansey-emergency-life-support',
-            'Pokémon Center Emergency Life Support costs 1 Bloodline, 1 Genjutsu, and 1 Random energy, then revives a defeated ally with 50 HP. While Pokémon Center Healing is active, it drops the Random cost by 1.'
+            'Pokémon Center Emergency Life Support costs 1 Bloodline, 1 Genjutsu, and 1 Random energy. It heals one ally for 50 HP and strips away enemy skills that are currently affecting them, then drops the Random cost by 1 while Pokémon Center Healing is active.'
+        ),
+        skillShowcase(
+            'chansey',
+            'chansey-passive-evolution-blissey',
+            'Evolution - Blissey triggers after Chansey has healed 100 total HP during battle. Once that healing total is reached, Chansey evolves into Blissey and swaps into the improved kit.'
+        ),
+        skillShowcase(
+            'chansey',
+            'blissey-eggbomb',
+            'Egg Bomb costs 2 Random and deals 35 affliction damage to one enemy while making them ignore all healing effects for 1 turn.',
+            {
+                characterNameOverride: 'Blissey',
+                facePictureOverride: 'assets/images/PokemonArena/Chansey/blisseyfp.png',
+            }
+        ),
+        skillShowcase(
+            'chansey',
+            'blissey-pokemon-center-healing',
+            'Pokémon Center Healing costs 2 Random and heals Blissey\'s team for 15 HP while granting them 10 destructible defense each turn for 3 turns. While it is active, Softboil always makes its target unable to die.',
+            {
+                characterNameOverride: 'Blissey',
+                facePictureOverride: 'assets/images/PokemonArena/Chansey/blisseyfp.png',
+            }
+        ),
+        skillShowcase(
+            'chansey',
+            'blissey-softboil',
+            'Softboil costs 1 Genjutsu and heals one ally for 25 HP. Blissey and the other ally are also healed for 15 HP, which turns the move into a much bigger swing once the evolution lands.',
+            {
+                characterNameOverride: 'Blissey',
+                facePictureOverride: 'assets/images/PokemonArena/Chansey/blisseyfp.png',
+            }
+        ),
+        skillShowcase(
+            'chansey',
+            'blissey-emergency-life-support',
+            'Pokémon Center Emergency Life Support costs 1 Bloodline, 1 Genjutsu, and 1 Random energy, then revives a defeated ally with 50 HP. While Pokémon Center Healing is active, it drops the Random cost by 1.',
+            {
+                characterNameOverride: 'Blissey',
+                facePictureOverride: 'assets/images/PokemonArena/Chansey/blisseyfp.png',
+            }
         ),
         skillShowcase(
             'pidgey',
@@ -271,7 +312,7 @@ async function syncPoisonIvyAndStrangeNews() {
             { upsert: true }
         );
 
-        console.log('Synced Comic Arena Update V.3.1.6 news and Pokemon latest releases.');
+        console.log('Synced Comic Arena Update V.3.1.7 news and Pokemon latest releases.');
     } finally {
         await client.close();
     }

@@ -19237,13 +19237,52 @@ const characters = [
         "characterId": "chansey",
         "name": "Chansey",
         "facePicture": "assets/images/PokemonArena/Chansey/chanseyfp.webp",
-        "characterdeescription": "A gentle support Pokemon that keeps its team standing with healing, emergency revives, and protective recovery. Chansey is hardest to pin down when it is helping everyone else stay in the fight.",
+        "characterdeescription": "A support Pokemon that keeps the squad alive with healing, protection, and a late-game evolution into Blissey. Chansey builds momentum by restoring HP, then turns that healing into a sturdier second form.",
+        "startStatuses": [
+            {
+                "statusId": "chansey_evolution_tracker",
+                "duration": 99,
+                "sourceSkillId": "chansey-passive-evolution-blissey",
+                "metadata": {
+                    "infiniteDuration": true,
+                    "chanseyHealedAmount": 0,
+                    "stackMetadataKey": "chanseyHealedAmount",
+                    "stackDeltaFromHealingDone": true,
+                    "stackMax": 100,
+                    "applyStatusAtStack": {
+                        "metadataKey": "chanseyHealedAmount",
+                        "value": 100,
+                        "statusId": "chansey_blissey_evolution",
+                        "duration": 99,
+                        "sourceSkillId": "chansey-passive-evolution-blissey",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "removeStatusIdsOnApply": [
+                                "chansey_evolution_tracker"
+                            ],
+                            "facePictureOverride": "assets/images/PokemonArena/Chansey/blisseyfp.png",
+                            "skillReplacements": {
+                                "chansey-eggbomb": "blissey-eggbomb",
+                                "chansey-pokemon-center-healing": "blissey-pokemon-center-healing",
+                                "chansey-softboil": "blissey-softboil",
+                                "chansey-pokemon-center-softboil": "blissey-pokemon-center-softboil",
+                                "chansey-emergency-life-support": "blissey-emergency-life-support",
+                                "chansey-pokemon-center-emergency-life-support": "blissey-pokemon-center-emergency-life-support"
+                            },
+                            "tooltipText": "Chansey has evolved into Blissey. Blissey's skills are improved."
+                        }
+                    },
+                    "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
+                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
+                }
+            }
+        ],
         "skills": [
             {
                 "id": "chansey-eggbomb",
                 "name": "Egg Bomb",
                 "skillimage": "assets/images/PokemonArena/Chansey/chanseyeggbomb.webp",
-                "skilldescription": "Chansey deals 20 affliction damage to one enemy and makes them ignore all healing effects for 1 turn.",
+                "skilldescription": "Deals 20 affliction damage to one enemy and causes them to ignore all healing effects for 1 turn.",
                 "energy": [
                     "Random"
                 ],
@@ -19280,7 +19319,7 @@ const characters = [
             },
             {
                 "id": "chansey-pokemon-center-healing",
-                "name": "Pokemon Center Healing",
+                "name": "Pokémon Center Healing",
                 "skillimage": "assets/images/PokemonArena/Chansey/chanseypokemoncenterhealing.webp",
                 "skilldescription": "Heals Chansey's team for 10 HP and grants them 5 destructible defense each turn for 3 turns. During this skill, Softboil will always make its target unable to die.",
                 "energy": [
@@ -19298,7 +19337,22 @@ const characters = [
                     {
                         "type": "heal",
                         "amount": 10,
-                        "scope": "all-allies"
+                        "scope": "all-allies",
+                        "metadata": {
+                            "onSuccessfulHealApplyStatusToOwner": {
+                                "statusId": "chansey_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "chanseyHealedAmount": 0,
+                                    "stackMetadataKey": "chanseyHealedAmount",
+                                    "stackDeltaFromHealingDone": true,
+                                    "stackMax": 100,
+                                    "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
+                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
+                                }
+                            }
+                        }
                     },
                     {
                         "type": "apply_status",
@@ -19313,17 +19367,19 @@ const characters = [
                             },
                             "turnEndApplyStatusToAllies": [
                                 {
-                                    "statusId": "chansey_pokemon_center_healing_support",
-                                    "duration": 1,
+                                    "statusId": "chansey_pokemon_center_healing_defense",
+                                    "duration": 99,
                                     "metadata": {
                                         "destructibleDefensePoints": 5,
-                                        "turnEndHealFlat": 10,
+                                        "mergeNumericAddKeys": [
+                                            "destructibleDefensePoints"
+                                        ],
                                         "turnDurationAnchor": "source_turn",
-                                        "tooltipText": "This character heals 10 HP and gains 5 destructible defense from Pokemon Center Healing."
+                                        "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Pokemon Center Healing."
                                     }
                                 }
                             ],
-                            "tooltipText": "While Pokemon Center Healing is active, Softboil always makes its target unable to die."
+                            "tooltipText": "While Pokemon Center Healing is active, Softboil will always make its target unable to die."
                         }
                     }
                 ]
@@ -19332,7 +19388,7 @@ const characters = [
                 "id": "chansey-softboil",
                 "name": "Softboil",
                 "skillimage": "assets/images/PokemonArena/Chansey/softboilforchanseyandblissey.webp",
-                "skilldescription": "Chansey heals one ally for 25 HP. That ally has a 50% chance to become unable to die for 1 turn.",
+                "skilldescription": "Heals one ally for 25 HP. That ally has a 50% chance to become unable to die for 1 turn.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -19347,7 +19403,22 @@ const characters = [
                     {
                         "type": "heal",
                         "amount": 25,
-                        "scope": "target"
+                        "scope": "target",
+                        "metadata": {
+                            "onSuccessfulHealApplyStatusToOwner": {
+                                "statusId": "chansey_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "chanseyHealedAmount": 0,
+                                    "stackMetadataKey": "chanseyHealedAmount",
+                                    "stackDeltaFromHealingDone": true,
+                                    "stackMax": 100,
+                                    "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
+                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
+                                }
+                            }
+                        }
                     },
                     {
                         "type": "apply_status",
@@ -19369,7 +19440,234 @@ const characters = [
                     "statusId": "chansey_pokemon_center_healing_active"
                 },
                 "skillimage": "assets/images/PokemonArena/Chansey/softboilforchanseyandblissey.webp",
-                "skilldescription": "Chansey heals one ally for 25 HP. That ally becomes unable to die for 1 turn.",
+                "skilldescription": "Heals one ally for 25 HP. That ally becomes unable to die for 1 turn.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-ally",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "heal",
+                        "amount": 25,
+                        "scope": "target",
+                        "metadata": {
+                            "onSuccessfulHealApplyStatusToOwner": {
+                                "statusId": "chansey_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "chanseyHealedAmount": 0,
+                                    "stackMetadataKey": "chanseyHealedAmount",
+                                    "stackDeltaFromHealingDone": true,
+                                    "stackMax": 100,
+                                    "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
+                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "chansey_softboil_unable_to_die",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "minimumHp": 1,
+                            "tooltipText": "This character cannot be killed."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "chansey-emergency-life-support",
+                "name": "Pokémon Center Emergency Life Support",
+                "skillimage": "assets/images/PokemonArena/Chansey/chanseyemergencypokemoncenterlifesupport.webp",
+                "skilldescription": "Heals one ally for 50 HP and removes all enemy skills currently affecting them.",
+                "energy": [
+                    "Bloodline",
+                    "Genjutsu",
+                    "Random"
+                ],
+                "target": "single-ally",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "heal",
+                        "amount": 50,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "cleanse_statuses",
+                        "scope": "target",
+                        "sourceRelation": "enemy"
+                    }
+                ]
+            },
+            {
+                "id": "chansey-pokemon-center-emergency-life-support",
+                "name": "Pokémon Center Emergency Life Support",
+                "actorCondition": {
+                    "statusId": "chansey_pokemon_center_healing_active"
+                },
+                "skillimage": "assets/images/PokemonArena/Chansey/chanseyemergencypokemoncenterlifesupport.webp",
+                "skilldescription": "Heals one ally for 50 HP and removes all enemy skills currently affecting them. This skill costs 1 less Random energy while Pokémon Center Healing is active.",
+                "energy": [
+                    "Bloodline",
+                    "Genjutsu"
+                ],
+                "target": "single-ally",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "heal",
+                        "amount": 50,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "cleanse_statuses",
+                        "scope": "target",
+                        "sourceRelation": "enemy"
+                    }
+                ]
+            },
+            {
+                "id": "chansey-passive-evolution-blissey",
+                "name": "Evolution - Blissey",
+                "skillimage": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
+                "skilldescription": "After Chansey has healed 100 total HP during the battle, it evolves into Blissey. Blissey's skills are improved.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            },
+            {
+                "id": "blissey-eggbomb",
+                "name": "Egg Bomb",
+                "actorCondition": {
+                    "statusId": "chansey_blissey_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/Chansey/blisseyeggbomb.webp",
+                "skilldescription": "Deals 35 affliction damage to one enemy and causes them to ignore all healing effects for 1 turn.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Affliction",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "blissey_egg_bomb_heal_block",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "healReceivedMultiplier": 0,
+                            "tooltipText": "This character ignores healing effects."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "blissey-pokemon-center-healing",
+                "name": "Pokémon Center Healing",
+                "actorCondition": {
+                    "statusId": "chansey_blissey_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/Chansey/blisseypokemoncenterhealing.png",
+                "skilldescription": "Heals Blissey's team for 15 HP and grants them 10 destructible defense each turn for 3 turns. During this skill, Softboil will always make its target unable to die.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "all-allies",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "heal",
+                        "amount": 15,
+                        "scope": "all-allies"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "blissey_pokemon_center_healing_active",
+                        "duration": 3,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": false,
+                            "skillReplacements": {
+                                "chansey-softboil": "blissey-pokemon-center-softboil",
+                                "chansey-emergency-life-support": "blissey-pokemon-center-emergency-life-support",
+                                "chansey-pokemon-center-softboil": "blissey-pokemon-center-softboil",
+                                "chansey-pokemon-center-emergency-life-support": "blissey-pokemon-center-emergency-life-support"
+                            },
+                            "turnEndApplyStatusToAllies": [
+                                {
+                                    "statusId": "blissey_pokemon_center_healing_defense",
+                                    "duration": 99,
+                                    "metadata": {
+                                        "destructibleDefensePoints": 10,
+                                        "mergeNumericAddKeys": [
+                                            "destructibleDefensePoints"
+                                        ],
+                                        "turnDurationAnchor": "source_turn",
+                                        "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Pokemon Center Healing."
+                                    }
+                                }
+                            ],
+                            "tooltipText": "While Pokemon Center Healing is active, Softboil will always make its target unable to die."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "blissey-softboil",
+                "name": "Softboil",
+                "actorCondition": {
+                    "statusId": "chansey_blissey_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/Chansey/softboilforchanseyandblissey.webp",
+                "skilldescription": "Heals one ally for 25 HP. Blissey and the other ally are also healed for 15 HP. The primary target becomes unable to die for 1 turn.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -19387,8 +19685,18 @@ const characters = [
                         "scope": "target"
                     },
                     {
+                        "type": "heal",
+                        "amount": 15,
+                        "scope": "self"
+                    },
+                    {
+                        "type": "heal",
+                        "amount": 15,
+                        "scope": "all-allies-except-target"
+                    },
+                    {
                         "type": "apply_status",
-                        "statusId": "chansey_softboil_unable_to_die",
+                        "statusId": "blissey_softboil_unable_to_die",
                         "duration": 1,
                         "scope": "target",
                         "metadata": {
@@ -19399,10 +19707,59 @@ const characters = [
                 ]
             },
             {
-                "id": "chansey-emergency-life-support",
-                "name": "Pokemon Center Emergency Life Support",
-                "skillimage": "assets/images/PokemonArena/Chansey/chanseyemergencypokemoncenterlifesupport.webp",
-                "skilldescription": "Revives a defeated ally with 50 HP. This skill costs 1 less Random energy while Pokemon Center Healing is active.",
+                "id": "blissey-pokemon-center-softboil",
+                "name": "Softboil",
+                "actorCondition": {
+                    "statusId": "blissey_pokemon_center_healing_active"
+                },
+                "skillimage": "assets/images/PokemonArena/Chansey/softboilforchanseyandblissey.webp",
+                "skilldescription": "Heals one ally for 25 HP. Blissey and the other ally are also healed for 15 HP. The primary target becomes unable to die for 1 turn.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-ally",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "heal",
+                        "amount": 25,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "heal",
+                        "amount": 15,
+                        "scope": "self"
+                    },
+                    {
+                        "type": "heal",
+                        "amount": 15,
+                        "scope": "all-allies-except-target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "blissey_softboil_unable_to_die",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "minimumHp": 1,
+                            "tooltipText": "This character cannot be killed."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "blissey-emergency-life-support",
+                "name": "Pokémon Center Emergency Life Support",
+                "actorCondition": {
+                    "statusId": "chansey_blissey_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/Chansey/blisseyemergencypokemoncenterlifesupport.webp",
+                "skilldescription": "Revives a defeated ally with 50 HP. This skill costs 1 less Random energy while Pokémon Center Healing is active.",
                 "energy": [
                     "Bloodline",
                     "Genjutsu",
@@ -19424,13 +19781,13 @@ const characters = [
                 ]
             },
             {
-                "id": "chansey-pokemon-center-emergency-life-support",
-                "name": "Pokemon Center Emergency Life Support",
+                "id": "blissey-pokemon-center-emergency-life-support",
+                "name": "Pokémon Center Emergency Life Support",
                 "actorCondition": {
-                    "statusId": "chansey_pokemon_center_healing_active"
+                    "statusId": "blissey_pokemon_center_healing_active"
                 },
-                "skillimage": "assets/images/PokemonArena/Chansey/chanseyemergencypokemoncenterlifesupport.webp",
-                "skilldescription": "Revives a defeated ally with 50 HP. This skill costs 1 less Random energy while Pokemon Center Healing is active.",
+                "skillimage": "assets/images/PokemonArena/Chansey/blisseyemergencypokemoncenterlifesupport.webp",
+                "skilldescription": "Revives a defeated ally with 50 HP. This skill costs 1 less Random energy while Pokémon Center Healing is active.",
                 "energy": [
                     "Bloodline",
                     "Genjutsu"
@@ -19455,8 +19812,8 @@ const characters = [
         "universe": "pokemon",
         "arena": "pokemon",
         "roleCategory": "support",
-        "description": "A gentle support Pokemon that keeps its team standing with healing, emergency revives, and protective recovery. Chansey is hardest to pin down when it is helping everyone else stay in the fight.",
-        "descriptionHtml": "A gentle support Pokemon that keeps its team standing with healing, emergency revives, and protective recovery. Chansey is hardest to pin down when it is helping everyone else stay in the fight."
+        "description": "A support Pokemon that keeps the squad alive with healing, protection, and a late-game evolution into Blissey. Chansey builds momentum by restoring HP, then turns that healing into a sturdier second form.",
+        "descriptionHtml": "A support Pokemon that keeps the squad alive with healing, protection, and a late-game evolution into Blissey. Chansey builds momentum by restoring HP, then turns that healing into a sturdier second form."
     },
     {
         "id": "pidgey",
