@@ -45,18 +45,18 @@ const skillShowcase = (characterId, skillId, text) => {
 };
 
 const now = new Date();
-const existingLatestPokemon = ['pidgey', 'koffing', 'butterfree'];
+const existingLatestPokemon = ['chansey', 'pidgey', 'koffing'];
 
 const newsPost = {
-    title: 'Comic Arena Update V.3.1.5',
+    title: 'Comic Arena Update V.3.1.6',
     blocks: [
         {
             type: 'paragraph',
-            text: 'Comic Arena Update V.3.1.5 adds Pidgey to Pokemon Arena, bringing a fast flying kit built around steady damage, marks that fuel Gust, and a damage-driven evolution into Pidgeotto.',
+            text: 'Comic Arena Update V.3.1.6 adds Chansey to Pokemon Arena, bringing a support kit built around steady healing, emergency revives, and a safer Softboil while Pokemon Center Healing is active.',
         },
         {
             type: 'paragraph',
-            text: 'Koffing also remains in the Pokemon roster with its gas-based control kit, so the arena keeps its poison pressure and explosive evolution line intact.',
+            text: 'Pidgey and Koffing still remain in the Pokemon roster too, so the arena keeps its flying pressure and poison control intact while the new support role joins the lineup.',
         },
         {
             type: 'paragraph',
@@ -68,22 +68,42 @@ const newsPost = {
         },
         {
             type: 'paragraph',
-            text: 'The latest Pokemon releases panel now features Pidgey, Koffing, and Butterfree, so the roster announcement section stays aligned with the arena\'s newest additions.',
+            text: 'The latest Pokemon releases panel now features Chansey, Pidgey, and Koffing, so the roster announcement section stays aligned with the arena\'s newest additions.',
         },
         {
             type: 'paragraph',
-            text: 'Below is a full skill-by-skill rundown for Pidgey and Pidgeotto, plus the improved gas kit for Koffing and Weezing, so the release note stays tied to the actual battle flow.',
+            text: 'Below is a full skill-by-skill rundown for Chansey, plus the flying and gas kits for Pidgey and Koffing, so the release note stays tied to the actual battle flow.',
         },
     ],
     paragraphs: [
-        'Comic Arena Update V.3.1.5 adds Pidgey to Pokemon Arena, bringing a fast flying kit built around steady damage, marks that fuel Gust, and a damage-driven evolution into Pidgeotto.',
-        'Koffing also remains in the Pokemon roster with its gas-based control kit, so the arena keeps its poison pressure and explosive evolution line intact.',
+        'Comic Arena Update V.3.1.6 adds Chansey to Pokemon Arena, bringing a support kit built around steady healing, emergency revives, and a safer Softboil while Pokemon Center Healing is active.',
+        'Pidgey and Koffing still remain in the Pokemon roster too, so the arena keeps its flying pressure and poison control intact while the new support role joins the lineup.',
         'Doctor Strange remains fully rebuilt around the new redesign template, with a mystic kit that leans on Arcane Energy, Zom, and a more aggressive spell loop.',
         'On top of the character work, Pokemon Arena keeps growing as a full second arena with its own flow, selection screens, and battle presentation.',
-        'The latest Pokemon releases panel now features Pidgey, Koffing, and Butterfree, so the roster announcement section stays aligned with the arena\'s newest additions.',
-        'Below is a full skill-by-skill rundown for Pidgey and Pidgeotto, plus the improved gas kit for Koffing and Weezing, so the release note stays tied to the actual battle flow.',
+        'The latest Pokemon releases panel now features Chansey, Pidgey, and Koffing, so the roster announcement section stays aligned with the arena\'s newest additions.',
+        'Below is a full skill-by-skill rundown for Chansey, plus the flying and gas kits for Pidgey and Koffing, so the release note stays tied to the actual battle flow.',
     ],
     changes: [
+        skillShowcase(
+            'chansey',
+            'chansey-eggbomb',
+            'Egg Bomb costs 1 Random and deals 20 affliction damage to one enemy while making them ignore all healing effects for 1 turn.'
+        ),
+        skillShowcase(
+            'chansey',
+            'chansey-pokemon-center-healing',
+            'Pokémon Center Healing costs 2 Random and heals Chansey\'s team for 10 HP while granting them 5 destructible defense each turn for 3 turns. While it is active, Softboil always makes its target unable to die.'
+        ),
+        skillShowcase(
+            'chansey',
+            'chansey-softboil',
+            'Softboil costs 1 Genjutsu and heals one ally for 25 HP. That ally has a 50% chance to become unable to die for 1 turn, so Chansey can still swing fights with a lighter touch even outside her center mode.'
+        ),
+        skillShowcase(
+            'chansey',
+            'chansey-emergency-life-support',
+            'Pokémon Center Emergency Life Support costs 1 Bloodline, 1 Genjutsu, and 1 Random energy, then revives a defeated ally with 50 HP. While Pokémon Center Healing is active, it drops the Random cost by 1.'
+        ),
         skillShowcase(
             'pidgey',
             'pidgey-gust',
@@ -212,7 +232,7 @@ const buildLatestReleasesState = (existingState = null) => {
     ].slice(0, 3);
     return {
         key: latestReleasesKey,
-        version: 'update-v3-1-5-pidgey',
+        version: 'update-v3-1-6-chansey',
         releases: currentComic.map((entry) => ({ characterId: entry.characterId })),
         comicReleases: currentComic.map((entry) => ({ characterId: entry.characterId })),
         pokemonReleases: nextPokemon.map((characterId) => ({ characterId })),
@@ -251,7 +271,7 @@ async function syncPoisonIvyAndStrangeNews() {
             { upsert: true }
         );
 
-        console.log('Synced Comic Arena Update V.3.1.5 news and Pokemon latest releases.');
+        console.log('Synced Comic Arena Update V.3.1.6 news and Pokemon latest releases.');
     } finally {
         await client.close();
     }

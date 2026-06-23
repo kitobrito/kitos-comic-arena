@@ -19233,6 +19233,232 @@ const characters = [
         "descriptionHtml": "A graceful butterfly Pokemon that turns powder, psionic force, and careful positioning into battlefield control. Butterfree disorients enemies, disrupts their cooldowns, and puts threats to sleep while its wings keep allies safe from ranged attacks."
     },
     {
+        "id": "chansey",
+        "characterId": "chansey",
+        "name": "Chansey",
+        "facePicture": "assets/images/PokemonArena/Chansey/chanseyfp.webp",
+        "characterdeescription": "A gentle support Pokemon that keeps its team standing with healing, emergency revives, and protective recovery. Chansey is hardest to pin down when it is helping everyone else stay in the fight.",
+        "skills": [
+            {
+                "id": "chansey-eggbomb",
+                "name": "Egg Bomb",
+                "skillimage": "assets/images/PokemonArena/Chansey/chanseyeggbomb.webp",
+                "skilldescription": "Chansey deals 20 affliction damage to one enemy and makes them ignore all healing effects for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Affliction",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "chansey_egg_bomb_heal_block",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "healReceivedMultiplier": 0,
+                            "tooltipText": "This character ignores healing effects."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "chansey-pokemon-center-healing",
+                "name": "Pokemon Center Healing",
+                "skillimage": "assets/images/PokemonArena/Chansey/chanseypokemoncenterhealing.webp",
+                "skilldescription": "Heals Chansey's team for 10 HP and grants them 5 destructible defense each turn for 3 turns. During this skill, Softboil will always make its target unable to die.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "all-allies",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "heal",
+                        "amount": 10,
+                        "scope": "all-allies"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "chansey_pokemon_center_healing_active",
+                        "duration": 3,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": false,
+                            "skillReplacements": {
+                                "chansey-softboil": "chansey-pokemon-center-softboil",
+                                "chansey-emergency-life-support": "chansey-pokemon-center-emergency-life-support"
+                            },
+                            "turnEndApplyStatusToAllies": [
+                                {
+                                    "statusId": "chansey_pokemon_center_healing_support",
+                                    "duration": 1,
+                                    "metadata": {
+                                        "destructibleDefensePoints": 5,
+                                        "turnEndHealFlat": 10,
+                                        "turnDurationAnchor": "source_turn",
+                                        "tooltipText": "This character heals 10 HP and gains 5 destructible defense from Pokemon Center Healing."
+                                    }
+                                }
+                            ],
+                            "tooltipText": "While Pokemon Center Healing is active, Softboil always makes its target unable to die."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "chansey-softboil",
+                "name": "Softboil",
+                "skillimage": "assets/images/PokemonArena/Chansey/softboilforchanseyandblissey.webp",
+                "skilldescription": "Chansey heals one ally for 25 HP. That ally has a 50% chance to become unable to die for 1 turn.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-ally",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "heal",
+                        "amount": 25,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "chansey_softboil_unable_to_die",
+                        "duration": 1,
+                        "scope": "target",
+                        "chance": 50,
+                        "metadata": {
+                            "minimumHp": 1,
+                            "tooltipText": "This character cannot be killed."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "chansey-pokemon-center-softboil",
+                "name": "Softboil",
+                "actorCondition": {
+                    "statusId": "chansey_pokemon_center_healing_active"
+                },
+                "skillimage": "assets/images/PokemonArena/Chansey/softboilforchanseyandblissey.webp",
+                "skilldescription": "Chansey heals one ally for 25 HP. That ally becomes unable to die for 1 turn.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-ally",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "heal",
+                        "amount": 25,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "chansey_softboil_unable_to_die",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "minimumHp": 1,
+                            "tooltipText": "This character cannot be killed."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "chansey-emergency-life-support",
+                "name": "Pokemon Center Emergency Life Support",
+                "skillimage": "assets/images/PokemonArena/Chansey/chanseyemergencypokemoncenterlifesupport.webp",
+                "skilldescription": "Revives a defeated ally with 50 HP. This skill costs 1 less Random energy while Pokemon Center Healing is active.",
+                "energy": [
+                    "Bloodline",
+                    "Genjutsu",
+                    "Random"
+                ],
+                "target": "dead-ally-first",
+                "damage": 0,
+                "cooldown": 5,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "revive",
+                        "amount": 50,
+                        "scope": "target"
+                    }
+                ]
+            },
+            {
+                "id": "chansey-pokemon-center-emergency-life-support",
+                "name": "Pokemon Center Emergency Life Support",
+                "actorCondition": {
+                    "statusId": "chansey_pokemon_center_healing_active"
+                },
+                "skillimage": "assets/images/PokemonArena/Chansey/chanseyemergencypokemoncenterlifesupport.webp",
+                "skilldescription": "Revives a defeated ally with 50 HP. This skill costs 1 less Random energy while Pokemon Center Healing is active.",
+                "energy": [
+                    "Bloodline",
+                    "Genjutsu"
+                ],
+                "target": "dead-ally-first",
+                "damage": 0,
+                "cooldown": 5,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "revive",
+                        "amount": 50,
+                        "scope": "target"
+                    }
+                ]
+            }
+        ],
+        "role": "Support",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "support",
+        "description": "A gentle support Pokemon that keeps its team standing with healing, emergency revives, and protective recovery. Chansey is hardest to pin down when it is helping everyone else stay in the fight.",
+        "descriptionHtml": "A gentle support Pokemon that keeps its team standing with healing, emergency revives, and protective recovery. Chansey is hardest to pin down when it is helping everyone else stay in the fight."
+    },
+    {
         "id": "pidgey",
         "characterId": "pidgey",
         "name": "Pidgey",

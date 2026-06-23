@@ -758,8 +758,24 @@ const computeTargetOptions = ({ match, actingUsername, actorSlot, skillIndex, ch
                 rosterIndex: unit.rosterIndex,
                 alive: true,
             }));
+    const mapDeadTargets = (username, units) =>
+        units
+            .map((unit, slot) => ({ unit, slot }))
+            .filter(({ unit }) => unit && unit.alive === false && !isUnitBanished(unit))
+            .map(({ unit, slot }) => ({
+                username,
+                slot,
+                rosterIndex: unit.rosterIndex,
+                alive: false,
+            }));
 
     switch (targetType) {
+        case 'dead-ally-first':
+        case 'dead-ally-lowest-slot': {
+            result.mode = 'single';
+            result.targets = mapDeadTargets(actingUsername, actorBoard);
+            break;
+        }
         case 'single-enemy-or-ally': {
             result.mode = 'single';
             result.targets = [
