@@ -48,40 +48,35 @@ const now = new Date();
 const existingLatestPokemon = ['chansey', 'pidgey', 'koffing'];
 
 const newsPost = {
-    title: 'Comic Arena Update V.3.1.7',
+    title: 'Pokemon Arena Update V.3.1.8',
     blocks: [
         {
             type: 'paragraph',
-            text: 'Comic Arena Update V.3.1.7 adds the corrected Chansey and Blissey line to Pokemon Arena, with Chansey healing up the team, stripping enemy-applied effects, and evolving into Blissey after enough total healing during battle.',
+            text: 'Pokemon Arena Update V.3.1.8 focuses on the three new Pokemon additions so far: Chansey, Pidgey, and Koffing. Chansey brings a full support line with healing, protection, and a late-game evolution into Blissey, while Pidgey and Koffing keep the arena moving with pressure, disruption, and momentum control.',
         },
         {
             type: 'paragraph',
-            text: 'Pidgey and Koffing still remain in the Pokemon roster too, so the arena keeps its flying pressure and poison control intact while the new support line joins the lineup.',
+            text: 'Charmander also received a major update. Its evolution now has to be earned through combat, with Charmeleon only arriving after Charmander critically strikes or burns enemies twice instead of getting the upgrade for free.',
         },
         {
             type: 'paragraph',
-            text: 'Doctor Strange remains fully rebuilt around the new redesign template, with a mystic kit that leans on Arcane Energy, Zom, and a more aggressive spell loop.',
+            text: 'Pokemon Arena is still earlier in development in terms of character count, and that is intentional. The Pokemon side is being built up step by step, and the starters had to come first because they form the base of the whole mode.',
         },
         {
             type: 'paragraph',
-            text: 'On top of the character work, Pokemon Arena keeps growing as a full second arena with its own flow, selection screens, and battle presentation.',
+            text: 'Mission characters are next for Pokemon Arena. That is the part that gives the mode real forward progression, and once the starters are out of the way the roster can start growing into something that feels complete instead of just getting the first pieces rushed out early.',
         },
         {
             type: 'paragraph',
-            text: 'The latest Pokemon releases panel now features Chansey, Pidgey, and Koffing, so the roster announcement section stays aligned with the arena\'s newest additions.',
-        },
-        {
-            type: 'paragraph',
-            text: 'Below is a full skill-by-skill rundown for Chansey and Blissey, plus the flying and gas kits for Pidgey and Koffing, so the release note stays tied to the actual battle flow.',
+            text: 'The latest Pokemon releases panel still features Chansey, Pidgey, and Koffing, so the release announcement stays aligned with the characters the arena is actually shipping right now.',
         },
     ],
     paragraphs: [
-        'Comic Arena Update V.3.1.7 adds the corrected Chansey and Blissey line to Pokemon Arena, with Chansey healing up the team, stripping enemy-applied effects, and evolving into Blissey after enough total healing during battle.',
-        'Pidgey and Koffing still remain in the Pokemon roster too, so the arena keeps its flying pressure and poison control intact while the new support line joins the lineup.',
-        'Doctor Strange remains fully rebuilt around the new redesign template, with a mystic kit that leans on Arcane Energy, Zom, and a more aggressive spell loop.',
-        'On top of the character work, Pokemon Arena keeps growing as a full second arena with its own flow, selection screens, and battle presentation.',
-        'The latest Pokemon releases panel now features Chansey, Pidgey, and Koffing, so the roster announcement section stays aligned with the arena\'s newest additions.',
-        'Below is a full skill-by-skill rundown for Chansey and Blissey, plus the flying and gas kits for Pidgey and Koffing, so the release note stays tied to the actual battle flow.',
+        'Pokemon Arena Update V.3.1.8 focuses on the three new Pokemon additions so far: Chansey, Pidgey, and Koffing. Chansey brings a full support line with healing, protection, and a late-game evolution into Blissey, while Pidgey and Koffing keep the arena moving with pressure, disruption, and momentum control.',
+        'Charmander also received a major update. Its evolution now has to be earned through combat, with Charmeleon only arriving after Charmander critically strikes or burns enemies twice instead of getting the upgrade for free.',
+        'Pokemon Arena is still earlier in development in terms of character count, and that is intentional. The Pokemon side is being built up step by step, and the starters had to come first because they form the base of the whole mode.',
+        'Mission characters are next for Pokemon Arena. That is the part that gives the mode real forward progression, and once the starters are out of the way the roster can start growing into something that feels complete instead of just getting the first pieces rushed out early.',
+        'The latest Pokemon releases panel still features Chansey, Pidgey, and Koffing, so the release announcement stays aligned with the characters the arena is actually shipping right now.',
     ],
     changes: [
         skillShowcase(
@@ -110,40 +105,9 @@ const newsPost = {
             'Evolution - Blissey triggers after Chansey has healed 100 total HP during battle. Once that healing total is reached, Chansey evolves into Blissey and swaps into the improved kit.'
         ),
         skillShowcase(
-            'chansey',
-            'blissey-eggbomb',
-            'Egg Bomb costs 2 Random and deals 35 affliction damage to one enemy while making them ignore all healing effects for 1 turn.',
-            {
-                characterNameOverride: 'Blissey',
-                facePictureOverride: 'assets/images/PokemonArena/Chansey/blisseyfp.png',
-            }
-        ),
-        skillShowcase(
-            'chansey',
-            'blissey-pokemon-center-healing',
-            'Pokémon Center Healing costs 2 Random and heals Blissey\'s team for 15 HP while granting them 10 destructible defense each turn for 3 turns. While it is active, Softboil always makes its target unable to die.',
-            {
-                characterNameOverride: 'Blissey',
-                facePictureOverride: 'assets/images/PokemonArena/Chansey/blisseyfp.png',
-            }
-        ),
-        skillShowcase(
-            'chansey',
-            'blissey-softboil',
-            'Softboil costs 1 Genjutsu and heals one ally for 25 HP. Blissey and the other ally are also healed for 15 HP, which turns the move into a much bigger swing once the evolution lands.',
-            {
-                characterNameOverride: 'Blissey',
-                facePictureOverride: 'assets/images/PokemonArena/Chansey/blisseyfp.png',
-            }
-        ),
-        skillShowcase(
-            'chansey',
-            'blissey-emergency-life-support',
-            'Pokémon Center Emergency Life Support costs 1 Bloodline, 1 Genjutsu, and 1 Random energy, then revives a defeated ally with 50 HP. While Pokémon Center Healing is active, it drops the Random cost by 1.',
-            {
-                characterNameOverride: 'Blissey',
-                facePictureOverride: 'assets/images/PokemonArena/Chansey/blisseyfp.png',
-            }
+            'charmander',
+            'charmander-passive-evolution-charmeleon',
+            'Charmander now evolves into Charmeleon only after he critically strikes or burns enemies twice, which makes the evolution something he has to earn in battle instead of getting it for free.'
         ),
         skillShowcase(
             'pidgey',
@@ -312,7 +276,7 @@ async function syncPoisonIvyAndStrangeNews() {
             { upsert: true }
         );
 
-        console.log('Synced Comic Arena Update V.3.1.7 news and Pokemon latest releases.');
+        console.log('Synced Pokemon Arena Update V.3.1.8 news and Pokemon latest releases.');
     } finally {
         await client.close();
     }
