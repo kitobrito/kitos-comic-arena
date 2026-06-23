@@ -19508,7 +19508,7 @@ const characters = [
                     "statusId": "chansey_blissey_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Chansey/blisseyeggbomb.webp",
-                "skilldescription": "Deals 35 affliction damage to one enemy and causes them to ignore all healing effects for 1 turn.",
+                "skilldescription": "Deals 30 affliction damage to one enemy and causes them to ignore all healing effects for 1 turn.",
                 "energy": [
                     "Random",
                     "Random"
@@ -19524,7 +19524,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 35,
+                        "amount": 30,
                         "scope": "target",
                         "metadata": {
                             "afflictionDamage": true,
