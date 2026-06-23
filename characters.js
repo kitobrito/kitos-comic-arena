@@ -19888,7 +19888,7 @@ const characters = [
                 "actorCondition": {
                     "statusId": "koffing_weezing_evolution"
                 },
-                "skillimage": "assets/images/PokemonArena/koffing/koffingpassivepoisongas.webp",
+                "skillimage": "assets/images/PokemonArena/koffing/weezingpassivepoisongas.webp",
                 "skilldescription": "Whenever Weezing damages an enemy, there is a 40% chance to inflict one random Gas Effect on them for 1 turn: their cooldowns are paralyzed, their helpful skills are disabled, their damage is reduced by 50%, or their skills are delayed until their next turn.",
                 "energy": [],
                 "target": "",
