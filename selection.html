@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&family=Petra&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/style.css?v=pokemon-arena-bg-v4">
+    <link rel="stylesheet" href="styles/style.css?v=starter-confirm-v1">
     <style>
         .pokemon-starter-backdrop {
             position: fixed;
@@ -17,12 +17,16 @@
             justify-content: center;
             padding: 24px;
             background: rgba(17, 12, 8, 0.78);
-            z-index: 1300;
+            z-index: 10000;
+            pointer-events: auto;
         }
         .pokemon-starter-backdrop.visible {
             display: flex;
         }
         .pokemon-starter-modal {
+            position: relative;
+            z-index: 10001;
+            pointer-events: auto;
             width: min(780px, 100%);
             max-height: min(78vh, 680px);
             overflow: auto;
@@ -118,6 +122,9 @@
             font-weight: 900;
             text-transform: uppercase;
             cursor: pointer;
+            touch-action: manipulation;
+            position: relative;
+            z-index: 10002;
             box-shadow: 0 4px 0 rgba(0,0,0,.92);
         }
         .pokemon-starter-confirm:disabled {
@@ -370,7 +377,7 @@
         .catch(() => {});
 })();
 </script>
-<script src="characters.js?v=starter-gate-v12"></script>
-<script src="scripts/script.js?v=starter-gate-v12"></script>
+<script src="characters.js?v=starter-confirm-v1"></script>
+<script src="scripts/script.js?v=starter-confirm-v1"></script>
 </body>
 </html>

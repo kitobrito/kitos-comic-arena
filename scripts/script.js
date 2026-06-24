@@ -9505,6 +9505,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let activeDraftPoll = null;
     let activeDraftTimer = null;
     let selectedPokemonStarterId = '';
+    let isChoosingPokemonStarter = false;
 
     const setSelectionMissionsStatus = (message = '') => {
         if (!selectionMissionsStatusEl) return;
@@ -9743,7 +9744,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const choosePokemonStarter = async (starterCharacterId, button = null) => {
         const normalizedStarterCharacterId = normalizeCharacterId(starterCharacterId);
-        if (!normalizedStarterCharacterId) return;
+        if (!normalizedStarterCharacterId || isChoosingPokemonStarter) return;
+        isChoosingPokemonStarter = true;
         if (button) button.disabled = true;
         setPokemonStarterStatus(`Saving ${normalizedStarterCharacterId}...`);
         try {
@@ -9776,15 +9778,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (error) {
             setPokemonStarterStatus(error.message || 'Unable to save starter selection.');
         } finally {
+            isChoosingPokemonStarter = false;
             if (button) button.disabled = false;
+            updatePokemonStarterConfirmState();
         }
     };
 
-    if (pokemonStarterConfirmButtonEl) {
-        pokemonStarterConfirmButtonEl.addEventListener('click', () => {
-            if (!selectedPokemonStarterId) return;
-            void choosePokemonStarter(selectedPokemonStarterId, pokemonStarterConfirmButtonEl);
+    const submitSelectedPokemonStarter = (event = null) => {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        if (!selectedPokemonStarterId || isChoosingPokemonStarter) return;
+        void choosePokemonStarter(selectedPokemonStarterId, pokemonStarterConfirmButtonEl);
+    };
+
+    const pokemonStarterModalEl = pokemonStarterBackdropEl?.querySelector('.pokemon-starter-modal') || null;
+    if (pokemonStarterModalEl) {
+        ['pointerdown', 'pointerup', 'click'].forEach((eventName) => {
+            pokemonStarterModalEl.addEventListener(eventName, (event) => {
+                event.stopPropagation();
+            });
         });
+    }
+
+    if (pokemonStarterConfirmButtonEl) {
+        pokemonStarterConfirmButtonEl.addEventListener('click', submitSelectedPokemonStarter);
     }
 
     const formatMissionGoalLines = (mission, progress = {}) => {
