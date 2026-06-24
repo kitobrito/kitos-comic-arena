@@ -9505,6 +9505,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let activeDraftPoll = null;
     let activeDraftTimer = null;
     let selectedPokemonStarterId = '';
+    let isChoosingPokemonStarter = false;
 
     const setSelectionMissionsStatus = (message = '') => {
         if (!selectionMissionsStatusEl) return;
@@ -9661,7 +9662,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const updatePokemonStarterConfirmState = () => {
         if (!pokemonStarterConfirmButtonEl) return;
-        pokemonStarterConfirmButtonEl.disabled = !selectedPokemonStarterId;
+        const inactive = !selectedPokemonStarterId || isChoosingPokemonStarter;
+        pokemonStarterConfirmButtonEl.classList.toggle('is-disabled', inactive);
+        pokemonStarterConfirmButtonEl.setAttribute('aria-disabled', inactive ? 'true' : 'false');
+        pokemonStarterConfirmButtonEl.setAttribute('aria-busy', isChoosingPokemonStarter ? 'true' : 'false');
     };
 
     const hidePokemonStarterPrompt = () => {
@@ -9743,8 +9747,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const choosePokemonStarter = async (starterCharacterId, button = null) => {
         const normalizedStarterCharacterId = normalizeCharacterId(starterCharacterId);
-        if (!normalizedStarterCharacterId) return;
-        if (button) button.disabled = true;
+        if (!normalizedStarterCharacterId || isChoosingPokemonStarter) return;
+        isChoosingPokemonStarter = true;
+        updatePokemonStarterConfirmState();
         setPokemonStarterStatus(`Saving ${normalizedStarterCharacterId}...`);
         try {
             const response = await fetch(`${API_BASE_URL}/api/profile/pokemon/starter`, {
@@ -9776,15 +9781,37 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (error) {
             setPokemonStarterStatus(error.message || 'Unable to save starter selection.');
         } finally {
-            if (button) button.disabled = false;
+            isChoosingPokemonStarter = false;
+            updatePokemonStarterConfirmState();
         }
     };
 
-    if (pokemonStarterConfirmButtonEl) {
-        pokemonStarterConfirmButtonEl.addEventListener('click', () => {
-            if (!selectedPokemonStarterId) return;
-            void choosePokemonStarter(selectedPokemonStarterId, pokemonStarterConfirmButtonEl);
+    const submitSelectedPokemonStarter = (event = null) => {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        if (isChoosingPokemonStarter) return;
+        if (!selectedPokemonStarterId) {
+            setPokemonStarterStatus('Pick a starter card first, then press "I choose you!"');
+            updatePokemonStarterConfirmState();
+            return;
+        }
+        void choosePokemonStarter(selectedPokemonStarterId, pokemonStarterConfirmButtonEl);
+    };
+
+    const pokemonStarterModalEl = pokemonStarterBackdropEl?.querySelector('.pokemon-starter-modal') || null;
+    if (pokemonStarterModalEl) {
+        ['pointerdown', 'pointerup', 'click'].forEach((eventName) => {
+            pokemonStarterModalEl.addEventListener(eventName, (event) => {
+                event.stopPropagation();
+            });
         });
+    }
+
+    if (pokemonStarterConfirmButtonEl) {
+        pokemonStarterConfirmButtonEl.addEventListener('click', submitSelectedPokemonStarter);
+        pokemonStarterConfirmButtonEl.addEventListener('pointerdown', submitSelectedPokemonStarter);
     }
 
     const formatMissionGoalLines = (mission, progress = {}) => {
