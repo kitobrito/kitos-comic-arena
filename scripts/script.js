@@ -9699,6 +9699,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const maybePromptPokemonStarterChoice = () => {
         if (activeArenaMode !== 'pokemon') {
+            if (isSelectionPage && !hasPokemonStarterSelection()) {
+                setArenaMode('pokemon');
+                return;
+            }
             hidePokemonStarterPrompt();
             return;
         }
