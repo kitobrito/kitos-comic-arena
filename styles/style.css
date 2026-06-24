@@ -1841,8 +1841,16 @@ text-transform: uppercase;
     background-color: #56b0ff;
 }
 
+body.arena-mode-pokemon .energy-pip.filled.energy-ninjutsu {
+    background-color: #7b3ff2;
+}
+
 .energy-pip.filled.energy-bloodline {
     background-color: #e74c3c;
+}
+
+body.arena-mode-pokemon .energy-pip.filled.energy-bloodline {
+    background-color: #ff9f1c;
 }
 
 .energy-pip.filled.energy-random {
@@ -1853,8 +1861,16 @@ text-transform: uppercase;
     background-color: #ffffff;
 }
 
+body.arena-mode-pokemon .energy-pip.filled.energy-genjutsu {
+    background-color: #ffd83d;
+}
+
 .energy-pip.filled.energy-taijutsu {
     background-color: #0fec7a;
+}
+
+body.arena-mode-pokemon .energy-pip.filled.energy-taijutsu {
+    background-color: #33d9a3;
 }
 
 .skill-description {
@@ -2449,16 +2465,32 @@ text-transform: uppercase;
     background-color: #e74c3c;
 }
 
+body.arena-mode-pokemon .chakra-box.red {
+    background-color: #ff9f1c;
+}
+
 .chakra-box.blue {
     background-color: #3498db;
+}
+
+body.arena-mode-pokemon .chakra-box.blue {
+    background-color: #7b3ff2;
 }
 
 .chakra-box.green {
     background-color: #2ecc71;
 }
 
+body.arena-mode-pokemon .chakra-box.green {
+    background-color: #33d9a3;
+}
+
 .chakra-box.white {
     background-color: #ecf0f1;
+}
+
+body.arena-mode-pokemon .chakra-box.white {
+    background-color: #ffd83d;
 }
 .chakra-box.black {
     background-color: #000;
@@ -4693,16 +4725,32 @@ body.arena-mode-pokemon .ingamescrollbehind {
     background-color: #e74c3c;
 }
 
+body.arena-mode-pokemon .chakra-box.red {
+    background-color: #ff9f1c;
+}
+
 .chakra-box.blue {
     background-color: #3498db;
+}
+
+body.arena-mode-pokemon .chakra-box.blue {
+    background-color: #7b3ff2;
 }
 
 .chakra-box.green {
     background-color: #2ecc71;
 }
 
+body.arena-mode-pokemon .chakra-box.green {
+    background-color: #33d9a3;
+}
+
 .chakra-box.white {
     background-color: #ecf0f1;
+}
+
+body.arena-mode-pokemon .chakra-box.white {
+    background-color: #ffd83d;
 }
 .chakra-box.black {
     background-color: #000;

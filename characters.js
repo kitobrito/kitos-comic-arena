@@ -18717,7 +18717,7 @@ const characters = [
                 "id": "pikachu-thundershock",
                 "name": "Thundershock",
                 "skillimage": "assets/images/PokemonArena/Pikachu/thundershock.jpg",
-                "skilldescription": "Deals 25 piercing damage to one targeted enemy and 10 piercing damage to a random different enemy, paralyzes the targeted enemy's cooldowns, and makes Thunder cost 1 Ninjutsu and 1 Random energy for 1 turn. If the targeted enemy is affected by Passive: Static, their cooldowns are paralyzed for 2 turns instead.",
+                "skilldescription": "Deals 25 piercing damage to one targeted enemy and 10 piercing damage to a random different enemy, paralyzes the targeted enemy's cooldowns, and makes Thunder cost 1 Blue and 1 Random energy for 1 turn. If the targeted enemy is affected by Passive: Static, their cooldowns are paralyzed for 2 turns instead.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -18788,7 +18788,7 @@ const characters = [
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/Pikachu/thundershock.jpg",
-                            "tooltipText": "Thunder costs 1 Ninjutsu and 1 Random energy."
+                            "tooltipText": "Thunder costs 1 Blue and 1 Random energy."
                         }
                     }
                 ]

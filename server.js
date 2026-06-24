@@ -2999,6 +2999,70 @@ const XENOMORPH_DRONE_MISSION_ENTRY = {
     sortOrder: 999,
 };
 
+const POKEMON_SCYTHER_MISSION_ENTRY = {
+    missionId: 'scyther-trial',
+    title: 'The Scyther Trial',
+    level_requirement: 6,
+    rank: '6',
+    reward_character: 'scyther',
+    reward_character_name: 'Scyther',
+    reward: 'Unlock Scyther.',
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/scyther/scythermissionpic.jpeg',
+    imageAlt: 'Scyther mission artwork',
+    characterName: 'Scyther',
+    portrait: 'assets/images/PokemonArena/scyther/scytherfp.webp',
+    portraitAlt: 'Scyther portrait',
+    requirements: [
+        'This trial is intentionally grindy. The Scyther mission is meant to feel like a real milestone in Pokemon Arena.',
+        'Clear a 4-win streak with Zubat and Gastly on the same team.',
+    ],
+    goals: [
+        {
+            type: 'win_matches',
+            character_id: 'chansey',
+            character_name: 'Chansey',
+            wins: 6,
+        },
+        {
+            type: 'win_matches',
+            character_id: 'pidgey',
+            character_name: 'Pidgey',
+            wins: 6,
+        },
+        {
+            type: 'win_matches',
+            character_id: 'koffing',
+            character_name: 'Koffing',
+            wins: 6,
+        },
+        {
+            type: 'win_streak_same_team',
+            character_ids: ['zubat', 'gastly'],
+            character_names: ['Zubat', 'Gastly'],
+            wins: 4,
+        },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 5,
+};
+
 const POKEMON_GASTLY_MISSION_ENTRY = {
     missionId: 'gastly-haunted-tower',
     title: 'The Haunted Tower',
@@ -3059,68 +3123,6 @@ const POKEMON_GASTLY_MISSION_ENTRY = {
 
 const POKEMON_STARTER_MISSION_ENTRIES = [
     {
-        missionId: 'squirtle-starter-path',
-        title: 'Squirtle Starter Path',
-        level_requirement: 1,
-        rank: '1',
-        reward_character: 'squirtle',
-        reward_character_name: 'Squirtle',
-        reward: 'Unlock Squirtle.',
-        arena: 'pokemon',
-        mode_restriction: { allowed_modes: ['quick', 'ladder'] },
-        win_streak: { character_id: '', character_name: '', wins: 0 },
-        image: 'assets/images/PokemonArena/squirtlemissionpic.jpeg',
-        imageAlt: 'Squirtle starter mission artwork',
-        characterName: 'Squirtle',
-        portrait: 'assets/images/PokemonArena/squirtle/squirtlefp.jpg',
-        portraitAlt: 'Squirtle portrait',
-        requirements: ['Choose a starter when you first enter Pokemon Arena.'],
-        goals: [
-            { type: 'win_matches', character_id: 'bulbasaur', character_name: 'Bulbasaur', wins: 16 },
-        ],
-        special_pve: {
-            enabled: false,
-            buttonLabel: 'Start Fight',
-            botName: 'Mission Bot',
-            botTeamCharacterId: '',
-            botTeamSize: 3,
-            backgroundImage: '',
-            playerTeamCharacterIds: [],
-        },
-        sortOrder: 1,
-    },
-    {
-        missionId: 'charmander-starter-path',
-        title: 'Charmander Starter Path',
-        level_requirement: 1,
-        rank: '1',
-        reward_character: 'charmander',
-        reward_character_name: 'Charmander',
-        reward: 'Unlock Charmander.',
-        arena: 'pokemon',
-        mode_restriction: { allowed_modes: ['quick', 'ladder'] },
-        win_streak: { character_id: '', character_name: '', wins: 0 },
-        image: 'assets/images/PokemonArena/charmandermissionpic.jpeg',
-        imageAlt: 'Charmander starter mission artwork',
-        characterName: 'Charmander',
-        portrait: 'assets/images/PokemonArena/Charmander/charmanderfp.jpg',
-        portraitAlt: 'Charmander portrait',
-        requirements: ['Choose a starter when you first enter Pokemon Arena.'],
-        goals: [
-            { type: 'win_matches', character_id: 'squirtle', character_name: 'Squirtle', wins: 16 },
-        ],
-        special_pve: {
-            enabled: false,
-            buttonLabel: 'Start Fight',
-            botName: 'Mission Bot',
-            botTeamCharacterId: '',
-            botTeamSize: 3,
-            backgroundImage: '',
-            playerTeamCharacterIds: [],
-        },
-        sortOrder: 2,
-    },
-    {
         missionId: 'pikachu-starter-path',
         title: 'Pikachu Starter Path',
         level_requirement: 1,
@@ -3136,7 +3138,7 @@ const POKEMON_STARTER_MISSION_ENTRIES = [
         characterName: 'Pikachu',
         portrait: 'assets/images/PokemonArena/Pikachu/pikachufp.jpeg',
         portraitAlt: 'Pikachu portrait',
-        requirements: ['Choose a starter when you first enter Pokemon Arena.'],
+        requirements: [],
         goals: [
             { type: 'win_matches', character_id: 'pidgey', character_name: 'Pidgey', wins: 16 },
         ],
@@ -3151,44 +3153,17 @@ const POKEMON_STARTER_MISSION_ENTRIES = [
         },
         sortOrder: 3,
     },
-    {
-        missionId: 'bulbasaur-starter-path',
-        title: 'Bulbasaur Starter Path',
-        level_requirement: 1,
-        rank: '1',
-        reward_character: 'bulbasaur',
-        reward_character_name: 'Bulbasaur',
-        reward: 'Unlock Bulbasaur.',
-        arena: 'pokemon',
-        mode_restriction: { allowed_modes: ['quick', 'ladder'] },
-        win_streak: { character_id: '', character_name: '', wins: 0 },
-        image: 'assets/images/PokemonArena/bulbasaurmissionpic.jpeg',
-        imageAlt: 'Bulbasaur starter mission artwork',
-        characterName: 'Bulbasaur',
-        portrait: 'assets/images/PokemonArena/Bulbasaur/bulbasaurfp.jpg',
-        portraitAlt: 'Bulbasaur portrait',
-        requirements: ['Choose a starter when you first enter Pokemon Arena.'],
-        goals: [
-            { type: 'win_matches', character_id: 'charmander', character_name: 'Charmander', wins: 16 },
-        ],
-        special_pve: {
-            enabled: false,
-            buttonLabel: 'Start Fight',
-            botName: 'Mission Bot',
-            botTeamCharacterId: '',
-            botTeamSize: 3,
-            backgroundImage: '',
-            playerTeamCharacterIds: [],
-        },
-        sortOrder: 4,
-    },
 ];
 
 const ensureRequiredMissionCatalogEntries = (missions = []) => {
+    const removedPokemonStarterMissionIds = new Set([
+        'squirtle-starter-path',
+        'charmander-starter-path',
+        'bulbasaur-starter-path',
+    ]);
     const catalog = cloneMissionCatalog(missions).filter(
         (mission) =>
-            normalizeCharacterId(mission?.reward_character) !== 'scyther' &&
-            mission?.missionId !== 'scyther-trial'
+            !removedPokemonStarterMissionIds.has(mission?.missionId)
     );
     const upsertRequiredMission = (entry, matcher) => {
         const normalizedEntry = normalizeMissionCatalogEntry(entry, catalog.length);
@@ -3214,6 +3189,7 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     POKEMON_STARTER_MISSION_ENTRIES.forEach((entry) => {
         upsertRequiredMission(entry, (mission) => normalizeCharacterId(mission?.reward_character) === normalizeCharacterId(entry.reward_character));
     });
+    upsertRequiredMission(POKEMON_SCYTHER_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'scyther');
     upsertRequiredMission(POKEMON_GASTLY_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'gastly');
     return normalizeMissionCatalog(catalog);
 };

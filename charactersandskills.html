@@ -537,6 +537,13 @@
         var wrapper = document.createElement("span");
         wrapper.className = "character-energy-pips";
         var items = Array.isArray(energyList) ? energyList : [];
+        var energyLabels = {
+          taijutsu: "Green",
+          bloodline: "Red",
+          ninjutsu: "Blue",
+          genjutsu: "White",
+          random: "Random"
+        };
         if (!items.length) {
           wrapper.textContent = "None";
           return wrapper;
@@ -545,7 +552,7 @@
           var normalized = typeof entry === "string" ? entry.trim().toLowerCase() : "";
           var pip = document.createElement("span");
           pip.className = "character-energy-pip " + (normalized || "random");
-          pip.title = entry;
+          pip.title = energyLabels[normalized] || entry;
           wrapper.appendChild(pip);
         });
         return wrapper;

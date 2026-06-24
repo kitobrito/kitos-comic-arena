@@ -1609,11 +1609,45 @@ document.addEventListener('DOMContentLoaded', async () => {
             blue: 'ninjutsu',
             genjutsu: 'genjutsu',
             white: 'genjutsu',
+            yellow: 'genjutsu',
         };
         const resolveChakraType = (value) => {
             const normalized =
                 typeof value === 'string' ? value.trim().toLowerCase() : '';
             return chakraLabelToTypeMap[normalized] || null;
+        };
+        const getEnergyDisplayLabel = (type) => {
+            const normalized = resolveChakraType(type) || (typeof type === 'string' ? type.trim().toLowerCase() : '');
+            const labels = {
+                taijutsu: 'Green',
+                bloodline: currentMatchArena === 'pokemon' ? 'Orange' : 'Red',
+                ninjutsu: 'Blue',
+                genjutsu: currentMatchArena === 'pokemon' ? 'Yellow' : 'White',
+                random: 'Random',
+            };
+            return labels[normalized] || '';
+        };
+        const syncEnergyNameLabels = () => {
+            [
+                ['.chakra-box.red', 'bloodline'],
+                ['.chakra-box.white', 'genjutsu'],
+            ].forEach(([selector, type]) => {
+                const label = getEnergyDisplayLabel(type).toUpperCase();
+                document.querySelectorAll(selector).forEach((box) => {
+                const row = box.closest('.chakra-row, .exchange_chakra_row, .chakra-item');
+                const nameEl = row?.querySelector('.chakra-name');
+                if (nameEl) {
+                        nameEl.textContent = label;
+                    }
+                });
+            });
+            exchangeChoiceButtons.forEach((button) => {
+                const type = getExchangeTypeFromButton(button);
+                const label = getEnergyDisplayLabel(type);
+                if (label) {
+                    button.setAttribute('aria-label', label);
+                }
+            });
         };
         const getRowChakraType = (row) => {
             if (!(row instanceof Element)) return null;
@@ -4530,6 +4564,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 button.classList.toggle('selected', type === selectedExchangeType);
             });
         };
+        syncEnergyNameLabels();
 
         const getExchangeAssignedTotal = () =>
             chakraTypes.reduce(
@@ -7338,6 +7373,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 currentMatchArena = data.arena.trim().toLowerCase() === 'pokemon' ? 'pokemon' : 'comic';
             }
             setIngameArenaUiAssets(currentMatchArena);
+            syncEnergyNameLabels();
             if (data.player?.profile) {
                 const playerProfileView = getArenaProfileView(data.player.profile, currentMatchArena);
                 applyPlayerIdentity({
@@ -7597,6 +7633,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const normalized = typeof type === 'string' ? type.trim().toLowerCase() : '';
                     const cls = energyClassMap[normalized];
                     box.className = ['chakra-box', cls].filter(Boolean).join(' ');
+                    box.title = getEnergyDisplayLabel(normalized);
                     if (!cls) {
                         box.style.backgroundColor = '#000';
                     }
@@ -9440,9 +9477,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     void hydratePlayerIdentity()
-        .then(() => {
-            maybePromptPokemonStarterChoice();
-        })
+        .then(() => {})
         .catch((error) => {
             console.warn('Failed to hydrate player identity.', error);
         });
@@ -9470,10 +9505,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const selectionMissionsToggle = document.querySelector('.selection-missions-toggle');
     const selectionMissionsListEl = document.querySelector('.selection-missions-list');
     const selectionMissionsStatusEl = document.querySelector('.selection-missions-status');
-    const pokemonStarterBackdropEl = document.getElementById('pokemon-starter-backdrop');
-    const pokemonStarterGridEl = document.getElementById('pokemon-starter-grid');
-    const pokemonStarterConfirmButtonEl = document.getElementById('pokemon-starter-confirm');
-    const pokemonStarterStatusEl = document.getElementById('pokemon-starter-status');
     const privateMatchBackdrop = document.querySelector('.private-match-backdrop');
     const privateMatchInput = document.querySelector('.private-match-input');
     const privateMatchError = document.querySelector('.private-match-error');
@@ -9504,17 +9535,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     let activeDraftSelectionPhase = '';
     let activeDraftPoll = null;
     let activeDraftTimer = null;
-    let selectedPokemonStarterId = '';
-    let isChoosingPokemonStarter = false;
-
     const setSelectionMissionsStatus = (message = '') => {
         if (!selectionMissionsStatusEl) return;
         selectionMissionsStatusEl.textContent = message;
-    };
-
-    const setPokemonStarterStatus = (message = '') => {
-        if (!pokemonStarterStatusEl) return;
-        pokemonStarterStatusEl.textContent = message;
     };
 
     const getArenaModeLabel = (arena = activeArenaMode) =>
@@ -9553,265 +9576,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         syncArenaModeBackground();
         syncArenaModePlayerIdentity();
     };
-
-    const REQUIRED_POKEMON_STARTER_SELECTION_VERSION = 3;
-
-    const pokemonStarterChoices = [
-        {
-            characterId: 'squirtle',
-            name: 'Squirtle',
-            image: 'assets/images/PokemonArena/squirtle/squirtlefp.jpg',
-            description: 'A defensive Water starter that turns blocking and cleansing into momentum.',
-            skills: [
-                { name: 'Water Gun', text: 'Deals damage now and again next turn while punishing harmful skill use.' },
-                { name: 'Withdraw', text: 'Lets Squirtle or an ally block the next harmful skill used on them.' },
-                { name: 'Bubble', text: 'A debuffing burst that can make enemies hurt themselves when they use skills.' },
-                { name: 'Rapid Spin', text: 'Hits the enemy team and helps Squirtle keep the battle under control.' },
-            ],
-        },
-        {
-            characterId: 'charmander',
-            name: 'Charmander',
-            image: 'assets/images/PokemonArena/Charmander/charmanderfp.jpg',
-            description: 'A fiery starter that grows stronger as burn and crit pressure build up.',
-            skills: [
-                { name: 'Ember', text: 'Deals affliction damage and can Burn the target.' },
-                { name: 'Scratch', text: 'A simple strike that can turn Piercing on a critical hit.' },
-                { name: 'Flamethrower', text: 'Burns the whole enemy team and scales with rage stacks.' },
-                { name: 'Rage', text: 'Gives damage reduction and permanently boosts Charmander when he takes damage.' },
-            ],
-        },
-        {
-            characterId: 'pikachu',
-            name: 'Pikachu',
-            image: 'assets/images/PokemonArena/Pikachu/pikachufp.jpeg',
-            description: 'A lightning starter that punishes new skill usage and spikes with Static.',
-            skills: [
-                { name: 'Thundershock', text: 'Hits hard, spreads pressure, and changes Thunder’s cost.' },
-                { name: 'Volt Tackle', text: 'Big burst damage that also taxes the target’s future cooldowns.' },
-                { name: 'Thunder', text: 'A heavy shot that becomes nastier against targets marked by Static.' },
-                { name: 'Agility', text: 'Lets Pikachu become invulnerable for a turn.' },
-            ],
-        },
-        {
-            characterId: 'bulbasaur',
-            name: 'Bulbasaur',
-            image: 'assets/images/PokemonArena/Bulbasaur/bulbasaurfp.jpg',
-            description: 'A slow-burn starter that grows through Sun stacks and steady control.',
-            skills: [
-                { name: 'Leech Seed', text: 'Drains health over time and fuels Bulbasaur’s Sun growth.' },
-                { name: 'Vine Whip', text: 'Deals piercing damage and disables harmful skills briefly.' },
-                { name: 'Razor Leaf', text: 'A wide strike that can crit harder with enough Sun.' },
-                { name: 'Solar Beam', text: 'A powerful finisher that gets cheaper as Sun stacks build.' },
-            ],
-        },
-    ];
-
-    const renderPokemonStarterChoices = () => {
-        if (!pokemonStarterGridEl) return;
-        pokemonStarterGridEl.innerHTML = '';
-        pokemonStarterChoices.forEach((choice) => {
-            const card = document.createElement('article');
-            card.className = 'pokemon-starter-card';
-            card.tabIndex = 0;
-            card.setAttribute('role', 'button');
-            card.setAttribute('aria-pressed', choice.characterId === selectedPokemonStarterId ? 'true' : 'false');
-            if (choice.characterId === selectedPokemonStarterId) {
-                card.classList.add('is-selected');
-            }
-            const image = document.createElement('img');
-            image.src = choice.image;
-            image.alt = `${choice.name} starter portrait`;
-            const title = document.createElement('h3');
-            title.textContent = choice.name;
-            const description = document.createElement('p');
-            description.textContent = choice.description;
-            const skills = document.createElement('div');
-            skills.className = 'pokemon-starter-skills';
-            (Array.isArray(choice.skills) ? choice.skills : []).forEach((skill) => {
-                const skillBlock = document.createElement('div');
-                skillBlock.className = 'pokemon-starter-skill';
-                const skillName = document.createElement('strong');
-                skillName.textContent = skill.name || 'Skill';
-                const skillText = document.createElement('span');
-                skillText.textContent = skill.text || '';
-                skillBlock.appendChild(skillName);
-                skillBlock.appendChild(skillText);
-                skills.appendChild(skillBlock);
-            });
-            const handleSelect = () => {
-                selectedPokemonStarterId = choice.characterId;
-                setPokemonStarterStatus(`Selected ${choice.name}. Read the kit, then press "I choose you!"`);
-                renderPokemonStarterChoices();
-                updatePokemonStarterConfirmState();
-            };
-            card.addEventListener('click', handleSelect);
-            card.addEventListener('keydown', (event) => {
-                if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault();
-                    handleSelect();
-                }
-            });
-            card.appendChild(image);
-            card.appendChild(title);
-            card.appendChild(description);
-            card.appendChild(skills);
-            pokemonStarterGridEl.appendChild(card);
-        });
-    };
-
-    const updatePokemonStarterConfirmState = () => {
-        if (!pokemonStarterConfirmButtonEl) return;
-        const inactive = !selectedPokemonStarterId || isChoosingPokemonStarter;
-        pokemonStarterConfirmButtonEl.classList.toggle('is-disabled', inactive);
-        pokemonStarterConfirmButtonEl.setAttribute('aria-disabled', inactive ? 'true' : 'false');
-        pokemonStarterConfirmButtonEl.setAttribute('aria-busy', isChoosingPokemonStarter ? 'true' : 'false');
-    };
-
-    const hidePokemonStarterPrompt = () => {
-        if (!pokemonStarterBackdropEl) return;
-        pokemonStarterBackdropEl.classList.remove('visible');
-        pokemonStarterBackdropEl.hidden = true;
-        selectedPokemonStarterId = '';
-        updatePokemonStarterConfirmState();
-    };
-
-    const showPokemonStarterPrompt = () => {
-        if (!pokemonStarterBackdropEl) return;
-        selectedPokemonStarterId = '';
-        renderPokemonStarterChoices();
-        pokemonStarterBackdropEl.hidden = false;
-        pokemonStarterBackdropEl.classList.add('visible');
-        updatePokemonStarterConfirmState();
-        setPokemonStarterStatus('Click a starter to reveal its kit, then press "I choose you!" to confirm.');
-    };
-
-    const getPokemonStarterSelectionState = () => {
-        const cachedUser = readCachedUser();
-        return (
-            profileCache?.profile?.arenas?.pokemon?.missions ||
-            cachedUser?.profile?.arenas?.pokemon?.missions ||
-            cachedUser?.arenas?.pokemon?.missions ||
-            {}
-        );
-    };
-
-    const hasPokemonStarterSelection = () => Boolean(
-        normalizeCharacterId(getPokemonStarterSelectionState().starterCharacterId) &&
-            Number(getPokemonStarterSelectionState().starterSelectionVersion) >= REQUIRED_POKEMON_STARTER_SELECTION_VERSION
-    );
-
-    const maybePromptPokemonStarterChoice = () => {
-        if (activeArenaMode !== 'pokemon') {
-            if (isSelectionPage && !hasPokemonStarterSelection()) {
-                setArenaMode('pokemon');
-                return;
-            }
-            hidePokemonStarterPrompt();
-            return;
-        }
-        const cachedUser = profileCache?.username ? profileCache : readCachedUser();
-        if (!cachedUser?.username) {
-            return;
-        }
-        if (hasPokemonStarterSelection()) {
-            hidePokemonStarterPrompt();
-            return;
-        }
-        showPokemonStarterPrompt();
-    };
-
-    const forcePokemonStarterPrompt = () => {
-        if (!isSelectionPage) return;
-        activeArenaMode = 'pokemon';
-        localStorage.setItem('comicArenaMode', activeArenaMode);
-        syncArenaModeButtons();
-        loadMissionLockedCharacterIds()
-            .catch(() => {})
-            .finally(() => {
-                applyRosterFilter();
-                applySavedTeam();
-                updateGameButtons();
-                if (selectionMissionsEl && !selectionMissionsEl.classList.contains('collapsed')) {
-                    loadSelectionMissions();
-                }
-                showPokemonStarterPrompt();
-            });
-    };
-
-    window.forcePokemonStarterPrompt = forcePokemonStarterPrompt;
-    if (window.__forcePokemonStarterPromptPending) {
-        delete window.__forcePokemonStarterPromptPending;
-        forcePokemonStarterPrompt();
-    }
-
-    const choosePokemonStarter = async (starterCharacterId, button = null) => {
-        const normalizedStarterCharacterId = normalizeCharacterId(starterCharacterId);
-        if (!normalizedStarterCharacterId || isChoosingPokemonStarter) return;
-        isChoosingPokemonStarter = true;
-        updatePokemonStarterConfirmState();
-        setPokemonStarterStatus(`Saving ${normalizedStarterCharacterId}...`);
-        try {
-            const response = await fetch(`${API_BASE_URL}/api/profile/pokemon/starter`, {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    starterCharacterId: normalizedStarterCharacterId,
-                }),
-            });
-            const payload = await response.json().catch(() => ({}));
-            if (!response.ok) {
-                throw new Error(payload.error || 'Unable to save starter selection.');
-            }
-            if (payload?.user?.username) {
-                profileCache = payload.user;
-                writeCachedUser(payload.user);
-            }
-            hidePokemonStarterPrompt();
-            await loadMissionLockedCharacterIds();
-            rebuildRosterDisplayIndices();
-            syncRosterFilterSelect();
-            renderRosterPage();
-            updateGameButtons();
-            applySavedTeam();
-            maybePromptPokemonStarterChoice();
-        } catch (error) {
-            setPokemonStarterStatus(error.message || 'Unable to save starter selection.');
-        } finally {
-            isChoosingPokemonStarter = false;
-            updatePokemonStarterConfirmState();
-        }
-    };
-
-    const submitSelectedPokemonStarter = (event = null) => {
-        if (event) {
-            event.preventDefault();
-            event.stopPropagation();
-        }
-        if (isChoosingPokemonStarter) return;
-        if (!selectedPokemonStarterId) {
-            setPokemonStarterStatus('Pick a starter card first, then press "I choose you!"');
-            updatePokemonStarterConfirmState();
-            return;
-        }
-        void choosePokemonStarter(selectedPokemonStarterId, pokemonStarterConfirmButtonEl);
-    };
-
-    const pokemonStarterModalEl = pokemonStarterBackdropEl?.querySelector('.pokemon-starter-modal') || null;
-    if (pokemonStarterModalEl) {
-        ['pointerdown', 'pointerup', 'click'].forEach((eventName) => {
-            pokemonStarterModalEl.addEventListener(eventName, (event) => {
-                event.stopPropagation();
-            });
-        });
-    }
-    if (pokemonStarterConfirmButtonEl) {
-        pokemonStarterConfirmButtonEl.addEventListener('click', submitSelectedPokemonStarter);
-        pokemonStarterConfirmButtonEl.addEventListener('pointerdown', submitSelectedPokemonStarter);
-    }
 
     const formatMissionGoalLines = (mission, progress = {}) => {
         const goals = Array.isArray(mission?.goals) ? mission.goals : [];
@@ -10797,7 +10561,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const pip = document.createElement('span');
             const colorClass = energyClassMap[normalized];
             pip.className = ['energy-pip', 'filled', colorClass].filter(Boolean).join(' ');
-            pip.title = type;
+            pip.title = labelEnergyFilterKey(normalized);
             energyBarEl.appendChild(pip);
         });
     };
@@ -10887,9 +10651,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const energyFilterLabels = {
         taijutsu: 'Green',
-        bloodline: 'Red',
+        bloodline: activeArenaMode === 'pokemon' ? 'Orange' : 'Red',
         ninjutsu: 'Blue',
-        genjutsu: 'White',
+        genjutsu: activeArenaMode === 'pokemon' ? 'Yellow' : 'White',
         random: 'Random',
         none: 'No Cost',
     };
