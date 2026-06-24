@@ -9439,9 +9439,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    void hydratePlayerIdentity().catch((error) => {
-        console.warn('Failed to hydrate player identity.', error);
-    });
+    void hydratePlayerIdentity()
+        .then(() => {
+            maybePromptPokemonStarterChoice();
+        })
+        .catch((error) => {
+            console.warn('Failed to hydrate player identity.', error);
+        });
 
     const logoutButton = document.querySelector('.logout-button');
     const quickButton = document.querySelector('.quick-button');
@@ -9466,6 +9470,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const selectionMissionsToggle = document.querySelector('.selection-missions-toggle');
     const selectionMissionsListEl = document.querySelector('.selection-missions-list');
     const selectionMissionsStatusEl = document.querySelector('.selection-missions-status');
+    const pokemonStarterBackdropEl = document.getElementById('pokemon-starter-backdrop');
+    const pokemonStarterGridEl = document.getElementById('pokemon-starter-grid');
+    const pokemonStarterStatusEl = document.getElementById('pokemon-starter-status');
     const privateMatchBackdrop = document.querySelector('.private-match-backdrop');
     const privateMatchInput = document.querySelector('.private-match-input');
     const privateMatchError = document.querySelector('.private-match-error');
@@ -9500,6 +9507,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const setSelectionMissionsStatus = (message = '') => {
         if (!selectionMissionsStatusEl) return;
         selectionMissionsStatusEl.textContent = message;
+    };
+
+    const setPokemonStarterStatus = (message = '') => {
+        if (!pokemonStarterStatusEl) return;
+        pokemonStarterStatusEl.textContent = message;
     };
 
     const getArenaModeLabel = (arena = activeArenaMode) =>
@@ -9539,6 +9551,143 @@ document.addEventListener('DOMContentLoaded', async () => {
         syncArenaModePlayerIdentity();
     };
 
+    const pokemonStarterChoices = [
+        {
+            characterId: 'squirtle',
+            name: 'Squirtle',
+            image: 'assets/images/PokemonArena/squirtle/squirtlefp.jpg',
+            description: 'Win 16 battles with Bulbasaur to unlock the mission version of Squirtle.',
+        },
+        {
+            characterId: 'charmander',
+            name: 'Charmander',
+            image: 'assets/images/PokemonArena/Charmander/charmanderfp.jpg',
+            description: 'Win 16 battles with Squirtle to unlock the mission version of Charmander.',
+        },
+        {
+            characterId: 'pikachu',
+            name: 'Pikachu',
+            image: 'assets/images/PokemonArena/Pikachu/pikachufp.jpeg',
+            description: 'Win 16 battles with Pidgey to unlock the mission version of Pikachu.',
+        },
+        {
+            characterId: 'bulbasaur',
+            name: 'Bulbasaur',
+            image: 'assets/images/PokemonArena/Bulbasaur/bulbasaurfp.jpg',
+            description: 'Win 16 battles with Charmander to unlock the mission version of Bulbasaur.',
+        },
+    ];
+
+    const renderPokemonStarterChoices = () => {
+        if (!pokemonStarterGridEl) return;
+        pokemonStarterGridEl.innerHTML = '';
+        pokemonStarterChoices.forEach((choice) => {
+            const card = document.createElement('article');
+            card.className = 'pokemon-starter-card';
+            const image = document.createElement('img');
+            image.src = choice.image;
+            image.alt = `${choice.name} starter portrait`;
+            const title = document.createElement('h3');
+            title.textContent = choice.name;
+            const description = document.createElement('p');
+            description.textContent = choice.description;
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = `Choose ${choice.name}`;
+            button.addEventListener('click', () => {
+                void choosePokemonStarter(choice.characterId, button);
+            });
+            card.appendChild(image);
+            card.appendChild(title);
+            card.appendChild(description);
+            card.appendChild(button);
+            pokemonStarterGridEl.appendChild(card);
+        });
+    };
+
+    const hidePokemonStarterPrompt = () => {
+        if (!pokemonStarterBackdropEl) return;
+        pokemonStarterBackdropEl.classList.remove('visible');
+        pokemonStarterBackdropEl.hidden = true;
+    };
+
+    const showPokemonStarterPrompt = () => {
+        if (!pokemonStarterBackdropEl) return;
+        renderPokemonStarterChoices();
+        pokemonStarterBackdropEl.hidden = false;
+        pokemonStarterBackdropEl.classList.add('visible');
+        setPokemonStarterStatus('Choose one starter to begin Pokemon Arena.');
+    };
+
+    const getPokemonStarterSelectionState = () => {
+        const cachedUser = readCachedUser();
+        return (
+            profileCache?.profile?.arenas?.pokemon?.missions ||
+            cachedUser?.profile?.arenas?.pokemon?.missions ||
+            cachedUser?.arenas?.pokemon?.missions ||
+            {}
+        );
+    };
+
+    const hasPokemonStarterSelection = () => Boolean(
+        normalizeCharacterId(getPokemonStarterSelectionState().starterCharacterId)
+    );
+
+    const maybePromptPokemonStarterChoice = () => {
+        if (activeArenaMode !== 'pokemon') {
+            hidePokemonStarterPrompt();
+            return;
+        }
+        const cachedUser = profileCache?.username ? profileCache : readCachedUser();
+        if (!cachedUser?.username) {
+            return;
+        }
+        if (hasPokemonStarterSelection()) {
+            hidePokemonStarterPrompt();
+            return;
+        }
+        showPokemonStarterPrompt();
+    };
+
+    const choosePokemonStarter = async (starterCharacterId, button = null) => {
+        const normalizedStarterCharacterId = normalizeCharacterId(starterCharacterId);
+        if (!normalizedStarterCharacterId) return;
+        if (button) button.disabled = true;
+        setPokemonStarterStatus(`Saving ${normalizedStarterCharacterId}...`);
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/profile/pokemon/starter`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    starterCharacterId: normalizedStarterCharacterId,
+                }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || 'Unable to save starter selection.');
+            }
+            if (payload?.user?.username) {
+                profileCache = payload.user;
+                writeCachedUser(payload.user);
+            }
+            hidePokemonStarterPrompt();
+            await loadMissionLockedCharacterIds();
+            rebuildRosterDisplayIndices();
+            syncRosterFilterSelect();
+            renderRosterPage();
+            updateGameButtons();
+            applySavedTeam();
+            maybePromptPokemonStarterChoice();
+        } catch (error) {
+            setPokemonStarterStatus(error.message || 'Unable to save starter selection.');
+        } finally {
+            if (button) button.disabled = false;
+        }
+    };
+
     const formatMissionGoalLines = (mission, progress = {}) => {
         const goals = Array.isArray(mission?.goals) ? mission.goals : [];
         const progressByIndex = progress?.goalProgressByIndex || progress?.goalProgress || {};
@@ -9568,6 +9717,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const characterName = goal.character_name || goal.character_id || 'required character';
                     return target
                         ? `Win ${target} in a row with ${characterName}: ${Math.min(count, target)}/${target}`
+                        : '';
+                }
+                if (goalType === 'win_streak_same_team') {
+                    const target = Math.max(0, Number(goal.wins) || 0);
+                    const characterNames = Array.isArray(goal.character_names) && goal.character_names.length
+                        ? goal.character_names
+                        : Array.isArray(goal.character_ids)
+                            ? goal.character_ids
+                            : [];
+                    return target
+                        ? `Win ${target} in a row with ${characterNames.join(' and ') || 'the required team'}: ${Math.min(count, target)}/${target}`
                         : '';
                 }
                 if (goalType === 'win_matches_same_team') {
@@ -11428,6 +11588,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (selectionMissionsEl && !selectionMissionsEl.classList.contains('collapsed')) {
                     loadSelectionMissions();
                 }
+                maybePromptPokemonStarterChoice();
             });
     };
 

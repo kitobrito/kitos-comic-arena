@@ -2369,6 +2369,7 @@ const createDefaultMissionState = () => {
             negan: neganProgress,
         },
         unlockedCharacterIds: [],
+        starterCharacterId: null,
     };
 };
 
@@ -2398,6 +2399,15 @@ const normalizeMissionState = (missions = {}) => {
             .map((entry) => normalizeCharacterId(entry))
             .filter(Boolean)
     );
+    const starterCharacterId = normalizeCharacterId(
+        source.starterCharacterId ??
+            source.starter_character_id ??
+            source.starterCharacter ??
+            source.starter
+    );
+    if (starterCharacterId && getPokemonStarterCharacterIds().has(starterCharacterId)) {
+        unlockedCharacterIds.add(starterCharacterId);
+    }
     Object.keys(progressByMissionId).forEach((missionId) => {
         const progressEntry = progressByMissionId[missionId];
         if (
@@ -2411,6 +2421,9 @@ const normalizeMissionState = (missions = {}) => {
         progressByMissionId,
         progress: progressByMissionId,
         unlockedCharacterIds: Array.from(unlockedCharacterIds),
+        starterCharacterId: starterCharacterId && getPokemonStarterCharacterIds().has(starterCharacterId)
+            ? starterCharacterId
+            : null,
     };
 };
 
@@ -2514,6 +2527,8 @@ const normalizeMissionGoalEntry = (entry = {}, index = 0) => {
             ? 'win_matches'
             : type === 'win_streak' || type === 'streak'
                 ? 'win_streak'
+                : type === 'win_streak_same_team' || type === 'same_team_streak'
+                    ? 'win_streak_same_team'
                 : type === 'reach_rank' || type === 'rank' || type === 'reach_level'
                     ? 'reach_rank'
                     : type === 'win_matches_same_team' ||
@@ -2555,6 +2570,49 @@ const normalizeMissionGoalEntry = (entry = {}, index = 0) => {
         return {
             type: 'reach_rank',
             rank,
+        };
+    }
+
+    if (normalizedType === 'win_streak_same_team') {
+        const wins = Math.max(
+            0,
+            Number(source.wins ?? source.count ?? source.target ?? source.goal ?? 0) || 0
+        );
+        const characterIds = normalizeMissionTextList(
+            Array.isArray(source.character_ids)
+                ? source.character_ids
+                : [
+                      source.character_id ?? source.characterId ?? source.character ?? '',
+                      source.teammate_character_id ??
+                          source.teammateCharacterId ??
+                          source.character_two_id ??
+                          source.characterTwoId ??
+                          '',
+                  ]
+        ).map((value) => normalizeCharacterId(value));
+        const uniqueCharacterIds = Array.from(new Set(characterIds.filter(Boolean))).slice(0, 2);
+        if (!wins || uniqueCharacterIds.length < 2) {
+            return null;
+        }
+        const rawCharacterNames = Array.isArray(source.character_names)
+            ? source.character_names
+            : [
+                  source.character_name ?? source.characterName ?? '',
+                  source.teammate_character_name ??
+                      source.teammateCharacterName ??
+                      source.character_two_name ??
+                      source.characterTwoName ??
+                      '',
+              ];
+        const characterNames = uniqueCharacterIds.map((characterId, idx) => {
+            const providedName = String(rawCharacterNames[idx] ?? '').trim();
+            return providedName || getCharacterDisplayNameById(characterId);
+        });
+        return {
+            type: 'win_streak_same_team',
+            character_ids: uniqueCharacterIds,
+            character_names: characterNames,
+            wins,
         };
     }
 
@@ -2948,6 +3006,7 @@ const POKEMON_SCYTHER_MISSION_ENTRY = {
     portraitAlt: 'Scyther portrait',
     requirements: [
         'This trial is intentionally grindy. The Scyther mission is meant to feel like a real milestone in Pokemon Arena.',
+        'Clear a 4-win streak with Zubat and Gastly on the same team.',
     ],
     goals: [
         {
@@ -2968,6 +3027,12 @@ const POKEMON_SCYTHER_MISSION_ENTRY = {
             character_name: 'Koffing',
             wins: 6,
         },
+        {
+            type: 'win_streak_same_team',
+            character_ids: ['zubat', 'gastly'],
+            character_names: ['Zubat', 'Gastly'],
+            wins: 4,
+        },
     ],
     special_pve: {
         enabled: true,
@@ -2979,7 +3044,7 @@ const POKEMON_SCYTHER_MISSION_ENTRY = {
         backgroundImage: 'assets/images/PokemonArena/scyther/scythermissionpic.jpeg',
         playerTeamCharacterIds: [],
     },
-    sortOrder: 1,
+    sortOrder: 5,
 };
 
 const POKEMON_GASTLY_MISSION_ENTRY = {
@@ -3006,6 +3071,7 @@ const POKEMON_GASTLY_MISSION_ENTRY = {
     portraitAlt: 'Gastly portrait',
     requirements: [
         'A grindy early Pokemon mission that asks for patience before it pays out.',
+        'Clear a 4-win streak with Zubat and Abra on the same team.',
     ],
     goals: [
         {
@@ -3020,6 +3086,12 @@ const POKEMON_GASTLY_MISSION_ENTRY = {
             character_name: 'Koffing',
             wins: 8,
         },
+        {
+            type: 'win_streak_same_team',
+            character_ids: ['zubat', 'abra'],
+            character_names: ['Zubat', 'Abra'],
+            wins: 4,
+        },
     ],
     special_pve: {
         enabled: false,
@@ -3030,40 +3102,164 @@ const POKEMON_GASTLY_MISSION_ENTRY = {
         backgroundImage: '',
         playerTeamCharacterIds: [],
     },
-    sortOrder: 2,
+    sortOrder: 6,
 };
+
+const POKEMON_STARTER_MISSION_ENTRIES = [
+    {
+        missionId: 'squirtle-starter-path',
+        title: 'Squirtle Starter Path',
+        level_requirement: 1,
+        rank: '1',
+        reward_character: 'squirtle',
+        reward_character_name: 'Squirtle',
+        reward: 'Unlock Squirtle.',
+        arena: 'pokemon',
+        mode_restriction: { allowed_modes: ['quick', 'ladder'] },
+        win_streak: { character_id: '', character_name: '', wins: 0 },
+        image: 'assets/images/PokemonArena/squirtlemissionpic.jpeg',
+        imageAlt: 'Squirtle starter mission artwork',
+        characterName: 'Squirtle',
+        portrait: 'assets/images/PokemonArena/squirtle/squirtlefp.jpg',
+        portraitAlt: 'Squirtle portrait',
+        requirements: ['Choose a starter when you first enter Pokemon Arena.'],
+        goals: [
+            { type: 'win_matches', character_id: 'bulbasaur', character_name: 'Bulbasaur', wins: 16 },
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: [],
+        },
+        sortOrder: 1,
+    },
+    {
+        missionId: 'charmander-starter-path',
+        title: 'Charmander Starter Path',
+        level_requirement: 1,
+        rank: '1',
+        reward_character: 'charmander',
+        reward_character_name: 'Charmander',
+        reward: 'Unlock Charmander.',
+        arena: 'pokemon',
+        mode_restriction: { allowed_modes: ['quick', 'ladder'] },
+        win_streak: { character_id: '', character_name: '', wins: 0 },
+        image: 'assets/images/PokemonArena/charmandermissionpic.jpeg',
+        imageAlt: 'Charmander starter mission artwork',
+        characterName: 'Charmander',
+        portrait: 'assets/images/PokemonArena/Charmander/charmanderfp.jpg',
+        portraitAlt: 'Charmander portrait',
+        requirements: ['Choose a starter when you first enter Pokemon Arena.'],
+        goals: [
+            { type: 'win_matches', character_id: 'squirtle', character_name: 'Squirtle', wins: 16 },
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: [],
+        },
+        sortOrder: 2,
+    },
+    {
+        missionId: 'pikachu-starter-path',
+        title: 'Pikachu Starter Path',
+        level_requirement: 1,
+        rank: '1',
+        reward_character: 'pikachu',
+        reward_character_name: 'Pikachu',
+        reward: 'Unlock Pikachu.',
+        arena: 'pokemon',
+        mode_restriction: { allowed_modes: ['quick', 'ladder'] },
+        win_streak: { character_id: '', character_name: '', wins: 0 },
+        image: 'assets/images/PokemonArena/newpikachufp.jpeg',
+        imageAlt: 'Pikachu starter mission artwork',
+        characterName: 'Pikachu',
+        portrait: 'assets/images/PokemonArena/Pikachu/pikachufp.jpeg',
+        portraitAlt: 'Pikachu portrait',
+        requirements: ['Choose a starter when you first enter Pokemon Arena.'],
+        goals: [
+            { type: 'win_matches', character_id: 'pidgey', character_name: 'Pidgey', wins: 16 },
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: [],
+        },
+        sortOrder: 3,
+    },
+    {
+        missionId: 'bulbasaur-starter-path',
+        title: 'Bulbasaur Starter Path',
+        level_requirement: 1,
+        rank: '1',
+        reward_character: 'bulbasaur',
+        reward_character_name: 'Bulbasaur',
+        reward: 'Unlock Bulbasaur.',
+        arena: 'pokemon',
+        mode_restriction: { allowed_modes: ['quick', 'ladder'] },
+        win_streak: { character_id: '', character_name: '', wins: 0 },
+        image: 'assets/images/PokemonArena/bulbasaurmissionpic.jpeg',
+        imageAlt: 'Bulbasaur starter mission artwork',
+        characterName: 'Bulbasaur',
+        portrait: 'assets/images/PokemonArena/Bulbasaur/bulbasaurfp.jpg',
+        portraitAlt: 'Bulbasaur portrait',
+        requirements: ['Choose a starter when you first enter Pokemon Arena.'],
+        goals: [
+            { type: 'win_matches', character_id: 'charmander', character_name: 'Charmander', wins: 16 },
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: [],
+        },
+        sortOrder: 4,
+    },
+];
 
 const ensureRequiredMissionCatalogEntries = (missions = []) => {
     const catalog = cloneMissionCatalog(missions);
-    const hasXenomorphMission = catalog.some(
-        (mission) => normalizeCharacterId(mission?.reward_character) === 'xenomorph-drone'
-    );
-    if (!hasXenomorphMission) {
-        catalog.push(normalizeMissionCatalogEntry(XENOMORPH_DRONE_MISSION_ENTRY, catalog.length));
-    }
-    const hasGhostRiderMission = catalog.some(
-        (mission) => normalizeCharacterId(mission?.reward_character) === 'ghost-rider'
-    );
-    if (!hasGhostRiderMission) {
-        const ghostRiderMission = DEFAULT_MISSION_CATALOG.find(
-            (m) => normalizeCharacterId(m.reward_character) === 'ghost-rider'
-        );
-        if (ghostRiderMission) {
-            catalog.push(normalizeMissionCatalogEntry(ghostRiderMission, catalog.length));
+    const upsertRequiredMission = (entry, matcher) => {
+        const normalizedEntry = normalizeMissionCatalogEntry(entry, catalog.length);
+        const existingIndex = catalog.findIndex((mission) => matcher(mission));
+        if (existingIndex === -1) {
+            catalog.push(normalizedEntry);
+            return;
         }
-    }
-    const hasScytherMission = catalog.some(
-        (mission) => normalizeCharacterId(mission?.reward_character) === 'scyther'
+        catalog[existingIndex] = {
+            ...normalizedEntry,
+        };
+    };
+
+    upsertRequiredMission(XENOMORPH_DRONE_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'xenomorph-drone');
+
+    const ghostRiderMission = DEFAULT_MISSION_CATALOG.find(
+        (m) => normalizeCharacterId(m.reward_character) === 'ghost-rider'
     );
-    if (!hasScytherMission) {
-        catalog.push(normalizeMissionCatalogEntry(POKEMON_SCYTHER_MISSION_ENTRY, catalog.length));
+    if (ghostRiderMission) {
+        upsertRequiredMission(ghostRiderMission, (mission) => normalizeCharacterId(mission?.reward_character) === 'ghost-rider');
     }
-    const hasGastlyMission = catalog.some(
-        (mission) => normalizeCharacterId(mission?.reward_character) === 'gastly'
-    );
-    if (!hasGastlyMission) {
-        catalog.push(normalizeMissionCatalogEntry(POKEMON_GASTLY_MISSION_ENTRY, catalog.length));
-    }
+
+    POKEMON_STARTER_MISSION_ENTRIES.forEach((entry) => {
+        upsertRequiredMission(entry, (mission) => normalizeCharacterId(mission?.reward_character) === normalizeCharacterId(entry.reward_character));
+    });
+    upsertRequiredMission(POKEMON_SCYTHER_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'scyther');
+    upsertRequiredMission(POKEMON_GASTLY_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'gastly');
     return normalizeMissionCatalog(catalog);
 };
 
@@ -3997,6 +4193,7 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
                     if (
                         goalType !== 'win_matches' &&
                         goalType !== 'win_streak' &&
+                        goalType !== 'win_streak_same_team' &&
                         goalType !== 'reach_rank' &&
                         goalType !== 'win_matches_same_team'
                     ) {
@@ -4039,6 +4236,15 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
                         }
                     } else if (goalType === 'win_streak') {
                         if (didWin && hasGoalCharacter) {
+                            nextGoalProgress.count = Math.min(
+                                targetCount,
+                                Math.max(0, Number(existingGoalProgress.count) || 0) + 1
+                            );
+                        } else if (winnerUsername) {
+                            nextGoalProgress.count = 0;
+                        }
+                    } else if (goalType === 'win_streak_same_team') {
+                        if (didWin && hasSameTeamCharacters) {
                             nextGoalProgress.count = Math.min(
                                 targetCount,
                                 Math.max(0, Number(existingGoalProgress.count) || 0) + 1
@@ -6574,6 +6780,8 @@ const getBattleBotAllowedCharacterIdsForArena = (arena = DEFAULT_ARENA_MODE) => 
     return new Set(['pikachu', 'charmander', 'bulbasaur', 'squirtle']);
 };
 
+const getPokemonStarterCharacterIds = () => new Set(['pikachu', 'charmander', 'bulbasaur', 'squirtle']);
+
 const buildBattleBotTeam = async (arena = DEFAULT_ARENA_MODE) => {
     const normalizedArena = normalizeArenaMode(arena);
     const allowedCharacterIds = getBattleBotAllowedCharacterIdsForArena(normalizedArena);
@@ -8926,6 +9134,10 @@ const backgroundUpdateSchema = Joi.object({
 
 const matchmakingSettingsSchema = Joi.object({
     battleBotEnabled: Joi.boolean().required(),
+});
+
+const pokemonStarterSelectionSchema = Joi.object({
+    starterCharacterId: Joi.string().trim().required(),
 });
 
 const clanCreateSchema = Joi.object({
@@ -11452,6 +11664,86 @@ app.post('/api/profile/backgrounds', requireSession, async (req, res) => {
             return res.status(400).json({ error: error.message });
         }
         return res.status(500).json({ error: 'Unable to update backgrounds.' });
+    }
+});
+
+app.post('/api/profile/pokemon/starter', requireSession, async (req, res) => {
+    try {
+        const { error: validationError, value } = pokemonStarterSelectionSchema.validate(req.body || {});
+        if (validationError) {
+            return res.status(400).json({ error: 'A starter character is required.' });
+        }
+
+        const starterCharacterId = normalizeCharacterId(value.starterCharacterId);
+        if (!getPokemonStarterCharacterIds().has(starterCharacterId)) {
+            return res.status(400).json({ error: 'Invalid starter character.' });
+        }
+
+        const user = await usersCollection.findOne({ username: req.authUser.username });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        const profile = normalizeUserProfile(user);
+        const arenaState = getProfileArenaState(profile, 'pokemon');
+        const missionState = normalizeMissionState(arenaState.missions);
+        const existingStarterId = normalizeCharacterId(missionState.starterCharacterId);
+        if (existingStarterId && existingStarterId !== starterCharacterId) {
+            return res.status(409).json({ error: 'You have already chosen a starter.' });
+        }
+
+        missionState.starterCharacterId = starterCharacterId;
+        const unlockedIds = new Set(
+            Array.isArray(missionState.unlockedCharacterIds) ? missionState.unlockedCharacterIds : []
+        );
+        unlockedIds.add(starterCharacterId);
+        missionState.unlockedCharacterIds = Array.from(unlockedIds);
+
+        const missionCatalog = await getStoredMissionCatalog();
+        missionCatalog
+            .filter((mission) => normalizeCharacterId(mission?.reward_character) === starterCharacterId)
+            .forEach((mission) => {
+                if (!mission?.missionId) {
+                    return;
+                }
+                const existingProgress = normalizeMissionProgressEntry(
+                    missionState.progressByMissionId?.[mission.missionId] || {}
+                );
+                missionState.progressByMissionId[mission.missionId] = normalizeMissionProgressEntry({
+                    ...existingProgress,
+                    completedAt: existingProgress.completedAt || new Date(),
+                    unlockedAt: existingProgress.unlockedAt || new Date(),
+                });
+            });
+
+        const updatedArenaState = setProfileArenaState(profile, 'pokemon', {
+            ...arenaState,
+            missions: missionState,
+        });
+        const normalizedProfile = normalizeUserProfile({
+            ...user,
+            profile: updatedArenaState,
+        });
+
+        await usersCollection.updateOne(
+            { _id: user._id },
+            {
+                $set: {
+                    profile: normalizedProfile,
+                },
+            }
+        );
+
+        return res.json({
+            ok: true,
+            user: serializeUserForClient({
+                ...user,
+                profile: normalizedProfile,
+            }),
+        });
+    } catch (error) {
+        console.error('Pokemon starter selection error:', error);
+        return res.status(500).json({ error: 'Unable to save starter selection.' });
     }
 });
 
