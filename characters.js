@@ -19460,13 +19460,13 @@ const characters = [
                 "id": "chansey-emergency-life-support",
                 "name": "Pokémon Center Emergency Life Support",
                 "skillimage": "assets/images/PokemonArena/Chansey/chanseyemergencypokemoncenterlifesupport.webp",
-                "skilldescription": "Heals one ally for 50 HP and removes all enemy skills currently affecting them.",
+                "skilldescription": "Heals one ally for 50 HP, or revives a defeated ally with 50 HP, and removes all enemy skills currently affecting them.",
                 "energy": [
                     "Bloodline",
                     "Genjutsu",
                     "Random"
                 ],
-                "target": "single-ally",
+                "target": "single-ally-or-dead-ally",
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
@@ -19477,7 +19477,46 @@ const characters = [
                     {
                         "type": "heal",
                         "amount": 50,
-                        "scope": "target"
+                        "scope": "target",
+                        "metadata": {
+                            "onSuccessfulHealApplyStatusToOwner": {
+                                "statusId": "chansey_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "chanseyHealedAmount": 0,
+                                    "stackMetadataKey": "chanseyHealedAmount",
+                                    "stackDeltaFromHealingDone": true,
+                                    "stackMax": 100,
+                                    "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
+                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "revive",
+                        "amount": 50,
+                        "scope": "target",
+                        "metadata": {
+                            "onSuccessfulHealApplyStatusToOwner": {
+                                "statusId": "chansey_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "chanseyHealedAmount": 0,
+                                    "stackMetadataKey": "chanseyHealedAmount",
+                                    "stackDeltaFromHealingDone": true,
+                                    "stackMax": 100,
+                                    "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
+                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
+                                }
+                            }
+                        },
+                        "condition": {
+                            "scope": "target",
+                            "sourceCurrentHpAtMost": 0
+                        }
                     },
                     {
                         "type": "cleanse_statuses",
@@ -19675,13 +19714,13 @@ const characters = [
                     "statusId": "chansey_blissey_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Chansey/blisseyemergencypokemoncenterlifesupport.webp",
-                "skilldescription": "Revives a defeated ally with 50 HP. This skill costs 1 less Random energy while Pokémon Center Healing is active.",
+                "skilldescription": "Heals one ally for 50 HP, or revives a defeated ally with 50 HP. This skill costs 1 less Random energy while Pokémon Center Healing is active.",
                 "energy": [
                     "Bloodline",
                     "Genjutsu",
                     "Random"
                 ],
-                "target": "dead-ally-first",
+                "target": "single-ally-or-dead-ally",
                 "damage": 0,
                 "cooldown": 5,
                 "classes": [
@@ -19693,6 +19732,15 @@ const characters = [
                         "type": "heal",
                         "amount": 50,
                         "scope": "target"
+                    },
+                    {
+                        "type": "revive",
+                        "amount": 50,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "sourceCurrentHpAtMost": 0
+                        }
                     },
                     {
                         "type": "cleanse_statuses",
@@ -21114,6 +21162,1503 @@ const characters = [
         "roleCategory": "controller",
         "description": "A poisonous Gas-type Pokemon that clouds the battlefield, disrupts enemy setups, and evolves into a more volatile Weezing after fully using its tricks.",
         "descriptionHtml": "A poisonous Gas-type Pokemon that clouds the battlefield, disrupts enemy setups, and evolves into a more volatile Weezing after fully using its tricks."
+    },
+    {
+        "id": "zubat",
+        "characterId": "zubat",
+        "name": "Zubat",
+        "facePicture": "assets/images/PokemonArena/zubat/zubatfp.webp",
+        "startStatuses": [
+            {
+                "statusId": "zubat_evolution_tracker",
+                "sourceSkillId": "zubat-passive-evolution-golbat",
+                "duration": 99,
+                "metadata": {
+                    "hidden": true,
+                    "infiniteDuration": true,
+                    "zubatHpStolen": 0,
+                    "stackMetadataKey": "zubatHpStolen",
+                    "stackDelta": 0,
+                    "stackMax": 50,
+                    "applyStatusAtStack": {
+                        "metadataKey": "zubatHpStolen",
+                        "value": 50,
+                        "statusId": "zubat_golbat_evolution",
+                        "duration": 99,
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "facePictureOverride": "assets/images/PokemonArena/zubat/golbatfp.webp",
+                            "skillReplacements": {
+                                "zubat-leech-life": "golbat-leech-life",
+                                "zubat-supersonic": "golbat-supersonic",
+                                "zubat-bite": "golbat-bite",
+                                "zubat-draining-fangs": "golbat-draining-fangs"
+                            },
+                            "tooltipText": "Zubat has evolved into Golbat. Golbat's skills are improved."
+                        }
+                    },
+                    "statusIconUrl": "assets/images/PokemonArena/zubat/leechlife.webp",
+                    "tooltipTextTemplate": "Zubat has stolen {zubatHpStolen}/50 total HP and will evolve into Golbat at 50."
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "zubat-leech-life",
+                "name": "Leech Life",
+                "skillimage": "assets/images/PokemonArena/zubat/leechlife.webp",
+                "skilldescription": "Steals 10 HP from one enemy. For 1 turn, if that enemy uses a new skill, Zubat steals an additional 10 HP from them.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "health_steal_damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "metadata": {
+                            "onSuccessfulDamageApplyStatusToOwner": {
+                                "statusId": "zubat_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "hidden": true,
+                                    "infiniteDuration": true,
+                                    "zubatHpStolen": 0,
+                                    "stackMetadataKey": "zubatHpStolen",
+                                    "stackDeltaFromDamageDealt": true,
+                                    "stackMax": 50,
+                                    "statusIconUrl": "assets/images/PokemonArena/zubat/leechlife.webp",
+                                    "tooltipTextTemplate": "Zubat has stolen {zubatHpStolen}/50 total HP and will evolve into Golbat at 50."
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "health_steal_damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "zubat_bite_bonus"
+                        },
+                        "metadata": {
+                            "onSuccessfulDamageApplyStatusToOwner": {
+                                "statusId": "zubat_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "hidden": true,
+                                    "infiniteDuration": true,
+                                    "zubatHpStolen": 0,
+                                    "stackMetadataKey": "zubatHpStolen",
+                                    "stackDeltaFromDamageDealt": true,
+                                    "stackMax": 50,
+                                    "statusIconUrl": "assets/images/PokemonArena/zubat/leechlife.webp",
+                                    "tooltipTextTemplate": "Zubat has stolen {zubatHpStolen}/50 total HP and will evolve into Golbat at 50."
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "zubat_leech_life_reckoning",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": false,
+                            "onOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillRequireNewSkill": true,
+                            "onOwnerUseSkillSelfDamage": 10,
+                            "onOwnerUseSkillHealSourceAmount": 10,
+                            "onOwnerUseSkillApplyStatusToSourceOwner": {
+                                "statusId": "zubat_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "hidden": true,
+                                    "infiniteDuration": true,
+                                    "zubatHpStolen": 0,
+                                    "stackMetadataKey": "zubatHpStolen",
+                                    "stackDelta": 10,
+                                    "stackMax": 50,
+                                    "statusIconUrl": "assets/images/PokemonArena/zubat/leechlife.webp",
+                                    "tooltipTextTemplate": "Zubat has stolen {zubatHpStolen}/50 total HP and will evolve into Golbat at 50."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/zubat/leechlife.webp",
+                            "tooltipText": "The next new skill this character uses, they lose 10 HP and Zubat heals for 10 HP."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "zubat-supersonic",
+                "name": "Supersonic",
+                "skillimage": "assets/images/PokemonArena/zubat/supersonic.webp",
+                "skilldescription": "For 1 turn, an enemy has a 40% chance for any skill they use to fail. If a skill fails this way, they lose 15 HP. Zubat's skills steal 10 additional HP from enemies affected by Supersonic.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "zubat_supersonic_mark",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "skillFailChancePercent": 40,
+                            "skillFailDamageAmount": 15,
+                            "bonusDamageFromSourceCharacterId": "zubat",
+                            "bonusDamageFromSourceSkillsFlat": 10,
+                            "statusIconUrl": "assets/images/PokemonArena/zubat/supersonic.webp",
+                            "tooltipText": "This character has a 40% chance for any skill they use to fail."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "zubat-bite",
+                "name": "Bite",
+                "skillimage": "assets/images/PokemonArena/zubat/bite.webp",
+                "skilldescription": "Deals 20 damage to one enemy. During the next turn, Leech Life steals 10 additional HP.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "onSuccessfulDamageApplyStatusToOwner": {
+                                "statusId": "zubat_bite_bonus",
+                                "duration": 1,
+                                "metadata": {
+                                    "hidden": true,
+                                    "infiniteDuration": false,
+                                    "statusIconUrl": "assets/images/PokemonArena/zubat/bite.webp",
+                                    "tooltipText": "Zubat's next Leech Life steals 10 additional HP."
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "zubat-draining-fangs",
+                "name": "Draining Fangs",
+                "skillimage": "assets/images/PokemonArena/zubat/drainingfangs.webp",
+                "skilldescription": "For 2 turns, Leech Life and Bite remove 1 random energy from their target.",
+                "energy": [],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "zubat_draining_fangs_active",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": false,
+                            "statusIconUrl": "assets/images/PokemonArena/zubat/drainingfangs.webp",
+                            "tooltipText": "Leech Life and Bite remove 1 random energy from their target."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "zubat-passive-evolution-golbat",
+                "name": "Evolution - Golbat",
+                "skillimage": "assets/images/PokemonArena/zubat/evolutiongolbat.webp",
+                "skilldescription": "After Zubat has stolen 50 total HP during the battle, it evolves into Golbat. Golbat's skills are improved.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            },
+            {
+                "id": "golbat-leech-life",
+                "name": "Leech Life",
+                "actorCondition": {
+                    "statusId": "zubat_golbat_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/zubat/golbatleechlife.webp",
+                "skilldescription": "Steals 20 HP from one enemy. For 1 turn, if that enemy uses a new skill, Golbat steals an additional 10 HP from them.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "health_steal_damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "onSuccessfulDamageApplyStatusToOwner": {
+                                "statusId": "zubat_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "hidden": true,
+                                    "infiniteDuration": true,
+                                    "zubatHpStolen": 0,
+                                    "stackMetadataKey": "zubatHpStolen",
+                                    "stackDeltaFromDamageDealt": true,
+                                    "stackMax": 50,
+                                    "statusIconUrl": "assets/images/PokemonArena/zubat/golbatleechlife.webp",
+                                    "tooltipTextTemplate": "Zubat has stolen {zubatHpStolen}/50 total HP and will evolve into Golbat at 50."
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "health_steal_damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "zubat_bite_bonus"
+                        },
+                        "metadata": {
+                            "onSuccessfulDamageApplyStatusToOwner": {
+                                "statusId": "zubat_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "hidden": true,
+                                    "infiniteDuration": true,
+                                    "zubatHpStolen": 0,
+                                    "stackMetadataKey": "zubatHpStolen",
+                                    "stackDeltaFromDamageDealt": true,
+                                    "stackMax": 50,
+                                    "statusIconUrl": "assets/images/PokemonArena/zubat/golbatleechlife.webp",
+                                    "tooltipTextTemplate": "Zubat has stolen {zubatHpStolen}/50 total HP and will evolve into Golbat at 50."
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "zubat_leech_life_reckoning",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": false,
+                            "onOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillRequireNewSkill": true,
+                            "onOwnerUseSkillSelfDamage": 10,
+                            "onOwnerUseSkillHealSourceAmount": 10,
+                            "onOwnerUseSkillApplyStatusToSourceOwner": {
+                                "statusId": "zubat_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "hidden": true,
+                                    "infiniteDuration": true,
+                                    "zubatHpStolen": 0,
+                                    "stackMetadataKey": "zubatHpStolen",
+                                    "stackDelta": 10,
+                                    "stackMax": 50,
+                                    "statusIconUrl": "assets/images/PokemonArena/zubat/golbatleechlife.webp",
+                                    "tooltipTextTemplate": "Zubat has stolen {zubatHpStolen}/50 total HP and will evolve into Golbat at 50."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/zubat/golbatleechlife.webp",
+                            "tooltipText": "The next new skill this character uses, they lose 10 HP and Golbat heals for 10 HP."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "golbat-supersonic",
+                "name": "Supersonic",
+                "actorCondition": {
+                    "statusId": "zubat_golbat_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/zubat/golbatsupersonic.webp",
+                "skilldescription": "For 2 turns, an enemy has a 40% chance for any skill they use to fail. If a skill fails this way, they lose 15 HP. Golbat's skills steal 10 additional HP from enemies affected by Supersonic.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "zubat_supersonic_mark",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "skillFailChancePercent": 40,
+                            "skillFailDamageAmount": 15,
+                            "bonusDamageFromSourceCharacterId": "zubat",
+                            "bonusDamageFromSourceSkillsFlat": 10,
+                            "statusIconUrl": "assets/images/PokemonArena/zubat/golbatsupersonic.webp",
+                            "tooltipText": "This character has a 40% chance for any skill they use to fail."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "golbat-bite",
+                "name": "Bite",
+                "actorCondition": {
+                    "statusId": "zubat_golbat_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/zubat/golbatbite.webp",
+                "skilldescription": "Deals 25 piercing damage to one enemy.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "golbat-draining-fangs",
+                "name": "Draining Fangs",
+                "actorCondition": {
+                    "statusId": "zubat_golbat_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/zubat/golbatdrainingfangs.webp",
+                "skilldescription": "For 2 turns, Leech Life and Bite steal 1 random energy from their target instead.",
+                "energy": [],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "zubat_draining_fangs_active",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": false,
+                            "statusIconUrl": "assets/images/PokemonArena/zubat/golbatdrainingfangs.webp",
+                            "tooltipText": "Leech Life and Bite steal 1 random energy from their target."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Damage",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "damage",
+        "description": "A cave-dwelling bat Pokemon that steals momentum with life drain, confusion, and energy theft. Zubat builds toward Golbat by steadily stealing HP during battle.",
+        "descriptionHtml": "A cave-dwelling bat Pokemon that steals momentum with life drain, confusion, and energy theft. Zubat builds toward Golbat by steadily stealing HP during battle."
+    },
+    {
+        "id": "gastly",
+        "characterId": "gastly",
+        "name": "Gastly",
+        "facePicture": "assets/images/PokemonArena/gastley/gastleyfp.webp",
+        "startStatuses": [
+            {
+                "statusId": "gastly_evolution_tracker",
+                "sourceSkillId": "gastly-passive-evolution-haunter",
+                "duration": 99,
+                "metadata": {
+                    "hidden": true,
+                    "infiniteDuration": true,
+                    "gastlyDamageTaken": 0,
+                    "stackMetadataKey": "gastlyDamageTaken",
+                    "stackDelta": 0,
+                    "stackMax": 50,
+                    "applyStatusAtStack": {
+                        "metadataKey": "gastlyDamageTaken",
+                        "value": 50,
+                        "statusId": "gastly_haunter_evolution",
+                        "duration": 99,
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "facePictureOverride": "assets/images/PokemonArena/gastley/haunterfp.webp",
+                            "skillReplacements": {
+                                "gastly-lick": "haunter-lick",
+                                "gastly-curse": "haunter-curse",
+                                "gastly-spite": "haunter-spite",
+                                "gastly-glare": "haunter-glare"
+                            },
+                            "tooltipText": "Gastly has evolved into Haunter. Haunter's skills are improved."
+                        }
+                    },
+                    "statusIconUrl": "assets/images/PokemonArena/gastley/evolutionhaunter.webp",
+                    "tooltipTextTemplate": "Gastly has lost {gastlyDamageTaken}/50 total HP and will evolve into Haunter at 50."
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "gastly-lick",
+                "name": "Lick",
+                "skillimage": "assets/images/PokemonArena/gastley/lick.webp",
+                "skilldescription": "Deals 20 affliction damage to one enemy. This skill has a 1% chance to stun the target's harmful skills for 1 turn for each point of health Gastly is missing.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Affliction",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                            "onSuccessfulDamageApplyStatusToOwner": {
+                                "statusId": "gastly_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "hidden": true,
+                                    "infiniteDuration": true,
+                                    "gastlyDamageTaken": 0,
+                                    "stackMetadataKey": "gastlyDamageTaken",
+                                    "stackDeltaFromDamageDealt": true,
+                                    "stackMax": 50,
+                                    "statusIconUrl": "assets/images/PokemonArena/gastley/evolutionhaunter.webp",
+                                    "tooltipTextTemplate": "Gastly has lost {gastlyDamageTaken}/50 total HP and will evolve into Haunter at 50."
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "gastly_lick_lock",
+                        "duration": 1,
+                        "scope": "target",
+                        "chance": 1,
+                        "metadata": {
+                            "harmful": true,
+                            "chanceFromSourceMissingHpStep": 1,
+                            "chanceFromSourceMissingHpDivisor": 1,
+                            "cannotUseHarmfulSkills": true,
+                            "statusIconUrl": "assets/images/PokemonArena/gastley/lick.webp",
+                            "tooltipText": "This character's harmful skills are stunned."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "gastly-curse",
+                "name": "Curse",
+                "skillimage": "assets/images/PokemonArena/gastley/curse.webp",
+                "skilldescription": "Marks one enemy permanently. While marked, that enemy takes 15 affliction damage every turn. This damage cannot be ignored. Gastly loses 35 HP. Only one enemy may be affected by Curse at a time.",
+                "energy": [
+                    "Bloodline",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Affliction",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "gastly_curse_mark",
+                        "duration": 99,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "turnEndDamage": 15,
+                            "afflictionDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                            "ignoreDamageImmunity": true,
+                            "ignoreAfflictionDamageImmunity": true,
+                            "statusIconUrl": "assets/images/PokemonArena/gastley/curse.webp",
+                            "tooltipText": "This character takes 15 affliction damage each turn from Curse."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "self",
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                            "ignoreDamageImmunity": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "gastly-spite",
+                "name": "Spite",
+                "skillimage": "assets/images/PokemonArena/gastley/spite.webp",
+                "skilldescription": "For 2 turns, one enemy's damage is capped at 20 and they take 5 additional damage from affliction skills.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Strategic",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "gastly_spite_dampen",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "damageReductionPercent": 50,
+                            "damageTakenBonusFlat": 5,
+                            "statusIconUrl": "assets/images/PokemonArena/gastley/spite.webp",
+                            "tooltipText": "This character's damage is heavily restricted and they take more affliction damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "gastly-glare",
+                "name": "Glare",
+                "skillimage": "assets/images/PokemonArena/gastley/glare.webp",
+                "skilldescription": "Guard Breaks one enemy and paralyzes their cooldowns for 1 turn. If that enemy uses a new skill while affected, they take 10 affliction damage.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Affliction",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "gastly_glare_lock",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "guardBreak": true,
+                            "paralyzeCooldowns": true,
+                            "onOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillRequireNewSkill": true,
+                            "onOwnerUseSkillSelfDamage": 10,
+                            "statusIconUrl": "assets/images/PokemonArena/gastley/glare.webp",
+                            "tooltipText": "The next new skill this character uses deals 10 affliction damage to them."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "gastly-passive-evolution-haunter",
+                "name": "Evolution - Haunter",
+                "skillimage": "assets/images/PokemonArena/gastley/evolutionhaunter.webp",
+                "skilldescription": "After Gastly has lost 50 total HP during the battle, it evolves into Haunter. Haunter's skills are improved.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            },
+            {
+                "id": "haunter-lick",
+                "name": "Lick",
+                "actorCondition": {
+                    "statusId": "gastly_haunter_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/gastley/haunterlick.webp",
+                "skilldescription": "Deals 20 affliction damage to one enemy. This skill has a 2% chance to stun the target's harmful skills for 1 turn for each point of health Gastly is missing.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Affliction",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "haunter_lick_lock",
+                        "duration": 1,
+                        "scope": "target",
+                        "chance": 2,
+                        "metadata": {
+                            "harmful": true,
+                            "chanceFromSourceMissingHpStep": 2,
+                            "chanceFromSourceMissingHpDivisor": 1,
+                            "cannotUseHarmfulSkills": true,
+                            "statusIconUrl": "assets/images/PokemonArena/gastley/haunterlick.webp",
+                            "tooltipText": "This character's harmful skills are stunned."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "haunter-curse",
+                "name": "Curse",
+                "actorCondition": {
+                    "statusId": "gastly_haunter_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/gastley/hauntercurse.webp",
+                "skilldescription": "Marks one enemy permanently. While marked, that enemy takes 15 affliction damage every turn. This damage cannot be ignored. Gastly loses 35 HP. Up to two enemies may be affected by Curse at the same time.",
+                "energy": [
+                    "Bloodline",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Affliction",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "gastly_curse_mark",
+                        "duration": 99,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "turnEndDamage": 15,
+                            "afflictionDamage": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                            "ignoreDamageImmunity": true,
+                            "ignoreAfflictionDamageImmunity": true,
+                            "statusIconUrl": "assets/images/PokemonArena/gastley/hauntercurse.webp",
+                            "tooltipText": "This character takes 15 affliction damage each turn from Curse."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "self",
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                            "ignoreDamageImmunity": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "haunter-spite",
+                "name": "Spite",
+                "actorCondition": {
+                    "statusId": "gastly_haunter_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/gastley/haunterspite.webp",
+                "skilldescription": "For 2 turns, one enemy's damage is capped at 20 and they take 10 additional damage from affliction skills.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Strategic",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "haunter_spite_dampen",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "damageReductionPercent": 50,
+                            "damageTakenBonusFlat": 10,
+                            "statusIconUrl": "assets/images/PokemonArena/gastley/haunterspite.webp",
+                            "tooltipText": "This character's damage is heavily restricted and they take more affliction damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "haunter-glare",
+                "name": "Glare",
+                "actorCondition": {
+                    "statusId": "gastly_haunter_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/gastley/haunterglare.webp",
+                "skilldescription": "Guard Breaks one enemy and paralyzes their cooldowns for 2 turns. If that enemy uses a new skill while affected, they take 20 affliction damage instead.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Affliction",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "haunter_glare_lock",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "guardBreak": true,
+                            "paralyzeCooldowns": true,
+                            "onOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillRequireNewSkill": true,
+                            "onOwnerUseSkillSelfDamage": 20,
+                            "statusIconUrl": "assets/images/PokemonArena/gastley/haunterglare.webp",
+                            "tooltipText": "The next new skill this character uses deals 20 affliction damage to them."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Controller",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "controller",
+        "description": "A mischievous Ghost-type Pokemon that turns missing health into pressure, punishes skill usage, and evolves into the far nastier Haunter.",
+        "descriptionHtml": "A mischievous Ghost-type Pokemon that turns missing health into pressure, punishes skill usage, and evolves into the far nastier Haunter."
+    },
+    {
+        "id": "abra",
+        "characterId": "abra",
+        "name": "Abra",
+        "facePicture": "assets/images/PokemonArena/abra/abrafp.webp",
+        "startStatuses": [
+            {
+                "statusId": "abra_calm_mind_tracker",
+                "sourceSkillId": "abra-calm-mind",
+                "duration": 99,
+                "metadata": {
+                    "hidden": true,
+                    "infiniteDuration": true,
+                    "abraCalmMindUses": 0,
+                    "stackMetadataKey": "abraCalmMindUses",
+                    "stackDelta": 0,
+                    "stackMax": 3,
+                    "onOwnerUseSkillTrigger": true,
+                    "onOwnerUseSkillIdsAny": [
+                        "abra-calm-mind",
+                        "kadabra-calm-mind"
+                    ],
+                    "onOwnerUseSkillApplyStatusToOwner": {
+                        "statusId": "abra_calm_mind_tracker",
+                        "duration": 99,
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "abraCalmMindUses": 0,
+                            "stackMetadataKey": "abraCalmMindUses",
+                            "stackDelta": 1,
+                            "stackMax": 3,
+                            "statusIconUrl": "assets/images/PokemonArena/abra/calmmind.webp",
+                            "tooltipTextTemplate": "Abra has used Calm Mind {abraCalmMindUses}/3 times and will evolve into Kadabra at 3."
+                        }
+                    },
+                    "applyStatusAtStack": {
+                        "metadataKey": "abraCalmMindUses",
+                        "value": 3,
+                        "statusId": "abra_kadabra_evolution",
+                        "duration": 99,
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "facePictureOverride": "assets/images/PokemonArena/abra/kadabrafp.webp",
+                            "skillReplacements": {
+                                "abra-future-sight": "kadabra-future-sight",
+                                "abra-psychic": "kadabra-psychic",
+                                "abra-calm-mind": "kadabra-calm-mind",
+                                "abra-teleport": "kadabra-teleport"
+                            },
+                            "tooltipText": "Abra has evolved into Kadabra. Kadabra's skills are improved."
+                        }
+                    },
+                    "statusIconUrl": "assets/images/PokemonArena/abra/calmmind.webp",
+                    "tooltipTextTemplate": "Abra has used Calm Mind {abraCalmMindUses}/3 times and will evolve into Kadabra at 3."
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "abra-future-sight",
+                "name": "Future Sight",
+                "skillimage": "assets/images/PokemonArena/abra/futuresight.webp",
+                "skilldescription": "Marks an enemy for 2 turns. When the mark expires, the target takes 15 damage.",
+                "energy": [],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "abra_future_sight_mark",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": false,
+                            "onExpireEffects": [
+                                {
+                                    "type": "damage",
+                                    "amount": 15,
+                                    "scope": "target",
+                                    "metadata": {
+                                        "ignoreDamageReduction": true,
+                                        "ignoreDestructibleDefense": true
+                                    }
+                                }
+                            ],
+                            "statusIconUrl": "assets/images/PokemonArena/abra/futuresight.webp",
+                            "tooltipText": "Future Sight will strike when the mark expires."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "abra-psychic",
+                "name": "Psychic",
+                "skillimage": "assets/images/PokemonArena/abra/psychic.webp",
+                "skilldescription": "Deals 20 damage to one enemy and Guard Breaks them for 2 turns. If Future Sight damages that enemy this turn, it deals an additional 20 damage.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "guardBreak": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "abra_future_sight_mark"
+                        },
+                        "metadata": {
+                            "guardBreak": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "abra-calm-mind",
+                "name": "Calm Mind",
+                "skillimage": "assets/images/PokemonArena/abra/calmmind.webp",
+                "skilldescription": "Abra gains 10% unpierceable damage reduction and deals 5 additional damage for 3 turns.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Mental",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "abra_calm_mind_state",
+                        "duration": 3,
+                        "scope": "self",
+                        "metadata": {
+                            "damageReductionPercent": 10,
+                            "damageBonusFlat": 5,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/abra/calmmind.webp",
+                            "tooltipText": "Abra has 10% damage reduction and deals 5 additional damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "abra-teleport",
+                "name": "Teleport",
+                "skillimage": "assets/images/PokemonArena/abra/teleport.webp",
+                "skilldescription": "Targets Abra or an ally. For 1 turn, that character becomes invulnerable.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-character",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Mental",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "abra_teleport_cover",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "invulnerable": true,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/abra/teleport.webp",
+                            "tooltipText": "This character is invulnerable."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "abra-passive-evolution-kadabra",
+                "name": "Evolution - Kadabra",
+                "skillimage": "assets/images/PokemonArena/abra/evolutionkadabra.webp",
+                "skilldescription": "After Abra has used Calm Mind 3 times during the battle, it evolves into Kadabra. Kadabra's skills are improved.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            },
+            {
+                "id": "kadabra-future-sight",
+                "name": "Future Sight",
+                "actorCondition": {
+                    "statusId": "abra_kadabra_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/abra/kadabrafuturesight.webp",
+                "skilldescription": "Marks an enemy for 1 turn. When the mark expires, the target takes 30 damage.",
+                "energy": [],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "abra_future_sight_mark",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": false,
+                            "onExpireEffects": [
+                                {
+                                    "type": "damage",
+                                    "amount": 30,
+                                    "scope": "target",
+                                    "metadata": {
+                                        "ignoreDamageReduction": true,
+                                        "ignoreDestructibleDefense": true
+                                    }
+                                }
+                            ],
+                            "statusIconUrl": "assets/images/PokemonArena/abra/kadabrafuturesight.webp",
+                            "tooltipText": "Future Sight will strike when the mark expires."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "kadabra-psychic",
+                "name": "Psychic",
+                "actorCondition": {
+                    "statusId": "abra_kadabra_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/abra/kadabrapsychic.webp",
+                "skilldescription": "Deals 20 damage to one enemy and Guard Breaks them for 2 turns. If Future Sight damages that enemy this turn, it deals an additional 20 damage and stuns their skills for 1 turn.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "guardBreak": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "abra_future_sight_mark"
+                        },
+                        "metadata": {
+                            "guardBreak": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "kadabra_psychic_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "abra_future_sight_mark"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "statusIconUrl": "assets/images/PokemonArena/abra/kadabrapsychic.webp",
+                            "tooltipText": "This character's skills are stunned."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "kadabra-calm-mind",
+                "name": "Calm Mind",
+                "actorCondition": {
+                    "statusId": "abra_kadabra_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/abra/kadabracalmmind.webp",
+                "skilldescription": "Abra gains 20% unpierceable damage reduction and deals 10 additional damage for 3 turns.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Mental",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "abra_calm_mind_state",
+                        "duration": 3,
+                        "scope": "self",
+                        "metadata": {
+                            "damageReductionPercent": 20,
+                            "damageBonusFlat": 10,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/abra/kadabracalmmind.webp",
+                            "tooltipText": "Abra has 20% damage reduction and deals 10 additional damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "kadabra-teleport",
+                "name": "Teleport",
+                "actorCondition": {
+                    "statusId": "abra_kadabra_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/abra/Kadabrateleport.webp",
+                "skilldescription": "Targets Abra or an ally. For 1 turn, that character becomes invulnerable and all enemy skills currently affecting them are removed.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-character",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Mental",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "abra_teleport_cover",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "invulnerable": true,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/abra/Kadabrateleport.webp",
+                            "tooltipText": "This character is invulnerable."
+                        }
+                    },
+                    {
+                        "type": "cleanse_statuses",
+                        "scope": "target",
+                        "sourceRelation": "enemy",
+                        "metadata": {
+                            "statusIconUrl": "assets/images/PokemonArena/abra/Kadabrateleport.webp",
+                            "tooltipText": "Enemy skills currently affecting this character are removed."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Controller",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "controller",
+        "description": "A reserved Psychic-type Pokemon that turns setup into inevitability, then evolves into Kadabra after building Calm Mind three times.",
+        "descriptionHtml": "A reserved Psychic-type Pokemon that turns setup into inevitability, then evolves into Kadabra after building Calm Mind three times."
+    },
+    {
+        "id": "scyther",
+        "characterId": "scyther",
+        "name": "Scyther",
+        "facePicture": "assets/images/PokemonArena/scyther/scytherfp.webp",
+        "skills": [
+            {
+                "id": "scyther-fury-cutter",
+                "name": "Fury Cutter",
+                "skillimage": "assets/images/PokemonArena/scyther/furycutter.webp",
+                "skilldescription": "Deals 15 damage to one enemy. This skill permanently gains 5 damage each time it is used. This effect stacks. During Swords Dance, Fury Cutter deals piercing damage.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "missingStatusId": "scyther_swords_dance_active"
+                        },
+                        "metadata": {
+                            "bonusPerStatusMetadata": {
+                                "scope": "self",
+                                "statusId": "scyther_fury_cutter_stacks",
+                                "metadataKey": "scytherFuryCutterStacks",
+                                "multiplier": 5
+                            },
+                            "onSuccessfulDamageApplyStatusToOwner": {
+                                "statusId": "scyther_fury_cutter_stacks",
+                                "duration": 99,
+                                "metadata": {
+                                    "hidden": true,
+                                    "infiniteDuration": true,
+                                    "scytherFuryCutterStacks": 0,
+                                    "stackMetadataKey": "scytherFuryCutterStacks",
+                                    "stackDelta": 1,
+                                    "stackMax": 99,
+                                    "statusIconUrl": "assets/images/PokemonArena/scyther/furycutter.webp",
+                                    "tooltipTextTemplate": "Fury Cutter has gained {scytherFuryCutterStacks} stack(s) and deals 5 more damage per stack."
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "scyther_swords_dance_active"
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                            "bonusPerStatusMetadata": {
+                                "scope": "self",
+                                "statusId": "scyther_fury_cutter_stacks",
+                                "metadataKey": "scytherFuryCutterStacks",
+                                "multiplier": 5
+                            },
+                            "onSuccessfulDamageApplyStatusToOwner": {
+                                "statusId": "scyther_fury_cutter_stacks",
+                                "duration": 99,
+                                "metadata": {
+                                    "hidden": true,
+                                    "infiniteDuration": true,
+                                    "scytherFuryCutterStacks": 0,
+                                    "stackMetadataKey": "scytherFuryCutterStacks",
+                                    "stackDelta": 1,
+                                    "stackMax": 99,
+                                    "statusIconUrl": "assets/images/PokemonArena/scyther/furycutter.webp",
+                                    "tooltipTextTemplate": "Fury Cutter has gained {scytherFuryCutterStacks} stack(s) and deals 5 more damage per stack."
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "scyther-swords-dance",
+                "name": "Swords Dance",
+                "skillimage": "assets/images/PokemonArena/scyther/swordsdance.webp",
+                "skilldescription": "For 3 turns, Scyther's damaging skills deal 10 additional damage. During this time, Fury Cutter deals piercing damage and X-Cutter gains an additional 25% chance to critically strike.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "scyther_swords_dance_active",
+                        "duration": 3,
+                        "scope": "self",
+                        "metadata": {
+                            "damageBonusFlat": 10,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/scyther/swordsdance.webp",
+                            "tooltipText": "Scyther's damaging skills deal 10 additional damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "scyther-x-cutter",
+                "name": "X-Cutter",
+                "skillimage": "assets/images/PokemonArena/scyther/x-scissor.webp",
+                "skilldescription": "Deals 40 piercing damage to one enemy. This skill has a 25% chance to critically strike, dealing 15 additional damage. This skill has a 50% chance to critically strike against enemies at or below 50 HP. During Swords Dance, this skill gains an additional 25% chance to critically strike.",
+                "energy": [
+                    "Taijutsu",
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 40,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "chance": 25,
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "chance": 25,
+                        "condition": {
+                            "scope": "target",
+                            "sourceCurrentHpAtMost": 50
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "chance": 25,
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "scyther_swords_dance_active"
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "scyther-double-team",
+                "name": "Double Team",
+                "skillimage": "assets/images/PokemonArena/scyther/doubleteam.webp",
+                "skilldescription": "Scyther gains 100% evasion for 1 turn. If Scyther defeats an enemy while this effect is active, Double Team is extended by 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "scyther_double_team_active",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "evadeChancePercent": 100,
+                            "turnDurationAnchor": "source_turn",
+                            "onOwnerKillApplyStatusToSelf": {
+                                "statusId": "scyther_double_team_active",
+                                "duration": 1,
+                                "metadata": {
+                                    "evadeChancePercent": 100,
+                                    "turnDurationAnchor": "source_turn",
+                                    "statusIconUrl": "assets/images/PokemonArena/scyther/doubleteam.webp",
+                                    "tooltipText": "Scyther has 100% evasion."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/scyther/doubleteam.webp",
+                            "tooltipText": "Scyther has 100% evasion."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Damage",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "damage",
+        "description": "A fast mantis Pokemon that stacks pressure through repeated slashes, evasion, and heavy burst windows after Swords Dance.",
+        "descriptionHtml": "A fast mantis Pokemon that stacks pressure through repeated slashes, evasion, and heavy burst windows after Swords Dance."
     }
 
 ];

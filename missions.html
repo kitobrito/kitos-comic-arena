@@ -2259,6 +2259,19 @@
       const characterNameEl = document.getElementById("mission-sheet-character-name");
       const portraitEl = document.getElementById("mission-sheet-portrait");
       const goalsEl = document.getElementById("mission-sheet-goals");
+      const pageSearchParams = new URLSearchParams(window.location.search);
+      const pageArena = pageSearchParams.get("arena") === "pokemon" ? "pokemon" : "comic";
+      const pageMissionLabel = pageArena === "pokemon" ? "Pokemon Missions" : "Comic Missions";
+
+      document.title = pageArena === "pokemon" ? "Cosmic-Arena Pokemon Missions" : "Cosmic-Arena Comic Missions";
+      const activeMissionNavLink = document.querySelector('.nav-link.active[href="missions.html"]');
+      if (activeMissionNavLink) {
+        activeMissionNavLink.href = pageArena === "pokemon" ? "missions.html?arena=pokemon" : "missions.html";
+        const navLabel = activeMissionNavLink.querySelector("span");
+        if (navLabel) {
+          navLabel.textContent = pageMissionLabel;
+        }
+      }
 
       let missionCatalog = [];
       let missionMap = new Map();
@@ -2738,7 +2751,11 @@
         if (specialPve.enabled) {
           const fightLink = document.createElement("a");
           fightLink.className = "mission-pve-action";
-          fightLink.href = "selection.html?missions=open&missionId=" + encodeURIComponent(mission.missionId);
+          fightLink.href =
+            "selection.html?missions=open&missionId=" +
+            encodeURIComponent(mission.missionId) +
+            "&arena=" +
+            encodeURIComponent(pageArena);
           fightLink.textContent = completed ? "Replay Fight" : specialPve.buttonLabel || "Start Fight";
           fightLink.setAttribute("aria-label", "Select a team for " + mission.title);
           fightLink.addEventListener("click", function (event) {
@@ -2764,6 +2781,10 @@
         const searchValue = String(missionSearch && missionSearch.value ? missionSearch.value : "").trim().toLowerCase();
         const showAvailableOnly = Boolean(missionsAvailable && missionsAvailable.checked);
         const filtered = missionCatalog.filter(function (mission) {
+          const missionArena = String(mission.arena || "comic").trim().toLowerCase();
+          if (missionArena !== pageArena) {
+            return false;
+          }
           const levelRequirementText = String(getLevelRequirementValue(mission) || "");
           const matchesSearch =
             !searchValue ||
@@ -2861,7 +2882,7 @@
       async function loadMissionCatalog() {
         try {
           setStatus("Loading missions...");
-          const response = await fetch("/api/missions", {
+          const response = await fetch("/api/missions?arena=" + encodeURIComponent(pageArena), {
             credentials: "same-origin"
           });
           const data = await response.json().catch(function () {
