@@ -9662,7 +9662,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const updatePokemonStarterConfirmState = () => {
         if (!pokemonStarterConfirmButtonEl) return;
-        pokemonStarterConfirmButtonEl.disabled = !selectedPokemonStarterId;
+        const inactive = !selectedPokemonStarterId || isChoosingPokemonStarter;
+        pokemonStarterConfirmButtonEl.classList.toggle('is-disabled', inactive);
+        pokemonStarterConfirmButtonEl.setAttribute('aria-disabled', inactive ? 'true' : 'false');
+        pokemonStarterConfirmButtonEl.setAttribute('aria-busy', isChoosingPokemonStarter ? 'true' : 'false');
     };
 
     const hidePokemonStarterPrompt = () => {

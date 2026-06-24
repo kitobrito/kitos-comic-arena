@@ -127,7 +127,8 @@
             z-index: 10002;
             box-shadow: 0 4px 0 rgba(0,0,0,.92);
         }
-        .pokemon-starter-confirm:disabled {
+        .pokemon-starter-confirm:disabled,
+        .pokemon-starter-confirm.is-disabled {
             cursor: not-allowed;
             opacity: 0.55;
         }
@@ -345,7 +346,7 @@
         <div class="pokemon-starter-grid" id="pokemon-starter-grid"></div>
         <div class="pokemon-starter-footer">
             <p class="pokemon-starter-help">Review the cards first, then press the button below.</p>
-            <button type="button" class="pokemon-starter-confirm" id="pokemon-starter-confirm" disabled>I choose you!</button>
+            <button type="button" class="pokemon-starter-confirm is-disabled" id="pokemon-starter-confirm" aria-disabled="true">I choose you!</button>
             <p class="pokemon-starter-status" id="pokemon-starter-status" aria-live="polite"></p>
         </div>
     </div>
