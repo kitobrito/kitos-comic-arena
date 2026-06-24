@@ -342,7 +342,34 @@
         </div>
     </div>
 </div>
-<script src="characters.js?v=starter-gate-v11"></script>
-<script src="scripts/script.js?v=starter-gate-v11"></script>
+<script>
+(function () {
+    const requiredVersion = 3;
+    const normalize = (value) => (typeof value === 'string' ? value.trim().toLowerCase() : '');
+    fetch('/api/me', {
+        credentials: 'include',
+        cache: 'no-store',
+    })
+        .then((response) => (response && response.ok ? response.json() : null))
+        .then((data) => {
+            const missions =
+                data?.user?.profile?.arenas?.pokemon?.missions ||
+                data?.user?.profile?.missions ||
+                {};
+            const starterCharacterId = normalize(missions.starterCharacterId);
+            const starterSelectionVersion = Number(missions.starterSelectionVersion) || 0;
+            if (!starterCharacterId || starterSelectionVersion < requiredVersion) {
+                if (typeof window.forcePokemonStarterPrompt === 'function') {
+                    window.forcePokemonStarterPrompt();
+                } else {
+                    window.__forcePokemonStarterPromptPending = true;
+                }
+            }
+        })
+        .catch(() => {});
+})();
+</script>
+<script src="characters.js?v=starter-gate-v12"></script>
+<script src="scripts/script.js?v=starter-gate-v12"></script>
 </body>
 </html>

@@ -9717,6 +9717,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         showPokemonStarterPrompt();
     };
 
+    const forcePokemonStarterPrompt = () => {
+        if (!isSelectionPage) return;
+        activeArenaMode = 'pokemon';
+        localStorage.setItem('comicArenaMode', activeArenaMode);
+        syncArenaModeButtons();
+        loadMissionLockedCharacterIds()
+            .catch(() => {})
+            .finally(() => {
+                applyRosterFilter();
+                applySavedTeam();
+                updateGameButtons();
+                if (selectionMissionsEl && !selectionMissionsEl.classList.contains('collapsed')) {
+                    loadSelectionMissions();
+                }
+                showPokemonStarterPrompt();
+            });
+    };
+
+    window.forcePokemonStarterPrompt = forcePokemonStarterPrompt;
+    if (window.__forcePokemonStarterPromptPending) {
+        delete window.__forcePokemonStarterPromptPending;
+        forcePokemonStarterPrompt();
+    }
+
     const choosePokemonStarter = async (starterCharacterId, button = null) => {
         const normalizedStarterCharacterId = normalizeCharacterId(starterCharacterId);
         if (!normalizedStarterCharacterId) return;
