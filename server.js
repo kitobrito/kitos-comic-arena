@@ -81,6 +81,7 @@ const DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/3JqVcPXm/default.png';
 const LEGACY_DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/zG3W1w6K/itachi.png';
 const MISSION_CATALOG_STATE_KEY = 'missions';
 const BOT_TEAMS_STATE_KEY = 'bot_teams';
+const POKEMON_STARTER_SELECTION_VERSION = 1;
 let missionCatalogCache = null;
 let botTeamsCache = null;
 let maintenanceModeCache = {
@@ -2370,6 +2371,7 @@ const createDefaultMissionState = () => {
         },
         unlockedCharacterIds: [],
         starterCharacterId: null,
+        starterSelectionVersion: 0,
     };
 };
 
@@ -2405,6 +2407,20 @@ const normalizeMissionState = (missions = {}) => {
             source.starterCharacter ??
             source.starter
     );
+    const starterSelectionVersion = Number.isFinite(Number(
+        source.starterSelectionVersion ??
+            source.starter_selection_version ??
+            source.starterSelection?.version
+    ))
+        ? Math.max(
+              0,
+              Number(
+                  source.starterSelectionVersion ??
+                      source.starter_selection_version ??
+                      source.starterSelection?.version
+              )
+          )
+        : 0;
     if (starterCharacterId && getPokemonStarterCharacterIds().has(starterCharacterId)) {
         unlockedCharacterIds.add(starterCharacterId);
     }
@@ -2424,6 +2440,7 @@ const normalizeMissionState = (missions = {}) => {
         starterCharacterId: starterCharacterId && getPokemonStarterCharacterIds().has(starterCharacterId)
             ? starterCharacterId
             : null,
+        starterSelectionVersion,
     };
 };
 
@@ -2982,71 +2999,6 @@ const XENOMORPH_DRONE_MISSION_ENTRY = {
     sortOrder: 999,
 };
 
-const POKEMON_SCYTHER_MISSION_ENTRY = {
-    missionId: 'scyther-trial',
-    title: 'The Scyther Trial',
-    level_requirement: 6,
-    rank: '6',
-    reward_character: 'scyther',
-    reward_character_name: 'Scyther',
-    reward: 'Unlock Scyther.',
-    arena: 'pokemon',
-    mode_restriction: {
-        allowed_modes: ['quick', 'ladder'],
-    },
-    win_streak: {
-        character_id: '',
-        character_name: '',
-        wins: 0,
-    },
-    image: 'assets/images/PokemonArena/scyther/scythermissionpic.jpeg',
-    imageAlt: 'Scyther mission artwork',
-    characterName: 'Scyther',
-    portrait: 'assets/images/PokemonArena/scyther/scytherfp.webp',
-    portraitAlt: 'Scyther portrait',
-    requirements: [
-        'This trial is intentionally grindy. The Scyther mission is meant to feel like a real milestone in Pokemon Arena.',
-        'Clear a 4-win streak with Zubat and Gastly on the same team.',
-    ],
-    goals: [
-        {
-            type: 'win_matches',
-            character_id: 'chansey',
-            character_name: 'Chansey',
-            wins: 6,
-        },
-        {
-            type: 'win_matches',
-            character_id: 'pidgey',
-            character_name: 'Pidgey',
-            wins: 6,
-        },
-        {
-            type: 'win_matches',
-            character_id: 'koffing',
-            character_name: 'Koffing',
-            wins: 6,
-        },
-        {
-            type: 'win_streak_same_team',
-            character_ids: ['zubat', 'gastly'],
-            character_names: ['Zubat', 'Gastly'],
-            wins: 4,
-        },
-    ],
-    special_pve: {
-        enabled: true,
-        buttonLabel: 'Challenge Scyther',
-        botName: 'The Wild Scyther',
-        botTeamCharacterId: 'scyther',
-        botTeamSize: 1,
-        botMaxQueuedSkillsPerTurn: 1,
-        backgroundImage: 'assets/images/PokemonArena/scyther/scythermissionpic.jpeg',
-        playerTeamCharacterIds: [],
-    },
-    sortOrder: 5,
-};
-
 const POKEMON_GASTLY_MISSION_ENTRY = {
     missionId: 'gastly-haunted-tower',
     title: 'The Haunted Tower',
@@ -3233,7 +3185,11 @@ const POKEMON_STARTER_MISSION_ENTRIES = [
 ];
 
 const ensureRequiredMissionCatalogEntries = (missions = []) => {
-    const catalog = cloneMissionCatalog(missions);
+    const catalog = cloneMissionCatalog(missions).filter(
+        (mission) =>
+            normalizeCharacterId(mission?.reward_character) !== 'scyther' &&
+            mission?.missionId !== 'scyther-trial'
+    );
     const upsertRequiredMission = (entry, matcher) => {
         const normalizedEntry = normalizeMissionCatalogEntry(entry, catalog.length);
         const existingIndex = catalog.findIndex((mission) => matcher(mission));
@@ -3258,7 +3214,6 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     POKEMON_STARTER_MISSION_ENTRIES.forEach((entry) => {
         upsertRequiredMission(entry, (mission) => normalizeCharacterId(mission?.reward_character) === normalizeCharacterId(entry.reward_character));
     });
-    upsertRequiredMission(POKEMON_SCYTHER_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'scyther');
     upsertRequiredMission(POKEMON_GASTLY_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'gastly');
     return normalizeMissionCatalog(catalog);
 };
@@ -11688,11 +11643,17 @@ app.post('/api/profile/pokemon/starter', requireSession, async (req, res) => {
         const arenaState = getProfileArenaState(profile, 'pokemon');
         const missionState = normalizeMissionState(arenaState.missions);
         const existingStarterId = normalizeCharacterId(missionState.starterCharacterId);
-        if (existingStarterId && existingStarterId !== starterCharacterId) {
+        const existingSelectionVersion = Number(missionState.starterSelectionVersion) || 0;
+        if (
+            existingStarterId &&
+            existingStarterId !== starterCharacterId &&
+            existingSelectionVersion >= POKEMON_STARTER_SELECTION_VERSION
+        ) {
             return res.status(409).json({ error: 'You have already chosen a starter.' });
         }
 
         missionState.starterCharacterId = starterCharacterId;
+        missionState.starterSelectionVersion = POKEMON_STARTER_SELECTION_VERSION;
         const unlockedIds = new Set(
             Array.isArray(missionState.unlockedCharacterIds) ? missionState.unlockedCharacterIds : []
         );

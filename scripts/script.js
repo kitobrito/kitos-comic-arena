@@ -9472,6 +9472,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const selectionMissionsStatusEl = document.querySelector('.selection-missions-status');
     const pokemonStarterBackdropEl = document.getElementById('pokemon-starter-backdrop');
     const pokemonStarterGridEl = document.getElementById('pokemon-starter-grid');
+    const pokemonStarterConfirmButtonEl = document.getElementById('pokemon-starter-confirm');
     const pokemonStarterStatusEl = document.getElementById('pokemon-starter-status');
     const privateMatchBackdrop = document.querySelector('.private-match-backdrop');
     const privateMatchInput = document.querySelector('.private-match-input');
@@ -9503,6 +9504,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     let activeDraftSelectionPhase = '';
     let activeDraftPoll = null;
     let activeDraftTimer = null;
+    let selectedPokemonStarterId = '';
 
     const setSelectionMissionsStatus = (message = '') => {
         if (!selectionMissionsStatusEl) return;
@@ -9551,30 +9553,56 @@ document.addEventListener('DOMContentLoaded', async () => {
         syncArenaModePlayerIdentity();
     };
 
+    const REQUIRED_POKEMON_STARTER_SELECTION_VERSION = 1;
+
     const pokemonStarterChoices = [
         {
             characterId: 'squirtle',
             name: 'Squirtle',
             image: 'assets/images/PokemonArena/squirtle/squirtlefp.jpg',
-            description: 'Win 16 battles with Bulbasaur to unlock the mission version of Squirtle.',
+            description: 'A defensive Water starter that turns blocking and cleansing into momentum.',
+            skills: [
+                { name: 'Water Gun', text: 'Deals damage now and again next turn while punishing harmful skill use.' },
+                { name: 'Withdraw', text: 'Lets Squirtle or an ally block the next harmful skill used on them.' },
+                { name: 'Bubble', text: 'A debuffing burst that can make enemies hurt themselves when they use skills.' },
+                { name: 'Rapid Spin', text: 'Hits the enemy team and helps Squirtle keep the battle under control.' },
+            ],
         },
         {
             characterId: 'charmander',
             name: 'Charmander',
             image: 'assets/images/PokemonArena/Charmander/charmanderfp.jpg',
-            description: 'Win 16 battles with Squirtle to unlock the mission version of Charmander.',
+            description: 'A fiery starter that grows stronger as burn and crit pressure build up.',
+            skills: [
+                { name: 'Ember', text: 'Deals affliction damage and can Burn the target.' },
+                { name: 'Scratch', text: 'A simple strike that can turn Piercing on a critical hit.' },
+                { name: 'Flamethrower', text: 'Burns the whole enemy team and scales with rage stacks.' },
+                { name: 'Rage', text: 'Gives damage reduction and permanently boosts Charmander when he takes damage.' },
+            ],
         },
         {
             characterId: 'pikachu',
             name: 'Pikachu',
             image: 'assets/images/PokemonArena/Pikachu/pikachufp.jpeg',
-            description: 'Win 16 battles with Pidgey to unlock the mission version of Pikachu.',
+            description: 'A lightning starter that punishes new skill usage and spikes with Static.',
+            skills: [
+                { name: 'Thundershock', text: 'Hits hard, spreads pressure, and changes Thunder’s cost.' },
+                { name: 'Volt Tackle', text: 'Big burst damage that also taxes the target’s future cooldowns.' },
+                { name: 'Thunder', text: 'A heavy shot that becomes nastier against targets marked by Static.' },
+                { name: 'Agility', text: 'Lets Pikachu become invulnerable for a turn.' },
+            ],
         },
         {
             characterId: 'bulbasaur',
             name: 'Bulbasaur',
             image: 'assets/images/PokemonArena/Bulbasaur/bulbasaurfp.jpg',
-            description: 'Win 16 battles with Charmander to unlock the mission version of Bulbasaur.',
+            description: 'A slow-burn starter that grows through Sun stacks and steady control.',
+            skills: [
+                { name: 'Leech Seed', text: 'Drains health over time and fuels Bulbasaur’s Sun growth.' },
+                { name: 'Vine Whip', text: 'Deals piercing damage and disables harmful skills briefly.' },
+                { name: 'Razor Leaf', text: 'A wide strike that can crit harder with enough Sun.' },
+                { name: 'Solar Beam', text: 'A powerful finisher that gets cheaper as Sun stacks build.' },
+            ],
         },
     ];
 
@@ -9584,6 +9612,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         pokemonStarterChoices.forEach((choice) => {
             const card = document.createElement('article');
             card.className = 'pokemon-starter-card';
+            card.tabIndex = 0;
+            card.setAttribute('role', 'button');
+            card.setAttribute('aria-pressed', choice.characterId === selectedPokemonStarterId ? 'true' : 'false');
+            if (choice.characterId === selectedPokemonStarterId) {
+                card.classList.add('is-selected');
+            }
             const image = document.createElement('img');
             image.src = choice.image;
             image.alt = `${choice.name} starter portrait`;
@@ -9591,32 +9625,61 @@ document.addEventListener('DOMContentLoaded', async () => {
             title.textContent = choice.name;
             const description = document.createElement('p');
             description.textContent = choice.description;
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.textContent = `Choose ${choice.name}`;
-            button.addEventListener('click', () => {
-                void choosePokemonStarter(choice.characterId, button);
+            const skills = document.createElement('div');
+            skills.className = 'pokemon-starter-skills';
+            (Array.isArray(choice.skills) ? choice.skills : []).forEach((skill) => {
+                const skillBlock = document.createElement('div');
+                skillBlock.className = 'pokemon-starter-skill';
+                const skillName = document.createElement('strong');
+                skillName.textContent = skill.name || 'Skill';
+                const skillText = document.createElement('span');
+                skillText.textContent = skill.text || '';
+                skillBlock.appendChild(skillName);
+                skillBlock.appendChild(skillText);
+                skills.appendChild(skillBlock);
+            });
+            const handleSelect = () => {
+                selectedPokemonStarterId = choice.characterId;
+                setPokemonStarterStatus(`Selected ${choice.name}. Read the kit, then press "I choose you!"`);
+                renderPokemonStarterChoices();
+                updatePokemonStarterConfirmState();
+            };
+            card.addEventListener('click', handleSelect);
+            card.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    handleSelect();
+                }
             });
             card.appendChild(image);
             card.appendChild(title);
             card.appendChild(description);
-            card.appendChild(button);
+            card.appendChild(skills);
             pokemonStarterGridEl.appendChild(card);
         });
+    };
+
+    const updatePokemonStarterConfirmState = () => {
+        if (!pokemonStarterConfirmButtonEl) return;
+        pokemonStarterConfirmButtonEl.disabled = !selectedPokemonStarterId;
     };
 
     const hidePokemonStarterPrompt = () => {
         if (!pokemonStarterBackdropEl) return;
         pokemonStarterBackdropEl.classList.remove('visible');
         pokemonStarterBackdropEl.hidden = true;
+        selectedPokemonStarterId = '';
+        updatePokemonStarterConfirmState();
     };
 
     const showPokemonStarterPrompt = () => {
         if (!pokemonStarterBackdropEl) return;
+        selectedPokemonStarterId = '';
         renderPokemonStarterChoices();
         pokemonStarterBackdropEl.hidden = false;
         pokemonStarterBackdropEl.classList.add('visible');
-        setPokemonStarterStatus('Choose one starter to begin Pokemon Arena.');
+        updatePokemonStarterConfirmState();
+        setPokemonStarterStatus('Click a starter to reveal its kit, then press "I choose you!" to confirm.');
     };
 
     const getPokemonStarterSelectionState = () => {
@@ -9630,7 +9693,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const hasPokemonStarterSelection = () => Boolean(
-        normalizeCharacterId(getPokemonStarterSelectionState().starterCharacterId)
+        normalizeCharacterId(getPokemonStarterSelectionState().starterCharacterId) &&
+            Number(getPokemonStarterSelectionState().starterSelectionVersion) >= REQUIRED_POKEMON_STARTER_SELECTION_VERSION
     );
 
     const maybePromptPokemonStarterChoice = () => {
@@ -9687,6 +9751,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (button) button.disabled = false;
         }
     };
+
+    if (pokemonStarterConfirmButtonEl) {
+        pokemonStarterConfirmButtonEl.addEventListener('click', () => {
+            if (!selectedPokemonStarterId) return;
+            void choosePokemonStarter(selectedPokemonStarterId, pokemonStarterConfirmButtonEl);
+        });
+    }
 
     const formatMissionGoalLines = (mission, progress = {}) => {
         const goals = Array.isArray(mission?.goals) ? mission.goals : [];

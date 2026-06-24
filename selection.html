@@ -58,6 +58,11 @@
             border: 3px solid var(--line, #16120d);
             background: #fffdf5;
             box-shadow: 5px 5px 0 rgba(0,0,0,.92);
+            cursor: pointer;
+        }
+        .pokemon-starter-card.is-selected {
+            background: linear-gradient(180deg, #fff4ba 0%, #fffdf5 100%);
+            transform: translateY(-2px);
         }
         .pokemon-starter-card img {
             width: 100%;
@@ -78,24 +83,55 @@
             font-weight: 700;
             text-transform: uppercase;
         }
-        .pokemon-starter-card button {
-            min-height: 42px;
+        .pokemon-starter-skills {
+            display: none;
+            gap: 8px;
+            padding-top: 4px;
+        }
+        .pokemon-starter-card.is-selected .pokemon-starter-skills {
+            display: grid;
+        }
+        .pokemon-starter-skill {
+            padding: 8px 9px;
+            border: 2px solid var(--line, #16120d);
+            background: rgba(255, 255, 255, 0.82);
+            font-size: 12px;
+            line-height: 1.35;
+        }
+        .pokemon-starter-skill strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 13px;
+        }
+        .pokemon-starter-footer {
+            display: grid;
+            gap: 12px;
+            margin-top: 16px;
+        }
+        .pokemon-starter-confirm {
+            min-height: 48px;
             border: 3px solid var(--line, #16120d);
-            background: linear-gradient(180deg, #ffd65b 0%, #ff9f1f 100%);
+            background: linear-gradient(180deg, #ffe06e 0%, #ff8f22 100%);
             color: #111;
-            font-size: 18px;
-            font-weight: 800;
+            font-size: 20px;
+            font-weight: 900;
             text-transform: uppercase;
             cursor: pointer;
             box-shadow: 0 4px 0 rgba(0,0,0,.92);
         }
-        .pokemon-starter-card button:disabled {
-            cursor: wait;
-            opacity: 0.8;
+        .pokemon-starter-confirm:disabled {
+            cursor: not-allowed;
+            opacity: 0.55;
+        }
+        .pokemon-starter-help {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
         }
         .pokemon-starter-status {
             min-height: 20px;
-            margin: 14px 0 0;
+            margin: 0;
             font-size: 15px;
             font-weight: 700;
             text-transform: uppercase;
@@ -297,9 +333,13 @@
 <div class="pokemon-starter-backdrop" id="pokemon-starter-backdrop" hidden>
     <div class="pokemon-starter-modal" role="dialog" aria-modal="true" aria-labelledby="pokemon-starter-title">
         <h2 class="pokemon-starter-title" id="pokemon-starter-title">Choose Your Starter</h2>
-        <p class="pokemon-starter-copy">Pick one Pokemon to unlock now. The other three stay as rank 1 mission characters.</p>
+        <p class="pokemon-starter-copy">Pick one Pokemon to unlock now. Click a starter to reveal its kit, then lock in your choice.</p>
         <div class="pokemon-starter-grid" id="pokemon-starter-grid"></div>
-        <p class="pokemon-starter-status" id="pokemon-starter-status" aria-live="polite"></p>
+        <div class="pokemon-starter-footer">
+            <p class="pokemon-starter-help">Review the cards first, then press the button below.</p>
+            <button type="button" class="pokemon-starter-confirm" id="pokemon-starter-confirm" disabled>I choose you!</button>
+            <p class="pokemon-starter-status" id="pokemon-starter-status" aria-live="polite"></p>
+        </div>
     </div>
 </div>
 <script src="characters.js?v=ingame-bootstrap-v9"></script>

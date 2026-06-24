@@ -22438,11 +22438,11 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/scyther/furycutter.webp",
                 "skilldescription": "Deals 15 damage to one enemy. This skill permanently gains 5 damage each time it is used. This effect stacks. During Swords Dance, Fury Cutter deals piercing damage.",
                 "energy": [
-                    "Genjutsu"
+                    "Taijutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
+                "cooldown": 2,
                 "classes": [
                     "Physical",
                     "Melee",
