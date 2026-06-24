@@ -8047,7 +8047,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const renderIngameMissions = (payload = {}) => {
             if (!ingameMissionsListEl) return;
-            const missions = Array.isArray(payload.missions) ? payload.missions : [];
+            const missions = Array.isArray(payload.missions)
+                ? payload.missions.filter((mission) => {
+                      const missionArena =
+                          typeof mission?.arena === 'string' ? mission.arena.trim().toLowerCase() : 'comic';
+                      return missionArena === currentMatchArena;
+                  })
+                : [];
             const progressByMissionId = payload.missionProgressByMissionId || {};
             const unlockedIds = new Set(
                 (Array.isArray(payload.unlockedCharacterIds) ? payload.unlockedCharacterIds : [])
@@ -8304,10 +8310,23 @@ document.addEventListener('DOMContentLoaded', async () => {
                         rosterIndex: unit.rosterIndex,
                         alive: true,
                     }));
+            const mapDeadTargets = (username, units) =>
+                (Array.isArray(units) ? units : [])
+                    .map((unit, slot) => ({ unit, slot }))
+                    .filter(({ unit }) => unit && isUnitDeadLike(unit))
+                    .map(({ unit, slot }) => ({
+                        username,
+                        slot,
+                        rosterIndex: unit.rosterIndex,
+                        alive: false,
+                    }));
             const playerTargets = mapTargets(currentPlayerUsername, playerUnits);
             const enemyTargets = mapTargets(currentOpponentUsername, opponentUnits);
             const selfTargets = playerTargets.filter((target) => Number(target.slot) === Number(actorSlot));
             const allyTargets = playerTargets.filter((target) => Number(target.slot) !== Number(actorSlot));
+            const deadAllyTargets = mapDeadTargets(currentPlayerUsername, playerUnits).filter(
+                (target) => Number(target.slot) !== Number(actorSlot)
+            );
             switch (targetType) {
                 case 'single-enemy':
                     return { ok: true, targetType, mode: 'single', targets: enemyTargets, skillIndex: skillIdx };
@@ -8317,6 +8336,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return { ok: true, targetType, mode: 'self', targets: selfTargets, skillIndex: skillIdx };
                 case 'single-ally':
                     return { ok: true, targetType, mode: 'single', targets: allyTargets, skillIndex: skillIdx };
+                case 'single-ally-or-dead-ally':
+                    return {
+                        ok: true,
+                        targetType,
+                        mode: 'single',
+                        targets: [...allyTargets, ...deadAllyTargets],
+                        skillIndex: skillIdx,
+                    };
                 case 'self-or-single-ally':
                     return { ok: true, targetType, mode: 'single', targets: playerTargets, skillIndex: skillIdx };
                 case 'all-allies':
@@ -9614,7 +9641,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const renderSelectionMissions = (payload = {}) => {
         if (!selectionMissionsListEl) return;
-        const missions = Array.isArray(payload.missions) ? payload.missions : [];
+        const missions = Array.isArray(payload.missions)
+            ? payload.missions.filter((mission) => {
+                  const missionArena =
+                      typeof mission?.arena === 'string' ? mission.arena.trim().toLowerCase() : 'comic';
+                  return missionArena === activeArenaMode;
+              })
+            : [];
         const progressByMissionId = payload.missionProgressByMissionId || {};
         const unlockedIds = new Set(
             (Array.isArray(payload.unlockedCharacterIds) ? payload.unlockedCharacterIds : [])

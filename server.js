@@ -68,13 +68,13 @@ const LATEST_CHARACTER_RELEASES_BY_ARENA = {
         { label: 'General Grievous', characterId: 'general-grievous' },
     ],
     pokemon: [
-        { label: 'Chansey', characterId: 'chansey' },
-        { label: 'Pidgey', characterId: 'pidgey' },
-        { label: 'Koffing', characterId: 'koffing' },
+        { label: 'Zubat', characterId: 'zubat' },
+        { label: 'Gastly', characterId: 'gastly' },
+        { label: 'Abra', characterId: 'abra' },
     ],
 };
 const LATEST_CHARACTER_RELEASES_STATE_KEY = 'latest_character_releases';
-const LATEST_CHARACTER_RELEASES_VERSION = 'balance-v3-1-1-arena-split';
+const LATEST_CHARACTER_RELEASES_VERSION = 'pokemon-release-v3-2-0';
 const MAINTENANCE_MODE_STATE_KEY = 'maintenance_mode';
 const MAINTENANCE_MODE_CACHE_TTL_MS = 10 * 1000;
 const DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/3JqVcPXm/default.png';
@@ -2837,6 +2837,7 @@ const normalizeMissionCatalogEntry = (mission = {}, index = 0) => {
                 : `${finalMissionTitle} portrait`,
         requirements: requirementNotes,
         goals: finalGoals,
+        arena: normalizeArenaMode(source.arena || source.arenaMode || source.rewardArena || source.reward_arena),
         special_pve: specialPve,
         sortOrder: Number.isFinite(Number(source.sortOrder)) ? Number(source.sortOrder) : index + 1,
     };
@@ -2891,6 +2892,7 @@ const cloneMissionCatalog = (missions = []) =>
                 : undefined,
             requirements: Array.isArray(mission?.requirements) ? mission.requirements.slice() : [],
             goals: Array.isArray(mission?.goals) ? mission.goals.slice() : [],
+            arena: typeof mission?.arena === 'string' ? mission.arena : '',
             special_pve: mission?.special_pve
                 ? {
                       ...mission.special_pve,
@@ -2922,6 +2924,115 @@ const XENOMORPH_DRONE_MISSION_ENTRY = {
     sortOrder: 999,
 };
 
+const POKEMON_SCYTHER_MISSION_ENTRY = {
+    missionId: 'scyther-trial',
+    title: 'The Scyther Trial',
+    level_requirement: 6,
+    rank: '6',
+    reward_character: 'scyther',
+    reward_character_name: 'Scyther',
+    reward: 'Unlock Scyther.',
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/scyther/scythermissionpic.jpeg',
+    imageAlt: 'Scyther mission artwork',
+    characterName: 'Scyther',
+    portrait: 'assets/images/PokemonArena/scyther/scytherfp.webp',
+    portraitAlt: 'Scyther portrait',
+    requirements: [
+        'This trial is intentionally grindy. The Scyther mission is meant to feel like a real milestone in Pokemon Arena.',
+    ],
+    goals: [
+        {
+            type: 'win_matches',
+            character_id: 'chansey',
+            character_name: 'Chansey',
+            wins: 6,
+        },
+        {
+            type: 'win_matches',
+            character_id: 'pidgey',
+            character_name: 'Pidgey',
+            wins: 6,
+        },
+        {
+            type: 'win_matches',
+            character_id: 'koffing',
+            character_name: 'Koffing',
+            wins: 6,
+        },
+    ],
+    special_pve: {
+        enabled: true,
+        buttonLabel: 'Challenge Scyther',
+        botName: 'The Wild Scyther',
+        botTeamCharacterId: 'scyther',
+        botTeamSize: 1,
+        botMaxQueuedSkillsPerTurn: 1,
+        backgroundImage: 'assets/images/PokemonArena/scyther/scythermissionpic.jpeg',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 1,
+};
+
+const POKEMON_GASTLY_MISSION_ENTRY = {
+    missionId: 'gastly-haunted-tower',
+    title: 'The Haunted Tower',
+    level_requirement: 6,
+    rank: '6',
+    reward_character: 'gastly',
+    reward_character_name: 'Gastly',
+    reward: 'Unlock Gastly.',
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/gastley/gastleymissionpic.jpeg',
+    imageAlt: 'Gastly mission artwork',
+    characterName: 'Gastly',
+    portrait: 'assets/images/PokemonArena/gastley/gastleyfp.webp',
+    portraitAlt: 'Gastly portrait',
+    requirements: [
+        'A grindy early Pokemon mission that asks for patience before it pays out.',
+    ],
+    goals: [
+        {
+            type: 'win_matches',
+            character_id: 'chansey',
+            character_name: 'Chansey',
+            wins: 8,
+        },
+        {
+            type: 'win_matches',
+            character_id: 'koffing',
+            character_name: 'Koffing',
+            wins: 8,
+        },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 2,
+};
+
 const ensureRequiredMissionCatalogEntries = (missions = []) => {
     const catalog = cloneMissionCatalog(missions);
     const hasXenomorphMission = catalog.some(
@@ -2940,6 +3051,18 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
         if (ghostRiderMission) {
             catalog.push(normalizeMissionCatalogEntry(ghostRiderMission, catalog.length));
         }
+    }
+    const hasScytherMission = catalog.some(
+        (mission) => normalizeCharacterId(mission?.reward_character) === 'scyther'
+    );
+    if (!hasScytherMission) {
+        catalog.push(normalizeMissionCatalogEntry(POKEMON_SCYTHER_MISSION_ENTRY, catalog.length));
+    }
+    const hasGastlyMission = catalog.some(
+        (mission) => normalizeCharacterId(mission?.reward_character) === 'gastly'
+    );
+    if (!hasGastlyMission) {
+        catalog.push(normalizeMissionCatalogEntry(POKEMON_GASTLY_MISSION_ENTRY, catalog.length));
     }
     return normalizeMissionCatalog(catalog);
 };
@@ -3772,7 +3895,9 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
     }
 
     const userByUsername = new Map(users.map((user) => [user.username, user]));
-    const missionCatalog = await getStoredMissionCatalog();
+    const missionCatalog = (await getStoredMissionCatalog()).filter(
+        (mission) => normalizeArenaMode(mission?.arena) === arena
+    );
 
     await Promise.all(
         usernames.map(async (username) => {
@@ -5160,6 +5285,7 @@ const buildCharacterSummaryMap = () =>
                         characterId: key,
                         label: character.name || key,
                         facePicture: character.facePicture || '',
+                        arena: normalizeArenaMode(character.arena || character.universe),
                     },
                 ];
             })
@@ -10249,7 +10375,9 @@ app.get('/api/missions', async (req, res) => {
     try {
         res.set('Cache-Control', 'no-store');
         const arena = normalizeArenaMode(req.query?.arena);
-        const missions = await getStoredMissionCatalog();
+        const missions = (await getStoredMissionCatalog()).filter(
+            (mission) => normalizeArenaMode(mission?.arena) === arena
+        );
         let missionState = createDefaultMissionState();
         try {
             const token = req.cookies?.[SESSION_COOKIE_NAME];
