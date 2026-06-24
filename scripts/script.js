@@ -1621,7 +1621,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const labels = {
                 taijutsu: 'Green',
                 bloodline: currentMatchArena === 'pokemon' ? 'Orange' : 'Red',
-                ninjutsu: 'Blue',
+                ninjutsu: currentMatchArena === 'pokemon' ? 'Purple' : 'Blue',
                 genjutsu: currentMatchArena === 'pokemon' ? 'Yellow' : 'White',
                 random: 'Random',
             };
@@ -1629,6 +1629,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         const syncEnergyNameLabels = () => {
             [
+                ['.chakra-box.blue', 'ninjutsu'],
                 ['.chakra-box.red', 'bloodline'],
                 ['.chakra-box.white', 'genjutsu'],
             ].forEach(([selector, type]) => {
@@ -10652,7 +10653,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const energyFilterLabels = {
         taijutsu: 'Green',
         bloodline: activeArenaMode === 'pokemon' ? 'Orange' : 'Red',
-        ninjutsu: 'Blue',
+        ninjutsu: activeArenaMode === 'pokemon' ? 'Purple' : 'Blue',
         genjutsu: activeArenaMode === 'pokemon' ? 'Yellow' : 'White',
         random: 'Random',
         none: 'No Cost',
