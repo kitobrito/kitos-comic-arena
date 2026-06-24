@@ -2335,6 +2335,7 @@
               characterName: String(source.characterName || "").trim(),
               portrait: String(source.portrait || "").trim(),
               portraitAlt: String(source.portraitAlt || source.portraitAltText || (source.characterName || source.title || "Mission") + " portrait").trim(),
+              arena: String(source.arena || source.arenaMode || source.rewardArena || source.reward_arena || "comic").trim().toLowerCase(),
               requirements: Array.isArray(source.requirements)
                 ? source.requirements.map(function (entry) { return String(entry || "").trim(); }).filter(Boolean)
                 : [],
