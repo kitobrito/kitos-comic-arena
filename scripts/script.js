@@ -9749,7 +9749,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const normalizedStarterCharacterId = normalizeCharacterId(starterCharacterId);
         if (!normalizedStarterCharacterId || isChoosingPokemonStarter) return;
         isChoosingPokemonStarter = true;
-        if (button) button.disabled = true;
+        updatePokemonStarterConfirmState();
         setPokemonStarterStatus(`Saving ${normalizedStarterCharacterId}...`);
         try {
             const response = await fetch(`${API_BASE_URL}/api/profile/pokemon/starter`, {
@@ -9782,7 +9782,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             setPokemonStarterStatus(error.message || 'Unable to save starter selection.');
         } finally {
             isChoosingPokemonStarter = false;
-            if (button) button.disabled = false;
             updatePokemonStarterConfirmState();
         }
     };
@@ -9792,7 +9791,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             event.preventDefault();
             event.stopPropagation();
         }
-        if (!selectedPokemonStarterId || isChoosingPokemonStarter) return;
+        if (isChoosingPokemonStarter) return;
+        if (!selectedPokemonStarterId) {
+            setPokemonStarterStatus('Pick a starter card first, then press "I choose you!"');
+            updatePokemonStarterConfirmState();
+            return;
+        }
         void choosePokemonStarter(selectedPokemonStarterId, pokemonStarterConfirmButtonEl);
     };
 
@@ -9804,9 +9808,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         });
     }
-
     if (pokemonStarterConfirmButtonEl) {
         pokemonStarterConfirmButtonEl.addEventListener('click', submitSelectedPokemonStarter);
+        pokemonStarterConfirmButtonEl.addEventListener('pointerdown', submitSelectedPokemonStarter);
     }
 
     const formatMissionGoalLines = (mission, progress = {}) => {
