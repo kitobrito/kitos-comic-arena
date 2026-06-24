@@ -20824,7 +20824,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/koffing/koffinghaze.jpeg",
                 "skilldescription": "For 1 turn, Koffing's team ignores all enemy non-damaging effects.",
                 "energy": [
-                    "Genjutsu"
+                    "Random"
                 ],
                 "target": "all-allies",
                 "damage": 0,
@@ -20859,7 +20859,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/koffing/koffingexplosion.webp",
                 "skilldescription": "Koffing deals 20 affliction damage to all enemies and loses 20 HP. If this defeats Koffing, all enemies take 5 additional affliction damage.",
                 "energy": [
-                    "Random"
+                    "Bloodline"
                 ],
                 "target": "all-enemy",
                 "damage": 0,
@@ -21032,7 +21032,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/koffing/weezinghaze.webp",
                 "skilldescription": "For 2 turns, Weezing's team ignores all enemy non-damaging effects.",
                 "energy": [
-                    "Genjutsu"
+                    "Random"
                 ],
                 "target": "all-allies",
                 "damage": 0,
@@ -21070,6 +21070,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/koffing/weezingexplosion.webp",
                 "skilldescription": "Weezing deals 30 affliction damage to all enemies and loses 30 HP. If this defeats Weezing, all enemies take 5 additional affliction damage.",
                 "energy": [
+                    "Bloodline",
                     "Random",
                     "Random"
                 ],
