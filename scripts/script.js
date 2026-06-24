@@ -9553,7 +9553,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         syncArenaModePlayerIdentity();
     };
 
-    const REQUIRED_POKEMON_STARTER_SELECTION_VERSION = 1;
+    const REQUIRED_POKEMON_STARTER_SELECTION_VERSION = 2;
 
     const pokemonStarterChoices = [
         {
