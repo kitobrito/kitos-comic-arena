@@ -94,6 +94,19 @@
   var profileQuickGamesEmpty = document.getElementById("profile-quick-games-empty");
   var profilePrivateGamesList = document.getElementById("profile-private-games-list");
   var profilePrivateGamesEmpty = document.getElementById("profile-private-games-empty");
+  var pokemonProfileLevel = document.getElementById("pokemon-profile-level");
+  var pokemonProfileLevelMeter = document.getElementById("pokemon-profile-level-meter");
+  var pokemonProfileRank = document.getElementById("pokemon-profile-rank");
+  var pokemonProfileExperiencePoints = document.getElementById("pokemon-profile-experience-points");
+  var pokemonProfileLadderRank = document.getElementById("pokemon-profile-ladder-rank");
+  var pokemonProfileWins = document.getElementById("pokemon-profile-wins");
+  var pokemonProfileLosses = document.getElementById("pokemon-profile-losses");
+  var pokemonProfileWinPercentage = document.getElementById("pokemon-profile-win-percentage");
+  var pokemonProfileStreak = document.getElementById("pokemon-profile-streak");
+  var pokemonProfileHighestStreak = document.getElementById("pokemon-profile-highest-streak");
+  var pokemonProfileHighestLevel = document.getElementById("pokemon-profile-highest-level");
+  var pokemonProfileFamePoints = document.getElementById("pokemon-profile-fame-points");
+  var pokemonProfileLadderGamesList = document.getElementById("pokemon-profile-ladder-games-list");
   var clanProfileAvatarImage = document.getElementById("clan-profile-avatar-image");
   var clanProfileName = document.getElementById("clan-profile-name");
   var clanProfileAbbreviation = document.getElementById("clan-profile-abbreviation");
@@ -200,6 +213,10 @@
   var sidebarTopCurrentStreaks = document.getElementById("sidebar-top-current-streaks");
   var sidebarTopWins = document.getElementById("sidebar-top-wins");
   var sidebarTopHighestStreaks = document.getElementById("sidebar-top-highest-streaks");
+  var pokemonSidebarTopPlayerLevels = document.getElementById("pokemon-sidebar-top-player-levels");
+  var pokemonSidebarTopCurrentStreaks = document.getElementById("pokemon-sidebar-top-current-streaks");
+  var pokemonSidebarTopWins = document.getElementById("pokemon-sidebar-top-wins");
+  var pokemonSidebarTopHighestStreaks = document.getElementById("pokemon-sidebar-top-highest-streaks");
   var winratesGrid = document.getElementById("winrates-grid");
   var winratesStatus = document.getElementById("winrates-status");
   var resetWinratesButton = document.getElementById("reset-winrates-button");
@@ -2700,13 +2717,52 @@
   }
 
   function setProfileLevelMeterProgress(level, experienceIntoLevel, experienceForNextLevel) {
-    if (!profileLevelMeter) {
+    setLevelMeterProgress(profileLevelMeter, level, experienceIntoLevel, experienceForNextLevel);
+  }
+
+  function setLevelMeterProgress(meterNode, level, experienceIntoLevel, experienceForNextLevel) {
+    if (!meterNode) {
       return;
     }
-    profileLevelMeter.style.setProperty(
+    meterNode.style.setProperty(
       "--level-progress",
       getPlayerLevelProgressPercent(level, experienceIntoLevel, experienceForNextLevel) + "%"
     );
+  }
+
+  function getArenaProfileState(profile, arena) {
+    if (arena === "pokemon") {
+      return profile && profile.arenas && profile.arenas.pokemon
+        ? profile.arenas.pokemon
+        : {};
+    }
+    return profile || {};
+  }
+
+  function populateArenaLadder(arenaProfile, nodes) {
+    var ladder = arenaProfile && arenaProfile.ladder ? arenaProfile.ladder : {};
+    var wins = Number(ladder.wins) || 0;
+    var losses = Number(ladder.losses) || 0;
+    var totalGames = wins + losses;
+    var winPercentage = totalGames > 0 ? ((wins / totalGames) * 100).toFixed(2) : "0.00";
+
+    setText(nodes.level, formatInteger(ladder.level || 1));
+    setLevelMeterProgress(
+      nodes.levelMeter,
+      ladder.level || 1,
+      ladder.experienceIntoLevel,
+      ladder.experienceForNextLevel
+    );
+    setText(nodes.rank, ladder.rank || "Academy Student");
+    setText(nodes.experiencePoints, formatInteger(ladder.experiencePoints || 0) + " xp");
+    setText(nodes.ladderRank, ladder.ladderRank ? "#" + formatInteger(ladder.ladderRank) : "Unranked");
+    setText(nodes.wins, formatInteger(wins));
+    setText(nodes.losses, formatInteger(losses));
+    setText(nodes.winPercentage, winPercentage + " %");
+    setText(nodes.streak, formatSigned(ladder.streak));
+    setText(nodes.highestStreak, formatSigned(ladder.highestStreak));
+    setText(nodes.highestLevel, "Level " + formatInteger(ladder.highestLevel || ladder.level || 1));
+    setText(nodes.famePoints, formatInteger(ladder.famePoints));
   }
 
   function formatSignedListNumber(value) {
@@ -2854,22 +2910,23 @@
     );
   }
 
-  function renderLadderGames(user) {
-    if (!profileLadderGamesList) {
+  function renderArenaLadderGames(user, arena, listNode, emptyText, emptyId) {
+    if (!listNode) {
       return;
     }
 
-    clearChildren(profileLadderGamesList);
-    var games = user && user.profile && Array.isArray(user.profile.recentLadderGames)
-      ? user.profile.recentLadderGames
+    clearChildren(listNode);
+    var arenaProfile = getArenaProfileState(user && user.profile ? user.profile : null, arena);
+    var games = arenaProfile && Array.isArray(arenaProfile.recentLadderGames)
+      ? arenaProfile.recentLadderGames
       : [];
 
     if (!games.length) {
       var empty = document.createElement("div");
       empty.className = "quick-game-empty";
-      empty.id = "profile-ladder-games-empty";
-      empty.textContent = "No ladder games in the last 24 hours.";
-      profileLadderGamesList.appendChild(empty);
+      empty.id = emptyId;
+      empty.textContent = emptyText;
+      listNode.appendChild(empty);
       return;
     }
 
@@ -2910,8 +2967,28 @@
       row.appendChild(time);
       row.appendChild(matchup);
       row.appendChild(result);
-      profileLadderGamesList.appendChild(row);
+      listNode.appendChild(row);
     });
+  }
+
+  function renderLadderGames(user) {
+    renderArenaLadderGames(
+      user,
+      "comic",
+      profileLadderGamesList,
+      "No ladder games in the last 24 hours.",
+      "profile-ladder-games-empty"
+    );
+  }
+
+  function renderPokemonLadderGames(user) {
+    renderArenaLadderGames(
+      user,
+      "pokemon",
+      pokemonProfileLadderGamesList,
+      "No Pokemon-Arena ladder games in the last 24 hours.",
+      "pokemon-profile-ladder-games-empty"
+    );
   }
 
   function setClanProfileStatus(message, state) {
@@ -3242,27 +3319,46 @@
       !sidebarTopClanLevels &&
       !sidebarTopCurrentStreaks &&
       !sidebarTopWins &&
-      !sidebarTopHighestStreaks
+      !sidebarTopHighestStreaks &&
+      !pokemonSidebarTopPlayerLevels &&
+      !pokemonSidebarTopCurrentStreaks &&
+      !pokemonSidebarTopWins &&
+      !pokemonSidebarTopHighestStreaks
     ) {
       return;
     }
 
     try {
-      var response = await fetch("/api/leaderboards/sidebar", {
-        credentials: "same-origin"
-      });
-      if (!response.ok) {
+      var responses = await Promise.all([
+        fetch("/api/leaderboards/sidebar", {
+          credentials: "same-origin"
+        }),
+        fetch("/api/leaderboards/sidebar?arena=pokemon", {
+          credentials: "same-origin"
+        })
+      ]);
+      if (!responses[0].ok) {
         return;
       }
-      var data = await response.json().catch(function () {
+      var data = await responses[0].json().catch(function () {
         return {};
       });
+      var pokemonData = responses[1] && responses[1].ok
+        ? await responses[1].json().catch(function () {
+          return {};
+        })
+        : {};
       var boards = data && data.leaderboards ? data.leaderboards : {};
+      var pokemonBoards = pokemonData && pokemonData.leaderboards ? pokemonData.leaderboards : {};
       renderSidebarBarList(sidebarTopPlayerLevels, boards.topPlayerLevels, "username", 50);
       renderSidebarBarList(sidebarTopClanLevels, boards.topClanLevels, "clanName", 50);
       renderSidebarStatList(sidebarTopCurrentStreaks, boards.topCurrentStreaks, formatSignedListNumber, "streak");
       renderSidebarStatList(sidebarTopWins, boards.topWins, formatListNumber, "wins");
       renderSidebarStatList(sidebarTopHighestStreaks, boards.topHighestStreaks, formatSignedListNumber, "streak");
+      renderSidebarBarList(pokemonSidebarTopPlayerLevels, pokemonBoards.topPlayerLevels, "username", 50);
+      renderSidebarStatList(pokemonSidebarTopCurrentStreaks, pokemonBoards.topCurrentStreaks, formatSignedListNumber, "streak");
+      renderSidebarStatList(pokemonSidebarTopWins, pokemonBoards.topWins, formatListNumber, "wins");
+      renderSidebarStatList(pokemonSidebarTopHighestStreaks, pokemonBoards.topHighestStreaks, formatSignedListNumber, "streak");
     } catch (error) {}
   }
 
@@ -3307,6 +3403,20 @@
       setText(profileHighestStreak, "0");
       setText(profileHighestLevel, "Level 1");
       setText(profileFamePoints, "0");
+      populateArenaLadder({}, {
+        level: pokemonProfileLevel,
+        levelMeter: pokemonProfileLevelMeter,
+        rank: pokemonProfileRank,
+        experiencePoints: pokemonProfileExperiencePoints,
+        ladderRank: pokemonProfileLadderRank,
+        wins: pokemonProfileWins,
+        losses: pokemonProfileLosses,
+        winPercentage: pokemonProfileWinPercentage,
+        streak: pokemonProfileStreak,
+        highestStreak: pokemonProfileHighestStreak,
+        highestLevel: pokemonProfileHighestLevel,
+        famePoints: pokemonProfileFamePoints
+      });
       setText(profileLadderGamesLast24, "0");
       if (profileStatus) {
         profileStatus.textContent = "offline";
@@ -3315,7 +3425,9 @@
       setText(profileCurrentActivity, "Not available");
       setText(profileCurrentPage, "Not available");
       renderLadderGames(null);
+      renderPokemonLadderGames(null);
       renderQuickGames(null);
+      renderPrivateGames(null);
       if (clanPanelAvatar) {
         clanPanelAvatar.src = defaultProfileAvatar;
       }
@@ -3330,6 +3442,7 @@
 
     var profile = user.profile || {};
     var ladder = profile.ladder || {};
+    var pokemonArenaProfile = getArenaProfileState(profile, "pokemon");
     var clan = profile.clan || null;
     var wins = Number(ladder.wins) || 0;
     var losses = Number(ladder.losses) || 0;
@@ -3389,6 +3502,20 @@
     setText(profileHighestStreak, formatSigned(ladder.highestStreak));
     setText(profileHighestLevel, "Level " + formatInteger(ladder.highestLevel || ladder.level || 1));
     setText(profileFamePoints, formatInteger(ladder.famePoints));
+    populateArenaLadder(pokemonArenaProfile, {
+      level: pokemonProfileLevel,
+      levelMeter: pokemonProfileLevelMeter,
+      rank: pokemonProfileRank,
+      experiencePoints: pokemonProfileExperiencePoints,
+      ladderRank: pokemonProfileLadderRank,
+      wins: pokemonProfileWins,
+      losses: pokemonProfileLosses,
+      winPercentage: pokemonProfileWinPercentage,
+      streak: pokemonProfileStreak,
+      highestStreak: pokemonProfileHighestStreak,
+      highestLevel: pokemonProfileHighestLevel,
+      famePoints: pokemonProfileFamePoints
+    });
     setText(
       profileLadderGamesLast24,
       formatInteger(
@@ -3414,6 +3541,7 @@
     );
     setText(profileCurrentPage, getProfileCurrentPageLabel(user));
     renderLadderGames(user);
+    renderPokemonLadderGames(user);
     renderQuickGames(user);
     renderPrivateGames(user);
   }

@@ -3196,6 +3196,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                 'venom-pulling-tendrils',
                 'venom-venom-web-wrap',
                 'negan-the-iron',
+                'bulbasaur-solar-beam',
+                'ivysaur-solar-beam',
+                'pikachu-thunder',
+                'charmander-flamethrower',
+                'charmander-charmeleon-flamethrower',
+                'squirtle-water-gun',
+                'wartortle-hydro-pump',
+                'bulbasaur-leech-seed',
+                'ivysaur-leech-seed',
+                'zubat-supersonic',
+                'golbat-supersonic',
+                'abra-future-sight',
+                'kadabra-future-sight',
+                'scyther-x-cutter',
+                'chansey-pokemon-center-healing',
+                'blissey-pokemon-center-healing',
+                'koffing-smog',
+                'koffing-weezing-smog',
                 'darth-vader-saber-strike-down',
                 'obi-wan-kenobi-soresu-style-cut',
                 'boba-fett-bounty-hunter-blaster',
@@ -3371,6 +3389,208 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             document.body.appendChild(beam);
             scheduleCombatFxRemoval(beam, frost ? 1150 : empowered ? 1050 : 820);
+        };
+
+        const showPokemonTravelBeam = ({
+            sourceCard,
+            targetCard,
+            className = 'pokemon-travel-beam',
+            duration = 1200,
+            xRatio = 0.52,
+            yRatio = 0.44,
+            targetXRatio = 0.5,
+            targetYRatio = 0.48,
+            html = '<span class="beam-core"></span><span class="beam-glow"></span>',
+        }) => {
+            const sourceFace = sourceCard?.querySelector?.('.character-face') || sourceCard;
+            const targetFace = targetCard?.querySelector?.('.character-face') || targetCard;
+            const sourceRect = sourceFace?.getBoundingClientRect?.();
+            const targetRect = targetFace?.getBoundingClientRect?.();
+            if (!sourceRect || !targetRect) return;
+            const sourceX = sourceRect.left + sourceRect.width * xRatio;
+            const sourceY = sourceRect.top + sourceRect.height * yRatio;
+            const targetX = targetRect.left + targetRect.width * targetXRatio;
+            const targetY = targetRect.top + targetRect.height * targetYRatio;
+            const dx = targetX - sourceX;
+            const dy = targetY - sourceY;
+            const length = Math.max(28, Math.sqrt(dx * dx + dy * dy));
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            const beam = document.createElement('div');
+            beam.className = className;
+            beam.style.left = `${sourceX}px`;
+            beam.style.top = `${sourceY}px`;
+            beam.style.width = `${length}px`;
+            beam.style.transform = `rotate(${angle}deg)`;
+            beam.innerHTML = html;
+            document.body.appendChild(beam);
+            scheduleCombatFxRemoval(beam, duration);
+        };
+
+        const showPokemonSolarBeamFx = ({ actorCard, targetCards = [] }) => {
+            if (!actorCard || !targetCards.length) return;
+            showTemporaryCardFx(
+                actorCard,
+                'pokemon-solar-beam-charge-fx',
+                '<span class="solar-charge-core"></span><span class="solar-charge-ring ring-a"></span><span class="solar-charge-ring ring-b"></span><span class="solar-charge-spark spark-a"></span><span class="solar-charge-spark spark-b"></span><span class="solar-charge-spark spark-c"></span>',
+                1700
+            );
+            window.setTimeout(() => {
+                targetCards.forEach((targetCard) => {
+                    showPokemonTravelBeam({
+                        sourceCard: actorCard,
+                        targetCard,
+                        className: 'pokemon-solar-beam-travel',
+                        duration: 1350,
+                        html: '<span class="beam-core"></span><span class="beam-glow"></span><span class="beam-spark"></span>',
+                    });
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-solar-beam-impact-fx',
+                        '<span class="impact-flash"></span><span class="impact-ring ring-a"></span><span class="impact-ring ring-b"></span>',
+                        1600
+                    );
+                });
+                playGeneratedIngameSound('solar-flare');
+            }, 320);
+        };
+
+        const showPokemonThunderFx = (targetCards = []) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-thunder-impact-fx',
+                        '<span class="thunder-column"></span><span class="thunder-bolt bolt-a"></span><span class="thunder-bolt bolt-b"></span><span class="thunder-ring"></span>',
+                        1500
+                    );
+                }, index * 90);
+            });
+            playGeneratedIngameSound('lightning');
+        };
+
+        const showPokemonFlamethrowerFx = ({ actorCard, targetCards = [] }) => {
+            targetCards.forEach((targetCard) => {
+                showPokemonTravelBeam({
+                    sourceCard: actorCard,
+                    targetCard,
+                    className: 'pokemon-flamethrower-stream',
+                    duration: 1200,
+                    yRatio: 0.5,
+                    targetYRatio: 0.5,
+                    html: '<span class="flame-core"></span><span class="flame-plume plume-a"></span><span class="flame-plume plume-b"></span><span class="flame-plume plume-c"></span>',
+                });
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-flamethrower-impact-fx',
+                    '<span class="impact-fire fire-a"></span><span class="impact-fire fire-b"></span><span class="impact-fire fire-c"></span>',
+                    1400
+                );
+            });
+            playGeneratedIngameSound('fire-ignite');
+        };
+
+        const showPokemonWaterGunFx = ({ actorCard, targetCards = [] }) => {
+            targetCards.forEach((targetCard) => {
+                showPokemonTravelBeam({
+                    sourceCard: actorCard,
+                    targetCard,
+                    className: 'pokemon-water-gun-stream',
+                    duration: 1150,
+                    yRatio: 0.52,
+                    targetYRatio: 0.5,
+                    html: '<span class="water-core"></span><span class="water-splash splash-a"></span><span class="water-splash splash-b"></span>',
+                });
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-water-gun-impact-fx',
+                    '<span class="water-impact-ring"></span><span class="water-impact-drop drop-a"></span><span class="water-impact-drop drop-b"></span><span class="water-impact-drop drop-c"></span>',
+                    1300
+                );
+            });
+            playGeneratedIngameSound('tidal-wave');
+        };
+
+        const showPokemonLeechSeedFx = ({ actorCard, targetCards = [] }) => {
+            targetCards.forEach((targetCard) => {
+                showPokemonTravelBeam({
+                    sourceCard: actorCard,
+                    targetCard,
+                    className: 'pokemon-leech-seed-vine',
+                    duration: 1450,
+                    yRatio: 0.58,
+                    targetYRatio: 0.55,
+                    html: '<span class="vine-core"></span><span class="vine-leaf leaf-a"></span><span class="vine-leaf leaf-b"></span><span class="seed-pod"></span>',
+                });
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-leech-seed-impact-fx',
+                    '<span class="seed-bloom"></span><span class="seed-vine vine-a"></span><span class="seed-vine vine-b"></span>',
+                    1800
+                );
+            });
+            playGeneratedIngameSound('status-harmful');
+        };
+
+        const showPokemonSupersonicFx = (targetCards = []) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-supersonic-fx',
+                    '<span class="sound-ring ring-a"></span><span class="sound-ring ring-b"></span><span class="sound-ring ring-c"></span>',
+                    1500
+                );
+            });
+            playGeneratedIngameSound('wind');
+        };
+
+        const showPokemonFutureSightFx = (targetCards = []) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-future-sight-fx',
+                    '<span class="future-reticle"></span><span class="future-eye"></span><span class="future-rune rune-a"></span><span class="future-rune rune-b"></span>',
+                    1700
+                );
+            });
+            playGeneratedIngameSound('status-harmful');
+        };
+
+        const showPokemonXCutterFx = (targetCards = []) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-x-cutter-fx',
+                    '<span class="x-slash slash-a"></span><span class="x-slash slash-b"></span><span class="x-spark spark-a"></span><span class="x-spark spark-b"></span>',
+                    1400
+                );
+            });
+            playGeneratedIngameSound('slash');
+        };
+
+        const showPokemonCenterHealingFx = (targetCards = []) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-center-healing-fx',
+                        '<span class="heal-wave wave-a"></span><span class="heal-wave wave-b"></span><span class="heal-plus plus-a">+</span><span class="heal-plus plus-b">+</span><span class="heal-heart"></span>',
+                        1600
+                    );
+                }, index * 70);
+            });
+            playGeneratedIngameSound('status-helpful');
+        };
+
+        const showPokemonSmogFx = (targetCards = []) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-smog-fx',
+                    '<span class="smog-cloud cloud-a"></span><span class="smog-cloud cloud-b"></span><span class="smog-cloud cloud-c"></span><span class="smog-cloud cloud-d"></span>',
+                    1700
+                );
+            });
+            playGeneratedIngameSound('status-harmful');
         };
 
         const getTargetCardsFromSelection = (selection) =>
@@ -4006,6 +4226,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isGhostRiderPenanceStare = skillId === 'ghost-rider-penance-stare';
             const isGhostRiderSoulConsumption = skillId === 'ghost-rider-soul-consumption';
             const isGhostRiderInfernalRide = skillId === 'ghost-rider-infernal-ride';
+            const isPokemonSolarBeam = ['bulbasaur-solar-beam', 'ivysaur-solar-beam'].includes(skillId);
+            const isPokemonThunder = skillId === 'pikachu-thunder';
+            const isPokemonFlamethrower = ['charmander-flamethrower', 'charmander-charmeleon-flamethrower'].includes(skillId);
+            const isPokemonWaterGun = ['squirtle-water-gun', 'wartortle-hydro-pump'].includes(skillId);
+            const isPokemonLeechSeed = ['bulbasaur-leech-seed', 'ivysaur-leech-seed'].includes(skillId);
+            const isPokemonSupersonic = ['zubat-supersonic', 'golbat-supersonic'].includes(skillId);
+            const isPokemonFutureSight = ['abra-future-sight', 'kadabra-future-sight'].includes(skillId);
+            const isPokemonXCutter = skillId === 'scyther-x-cutter';
+            const isPokemonCenterHealing = ['chansey-pokemon-center-healing', 'blissey-pokemon-center-healing'].includes(skillId);
+            const isPokemonSmog = ['koffing-smog', 'koffing-weezing-smog'].includes(skillId);
             const isVaderSaberStrikeDown = skillId === 'darth-vader-saber-strike-down';
             const isObiWanSoresuStyleCut = skillId === 'obi-wan-kenobi-soresu-style-cut';
             const isSidiousForceLightning = skillId === 'darth-sidious-force-lightning';
@@ -4059,6 +4289,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 !isGhostRiderPenanceStare &&
                 !isGhostRiderSoulConsumption &&
                 !isGhostRiderInfernalRide &&
+                !isPokemonSolarBeam &&
+                !isPokemonThunder &&
+                !isPokemonFlamethrower &&
+                !isPokemonWaterGun &&
+                !isPokemonLeechSeed &&
+                !isPokemonSupersonic &&
+                !isPokemonFutureSight &&
+                !isPokemonXCutter &&
+                !isPokemonCenterHealing &&
+                !isPokemonSmog &&
                 !isVaderSaberStrikeDown &&
                 !isObiWanSoresuStyleCut &&
                 !isSidiousForceLightning &&
@@ -4109,6 +4349,46 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (isGhostRiderInfernalRide) {
                 showGhostRiderInfernalRideFx({ actorCard, selection });
+                return;
+            }
+            if (isPokemonSolarBeam) {
+                showPokemonSolarBeamFx({ actorCard, targetCards });
+                return;
+            }
+            if (isPokemonThunder) {
+                showPokemonThunderFx(targetCards);
+                return;
+            }
+            if (isPokemonFlamethrower) {
+                showPokemonFlamethrowerFx({ actorCard, targetCards });
+                return;
+            }
+            if (isPokemonWaterGun) {
+                showPokemonWaterGunFx({ actorCard, targetCards });
+                return;
+            }
+            if (isPokemonLeechSeed) {
+                showPokemonLeechSeedFx({ actorCard, targetCards });
+                return;
+            }
+            if (isPokemonSupersonic) {
+                showPokemonSupersonicFx(targetCards);
+                return;
+            }
+            if (isPokemonFutureSight) {
+                showPokemonFutureSightFx(targetCards);
+                return;
+            }
+            if (isPokemonXCutter) {
+                showPokemonXCutterFx(targetCards);
+                return;
+            }
+            if (isPokemonCenterHealing) {
+                showPokemonCenterHealingFx(targetCards);
+                return;
+            }
+            if (isPokemonSmog) {
+                showPokemonSmogFx(targetCards);
                 return;
             }
             if (isJokerExplosion || isGoblinExplosion || isRexExplosion) {
@@ -5618,9 +5898,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 (Number.isFinite(hpForFx) && hpForFx <= 0 && !isBanishedForFx);
             if (isDeadForFx) {
                 fxClasses.forEach((className) => card.classList.remove(className));
-                ['joker-detonator-light', 'space-marine-channel-bar', 'rex-charge-counter', 'aquaman-sea-shark-ring', 'predator-bleeder-spears', 'xenomorph-facehugger-overlay', 'venom-ally-symbiosis-marker', 'negan-iron-overlay', 'negan-iron-scar-overlay', 'parasite-host-mutation-marker', 'parasite-overload-marker', 'parasite-absorption-marker', 'seraphina-med-plus-overlay', 'seraphina-buckshot-pattern', 'seraphina-road-flare', 'taunt-callout', 'flash-phase-speed-lines', 'scorpion-venom-drop', 'scorpion-poison-drops'].forEach((className) =>
+                ['joker-detonator-light', 'space-marine-channel-bar', 'rex-charge-counter', 'aquaman-sea-shark-ring', 'predator-bleeder-spears', 'xenomorph-facehugger-overlay', 'venom-ally-symbiosis-marker', 'negan-iron-overlay', 'negan-iron-scar-overlay', 'parasite-host-mutation-marker', 'parasite-overload-marker', 'parasite-absorption-marker', 'seraphina-med-plus-overlay', 'seraphina-buckshot-pattern', 'seraphina-road-flare', 'taunt-callout', 'flash-phase-speed-lines', 'scorpion-venom-drop', 'scorpion-poison-drops', 'pokemon-evolution-aura'].forEach((className) =>
                     removeCharacterFxElement(card, className)
                 );
+                card.classList.remove('has-pokemon-evolution-aura');
                 return;
             }
             const character = Number.isInteger(unit?.rosterIndex) ? rosterData?.[unit.rosterIndex] : null;
@@ -5637,6 +5918,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             } else {
                 removeCharacterFxElement(card, 'taunt-callout');
             }
+            syncPokemonEvolutionAura(card, statuses);
 
             const isBatmanSmoke = hasStatus((status) => status?.id === 'batman_smoke_bomb_blind');
             const isBatmanEmp = hasStatus((status) => typeof status?.id === 'string' && status.id.startsWith('batman_pocket_emp'));
@@ -6453,6 +6735,98 @@ document.addEventListener('DOMContentLoaded', async () => {
                 scheduleCombatFxRemoval(lob, 900);
                 window.setTimeout(() => marker.classList.remove('fresh'), 780);
             }
+        };
+
+        const POKEMON_EVOLUTION_AURA_CONFIGS = [
+            {
+                statusId: 'abra_kadabra_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-kadabra',
+                html:
+                    '<span class="psychic-ring ring-a"></span>' +
+                    '<span class="psychic-ring ring-b"></span>' +
+                    '<span class="psychic-orb orb-a"></span>' +
+                    '<span class="psychic-orb orb-b"></span>' +
+                    '<span class="psychic-orb orb-c"></span>',
+            },
+            {
+                statusId: 'bulbasaur_ivysaur_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-ivysaur',
+                html:
+                    '<span class="leaf leaf-a"></span><span class="leaf leaf-b"></span><span class="leaf leaf-c"></span>' +
+                    '<span class="leaf leaf-d"></span><span class="leaf leaf-e"></span><span class="leaf leaf-f"></span>',
+            },
+            {
+                statusId: 'chansey_blissey_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-blissey',
+                html:
+                    '<span class="heal-plus plus-a">+</span><span class="heal-plus plus-b">+</span><span class="heal-plus plus-c">+</span>' +
+                    '<span class="heal-plus plus-d">+</span><span class="heal-plus plus-e">+</span>' +
+                    '<span class="heal-bloom bloom-a"></span><span class="heal-bloom bloom-b"></span><span class="heal-bloom bloom-c"></span>',
+            },
+            {
+                statusId: 'charmander_charmeleon_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-charmeleon',
+                html:
+                    '<span class="flame flame-a"></span><span class="flame flame-b"></span><span class="flame flame-c"></span>' +
+                    '<span class="ember ember-a"></span><span class="ember ember-b"></span><span class="ember ember-c"></span>',
+            },
+            {
+                statusId: 'gastly_haunter_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-haunter',
+                html:
+                    '<span class="ghost ghost-a"></span><span class="ghost ghost-b"></span><span class="ghost ghost-c"></span>' +
+                    '<span class="ghost ghost-d"></span>',
+            },
+            {
+                statusId: 'koffing_weezing_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-weezing',
+                html:
+                    '<span class="gas gas-a"></span><span class="gas gas-b"></span><span class="gas gas-c"></span>' +
+                    '<span class="gas gas-d"></span><span class="gas gas-e"></span>',
+            },
+            {
+                statusId: 'pidgey_pidgeotto_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-pidgeotto',
+                html:
+                    '<span class="tornado tornado-tl"></span><span class="tornado tornado-tr"></span>' +
+                    '<span class="tornado tornado-bl"></span><span class="tornado tornado-br"></span>',
+            },
+            {
+                statusId: 'squirtle_wartortle_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-wartortle',
+                html:
+                    '<span class="bubble bubble-a"></span><span class="bubble bubble-b"></span><span class="bubble bubble-c"></span>' +
+                    '<span class="bubble bubble-d"></span><span class="bubble bubble-e"></span><span class="bubble bubble-f"></span>',
+            },
+            {
+                statusId: 'zubat_golbat_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-golbat',
+                html:
+                    '<span class="bat bat-a"></span><span class="bat bat-b"></span><span class="bat bat-c"></span>' +
+                    '<span class="bat bat-d"></span>',
+            },
+        ];
+
+        const syncPokemonEvolutionAura = (card, statuses = []) => {
+            if (!card) return;
+            let hasAura = false;
+            POKEMON_EVOLUTION_AURA_CONFIGS.forEach((config) => {
+                const selector = `.${config.className.split(' ').join('.')}`;
+                const aura = card.querySelector(selector);
+                const isActive = Array.isArray(statuses) && statuses.some((status) => status?.id === config.statusId);
+                if (isActive) {
+                    hasAura = true;
+                    if (!aura) {
+                        const auraEl = document.createElement('div');
+                        auraEl.className = config.className;
+                        auraEl.innerHTML = config.html;
+                        card.appendChild(auraEl);
+                    }
+                } else if (aura) {
+                    aura.remove();
+                }
+            });
+            card.classList.toggle('has-pokemon-evolution-aura', hasAura);
         };
 
         const showStatusApplyBurst = (card, group, statusSkill) => {

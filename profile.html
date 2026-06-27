@@ -1351,6 +1351,61 @@
           <div class="profile-block">
             <div class="profile-block-head">
               <span class="profile-star">✦</span>
+              <span>Pokemon-Arena Ladder</span>
+            </div>
+            <div class="info-table">
+              <div class="info-row">
+                <div class="info-label">Level:</div>
+                <div class="info-value"><div class="level-meter" id="pokemon-profile-level-meter"><span id="pokemon-profile-level">1</span></div></div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Rank:</div>
+                <div class="info-value" id="pokemon-profile-rank">Sparkstrike</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Experience Points:</div>
+                <div class="info-value" id="pokemon-profile-experience-points">0 xp</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Ladder Rank:</div>
+                <div class="info-value" id="pokemon-profile-ladder-rank">Unranked</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Wins:</div>
+                <div class="info-value" id="pokemon-profile-wins">0</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Losses:</div>
+                <div class="info-value" id="pokemon-profile-losses">0</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Win percentage:</div>
+                <div class="info-value" id="pokemon-profile-win-percentage">0.00 %</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Streak:</div>
+                <div class="info-value" id="pokemon-profile-streak">0</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Highest Streak:</div>
+                <div class="info-value" id="pokemon-profile-highest-streak">0</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Highest Level:</div>
+                <div class="info-value" id="pokemon-profile-highest-level">Level 1</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Fame Points:</div>
+                <div class="info-value" id="pokemon-profile-fame-points">0</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="profile-section">
+          <div class="profile-block">
+            <div class="profile-block-head">
+              <span class="profile-star">✦</span>
               <span>Site activity</span>
             </div>
             <div class="info-table">
@@ -1378,6 +1433,18 @@
             </div>
             <div class="quick-games-list" id="profile-ladder-games-list">
               <div class="quick-game-empty" id="profile-ladder-games-empty">No ladder games in the last 24 hours.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="profile-section">
+          <div class="profile-block">
+            <div class="profile-block-head">
+              <span class="profile-star">✦</span>
+              <span>Pokemon-Arena ladder games (in the last 24 hours)</span>
+            </div>
+            <div class="quick-games-list" id="pokemon-profile-ladder-games-list">
+              <div class="quick-game-empty" id="pokemon-profile-ladder-games-empty">No Pokemon-Arena ladder games in the last 24 hours.</div>
             </div>
           </div>
         </section>
@@ -1624,6 +1691,22 @@
             <li>Douglasschanu +57 streak</li>
           </ol>
         </div>
+        <div class="stats-group">
+          <h3 class="stats-title">Pokemon Top 10 Levels</h3>
+          <div class="ladder-list" id="pokemon-sidebar-top-player-levels"></div>
+        </div>
+        <div class="stats-group">
+          <h3 class="stats-title">Pokemon Top 10 Winstreak</h3>
+          <ol class="stats-list" id="pokemon-sidebar-top-current-streaks"></ol>
+        </div>
+        <div class="stats-group">
+          <h3 class="stats-title">Pokemon Top 10 Wins</h3>
+          <ol class="stats-list" id="pokemon-sidebar-top-wins"></ol>
+        </div>
+        <div class="stats-group">
+          <h3 class="stats-title">Pokemon Top 20 Highest Win Streak</h3>
+          <ol class="stats-list" id="pokemon-sidebar-top-highest-streaks"></ol>
+        </div>
       </section>
     </aside>
   </div>
@@ -1678,5 +1761,4 @@
   </script>
 </body>
 </html>
-
 
