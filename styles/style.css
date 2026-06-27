@@ -791,6 +791,12 @@ body.skill-effects-muted .storm-hail-weather::before {
     cursor: default;
 }
 
+.selection-mission-eevee-choices {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
 .selection-missions-status {
     min-height: 14px;
     margin: 6px 0 0;
@@ -1850,7 +1856,7 @@ body.arena-mode-pokemon .energy-pip.filled.energy-ninjutsu {
 }
 
 body.arena-mode-pokemon .energy-pip.filled.energy-bloodline {
-    background-color: #ff9f1c;
+    background-color: #d85f18;
 }
 
 .energy-pip.filled.energy-random {
@@ -1862,7 +1868,7 @@ body.arena-mode-pokemon .energy-pip.filled.energy-bloodline {
 }
 
 body.arena-mode-pokemon .energy-pip.filled.energy-genjutsu {
-    background-color: #ffd83d;
+    background-color: #c99518;
 }
 
 .energy-pip.filled.energy-taijutsu {
@@ -1870,7 +1876,7 @@ body.arena-mode-pokemon .energy-pip.filled.energy-genjutsu {
 }
 
 body.arena-mode-pokemon .energy-pip.filled.energy-taijutsu {
-    background-color: #33d9a3;
+    background-color: #42d8c7;
 }
 
 .skill-description {
@@ -2466,7 +2472,7 @@ body.arena-mode-pokemon .energy-pip.filled.energy-taijutsu {
 }
 
 body.arena-mode-pokemon .chakra-box.red {
-    background-color: #ff9f1c;
+    background-color: #d85f18;
 }
 
 .chakra-box.blue {
@@ -2482,7 +2488,7 @@ body.arena-mode-pokemon .chakra-box.blue {
 }
 
 body.arena-mode-pokemon .chakra-box.green {
-    background-color: #33d9a3;
+    background-color: #42d8c7;
 }
 
 .chakra-box.white {
@@ -2490,7 +2496,7 @@ body.arena-mode-pokemon .chakra-box.green {
 }
 
 body.arena-mode-pokemon .chakra-box.white {
-    background-color: #ffd83d;
+    background-color: #c99518;
 }
 .chakra-box.black {
     background-color: #000;
@@ -4726,7 +4732,7 @@ body.arena-mode-pokemon .ingamescrollbehind {
 }
 
 body.arena-mode-pokemon .chakra-box.red {
-    background-color: #ff9f1c;
+    background-color: #d85f18;
 }
 
 .chakra-box.blue {
@@ -4742,7 +4748,7 @@ body.arena-mode-pokemon .chakra-box.blue {
 }
 
 body.arena-mode-pokemon .chakra-box.green {
-    background-color: #33d9a3;
+    background-color: #42d8c7;
 }
 
 .chakra-box.white {
@@ -4750,7 +4756,7 @@ body.arena-mode-pokemon .chakra-box.green {
 }
 
 body.arena-mode-pokemon .chakra-box.white {
-    background-color: #ffd83d;
+    background-color: #c99518;
 }
 .chakra-box.black {
     background-color: #000;
@@ -4884,9 +4890,22 @@ body.arena-mode-pokemon .chakra-box.white {
     margin: 0;
 }
 
+.exchange_chakra_status {
+    position: absolute;
+    top: 104px;
+    left: 0;
+    width: 440px;
+    min-height: 14px;
+    margin: 0;
+    color: #9b1212;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+}
+
 .exchange_chakra_container {
     position: absolute;
-    top: 110px;
+    top: 122px;
     left: 74px;
     display: flex;
     gap: 28px;

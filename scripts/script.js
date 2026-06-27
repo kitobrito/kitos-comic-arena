@@ -1026,6 +1026,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         return unlockedIds;
     };
 
+    const getSelectedEeveeEvolutionId = () => {
+        const cachedArenaMissions =
+            activeArenaMode === 'pokemon'
+                ? profileCache?.profile?.arenas?.pokemon?.missions
+                : profileCache?.profile?.missions;
+        const cachedMissions = cachedArenaMissions || profileCache?.profile?.missions || {};
+        const cachedStorageUser = readCachedUser();
+        const cachedStorageArenaMissions =
+            activeArenaMode === 'pokemon'
+                ? cachedStorageUser?.profile?.arenas?.pokemon?.missions || cachedStorageUser?.arenas?.pokemon?.missions
+                : cachedStorageUser?.missions;
+        const value =
+            cachedMissions.eeveeEvolutionCharacterId ||
+            cachedMissions.eevee_evolution_character_id ||
+            cachedStorageArenaMissions?.eeveeEvolutionCharacterId ||
+            '';
+        return typeof value === 'string' ? value.trim().toLowerCase() : '';
+    };
+
     const loadMissionLockedCharacterIds = async () => {
         try {
             const response = await fetch(`${API_BASE_URL}/api/missions?arena=${encodeURIComponent(activeArenaMode)}`, {
@@ -1044,6 +1063,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (rewardCharacterId) {
                     lockedIds.add(rewardCharacterId);
                 }
+                (Array.isArray(mission?.reward_character_ids) ? mission.reward_character_ids : [])
+                    .map((entry) => (typeof entry === 'string' ? entry.trim().toLowerCase() : ''))
+                    .filter(Boolean)
+                    .forEach((entry) => lockedIds.add(entry));
             });
             missionLockedCharacterIds = lockedIds;
         } catch (error) {
@@ -1087,6 +1110,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             : '';
         if (!characterId) {
             return false;
+        }
+        if (
+            activeArenaMode === 'pokemon' &&
+            characterId === 'eevee' &&
+            getSelectedEeveeEvolutionId()
+        ) {
+            return true;
         }
         if (!missionLockedCharacterIds.has(characterId)) {
             return false;
@@ -1402,6 +1432,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const exchangeOkButton = exchangeModalEl?.querySelector('.ok-buttonexchange');
         const exchangeCancelButton = exchangeModalEl?.querySelector('.cancel-buttonexchange');
         const exchangeChooseCountEl = exchangeModalEl?.querySelector('.chakrachoosered');
+        const exchangeStatusEl = exchangeModalEl?.querySelector('.exchange_chakra_status');
         const readyTextEl = document.querySelector('.ready-text');
         const readySectionEl = document.querySelector('.ready-section');
         const battleIntroOverlayEl = document.querySelector('.battle-intro-overlay');
@@ -1440,7 +1471,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const timerCountdown = document.querySelector('.timer-countdown');
         const TURN_DURATION_MS = 60_000;
         const TIMER_MAX_WIDTH = 191;
-        const EXCHANGE_CHAKRA_COST = 4;
+        const EXCHANGE_CHAKRA_COST = 5;
         const READY_TEXT_PLAYER = 'PRESS WHEN READY';
         const READY_TEXT_OPPONENT = "OPPONENT'S TURN...";
         let lastTurnOwner = null;
@@ -4573,6 +4604,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 0
             );
 
+        const setExchangeStatus = (message = '') => {
+            if (!exchangeStatusEl) return;
+            exchangeStatusEl.textContent = message;
+        };
+
         const adjustExchangeSpend = (chakraType, delta) => {
             if (!chakraTypes.includes(chakraType)) return;
             const current = Math.max(0, Number(exchangeSpendAssignments[chakraType]) || 0);
@@ -4626,6 +4662,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!usernamesMatch(currentPlayerUsername, currentTurnUsername)) return;
             closeEndTurnModal();
             exchangeSpendAssignments = emptyPool();
+            setExchangeStatus('');
             renderExchangeModal(playerPoolState);
             exchangeModalEl.style.visibility = 'visible';
         };
@@ -4633,6 +4670,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const closeExchangeModal = () => {
             if (!exchangeModalEl) return;
             exchangeSpendAssignments = emptyPool();
+            setExchangeStatus('');
             renderExchangeModal(playerPoolState);
             exchangeModalEl.style.visibility = 'hidden';
         };
@@ -9303,6 +9341,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         const handleExchangeConfirm = async () => {
             if (!matchIdFromUrl || battleEndShown) return;
             if (!currentPlayerUsername || !usernamesMatch(currentPlayerUsername, currentTurnUsername)) return;
+            if (getExchangeAssignedTotal() !== EXCHANGE_CHAKRA_COST) {
+                setExchangeStatus(`Choose exactly ${EXCHANGE_CHAKRA_COST} energy.`);
+                return;
+            }
+            if (exchangeOkButton) {
+                exchangeOkButton.disabled = true;
+                exchangeOkButton.style.opacity = '0.45';
+            }
+            setExchangeStatus('Exchanging energy...');
             try {
                 const response = await fetch(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/chakra/exchange`,
@@ -9328,6 +9375,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 closeExchangeModal();
             } catch (error) {
                 console.warn('Failed to exchange chakra.', error);
+                setExchangeStatus(error.message || 'Unable to exchange energy.');
+                renderExchangeModal(playerPoolState);
             }
         };
 
@@ -9655,6 +9704,100 @@ document.addEventListener('DOMContentLoaded', async () => {
         return 'No tracked progress yet.';
     };
 
+    const getEeveeEvolutionOptions = () => [
+        { id: 'jolteon', name: 'Jolteon' },
+        { id: 'flareon', name: 'Flareon' },
+        { id: 'vaporeon', name: 'Vaporeon' },
+    ];
+
+    const chooseEeveeEvolution = async (evolutionCharacterId, button = null) => {
+        if (!evolutionCharacterId) return;
+        if (button) button.disabled = true;
+        setSelectionMissionsStatus('Saving Eevee evolution...');
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/profile/pokemon/eevee-evolution`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    evolutionCharacterId,
+                    confirmed: true,
+                }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || 'Unable to save Eevee evolution.');
+            }
+            if (payload.user?.username) {
+                profileCache = payload.user;
+                writeCachedUser(payload.user);
+            } else {
+                await fetchProfile();
+            }
+            await loadMissionLockedCharacterIds();
+            rebuildRosterDisplayIndices();
+            renderRosterPage();
+            loadSelectedTeam();
+            updateGameButtons();
+            await loadSelectionMissions();
+            const chosenName =
+                getEeveeEvolutionOptions().find((option) => option.id === evolutionCharacterId)?.name ||
+                evolutionCharacterId;
+            setSelectionMissionsStatus(`${chosenName} unlocked. Eevee has been permanently removed.`);
+        } catch (error) {
+            if (button) button.disabled = false;
+            setSelectionMissionsStatus(error.message || 'Unable to save Eevee evolution.');
+        }
+    };
+
+    const renderEeveeEvolutionChoice = (card) => {
+        const selectedEvolutionId = getSelectedEeveeEvolutionId();
+        if (selectedEvolutionId) {
+            const selected = getEeveeEvolutionOptions().find((option) => option.id === selectedEvolutionId);
+            const note = document.createElement('p');
+            note.className = 'selection-mission-progress';
+            note.textContent = `${selected?.name || 'Evolution'} chosen. Eevee is permanently removed.`;
+            card.appendChild(note);
+            return;
+        }
+
+        const choices = document.createElement('div');
+        choices.className = 'selection-mission-eevee-choices';
+        getEeveeEvolutionOptions().forEach((option) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'selection-mission-action';
+            button.textContent = option.name;
+            button.addEventListener('click', () => {
+                choices.innerHTML = '';
+                const warning = document.createElement('p');
+                warning.className = 'selection-mission-progress';
+                warning.textContent =
+                    'Are you sure? This decision is permanent and cannot be reversed and Eevee is permanently removed';
+                const yesButton = document.createElement('button');
+                yesButton.type = 'button';
+                yesButton.className = 'selection-mission-action';
+                yesButton.textContent = 'Yes ';
+                yesButton.addEventListener('click', () => {
+                    chooseEeveeEvolution(option.id, yesButton);
+                });
+                const noButton = document.createElement('button');
+                noButton.type = 'button';
+                noButton.className = 'selection-mission-action';
+                noButton.textContent = 'no';
+                noButton.addEventListener('click', () => {
+                    choices.remove();
+                    renderEeveeEvolutionChoice(card);
+                });
+                choices.appendChild(warning);
+                choices.appendChild(yesButton);
+                choices.appendChild(noButton);
+            });
+            choices.appendChild(button);
+        });
+        card.appendChild(choices);
+    };
+
     const startSelectionMissionPveFight = async (missionId, button = null) => {
         if (!missionId) return;
         const team = getTeamIndices();
@@ -9758,6 +9901,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     startSelectionMissionPveFight(mission.missionId, button);
                 });
                 card.appendChild(button);
+            }
+            if (
+                mission.missionId === 'eevee-evolution-path' &&
+                progress?.completedAt &&
+                activeArenaMode === 'pokemon'
+            ) {
+                renderEeveeEvolutionChoice(card);
             }
             selectionMissionsListEl.appendChild(card);
         });

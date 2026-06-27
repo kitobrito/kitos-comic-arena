@@ -22660,6 +22660,836 @@ const characters = [
         "roleCategory": "damage",
         "description": "A fast mantis Pokemon that stacks pressure through repeated slashes, evasion, and heavy burst windows after Swords Dance.",
         "descriptionHtml": "A fast mantis Pokemon that stacks pressure through repeated slashes, evasion, and heavy burst windows after Swords Dance."
+    },
+    {
+        "id": "eevee",
+        "characterId": "eevee",
+        "name": "Eevee",
+        "facePicture": "assets/images/PokemonArena/eevee/eevee/eeveefp.png",
+        "startStatuses": [
+            {
+                "statusId": "eevee_adaptability_passive",
+                "duration": 999,
+                "sourceSkillId": "eevee-hidden-power",
+                "metadata": {
+                    "infiniteDuration": true,
+                    "hidden": true,
+                    "onEnemySkillTargetedHarmfulOnly": true,
+                    "onEnemySkillTargetedApplyStatusToOwner": {
+                        "statusId": "eevee_hidden_power_targeted_stacks",
+                        "duration": 2,
+                        "metadata": {
+                            "hidden": true,
+                            "eeveeHiddenPowerStacks": 0,
+                            "stackMetadataKey": "eeveeHiddenPowerStacks",
+                            "stackDelta": 1,
+                            "stackMax": 99,
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/eevee/hiddenpower.png",
+                            "tooltipTextTemplate": "Hidden Power has {eeveeHiddenPowerStacks} bonus stack(s)."
+                        }
+                    },
+                    "tooltipText": "Hidden Power gains bonus damage from enemy skills used on Eevee."
+                }
+            }
+        ],
+        "characterdeescription": "A flexible Normal-type Pokemon that protects allies, disrupts enemies, and builds toward a permanent evolution choice through the Eevee Evolution Path mission.",
+        "skills": [
+            {
+                "id": "eevee-dig",
+                "name": "Dig",
+                "skillimage": "assets/images/PokemonArena/eevee/eevee/dig.png",
+                "skilldescription": "Eevee becomes invulnerable to enemy non-strategic skills for 1 turn and deals 30 damage to one enemy.",
+                "energy": [
+                    "Bloodline",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "eevee_dig_invulnerable",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/eevee/dig.png",
+                            "tooltipText": "Eevee is invulnerable."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "eevee_dig_followup",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/eevee/dig.png",
+                            "tooltipText": "Swift will deal 10 additional damage to this character."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "eevee-swift",
+                "name": "Swift",
+                "skillimage": "assets/images/PokemonArena/eevee/eevee/swift.png",
+                "skilldescription": "Guard Breaks one enemy for 1 turn. If Dig was used on this enemy this turn, the effect is prolonged for 1 additional turn and they take 10 more damage.",
+                "energy": [],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "eevee_swift_guard_break",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "nonAfflictionDamageTakenBonusFlat": 10,
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/eevee/swift.png",
+                            "tooltipText": "This character takes 10 additional non-affliction damage."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "eevee_swift_guard_break",
+                        "duration": 2,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "eevee_dig_followup"
+                        },
+                        "metadata": {
+                            "nonAfflictionDamageTakenBonusFlat": 10,
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/eevee/swift.png",
+                            "tooltipText": "This character takes 10 additional non-affliction damage."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "eevee_dig_followup"
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "eevee-hidden-power",
+                "name": "Hidden Power",
+                "skillimage": "assets/images/PokemonArena/eevee/eevee/hiddenpower.png",
+                "skilldescription": "Eevee gains 1 random energy this turn then deals 10 affliction damage to one enemy team plus 5 damage for every new enemy skill used on Eevee last turn. Next turn, Swift targets all enemies.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Affliction",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "gain_chakra",
+                        "amount": 1,
+                        "chakraType": "random",
+                        "scope": "self"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "damageType": "affliction",
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                            "bonusPerStatusMetadata": {
+                                "scope": "self",
+                                "statusId": "eevee_hidden_power_targeted_stacks",
+                                "metadataKey": "eeveeHiddenPowerStacks",
+                                "multiplier": 5,
+                                "consumeStatus": true
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "eevee_hidden_power_swift_spread",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "skillReplacements": {
+                                "eevee-swift": "eevee-swift-all-enemies"
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/eevee/hiddenpower.png",
+                            "tooltipText": "Next turn, Swift targets all enemies."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "eevee-protect",
+                "name": "Protect",
+                "skillimage": "assets/images/PokemonArena/eevee/eevee/protect.png",
+                "skilldescription": "This skill makes Eevee or one ally invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Energy",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "eevee_protect_invulnerable",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "invulnerable": true,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/eevee/protect.png",
+                            "tooltipText": "This character is invulnerable."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "eevee-swift-all-enemies",
+                "name": "Swift",
+                "skillimage": "assets/images/PokemonArena/eevee/eevee/swift.png",
+                "skilldescription": "Guard Breaks all enemies for 1 turn.",
+                "energy": [],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "hiddenFromSelectionViewer": true,
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "eevee_swift_guard_break",
+                        "duration": 1,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "nonAfflictionDamageTakenBonusFlat": 10,
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/eevee/swift.png",
+                            "tooltipText": "This character takes 10 additional non-affliction damage."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Hybrid",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "hybrid",
+        "description": "A flexible Normal-type Pokemon that protects allies, disrupts enemies, and builds toward a permanent evolution choice through the Eevee Evolution Path mission.",
+        "descriptionHtml": "A flexible Normal-type Pokemon that protects allies, disrupts enemies, and builds toward a permanent evolution choice through the Eevee Evolution Path mission."
+    },
+    {
+        "id": "jolteon",
+        "characterId": "jolteon",
+        "name": "Jolteon",
+        "facePicture": "assets/images/PokemonArena/eevee/jolteon/jolteonfp.png",
+        "characterdeescription": "A fast Electric-type Pokemon that uses piercing attacks, cooldown paralysis, and Charge to punish enemies who keep acting into its lightning.",
+        "skills": [
+            {
+                "id": "jolteon-pin-missile",
+                "name": "Pin Missile",
+                "skillimage": "assets/images/PokemonArena/eevee/jolteon/pinmissile.png",
+                "skilldescription": "Jolteon deals 15 piercing damage to one enemy team. For 1 turn, any enemy that uses a new skill on Jolteon takes 10 piercing damage.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "jolteon_pin_missile_static",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "onEnemySkillTargetedDamageToSourceAmount": 10,
+                            "onEnemySkillTargetedDamageToSourceIgnoreDamageReduction": true,
+                            "onEnemySkillTargetedDamageToSourceIgnoreDestructibleDefense": true,
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/jolteon/pinmissile.png",
+                            "tooltipText": "Enemies who use new skills on Jolteon take 10 piercing damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "jolteon-thunderbolt",
+                "name": "Thunderbolt",
+                "skillimage": "assets/images/PokemonArena/eevee/jolteon/thunderbolt.png",
+                "skilldescription": "Deals 25 piercing damage to one enemy. For 1 turn, any enemy to use a new skill on Jolteon has their cooldowns paralyzed for 2 turns.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "jolteon_thunderbolt_paralyze_trap",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "triggerOnEnemyHarmfulSkill": true,
+                            "counterStatusId": "jolteon_thunderbolt_cooldown_paralysis",
+                            "counterStatusDuration": 2,
+                            "counterStatusMetadata": {
+                                "paralyzeCooldowns": true,
+                                "statusIconUrl": "assets/images/PokemonArena/eevee/jolteon/thunderbolt.png",
+                                "tooltipText": "This character's cooldowns are paralyzed."
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/jolteon/thunderbolt.png",
+                            "tooltipText": "The next enemy to use a new harmful skill on Jolteon has their cooldowns paralyzed."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "jolteon-thunder-fang",
+                "name": "Thunder Fang",
+                "skillimage": "assets/images/PokemonArena/eevee/jolteon/thunderfang.png",
+                "skilldescription": "Deals 35 piercing damage to one enemy and stuns their skills for 1 turn. For the rest of the game, the target's cooldowns are increased by +1.",
+                "energy": [
+                    "Taijutsu",
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "jolteon_thunder_fang_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "cannotUseSkills": true,
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/jolteon/thunderfang.png",
+                            "tooltipText": "This character's skills are stunned."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "jolteon_thunder_fang_cooldown_increase",
+                        "duration": 999,
+                        "scope": "target",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "ownerTurnEndExtraCooldownTicksAllSkills": 1,
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/jolteon/thunderfang.png",
+                            "tooltipText": "This character's cooldowns are increased by 1."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "jolteon-charge",
+                "name": "Charge",
+                "skillimage": "assets/images/PokemonArena/eevee/jolteon/charge.png",
+                "skilldescription": "Jolteon gains 50% unpierceable damage reduction for 2 turns. During this time, his skills cost 1 less yellow energy and deal 5 more damage.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Strategic",
+                    "Channeled"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "jolteon_charge_active",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "unpierceableDamageReductionPercent": 50,
+                            "damageBonusFlat": 5,
+                            "skillCostOverridesBySkillId": {
+                                "jolteon-thunderbolt": {
+                                    "energy": []
+                                },
+                                "jolteon-thunder-fang": {
+                                    "energy": [
+                                        "Taijutsu"
+                                    ]
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/jolteon/charge.png",
+                            "tooltipText": "Jolteon has 50% unpierceable damage reduction, deals 5 additional damage, and his skills cost 1 less yellow energy."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Damage",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "damage",
+        "description": "A fast Electric-type Pokemon that uses piercing attacks, cooldown paralysis, and Charge to punish enemies who keep acting into its lightning.",
+        "descriptionHtml": "A fast Electric-type Pokemon that uses piercing attacks, cooldown paralysis, and Charge to punish enemies who keep acting into its lightning."
+    },
+    {
+        "id": "flareon",
+        "characterId": "flareon",
+        "name": "Flareon",
+        "facePicture": "assets/images/PokemonArena/eevee/flareon/flareonfp.png",
+        "characterdeescription": "A fiery Pokemon that builds permanent defense with heat, spreads flames, and converts burns into reliable damage over time.",
+        "skills": [
+            {
+                "id": "flareon-heating-up",
+                "name": "Heating Up",
+                "skillimage": "assets/images/PokemonArena/eevee/flareon/heatingup.png",
+                "skilldescription": "Flareon gains 20 points of permanent destructible defense. While Flareon has this defense, she deals 5 affliction damage to the enemy team each turn. This does not stack.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Affliction",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "flareon_heating_up_defense",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "destructibleDefensePoints": 20,
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/flareon/heatingup.png",
+                            "tooltipTextTemplate": "Flareon has {destructibleDefensePoints} destructible defense."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "flareon_heating_up_burn_aura",
+                        "duration": 999,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "turnEndDamage": 5,
+                            "damageType": "affliction",
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/flareon/heatingup.png",
+                            "tooltipText": "This character takes 5 affliction damage each turn from Heating Up."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "flareon-fire-spin",
+                "name": "Fire Spin",
+                "skillimage": "assets/images/PokemonArena/eevee/flareon/firespin.png",
+                "skilldescription": "For 3 turns, one enemy becomes invulnerable to all helpful skills and takes 10 affliction damage each turn. This cannot be used on an already affected enemy.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Affliction",
+                    "Action",
+                    "Ranged"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "flareon_fire_spin_burn",
+                        "duration": 3,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "missingStatusId": "flareon_fire_spin_burn"
+                        },
+                        "metadata": {
+                            "invulnerableToHelpfulSkills": true,
+                            "turnEndDamage": 10,
+                            "damageType": "affliction",
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/flareon/firespin.png",
+                            "tooltipText": "This character is invulnerable to helpful skills and takes 10 affliction damage each turn."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "flareon-fire-blast",
+                "name": "Fire Blast",
+                "skillimage": "assets/images/PokemonArena/eevee/flareon/fireblast.png",
+                "skilldescription": "Deals 20 affliction damage to one enemy, then causes them to take 10 affliction damage every turn for the rest of the battle. While that enemy is alive, all other enemies take 5 affliction damage each turn.",
+                "energy": [
+                    "Genjutsu",
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Affliction",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "damageType": "affliction",
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "flareon_fire_blast_burn",
+                        "duration": 999,
+                        "scope": "target",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "turnEndDamage": 10,
+                            "damageType": "affliction",
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/flareon/fireblast.png",
+                            "tooltipText": "This character takes 10 affliction damage each turn."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "flareon_fire_blast_splash_burn",
+                        "duration": 999,
+                        "scope": "all-other-enemies",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "turnEndDamage": 5,
+                            "damageType": "affliction",
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/flareon/fireblast.png",
+                            "tooltipText": "This character takes 5 affliction damage each turn while Fire Blast's main target is alive."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "flareon-double-team",
+                "name": "Double Team",
+                "skillimage": "assets/images/PokemonArena/eevee/flareon/doubleteam.png",
+                "skilldescription": "Flareon becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "flareon_double_team_invulnerable",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/flareon/doubleteam.png",
+                            "tooltipText": "Flareon is invulnerable."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Damage",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "damage",
+        "description": "A fiery Pokemon that builds permanent defense with heat, spreads flames, and converts burns into reliable damage over time.",
+        "descriptionHtml": "A fiery Pokemon that builds permanent defense with heat, spreads flames, and converts burns into reliable damage over time."
+    },
+    {
+        "id": "vaporeon",
+        "characterId": "vaporeon",
+        "name": "Vaporeon",
+        "facePicture": "assets/images/PokemonArena/eevee/vaporeon/vaporeonfp.png",
+        "characterdeescription": "A resilient Water-type Pokemon that weakens attackers, redirects pressure, heals the team, and ignores enemy skills with Acid Armor.",
+        "skills": [
+            {
+                "id": "vaporeon-aurora-beam",
+                "name": "Aurora Beam",
+                "skillimage": "assets/images/PokemonArena/eevee/vaporeon/aurorabeam.png",
+                "skilldescription": "Deal 20 damage to one enemy and reduce their non-affliction damage by 5 for 1 turn or heal Vaporeon or one ally for 20 HP and increase their non-affliction damage by 5 for 1 turn.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy-or-ally",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "condition": {
+                            "targetRelation": "enemy"
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "condition": {
+                            "targetRelation": "enemy",
+                            "statusId": "vaporeon_sand_attack_blind"
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "vaporeon_aurora_beam_weakened",
+                        "duration": 1,
+                        "scope": "target",
+                        "condition": {
+                            "targetRelation": "enemy"
+                        },
+                        "metadata": {
+                            "nonAfflictionDamageBonusFlat": -5,
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/vaporeon/aurorabeam.png",
+                            "tooltipText": "This character deals 5 less non-affliction damage."
+                        }
+                    },
+                    {
+                        "type": "heal",
+                        "amount": 20,
+                        "scope": "target",
+                        "condition": {
+                            "targetRelation": "ally"
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "vaporeon_aurora_beam_empowered",
+                        "duration": 1,
+                        "scope": "target",
+                        "condition": {
+                            "targetRelation": "ally"
+                        },
+                        "metadata": {
+                            "nonAfflictionDamageBonusFlat": 5,
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/vaporeon/aurorabeam.png",
+                            "tooltipText": "This character deals 5 additional non-affliction damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "vaporeon-sand-attack",
+                "name": "Sand-Attack",
+                "skillimage": "assets/images/PokemonArena/eevee/vaporeon/sandattack.png",
+                "skilldescription": "One enemy is blinded for 1 turn, causing their new harmful skills to randomly target your team. Aurora Beam deals 10 more damage to an affected enemy and makes Hydro Pump cost 1 less purple energy for 1 turn.",
+                "energy": [],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "vaporeon_sand_attack_blind",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmfulBlind": true,
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/vaporeon/sandattack.png",
+                            "tooltipText": "This character's new harmful skills randomly target your team."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "vaporeon_sand_attack_hydro_discount",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "skillCostOverridesBySkillId": {
+                                "vaporeon-hydro-pump": {
+                                    "energy": [
+                                        "Taijutsu"
+                                    ]
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/vaporeon/sandattack.png",
+                            "tooltipText": "Hydro Pump costs 1 less purple energy."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "vaporeon-hydro-pump",
+                "name": "Hydro Pump",
+                "skillimage": "assets/images/PokemonArena/eevee/vaporeon/hydropump.png",
+                "skilldescription": "Deals 35 damage to one enemy. Vaporeon's team heals 15 HP.",
+                "energy": [
+                    "Taijutsu",
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "heal",
+                        "amount": 15,
+                        "scope": "all-allies"
+                    }
+                ]
+            },
+            {
+                "id": "vaporeon-acid-armor",
+                "name": "Acid Armor",
+                "skillimage": "assets/images/PokemonArena/eevee/vaporeon/acidarmor.png",
+                "skilldescription": "Vaporeon ignores enemy skills for 1 turn. Vaporeon's team heals 10 HP for every new enemy skill used on her during this time.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Energy",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "vaporeon_acid_armor_active",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "turnDurationAnchor": "source_turn",
+                            "triggerOnEnemyHarmfulSkill": true,
+                            "counterEffectsToSourceOwner": [
+                                {
+                                    "type": "heal",
+                                    "amount": 10,
+                                    "scope": "all-allies"
+                                }
+                            ],
+                            "statusIconUrl": "assets/images/PokemonArena/eevee/vaporeon/acidarmor.png",
+                            "tooltipText": "Vaporeon ignores enemy skills and heals when enemies use new harmful skills on her."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Support",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "support",
+        "description": "A resilient Water-type Pokemon that weakens attackers, redirects pressure, heals the team, and ignores enemy skills with Acid Armor.",
+        "descriptionHtml": "A resilient Water-type Pokemon that weakens attackers, redirects pressure, heals the team, and ignores enemy skills with Acid Armor."
     }
 
 ];

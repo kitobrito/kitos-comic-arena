@@ -2372,6 +2372,7 @@ const createDefaultMissionState = () => {
         unlockedCharacterIds: [],
         starterCharacterId: null,
         starterSelectionVersion: 0,
+        eeveeEvolutionCharacterId: null,
     };
 };
 
@@ -2421,6 +2422,21 @@ const normalizeMissionState = (missions = {}) => {
               )
           )
         : 0;
+    const eeveeEvolutionCharacterId = normalizeCharacterId(
+        source.eeveeEvolutionCharacterId ??
+            source.eevee_evolution_character_id ??
+            source.eeveeEvolution?.characterId ??
+            source.eeveeEvolution
+    );
+    const validEeveeEvolutionCharacterId = getPokemonEeveeEvolutionCharacterIds().has(
+        eeveeEvolutionCharacterId
+    )
+        ? eeveeEvolutionCharacterId
+        : null;
+    if (validEeveeEvolutionCharacterId) {
+        unlockedCharacterIds.add(validEeveeEvolutionCharacterId);
+        unlockedCharacterIds.delete('eevee');
+    }
     if (starterCharacterId && getPokemonStarterCharacterIds().has(starterCharacterId)) {
         unlockedCharacterIds.add(starterCharacterId);
     }
@@ -2441,6 +2457,7 @@ const normalizeMissionState = (missions = {}) => {
             ? starterCharacterId
             : null,
         starterSelectionVersion,
+        eeveeEvolutionCharacterId: validEeveeEvolutionCharacterId,
     };
 };
 
@@ -2820,6 +2837,17 @@ const normalizeMissionCatalogEntry = (mission = {}, index = 0) => {
             source.rewardCharacterId ??
             source.reward_character_id
     );
+    const rewardCharacterIds = Array.from(
+        new Set(
+            (Array.isArray(source.reward_character_ids)
+                ? source.reward_character_ids
+                : Array.isArray(source.rewardCharacterIds)
+                    ? source.rewardCharacterIds
+                    : [])
+                .map((entry) => normalizeCharacterId(entry))
+                .filter(Boolean)
+        )
+    );
     const specialPve = normalizeMissionSpecialPve(source, rewardCharacterId);
     const isXenomorphMission = rewardCharacterId === 'xenomorph-drone';
     const finalMissionId = isXenomorphMission ? 'raid-on-the-xenomorph-hive' : missionId;
@@ -2886,7 +2914,13 @@ const normalizeMissionCatalogEntry = (mission = {}, index = 0) => {
                     ? String(levelRequirement)
                     : '',
         reward_character: rewardCharacterId,
-        reward_character_name: getCharacterDisplayNameById(rewardCharacterId),
+        reward_character_name:
+            typeof source.reward_character_name === 'string' && source.reward_character_name.trim()
+                ? source.reward_character_name.trim()
+                : typeof source.rewardCharacterName === 'string' && source.rewardCharacterName.trim()
+                    ? source.rewardCharacterName.trim()
+                    : getCharacterDisplayNameById(rewardCharacterId),
+        reward_character_ids: rewardCharacterIds,
         reward: typeof source.reward === 'string' ? source.reward.trim() : '',
         mode_restriction: modeRestriction,
         win_streak: {
@@ -2967,6 +3001,11 @@ const cloneMissionCatalog = (missions = []) =>
                 : undefined,
             requirements: Array.isArray(mission?.requirements) ? mission.requirements.slice() : [],
             goals: Array.isArray(mission?.goals) ? mission.goals.slice() : [],
+            reward_character_ids: Array.isArray(mission?.reward_character_ids)
+                ? mission.reward_character_ids.slice()
+                : Array.isArray(mission?.rewardCharacterIds)
+                    ? mission.rewardCharacterIds.slice()
+                    : [],
             arena: typeof mission?.arena === 'string' ? mission.arena : '',
             special_pve: mission?.special_pve
                 ? {
@@ -3121,6 +3160,53 @@ const POKEMON_GASTLY_MISSION_ENTRY = {
     sortOrder: 6,
 };
 
+const POKEMON_EEVEE_EVOLUTION_MISSION_ENTRY = {
+    missionId: 'eevee-evolution-path',
+    title: 'Eevee Evolution Path',
+    level_requirement: 1,
+    rank: '1',
+    reward_character: '',
+    reward_character_name: 'Eevee Evolution Choice',
+    reward_character_ids: ['jolteon', 'flareon', 'vaporeon'],
+    reward: 'Choose Jolteon, Flareon, or Vaporeon. Eevee is permanently removed after the choice.',
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/eevee/eevee/1782352147199.png',
+    imageAlt: 'Eevee evolution mission artwork',
+    characterName: 'Eevee',
+    portrait: 'assets/images/PokemonArena/eevee/eevee/eeveefp.png',
+    portraitAlt: 'Eevee portrait',
+    requirements: [
+        'Win 25 matches with Eevee on your team.',
+        'After this mission is complete, choose one evolution. This decision is permanent.',
+    ],
+    goals: [
+        {
+            type: 'win_matches',
+            character_id: 'eevee',
+            character_name: 'Eevee',
+            wins: 25,
+        },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 4,
+};
+
 const POKEMON_STARTER_MISSION_ENTRIES = [
     {
         missionId: 'pikachu-starter-path',
@@ -3189,6 +3275,7 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     POKEMON_STARTER_MISSION_ENTRIES.forEach((entry) => {
         upsertRequiredMission(entry, (mission) => normalizeCharacterId(mission?.reward_character) === normalizeCharacterId(entry.reward_character));
     });
+    upsertRequiredMission(POKEMON_EEVEE_EVOLUTION_MISSION_ENTRY, (mission) => mission?.missionId === 'eevee-evolution-path');
     upsertRequiredMission(POKEMON_SCYTHER_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'scyther');
     upsertRequiredMission(POKEMON_GASTLY_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'gastly');
     return normalizeMissionCatalog(catalog);
@@ -3301,7 +3388,12 @@ const getMissionLockedCharacterIds = async () => {
         : await getStoredMissionCatalog();
     return new Set(
         (Array.isArray(catalog) ? catalog : [])
-            .map((mission) => normalizeCharacterId(mission.reward_character))
+            .flatMap((mission) => [
+                normalizeCharacterId(mission.reward_character),
+                ...(Array.isArray(mission.reward_character_ids)
+                    ? mission.reward_character_ids.map((entry) => normalizeCharacterId(entry))
+                    : []),
+            ])
             .filter(Boolean)
     );
 };
@@ -3314,6 +3406,15 @@ const profileHasUnlockedCharacter = (profile, characterId, lockedCharacterIds = 
     }
     const arenaState = getProfileArenaState(profile, arena);
     const missions = arenaState && typeof arenaState.missions === 'object' ? arenaState.missions : {};
+    if (
+        normalizeArenaMode(arena) === 'pokemon' &&
+        normalizedCharacterId === 'eevee' &&
+        getPokemonEeveeEvolutionCharacterIds().has(
+            normalizeCharacterId(missions.eeveeEvolutionCharacterId)
+        )
+    ) {
+        return false;
+    }
     const unlocked = new Set(
         (Array.isArray(missions.unlockedCharacterIds) ? missions.unlockedCharacterIds : [])
             .map((entry) => normalizeCharacterId(entry))
@@ -6712,6 +6813,7 @@ const getBattleBotAllowedCharacterIdsForArena = (arena = DEFAULT_ARENA_MODE) => 
 };
 
 const getPokemonStarterCharacterIds = () => new Set(['pikachu', 'charmander', 'bulbasaur', 'squirtle']);
+const getPokemonEeveeEvolutionCharacterIds = () => new Set(['jolteon', 'flareon', 'vaporeon']);
 
 const buildBattleBotTeam = async (arena = DEFAULT_ARENA_MODE) => {
     const normalizedArena = normalizeArenaMode(arena);
@@ -9069,6 +9171,11 @@ const matchmakingSettingsSchema = Joi.object({
 
 const pokemonStarterSelectionSchema = Joi.object({
     starterCharacterId: Joi.string().trim().required(),
+});
+
+const pokemonEeveeEvolutionSelectionSchema = Joi.object({
+    evolutionCharacterId: Joi.string().trim().required(),
+    confirmed: Joi.boolean().valid(true).required(),
 });
 
 const clanCreateSchema = Joi.object({
@@ -11681,6 +11788,104 @@ app.post('/api/profile/pokemon/starter', requireSession, async (req, res) => {
     } catch (error) {
         console.error('Pokemon starter selection error:', error);
         return res.status(500).json({ error: 'Unable to save starter selection.' });
+    }
+});
+
+app.post('/api/profile/pokemon/eevee-evolution', requireSession, async (req, res) => {
+    try {
+        const { error: validationError, value } =
+            pokemonEeveeEvolutionSelectionSchema.validate(req.body || {});
+        if (validationError) {
+            return res.status(400).json({ error: 'A confirmed Eevee evolution choice is required.' });
+        }
+
+        const evolutionCharacterId = normalizeCharacterId(value.evolutionCharacterId);
+        if (!getPokemonEeveeEvolutionCharacterIds().has(evolutionCharacterId)) {
+            return res.status(400).json({ error: 'Invalid Eevee evolution.' });
+        }
+
+        const user = await usersCollection.findOne({ username: req.authUser.username });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        const profile = normalizeUserProfile(user);
+        const arenaState = getProfileArenaState(profile, 'pokemon');
+        const missionState = normalizeMissionState(arenaState.missions);
+        if (missionState.eeveeEvolutionCharacterId) {
+            return res.status(409).json({ error: 'You have already chosen an Eevee evolution.' });
+        }
+
+        const eeveeMissionProgress = normalizeMissionProgressEntry(
+            missionState.progressByMissionId?.['eevee-evolution-path'] || {}
+        );
+        if (!eeveeMissionProgress.completedAt) {
+            return res.status(403).json({ error: 'Complete Eevee Evolution Path first.' });
+        }
+
+        const unlockedIds = new Set(
+            Array.isArray(missionState.unlockedCharacterIds) ? missionState.unlockedCharacterIds : []
+        );
+        unlockedIds.delete('eevee');
+        getPokemonEeveeEvolutionCharacterIds().forEach((characterId) => {
+            unlockedIds.delete(characterId);
+        });
+        unlockedIds.add(evolutionCharacterId);
+
+        missionState.eeveeEvolutionCharacterId = evolutionCharacterId;
+        missionState.unlockedCharacterIds = Array.from(unlockedIds);
+        missionState.progressByMissionId['eevee-evolution-path'] = normalizeMissionProgressEntry({
+            ...eeveeMissionProgress,
+            completedAt: eeveeMissionProgress.completedAt || new Date(),
+            unlockedAt: eeveeMissionProgress.unlockedAt || eeveeMissionProgress.completedAt || new Date(),
+        });
+        missionState.progress = missionState.progressByMissionId;
+
+        const updatedArenaState = setProfileArenaState(profile, 'pokemon', {
+            ...arenaState,
+            missions: missionState,
+        });
+        const normalizedProfile = normalizeUserProfile({
+            ...user,
+            profile: updatedArenaState,
+        });
+
+        const eeveeRosterIndex = getRosterIndexByCharacterId('eevee');
+        const savedTeamIndicesByArena = {
+            ...(user.savedTeamIndicesByArena && typeof user.savedTeamIndicesByArena === 'object'
+                ? user.savedTeamIndicesByArena
+                : {}),
+        };
+        if (
+            Number.isInteger(eeveeRosterIndex) &&
+            Array.isArray(savedTeamIndicesByArena.pokemon) &&
+            savedTeamIndicesByArena.pokemon.some((slot) => Number(slot) === eeveeRosterIndex)
+        ) {
+            savedTeamIndicesByArena.pokemon = [];
+        }
+
+        await usersCollection.updateOne(
+            { _id: user._id },
+            {
+                $set: {
+                    profile: normalizedProfile,
+                    savedTeamIndicesByArena,
+                },
+            }
+        );
+
+        return res.json({
+            ok: true,
+            evolutionCharacterId,
+            user: serializeUserForClient({
+                ...user,
+                profile: normalizedProfile,
+                savedTeamIndicesByArena,
+            }),
+        });
+    } catch (error) {
+        console.error('Pokemon Eevee evolution selection error:', error);
+        return res.status(500).json({ error: 'Unable to save Eevee evolution choice.' });
     }
 });
 
