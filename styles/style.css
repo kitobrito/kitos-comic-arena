@@ -1864,7 +1864,7 @@ text-transform: uppercase;
 }
 
 body.arena-mode-pokemon .energy-pip.filled.energy-ninjutsu {
-    background-color: #7b3ff2;
+    background-color: #3498db;
 }
 
 .energy-pip.filled.energy-bloodline {
@@ -1872,7 +1872,7 @@ body.arena-mode-pokemon .energy-pip.filled.energy-ninjutsu {
 }
 
 body.arena-mode-pokemon .energy-pip.filled.energy-bloodline {
-    background-color: #d85f18;
+    background-color: #e74c3c;
 }
 
 .energy-pip.filled.energy-random {
@@ -2488,7 +2488,7 @@ body.arena-mode-pokemon .energy-pip.filled.energy-taijutsu {
 }
 
 body.arena-mode-pokemon .chakra-box.red {
-    background-color: #d85f18;
+    background-color: #e74c3c;
 }
 
 .chakra-box.blue {
@@ -2496,7 +2496,7 @@ body.arena-mode-pokemon .chakra-box.red {
 }
 
 body.arena-mode-pokemon .chakra-box.blue {
-    background-color: #7b3ff2;
+    background-color: #3498db;
 }
 
 .chakra-box.green {
@@ -5472,7 +5472,7 @@ body.arena-mode-pokemon .ingamescrollbehind {
 }
 
 body.arena-mode-pokemon .chakra-box.red {
-    background-color: #d85f18;
+    background-color: #e74c3c;
 }
 
 .chakra-box.blue {
@@ -5480,7 +5480,7 @@ body.arena-mode-pokemon .chakra-box.red {
 }
 
 body.arena-mode-pokemon .chakra-box.blue {
-    background-color: #7b3ff2;
+    background-color: #3498db;
 }
 
 .chakra-box.green {

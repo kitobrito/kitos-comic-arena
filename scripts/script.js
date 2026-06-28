@@ -1691,8 +1691,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const normalized = resolveChakraType(type) || (typeof type === 'string' ? type.trim().toLowerCase() : '');
             const labels = {
                 taijutsu: 'Green',
-                bloodline: currentMatchArena === 'pokemon' ? 'Orange' : 'Red',
-                ninjutsu: currentMatchArena === 'pokemon' ? 'Purple' : 'Blue',
+                bloodline: 'Red',
+                ninjutsu: 'Blue',
                 genjutsu: currentMatchArena === 'pokemon' ? 'Yellow' : 'White',
                 random: 'Random',
             };
@@ -11271,8 +11271,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const energyFilterLabels = {
         taijutsu: 'Green',
-        bloodline: activeArenaMode === 'pokemon' ? 'Orange' : 'Red',
-        ninjutsu: activeArenaMode === 'pokemon' ? 'Purple' : 'Blue',
+        bloodline: 'Red',
+        ninjutsu: 'Blue',
         genjutsu: activeArenaMode === 'pokemon' ? 'Yellow' : 'White',
         random: 'Random',
         none: 'No Cost',
