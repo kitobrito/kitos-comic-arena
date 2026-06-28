@@ -8700,7 +8700,7 @@ const characters = [
                                     "amount": 1
                                 }
                             ],
-                            "tooltipText": "If this character uses a new harmful skill next turn, Green Lantern gains 1 taijutsu chakra."
+                            "tooltipText": "If this character uses a new harmful skill next turn, Green Lantern gains 1 green energy."
                         }
                     }
                 ]
@@ -17158,10 +17158,10 @@ const characters = [
                     "infiniteDuration": true,
                     "charmanderEvolutionProgress": 0,
                     "stackMetadataKey": "charmanderEvolutionProgress",
-                    "stackMax": 2,
+                    "stackMax": 1,
                     "applyStatusAtStack": {
                         "metadataKey": "charmanderEvolutionProgress",
-                        "value": 2,
+                        "value": 1,
                         "statusId": "charmander_charmeleon_evolution",
                         "duration": 99,
                         "metadata": {
@@ -17176,7 +17176,7 @@ const characters = [
                             "tooltipText": "Charmander has evolved into Charmeleon. All of his skills have improved effects."
                         }
                     },
-                    "tooltipText": "Charmander evolves into Charmeleon after critically striking or burning enemies twice."
+                    "tooltipText": "Charmander evolves into Charmeleon after critically striking or burning an enemy once."
                 }
             }
         ],
@@ -17428,7 +17428,7 @@ const characters = [
                 "id": "charmander-passive-evolution-charmeleon",
                 "name": "Evolution - Charmeleon",
                 "skillimage": "assets/images/PokemonArena/Charmander/passiveevolvecharmeleon.jpg",
-                "skilldescription": "After Charmander critically strikes or burns enemies twice, he evolves into Charmeleon. All of his skills gain improved effects.",
+                "skilldescription": "After Charmander critically strikes or burns an enemy once, he evolves into Charmeleon. All of his skills gain improved effects.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -17692,10 +17692,10 @@ const characters = [
                     "squirtleEvolutionStacks": 0,
                     "stackMetadataKey": "squirtleEvolutionStacks",
                     "stackDelta": 1,
-                    "stackMax": 3,
+                    "stackMax": 2,
                     "applyStatusAtStack": {
                         "metadataKey": "squirtleEvolutionStacks",
-                        "value": 3,
+                        "value": 2,
                         "statusId": "squirtle_wartortle_evolution",
                         "duration": 99,
                         "sourceSkillId": "squirtle-passive-evolution-wartortle",
@@ -17715,7 +17715,7 @@ const characters = [
                         }
                     },
                     "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 2 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
                 }
             }
         ],
@@ -17773,9 +17773,9 @@ const characters = [
                                     "squirtleEvolutionStacks": 1,
                                     "stackMetadataKey": "squirtleEvolutionStacks",
                                     "stackDelta": 1,
-                                    "stackMax": 3,
+                                    "stackMax": 2,
                                 "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 2 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/squirtle/watergun.jpg",
@@ -17818,9 +17818,9 @@ const characters = [
                                     "squirtleEvolutionStacks": 1,
                                     "stackMetadataKey": "squirtleEvolutionStacks",
                                     "stackDelta": 1,
-                                    "stackMax": 3,
+                                    "stackMax": 2,
                                     "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 2 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/squirtle/withdraw.webp",
@@ -17904,9 +17904,9 @@ const characters = [
                                     "squirtleEvolutionStacks": 1,
                                     "stackMetadataKey": "squirtleEvolutionStacks",
                                     "stackDelta": 1,
-                                    "stackMax": 3,
+                                    "stackMax": 2,
                                     "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 2 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
                                 }
                             }
                         }
@@ -17922,7 +17922,7 @@ const characters = [
                 "id": "squirtle-passive-evolution-wartortle",
                 "name": "Evolution - Wartortle",
                 "skillimage": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                "skilldescription": "Whenever Squirtle blocks an enemy harmful skill, applies Guard Break to an enemy, or successfully removes enemy harmful skills from himself or an ally, he gains 1 evolution stack. At 3 stacks, Squirtle evolves into Wartortle and gains improved versions of all skills.",
+                "skilldescription": "Whenever Squirtle blocks an enemy harmful skill, applies Guard Break to an enemy, or successfully removes enemy harmful skills from himself or an ally, he gains 1 evolution stack. At 2 stacks, Squirtle evolves into Wartortle and gains improved versions of all skills.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -17971,9 +17971,9 @@ const characters = [
                                     "squirtleEvolutionStacks": 1,
                                     "stackMetadataKey": "squirtleEvolutionStacks",
                                     "stackDelta": 1,
-                                    "stackMax": 3,
+                                    "stackMax": 2,
                                     "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 2 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/squirtle/shellguard.jpg",
@@ -18038,9 +18038,9 @@ const characters = [
                                     "squirtleEvolutionStacks": 1,
                                     "stackMetadataKey": "squirtleEvolutionStacks",
                                     "stackDelta": 1,
-                                    "stackMax": 3,
+                                    "stackMax": 2,
                                     "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 2 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/squirtle/hydropump.jpg",
@@ -18125,9 +18125,9 @@ const characters = [
                                     "squirtleEvolutionStacks": 1,
                                     "stackMetadataKey": "squirtleEvolutionStacks",
                                     "stackDelta": 1,
-                                    "stackMax": 3,
+                                    "stackMax": 2,
                                     "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 2 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
                                 }
                             }
                         }
@@ -18168,7 +18168,7 @@ const characters = [
                             "bulbasaurSunStacks": 1,
                             "stackMetadataKey": "bulbasaurSunStacks",
                             "stackDelta": 1,
-                            "stackMax": 5,
+                            "stackMax": 4,
                             "randomCostReductionPerStatusMetadata": {
                                 "skillIds": [
                                     "bulbasaur-solar-beam",
@@ -18179,7 +18179,7 @@ const characters = [
                             },
                             "applyStatusAtStack": {
                                 "metadataKey": "bulbasaurSunStacks",
-                                "value": 5,
+                                "value": 4,
                                 "statusId": "bulbasaur_ivysaur_evolution",
                                 "duration": 99,
                                 "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
@@ -18199,7 +18199,7 @@ const characters = [
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
-                            "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
+                            "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 4 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
                         }
                     },
                     "tooltipText": "Bulbasaur gains 1 Sun whenever Leech Seed damages an enemy. If he does not use a new skill during his turn, he gains 1 Sun instead."
@@ -18246,7 +18246,7 @@ const characters = [
                                     "bulbasaurSunStacks": 1,
                                     "stackMetadataKey": "bulbasaurSunStacks",
                                     "stackDelta": 1,
-                                    "stackMax": 5,
+                                    "stackMax": 4,
                                     "randomCostReductionPerStatusMetadata": {
                                         "skillIds": [
                                             "bulbasaur-solar-beam",
@@ -18257,7 +18257,7 @@ const characters = [
                                     },
                                     "applyStatusAtStack": {
                                         "metadataKey": "bulbasaurSunStacks",
-                                        "value": 5,
+                                        "value": 4,
                                         "statusId": "bulbasaur_ivysaur_evolution",
                                         "duration": 99,
                                         "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
@@ -18277,7 +18277,7 @@ const characters = [
                                         }
                                     },
                                     "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
-                                    "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
+                                    "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 4 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/bulbasaurleechseed.jpg",
@@ -18430,7 +18430,7 @@ const characters = [
                 "id": "bulbasaur-passive-evolution-ivysaur",
                 "name": "Evolution - Ivysaur",
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
-                "skilldescription": "Whenever Bulbasaur damages an enemy with Leech Seed, he gains 1 Sun stack. If Bulbasaur does not use a new skill during his turn, he gains 1 Sun stack instead. Maximum: 5 Sun. When Bulbasaur reaches 5 Sun, he immediately evolves into Ivysaur and consumes all Sun stacks. Ivysaur gains improved versions of all skills.",
+                "skilldescription": "Whenever Bulbasaur damages an enemy with Leech Seed, he gains 1 Sun stack. If Bulbasaur does not use a new skill during his turn, he gains 1 Sun stack instead. Maximum: 4 Sun. When Bulbasaur reaches 4 Sun, he immediately evolves into Ivysaur and consumes all Sun stacks. Ivysaur gains improved versions of all skills.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -18481,7 +18481,7 @@ const characters = [
                                     "bulbasaurSunStacks": 1,
                                     "stackMetadataKey": "bulbasaurSunStacks",
                                     "stackDelta": 1,
-                                    "stackMax": 5,
+                                    "stackMax": 4,
                                     "randomCostReductionPerStatusMetadata": {
                                         "skillIds": [
                                             "bulbasaur-solar-beam",
@@ -18492,7 +18492,7 @@ const characters = [
                                     },
                                     "applyStatusAtStack": {
                                         "metadataKey": "bulbasaurSunStacks",
-                                        "value": 5,
+                                        "value": 4,
                                         "statusId": "bulbasaur_ivysaur_evolution",
                                         "duration": 99,
                                         "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
@@ -18512,7 +18512,7 @@ const characters = [
                                         }
                                     },
                                     "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
-                                    "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
+                                    "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 4 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/ivysaurleechseed.png",
@@ -18717,7 +18717,7 @@ const characters = [
                 "id": "pikachu-thundershock",
                 "name": "Thundershock",
                 "skillimage": "assets/images/PokemonArena/Pikachu/thundershock.jpg",
-                "skilldescription": "Deals 25 piercing damage to one targeted enemy and 10 piercing damage to a random different enemy, paralyzes the targeted enemy's cooldowns, and makes Thunder cost 1 Purple and 1 Random energy for 1 turn. If the targeted enemy is affected by Passive: Static, their cooldowns are paralyzed for 2 turns instead.",
+                "skilldescription": "Deals 25 piercing damage to one targeted enemy and 10 piercing damage to a random different enemy, paralyzes the targeted enemy's cooldowns, and makes Thunder cost 1 Green and 1 Random energy for 1 turn. If the targeted enemy is affected by Passive: Static, their cooldowns are paralyzed for 2 turns instead.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -18788,7 +18788,7 @@ const characters = [
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/Pikachu/thundershock.jpg",
-                            "tooltipText": "Thunder costs 1 Purple and 1 Random energy."
+                            "tooltipText": "Thunder costs 1 Green and 1 Random energy."
                         }
                     }
                 ]
@@ -19251,10 +19251,10 @@ const characters = [
                     "chanseyHealedAmount": 0,
                     "stackMetadataKey": "chanseyHealedAmount",
                     "stackDeltaFromHealingDone": true,
-                    "stackMax": 100,
+                    "stackMax": 75,
                     "applyStatusAtStack": {
                         "metadataKey": "chanseyHealedAmount",
-                        "value": 100,
+                        "value": 75,
                         "statusId": "chansey_blissey_evolution",
                         "duration": 99,
                         "sourceSkillId": "chansey-passive-evolution-blissey",
@@ -19274,7 +19274,7 @@ const characters = [
                         }
                     },
                     "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
-                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
+                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/75 HP during battle. At 75 HP, Chansey evolves into Blissey and consumes the healing tracker."
                 }
             }
         ],
@@ -19347,9 +19347,9 @@ const characters = [
                                     "chanseyHealedAmount": 0,
                                     "stackMetadataKey": "chanseyHealedAmount",
                                     "stackDeltaFromHealingDone": true,
-                                    "stackMax": 100,
+                                    "stackMax": 75,
                                     "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
-                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
+                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/75 HP during battle. At 75 HP, Chansey evolves into Blissey and consumes the healing tracker."
                                 }
                             }
                         }
@@ -19418,9 +19418,9 @@ const characters = [
                                     "chanseyHealedAmount": 0,
                                     "stackMetadataKey": "chanseyHealedAmount",
                                     "stackDeltaFromHealingDone": true,
-                                    "stackMax": 100,
+                                    "stackMax": 75,
                                     "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
-                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
+                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/75 HP during battle. At 75 HP, Chansey evolves into Blissey and consumes the healing tracker."
                                 }
                             }
                         }
@@ -19487,9 +19487,9 @@ const characters = [
                                     "chanseyHealedAmount": 0,
                                     "stackMetadataKey": "chanseyHealedAmount",
                                     "stackDeltaFromHealingDone": true,
-                                    "stackMax": 100,
+                                    "stackMax": 75,
                                     "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
-                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
+                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/75 HP during battle. At 75 HP, Chansey evolves into Blissey and consumes the healing tracker."
                                 }
                             }
                         }
@@ -19507,9 +19507,9 @@ const characters = [
                                     "chanseyHealedAmount": 0,
                                     "stackMetadataKey": "chanseyHealedAmount",
                                     "stackDeltaFromHealingDone": true,
-                                    "stackMax": 100,
+                                    "stackMax": 75,
                                     "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
-                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
+                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/75 HP during battle. At 75 HP, Chansey evolves into Blissey and consumes the healing tracker."
                                 }
                             }
                         },
@@ -19529,7 +19529,7 @@ const characters = [
                 "id": "chansey-passive-evolution-blissey",
                 "name": "Evolution - Blissey",
                 "skillimage": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
-                "skilldescription": "After Chansey has healed 100 total HP during the battle, it evolves into Blissey. Blissey's skills are improved.",
+                "skilldescription": "After Chansey has healed 75 total HP during the battle, it evolves into Blissey. Blissey's skills are improved.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -19772,10 +19772,10 @@ const characters = [
                     "pidgeyDamageDealt": 0,
                     "stackMetadataKey": "pidgeyDamageDealt",
                     "stackDeltaFromDamageDealt": true,
-                    "stackMax": 100,
+                    "stackMax": 75,
                     "applyStatusAtStack": {
                         "metadataKey": "pidgeyDamageDealt",
-                        "value": 100,
+                        "value": 75,
                         "statusId": "pidgey_pidgeotto_evolution",
                         "duration": 99,
                         "sourceSkillId": "pidgey-passive-evolution-pidgeotto",
@@ -19795,7 +19795,7 @@ const characters = [
                         }
                     },
                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/75 total damage. At 75 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                 }
             }
         ],
@@ -19833,9 +19833,9 @@ const characters = [
                                     "pidgeyDamageDealt": 0,
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 100,
+                                    "stackMax": 75,
                                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/75 total damage. At 75 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
                         }
@@ -19868,9 +19868,9 @@ const characters = [
                                     "pidgeyDamageDealt": 0,
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 100,
+                                    "stackMax": 75,
                                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/75 total damage. At 75 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
                         }
@@ -19963,9 +19963,9 @@ const characters = [
                                     "pidgeyDamageDealt": 0,
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 100,
+                                    "stackMax": 75,
                                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/75 total damage. At 75 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
                         }
@@ -20019,7 +20019,7 @@ const characters = [
                 "id": "pidgey-passive-evolution-pidgeotto",
                 "name": "Evolution - Pidgeotto",
                 "skillimage": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                "skilldescription": "After Pidgey has dealt 100 total damage during battle, he evolves into Pidgeotto. Pidgeotto's skills are improved.",
+                "skilldescription": "After Pidgey has dealt 75 total damage during battle, he evolves into Pidgeotto. Pidgeotto's skills are improved.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -20064,9 +20064,9 @@ const characters = [
                                     "pidgeyDamageDealt": 0,
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 100,
+                                    "stackMax": 75,
                                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/75 total damage. At 75 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
                         }
@@ -20091,9 +20091,9 @@ const characters = [
                                     "pidgeyDamageDealt": 0,
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 100,
+                                    "stackMax": 75,
                                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/75 total damage. At 75 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
                         }
@@ -20112,9 +20112,9 @@ const characters = [
                                     "pidgeyDamageDealt": 0,
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 100,
+                                    "stackMax": 75,
                                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/75 total damage. At 75 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
                         }
@@ -20213,9 +20213,9 @@ const characters = [
                                     "pidgeyDamageDealt": 0,
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 100,
+                                    "stackMax": 75,
                                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/75 total damage. At 75 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
                         }
@@ -20289,6 +20289,7 @@ const characters = [
                 "duration": 99,
                 "metadata": {
                     "hidden": true,
+                    "hideTooltip": true,
                     "infiniteDuration": true,
                     "onTeamMemberSuccessfulDamageApplyRandomStatusToTarget": {
                         "chancePercent": 20,
@@ -20334,449 +20335,190 @@ const characters = [
                 }
             },
             {
+                "statusId": "koffing_weezing_progress_tracker",
+                "sourceSkillId": "koffing-passive-evolution-weezing",
+                "duration": 99,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "koffingUniqueSkillCount": 0,
+                    "stackMetadataKey": "koffingUniqueSkillCount",
+                    "stackDelta": 0,
+                    "stackMax": 3,
+                    "statusIconUrl": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
+                    "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/3 unique skills and will evolve into Weezing at 3.",
+                    "applyStatusAtStack": {
+                        "metadataKey": "koffingUniqueSkillCount",
+                        "value": 3,
+                        "statusId": "koffing_weezing_evolution",
+                        "duration": 99,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "facePictureOverride": "assets/images/PokemonArena/koffing/weezingfp.webp",
+                            "removeStatusIdsOnApply": [
+                                "koffing_poison_gas_base",
+                                "koffing_weezing_progress_tracker",
+                                "koffing_smog_tracker",
+                                "koffing_haze_tracker",
+                                "koffing_self_destruct_tracker",
+                                "koffing_smokescreen_tracker"
+                            ],
+                            "skillReplacements": {
+                                "koffing-passive-poison-gas": "koffing-weezing-passive-poison-gas",
+                                "koffing-smog": "koffing-weezing-smog",
+                                "koffing-haze": "koffing-weezing-haze",
+                                "koffing-self-destruct": "koffing-weezing-self-destruct",
+                                "koffing-smokescreen": "koffing-weezing-smokescreen"
+                            },
+                            "onTeamMemberSuccessfulDamageApplyRandomStatusToTarget": {
+                                "chancePercent": 40,
+                                "statusOptions": [
+                                    {
+                                        "statusId": "weezing_poison_gas_paralyze_cooldowns",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "paralyzeCooldowns": true,
+                                            "tooltipText": "This character's cooldowns are paralyzed."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_helpful_lock",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "cannotUseHelpfulSkills": true,
+                                            "tooltipText": "This character cannot use helpful skills."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_damage_reduction",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "damageReductionPercent": 50,
+                                            "tooltipText": "This character has 50% damage reduction."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_skill_delay",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "cannotUseSkills": true,
+                                            "tooltipText": "This character's skills are delayed until their next turn."
+                                        }
+                                    }
+                                ]
+                            },
+                            "tooltipText": "Koffing has evolved into Weezing. All of his skills have improved effects."
+                        }
+                    }
+                }
+            },
+            {
                 "statusId": "koffing_smog_tracker",
-                "sourceSkillId": "koffing-smog",
+                "sourceSkillId": "koffing-passive-evolution-weezing",
                 "duration": 99,
                 "metadata": {
                     "hidden": true,
+                    "hideTooltip": true,
                     "infiniteDuration": true,
                     "onOwnerUseSkillTrigger": true,
                     "onOwnerUseSkillIdsAny": [
                         "koffing-smog"
                     ],
                     "onOwnerUseSkillApplyStatusToOwner": {
-                        "statusId": "koffing_smog_used",
+                        "statusId": "koffing_weezing_progress_tracker",
                         "duration": 99,
                         "metadata": {
-                            "hidden": true,
                             "infiniteDuration": true,
-                            "tooltipText": "Koffing has used Smog."
+                            "koffingUniqueSkillCount": 0,
+                            "stackMetadataKey": "koffingUniqueSkillCount",
+                            "stackDelta": 1,
+                            "stackMax": 3,
+                            "statusIconUrl": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
+                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/3 unique skills and will evolve into Weezing at 3."
                         }
                     }
                 }
             },
             {
                 "statusId": "koffing_haze_tracker",
-                "sourceSkillId": "koffing-haze",
+                "sourceSkillId": "koffing-passive-evolution-weezing",
                 "duration": 99,
                 "metadata": {
                     "hidden": true,
+                    "hideTooltip": true,
                     "infiniteDuration": true,
                     "onOwnerUseSkillTrigger": true,
                     "onOwnerUseSkillIdsAny": [
                         "koffing-haze"
                     ],
                     "onOwnerUseSkillApplyStatusToOwner": {
-                        "statusId": "koffing_haze_used",
+                        "statusId": "koffing_weezing_progress_tracker",
                         "duration": 99,
                         "metadata": {
-                            "hidden": true,
                             "infiniteDuration": true,
-                            "tooltipText": "Koffing has used Haze."
+                            "koffingUniqueSkillCount": 0,
+                            "stackMetadataKey": "koffingUniqueSkillCount",
+                            "stackDelta": 1,
+                            "stackMax": 3,
+                            "statusIconUrl": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
+                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/3 unique skills and will evolve into Weezing at 3."
                         }
                     }
                 }
             },
             {
                 "statusId": "koffing_self_destruct_tracker",
-                "sourceSkillId": "koffing-self-destruct",
+                "sourceSkillId": "koffing-passive-evolution-weezing",
                 "duration": 99,
                 "metadata": {
                     "hidden": true,
+                    "hideTooltip": true,
                     "infiniteDuration": true,
                     "onOwnerUseSkillTrigger": true,
                     "onOwnerUseSkillIdsAny": [
                         "koffing-self-destruct"
                     ],
                     "onOwnerUseSkillApplyStatusToOwner": {
-                        "statusId": "koffing_self_destruct_used",
+                        "statusId": "koffing_weezing_progress_tracker",
                         "duration": 99,
                         "metadata": {
-                            "hidden": true,
                             "infiniteDuration": true,
-                            "tooltipText": "Koffing has used Self-Destruct."
+                            "koffingUniqueSkillCount": 0,
+                            "stackMetadataKey": "koffingUniqueSkillCount",
+                            "stackDelta": 1,
+                            "stackMax": 3,
+                            "statusIconUrl": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
+                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/3 unique skills and will evolve into Weezing at 3."
                         }
                     }
                 }
             },
             {
                 "statusId": "koffing_smokescreen_tracker",
-                "sourceSkillId": "koffing-smokescreen",
+                "sourceSkillId": "koffing-passive-evolution-weezing",
                 "duration": 99,
                 "metadata": {
                     "hidden": true,
+                    "hideTooltip": true,
                     "infiniteDuration": true,
                     "onOwnerUseSkillTrigger": true,
                     "onOwnerUseSkillIdsAny": [
                         "koffing-smokescreen"
                     ],
                     "onOwnerUseSkillApplyStatusToOwner": {
-                        "statusId": "koffing_smokescreen_used",
-                        "duration": 99,
-                        "metadata": {
-                            "hidden": true,
-                            "infiniteDuration": true,
-                            "tooltipText": "Koffing has used Smokescreen."
-                        }
-                    }
-                }
-            },
-            {
-                "statusId": "koffing_smog_evolution_check",
-                "sourceSkillId": "koffing-smog",
-                "duration": 99,
-                "metadata": {
-                    "hidden": true,
-                    "infiniteDuration": true,
-                    "onOwnerUseSkillTrigger": true,
-                    "onOwnerUseSkillIdsAny": [
-                        "koffing-smog"
-                    ],
-                    "onOwnerUseSkillApplyStatusToOwnerCondition": {
-                        "scope": "self",
-                        "statusIdsAll": [
-                            "koffing_smog_used",
-                            "koffing_haze_used",
-                            "koffing_self_destruct_used",
-                            "koffing_smokescreen_used"
-                        ]
-                    },
-                    "onOwnerUseSkillApplyStatusToOwner": {
-                        "statusId": "koffing_weezing_evolution",
+                        "statusId": "koffing_weezing_progress_tracker",
                         "duration": 99,
                         "metadata": {
                             "infiniteDuration": true,
-                            "facePictureOverride": "assets/images/PokemonArena/koffing/weezingfp.webp",
-                            "removeStatusIdsOnApply": [
-                                "koffing_poison_gas_base",
-                                "koffing_smog_tracker",
-                                "koffing_haze_tracker",
-                                "koffing_self_destruct_tracker",
-                                "koffing_smokescreen_tracker",
-                                "koffing_smog_used",
-                                "koffing_haze_used",
-                                "koffing_self_destruct_used",
-                                "koffing_smokescreen_used"
-                            ],
-                            "skillReplacements": {
-                                "koffing-passive-poison-gas": "koffing-weezing-passive-poison-gas",
-                                "koffing-smog": "koffing-weezing-smog",
-                                "koffing-haze": "koffing-weezing-haze",
-                                "koffing-self-destruct": "koffing-weezing-self-destruct",
-                                "koffing-smokescreen": "koffing-weezing-smokescreen"
-                            },
-                            "onTeamMemberSuccessfulDamageApplyRandomStatusToTarget": {
-                                "chancePercent": 40,
-                                "statusOptions": [
-                                    {
-                                        "statusId": "weezing_poison_gas_paralyze_cooldowns",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "paralyzeCooldowns": true,
-                                            "tooltipText": "This character's cooldowns are paralyzed."
-                                        }
-                                    },
-                                    {
-                                        "statusId": "weezing_poison_gas_helpful_lock",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "cannotUseHelpfulSkills": true,
-                                            "tooltipText": "This character cannot use helpful skills."
-                                        }
-                                    },
-                                    {
-                                        "statusId": "weezing_poison_gas_damage_reduction",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "damageReductionPercent": 50,
-                                            "tooltipText": "This character has 50% damage reduction."
-                                        }
-                                    },
-                                    {
-                                        "statusId": "weezing_poison_gas_skill_delay",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "cannotUseSkills": true,
-                                            "tooltipText": "This character's skills are delayed until their next turn."
-                                        }
-                                    }
-                                ]
-                            },
-                            "tooltipText": "Koffing has evolved into Weezing. All of his skills have improved effects."
-                        }
-                    }
-                }
-            },
-            {
-                "statusId": "koffing_haze_evolution_check",
-                "sourceSkillId": "koffing-haze",
-                "duration": 99,
-                "metadata": {
-                    "hidden": true,
-                    "infiniteDuration": true,
-                    "onOwnerUseSkillTrigger": true,
-                    "onOwnerUseSkillIdsAny": [
-                        "koffing-haze"
-                    ],
-                    "onOwnerUseSkillApplyStatusToOwnerCondition": {
-                        "scope": "self",
-                        "statusIdsAll": [
-                            "koffing_smog_used",
-                            "koffing_haze_used",
-                            "koffing_self_destruct_used",
-                            "koffing_smokescreen_used"
-                        ]
-                    },
-                    "onOwnerUseSkillApplyStatusToOwner": {
-                        "statusId": "koffing_weezing_evolution",
-                        "duration": 99,
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "facePictureOverride": "assets/images/PokemonArena/koffing/weezingfp.webp",
-                            "removeStatusIdsOnApply": [
-                                "koffing_poison_gas_base",
-                                "koffing_smog_tracker",
-                                "koffing_haze_tracker",
-                                "koffing_self_destruct_tracker",
-                                "koffing_smokescreen_tracker",
-                                "koffing_smog_used",
-                                "koffing_haze_used",
-                                "koffing_self_destruct_used",
-                                "koffing_smokescreen_used"
-                            ],
-                            "skillReplacements": {
-                                "koffing-passive-poison-gas": "koffing-weezing-passive-poison-gas",
-                                "koffing-smog": "koffing-weezing-smog",
-                                "koffing-haze": "koffing-weezing-haze",
-                                "koffing-self-destruct": "koffing-weezing-self-destruct",
-                                "koffing-smokescreen": "koffing-weezing-smokescreen"
-                            },
-                            "onTeamMemberSuccessfulDamageApplyRandomStatusToTarget": {
-                                "chancePercent": 40,
-                                "statusOptions": [
-                                    {
-                                        "statusId": "weezing_poison_gas_paralyze_cooldowns",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "paralyzeCooldowns": true,
-                                            "tooltipText": "This character's cooldowns are paralyzed."
-                                        }
-                                    },
-                                    {
-                                        "statusId": "weezing_poison_gas_helpful_lock",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "cannotUseHelpfulSkills": true,
-                                            "tooltipText": "This character cannot use helpful skills."
-                                        }
-                                    },
-                                    {
-                                        "statusId": "weezing_poison_gas_damage_reduction",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "damageReductionPercent": 50,
-                                            "tooltipText": "This character has 50% damage reduction."
-                                        }
-                                    },
-                                    {
-                                        "statusId": "weezing_poison_gas_skill_delay",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "cannotUseSkills": true,
-                                            "tooltipText": "This character's skills are delayed until their next turn."
-                                        }
-                                    }
-                                ]
-                            },
-                            "tooltipText": "Koffing has evolved into Weezing. All of his skills have improved effects."
-                        }
-                    }
-                }
-            },
-            {
-                "statusId": "koffing_self_destruct_evolution_check",
-                "sourceSkillId": "koffing-self-destruct",
-                "duration": 99,
-                "metadata": {
-                    "hidden": true,
-                    "infiniteDuration": true,
-                    "onOwnerUseSkillTrigger": true,
-                    "onOwnerUseSkillIdsAny": [
-                        "koffing-self-destruct"
-                    ],
-                    "onOwnerUseSkillApplyStatusToOwnerCondition": {
-                        "scope": "self",
-                        "statusIdsAll": [
-                            "koffing_smog_used",
-                            "koffing_haze_used",
-                            "koffing_self_destruct_used",
-                            "koffing_smokescreen_used"
-                        ]
-                    },
-                    "onOwnerUseSkillApplyStatusToOwner": {
-                        "statusId": "koffing_weezing_evolution",
-                        "duration": 99,
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "facePictureOverride": "assets/images/PokemonArena/koffing/weezingfp.webp",
-                            "removeStatusIdsOnApply": [
-                                "koffing_poison_gas_base",
-                                "koffing_smog_tracker",
-                                "koffing_haze_tracker",
-                                "koffing_self_destruct_tracker",
-                                "koffing_smokescreen_tracker",
-                                "koffing_smog_used",
-                                "koffing_haze_used",
-                                "koffing_self_destruct_used",
-                                "koffing_smokescreen_used"
-                            ],
-                            "skillReplacements": {
-                                "koffing-passive-poison-gas": "koffing-weezing-passive-poison-gas",
-                                "koffing-smog": "koffing-weezing-smog",
-                                "koffing-haze": "koffing-weezing-haze",
-                                "koffing-self-destruct": "koffing-weezing-self-destruct",
-                                "koffing-smokescreen": "koffing-weezing-smokescreen"
-                            },
-                            "onTeamMemberSuccessfulDamageApplyRandomStatusToTarget": {
-                                "chancePercent": 40,
-                                "statusOptions": [
-                                    {
-                                        "statusId": "weezing_poison_gas_paralyze_cooldowns",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "paralyzeCooldowns": true,
-                                            "tooltipText": "This character's cooldowns are paralyzed."
-                                        }
-                                    },
-                                    {
-                                        "statusId": "weezing_poison_gas_helpful_lock",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "cannotUseHelpfulSkills": true,
-                                            "tooltipText": "This character cannot use helpful skills."
-                                        }
-                                    },
-                                    {
-                                        "statusId": "weezing_poison_gas_damage_reduction",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "damageReductionPercent": 50,
-                                            "tooltipText": "This character has 50% damage reduction."
-                                        }
-                                    },
-                                    {
-                                        "statusId": "weezing_poison_gas_skill_delay",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "cannotUseSkills": true,
-                                            "tooltipText": "This character's skills are delayed until their next turn."
-                                        }
-                                    }
-                                ]
-                            },
-                            "tooltipText": "Koffing has evolved into Weezing. All of his skills have improved effects."
-                        }
-                    }
-                }
-            },
-            {
-                "statusId": "koffing_smokescreen_evolution_check",
-                "sourceSkillId": "koffing-smokescreen",
-                "duration": 99,
-                "metadata": {
-                    "hidden": true,
-                    "infiniteDuration": true,
-                    "onOwnerUseSkillTrigger": true,
-                    "onOwnerUseSkillIdsAny": [
-                        "koffing-smokescreen"
-                    ],
-                    "onOwnerUseSkillApplyStatusToOwnerCondition": {
-                        "scope": "self",
-                        "statusIdsAll": [
-                            "koffing_smog_used",
-                            "koffing_haze_used",
-                            "koffing_self_destruct_used",
-                            "koffing_smokescreen_used"
-                        ]
-                    },
-                    "onOwnerUseSkillApplyStatusToOwner": {
-                        "statusId": "koffing_weezing_evolution",
-                        "duration": 99,
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "facePictureOverride": "assets/images/PokemonArena/koffing/weezingfp.webp",
-                            "removeStatusIdsOnApply": [
-                                "koffing_poison_gas_base",
-                                "koffing_smog_tracker",
-                                "koffing_haze_tracker",
-                                "koffing_self_destruct_tracker",
-                                "koffing_smokescreen_tracker",
-                                "koffing_smog_used",
-                                "koffing_haze_used",
-                                "koffing_self_destruct_used",
-                                "koffing_smokescreen_used"
-                            ],
-                            "skillReplacements": {
-                                "koffing-passive-poison-gas": "koffing-weezing-passive-poison-gas",
-                                "koffing-smog": "koffing-weezing-smog",
-                                "koffing-haze": "koffing-weezing-haze",
-                                "koffing-self-destruct": "koffing-weezing-self-destruct",
-                                "koffing-smokescreen": "koffing-weezing-smokescreen"
-                            },
-                            "onTeamMemberSuccessfulDamageApplyRandomStatusToTarget": {
-                                "chancePercent": 40,
-                                "statusOptions": [
-                                    {
-                                        "statusId": "weezing_poison_gas_paralyze_cooldowns",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "paralyzeCooldowns": true,
-                                            "tooltipText": "This character's cooldowns are paralyzed."
-                                        }
-                                    },
-                                    {
-                                        "statusId": "weezing_poison_gas_helpful_lock",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "cannotUseHelpfulSkills": true,
-                                            "tooltipText": "This character cannot use helpful skills."
-                                        }
-                                    },
-                                    {
-                                        "statusId": "weezing_poison_gas_damage_reduction",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "damageReductionPercent": 50,
-                                            "tooltipText": "This character has 50% damage reduction."
-                                        }
-                                    },
-                                    {
-                                        "statusId": "weezing_poison_gas_skill_delay",
-                                        "duration": 1,
-                                        "metadata": {
-                                            "harmful": true,
-                                            "cannotUseSkills": true,
-                                            "tooltipText": "This character's skills are delayed until their next turn."
-                                        }
-                                    }
-                                ]
-                            },
-                            "tooltipText": "Koffing has evolved into Weezing. All of his skills have improved effects."
+                            "koffingUniqueSkillCount": 0,
+                            "stackMetadataKey": "koffingUniqueSkillCount",
+                            "stackDelta": 1,
+                            "stackMax": 3,
+                            "statusIconUrl": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
+                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/3 unique skills and will evolve into Weezing at 3."
                         }
                     }
                 }
@@ -20958,7 +20700,7 @@ const characters = [
                 "id": "koffing-passive-evolution-weezing",
                 "name": "Evolution - Weezing",
                 "skillimage": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
-                "skilldescription": "After Koffing has used each of his skills at least once during the battle, he evolves into Weezing. Weezing's skills are all improved.",
+                "skilldescription": "After Koffing has used 3 unique skills during the battle, he evolves into Weezing. Weezing's skills are all improved.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -21632,6 +21374,7 @@ const characters = [
                     "infiniteDuration": true,
                     "gastlyDamageTaken": 0,
                     "stackMetadataKey": "gastlyDamageTaken",
+                    "stackDeltaFromDamageTaken": true,
                     "stackDelta": 0,
                     "stackMax": 50,
                     "applyStatusAtStack": {
@@ -21682,21 +21425,7 @@ const characters = [
                         "metadata": {
                             "afflictionDamage": true,
                             "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true,
-                            "onSuccessfulDamageApplyStatusToOwner": {
-                                "statusId": "gastly_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "hidden": true,
-                                    "infiniteDuration": true,
-                                    "gastlyDamageTaken": 0,
-                                    "stackMetadataKey": "gastlyDamageTaken",
-                                    "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 50,
-                                    "statusIconUrl": "assets/images/PokemonArena/gastley/evolutionhaunter.webp",
-                                    "tooltipTextTemplate": "Gastly has lost {gastlyDamageTaken}/50 total HP and will evolve into Haunter at 50."
-                                }
-                            }
+                            "ignoreDestructibleDefense": true
                         }
                     },
                     {
@@ -21720,7 +21449,7 @@ const characters = [
                 "id": "gastly-curse",
                 "name": "Curse",
                 "skillimage": "assets/images/PokemonArena/gastley/curse.webp",
-                "skilldescription": "Marks one enemy permanently. While marked, that enemy takes 15 affliction damage every turn. This damage cannot be ignored. Gastly loses 35 HP. Only one enemy may be affected by Curse at a time.",
+                "skilldescription": "Marks one enemy permanently and immediately deals 15 affliction damage to them. While marked, that enemy takes 15 affliction damage every turn. This damage cannot be ignored. Gastly loses 35 HP. Only one enemy may be affected by Curse at a time.",
                 "energy": [
                     "Bloodline",
                     "Random"
@@ -21734,6 +21463,18 @@ const characters = [
                     "Instant"
                 ],
                 "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                            "ignoreDamageImmunity": true,
+                            "ignoreAfflictionDamageImmunity": true
+                        }
+                    },
                     {
                         "type": "apply_status",
                         "statusId": "gastly_curse_mark",
@@ -21901,7 +21642,7 @@ const characters = [
                     "statusId": "gastly_haunter_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/gastley/hauntercurse.webp",
-                "skilldescription": "Marks one enemy permanently. While marked, that enemy takes 15 affliction damage every turn. This damage cannot be ignored. Gastly loses 35 HP. Up to two enemies may be affected by Curse at the same time.",
+                "skilldescription": "Marks one enemy permanently and immediately deals 15 affliction damage to them. While marked, that enemy takes 15 affliction damage every turn. This damage cannot be ignored. Gastly loses 35 HP. Up to two enemies may be affected by Curse at the same time.",
                 "energy": [
                     "Bloodline",
                     "Random"
@@ -21915,6 +21656,18 @@ const characters = [
                     "Instant"
                 ],
                 "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                            "ignoreDamageImmunity": true,
+                            "ignoreAfflictionDamageImmunity": true
+                        }
+                    },
                     {
                         "type": "apply_status",
                         "statusId": "gastly_curse_mark",
@@ -22044,7 +21797,7 @@ const characters = [
                     "abraCalmMindUses": 0,
                     "stackMetadataKey": "abraCalmMindUses",
                     "stackDelta": 0,
-                    "stackMax": 3,
+                    "stackMax": 2,
                     "onOwnerUseSkillTrigger": true,
                     "onOwnerUseSkillIdsAny": [
                         "abra-calm-mind",
@@ -22059,14 +21812,14 @@ const characters = [
                             "abraCalmMindUses": 0,
                             "stackMetadataKey": "abraCalmMindUses",
                             "stackDelta": 1,
-                            "stackMax": 3,
+                            "stackMax": 2,
                             "statusIconUrl": "assets/images/PokemonArena/abra/calmmind.webp",
-                            "tooltipTextTemplate": "Abra has used Calm Mind {abraCalmMindUses}/3 times and will evolve into Kadabra at 3."
+                            "tooltipTextTemplate": "Abra has used Calm Mind {abraCalmMindUses}/2 times and will evolve into Kadabra at 2."
                         }
                     },
                     "applyStatusAtStack": {
                         "metadataKey": "abraCalmMindUses",
-                        "value": 3,
+                        "value": 2,
                         "statusId": "abra_kadabra_evolution",
                         "duration": 99,
                         "metadata": {
@@ -22083,7 +21836,7 @@ const characters = [
                         }
                     },
                     "statusIconUrl": "assets/images/PokemonArena/abra/calmmind.webp",
-                    "tooltipTextTemplate": "Abra has used Calm Mind {abraCalmMindUses}/3 times and will evolve into Kadabra at 3."
+                    "tooltipTextTemplate": "Abra has used Calm Mind {abraCalmMindUses}/2 times and will evolve into Kadabra at 2."
                 }
             }
         ],
@@ -22232,7 +21985,7 @@ const characters = [
                 "id": "abra-passive-evolution-kadabra",
                 "name": "Evolution - Kadabra",
                 "skillimage": "assets/images/PokemonArena/abra/evolutionkadabra.webp",
-                "skilldescription": "After Abra has used Calm Mind 3 times during the battle, it evolves into Kadabra. Kadabra's skills are improved.",
+                "skilldescription": "After Abra has used Calm Mind 2 times during the battle, it evolves into Kadabra. Kadabra's skills are improved.",
                 "energy": [],
                 "target": "",
                 "damage": 0,

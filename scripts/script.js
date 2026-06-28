@@ -965,6 +965,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    const clearCachedUser = () => {
+        localStorage.removeItem('comicUser');
+    };
+
+    const getLoginRedirectArena = (arenaOverride = '') => {
+        const normalizedOverride =
+            typeof arenaOverride === 'string' ? arenaOverride.trim().toLowerCase() : '';
+        if (normalizedOverride === 'pokemon' || normalizedOverride === 'comic') {
+            return normalizedOverride;
+        }
+        if (typeof currentMatchArena === 'string' && currentMatchArena.trim().toLowerCase() === 'pokemon') {
+            return 'pokemon';
+        }
+        if (typeof activeArenaMode === 'string' && activeArenaMode.trim().toLowerCase() === 'pokemon') {
+            return 'pokemon';
+        }
+        return localStorage.getItem('comicArenaMode') === 'pokemon' ? 'pokemon' : 'comic';
+    };
+
+    const redirectToSelectionLogin = (arenaOverride = '') => {
+        clearCachedUser();
+        window.location.href = `selection-login.html?arena=${encodeURIComponent(
+            getLoginRedirectArena(arenaOverride)
+        )}`;
+    };
+
     const writeCachedUser = (user) => {
         if (!user?.username) return;
         localStorage.setItem(
@@ -1253,12 +1279,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    const fetchProfile = async () => {
+    const fetchProfile = async (options = {}) => {
+        const redirectOnUnauthorized = Boolean(options?.redirectOnUnauthorized);
+        const arenaOverride =
+            typeof options?.arenaOverride === 'string' ? options.arenaOverride : '';
         try {
             const response = await fetch(`${API_BASE_URL}/api/me`, {
                 credentials: 'include',
             });
             if (!response.ok) {
+                if ((response.status === 401 || response.status === 403) && redirectOnUnauthorized) {
+                    redirectToSelectionLogin(arenaOverride);
+                }
                 throw new Error('Unauthorized');
             }
             const data = await response.json();
@@ -1274,7 +1306,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return null;
     };
 
-    const hydratePlayerIdentity = async () => {
+    const hydratePlayerIdentity = async (options = {}) => {
         const cachedUser = readCachedUser();
         if (cachedUser?.username) {
             applyPlayerIdentity({
@@ -1291,7 +1323,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
 
-        const apiUser = await fetchProfile();
+        const apiUser = await fetchProfile(options);
         if (apiUser?.username) {
             applyPlayerIdentity({
                 name: apiUser.username,
@@ -1381,7 +1413,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         let currentOpponentUsername = null;
         let currentOpponentDisplayName = null;
         let currentMatchMode = 'quick';
-        let currentMatchArena = localStorage.getItem('comicArenaMode') === 'pokemon' ? 'pokemon' : 'comic';
+        let currentMatchArena =
+            arenaModeFromUrl === 'pokemon'
+                ? 'pokemon'
+                : arenaModeFromUrl === 'comic'
+                    ? 'comic'
+                    : localStorage.getItem('comicArenaMode') === 'pokemon'
+                        ? 'pokemon'
+                        : 'comic';
         setIngameArenaUiAssets(currentMatchArena);
         const matchChatEl = document.querySelector('.match-chat');
         const matchChatToggle = document.querySelector('.match-chat-toggle');
@@ -1513,6 +1552,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let draggingQueueActorSlot = null;
         let latestBoardState = null;
         let globalStatusTooltipEl = null;
+        let lastTargetingActivatedAt = 0;
         let statusRevealHeld = false;
         let statusRevealPinned = false;
         let battleEndShown = false;
@@ -1908,7 +1948,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             return unit?.alive === false || isUnitBanished(unit) || (Number.isFinite(hp) && hp <= 0);
         };
 
-        void hydratePlayerIdentity().catch((error) => {
+        void hydratePlayerIdentity({
+            redirectOnUnauthorized: true,
+            arenaOverride: currentMatchArena,
+        }).catch((error) => {
             console.warn('Failed to hydrate ingame player identity.', error);
         });
         const getSkillReplacementMapFromUnit = (unit) => {
@@ -4834,6 +4877,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 credentials: 'include',
             })
                 .then(async (res) => {
+                    if (res.status === 401 || res.status === 403) {
+                        redirectToSelectionLogin(currentMatchArena);
+                        throw new Error('Unauthorized');
+                    }
                     if (!res.ok) {
                         throw new Error('Unable to load match state.');
                     }
@@ -6549,20 +6596,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             return null;
         };
 
-        const findTooltipTextByStatusId = (statusId) => {
-            if (!statusId || !Array.isArray(rosterData)) return null;
+        const findSkillByName = (skillName) => {
+            if (!skillName || !Array.isArray(rosterData)) return null;
             for (const character of rosterData) {
                 const skills = Array.isArray(character?.skills) ? character.skills : [];
-                for (const skill of skills) {
-                    const effects = Array.isArray(skill?.effects) ? skill.effects : [];
-                    const effect = effects.find(
-                        (entry) => entry?.type === 'apply_status' && entry?.statusId === statusId
-                    );
-                    const text = effect?.metadata?.tooltipText || getSkillDescriptionText(skill);
-                    if (typeof text === 'string' && text.trim()) {
-                        return text.trim();
-                    }
-                }
+                const match = skills.find((skill) => skill?.name === skillName);
+                if (match) return match;
+            }
+            return null;
+        };
+
+        const findSourceSkillForStatus = (status) => {
+            if (!status || typeof status !== 'object') return null;
+            if (status?.sourceSkillId) {
+                const sourceSkill = findSkillById(status.sourceSkillId);
+                if (sourceSkill) return sourceSkill;
+            }
+            if (typeof status?.metadata?.sourceSkillName === 'string' && status.metadata.sourceSkillName) {
+                return findSkillByName(status.metadata.sourceSkillName);
             }
             return null;
         };
@@ -7323,9 +7374,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const textRows = [];
                 groupStatuses.forEach((status) => {
                     const statusMetadata = status?.metadata || {};
+                    const fallbackSkill =
+                        statusSkill ||
+                        findSourceSkillForStatus(status);
+                    const fallbackSkillName =
+                        statusMetadata?.sourceSkillName ||
+                        fallbackSkill?.name ||
+                        '';
                     let text =
                         statusMetadata?.tooltipText ||
-                        findTooltipTextByStatusId(status?.id) ||
+                        (fallbackSkillName ? `${fallbackSkillName} is active.` : '') ||
                         status?.id ||
                         'Status effect';
                     const tooltipTemplate =
@@ -8608,7 +8666,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     throw new Error(payload.error || 'Unable to start mission fight.');
                 }
                 if (payload.matchId) {
-                    window.location.href = `ingame.html?matchId=${encodeURIComponent(payload.matchId)}`;
+                    redirectToMatch(payload.matchId, payload.arena || currentMatchArena);
                     return;
                 }
                 throw new Error('Mission fight did not return a match.');
@@ -8817,6 +8875,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 pendingTurnState = normalizePendingTurn(data.pendingTurn);
                 measureIngamePerf('target:queued-skills', () => applyQueuedSkillVisuals());
                 activeTargetOptions = data;
+                lastTargetingActivatedAt = Date.now();
                 const skillEl = playerSkillMetaByKey.get(`${actorSlot}:${skillIdx}`)?.imgEl || null;
                 const classChoiceOptions = getClassChoiceOptions(skill);
                 const key = getClassChoiceKey(actorSlot, skillIdx);
@@ -8839,7 +8898,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
             const immediateOptions = buildImmediateTargetOptions({ actorSlot, skillIdx, skill });
+            let hasOptimisticTargetOptions = false;
             if (immediateOptions?.targets?.length) {
+                hasOptimisticTargetOptions = true;
                 applyTargetOptions({
                     ...immediateOptions,
                     pendingTurn: pendingTurnState,
@@ -8880,6 +8941,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (skillInfo.descEl) {
                     const baseDescription = getSkillDescriptionText(skill) || skillInfo.descEl.textContent || '';
                     skillInfo.descEl.textContent = `${baseDescription}\n\nTargeting failed: ${error?.message || 'Unable to fetch targets.'}`;
+                }
+                if (hasOptimisticTargetOptions) {
+                    return;
                 }
                 activeTargetOptions = null;
                 activeCastingSkill = null;
@@ -9298,9 +9362,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             activeCastingSkill = null;
         };
 
-        document.addEventListener('pointerdown', (event) => {
+        document.addEventListener('click', (event) => {
             if (!activeTargetOptions && !activeCastingSkill) return;
-            if (event?.button !== undefined && event.button !== 0) return;
+            if (Date.now() - lastTargetingActivatedAt < 200) return;
             const target = event.target;
             if (!target?.closest) return;
             const shouldKeepTargeting = target.closest(
@@ -9315,6 +9379,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     '.surrender-confirm',
                     '.surrenderbutton',
                     '.ingame-sound-controller',
+                    '.skilltooltips',
+                    '.skilltooltipimage',
+                    '.status-tooltip-global',
                 ].join(',')
             );
             if (shouldKeepTargeting) return;
@@ -9348,6 +9415,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                             cache: 'no-store',
                         });
                         const payload = await response.json();
+                        if (response.status === 401 || response.status === 403) {
+                            redirectToSelectionLogin(currentMatchArena);
+                            return;
+                        }
                         if (response.ok && payload?.ok) {
                             data = payload;
                             break;
@@ -9595,6 +9666,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 );
                 const data = await response.json();
+                if (response.status === 401 || response.status === 403) {
+                    redirectToSelectionLogin(currentMatchArena);
+                    return;
+                }
                 if (!response.ok || !data?.ok) {
                     const detailSuffix = data?.details ? ` Details: ${data.details}` : '';
                     throw new Error((data?.error || 'Failed to end turn.') + detailSuffix);
@@ -9680,6 +9755,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 );
                 const data = await response.json();
+                if (response.status === 401 || response.status === 403) {
+                    redirectToSelectionLogin(currentMatchArena);
+                    return;
+                }
                 if (!response.ok || !data?.ok) {
                     throw new Error(data?.error || 'Unable to adjust random chakra.');
                 }
@@ -9738,6 +9817,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 );
                 const data = await response.json();
+                if (response.status === 401 || response.status === 403) {
+                    redirectToSelectionLogin(currentMatchArena);
+                    return;
+                }
                 if (!response.ok || !data?.ok) {
                     throw new Error(data?.error || 'Unable to exchange chakra.');
                 }
@@ -10196,7 +10279,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 throw new Error(payload.error || 'Unable to start mission fight.');
             }
             if (payload.matchId) {
-                window.location.href = `ingame.html?matchId=${encodeURIComponent(payload.matchId)}`;
+                redirectToMatch(payload.matchId, payload.arena || activeArenaMode);
                 return;
             }
             throw new Error('Mission fight did not return a match.');
@@ -10329,8 +10412,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (error) {
             console.warn('Logout request failed; proceeding to clear session locally.', error);
         } finally {
-            localStorage.removeItem('comicUser');
-            window.location.href = `selection-login.html?arena=${encodeURIComponent(currentMatchArena)}`;
+            redirectToSelectionLogin(currentMatchArena);
         }
     };
 
@@ -10466,7 +10548,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    const scheduleMatchRedirect = (matchId, matchStartsAt) => {
+    const scheduleMatchRedirect = (matchId, matchStartsAt, arenaOverride = activeArenaMode) => {
         if (!matchId) return;
         clearPendingMatchRedirect();
         const startAtMs = matchStartsAt ? new Date(matchStartsAt).getTime() : Date.now();
@@ -10474,7 +10556,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         pendingMatchRedirect = window.setTimeout(() => {
             pendingMatchRedirect = null;
             closeSearching();
-            redirectToMatch(matchId);
+            redirectToMatch(matchId, arenaOverride);
         }, delayMs);
     };
 
@@ -10494,7 +10576,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const shouldHold = !data.matchReady && startAtMs > Date.now();
         if (!shouldHold) {
             closeSearching();
-            redirectToMatch(data.matchId);
+            redirectToMatch(data.matchId, data.arena || activeArenaMode);
             return true;
         }
         openSearching();
@@ -10504,7 +10586,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             clearInterval(matchmakingPoll);
             matchmakingPoll = null;
         }
-        scheduleMatchRedirect(data.matchId, data.matchStartsAt);
+        scheduleMatchRedirect(data.matchId, data.matchStartsAt, data.arena || activeArenaMode);
         return true;
     };
 
@@ -10517,6 +10599,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     cache: 'no-store',
                 }
             );
+            if (response.status === 401 || response.status === 403) {
+                redirectToSelectionLogin(activeArenaMode);
+                return;
+            }
             const data = await response.json();
             if (data?.draft && data.draftId) {
                 handleMatchFound(data);
@@ -10530,8 +10616,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    const redirectToMatch = (matchId) => {
-        window.location.href = `ingame.html?matchId=${encodeURIComponent(matchId)}`;
+    const redirectToMatch = (matchId, arenaOverride = activeArenaMode) => {
+        const arena = getLoginRedirectArena(arenaOverride);
+        window.location.href = `ingame.html?matchId=${encodeURIComponent(matchId)}&arena=${encodeURIComponent(arena)}`;
     };
 
     const startPollingMatch = () => {
@@ -10545,6 +10632,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                         cache: 'no-store',
                     }
                 );
+                if (response.status === 401 || response.status === 403) {
+                    redirectToSelectionLogin(activeArenaMode);
+                    return;
+                }
                 const data = await response.json();
                 if (data?.draft && data.draftId) {
                     handleMatchFound(data);
@@ -10579,6 +10670,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }),
             });
             const data = await response.json();
+            if (response.status === 401 || response.status === 403) {
+                redirectToSelectionLogin(activeArenaMode);
+                return;
+            }
             if (!response.ok || !data?.ok) {
                 throw new Error(data?.error || 'Could not start matchmaking. Please try again.');
             }
@@ -12055,6 +12150,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     applySavedTeam();
     resumeMatchIfActive();
     document.body.classList.remove('app-loading', 'app-loading-selection');
+
+    void hydratePlayerIdentity({
+        redirectOnUnauthorized: true,
+        arenaOverride: activeArenaMode,
+    }).catch((error) => {
+        console.warn('Failed to hydrate selection player identity.', error);
+    });
 
     void loadMissionLockedCharacterIds()
         .catch((error) => {

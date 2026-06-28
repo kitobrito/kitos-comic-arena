@@ -4881,6 +4881,95 @@ const applyCanonicalCharacterAssetPaths = (nextCharacters = []) =>
         return nextCharacter;
     });
 
+const mergeCharacterOverrideArraysByKey = (baseArray = [], overrideArray = [], key) => {
+    const baseEntries = Array.isArray(baseArray) ? baseArray : [];
+    const overrideEntries = Array.isArray(overrideArray) ? overrideArray : [];
+    const overrideByKey = new Map();
+    overrideEntries.forEach((entry) => {
+        const entryKey = entry && typeof entry === 'object' ? entry?.[key] : '';
+        if (entryKey) {
+            overrideByKey.set(entryKey, entry);
+        }
+    });
+    const merged = baseEntries.map((entry) => {
+        const entryKey = entry && typeof entry === 'object' ? entry?.[key] : '';
+        if (!entryKey || !overrideByKey.has(entryKey)) {
+            return entry;
+        }
+        const overrideEntry = overrideByKey.get(entryKey);
+        overrideByKey.delete(entryKey);
+        return mergeCharacterOverrideValue(entry, overrideEntry, key);
+    });
+    overrideByKey.forEach((entry) => {
+        merged.push(entry);
+    });
+    return merged;
+};
+
+const mergeCharacterOverrideEffects = (baseEffects = [], overrideEffects = []) => {
+    const nextBaseEffects = Array.isArray(baseEffects) ? baseEffects : [];
+    const nextOverrideEffects = Array.isArray(overrideEffects) ? overrideEffects : [];
+    const maxLength = Math.max(nextBaseEffects.length, nextOverrideEffects.length);
+    const merged = [];
+    for (let index = 0; index < maxLength; index += 1) {
+        const baseEntry = nextBaseEffects[index];
+        const overrideEntry = nextOverrideEffects[index];
+        if (overrideEntry === undefined) {
+            merged.push(baseEntry);
+            continue;
+        }
+        if (baseEntry === undefined) {
+            merged.push(overrideEntry);
+            continue;
+        }
+        merged.push(mergeCharacterOverrideValue(baseEntry, overrideEntry, 'effects'));
+    }
+    return merged;
+};
+
+const mergeCharacterOverrideValue = (baseValue, overrideValue, parentKey = '') => {
+    if (overrideValue === undefined) {
+        return baseValue;
+    }
+    if (Array.isArray(baseValue) && Array.isArray(overrideValue)) {
+        if (parentKey === 'skills') {
+            return mergeCharacterOverrideArraysByKey(baseValue, overrideValue, 'id');
+        }
+        if (parentKey === 'startStatuses') {
+            return mergeCharacterOverrideArraysByKey(baseValue, overrideValue, 'statusId');
+        }
+        if (parentKey === 'effects') {
+            return mergeCharacterOverrideEffects(baseValue, overrideValue);
+        }
+        return overrideValue;
+    }
+    if (
+        baseValue &&
+        typeof baseValue === 'object' &&
+        !Array.isArray(baseValue) &&
+        overrideValue &&
+        typeof overrideValue === 'object' &&
+        !Array.isArray(overrideValue)
+    ) {
+        const merged = { ...baseValue };
+        Object.keys(overrideValue).forEach((key) => {
+            merged[key] = mergeCharacterOverrideValue(baseValue?.[key], overrideValue[key], key);
+        });
+        return merged;
+    }
+    return overrideValue;
+};
+
+const mergeCharacterOverrideRecord = (baseCharacter, overrideCharacter) => {
+    if (!baseCharacter || typeof baseCharacter !== 'object') {
+        return overrideCharacter;
+    }
+    if (!overrideCharacter || typeof overrideCharacter !== 'object') {
+        return baseCharacter;
+    }
+    return mergeCharacterOverrideValue(baseCharacter, overrideCharacter);
+};
+
 const applyCharacterOverrides = (baseCharacters = []) => {
     const nextCharacters = (Array.isArray(baseCharacters) ? baseCharacters : []).slice();
     characterOverrideCache.forEach((overrideCharacter, characterId) => {
@@ -4894,7 +4983,10 @@ const applyCharacterOverrides = (baseCharacters = []) => {
             nextCharacters.push(overrideCharacter);
             return;
         }
-        nextCharacters[existingIndex] = overrideCharacter;
+        nextCharacters[existingIndex] = mergeCharacterOverrideRecord(
+            nextCharacters[existingIndex],
+            overrideCharacter
+        );
     });
     return applyCanonicalCharacterAssetPaths(nextCharacters);
 };
@@ -6809,7 +6901,12 @@ const getBattleBotAllowedCharacterIdsForArena = (arena = DEFAULT_ARENA_MODE) => 
     if (normalizeArenaMode(arena) !== 'pokemon') {
         return null;
     }
-    return new Set(['pikachu', 'charmander', 'bulbasaur', 'squirtle']);
+    return new Set(
+        (Array.isArray(charactersData) ? charactersData : [])
+            .filter((character) => normalizeArenaMode(character?.arena || character?.universe) === 'pokemon')
+            .map((character) => normalizeCharacterId(character?.characterId || character?.id))
+            .filter(Boolean)
+    );
 };
 
 const getPokemonStarterCharacterIds = () => new Set(['pikachu', 'charmander', 'bulbasaur', 'squirtle']);

@@ -3484,6 +3484,29 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
     if (dealt > 0) {
         setLastDamageDebug(targetState, dealt, context);
     }
+    if (dealt > 0 && context?.sourceSkillId) {
+        const damageTakenTrackerStatuses = (Array.isArray(targetState.statuses) ? targetState.statuses : []).filter(
+            (status) =>
+                status?.id &&
+                isStatusActiveForMetadata(status, unit) &&
+                Boolean(status?.metadata?.stackDeltaFromDamageTaken)
+        );
+        damageTakenTrackerStatuses.forEach((status) => {
+            applyStatus({
+                targetState,
+                statusId: status.id,
+                duration: status.remainingTurns,
+                sourceSkillId: status?.sourceSkillId || null,
+                sourceUsername: status?.sourceUsername || null,
+                sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
+                metadata: {
+                    ...(status?.metadata || {}),
+                    stackDelta: dealt,
+                },
+                fresh: false,
+            });
+        });
+    }
     if (dealt > 0) {
         const removeIds = new Set();
         (Array.isArray(targetState.statuses) ? targetState.statuses : []).forEach((status) => {
