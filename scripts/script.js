@@ -763,6 +763,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     const COMIC_FOUND_ICON_URL = 'assets/images/found.png';
     const POKEMON_FOUND_ICON_URL = 'assets/images/PokemonArena/found-pokeball.png';
     const POKEMON_SEARCHING_ICON_URL = POKEMON_FOUND_ICON_URL;
+    const COMIC_SURRENDER_PREVIEW_URL = 'assets/images/surrenderimage.png';
+    const POKEMON_SURRENDER_PREVIEW_URL = 'assets/images/PokemonArena/surrenderpicture.jpg';
+    const COMIC_WIN_PORTRAIT_URL = 'assets/images/win.png';
+    const COMIC_LOSE_PORTRAIT_URL = 'assets/images/lose.png';
+    const POKEMON_WIN_PORTRAIT_URL = 'assets/images/PokemonArena/wingamepicture.jpeg';
+    const POKEMON_LOSE_PORTRAIT_URL = 'assets/images/PokemonArena/losegamepicture.jpeg';
 
     const toBackgroundImageValue = (url = '') => {
         const normalizedUrl = typeof url === 'string' ? url.trim() : '';
@@ -791,6 +797,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.querySelectorAll('.ingamescrollbehind').forEach((image) => {
             image.src = scrollBehindUrl;
         });
+        const surrenderPreviewImage = document.querySelector('.surrender-confirm-preview-image');
+        if (surrenderPreviewImage) {
+            surrenderPreviewImage.src =
+                arena === 'pokemon' ? POKEMON_SURRENDER_PREVIEW_URL : COMIC_SURRENDER_PREVIEW_URL;
+        }
     };
 
     const textFromHtml = (value = '') => {
@@ -1494,6 +1505,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const surrenderConfirmEl = document.querySelector('.surrender-confirm');
         const surrenderConfirmOkButton = document.querySelector('.surrender-confirm-ok');
         const surrenderConfirmCancelButton = document.querySelector('.surrender-confirm-cancel');
+        const surrenderConfirmPreviewImage = surrenderConfirmEl?.querySelector('.surrender-confirm-preview-image');
         const battleEndOverlayEl = document.querySelector('.battle-end-overlay');
         const battleEndPortraitEl = battleEndOverlayEl?.querySelector('.battle-end-portrait');
         const battleEndTitleEl = battleEndOverlayEl?.querySelector('.battle-end-title');
@@ -5004,6 +5016,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const openSurrenderConfirm = () => {
             if (!surrenderConfirmEl) return;
+            if (surrenderConfirmPreviewImage) {
+                surrenderConfirmPreviewImage.src =
+                    currentMatchArena === 'pokemon' ? POKEMON_SURRENDER_PREVIEW_URL : COMIC_SURRENDER_PREVIEW_URL;
+            }
             surrenderConfirmEl.style.visibility = 'visible';
         };
 
@@ -5041,7 +5057,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ? `<br>YOUR CLAN GAINED ${normalizedClanExpDelta.toLocaleString()} EXP`
                     : '';
             if (battleEndPortraitEl) {
-                battleEndPortraitEl.src = didWin ? 'assets/images/win.png' : 'assets/images/lose.png';
+                const isPokemonArena = currentMatchArena === 'pokemon';
+                battleEndPortraitEl.src = didWin
+                    ? isPokemonArena
+                        ? POKEMON_WIN_PORTRAIT_URL
+                        : COMIC_WIN_PORTRAIT_URL
+                    : isPokemonArena
+                        ? POKEMON_LOSE_PORTRAIT_URL
+                        : COMIC_LOSE_PORTRAIT_URL;
                 battleEndPortraitEl.alt = didWin ? 'Victory portrait' : 'Defeated portrait';
             }
             if (battleEndTitleEl) {
