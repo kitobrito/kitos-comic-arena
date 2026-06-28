@@ -7187,6 +7187,9 @@ const applyChakraGain = (pool, gains = []) => {
 
 const getTurnDurationMsForUser = (match, username) => {
     if (!match || !username) return TURN_DURATION_MS;
+    if (isGameBotUsername(username)) {
+        return 45 * 1000;
+    }
     const collectTeamMetadataSum = (targetUsername, metadataKey) => {
         if (!targetUsername || !metadataKey) return 0;
         const units = Array.isArray(match.board?.[targetUsername]) ? match.board[targetUsername] : [];
@@ -7939,6 +7942,52 @@ const getBattleBotUnitForTarget = (match, target) => {
     return team[slot] || null;
 };
 
+const getBattleBotUnitStateForTarget = (match, target) => {
+    if (!match || !target || typeof target.username !== 'string') return null;
+    const slot = Number.parseInt(target.slot, 10);
+    if (!Number.isInteger(slot) || slot < 0) return null;
+    return battleLogic.getUnitState(match, target.username, slot);
+};
+
+const isBattleBotStatusActive = (status, unit) => {
+    const remaining = Number(status?.remainingTurns) || 0;
+    if (remaining <= 0) return false;
+    const metadata = status?.metadata || {};
+    const currentHp = Math.max(0, Number(unit?.hp) || 0);
+    const hpAtLeast = Number(metadata?.activeWhileOwnerCurrentHpAtLeast);
+    if (Number.isFinite(hpAtLeast) && currentHp < hpAtLeast) {
+        return false;
+    }
+    const hpAtMost = Number(metadata?.activeWhileOwnerCurrentHpAtMost);
+    if (Number.isFinite(hpAtMost) && currentHp > hpAtMost) {
+        return false;
+    }
+    return true;
+};
+
+const getBattleBotActiveStatusesForTarget = (match, target) => {
+    const unit = getBattleBotUnitForTarget(match, target);
+    const state = getBattleBotUnitStateForTarget(match, target);
+    if (!unit || !state) return [];
+    return (Array.isArray(state.statuses) ? state.statuses : []).filter((status) => isBattleBotStatusActive(status, unit));
+};
+
+const countBattleBotHarmfulStatusesForTarget = (match, target) =>
+    getBattleBotActiveStatusesForTarget(match, target).filter((status) => Boolean(status?.metadata?.harmful)).length;
+
+const countBattleBotLivingUnits = (match, username) => {
+    const team = Array.isArray(match?.board?.[username]) ? match.board[username] : [];
+    return team.filter((unit) => unit && unit.alive !== false).length;
+};
+
+const countBattleBotUnitsMatching = (match, username, predicate) => {
+    const team = Array.isArray(match?.board?.[username]) ? match.board[username] : [];
+    return team.reduce((count, unit, slot) => {
+        if (!unit || typeof predicate !== 'function') return count;
+        return predicate(unit, slot) ? count + 1 : count;
+    }, 0);
+};
+
 const getBattleBotSkillText = (skill) => {
     if (!skill || typeof skill !== 'object') return '';
     const parts = [
@@ -7998,6 +8047,37 @@ const collectBattleBotEffectAmount = (value, acceptedTypes, acceptedKeys, depth 
     return total;
 };
 
+const hasBattleBotEffectType = (value, acceptedTypes, depth = 0) => {
+    if (!value || depth > 5) return false;
+    if (Array.isArray(value)) {
+        return value.some((entry) => hasBattleBotEffectType(entry, acceptedTypes, depth + 1));
+    }
+    if (typeof value !== 'object') return false;
+    const type = typeof value.type === 'string' ? value.type.toLowerCase() : '';
+    if (acceptedTypes.has(type)) {
+        return true;
+    }
+    return Object.entries(value).some(([key, entry]) => key !== 'condition' && hasBattleBotEffectType(entry, acceptedTypes, depth + 1));
+};
+
+const collectBattleBotAppliedStatusIds = (value, depth = 0, statusIds = new Set()) => {
+    if (!value || depth > 5) return statusIds;
+    if (Array.isArray(value)) {
+        value.forEach((entry) => collectBattleBotAppliedStatusIds(entry, depth + 1, statusIds));
+        return statusIds;
+    }
+    if (typeof value !== 'object') return statusIds;
+    const type = typeof value.type === 'string' ? value.type.toLowerCase() : '';
+    if (type === 'apply_status' && typeof value.statusId === 'string' && value.statusId) {
+        statusIds.add(value.statusId);
+    }
+    Object.entries(value).forEach(([key, entry]) => {
+        if (key === 'condition') return;
+        collectBattleBotAppliedStatusIds(entry, depth + 1, statusIds);
+    });
+    return statusIds;
+};
+
 const estimateBattleBotSkillDamage = (skill) => {
     const directDamage = Math.max(0, Number(skill?.damage) || 0);
     const effectDamage = collectBattleBotEffectAmount(
@@ -8016,24 +8096,56 @@ const estimateBattleBotSkillDamage = (skill) => {
 const estimateBattleBotSkillHealing = (skill) =>
     collectBattleBotEffectAmount(skill?.effects || [], new Set(['heal', 'revive']), ['amount', 'heal']);
 
+const isLikelyBattleBotReviveSkill = (skill) =>
+    hasBattleBotEffectType(skill?.effects || [], new Set(['revive'])) || /\brevive\b/.test(getBattleBotSkillText(skill));
+
+const isLikelyBattleBotCleanseSkill = (skill) =>
+    hasBattleBotEffectType(skill?.effects || [], new Set(['cleanse_statuses'])) ||
+    /cleanse|remove harmful|remove all enemy skills currently affecting/.test(getBattleBotSkillText(skill));
+
+const isLikelyBattleBotControlSkill = (skill) =>
+    /stun|disable|cooldown|drain|remove chakra|cannot use|paraly|fail|countered|ignore healing/.test(
+        getBattleBotSkillText(skill)
+    );
+
 const scoreBattleBotTarget = ({ match, username, actorSlot, skill, target, damageEstimate, healingEstimate }) => {
     const unit = getBattleBotUnitForTarget(match, target);
     if (!unit) return 0;
     const hp = Math.max(0, Number(unit.hp) || 0);
     const sameTeam = target.username === username;
+    const isReviveSkill = isLikelyBattleBotReviveSkill(skill);
+    const isCleanseSkill = isLikelyBattleBotCleanseSkill(skill);
+    const isControlSkill = isLikelyBattleBotControlSkill(skill);
+    const harmfulStatusCount = countBattleBotHarmfulStatusesForTarget(match, target);
+    const appliedStatusIds = Array.from(collectBattleBotAppliedStatusIds(skill?.effects || []));
+    const activeStatuses = getBattleBotActiveStatusesForTarget(match, target);
+    const duplicateStatusCount = appliedStatusIds.filter((statusId) =>
+        activeStatuses.some((status) => status?.id === statusId)
+    ).length;
     let score = Math.random() * 4;
     if (sameTeam) {
+        if (isReviveSkill) {
+            if (unit.alive === false || hp <= 0) {
+                return score + 260;
+            }
+            return score - 120;
+        }
         const missingHpScore = Math.max(0, 100 - hp);
         const recentDamage = getBattleBotRecentDamage(match, username, target.slot);
         score += missingHpScore;
         score += Math.min(40, recentDamage.slotDamage);
         if (Number.parseInt(target.slot, 10) === actorSlot) score += 8;
         if (healingEstimate > 0 && hp < 75) score += 25;
+        if (healingEstimate > 0 && hp <= 40) score += 45;
+        if (isCleanseSkill && harmfulStatusCount > 0) score += 30 + harmfulStatusCount * 16;
+        if (duplicateStatusCount > 0 && harmfulStatusCount === 0) score -= duplicateStatusCount * 24;
         return score;
     }
     score += Math.max(0, 100 - hp) / 2;
     if (damageEstimate > 0) score += Math.min(60, damageEstimate);
     if (damageEstimate > 0 && damageEstimate >= hp) score += 90;
+    if (isControlSkill && hp > damageEstimate) score += 18;
+    if (duplicateStatusCount > 0 && damageEstimate <= 0) score -= duplicateStatusCount * 18;
     return score;
 };
 
@@ -8075,19 +8187,68 @@ const scoreBattleBotSkillCandidate = ({
     const healingEstimate = estimateBattleBotSkillHealing(skill);
     const targetType = String(skill?.target || '').toLowerCase();
     const defensive = isLikelyBattleBotDefensiveSkill(skill, skillIndex);
+    const reviveSkill = isLikelyBattleBotReviveSkill(skill);
+    const cleanseSkill = isLikelyBattleBotCleanseSkill(skill);
+    const controlSkill = isLikelyBattleBotControlSkill(skill);
     const recentDamage = getBattleBotRecentDamage(match, username, actorSlot);
     const actorHp = Math.max(0, Number(actorUnit?.hp) || 0);
+    const opponentUsername =
+        (Array.isArray(match?.players) ? match.players : []).find((player) => player?.username && player.username !== username)
+            ?.username || null;
+    const enemyAliveCount = opponentUsername ? countBattleBotLivingUnits(match, opponentUsername) : 0;
+    const deadAllyCount = countBattleBotUnitsMatching(match, username, (unit) => unit && (unit.alive === false || (Number(unit.hp) || 0) <= 0));
+    const lowAllyCount = countBattleBotUnitsMatching(match, username, (unit) => unit && unit.alive !== false && (Number(unit.hp) || 0) <= 45);
+    const hurtAllyCount = countBattleBotUnitsMatching(match, username, (unit) => unit && unit.alive !== false && (Number(unit.hp) || 0) <= 70);
+    const harmfulAllyStatusCount = countBattleBotUnitsMatching(match, username, (unit, slot) => {
+        if (!unit || unit.alive === false) return false;
+        return countBattleBotHarmfulStatusesForTarget(match, { username, slot }) > 0;
+    });
+    const selectedTargets = Array.isArray(targetSelection) ? targetSelection : [];
+    const selectedEnemyKillCount = selectedTargets.filter((target) => {
+        if (target?.username === username) return false;
+        const targetUnit = getBattleBotUnitForTarget(match, target);
+        const targetHp = Math.max(0, Number(targetUnit?.hp) || 0);
+        return damageEstimate > 0 && targetHp > 0 && damageEstimate >= targetHp;
+    }).length;
+    const selectedDeadAllyCount = selectedTargets.filter((target) => {
+        if (target?.username !== username) return false;
+        const targetUnit = getBattleBotUnitForTarget(match, target);
+        return targetUnit && (targetUnit.alive === false || (Number(targetUnit.hp) || 0) <= 0);
+    }).length;
+    const selectedLowAllyCount = selectedTargets.filter((target) => {
+        if (target?.username !== username) return false;
+        const targetUnit = getBattleBotUnitForTarget(match, target);
+        return targetUnit && targetUnit.alive !== false && (Number(targetUnit.hp) || 0) <= 45;
+    }).length;
+    const selectedHarmfulStatusCount = selectedTargets.reduce((sum, target) => {
+        if (target?.username !== username) return sum;
+        return sum + countBattleBotHarmfulStatusesForTarget(match, target);
+    }, 0);
     let score = Math.random() * 8;
 
     if (preferDefense && defensive) score += 110;
     if (preferDefense && skillIndex === 3) score += 70;
     if (!preferDefense && damageEstimate > 0) score += 20;
     if (defensive && (recentDamage.slotDamage >= 30 || actorHp <= 45)) score += 25;
-    if (/all-enemy/.test(targetType)) score += Math.max(15, damageEstimate);
+    if (/all-enemy/.test(targetType)) score += Math.max(15, damageEstimate) + Math.max(0, enemyAliveCount - 1) * 18;
     if (/self|ally|allies/.test(targetType)) score += healingEstimate > 0 ? healingEstimate : 12;
-    if (/stun|disable|cooldown|drain|remove chakra|cannot use/.test(getBattleBotSkillText(skill))) score += 18;
+    if (controlSkill) score += 18;
+    if (selectedEnemyKillCount > 0) score += 140 * selectedEnemyKillCount;
+    if (reviveSkill) {
+        score += deadAllyCount > 0 ? 220 + selectedDeadAllyCount * 80 : -90;
+    }
+    if (healingEstimate > 0) {
+        score += selectedLowAllyCount * 60;
+        if (lowAllyCount === 0 && hurtAllyCount === 0) score -= 35;
+    }
+    if (cleanseSkill) {
+        score += harmfulAllyStatusCount > 0 ? 90 + selectedHarmfulStatusCount * 18 : -30;
+    }
+    if (defensive && lowAllyCount === 0 && harmfulAllyStatusCount === 0 && recentDamage.teamDamage < 25 && damageEstimate <= 0) {
+        score -= 20;
+    }
 
-    (Array.isArray(targetSelection) ? targetSelection : []).forEach((target) => {
+    selectedTargets.forEach((target) => {
         score += scoreBattleBotTarget({
             match,
             username,
@@ -8109,7 +8270,10 @@ const chooseBattleBotSkillCandidate = ({ match, username, actorSlot, actorUnit, 
     const skills = Array.isArray(character?.skills) ? character.skills : [];
     const recentDamage = getBattleBotRecentDamage(match, username, actorSlot);
     const actorHp = Math.max(0, Number(actorUnit?.hp) || 0);
-    const tookHeavyDamage = recentDamage.slotDamage >= 30 || recentDamage.teamDamage >= 55 || (actorHp <= 40 && recentDamage.slotDamage > 0);
+    const tookHeavyDamage =
+        recentDamage.slotDamage >= 30 ||
+        recentDamage.teamDamage >= 55 ||
+        (actorHp <= 40 && recentDamage.slotDamage > 0);
     const preferDefense = tookHeavyDamage && Math.random() < 0.5;
     const candidates = [];
 
@@ -8442,11 +8606,16 @@ function scheduleBattleBotTurn(match) {
     const actionDelayMs =
         BATTLE_BOT_ACTION_DELAY_MIN_MS +
         Math.floor(Math.random() * (BATTLE_BOT_ACTION_DELAY_MAX_MS - BATTLE_BOT_ACTION_DELAY_MIN_MS + 1));
+    const turnExpiresAtMs = match.turnExpiresAt ? new Date(match.turnExpiresAt).getTime() : NaN;
     const earliestActionAtMs = Math.max(
         matchStartsAtMs,
         Number.isNaN(turnStartedAtMs) ? matchStartsAtMs : turnStartedAtMs + actionDelayMs
     );
-    const delayMs = Math.max(0, earliestActionAtMs - Date.now());
+    const latestActionAtMs = Number.isNaN(turnExpiresAtMs)
+        ? earliestActionAtMs
+        : Math.max(matchStartsAtMs, turnExpiresAtMs - 1000);
+    const actionAtMs = Math.min(earliestActionAtMs, latestActionAtMs);
+    const delayMs = Math.max(0, actionAtMs - Date.now());
     scheduledBattleBotTurns.add(matchId);
     setTimeout(() => {
         scheduledBattleBotTurns.delete(matchId);
