@@ -6529,6 +6529,58 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         actorState,
                         targetState,
                     });
+                    if (runtimeMetadata?.copyEffectiveCharacterFromTarget) {
+                        const targetCharacter =
+                            Number.isInteger(recipient?.unit?.rosterIndex) && Array.isArray(characters)
+                                ? resolveEffectiveCharacter({
+                                      characters,
+                                      rosterIndex: recipient.unit.rosterIndex,
+                                      actorState: targetState,
+                                  })
+                                : null;
+                        const targetCharacterId =
+                            targetCharacter?.characterId || targetCharacter?.id || '';
+                        const targetReplacementMap = buildSkillReplacementMap(targetState);
+                        const targetFaceOverride = (Array.isArray(targetState?.statuses) ? targetState.statuses : [])
+                            .filter((status) => isStatusActiveForMetadata(status, recipient.unit))
+                            .map((status) =>
+                                typeof status?.metadata?.facePictureOverride === 'string'
+                                    ? status.metadata.facePictureOverride.trim()
+                                    : ''
+                            )
+                            .filter(Boolean)
+                            .pop();
+                        runtimeMetadata = {
+                            ...(runtimeMetadata || {}),
+                            ...(targetCharacterId ? { effectiveCharacterId: targetCharacterId } : {}),
+                            ...(targetFaceOverride
+                                ? { facePictureOverride: targetFaceOverride }
+                                : typeof targetCharacter?.facePicture === 'string' && targetCharacter.facePicture.trim()
+                                  ? { facePictureOverride: targetCharacter.facePicture.trim() }
+                                  : {}),
+                            ...(Object.keys(targetReplacementMap).length > 0
+                                ? {
+                                      skillReplacements: {
+                                          ...(runtimeMetadata?.skillReplacements || {}),
+                                          ...targetReplacementMap,
+                                      },
+                                  }
+                                : {}),
+                        };
+                        if (
+                            typeof runtimeMetadata?.tooltipTextTemplate === 'string' &&
+                            runtimeMetadata.tooltipTextTemplate &&
+                            typeof targetCharacter?.name === 'string' &&
+                            targetCharacter.name.trim()
+                        ) {
+                            runtimeMetadata.tooltipText = runtimeMetadata.tooltipTextTemplate.replace(
+                                /\{characterName\}/g,
+                                targetCharacter.name.trim()
+                            );
+                        }
+                        delete runtimeMetadata.copyEffectiveCharacterFromTarget;
+                        delete runtimeMetadata.tooltipTextTemplate;
+                    }
                     if (statusMetadataDuration !== null) {
                         runtimeDuration = statusMetadataDuration;
                     }

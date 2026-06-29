@@ -19236,6 +19236,780 @@ const characters = [
         "descriptionHtml": "A graceful butterfly Pokemon that turns powder, psionic force, and careful positioning into battlefield control. Butterfree disorients enemies, disrupts their cooldowns, and puts threats to sleep while its wings keep allies safe from ranged attacks."
     },
     {
+        "id": "pokemon-trainer",
+        "characterId": "pokemon-trainer",
+        "name": "Pokemon Trainer",
+        "facePicture": "assets/images/PokemonArena/pokemontrainer/FP.jpg",
+        "characterdeescription": "A tactical Pokemon handler who controls battle tempo with capture tools, item support, and forced evolution tricks. Pokemon Trainer can lock enemies down with stronger and stronger balls, power up allies with X-Stats, and turn one teammate's evolution online instantly with Rare Candy.",
+        "skills": [
+            {
+                "id": "pokemon-trainer-pokeball",
+                "name": "Pokeball",
+                "skillimage": "assets/images/PokemonArena/pokemontrainer/Pokeball.jpeg",
+                "skilldescription": "Stuns one enemy and makes them invulnerable to all skills for 1 turn. If used when their health is at 10 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This skill swaps to Great Ball.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "pokemon_trainer_pokeball_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy",
+                            "sourceCurrentHpAtMost": 10
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "banished": true,
+                            "infiniteDuration": true,
+                            "tooltipText": "This character has been caught and is treated as defeated for the rest of the game."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "pokemon_trainer_capture_form",
+                        "duration": 999,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy",
+                            "sourceCurrentHpAtMost": 10
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "copyEffectiveCharacterFromTarget": true,
+                            "tooltipTextTemplate": "Pokemon Trainer has caught {characterName} and now uses that Pokemon's skills."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "stunned",
+                        "duration": 1,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy",
+                            "sourceCurrentHpAtLeast": 11
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "This character is stunned."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "pokemon_trainer_pokeball_lock",
+                        "duration": 1,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy",
+                            "sourceCurrentHpAtLeast": 11
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "invulnerable": true,
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "This character is sealed inside a Pokeball and is invulnerable."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "pokemon_trainer_ball_upgrade_1",
+                        "duration": 99,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "skillReplacements": {
+                                "pokemon-trainer-pokeball": "pokemon-trainer-great-ball"
+                            },
+                            "removeStatusIdsOnApply": [
+                                "pokemon_trainer_ball_upgrade_2"
+                            ],
+                            "tooltipText": "Pokeball is replaced by Great Ball."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "pokemon-trainer-potion",
+                "name": "Potion",
+                "skillimage": "assets/images/PokemonArena/pokemontrainer/Potion.jpg",
+                "skilldescription": "Heals one ally or Pokemon Trainer for 30 HP.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "heal",
+                        "amount": 30,
+                        "scope": "target"
+                    }
+                ]
+            },
+            {
+                "id": "pokemon-trainer-x-stats",
+                "name": "X-Stats",
+                "skillimage": "assets/images/PokemonArena/pokemontrainer/xstats.png",
+                "skilldescription": "Grants one ally +5 non-affliction damage and 5 damage reduction for the rest of the game. This effect stacks.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-ally",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "pokemon_trainer_x_stats_buff",
+                        "duration": 999,
+                        "scope": "target",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "nonAfflictionDamageBonusFlat": 5,
+                            "damageReductionFlat": 5,
+                            "mergeNumericAddKeys": [
+                                "nonAfflictionDamageBonusFlat",
+                                "damageReductionFlat"
+                            ],
+                            "tooltipTextTemplate": "This character deals {nonAfflictionDamageBonusFlat} additional non-affliction damage and has {damageReductionFlat} damage reduction from X-Stats."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "pokemon-trainer-rare-candy",
+                "name": "Rare Candy",
+                "skillimage": "assets/images/PokemonArena/pokemontrainer/Rare Candy.jpeg",
+                "skilldescription": "Evolves one applicable Pokemon, ignoring its normal evolution condition. That Pokemon also gains 25 permanent destructible defense. This skill swaps to Revive for the rest of the game.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-ally",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "charmander_charmeleon_evolution",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "charmander",
+                            "missingStatusId": "charmander_charmeleon_evolution"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "removeStatusIdsOnApply": [
+                                "charmander_evolution_tracker"
+                            ],
+                            "facePictureOverride": "assets/images/PokemonArena/Charmander/charmeleonfp.jpg",
+                            "skillReplacements": {
+                                "charmander-ember": "charmander-fire-punch",
+                                "charmander-scratch": "charmander-dragon-claw",
+                                "charmander-flamethrower": "charmander-charmeleon-flamethrower",
+                                "charmander-rage": "charmander-charmeleon-rage"
+                            },
+                            "destructibleDefensePoints": 25,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "Charmander has evolved into Charmeleon and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "squirtle_wartortle_evolution",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "squirtle",
+                            "missingStatusId": "squirtle_wartortle_evolution"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "removeStatusIdsOnApply": [
+                                "squirtle_evolution_tracker"
+                            ],
+                            "facePictureOverride": "assets/images/PokemonArena/squirtle/wartortlefp.jpg",
+                            "skillReplacements": {
+                                "squirtle-water-gun": "wartortle-hydro-pump",
+                                "squirtle-withdraw": "wartortle-shell-guard",
+                                "squirtle-bubble": "wartortle-bubblebeam",
+                                "squirtle-rapid-spin": "wartortle-aqua-spin"
+                            },
+                            "destructibleDefensePoints": 25,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "Squirtle has evolved into Wartortle and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "bulbasaur_ivysaur_evolution",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "bulbasaur",
+                            "missingStatusId": "bulbasaur_ivysaur_evolution"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "removeStatusIdsOnApply": [
+                                "bulbasaur_sun_stacks"
+                            ],
+                            "facePictureOverride": "assets/images/PokemonArena/Bulbasaur/ivysaurfp.jpg",
+                            "skillReplacements": {
+                                "bulbasaur-leech-seed": "ivysaur-leech-seed",
+                                "bulbasaur-vine-whip": "ivysaur-vine-whip",
+                                "bulbasaur-razor-leaf": "ivysaur-razor-leaf",
+                                "bulbasaur-solar-beam": "ivysaur-solar-beam"
+                            },
+                            "destructibleDefensePoints": 25,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "Bulbasaur has evolved into Ivysaur and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "chansey_blissey_evolution",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "chansey",
+                            "missingStatusId": "chansey_blissey_evolution"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "removeStatusIdsOnApply": [
+                                "chansey_evolution_tracker"
+                            ],
+                            "facePictureOverride": "assets/images/PokemonArena/Chansey/blisseyfp.png",
+                            "skillReplacements": {
+                                "chansey-eggbomb": "blissey-eggbomb",
+                                "chansey-pokemon-center-healing": "blissey-pokemon-center-healing",
+                                "chansey-softboil": "blissey-softboil",
+                                "chansey-emergency-life-support": "blissey-emergency-life-support"
+                            },
+                            "destructibleDefensePoints": 25,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "Chansey has evolved into Blissey and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "pidgey_pidgeotto_evolution",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "pidgey",
+                            "missingStatusId": "pidgey_pidgeotto_evolution"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "removeStatusIdsOnApply": [
+                                "pidgey_evolution_tracker"
+                            ],
+                            "facePictureOverride": "assets/images/PokemonArena/pidgey/pidgeottofp.webp",
+                            "skillReplacements": {
+                                "pidgey-gust": "pidgeotto-gust",
+                                "pidgey-whirlwind": "pidgeotto-whirlwind",
+                                "pidgey-peck": "pidgeotto-peck",
+                                "pidgey-sand-attack": "pidgeotto-sand-attack"
+                            },
+                            "destructibleDefensePoints": 25,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "Pidgey has evolved into Pidgeotto and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "koffing_weezing_evolution",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "koffing",
+                            "missingStatusId": "koffing_weezing_evolution"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "facePictureOverride": "assets/images/PokemonArena/koffing/weezingfp.webp",
+                            "removeStatusIdsOnApply": [
+                                "koffing_poison_gas_base",
+                                "koffing_weezing_progress_tracker",
+                                "koffing_smog_tracker",
+                                "koffing_haze_tracker",
+                                "koffing_self_destruct_tracker",
+                                "koffing_smokescreen_tracker"
+                            ],
+                            "skillReplacements": {
+                                "koffing-passive-poison-gas": "koffing-weezing-passive-poison-gas",
+                                "koffing-smog": "koffing-weezing-smog",
+                                "koffing-haze": "koffing-weezing-haze",
+                                "koffing-self-destruct": "koffing-weezing-self-destruct",
+                                "koffing-smokescreen": "koffing-weezing-smokescreen"
+                            },
+                            "destructibleDefensePoints": 25,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "Koffing has evolved into Weezing and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "zubat_golbat_evolution",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "zubat",
+                            "missingStatusId": "zubat_golbat_evolution"
+                        },
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "facePictureOverride": "assets/images/PokemonArena/zubat/golbatfp.webp",
+                            "skillReplacements": {
+                                "zubat-leech-life": "golbat-leech-life",
+                                "zubat-supersonic": "golbat-supersonic",
+                                "zubat-bite": "golbat-bite",
+                                "zubat-draining-fangs": "golbat-draining-fangs"
+                            },
+                            "destructibleDefensePoints": 25,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "Zubat has evolved into Golbat and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "gastly_haunter_evolution",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "gastly",
+                            "missingStatusId": "gastly_haunter_evolution"
+                        },
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "facePictureOverride": "assets/images/PokemonArena/gastley/haunterfp.webp",
+                            "skillReplacements": {
+                                "gastly-lick": "haunter-lick",
+                                "gastly-curse": "haunter-curse",
+                                "gastly-spite": "haunter-spite",
+                                "gastly-glare": "haunter-glare"
+                            },
+                            "destructibleDefensePoints": 25,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "Gastly has evolved into Haunter and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "abra_kadabra_evolution",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "abra",
+                            "missingStatusId": "abra_kadabra_evolution"
+                        },
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "facePictureOverride": "assets/images/PokemonArena/abra/kadabrafp.webp",
+                            "skillReplacements": {
+                                "abra-future-sight": "kadabra-future-sight",
+                                "abra-psychic": "kadabra-psychic",
+                                "abra-calm-mind": "kadabra-calm-mind",
+                                "abra-teleport": "kadabra-teleport"
+                            },
+                            "destructibleDefensePoints": 25,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "Abra has evolved into Kadabra and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "pokemon_trainer_rare_candy_swap",
+                        "duration": 99,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "skillReplacements": {
+                                "pokemon-trainer-rare-candy": "pokemon-trainer-revive"
+                            },
+                            "tooltipText": "Rare Candy is replaced by Revive."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "pokemon-trainer-great-ball",
+                "name": "Great Ball",
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/PokemonArena/pokemontrainer/Great ball.png",
+                "skilldescription": "Stuns one enemy and makes them invulnerable to all skills for 2 turns. If used when their health is at 25 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This skill swaps to Ultra Ball.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "pokemon_trainer_great_ball_capture",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy",
+                            "sourceCurrentHpAtMost": 25
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "banished": true,
+                            "infiniteDuration": true,
+                            "tooltipText": "This character has been caught and is treated as defeated for the rest of the game."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "pokemon_trainer_capture_form",
+                        "duration": 999,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy",
+                            "sourceCurrentHpAtMost": 25
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "copyEffectiveCharacterFromTarget": true,
+                            "tooltipTextTemplate": "Pokemon Trainer has caught {characterName} and now uses that Pokemon's skills."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "stunned",
+                        "duration": 2,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy",
+                            "sourceCurrentHpAtLeast": 26
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "This character is stunned."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "pokemon_trainer_great_ball_lock",
+                        "duration": 2,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy",
+                            "sourceCurrentHpAtLeast": 26
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "invulnerable": true,
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "This character is sealed inside a Great Ball and is invulnerable."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "pokemon_trainer_ball_upgrade_2",
+                        "duration": 99,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "skillReplacements": {
+                                "pokemon-trainer-pokeball": "pokemon-trainer-ultra-ball"
+                            },
+                            "removeStatusIdsOnApply": [
+                                "pokemon_trainer_ball_upgrade_1"
+                            ],
+                            "tooltipText": "Great Ball is replaced by Ultra Ball."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "pokemon-trainer-ultra-ball",
+                "name": "Ultra Ball",
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/PokemonArena/pokemontrainer/master ball.jpeg",
+                "skilldescription": "Stuns one enemy and makes them invulnerable to all skills for 3 turns. If used when their health is at 40 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This skill swaps to Master Ball.",
+                "energy": [
+                    "Genjutsu",
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "pokemon_trainer_ultra_ball_capture",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy",
+                            "sourceCurrentHpAtMost": 40
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "banished": true,
+                            "infiniteDuration": true,
+                            "tooltipText": "This character has been caught and is treated as defeated for the rest of the game."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "pokemon_trainer_capture_form",
+                        "duration": 999,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy",
+                            "sourceCurrentHpAtMost": 40
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "copyEffectiveCharacterFromTarget": true,
+                            "tooltipTextTemplate": "Pokemon Trainer has caught {characterName} and now uses that Pokemon's skills."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "stunned",
+                        "duration": 3,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy",
+                            "sourceCurrentHpAtLeast": 41
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "This character is stunned."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "pokemon_trainer_ultra_ball_lock",
+                        "duration": 3,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy",
+                            "sourceCurrentHpAtLeast": 41
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "invulnerable": true,
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "This character is sealed inside an Ultra Ball and is invulnerable."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "pokemon_trainer_ball_upgrade_3",
+                        "duration": 99,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "skillReplacements": {
+                                "pokemon-trainer-pokeball": "pokemon-trainer-master-ball"
+                            },
+                            "removeStatusIdsOnApply": [
+                                "pokemon_trainer_ball_upgrade_2"
+                            ],
+                            "tooltipText": "Ultra Ball is replaced by Master Ball."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "pokemon-trainer-master-ball",
+                "name": "Master Ball",
+                "hiddenFromSelectionViewer": true,
+                "cannotBeCountered": true,
+                "cannotBeReflected": true,
+                "ignoreInvulnerability": true,
+                "skillimage": "assets/images/PokemonArena/pokemontrainer/master ball.jpeg",
+                "skilldescription": "Permanently banishes one enemy and swaps Pokemon Trainer's skills to theirs for the rest of the game. This cannot be ignored, countered, or reflected.",
+                "energy": [
+                    "Taijutsu",
+                    "Genjutsu",
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant",
+                    "Bypassing",
+                    "Uncounterable",
+                    "Unreflectable"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "pokemon_trainer_master_ball_capture",
+                        "duration": 999,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "banished": true,
+                            "infiniteDuration": true,
+                            "tooltipText": "This character has been caught and is treated as defeated for the rest of the game."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "pokemon_trainer_capture_form",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "copyEffectiveCharacterFromTarget": true,
+                            "tooltipTextTemplate": "Pokemon Trainer has caught {characterName} and now uses that Pokemon's skills."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "pokemon-trainer-revive",
+                "name": "Revive",
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/PokemonArena/pokemontrainer/Revive.jpg",
+                "skilldescription": "Revives one defeated ally with 50 HP. If used on a living ally instead, heals them for 25 HP.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-ally-or-dead-ally",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "revive",
+                        "amount": 50,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "sourceCurrentHpAtMost": 0
+                        }
+                    },
+                    {
+                        "type": "heal",
+                        "amount": 25,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "sourceCurrentHpAtLeast": 1
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Hybrid",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "hybrid",
+        "description": "A tactical Pokemon handler who controls battle tempo with capture tools, item support, and forced evolution tricks. Pokemon Trainer can lock enemies down with stronger and stronger balls, power up allies with X-Stats, and turn one teammate's evolution online instantly with Rare Candy.",
+        "descriptionHtml": "A tactical Pokemon handler who controls battle tempo with capture tools, item support, and forced evolution tricks. Pokemon Trainer can lock enemies down with stronger and stronger balls, power up allies with X-Stats, and turn one teammate's evolution online instantly with Rare Candy."
+    },
+    {
         "id": "chansey",
         "characterId": "chansey",
         "name": "Chansey",
