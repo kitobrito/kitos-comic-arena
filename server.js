@@ -9680,40 +9680,51 @@ app.post('/api/match/join', requireSession, async (req, res) => {
         // Already matched
         const existingMapping = userToMatch.get(username);
         if (existingMapping && (!existingMapping.arena || existingMapping.arena === arena)) {
-            const { matchId, opponent } = existingMapping;
-            const existing = await matchesCollection.findOne({ matchId });
-            if (!existing || existing.status === 'ended') {
+            try {
+                const { matchId, opponent } = existingMapping;
+                const existing = await matchesCollection.findOne({ matchId });
+                if (!existing || existing.status === 'ended') {
+                    userToMatch.delete(username);
+                } else {
+                    const hydratedTurn = await ensureMatchTurnData(existing);
+                    const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
+                    const hydratedPending = await ensurePendingTurnState(hydratedEcon);
+                    const hydrated = await autoAdvanceTurnIfExpired(hydratedPending);
+                    if (!hydrated || hydrated.status === 'ended') {
+                        userToMatch.delete(username);
+                    } else {
+                        scheduleBattleBotTurn(hydrated);
+                        const safePayload = buildMatchPayloadForUser(hydrated, username);
+                        return res.json({
+                            ok: true,
+                            matchFound: true,
+                            matchId,
+                            mode: existing.mode || 'quick',
+                            arena: normalizeArenaMode(existing.arena),
+                            opponent,
+                            matchStartsAt: existing.matchStartsAt || existing.createdAt || null,
+                            matchReady:
+                                !existing.matchStartsAt ||
+                                new Date(existing.matchStartsAt).getTime() <= Date.now(),
+                            currentTurn: hydrated?.currentTurn || null,
+                            turnOrder: hydrated?.turnOrder || null,
+                            turnExpiresAt: hydrated?.turnExpiresAt || null,
+                            turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
+                            chakraPools: safePayload?.chakraPools || null,
+                            lastChakraGain: safePayload?.lastChakraGain || null,
+                            pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('[matchmaking] failed to hydrate mapped match', {
+                    username,
+                    requestedArena: arena,
+                    mappedMatchId: existingMapping.matchId || null,
+                    mappedArena: existingMapping.arena || null,
+                    error: error?.message || String(error),
+                });
                 userToMatch.delete(username);
-            } else {
-            const hydratedTurn = await ensureMatchTurnData(existing);
-            const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
-            const hydratedPending = await ensurePendingTurnState(hydratedEcon);
-            const hydrated = await autoAdvanceTurnIfExpired(hydratedPending);
-            if (!hydrated || hydrated.status === 'ended') {
-                userToMatch.delete(username);
-            } else {
-            scheduleBattleBotTurn(hydrated);
-            const safePayload = buildMatchPayloadForUser(hydrated, username);
-            return res.json({
-                ok: true,
-                matchFound: true,
-                matchId,
-                mode: existing.mode || 'quick',
-                arena: normalizeArenaMode(existing.arena),
-                opponent,
-                matchStartsAt: existing.matchStartsAt || existing.createdAt || null,
-                matchReady:
-                    !existing.matchStartsAt ||
-                    new Date(existing.matchStartsAt).getTime() <= Date.now(),
-                currentTurn: hydrated?.currentTurn || null,
-                turnOrder: hydrated?.turnOrder || null,
-                turnExpiresAt: hydrated?.turnExpiresAt || null,
-                turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
-                chakraPools: safePayload?.chakraPools || null,
-                lastChakraGain: safePayload?.lastChakraGain || null,
-                pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
-            });
-            }
             }
         }
 
@@ -9724,37 +9735,47 @@ app.post('/api/match/join', requireSession, async (req, res) => {
             arena,
         });
         if (existingMatch) {
-            const hydratedTurn = await ensureMatchTurnData(existingMatch);
-            const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
-            const hydratedPending = await ensurePendingTurnState(hydratedEcon);
-            const hydrated = await autoAdvanceTurnIfExpired(hydratedPending);
-            if (!hydrated || hydrated.status === 'ended') {
-                return res.json({ ok: true, matchFound: false });
+            try {
+                const hydratedTurn = await ensureMatchTurnData(existingMatch);
+                const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
+                const hydratedPending = await ensurePendingTurnState(hydratedEcon);
+                const hydrated = await autoAdvanceTurnIfExpired(hydratedPending);
+                if (!hydrated || hydrated.status === 'ended') {
+                    return res.json({ ok: true, matchFound: false });
+                }
+                const opponentEntry = hydrated.players.find((p) => p.username !== username);
+                const opponent = opponentEntry ? getPlayerDisplayName(opponentEntry) : null;
+                userToMatch.set(username, { matchId: hydrated.matchId, opponent, arena });
+                scheduleBattleBotTurn(hydrated);
+                const safePayload = buildMatchPayloadForUser(hydrated, username);
+                return res.json({
+                    ok: true,
+                    matchFound: true,
+                    matchId: hydrated.matchId,
+                    mode: hydrated.mode || 'quick',
+                    arena: normalizeArenaMode(hydrated.arena),
+                    opponent,
+                    matchStartsAt: hydrated.matchStartsAt || hydrated.createdAt || null,
+                    matchReady:
+                        !hydrated.matchStartsAt ||
+                        new Date(hydrated.matchStartsAt).getTime() <= Date.now(),
+                    currentTurn: hydrated.currentTurn || null,
+                    turnOrder: hydrated.turnOrder || null,
+                    turnExpiresAt: hydrated.turnExpiresAt || null,
+                    turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
+                    chakraPools: safePayload?.chakraPools || null,
+                    lastChakraGain: safePayload?.lastChakraGain || null,
+                    pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
+                });
+            } catch (error) {
+                console.error('[matchmaking] failed to hydrate stored active match', {
+                    username,
+                    requestedArena: arena,
+                    matchId: existingMatch.matchId || null,
+                    storedArena: existingMatch.arena || null,
+                    error: error?.message || String(error),
+                });
             }
-            const opponentEntry = hydrated.players.find((p) => p.username !== username);
-            const opponent = opponentEntry ? getPlayerDisplayName(opponentEntry) : null;
-            userToMatch.set(username, { matchId: hydrated.matchId, opponent, arena });
-            scheduleBattleBotTurn(hydrated);
-            const safePayload = buildMatchPayloadForUser(hydrated, username);
-            return res.json({
-                ok: true,
-                matchFound: true,
-                matchId: hydrated.matchId,
-                mode: hydrated.mode || 'quick',
-                arena: normalizeArenaMode(hydrated.arena),
-                opponent,
-                matchStartsAt: hydrated.matchStartsAt || hydrated.createdAt || null,
-                matchReady:
-                    !hydrated.matchStartsAt ||
-                    new Date(hydrated.matchStartsAt).getTime() <= Date.now(),
-                currentTurn: hydrated.currentTurn || null,
-                turnOrder: hydrated.turnOrder || null,
-                turnExpiresAt: hydrated.turnExpiresAt || null,
-                turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
-                chakraPools: safePayload?.chakraPools || null,
-                lastChakraGain: safePayload?.lastChakraGain || null,
-                pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
-            });
         }
 
         const user = await usersCollection.findOne({ username });
@@ -9773,107 +9794,119 @@ app.post('/api/match/join', requireSession, async (req, res) => {
             ? dequeuePrivateOpponent(username, targetUsername, arena)
             : dequeueOpponent(username, mode, draftMode, arena);
         if (opponent) {
-            if (!isValidTeamSelectionForMatch(team) || !isValidTeamSelectionForMatch(opponent.team)) {
-                return res.status(400).json({ error: 'Invalid team selection.' });
-            }
-            const shouldDraft = mode === 'private'
-                ? draftMode || Boolean(opponent.draftMode)
-                : draftMode && Boolean(opponent.draftMode);
-            if (shouldDraft) {
-                const draft = createDraftSession({
+            try {
+                if (!isValidTeamSelectionForMatch(team) || !isValidTeamSelectionForMatch(opponent.team)) {
+                    return res.status(400).json({ error: 'Invalid team selection.' });
+                }
+                const shouldDraft = mode === 'private'
+                    ? draftMode || Boolean(opponent.draftMode)
+                    : draftMode && Boolean(opponent.draftMode);
+                if (shouldDraft) {
+                    const draft = createDraftSession({
+                        mode,
+                        arena,
+                        players: [
+                            {
+                                username,
+                                team,
+                                mode,
+                                arena,
+                                profile: serializeArenaProfileForClient(profile, arena),
+                                draftMode: true,
+                                targetUsername,
+                                queuedAt: new Date(),
+                                allowBattleBot: true,
+                                ladderLevel: Number(getProfileArenaState(profile, arena)?.ladder?.level) || 1,
+                            },
+                            {
+                                ...opponent,
+                                draftMode: true,
+                            },
+                        ],
+                    });
+                    return res.json(serializeDraftForUser(draft, username));
+                }
+                const aliveLookup = {
+                    [username]: Array.isArray(team) ? team.length : 3,
+                    [opponent.username]: Array.isArray(opponent.team) ? opponent.team.length : 3,
+                };
+                const {
+                    matchId,
+                    matchStartsAt,
+                    turnOrder,
+                    currentTurn,
+                    chakraPools,
+                    economy,
+                    pendingTurns,
+                    turnExpiresAt,
+                } =
+                    buildMatch([username, opponent.username], aliveLookup);
+                const playerDocs = [
+                    {
+                        username,
+                        team,
+                        aliveCount: aliveLookup[username],
+                        profile: serializeArenaProfileForClient(profile, arena),
+                    },
+                    {
+                        username: opponent.username,
+                        team: opponent.team,
+                        aliveCount: aliveLookup[opponent.username],
+                        profile:
+                            opponent.profile && typeof opponent.profile === 'object'
+                                ? serializeArenaProfileForClient(opponent.profile, arena)
+                                : null,
+                    },
+                ];
+                const board = battleLogic.buildInitialBoard(playerDocs);
+                const matchDocument = {
+                    matchId,
                     mode,
                     arena,
-                    players: [
-                        {
-                            username,
-                            team,
-                            mode,
-                            arena,
-                            profile: serializeArenaProfileForClient(profile, arena),
-                            draftMode: true,
-                            targetUsername,
-                            queuedAt: new Date(),
-                            allowBattleBot: true,
-                            ladderLevel: Number(getProfileArenaState(profile, arena)?.ladder?.level) || 1,
-                        },
-                        {
-                            ...opponent,
-                            draftMode: true,
-                        },
-                    ],
+                    status: 'active',
+                    createdAt: new Date(),
+                    matchStartsAt,
+                    chakraPools,
+                    economy,
+                    pendingTurns,
+                    currentTurn,
+                    turnOrder,
+                    turnExpiresAt,
+                    board,
+                    players: playerDocs,
+                    backgroundOverride: getRandomRegularBackground(arena),
+                };
+                await matchesCollection.insertOne(matchDocument);
+                const createdMatch = matchDocument;
+                scheduleBattleBotTurn(createdMatch);
+                const opponentName = opponent.username;
+                return res.json({
+                    ok: true,
+                    matchFound: true,
+                    matchId,
+                    mode,
+                    arena,
+                    opponent: opponentName,
+                    matchStartsAt,
+                    matchReady: new Date(matchStartsAt).getTime() <= Date.now(),
+                    currentTurn,
+                    turnOrder,
+                    turnExpiresAt,
+                    turnDurationMs: getTurnDurationMsForUser({ players: playerDocs, board }, currentTurn),
+                    pendingTurn: makeEmptyPendingTurn(),
+                    backgroundOverride: matchDocument.backgroundOverride,
                 });
-                return res.json(serializeDraftForUser(draft, username));
-            }
-            const aliveLookup = {
-                [username]: Array.isArray(team) ? team.length : 3,
-                [opponent.username]: Array.isArray(opponent.team) ? opponent.team.length : 3,
-            };
-            const {
-                matchId,
-                matchStartsAt,
-                turnOrder,
-                currentTurn,
-                chakraPools,
-                economy,
-                pendingTurns,
-                turnExpiresAt,
-            } =
-                buildMatch([username, opponent.username], aliveLookup);
-            const playerDocs = [
-                {
+            } catch (error) {
+                console.error('[matchmaking] failed to create paired match', {
                     username,
-                    team,
-                    aliveCount: aliveLookup[username],
-                    profile: serializeArenaProfileForClient(profile, arena),
-                },
-                {
-                    username: opponent.username,
-                    team: opponent.team,
-                    aliveCount: aliveLookup[opponent.username],
-                    profile:
-                        opponent.profile && typeof opponent.profile === 'object'
-                            ? serializeArenaProfileForClient(opponent.profile, arena)
-                            : null,
-                },
-            ];
-            const board = battleLogic.buildInitialBoard(playerDocs);
-            const matchDocument = {
-                matchId,
-                mode,
-                arena,
-                status: 'active',
-                createdAt: new Date(),
-                matchStartsAt,
-                chakraPools,
-                economy,
-                pendingTurns,
-                currentTurn,
-                turnOrder,
-                turnExpiresAt,
-                board,
-                players: playerDocs,
-                backgroundOverride: getRandomRegularBackground(arena),
-            };
-            await matchesCollection.insertOne(matchDocument);
-            const createdMatch = matchDocument;
-            scheduleBattleBotTurn(createdMatch);
-            const opponentName = opponent.username;
-            return res.json({
-                ok: true,
-                matchFound: true,
-                matchId,
-                mode,
-                arena,
-                opponent: opponentName,
-                matchStartsAt,
-                matchReady: new Date(matchStartsAt).getTime() <= Date.now(),
-                currentTurn,
-                turnOrder,
-                turnExpiresAt,
-                turnDurationMs: getTurnDurationMsForUser({ players: playerDocs, board }, currentTurn),
-                pendingTurn: makeEmptyPendingTurn(),
-                backgroundOverride: matchDocument.backgroundOverride,
-            });
+                    opponentUsername: opponent.username || null,
+                    mode,
+                    arena,
+                    draftMode,
+                    opponentDraftMode: Boolean(opponent.draftMode),
+                    error: error?.message || String(error),
+                });
+            }
         }
 
         const queuedBotMatch = await maybeCreateBattleBotMatch({
