@@ -1406,6 +1406,44 @@ document.addEventListener('DOMContentLoaded', async () => {
     const matchIdFromUrl = pageSearchParams.get('matchId');
     const selectionMissionIdFromUrl = pageSearchParams.get('missionId');
     const arenaModeFromUrl = pageSearchParams.get('arena');
+    const MATCH_ARENA_CACHE_KEY = 'comicMatchArenaById';
+    const MATCH_AUTO_RECOVERY_PREFIX = 'comicMatchAutoRecovery:';
+    const normalizeArenaModeValue = (value = '') => {
+        const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
+        return normalized === 'pokemon' ? 'pokemon' : normalized === 'comic' ? 'comic' : '';
+    };
+    const readCachedMatchArenaMap = () => {
+        try {
+            const raw = sessionStorage.getItem(MATCH_ARENA_CACHE_KEY);
+            if (!raw) return {};
+            const parsed = JSON.parse(raw);
+            return parsed && typeof parsed === 'object' ? parsed : {};
+        } catch (error) {
+            return {};
+        }
+    };
+    const writeCachedMatchArena = (matchId, arena) => {
+        const normalizedArena = normalizeArenaModeValue(arena);
+        const normalizedMatchId = typeof matchId === 'string' ? matchId.trim() : '';
+        if (!normalizedMatchId || !normalizedArena) return;
+        try {
+            const next = readCachedMatchArenaMap();
+            next[normalizedMatchId] = normalizedArena;
+            sessionStorage.setItem(MATCH_ARENA_CACHE_KEY, JSON.stringify(next));
+        } catch (error) {
+            // Ignore storage failures.
+        }
+    };
+    const readCachedMatchArena = (matchId) => {
+        const normalizedMatchId = typeof matchId === 'string' ? matchId.trim() : '';
+        if (!normalizedMatchId) return '';
+        const cached = readCachedMatchArenaMap()[normalizedMatchId];
+        return normalizeArenaModeValue(cached);
+    };
+    const getAutoRecoveryKey = (matchId) =>
+        `${MATCH_AUTO_RECOVERY_PREFIX}${typeof matchId === 'string' ? matchId.trim() : ''}`;
+    const buildIngameMatchUrl = (matchId, arena) =>
+        `ingame.html?matchId=${encodeURIComponent(matchId)}&arena=${encodeURIComponent(arena)}`;
 
     if (!slotList) {
         const rosterData = Array.isArray(window.characters)
@@ -1425,14 +1463,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         let currentOpponentDisplayName = null;
         let currentMatchMode = 'quick';
         let currentMatchArena =
-            arenaModeFromUrl === 'pokemon'
-                ? 'pokemon'
-                : arenaModeFromUrl === 'comic'
-                    ? 'comic'
-                    : localStorage.getItem('comicArenaMode') === 'pokemon'
-                        ? 'pokemon'
-                        : 'comic';
+            normalizeArenaModeValue(arenaModeFromUrl) ||
+            readCachedMatchArena(matchIdFromUrl) ||
+            (localStorage.getItem('comicArenaMode') === 'pokemon' ? 'pokemon' : 'comic');
+        if (matchIdFromUrl) {
+            writeCachedMatchArena(matchIdFromUrl, currentMatchArena);
+        }
         setIngameArenaUiAssets(currentMatchArena);
+        const clearMatchAutoRecoveryAttempt = (matchId = matchIdFromUrl) => {
+            const normalizedMatchId = typeof matchId === 'string' ? matchId.trim() : '';
+            if (!normalizedMatchId) return;
+            try {
+                sessionStorage.removeItem(getAutoRecoveryKey(normalizedMatchId));
+            } catch (error) {
+                // Ignore storage failures.
+            }
+        };
+        const attemptMatchAutoRecovery = (reason = 'unknown') => {
+            const normalizedMatchId = typeof matchIdFromUrl === 'string' ? matchIdFromUrl.trim() : '';
+            if (!normalizedMatchId) return false;
+            const recoveryKey = getAutoRecoveryKey(normalizedMatchId);
+            try {
+                if (sessionStorage.getItem(recoveryKey)) {
+                    return false;
+                }
+                sessionStorage.setItem(recoveryKey, reason || '1');
+            } catch (error) {
+                // Ignore storage failures and still attempt reload.
+            }
+            const arena =
+                readCachedMatchArena(normalizedMatchId) ||
+                normalizeArenaModeValue(arenaModeFromUrl) ||
+                currentMatchArena ||
+                'comic';
+            window.location.replace(buildIngameMatchUrl(normalizedMatchId, arena));
+            return true;
+        };
         const matchChatEl = document.querySelector('.match-chat');
         const matchChatToggle = document.querySelector('.match-chat-toggle');
         const matchChatUnreadEl = document.querySelector('.match-chat-unread');
@@ -1575,6 +1641,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         let lastTargetHighlightSignature = '';
         const preloadedIngameImageUrls = new Set();
         const perfEntries = [];
+        let activeMatchIssueBannerTimeout = null;
+        let activeMatchIssueBannerToken = 0;
+        let activeMatchRecoveryPromise = null;
         let ingamePerfDebug =
             new URLSearchParams(window.location.search).get('perf') === '1' ||
             localStorage.getItem('comicArenaPerfDebug') === 'true';
@@ -1620,6 +1689,179 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         const playGeneratedIngameSound = (name) => {
             soundManager.playGeneratedEffect(name);
+        };
+        const matchIssueBannerEl = document.createElement('div');
+        matchIssueBannerEl.className = 'match-issue-banner';
+        Object.assign(matchIssueBannerEl.style, {
+            position: 'fixed',
+            top: '14px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: '9999',
+            minWidth: '320px',
+            maxWidth: 'min(92vw, 760px)',
+            padding: '12px 14px',
+            borderRadius: '14px',
+            border: '2px solid rgba(255,255,255,0.28)',
+            background: 'rgba(20,24,36,0.94)',
+            color: '#f4f7fb',
+            boxShadow: '0 16px 40px rgba(0,0,0,0.38)',
+            display: 'none',
+            alignItems: 'center',
+            gap: '12px',
+            fontFamily: '"Libre Franklin", sans-serif',
+            fontSize: '14px',
+            lineHeight: '1.35',
+        });
+        const matchIssueBannerMessageEl = document.createElement('div');
+        Object.assign(matchIssueBannerMessageEl.style, {
+            flex: '1 1 auto',
+            minWidth: '0',
+            whiteSpace: 'pre-wrap',
+        });
+        const matchIssueBannerActionsEl = document.createElement('div');
+        Object.assign(matchIssueBannerActionsEl.style, {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            flexShrink: '0',
+        });
+        const createMatchIssueBannerButton = (label) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = label;
+            Object.assign(button.style, {
+                border: '1px solid rgba(255,255,255,0.25)',
+                background: 'rgba(255,255,255,0.08)',
+                color: '#f7fbff',
+                borderRadius: '999px',
+                padding: '7px 12px',
+                font: 'inherit',
+                cursor: 'pointer',
+            });
+            return button;
+        };
+        const matchIssueBannerRetryButton = createMatchIssueBannerButton('Retry');
+        const matchIssueBannerDismissButton = createMatchIssueBannerButton('Dismiss');
+        matchIssueBannerActionsEl.appendChild(matchIssueBannerRetryButton);
+        matchIssueBannerActionsEl.appendChild(matchIssueBannerDismissButton);
+        matchIssueBannerEl.appendChild(matchIssueBannerMessageEl);
+        matchIssueBannerEl.appendChild(matchIssueBannerActionsEl);
+        document.body.appendChild(matchIssueBannerEl);
+        const clearMatchIssueBanner = () => {
+            activeMatchIssueBannerToken += 1;
+            if (activeMatchIssueBannerTimeout) {
+                window.clearTimeout(activeMatchIssueBannerTimeout);
+                activeMatchIssueBannerTimeout = null;
+            }
+            matchIssueBannerEl.style.display = 'none';
+            matchIssueBannerMessageEl.textContent = '';
+        };
+        let recoverCurrentMatchState = async ({ reason = 'manual', message = 'Retrying match sync...' } = {}) => {
+            void reason;
+            void message;
+            return false;
+        };
+        const setMatchIssueBanner = ({
+            message = '',
+            tone = 'error',
+            retryLabel = 'Retry',
+            onRetry = null,
+            dismissible = true,
+            autoHideMs = 0,
+        } = {}) => {
+            const token = ++activeMatchIssueBannerToken;
+            if (activeMatchIssueBannerTimeout) {
+                window.clearTimeout(activeMatchIssueBannerTimeout);
+                activeMatchIssueBannerTimeout = null;
+            }
+            if (!message) {
+                clearMatchIssueBanner();
+                return;
+            }
+            const palette =
+                tone === 'success'
+                    ? { background: 'rgba(14,65,42,0.94)', border: 'rgba(104,235,162,0.55)', color: '#eafff3' }
+                    : tone === 'info'
+                    ? { background: 'rgba(16,43,72,0.94)', border: 'rgba(114,183,255,0.5)', color: '#edf7ff' }
+                    : { background: 'rgba(76,17,17,0.96)', border: 'rgba(255,120,120,0.55)', color: '#fff1f1' };
+            matchIssueBannerEl.style.display = 'flex';
+            matchIssueBannerEl.style.background = palette.background;
+            matchIssueBannerEl.style.borderColor = palette.border;
+            matchIssueBannerEl.style.color = palette.color;
+            matchIssueBannerMessageEl.textContent = message;
+            matchIssueBannerRetryButton.textContent = retryLabel;
+            matchIssueBannerRetryButton.style.display = typeof onRetry === 'function' ? '' : 'none';
+            matchIssueBannerRetryButton.onclick =
+                typeof onRetry === 'function'
+                    ? () => {
+                          Promise.resolve(onRetry()).catch((error) => {
+                              console.warn('Failed to run match issue retry action.', error);
+                          });
+                      }
+                    : null;
+            matchIssueBannerDismissButton.style.display = dismissible ? '' : 'none';
+            matchIssueBannerDismissButton.onclick = dismissible ? () => clearMatchIssueBanner() : null;
+            if (autoHideMs > 0) {
+                activeMatchIssueBannerTimeout = window.setTimeout(() => {
+                    if (token !== activeMatchIssueBannerToken) return;
+                    clearMatchIssueBanner();
+                }, autoHideMs);
+            }
+        };
+        const announceMatchIssue = (message, options = {}) => {
+            setMatchIssueBanner({
+                message,
+                tone: options.tone || 'error',
+                retryLabel: options.retryLabel || 'Retry',
+                onRetry:
+                    options.onRetry ||
+                    (() =>
+                        recoverCurrentMatchState({
+                            reason: options.reason || 'manual-retry',
+                            message: options.recoveryMessage || 'Retrying match sync...',
+                        })),
+                dismissible: options.dismissible !== false,
+                autoHideMs: options.autoHideMs || 0,
+            });
+        };
+        const fetchMatchPayload = async ({
+            matchId = matchIdFromUrl,
+            retries = 0,
+            retryDelayMs = 400,
+            arenaOverride = currentMatchArena,
+        } = {}) => {
+            const normalizedMatchId = typeof matchId === 'string' ? matchId.trim() : '';
+            if (!normalizedMatchId) {
+                throw new Error('Match ID is missing.');
+            }
+            let lastLoadError = null;
+            for (let attempt = 0; attempt <= retries; attempt += 1) {
+                try {
+                    const response = await fetch(
+                        `${API_BASE_URL}/api/match/${encodeURIComponent(normalizedMatchId)}`,
+                        {
+                            credentials: 'include',
+                            cache: 'no-store',
+                        }
+                    );
+                    const payload = await response.json().catch(() => ({}));
+                    if (response.status === 401 || response.status === 403) {
+                        redirectToSelectionLogin(arenaOverride);
+                        return null;
+                    }
+                    if (response.ok && payload?.ok) {
+                        return payload;
+                    }
+                    lastLoadError = new Error(payload?.error || `Match request failed (${response.status}).`);
+                } catch (error) {
+                    lastLoadError = error;
+                }
+                if (attempt < retries) {
+                    await wait(retryDelayMs * (attempt + 1));
+                }
+            }
+            throw lastLoadError || new Error('Match data was unavailable.');
         };
 
         const getFullscreenElement = () =>
@@ -4732,6 +4974,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             } catch (error) {
                 console.warn('Failed to auto-end turn on timeout.', error);
+                announceMatchIssue('Turn timeout sync failed. Trying to reload the live match state...', {
+                    tone: 'info',
+                    reason: 'auto-end-timeout',
+                    recoveryMessage: 'Reloading match after timeout...',
+                });
+                recoverCurrentMatchState({
+                    reason: 'auto-end-timeout',
+                    message: 'Reloading match after timeout...',
+                }).catch(() => {});
             }
         };
 
@@ -7866,6 +8117,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (typeof data.arena === 'string' && data.arena.trim()) {
                 currentMatchArena = data.arena.trim().toLowerCase() === 'pokemon' ? 'pokemon' : 'comic';
             }
+            writeCachedMatchArena(matchIdFromUrl || data.matchId, currentMatchArena);
             setIngameArenaUiAssets(currentMatchArena);
             syncEnergyNameLabels();
             if (data.player?.profile) {
@@ -8449,7 +8701,63 @@ document.addEventListener('DOMContentLoaded', async () => {
                 hasPlayedMatchEntrySound = true;
             }
             applyMatchState(data);
+            clearMatchAutoRecoveryAttempt(data.matchId || matchIdFromUrl);
+            clearMatchIssueBanner();
             renderDynamicSkillIcons();
+        };
+
+        recoverCurrentMatchState = async ({ reason = 'manual', message = 'Retrying match sync...' } = {}) => {
+            if (!matchIdFromUrl) return false;
+            if (activeMatchRecoveryPromise) {
+                return activeMatchRecoveryPromise;
+            }
+            setMatchIssueBanner({
+                message,
+                tone: 'info',
+                dismissible: false,
+            });
+            activeMatchRecoveryPromise = (async () => {
+                try {
+                    const payload = await fetchMatchPayload({
+                        matchId: matchIdFromUrl,
+                        retries: 1,
+                        retryDelayMs: 500,
+                        arenaOverride: currentMatchArena,
+                    });
+                    if (!payload) return false;
+                    applyIncomingMatchState(payload);
+                    connectMatchSocket();
+                    setMatchIssueBanner({
+                        message: 'Match sync restored.',
+                        tone: 'success',
+                        dismissible: true,
+                        autoHideMs: 1800,
+                        onRetry: null,
+                    });
+                    return true;
+                } catch (error) {
+                    console.warn(`Failed to recover match state (${reason}).`, error);
+                    announceMatchIssue(
+                        `Unable to resync this match right now. ${error?.message || 'Please retry.'}`,
+                        {
+                            reason: `${reason}-retry`,
+                            recoveryMessage: 'Retrying match sync...',
+                        }
+                    );
+                    if (attemptMatchAutoRecovery(`recover-${reason}`)) {
+                        setMatchIssueBanner({
+                            message: 'Reloading the match to recover from a sync problem...',
+                            tone: 'info',
+                            dismissible: false,
+                            onRetry: null,
+                        });
+                    }
+                    return false;
+                } finally {
+                    activeMatchRecoveryPromise = null;
+                }
+            })();
+            return activeMatchRecoveryPromise;
         };
 
         const scheduleIncomingMatchState = (data) => {
@@ -8718,6 +9026,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             matchSocket = socket;
             socket.addEventListener('open', () => {
                 matchSocketReconnectDelay = 1000;
+                if (!activeMatchRecoveryPromise) {
+                    clearMatchIssueBanner();
+                }
             });
             socket.addEventListener('message', (event) => {
                 try {
@@ -8731,6 +9042,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 } catch (error) {
                     console.warn('Failed to process match socket message.', error);
+                    announceMatchIssue('Live match update failed to apply. Retrying sync...', {
+                        tone: 'info',
+                        reason: 'socket-message-parse',
+                        recoveryMessage: 'Retrying live match sync...',
+                    });
+                    recoverCurrentMatchState({
+                        reason: 'socket-message-parse',
+                        message: 'Retrying live match sync...',
+                    }).catch(() => {});
                 }
             });
             socket.addEventListener('close', () => {
@@ -8740,6 +9060,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (matchSocketManuallyClosed || battleEndShown || !matchIdFromUrl) {
                     return;
                 }
+                setMatchIssueBanner({
+                    message: 'Connection to the live match was interrupted. Reconnecting...',
+                    tone: 'info',
+                    dismissible: false,
+                });
                 clearMatchSocketReconnect();
                 matchSocketReconnectTimer = setTimeout(() => {
                     matchSocketReconnectTimer = null;
@@ -9047,6 +9372,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                     optimisticQueuedByActorSlot.delete(actorSlot);
                     applyQueuedSkillVisuals();
                     console.warn('Failed to queue skill.', error);
+                    announceMatchIssue(
+                        `Could not queue that skill. ${error?.message || 'The match state may be stale.'}`,
+                        {
+                            reason: 'queue-skill',
+                            recoveryMessage: 'Refreshing your queued turn...',
+                        }
+                    );
+                    recoverCurrentMatchState({
+                        reason: 'queue-skill',
+                        message: 'Refreshing your queued turn...',
+                    }).catch(() => {});
                 })
                 .finally(() => {
                     inFlightSkillRequestByActorSlot.delete(actorSlot);
@@ -9235,6 +9571,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 playIngameSound(applySkillSound);
             } catch (error) {
                 console.warn('Failed to resolve turn start choice.', error);
+                announceMatchIssue(
+                    `That choice could not be confirmed. ${error?.message || 'Refreshing the match state...'}`,
+                    {
+                        reason: 'turn-start-choice',
+                        recoveryMessage: 'Refreshing the match choice state...',
+                    }
+                );
+                recoverCurrentMatchState({
+                    reason: 'turn-start-choice',
+                    message: 'Refreshing the match choice state...',
+                }).catch(() => {});
             } finally {
                 activeChoicePopupMode = null;
                 activeTurnStartChoiceKey = '';
@@ -9426,34 +9773,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             const matchId = matchIdFromUrl;
             if (!matchId || !Array.isArray(rosterData) || rosterData.length === 0) {
                 console.warn('Unable to initialize match: missing match ID or character roster.');
+                announceMatchIssue('This match could not initialize correctly.', {
+                    dismissible: false,
+                    onRetry: null,
+                });
                 return;
             }
             try {
-                let data = null;
-                let lastLoadError = null;
-                for (let attempt = 0; attempt < 3; attempt += 1) {
-                    try {
-                        const response = await fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchId)}`, {
-                            credentials: 'include',
-                            cache: 'no-store',
-                        });
-                        const payload = await response.json();
-                        if (response.status === 401 || response.status === 403) {
-                            redirectToSelectionLogin(currentMatchArena);
-                            return;
-                        }
-                        if (response.ok && payload?.ok) {
-                            data = payload;
-                            break;
-                        }
-                        lastLoadError = new Error(payload?.error || `Match request failed (${response.status}).`);
-                        if (response.status === 401 || response.status === 403) break;
-                    } catch (error) {
-                        lastLoadError = error;
-                    }
-                    await wait(400 * (attempt + 1));
-                }
-                if (!data) throw lastLoadError || new Error('Match data was unavailable.');
+                const data = await fetchMatchPayload({
+                    matchId,
+                    retries: 2,
+                    retryDelayMs: 400,
+                    arenaOverride: currentMatchArena,
+                });
+                if (!data) return;
 
                 const normalizeRosterIndex = (value) => {
                     if (Number.isInteger(value)) return value;
@@ -9652,6 +9985,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 await battleIntroPromise;
             } catch (error) {
                 console.warn('Failed to load match data.', error);
+                announceMatchIssue(
+                    `We couldn't load the live match cleanly. ${error?.message || ''}`.trim(),
+                    {
+                        dismissible: false,
+                        reason: 'load-match',
+                        recoveryMessage: 'Retrying match load...',
+                    }
+                );
+                attemptMatchAutoRecovery('load-match');
             }
         };
 
@@ -9698,10 +10040,29 @@ document.addEventListener('DOMContentLoaded', async () => {
                     throw new Error((data?.error || 'Failed to end turn.') + detailSuffix);
                 }
                 playIngameSound(nextRoundSound);
-                await applyMatchStateAfterResolutionSequence(data, resolutionAnimationEntries);
+                try {
+                    await applyMatchStateAfterResolutionSequence(data, resolutionAnimationEntries);
+                } catch (renderError) {
+                    console.warn('Failed to render post-turn match state.', renderError);
+                    if (attemptMatchAutoRecovery('turn-end-render')) {
+                        return;
+                    }
+                    throw renderError;
+                }
                 closeEndTurnModal();
             } catch (error) {
                 console.warn('Failed to end turn.', error);
+                announceMatchIssue(
+                    `Your turn could not be confirmed. ${error?.message || 'Retrying match sync...'}`,
+                    {
+                        reason: 'end-turn',
+                        recoveryMessage: 'Retrying match sync after turn submit...',
+                    }
+                );
+                recoverCurrentMatchState({
+                    reason: 'end-turn',
+                    message: 'Retrying match sync after turn submit...',
+                }).catch(() => {});
             } finally {
                 isEndingTurn = false;
                 updateEndTurnButtons();
@@ -9811,6 +10172,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                     renderEndTurnModal(previousPoolState, previousPendingState);
                 }
                 console.warn('Failed to adjust random chakra.', error);
+                announceMatchIssue(
+                    `Energy selection fell out of sync. ${error?.message || 'Refreshing your turn...'}`,
+                    {
+                        tone: 'info',
+                        reason: 'random-adjust',
+                        recoveryMessage: 'Refreshing your turn energy...',
+                    }
+                );
+                recoverCurrentMatchState({
+                    reason: 'random-adjust',
+                    message: 'Refreshing your turn energy...',
+                }).catch(() => {});
             }
         };
 
@@ -9857,6 +10230,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 console.warn('Failed to exchange chakra.', error);
                 setExchangeStatus(error.message || 'Unable to exchange energy.');
                 renderExchangeModal(playerPoolState);
+                announceMatchIssue(
+                    `Energy exchange failed. ${error?.message || 'Refreshing the match state...'}`,
+                    {
+                        reason: 'chakra-exchange',
+                        recoveryMessage: 'Refreshing the match after exchange failure...',
+                    }
+                );
+                recoverCurrentMatchState({
+                    reason: 'chakra-exchange',
+                    message: 'Refreshing the match after exchange failure...',
+                }).catch(() => {});
             }
         };
 
@@ -10641,7 +11025,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const redirectToMatch = (matchId, arenaOverride = activeArenaMode) => {
         const arena = getLoginRedirectArena(arenaOverride);
-        window.location.href = `ingame.html?matchId=${encodeURIComponent(matchId)}&arena=${encodeURIComponent(arena)}`;
+        writeCachedMatchArena(matchId, arena);
+        window.location.href = buildIngameMatchUrl(matchId, arena);
     };
 
     const startPollingMatch = () => {

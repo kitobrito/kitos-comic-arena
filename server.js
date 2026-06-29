@@ -10276,19 +10276,48 @@ app.post('/api/match/:matchId/turn/end', requireSession, async (req, res) => {
         }
 
         const username = req.authUser.username;
+        console.info('[match-turn-end] request', {
+            matchId,
+            username,
+            arena: normalizeArenaMode(hydrated.arena),
+            currentTurn: hydrated.currentTurn,
+            status: hydrated.status,
+        });
         if (hydrated.currentTurn !== username) {
             queueMatchStateBroadcast(hydrated);
+            console.warn('[match-turn-end] rejected-not-your-turn', {
+                matchId,
+                username,
+                currentTurn: hydrated.currentTurn,
+            });
             return res.status(403).json({ error: 'Not your turn.' });
         }
         const pendingTurn = getPendingTurn(hydrated, username);
         if (hasPendingTurnStartChoice(pendingTurn)) {
+            console.warn('[match-turn-end] rejected-pending-choice', {
+                matchId,
+                username,
+                turnStartChoice: pendingTurn.turnStartChoice?.sourceStatusId || null,
+            });
             return res.status(400).json({ error: 'Resolve the Doctor\'s Bag choice first.' });
         }
         if ((pendingTurn.unresolvedRandom || 0) > 0) {
+            console.warn('[match-turn-end] rejected-unresolved-random', {
+                matchId,
+                username,
+                unresolvedRandom: pendingTurn.unresolvedRandom || 0,
+            });
             return res.status(400).json({ error: 'Resolve random chakra before ending turn.' });
         }
 
         const updated = await finalizeTurn(hydrated, username);
+        console.info('[match-turn-end] success', {
+            matchId,
+            username,
+            nextTurn: updated?.currentTurn || null,
+            status: updated?.status || hydrated.status,
+            winner: updated?.winner || null,
+        });
         await broadcastMatchState(updated || hydrated);
         scheduleBattleBotTurn(updated || hydrated);
 
@@ -10362,6 +10391,14 @@ app.post('/api/match/:matchId/skill/queue', requireSession, async (req, res) => 
             classChoice,
             absorptionChoice,
         });
+        console.info('[match-skill-queue] success', {
+            matchId,
+            username,
+            actorSlot,
+            skillIndex,
+            arena: normalizeArenaMode(hydrated.arena),
+            targetCount: Array.isArray(targetSelection) ? targetSelection.length : targetSelection ? 1 : 0,
+        });
         await persistMatchState(hydrated, {
             chakraPools: hydrated.chakraPools,
             pendingTurns: hydrated.pendingTurns,
@@ -10377,6 +10414,14 @@ app.post('/api/match/:matchId/skill/queue', requireSession, async (req, res) => 
             turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
         });
     } catch (error) {
+        console.warn('[match-skill-queue] failed', {
+            matchId,
+            username,
+            actorSlot,
+            skillIndex,
+            arena: normalizeArenaMode(hydrated.arena),
+            error: error.message || String(error),
+        });
         return res.status(400).json({ error: error.message || 'Failed to queue skill.' });
     }
 });
