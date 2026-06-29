@@ -19431,6 +19431,7 @@ const characters = [
                         },
                         "metadata": {
                             "infiniteDuration": true,
+                            "unremovable": true,
                             "removeStatusIdsOnApply": [
                                 "charmander_evolution_tracker"
                             ],
@@ -19461,6 +19462,7 @@ const characters = [
                         },
                         "metadata": {
                             "infiniteDuration": true,
+                            "unremovable": true,
                             "removeStatusIdsOnApply": [
                                 "squirtle_evolution_tracker"
                             ],
@@ -19491,6 +19493,7 @@ const characters = [
                         },
                         "metadata": {
                             "infiniteDuration": true,
+                            "unremovable": true,
                             "removeStatusIdsOnApply": [
                                 "bulbasaur_sun_stacks"
                             ],
@@ -19521,6 +19524,7 @@ const characters = [
                         },
                         "metadata": {
                             "infiniteDuration": true,
+                            "unremovable": true,
                             "removeStatusIdsOnApply": [
                                 "chansey_evolution_tracker"
                             ],
@@ -19551,6 +19555,7 @@ const characters = [
                         },
                         "metadata": {
                             "infiniteDuration": true,
+                            "unremovable": true,
                             "removeStatusIdsOnApply": [
                                 "pidgey_evolution_tracker"
                             ],
@@ -19581,6 +19586,7 @@ const characters = [
                         },
                         "metadata": {
                             "infiniteDuration": true,
+                            "unremovable": true,
                             "facePictureOverride": "assets/images/PokemonArena/koffing/weezingfp.webp",
                             "removeStatusIdsOnApply": [
                                 "koffing_poison_gas_base",
@@ -19618,6 +19624,7 @@ const characters = [
                         "metadata": {
                             "hidden": true,
                             "infiniteDuration": true,
+                            "unremovable": true,
                             "facePictureOverride": "assets/images/PokemonArena/zubat/golbatfp.webp",
                             "skillReplacements": {
                                 "zubat-leech-life": "golbat-leech-life",
@@ -19646,6 +19653,7 @@ const characters = [
                         "metadata": {
                             "hidden": true,
                             "infiniteDuration": true,
+                            "unremovable": true,
                             "facePictureOverride": "assets/images/PokemonArena/gastley/haunterfp.webp",
                             "skillReplacements": {
                                 "gastly-lick": "haunter-lick",
@@ -19674,6 +19682,7 @@ const characters = [
                         "metadata": {
                             "hidden": true,
                             "infiniteDuration": true,
+                            "unremovable": true,
                             "facePictureOverride": "assets/images/PokemonArena/abra/kadabrafp.webp",
                             "skillReplacements": {
                                 "abra-future-sight": "kadabra-future-sight",
