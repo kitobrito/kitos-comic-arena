@@ -19706,7 +19706,6 @@ const characters = [
             {
                 "id": "pokemon-trainer-great-ball",
                 "name": "Great Ball",
-                "hiddenFromSelectionViewer": true,
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/Great ball.png",
                 "skilldescription": "Stuns one enemy and makes them invulnerable to all skills for 2 turns. If used when their health is at 25 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This skill swaps to Ultra Ball.",
                 "energy": [
@@ -19810,7 +19809,6 @@ const characters = [
             {
                 "id": "pokemon-trainer-ultra-ball",
                 "name": "Ultra Ball",
-                "hiddenFromSelectionViewer": true,
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/master ball.jpeg",
                 "skilldescription": "Stuns one enemy and makes them invulnerable to all skills for 3 turns. If used when their health is at 40 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This skill swaps to Master Ball.",
                 "energy": [
@@ -19915,7 +19913,6 @@ const characters = [
             {
                 "id": "pokemon-trainer-master-ball",
                 "name": "Master Ball",
-                "hiddenFromSelectionViewer": true,
                 "cannotBeCountered": true,
                 "cannotBeReflected": true,
                 "ignoreInvulnerability": true,
@@ -19967,7 +19964,6 @@ const characters = [
             {
                 "id": "pokemon-trainer-revive",
                 "name": "Revive",
-                "hiddenFromSelectionViewer": true,
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/Revive.jpg",
                 "skilldescription": "Revives one defeated ally with 50 HP. If used on a living ally instead, heals them for 25 HP.",
                 "energy": [
