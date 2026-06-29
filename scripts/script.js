@@ -8704,6 +8704,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             clearMatchAutoRecoveryAttempt(data.matchId || matchIdFromUrl);
             clearMatchIssueBanner();
             renderDynamicSkillIcons();
+            validateRenderedMatchState();
         };
 
         recoverCurrentMatchState = async ({ reason = 'manual', message = 'Retrying match sync...' } = {}) => {
@@ -8758,6 +8759,62 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             })();
             return activeMatchRecoveryPromise;
+        };
+
+        const isRenderableRosterIndex = (rosterIndex) =>
+            Number.isInteger(rosterIndex) && rosterIndex >= 0 && Boolean(rosterData?.[rosterIndex]);
+
+        const assertRenderableTeam = (resolvedTeam = [], expectedCount = 0, label = 'team') => {
+            if (!Array.isArray(resolvedTeam) || resolvedTeam.length < expectedCount) {
+                throw new Error(`${label} data is incomplete.`);
+            }
+            for (let index = 0; index < expectedCount; index += 1) {
+                if (!isRenderableRosterIndex(resolvedTeam[index])) {
+                    throw new Error(`${label} slot ${index + 1} could not be resolved.`);
+                }
+            }
+        };
+
+        const hasHealthyRenderedCards = (cards = [], expectedCount = 0) =>
+            Array.isArray(cards) &&
+            cards.length >= expectedCount &&
+            cards.slice(0, expectedCount).every((card) => {
+                if (!card) return false;
+                const face = card.querySelector('.character-face');
+                return Boolean(face?.src);
+            });
+
+        const scheduleMatchRecoveryIfNeeded = ({ reason = 'render-validation', message = 'Refreshing match state...' } = {}) => {
+            if (battleEndShown || activeMatchRecoveryPromise) return;
+            announceMatchIssue(message, {
+                tone: 'info',
+                reason,
+                recoveryMessage: message,
+            });
+            recoverCurrentMatchState({ reason, message }).catch(() => {});
+        };
+
+        const validateRenderedMatchState = () => {
+            if (!currentPlayerUsername || !currentOpponentUsername || !latestBoardState) return true;
+            const playerUnits = Array.isArray(latestBoardState?.[currentPlayerUsername])
+                ? latestBoardState[currentPlayerUsername]
+                : [];
+            const enemyUnits = Array.isArray(latestBoardState?.[currentOpponentUsername])
+                ? latestBoardState[currentOpponentUsername]
+                : [];
+            if (
+                playerUnits.length < playerCards.length ||
+                enemyUnits.length < enemyCards.length ||
+                !hasHealthyRenderedCards(playerCards, playerCards.length) ||
+                !hasHealthyRenderedCards(enemyCards, enemyCards.length)
+            ) {
+                scheduleMatchRecoveryIfNeeded({
+                    reason: 'render-validation',
+                    message: 'The match screen fell out of sync. Refreshing the live state...',
+                });
+                return false;
+            }
+            return true;
         };
 
         const scheduleIncomingMatchState = (data) => {
@@ -9832,6 +9889,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const resolvedTeam = team.length > 0 ? team : boardTeam;
                 const resolvedEnemyTeam = enemyTeam.length > 0 ? enemyTeam : boardEnemyTeam;
                 if (data.player?.username) currentPlayerUsername = data.player.username;
+                assertRenderableTeam(resolvedTeam, playerCardsLocal.length, 'Player team');
+                assertRenderableTeam(resolvedEnemyTeam, enemyCardsLocal.length, 'Opponent team');
 
                 // Start the intro before card setup so a later UI error cannot suppress it.
                 const battleIntroPromise = playBattleIntro(data).catch((error) => {

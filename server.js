@@ -13374,7 +13374,18 @@ const startServer = async () => {
     });
 };
 
-startServer().catch((error) => {
-    console.error('Failed to initialize the server:', error);
-    process.exit(1);
-});
+if (require.main === module) {
+    startServer().catch((error) => {
+        console.error('Failed to initialize the server:', error);
+        process.exit(1);
+    });
+} else {
+    module.exports = {
+        normalizeArenaMode,
+        createEmptyChakraPool,
+        makeEmptyPendingTurn,
+        sanitizeBoardForViewer,
+        serializeMatchPlayerForViewer,
+        buildMatchPayloadForUser,
+    };
+}
