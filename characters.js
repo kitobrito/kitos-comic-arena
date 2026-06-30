@@ -1,5 +1,5 @@
 const characters = [
-{
+    {
         "id": "iron-man",
         "characterId": "iron-man",
         "name": "Iron Man",
@@ -74,7 +74,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/XxNKoKu.png",
                 "skilldescription": "For 1 turn, Iron Man's Repulsor Blast and Proton Cannon is improved and gains a new effect.",
                 "energy": [
-                    "Genjutsu"
+                    "Ninjutsu"
                 ],
                 "target": "self-or-single-ally",
                 "damage": 0,
@@ -298,7 +298,7 @@ const characters = [
         "description": "Genius inventor Tony Stark forged a suit of advanced armor to escape captivity and reinvented himself as Iron Man. Armed with cutting-edge technology, unmatched intellect, and an arsenal of powerful weapons, he fights to protect the world from threats no ordinary hero could face. Beneath the armor lies a man determined to use his brilliance to make a difference.",
         "descriptionHtml": "Genius inventor Tony Stark forged a suit of advanced armor to escape captivity and reinvented himself as Iron Man. Armed with cutting-edge technology, unmatched intellect, and an arsenal of powerful weapons, he fights to protect the world from threats no ordinary hero could face. Beneath the armor lies a man determined to use his brilliance to make a difference."
     },
-{
+    {
         "id": "spider-man",
         "characterId": "spider-man",
         "name": "Spider-Man",
@@ -351,7 +351,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/FKv3P8m.png",
                 "skilldescription": "Deals 20 damage to one enemy. This deals 5 additional damage to an enemy affected by 'Web Shot' or 'Web Wrap' and becomes piercing if Spider-Man is under the effects of 'Web Slinging'. Increases 'Passive: Spider Senses' by 5%.",
                 "energy": [
-                    "Ninjutsu"
+                    "Taijutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -581,7 +581,7 @@ const characters = [
         "description": "After a radioactive spider changed his life forever, Peter Parker became Spider-Man—a quick-witted hero who uses his incredible powers to protect the innocent. Guided by the belief that great power comes with great responsibility, he never backs down from a fight.",
         "descriptionHtml": "After a radioactive spider changed his life forever, Peter Parker became Spider-Man—a quick-witted hero who uses his incredible powers to protect the innocent. Guided by the belief that great power comes with great responsibility, he never backs down from a fight."
     },
-{
+    {
         "id": "captain-america",
         "characterId": "captain-america",
         "name": "Captain America",
@@ -864,7 +864,7 @@ const characters = [
         "roleCategory": "tank",
         "universe": "marvel"
     },
-{
+    {
         "id": "superman",
         "characterId": "superman",
         "name": "Superman",
@@ -1169,7 +1169,7 @@ const characters = [
         "roleCategory": "damage",
         "universe": "dc"
     },
-{
+    {
         "id": "batman",
         "characterId": "batman",
         "name": "Batman",
@@ -1637,12 +1637,12 @@ const characters = [
         "roleCategory": "controller",
         "universe": "dc"
     },
-{
+    {
         "id": "the-flash-barry-allen",
         "characterId": "the-flash-barry-allen",
         "name": "The Flash (Barry Allen)",
         "facePicture": "https://i.imgur.com/hYpELKX.jpeg",
-        "characterdeescription": "The Flash dominates the pace of battle through unmatched speed and relentless momentum. Rather than relying on raw durability, he overwhelms opponents by acting faster, striking repeatedly, and disrupting their ability to keep up. His abilities create rapid pressure windows, forcing enemies into reactive play while he dictates the flow of combat. With tools that accelerate his own actions and interfere with enemy timing, The Flash thrives in fast-paced encounters where every second matters. He can evade danger, reset momentum, and enable his team to act more efficiently, turning brief openings into decisive advantages.",
+        "characterdeescription": "Struck by a freak accident and connected to the mysterious Speed Force, The Flash became the fastest hero alive. Capable of moving at incredible speeds, thinking in fractions of a second, and bending the laws of physics, he races to protect the innocent from threats across time and space. Despite his extraordinary power, The Flash is driven by a simple desire: to help others and never stop moving forward.",
         "skills": [
             {
                 "id": "the-flash-barry-allen-infinite-mass-punch",
@@ -1962,10 +1962,10 @@ const characters = [
         "role": "Damage",
         "roleCategory": "damage",
         "universe": "dc",
-        "description": "The Flash dominates the pace of battle through unmatched speed and relentless momentum. Rather than relying on raw durability, he overwhelms opponents by acting faster, striking repeatedly, and disrupting their ability to keep up. His abilities create rapid pressure windows, forcing enemies into reactive play while he dictates the flow of combat. With tools that accelerate his own actions and interfere with enemy timing, The Flash thrives in fast-paced encounters where every second matters. He can evade danger, reset momentum, and enable his team to act more efficiently, turning brief openings into decisive advantages.",
-        "descriptionHtml": "The Flash dominates the pace of battle through unmatched speed and relentless momentum. Rather than relying on raw durability, he overwhelms opponents by acting faster, striking repeatedly, and disrupting their ability to keep up. His abilities create rapid pressure windows, forcing enemies into reactive play while he dictates the flow of combat. With tools that accelerate his own actions and interfere with enemy timing, The Flash thrives in fast-paced encounters where every second matters. He can evade danger, reset momentum, and enable his team to act more efficiently, turning brief openings into decisive advantages."
+        "description": "Struck by a freak accident and connected to the mysterious Speed Force, The Flash became the fastest hero alive. Capable of moving at incredible speeds, thinking in fractions of a second, and bending the laws of physics, he races to protect the innocent from threats across time and space. Despite his extraordinary power, The Flash is driven by a simple desire: to help others and never stop moving forward.",
+        "descriptionHtml": "Struck by a freak accident and connected to the mysterious Speed Force, The Flash became the fastest hero alive. Capable of moving at incredible speeds, thinking in fractions of a second, and bending the laws of physics, he races to protect the innocent from threats across time and space. Despite his extraordinary power, The Flash is driven by a simple desire: to help others and never stop moving forward."
     },
-{
+    {
         "id": "wonder-woman",
         "characterId": "wonder-woman",
         "name": "Wonder Woman",
@@ -2214,7 +2214,7 @@ const characters = [
         "roleCategory": "bruiser",
         "universe": "dc"
     },
-{
+    {
         "id": "aquaman",
         "characterId": "aquaman",
         "name": "Aquaman",
@@ -2492,7 +2492,7 @@ const characters = [
         "description": "Arthur Curry rules Atlantis with a king's burden and the fury of the deep. Armed with his trident and command over ocean life, Aquaman drags enemies into tides, teeth, and pressure they cannot escape.",
         "descriptionHtml": "Arthur Curry rules Atlantis with a king's burden and the fury of the deep. Armed with his trident and command over ocean life, Aquaman drags enemies into tides, teeth, and pressure they cannot escape."
     },
-{
+    {
         "id": "storm",
         "characterId": "storm",
         "name": "Storm",
@@ -2842,7 +2842,7 @@ const characters = [
         "roleCategory": "support",
         "universe": "marvel"
     },
-{
+    {
         "id": "venom",
         "characterId": "venom",
         "name": "Venom",
@@ -3070,7 +3070,7 @@ const characters = [
         "roleCategory": "tank",
         "universe": "marvel"
     },
-{
+    {
         "id": "the-joker",
         "characterId": "the-joker",
         "name": "The Joker",
@@ -3081,7 +3081,7 @@ const characters = [
                 "id": "the-joker-hand-buzzer",
                 "name": "Hand Buzzer",
                 "skillimage": "https://i.imgur.com/t0AM8jf.png",
-                "skilldescription": "Deals 1 piercing damage to one enemy and stuns their harmful skills for 1 turn. Swaps to 'Acid Flower'.",
+                "skilldescription": "Deals 10 piercing damage to one enemy and stuns their harmful skills for 1 turn. Swaps to 'Acid Flower'.",
                 "energy": [
                     "Random"
                 ],
@@ -3096,7 +3096,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 1,
+                        "amount": 10,
                         "scope": "target",
                         "metadata": {
                             "ignoreDamageReduction": true
@@ -3734,7 +3734,7 @@ const characters = [
                 "skillimage": "assets/images/plantdoubles.webp",
                 "skilldescription": "For 3 turns, Ivy's team gains 15% unpierceable damage reduction, ignores enemy energy removal and drain effects, and receives 5 additional destructible defense from destructible defense effects.",
                 "energy": [
-                    "Bloodline",
+                    "Taijutsu",
                     "Genjutsu"
                 ],
                 "target": "all-allies",
@@ -3994,11 +3994,9 @@ const characters = [
         ],
         "role": "Controller",
         "universe": "dc",
-        "roleCategory": "controller",
-        "description": "Poison Ivy bends plant life, toxins, and living growth to control the battlefield, choking enemies while keeping her own side rooted in place.",
-        "descriptionHtml": "Poison Ivy bends plant life, toxins, and living growth to control the battlefield, choking enemies while keeping her own side rooted in place."
+        "roleCategory": "controller"
     },
-{
+    {
         "id": "negan",
         "characterId": "negan",
         "name": "Negan",
@@ -4233,7 +4231,7 @@ const characters = [
         "roleCategory": "assassin",
         "universe": "image"
     },
-{
+    {
         "id": "rick-grimes",
         "characterId": "rick-grimes",
         "name": "Rick Grimes",
@@ -4605,7 +4603,7 @@ const characters = [
         "roleCategory": "damage",
         "universe": "image"
     },
-{
+    {
         "id": "andrea",
         "characterId": "andrea",
         "name": "Andrea",
@@ -4800,7 +4798,7 @@ const characters = [
         "roleCategory": "assassin",
         "universe": "image"
     },
-{
+    {
         "id": "walker",
         "characterId": "walker",
         "name": "Walker",
@@ -5194,7 +5192,7 @@ const characters = [
         "description": "Once ordinary people, Walkers are the relentless undead remnants of a fallen world. Driven only by instinct and an endless hunger, they roam in massive hordes, overwhelming the living through sheer numbers. Slow alone but deadly in groups, they serve as a constant reminder that humanity's greatest enemy may be the apocalypse itself.",
         "descriptionHtml": "Once ordinary people, Walkers are the relentless undead remnants of a fallen world. Driven only by instinct and an endless hunger, they roam in massive hordes, overwhelming the living through sheer numbers. Slow alone but deadly in groups, they serve as a constant reminder that humanity's greatest enemy may be the apocalypse itself."
     },
-{
+    {
         "id": "hershel-greene",
         "characterId": "hershel-greene",
         "name": "Hershel Greene",
@@ -5458,7 +5456,7 @@ const characters = [
         "description": "A farmer and veterinarian from rural Georgia, Hershel Greene became a pillar of wisdom and compassion in a world overrun by the dead. Guided by faith, experience, and an unwavering belief in humanity, he offered hope when others surrendered to despair. Though not a warrior by nature, Hershel's courage, guidance, and selflessness made him one of the group's most valued survivors.",
         "descriptionHtml": "A farmer and veterinarian from rural Georgia, Hershel Greene became a pillar of wisdom and compassion in a world overrun by the dead. Guided by faith, experience, and an unwavering belief in humanity, he offered hope when others surrendered to despair. Though not a warrior by nature, Hershel's courage, guidance, and selflessness made him one of the group's most valued survivors."
     },
-{
+    {
         "id": "invincible",
         "characterId": "invincible",
         "name": "Invincible",
@@ -5671,7 +5669,7 @@ const characters = [
         "roleCategory": "controller",
         "universe": "image"
     },
-{
+    {
         "id": "rex-splode",
         "characterId": "rex-splode",
         "name": "Rex Splode",
@@ -6037,7 +6035,7 @@ const characters = [
         "roleCategory": "damage",
         "universe": "image"
     },
-{
+    {
         "id": "atom-eve",
         "characterId": "atom-eve",
         "name": "Atom Eve",
@@ -6266,7 +6264,7 @@ const characters = [
         "roleCategory": "support",
         "universe": "image"
     },
-{
+    {
         "id": "omni-man",
         "characterId": "omni-man",
         "name": "Omni-Man",
@@ -6499,7 +6497,7 @@ const characters = [
         "roleCategory": "tank",
         "universe": "image"
     },
-{
+    {
         "id": "angstrom-levy",
         "characterId": "angstrom-levy",
         "name": "Angstrom Levy",
@@ -6818,7 +6816,7 @@ const characters = [
         "roleCategory": "controller",
         "universe": "image"
     },
-{
+    {
         "id": "billy-butcher",
         "characterId": "billy-butcher",
         "name": "Billy Butcher",
@@ -6874,7 +6872,7 @@ const characters = [
                 "id": "billy-butcher-v24",
                 "name": "V24",
                 "skillimage": "https://i.imgur.com/hFsL74M.png",
-                "skilldescription": "For 2 turns, Butcher gains 50% unpierceable damage reduction and swaps this to 'Yellow Death Lasers'. Afterwards, Butcher loses 25HP, has his health capped, then 'Cancerous Tentacles' deals 10 additional damage (Stacks).",
+                "skilldescription": "For 2 turns, Butcher gains 50% unpierceable damage reduction and swaps this to 'Yellow Death Lasers'. Afterwards, Butcher loses 15HP, has his health capped, then 'Cancerous Tentacles' deals 10 additional damage (Stacks).",
                 "energy": [
                     "Taijutsu"
                 ],
@@ -6899,11 +6897,11 @@ const characters = [
                             "onExpireEffects": [
                                 {
                                     "type": "HealthLoss",
-                                    "amount": 25
+                                    "amount": 15
                                 },
                                 {
                                     "type": "HealthCapLoss",
-                                    "amount": 25
+                                    "amount": 15
                                 },
                                 {
                                     "type": "apply_status",
@@ -7032,11 +7030,11 @@ const characters = [
                 "classesHtml": "Energy, Ranged, Instant, Affliction, Bypassing"
             }
         ],
-        "role": "Controller",
-        "roleCategory": "controller",
+        "role": "Bruiser",
+        "roleCategory": "bruiser",
         "universe": "the-boys"
     },
-{
+    {
         "id": "doctor-octopus",
         "characterId": "doctor-octopus",
         "name": "Doctor Octopus",
@@ -7291,7 +7289,7 @@ const characters = [
         "roleCategory": "controller",
         "universe": "marvel"
     },
-{
+    {
         "id": "carnage",
         "characterId": "carnage",
         "name": "Carnage",
@@ -7549,7 +7547,7 @@ const characters = [
         "roleCategory": "assassin",
         "universe": "marvel"
     },
-{
+    {
         "id": "the-green-goblin",
         "characterId": "the-green-goblin",
         "name": "The Green Goblin",
@@ -7839,7 +7837,7 @@ const characters = [
         "roleCategory": "specialist",
         "universe": "marvel"
     },
-{
+    {
         "id": "sandman",
         "characterId": "sandman",
         "name": "Sandman",
@@ -8067,7 +8065,7 @@ const characters = [
         "roleCategory": "controller",
         "universe": "marvel"
     },
-{
+    {
         "id": "mysterio",
         "characterId": "mysterio",
         "name": "Mysterio",
@@ -8256,7 +8254,7 @@ const characters = [
         "roleCategory": "controller",
         "universe": "marvel"
     },
-{
+    {
         "id": "scorpion",
         "characterId": "scorpion",
         "name": "Scorpion",
@@ -8625,7 +8623,7 @@ const characters = [
         "roleCategory": "specialist",
         "universe": "marvel"
     },
-{
+    {
         "id": "green-lantern-hal-jordan",
         "characterId": "green-lantern-hal-jordan",
         "name": "Green Lantern (Hal Jordan)",
@@ -8931,7 +8929,7 @@ const characters = [
         "roleCategory": "hybrid",
         "universe": "dc"
     },
-{
+    {
         "id": "doctor-fate",
         "characterId": "doctor-fate",
         "name": "Doctor Fate",
@@ -9166,7 +9164,7 @@ const characters = [
         "description": "Empowered by the ancient Lord of Order known as Nabu, Doctor Fate bends reality according to destiny itself. Through powerful seals and ancient magic, Fate weakens those he has judged before delivering their inevitable punishment.",
         "descriptionHtml": "Empowered by the ancient Lord of Order known as Nabu, Doctor Fate bends reality according to destiny itself. Through powerful seals and ancient magic, Fate weakens those he has judged before delivering their inevitable punishment."
     },
-{
+    {
         "id": "homelander",
         "characterId": "homelander",
         "name": "Homelander",
@@ -9394,7 +9392,7 @@ const characters = [
         "roleCategory": "assassin",
         "universe": "the-boys"
     },
-{
+    {
         "id": "xenomorph-drone",
         "characterId": "xenomorph-drone",
         "name": "Xenomorph Drone",
@@ -9765,7 +9763,7 @@ const characters = [
         "roleCategory": "damage",
         "universe": "aliens-vs-predator"
     },
-{
+    {
         "id": "predalien",
         "characterId": "predalien",
         "name": "Predalien",
@@ -9978,7 +9976,7 @@ const characters = [
         "universe": "aliens-vs-predator",
         "roleCategory": "controller"
     },
-{
+    {
         "id": "rage-infected",
         "characterId": "rage-infected",
         "name": "Rage Infected",
@@ -10102,9 +10100,7 @@ const characters = [
                 "skilldescription": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP. If that enemy uses a harmful skill while this is active, the protection is refreshed for 1 turn and Rage Infected permanently gains 5 additional damage against them. This skill cannot be used while active.",
                 "description": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP. If that enemy uses a harmful skill while this is active, the protection is refreshed for 1 turn and Rage Infected permanently gains 5 additional damage against them. This skill cannot be used while active.",
                 "descriptionHtml": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP.<br>If that enemy uses a harmful skill while this is active, the protection is refreshed for 1 turn and Rage Infected permanently gains 5 additional damage against them.<br>This skill cannot be used while active.",
-                "energy": [
-                    "Random"
-                ],
+                "energy": [],
                 "target": "single-enemy",
                 "damage": 0,
                 "cooldown": 2,
@@ -10186,8 +10182,8 @@ const characters = [
                 "energy": [],
                 "target": "self",
                 "damage": 0,
-                "cooldown": 4,
-                "cooldownHtml": "4",
+                "cooldown": 5,
+                "cooldownHtml": "5",
                 "classes": [
                     "Physical",
                     "Instant"
@@ -10230,11 +10226,11 @@ const characters = [
                 "effects": []
             }
         ],
-        "role": "Controller",
-        "roleCategory": "controller",
+        "role": "Bruiser",
+        "roleCategory": "bruiser",
         "universe": "other"
     },
-{
+    {
         "id": "space-marine-infantry",
         "characterId": "space-marine-infantry",
         "name": "Pvt. Saunders",
@@ -10460,7 +10456,7 @@ const characters = [
         "universe": "aliens-vs-predator",
         "roleCategory": "damage"
     },
-{
+    {
         "id": "space-marine-medic",
         "characterId": "space-marine-medic",
         "name": "Lieutenant Seraphina Vale",
@@ -10712,7 +10708,7 @@ const characters = [
         "universe": "aliens-vs-predator",
         "roleCategory": "support"
     },
-{
+    {
         "id": "space-marine-smartgunner",
         "characterId": "space-marine-smartgunner",
         "name": "Sergeant William Hillford",
@@ -10942,7 +10938,7 @@ const characters = [
         "universe": "aliens-vs-predator",
         "roleCategory": "controller"
     },
-{
+    {
         "id": "predator-stalker",
         "characterId": "predator-stalker",
         "name": "Predator Stalker",
@@ -11220,7 +11216,7 @@ const characters = [
         "roleCategory": "assassin",
         "universe": "aliens-vs-predator"
     },
-{
+    {
         "id": "sinestro",
         "characterId": "sinestro",
         "name": "Sinestro",
@@ -11510,7 +11506,7 @@ const characters = [
         "roleCategory": "controller",
         "universe": "dc"
     },
-{
+    {
         "id": "atrocitus",
         "characterId": "atrocitus",
         "name": "Atrocitus",
@@ -11834,7 +11830,7 @@ const characters = [
         "roleCategory": "controller",
         "universe": "dc"
     },
-{
+    {
         "id": "saint-walker",
         "characterId": "saint-walker",
         "name": "Saint Walker",
@@ -12217,11 +12213,7 @@ const characters = [
                 "skilldescription": "Saint Walker grants his entire team 1 permanent destructible defense every turn. Also increases the damage of all 'Passive: Green Lantern Ring' by 1 each turn while he is alive.",
                 "description": "Saint Walker grants his entire team 1 permanent destructible defense every turn. Also increases the damage of all 'Passive: Green Lantern Ring' by 1 each turn while he is alive.",
                 "descriptionHtml": "Saint Walker grants his entire team 1 permanent destructible defense every turn.<br>Also increases the damage of all 'Passive: Green Lantern Ring' by 1 each turn while he is alive.",
-                "energy": [
-                    "Bloodline",
-                    "Ninjutsu",
-                    "Genjutsu"
-                ],
+                "energy": [],
                 "target": "",
                 "damage": 0,
                 "cooldown": 0,
@@ -12237,7 +12229,7 @@ const characters = [
         "roleCategory": "support",
         "universe": "dc"
     },
-{
+    {
         "id": "indigo-1",
         "characterId": "indigo-1",
         "name": "Indigo-1",
@@ -12541,7 +12533,7 @@ const characters = [
         "roleCategory": "support",
         "universe": "dc"
     },
-{
+    {
         "id": "john-stewart",
         "characterId": "john-stewart",
         "name": "John Stewart",
@@ -12870,7 +12862,7 @@ const characters = [
         "universe": "dc",
         "roleCategory": "controller"
     },
-{
+    {
         "id": "sorrow",
         "characterId": "sorrow",
         "name": "Sorrow",
@@ -13196,7 +13188,7 @@ const characters = [
         "universe": "dc",
         "roleCategory": "controller"
     },
-{
+    {
         "id": "parasite",
         "characterId": "parasite",
         "name": "Parasite",
@@ -13487,7 +13479,7 @@ const characters = [
         "universe": "dc",
         "roleCategory": "tank"
     },
-{
+    {
         "id": "ghost-rider",
         "characterId": "ghost-rider",
         "name": "Ghost Rider",
@@ -13809,7 +13801,7 @@ const characters = [
         "universe": "marvel",
         "roleCategory": "controller"
     },
-{
+    {
         "id": "doctor-strange",
         "characterId": "doctor-strange",
         "name": "Doctor Strange",
@@ -14376,7 +14368,7 @@ const characters = [
         "description": "Doctor Strange channels the mystic arts through disciplined spells, protective wards, and a dangerous brush with astral power.",
         "descriptionHtml": "Doctor Strange channels the mystic arts through disciplined spells, protective wards, and a dangerous brush with astral power."
     },
-{
+    {
         "id": "doctor-doom",
         "characterId": "doctor-doom",
         "name": "Doctor Doom",
@@ -14603,7 +14595,7 @@ const characters = [
         "description": "The ruler of Latveria and one of the greatest minds in existence, Doctor Doom combines scientific genius with mastery of the mystic arts. Through a network of Doombots and arcane technology, Doom ensures that every battle unfolds according to his design.",
         "descriptionHtml": "The ruler of Latveria and one of the greatest minds in existence, Doctor Doom combines scientific genius with mastery of the mystic arts. Through a network of Doombots and arcane technology, Doom ensures that every battle unfolds according to his design."
     },
-{
+    {
         "id": "the-hulk",
         "characterId": "the-hulk",
         "name": "The Hulk",
@@ -15007,7 +14999,7 @@ const characters = [
         "roleCategory": "tank",
         "universe": "marvel"
     },
-{
+    {
         "id": "wolverine",
         "characterId": "wolverine",
         "name": "Wolverine",
@@ -15287,13 +15279,13 @@ const characters = [
                 ]
             }
         ],
-        "role": "Controller",
+        "role": "Bruiser",
         "universe": "marvel",
-        "roleCategory": "controller",
+        "roleCategory": "bruiser",
         "description": "Logan, the Wolverine, is a relentless mutant brawler with adamantium bones, razor claws, and a healing factor that lets him keep fighting through punishment that would stop almost anyone else. He pressures enemies with stacking bleed wounds, turns his claws white-hot when pushed, and can enter a berserker rage that delays incoming damage until his fury finally burns out.",
         "descriptionHtml": "Logan, the Wolverine, is a relentless mutant brawler with adamantium bones, razor claws, and a healing factor that lets him keep fighting through punishment that would stop almost anyone else. He pressures enemies with stacking bleed wounds, turns his claws white-hot when pushed, and can enter a berserker rage that delays incoming damage until his fury finally burns out."
     },
-{
+    {
         "id": "darth-vader",
         "characterId": "darth-vader",
         "name": "Darth Vader",
@@ -15465,13 +15457,13 @@ const characters = [
                 ]
             }
         ],
-        "role": "Controller",
+        "role": "Bruiser",
         "universe": "star-wars",
-        "roleCategory": "controller",
+        "roleCategory": "bruiser",
         "description": "Once the heroic Anakin Skywalker, Darth Vader now serves as the Emperor's ruthless enforcer. A relentless juggernaut of the dark side, Vader overwhelms his enemies through fear, pain, and sheer power. Those who survive his assaults often find themselves unable to escape his grasp.",
         "descriptionHtml": "Once the heroic Anakin Skywalker, Darth Vader now serves as the Emperor's ruthless enforcer. A relentless juggernaut of the dark side, Vader overwhelms his enemies through fear, pain, and sheer power. Those who survive his assaults often find themselves unable to escape his grasp."
     },
-{
+    {
         "id": "boba-fett",
         "characterId": "boba-fett",
         "name": "Boba Fett",
@@ -15985,7 +15977,7 @@ const characters = [
         "description": "The most feared bounty hunter in the galaxy, Boba Fett relies on an arsenal of advanced weaponry, explosives, and Mandalorian technology to track down and eliminate his targets. By claiming bounties and scavenging trophies from fallen enemies, Boba continually upgrades his equipment, becoming more dangerous with every successful hunt.",
         "descriptionHtml": "The most feared bounty hunter in the galaxy, Boba Fett relies on an arsenal of advanced weaponry, explosives, and Mandalorian technology to track down and eliminate his targets. By claiming bounties and scavenging trophies from fallen enemies, Boba continually upgrades his equipment, becoming more dangerous with every successful hunt."
     },
-{
+    {
         "id": "obi-wan-kenobi",
         "characterId": "obi-wan-kenobi",
         "name": "Obi-Wan Kenobi",
@@ -16259,7 +16251,7 @@ const characters = [
         "description": "A legendary Jedi Master and one of the greatest practitioners of the defensive Soresu lightsaber form. Obi-Wan excels at protecting his allies and turning an opponent's aggression against them. Through patience, discipline, and flawless defense, he creates openings that allow him to strike with decisive precision.",
         "descriptionHtml": "A legendary Jedi Master and one of the greatest practitioners of the defensive Soresu lightsaber form. Obi-Wan excels at protecting his allies and turning an opponent's aggression against them. Through patience, discipline, and flawless defense, he creates openings that allow him to strike with decisive precision."
     },
-{
+    {
         "id": "grand-master-yoda",
         "characterId": "grand-master-yoda",
         "name": "Grand Master Yoda",
@@ -16502,7 +16494,7 @@ const characters = [
         "description": "The wisest and most respected Jedi Master of his era. Yoda uses his unparalleled connection to the Force to guide his allies and outmaneuver his enemies. Though small in stature, his mastery of the Force allows him to transform patience and wisdom into overwhelming strength.",
         "descriptionHtml": "The wisest and most respected Jedi Master of his era. Yoda uses his unparalleled connection to the Force to guide his allies and outmaneuver his enemies. Though small in stature, his mastery of the Force allows him to transform patience and wisdom into overwhelming strength."
     },
-{
+    {
         "id": "darth-sidious",
         "characterId": "darth-sidious",
         "name": "Darth Sidious",
@@ -16846,7 +16838,7 @@ const characters = [
         "description": "The Dark Lord of the Sith and architect of the Galactic Empire, Darth Sidious bends others to his will through manipulation, fear, and the dark side of the Force. His enemies slowly succumb to Corruption, becoming little more than pawns in his grand design before being consumed by his devastating Crimson Force Lightning.",
         "descriptionHtml": "The Dark Lord of the Sith and architect of the Galactic Empire, Darth Sidious bends others to his will through manipulation, fear, and the dark side of the Force. His enemies slowly succumb to Corruption, becoming little more than pawns in his grand design before being consumed by his devastating Crimson Force Lightning."
     },
-{
+    {
         "id": "general-grievous",
         "characterId": "general-grievous",
         "name": "General Grievous",
@@ -16923,7 +16915,7 @@ const characters = [
                 "skillimage": "assets/images/jedihunter.jpeg",
                 "skilldescription": "General Grievous deals 20 damage to one enemy and marks them as Prey for 2 turns. Whenever Grievous damages his Prey with a Melee skill, he gains 1 additional Collected Lightsaber.",
                 "energy": [
-                    "Genjutsu"
+                    "Ninjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -17044,7 +17036,7 @@ const characters = [
                 "skilldescription": "General Grievous deals 20 damage to one enemy. This skill deals 15 additional damage for each Collected Lightsaber. If the target is marked as Prey, they are afflicted with Health Cap. Afterward, all Collected Lightsabers are removed.",
                 "energy": [
                     "Taijutsu",
-                    "Random"
+                    "Ninjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -17692,10 +17684,10 @@ const characters = [
                     "squirtleEvolutionStacks": 0,
                     "stackMetadataKey": "squirtleEvolutionStacks",
                     "stackDelta": 1,
-                    "stackMax": 2,
+                    "stackMax": 3,
                     "applyStatusAtStack": {
                         "metadataKey": "squirtleEvolutionStacks",
-                        "value": 2,
+                        "value": 3,
                         "statusId": "squirtle_wartortle_evolution",
                         "duration": 99,
                         "sourceSkillId": "squirtle-passive-evolution-wartortle",
@@ -17715,7 +17707,7 @@ const characters = [
                         }
                     },
                     "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 2 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
                 }
             }
         ],
@@ -17725,7 +17717,7 @@ const characters = [
                 "id": "squirtle-water-gun",
                 "name": "Water Gun",
                 "skillimage": "assets/images/PokemonArena/squirtle/watergun.jpg",
-                "skilldescription": "Squirtle deals 20 damage to one enemy this turn and 10 damage next turn. For 1 turn, if the target uses a new harmful skill, they are affected by Guard Break for 2 turns.",
+                "skilldescription": "Squirtle deals 20 damage to one enemy this turn and 10 damage next turn. For 1 turn, if the target uses a new harmful skill, they are affected by Guard Break for 2 turns. (Guard Break=unable to reduce damage or become invulnerable)",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -17773,9 +17765,9 @@ const characters = [
                                     "squirtleEvolutionStacks": 1,
                                     "stackMetadataKey": "squirtleEvolutionStacks",
                                     "stackDelta": 1,
-                                    "stackMax": 2,
-                                "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 2 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                                    "stackMax": 3,
+                                    "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
+                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/squirtle/watergun.jpg",
@@ -17788,7 +17780,7 @@ const characters = [
                 "id": "squirtle-withdraw",
                 "name": "Withdraw",
                 "skillimage": "assets/images/PokemonArena/squirtle/withdraw.webp",
-                "skilldescription": "For 1 turn, one member of your team will block the first enemy harmful skill used on them for 1 turn, negating its damage and ignoring its effect completely that turn.",
+                "skilldescription": "For 1 turn, one member of your team will block the first enemy harmful skill used on them, negating its damage and ignoring its effect completely that turn.",
                 "energy": [
                     "Random"
                 ],
@@ -17818,9 +17810,9 @@ const characters = [
                                     "squirtleEvolutionStacks": 1,
                                     "stackMetadataKey": "squirtleEvolutionStacks",
                                     "stackDelta": 1,
-                                    "stackMax": 2,
+                                    "stackMax": 3,
                                     "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 2 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/squirtle/withdraw.webp",
@@ -17835,7 +17827,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/squirtle/bubble.jpg",
                 "skilldescription": "Squirtle deals 5 damage to one enemy for 3 turns. If the target is affected by Guard Break, this deals 10 bonus damage to them. This skill stacks.",
                 "energy": [
-                    "Ninjutsu"
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -17876,7 +17868,7 @@ const characters = [
                 "id": "squirtle-rapid-spin",
                 "name": "Rapid Spin",
                 "skillimage": "assets/images/PokemonArena/squirtle/rapidspin.webp",
-                "skilldescription": "Squirtle removes all harmful skills from himself or one ally and deals 15 damage to one enemy.",
+                "skilldescription": "Squirtle removes all harmful skills from himself or one ally and deals 10 damage to all enemies.",
                 "energy": [
                     "Random"
                 ],
@@ -17904,17 +17896,18 @@ const characters = [
                                     "squirtleEvolutionStacks": 1,
                                     "stackMetadataKey": "squirtleEvolutionStacks",
                                     "stackDelta": 1,
-                                    "stackMax": 2,
+                                    "stackMax": 3,
                                     "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 2 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
                                 }
                             }
-                        }
+                        },
+                        "_removedAnyCount": 7
                     },
                     {
                         "type": "damage",
-                        "amount": 15,
-                        "scope": "target"
+                        "amount": 10,
+                        "scope": "all-enemy"
                     }
                 ]
             },
@@ -17922,7 +17915,7 @@ const characters = [
                 "id": "squirtle-passive-evolution-wartortle",
                 "name": "Evolution - Wartortle",
                 "skillimage": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                "skilldescription": "Whenever Squirtle blocks an enemy harmful skill, applies Guard Break to an enemy, or successfully removes enemy harmful skills from himself or an ally, he gains 1 evolution stack. At 2 stacks, Squirtle evolves into Wartortle and gains improved versions of all skills.",
+                "skilldescription": "Whenever Squirtle blocks an enemy harmful skill, applies Guard Break to an enemy, or successfully removes enemy harmful skills from himself or an ally, he gains 1 evolution stack. At 3 stacks, Squirtle evolves into Wartortle and gains improved versions of all skills.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -17971,9 +17964,9 @@ const characters = [
                                     "squirtleEvolutionStacks": 1,
                                     "stackMetadataKey": "squirtleEvolutionStacks",
                                     "stackDelta": 1,
-                                    "stackMax": 2,
+                                    "stackMax": 3,
                                     "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 2 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/squirtle/shellguard.jpg",
@@ -17989,7 +17982,7 @@ const characters = [
                     "statusId": "squirtle_wartortle_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/squirtle/hydropump.jpg",
-                "skilldescription": "Wartortle deals 30 damage this turn and 20 damage next turn. For 1 turn, if the target uses a new harmful skill, they are affected by Guard Break for 3 turns.",
+                "skilldescription": "Wartortle deals 30 damage to one enemy this turn and 20 damage next turn. For 1 turn, if the target uses a new harmful skill, they are affected by Guard Break for 3 turns.",
                 "energy": [
                     "Ninjutsu",
                     "Ninjutsu"
@@ -18038,9 +18031,9 @@ const characters = [
                                     "squirtleEvolutionStacks": 1,
                                     "stackMetadataKey": "squirtleEvolutionStacks",
                                     "stackDelta": 1,
-                                    "stackMax": 2,
+                                    "stackMax": 3,
                                     "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 2 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/squirtle/hydropump.jpg",
@@ -18058,7 +18051,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/squirtle/bubblebeam.jpeg",
                 "skilldescription": "Wartortle deals 10 damage to all enemies for 3 turns. Enemies affected by Guard Break take 10 additional damage each turn.",
                 "energy": [
-                    "Ninjutsu",
+                    "Random",
                     "Random"
                 ],
                 "target": "all-enemy",
@@ -18125,9 +18118,9 @@ const characters = [
                                     "squirtleEvolutionStacks": 1,
                                     "stackMetadataKey": "squirtleEvolutionStacks",
                                     "stackDelta": 1,
-                                    "stackMax": 2,
+                                    "stackMax": 3,
                                     "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 2 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
+                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
                                 }
                             }
                         }
@@ -18168,7 +18161,7 @@ const characters = [
                             "bulbasaurSunStacks": 1,
                             "stackMetadataKey": "bulbasaurSunStacks",
                             "stackDelta": 1,
-                            "stackMax": 4,
+                            "stackMax": 5,
                             "randomCostReductionPerStatusMetadata": {
                                 "skillIds": [
                                     "bulbasaur-solar-beam",
@@ -18179,7 +18172,7 @@ const characters = [
                             },
                             "applyStatusAtStack": {
                                 "metadataKey": "bulbasaurSunStacks",
-                                "value": 4,
+                                "value": 5,
                                 "statusId": "bulbasaur_ivysaur_evolution",
                                 "duration": 99,
                                 "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
@@ -18199,7 +18192,7 @@ const characters = [
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
-                            "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 4 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
+                            "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
                         }
                     },
                     "tooltipText": "Bulbasaur gains 1 Sun whenever Leech Seed damages an enemy. If he does not use a new skill during his turn, he gains 1 Sun instead."
@@ -18222,7 +18215,7 @@ const characters = [
                 "classes": [
                     "Physical",
                     "Ranged",
-                    "Instant"
+                    "Control"
                 ],
                 "effects": [
                     {
@@ -18246,7 +18239,7 @@ const characters = [
                                     "bulbasaurSunStacks": 1,
                                     "stackMetadataKey": "bulbasaurSunStacks",
                                     "stackDelta": 1,
-                                    "stackMax": 4,
+                                    "stackMax": 5,
                                     "randomCostReductionPerStatusMetadata": {
                                         "skillIds": [
                                             "bulbasaur-solar-beam",
@@ -18257,7 +18250,7 @@ const characters = [
                                     },
                                     "applyStatusAtStack": {
                                         "metadataKey": "bulbasaurSunStacks",
-                                        "value": 4,
+                                        "value": 5,
                                         "statusId": "bulbasaur_ivysaur_evolution",
                                         "duration": 99,
                                         "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
@@ -18277,7 +18270,7 @@ const characters = [
                                         }
                                     },
                                     "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
-                                    "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 4 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
+                                    "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/bulbasaurleechseed.jpg",
@@ -18290,7 +18283,7 @@ const characters = [
                 "id": "bulbasaur-vine-whip",
                 "name": "Vine Whip",
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/bulbasaurvinewhip.jpg",
-                "skilldescription": "Bulbasaur deals 15 piercing damage to one enemy. That enemy's harmful skills are disabled for 1 turn. This skill has a 10% chance to critically strike for each Sun stack, dealing 15 additional damage.",
+                "skilldescription": "Bulbasaur deals 15 piercing damage to one enemy. That enemy's harmful skills are stunned for 1 turn. This skill has a 10% chance to critically strike for each Sun stack, dealing 15 additional damage.",
                 "energy": [
                     "Taijutsu"
                 ],
@@ -18343,9 +18336,8 @@ const characters = [
                 "id": "bulbasaur-razor-leaf",
                 "name": "Razor Leaf",
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/bulbasaurrazorleaf.jpg",
-                "skilldescription": "Bulbasaur deals 20 damage to one enemy and 15 damage to all other enemies. This skill has a 10% chance to critically strike each enemy for each Sun stack, dealing 10 additional damage and becoming Piercing.",
+                "skilldescription": "Bulbasaur deals 15 damage to one enemy and 10 damage to all other enemies. This skill has a 10% chance to critically strike each enemy for each Sun stack, dealing 10 additional damage and becoming Piercing.",
                 "energy": [
-                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -18359,12 +18351,12 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 20,
+                        "amount": 15,
                         "scope": "target"
                     },
                     {
                         "type": "damage",
-                        "amount": 15,
+                        "amount": 10,
                         "scope": "other-enemies"
                     },
                     {
@@ -18389,7 +18381,7 @@ const characters = [
                 "id": "bulbasaur-solar-beam",
                 "name": "Solar Beam",
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/bulbasaursolarbeam.jpg",
-                "skilldescription": "This skill costs 1 less Random energy for each Sun stack Bulbasaur possesses. Bulbasaur deals 50 damage to one enemy. This skill cannot be countered. After using this skill, all Sun stacks are removed.",
+                "skilldescription": "This skill costs 1 less Random energy for each Sun stack Bulbasaur possesses. Bulbasaur deals 50 damage to one enemy. After using this skill, all Sun stacks are removed.",
                 "energy": [
                     "Taijutsu",
                     "Random",
@@ -18405,7 +18397,8 @@ const characters = [
                 "classes": [
                     "Energy",
                     "Ranged",
-                    "Instant"
+                    "Instant",
+                    "Uncounterable"
                 ],
                 "effects": [
                     {
@@ -18430,7 +18423,7 @@ const characters = [
                 "id": "bulbasaur-passive-evolution-ivysaur",
                 "name": "Evolution - Ivysaur",
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
-                "skilldescription": "Whenever Bulbasaur damages an enemy with Leech Seed, he gains 1 Sun stack. If Bulbasaur does not use a new skill during his turn, he gains 1 Sun stack instead. Maximum: 4 Sun. When Bulbasaur reaches 4 Sun, he immediately evolves into Ivysaur and consumes all Sun stacks. Ivysaur gains improved versions of all skills.",
+                "skilldescription": "Whenever Bulbasaur damages an enemy with Leech Seed, he gains 1 Sun stack. If Bulbasaur does not use a new skill during his turn, he gains 1 Sun stack instead. Maximum: 5 Sun. When Bulbasaur reaches 5 Sun, he immediately evolves into Ivysaur and consumes all Sun stacks. Ivysaur gains improved versions of all skills.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -18447,8 +18440,9 @@ const characters = [
                     "statusId": "bulbasaur_ivysaur_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaurleechseed.png",
-                "skilldescription": "Ivysaur plants a seed on one enemy for 2 turns. At the start of each turn, that enemy loses 20 health and Ivysaur restores 20 health. Ivysaur gains 1 Sun whenever Leech Seed deals damage.",
+                "skilldescription": "Ivysaur plants a seed on one enemy for 2 turns. At the start of each turn, that enemy loses 25 health and Ivysaur restores 25 health. Ivysaur gains 1 Sun whenever Leech Seed deals damage.",
                 "energy": [
+                    "Taijutsu",
                     "Taijutsu"
                 ],
                 "target": "single-enemy",
@@ -18457,7 +18451,7 @@ const characters = [
                 "classes": [
                     "Physical",
                     "Ranged",
-                    "Instant"
+                    "Control"
                 ],
                 "effects": [
                     {
@@ -18467,8 +18461,8 @@ const characters = [
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "turnStartDamage": 20,
-                            "turnStartHealSourceAmount": 20,
+                            "turnStartDamage": 25,
+                            "turnStartHealSourceAmount": 25,
                             "fixedTurnStartDamage": true,
                             "ignoreTargetDamageReduction": true,
                             "ignoreTargetDestructibleDefense": true,
@@ -18481,7 +18475,7 @@ const characters = [
                                     "bulbasaurSunStacks": 1,
                                     "stackMetadataKey": "bulbasaurSunStacks",
                                     "stackDelta": 1,
-                                    "stackMax": 4,
+                                    "stackMax": 5,
                                     "randomCostReductionPerStatusMetadata": {
                                         "skillIds": [
                                             "bulbasaur-solar-beam",
@@ -18492,7 +18486,7 @@ const characters = [
                                     },
                                     "applyStatusAtStack": {
                                         "metadataKey": "bulbasaurSunStacks",
-                                        "value": 4,
+                                        "value": 5,
                                         "statusId": "bulbasaur_ivysaur_evolution",
                                         "duration": 99,
                                         "sourceSkillId": "bulbasaur-passive-evolution-ivysaur",
@@ -18512,7 +18506,7 @@ const characters = [
                                         }
                                     },
                                     "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
-                                    "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 4 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
+                                    "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/ivysaurleechseed.png",
@@ -18528,9 +18522,10 @@ const characters = [
                     "statusId": "bulbasaur_ivysaur_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaurvinewhip.jpg",
-                "skilldescription": "Ivysaur deals 25 piercing damage to one enemy. That enemy's harmful skills are disabled for 1 turn. This skill has a 10% chance to critically strike for each Sun stack, dealing 20 additional damage.",
+                "skilldescription": "Ivysaur deals 35 piercing damage to one enemy. That enemy's harmful skills are stunned for 1 turn. This skill has a 10% chance to critically strike for each Sun stack, dealing 15 additional damage.",
                 "energy": [
-                    "Taijutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -18543,7 +18538,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 25,
+                        "amount": 35,
                         "scope": "target",
                         "metadata": {
                             "ignoreDamageReduction": true
@@ -18551,7 +18546,7 @@ const characters = [
                     },
                     {
                         "type": "damage",
-                        "amount": 20,
+                        "amount": 15,
                         "scope": "target",
                         "chance": 0,
                         "metadata": {
@@ -18584,7 +18579,7 @@ const characters = [
                     "statusId": "bulbasaur_ivysaur_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaurrazorleaf.jpg",
-                "skilldescription": "Ivysaur deals 30 damage to one enemy and 20 damage to all other enemies. This skill has a 10% chance to critically strike each enemy for each Sun stack, dealing 15 additional damage and becoming Piercing.",
+                "skilldescription": "Ivysaur deals 25 damage to one enemy and 20 damage to all other enemies. This skill has a 10% chance to critically strike each enemy for each Sun stack, dealing 10 additional damage and becoming Piercing.",
                 "energy": [
                     "Random",
                     "Random"
@@ -18600,7 +18595,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 30,
+                        "amount": 25,
                         "scope": "target"
                     },
                     {
@@ -18610,7 +18605,7 @@ const characters = [
                     },
                     {
                         "type": "damage",
-                        "amount": 15,
+                        "amount": 10,
                         "scope": "all-enemy",
                         "chance": 0,
                         "rollPerRecipient": true,
@@ -18633,7 +18628,7 @@ const characters = [
                     "statusId": "bulbasaur_ivysaur_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaursolarbeam.webp",
-                "skilldescription": "This skill costs 1 less Random energy for each Sun stack Ivysaur possesses. Ivysaur deals 65 damage to one enemy. This skill cannot be countered. After using this skill, all Sun stacks are removed.",
+                "skilldescription": "This skill costs 1 less Random energy for each Sun stack Ivysaur possesses. Ivysaur deals 65 damage to one enemy. After using this skill, all Sun stacks are removed.",
                 "energy": [
                     "Taijutsu",
                     "Random",
@@ -18649,7 +18644,8 @@ const characters = [
                 "classes": [
                     "Energy",
                     "Ranged",
-                    "Instant"
+                    "Instant",
+                    "Uncounterable"
                 ],
                 "effects": [
                     {
@@ -18671,7 +18667,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Damage",
+        "role": "Drain Fighter",
         "universe": "pokemon",
         "arena": "pokemon",
         "roleCategory": "damage",
@@ -18695,7 +18691,7 @@ const characters = [
                     "onEnemySkillTargetedDamageToSourceIgnoreDamageReduction": true,
                     "onEnemySkillTargetedDamageToSourceIgnoreDestructibleDefense": true,
                     "onEnemySkillTargetedDamageToSourceSkillClasses": [
-                        "Physical",
+                        "Energy",
                         "Instant"
                     ],
                     "onEnemySkillTargetedApplyStatusToSource": {
@@ -18707,7 +18703,7 @@ const characters = [
                             "tooltipText": "This character is marked by Static."
                         }
                     },
-                    "tooltipText": "Any enemy who uses a new skill on Pikachu has a 100% chance to take 5 piercing damage and be marked by Static for 1 turn."
+                    "tooltipText": "Any enemy who uses a new skill on Pikachu takes 5 piercing damage and is marked by Static for 1 turn."
                 }
             }
         ],
@@ -18717,22 +18713,23 @@ const characters = [
                 "id": "pikachu-thundershock",
                 "name": "Thundershock",
                 "skillimage": "assets/images/PokemonArena/Pikachu/thundershock.jpg",
-                "skilldescription": "Deals 25 piercing damage to one targeted enemy and 10 piercing damage to a random different enemy, paralyzes the targeted enemy's cooldowns, and makes Thunder cost 1 Green and 1 Random energy for 1 turn. If the targeted enemy is affected by Passive: Static, their cooldowns are paralyzed for 2 turns instead.",
+                "skilldescription": "Deals 20 piercing damage to one targeted enemy and 15 piercing damage to a random different enemy, paralyzes the targeted enemy's cooldowns, and makes Thunder cost 1 white energy and 1 Random energy for 1 turn. If the targeted enemy is affected by Static, their cooldowns are paralyzed for 2 turns instead.",
                 "energy": [
-                    "Ninjutsu"
+                    "Genjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
                     "Energy",
+                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "scope": "target",
                         "type": "damage",
-                        "amount": 25,
+                        "amount": 20,
                         "metadata": {
                             "harmful": true,
                             "ignoreDamageReduction": true
@@ -18741,7 +18738,7 @@ const characters = [
                     {
                         "scope": "random-other-enemy",
                         "type": "damage",
-                        "amount": 10,
+                        "amount": 15,
                         "metadata": {
                             "harmful": true,
                             "ignoreDamageReduction": true
@@ -18782,13 +18779,13 @@ const characters = [
                             "skillCostOverridesBySkillId": {
                                 "pikachu-thunder": {
                                     "energy": [
-                                        "Ninjutsu",
+                                        "Genjutsu",
                                         "Random"
                                     ]
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/Pikachu/thundershock.jpg",
-                            "tooltipText": "Thunder costs 1 Green and 1 Random energy."
+                            "tooltipText": "Thunder costs 1 Ninjutsu and 1 Random energy."
                         }
                     }
                 ]
@@ -18797,22 +18794,23 @@ const characters = [
                 "id": "pikachu-volt-tackle",
                 "name": "Volt Tackle",
                 "skillimage": "assets/images/PokemonArena/Pikachu/volttackle.jpeg",
-                "skilldescription": "Pikachu deals 35 piercing damage to one enemy then loses 20 health. For 1 turn, if the target uses a new skill it will have its cooldown increased by 2 turns. If the target is affected by Passive: Static, their cooldowns are increased for 4 turns instead.",
+                "skilldescription": "Pikachu deals 30 piercing damage to one enemy then loses 15 health. For 1 turn, if the target uses a new skill it will have its cooldown increased by 2 turns. If the target is affected by Static, their cooldowns are increased for 4 turns instead.",
                 "energy": [
                     "Taijutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
+                "cooldown": 3,
                 "classes": [
                     "Energy",
+                    "Melee",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "scope": "target",
                         "type": "damage",
-                        "amount": 35,
+                        "amount": 30,
                         "metadata": {
                             "harmful": true,
                             "ignoreDamageReduction": true
@@ -18821,7 +18819,7 @@ const characters = [
                     {
                         "scope": "self",
                         "type": "damage",
-                        "amount": 20,
+                        "amount": 15,
                         "metadata": {
                             "fixedDamage": true,
                             "ignoreDamageReduction": true,
@@ -18860,16 +18858,17 @@ const characters = [
                 "id": "pikachu-thunder",
                 "name": "Thunder",
                 "skillimage": "assets/images/PokemonArena/Pikachu/thunder.jpg",
-                "skilldescription": "Deals 45 piercing damage to one enemy. If the target is affected by Passive: Static, they also take 5 piercing damage, have their harmful skills stunned for 1 turn, and Passive: Static is re-cast on them.",
+                "skilldescription": "Deals 45 piercing damage to one enemy. If the target is affected by Static, they also take 5 piercing damage, have their harmful skills stunned for 1 turn, and Static is re-applied to them.",
                 "energy": [
-                    "Ninjutsu",
-                    "Ninjutsu"
+                    "Genjutsu",
+                    "Genjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
                 "cooldown": 0,
                 "classes": [
                     "Energy",
+                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
@@ -18957,9 +18956,9 @@ const characters = [
             },
             {
                 "id": "pikachu-passive-static",
-                "name": "Passive: Static",
+                "name": "Static",
                 "skillimage": "assets/images/PokemonArena/Pikachu/passivestatic.jpeg",
-                "skilldescription": "Any enemy who uses a new skill on Pikachu has a 50% chance to take 5 piercing damage and be marked by this skill for 1 turn.",
+                "skilldescription": "Any enemy who uses a new skill on Pikachu takes 5 piercing damage and is marked by this skill for 1 turn.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -18990,7 +18989,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/butterfree/confusion.webp",
                 "skilldescription": "Butterfree deals 25 damage to one enemy. This skill has a 25% chance to reflect the next harmful skill used by that enemy back onto its user for 1 turn. For 1 turn, Psybeam deals 5 additional damage.",
                 "energy": [
-                    "Genjutsu"
+                    "Taijutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -19153,7 +19152,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/butterfree/whirlwind.webp",
                 "skilldescription": "For 1 turn, your team is invulnerable to non-mental skills.",
                 "energy": [
-                    "Genjutsu"
+                    "Taijutsu"
                 ],
                 "target": "all-allies",
                 "damage": 0,
@@ -19699,6 +19698,37 @@ const characters = [
                     },
                     {
                         "type": "apply_status",
+                        "statusId": "krabby_kingler_evolution",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "krabby",
+                            "missingStatusId": "krabby_kingler_evolution"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "facePictureOverride": "assets/images/PokemonArena/Krabby/kinglerfp.webp",
+                            "removeStatusIdsOnApply": [
+                                "krabby_harden_turn_tracker"
+                            ],
+                            "skillReplacements": {
+                                "krabby-metal-claw": "kingler-metal-claw",
+                                "krabby-leer": "kingler-leer",
+                                "krabby-crabhammer": "kingler-crabhammer",
+                                "krabby-harden": "kingler-harden"
+                            },
+                            "destructibleDefensePoints": 25,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "Krabby has evolved into Kingler and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
                         "statusId": "pokemon_trainer_rare_candy_swap",
                         "duration": 99,
                         "scope": "self",
@@ -19718,7 +19748,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/Great ball.png",
                 "skilldescription": "Stuns one enemy and makes them invulnerable to all skills for 2 turns. If used when their health is at 25 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This skill swaps to Ultra Ball.",
                 "energy": [
-                    "Taijutsu"
+                    "Ninjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -19818,7 +19848,7 @@ const characters = [
             {
                 "id": "pokemon-trainer-ultra-ball",
                 "name": "Ultra Ball",
-                "skillimage": "assets/images/PokemonArena/pokemontrainer/master ball.jpeg",
+                "skillimage": "https://i.imgur.com/6VVZEkQ.jpeg",
                 "skilldescription": "Stuns one enemy and makes them invulnerable to all skills for 3 turns. If used when their health is at 40 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This skill swaps to Master Ball.",
                 "energy": [
                     "Genjutsu",
@@ -19928,9 +19958,9 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/master ball.jpeg",
                 "skilldescription": "Permanently banishes one enemy and swaps Pokemon Trainer's skills to theirs for the rest of the game. This cannot be ignored, countered, or reflected.",
                 "energy": [
-                    "Taijutsu",
-                    "Genjutsu",
-                    "Ninjutsu"
+                    "Bloodline",
+                    "Ninjutsu",
+                    "Genjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -19974,13 +20004,15 @@ const characters = [
                 "id": "pokemon-trainer-revive",
                 "name": "Revive",
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/Revive.jpg",
-                "skilldescription": "Revives one defeated ally with 50 HP. If used on a living ally instead, heals them for 25 HP.",
+                "skilldescription": "Revives one defeated ally with 30 HP. If used on a living ally instead, heals them for 50 HP.",
                 "energy": [
+                    "Random",
+                    "Random",
                     "Random"
                 ],
                 "target": "single-ally-or-dead-ally",
                 "damage": 0,
-                "cooldown": 3,
+                "cooldown": 4,
                 "classes": [
                     "Physical",
                     "Instant"
@@ -19988,7 +20020,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "revive",
-                        "amount": 50,
+                        "amount": 30,
                         "scope": "target",
                         "condition": {
                             "scope": "target",
@@ -19997,7 +20029,7 @@ const characters = [
                     },
                     {
                         "type": "heal",
-                        "amount": 25,
+                        "amount": 50,
                         "scope": "target",
                         "condition": {
                             "scope": "target",
@@ -20030,10 +20062,10 @@ const characters = [
                     "chanseyHealedAmount": 0,
                     "stackMetadataKey": "chanseyHealedAmount",
                     "stackDeltaFromHealingDone": true,
-                    "stackMax": 75,
+                    "stackMax": 100,
                     "applyStatusAtStack": {
                         "metadataKey": "chanseyHealedAmount",
-                        "value": 75,
+                        "value": 100,
                         "statusId": "chansey_blissey_evolution",
                         "duration": 99,
                         "sourceSkillId": "chansey-passive-evolution-blissey",
@@ -20053,7 +20085,7 @@ const characters = [
                         }
                     },
                     "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
-                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/75 HP during battle. At 75 HP, Chansey evolves into Blissey and consumes the healing tracker."
+                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
                 }
             }
         ],
@@ -20126,9 +20158,9 @@ const characters = [
                                     "chanseyHealedAmount": 0,
                                     "stackMetadataKey": "chanseyHealedAmount",
                                     "stackDeltaFromHealingDone": true,
-                                    "stackMax": 75,
+                                    "stackMax": 100,
                                     "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
-                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/75 HP during battle. At 75 HP, Chansey evolves into Blissey and consumes the healing tracker."
+                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
                                 }
                             }
                         }
@@ -20197,9 +20229,9 @@ const characters = [
                                     "chanseyHealedAmount": 0,
                                     "stackMetadataKey": "chanseyHealedAmount",
                                     "stackDeltaFromHealingDone": true,
-                                    "stackMax": 75,
+                                    "stackMax": 100,
                                     "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
-                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/75 HP during battle. At 75 HP, Chansey evolves into Blissey and consumes the healing tracker."
+                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
                                 }
                             }
                         }
@@ -20239,13 +20271,12 @@ const characters = [
                 "id": "chansey-emergency-life-support",
                 "name": "Pokémon Center Emergency Life Support",
                 "skillimage": "assets/images/PokemonArena/Chansey/chanseyemergencypokemoncenterlifesupport.webp",
-                "skilldescription": "Heals one ally for 50 HP, or revives a defeated ally with 50 HP, and removes all enemy skills currently affecting them.",
+                "skilldescription": "Heals one ally for 50 HP, and removes all enemy skills currently affecting them.",
                 "energy": [
                     "Bloodline",
-                    "Genjutsu",
-                    "Random"
+                    "Genjutsu"
                 ],
-                "target": "single-ally-or-dead-ally",
+                "target": "single-ally",
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
@@ -20266,9 +20297,9 @@ const characters = [
                                     "chanseyHealedAmount": 0,
                                     "stackMetadataKey": "chanseyHealedAmount",
                                     "stackDeltaFromHealingDone": true,
-                                    "stackMax": 75,
+                                    "stackMax": 100,
                                     "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
-                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/75 HP during battle. At 75 HP, Chansey evolves into Blissey and consumes the healing tracker."
+                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
                                 }
                             }
                         }
@@ -20286,9 +20317,9 @@ const characters = [
                                     "chanseyHealedAmount": 0,
                                     "stackMetadataKey": "chanseyHealedAmount",
                                     "stackDeltaFromHealingDone": true,
-                                    "stackMax": 75,
+                                    "stackMax": 100,
                                     "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
-                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/75 HP during battle. At 75 HP, Chansey evolves into Blissey and consumes the healing tracker."
+                                    "tooltipTextTemplate": "Chansey has healed {chanseyHealedAmount}/100 HP during battle. At 100 HP, Chansey evolves into Blissey and consumes the healing tracker."
                                 }
                             }
                         },
@@ -20308,7 +20339,7 @@ const characters = [
                 "id": "chansey-passive-evolution-blissey",
                 "name": "Evolution - Blissey",
                 "skillimage": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
-                "skilldescription": "After Chansey has healed 75 total HP during the battle, it evolves into Blissey. Blissey's skills are improved.",
+                "skilldescription": "After Chansey has healed 100 total HP during the battle, it evolves into Blissey. Blissey's skills are improved.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -20368,7 +20399,7 @@ const characters = [
                     "statusId": "chansey_blissey_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Chansey/blisseypokemoncenterhealing.png",
-                "skilldescription": "Heals Blissey's team for 15 HP and grants them 10 destructible defense each turn for 3 turns. During this skill, Softboil will always make its target unable to die.",
+                "skilldescription": "Heals Blissey's team for 10 HP and grants them 10 destructible defense each turn for 3 turns. During this skill, Softboil will always make its target unable to die.",
                 "energy": [
                     "Random",
                     "Random"
@@ -20383,7 +20414,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "heal",
-                        "amount": 15,
+                        "amount": 10,
                         "scope": "all-allies"
                     },
                     {
@@ -20493,7 +20524,7 @@ const characters = [
                     "statusId": "chansey_blissey_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Chansey/blisseyemergencypokemoncenterlifesupport.webp",
-                "skilldescription": "Heals one ally for 50 HP, or revives a defeated ally with 50 HP. This skill costs 1 less Random energy while Pokémon Center Healing is active.",
+                "skilldescription": "Heals one ally for 50 HP and removes all enemy skills affecting them, or revives a defeated ally with 50 HP. This skill costs 1 less Random energy while Pokémon Center Healing is active.",
                 "energy": [
                     "Bloodline",
                     "Genjutsu",
@@ -20513,9 +20544,20 @@ const characters = [
                         "scope": "target"
                     },
                     {
-                        "type": "revive",
+                        "type": "cleanse_statuses",
                         "amount": 50,
                         "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "sourceCurrentHpAtMost": 0
+                        },
+                        "sourceRelation": "enemy"
+                    },
+                    {
+                        "type": "revive",
+                        "scope": "target",
+                        "sourceRelation": "enemy",
+                        "amount": 50,
                         "condition": {
                             "scope": "target",
                             "sourceCurrentHpAtMost": 0
@@ -20527,7 +20569,7 @@ const characters = [
                         "sourceRelation": "enemy"
                     }
                 ]
-            },
+            }
         ],
         "role": "Support",
         "universe": "pokemon",
@@ -20551,10 +20593,10 @@ const characters = [
                     "pidgeyDamageDealt": 0,
                     "stackMetadataKey": "pidgeyDamageDealt",
                     "stackDeltaFromDamageDealt": true,
-                    "stackMax": 75,
+                    "stackMax": 100,
                     "applyStatusAtStack": {
                         "metadataKey": "pidgeyDamageDealt",
-                        "value": 75,
+                        "value": 100,
                         "statusId": "pidgey_pidgeotto_evolution",
                         "duration": 99,
                         "sourceSkillId": "pidgey-passive-evolution-pidgeotto",
@@ -20574,7 +20616,7 @@ const characters = [
                         }
                     },
                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/75 total damage. At 75 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                 }
             }
         ],
@@ -20586,7 +20628,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pidgey/gust.webp",
                 "skilldescription": "Pidgey deals 20 piercing damage to one enemy and 10 physical damage to all other enemies. Pidgey becomes invulnerable to non-mental skills for 1 turn.",
                 "energy": [
-                    "Ninjutsu"
+                    "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -20612,9 +20654,9 @@ const characters = [
                                     "pidgeyDamageDealt": 0,
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 75,
+                                    "stackMax": 100,
                                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/75 total damage. At 75 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
                         }
@@ -20647,9 +20689,9 @@ const characters = [
                                     "pidgeyDamageDealt": 0,
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 75,
+                                    "stackMax": 100,
                                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/75 total damage. At 75 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
                         }
@@ -20673,8 +20715,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pidgey/whirlwind.webp",
                 "skilldescription": "For 2 turns, the enemy team's non-affliction damage is reduced by 50%. Pidgey's team becomes invulnerable for 1 turn.",
                 "energy": [
-                    "Ninjutsu",
-                    "Ninjutsu"
+                    "Bloodline",
+                    "Bloodline"
                 ],
                 "target": "all-enemy",
                 "damage": 0,
@@ -20742,9 +20784,9 @@ const characters = [
                                     "pidgeyDamageDealt": 0,
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 75,
+                                    "stackMax": 100,
                                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/75 total damage. At 75 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
                         }
@@ -20757,7 +20799,7 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "infiniteDuration": true,
-                        "statusIconUrl": "assets/images/PokemonArena/pidgey/peck.webp",
+                            "statusIconUrl": "assets/images/PokemonArena/pidgey/peck.webp",
                             "tooltipText": "This character is marked by Peck."
                         }
                     }
@@ -20798,7 +20840,7 @@ const characters = [
                 "id": "pidgey-passive-evolution-pidgeotto",
                 "name": "Evolution - Pidgeotto",
                 "skillimage": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                "skilldescription": "After Pidgey has dealt 75 total damage during battle, he evolves into Pidgeotto. Pidgeotto's skills are improved.",
+                "skilldescription": "After Pidgey has dealt 100 total damage during battle, he evolves into Pidgeotto. Pidgeotto's skills are improved.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -20817,7 +20859,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pidgey/pidgeottogust.webp",
                 "skilldescription": "Pidgeotto deals 20 piercing damage to one enemy and 15 piercing damage to all other enemies. Pidgeotto becomes invulnerable to non-mental skills for 1 turn.",
                 "energy": [
-                    "Ninjutsu"
+                    "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -20843,9 +20885,9 @@ const characters = [
                                     "pidgeyDamageDealt": 0,
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 75,
+                                    "stackMax": 100,
                                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/75 total damage. At 75 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
                         }
@@ -20870,9 +20912,9 @@ const characters = [
                                     "pidgeyDamageDealt": 0,
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 75,
+                                    "stackMax": 100,
                                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/75 total damage. At 75 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
                         }
@@ -20891,9 +20933,9 @@ const characters = [
                                     "pidgeyDamageDealt": 0,
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 75,
+                                    "stackMax": 100,
                                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/75 total damage. At 75 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
                         }
@@ -20920,8 +20962,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pidgey/pidgeottowhirlwind.webp",
                 "skilldescription": "For 3 turns, the enemy team's non-affliction damage is reduced by 50%. Pidgeotto's team becomes invulnerable for 1 turn.",
                 "energy": [
-                    "Ninjutsu",
-                    "Ninjutsu"
+                    "Bloodline",
+                    "Bloodline"
                 ],
                 "target": "all-enemy",
                 "damage": 0,
@@ -20992,9 +21034,9 @@ const characters = [
                                     "pidgeyDamageDealt": 0,
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 75,
+                                    "stackMax": 100,
                                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/75 total damage. At 75 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
                         }
@@ -21007,7 +21049,7 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "infiniteDuration": true,
-                        "statusIconUrl": "assets/images/PokemonArena/pidgey/peck.webp",
+                            "statusIconUrl": "assets/images/PokemonArena/pidgey/peck.webp",
                             "tooltipText": "This character is marked by Peck."
                         }
                     }
@@ -21196,7 +21238,7 @@ const characters = [
             },
             {
                 "statusId": "koffing_smog_tracker",
-                "sourceSkillId": "koffing-passive-evolution-weezing",
+                "sourceSkillId": "koffing-smog",
                 "duration": 99,
                 "metadata": {
                     "hidden": true,
@@ -21207,7 +21249,7 @@ const characters = [
                         "koffing-smog"
                     ],
                     "onOwnerUseSkillApplyStatusToOwner": {
-                        "statusId": "koffing_weezing_progress_tracker",
+                        "statusId": "koffing_smog_used",
                         "duration": 99,
                         "metadata": {
                             "infiniteDuration": true,
@@ -21216,14 +21258,16 @@ const characters = [
                             "stackDelta": 1,
                             "stackMax": 3,
                             "statusIconUrl": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
-                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/3 unique skills and will evolve into Weezing at 3."
+                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/3 unique skills and will evolve into Weezing at 3.",
+                            "hidden": true,
+                            "tooltipText": "Koffing has used Smog."
                         }
                     }
                 }
             },
             {
                 "statusId": "koffing_haze_tracker",
-                "sourceSkillId": "koffing-passive-evolution-weezing",
+                "sourceSkillId": "koffing-haze",
                 "duration": 99,
                 "metadata": {
                     "hidden": true,
@@ -21234,7 +21278,7 @@ const characters = [
                         "koffing-haze"
                     ],
                     "onOwnerUseSkillApplyStatusToOwner": {
-                        "statusId": "koffing_weezing_progress_tracker",
+                        "statusId": "koffing_haze_used",
                         "duration": 99,
                         "metadata": {
                             "infiniteDuration": true,
@@ -21243,14 +21287,16 @@ const characters = [
                             "stackDelta": 1,
                             "stackMax": 3,
                             "statusIconUrl": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
-                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/3 unique skills and will evolve into Weezing at 3."
+                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/3 unique skills and will evolve into Weezing at 3.",
+                            "hidden": true,
+                            "tooltipText": "Koffing has used Haze."
                         }
                     }
                 }
             },
             {
                 "statusId": "koffing_self_destruct_tracker",
-                "sourceSkillId": "koffing-passive-evolution-weezing",
+                "sourceSkillId": "koffing-self-destruct",
                 "duration": 99,
                 "metadata": {
                     "hidden": true,
@@ -21261,7 +21307,7 @@ const characters = [
                         "koffing-self-destruct"
                     ],
                     "onOwnerUseSkillApplyStatusToOwner": {
-                        "statusId": "koffing_weezing_progress_tracker",
+                        "statusId": "koffing_self_destruct_used",
                         "duration": 99,
                         "metadata": {
                             "infiniteDuration": true,
@@ -21270,14 +21316,16 @@ const characters = [
                             "stackDelta": 1,
                             "stackMax": 3,
                             "statusIconUrl": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
-                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/3 unique skills and will evolve into Weezing at 3."
+                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/3 unique skills and will evolve into Weezing at 3.",
+                            "hidden": true,
+                            "tooltipText": "Koffing has used Self-Destruct."
                         }
                     }
                 }
             },
             {
                 "statusId": "koffing_smokescreen_tracker",
-                "sourceSkillId": "koffing-passive-evolution-weezing",
+                "sourceSkillId": "koffing-smokescreen",
                 "duration": 99,
                 "metadata": {
                     "hidden": true,
@@ -21288,7 +21336,7 @@ const characters = [
                         "koffing-smokescreen"
                     ],
                     "onOwnerUseSkillApplyStatusToOwner": {
-                        "statusId": "koffing_weezing_progress_tracker",
+                        "statusId": "koffing_smokescreen_used",
                         "duration": 99,
                         "metadata": {
                             "infiniteDuration": true,
@@ -21297,7 +21345,369 @@ const characters = [
                             "stackDelta": 1,
                             "stackMax": 3,
                             "statusIconUrl": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
-                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/3 unique skills and will evolve into Weezing at 3."
+                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/3 unique skills and will evolve into Weezing at 3.",
+                            "hidden": true,
+                            "tooltipText": "Koffing has used Smokescreen."
+                        }
+                    }
+                }
+            },
+            {
+                "statusId": "koffing_smog_evolution_check",
+                "sourceSkillId": "koffing-smog",
+                "duration": 99,
+                "metadata": {
+                    "hidden": true,
+                    "infiniteDuration": true,
+                    "onOwnerUseSkillTrigger": true,
+                    "onOwnerUseSkillIdsAny": [
+                        "koffing-smog"
+                    ],
+                    "onOwnerUseSkillApplyStatusToOwnerCondition": {
+                        "scope": "self",
+                        "statusIdsAll": [
+                            "koffing_smog_used",
+                            "koffing_haze_used",
+                            "koffing_self_destruct_used",
+                            "koffing_smokescreen_used"
+                        ]
+                    },
+                    "onOwnerUseSkillApplyStatusToOwner": {
+                        "statusId": "koffing_weezing_evolution",
+                        "duration": 99,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "facePictureOverride": "assets/images/PokemonArena/koffing/weezingfp.webp",
+                            "removeStatusIdsOnApply": [
+                                "koffing_poison_gas_base",
+                                "koffing_smog_tracker",
+                                "koffing_haze_tracker",
+                                "koffing_self_destruct_tracker",
+                                "koffing_smokescreen_tracker",
+                                "koffing_smog_used",
+                                "koffing_haze_used",
+                                "koffing_self_destruct_used",
+                                "koffing_smokescreen_used"
+                            ],
+                            "skillReplacements": {
+                                "koffing-passive-poison-gas": "koffing-weezing-passive-poison-gas",
+                                "koffing-smog": "koffing-weezing-smog",
+                                "koffing-haze": "koffing-weezing-haze",
+                                "koffing-self-destruct": "koffing-weezing-self-destruct",
+                                "koffing-smokescreen": "koffing-weezing-smokescreen"
+                            },
+                            "onTeamMemberSuccessfulDamageApplyRandomStatusToTarget": {
+                                "chancePercent": 40,
+                                "statusOptions": [
+                                    {
+                                        "statusId": "weezing_poison_gas_paralyze_cooldowns",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "paralyzeCooldowns": true,
+                                            "tooltipText": "This character's cooldowns are paralyzed."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_helpful_lock",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "cannotUseHelpfulSkills": true,
+                                            "tooltipText": "This character cannot use helpful skills."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_damage_reduction",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "damageReductionPercent": 50,
+                                            "tooltipText": "This character has 50% damage reduction."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_skill_delay",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "cannotUseSkills": true,
+                                            "tooltipText": "This character's skills are delayed until their next turn."
+                                        }
+                                    }
+                                ]
+                            },
+                            "tooltipText": "Koffing has evolved into Weezing. All of his skills have improved effects."
+                        }
+                    }
+                }
+            },
+            {
+                "statusId": "koffing_haze_evolution_check",
+                "sourceSkillId": "koffing-haze",
+                "duration": 99,
+                "metadata": {
+                    "hidden": true,
+                    "infiniteDuration": true,
+                    "onOwnerUseSkillTrigger": true,
+                    "onOwnerUseSkillIdsAny": [
+                        "koffing-haze"
+                    ],
+                    "onOwnerUseSkillApplyStatusToOwnerCondition": {
+                        "scope": "self",
+                        "statusIdsAll": [
+                            "koffing_smog_used",
+                            "koffing_haze_used",
+                            "koffing_self_destruct_used",
+                            "koffing_smokescreen_used"
+                        ]
+                    },
+                    "onOwnerUseSkillApplyStatusToOwner": {
+                        "statusId": "koffing_weezing_evolution",
+                        "duration": 99,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "facePictureOverride": "assets/images/PokemonArena/koffing/weezingfp.webp",
+                            "removeStatusIdsOnApply": [
+                                "koffing_poison_gas_base",
+                                "koffing_smog_tracker",
+                                "koffing_haze_tracker",
+                                "koffing_self_destruct_tracker",
+                                "koffing_smokescreen_tracker",
+                                "koffing_smog_used",
+                                "koffing_haze_used",
+                                "koffing_self_destruct_used",
+                                "koffing_smokescreen_used"
+                            ],
+                            "skillReplacements": {
+                                "koffing-passive-poison-gas": "koffing-weezing-passive-poison-gas",
+                                "koffing-smog": "koffing-weezing-smog",
+                                "koffing-haze": "koffing-weezing-haze",
+                                "koffing-self-destruct": "koffing-weezing-self-destruct",
+                                "koffing-smokescreen": "koffing-weezing-smokescreen"
+                            },
+                            "onTeamMemberSuccessfulDamageApplyRandomStatusToTarget": {
+                                "chancePercent": 40,
+                                "statusOptions": [
+                                    {
+                                        "statusId": "weezing_poison_gas_paralyze_cooldowns",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "paralyzeCooldowns": true,
+                                            "tooltipText": "This character's cooldowns are paralyzed."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_helpful_lock",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "cannotUseHelpfulSkills": true,
+                                            "tooltipText": "This character cannot use helpful skills."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_damage_reduction",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "damageReductionPercent": 50,
+                                            "tooltipText": "This character has 50% damage reduction."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_skill_delay",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "cannotUseSkills": true,
+                                            "tooltipText": "This character's skills are delayed until their next turn."
+                                        }
+                                    }
+                                ]
+                            },
+                            "tooltipText": "Koffing has evolved into Weezing. All of his skills have improved effects."
+                        }
+                    }
+                }
+            },
+            {
+                "statusId": "koffing_self_destruct_evolution_check",
+                "sourceSkillId": "koffing-self-destruct",
+                "duration": 99,
+                "metadata": {
+                    "hidden": true,
+                    "infiniteDuration": true,
+                    "onOwnerUseSkillTrigger": true,
+                    "onOwnerUseSkillIdsAny": [
+                        "koffing-self-destruct"
+                    ],
+                    "onOwnerUseSkillApplyStatusToOwnerCondition": {
+                        "scope": "self",
+                        "statusIdsAll": [
+                            "koffing_smog_used",
+                            "koffing_haze_used",
+                            "koffing_self_destruct_used",
+                            "koffing_smokescreen_used"
+                        ]
+                    },
+                    "onOwnerUseSkillApplyStatusToOwner": {
+                        "statusId": "koffing_weezing_evolution",
+                        "duration": 99,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "facePictureOverride": "assets/images/PokemonArena/koffing/weezingfp.webp",
+                            "removeStatusIdsOnApply": [
+                                "koffing_poison_gas_base",
+                                "koffing_smog_tracker",
+                                "koffing_haze_tracker",
+                                "koffing_self_destruct_tracker",
+                                "koffing_smokescreen_tracker",
+                                "koffing_smog_used",
+                                "koffing_haze_used",
+                                "koffing_self_destruct_used",
+                                "koffing_smokescreen_used"
+                            ],
+                            "skillReplacements": {
+                                "koffing-passive-poison-gas": "koffing-weezing-passive-poison-gas",
+                                "koffing-smog": "koffing-weezing-smog",
+                                "koffing-haze": "koffing-weezing-haze",
+                                "koffing-self-destruct": "koffing-weezing-self-destruct",
+                                "koffing-smokescreen": "koffing-weezing-smokescreen"
+                            },
+                            "onTeamMemberSuccessfulDamageApplyRandomStatusToTarget": {
+                                "chancePercent": 40,
+                                "statusOptions": [
+                                    {
+                                        "statusId": "weezing_poison_gas_paralyze_cooldowns",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "paralyzeCooldowns": true,
+                                            "tooltipText": "This character's cooldowns are paralyzed."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_helpful_lock",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "cannotUseHelpfulSkills": true,
+                                            "tooltipText": "This character cannot use helpful skills."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_damage_reduction",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "damageReductionPercent": 50,
+                                            "tooltipText": "This character has 50% damage reduction."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_skill_delay",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "cannotUseSkills": true,
+                                            "tooltipText": "This character's skills are delayed until their next turn."
+                                        }
+                                    }
+                                ]
+                            },
+                            "tooltipText": "Koffing has evolved into Weezing. All of his skills have improved effects."
+                        }
+                    }
+                }
+            },
+            {
+                "statusId": "koffing_smokescreen_evolution_check",
+                "sourceSkillId": "koffing-smokescreen",
+                "duration": 99,
+                "metadata": {
+                    "hidden": true,
+                    "infiniteDuration": true,
+                    "onOwnerUseSkillTrigger": true,
+                    "onOwnerUseSkillIdsAny": [
+                        "koffing-smokescreen"
+                    ],
+                    "onOwnerUseSkillApplyStatusToOwnerCondition": {
+                        "scope": "self",
+                        "statusIdsAll": [
+                            "koffing_smog_used",
+                            "koffing_haze_used",
+                            "koffing_self_destruct_used",
+                            "koffing_smokescreen_used"
+                        ]
+                    },
+                    "onOwnerUseSkillApplyStatusToOwner": {
+                        "statusId": "koffing_weezing_evolution",
+                        "duration": 99,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "facePictureOverride": "assets/images/PokemonArena/koffing/weezingfp.webp",
+                            "removeStatusIdsOnApply": [
+                                "koffing_poison_gas_base",
+                                "koffing_smog_tracker",
+                                "koffing_haze_tracker",
+                                "koffing_self_destruct_tracker",
+                                "koffing_smokescreen_tracker",
+                                "koffing_smog_used",
+                                "koffing_haze_used",
+                                "koffing_self_destruct_used",
+                                "koffing_smokescreen_used"
+                            ],
+                            "skillReplacements": {
+                                "koffing-passive-poison-gas": "koffing-weezing-passive-poison-gas",
+                                "koffing-smog": "koffing-weezing-smog",
+                                "koffing-haze": "koffing-weezing-haze",
+                                "koffing-self-destruct": "koffing-weezing-self-destruct",
+                                "koffing-smokescreen": "koffing-weezing-smokescreen"
+                            },
+                            "onTeamMemberSuccessfulDamageApplyRandomStatusToTarget": {
+                                "chancePercent": 40,
+                                "statusOptions": [
+                                    {
+                                        "statusId": "weezing_poison_gas_paralyze_cooldowns",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "paralyzeCooldowns": true,
+                                            "tooltipText": "This character's cooldowns are paralyzed."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_helpful_lock",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "cannotUseHelpfulSkills": true,
+                                            "tooltipText": "This character cannot use helpful skills."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_damage_reduction",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "damageReductionPercent": 50,
+                                            "tooltipText": "This character has 50% damage reduction."
+                                        }
+                                    },
+                                    {
+                                        "statusId": "weezing_poison_gas_skill_delay",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "cannotUseSkills": true,
+                                            "tooltipText": "This character's skills are delayed until their next turn."
+                                        }
+                                    }
+                                ]
+                            },
+                            "tooltipText": "Koffing has evolved into Weezing. All of his skills have improved effects."
                         }
                     }
                 }
@@ -21310,7 +21720,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/koffing/koffingsmog.webp",
                 "skilldescription": "Koffing deals 5 affliction damage to all enemies each turn for 4 turns. This effect stacks.",
                 "energy": [
-                    "Bloodline"
+                    "Ninjutsu"
                 ],
                 "target": "all-enemy",
                 "damage": 0,
@@ -21380,7 +21790,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/koffing/koffingexplosion.webp",
                 "skilldescription": "Koffing deals 20 affliction damage to all enemies and loses 20 HP. If this defeats Koffing, all enemies take 5 additional affliction damage.",
                 "energy": [
-                    "Bloodline"
+                    "Ninjutsu"
                 ],
                 "target": "all-enemy",
                 "damage": 0,
@@ -21479,7 +21889,7 @@ const characters = [
                 "id": "koffing-passive-evolution-weezing",
                 "name": "Evolution - Weezing",
                 "skillimage": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
-                "skilldescription": "After Koffing has used 3 unique skills during the battle, he evolves into Weezing. Weezing's skills are all improved.",
+                "skilldescription": "After Koffing has used each of his skills at least once during the battle, he evolves into Weezing. Weezing's skills are all improved.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -21591,8 +22001,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/koffing/weezingexplosion.webp",
                 "skilldescription": "Weezing deals 30 affliction damage to all enemies and loses 30 HP. If this defeats Weezing, all enemies take 5 additional affliction damage.",
                 "energy": [
-                    "Bloodline",
-                    "Random",
+                    "Ninjutsu",
                     "Random"
                 ],
                 "target": "all-enemy",
@@ -21654,6 +22063,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/koffing/weezingsmokescreen.webp",
                 "skilldescription": "Weezing's team gains 25% evasion for 3 turns.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "all-allies",
@@ -21732,7 +22142,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/zubat/leechlife.webp",
                 "skilldescription": "Steals 10 HP from one enemy. For 1 turn, if that enemy uses a new skill, Zubat steals an additional 10 HP from them.",
                 "energy": [
-                    "Bloodline"
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -21826,9 +22236,7 @@ const characters = [
                 "name": "Supersonic",
                 "skillimage": "assets/images/PokemonArena/zubat/supersonic.webp",
                 "skilldescription": "For 1 turn, an enemy has a 40% chance for any skill they use to fail. If a skill fails this way, they lose 15 HP. Zubat's skills steal 10 additional HP from enemies affected by Supersonic.",
-                "energy": [
-                    "Random"
-                ],
+                "energy": [],
                 "target": "single-enemy",
                 "damage": 0,
                 "cooldown": 3,
@@ -22186,7 +22594,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/gastley/lick.webp",
                 "skilldescription": "Deals 20 affliction damage to one enemy. This skill has a 1% chance to stun the target's harmful skills for 1 turn for each point of health Gastly is missing.",
                 "energy": [
-                    "Bloodline"
+                    "Ninjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -22204,7 +22612,21 @@ const characters = [
                         "metadata": {
                             "afflictionDamage": true,
                             "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
+                            "ignoreDestructibleDefense": true,
+                            "onSuccessfulDamageApplyStatusToOwner": {
+                                "statusId": "gastly_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "hidden": true,
+                                    "infiniteDuration": true,
+                                    "gastlyDamageTaken": 0,
+                                    "stackMetadataKey": "gastlyDamageTaken",
+                                    "stackDeltaFromDamageDealt": true,
+                                    "stackMax": 50,
+                                    "statusIconUrl": "assets/images/PokemonArena/gastley/evolutionhaunter.webp",
+                                    "tooltipTextTemplate": "Gastly has lost {gastlyDamageTaken}/50 total HP and will evolve into Haunter at 50."
+                                }
+                            }
                         }
                     },
                     {
@@ -22228,9 +22650,9 @@ const characters = [
                 "id": "gastly-curse",
                 "name": "Curse",
                 "skillimage": "assets/images/PokemonArena/gastley/curse.webp",
-                "skilldescription": "Marks one enemy permanently and immediately deals 15 affliction damage to them. While marked, that enemy takes 15 affliction damage every turn. This damage cannot be ignored. Gastly loses 35 HP. Only one enemy may be affected by Curse at a time.",
+                "skilldescription": "Marks one enemy permanently. While marked, that enemy takes 15 affliction damage every turn. This damage cannot be ignored. Gastly loses 35 HP. Only one enemy may be affected by Curse at a time.",
                 "energy": [
-                    "Bloodline",
+                    "Ninjutsu",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -22243,7 +22665,7 @@ const characters = [
                 ],
                 "effects": [
                     {
-                        "type": "damage",
+                        "type": "apply_status",
                         "amount": 15,
                         "scope": "target",
                         "metadata": {
@@ -22251,14 +22673,23 @@ const characters = [
                             "ignoreDamageReduction": true,
                             "ignoreDestructibleDefense": true,
                             "ignoreDamageImmunity": true,
-                            "ignoreAfflictionDamageImmunity": true
-                        }
+                            "ignoreAfflictionDamageImmunity": true,
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "turnEndDamage": 15,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "statusIconUrl": "assets/images/PokemonArena/gastley/curse.webp",
+                            "tooltipText": "This character takes 15 affliction damage each turn from Curse."
+                        },
+                        "statusId": "gastly_curse_mark",
+                        "duration": 99
                     },
                     {
-                        "type": "apply_status",
+                        "type": "damage",
                         "statusId": "gastly_curse_mark",
                         "duration": 99,
-                        "scope": "target",
+                        "scope": "self",
                         "metadata": {
                             "harmful": true,
                             "infiniteDuration": true,
@@ -22272,7 +22703,8 @@ const characters = [
                             "ignoreAfflictionDamageImmunity": true,
                             "statusIconUrl": "assets/images/PokemonArena/gastley/curse.webp",
                             "tooltipText": "This character takes 15 affliction damage each turn from Curse."
-                        }
+                        },
+                        "amount": 35
                     },
                     {
                         "type": "damage",
@@ -22376,7 +22808,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/gastley/haunterlick.webp",
                 "skilldescription": "Deals 20 affliction damage to one enemy. This skill has a 2% chance to stun the target's harmful skills for 1 turn for each point of health Gastly is missing.",
                 "energy": [
-                    "Bloodline"
+                    "Ninjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -22421,9 +22853,9 @@ const characters = [
                     "statusId": "gastly_haunter_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/gastley/hauntercurse.webp",
-                "skilldescription": "Marks one enemy permanently and immediately deals 15 affliction damage to them. While marked, that enemy takes 15 affliction damage every turn. This damage cannot be ignored. Gastly loses 35 HP. Up to two enemies may be affected by Curse at the same time.",
+                "skilldescription": "Marks one enemy permanently. While marked, that enemy takes 15 affliction damage every turn. This damage cannot be ignored. Gastly loses 35 HP. Up to two enemies may be affected by Curse at the same time.",
                 "energy": [
-                    "Bloodline",
+                    "Ninjutsu",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -22436,7 +22868,7 @@ const characters = [
                 ],
                 "effects": [
                     {
-                        "type": "damage",
+                        "type": "apply_status",
                         "amount": 15,
                         "scope": "target",
                         "metadata": {
@@ -22444,14 +22876,23 @@ const characters = [
                             "ignoreDamageReduction": true,
                             "ignoreDestructibleDefense": true,
                             "ignoreDamageImmunity": true,
-                            "ignoreAfflictionDamageImmunity": true
-                        }
+                            "ignoreAfflictionDamageImmunity": true,
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "turnEndDamage": 15,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "statusIconUrl": "assets/images/PokemonArena/gastley/hauntercurse.webp",
+                            "tooltipText": "This character takes 15 affliction damage each turn from Curse."
+                        },
+                        "statusId": "gastly_curse_mark",
+                        "duration": 99
                     },
                     {
-                        "type": "apply_status",
+                        "type": "damage",
                         "statusId": "gastly_curse_mark",
                         "duration": 99,
-                        "scope": "target",
+                        "scope": "self",
                         "metadata": {
                             "harmful": true,
                             "infiniteDuration": true,
@@ -22465,7 +22906,8 @@ const characters = [
                             "ignoreAfflictionDamageImmunity": true,
                             "statusIconUrl": "assets/images/PokemonArena/gastley/hauntercurse.webp",
                             "tooltipText": "This character takes 15 affliction damage each turn from Curse."
-                        }
+                        },
+                        "amount": 35
                     },
                     {
                         "type": "damage",
@@ -22960,6 +23402,421 @@ const characters = [
         "descriptionHtml": "A reserved Psychic-type Pokemon that turns setup into inevitability, then evolves into Kadabra after building Calm Mind three times."
     },
     {
+        "id": "krabby",
+        "characterId": "krabby",
+        "name": "Krabby",
+        "facePicture": "assets/images/PokemonArena/Krabby/krabbyfp.png",
+        "characterdeescription": "A rugged Water-type Pokemon that stacks permanent armor, softens enemies for physical follow-up, and grows into Kingler after enough time behind Harden.",
+        "skills": [
+            {
+                "id": "krabby-metal-claw",
+                "name": "Metal Claw",
+                "skillimage": "assets/images/PokemonArena/Krabby/krabbymetalclaw.png",
+                "skilldescription": "Deals 15 piercing damage to one enemy. This skill has a 30% chance to permanently increase the non-affliction damage of Krabby's skills by 5. This effect stacks.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "krabby_metal_claw_bonus",
+                        "duration": 999,
+                        "scope": "self",
+                        "chance": 30,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "nonAfflictionDamageBonusFlat": 5,
+                            "mergeNumericAddKeys": [
+                                "nonAfflictionDamageBonusFlat"
+                            ],
+                            "statusIconUrl": "assets/images/PokemonArena/Krabby/krabbymetalclaw.png",
+                            "tooltipTextTemplate": "This character deals {nonAfflictionDamageBonusFlat} additional non-affliction damage from Metal Claw."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "krabby-leer",
+                "name": "Leer",
+                "skillimage": "assets/images/PokemonArena/Krabby/krabbybubble.png",
+                "skilldescription": "Permanently increases the physical damage one enemy takes by 5. This effect stacks.",
+                "energy": [],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Strategic",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "krabby_leer_mark",
+                        "duration": 99,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "physicalDamageTakenBonusFlat": 5,
+                            "mergeNumericAddKeys": [
+                                "physicalDamageTakenBonusFlat"
+                            ],
+                            "statusIconUrl": "assets/images/PokemonArena/Krabby/krabbybubble.png",
+                            "tooltipTextTemplate": "This character takes {physicalDamageTakenBonusFlat} additional damage from physical skills."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "krabby-crabhammer",
+                "name": "Crabhammer",
+                "skillimage": "assets/images/PokemonArena/Krabby/krabbycrabhammer.jpg",
+                "skilldescription": "Deals 25 damage to one enemy and stuns their skills for 1 turn. This skill has a 30% chance to critically strike, dealing 15 additional damage.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "krabby_crabhammer_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "statusIconUrl": "assets/images/PokemonArena/Krabby/krabbycrabhammer.jpg",
+                            "tooltipText": "This character's skills are stunned."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "chance": 30
+                    }
+                ]
+            },
+            {
+                "id": "krabby-harden",
+                "name": "Harden",
+                "skillimage": "assets/images/PokemonArena/Krabby/krabbyharden.png",
+                "skilldescription": "Krabby gains 20 permanent destructible defense and 25% damage reduction for 2 turns.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "krabby_harden_defense",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "destructibleDefensePoints": 20,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "turnStartApplyStatusToOwner": {
+                                "statusId": "krabby_harden_turn_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "krabbyHardenTurns": 0,
+                                    "stackMetadataKey": "krabbyHardenTurns",
+                                    "stackDelta": 1,
+                                    "stackMax": 3,
+                                    "applyStatusAtStack": {
+                                        "metadataKey": "krabbyHardenTurns",
+                                        "value": 3,
+                                        "statusId": "krabby_kingler_evolution",
+                                        "duration": 99,
+                                        "metadata": {
+                                            "infiniteDuration": true,
+                                            "facePictureOverride": "assets/images/PokemonArena/Krabby/kinglerfp.webp",
+                                            "skillReplacements": {
+                                                "krabby-metal-claw": "kingler-metal-claw",
+                                                "krabby-leer": "kingler-leer",
+                                                "krabby-crabhammer": "kingler-crabhammer",
+                                                "krabby-harden": "kingler-harden"
+                                            },
+                                            "tooltipText": "Krabby has evolved into Kingler. Kingler's skills are improved."
+                                        }
+                                    },
+                                    "statusIconUrl": "assets/images/PokemonArena/Krabby/krabbyharden.png",
+                                    "tooltipTextTemplate": "Krabby has spent {krabbyHardenTurns}/3 turns with Harden defense and will evolve into Kingler at 3."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/Krabby/krabbyharden.png",
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} permanent destructible defense from Harden."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "krabby_harden_guard",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "damageReductionPercent": 25,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/Krabby/krabbyharden.png",
+                            "tooltipText": "This character has 25% damage reduction."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "krabby-passive-evolution-kingler",
+                "name": "Evolution - Kingler",
+                "skillimage": "assets/images/PokemonArena/Krabby/evolutionkingler.png",
+                "skilldescription": "After Krabby has spent 3 turns with destructible defense granted by Harden, it evolves into Kingler. Kingler's skills are improved.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            },
+            {
+                "id": "kingler-metal-claw",
+                "name": "Metal Claw",
+                "actorCondition": {
+                    "statusId": "krabby_kingler_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/Krabby/kinglermetalclaw.png",
+                "skilldescription": "Deals 30 piercing damage to one enemy instead. This skill has a 30% chance to permanently increase the non-affliction damage of Kingler's skills by 10 instead. This effect stacks.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "krabby_metal_claw_bonus",
+                        "duration": 999,
+                        "scope": "self",
+                        "chance": 30,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "nonAfflictionDamageBonusFlat": 10,
+                            "mergeNumericAddKeys": [
+                                "nonAfflictionDamageBonusFlat"
+                            ],
+                            "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglermetalclaw.png",
+                            "tooltipTextTemplate": "This character deals {nonAfflictionDamageBonusFlat} additional non-affliction damage from Metal Claw."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "kingler-leer",
+                "name": "Leer",
+                "actorCondition": {
+                    "statusId": "krabby_kingler_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/Krabby/kinglerbubble.jpg",
+                "skilldescription": "Permanently increases the physical damage one enemy takes by 10 instead. This effect stacks.",
+                "energy": [],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Strategic",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "krabby_leer_mark",
+                        "duration": 99,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "physicalDamageTakenBonusFlat": 10,
+                            "mergeNumericAddKeys": [
+                                "physicalDamageTakenBonusFlat"
+                            ],
+                            "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglerbubble.jpg",
+                            "tooltipTextTemplate": "This character takes {physicalDamageTakenBonusFlat} additional damage from physical skills."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "kingler-crabhammer",
+                "name": "Crabhammer",
+                "actorCondition": {
+                    "statusId": "krabby_kingler_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/Krabby/kinglercrabhammer.jpg",
+                "skilldescription": "Deals 40 damage to one enemy instead and stuns their skills for 1 turn. This skill still has a 30% chance to critically strike, dealing 15 additional damage.",
+                "energy": [
+                    "Taijutsu",
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 40,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "krabby_crabhammer_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglercrabhammer.jpg",
+                            "tooltipText": "This character's skills are stunned."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "chance": 30
+                    }
+                ]
+            },
+            {
+                "id": "kingler-harden",
+                "name": "Harden",
+                "actorCondition": {
+                    "statusId": "krabby_kingler_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/Krabby/kinglerharden.png",
+                "skilldescription": "Kingler gains 30 permanent destructible defense and 50% damage reduction for 2 turns instead.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "krabby_harden_defense",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "destructibleDefensePoints": 30,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "turnStartApplyStatusToOwner": {
+                                "statusId": "krabby_harden_turn_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "krabbyHardenTurns": 0,
+                                    "stackMetadataKey": "krabbyHardenTurns",
+                                    "stackDelta": 1,
+                                    "stackMax": 3,
+                                    "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglerharden.png",
+                                    "tooltipTextTemplate": "Krabby has spent {krabbyHardenTurns}/3 turns with Harden defense and will evolve into Kingler at 3."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglerharden.png",
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} permanent destructible defense from Harden."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "krabby_harden_guard",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "damageReductionPercent": 50,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglerharden.png",
+                            "tooltipText": "This character has 50% damage reduction."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Bruiser",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "bruiser",
+        "description": "A rugged Water-type Pokemon that stacks permanent armor, softens enemies for physical follow-up, and grows into Kingler after enough time behind Harden.",
+        "descriptionHtml": "A rugged Water-type Pokemon that stacks permanent armor, softens enemies for physical follow-up, and grows into Kingler after enough time behind Harden."
+    },
+    {
         "id": "scyther",
         "characterId": "scyther",
         "name": "Scyther",
@@ -22975,7 +23832,7 @@ const characters = [
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 2,
+                "cooldown": 0,
                 "classes": [
                     "Physical",
                     "Melee",
@@ -23089,7 +23946,7 @@ const characters = [
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
+                "cooldown": 2,
                 "classes": [
                     "Physical",
                     "Melee",
@@ -23186,7 +24043,7 @@ const characters = [
                 ]
             }
         ],
-        "role": "Damage",
+        "role": "Assassin",
         "universe": "pokemon",
         "arena": "pokemon",
         "roleCategory": "damage",
@@ -23241,7 +24098,8 @@ const characters = [
                 "classes": [
                     "Physical",
                     "Melee",
-                    "Instant"
+                    "Instant",
+                    "Bypassing"
                 ],
                 "effects": [
                     {
@@ -23285,7 +24143,8 @@ const characters = [
                 "classes": [
                     "Energy",
                     "Ranged",
-                    "Instant"
+                    "Instant",
+                    "Bypassing"
                 ],
                 "effects": [
                     {
@@ -23329,7 +24188,7 @@ const characters = [
                 "id": "eevee-hidden-power",
                 "name": "Hidden Power",
                 "skillimage": "assets/images/PokemonArena/eevee/eevee/hiddenpower.png",
-                "skilldescription": "Eevee gains 1 random energy this turn then deals 10 affliction damage to one enemy team plus 5 damage for every new enemy skill used on Eevee last turn. Next turn, Swift targets all enemies.",
+                "skilldescription": "Eevee gains 1 random energy this turn then deals 10 affliction damage to the enemy team plus 5 damage for every new enemy skill used on Eevee last turn. Next turn, Swift targets all enemies.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -24023,7 +24882,6 @@ const characters = [
         "description": "A resilient Water-type Pokemon that weakens attackers, redirects pressure, heals the team, and ignores enemy skills with Acid Armor.",
         "descriptionHtml": "A resilient Water-type Pokemon that weakens attackers, redirects pressure, heals the team, and ignores enemy skills with Acid Armor."
     }
-
 ];
 
 if (typeof window !== 'undefined') {

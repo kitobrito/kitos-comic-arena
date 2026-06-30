@@ -295,6 +295,7 @@ const getStatusMetadataTotals = (actorState, ownerUnit = null) => {
         unpierceableDamageReductionFlat: 0,
         unpierceableDamageReductionPercent: 0,
         physicalDamageReductionFlat: 0,
+        physicalDamageTakenBonusFlat: 0,
         damageTakenBonusFlat: 0,
         nonAfflictionDamageTakenBonusFlat: 0,
         damageTakenMultiplier: 1,
@@ -344,6 +345,7 @@ const getStatusMetadataTotals = (actorState, ownerUnit = null) => {
             Number(metadata.unpierceableDamageReductionPercent) || 0
         );
         totals.physicalDamageReductionFlat += Number(metadata.physicalDamageReductionFlat) || 0;
+        totals.physicalDamageTakenBonusFlat += Number(metadata.physicalDamageTakenBonusFlat) || 0;
         totals.damageTakenBonusFlat += Number(metadata.damageTakenBonusFlat) || 0;
         totals.nonAfflictionDamageTakenBonusFlat +=
             Number(metadata.nonAfflictionDamageTakenBonusFlat) || 0;
@@ -3314,6 +3316,9 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
         : Math.max(0, Number(totals.damageTakenBonusFlat) || 0);
     if (damageTakenBonusFlat > 0) {
         incoming += damageTakenBonusFlat;
+    }
+    if (isPhysical) {
+        incoming += Math.max(0, Number(totals.physicalDamageTakenBonusFlat) || 0);
     }
     if (!afflictionDamage) {
         incoming += Math.max(0, Number(totals.nonAfflictionDamageTakenBonusFlat) || 0);
@@ -10106,6 +10111,7 @@ module.exports = {
     isActorUnableToUseSkills,
     getUnitState,
     applyHealToUnit,
+    applyDamageToUnit,
     cleanseHarmfulStatuses,
     reviveUnitToHp,
     applyStatus,

@@ -3160,6 +3160,64 @@ const POKEMON_GASTLY_MISSION_ENTRY = {
     sortOrder: 6,
 };
 
+const POKEMON_KRABBY_MISSION_ENTRY = {
+    missionId: 'krabby-tide-trial',
+    title: 'Krabby Tide Trial',
+    level_requirement: 7,
+    rank: '7',
+    reward_character: 'krabby',
+    reward_character_name: 'Krabby',
+    reward: 'Unlock Krabby.',
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/Krabby/krabbyfp.png',
+    imageAlt: 'Krabby mission artwork',
+    characterName: 'Krabby',
+    portrait: 'assets/images/PokemonArena/Krabby/krabbyfp.png',
+    portraitAlt: 'Krabby portrait',
+    requirements: [
+        'Krabby unlocks through a mid-ladder bruiser mission built around defense and physical pressure.',
+        'Clear a 4-win streak with Squirtle and Scyther on the same team.',
+    ],
+    goals: [
+        {
+            type: 'win_matches',
+            character_id: 'squirtle',
+            character_name: 'Squirtle',
+            wins: 8,
+        },
+        {
+            type: 'win_matches',
+            character_id: 'scyther',
+            character_name: 'Scyther',
+            wins: 8,
+        },
+        {
+            type: 'win_streak_same_team',
+            character_ids: ['squirtle', 'scyther'],
+            character_names: ['Squirtle', 'Scyther'],
+            wins: 4,
+        },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 7,
+};
+
 const POKEMON_EEVEE_EVOLUTION_MISSION_ENTRY = {
     missionId: 'eevee-evolution-path',
     title: 'Eevee Evolution Path',
@@ -3278,6 +3336,7 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     upsertRequiredMission(POKEMON_EEVEE_EVOLUTION_MISSION_ENTRY, (mission) => mission?.missionId === 'eevee-evolution-path');
     upsertRequiredMission(POKEMON_SCYTHER_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'scyther');
     upsertRequiredMission(POKEMON_GASTLY_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'gastly');
+    upsertRequiredMission(POKEMON_KRABBY_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'krabby');
     return normalizeMissionCatalog(catalog);
 };
 
