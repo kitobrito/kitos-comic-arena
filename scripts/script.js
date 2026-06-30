@@ -980,6 +980,62 @@ document.addEventListener('DOMContentLoaded', async () => {
         localStorage.removeItem('comicUser');
     };
 
+    const DISMISSED_ENDED_MATCH_STORAGE_KEY = 'comicDismissedEndedMatch';
+
+    const readDismissedEndedMatch = () => {
+        try {
+            const raw = window.sessionStorage.getItem(DISMISSED_ENDED_MATCH_STORAGE_KEY);
+            if (!raw) return null;
+            const parsed = JSON.parse(raw);
+            return parsed && typeof parsed === 'object' ? parsed : null;
+        } catch (error) {
+            return null;
+        }
+    };
+
+    const writeDismissedEndedMatch = (matchId, arenaOverride = '') => {
+        const normalizedMatchId = typeof matchId === 'string' ? matchId.trim() : '';
+        if (!normalizedMatchId) return;
+        try {
+            window.sessionStorage.setItem(
+                DISMISSED_ENDED_MATCH_STORAGE_KEY,
+                JSON.stringify({
+                    matchId: normalizedMatchId,
+                    arena: getLoginRedirectArena(arenaOverride),
+                    recordedAt: Date.now(),
+                })
+            );
+        } catch (error) {
+            // Ignore storage failures.
+        }
+    };
+
+    const clearDismissedEndedMatch = (matchId = '') => {
+        const normalizedMatchId = typeof matchId === 'string' ? matchId.trim() : '';
+        try {
+            const existing = readDismissedEndedMatch();
+            if (normalizedMatchId && existing?.matchId && existing.matchId !== normalizedMatchId) {
+                return;
+            }
+            window.sessionStorage.removeItem(DISMISSED_ENDED_MATCH_STORAGE_KEY);
+        } catch (error) {
+            // Ignore storage failures.
+        }
+    };
+
+    const isDismissedEndedMatch = (matchId, maxAgeMs = 15 * 60 * 1000) => {
+        const normalizedMatchId = typeof matchId === 'string' ? matchId.trim() : '';
+        if (!normalizedMatchId) return false;
+        const existing = readDismissedEndedMatch();
+        if (!existing || existing.matchId !== normalizedMatchId) return false;
+        const recordedAt = Number(existing.recordedAt) || 0;
+        if (!recordedAt || Date.now() - recordedAt > maxAgeMs) {
+            clearDismissedEndedMatch(normalizedMatchId);
+            return false;
+        }
+        return true;
+    };
+
     const getLoginRedirectArena = (arenaOverride = '') => {
         const normalizedOverride =
             typeof arenaOverride === 'string' ? arenaOverride.trim().toLowerCase() : '';
@@ -995,11 +1051,38 @@ document.addEventListener('DOMContentLoaded', async () => {
         return localStorage.getItem('comicArenaMode') === 'pokemon' ? 'pokemon' : 'comic';
     };
 
-    const redirectToSelectionLogin = (arenaOverride = '') => {
-        clearCachedUser();
-        window.location.href = `selection-login.html?arena=${encodeURIComponent(
+    const redirectToArenaSelection = (arenaOverride = '', options = {}) => {
+        const clearUser = Boolean(options?.clearUser);
+        const replace = Boolean(options?.replace);
+        if (clearUser) {
+            clearCachedUser();
+        }
+        const targetUrl = `selection.html?arena=${encodeURIComponent(getLoginRedirectArena(arenaOverride))}`;
+        if (replace) {
+            window.location.replace(targetUrl);
+            return;
+        }
+        window.location.href = targetUrl;
+    };
+
+    const redirectToSelectionLogin = (arenaOverride = '', options = {}) => {
+        const clearUser = options?.clearUser !== false;
+        const replace = Boolean(options?.replace);
+        if (options?.preferSelection) {
+            redirectToArenaSelection(arenaOverride, { clearUser, replace });
+            return;
+        }
+        if (clearUser) {
+            clearCachedUser();
+        }
+        const targetUrl = `selection-login.html?arena=${encodeURIComponent(
             getLoginRedirectArena(arenaOverride)
         )}`;
+        if (replace) {
+            window.location.replace(targetUrl);
+            return;
+        }
+        window.location.href = targetUrl;
     };
 
     const writeCachedUser = (user) => {
@@ -1628,6 +1711,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let queuedSkillDeferredVisualsFrame = null;
         let lastQueueOrderLabelSignature = '';
         let draggingQueueActorSlot = null;
+        let activeQueuedSkillPointerDrag = null;
         let latestBoardState = null;
         let globalStatusTooltipEl = null;
         let lastTargetingActivatedAt = 0;
@@ -1847,7 +1931,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     );
                     const payload = await response.json().catch(() => ({}));
                     if (response.status === 401 || response.status === 403) {
-                        redirectToSelectionLogin(arenaOverride);
+                        redirectToSelectionLogin(arenaOverride, {
+                            clearUser: false,
+                            preferSelection: true,
+                            replace: true,
+                        });
                         return null;
                     }
                     if (response.ok && payload?.ok) {
@@ -3164,6 +3252,118 @@ document.addEventListener('DOMContentLoaded', async () => {
             return true;
         };
 
+        const reorderQueuedSkillsLocally = (dragActorSlot, targetActorSlot) => {
+            if (!Number.isInteger(dragActorSlot) || !Number.isInteger(targetActorSlot)) return false;
+            if (dragActorSlot === targetActorSlot) return false;
+            const currentOrder = getOrderedQueuedEntries().map((entry) =>
+                Number.parseInt(entry.actorSlot, 10)
+            );
+            const fromIdx = currentOrder.indexOf(dragActorSlot);
+            const toIdx = currentOrder.indexOf(targetActorSlot);
+            if (fromIdx < 0 || toIdx < 0) return false;
+            const nextOrder = currentOrder.slice();
+            const [moved] = nextOrder.splice(fromIdx, 1);
+            nextOrder.splice(toIdx, 0, moved);
+            reorderQueuedSkills(nextOrder).catch((error) =>
+                console.warn('Queued reorder failed.', error)
+            );
+            return true;
+        };
+
+        const cleanupQueuedSkillPointerDrag = (dragState) => {
+            if (!dragState) return;
+            dragState.sourceElement.removeEventListener('pointermove', dragState.handlePointerMove);
+            dragState.sourceElement.removeEventListener('pointerup', dragState.handlePointerUp);
+            dragState.sourceElement.removeEventListener('pointercancel', dragState.handlePointerCancel);
+            dragState.sourceElement.classList.remove('dragging');
+            if (dragState.dragImage?.parentNode) {
+                dragState.dragImage.parentNode.removeChild(dragState.dragImage);
+            }
+            try {
+                dragState.sourceElement.releasePointerCapture?.(dragState.pointerId);
+            } catch (error) {
+                // Ignore capture cleanup races.
+            }
+            activeQueuedSkillPointerDrag = null;
+        };
+
+        const startQueuedSkillPointerDrag = (event, preview, actorSlot) => {
+            if (
+                !preview ||
+                !Number.isInteger(actorSlot) ||
+                event.button !== 0 ||
+                activeQueuedSkillPointerDrag
+            ) {
+                return;
+            }
+            const rect = preview.getBoundingClientRect();
+            const dragState = {
+                actorSlot,
+                active: false,
+                dragImage: null,
+                offsetX: event.clientX - rect.left,
+                offsetY: event.clientY - rect.top,
+                pointerId: event.pointerId,
+                sourceElement: preview,
+                startX: event.clientX,
+                startY: event.clientY,
+            };
+            activeQueuedSkillPointerDrag = dragState;
+            preview.setPointerCapture?.(event.pointerId);
+
+            const updateDragImagePosition = (clientX, clientY) => {
+                if (!dragState.dragImage) return;
+                dragState.dragImage.style.left = `${clientX - dragState.offsetX}px`;
+                dragState.dragImage.style.top = `${clientY - dragState.offsetY}px`;
+            };
+
+            dragState.handlePointerMove = (moveEvent) => {
+                if (moveEvent.pointerId !== dragState.pointerId) return;
+                const distance = Math.hypot(
+                    moveEvent.clientX - dragState.startX,
+                    moveEvent.clientY - dragState.startY
+                );
+                if (!dragState.active && distance >= 6) {
+                    dragState.active = true;
+                    const dragImage = preview.cloneNode(true);
+                    dragImage.classList.add('selection-drag-image');
+                    dragImage.style.width = `${rect.width}px`;
+                    dragImage.style.height = `${rect.height}px`;
+                    dragImage.style.pointerEvents = 'none';
+                    document.body.appendChild(dragImage);
+                    dragState.dragImage = dragImage;
+                    preview.classList.add('dragging');
+                }
+                if (!dragState.active) return;
+                moveEvent.preventDefault();
+                updateDragImagePosition(moveEvent.clientX, moveEvent.clientY);
+            };
+
+            dragState.handlePointerUp = (upEvent) => {
+                if (upEvent.pointerId !== dragState.pointerId) return;
+                if (dragState.active) {
+                    upEvent.preventDefault();
+                    const dropTarget = document
+                        .elementFromPoint(upEvent.clientX, upEvent.clientY)
+                        ?.closest?.('.skillpreview');
+                    const targetActorSlot = Number.parseInt(
+                        dropTarget?.dataset?.actorSlot || '',
+                        10
+                    );
+                    reorderQueuedSkillsLocally(actorSlot, targetActorSlot);
+                }
+                cleanupQueuedSkillPointerDrag(dragState);
+            };
+
+            dragState.handlePointerCancel = () => {
+                cleanupQueuedSkillPointerDrag(dragState);
+            };
+
+            preview.addEventListener('pointermove', dragState.handlePointerMove);
+            preview.addEventListener('pointerup', dragState.handlePointerUp);
+            preview.addEventListener('pointercancel', dragState.handlePointerCancel);
+        };
+
         const renderSkillOrderQueue = (newlyQueuedKeys = new Set()) => {
             if (!skillOrderEl) return;
             const queuedEntries = getOrderedQueuedEntries();
@@ -3188,6 +3388,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 preview.addEventListener('pointerdown', (event) => {
                     if (event?.button !== undefined && event.button !== 0) return;
                     event.stopPropagation();
+                    startQueuedSkillPointerDrag(event, preview, actorSlot);
                     handleQueuedSkillCancelGesture(actorSlot, preview);
                 });
                 preview.addEventListener('dragstart', () => {
@@ -3205,19 +3406,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     event.preventDefault();
                     if (!Number.isInteger(draggingQueueActorSlot)) return;
                     const targetSlot = Number.parseInt(preview.dataset.actorSlot, 10);
-                    if (!Number.isInteger(targetSlot) || targetSlot === draggingQueueActorSlot) return;
-                    const currentOrder = getOrderedQueuedEntries().map((entry) =>
-                        Number.parseInt(entry.actorSlot, 10)
-                    );
-                    const fromIdx = currentOrder.indexOf(draggingQueueActorSlot);
-                    const toIdx = currentOrder.indexOf(targetSlot);
-                    if (fromIdx < 0 || toIdx < 0) return;
-                    const nextOrder = currentOrder.slice();
-                    const [moved] = nextOrder.splice(fromIdx, 1);
-                    nextOrder.splice(toIdx, 0, moved);
-                    reorderQueuedSkills(nextOrder).catch((error) =>
-                        console.warn('Queued reorder failed.', error)
-                    );
+                    reorderQueuedSkillsLocally(draggingQueueActorSlot, targetSlot);
                 });
                 skillOrderEl.appendChild(preview);
             });
@@ -5432,7 +5621,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             })
                 .then(async (res) => {
                     if (res.status === 401 || res.status === 403) {
-                        redirectToSelectionLogin(currentMatchArena);
+                        redirectToSelectionLogin(currentMatchArena, {
+                            clearUser: false,
+                            preferSelection: true,
+                            replace: true,
+                        });
                         throw new Error('Unauthorized');
                     }
                     if (!res.ok) {
@@ -5627,6 +5820,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             battleEndOverlayEl.classList.add('visible');
             battleEndShown = true;
+            writeDismissedEndedMatch(matchIdFromUrl, currentMatchArena);
             playIngameSound(didWin ? winSound : lostSound);
             soundManager.syncAmbientEffects([]);
             stopMatchRealtime();
@@ -10382,7 +10576,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 );
                 const data = await response.json();
                 if (response.status === 401 || response.status === 403) {
-                    redirectToSelectionLogin(currentMatchArena);
+                    redirectToSelectionLogin(currentMatchArena, {
+                        clearUser: false,
+                        preferSelection: true,
+                        replace: true,
+                    });
                     return;
                 }
                 if (!response.ok || !data?.ok) {
@@ -10490,7 +10688,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 );
                 const data = await response.json();
                 if (response.status === 401 || response.status === 403) {
-                    redirectToSelectionLogin(currentMatchArena);
+                    redirectToSelectionLogin(currentMatchArena, {
+                        clearUser: false,
+                        preferSelection: true,
+                        replace: true,
+                    });
                     return;
                 }
                 if (!response.ok || !data?.ok) {
@@ -10564,7 +10766,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 );
                 const data = await response.json();
                 if (response.status === 401 || response.status === 403) {
-                    redirectToSelectionLogin(currentMatchArena);
+                    redirectToSelectionLogin(currentMatchArena, {
+                        clearUser: false,
+                        preferSelection: true,
+                        replace: true,
+                    });
                     return;
                 }
                 if (!response.ok || !data?.ok) {
@@ -10721,7 +10927,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         if (battleEndContinueButton) {
             battleEndContinueButton.addEventListener('click', () => {
-                window.location.href = `selection.html?arena=${encodeURIComponent(currentMatchArena)}`;
+                redirectToArenaSelection(currentMatchArena, { replace: true });
             });
         }
 
@@ -11329,6 +11535,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             return true;
         }
         if (!data?.matchFound || !data?.matchId) return false;
+        if (isDismissedEndedMatch(data.matchId)) {
+            return false;
+        }
         const startAtMs = data.matchStartsAt ? new Date(data.matchStartsAt).getTime() : Date.now();
         const shouldHold = !data.matchReady && startAtMs > Date.now();
         if (!shouldHold) {
@@ -11366,6 +11575,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
             if (data?.matchFound && data.matchId) {
+                if (isDismissedEndedMatch(data.matchId)) {
+                    return;
+                }
                 handleMatchFound(data);
             }
         } catch (error) {
@@ -11375,6 +11587,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const redirectToMatch = (matchId, arenaOverride = activeArenaMode) => {
         const arena = getLoginRedirectArena(arenaOverride);
+        clearDismissedEndedMatch();
         writeCachedMatchArena(matchId, arena);
         window.location.href = buildIngameMatchUrl(matchId, arena);
     };
