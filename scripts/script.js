@@ -4007,6 +4007,90 @@ document.addEventListener('DOMContentLoaded', async () => {
             playGeneratedIngameSound('status-helpful');
         };
 
+        const showPokemonPsychicFx = ({ actorCard, targetCards = [] }) => {
+            targetCards.forEach((targetCard) => {
+                showPokemonTravelBeam({
+                    sourceCard: actorCard,
+                    targetCard,
+                    className: 'pokemon-psychic-stream',
+                    duration: 1220,
+                    yRatio: 0.46,
+                    targetYRatio: 0.48,
+                    html: '<span class="beam-core"></span><span class="beam-ripple ripple-a"></span><span class="beam-ripple ripple-b"></span><span class="beam-shard shard-a"></span><span class="beam-shard shard-b"></span>',
+                });
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-psychic-impact-fx',
+                    '<span class="psychic-ring ring-a"></span><span class="psychic-ring ring-b"></span><span class="psychic-star star-a"></span><span class="psychic-star star-b"></span><span class="psychic-glyph"></span>',
+                    1550
+                );
+            });
+            playGeneratedIngameSound('status-harmful');
+        };
+
+        const showPokemonCalmMindFx = (targetCards = []) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-calm-mind-fx',
+                        '<span class="calm-aura aura-a"></span><span class="calm-aura aura-b"></span><span class="calm-rune rune-a"></span><span class="calm-rune rune-b"></span><span class="calm-orb orb-a"></span><span class="calm-orb orb-b"></span>',
+                        1650
+                    );
+                }, index * 70);
+            });
+            playGeneratedIngameSound('status-helpful');
+        };
+
+        const showPokemonTeleportFx = (targetCards = []) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-teleport-fx',
+                        '<span class="teleport-ring ring-a"></span><span class="teleport-ring ring-b"></span><span class="teleport-column"></span><span class="teleport-spark spark-a"></span><span class="teleport-spark spark-b"></span>',
+                        1500
+                    );
+                }, index * 60);
+            });
+            playGeneratedIngameSound('wind');
+        };
+
+        const showPokemonLeechLifeFx = ({ actorCard, targetCards = [] }) => {
+            targetCards.forEach((targetCard) => {
+                showPokemonTravelBeam({
+                    sourceCard: targetCard,
+                    targetCard: actorCard,
+                    className: 'pokemon-leech-life-stream',
+                    duration: 1320,
+                    yRatio: 0.48,
+                    targetYRatio: 0.46,
+                    html: '<span class="drain-core"></span><span class="drain-wave wave-a"></span><span class="drain-wave wave-b"></span><span class="drain-orb orb-a"></span><span class="drain-orb orb-b"></span>',
+                });
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-leech-life-impact-fx',
+                    '<span class="fang-mark fang-a"></span><span class="fang-mark fang-b"></span><span class="bite-burst burst-a"></span><span class="bite-burst burst-b"></span>',
+                    1450
+                );
+            });
+            playGeneratedIngameSound('status-harmful');
+        };
+
+        const showPokemonBiteFx = (targetCards = []) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-bite-fx',
+                        '<span class="bite-arc arc-a"></span><span class="bite-arc arc-b"></span><span class="bite-spark spark-a"></span><span class="bite-spark spark-b"></span>',
+                        1350
+                    );
+                }, index * 50);
+            });
+            playGeneratedIngameSound('slash');
+        };
+
         const getTargetCardsFromSelection = (selection) =>
             normalizeTargetSelectionList(selection)
                 .map((target) => {
@@ -4660,6 +4744,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isPokemonTrainerMasterBall = skillId === 'pokemon-trainer-master-ball';
             const isPokemonTrainerXStats = skillId === 'pokemon-trainer-x-stats';
             const isPokemonTrainerRareCandy = skillId === 'pokemon-trainer-rare-candy';
+            const isPokemonPsychic = ['abra-psychic', 'kadabra-psychic'].includes(skillId);
+            const isPokemonCalmMind = ['abra-calm-mind', 'kadabra-calm-mind'].includes(skillId);
+            const isPokemonTeleport = ['abra-teleport', 'kadabra-teleport'].includes(skillId);
+            const isPokemonLeechLife = ['zubat-leech-life', 'golbat-leech-life'].includes(skillId);
+            const isPokemonBite = ['zubat-bite', 'golbat-bite'].includes(skillId);
             const isVaderSaberStrikeDown = skillId === 'darth-vader-saber-strike-down';
             const isObiWanSoresuStyleCut = skillId === 'obi-wan-kenobi-soresu-style-cut';
             const isSidiousForceLightning = skillId === 'darth-sidious-force-lightning';
@@ -4733,6 +4822,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 !isPokemonTrainerMasterBall &&
                 !isPokemonTrainerXStats &&
                 !isPokemonTrainerRareCandy &&
+                !isPokemonPsychic &&
+                !isPokemonCalmMind &&
+                !isPokemonTeleport &&
+                !isPokemonLeechLife &&
+                !isPokemonBite &&
                 !isVaderSaberStrikeDown &&
                 !isObiWanSoresuStyleCut &&
                 !isSidiousForceLightning &&
@@ -4863,6 +4957,26 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (isPokemonTrainerRareCandy) {
                 showPokemonRareCandyFx(targetCards);
+                return;
+            }
+            if (isPokemonPsychic) {
+                showPokemonPsychicFx({ actorCard, targetCards });
+                return;
+            }
+            if (isPokemonCalmMind) {
+                showPokemonCalmMindFx(targetCards.length ? targetCards : actorCard ? [actorCard] : []);
+                return;
+            }
+            if (isPokemonTeleport) {
+                showPokemonTeleportFx(targetCards);
+                return;
+            }
+            if (isPokemonLeechLife) {
+                showPokemonLeechLifeFx({ actorCard, targetCards });
+                return;
+            }
+            if (isPokemonBite) {
+                showPokemonBiteFx(targetCards);
                 return;
             }
             if (isJokerExplosion || isGoblinExplosion || isRexExplosion) {

@@ -431,6 +431,13 @@ body.skill-effects-muted .pokemon-trainer-ball-projectile,
 body.skill-effects-muted .pokemon-trainer-ball-impact-fx,
 body.skill-effects-muted .pokemon-x-stats-fx,
 body.skill-effects-muted .pokemon-rare-candy-fx,
+body.skill-effects-muted .pokemon-psychic-stream,
+body.skill-effects-muted .pokemon-psychic-impact-fx,
+body.skill-effects-muted .pokemon-calm-mind-fx,
+body.skill-effects-muted .pokemon-teleport-fx,
+body.skill-effects-muted .pokemon-leech-life-stream,
+body.skill-effects-muted .pokemon-leech-life-impact-fx,
+body.skill-effects-muted .pokemon-bite-fx,
 body.skill-effects-muted .storm-rain-weather::before,
 body.skill-effects-muted .storm-hail-weather::before {
     display: none !important;
@@ -3260,6 +3267,13 @@ body.ui-disable-skill-cast-animations .pokemon-trainer-ball-projectile,
 body.ui-disable-skill-cast-animations .pokemon-trainer-ball-impact-fx,
 body.ui-disable-skill-cast-animations .pokemon-x-stats-fx,
 body.ui-disable-skill-cast-animations .pokemon-rare-candy-fx,
+body.ui-disable-skill-cast-animations .pokemon-psychic-stream,
+body.ui-disable-skill-cast-animations .pokemon-psychic-impact-fx,
+body.ui-disable-skill-cast-animations .pokemon-calm-mind-fx,
+body.ui-disable-skill-cast-animations .pokemon-teleport-fx,
+body.ui-disable-skill-cast-animations .pokemon-leech-life-stream,
+body.ui-disable-skill-cast-animations .pokemon-leech-life-impact-fx,
+body.ui-disable-skill-cast-animations .pokemon-bite-fx,
 body.ui-disable-skill-cast-animations .seraphina-med-plus-overlay,
 body.ui-disable-skill-cast-animations .seraphina-buckshot-impact-fx,
 body.ui-disable-skill-cast-animations .seraphina-buckshot-pattern,
@@ -4375,7 +4389,12 @@ body.arena-mode-pokemon .ingamescrollbehind {
 .pokemon-whirlwind-fx,
 .pokemon-trainer-ball-impact-fx,
 .pokemon-x-stats-fx,
-.pokemon-rare-candy-fx {
+.pokemon-rare-candy-fx,
+.pokemon-psychic-impact-fx,
+.pokemon-calm-mind-fx,
+.pokemon-teleport-fx,
+.pokemon-leech-life-impact-fx,
+.pokemon-bite-fx {
     position: absolute;
     inset: -8px;
     z-index: 112;
@@ -4388,7 +4407,9 @@ body.arena-mode-pokemon .ingamescrollbehind {
 .pokemon-water-gun-stream,
 .pokemon-leech-seed-vine,
 .pokemon-psybeam-stream,
-.pokemon-powder-stream {
+.pokemon-powder-stream,
+.pokemon-psychic-stream,
+.pokemon-leech-life-stream {
     position: fixed;
     height: 18px;
     transform-origin: left center;
@@ -4401,7 +4422,9 @@ body.arena-mode-pokemon .ingamescrollbehind {
 .pokemon-leech-seed-vine .vine-core,
 .pokemon-flamethrower-stream .flame-core,
 .pokemon-psybeam-stream .beam-core,
-.pokemon-powder-stream .powder-flow {
+.pokemon-powder-stream .powder-flow,
+.pokemon-psychic-stream .beam-core,
+.pokemon-leech-life-stream .drain-core {
     position: absolute;
     left: 0;
     top: 50%;
@@ -5209,6 +5232,301 @@ body.arena-mode-pokemon .ingamescrollbehind {
 .pokemon-rare-candy-fx .spark-a { left: 16px; top: 16px; }
 .pokemon-rare-candy-fx .spark-b { right: 14px; top: 22px; animation-delay: 120ms; }
 .pokemon-rare-candy-fx .spark-c { left: 50%; bottom: 10px; margin-left: -6px; animation-delay: 220ms; }
+
+.pokemon-psychic-stream .beam-core {
+    inset: 12px 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(175, 118, 255, 0), rgba(228, 196, 255, 0.96) 20%, rgba(151, 232, 255, 0.96) 52%, rgba(175, 118, 255, 0));
+    box-shadow: 0 0 12px rgba(188, 140, 255, 0.75);
+}
+
+.pokemon-psychic-stream .beam-ripple,
+.pokemon-psychic-stream .beam-shard {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}
+
+.pokemon-psychic-stream .beam-ripple {
+    width: 28px;
+    height: 28px;
+    margin-left: -14px;
+    margin-top: -14px;
+    border: 2px solid rgba(233, 214, 255, 0.88);
+    border-radius: 50%;
+    animation: pokemon-psychic-ripple 900ms ease-out infinite;
+}
+
+.pokemon-psychic-stream .ripple-a { left: 30%; }
+.pokemon-psychic-stream .ripple-b { left: 72%; animation-delay: 180ms; }
+
+.pokemon-psychic-stream .beam-shard {
+    width: 12px;
+    height: 12px;
+    margin-left: -6px;
+    margin-top: -6px;
+    background: linear-gradient(135deg, rgba(238, 220, 255, 0.95), rgba(127, 243, 255, 0.88));
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    box-shadow: 0 0 8px rgba(196, 158, 255, 0.85);
+    animation: pokemon-psychic-shard 860ms ease-in-out infinite;
+}
+
+.pokemon-psychic-stream .shard-a { left: 48%; }
+.pokemon-psychic-stream .shard-b { left: 84%; animation-delay: 220ms; }
+
+.pokemon-psychic-impact-fx .psychic-ring,
+.pokemon-psychic-impact-fx .psychic-star,
+.pokemon-psychic-impact-fx .psychic-glyph {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+}
+
+.pokemon-psychic-impact-fx .psychic-ring {
+    border: 2px solid rgba(210, 178, 255, 0.92);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: pokemon-psychic-ring 950ms ease-out both;
+}
+
+.pokemon-psychic-impact-fx .ring-a { width: 34px; height: 34px; }
+.pokemon-psychic-impact-fx .ring-b { width: 58px; height: 58px; animation-delay: 120ms; }
+
+.pokemon-psychic-impact-fx .psychic-star {
+    width: 12px;
+    height: 12px;
+    background: radial-gradient(circle, rgba(255, 246, 255, 0.98), rgba(169, 241, 255, 0.2) 70%);
+    clip-path: polygon(50% 0%, 61% 37%, 100% 50%, 61% 63%, 50% 100%, 39% 63%, 0% 50%, 39% 37%);
+    animation: pokemon-psychic-shard 820ms ease-out both;
+}
+
+.pokemon-psychic-impact-fx .star-a { margin-left: -32px; margin-top: -12px; }
+.pokemon-psychic-impact-fx .star-b { margin-left: 18px; margin-top: 10px; animation-delay: 140ms; }
+
+.pokemon-psychic-impact-fx .psychic-glyph {
+    width: 44px;
+    height: 44px;
+    margin-left: -22px;
+    margin-top: -22px;
+    border: 1px solid rgba(207, 180, 255, 0.5);
+    border-radius: 50% 40% 60% 45%;
+    box-shadow: 0 0 18px rgba(174, 132, 255, 0.4);
+    animation: pokemon-psychic-glyph 1s ease-out both;
+}
+
+.pokemon-calm-mind-fx .calm-aura,
+.pokemon-calm-mind-fx .calm-rune,
+.pokemon-calm-mind-fx .calm-orb {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+}
+
+.pokemon-calm-mind-fx .calm-aura {
+    width: 78px;
+    height: 78px;
+    margin-left: -39px;
+    margin-top: -39px;
+    border-radius: 50%;
+    border: 2px solid rgba(175, 229, 255, 0.55);
+    background: radial-gradient(circle, rgba(183, 147, 255, 0.26), rgba(183, 147, 255, 0) 68%);
+    animation: pokemon-calm-mind-aura 1.05s ease-out both;
+}
+
+.pokemon-calm-mind-fx .aura-b {
+    width: 108px;
+    height: 108px;
+    margin-left: -54px;
+    margin-top: -54px;
+    animation-delay: 120ms;
+}
+
+.pokemon-calm-mind-fx .calm-rune {
+    width: 18px;
+    height: 18px;
+    margin-left: -9px;
+    margin-top: -9px;
+    border: 2px solid rgba(239, 237, 255, 0.9);
+    border-radius: 4px;
+    transform: rotate(45deg);
+    animation: pokemon-calm-mind-rune 1s ease-in-out both;
+}
+
+.pokemon-calm-mind-fx .rune-a { margin-left: -36px; margin-top: -10px; }
+.pokemon-calm-mind-fx .rune-b { margin-left: 18px; margin-top: -18px; animation-delay: 140ms; }
+
+.pokemon-calm-mind-fx .calm-orb {
+    width: 12px;
+    height: 12px;
+    margin-left: -6px;
+    margin-top: -6px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.98), rgba(147, 229, 255, 0.2) 72%);
+    box-shadow: 0 0 10px rgba(165, 235, 255, 0.8);
+    animation: pokemon-calm-mind-orb 1.1s ease-in-out both;
+}
+
+.pokemon-calm-mind-fx .orb-a { margin-left: -8px; margin-top: -40px; }
+.pokemon-calm-mind-fx .orb-b { margin-left: 24px; margin-top: 20px; animation-delay: 180ms; }
+
+.pokemon-teleport-fx .teleport-ring,
+.pokemon-teleport-fx .teleport-column,
+.pokemon-teleport-fx .teleport-spark {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+}
+
+.pokemon-teleport-fx .teleport-ring {
+    border: 2px solid rgba(160, 244, 255, 0.9);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: pokemon-teleport-ring 900ms ease-out both;
+}
+
+.pokemon-teleport-fx .ring-a { width: 36px; height: 36px; }
+.pokemon-teleport-fx .ring-b { width: 62px; height: 62px; animation-delay: 100ms; }
+
+.pokemon-teleport-fx .teleport-column {
+    width: 34px;
+    height: 96px;
+    margin-left: -17px;
+    margin-top: -48px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(202, 255, 255, 0), rgba(202, 255, 255, 0.92) 48%, rgba(202, 255, 255, 0));
+    filter: blur(1px);
+    animation: pokemon-teleport-column 940ms ease-out both;
+}
+
+.pokemon-teleport-fx .teleport-spark {
+    width: 12px;
+    height: 12px;
+    margin-left: -6px;
+    margin-top: -6px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.98), rgba(163, 245, 255, 0.2) 70%);
+    clip-path: polygon(50% 0%, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0% 50%, 35% 35%);
+    animation: pokemon-teleport-spark 900ms ease-out both;
+}
+
+.pokemon-teleport-fx .spark-a { margin-left: -28px; margin-top: -20px; }
+.pokemon-teleport-fx .spark-b { margin-left: 18px; margin-top: 12px; animation-delay: 120ms; }
+
+.pokemon-leech-life-stream .drain-core {
+    inset: 13px 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(178, 255, 183, 0), rgba(150, 255, 173, 0.94) 24%, rgba(104, 232, 177, 0.96) 60%, rgba(178, 255, 183, 0));
+    box-shadow: 0 0 12px rgba(111, 238, 176, 0.72);
+}
+
+.pokemon-leech-life-stream .drain-wave,
+.pokemon-leech-life-stream .drain-orb {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+}
+
+.pokemon-leech-life-stream .drain-wave {
+    width: 22px;
+    height: 22px;
+    margin-left: -11px;
+    margin-top: -11px;
+    border: 2px solid rgba(205, 255, 217, 0.82);
+    border-radius: 50%;
+    animation: pokemon-leech-life-wave 900ms ease-out infinite;
+}
+
+.pokemon-leech-life-stream .wave-a { left: 34%; }
+.pokemon-leech-life-stream .wave-b { left: 72%; animation-delay: 180ms; }
+
+.pokemon-leech-life-stream .drain-orb {
+    width: 12px;
+    height: 12px;
+    margin-left: -6px;
+    margin-top: -6px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(240, 255, 240, 0.98), rgba(141, 240, 186, 0.18) 70%);
+    box-shadow: 0 0 10px rgba(119, 232, 168, 0.8);
+    animation: pokemon-leech-life-orb 860ms ease-in-out infinite;
+}
+
+.pokemon-leech-life-stream .orb-a { left: 50%; }
+.pokemon-leech-life-stream .orb-b { left: 86%; animation-delay: 220ms; }
+
+.pokemon-leech-life-impact-fx .fang-mark,
+.pokemon-leech-life-impact-fx .bite-burst {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+}
+
+.pokemon-leech-life-impact-fx .fang-mark {
+    width: 10px;
+    height: 34px;
+    margin-top: -17px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(136, 255, 180, 0.2));
+    clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+    animation: pokemon-fang-mark 820ms ease-out both;
+}
+
+.pokemon-leech-life-impact-fx .fang-a { margin-left: -18px; transform: rotate(-16deg); }
+.pokemon-leech-life-impact-fx .fang-b { margin-left: 8px; transform: rotate(16deg); animation-delay: 80ms; }
+
+.pokemon-leech-life-impact-fx .bite-burst {
+    width: 52px;
+    height: 52px;
+    margin-left: -26px;
+    margin-top: -26px;
+    border-radius: 50%;
+    border: 2px solid rgba(160, 255, 198, 0.78);
+    animation: pokemon-bite-burst 920ms ease-out both;
+}
+
+.pokemon-leech-life-impact-fx .burst-b {
+    width: 70px;
+    height: 70px;
+    margin-left: -35px;
+    margin-top: -35px;
+    animation-delay: 120ms;
+}
+
+.pokemon-bite-fx .bite-arc,
+.pokemon-bite-fx .bite-spark {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+}
+
+.pokemon-bite-fx .bite-arc {
+    width: 50px;
+    height: 28px;
+    margin-left: -25px;
+    border: 3px solid rgba(255, 245, 235, 0.94);
+    border-color: rgba(255, 245, 235, 0.94) transparent transparent transparent;
+    border-radius: 50% 50% 0 0;
+    animation: pokemon-bite-arc 760ms ease-out both;
+}
+
+.pokemon-bite-fx .arc-a { margin-top: -22px; transform: rotate(10deg); }
+.pokemon-bite-fx .arc-b {
+    margin-top: -2px;
+    border-color: transparent transparent rgba(255, 200, 145, 0.88) transparent;
+    border-radius: 0 0 50% 50%;
+    transform: rotate(-10deg);
+    animation-delay: 80ms;
+}
+
+.pokemon-bite-fx .bite-spark {
+    width: 12px;
+    height: 12px;
+    margin-left: -6px;
+    margin-top: -6px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.98), rgba(255, 192, 122, 0.2) 70%);
+    clip-path: polygon(50% 0%, 62% 36%, 100% 50%, 62% 64%, 50% 100%, 38% 64%, 0% 50%, 38% 36%);
+    animation: pokemon-bite-spark 820ms ease-out both;
+}
+
+.pokemon-bite-fx .spark-a { margin-left: -26px; margin-top: -8px; }
+.pokemon-bite-fx .spark-b { margin-left: 18px; margin-top: 10px; animation-delay: 120ms; }
 
 .seraphina-road-flare {
     position: absolute;
@@ -10754,6 +11072,102 @@ body.arena-mode-pokemon .chakra-box.white {
     100% { transform: translateY(-18px) scale(1.16); opacity: 0; }
 }
 
+@keyframes pokemon-psychic-ripple {
+    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+    25% { opacity: 0.95; }
+    100% { transform: translate(-50%, -50%) scale(1.45); opacity: 0; }
+}
+
+@keyframes pokemon-psychic-shard {
+    0% { transform: scale(0.35) rotate(0deg); opacity: 0; }
+    25% { opacity: 1; }
+    100% { transform: scale(1.15) rotate(160deg); opacity: 0; }
+}
+
+@keyframes pokemon-psychic-ring {
+    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+    25% { opacity: 0.95; }
+    100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+}
+
+@keyframes pokemon-psychic-glyph {
+    0% { transform: scale(0.4) rotate(-18deg); opacity: 0; }
+    30% { opacity: 0.9; }
+    100% { transform: scale(1.12) rotate(22deg); opacity: 0; }
+}
+
+@keyframes pokemon-calm-mind-aura {
+    0% { transform: scale(0.45); opacity: 0; }
+    25% { opacity: 0.9; }
+    100% { transform: scale(1.15); opacity: 0; }
+}
+
+@keyframes pokemon-calm-mind-rune {
+    0% { transform: rotate(45deg) scale(0.2); opacity: 0; }
+    25% { opacity: 1; }
+    100% { transform: rotate(155deg) scale(1.1); opacity: 0; }
+}
+
+@keyframes pokemon-calm-mind-orb {
+    0% { transform: translate3d(0, 10px, 0) scale(0.25); opacity: 0; }
+    25% { opacity: 1; }
+    100% { transform: translate3d(0, -18px, 0) scale(1.1); opacity: 0; }
+}
+
+@keyframes pokemon-teleport-ring {
+    0% { transform: translate(-50%, -50%) scale(0.2); opacity: 0; }
+    25% { opacity: 0.95; }
+    100% { transform: translate(-50%, -50%) scale(1.65); opacity: 0; }
+}
+
+@keyframes pokemon-teleport-column {
+    0% { transform: scaleY(0.2); opacity: 0; }
+    25% { opacity: 0.95; }
+    100% { transform: scaleY(1.15); opacity: 0; }
+}
+
+@keyframes pokemon-teleport-spark {
+    0% { transform: scale(0.2) rotate(0deg); opacity: 0; }
+    25% { opacity: 1; }
+    100% { transform: scale(1.15) rotate(120deg); opacity: 0; }
+}
+
+@keyframes pokemon-leech-life-wave {
+    0% { transform: translate(-50%, -50%) scale(0.25); opacity: 0; }
+    25% { opacity: 0.9; }
+    100% { transform: translate(-50%, -50%) scale(1.35); opacity: 0; }
+}
+
+@keyframes pokemon-leech-life-orb {
+    0% { transform: translate3d(0, 8px, 0) scale(0.25); opacity: 0; }
+    25% { opacity: 1; }
+    100% { transform: translate3d(0, -14px, 0) scale(1.05); opacity: 0; }
+}
+
+@keyframes pokemon-fang-mark {
+    0% { transform: scaleY(0.2); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: scaleY(1.08); opacity: 0; }
+}
+
+@keyframes pokemon-bite-burst {
+    0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+    25% { opacity: 0.9; }
+    100% { transform: translate(-50%, -50%) scale(1.45); opacity: 0; }
+}
+
+@keyframes pokemon-bite-arc {
+    0% { transform: scaleX(0.2) scaleY(0.4); opacity: 0; }
+    25% { opacity: 1; }
+    100% { transform: scaleX(1.08) scaleY(1.08); opacity: 0; }
+}
+
+@keyframes pokemon-bite-spark {
+    0% { transform: scale(0.2) rotate(0deg); opacity: 0; }
+    25% { opacity: 1; }
+    100% { transform: scale(1.15) rotate(120deg); opacity: 0; }
+}
+
 .character-face.damage-impact {
     animation: damage-impact-enhanced 450ms steps(7) both;
 }
@@ -11847,7 +12261,21 @@ body.arena-mode-pokemon .chakra-box.white {
     .pokemon-x-stats-fx,
     .pokemon-x-stats-fx *,
     .pokemon-rare-candy-fx,
-    .pokemon-rare-candy-fx * {
+    .pokemon-rare-candy-fx *,
+    .pokemon-psychic-stream,
+    .pokemon-psychic-stream *,
+    .pokemon-psychic-impact-fx,
+    .pokemon-psychic-impact-fx *,
+    .pokemon-calm-mind-fx,
+    .pokemon-calm-mind-fx *,
+    .pokemon-teleport-fx,
+    .pokemon-teleport-fx *,
+    .pokemon-leech-life-stream,
+    .pokemon-leech-life-stream *,
+    .pokemon-leech-life-impact-fx,
+    .pokemon-leech-life-impact-fx *,
+    .pokemon-bite-fx,
+    .pokemon-bite-fx * {
         animation: none;
     }
 }
