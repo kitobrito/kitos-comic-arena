@@ -184,23 +184,152 @@
     .character-directory-empty { padding: 18px; border: 3px dashed rgba(21,17,11,.45); background: rgba(255,255,255,.45); }
     .character-modal-backdrop { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(19,12,6,.74); z-index: 1000; }
     .character-modal-backdrop.visible { display: flex; }
-    .character-modal { width: min(1040px, 100%); max-height: min(88vh, 900px); overflow: auto; padding: 22px 18px; border: 4px solid var(--line); background: linear-gradient(145deg, rgba(255,255,255,.5), rgba(255,241,209,.98)), var(--panel); box-shadow: 10px 10px 0 rgba(0,0,0,.95); }
-    .character-modal-close-row { display: flex; justify-content: flex-end; margin-bottom: 10px; }
-    .character-modal-close { padding: 8px 14px; background: var(--accent); color: #fff; font-size: 16px; }
-    .character-modal-header { padding-bottom: 12px; border-bottom: 3px solid var(--line); margin-bottom: 16px; }
-    .character-modal-summary { grid-template-columns: 110px minmax(0, 1fr); }
-    .character-modal-image { width: 104px; height: 104px; }
-    .character-modal-description { margin: 0; color: var(--text); font-size: 19px; line-height: 1.35; font-weight: 600; }
-    .character-modal-unlock { margin: 8px 0 0; color: var(--muted); font-size: 16px; font-weight: 700; text-transform: uppercase; }
-    .character-modal-skill-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 16px; }
-    .character-skill-card { padding: 14px; border: 3px solid var(--line); background: var(--panel-strong); box-shadow: 4px 4px 0 rgba(0,0,0,.88); }
-    .character-skill-title { margin: 0 0 8px; color: var(--text); font-size: 18px; font-weight: 700; text-transform: uppercase; }
-    .character-skill-name { color: var(--accent); font-weight: 800; }
-    .character-skill-body { grid-template-columns: 90px minmax(0, 1fr); }
-    .character-skill-image { width: 84px; height: 84px; }
-    .character-skill-description { margin: 0; color: var(--text); font-size: 17px; line-height: 1.45; font-weight: 600; }
-    .character-skill-meta { margin-top: 8px; color: var(--text); font-size: 15px; line-height: 1.45; font-weight: 600; }
-    .character-skill-meta strong { color: var(--ink); font-weight: 800; }
+    .character-modal {
+      width: min(1040px, 100%);
+      max-height: min(88vh, 900px);
+      overflow: auto;
+      padding: 18px 18px 22px;
+      border: 4px solid #cfcfcf;
+      background: linear-gradient(180deg, #fdfdfd 0%, #f7f7f7 100%);
+      box-shadow: 10px 10px 0 rgba(0,0,0,.95);
+    }
+    .character-modal-close-row { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+    .character-modal-close {
+      padding: 8px 14px;
+      border: 2px solid #7b7b7b;
+      background: #f1f1f1;
+      color: #202020;
+      font-size: 15px;
+      font-weight: 700;
+      text-transform: uppercase;
+      box-shadow: none;
+    }
+    .character-modal-header {
+      display: grid;
+      gap: 10px;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+      border-bottom: 1px dashed #b7b7b7;
+    }
+    .character-modal-template-name {
+      margin: 0;
+      color: #2b1d8f;
+      font-size: 34px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .character-modal-summary {
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+    .character-modal-image {
+      width: 74px;
+      height: 74px;
+      border: 1px solid #666;
+      box-shadow: none;
+    }
+    .character-modal-description-label,
+    .character-modal-meta-row,
+    .character-skill-classes {
+      color: #6f6f6f;
+      font-size: 15px;
+      font-weight: 500;
+    }
+    .character-modal-description-label {
+      margin: 0 0 6px;
+      text-transform: none;
+    }
+    .character-modal-description {
+      margin: 0;
+      color: #2a2a2a;
+      font-size: 18px;
+      line-height: 1.45;
+      font-weight: 500;
+    }
+    .character-modal-stats {
+      display: grid;
+      gap: 6px;
+      padding-top: 8px;
+      margin-top: 4px;
+      border-top: 1px dashed #b7b7b7;
+    }
+    .character-modal-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px 18px;
+      align-items: baseline;
+      color: #202020;
+      font-size: 16px;
+    }
+    .character-modal-meta-row strong {
+      color: #222;
+      font-weight: 800;
+    }
+    .character-modal-unlock {
+      margin: 0;
+      color: #202020;
+      font-size: 16px;
+      font-weight: 600;
+      text-transform: none;
+    }
+    .character-modal-skill-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 18px; }
+    .character-skill-card {
+      padding: 0 0 10px;
+      border: 0;
+      border-top: 1px dashed #b7b7b7;
+      border-bottom: 1px dashed #b7b7b7;
+      background: transparent;
+      box-shadow: none;
+    }
+    .character-skill-title {
+      margin: 10px 0 8px;
+      color: #ff9400;
+      font-size: 31px;
+      font-weight: 800;
+      line-height: 1;
+      text-transform: none;
+    }
+    .character-skill-name { color: inherit; font-weight: inherit; }
+    .character-skill-body {
+      display: grid;
+      grid-template-columns: 82px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+    .character-skill-image {
+      width: 74px;
+      height: 74px;
+      border: 1px solid #666;
+      box-shadow: none;
+    }
+    .character-skill-description {
+      margin: 0;
+      color: #2a2a2a;
+      font-size: 17px;
+      line-height: 1.45;
+      font-weight: 500;
+    }
+    .character-skill-meta {
+      display: grid;
+      gap: 3px;
+      margin-top: 8px;
+      color: #2a2a2a;
+      font-size: 15px;
+      line-height: 1.35;
+      font-weight: 500;
+    }
+    .character-skill-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px 16px;
+      align-items: center;
+    }
+    .character-skill-meta strong { color: #2a2a2a; font-weight: 500; text-decoration: underline; text-underline-offset: 2px; }
+    .character-skill-classes { text-align: left; }
     .character-energy-pips { display: inline-flex; align-items: center; gap: 4px; vertical-align: middle; margin-left: 8px; }
     .character-energy-pip { width: 12px; height: 12px; border: 2px solid var(--line); display: inline-block; }
     .character-energy-pip.taijutsu { background: #4caf50; }
@@ -510,6 +639,22 @@
         return role || "None";
       }
 
+      function getCharacterMaxHealth(character) {
+        var numericHealth = Number(character && (character.maxHealth || character.health || character.hp));
+        return Number.isFinite(numericHealth) && numericHealth > 0 ? numericHealth : 100;
+      }
+
+      function getCharacterUnlockRequirement(character) {
+        if (!character || typeof character !== "object") {
+          return "None";
+        }
+        var unlock = character.unlockRequirement || character.unlockRequirementHtml || "";
+        if (typeof unlock === "string" && unlock.trim()) {
+          return unlock.trim();
+        }
+        return "None";
+      }
+
       function normalizeRoleCategory(category) {
         var value = typeof category === "string" ? category.trim().toLowerCase() : "";
         if (value === "control" || value === "strategic" || value === "disruptor") return "controller";
@@ -569,19 +714,9 @@
         var header = document.createElement("section");
         header.className = "character-modal-header";
 
-        var title = document.createElement("div");
-        title.className = "character-row-header";
-
-        var name = document.createElement("span");
-        name.className = "character-row-name";
+        var name = document.createElement("h2");
+        name.className = "character-modal-template-name";
         name.textContent = character.name ? String(character.name) : "Unknown Character";
-
-        var role = document.createElement("span");
-        role.className = "character-role-label";
-        role.textContent = " Role: " + getCharacterRole(character);
-
-        title.appendChild(name);
-        title.appendChild(role);
 
         var summary = document.createElement("div");
         summary.className = "character-modal-summary";
@@ -593,24 +728,38 @@
 
         var info = document.createElement("div");
 
+        var descriptionLabel = document.createElement("p");
+        descriptionLabel.className = "character-modal-description-label";
+        descriptionLabel.textContent = "Character Description";
+
         var description = document.createElement("p");
         description.className = "character-modal-description";
         description.textContent = getCharacterSummary(character);
 
-        var roleLine = document.createElement("p");
-        roleLine.className = "character-role-label";
-        roleLine.textContent = "Role: " + getCharacterRole(character);
+        var stats = document.createElement("div");
+        stats.className = "character-modal-stats";
+
+        var healthLine = document.createElement("div");
+        healthLine.className = "character-modal-meta-row";
+        healthLine.innerHTML = "<strong>Max Health:</strong> " + String(getCharacterMaxHealth(character));
+
+        var roleLine = document.createElement("div");
+        roleLine.className = "character-modal-meta-row";
+        roleLine.innerHTML = "<strong>Role:</strong> " + getCharacterRole(character);
 
         var unlock = document.createElement("p");
         unlock.className = "character-modal-unlock";
-        unlock.innerHTML = "<strong>Requirement to unlock:</strong> No requirements";
+        unlock.innerHTML = "<strong>Requirements to Unlock:</strong> " + getCharacterUnlockRequirement(character);
 
-        info.appendChild(roleLine);
+        stats.appendChild(healthLine);
+        stats.appendChild(roleLine);
+        stats.appendChild(unlock);
+        info.appendChild(descriptionLabel);
         info.appendChild(description);
-        info.appendChild(unlock);
+        info.appendChild(stats);
         summary.appendChild(image);
         summary.appendChild(info);
-        header.appendChild(title);
+        header.appendChild(name);
         header.appendChild(summary);
         modalContent.appendChild(header);
 
@@ -627,9 +776,9 @@
             var card = document.createElement("article");
             card.className = "character-skill-card";
 
-            var skillTitle = document.createElement("p");
+            var skillTitle = document.createElement("h3");
             skillTitle.className = "character-skill-title";
-            skillTitle.innerHTML = "Skill: <span class=\"character-skill-name\">" + (skill.name ? String(skill.name) : "Unknown Skill") + "</span>";
+            skillTitle.innerHTML = "<span class=\"character-skill-name\">" + (skill.name ? String(skill.name) : "Unknown Skill") + "</span>";
 
             var body = document.createElement("div");
             body.className = "character-skill-body";
@@ -649,25 +798,30 @@
             var meta = document.createElement("div");
             meta.className = "character-skill-meta";
 
+            var topMetaLine = document.createElement("div");
+            topMetaLine.className = "character-skill-meta-row";
+
             var cooldownLine = document.createElement("div");
             cooldownLine.innerHTML = "<strong>Cooldown:</strong> " + (skill.cooldown === 0 ? "None" : (skill.cooldown != null ? String(skill.cooldown) : "None"));
 
             var chakraLine = document.createElement("div");
             var chakraLabel = document.createElement("strong");
-            chakraLabel.textContent = "Chakra required:";
+            chakraLabel.textContent = "Cost:";
             chakraLine.appendChild(chakraLabel);
             chakraLine.appendChild(createEnergyPips(skill.energy));
 
             var classLine = document.createElement("div");
+            classLine.className = "character-skill-classes";
             var visibleClasses = Array.isArray(skill.classes)
               ? skill.classes.filter(function (entry) {
                   return !!String(entry || "").trim();
                 })
               : [];
-            classLine.innerHTML = "<strong>Classes:</strong> " + (visibleClasses.length ? visibleClasses.join(", ") : "None");
+            classLine.innerHTML = "Classes: " + (visibleClasses.length ? visibleClasses.join(", ") : "None");
 
-            meta.appendChild(cooldownLine);
-            meta.appendChild(chakraLine);
+            topMetaLine.appendChild(cooldownLine);
+            topMetaLine.appendChild(chakraLine);
+            meta.appendChild(topMetaLine);
             meta.appendChild(classLine);
             copy.appendChild(skillDescription);
             copy.appendChild(meta);
