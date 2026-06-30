@@ -4280,6 +4280,76 @@ document.addEventListener('DOMContentLoaded', async () => {
             playGeneratedIngameSound('slash');
         };
 
+        const showPokemonMetalClawFx = (targetCards = []) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-metal-claw-fx',
+                        '<span class="metal-slash slash-a"></span><span class="metal-slash slash-b"></span><span class="metal-slash slash-c"></span><span class="metal-spark spark-a"></span><span class="metal-spark spark-b"></span>',
+                        1400
+                    );
+                }, index * 55);
+            });
+            playGeneratedIngameSound('slash');
+        };
+
+        const showPokemonBubbleFx = ({ actorCard, targetCards = [] }) => {
+            targetCards.forEach((targetCard) => {
+                showPokemonTravelBeam({
+                    sourceCard: actorCard,
+                    targetCard,
+                    className: 'pokemon-bubble-stream',
+                    duration: 1080,
+                    yRatio: 0.5,
+                    targetYRatio: 0.48,
+                    html: '<span class="bubble-burst bubble-a"></span><span class="bubble-burst bubble-b"></span><span class="bubble-burst bubble-c"></span><span class="bubble-burst bubble-d"></span>',
+                });
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-bubble-impact-fx',
+                    '<span class="bubble-ring ring-a"></span><span class="bubble-ring ring-b"></span><span class="bubble-pop pop-a"></span><span class="bubble-pop pop-b"></span><span class="bubble-pop pop-c"></span>',
+                    1450
+                );
+            });
+            playGeneratedIngameSound('tidal-wave');
+        };
+
+        const showPokemonCrabhammerFx = ({ actorCard, targetCards = [] }) => {
+            targetCards.forEach((targetCard) => {
+                showPokemonTravelBeam({
+                    sourceCard: actorCard,
+                    targetCard,
+                    className: 'pokemon-crabhammer-swing',
+                    duration: 950,
+                    yRatio: 0.45,
+                    targetYRatio: 0.44,
+                    html: '<span class="hammer-arc arc-a"></span><span class="hammer-arc arc-b"></span><span class="hammer-head"></span>',
+                });
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-crabhammer-impact-fx',
+                    '<span class="hammer-burst burst-a"></span><span class="hammer-burst burst-b"></span><span class="hammer-burst burst-c"></span><span class="hammer-star star-a"></span><span class="hammer-star star-b"></span>',
+                    1450
+                );
+            });
+            playGeneratedIngameSound('damage');
+        };
+
+        const showPokemonHardenFx = (targetCards = []) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-harden-fx',
+                        '<span class="harden-shell shell-a"></span><span class="harden-shell shell-b"></span><span class="harden-shard shard-a"></span><span class="harden-shard shard-b"></span><span class="harden-shard shard-c"></span>',
+                        1650
+                    );
+                }, index * 45);
+            });
+            playGeneratedIngameSound('status-helpful');
+        };
+
         const getTargetCardsFromSelection = (selection) =>
             normalizeTargetSelectionList(selection)
                 .map((target) => {
@@ -4938,6 +5008,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isPokemonTeleport = ['abra-teleport', 'kadabra-teleport'].includes(skillId);
             const isPokemonLeechLife = ['zubat-leech-life', 'golbat-leech-life'].includes(skillId);
             const isPokemonBite = ['zubat-bite', 'golbat-bite'].includes(skillId);
+            const isPokemonMetalClaw = ['krabby-metal-claw', 'kingler-metal-claw'].includes(skillId);
+            const isPokemonBubble = ['krabby-leer', 'kingler-leer'].includes(skillId);
+            const isPokemonCrabhammer = ['krabby-crabhammer', 'kingler-crabhammer'].includes(skillId);
+            const isPokemonHarden = ['krabby-harden', 'kingler-harden'].includes(skillId);
             const isVaderSaberStrikeDown = skillId === 'darth-vader-saber-strike-down';
             const isObiWanSoresuStyleCut = skillId === 'obi-wan-kenobi-soresu-style-cut';
             const isSidiousForceLightning = skillId === 'darth-sidious-force-lightning';
@@ -5016,6 +5090,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 !isPokemonTeleport &&
                 !isPokemonLeechLife &&
                 !isPokemonBite &&
+                !isPokemonMetalClaw &&
+                !isPokemonBubble &&
+                !isPokemonCrabhammer &&
+                !isPokemonHarden &&
                 !isVaderSaberStrikeDown &&
                 !isObiWanSoresuStyleCut &&
                 !isSidiousForceLightning &&
@@ -5166,6 +5244,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (isPokemonBite) {
                 showPokemonBiteFx(targetCards);
+                return;
+            }
+            if (isPokemonMetalClaw) {
+                showPokemonMetalClawFx(targetCards);
+                return;
+            }
+            if (isPokemonBubble) {
+                showPokemonBubbleFx({ actorCard, targetCards });
+                return;
+            }
+            if (isPokemonCrabhammer) {
+                showPokemonCrabhammerFx({ actorCard, targetCards });
+                return;
+            }
+            if (isPokemonHarden) {
+                showPokemonHardenFx(actorCard ? [actorCard] : targetCards);
                 return;
             }
             if (isJokerExplosion || isGoblinExplosion || isRexExplosion) {
@@ -7614,6 +7708,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 html:
                     '<span class="bat bat-a"></span><span class="bat bat-b"></span><span class="bat bat-c"></span>' +
                     '<span class="bat bat-d"></span>',
+            },
+            {
+                statusId: 'krabby_kingler_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-kingler',
+                html:
+                    '<span class="kingler-claw claw-tl"><span class="claw-arm"></span><span class="claw-pincer pincer-a"></span><span class="claw-pincer pincer-b"></span></span>' +
+                    '<span class="kingler-claw claw-tr"><span class="claw-arm"></span><span class="claw-pincer pincer-a"></span><span class="claw-pincer pincer-b"></span></span>' +
+                    '<span class="kingler-claw claw-bl"><span class="claw-arm"></span><span class="claw-pincer pincer-a"></span><span class="claw-pincer pincer-b"></span></span>' +
+                    '<span class="kingler-claw claw-br"><span class="claw-arm"></span><span class="claw-pincer pincer-a"></span><span class="claw-pincer pincer-b"></span></span>' +
+                    '<span class="kingler-bubble bubble-a"></span><span class="kingler-bubble bubble-b"></span><span class="kingler-bubble bubble-c"></span>' +
+                    '<span class="kingler-bubble bubble-d"></span><span class="kingler-bubble bubble-e"></span>',
             },
         ];
 
