@@ -22501,8 +22501,7 @@ const characters = [
                         "amount": 25,
                         "scope": "target",
                         "metadata": {
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
+                            "ignoreDamageReduction": true
                         }
                     }
                 ]
@@ -23430,8 +23429,7 @@ const characters = [
                         "amount": 15,
                         "scope": "target",
                         "metadata": {
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
+                            "ignoreDamageReduction": true
                         }
                     },
                     {
@@ -23642,8 +23640,7 @@ const characters = [
                         "amount": 30,
                         "scope": "target",
                         "metadata": {
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
+                            "ignoreDamageReduction": true
                         }
                     },
                     {
@@ -23880,7 +23877,6 @@ const characters = [
                         },
                         "metadata": {
                             "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true,
                             "bonusPerStatusMetadata": {
                                 "scope": "self",
                                 "statusId": "scyther_fury_cutter_stacks",
@@ -23958,8 +23954,7 @@ const characters = [
                         "amount": 40,
                         "scope": "target",
                         "metadata": {
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
+                            "ignoreDamageReduction": true
                         }
                     },
                     {
@@ -23968,8 +23963,7 @@ const characters = [
                         "scope": "target",
                         "chance": 25,
                         "metadata": {
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
+                            "ignoreDamageReduction": true
                         }
                     },
                     {
@@ -23982,8 +23976,7 @@ const characters = [
                             "sourceCurrentHpAtMost": 50
                         },
                         "metadata": {
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
+                            "ignoreDamageReduction": true
                         }
                     },
                     {
@@ -23996,8 +23989,7 @@ const characters = [
                             "statusId": "scyther_swords_dance_active"
                         },
                         "metadata": {
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
+                            "ignoreDamageReduction": true
                         }
                     }
                 ]
@@ -24335,8 +24327,7 @@ const characters = [
                         "amount": 15,
                         "scope": "all-enemy",
                         "metadata": {
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
+                            "ignoreDamageReduction": true
                         }
                     },
                     {
@@ -24347,7 +24338,6 @@ const characters = [
                         "metadata": {
                             "onEnemySkillTargetedDamageToSourceAmount": 10,
                             "onEnemySkillTargetedDamageToSourceIgnoreDamageReduction": true,
-                            "onEnemySkillTargetedDamageToSourceIgnoreDestructibleDefense": true,
                             "statusIconUrl": "assets/images/PokemonArena/eevee/jolteon/pinmissile.png",
                             "tooltipText": "Enemies who use new skills on Jolteon take 10 piercing damage."
                         }
@@ -24376,8 +24366,7 @@ const characters = [
                         "amount": 25,
                         "scope": "target",
                         "metadata": {
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
+                            "ignoreDamageReduction": true
                         }
                     },
                     {
@@ -24423,8 +24412,7 @@ const characters = [
                         "amount": 35,
                         "scope": "target",
                         "metadata": {
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true
+                            "ignoreDamageReduction": true
                         }
                     },
                     {
