@@ -23454,7 +23454,7 @@ const characters = [
             },
             {
                 "id": "krabby-leer",
-                "name": "Leer",
+                "name": "Bubble",
                 "skillimage": "assets/images/PokemonArena/Krabby/krabbybubble.png",
                 "skilldescription": "Permanently increases the physical damage one enemy takes by 5. This effect stacks.",
                 "energy": [],
@@ -23491,7 +23491,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Krabby/krabbycrabhammer.jpg",
                 "skilldescription": "Deals 25 damage to one enemy and stuns their skills for 1 turn. This skill has a 30% chance to critically strike, dealing 15 additional damage.",
                 "energy": [
-                    "Taijutsu"
+                    "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -23666,7 +23666,7 @@ const characters = [
             },
             {
                 "id": "kingler-leer",
-                "name": "Leer",
+                "name": "Bubble",
                 "actorCondition": {
                     "statusId": "krabby_kingler_evolution"
                 },
@@ -23709,8 +23709,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Krabby/kinglercrabhammer.jpg",
                 "skilldescription": "Deals 40 damage to one enemy instead and stuns their skills for 1 turn. This skill still has a 30% chance to critically strike, dealing 15 additional damage.",
                 "energy": [
-                    "Taijutsu",
-                    "Taijutsu"
+                    "Bloodline",
+                    "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,

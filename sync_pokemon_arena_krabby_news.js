@@ -98,11 +98,11 @@ const newsPost = {
         },
         {
             type: 'paragraph',
-            text: 'Krabby is a bruiser built around permanent stat growth. Metal Claw chips through defenses with piercing damage and can permanently boost Krabby\'s non-affliction damage, Leer permanently opens one enemy up to extra physical punishment, Crabhammer stuns and can crit for a burst spike, and Harden stacks permanent destructible defense while buying time with damage reduction.',
+            text: 'Krabby is a bruiser built around permanent stat growth. Metal Claw chips through defenses with piercing damage and can permanently boost Krabby\'s non-affliction damage, Bubble permanently opens one enemy up to extra physical punishment, Crabhammer stuns and can crit for a burst spike, and Harden stacks permanent destructible defense while buying time with damage reduction.',
         },
         {
             type: 'paragraph',
-            text: 'After Krabby has spent 3 turns with Harden\'s destructible defense active, it evolves into Kingler. Kingler doubles down on the same identity with stronger Metal Claw scaling, a harsher Leer mark, a heavier Crabhammer, and a more durable Harden window.',
+            text: 'After Krabby has spent 3 turns with Harden\'s destructible defense active, it evolves into Kingler. Kingler doubles down on the same identity with stronger Metal Claw scaling, a harsher Bubble mark, a heavier Crabhammer, and a more durable Harden window.',
         },
         {
             type: 'paragraph',
@@ -115,14 +115,14 @@ const newsPost = {
     ],
     paragraphs: [
         'Pokemon Arena Update V.3.2.5 adds Krabby to the roster, brings Kingler in as his live evolution, and opens a new Krabby mission in Pokemon Arena.',
-        'Krabby is a bruiser built around permanent stat growth. Metal Claw chips through defenses with piercing damage and can permanently boost Krabby\'s non-affliction damage, Leer permanently opens one enemy up to extra physical punishment, Crabhammer stuns and can crit for a burst spike, and Harden stacks permanent destructible defense while buying time with damage reduction.',
-        'After Krabby has spent 3 turns with Harden\'s destructible defense active, it evolves into Kingler. Kingler doubles down on the same identity with stronger Metal Claw scaling, a harsher Leer mark, a heavier Crabhammer, and a more durable Harden window.',
+        'Krabby is a bruiser built around permanent stat growth. Metal Claw chips through defenses with piercing damage and can permanently boost Krabby\'s non-affliction damage, Bubble permanently opens one enemy up to extra physical punishment, Crabhammer stuns and can crit for a burst spike, and Harden stacks permanent destructible defense while buying time with damage reduction.',
+        'After Krabby has spent 3 turns with Harden\'s destructible defense active, it evolves into Kingler. Kingler doubles down on the same identity with stronger Metal Claw scaling, a harsher Bubble mark, a heavier Crabhammer, and a more durable Harden window.',
         'Pokemon Trainer\'s Rare Candy now supports Krabby too, so evolution-focused teams can skip the usual Harden timer and bring Kingler online immediately.',
         'This update also highlights the newest Pokemon Arena combat animation batches. Recent casts now include Butterfree\'s Psybeam, Stun Spore, Whirlwind, and Sleep Powder, Pokemon Trainer\'s ball and item skills, Abra and Kadabra\'s psychic setup tools, and Zubat/Golbat\'s drain-and-bite attacks.',
     ],
     changes: [
         skillShowcase('krabby', 'krabby-metal-claw', 'Metal Claw deals piercing damage and has a 30% chance to permanently add more non-affliction damage to Krabby\'s kit.'),
-        skillShowcase('krabby', 'krabby-leer', 'Leer permanently increases the physical damage one enemy takes, which makes Krabby excellent at setting up later melee pressure.'),
+        skillShowcase('krabby', 'krabby-leer', 'Bubble permanently increases the physical damage one enemy takes, which makes Krabby excellent at setting up later melee pressure.'),
         skillShowcase('krabby', 'krabby-crabhammer', 'Crabhammer is the direct punish tool: it stuns all of the target\'s skills for 1 turn and can burst harder on a critical strike.'),
         skillShowcase('krabby', 'krabby-harden', 'Harden adds permanent destructible defense immediately, grants a 2-turn damage reduction shell, and feeds Krabby\'s evolution clock into Kingler.'),
         skillShowcase('krabby', 'krabby-passive-evolution-kingler', 'Evolution - Kingler triggers after 3 turns protected by Harden\'s defense and upgrades the full Krabby kit.'),
