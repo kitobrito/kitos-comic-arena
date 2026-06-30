@@ -3890,6 +3890,123 @@ document.addEventListener('DOMContentLoaded', async () => {
             playGeneratedIngameSound('status-harmful');
         };
 
+        const showPokemonPsybeamFx = ({ actorCard, targetCards = [] }) => {
+            targetCards.forEach((targetCard) => {
+                showPokemonTravelBeam({
+                    sourceCard: actorCard,
+                    targetCard,
+                    className: 'pokemon-psybeam-stream',
+                    duration: 1250,
+                    yRatio: 0.46,
+                    targetYRatio: 0.46,
+                    html: '<span class="beam-core"></span><span class="beam-wave wave-a"></span><span class="beam-wave wave-b"></span><span class="beam-spark spark-a"></span><span class="beam-spark spark-b"></span>',
+                });
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-psybeam-impact-fx',
+                    '<span class="psy-ring ring-a"></span><span class="psy-ring ring-b"></span><span class="psy-star star-a"></span><span class="psy-star star-b"></span>',
+                    1450
+                );
+            });
+            playGeneratedIngameSound('status-harmful');
+        };
+
+        const showPokemonPowderFx = ({ actorCard, targetCards = [], variant = 'sleep' }) => {
+            targetCards.forEach((targetCard) => {
+                showPokemonTravelBeam({
+                    sourceCard: actorCard,
+                    targetCard,
+                    className: `pokemon-powder-stream ${variant}`,
+                    duration: 1200,
+                    yRatio: 0.42,
+                    targetYRatio: 0.42,
+                    html: '<span class="powder-flow flow-a"></span><span class="powder-flow flow-b"></span><span class="powder-dot dot-a"></span><span class="powder-dot dot-b"></span><span class="powder-dot dot-c"></span>',
+                });
+                showTemporaryCardFx(
+                    targetCard,
+                    `pokemon-powder-impact-fx ${variant}`,
+                    '<span class="powder-burst burst-a"></span><span class="powder-burst burst-b"></span><span class="powder-spore spore-a"></span><span class="powder-spore spore-b"></span><span class="powder-spore spore-c"></span>',
+                    1600
+                );
+            });
+            playGeneratedIngameSound(variant === 'sleep' ? 'status-harmful' : 'wind');
+        };
+
+        const showPokemonWhirlwindFx = (targetCards = []) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-whirlwind-fx',
+                        '<span class="wind-ring ring-a"></span><span class="wind-ring ring-b"></span><span class="wind-streak streak-a"></span><span class="wind-streak streak-b"></span><span class="wind-feather feather-a"></span><span class="wind-feather feather-b"></span>',
+                        1500
+                    );
+                }, index * 60);
+            });
+            playGeneratedIngameSound('wind');
+        };
+
+        const showPokemonTrainerBallFx = ({ actorCard, targetCards = [], variant = 'pokeball' }) => {
+            const ballClassName = `pokemon-trainer-ball-projectile ${variant}`;
+            targetCards.forEach((targetCard, index) => {
+                const sourceFace = actorCard?.querySelector?.('.character-face') || actorCard;
+                const targetFace = targetCard?.querySelector?.('.character-face') || targetCard;
+                const sourceRect = sourceFace?.getBoundingClientRect?.();
+                const targetRect = targetFace?.getBoundingClientRect?.();
+                if (!sourceRect || !targetRect) return;
+                const sourceX = sourceRect.left + sourceRect.width * 0.52;
+                const sourceY = sourceRect.top + sourceRect.height * 0.45;
+                const targetX = targetRect.left + targetRect.width * 0.5;
+                const targetY = targetRect.top + targetRect.height * 0.42;
+                const projectile = document.createElement('div');
+                projectile.className = ballClassName;
+                projectile.style.left = `${sourceX - 20}px`;
+                projectile.style.top = `${sourceY - 20}px`;
+                projectile.style.setProperty('--cast-dx', `${targetX - sourceX}px`);
+                projectile.style.setProperty('--cast-dy', `${targetY - sourceY}px`);
+                projectile.style.animationDelay = `${index * 90}ms`;
+                projectile.innerHTML =
+                    '<span class="ball-trail"></span><span class="ball-shell"></span><span class="ball-band"></span><span class="ball-core"></span><span class="ball-glint"></span>';
+                document.body.appendChild(projectile);
+                scheduleCombatFxRemoval(projectile, 1250 + index * 90);
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        `pokemon-trainer-ball-impact-fx ${variant}`,
+                        '<span class="capture-ring ring-a"></span><span class="capture-ring ring-b"></span><span class="capture-flash"></span><span class="capture-star star-a"></span><span class="capture-star star-b"></span>',
+                        1450
+                    );
+                }, 300 + index * 90);
+            });
+            playGeneratedIngameSound('quick-shot');
+        };
+
+        const showPokemonXStatsFx = (targetCards = []) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-x-stats-fx',
+                        '<span class="x-stat-badge">X</span><span class="x-stat-arrow arrow-up"></span><span class="x-stat-arrow arrow-down"></span><span class="x-stat-grid"></span>',
+                        1550
+                    );
+                }, index * 70);
+            });
+            playGeneratedIngameSound('status-helpful');
+        };
+
+        const showPokemonRareCandyFx = (targetCards = []) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-rare-candy-fx',
+                    '<span class="candy-core"></span><span class="candy-shine shine-a"></span><span class="candy-shine shine-b"></span><span class="candy-spark spark-a"></span><span class="candy-spark spark-b"></span><span class="candy-spark spark-c"></span>',
+                    1700
+                );
+            });
+            playGeneratedIngameSound('status-helpful');
+        };
+
         const getTargetCardsFromSelection = (selection) =>
             normalizeTargetSelectionList(selection)
                 .map((target) => {
@@ -4533,6 +4650,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isPokemonXCutter = skillId === 'scyther-x-cutter';
             const isPokemonCenterHealing = ['chansey-pokemon-center-healing', 'blissey-pokemon-center-healing'].includes(skillId);
             const isPokemonSmog = ['koffing-smog', 'koffing-weezing-smog'].includes(skillId);
+            const isPokemonPsybeam = skillId === 'butterfree-psybeam';
+            const isPokemonStunSpore = skillId === 'butterfree-stun-spore';
+            const isPokemonWhirlwind = skillId === 'butterfree-whirlwind';
+            const isPokemonSleepPowder = skillId === 'butterfree-sleep-powder';
+            const isPokemonTrainerPokeball = skillId === 'pokemon-trainer-pokeball';
+            const isPokemonTrainerGreatBall = skillId === 'pokemon-trainer-great-ball';
+            const isPokemonTrainerUltraBall = skillId === 'pokemon-trainer-ultra-ball';
+            const isPokemonTrainerMasterBall = skillId === 'pokemon-trainer-master-ball';
+            const isPokemonTrainerXStats = skillId === 'pokemon-trainer-x-stats';
+            const isPokemonTrainerRareCandy = skillId === 'pokemon-trainer-rare-candy';
             const isVaderSaberStrikeDown = skillId === 'darth-vader-saber-strike-down';
             const isObiWanSoresuStyleCut = skillId === 'obi-wan-kenobi-soresu-style-cut';
             const isSidiousForceLightning = skillId === 'darth-sidious-force-lightning';
@@ -4596,6 +4723,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 !isPokemonXCutter &&
                 !isPokemonCenterHealing &&
                 !isPokemonSmog &&
+                !isPokemonPsybeam &&
+                !isPokemonStunSpore &&
+                !isPokemonWhirlwind &&
+                !isPokemonSleepPowder &&
+                !isPokemonTrainerPokeball &&
+                !isPokemonTrainerGreatBall &&
+                !isPokemonTrainerUltraBall &&
+                !isPokemonTrainerMasterBall &&
+                !isPokemonTrainerXStats &&
+                !isPokemonTrainerRareCandy &&
                 !isVaderSaberStrikeDown &&
                 !isObiWanSoresuStyleCut &&
                 !isSidiousForceLightning &&
@@ -4686,6 +4823,46 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (isPokemonSmog) {
                 showPokemonSmogFx(targetCards);
+                return;
+            }
+            if (isPokemonPsybeam) {
+                showPokemonPsybeamFx({ actorCard, targetCards });
+                return;
+            }
+            if (isPokemonStunSpore) {
+                showPokemonPowderFx({ actorCard, targetCards, variant: 'stun' });
+                return;
+            }
+            if (isPokemonWhirlwind) {
+                showPokemonWhirlwindFx(targetCards);
+                return;
+            }
+            if (isPokemonSleepPowder) {
+                showPokemonPowderFx({ actorCard, targetCards, variant: 'sleep' });
+                return;
+            }
+            if (isPokemonTrainerPokeball) {
+                showPokemonTrainerBallFx({ actorCard, targetCards, variant: 'pokeball' });
+                return;
+            }
+            if (isPokemonTrainerGreatBall) {
+                showPokemonTrainerBallFx({ actorCard, targetCards, variant: 'great-ball' });
+                return;
+            }
+            if (isPokemonTrainerUltraBall) {
+                showPokemonTrainerBallFx({ actorCard, targetCards, variant: 'ultra-ball' });
+                return;
+            }
+            if (isPokemonTrainerMasterBall) {
+                showPokemonTrainerBallFx({ actorCard, targetCards, variant: 'master-ball' });
+                return;
+            }
+            if (isPokemonTrainerXStats) {
+                showPokemonXStatsFx(targetCards);
+                return;
+            }
+            if (isPokemonTrainerRareCandy) {
+                showPokemonRareCandyFx(targetCards);
                 return;
             }
             if (isJokerExplosion || isGoblinExplosion || isRexExplosion) {

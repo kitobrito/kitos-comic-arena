@@ -422,6 +422,15 @@ body.skill-effects-muted .pokemon-future-sight-fx,
 body.skill-effects-muted .pokemon-x-cutter-fx,
 body.skill-effects-muted .pokemon-center-healing-fx,
 body.skill-effects-muted .pokemon-smog-fx,
+body.skill-effects-muted .pokemon-psybeam-stream,
+body.skill-effects-muted .pokemon-psybeam-impact-fx,
+body.skill-effects-muted .pokemon-powder-stream,
+body.skill-effects-muted .pokemon-powder-impact-fx,
+body.skill-effects-muted .pokemon-whirlwind-fx,
+body.skill-effects-muted .pokemon-trainer-ball-projectile,
+body.skill-effects-muted .pokemon-trainer-ball-impact-fx,
+body.skill-effects-muted .pokemon-x-stats-fx,
+body.skill-effects-muted .pokemon-rare-candy-fx,
 body.skill-effects-muted .storm-rain-weather::before,
 body.skill-effects-muted .storm-hail-weather::before {
     display: none !important;
@@ -3242,6 +3251,15 @@ body.ui-disable-skill-cast-animations .pokemon-future-sight-fx,
 body.ui-disable-skill-cast-animations .pokemon-x-cutter-fx,
 body.ui-disable-skill-cast-animations .pokemon-center-healing-fx,
 body.ui-disable-skill-cast-animations .pokemon-smog-fx,
+body.ui-disable-skill-cast-animations .pokemon-psybeam-stream,
+body.ui-disable-skill-cast-animations .pokemon-psybeam-impact-fx,
+body.ui-disable-skill-cast-animations .pokemon-powder-stream,
+body.ui-disable-skill-cast-animations .pokemon-powder-impact-fx,
+body.ui-disable-skill-cast-animations .pokemon-whirlwind-fx,
+body.ui-disable-skill-cast-animations .pokemon-trainer-ball-projectile,
+body.ui-disable-skill-cast-animations .pokemon-trainer-ball-impact-fx,
+body.ui-disable-skill-cast-animations .pokemon-x-stats-fx,
+body.ui-disable-skill-cast-animations .pokemon-rare-candy-fx,
 body.ui-disable-skill-cast-animations .seraphina-med-plus-overlay,
 body.ui-disable-skill-cast-animations .seraphina-buckshot-impact-fx,
 body.ui-disable-skill-cast-animations .seraphina-buckshot-pattern,
@@ -4351,7 +4369,13 @@ body.arena-mode-pokemon .ingamescrollbehind {
 .pokemon-future-sight-fx,
 .pokemon-x-cutter-fx,
 .pokemon-center-healing-fx,
-.pokemon-smog-fx {
+.pokemon-smog-fx,
+.pokemon-psybeam-impact-fx,
+.pokemon-powder-impact-fx,
+.pokemon-whirlwind-fx,
+.pokemon-trainer-ball-impact-fx,
+.pokemon-x-stats-fx,
+.pokemon-rare-candy-fx {
     position: absolute;
     inset: -8px;
     z-index: 112;
@@ -4362,7 +4386,9 @@ body.arena-mode-pokemon .ingamescrollbehind {
 .pokemon-solar-beam-travel,
 .pokemon-flamethrower-stream,
 .pokemon-water-gun-stream,
-.pokemon-leech-seed-vine {
+.pokemon-leech-seed-vine,
+.pokemon-psybeam-stream,
+.pokemon-powder-stream {
     position: fixed;
     height: 18px;
     transform-origin: left center;
@@ -4373,7 +4399,9 @@ body.arena-mode-pokemon .ingamescrollbehind {
 .pokemon-solar-beam-travel .beam-core,
 .pokemon-water-gun-stream .water-core,
 .pokemon-leech-seed-vine .vine-core,
-.pokemon-flamethrower-stream .flame-core {
+.pokemon-flamethrower-stream .flame-core,
+.pokemon-psybeam-stream .beam-core,
+.pokemon-powder-stream .powder-flow {
     position: absolute;
     left: 0;
     top: 50%;
@@ -4799,6 +4827,388 @@ body.arena-mode-pokemon .ingamescrollbehind {
 .pokemon-smog-fx .cloud-b { right: 6px; top: 10px; width: 24px; height: 18px; animation-delay: 180ms; }
 .pokemon-smog-fx .cloud-c { left: 22px; bottom: 10px; width: 28px; height: 20px; animation-delay: 340ms; }
 .pokemon-smog-fx .cloud-d { right: 12px; bottom: 16px; width: 18px; height: 14px; animation-delay: 520ms; }
+
+.pokemon-psybeam-stream .beam-core {
+    height: 8px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(255,108,214,0.12), rgba(255,133,238,0.96) 24%, rgba(156,190,255,0.96) 52%, rgba(255,133,238,0.96) 78%, rgba(255,108,214,0.12));
+    box-shadow: 0 0 10px rgba(243, 141, 255, 0.78);
+}
+
+.pokemon-psybeam-stream .beam-wave,
+.pokemon-psybeam-stream .beam-spark {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.pokemon-psybeam-stream .beam-wave {
+    width: 28px;
+    height: 10px;
+    border-radius: 999px;
+    border: 2px solid rgba(222, 179, 255, 0.88);
+    animation: pokemon-psybeam-wave 760ms ease-in-out infinite;
+}
+
+.pokemon-psybeam-stream .wave-a { left: 28%; }
+.pokemon-psybeam-stream .wave-b { left: 68%; animation-delay: 180ms; }
+
+.pokemon-psybeam-stream .beam-spark {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fff4ff;
+    box-shadow: 0 0 8px rgba(255,255,255,0.95);
+    animation: pokemon-psybeam-spark 820ms ease-in-out infinite;
+}
+
+.pokemon-psybeam-stream .spark-a { left: 46%; }
+.pokemon-psybeam-stream .spark-b { left: 84%; animation-delay: 220ms; }
+
+.pokemon-psybeam-impact-fx .psy-ring,
+.pokemon-psybeam-impact-fx .psy-star {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.pokemon-psybeam-impact-fx .psy-ring {
+    border: 3px solid rgba(223, 167, 255, 0.92);
+    border-radius: 50%;
+    animation: pokemon-psybeam-ring 900ms ease-out both;
+}
+
+.pokemon-psybeam-impact-fx .ring-a { width: 34px; height: 34px; }
+.pokemon-psybeam-impact-fx .ring-b { width: 56px; height: 56px; animation-delay: 120ms; }
+
+.pokemon-psybeam-impact-fx .psy-star {
+    width: 12px;
+    height: 12px;
+    background: radial-gradient(circle, #fff6a8, #ff91ee 58%, transparent 70%);
+    clip-path: polygon(50% 0, 62% 35%, 100% 50%, 62% 64%, 50% 100%, 37% 64%, 0 50%, 37% 35%);
+    animation: pokemon-psybeam-spark 820ms ease-out both;
+}
+
+.pokemon-psybeam-impact-fx .star-a { margin-left: -30px; margin-top: -8px; }
+.pokemon-psybeam-impact-fx .star-b { margin-left: 16px; margin-top: 6px; animation-delay: 160ms; }
+
+.pokemon-powder-stream .powder-flow {
+    height: 6px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,226,0.7), rgba(241,229,255,0.94), transparent);
+    filter: blur(1px);
+}
+
+.pokemon-powder-stream.stun .powder-flow {
+    background: linear-gradient(90deg, transparent, rgba(198,255,122,0.68), rgba(244,255,182,0.94), transparent);
+}
+
+.pokemon-powder-stream .powder-dot {
+    position: absolute;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    margin-top: -4px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 0 8px rgba(255,255,255,0.72);
+    animation: pokemon-powder-drift 1s ease-in-out infinite;
+}
+
+.pokemon-powder-stream.stun .powder-dot {
+    background: rgba(209,255,132,0.95);
+    box-shadow: 0 0 8px rgba(173,255,83,0.82);
+}
+
+.pokemon-powder-stream .dot-a { left: 24%; }
+.pokemon-powder-stream .dot-b { left: 56%; animation-delay: 180ms; }
+.pokemon-powder-stream .dot-c { left: 82%; animation-delay: 360ms; }
+
+.pokemon-powder-impact-fx .powder-burst,
+.pokemon-powder-impact-fx .powder-spore {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.pokemon-powder-impact-fx .powder-burst {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,230,0.88), rgba(247,221,255,0.1) 70%, transparent 72%);
+    animation: pokemon-powder-burst 820ms ease-out both;
+}
+
+.pokemon-powder-impact-fx.stun .powder-burst {
+    background: radial-gradient(circle, rgba(226,255,146,0.92), rgba(182,255,110,0.12) 70%, transparent 72%);
+}
+
+.pokemon-powder-impact-fx .burst-b { width: 64px; height: 64px; animation-delay: 120ms; }
+
+.pokemon-powder-impact-fx .powder-spore {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: #fffde1;
+    animation: pokemon-powder-spore 980ms ease-out both;
+}
+
+.pokemon-powder-impact-fx.stun .powder-spore { background: #d5ff88; }
+.pokemon-powder-impact-fx .spore-a { margin-left: -28px; margin-top: -14px; }
+.pokemon-powder-impact-fx .spore-b { margin-left: 20px; margin-top: -18px; animation-delay: 120ms; }
+.pokemon-powder-impact-fx .spore-c { margin-top: 22px; animation-delay: 220ms; }
+
+.pokemon-whirlwind-fx .wind-ring,
+.pokemon-whirlwind-fx .wind-streak,
+.pokemon-whirlwind-fx .wind-feather {
+    position: absolute;
+}
+
+.pokemon-whirlwind-fx .wind-ring {
+    left: 50%;
+    top: 50%;
+    border: 3px solid rgba(195, 241, 255, 0.88);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: pokemon-whirlwind-ring 1s ease-out both;
+}
+
+.pokemon-whirlwind-fx .ring-a { width: 34px; height: 34px; }
+.pokemon-whirlwind-fx .ring-b { width: 58px; height: 58px; animation-delay: 120ms; }
+
+.pokemon-whirlwind-fx .wind-streak {
+    width: 54px;
+    height: 8px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, rgba(218,248,255,0.95), transparent);
+    animation: pokemon-whirlwind-streak 980ms ease-in-out infinite;
+}
+
+.pokemon-whirlwind-fx .streak-a { left: 4px; top: 22px; transform: rotate(12deg); }
+.pokemon-whirlwind-fx .streak-b { right: 0; bottom: 24px; transform: rotate(-18deg); animation-delay: 180ms; }
+
+.pokemon-whirlwind-fx .wind-feather {
+    width: 18px;
+    height: 8px;
+    border-radius: 70% 20% 70% 20%;
+    background: linear-gradient(90deg, rgba(255,255,255,0.95), rgba(174,224,255,0.75));
+    animation: pokemon-whirlwind-feather 1.1s ease-in-out infinite;
+}
+
+.pokemon-whirlwind-fx .feather-a { left: 22px; top: 12px; transform: rotate(-28deg); }
+.pokemon-whirlwind-fx .feather-b { right: 18px; bottom: 18px; transform: rotate(24deg); animation-delay: 220ms; }
+
+.pokemon-trainer-ball-projectile {
+    position: fixed;
+    width: 40px;
+    height: 40px;
+    z-index: 9002;
+    pointer-events: none;
+    animation: pokemon-trainer-ball-throw 820ms cubic-bezier(0.16, 0.82, 0.2, 1) both;
+}
+
+.pokemon-trainer-ball-projectile .ball-trail,
+.pokemon-trainer-ball-projectile .ball-shell,
+.pokemon-trainer-ball-projectile .ball-band,
+.pokemon-trainer-ball-projectile .ball-core,
+.pokemon-trainer-ball-projectile .ball-glint {
+    position: absolute;
+}
+
+.pokemon-trainer-ball-projectile .ball-trail {
+    left: -18px;
+    top: 18px;
+    width: 26px;
+    height: 5px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.75));
+}
+
+.pokemon-trainer-ball-projectile .ball-shell {
+    inset: 3px;
+    border: 2px solid #101010;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #ff5d5d 0 47%, #f5f5f5 47% 100%);
+    box-shadow: 0 0 10px rgba(255,255,255,0.45);
+}
+
+.pokemon-trainer-ball-projectile.great-ball .ball-shell {
+    background: linear-gradient(180deg, #2f6dff 0 47%, #f1f1f1 47% 100%);
+}
+
+.pokemon-trainer-ball-projectile.ultra-ball .ball-shell {
+    background: linear-gradient(180deg, #1f1a24 0 47%, #ffd84f 47% 60%, #f1f1f1 60% 100%);
+}
+
+.pokemon-trainer-ball-projectile.master-ball .ball-shell {
+    background: linear-gradient(180deg, #8f4de8 0 47%, #f6f3ff 47% 100%);
+}
+
+.pokemon-trainer-ball-projectile .ball-band {
+    left: 4px;
+    right: 4px;
+    top: 18px;
+    height: 4px;
+    background: #161616;
+}
+
+.pokemon-trainer-ball-projectile .ball-core {
+    left: 15px;
+    top: 15px;
+    width: 10px;
+    height: 10px;
+    border: 2px solid #161616;
+    border-radius: 50%;
+    background: #fff;
+}
+
+.pokemon-trainer-ball-projectile .ball-glint {
+    left: 11px;
+    top: 9px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.78);
+}
+
+.pokemon-trainer-ball-impact-fx .capture-ring,
+.pokemon-trainer-ball-impact-fx .capture-flash,
+.pokemon-trainer-ball-impact-fx .capture-star {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.pokemon-trainer-ball-impact-fx .capture-ring {
+    border: 3px solid rgba(255, 103, 103, 0.88);
+    border-radius: 50%;
+    animation: pokemon-ball-capture-ring 860ms ease-out both;
+}
+
+.pokemon-trainer-ball-impact-fx.great-ball .capture-ring { border-color: rgba(99, 163, 255, 0.9); }
+.pokemon-trainer-ball-impact-fx.ultra-ball .capture-ring { border-color: rgba(255, 214, 92, 0.94); }
+.pokemon-trainer-ball-impact-fx.master-ball .capture-ring { border-color: rgba(212, 132, 255, 0.94); }
+.pokemon-trainer-ball-impact-fx .ring-a { width: 34px; height: 34px; }
+.pokemon-trainer-ball-impact-fx .ring-b { width: 58px; height: 58px; animation-delay: 120ms; }
+
+.pokemon-trainer-ball-impact-fx .capture-flash {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.98), rgba(255,255,255,0.18) 66%, transparent 72%);
+    animation: pokemon-ball-capture-flash 720ms ease-out both;
+}
+
+.pokemon-trainer-ball-impact-fx .capture-star {
+    width: 10px;
+    height: 10px;
+    background: #fff8ae;
+    clip-path: polygon(50% 0, 62% 35%, 100% 50%, 62% 64%, 50% 100%, 37% 64%, 0 50%, 37% 35%);
+    animation: pokemon-ball-capture-star 920ms ease-out both;
+}
+
+.pokemon-trainer-ball-impact-fx .star-a { margin-left: -28px; margin-top: -10px; }
+.pokemon-trainer-ball-impact-fx .star-b { margin-left: 22px; margin-top: 12px; animation-delay: 140ms; }
+
+.pokemon-x-stats-fx .x-stat-badge,
+.pokemon-x-stats-fx .x-stat-arrow,
+.pokemon-x-stats-fx .x-stat-grid {
+    position: absolute;
+}
+
+.pokemon-x-stats-fx .x-stat-badge {
+    left: 50%;
+    top: 50%;
+    width: 26px;
+    height: 26px;
+    margin-left: -13px;
+    margin-top: -13px;
+    border-radius: 8px;
+    background: linear-gradient(180deg, #ffcb62, #ff6c38);
+    color: #1f1200;
+    font: 900 17px/26px 'Bangers', 'Impact', sans-serif;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(255,158,73,0.92);
+    animation: pokemon-x-stats-badge 1s ease-out both;
+}
+
+.pokemon-x-stats-fx .x-stat-arrow {
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    animation: pokemon-x-stats-arrow 960ms ease-out both;
+}
+
+.pokemon-x-stats-fx .arrow-up {
+    left: 50%;
+    top: 12px;
+    margin-left: -10px;
+    border-bottom: 18px solid #7bff7b;
+}
+
+.pokemon-x-stats-fx .arrow-down {
+    left: 50%;
+    bottom: 12px;
+    margin-left: -10px;
+    border-top: 18px solid #78c7ff;
+    animation-delay: 120ms;
+}
+
+.pokemon-x-stats-fx .x-stat-grid {
+    inset: 8px;
+    border: 2px solid rgba(255,220,104,0.72);
+    box-shadow: inset 0 0 12px rgba(255,148,61,0.34);
+    animation: pokemon-x-stats-grid 1.1s ease-out both;
+}
+
+.pokemon-rare-candy-fx .candy-core,
+.pokemon-rare-candy-fx .candy-shine,
+.pokemon-rare-candy-fx .candy-spark {
+    position: absolute;
+}
+
+.pokemon-rare-candy-fx .candy-core {
+    left: 50%;
+    top: 50%;
+    width: 26px;
+    height: 34px;
+    margin-left: -13px;
+    margin-top: -17px;
+    border-radius: 10px;
+    background: linear-gradient(180deg, #7f83ff, #ff5db6 55%, #ffe169);
+    box-shadow: 0 0 16px rgba(255,111,201,0.82);
+    animation: pokemon-rare-candy-core 1.2s ease-out both;
+}
+
+.pokemon-rare-candy-fx .candy-shine {
+    left: 50%;
+    top: 50%;
+    width: 52px;
+    height: 52px;
+    margin-left: -26px;
+    margin-top: -26px;
+    border-radius: 50%;
+    border: 3px solid rgba(255,219,122,0.9);
+    animation: pokemon-rare-candy-shine 1.1s ease-out both;
+}
+
+.pokemon-rare-candy-fx .shine-b { width: 72px; height: 72px; margin-left: -36px; margin-top: -36px; animation-delay: 120ms; }
+
+.pokemon-rare-candy-fx .candy-spark {
+    width: 12px;
+    height: 12px;
+    background: #fff6b8;
+    clip-path: polygon(50% 0, 62% 35%, 100% 50%, 62% 64%, 50% 100%, 37% 64%, 0 50%, 37% 35%);
+    animation: pokemon-rare-candy-spark 980ms ease-out both;
+}
+
+.pokemon-rare-candy-fx .spark-a { left: 16px; top: 16px; }
+.pokemon-rare-candy-fx .spark-b { right: 14px; top: 22px; animation-delay: 120ms; }
+.pokemon-rare-candy-fx .spark-c { left: 50%; bottom: 10px; margin-left: -6px; animation-delay: 220ms; }
 
 .seraphina-road-flare {
     position: absolute;
@@ -10232,6 +10642,118 @@ body.arena-mode-pokemon .chakra-box.white {
     100% { transform: translate(-4px, -14px) scale(0.84); opacity: 0; }
 }
 
+@keyframes pokemon-psybeam-wave {
+    0% { transform: translateY(-50%) scaleX(0.72); opacity: 0.28; }
+    50% { transform: translateY(-50%) scaleX(1.12); opacity: 0.94; }
+    100% { transform: translateY(-50%) scaleX(0.72); opacity: 0.28; }
+}
+
+@keyframes pokemon-psybeam-spark {
+    0% { transform: translate(-2px, 8px) scale(0.6); opacity: 0; }
+    20% { opacity: 0.95; }
+    100% { transform: translate(3px, -10px) scale(1.18); opacity: 0; }
+}
+
+@keyframes pokemon-psybeam-ring {
+    0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0.9; }
+    100% { transform: translate(-50%, -50%) scale(1.68); opacity: 0; }
+}
+
+@keyframes pokemon-powder-drift {
+    0% { transform: translate(-2px, -50%) scale(0.5); opacity: 0.2; }
+    50% { transform: translate(4px, -95%) scale(1.12); opacity: 0.95; }
+    100% { transform: translate(-4px, -25%) scale(0.62); opacity: 0; }
+}
+
+@keyframes pokemon-powder-burst {
+    0% { transform: translate(-50%, -50%) scale(0.42); opacity: 0; }
+    18% { opacity: 0.92; }
+    100% { transform: translate(-50%, -50%) scale(1.58); opacity: 0; }
+}
+
+@keyframes pokemon-powder-spore {
+    0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+    30% { opacity: 0.96; }
+    100% { transform: translate(-50%, -50%) translateY(-18px) scale(1.18); opacity: 0; }
+}
+
+@keyframes pokemon-whirlwind-ring {
+    0% { transform: translate(-50%, -50%) scale(0.42); opacity: 0; }
+    22% { opacity: 0.92; }
+    100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+}
+
+@keyframes pokemon-whirlwind-streak {
+    0% { opacity: 0; transform: translateX(-12px) rotate(12deg); }
+    30% { opacity: 0.95; }
+    100% { opacity: 0; transform: translateX(18px) rotate(12deg); }
+}
+
+@keyframes pokemon-whirlwind-feather {
+    0% { opacity: 0; transform: translateY(8px) rotate(-28deg) scale(0.7); }
+    30% { opacity: 0.95; }
+    100% { opacity: 0; transform: translateY(-10px) rotate(18deg) scale(1.12); }
+}
+
+@keyframes pokemon-trainer-ball-throw {
+    0% { transform: translate(0, 0) scale(0.78) rotate(0deg); opacity: 0; }
+    12% { opacity: 1; }
+    100% { transform: translate(var(--cast-dx), var(--cast-dy)) scale(1) rotate(520deg); opacity: 0; }
+}
+
+@keyframes pokemon-ball-capture-ring {
+    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0.94; }
+    100% { transform: translate(-50%, -50%) scale(1.72); opacity: 0; }
+}
+
+@keyframes pokemon-ball-capture-flash {
+    0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1.46); opacity: 0; }
+}
+
+@keyframes pokemon-ball-capture-star {
+    0% { transform: translate(-50%, -50%) scale(0.4); opacity: 0; }
+    25% { opacity: 0.96; }
+    100% { transform: translate(-50%, -50%) translateY(-16px) scale(1.22); opacity: 0; }
+}
+
+@keyframes pokemon-x-stats-badge {
+    0% { transform: scale(0.45) rotate(-10deg); opacity: 0; }
+    22% { opacity: 1; }
+    100% { transform: scale(1.18) rotate(0deg); opacity: 0; }
+}
+
+@keyframes pokemon-x-stats-arrow {
+    0% { transform: scale(0.4); opacity: 0; }
+    24% { opacity: 0.95; }
+    100% { transform: translateY(-10px) scale(1.08); opacity: 0; }
+}
+
+@keyframes pokemon-x-stats-grid {
+    0% { opacity: 0; transform: scale(0.82); }
+    30% { opacity: 0.92; }
+    100% { opacity: 0; transform: scale(1.08); }
+}
+
+@keyframes pokemon-rare-candy-core {
+    0% { transform: scale(0.42) rotate(-16deg); opacity: 0; }
+    24% { opacity: 1; }
+    100% { transform: scale(1.14) rotate(0deg); opacity: 0; }
+}
+
+@keyframes pokemon-rare-candy-shine {
+    0% { transform: scale(0.36); opacity: 0; }
+    22% { opacity: 0.92; }
+    100% { transform: scale(1.5); opacity: 0; }
+}
+
+@keyframes pokemon-rare-candy-spark {
+    0% { transform: scale(0.45); opacity: 0; }
+    26% { opacity: 0.96; }
+    100% { transform: translateY(-18px) scale(1.16); opacity: 0; }
+}
+
 .character-face.damage-impact {
     animation: damage-impact-enhanced 450ms steps(7) both;
 }
@@ -11307,7 +11829,25 @@ body.arena-mode-pokemon .chakra-box.white {
     .pokemon-center-healing-fx,
     .pokemon-center-healing-fx *,
     .pokemon-smog-fx,
-    .pokemon-smog-fx * {
+    .pokemon-smog-fx *,
+    .pokemon-psybeam-stream,
+    .pokemon-psybeam-stream *,
+    .pokemon-psybeam-impact-fx,
+    .pokemon-psybeam-impact-fx *,
+    .pokemon-powder-stream,
+    .pokemon-powder-stream *,
+    .pokemon-powder-impact-fx,
+    .pokemon-powder-impact-fx *,
+    .pokemon-whirlwind-fx,
+    .pokemon-whirlwind-fx *,
+    .pokemon-trainer-ball-projectile,
+    .pokemon-trainer-ball-projectile *,
+    .pokemon-trainer-ball-impact-fx,
+    .pokemon-trainer-ball-impact-fx *,
+    .pokemon-x-stats-fx,
+    .pokemon-x-stats-fx *,
+    .pokemon-rare-candy-fx,
+    .pokemon-rare-candy-fx * {
         animation: none;
     }
 }
