@@ -572,6 +572,9 @@
         "predator-stalker",
         "xenomorph-drone"
       ];
+      if (pageArena === "pokemon") {
+        preferredCharacterDisplayOrder = ["pokemon-trainer"].concat(preferredCharacterDisplayOrder);
+      }
       var preferredCharacterDisplayRank = preferredCharacterDisplayOrder.reduce(function (map, id, index) {
         map[id] = index;
         return map;

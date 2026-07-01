@@ -3016,6 +3016,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             );
         };
 
+        const isSkillBlockedByAffordability = (skill, actorSlot = null) =>
+            !canAffordSkillWithPendingReservations(skill?.energy, actorSlot, skill);
+
         const isPlayersInteractiveTurn = () =>
             Boolean(
                 !battleEndShown &&
@@ -3035,7 +3038,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             const actorUnit = getActorUnitForSlot(currentPlayerUsername, actorSlot);
             const effectiveSkill = skill || getEffectiveSkillForActorSlot(actorSlot, skillIdx);
-            return !isSkillUnavailableForSelection(actorUnit, effectiveSkill, actorSlot, skillIdx);
+            return (
+                !isSkillUnavailableForSelection(actorUnit, effectiveSkill, actorSlot, skillIdx) &&
+                !isSkillBlockedByAffordability(effectiveSkill, actorSlot)
+            );
         };
 
         const clearActiveTargetSelectionState = () => {
@@ -10978,6 +10984,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                                         triggerBlockedSkillFeedback(imgEl);
                                         return;
                                     }
+                                    if (isSkillBlockedByAffordability(effectiveSkill, slotIndex)) {
+                                        clearActiveSkillTargeting();
+                                        triggerBlockedSkillFeedback(imgEl);
+                                        return;
+                                    }
                                     pulseSkillCast(imgEl, effectiveSkill);
                                     fetchTargetOptions(slotIndex, skillIdx, effectiveSkill).catch(() => {
                                         triggerBlockedSkillFeedback(imgEl);
@@ -12642,8 +12653,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const getBaseRosterDisplayIndices = () => {
+        const displayOrder =
+            activeArenaMode === 'pokemon'
+                ? ['pokemon-trainer', ...preferredCharacterDisplayOrder]
+                : preferredCharacterDisplayOrder;
         const used = new Set();
-        const ordered = preferredCharacterDisplayOrder
+        const ordered = displayOrder
             .map((id) => roster.findIndex((character) => getCharacterDisplayId(character) === id))
             .filter((index) => {
                 if (!Number.isInteger(index) || index < 0 || used.has(index)) return false;

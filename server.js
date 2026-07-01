@@ -11160,6 +11160,34 @@ app.post('/api/match/:matchId/skill/targets', requireSession, async (req, res) =
         });
     }
 
+    const probingMatch = {
+        ...hydrated,
+        chakraPools: {
+            ...(hydrated.chakraPools || {}),
+            [username]: {
+                ...(hydrated.chakraPools?.[username] || {}),
+            },
+        },
+        pendingTurns: {
+            ...(hydrated.pendingTurns || {}),
+            [username]: clonePendingTurn(hydrated.pendingTurns?.[username]),
+        },
+    };
+
+    try {
+        queueSkillForActorSlot({
+            match: probingMatch,
+            username,
+            actorSlot,
+            skillIndex,
+            targetSelection: null,
+        });
+    } catch (error) {
+        return res.status(400).json({
+            error: error?.message || 'This skill cannot be used right now.',
+        });
+    }
+
     const options = battleLogic.computeTargetOptions({
         match: hydrated,
         actingUsername: username,
