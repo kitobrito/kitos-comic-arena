@@ -10933,6 +10933,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     if (event?.button !== undefined && event.button !== 0) return;
                                     event.preventDefault();
                                     event.stopPropagation();
+                                    if (
+                                        activeTargetOptions &&
+                                        activeCastingSkill &&
+                                        activeCastingSkill.actorSlot === slotIndex &&
+                                        activeCastingSkill.skillIdx === skillIdx
+                                    ) {
+                                        clearActiveSkillTargeting();
+                                        updateSkillBrowserActiveIcon(null);
+                                        return;
+                                    }
                                     const effectiveSkill =
                                         getEffectiveSkillForActorSlot(slotIndex, skillIdx) || skill;
                                     const actorUnit = latestBoardState?.[currentPlayerUsername]?.[slotIndex] || null;
@@ -10974,8 +10984,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                                         clearTargetHighlights();
                                     });
                                 };
+                                const onSkillDoubleClick = (event) => {
+                                    if (event?.button !== undefined && event.button !== 0) return;
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    const queued = getQueuedSkillForActorSlot(slotIndex);
+                                    if (!queued || queued.skillIndex !== skillIdx) {
+                                        return;
+                                    }
+                                    clearActiveSkillTargeting();
+                                    updateSkillBrowserActiveIcon(null);
+                                    cancelQueuedSkillForActor(slotIndex);
+                                };
                                 imgEl._skillClickHandler = onSkillClick;
+                                const existingSkillDoubleClickHandler = imgEl._skillDoubleClickHandler;
+                                if (typeof existingSkillDoubleClickHandler === 'function') {
+                                    imgEl.removeEventListener('dblclick', existingSkillDoubleClickHandler);
+                                }
+                                imgEl._skillDoubleClickHandler = onSkillDoubleClick;
                                 imgEl.addEventListener('pointerdown', onSkillClick);
+                                imgEl.addEventListener('dblclick', onSkillDoubleClick);
                             }
                         });
                     }

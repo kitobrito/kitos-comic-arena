@@ -6954,9 +6954,9 @@ body.arena-mode-pokemon .chakra-box.white {
 .surrender-confirm-preview-image {
     position: absolute;
     top: 72px;
-    left: 78px;
-    width: 236px;
-    height: 226px;
+    left: 102px;
+    width: 188px;
+    height: 178px;
     object-fit: cover;
     border: 1px solid #111;
     background-size: contain;
