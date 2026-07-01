@@ -5,6 +5,8 @@ const {
     normalizeArenaMode,
     makeEmptyPendingTurn,
     buildMatchPayloadForUser,
+    buildMatchActionStatePayload,
+    areQueuedSkillRequestsEquivalent,
 } = require('../server.js');
 
 test('normalizeArenaMode keeps pokemon and falls back invalid values to comic', () => {
@@ -123,3 +125,75 @@ test('buildMatchPayloadForUser preserves pokemon arena and hides opponent cooldo
     assert.equal(payload.backgroundOverride, 'assets/images/PokemonArena/newingamebgPA.png');
 });
 
+test('buildMatchActionStatePayload carries current safe state for stale actions', () => {
+    const match = {
+        matchId: 'match-test-2',
+        mode: 'quick',
+        arena: 'pokemon',
+        status: 'ended',
+        winner: 'misty',
+        endReason: 'timeout',
+        currentTurn: null,
+        players: [
+            { username: 'misty', team: [1, 2, 3], profile: {} },
+            { username: 'brock', team: [4, 5, 6], profile: {} },
+        ],
+        board: {
+            misty: [{ slot: 0, rosterIndex: 1, alive: true, hp: 100, state: { statuses: [] } }],
+            brock: [{ slot: 0, rosterIndex: 4, alive: false, hp: 0, state: { statuses: [] } }],
+        },
+        chakraPools: {
+            misty: { taijutsu: 2, ninjutsu: 1, bloodline: 0, genjutsu: 0 },
+            brock: { taijutsu: 0, ninjutsu: 0, bloodline: 0, genjutsu: 0 },
+        },
+        pendingTurns: {
+            misty: makeEmptyPendingTurn(),
+            brock: makeEmptyPendingTurn(),
+        },
+    };
+
+    const payload = buildMatchActionStatePayload(match, 'misty', {
+        actionRejected: 'match-ended',
+    });
+
+    assert.equal(payload.ok, true);
+    assert.equal(payload.staleAction, true);
+    assert.equal(payload.actionRejected, 'match-ended');
+    assert.equal(payload.status, 'ended');
+    assert.equal(payload.arena, 'pokemon');
+    assert.equal(payload.player.username, 'misty');
+    assert.equal(payload.opponent.username, 'brock');
+    assert.deepEqual(payload.chakraPools, {
+        misty: { taijutsu: 2, ninjutsu: 1, bloodline: 0, genjutsu: 0 },
+    });
+});
+
+test('areQueuedSkillRequestsEquivalent matches repeated queue submissions', () => {
+    const existing = {
+        actorSlot: 1,
+        skillIndex: 2,
+        classChoice: 'energy',
+        absorptionChoice: 'negative',
+        targetSelection: [{ username: 'Gary ', slot: '1' }, { username: 'ash', slot: 0 }],
+    };
+
+    assert.equal(
+        areQueuedSkillRequestsEquivalent(existing, {
+            skillIndex: 2,
+            classChoice: ' Energy ',
+            absorptionChoice: 'NEGATIVE',
+            targetSelection: [{ username: 'ash', slot: 0 }, { username: 'gary', slot: 1 }],
+        }),
+        true
+    );
+
+    assert.equal(
+        areQueuedSkillRequestsEquivalent(existing, {
+            skillIndex: 2,
+            classChoice: 'physical',
+            absorptionChoice: 'negative',
+            targetSelection: [{ username: 'ash', slot: 0 }, { username: 'gary', slot: 1 }],
+        }),
+        false
+    );
+});

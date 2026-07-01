@@ -6819,6 +6819,41 @@ const buildMatchPayloadForUser = (match, username) => {
     };
 };
 
+const buildMatchActionStatePayload = (match, username, extra = {}) => {
+    const safePayload = buildMatchPayloadForUser(match, username) || {};
+    return {
+        ok: true,
+        staleAction: true,
+        matchId: safePayload.matchId || match?.matchId || null,
+        mode: safePayload.mode || match?.mode || 'quick',
+        arena: safePayload.arena || normalizeArenaMode(match?.arena),
+        status: safePayload.status || match?.status || 'active',
+        winner: safePayload.winner || match?.winner || null,
+        surrenderedBy: safePayload.surrenderedBy || match?.surrenderedBy || null,
+        endReason: safePayload.endReason || match?.endReason || null,
+        endedAt: safePayload.endedAt || match?.endedAt || null,
+        player: safePayload.player || null,
+        opponent: safePayload.opponent || null,
+        currentTurn: safePayload.currentTurn || match?.currentTurn || null,
+        turnOrder: safePayload.turnOrder || match?.turnOrder || null,
+        turnStartedAt: safePayload.turnStartedAt || match?.turnStartedAt || null,
+        turnExpiresAt: safePayload.turnExpiresAt || match?.turnExpiresAt || null,
+        turnDurationMs:
+            safePayload.turnDurationMs || getTurnDurationMsForUser(match, match?.currentTurn),
+        board: safePayload.board || null,
+        chakraPools: safePayload.chakraPools || null,
+        lastChakraGain: safePayload.lastChakraGain || null,
+        pendingTurn: safePayload.pendingTurn || makeEmptyPendingTurn(),
+        ladderResult: safePayload.ladderResult || null,
+        backgroundOverride: safePayload.backgroundOverride || '',
+        pveBattle: safePayload.pveBattle || null,
+        ...extra,
+    };
+};
+
+const respondWithCurrentMatchState = (res, match, username, extra = {}) =>
+    res.json(buildMatchActionStatePayload(match, username, extra));
+
 const hydrateMatchForBroadcast = async (matchOrMatchId) => {
     const match =
         typeof matchOrMatchId === 'string'
@@ -8867,6 +8902,48 @@ const normalizeClassChoice = (value) =>
 const normalizeAbsorptionChoice = (value) =>
     typeof value === 'string' ? value.trim().toLowerCase() : '';
 
+const normalizeTargetSelectionForComparison = (selection) => {
+    if (Array.isArray(selection)) {
+        return selection
+            .map((entry) => ({
+                username: typeof entry?.username === 'string' ? entry.username.trim().toLowerCase() : '',
+                slot: Number.parseInt(entry?.slot, 10),
+            }))
+            .filter((entry) => entry.username && Number.isInteger(entry.slot))
+            .sort((left, right) =>
+                left.username === right.username ? left.slot - right.slot : left.username.localeCompare(right.username)
+            );
+    }
+    if (selection && typeof selection === 'object') {
+        const username =
+            typeof selection.username === 'string' ? selection.username.trim().toLowerCase() : '';
+        const slot = Number.parseInt(selection.slot, 10);
+        if (username && Number.isInteger(slot)) {
+            return { username, slot };
+        }
+    }
+    return null;
+};
+
+const areQueuedSkillRequestsEquivalent = (
+    existing = null,
+    { skillIndex, targetSelection, classChoice, absorptionChoice } = {}
+) => {
+    if (!existing || Number.parseInt(existing.skillIndex, 10) !== Number.parseInt(skillIndex, 10)) {
+        return false;
+    }
+    if (normalizeClassChoice(existing.classChoice) !== normalizeClassChoice(classChoice)) {
+        return false;
+    }
+    if (normalizeAbsorptionChoice(existing.absorptionChoice) !== normalizeAbsorptionChoice(absorptionChoice)) {
+        return false;
+    }
+    return (
+        JSON.stringify(normalizeTargetSelectionForComparison(existing.targetSelection)) ===
+        JSON.stringify(normalizeTargetSelectionForComparison(targetSelection))
+    );
+};
+
 const getAbsorptionChoiceKeysForSkill = (skill = {}) => {
     const config =
         skill?.absorptionChoiceOptions && typeof skill.absorptionChoiceOptions === 'object'
@@ -10541,7 +10618,9 @@ app.post('/api/match/:matchId/turn/end', requireSession, async (req, res) => {
         }
         if (hydrated.status === 'ended') {
             queueMatchStateBroadcast(hydrated);
-            return res.status(409).json({ error: 'Match already ended.' });
+            return respondWithCurrentMatchState(res, hydrated, req.authUser.username, {
+                actionRejected: 'match-ended',
+            });
         }
 
         const username = req.authUser.username;
@@ -10559,7 +10638,9 @@ app.post('/api/match/:matchId/turn/end', requireSession, async (req, res) => {
                 username,
                 currentTurn: hydrated.currentTurn,
             });
-            return res.status(403).json({ error: 'Not your turn.' });
+            return respondWithCurrentMatchState(res, hydrated, username, {
+                actionRejected: 'not-your-turn',
+            });
         }
         const pendingTurn = getPendingTurn(hydrated, username);
         if (hasPendingTurnStartChoice(pendingTurn)) {
@@ -10568,7 +10649,9 @@ app.post('/api/match/:matchId/turn/end', requireSession, async (req, res) => {
                 username,
                 turnStartChoice: pendingTurn.turnStartChoice?.sourceStatusId || null,
             });
-            return res.status(400).json({ error: 'Resolve the Doctor\'s Bag choice first.' });
+            return respondWithCurrentMatchState(res, hydrated, username, {
+                actionRejected: 'pending-turn-start-choice',
+            });
         }
         if ((pendingTurn.unresolvedRandom || 0) > 0) {
             console.warn('[match-turn-end] rejected-unresolved-random', {
@@ -10576,7 +10659,9 @@ app.post('/api/match/:matchId/turn/end', requireSession, async (req, res) => {
                 username,
                 unresolvedRandom: pendingTurn.unresolvedRandom || 0,
             });
-            return res.status(400).json({ error: 'Resolve random chakra before ending turn.' });
+            return respondWithCurrentMatchState(res, hydrated, username, {
+                actionRejected: 'unresolved-random',
+            });
         }
 
         const updated = await finalizeTurn(hydrated, username);
@@ -10623,7 +10708,9 @@ app.post('/api/match/:matchId/skill/queue', requireSession, async (req, res) => 
         return res.status(404).json({ error: 'Match not found.' });
     }
     if (hydrated.status === 'ended') {
-        return res.status(409).json({ error: 'Match already ended.' });
+        return respondWithCurrentMatchState(res, hydrated, req.authUser.username, {
+            actionRejected: 'match-ended',
+        });
     }
     const authUsername = req.authUser.username;
     const playerEntry = hydrated.players.find((p) => usernamesEqual(p.username, authUsername));
@@ -10632,10 +10719,35 @@ app.post('/api/match/:matchId/skill/queue', requireSession, async (req, res) => 
     }
     const username = playerEntry.username;
     if (!usernamesEqual(hydrated.currentTurn, username)) {
-        return res.status(403).json({ error: 'Not your turn.' });
+        return respondWithCurrentMatchState(res, hydrated, username, {
+            actionRejected: 'not-your-turn',
+        });
     }
-    if (hasPendingTurnStartChoice(getPendingTurn(hydrated, username))) {
-        return res.status(400).json({ error: 'Resolve the Doctor\'s Bag choice first.' });
+    const pendingTurn = getPendingTurn(hydrated, username);
+    if (hasPendingTurnStartChoice(pendingTurn)) {
+        return respondWithCurrentMatchState(res, hydrated, username, {
+            actionRejected: 'pending-turn-start-choice',
+        });
+    }
+    if (
+        areQueuedSkillRequestsEquivalent(pendingTurn.queuedByActorSlot?.[String(actorSlot)] || null, {
+            skillIndex,
+            targetSelection,
+            classChoice,
+            absorptionChoice,
+        })
+    ) {
+        const safePayload = buildMatchPayloadForUser(hydrated, username);
+        return res.json({
+            ok: true,
+            staleAction: true,
+            actionRejected: 'duplicate-skill-queue',
+            chakraPools: safePayload?.chakraPools || null,
+            pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
+            currentTurn: hydrated.currentTurn,
+            turnExpiresAt: hydrated.turnExpiresAt,
+            turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
+        });
     }
     const options = battleLogic.computeTargetOptions({
         match: hydrated,
@@ -10716,11 +10828,15 @@ app.post('/api/match/:matchId/turn/start-choice', requireSession, async (req, re
             return res.status(404).json({ error: 'Match not found.' });
         }
         if (hydrated.status === 'ended') {
-            return res.status(409).json({ error: 'Match already ended.' });
+            return respondWithCurrentMatchState(res, hydrated, req.authUser.username, {
+                actionRejected: 'match-ended',
+            });
         }
         const username = req.authUser.username;
         if (hydrated.currentTurn !== username) {
-            return res.status(403).json({ error: 'Not your turn.' });
+            return respondWithCurrentMatchState(res, hydrated, username, {
+                actionRejected: 'not-your-turn',
+            });
         }
 
         const targetUsername = typeof req.body?.targetUsername === 'string' ? req.body.targetUsername : null;
@@ -10729,7 +10845,9 @@ app.post('/api/match/:matchId/turn/start-choice', requireSession, async (req, re
         const pendingTurn = getPendingTurn(hydrated, username);
         const prompt = pendingTurn.turnStartChoice;
         if (!hasPendingTurnStartChoice(pendingTurn) || !prompt) {
-            return res.status(400).json({ error: 'No Doctor\'s Bag choice is pending.' });
+            return respondWithCurrentMatchState(res, hydrated, username, {
+                actionRejected: 'no-pending-turn-start-choice',
+            });
         }
         const option = Array.isArray(prompt.options)
             ? prompt.options.find((entry) => entry?.key === choiceKey)
@@ -10778,7 +10896,9 @@ app.post('/api/match/:matchId/skill/cancel', requireSession, async (req, res) =>
         return res.status(404).json({ error: 'Match not found.' });
     }
     if (hydrated.status === 'ended') {
-        return res.status(409).json({ error: 'Match already ended.' });
+        return respondWithCurrentMatchState(res, hydrated, req.authUser.username, {
+            actionRejected: 'match-ended',
+        });
     }
     const authUsername = req.authUser.username;
     const playerEntry = hydrated.players.find((p) => usernamesEqual(p.username, authUsername));
@@ -10787,10 +10907,14 @@ app.post('/api/match/:matchId/skill/cancel', requireSession, async (req, res) =>
     }
     const username = playerEntry.username;
     if (!usernamesEqual(hydrated.currentTurn, username)) {
-        return res.status(403).json({ error: 'Not your turn.' });
+        return respondWithCurrentMatchState(res, hydrated, username, {
+            actionRejected: 'not-your-turn',
+        });
     }
     if (hasPendingTurnStartChoice(getPendingTurn(hydrated, username))) {
-        return res.status(400).json({ error: 'Resolve the Doctor\'s Bag choice first.' });
+        return respondWithCurrentMatchState(res, hydrated, username, {
+            actionRejected: 'pending-turn-start-choice',
+        });
     }
     const changed = cancelQueuedSkillForActorSlot({ match: hydrated, username, actorSlot });
     if (changed) {
@@ -10826,7 +10950,9 @@ app.post('/api/match/:matchId/skill/reorder', requireSession, async (req, res) =
         return res.status(404).json({ error: 'Match not found.' });
     }
     if (hydrated.status === 'ended') {
-        return res.status(409).json({ error: 'Match already ended.' });
+        return respondWithCurrentMatchState(res, hydrated, req.authUser.username, {
+            actionRejected: 'match-ended',
+        });
     }
     const username = req.authUser.username;
     const playerEntry = hydrated.players.find((p) => p.username === username);
@@ -10834,10 +10960,14 @@ app.post('/api/match/:matchId/skill/reorder', requireSession, async (req, res) =
         return res.status(403).json({ error: 'Not part of this match.' });
     }
     if (hydrated.currentTurn !== username) {
-        return res.status(403).json({ error: 'Not your turn.' });
+        return respondWithCurrentMatchState(res, hydrated, username, {
+            actionRejected: 'not-your-turn',
+        });
     }
     if (hasPendingTurnStartChoice(getPendingTurn(hydrated, username))) {
-        return res.status(400).json({ error: 'Resolve the Doctor\'s Bag choice first.' });
+        return respondWithCurrentMatchState(res, hydrated, username, {
+            actionRejected: 'pending-turn-start-choice',
+        });
     }
     reorderQueuedSkills({ match: hydrated, username, actorSlots });
     await persistMatchState(hydrated, {
@@ -10873,7 +11003,9 @@ app.post('/api/match/:matchId/turn/random/adjust', requireSession, async (req, r
         return res.status(404).json({ error: 'Match not found.' });
     }
     if (hydrated.status === 'ended') {
-        return res.status(409).json({ error: 'Match already ended.' });
+        return respondWithCurrentMatchState(res, hydrated, req.authUser.username, {
+            actionRejected: 'match-ended',
+        });
     }
     const username = req.authUser.username;
     const playerEntry = hydrated.players.find((p) => p.username === username);
@@ -10881,10 +11013,14 @@ app.post('/api/match/:matchId/turn/random/adjust', requireSession, async (req, r
         return res.status(403).json({ error: 'Not part of this match.' });
     }
     if (hydrated.currentTurn !== username) {
-        return res.status(403).json({ error: 'Not your turn.' });
+        return respondWithCurrentMatchState(res, hydrated, username, {
+            actionRejected: 'not-your-turn',
+        });
     }
     if (hasPendingTurnStartChoice(getPendingTurn(hydrated, username))) {
-        return res.status(400).json({ error: 'Resolve the Doctor\'s Bag choice first.' });
+        return respondWithCurrentMatchState(res, hydrated, username, {
+            actionRejected: 'pending-turn-start-choice',
+        });
     }
     try {
         adjustRandomAssignment({ match: hydrated, username, chakraType, delta });
@@ -10929,7 +11065,9 @@ app.post('/api/match/:matchId/chakra/exchange', requireSession, async (req, res)
         return res.status(404).json({ error: 'Match not found.' });
     }
     if (hydrated.status === 'ended') {
-        return res.status(409).json({ error: 'Match already ended.' });
+        return respondWithCurrentMatchState(res, hydrated, req.authUser.username, {
+            actionRejected: 'match-ended',
+        });
     }
     const username = req.authUser.username;
     const playerEntry = hydrated.players.find((p) => p.username === username);
@@ -10937,10 +11075,14 @@ app.post('/api/match/:matchId/chakra/exchange', requireSession, async (req, res)
         return res.status(403).json({ error: 'Not part of this match.' });
     }
     if (hydrated.currentTurn !== username) {
-        return res.status(403).json({ error: 'Not your turn.' });
+        return respondWithCurrentMatchState(res, hydrated, username, {
+            actionRejected: 'not-your-turn',
+        });
     }
     if (hasPendingTurnStartChoice(getPendingTurn(hydrated, username))) {
-        return res.status(400).json({ error: 'Resolve the Doctor\'s Bag choice first.' });
+        return respondWithCurrentMatchState(res, hydrated, username, {
+            actionRejected: 'pending-turn-start-choice',
+        });
     }
     try {
         exchangeChakra({
@@ -10988,7 +11130,12 @@ app.post('/api/match/:matchId/skill/targets', requireSession, async (req, res) =
         return res.status(404).json({ error: 'Match not found.' });
     }
     if (hydrated.status === 'ended') {
-        return res.status(409).json({ error: 'Match already ended.' });
+        return respondWithCurrentMatchState(res, hydrated, req.authUser.username, {
+            actionRejected: 'match-ended',
+            targetType: '',
+            mode: 'none',
+            targets: [],
+        });
     }
 
     const username = req.authUser.username;
@@ -10997,7 +11144,20 @@ app.post('/api/match/:matchId/skill/targets', requireSession, async (req, res) =
         return res.status(403).json({ error: 'Not part of this match.' });
     }
     if (hydrated.currentTurn !== username) {
-        return res.status(403).json({ error: 'Not your turn.' });
+        return respondWithCurrentMatchState(res, hydrated, username, {
+            actionRejected: 'not-your-turn',
+            targetType: '',
+            mode: 'none',
+            targets: [],
+        });
+    }
+    if (hasPendingTurnStartChoice(getPendingTurn(hydrated, username))) {
+        return respondWithCurrentMatchState(res, hydrated, username, {
+            actionRejected: 'pending-turn-start-choice',
+            targetType: '',
+            mode: 'none',
+            targets: [],
+        });
     }
 
     const options = battleLogic.computeTargetOptions({
@@ -13656,5 +13816,7 @@ if (require.main === module) {
         sanitizeBoardForViewer,
         serializeMatchPlayerForViewer,
         buildMatchPayloadForUser,
+        buildMatchActionStatePayload,
+        areQueuedSkillRequestsEquivalent,
     };
 }
