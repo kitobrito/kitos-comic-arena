@@ -17150,10 +17150,10 @@ const characters = [
                     "infiniteDuration": true,
                     "charmanderEvolutionProgress": 0,
                     "stackMetadataKey": "charmanderEvolutionProgress",
-                    "stackMax": 1,
+                    "stackMax": 2,
                     "applyStatusAtStack": {
                         "metadataKey": "charmanderEvolutionProgress",
-                        "value": 1,
+                        "value": 2,
                         "statusId": "charmander_charmeleon_evolution",
                         "duration": 99,
                         "metadata": {
@@ -17168,7 +17168,7 @@ const characters = [
                             "tooltipText": "Charmander has evolved into Charmeleon. All of his skills have improved effects."
                         }
                     },
-                    "tooltipText": "Charmander evolves into Charmeleon after critically striking or burning an enemy once."
+                    "tooltipText": "Charmander evolves into Charmeleon after critically striking or burning an enemy twice."
                 }
             }
         ],
@@ -17420,7 +17420,7 @@ const characters = [
                 "id": "charmander-passive-evolution-charmeleon",
                 "name": "Evolution - Charmeleon",
                 "skillimage": "assets/images/PokemonArena/Charmander/passiveevolvecharmeleon.jpg",
-                "skilldescription": "After Charmander critically strikes or burns an enemy once, he evolves into Charmeleon. All of his skills gain improved effects.",
+                "skilldescription": "After Charmander critically strikes or burns an enemy twice, he evolves into Charmeleon. All of his skills gain improved effects.",
                 "energy": [],
                 "target": "",
                 "damage": 0,

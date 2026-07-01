@@ -2111,6 +2111,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             classPickerEl: document.querySelector('.ingame-class-picker-field'),
             descEl: document.querySelector('.ingameskilldescription'),
             browserIconsEl: document.querySelector('.skill-browser-icons'),
+            selectedViewMode: 'character',
+            selectedActorSlot: null,
+            selectedSkillIdx: null,
         };
         const chakraTypes = ['taijutsu', 'ninjutsu', 'bloodline', 'genjutsu'];
         const emptyPool = () => ({
@@ -2997,6 +3000,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             };
         };
 
+        const isSkillUnavailableForSelection = (actorUnit, skill, actorSlot = null, skillIdx = null) => {
+            if (!actorUnit || !skill) return true;
+            const usageState = getSkillUsageState(actorUnit, skill, actorSlot, skillIdx);
+            return (
+                isUnitDeadLike(actorUnit) ||
+                getCooldownRemainingForSkill(actorUnit, skill) > 0 ||
+                usageState.isBlocked ||
+                isSkillBlockedByClassLock(actorUnit, skill) ||
+                isSkillBlockedByIndexLock(actorUnit, skillIdx) ||
+                (isActorEnemyTargetingStunned(actorUnit) && skillIsEnemyTargeting(skill))
+            );
+        };
+
         const updateSkillAffordability = () => {
             const isPlayersTurn =
                 currentPlayerUsername && currentTurnUsername && usernamesMatch(currentPlayerUsername, currentTurnUsername);
@@ -3020,28 +3036,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     imgEl.style.cursor = 'not-allowed';
                     return;
                 }
-                const cooldownRemaining = getCooldownRemainingForSkill(actorUnit, effectiveSkill);
-                if (cooldownRemaining > 0 || isActorStunned(actorUnit)) {
+                if (isActorStunned(actorUnit)) {
                     imgEl.style.opacity = '0.4';
                     imgEl.style.cursor = 'not-allowed';
                     return;
                 }
-                if (usageState.isBlocked) {
-                    imgEl.style.opacity = '0.4';
-                    imgEl.style.cursor = 'not-allowed';
-                    return;
-                }
-                if (isActorEnemyTargetingStunned(actorUnit) && skillIsEnemyTargeting(effectiveSkill)) {
-                    imgEl.style.opacity = '0.4';
-                    imgEl.style.cursor = 'not-allowed';
-                    return;
-                }
-                if (isSkillBlockedByClassLock(actorUnit, effectiveSkill)) {
-                    imgEl.style.opacity = '0.4';
-                    imgEl.style.cursor = 'not-allowed';
-                    return;
-                }
-                if (isSkillBlockedByIndexLock(actorUnit, meta.skillIdx)) {
+                if (isSkillUnavailableForSelection(actorUnit, effectiveSkill, meta.actorSlot, meta.skillIdx)) {
                     imgEl.style.opacity = '0.4';
                     imgEl.style.cursor = 'not-allowed';
                     return;
@@ -3066,6 +3066,34 @@ document.addEventListener('DOMContentLoaded', async () => {
                     : '0.4';
                 imgEl.style.cursor = imgEl.style.opacity === '1' ? 'pointer' : 'not-allowed';
             });
+            if (
+                activeCastingSkill &&
+                Number.isInteger(activeCastingSkill.actorSlot) &&
+                Number.isInteger(activeCastingSkill.skillIdx)
+            ) {
+                const actorUnit = Array.isArray(playerUnits) ? playerUnits[activeCastingSkill.actorSlot] : null;
+                const activeSkill =
+                    getEffectiveSkillForActorSlot(activeCastingSkill.actorSlot, activeCastingSkill.skillIdx) || null;
+                const queued = getQueuedSkillForActorSlot(activeCastingSkill.actorSlot);
+                const shouldClearTargeting =
+                    !isPlayersTurn ||
+                    Boolean(normalizePendingTurn(pendingTurnState).turnStartChoice) ||
+                    !actorUnit ||
+                    !activeSkill ||
+                    isSkillUnavailableForSelection(
+                        actorUnit,
+                        activeSkill,
+                        activeCastingSkill.actorSlot,
+                        activeCastingSkill.skillIdx
+                    ) ||
+                    Boolean(queued);
+                if (shouldClearTargeting) {
+                    targetOptionsRequestVersion += 1;
+                    clearTargetHighlights();
+                    activeTargetOptions = null;
+                    activeCastingSkill = null;
+                }
+            }
         };
 
         const getPrimaryEnergyClass = (skill = null) => {
@@ -9100,6 +9128,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const renderSkillInfo = (character, skill, actorSlot = null, skillIdx = null) => {
             if (!skill || !character) return;
+            skillInfo.selectedViewMode = 'skill';
+            skillInfo.selectedActorSlot = Number.isInteger(actorSlot) ? actorSlot : null;
+            skillInfo.selectedSkillIdx = Number.isInteger(skillIdx) ? skillIdx : null;
             const actorUnit =
                 actorSlot !== null && currentPlayerUsername && latestBoardState?.[currentPlayerUsername]
                     ? latestBoardState[currentPlayerUsername][actorSlot]
@@ -9194,6 +9225,39 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         };
 
+        const refreshSelectedSkillInfo = () => {
+            if (skillInfo.selectedViewMode === 'skill') {
+                if (!Number.isInteger(skillInfo.selectedActorSlot) || !Number.isInteger(skillInfo.selectedSkillIdx)) {
+                    return;
+                }
+                const actorUnit = getActorUnitForSlot(currentPlayerUsername, skillInfo.selectedActorSlot);
+                const character = getEffectiveCharacterForUnit(actorUnit);
+                const skill = getEffectiveSkillForActorSlot(
+                    skillInfo.selectedActorSlot,
+                    skillInfo.selectedSkillIdx
+                );
+                if (!character || !skill) return;
+                renderSkillInfo(
+                    character,
+                    skill,
+                    skillInfo.selectedActorSlot,
+                    skillInfo.selectedSkillIdx
+                );
+                renderSkillBrowserForCharacter(
+                    character,
+                    skillInfo.selectedActorSlot,
+                    skillInfo.selectedSkillIdx
+                );
+                return;
+            }
+            if (skillInfo.selectedViewMode === 'character' && Number.isInteger(skillInfo.selectedActorSlot)) {
+                const actorUnit = getActorUnitForSlot(currentPlayerUsername, skillInfo.selectedActorSlot);
+                const character = getEffectiveCharacterForUnit(actorUnit);
+                if (!character) return;
+                renderCharacterInfo(character, skillInfo.selectedActorSlot);
+            }
+        };
+
         const getCharacterRoleText = (character) => {
             const role =
                 character?.role ||
@@ -9206,6 +9270,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const renderCharacterInfo = (character, actorSlot = null) => {
             if (!character) return;
+            skillInfo.selectedViewMode = 'character';
+            skillInfo.selectedActorSlot = Number.isInteger(actorSlot) ? actorSlot : null;
+            skillInfo.selectedSkillIdx = null;
             const roleText = getCharacterRoleText(character);
             if (skillInfo.imgEl) {
                 skillInfo.imgEl.src = character.facePicture || character.url || '';
@@ -9304,6 +9371,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     meta.imgEl.dataset.renderedSkillTitle = nextTitle;
                 }
             });
+            refreshSelectedSkillInfo();
         };
 
         const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -10799,35 +10867,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                                         updateSkillBrowserActiveIcon(skillIdx)
                                     );
                                     if (!currentPlayerUsername || !usernamesMatch(currentPlayerUsername, currentTurnUsername)) {
+                                        clearActiveSkillTargeting();
                                         triggerBlockedSkillFeedback(imgEl);
                                         return;
                                     }
                                     if (normalizePendingTurn(pendingTurnState).turnStartChoice) {
+                                        clearActiveSkillTargeting();
                                         triggerBlockedSkillFeedback(imgEl);
                                         return;
                                     }
                                     const queued = getQueuedSkillForActorSlot(slotIndex);
                                     if (queued && queued.skillIndex === skillIdx) {
+                                        clearActiveSkillTargeting();
                                         triggerBlockedSkillFeedback(imgEl);
                                         return;
                                     }
                                     if (queued) {
+                                        clearActiveSkillTargeting();
                                         triggerBlockedSkillFeedback(imgEl);
                                         return;
                                     }
-                                    const usageState = getSkillUsageState(
-                                        actorUnit,
-                                        effectiveSkill,
-                                        slotIndex,
-                                        skillIdx
-                                    );
-                                    if (
-                                        usageState.isBlocked ||
-                                        getCooldownRemainingForSkill(actorUnit, effectiveSkill) > 0 ||
-                                        isSkillBlockedByClassLock(actorUnit, effectiveSkill) ||
-                                        isSkillBlockedByIndexLock(actorUnit, skillIdx) ||
-                                        (isActorEnemyTargetingStunned(actorUnit) && skillIsEnemyTargeting(effectiveSkill))
-                                    ) {
+                                    if (isSkillUnavailableForSelection(actorUnit, effectiveSkill, slotIndex, skillIdx)) {
+                                        clearActiveSkillTargeting();
                                         triggerBlockedSkillFeedback(imgEl);
                                         return;
                                     }
