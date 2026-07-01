@@ -2007,10 +2007,14 @@ const hashStringForIndex = (value = '') => {
     return hash;
 };
 
-const getFakeBattlePlayerAccountsForArena = (arena = DEFAULT_ARENA_MODE) =>
-    normalizeArenaMode(arena) === 'pokemon'
-        ? POKEMON_BATTLE_PLAYER_ACCOUNTS
-        : FAKE_BATTLE_PLAYER_ACCOUNTS;
+const getFakeBattlePlayerAccountsForArena = (arena = DEFAULT_ARENA_MODE) => {
+    const normalizedArena = normalizeArenaMode(arena);
+    if (normalizedArena === 'pokemon') {
+        // Reuse the broader Comic Arena disguise pool so Pokemon bots stop reading like obvious themed stand-ins.
+        return FAKE_BATTLE_PLAYER_ACCOUNTS;
+    }
+    return FAKE_BATTLE_PLAYER_ACCOUNTS;
+};
 
 const getFakeBattlePlayerAccount = (seed = '', arena = DEFAULT_ARENA_MODE) => {
     const pool = getFakeBattlePlayerAccountsForArena(arena);
