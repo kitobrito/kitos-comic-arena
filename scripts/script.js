@@ -8428,6 +8428,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ? unit.state.statuses.filter(
                     (status) =>
                         (Number(status?.remainingTurns) || 0) > 0 &&
+                        !Boolean(status?.metadata?.hidden) &&
                         !Boolean(status?.metadata?.hideTooltip) &&
                         !(isEnemySide && Boolean(status?.metadata?.hideTooltipFromEnemy)) &&
                         !(

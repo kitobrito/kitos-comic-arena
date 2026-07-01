@@ -1576,6 +1576,12 @@ const applyStatus = ({
             nextMetadata[stackKey] = Math.min(cap, Math.max(0, previous + delta));
         }
         nextMetadata = applyStackDerivedNumericKeys(nextMetadata);
+        if (
+            Number(nextMetadata?.turnEndDamage) > 0 &&
+            nextMetadata?.triggerOnApply === undefined
+        ) {
+            nextMetadata.triggerOnApply = true;
+        }
         const tooltipTemplate =
             typeof metadata?.tooltipTextTemplate === 'string' && metadata.tooltipTextTemplate
                 ? metadata.tooltipTextTemplate
@@ -1662,6 +1668,12 @@ const applyStatus = ({
         };
     }
     createdMetadata = applyStackDerivedNumericKeys(createdMetadata);
+    if (
+        Number(createdMetadata?.turnEndDamage) > 0 &&
+        createdMetadata?.triggerOnApply === undefined
+    ) {
+        createdMetadata.triggerOnApply = true;
+    }
     const randomizeOnApplyConfig =
         createdMetadata?.randomizeMetadataKeyFromOptions &&
         typeof createdMetadata.randomizeMetadataKeyFromOptions === 'object'
@@ -3255,8 +3267,9 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
     }
     if (incoming <= 0 && !ignoreEnemyNonMentalDamage) return 0;
 
-    // Destructible defense absorbs incoming damage first; overflow continues to HP.
-    const ignoreDestructibleDefense = Boolean(context?.ignoreDestructibleDefense);
+    // Destructible defense absorbs incoming damage first unless the hit is affliction or explicitly bypasses it.
+    const ignoreDestructibleDefense =
+        afflictionDamage || Boolean(context?.ignoreDestructibleDefense);
     if (!ignoreDestructibleDefense) {
         for (let i = 0; i < targetState.statuses.length && incoming > 0; i += 1) {
             const status = targetState.statuses[i];

@@ -9,6 +9,7 @@ const {
     doesEffectConditionMatch,
     processTurnStartStatusEffects,
     reduceHulkRageForInactiveTurn,
+    tickStatusesForTurnEnd,
 } = require('../battleLogic.js');
 
 test('cleanseHarmfulStatuses keeps unremovable harmful statuses', () => {
@@ -370,6 +371,96 @@ test('Magikarp evolution tracker gains a turn stack at turn start', () => {
         (status) => status.id === 'magikarp_evolution_tracker'
     );
     assert.equal(tracker?.metadata?.magikarpTurnCount, 1);
+});
+
+test('affliction damage ignores destructible defense', () => {
+    const unit = {
+        alive: true,
+        hp: 100,
+        maxHp: 100,
+        state: {
+            statuses: [
+                {
+                    id: 'shield',
+                    remainingTurns: 2,
+                    metadata: {
+                        destructibleDefensePoints: 25,
+                    },
+                },
+            ],
+            snapshots: {},
+        },
+    };
+
+    const dealt = applyDamageToUnit(unit, 20, {
+        sourceUsername: 'attacker',
+        targetUsername: 'defender',
+        afflictionDamage: true,
+        skillClasses: ['Affliction', 'Ranged', 'Instant'],
+    });
+
+    assert.equal(dealt, 20);
+    assert.equal(unit.hp, 80);
+    assert.equal(unit.state.statuses[0].metadata.destructibleDefensePoints, 25);
+});
+
+test('turn-end damage statuses trigger on their first eligible turn-end', () => {
+    const match = {
+        board: {
+            player: [
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    state: { statuses: [], snapshots: {} },
+                },
+            ],
+            enemy: [
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    state: { statuses: [], snapshots: {} },
+                },
+            ],
+        },
+        players: [
+            { username: 'player' },
+            { username: 'enemy' },
+        ],
+        pendingActions: [],
+        pendingTurns: [],
+        pendingQueuedEffects: [],
+        economy: {
+            turnCounts: {
+                player: 1,
+                enemy: 1,
+            },
+        },
+    };
+
+    applyStatus({
+        targetState: match.board.enemy[0].state,
+        statusId: 'koffing_smog_cloud',
+        duration: 4,
+        sourceSkillId: 'koffing-smog',
+        sourceUsername: 'player',
+        sourceSlot: 0,
+        metadata: {
+            harmful: true,
+            allowDuplicateStatusInstances: true,
+            turnEndDamage: 5,
+            afflictionDamage: true,
+            ignoreTargetDamageReduction: true,
+            ignoreTargetDestructibleDefense: true,
+            turnDurationAnchor: 'source_turn',
+            tooltipText: 'This character takes 5 affliction damage each turn from Smog.',
+        },
+    });
+
+    tickStatusesForTurnEnd({ match, endingUsername: 'enemy' });
+
+    assert.equal(match.board.enemy[0].hp, 95);
 });
 
 test('Splash can advance Magikarp into Gyarados immediately at 7 stacks', () => {
