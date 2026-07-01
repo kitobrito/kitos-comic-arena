@@ -6748,21 +6748,25 @@ const sanitizeBoardForViewer = (board, viewerUsername) => {
     );
 };
 
+const getViewerScopedValueForUsername = (recordMap, viewerUsername) => {
+    if (!recordMap || typeof recordMap !== 'object' || !viewerUsername) return null;
+    const directValue = recordMap?.[viewerUsername];
+    if (directValue && typeof directValue === 'object') {
+        return cloneSerializable(directValue);
+    }
+    const matchedKey = Object.keys(recordMap).find((key) => usernamesEqual(key, viewerUsername));
+    if (!matchedKey) return null;
+    const matchedValue = recordMap?.[matchedKey];
+    return matchedValue && typeof matchedValue === 'object' ? cloneSerializable(matchedValue) : null;
+};
+
 const sanitizeChakraPoolsForViewer = (chakraPools, viewerUsername) => {
-    if (!chakraPools || typeof chakraPools !== 'object' || !viewerUsername) return null;
-    const ownPool =
-        chakraPools?.[viewerUsername] && typeof chakraPools[viewerUsername] === 'object'
-            ? cloneSerializable(chakraPools[viewerUsername])
-            : null;
+    const ownPool = getViewerScopedValueForUsername(chakraPools, viewerUsername);
     return ownPool ? { [viewerUsername]: ownPool } : null;
 };
 
 const sanitizeLastChakraGainForViewer = (lastChakraGain, viewerUsername) => {
-    if (!lastChakraGain || typeof lastChakraGain !== 'object' || !viewerUsername) return null;
-    const ownGain =
-        lastChakraGain?.[viewerUsername] && typeof lastChakraGain[viewerUsername] === 'object'
-            ? cloneSerializable(lastChakraGain[viewerUsername])
-            : null;
+    const ownGain = getViewerScopedValueForUsername(lastChakraGain, viewerUsername);
     return ownGain ? { [viewerUsername]: ownGain } : null;
 };
 
@@ -6784,12 +6788,16 @@ const serializeMatchPlayerForViewer = (player = {}, arena = DEFAULT_ARENA_MODE) 
 const buildMatchPayloadForUser = (match, username) => {
     if (!match || !username) return null;
     const playerEntry = Array.isArray(match.players)
-        ? match.players.find((player) => player?.username === username) || null
+        ? match.players.find((player) => usernamesEqual(player?.username, username)) || null
         : null;
     if (!playerEntry) return null;
     const opponentEntry = Array.isArray(match.players)
-        ? match.players.find((player) => player?.username !== username) || null
+        ? match.players.find((player) => !usernamesEqual(player?.username, username)) || null
         : null;
+    const ladderResultKey =
+        match?.ladderResults && typeof match.ladderResults === 'object'
+            ? Object.keys(match.ladderResults).find((key) => usernamesEqual(key, username))
+            : null;
     return {
         ok: true,
         matchId: match.matchId || null,
@@ -6811,7 +6819,7 @@ const buildMatchPayloadForUser = (match, username) => {
         chakraPools: sanitizeChakraPoolsForViewer(match.chakraPools, username),
         lastChakraGain: sanitizeLastChakraGainForViewer(match.economy?.lastChakraGain, username),
         pendingTurn: getPendingTurn(match, username),
-        ladderResult: match.ladderResults?.[username] || null,
+        ladderResult: ladderResultKey ? match.ladderResults?.[ladderResultKey] || null : null,
         backgroundOverride:
             typeof match.backgroundOverride === 'string' && match.backgroundOverride.trim()
                 ? match.backgroundOverride.trim()

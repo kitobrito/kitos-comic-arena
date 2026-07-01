@@ -4,6 +4,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         typeof right === 'string' &&
         left.trim().toLowerCase() === right.trim().toLowerCase();
 
+    const getScopedValueForCurrentUsername = (recordMap = {}, username = '') => {
+        if (!recordMap || typeof recordMap !== 'object' || !username) return null;
+        const directValue = recordMap?.[username];
+        if (directValue && typeof directValue === 'object') {
+            return directValue;
+        }
+        const matchedKey = Object.keys(recordMap).find((key) => usernamesMatch(key, username));
+        return matchedKey ? recordMap[matchedKey] || null : null;
+    };
+
     const pagePath = window.location.pathname.toLowerCase();
     const pageName = pagePath.split('/').pop() || 'index.html';
     const isSelectionPage = pageName === 'selection.html' || pageName === 'selection';
@@ -3438,7 +3448,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                     optimisticCancelledActorSlots.delete(actorSlot);
                     targetOptionsCache.clear();
-                    renderChakra(data.chakraPools?.[currentPlayerUsername] || emptyPool());
+                    renderChakra(getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || emptyPool());
                     pendingTurnState = normalizePendingTurn(data.pendingTurn);
                     applyQueuedSkillVisuals();
                     syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
@@ -6030,7 +6040,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (refreshVersion !== endTurnModalRefreshVersion || endTurnModalEl?.style.visibility !== 'visible') {
                         return;
                     }
-                    const playerPool = data.chakraPools?.[currentPlayerUsername] || {};
+                    const playerPool = getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || {};
                     pendingTurnState = normalizePendingTurn(data.pendingTurn);
                     if (endTurnModalEl?.style.visibility === 'visible') {
                         renderEndTurnModal(playerPool, pendingTurnState);
@@ -9072,7 +9082,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ).catch(() => {});
                 }
             }
-            const pool = data.chakraPools?.[currentPlayerUsername] || playerPoolState || emptyPool();
+            const pool =
+                getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) ||
+                playerPoolState ||
+                emptyPool();
             const shouldAnimateNewTurnStatusIcons = Boolean(
                 data.currentTurn &&
                 data.currentTurn !== lastTurnOwner &&
@@ -10387,7 +10400,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     playIngameSound(applySkillSound);
                     optimisticQueuedByActorSlot.delete(actorSlot);
                     targetOptionsCache.clear();
-                    renderChakra(data.chakraPools?.[currentPlayerUsername] || emptyPool());
+                    renderChakra(getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || emptyPool());
                     pendingTurnState = normalizePendingTurn(data.pendingTurn);
                     applyQueuedSkillVisuals();
                     syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
@@ -11219,7 +11232,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
                     return;
                 }
-                renderChakra(data.chakraPools?.[currentPlayerUsername] || emptyPool());
+                renderChakra(getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || emptyPool());
                 pendingTurnState = normalizePendingTurn(data.pendingTurn);
                 applyQueuedSkillVisuals();
                 syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
@@ -11293,7 +11306,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!response.ok || !data?.ok) {
                     throw new Error(data?.error || 'Unable to exchange chakra.');
                 }
-                renderChakra(data.chakraPools?.[currentPlayerUsername] || emptyPool());
+                renderChakra(getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || emptyPool());
                 pendingTurnState = normalizePendingTurn(data.pendingTurn);
                 applyQueuedSkillVisuals();
                 syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);

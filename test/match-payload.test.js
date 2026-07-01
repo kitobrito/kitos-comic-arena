@@ -125,6 +125,50 @@ test('buildMatchPayloadForUser preserves pokemon arena and hides opponent cooldo
     assert.equal(payload.backgroundOverride, 'assets/images/PokemonArena/newingamebgPA.png');
 });
 
+test('buildMatchPayloadForUser resolves viewer-scoped energy with username case differences', () => {
+    const match = {
+        matchId: 'match-test-case-scope',
+        mode: 'quick',
+        arena: 'pokemon',
+        status: 'active',
+        currentTurn: 'ash',
+        players: [
+            { username: 'ash', team: [1, 2, 3], profile: {} },
+            { username: 'gary', team: [4, 5, 6], profile: {} },
+        ],
+        board: {
+            ash: [{ slot: 0, rosterIndex: 1, alive: true, hp: 100, state: { statuses: [] } }],
+            gary: [{ slot: 0, rosterIndex: 4, alive: true, hp: 100, state: { statuses: [] } }],
+        },
+        chakraPools: {
+            ash: { taijutsu: 2, ninjutsu: 1, bloodline: 0, genjutsu: 3 },
+        },
+        economy: {
+            lastChakraGain: {
+                ash: { taijutsu: 0, ninjutsu: 1, bloodline: 0, genjutsu: 0 },
+            },
+        },
+        pendingTurns: {
+            ash: makeEmptyPendingTurn(),
+            gary: makeEmptyPendingTurn(),
+        },
+        ladderResults: {
+            ash: { ladderPointsDelta: 18, rating: 1210 },
+        },
+    };
+
+    const payload = buildMatchPayloadForUser(match, 'Ash');
+
+    assert.equal(payload.player.username, 'ash');
+    assert.deepEqual(payload.chakraPools, {
+        Ash: { taijutsu: 2, ninjutsu: 1, bloodline: 0, genjutsu: 3 },
+    });
+    assert.deepEqual(payload.lastChakraGain, {
+        Ash: { taijutsu: 0, ninjutsu: 1, bloodline: 0, genjutsu: 0 },
+    });
+    assert.deepEqual(payload.ladderResult, { ladderPointsDelta: 18, rating: 1210 });
+});
+
 test('buildMatchActionStatePayload carries current safe state for stale actions', () => {
     const match = {
         matchId: 'match-test-2',
