@@ -19441,11 +19441,28 @@ const characters = [
                                 "charmander-flamethrower": "charmander-charmeleon-flamethrower",
                                 "charmander-rage": "charmander-charmeleon-rage"
                             },
+                            "tooltipText": "Charmander has evolved into Charmeleon from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "charmander_charmeleon_rare_candy_defense",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "charmander",
+                            "missingStatusId": "charmander_charmeleon_rare_candy_defense"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
                             "destructibleDefensePoints": 25,
                             "mergeNumericAddKeys": [
                                 "destructibleDefensePoints"
                             ],
-                            "tooltipTextTemplate": "Charmander has evolved into Charmeleon and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Rare Candy."
                         }
                     },
                     {
@@ -19472,11 +19489,28 @@ const characters = [
                                 "squirtle-bubble": "wartortle-bubblebeam",
                                 "squirtle-rapid-spin": "wartortle-aqua-spin"
                             },
+                            "tooltipText": "Squirtle has evolved into Wartortle from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "squirtle_wartortle_rare_candy_defense",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "squirtle",
+                            "missingStatusId": "squirtle_wartortle_rare_candy_defense"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
                             "destructibleDefensePoints": 25,
                             "mergeNumericAddKeys": [
                                 "destructibleDefensePoints"
                             ],
-                            "tooltipTextTemplate": "Squirtle has evolved into Wartortle and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Rare Candy."
                         }
                     },
                     {
@@ -19503,11 +19537,28 @@ const characters = [
                                 "bulbasaur-razor-leaf": "ivysaur-razor-leaf",
                                 "bulbasaur-solar-beam": "ivysaur-solar-beam"
                             },
+                            "tooltipText": "Bulbasaur has evolved into Ivysaur from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "bulbasaur_ivysaur_rare_candy_defense",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "bulbasaur",
+                            "missingStatusId": "bulbasaur_ivysaur_rare_candy_defense"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
                             "destructibleDefensePoints": 25,
                             "mergeNumericAddKeys": [
                                 "destructibleDefensePoints"
                             ],
-                            "tooltipTextTemplate": "Bulbasaur has evolved into Ivysaur and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Rare Candy."
                         }
                     },
                     {
@@ -19534,11 +19585,28 @@ const characters = [
                                 "chansey-softboil": "blissey-softboil",
                                 "chansey-emergency-life-support": "blissey-emergency-life-support"
                             },
+                            "tooltipText": "Chansey has evolved into Blissey from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "chansey_blissey_rare_candy_defense",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "chansey",
+                            "missingStatusId": "chansey_blissey_rare_candy_defense"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
                             "destructibleDefensePoints": 25,
                             "mergeNumericAddKeys": [
                                 "destructibleDefensePoints"
                             ],
-                            "tooltipTextTemplate": "Chansey has evolved into Blissey and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Rare Candy."
                         }
                     },
                     {
@@ -19565,11 +19633,28 @@ const characters = [
                                 "pidgey-peck": "pidgeotto-peck",
                                 "pidgey-sand-attack": "pidgeotto-sand-attack"
                             },
+                            "tooltipText": "Pidgey has evolved into Pidgeotto from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "pidgey_pidgeotto_rare_candy_defense",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "pidgey",
+                            "missingStatusId": "pidgey_pidgeotto_rare_candy_defense"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
                             "destructibleDefensePoints": 25,
                             "mergeNumericAddKeys": [
                                 "destructibleDefensePoints"
                             ],
-                            "tooltipTextTemplate": "Pidgey has evolved into Pidgeotto and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Rare Candy."
                         }
                     },
                     {
@@ -19602,11 +19687,28 @@ const characters = [
                                 "koffing-self-destruct": "koffing-weezing-self-destruct",
                                 "koffing-smokescreen": "koffing-weezing-smokescreen"
                             },
+                            "tooltipText": "Koffing has evolved into Weezing from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "koffing_weezing_rare_candy_defense",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "koffing",
+                            "missingStatusId": "koffing_weezing_rare_candy_defense"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
                             "destructibleDefensePoints": 25,
                             "mergeNumericAddKeys": [
                                 "destructibleDefensePoints"
                             ],
-                            "tooltipTextTemplate": "Koffing has evolved into Weezing and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Rare Candy."
                         }
                     },
                     {
@@ -19631,11 +19733,29 @@ const characters = [
                                 "zubat-bite": "golbat-bite",
                                 "zubat-draining-fangs": "golbat-draining-fangs"
                             },
+                            "tooltipText": "Zubat has evolved into Golbat from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "zubat_golbat_rare_candy_defense",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "zubat",
+                            "missingStatusId": "zubat_golbat_rare_candy_defense"
+                        },
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "unremovable": true,
                             "destructibleDefensePoints": 25,
                             "mergeNumericAddKeys": [
                                 "destructibleDefensePoints"
                             ],
-                            "tooltipTextTemplate": "Zubat has evolved into Golbat and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Rare Candy."
                         }
                     },
                     {
@@ -19660,11 +19780,29 @@ const characters = [
                                 "gastly-spite": "haunter-spite",
                                 "gastly-glare": "haunter-glare"
                             },
+                            "tooltipText": "Gastly has evolved into Haunter from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "gastly_haunter_rare_candy_defense",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "gastly",
+                            "missingStatusId": "gastly_haunter_rare_candy_defense"
+                        },
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "unremovable": true,
                             "destructibleDefensePoints": 25,
                             "mergeNumericAddKeys": [
                                 "destructibleDefensePoints"
                             ],
-                            "tooltipTextTemplate": "Gastly has evolved into Haunter and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Rare Candy."
                         }
                     },
                     {
@@ -19689,11 +19827,29 @@ const characters = [
                                 "abra-calm-mind": "kadabra-calm-mind",
                                 "abra-teleport": "kadabra-teleport"
                             },
+                            "tooltipText": "Abra has evolved into Kadabra from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "abra_kadabra_rare_candy_defense",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "abra",
+                            "missingStatusId": "abra_kadabra_rare_candy_defense"
+                        },
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "unremovable": true,
                             "destructibleDefensePoints": 25,
                             "mergeNumericAddKeys": [
                                 "destructibleDefensePoints"
                             ],
-                            "tooltipTextTemplate": "Abra has evolved into Kadabra and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Rare Candy."
                         }
                     },
                     {
@@ -19720,11 +19876,28 @@ const characters = [
                                 "krabby-crabhammer": "kingler-crabhammer",
                                 "krabby-harden": "kingler-harden"
                             },
+                            "tooltipText": "Krabby has evolved into Kingler from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "krabby_kingler_rare_candy_defense",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "krabby",
+                            "missingStatusId": "krabby_kingler_rare_candy_defense"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
                             "destructibleDefensePoints": 25,
                             "mergeNumericAddKeys": [
                                 "destructibleDefensePoints"
                             ],
-                            "tooltipTextTemplate": "Krabby has evolved into Kingler and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Rare Candy."
                         }
                     },
                     {
@@ -19748,11 +19921,28 @@ const characters = [
                                 "ekans-shed-skin": "arbok-shed-skin",
                                 "ekans-crunch": "arbok-crunch"
                             },
+                            "tooltipText": "Ekans has evolved into Arbok from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "ekans_arbok_rare_candy_defense",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "ekans",
+                            "missingStatusId": "ekans_arbok_rare_candy_defense"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
                             "destructibleDefensePoints": 25,
                             "mergeNumericAddKeys": [
                                 "destructibleDefensePoints"
                             ],
-                            "tooltipTextTemplate": "Ekans has evolved into Arbok and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Rare Candy."
                         }
                     },
                     {
@@ -19776,11 +19966,28 @@ const characters = [
                                 "machop-bulk-up": "machoke-bulk-up",
                                 "machop-taunt": "machoke-taunt"
                             },
+                            "tooltipText": "Machop has evolved into Machoke from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "machop_machoke_rare_candy_defense",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "machop",
+                            "missingStatusId": "machop_machoke_rare_candy_defense"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
                             "destructibleDefensePoints": 25,
                             "mergeNumericAddKeys": [
                                 "destructibleDefensePoints"
                             ],
-                            "tooltipTextTemplate": "Machop has evolved into Machoke and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Rare Candy."
                         }
                     },
                     {
@@ -19807,11 +20014,28 @@ const characters = [
                                 "magikarp-flail": "gyarados-ice-fang",
                                 "magikarp-struggle": "gyarados-hydro-pump"
                             },
+                            "tooltipText": "Magikarp has evolved into Gyarados from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "magikarp_gyarados_rare_candy_defense",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "magikarp",
+                            "missingStatusId": "magikarp_gyarados_rare_candy_defense"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
                             "destructibleDefensePoints": 25,
                             "mergeNumericAddKeys": [
                                 "destructibleDefensePoints"
                             ],
-                            "tooltipTextTemplate": "Magikarp has evolved into Gyarados and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Rare Candy."
                         }
                     },
                     {

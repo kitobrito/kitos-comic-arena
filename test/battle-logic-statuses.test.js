@@ -196,3 +196,49 @@ test('reduceHulkRageForInactiveTurn applies inactive-turn status hooks without c
     assert.equal(sunStacks?.metadata?.bulbasaurSunStacks, 5);
     assert.ok(evolution);
 });
+
+test('breaking Rare Candy destructible defense does not remove the evolution status', () => {
+    const unit = {
+        alive: true,
+        hp: 100,
+        maxHp: 100,
+        state: {
+            statuses: [
+                {
+                    id: 'bulbasaur_ivysaur_evolution',
+                    remainingTurns: 999,
+                    metadata: {
+                        infiniteDuration: true,
+                        unremovable: true,
+                        facePictureOverride: 'assets/images/PokemonArena/Bulbasaur/ivysaurfp.jpg',
+                        skillReplacements: {
+                            'bulbasaur-leech-seed': 'ivysaur-leech-seed',
+                        },
+                        tooltipText: 'Bulbasaur has evolved into Ivysaur from Rare Candy.',
+                    },
+                },
+                {
+                    id: 'bulbasaur_ivysaur_rare_candy_defense',
+                    remainingTurns: 999,
+                    metadata: {
+                        infiniteDuration: true,
+                        unremovable: true,
+                        destructibleDefensePoints: 25,
+                        tooltipTextTemplate:
+                            'This character has {destructibleDefensePoints} destructible defense from Rare Candy.',
+                    },
+                },
+            ],
+            snapshots: {},
+        },
+    };
+
+    const dealt = applyDamageToUnit(unit, 25, {});
+
+    assert.equal(dealt, 0);
+    assert.ok(unit.state.statuses.find((status) => status.id === 'bulbasaur_ivysaur_evolution'));
+    assert.equal(
+        unit.state.statuses.find((status) => status.id === 'bulbasaur_ivysaur_rare_candy_defense'),
+        undefined
+    );
+});
