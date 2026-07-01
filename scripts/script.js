@@ -1710,6 +1710,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const inFlightSkillRequestPromisesByActorSlot = new Map();
         const targetOptionsCache = new Map();
         let targetOptionsRequestVersion = 0;
+        let inFlightTargetOptionsRequestKey = '';
         let queuedSkillDeferredVisualsFrame = null;
         let lastQueueOrderLabelSignature = '';
         let draggingQueueActorSlot = null;
@@ -1731,6 +1732,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         let activeMatchIssueBannerTimeout = null;
         let activeMatchIssueBannerToken = 0;
         let activeMatchRecoveryPromise = null;
+        let queuedReorderRequestVersion = 0;
+        let endTurnModalRefreshVersion = 0;
         let ingamePerfDebug =
             new URLSearchParams(window.location.search).get('perf') === '1' ||
             localStorage.getItem('comicArenaPerfDebug') === 'true';
@@ -3013,6 +3016,36 @@ document.addEventListener('DOMContentLoaded', async () => {
             );
         };
 
+        const isPlayersInteractiveTurn = () =>
+            Boolean(
+                !battleEndShown &&
+                    !isEndingTurn &&
+                    currentPlayerUsername &&
+                    currentTurnUsername &&
+                    usernamesMatch(currentPlayerUsername, currentTurnUsername) &&
+                    !normalizePendingTurn(pendingTurnState).turnStartChoice
+            );
+
+        const isActorSkillSelectableNow = (actorSlot, skillIdx, skill = null) => {
+            if (!Number.isInteger(actorSlot) || !Number.isInteger(skillIdx) || !isPlayersInteractiveTurn()) {
+                return false;
+            }
+            if (getQueuedSkillForActorSlot(actorSlot) || inFlightSkillRequestByActorSlot.has(actorSlot)) {
+                return false;
+            }
+            const actorUnit = getActorUnitForSlot(currentPlayerUsername, actorSlot);
+            const effectiveSkill = skill || getEffectiveSkillForActorSlot(actorSlot, skillIdx);
+            return !isSkillUnavailableForSelection(actorUnit, effectiveSkill, actorSlot, skillIdx);
+        };
+
+        const clearActiveTargetSelectionState = () => {
+            targetOptionsRequestVersion += 1;
+            inFlightTargetOptionsRequestKey = '';
+            clearTargetHighlights();
+            activeTargetOptions = null;
+            activeCastingSkill = null;
+        };
+
         const updateSkillAffordability = () => {
             const isPlayersTurn =
                 currentPlayerUsername && currentTurnUsername && usernamesMatch(currentPlayerUsername, currentTurnUsername);
@@ -3088,10 +3121,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ) ||
                     Boolean(queued);
                 if (shouldClearTargeting) {
-                    targetOptionsRequestVersion += 1;
-                    clearTargetHighlights();
-                    activeTargetOptions = null;
-                    activeCastingSkill = null;
+                    clearActiveTargetSelectionState();
                 }
             }
         };
@@ -3340,6 +3370,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const reorderQueuedSkills = async (actorSlots = []) => {
             if (!matchIdFromUrl) return;
+            const requestVersion = ++queuedReorderRequestVersion;
             try {
                 const response = await fetch(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/reorder`,
@@ -3354,11 +3385,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!response.ok || !data?.ok) {
                     throw new Error(data?.error || 'Unable to reorder queued skills.');
                 }
+                if (requestVersion !== queuedReorderRequestVersion) {
+                    syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
+                    return;
+                }
+                targetOptionsCache.clear();
                 pendingTurnState = normalizePendingTurn(data.pendingTurn);
                 applyQueuedSkillVisuals();
                 syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
             } catch (error) {
                 console.warn('Failed to reorder queued skills.', error);
+                announceMatchIssue(
+                    `Queued skill order fell out of sync. ${error?.message || 'Refreshing your turn...'}`,
+                    {
+                        tone: 'info',
+                        reason: 'reorder-queued-skills',
+                        recoveryMessage: 'Refreshing your queued skill order...',
+                    }
+                );
+                recoverCurrentMatchState({
+                    reason: 'reorder-queued-skills',
+                    message: 'Refreshing your queued skill order...',
+                }).catch(() => {});
             }
         };
 
@@ -3366,9 +3414,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!matchIdFromUrl || !Number.isInteger(actorSlot)) return;
             if (inFlightSkillRequestByActorSlot.has(actorSlot)) return;
             clearSkillInteractionCache();
-            clearTargetHighlights();
-            activeTargetOptions = null;
-            activeCastingSkill = null;
+            clearActiveTargetSelectionState();
             inFlightSkillRequestByActorSlot.add(actorSlot);
             optimisticQueuedByActorSlot.delete(actorSlot);
             optimisticCancelledActorSlots.add(actorSlot);
@@ -3385,6 +3431,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         throw new Error(data?.error || 'Unable to cancel skill.');
                     }
                     optimisticCancelledActorSlots.delete(actorSlot);
+                    targetOptionsCache.clear();
                     renderChakra(data.chakraPools?.[currentPlayerUsername] || emptyPool());
                     pendingTurnState = normalizePendingTurn(data.pendingTurn);
                     applyQueuedSkillVisuals();
@@ -3394,6 +3441,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                     optimisticCancelledActorSlots.delete(actorSlot);
                     applyQueuedSkillVisuals();
                     console.warn('Failed to cancel skill.', error);
+                    announceMatchIssue(
+                        `Could not cancel that skill cleanly. ${error?.message || 'Refreshing your turn...'}`,
+                        {
+                            tone: 'info',
+                            reason: 'cancel-skill',
+                            recoveryMessage: 'Refreshing your queued turn...',
+                        }
+                    );
+                    recoverCurrentMatchState({
+                        reason: 'cancel-skill',
+                        message: 'Refreshing your queued turn...',
+                    }).catch(() => {});
                 })
                 .finally(() => {
                     inFlightSkillRequestByActorSlot.delete(actorSlot);
@@ -3469,6 +3528,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const nextOrder = currentOrder.slice();
             const [moved] = nextOrder.splice(fromIdx, 1);
             nextOrder.splice(toIdx, 0, moved);
+            pendingTurnState = {
+                ...normalizePendingTurn(pendingTurnState),
+                queueOrder: nextOrder,
+            };
+            applyQueuedSkillVisuals();
             reorderQueuedSkills(nextOrder).catch((error) =>
                 console.warn('Queued reorder failed.', error)
             );
@@ -5758,6 +5822,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const endTurnDueToTimeout = async () => {
             if (!matchIdFromUrl) return;
+            clearActiveTargetSelectionState();
             const resolutionAnimationEntries = getQueuedResolutionAnimationEntries();
             try {
                 const response = await fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/end`, {
@@ -5824,7 +5889,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 setSkillInteractivity(true);
                 startTimerLoop();
                 updateTimerBar();
-                clearTargetHighlights();
+                clearActiveTargetSelectionState();
                 updateSkillAffordability();
                 return;
             }
@@ -5861,9 +5926,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     img.style.transform = '';
                 });
                 queuedSkillKeySet.clear();
-                clearTargetHighlights();
-                activeTargetOptions = null;
-                activeCastingSkill = null;
+                clearActiveTargetSelectionState();
                 closeEndTurnModal();
                 if (activeChoicePopupMode === 'turn-start') {
                     closeClassChoicePopup();
@@ -5928,6 +5991,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const openEndTurnModal = () => {
             if (!endTurnModalEl || !matchIdFromUrl) return;
+            const refreshVersion = ++endTurnModalRefreshVersion;
             // Show immediately from the last known client state; refresh in the background below.
             endTurnModalEl.style.visibility = 'visible';
             renderEndTurnModal(playerPoolState, pendingTurnState);
@@ -5957,6 +6021,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (requestMutationVersion !== randomChakraMutationVersion) {
                         return;
                     }
+                    if (refreshVersion !== endTurnModalRefreshVersion || endTurnModalEl?.style.visibility !== 'visible') {
+                        return;
+                    }
                     const playerPool = data.chakraPools?.[currentPlayerUsername] || {};
                     pendingTurnState = normalizePendingTurn(data.pendingTurn);
                     if (endTurnModalEl?.style.visibility === 'visible') {
@@ -5970,6 +6037,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const closeEndTurnModal = () => {
             if (!endTurnModalEl) return;
+            endTurnModalRefreshVersion += 1;
             endTurnModalEl.style.visibility = 'hidden';
         };
 
@@ -6143,9 +6211,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             closeEndTurnModal();
             closeExchangeModal();
             closeSurrenderConfirm();
-            clearTargetHighlights();
-            activeTargetOptions = null;
-            activeCastingSkill = null;
+            clearActiveTargetSelectionState();
         };
 
         const MAX_HP = 100;
@@ -8939,6 +9005,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 deferredResolutionMatchState = data;
                 return;
             }
+            targetOptionsCache.clear();
             clearTransientPortraitAnimationState();
             if (data.player?.username) {
                 currentPlayerUsername = data.player.username;
@@ -10146,11 +10213,21 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const fetchTargetOptions = async (actorSlot, skillIdx, skill = null) => {
             if (!matchIdFromUrl) return;
+            if (!isActorSkillSelectableNow(actorSlot, skillIdx, skill)) {
+                clearActiveTargetSelectionState();
+                return;
+            }
             const cacheKey = `${currentTurnUsername || ''}:${actorSlot}:${skillIdx}`;
             const cachedOptions = targetOptionsCache.get(cacheKey);
+            if (inFlightTargetOptionsRequestKey === cacheKey) return;
             const requestVersion = ++targetOptionsRequestVersion;
             const applyTargetOptions = (data) => {
                 if (requestVersion !== targetOptionsRequestVersion) return;
+                const effectiveSkill = skill || getEffectiveSkillForActorSlot(actorSlot, skillIdx);
+                if (!isActorSkillSelectableNow(actorSlot, skillIdx, effectiveSkill)) {
+                    clearActiveTargetSelectionState();
+                    return;
+                }
                 pendingTurnState = normalizePendingTurn(data.pendingTurn);
                 measureIngamePerf('target:queued-skills', () => applyQueuedSkillVisuals());
                 activeTargetOptions = data;
@@ -10186,11 +10263,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     optimistic: true,
                 });
             } else {
-                clearTargetHighlights();
-                activeTargetOptions = null;
-                activeCastingSkill = null;
+                clearActiveTargetSelectionState();
             }
             try {
+                inFlightTargetOptionsRequestKey = cacheKey;
                 const res = await fetch(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/targets`,
                     {
@@ -10212,6 +10288,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!data?.ok) {
                     throw new Error(data?.error || 'Unable to fetch targets.');
                 }
+                const effectiveSkill = skill || getEffectiveSkillForActorSlot(actorSlot, skillIdx);
+                if (!isActorSkillSelectableNow(actorSlot, skillIdx, effectiveSkill)) {
+                    clearActiveTargetSelectionState();
+                    return;
+                }
                 targetOptionsCache.set(cacheKey, data);
                 applyTargetOptions(data);
             } catch (error) {
@@ -10224,8 +10305,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (hasOptimisticTargetOptions) {
                     return;
                 }
-                activeTargetOptions = null;
-                activeCastingSkill = null;
+                clearActiveTargetSelectionState();
+            } finally {
+                if (inFlightTargetOptionsRequestKey === cacheKey) {
+                    inFlightTargetOptionsRequestKey = '';
+                }
             }
         };
 
@@ -10295,6 +10379,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                     playIngameSound(applySkillSound);
                     optimisticQueuedByActorSlot.delete(actorSlot);
+                    targetOptionsCache.clear();
                     renderChakra(data.chakraPools?.[currentPlayerUsername] || emptyPool());
                     pendingTurnState = normalizePendingTurn(data.pendingTurn);
                     applyQueuedSkillVisuals();
@@ -10320,9 +10405,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     inFlightSkillRequestByActorSlot.delete(actorSlot);
                     inFlightSkillRequestPromisesByActorSlot.delete(actorSlot);
                     closeClassChoicePopup();
-                    clearTargetHighlights();
-                    activeTargetOptions = null;
-                    activeCastingSkill = null;
+                    clearActiveTargetSelectionState();
                 });
             inFlightSkillRequestPromisesByActorSlot.set(actorSlot, queueRequest);
             return queueRequest;
@@ -10639,9 +10722,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             classChoicePopupCancelButton.addEventListener('click', () => {
                 if (activeChoicePopupMode === 'turn-start') return;
                 closeClassChoicePopup();
-                clearTargetHighlights();
-                activeTargetOptions = null;
-                activeCastingSkill = null;
+                clearActiveTargetSelectionState();
             });
         }
         if (classChoicePopupEl) {
@@ -10649,19 +10730,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (event.target !== classChoicePopupEl) return;
                 if (activeChoicePopupMode === 'turn-start') return;
                 closeClassChoicePopup();
-                clearTargetHighlights();
-                activeTargetOptions = null;
-                activeCastingSkill = null;
+                clearActiveTargetSelectionState();
             });
         }
 
         const clearActiveSkillTargeting = () => {
             if (!activeTargetOptions && !activeCastingSkill) return;
             if (activeChoicePopupMode === 'turn-start-target') return;
-            targetOptionsRequestVersion += 1;
-            clearTargetHighlights();
-            activeTargetOptions = null;
-            activeCastingSkill = null;
+            clearActiveTargetSelectionState();
         };
 
         document.addEventListener('click', (event) => {
@@ -10956,6 +11032,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const handleEndTurnConfirm = async () => {
             if (isEndingTurn || !matchIdFromUrl) return;
             isEndingTurn = true;
+            clearActiveTargetSelectionState();
             if (endTurnOkButton) {
                 endTurnOkButton.disabled = true;
             }
