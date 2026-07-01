@@ -1702,6 +1702,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         let activeChoicePopupMode = '';
         let queuedSkillKeySet = new Set();
         const queuedSkillCancelClickState = new Map();
+        let queuedSkillTapReorderActorSlot = null;
+        let queuedSkillTapReorderTimeoutId = null;
         const optimisticQueuedByActorSlot = new Map();
         const optimisticCancelledActorSlots = new Set();
         const inFlightSkillRequestByActorSlot = new Set();
@@ -1712,6 +1714,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let lastQueueOrderLabelSignature = '';
         let draggingQueueActorSlot = null;
         let activeQueuedSkillPointerDrag = null;
+        let lastQueuedSkillPointerDragEndedAt = 0;
         let latestBoardState = null;
         let globalStatusTooltipEl = null;
         let lastTargetingActivatedAt = 0;
@@ -2435,6 +2438,30 @@ document.addEventListener('DOMContentLoaded', async () => {
             );
         };
 
+        const getStackBasedRandomReduction = (actorSlot, skill = null) => {
+            const skillId = typeof skill?.id === 'string' ? skill.id : '';
+            if (!skillId || !Number.isInteger(actorSlot) || actorSlot < 0) return 0;
+            const actorUnit = latestBoardState?.[currentPlayerUsername]?.[actorSlot];
+            const statuses = Array.isArray(actorUnit?.state?.statuses) ? actorUnit.state.statuses : [];
+            return statuses.reduce((sum, status) => {
+                if ((Number(status?.remainingTurns) || 0) <= 0) return sum;
+                const config = status?.metadata?.randomCostReductionPerStatusMetadata;
+                if (!config || typeof config !== 'object') return sum;
+                const skillIds = Array.isArray(config.skillIds)
+                    ? config.skillIds.filter((id) => typeof id === 'string' && id)
+                    : typeof config.skillId === 'string' && config.skillId
+                    ? [config.skillId]
+                    : [];
+                if (skillIds.length > 0 && !skillIds.includes(skillId)) return sum;
+                const metadataKey =
+                    typeof config.metadataKey === 'string' && config.metadataKey ? config.metadataKey : '';
+                const multiplier = Number(config.multiplier) || 0;
+                if (!metadataKey || multiplier === 0) return sum;
+                const value = Math.max(0, Number(status?.metadata?.[metadataKey]) || 0);
+                return sum + value * multiplier;
+            }, 0);
+        };
+
         const normalizeSkillCostOverride = (override = {}) => {
             const result = [];
             const addEnergy = (type, amount) => {
@@ -2517,7 +2544,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return normalizedEnergy.map(() => 'random');
             }
             const reductions = getActorCostReductions(actorSlot);
-            let remainingRandomReduction = Math.max(0, reductions.random);
+            let remainingRandomReduction = Math.max(
+                0,
+                reductions.random + getStackBasedRandomReduction(actorSlot, skill)
+            );
             let remainingSpecificReductions = {
                 taijutsu: Math.max(0, reductions.taijutsu),
                 ninjutsu: Math.max(0, reductions.ninjutsu),
@@ -3252,6 +3282,45 @@ document.addEventListener('DOMContentLoaded', async () => {
             return true;
         };
 
+        const clearQueuedSkillTapReorderState = () => {
+            if (queuedSkillTapReorderTimeoutId) {
+                window.clearTimeout(queuedSkillTapReorderTimeoutId);
+                queuedSkillTapReorderTimeoutId = null;
+            }
+            queuedSkillTapReorderActorSlot = null;
+            if (skillOrderEl) {
+                skillOrderEl
+                    .querySelectorAll('.skillpreview.queued-reorder-armed')
+                    .forEach((preview) => preview.classList.remove('queued-reorder-armed'));
+            }
+        };
+
+        const armQueuedSkillTapReorder = (actorSlot, sourceEl = null) => {
+            clearQueuedSkillTapReorderState();
+            queuedSkillTapReorderActorSlot = actorSlot;
+            if (sourceEl) {
+                sourceEl.classList.add('queued-reorder-armed');
+            }
+            queuedSkillTapReorderTimeoutId = window.setTimeout(() => {
+                clearQueuedSkillTapReorderState();
+            }, 1800);
+        };
+
+        const handleQueuedSkillTapReorder = (actorSlot, sourceEl = null) => {
+            if (!Number.isInteger(actorSlot)) return false;
+            if (!Number.isInteger(queuedSkillTapReorderActorSlot)) {
+                armQueuedSkillTapReorder(actorSlot, sourceEl);
+                return false;
+            }
+            const fromActorSlot = queuedSkillTapReorderActorSlot;
+            clearQueuedSkillTapReorderState();
+            if (fromActorSlot === actorSlot) {
+                armQueuedSkillTapReorder(actorSlot, sourceEl);
+                return false;
+            }
+            return reorderQueuedSkillsLocally(fromActorSlot, actorSlot);
+        };
+
         const reorderQueuedSkillsLocally = (dragActorSlot, targetActorSlot) => {
             if (!Number.isInteger(dragActorSlot) || !Number.isInteger(targetActorSlot)) return false;
             if (dragActorSlot === targetActorSlot) return false;
@@ -3351,6 +3420,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         10
                     );
                     reorderQueuedSkillsLocally(actorSlot, targetActorSlot);
+                    lastQueuedSkillPointerDragEndedAt = Date.now();
                 }
                 cleanupQueuedSkillPointerDrag(dragState);
             };
@@ -3380,7 +3450,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 preview.draggable = true;
                 preview.dataset.actorSlot = String(actorSlot);
                 preview.dataset.skillIndex = String(skillIdx);
-                preview.title = 'Double-click to unqueue this skill.';
+                preview.title = 'Tap once, then tap another queued skill to reorder. Double-click to unqueue.';
                 if (newlyQueuedKeys.has(`${actorSlot}:${skillIdx}`)) {
                     preview.classList.add('skillpreview-added');
                     window.setTimeout(() => preview.classList.remove('skillpreview-added'), 700);
@@ -3389,6 +3459,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (event?.button !== undefined && event.button !== 0) return;
                     event.stopPropagation();
                     startQueuedSkillPointerDrag(event, preview, actorSlot);
+                });
+                preview.addEventListener('click', (event) => {
+                    if (Date.now() - lastQueuedSkillPointerDragEndedAt < 250) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        return;
+                    }
+                    event.preventDefault();
+                    event.stopPropagation();
+                    handleQueuedSkillTapReorder(actorSlot, preview);
+                });
+                preview.addEventListener('dblclick', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    clearQueuedSkillTapReorderState();
                     handleQueuedSkillCancelGesture(actorSlot, preview);
                 });
                 preview.addEventListener('dragstart', () => {
@@ -3414,6 +3499,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const clearTargetHighlights = () => {
             lastTargetHighlightSignature = '';
+            clearQueuedSkillTapReorderState();
             document.querySelectorAll('.target-overlay, .target-lock-marker, .blind-potential-skill-icon').forEach((el) => el.remove());
             [...playerCards, ...enemyCards].forEach((card) => {
                 card?.classList.remove('targetable', 'target-invalid', 'blind-random-target');
@@ -7720,6 +7806,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                     '<span class="kingler-bubble bubble-a"></span><span class="kingler-bubble bubble-b"></span><span class="kingler-bubble bubble-c"></span>' +
                     '<span class="kingler-bubble bubble-d"></span><span class="kingler-bubble bubble-e"></span>',
             },
+            {
+                statusId: 'ekans_arbok_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-arbok',
+                html:
+                    '<span class="arbok-snake snake-left"></span><span class="arbok-snake snake-right"></span>' +
+                    '<span class="arbok-venom-drip drip-a"></span><span class="arbok-venom-drip drip-b"></span><span class="arbok-venom-drip drip-c"></span>' +
+                    '<span class="arbok-venom-drop drop-a"></span><span class="arbok-venom-drop drop-b"></span><span class="arbok-venom-drop drop-c"></span>',
+            },
+            {
+                statusId: 'machop_machoke_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-machoke',
+                html:
+                    '<span class="machoke-force force-a"></span><span class="machoke-force force-b"></span><span class="machoke-force force-c"></span>' +
+                    '<span class="machoke-pulse pulse-a"></span><span class="machoke-pulse pulse-b"></span><span class="machoke-pulse pulse-c"></span>',
+            },
+            {
+                statusId: 'magikarp_gyarados_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-gyarados',
+                html:
+                    '<span class="gyarados-wave wave-a"></span><span class="gyarados-wave wave-b"></span><span class="gyarados-wave wave-c"></span>' +
+                    '<span class="gyarados-foam foam-a"></span><span class="gyarados-foam foam-b"></span><span class="gyarados-foam foam-c"></span>',
+            },
         ];
 
         const syncPokemonEvolutionAura = (card, statuses = []) => {
@@ -9980,6 +10088,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (inFlightSkillRequestByActorSlot.has(actorSlot)) {
                 return inFlightSkillRequestPromisesByActorSlot.get(actorSlot) || Promise.resolve();
             }
+            clearQueuedSkillTapReorderState();
             clearSkillInteractionCache();
             inFlightSkillRequestByActorSlot.add(actorSlot);
             optimisticCancelledActorSlots.delete(actorSlot);
@@ -10381,7 +10490,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.addEventListener('click', (event) => {
             if (!activeTargetOptions && !activeCastingSkill) return;
-            if (Date.now() - lastTargetingActivatedAt < 200) return;
+            if (Date.now() - lastTargetingActivatedAt < 500) return;
             const target = event.target;
             if (!target?.closest) return;
             const shouldKeepTargeting = target.closest(
@@ -10590,7 +10699,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     }
                                     const queued = getQueuedSkillForActorSlot(slotIndex);
                                     if (queued && queued.skillIndex === skillIdx) {
-                                        handleQueuedSkillCancelGesture(slotIndex, imgEl);
+                                        triggerBlockedSkillFeedback(imgEl);
                                         return;
                                     }
                                     if (queued) {
@@ -10906,19 +11015,66 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         if (readySectionEl) {
-            readySectionEl.addEventListener('click', () => {
+            let readySectionPointerActivationAt = 0;
+            const handleReadySectionPress = () => {
                 handleReadySectionClick().catch((error) =>
                     console.warn('Failed to open end turn dialog.', error)
                 );
+            };
+            readySectionEl.addEventListener('pointerup', (event) => {
+                if (event?.button !== undefined && event.button !== 0) return;
+                readySectionPointerActivationAt = Date.now();
+                event.preventDefault();
+                event.stopPropagation();
+                handleReadySectionPress();
+            });
+            readySectionEl.addEventListener('click', (event) => {
+                if (Date.now() - readySectionPointerActivationAt < 450) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+                handleReadySectionPress();
             });
         }
         if (endTurnOkButton) {
-            endTurnOkButton.addEventListener('click', () => {
+            let endTurnOkPointerActivationAt = 0;
+            const handleEndTurnOkPress = () => {
                 handleEndTurnConfirm().catch((error) => console.warn('Turn end confirm failed.', error));
+            };
+            endTurnOkButton.addEventListener('pointerup', (event) => {
+                if (event?.button !== undefined && event.button !== 0) return;
+                endTurnOkPointerActivationAt = Date.now();
+                event.preventDefault();
+                event.stopPropagation();
+                handleEndTurnOkPress();
+            });
+            endTurnOkButton.addEventListener('click', (event) => {
+                if (Date.now() - endTurnOkPointerActivationAt < 450) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+                handleEndTurnOkPress();
             });
         }
         if (endTurnCancelButton) {
-            endTurnCancelButton.addEventListener('click', handleEndTurnCancel);
+            let endTurnCancelPointerActivationAt = 0;
+            endTurnCancelButton.addEventListener('pointerup', (event) => {
+                if (event?.button !== undefined && event.button !== 0) return;
+                endTurnCancelPointerActivationAt = Date.now();
+                event.preventDefault();
+                event.stopPropagation();
+                handleEndTurnCancel();
+            });
+            endTurnCancelButton.addEventListener('click', (event) => {
+                if (Date.now() - endTurnCancelPointerActivationAt < 450) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+                handleEndTurnCancel();
+            });
         }
         if (exchangeLabel) {
             exchangeLabel.addEventListener('click', (event) => {

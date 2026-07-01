@@ -19729,6 +19729,93 @@ const characters = [
                     },
                     {
                         "type": "apply_status",
+                        "statusId": "ekans_arbok_evolution",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "ekans",
+                            "missingStatusId": "ekans_arbok_evolution"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "facePictureOverride": "assets/images/PokemonArena/ekans/arbokfp.png",
+                            "skillReplacements": {
+                                "ekans-poison-fang": "arbok-poison-fang",
+                                "ekans-toxic": "arbok-toxic",
+                                "ekans-shed-skin": "arbok-shed-skin",
+                                "ekans-crunch": "arbok-crunch"
+                            },
+                            "destructibleDefensePoints": 25,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "Ekans has evolved into Arbok and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "machop_machoke_evolution",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "machop",
+                            "missingStatusId": "machop_machoke_evolution"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "facePictureOverride": "assets/images/PokemonArena/machop/machokefp.png",
+                            "skillReplacements": {
+                                "machop-brick-break": "machoke-brick-break",
+                                "machop-counter": "machoke-counter",
+                                "machop-bulk-up": "machoke-bulk-up",
+                                "machop-taunt": "machoke-taunt"
+                            },
+                            "destructibleDefensePoints": 25,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "Machop has evolved into Machoke and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "magikarp_gyarados_evolution",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "magikarp",
+                            "missingStatusId": "magikarp_gyarados_evolution"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "removeStatusIdsOnApply": [
+                                "magikarp_evolution_tracker"
+                            ],
+                            "facePictureOverride": "assets/images/PokemonArena/magikarp/gyaradosfp.png",
+                            "skillReplacements": {
+                                "magikarp-tackle": "gyarados-hyper-beam",
+                                "magikarp-splash": "gyarados-dragon-rage",
+                                "magikarp-flail": "gyarados-ice-fang",
+                                "magikarp-struggle": "gyarados-hydro-pump"
+                            },
+                            "destructibleDefensePoints": 25,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "Magikarp has evolved into Gyarados and has {destructibleDefensePoints} destructible defense from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
                         "statusId": "pokemon_trainer_rare_candy_swap",
                         "duration": 99,
                         "scope": "self",
@@ -24047,51 +24134,24 @@ const characters = [
         "characterId": "eevee",
         "name": "Eevee",
         "facePicture": "assets/images/PokemonArena/eevee/eevee/eeveefp.png",
-        "startStatuses": [
-            {
-                "statusId": "eevee_adaptability_passive",
-                "duration": 999,
-                "sourceSkillId": "eevee-hidden-power",
-                "metadata": {
-                    "infiniteDuration": true,
-                    "hidden": true,
-                    "onEnemySkillTargetedHarmfulOnly": true,
-                    "onEnemySkillTargetedApplyStatusToOwner": {
-                        "statusId": "eevee_hidden_power_targeted_stacks",
-                        "duration": 2,
-                        "metadata": {
-                            "hidden": true,
-                            "eeveeHiddenPowerStacks": 0,
-                            "stackMetadataKey": "eeveeHiddenPowerStacks",
-                            "stackDelta": 1,
-                            "stackMax": 99,
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/eevee/hiddenpower.png",
-                            "tooltipTextTemplate": "Hidden Power has {eeveeHiddenPowerStacks} bonus stack(s)."
-                        }
-                    },
-                    "tooltipText": "Hidden Power gains bonus damage from enemy skills used on Eevee."
-                }
-            }
-        ],
-        "characterdeescription": "A flexible Normal-type Pokemon that protects allies, disrupts enemies, and builds toward a permanent evolution choice through the Eevee Evolution Path mission.",
+        "characterdeescription": "A plain, all-random Normal-type Pokemon that leans on basic survival, simple chip damage, and straightforward utility before its evolution mission eventually replaces it.",
         "skills": [
             {
                 "id": "eevee-dig",
                 "name": "Dig",
                 "skillimage": "assets/images/PokemonArena/eevee/eevee/dig.png",
-                "skilldescription": "Eevee becomes invulnerable to enemy non-strategic skills for 1 turn and deals 30 damage to one enemy.",
+                "skilldescription": "Eevee becomes invulnerable for 1 turn and deals 30 damage to one enemy.",
                 "energy": [
-                    "Bloodline",
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
+                "cooldown": 2,
                 "classes": [
                     "Physical",
                     "Melee",
-                    "Instant",
-                    "Bypassing"
+                    "Instant"
                 ],
                 "effects": [
                     {
@@ -24110,16 +24170,6 @@ const characters = [
                         "type": "damage",
                         "amount": 30,
                         "scope": "target"
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "eevee_dig_followup",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/eevee/dig.png",
-                            "tooltipText": "Swift will deal 10 additional damage to this character."
-                        }
                     }
                 ]
             },
@@ -24127,52 +24177,23 @@ const characters = [
                 "id": "eevee-swift",
                 "name": "Swift",
                 "skillimage": "assets/images/PokemonArena/eevee/eevee/swift.png",
-                "skilldescription": "Guard Breaks one enemy for 1 turn. If Dig was used on this enemy this turn, the effect is prolonged for 1 additional turn and they take 10 more damage.",
-                "energy": [],
-                "target": "single-enemy",
+                "skilldescription": "Deals 15 damage to all enemies.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "all-enemy",
                 "damage": 0,
-                "cooldown": 2,
+                "cooldown": 1,
                 "classes": [
                     "Energy",
                     "Ranged",
-                    "Instant",
-                    "Bypassing"
+                    "Instant"
                 ],
                 "effects": [
                     {
-                        "type": "apply_status",
-                        "statusId": "eevee_swift_guard_break",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "nonAfflictionDamageTakenBonusFlat": 10,
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/eevee/swift.png",
-                            "tooltipText": "This character takes 10 additional non-affliction damage."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "eevee_swift_guard_break",
-                        "duration": 2,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "eevee_dig_followup"
-                        },
-                        "metadata": {
-                            "nonAfflictionDamageTakenBonusFlat": 10,
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/eevee/swift.png",
-                            "tooltipText": "This character takes 10 additional non-affliction damage."
-                        }
-                    },
-                    {
                         "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "eevee_dig_followup"
-                        }
+                        "amount": 15,
+                        "scope": "all-enemy"
                     }
                 ]
             },
@@ -24180,11 +24201,13 @@ const characters = [
                 "id": "eevee-hidden-power",
                 "name": "Hidden Power",
                 "skillimage": "assets/images/PokemonArena/eevee/eevee/hiddenpower.png",
-                "skilldescription": "Eevee gains 1 random energy this turn then deals 10 affliction damage to the enemy team plus 5 damage for every new enemy skill used on Eevee last turn. Next turn, Swift targets all enemies.",
+                "skilldescription": "Deals 30 affliction damage to a random enemy, 20 piercing damage to a random enemy, and 10 energy damage to a random enemy.",
                 "energy": [
-                    "Genjutsu"
+                    "Random",
+                    "Random",
+                    "Random"
                 ],
-                "target": "all-enemy",
+                "target": "random-enemy",
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
@@ -24194,40 +24217,27 @@ const characters = [
                 ],
                 "effects": [
                     {
-                        "type": "gain_chakra",
-                        "amount": 1,
-                        "chakraType": "random",
-                        "scope": "self"
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "random-enemy",
+                        "metadata": {
+                            "damageType": "affliction",
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "random-enemy",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
                     },
                     {
                         "type": "damage",
                         "amount": 10,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "damageType": "affliction",
-                            "ignoreDamageReduction": true,
-                            "ignoreDestructibleDefense": true,
-                            "bonusPerStatusMetadata": {
-                                "scope": "self",
-                                "statusId": "eevee_hidden_power_targeted_stacks",
-                                "metadataKey": "eeveeHiddenPowerStacks",
-                                "multiplier": 5,
-                                "consumeStatus": true
-                            }
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "eevee_hidden_power_swift_spread",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "skillReplacements": {
-                                "eevee-swift": "eevee-swift-all-enemies"
-                            },
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/eevee/hiddenpower.png",
-                            "tooltipText": "Next turn, Swift targets all enemies."
-                        }
+                        "scope": "random-enemy"
                     }
                 ]
             },
@@ -24235,13 +24245,13 @@ const characters = [
                 "id": "eevee-protect",
                 "name": "Protect",
                 "skillimage": "assets/images/PokemonArena/eevee/eevee/protect.png",
-                "skilldescription": "This skill makes Eevee or one ally invulnerable for 1 turn.",
+                "skilldescription": "Eevee makes one ally invulnerable for 1 turn.",
                 "energy": [
                     "Random"
                 ],
-                "target": "self-or-single-ally",
+                "target": "single-ally",
                 "damage": 0,
-                "cooldown": 4,
+                "cooldown": 2,
                 "classes": [
                     "Energy",
                     "Instant"
@@ -24260,43 +24270,14 @@ const characters = [
                         }
                     }
                 ]
-            },
-            {
-                "id": "eevee-swift-all-enemies",
-                "name": "Swift",
-                "skillimage": "assets/images/PokemonArena/eevee/eevee/swift.png",
-                "skilldescription": "Guard Breaks all enemies for 1 turn.",
-                "energy": [],
-                "target": "all-enemy",
-                "damage": 0,
-                "cooldown": 2,
-                "classes": [
-                    "Energy",
-                    "Ranged",
-                    "Instant"
-                ],
-                "hiddenFromSelectionViewer": true,
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "eevee_swift_guard_break",
-                        "duration": 1,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "nonAfflictionDamageTakenBonusFlat": 10,
-                            "statusIconUrl": "assets/images/PokemonArena/eevee/eevee/swift.png",
-                            "tooltipText": "This character takes 10 additional non-affliction damage."
-                        }
-                    }
-                ]
             }
         ],
-        "role": "Hybrid",
+        "role": "Damage",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "hybrid",
-        "description": "A flexible Normal-type Pokemon that protects allies, disrupts enemies, and builds toward a permanent evolution choice through the Eevee Evolution Path mission.",
-        "descriptionHtml": "A flexible Normal-type Pokemon that protects allies, disrupts enemies, and builds toward a permanent evolution choice through the Eevee Evolution Path mission."
+        "roleCategory": "damage",
+        "description": "A plain, all-random Normal-type Pokemon that leans on basic survival, simple chip damage, and straightforward utility before its evolution mission eventually replaces it.",
+        "descriptionHtml": "A plain, all-random Normal-type Pokemon that leans on basic survival, simple chip damage, and straightforward utility before its evolution mission eventually replaces it."
     },
     {
         "id": "jolteon",
@@ -24869,6 +24850,1406 @@ const characters = [
         "roleCategory": "support",
         "description": "A resilient Water-type Pokemon that weakens attackers, redirects pressure, heals the team, and ignores enemy skills with Acid Armor.",
         "descriptionHtml": "A resilient Water-type Pokemon that weakens attackers, redirects pressure, heals the team, and ignores enemy skills with Acid Armor."
+    },
+    {
+        "id": "ekans",
+        "characterId": "ekans",
+        "name": "Ekans",
+        "facePicture": "assets/images/PokemonArena/ekans/ekansfp.png",
+        "characterdeescription": "A venom-focused Pokemon that ramps poison pressure, punishes enemies for acting, and evolves into Arbok after landing a Crunch execution.",
+        "skills": [
+            {
+                "id": "ekans-poison-fang",
+                "name": "Poison Fang",
+                "skillimage": "assets/images/PokemonArena/ekans/ekansvenomfang.png",
+                "skilldescription": "Deals 10 physical damage and 15 affliction damage to one enemy. If the target is Badly Poisoned, they also take 3 permanent affliction damage. This effect stacks.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Affliction",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "damageType": "affliction",
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "ekans_poison_fang_venom",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusIdsAny": [
+                                "ekans_badly_poison",
+                                "ekans_badly_poison_2"
+                            ]
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "turnEndDamage": 3,
+                            "damageType": "affliction",
+                            "mergeNumericAddKeys": [
+                                "turnEndDamage"
+                            ],
+                            "statusIconUrl": "assets/images/PokemonArena/ekans/ekansvenomfang.png",
+                            "tooltipTextTemplate": "This character takes {turnEndDamage} permanent affliction damage each turn from Poison Fang."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "ekans-toxic",
+                "name": "Toxic",
+                "skillimage": "assets/images/PokemonArena/ekans/ekanstoxic.png",
+                "skilldescription": "Badly poisons one enemy, dealing 2 affliction damage. Whenever that enemy uses a new skill, this damage doubles. Each enemy may only have 1 stack of Badly Poison.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Affliction",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "ekans_badly_poison",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "missingStatusId": "ekans_badly_poison"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "turnEndDamage": 2,
+                            "damageType": "affliction",
+                            "onOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillRequireNewSkill": true,
+                            "persistOnOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillApplyStatusToOwner": {
+                                "statusId": "ekans_badly_poison",
+                                "duration": 999,
+                                "metadata": {
+                                    "doubleNumericMetadataKeys": [
+                                        "turnEndDamage"
+                                    ]
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/ekans/ekanstoxic.png",
+                            "tooltipTextTemplate": "This character takes {turnEndDamage} affliction damage each turn from Badly Poison."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "ekans-shed-skin",
+                "name": "Shed Skin",
+                "skillimage": "assets/images/PokemonArena/ekans/ekansshedskin.png",
+                "skilldescription": "Removes all enemy affliction skills from Ekans and heals 15 HP each turn for 2 turns.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Action"
+                ],
+                "effects": [
+                    {
+                        "type": "cleanse_statuses",
+                        "scope": "self",
+                        "sourceRelation": "enemy",
+                        "harmfulOnly": true
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "ekans_shed_skin_regen",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "turnEndHealFlat": 15,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/ekans/ekansshedskin.png",
+                            "tooltipTextTemplate": "Ekans heals {turnEndHealFlat} HP each turn from Shed Skin."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "ekans-crunch",
+                "name": "Crunch",
+                "skillimage": "assets/images/PokemonArena/ekans/ekanscrunch.png",
+                "skilldescription": "One enemy takes 10 additional damage from affliction-only damage this turn. If that enemy has 25 HP or less, they are executed.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Affliction",
+                    "Melee",
+                    "Instant",
+                    "Bypassing"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "ekans_crunch_mark",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "afflictionDamageTakenBonusFlat": 10,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/ekans/ekanscrunch.png",
+                            "tooltipText": "This character takes 10 additional damage from affliction-only damage."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "sourceCurrentHpAtMost": 25
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                            "onOwnerKillApplyStatusToSelf": {
+                                "statusId": "ekans_arbok_evolution",
+                                "duration": 999,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "facePictureOverride": "assets/images/PokemonArena/ekans/arbokfp.png",
+                                    "skillReplacements": {
+                                        "ekans-poison-fang": "arbok-poison-fang",
+                                        "ekans-toxic": "arbok-toxic",
+                                        "ekans-shed-skin": "arbok-shed-skin",
+                                        "ekans-crunch": "arbok-crunch"
+                                    },
+                                    "tooltipText": "Ekans has evolved into Arbok. Arbok's skills are improved."
+                                }
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "ekans-passive-evolution-arbok",
+                "name": "Evolution - Arbok",
+                "skillimage": "assets/images/PokemonArena/ekans/evolutionarbok.png",
+                "skilldescription": "After Ekans executes an enemy with Crunch, it evolves into Arbok. Arbok's skills are improved.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            },
+            {
+                "id": "arbok-poison-fang",
+                "name": "Poison Fang",
+                "actorCondition": {
+                    "statusId": "ekans_arbok_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/ekans/arbokvenomfang.png",
+                "skilldescription": "Deals 25 physical damage and 20 affliction damage to one enemy instead. If the target is Badly Poisoned, they also take 6 permanent affliction damage instead. This effect stacks.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Affliction",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "damageType": "affliction",
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "ekans_poison_fang_venom",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusIdsAny": [
+                                "ekans_badly_poison",
+                                "ekans_badly_poison_2"
+                            ]
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "turnEndDamage": 6,
+                            "damageType": "affliction",
+                            "mergeNumericAddKeys": [
+                                "turnEndDamage"
+                            ],
+                            "statusIconUrl": "assets/images/PokemonArena/ekans/arbokvenomfang.png",
+                            "tooltipTextTemplate": "This character takes {turnEndDamage} permanent affliction damage each turn from Poison Fang."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "arbok-toxic",
+                "name": "Toxic",
+                "actorCondition": {
+                    "statusId": "ekans_arbok_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/ekans/arboktoxic.png",
+                "skilldescription": "Badly poisons one enemy, dealing 2 affliction damage. Whenever that enemy uses a new skill, this damage doubles. Each enemy may have up to 2 stacks of Badly Poison instead.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Affliction",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "ekans_badly_poison",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "missingStatusId": "ekans_badly_poison"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "turnEndDamage": 2,
+                            "damageType": "affliction",
+                            "onOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillRequireNewSkill": true,
+                            "persistOnOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillApplyStatusToOwner": {
+                                "statusId": "ekans_badly_poison",
+                                "duration": 999,
+                                "metadata": {
+                                    "doubleNumericMetadataKeys": [
+                                        "turnEndDamage"
+                                    ]
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/ekans/arboktoxic.png",
+                            "tooltipTextTemplate": "This character takes {turnEndDamage} affliction damage each turn from Badly Poison."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "ekans_badly_poison_2",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "ekans_badly_poison",
+                            "missingStatusId": "ekans_badly_poison_2"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "turnEndDamage": 2,
+                            "damageType": "affliction",
+                            "onOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillRequireNewSkill": true,
+                            "persistOnOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillApplyStatusToOwner": {
+                                "statusId": "ekans_badly_poison_2",
+                                "duration": 999,
+                                "metadata": {
+                                    "doubleNumericMetadataKeys": [
+                                        "turnEndDamage"
+                                    ]
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/ekans/arboktoxic.png",
+                            "tooltipTextTemplate": "This character takes {turnEndDamage} affliction damage each turn from Badly Poison."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "arbok-shed-skin",
+                "name": "Shed Skin",
+                "actorCondition": {
+                    "statusId": "ekans_arbok_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/ekans/arbokshedskin.png",
+                "skilldescription": "Removes all enemy affliction skills from Arbok and heals 25 HP each turn for 2 turns instead.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Action"
+                ],
+                "effects": [
+                    {
+                        "type": "cleanse_statuses",
+                        "scope": "self",
+                        "sourceRelation": "enemy",
+                        "harmfulOnly": true
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "ekans_shed_skin_regen",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "turnEndHealFlat": 25,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/ekans/arbokshedskin.png",
+                            "tooltipTextTemplate": "Arbok heals {turnEndHealFlat} HP each turn from Shed Skin."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "arbok-crunch",
+                "name": "Crunch",
+                "actorCondition": {
+                    "statusId": "ekans_arbok_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/ekans/arbokcrunch.png",
+                "skilldescription": "One enemy takes 15 additional damage from affliction-only damage this turn instead. If that enemy has 35 HP or less, they are executed.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Affliction",
+                    "Melee",
+                    "Instant",
+                    "Bypassing"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "ekans_crunch_mark",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "afflictionDamageTakenBonusFlat": 15,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/ekans/arbokcrunch.png",
+                            "tooltipText": "This character takes 15 additional damage from affliction-only damage."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "sourceCurrentHpAtMost": 35
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Assassin",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "damage",
+        "description": "A venom-focused Pokemon that ramps poison pressure, punishes enemies for acting, and evolves into Arbok after landing a Crunch execution.",
+        "descriptionHtml": "A venom-focused Pokemon that ramps poison pressure, punishes enemies for acting, and evolves into Arbok after landing a Crunch execution."
+    },
+    {
+        "id": "machop",
+        "characterId": "machop",
+        "name": "Machop",
+        "facePicture": "assets/images/PokemonArena/machop/machopfp.png",
+        "characterdeescription": "A simple Fighting-type bruiser that breaks armor, stacks up physical power, and evolves into Machoke the first time Counter successfully hurts an enemy.",
+        "skills": [
+            {
+                "id": "machop-brick-break",
+                "name": "Brick Break",
+                "skillimage": "assets/images/PokemonArena/machop/machopbrickbreak.jpg",
+                "skilldescription": "Destroys one enemy's destructible defense and deals 25 damage.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "destroy_destructible_defense",
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target",
+                        "metadata": {
+                            "bonusPerStatusMetadata": {
+                                "scope": "self",
+                                "statusId": "machop_bulk_up_bonus",
+                                "metadataKey": "machopBulkUpBonus",
+                                "multiplier": 1
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "machop_bulk_up_spent",
+                        "duration": 0,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "machop_bulk_up_bonus"
+                        },
+                        "metadata": {
+                            "removeStatusIdsOnApply": [
+                                "machop_bulk_up_bonus"
+                            ],
+                            "tooltipText": "Bulk Up has been consumed."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "machop-counter",
+                "name": "Counter",
+                "skillimage": "assets/images/PokemonArena/machop/machopcounter.png",
+                "skilldescription": "Marks one enemy for 1 turn. When the mark ends, all damage that enemy dealt to Machop during this time is dealt back to them. If Machop is still alive, Counter deals 5 additional damage.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "machop_counter_mark",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "machopCounterDamage": 0,
+                            "stackMetadataKey": "machopCounterDamage",
+                            "stackDeltaFromDamageDealtToSourceOwner": true,
+                            "copyStatusMetadataToMetadataKeys": [
+                                {
+                                    "scope": "self",
+                                    "statusId": "machop_bulk_up_bonus",
+                                    "metadataKey": "machopBulkUpBonus",
+                                    "targetKey": "storedBulkUpBonus"
+                                }
+                            ],
+                            "onExpireEffects": [
+                                {
+                                    "type": "damage",
+                                    "amount": 0,
+                                    "scope": "target",
+                                    "metadata": {
+                                        "ignoreDamageReduction": true,
+                                        "ignoreDestructibleDefense": true,
+                                        "currentStatusMetadataBonus": {
+                                            "metadataKey": "machopCounterDamage",
+                                            "multiplier": 1
+                                        },
+                                        "onSuccessfulDamageApplyStatusToSourceOwner": {
+                                            "statusId": "machop_machoke_evolution",
+                                            "duration": 999,
+                                            "metadata": {
+                                                "infiniteDuration": true,
+                                                "facePictureOverride": "assets/images/PokemonArena/machop/machokefp.png",
+                                                "skillReplacements": {
+                                                    "machop-brick-break": "machoke-brick-break",
+                                                    "machop-counter": "machoke-counter",
+                                                    "machop-bulk-up": "machoke-bulk-up",
+                                                    "machop-taunt": "machoke-taunt"
+                                                },
+                                                "tooltipText": "Machop has evolved into Machoke. Machoke's skills are improved."
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "damage",
+                                    "amount": 0,
+                                    "scope": "target",
+                                    "metadata": {
+                                        "ignoreDamageReduction": true,
+                                        "ignoreDestructibleDefense": true,
+                                        "currentStatusMetadataBonus": {
+                                            "metadataKey": "storedBulkUpBonus",
+                                            "multiplier": 1
+                                        },
+                                        "onSuccessfulDamageApplyStatusToSourceOwner": {
+                                            "statusId": "machop_machoke_evolution",
+                                            "duration": 999,
+                                            "metadata": {
+                                                "infiniteDuration": true,
+                                                "facePictureOverride": "assets/images/PokemonArena/machop/machokefp.png",
+                                                "skillReplacements": {
+                                                    "machop-brick-break": "machoke-brick-break",
+                                                    "machop-counter": "machoke-counter",
+                                                    "machop-bulk-up": "machoke-bulk-up",
+                                                    "machop-taunt": "machoke-taunt"
+                                                },
+                                                "tooltipText": "Machop has evolved into Machoke. Machoke's skills are improved."
+                                            }
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "damage",
+                                    "amount": 5,
+                                    "scope": "target",
+                                    "metadata": {
+                                        "ignoreDamageReduction": true,
+                                        "ignoreDestructibleDefense": true,
+                                        "requireSourceOwnerAlive": true,
+                                        "onSuccessfulDamageApplyStatusToSourceOwner": {
+                                            "statusId": "machop_machoke_evolution",
+                                            "duration": 999,
+                                            "metadata": {
+                                                "infiniteDuration": true,
+                                                "facePictureOverride": "assets/images/PokemonArena/machop/machokefp.png",
+                                                "skillReplacements": {
+                                                    "machop-brick-break": "machoke-brick-break",
+                                                    "machop-counter": "machoke-counter",
+                                                    "machop-bulk-up": "machoke-bulk-up",
+                                                    "machop-taunt": "machoke-taunt"
+                                                },
+                                                "tooltipText": "Machop has evolved into Machoke. Machoke's skills are improved."
+                                            }
+                                        }
+                                    }
+                                }
+                            ],
+                            "statusIconUrl": "assets/images/PokemonArena/machop/machopcounter.png",
+                            "tooltipText": "Counter will return damage to this enemy when the mark ends."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "machop_bulk_up_spent",
+                        "duration": 0,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "machop_bulk_up_bonus"
+                        },
+                        "metadata": {
+                            "removeStatusIdsOnApply": [
+                                "machop_bulk_up_bonus"
+                            ],
+                            "tooltipText": "Bulk Up has been consumed."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "machop-bulk-up",
+                "name": "Bulk Up",
+                "skillimage": "assets/images/PokemonArena/machop/machopbulkup.png",
+                "skilldescription": "Grants Machop's next Brick Break or Counter 10 additional damage. This effect stacks. Machop also gains 10 permanent destructible defense.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "machop_bulk_up_bonus",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "machopBulkUpBonus": 10,
+                            "stackMetadataKey": "machopBulkUpBonus",
+                            "stackDelta": 10,
+                            "stackMax": 99,
+                            "destructibleDefensePoints": 10,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "statusIconUrl": "assets/images/PokemonArena/machop/machopbulkup.png",
+                            "tooltipTextTemplate": "Machop's next Brick Break or Counter deals {machopBulkUpBonus} additional damage, and Machop has {destructibleDefensePoints} permanent destructible defense from Bulk Up."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "machop-taunt",
+                "name": "Taunt",
+                "skillimage": "assets/images/PokemonArena/machop/machoptaunt.png",
+                "skilldescription": "For 2 turns, one enemy may only use new harmful skills on Machop.",
+                "energy": [],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "machop_taunt",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "taunt": true,
+                            "tooltipText": "This character is taunted and can only target Machop."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "machop-passive-evolution-machoke",
+                "name": "Evolution - Machoke",
+                "skillimage": "assets/images/PokemonArena/machop/evolutionmachoke.png",
+                "skilldescription": "After Counter successfully deals damage to an enemy once, Machop evolves into Machoke. Machoke's skills are improved.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            },
+            {
+                "id": "machoke-brick-break",
+                "name": "Brick Break",
+                "actorCondition": {
+                    "statusId": "machop_machoke_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/machop/machokebrickbreak.png",
+                "skilldescription": "Destroys one enemy's destructible defense and deals 30 damage instead. If Bulk Up is active, Brick Break also stuns the target's non-mental skills for 1 turn.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "destroy_destructible_defense",
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target",
+                        "metadata": {
+                            "bonusPerStatusMetadata": {
+                                "scope": "self",
+                                "statusId": "machop_bulk_up_bonus",
+                                "metadataKey": "machopBulkUpBonus",
+                                "multiplier": 1
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "machoke_brick_break_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "machop_bulk_up_bonus"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseNonMentalSkills": true,
+                            "tooltipText": "This character's non-mental skills are stunned."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "machop_bulk_up_spent",
+                        "duration": 0,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "machop_bulk_up_bonus"
+                        },
+                        "metadata": {
+                            "removeStatusIdsOnApply": [
+                                "machop_bulk_up_bonus"
+                            ],
+                            "tooltipText": "Bulk Up has been consumed."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "machoke-counter",
+                "name": "Counter",
+                "actorCondition": {
+                    "statusId": "machop_machoke_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/machop/machokecounter.png",
+                "skilldescription": "Marks one enemy for 1 turn. When the mark ends, all damage that enemy dealt to Machoke during this time is dealt back to them twice. If Machoke is still alive, Counter deals 10 additional damage instead.",
+                "energy": [
+                    "Ninjutsu",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "machop_counter_mark",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "machopCounterDamage": 0,
+                            "stackMetadataKey": "machopCounterDamage",
+                            "stackDeltaFromDamageDealtToSourceOwner": true,
+                            "copyStatusMetadataToMetadataKeys": [
+                                {
+                                    "scope": "self",
+                                    "statusId": "machop_bulk_up_bonus",
+                                    "metadataKey": "machopBulkUpBonus",
+                                    "targetKey": "storedBulkUpBonus"
+                                }
+                            ],
+                            "onExpireEffects": [
+                                {
+                                    "type": "damage",
+                                    "amount": 0,
+                                    "scope": "target",
+                                    "metadata": {
+                                        "ignoreDamageReduction": true,
+                                        "ignoreDestructibleDefense": true,
+                                        "currentStatusMetadataBonus": {
+                                            "metadataKey": "machopCounterDamage",
+                                            "multiplier": 2
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "damage",
+                                    "amount": 0,
+                                    "scope": "target",
+                                    "metadata": {
+                                        "ignoreDamageReduction": true,
+                                        "ignoreDestructibleDefense": true,
+                                        "currentStatusMetadataBonus": {
+                                            "metadataKey": "storedBulkUpBonus",
+                                            "multiplier": 1
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "damage",
+                                    "amount": 10,
+                                    "scope": "target",
+                                    "metadata": {
+                                        "ignoreDamageReduction": true,
+                                        "ignoreDestructibleDefense": true,
+                                        "requireSourceOwnerAlive": true
+                                    }
+                                }
+                            ],
+                            "statusIconUrl": "assets/images/PokemonArena/machop/machokecounter.png",
+                            "tooltipText": "Counter will return damage to this enemy when the mark ends."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "machop_bulk_up_spent",
+                        "duration": 0,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "machop_bulk_up_bonus"
+                        },
+                        "metadata": {
+                            "removeStatusIdsOnApply": [
+                                "machop_bulk_up_bonus"
+                            ],
+                            "tooltipText": "Bulk Up has been consumed."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "machoke-bulk-up",
+                "name": "Bulk Up",
+                "actorCondition": {
+                    "statusId": "machop_machoke_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/machop/machokebulkup.png",
+                "skilldescription": "Grants Machoke's next Brick Break or Counter 15 additional damage instead. This effect stacks. Machoke also gains 15 permanent destructible defense instead.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "machop_bulk_up_bonus",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "machopBulkUpBonus": 15,
+                            "stackMetadataKey": "machopBulkUpBonus",
+                            "stackDelta": 15,
+                            "stackMax": 150,
+                            "destructibleDefensePoints": 15,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "statusIconUrl": "assets/images/PokemonArena/machop/machokebulkup.png",
+                            "tooltipTextTemplate": "Machoke's next Brick Break or Counter deals {machopBulkUpBonus} additional damage, and Machoke has {destructibleDefensePoints} permanent destructible defense from Bulk Up."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "machoke-taunt",
+                "name": "Taunt",
+                "actorCondition": {
+                    "statusId": "machop_machoke_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/machop/machoketaunt.png",
+                "skilldescription": "For 3 turns, one enemy may only use new harmful skills on Machoke.",
+                "energy": [],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "machop_taunt",
+                        "duration": 3,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "taunt": true,
+                            "tooltipText": "This character is taunted and can only target Machoke."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Bruiser",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "bruiser",
+        "description": "A straightforward Fighting-type bruiser that breaks armor, stores power through Bulk Up, and evolves into Machoke the first time Counter really lands.",
+        "descriptionHtml": "A straightforward Fighting-type bruiser that breaks armor, stores power through Bulk Up, and evolves into Machoke the first time Counter really lands."
+    },
+    {
+        "id": "magikarp",
+        "characterId": "magikarp",
+        "name": "Magikarp",
+        "facePicture": "assets/images/PokemonArena/magikarp/magikarpfp.png",
+        "startStatuses": [
+            {
+                "statusId": "magikarp_evolution_tracker",
+                "duration": 999,
+                "sourceSkillId": "magikarp-passive-evolution-gyarados",
+                "metadata": {
+                    "hidden": true,
+                    "infiniteDuration": true,
+                    "magikarpTurnCount": 0,
+                    "stackMetadataKey": "magikarpTurnCount",
+                    "stackMax": 7,
+                    "turnStartApplyStatusToOwner": {
+                        "statusId": "magikarp_evolution_tracker",
+                        "duration": 999,
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "stackMetadataKey": "magikarpTurnCount",
+                            "stackDelta": 1,
+                            "stackMax": 7,
+                            "applyStatusAtStack": {
+                                "metadataKey": "magikarpTurnCount",
+                                "value": 7,
+                                "statusId": "magikarp_gyarados_evolution",
+                                "duration": 999,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "removeStatusIdsOnApply": [
+                                        "magikarp_evolution_tracker"
+                                    ],
+                                    "facePictureOverride": "assets/images/PokemonArena/magikarp/gyaradosfp.png",
+                                    "skillReplacements": {
+                                        "magikarp-tackle": "gyarados-hyper-beam",
+                                        "magikarp-splash": "gyarados-dragon-rage",
+                                        "magikarp-flail": "gyarados-ice-fang",
+                                        "magikarp-struggle": "gyarados-hydro-pump"
+                                    },
+                                    "tooltipText": "Magikarp has evolved into Gyarados. Gyarados' skills are completely new."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/magikarp/evolutiongyarados.png",
+                            "tooltipTextTemplate": "Magikarp is on turn {magikarpTurnCount}/7 and will evolve into Gyarados on turn 7."
+                        }
+                    },
+                    "statusIconUrl": "assets/images/PokemonArena/magikarp/evolutiongyarados.png",
+                    "tooltipTextTemplate": "Magikarp is on turn {magikarpTurnCount}/7 and will evolve into Gyarados on turn 7."
+                }
+            }
+        ],
+        "characterdeescription": "A famously weak Water-type Pokemon whose whole game plan is surviving long enough to become Gyarados, then cashing in with a completely different endgame kit.",
+        "skills": [
+            {
+                "id": "magikarp-tackle",
+                "name": "Tackle",
+                "skillimage": "assets/images/PokemonArena/magikarp/magikarptackle.png",
+                "skilldescription": "Deals 15 damage.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target"
+                    }
+                ]
+            },
+            {
+                "id": "magikarp-splash",
+                "name": "Splash",
+                "skillimage": "assets/images/PokemonArena/magikarp/magikarpsplash.png",
+                "skilldescription": "Magikarp will evolve one turn sooner.",
+                "energy": [],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "magikarp_evolution_tracker",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "stackMetadataKey": "magikarpTurnCount",
+                            "stackDelta": 1,
+                            "stackMax": 7,
+                            "statusIconUrl": "assets/images/PokemonArena/magikarp/magikarpsplash.png",
+                            "tooltipTextTemplate": "Magikarp is on turn {magikarpTurnCount}/7 and will evolve into Gyarados on turn 7."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "magikarp-flail",
+                "name": "Flail",
+                "skillimage": "assets/images/PokemonArena/magikarp/magikarpflail.png",
+                "skilldescription": "Deals 20 damage.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target"
+                    }
+                ]
+            },
+            {
+                "id": "magikarp-struggle",
+                "name": "Struggle",
+                "skillimage": "assets/images/PokemonArena/magikarp/magikarpstruggle.png",
+                "skilldescription": "Deals 25 damage but may only be used when all of Magikarp's other skills are on cooldown. Magikarp also loses 5 health.",
+                "energy": [],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "actorCondition": {
+                    "allOtherSkillsOnCooldown": true
+                },
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "HealthLoss",
+                        "amount": 5,
+                        "scope": "self"
+                    }
+                ]
+            },
+            {
+                "id": "magikarp-passive-evolution-gyarados",
+                "name": "Evolution - Gyarados",
+                "skillimage": "assets/images/PokemonArena/magikarp/evolutiongyarados.png",
+                "skilldescription": "On Magikarp's 7th turn, it evolves into Gyarados. Gyarados has completely new skills.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            },
+            {
+                "id": "gyarados-hyper-beam",
+                "name": "Hyper Beam",
+                "actorCondition": {
+                    "statusId": "magikarp_gyarados_evolution",
+                    "missingStatusId": "gyarados_dragon_rage_active"
+                },
+                "skillimage": "assets/images/PokemonArena/magikarp/hyperbeam.png",
+                "skilldescription": "Deals 50 damage. Gyarados may not use a new skill for 1 turn.",
+                "energy": [
+                    "Random",
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 50,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "gyarados_hyper_beam_lock",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "cannotUseSkills": true,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/magikarp/hyperbeam.png",
+                            "tooltipText": "Gyarados may not use a new skill."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "gyarados-hyper-beam-affliction",
+                "name": "Hyper Beam",
+                "actorCondition": {
+                    "statusId": "magikarp_gyarados_evolution",
+                    "statusIdsAny": [
+                        "gyarados_dragon_rage_active"
+                    ]
+                },
+                "hiddenFromSelectionViewer": true,
+                "skillimage": "assets/images/PokemonArena/magikarp/hyperbeam.png",
+                "skilldescription": "Deals 50 affliction damage. Gyarados may not use a new skill for 1 turn.",
+                "energy": [
+                    "Random",
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 50,
+                        "scope": "target",
+                        "metadata": {
+                            "damageType": "affliction",
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "gyarados_hyper_beam_lock",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "cannotUseSkills": true,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/magikarp/hyperbeam.png",
+                            "tooltipText": "Gyarados may not use a new skill."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "gyarados-dragon-rage",
+                "name": "Dragon Rage",
+                "actorCondition": {
+                    "statusId": "magikarp_gyarados_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/magikarp/dragonrage.png",
+                "skilldescription": "Deals 15 affliction damage to one enemy each turn for 3 turns and makes Hyper Beam deal affliction damage during this time.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Action"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "gyarados_dragon_rage_burn",
+                        "duration": 3,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "turnEndDamage": 15,
+                            "damageType": "affliction",
+                            "statusIconUrl": "assets/images/PokemonArena/magikarp/dragonrage.png",
+                            "tooltipText": "This character takes 15 affliction damage each turn from Dragon Rage."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "gyarados_dragon_rage_active",
+                        "duration": 3,
+                        "scope": "self",
+                        "metadata": {
+                            "skillReplacements": {
+                                "gyarados-hyper-beam": "gyarados-hyper-beam-affliction"
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/magikarp/dragonrage.png",
+                            "tooltipText": "Hyper Beam deals affliction damage during Dragon Rage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "gyarados-ice-fang",
+                "name": "Ice Fang",
+                "actorCondition": {
+                    "statusId": "magikarp_gyarados_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/magikarp/icefang.png",
+                "skilldescription": "Deals 35 piercing damage to one enemy and stuns them for 1 turn.",
+                "energy": [
+                    "Ninjutsu",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "gyarados_ice_fang_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "statusIconUrl": "assets/images/PokemonArena/magikarp/icefang.png",
+                            "tooltipText": "This character's skills are stunned."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "gyarados-hydro-pump",
+                "name": "Hydro Pump",
+                "actorCondition": {
+                    "statusId": "magikarp_gyarados_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/magikarp/gyaradoshydropump.png",
+                "skilldescription": "Deals 40 damage to one enemy and 20 damage to the other enemies.",
+                "energy": [
+                    "Ninjutsu",
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 40,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "all-other-enemies"
+                    }
+                ]
+            }
+        ],
+        "role": "Damage",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "damage",
+        "description": "A famously weak Water-type Pokemon whose plan is surviving long enough to become Gyarados, then cashing in with overwhelming ranged pressure.",
+        "descriptionHtml": "A famously weak Water-type Pokemon whose plan is surviving long enough to become Gyarados, then cashing in with overwhelming ranged pressure."
     }
 ];
 

@@ -4445,6 +4445,139 @@ body.arena-mode-pokemon .ingamescrollbehind {
 .pokemon-evolution-aura-kingler .bubble-d { right: 6px; width: 12px; height: 12px; animation-delay: 1460ms; }
 .pokemon-evolution-aura-kingler .bubble-e { left: 31px; width: 6px; height: 6px; animation-delay: 1960ms; }
 
+.pokemon-evolution-aura-arbok {
+    inset: -1px;
+    filter: drop-shadow(0 0 10px rgba(186, 88, 255, 0.45));
+}
+
+.pokemon-evolution-aura-arbok .arbok-snake,
+.pokemon-evolution-aura-arbok .arbok-venom-drip,
+.pokemon-evolution-aura-arbok .arbok-venom-drop,
+.pokemon-evolution-aura-machoke .machoke-force,
+.pokemon-evolution-aura-machoke .machoke-pulse,
+.pokemon-evolution-aura-gyarados .gyarados-wave,
+.pokemon-evolution-aura-gyarados .gyarados-foam {
+    position: absolute;
+}
+
+.pokemon-evolution-aura-arbok .arbok-snake {
+    top: 6px;
+    bottom: 6px;
+    width: 10px;
+    background: linear-gradient(180deg, rgba(206, 137, 255, 0.96) 0%, rgba(131, 56, 198, 0.96) 55%, rgba(76, 21, 125, 0.88) 100%);
+    border-radius: 999px;
+    box-shadow: 0 0 8px rgba(169, 92, 255, 0.55);
+    animation: pokemon-arbok-snake-climb 2.8s ease-in-out infinite;
+}
+
+.pokemon-evolution-aura-arbok .arbok-snake::before,
+.pokemon-evolution-aura-arbok .arbok-snake::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    width: 16px;
+    height: 16px;
+    border: 3px solid rgba(225, 187, 255, 0.9);
+    border-color: rgba(225, 187, 255, 0.9) transparent transparent transparent;
+    border-radius: 50%;
+    transform: translateX(-50%);
+}
+
+.pokemon-evolution-aura-arbok .arbok-snake::before { top: 8px; }
+.pokemon-evolution-aura-arbok .arbok-snake::after { bottom: 8px; transform: translateX(-50%) rotate(180deg); }
+.pokemon-evolution-aura-arbok .snake-left { left: 2px; }
+.pokemon-evolution-aura-arbok .snake-right { right: 2px; animation-delay: 1100ms; }
+
+.pokemon-evolution-aura-arbok .arbok-venom-drip {
+    top: -2px;
+    width: 10px;
+    height: 30px;
+    background: linear-gradient(180deg, rgba(231, 172, 255, 0.9) 0%, rgba(155, 58, 221, 0.95) 45%, rgba(88, 17, 143, 0.92) 100%);
+    border-radius: 999px 999px 70% 70%;
+    filter: blur(0.2px);
+    animation: pokemon-arbok-venom-drip 1.6s ease-in-out infinite;
+}
+
+.pokemon-evolution-aura-arbok .drip-a { left: 10px; animation-delay: 0ms; }
+.pokemon-evolution-aura-arbok .drip-b { left: 26px; animation-delay: 420ms; height: 24px; }
+.pokemon-evolution-aura-arbok .drip-c { right: 12px; animation-delay: 880ms; height: 28px; }
+
+.pokemon-evolution-aura-arbok .arbok-venom-drop {
+    top: 22px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50% 50% 55% 55%;
+    background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.78) 0%, rgba(206, 130, 255, 0.92) 40%, rgba(111, 28, 175, 0.96) 100%);
+    box-shadow: 0 0 6px rgba(179, 103, 255, 0.58);
+    animation: pokemon-arbok-drop-fall 1.8s ease-in infinite;
+}
+
+.pokemon-evolution-aura-arbok .drop-a { left: 14px; animation-delay: 220ms; }
+.pokemon-evolution-aura-arbok .drop-b { left: 30px; animation-delay: 760ms; }
+.pokemon-evolution-aura-arbok .drop-c { right: 16px; animation-delay: 1240ms; }
+
+.pokemon-evolution-aura-machoke {
+    inset: -2px;
+    filter: drop-shadow(0 0 10px rgba(211, 167, 117, 0.48));
+}
+
+.pokemon-evolution-aura-machoke .machoke-force {
+    inset: 10px;
+    border-radius: 50%;
+    border: 2px solid rgba(224, 189, 146, 0.72);
+    border-left-color: transparent;
+    border-right-color: transparent;
+    animation: pokemon-machoke-force-surge 1.7s ease-in-out infinite;
+}
+
+.pokemon-evolution-aura-machoke .force-b { inset: 6px 16px; animation-delay: 300ms; opacity: 0.7; }
+.pokemon-evolution-aura-machoke .force-c { inset: 18px 6px; animation-delay: 620ms; opacity: 0.52; }
+
+.pokemon-evolution-aura-machoke .machoke-pulse {
+    width: 22px;
+    height: 8px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(235, 212, 175, 0.1) 0%, rgba(214, 173, 118, 0.95) 45%, rgba(148, 103, 54, 0.95) 100%);
+    box-shadow: 0 0 8px rgba(205, 157, 95, 0.55);
+    animation: pokemon-machoke-pulse-strike 1.2s ease-in-out infinite;
+}
+
+.pokemon-evolution-aura-machoke .pulse-a { left: 4px; top: 18px; transform: rotate(-18deg); }
+.pokemon-evolution-aura-machoke .pulse-b { right: 4px; top: 12px; transform: rotate(18deg); animation-delay: 280ms; }
+.pokemon-evolution-aura-machoke .pulse-c { left: 18px; bottom: 12px; width: 28px; transform: rotate(-6deg); animation-delay: 620ms; }
+
+.pokemon-evolution-aura-gyarados {
+    inset: -2px;
+    filter: drop-shadow(0 0 10px rgba(84, 183, 255, 0.44));
+}
+
+.pokemon-evolution-aura-gyarados .gyarados-wave {
+    left: -6px;
+    right: -6px;
+    bottom: -4px;
+    height: 18px;
+    border-radius: 50% 50% 0 0;
+    background: linear-gradient(180deg, rgba(176, 233, 255, 0.88) 0%, rgba(73, 170, 232, 0.94) 55%, rgba(14, 87, 161, 0.98) 100%);
+    animation: pokemon-gyarados-wave-roll 2.2s ease-in-out infinite;
+}
+
+.pokemon-evolution-aura-gyarados .wave-b { bottom: 0; height: 14px; opacity: 0.78; animation-delay: 420ms; }
+.pokemon-evolution-aura-gyarados .wave-c { bottom: 4px; height: 10px; opacity: 0.62; animation-delay: 860ms; }
+
+.pokemon-evolution-aura-gyarados .gyarados-foam {
+    bottom: 10px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(211, 246, 255, 0.82) 55%, rgba(147, 222, 255, 0.08) 100%);
+    box-shadow: 0 0 6px rgba(208, 242, 255, 0.72);
+    animation: pokemon-gyarados-foam-rise 1.8s ease-in infinite;
+}
+
+.pokemon-evolution-aura-gyarados .foam-a { left: 10px; animation-delay: 160ms; }
+.pokemon-evolution-aura-gyarados .foam-b { left: 28px; animation-delay: 700ms; }
+.pokemon-evolution-aura-gyarados .foam-c { right: 14px; animation-delay: 1180ms; }
+
 .pokemon-solar-beam-charge-fx,
 .pokemon-thunder-impact-fx,
 .pokemon-flamethrower-impact-fx,
@@ -6710,11 +6843,18 @@ body.arena-mode-pokemon .chakra-box.white {
     border: 1px solid black;
     cursor: grab;
     background: #fff;
+    touch-action: none;
 }
 
 .skillpreview.dragging {
     opacity: 0.5;
     cursor: grabbing;
+}
+
+.skillpreview.queued-reorder-armed {
+    outline: 2px solid #7dd9ff;
+    box-shadow: 0 0 10px rgba(125, 217, 255, 0.95);
+    transform: translateY(-2px);
 }
 
 .skillpreview.queued-cancel-armed,
@@ -11078,6 +11218,48 @@ body.arena-mode-pokemon .chakra-box.white {
     0% { transform: translateY(0) scale(0.5); opacity: 0; }
     18% { opacity: 0.82; }
     100% { transform: translateY(-46px) scale(1.08); opacity: 0; }
+}
+
+@keyframes pokemon-arbok-snake-climb {
+    0% { transform: translateY(10px) scaleY(0.82); opacity: 0.3; }
+    50% { transform: translateY(-2px) scaleY(1.02); opacity: 0.95; }
+    100% { transform: translateY(-12px) scaleY(0.86); opacity: 0.42; }
+}
+
+@keyframes pokemon-arbok-venom-drip {
+    0% { transform: scaleY(0.7); opacity: 0.55; }
+    50% { transform: scaleY(1.15); opacity: 0.98; }
+    100% { transform: scaleY(0.74); opacity: 0.58; }
+}
+
+@keyframes pokemon-arbok-drop-fall {
+    0% { transform: translateY(0) scale(0.5); opacity: 0; }
+    20% { opacity: 0.92; }
+    100% { transform: translateY(26px) scale(1.1); opacity: 0; }
+}
+
+@keyframes pokemon-machoke-force-surge {
+    0% { transform: scale(0.84) rotate(0deg); opacity: 0.35; }
+    50% { transform: scale(1.08) rotate(12deg); opacity: 0.92; }
+    100% { transform: scale(0.9) rotate(0deg); opacity: 0.42; }
+}
+
+@keyframes pokemon-machoke-pulse-strike {
+    0% { transform: translateX(-8px) scaleX(0.4); opacity: 0; }
+    35% { opacity: 1; }
+    100% { transform: translateX(12px) scaleX(1.16); opacity: 0; }
+}
+
+@keyframes pokemon-gyarados-wave-roll {
+    0% { transform: translateX(-4px) scaleX(0.96); }
+    50% { transform: translateX(4px) scaleX(1.04); }
+    100% { transform: translateX(-4px) scaleX(0.96); }
+}
+
+@keyframes pokemon-gyarados-foam-rise {
+    0% { transform: translateY(0) scale(0.5); opacity: 0; }
+    18% { opacity: 0.9; }
+    100% { transform: translateY(-20px) scale(1.08); opacity: 0; }
 }
 
 @keyframes pokemon-solar-charge-pulse {

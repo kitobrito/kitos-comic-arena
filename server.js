@@ -3265,6 +3265,180 @@ const POKEMON_EEVEE_EVOLUTION_MISSION_ENTRY = {
     sortOrder: 4,
 };
 
+const POKEMON_EKANS_MISSION_ENTRY = {
+    missionId: 'ekans-venom-trial',
+    title: 'Ekans Venom Trial',
+    level_requirement: 8,
+    rank: '8',
+    reward_character: 'ekans',
+    reward_character_name: 'Ekans',
+    reward: 'Unlock Ekans.',
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/ekans/ekansfp.png',
+    imageAlt: 'Ekans mission artwork',
+    characterName: 'Ekans',
+    portrait: 'assets/images/PokemonArena/ekans/ekansfp.png',
+    portraitAlt: 'Ekans portrait',
+    requirements: [
+        'Ekans unlocks through a poison-pressure mission built around attrition and setup.',
+        'Clear a 4-win streak with Koffing and Zubat on the same team.',
+    ],
+    goals: [
+        {
+            type: 'win_matches',
+            character_id: 'koffing',
+            character_name: 'Koffing',
+            wins: 8,
+        },
+        {
+            type: 'win_matches',
+            character_id: 'zubat',
+            character_name: 'Zubat',
+            wins: 8,
+        },
+        {
+            type: 'win_streak_same_team',
+            character_ids: ['koffing', 'zubat'],
+            character_names: ['Koffing', 'Zubat'],
+            wins: 4,
+        },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 8,
+};
+
+const POKEMON_MACHOP_MISSION_ENTRY = {
+    missionId: 'machop-power-run',
+    title: 'Machop Power Run',
+    level_requirement: 8,
+    rank: '8',
+    reward_character: 'machop',
+    reward_character_name: 'Machop',
+    reward: 'Unlock Machop.',
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/machop/machopfp.png',
+    imageAlt: 'Machop mission artwork',
+    characterName: 'Machop',
+    portrait: 'assets/images/PokemonArena/machop/machopfp.png',
+    portraitAlt: 'Machop portrait',
+    requirements: [
+        'Machop unlocks through a bruiser mission centered on direct physical pressure.',
+        'Clear a 4-win streak with Charmander and Scyther on the same team.',
+    ],
+    goals: [
+        {
+            type: 'win_matches',
+            character_id: 'charmander',
+            character_name: 'Charmander',
+            wins: 8,
+        },
+        {
+            type: 'win_matches',
+            character_id: 'scyther',
+            character_name: 'Scyther',
+            wins: 8,
+        },
+        {
+            type: 'win_streak_same_team',
+            character_ids: ['charmander', 'scyther'],
+            character_names: ['Charmander', 'Scyther'],
+            wins: 4,
+        },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 9,
+};
+
+const POKEMON_MAGIKARP_MISSION_ENTRY = {
+    missionId: 'magikarp-long-climb',
+    title: 'Magikarp Long Climb',
+    level_requirement: 9,
+    rank: '9',
+    reward_character: 'magikarp',
+    reward_character_name: 'Magikarp',
+    reward: 'Unlock Magikarp.',
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/magikarp/magikarpfp.png',
+    imageAlt: 'Magikarp mission artwork',
+    characterName: 'Magikarp',
+    portrait: 'assets/images/PokemonArena/magikarp/magikarpfp.png',
+    portraitAlt: 'Magikarp portrait',
+    requirements: [
+        'Magikarp unlocks through a patience test built around water-team endurance.',
+        'Clear a 4-win streak with Squirtle and Krabby on the same team.',
+    ],
+    goals: [
+        {
+            type: 'win_matches',
+            character_id: 'squirtle',
+            character_name: 'Squirtle',
+            wins: 8,
+        },
+        {
+            type: 'win_matches',
+            character_id: 'krabby',
+            character_name: 'Krabby',
+            wins: 8,
+        },
+        {
+            type: 'win_streak_same_team',
+            character_ids: ['squirtle', 'krabby'],
+            character_names: ['Squirtle', 'Krabby'],
+            wins: 4,
+        },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 10,
+};
+
 const POKEMON_STARTER_MISSION_ENTRIES = [
     {
         missionId: 'pikachu-starter-path',
@@ -3337,6 +3511,9 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     upsertRequiredMission(POKEMON_SCYTHER_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'scyther');
     upsertRequiredMission(POKEMON_GASTLY_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'gastly');
     upsertRequiredMission(POKEMON_KRABBY_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'krabby');
+    upsertRequiredMission(POKEMON_EKANS_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'ekans');
+    upsertRequiredMission(POKEMON_MACHOP_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'machop');
+    upsertRequiredMission(POKEMON_MAGIKARP_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'magikarp');
     return normalizeMissionCatalog(catalog);
 };
 
