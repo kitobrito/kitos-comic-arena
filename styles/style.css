@@ -3605,6 +3605,8 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 
 body.arena-mode-pokemon .skillscrollingame {
     background-image: url('../assets/images/PokemonArena/ingameskillscroll-pokeball.png');
+    padding: 12px 0 0 88px;
+    box-sizing: border-box;
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.22),
         inset 0 -1px 0 rgba(41, 26, 12, 0.22),
@@ -3614,6 +3616,17 @@ body.arena-mode-pokemon .skillscrollingame {
 body.arena-mode-pokemon .ingamescrollbehind {
     image-rendering: auto;
     filter: drop-shadow(0 2px 4px rgba(18, 14, 10, 0.16));
+}
+
+body.arena-mode-pokemon .skillqueue {
+    position: absolute;
+    top: 12px;
+    left: 18px;
+}
+
+body.arena-mode-pokemon .skillimage {
+    top: 0;
+    left: 0;
 }
 
 .skillqueue {
