@@ -6,6 +6,7 @@ const {
     applyStatus,
     cleanseHarmfulStatuses,
     computeEffectiveEnergyCost,
+    doesEffectConditionMatch,
     processTurnStartStatusEffects,
     reduceHulkRageForInactiveTurn,
 } = require('../battleLogic.js');
@@ -114,6 +115,78 @@ test('computeEffectiveEnergyCost applies stack-based random reductions for Bulba
         },
         requiredRandom: 2,
     });
+});
+
+test('Pokemon Trainer ball thresholds gain 10 HP against stunned or cooldown-paralyzed targets', () => {
+    const condition = {
+        scope: 'target',
+        targetRelation: 'enemy',
+        sourceCurrentHpAtMost: 25,
+        sourceCurrentHpAtMostConditionalBonus: {
+            value: 10,
+            statusIdsAny: ['stunned'],
+            statusMetadataAny: ['paralyzeCooldowns'],
+        },
+    };
+
+    const actorUnit = { hp: 100, alive: true, rosterIndex: 0 };
+    const targetUnit = { hp: 35, alive: true, rosterIndex: 1 };
+    const actorState = { statuses: [] };
+
+    assert.equal(
+        doesEffectConditionMatch({
+            condition,
+            actorState,
+            targetState: { statuses: [] },
+            actorUnit,
+            targetUnit,
+            actorUsername: 'player',
+            targetUsername: 'enemy',
+        }),
+        false
+    );
+
+    assert.equal(
+        doesEffectConditionMatch({
+            condition,
+            actorState,
+            targetState: {
+                statuses: [
+                    {
+                        id: 'stunned',
+                        remainingTurns: 1,
+                        metadata: { cannotUseSkills: true },
+                    },
+                ],
+            },
+            actorUnit,
+            targetUnit,
+            actorUsername: 'player',
+            targetUsername: 'enemy',
+        }),
+        true
+    );
+
+    assert.equal(
+        doesEffectConditionMatch({
+            condition,
+            actorState,
+            targetState: {
+                statuses: [
+                    {
+                        id: 'cooldown_lock',
+                        remainingTurns: 1,
+                        metadata: { paralyzeCooldowns: true },
+                    },
+                ],
+            },
+            actorUnit,
+            targetUnit,
+            actorUsername: 'player',
+            targetUsername: 'enemy',
+        }),
+        true
+    );
 });
 
 test('reduceHulkRageForInactiveTurn applies inactive-turn status hooks without crashing', () => {

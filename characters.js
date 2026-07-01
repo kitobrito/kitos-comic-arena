@@ -19245,7 +19245,7 @@ const characters = [
                 "id": "pokemon-trainer-pokeball",
                 "name": "Pokeball",
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/Pokeball.jpeg",
-                "skilldescription": "Stuns one enemy and makes them invulnerable to all skills for 1 turn. If used when their health is at 10 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This skill swaps to Great Ball.",
+                "skilldescription": "Stuns one enemy and makes them invulnerable to all skills for 1 turn. If used when their health is at 10 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed. This skill swaps to Great Ball.",
                 "energy": [
                     "Random"
                 ],
@@ -19266,7 +19266,16 @@ const characters = [
                         "condition": {
                             "scope": "target",
                             "targetRelation": "enemy",
-                            "sourceCurrentHpAtMost": 10
+                            "sourceCurrentHpAtMost": 10,
+                            "sourceCurrentHpAtMostConditionalBonus": {
+                                "value": 10,
+                                "statusIdsAny": [
+                                    "stunned"
+                                ],
+                                "statusMetadataAny": [
+                                    "paralyzeCooldowns"
+                                ]
+                            }
                         },
                         "metadata": {
                             "harmful": true,
@@ -19283,7 +19292,16 @@ const characters = [
                         "condition": {
                             "scope": "target",
                             "targetRelation": "enemy",
-                            "sourceCurrentHpAtMost": 10
+                            "sourceCurrentHpAtMost": 10,
+                            "sourceCurrentHpAtMostConditionalBonus": {
+                                "value": 10,
+                                "statusIdsAny": [
+                                    "stunned"
+                                ],
+                                "statusMetadataAny": [
+                                    "paralyzeCooldowns"
+                                ]
+                            }
                         },
                         "metadata": {
                             "infiniteDuration": true,
@@ -19300,7 +19318,16 @@ const characters = [
                         "condition": {
                             "scope": "target",
                             "targetRelation": "enemy",
-                            "sourceCurrentHpAtLeast": 11
+                            "sourceCurrentHpAtLeast": 11,
+                            "sourceCurrentHpAtLeastConditionalBonus": {
+                                "value": 10,
+                                "statusIdsAny": [
+                                    "stunned"
+                                ],
+                                "statusMetadataAny": [
+                                    "paralyzeCooldowns"
+                                ]
+                            }
                         },
                         "metadata": {
                             "harmful": true,
@@ -19317,7 +19344,16 @@ const characters = [
                         "condition": {
                             "scope": "target",
                             "targetRelation": "enemy",
-                            "sourceCurrentHpAtLeast": 11
+                            "sourceCurrentHpAtLeast": 11,
+                            "sourceCurrentHpAtLeastConditionalBonus": {
+                                "value": 10,
+                                "statusIdsAny": [
+                                    "stunned"
+                                ],
+                                "statusMetadataAny": [
+                                    "paralyzeCooldowns"
+                                ]
+                            }
                         },
                         "metadata": {
                             "harmful": true,
@@ -20057,7 +20093,7 @@ const characters = [
                 "id": "pokemon-trainer-great-ball",
                 "name": "Great Ball",
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/Great ball.png",
-                "skilldescription": "Stuns one enemy and makes them invulnerable to all skills for 2 turns. If used when their health is at 25 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This skill swaps to Ultra Ball.",
+                "skilldescription": "Stuns one enemy and makes them invulnerable to all skills for 2 turns. If used when their health is at 25 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed. This skill swaps to Ultra Ball.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -20078,7 +20114,16 @@ const characters = [
                         "condition": {
                             "scope": "target",
                             "targetRelation": "enemy",
-                            "sourceCurrentHpAtMost": 25
+                            "sourceCurrentHpAtMost": 25,
+                            "sourceCurrentHpAtMostConditionalBonus": {
+                                "value": 10,
+                                "statusIdsAny": [
+                                    "stunned"
+                                ],
+                                "statusMetadataAny": [
+                                    "paralyzeCooldowns"
+                                ]
+                            }
                         },
                         "metadata": {
                             "harmful": true,
@@ -20095,7 +20140,16 @@ const characters = [
                         "condition": {
                             "scope": "target",
                             "targetRelation": "enemy",
-                            "sourceCurrentHpAtMost": 25
+                            "sourceCurrentHpAtMost": 25,
+                            "sourceCurrentHpAtMostConditionalBonus": {
+                                "value": 10,
+                                "statusIdsAny": [
+                                    "stunned"
+                                ],
+                                "statusMetadataAny": [
+                                    "paralyzeCooldowns"
+                                ]
+                            }
                         },
                         "metadata": {
                             "infiniteDuration": true,
@@ -20112,7 +20166,16 @@ const characters = [
                         "condition": {
                             "scope": "target",
                             "targetRelation": "enemy",
-                            "sourceCurrentHpAtLeast": 26
+                            "sourceCurrentHpAtLeast": 26,
+                            "sourceCurrentHpAtLeastConditionalBonus": {
+                                "value": 10,
+                                "statusIdsAny": [
+                                    "stunned"
+                                ],
+                                "statusMetadataAny": [
+                                    "paralyzeCooldowns"
+                                ]
+                            }
                         },
                         "metadata": {
                             "harmful": true,
@@ -20129,7 +20192,16 @@ const characters = [
                         "condition": {
                             "scope": "target",
                             "targetRelation": "enemy",
-                            "sourceCurrentHpAtLeast": 26
+                            "sourceCurrentHpAtLeast": 26,
+                            "sourceCurrentHpAtLeastConditionalBonus": {
+                                "value": 10,
+                                "statusIdsAny": [
+                                    "stunned"
+                                ],
+                                "statusMetadataAny": [
+                                    "paralyzeCooldowns"
+                                ]
+                            }
                         },
                         "metadata": {
                             "harmful": true,
@@ -20160,7 +20232,7 @@ const characters = [
                 "id": "pokemon-trainer-ultra-ball",
                 "name": "Ultra Ball",
                 "skillimage": "https://i.imgur.com/6VVZEkQ.jpeg",
-                "skilldescription": "Stuns one enemy and makes them invulnerable to all skills for 3 turns. If used when their health is at 40 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This skill swaps to Master Ball.",
+                "skilldescription": "Stuns one enemy and makes them invulnerable to all skills for 3 turns. If used when their health is at 40 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed. This skill swaps to Master Ball.",
                 "energy": [
                     "Genjutsu",
                     "Genjutsu"
@@ -20182,7 +20254,16 @@ const characters = [
                         "condition": {
                             "scope": "target",
                             "targetRelation": "enemy",
-                            "sourceCurrentHpAtMost": 40
+                            "sourceCurrentHpAtMost": 40,
+                            "sourceCurrentHpAtMostConditionalBonus": {
+                                "value": 10,
+                                "statusIdsAny": [
+                                    "stunned"
+                                ],
+                                "statusMetadataAny": [
+                                    "paralyzeCooldowns"
+                                ]
+                            }
                         },
                         "metadata": {
                             "harmful": true,
@@ -20199,7 +20280,16 @@ const characters = [
                         "condition": {
                             "scope": "target",
                             "targetRelation": "enemy",
-                            "sourceCurrentHpAtMost": 40
+                            "sourceCurrentHpAtMost": 40,
+                            "sourceCurrentHpAtMostConditionalBonus": {
+                                "value": 10,
+                                "statusIdsAny": [
+                                    "stunned"
+                                ],
+                                "statusMetadataAny": [
+                                    "paralyzeCooldowns"
+                                ]
+                            }
                         },
                         "metadata": {
                             "infiniteDuration": true,
@@ -20216,7 +20306,16 @@ const characters = [
                         "condition": {
                             "scope": "target",
                             "targetRelation": "enemy",
-                            "sourceCurrentHpAtLeast": 41
+                            "sourceCurrentHpAtLeast": 41,
+                            "sourceCurrentHpAtLeastConditionalBonus": {
+                                "value": 10,
+                                "statusIdsAny": [
+                                    "stunned"
+                                ],
+                                "statusMetadataAny": [
+                                    "paralyzeCooldowns"
+                                ]
+                            }
                         },
                         "metadata": {
                             "harmful": true,
@@ -20233,7 +20332,16 @@ const characters = [
                         "condition": {
                             "scope": "target",
                             "targetRelation": "enemy",
-                            "sourceCurrentHpAtLeast": 41
+                            "sourceCurrentHpAtLeast": 41,
+                            "sourceCurrentHpAtLeastConditionalBonus": {
+                                "value": 10,
+                                "statusIdsAny": [
+                                    "stunned"
+                                ],
+                                "statusMetadataAny": [
+                                    "paralyzeCooldowns"
+                                ]
+                            }
                         },
                         "metadata": {
                             "harmful": true,

@@ -1296,6 +1296,28 @@ const doesEffectConditionMatch = ({
     }
     if (condition.missingStatusId && hasStatus(scopedState, condition.missingStatusId)) return false;
 
+    const resolveConditionalHpThresholdBonus = (bonusConfig) => {
+        if (!bonusConfig || typeof bonusConfig !== 'object') return 0;
+        const bonus = Number(bonusConfig.value);
+        if (!Number.isFinite(bonus) || bonus === 0) return 0;
+        const activeStatuses = Array.isArray(scopedState.statuses)
+            ? scopedState.statuses.filter((status) => (Number(status?.remainingTurns) || 0) > 0)
+            : [];
+        const statusIdsAny = Array.isArray(bonusConfig.statusIdsAny)
+            ? bonusConfig.statusIdsAny.filter((statusId) => typeof statusId === 'string' && statusId)
+            : [];
+        const statusMetadataAny = Array.isArray(bonusConfig.statusMetadataAny)
+            ? bonusConfig.statusMetadataAny.filter((key) => typeof key === 'string' && key)
+            : [];
+        const matchesStatusId =
+            statusIdsAny.length > 0 &&
+            statusIdsAny.some((statusId) => activeStatuses.some((status) => status?.id === statusId));
+        const matchesStatusMetadata =
+            statusMetadataAny.length > 0 &&
+            activeStatuses.some((status) => statusMetadataAny.some((key) => Boolean(status?.metadata?.[key])));
+        return matchesStatusId || matchesStatusMetadata ? bonus : 0;
+    };
+
     const scopedUnit = scope === 'target' ? targetUnit : actorUnit;
     const scopedUnitCharacter =
         Number.isInteger(scopedUnit?.rosterIndex) && Array.isArray(defaultCharacters)
@@ -1378,13 +1400,19 @@ const doesEffectConditionMatch = ({
     }
     const sourceCurrentHpAtMost = Number(condition?.sourceCurrentHpAtMost);
     if (Number.isFinite(sourceCurrentHpAtMost)) {
+        const threshold =
+            sourceCurrentHpAtMost +
+            resolveConditionalHpThresholdBonus(condition?.sourceCurrentHpAtMostConditionalBonus);
         const currentHp = Math.max(0, Number(scopedUnit?.hp) || 0);
-        if (currentHp > sourceCurrentHpAtMost) return false;
+        if (currentHp > threshold) return false;
     }
     const sourceCurrentHpAtLeast = Number(condition?.sourceCurrentHpAtLeast);
     if (Number.isFinite(sourceCurrentHpAtLeast)) {
+        const threshold =
+            sourceCurrentHpAtLeast +
+            resolveConditionalHpThresholdBonus(condition?.sourceCurrentHpAtLeastConditionalBonus);
         const currentHp = Math.max(0, Number(scopedUnit?.hp) || 0);
-        if (currentHp < sourceCurrentHpAtLeast) return false;
+        if (currentHp < threshold) return false;
     }
     if (condition?.targetDamageDealtThisTurnAtLeast !== undefined) {
         const minDamage = Math.max(0, Number(condition.targetDamageDealtThisTurnAtLeast) || 0);
@@ -10278,6 +10306,7 @@ const reduceHulkRageForInactiveTurn = ({ match, endingUsername, pendingTurn }) =
 module.exports = {
     DEFAULT_HP,
     buildInitialBoard,
+    doesEffectConditionMatch,
     getSkillTargetType,
     resolveEffectiveSkill,
     computeTargetOptions,
