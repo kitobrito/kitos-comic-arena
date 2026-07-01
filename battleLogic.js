@@ -4690,6 +4690,12 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
             const turnStartStatus = status?.metadata?.turnStartApplyStatusToOwner;
             if (turnStartStatus?.statusId) {
                 const minimumTurnCount = Math.max(0, Number(turnStartStatus.minimumOwnerTurnCount) || 0);
+                const allowExistingStatusStacking =
+                    Boolean(turnStartStatus.allowExistingStatusStacking) ||
+                    Boolean(turnStartStatus?.metadata?.stackDelta) ||
+                    (Array.isArray(turnStartStatus?.metadata?.mergeNumericAddKeys) &&
+                        turnStartStatus.metadata.mergeNumericAddKeys.length > 0) ||
+                    Boolean(turnStartStatus?.metadata?.applyStatusAtStack);
                 const alreadyAppliedStatus = state.statuses.some(
                     (entry) =>
                         entry?.id === turnStartStatus.statusId &&
@@ -4698,7 +4704,7 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
                 const lastAppliedStatusTurnCount = Number(status?.metadata?._lastTurnStartApplyStatusTurnCount);
                 if (
                     turnCount >= minimumTurnCount &&
-                    !alreadyAppliedStatus &&
+                    (!alreadyAppliedStatus || allowExistingStatusStacking) &&
                     (!Number.isFinite(lastAppliedStatusTurnCount) || lastAppliedStatusTurnCount !== turnCount)
                 ) {
                     status.metadata = {

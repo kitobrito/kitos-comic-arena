@@ -26090,6 +26090,7 @@ const characters = [
                     "turnStartApplyStatusToOwner": {
                         "statusId": "magikarp_evolution_tracker",
                         "duration": 999,
+                        "allowExistingStatusStacking": true,
                         "metadata": {
                             "hidden": true,
                             "infiniteDuration": true,
@@ -26176,6 +26177,26 @@ const characters = [
                             "stackMetadataKey": "magikarpTurnCount",
                             "stackDelta": 1,
                             "stackMax": 7,
+                            "applyStatusAtStack": {
+                                "metadataKey": "magikarpTurnCount",
+                                "value": 7,
+                                "statusId": "magikarp_gyarados_evolution",
+                                "duration": 999,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "removeStatusIdsOnApply": [
+                                        "magikarp_evolution_tracker"
+                                    ],
+                                    "facePictureOverride": "assets/images/PokemonArena/magikarp/gyaradosfp.png",
+                                    "skillReplacements": {
+                                        "magikarp-tackle": "gyarados-hyper-beam",
+                                        "magikarp-splash": "gyarados-dragon-rage",
+                                        "magikarp-flail": "gyarados-ice-fang",
+                                        "magikarp-struggle": "gyarados-hydro-pump"
+                                    },
+                                    "tooltipText": "Magikarp has evolved into Gyarados. Gyarados' skills are completely new."
+                                }
+                            },
                             "statusIconUrl": "assets/images/PokemonArena/magikarp/magikarpsplash.png",
                             "tooltipTextTemplate": "Magikarp is on turn {magikarpTurnCount}/7 and will evolve into Gyarados on turn 7."
                         }

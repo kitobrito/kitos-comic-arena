@@ -3,8 +3,10 @@ const assert = require('node:assert/strict');
 
 const {
     applyDamageToUnit,
+    applyStatus,
     cleanseHarmfulStatuses,
     computeEffectiveEnergyCost,
+    processTurnStartStatusEffects,
     reduceHulkRageForInactiveTurn,
 } = require('../battleLogic.js');
 
@@ -241,4 +243,110 @@ test('breaking Rare Candy destructible defense does not remove the evolution sta
         unit.state.statuses.find((status) => status.id === 'bulbasaur_ivysaur_rare_candy_defense'),
         undefined
     );
+});
+
+test('Magikarp evolution tracker gains a turn stack at turn start', () => {
+    const match = {
+        economy: {
+            turnCounts: {
+                player: 1,
+            },
+        },
+        board: {
+            player: [
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    state: {
+                        statuses: [
+                            {
+                                id: 'magikarp_evolution_tracker',
+                                remainingTurns: 999,
+                                metadata: {
+                                    hidden: true,
+                                    infiniteDuration: true,
+                                    magikarpTurnCount: 0,
+                                    stackMetadataKey: 'magikarpTurnCount',
+                                    stackMax: 7,
+                                    turnStartApplyStatusToOwner: {
+                                        statusId: 'magikarp_evolution_tracker',
+                                        duration: 999,
+                                        allowExistingStatusStacking: true,
+                                        metadata: {
+                                            hidden: true,
+                                            infiniteDuration: true,
+                                            stackMetadataKey: 'magikarpTurnCount',
+                                            stackDelta: 1,
+                                            stackMax: 7,
+                                        },
+                                    },
+                                },
+                            },
+                        ],
+                        snapshots: {},
+                    },
+                },
+            ],
+        },
+    };
+
+    processTurnStartStatusEffects({ match, startingUsername: 'player' });
+
+    const tracker = match.board.player[0].state.statuses.find(
+        (status) => status.id === 'magikarp_evolution_tracker'
+    );
+    assert.equal(tracker?.metadata?.magikarpTurnCount, 1);
+});
+
+test('Splash can advance Magikarp into Gyarados immediately at 7 stacks', () => {
+    const state = {
+        statuses: [
+            {
+                id: 'magikarp_evolution_tracker',
+                remainingTurns: 999,
+                metadata: {
+                    hidden: true,
+                    infiniteDuration: true,
+                    magikarpTurnCount: 6,
+                    stackMetadataKey: 'magikarpTurnCount',
+                    stackMax: 7,
+                },
+            },
+        ],
+        snapshots: {},
+    };
+
+    applyStatus({
+        targetState: state,
+        statusId: 'magikarp_evolution_tracker',
+        duration: 999,
+        sourceSkillId: 'magikarp-splash',
+        sourceUsername: 'player',
+        sourceSlot: 0,
+        metadata: {
+            hidden: true,
+            infiniteDuration: true,
+            stackMetadataKey: 'magikarpTurnCount',
+            stackDelta: 1,
+            stackMax: 7,
+            applyStatusAtStack: {
+                metadataKey: 'magikarpTurnCount',
+                value: 7,
+                statusId: 'magikarp_gyarados_evolution',
+                duration: 999,
+                metadata: {
+                    infiniteDuration: true,
+                    tooltipText: "Magikarp has evolved into Gyarados. Gyarados' skills are completely new.",
+                },
+            },
+        },
+        fresh: false,
+    });
+
+    const tracker = state.statuses.find((status) => status.id === 'magikarp_evolution_tracker');
+    const evolution = state.statuses.find((status) => status.id === 'magikarp_gyarados_evolution');
+
+    assert.equal(tracker?.metadata?.magikarpTurnCount, 7);
+    assert.ok(evolution);
 });

@@ -2840,7 +2840,56 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         };
 
-        const getSkillUsageState = (actorUnit, skill) => {
+        const getCooldownRemainingForSkill = (actorUnit, skill) => {
+            const cooldowns = actorUnit?.state?.cooldowns || {};
+            const skillId = typeof skill?.id === 'string' ? skill.id : '';
+            if (!skillId) return 0;
+            return Math.max(0, Number(cooldowns[skillId]) || 0);
+        };
+
+        const isSkillBlockedByHelpfulHarmfulLock = (actorUnit, skill) => {
+            const statuses = Array.isArray(actorUnit?.state?.statuses) ? actorUnit.state.statuses : [];
+            const harmful = skillHasHarmfulEffects(skill);
+            if (statuses.some((status) => status?.metadata?.cannotUseHarmfulSkills) && harmful) {
+                return true;
+            }
+            if (statuses.some((status) => status?.metadata?.cannotUseHelpfulSkills) && !harmful) {
+                return true;
+            }
+            return false;
+        };
+
+        const isSkillBlockedByHelpfulSelfInvulnerability = (actorUnit, skill) => {
+            if (!actorUnit || skillHasHarmfulEffects(skill)) return false;
+            const target = typeof skill?.target === 'string' ? skill.target.trim().toLowerCase() : '';
+            if (target !== 'self') return false;
+            const effects = Array.isArray(skill?.effects) ? skill.effects : [];
+            if (
+                effects.length > 0 &&
+                effects.every(
+                    (effect) =>
+                        Boolean(effect?.ignoreHelpfulInvulnerability) ||
+                        Boolean(effect?.metadata?.ignoreHelpfulInvulnerability)
+                )
+            ) {
+                return false;
+            }
+            const statuses = Array.isArray(actorUnit?.state?.statuses) ? actorUnit.state.statuses : [];
+            return statuses.some((status) => status?.metadata?.invulnerableToHelpfulSkills);
+        };
+
+        const getActorSkillMetaEntries = (actorSlot) =>
+            Array.from(playerSkillMetaByKey.values()).filter(
+                (entry) => Number(entry?.actorSlot) === Number(actorSlot)
+            );
+
+        const doesActorMeetSkillConditionClient = (
+            actorUnit,
+            skill,
+            actorSlot = null,
+            skillIdx = null,
+            visitedSkillKeys = new Set()
+        ) => {
             const maxUses = Math.max(0, Number(skill?.maxUses) || 0);
             const skillId = typeof skill?.id === 'string' ? skill.id : '';
             const skillUses =
@@ -2850,20 +2899,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             const uses = skillId ? Math.max(0, Number(skillUses[skillId]) || 0) : 0;
             const isLimited = maxUses > 0;
             const isMaxed = isLimited && uses >= maxUses;
-            return {
-                isLimited,
-                uses,
-                maxUses,
-                isMaxed,
-                tooltipText: isLimited ? `Rex has used this skill ${uses} time${uses === 1 ? '' : 's'}.` : '',
-            };
-        };
-
-        const isSkillBlockedByActorCondition = (actorUnit, skill) => {
-            const usageState = getSkillUsageState(actorUnit, skill);
-            if (usageState.isMaxed) return true;
+            if (isMaxed) return false;
             const condition = skill?.actorCondition;
-            if (!condition || typeof condition !== 'object') return false;
+            if (!condition || typeof condition !== 'object') return true;
             const statuses = Array.isArray(actorUnit?.state?.statuses) ? actorUnit.state.statuses : [];
             const hasStatusId = (statusId) =>
                 statuses.some(
@@ -2876,15 +2914,87 @@ document.addEventListener('DOMContentLoaded', async () => {
                 condition.statusIdsAny.length > 0 &&
                 !condition.statusIdsAny.some((statusId) => hasStatusId(statusId))
             ) {
-                return true;
+                return false;
             }
-            if (condition?.missingStatusId && hasStatusId(condition.missingStatusId)) return true;
+            if (condition?.missingStatusId && hasStatusId(condition.missingStatusId)) return false;
             const currentHp = Math.max(0, Number(actorUnit?.hp) || 0);
             const hpAtMost = Number(condition?.sourceCurrentHpAtMost);
-            if (Number.isFinite(hpAtMost) && currentHp > hpAtMost) return true;
+            if (Number.isFinite(hpAtMost) && currentHp > hpAtMost) return false;
             const hpAtLeast = Number(condition?.sourceCurrentHpAtLeast);
-            if (Number.isFinite(hpAtLeast) && currentHp < hpAtLeast) return true;
-            return false;
+            if (Number.isFinite(hpAtLeast) && currentHp < hpAtLeast) return false;
+            if (Boolean(condition?.allOtherSkillsOnCooldown) && Number.isInteger(actorSlot)) {
+                const currentSkillKey = `${actorSlot}:${skillId || Number(skillIdx)}`;
+                if (visitedSkillKeys.has(currentSkillKey)) return true;
+                const nextVisited = new Set(visitedSkillKeys);
+                nextVisited.add(currentSkillKey);
+                const otherSkills = getActorSkillMetaEntries(actorSlot).filter(
+                    (entry) =>
+                        Number(entry?.skillIdx) !== Number(skillIdx) &&
+                        !Boolean(entry?.baseSkill?.hiddenFromSelectionViewer)
+                );
+                for (const entry of otherSkills) {
+                    const otherSkill =
+                        getEffectiveSkillForActorSlot(actorSlot, entry.skillIdx) ||
+                        entry?.skill ||
+                        entry?.baseSkill;
+                    if (!otherSkill) continue;
+                    if (
+                        !doesActorMeetSkillConditionClient(
+                            actorUnit,
+                            otherSkill,
+                            actorSlot,
+                            entry.skillIdx,
+                            nextVisited
+                        )
+                    ) {
+                        continue;
+                    }
+                    if (getCooldownRemainingForSkill(actorUnit, otherSkill) <= 0) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        };
+
+        const getSkillUsageState = (actorUnit, skill, actorSlot = null, skillIdx = null) => {
+            const maxUses = Math.max(0, Number(skill?.maxUses) || 0);
+            const skillId = typeof skill?.id === 'string' ? skill.id : '';
+            const skillUses =
+                actorUnit?.state?.skillUses && typeof actorUnit.state.skillUses === 'object'
+                    ? actorUnit.state.skillUses
+                    : {};
+            const uses = skillId ? Math.max(0, Number(skillUses[skillId]) || 0) : 0;
+            const isLimited = maxUses > 0;
+            const isMaxed = isLimited && uses >= maxUses;
+            const blockedByActorCondition = !doesActorMeetSkillConditionClient(
+                actorUnit,
+                skill,
+                actorSlot,
+                skillIdx
+            );
+            const blockedByHelpfulHarmfulLock = isSkillBlockedByHelpfulHarmfulLock(actorUnit, skill);
+            const blockedByHelpfulSelfInvulnerability = isSkillBlockedByHelpfulSelfInvulnerability(actorUnit, skill);
+            const isBlocked =
+                isMaxed || blockedByActorCondition || blockedByHelpfulHarmfulLock || blockedByHelpfulSelfInvulnerability;
+            let tooltipText = isLimited ? `Rex has used this skill ${uses} time${uses === 1 ? '' : 's'}.` : '';
+            if (blockedByActorCondition) {
+                tooltipText = 'This skill cannot be used right now.';
+            } else if (blockedByHelpfulHarmfulLock) {
+                tooltipText = skillHasHarmfulEffects(skill)
+                    ? 'This character cannot use harmful skills right now.'
+                    : 'This character cannot use helpful skills right now.';
+            } else if (blockedByHelpfulSelfInvulnerability) {
+                tooltipText = 'This character is invulnerable to helpful skills right now.';
+            }
+            return {
+                isLimited,
+                uses,
+                maxUses,
+                isMaxed,
+                isBlocked,
+                tooltipText,
+            };
         };
 
         const updateSkillAffordability = () => {
@@ -2893,13 +3003,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             const playerUnits = currentPlayerUsername && latestBoardState
                 ? latestBoardState[currentPlayerUsername]
                 : null;
-            const getCooldownRemainingForMeta = (meta, actorUnit) => {
-                const cooldowns = actorUnit?.state?.cooldowns || {};
-                const effectiveSkill = getEffectiveSkillForActorSlot(meta.actorSlot, meta.skillIdx) || meta?.skill;
-                const skillId = effectiveSkill?.id;
-                if (!skillId) return 0;
-                return Math.max(0, Number(cooldowns[skillId]) || 0);
-            };
             const isActorStunned = (actorUnit) => {
                 const statuses = Array.isArray(actorUnit?.state?.statuses) ? actorUnit.state.statuses : [];
                 return statuses.some((status) => status?.metadata?.cannotUseSkills);
@@ -2909,45 +3012,49 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!imgEl) return;
                 const actorUnit = Array.isArray(playerUnits) ? playerUnits[meta.actorSlot] : null;
                 const effectiveSkill = getEffectiveSkillForActorSlot(meta.actorSlot, meta.skillIdx) || meta?.skill;
-                const usageState = getSkillUsageState(actorUnit, effectiveSkill);
+                const usageState = getSkillUsageState(actorUnit, effectiveSkill, meta.actorSlot, meta.skillIdx);
                 imgEl.title = usageState.tooltipText || '';
                 const actorDead = isUnitDeadLike(actorUnit);
                 if (actorDead) {
                     imgEl.style.opacity = '0.4';
+                    imgEl.style.cursor = 'not-allowed';
                     return;
                 }
-                const cooldownRemaining = getCooldownRemainingForMeta(meta, actorUnit);
+                const cooldownRemaining = getCooldownRemainingForSkill(actorUnit, effectiveSkill);
                 if (cooldownRemaining > 0 || isActorStunned(actorUnit)) {
                     imgEl.style.opacity = '0.4';
+                    imgEl.style.cursor = 'not-allowed';
                     return;
                 }
-                if (usageState.isMaxed) {
+                if (usageState.isBlocked) {
                     imgEl.style.opacity = '0.4';
+                    imgEl.style.cursor = 'not-allowed';
                     return;
                 }
                 if (isActorEnemyTargetingStunned(actorUnit) && skillIsEnemyTargeting(effectiveSkill)) {
                     imgEl.style.opacity = '0.4';
+                    imgEl.style.cursor = 'not-allowed';
                     return;
                 }
                 if (isSkillBlockedByClassLock(actorUnit, effectiveSkill)) {
                     imgEl.style.opacity = '0.4';
+                    imgEl.style.cursor = 'not-allowed';
                     return;
                 }
                 if (isSkillBlockedByIndexLock(actorUnit, meta.skillIdx)) {
                     imgEl.style.opacity = '0.4';
-                    return;
-                }
-                if (isSkillBlockedByActorCondition(actorUnit, effectiveSkill)) {
-                    imgEl.style.opacity = '0.4';
+                    imgEl.style.cursor = 'not-allowed';
                     return;
                 }
                 if (!isPlayersTurn) {
                     imgEl.style.opacity = '0.4';
+                    imgEl.style.cursor = 'not-allowed';
                     return;
                 }
                 const queued = getQueuedSkillForActorSlot(meta.actorSlot);
                 if (queued && queued.skillIndex === meta.skillIdx) {
                     imgEl.style.opacity = '1';
+                    imgEl.style.cursor = 'pointer';
                     return;
                 }
                 imgEl.style.opacity = canAffordSkillWithPendingReservations(
@@ -2957,6 +3064,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 )
                     ? '1'
                     : '0.4';
+                imgEl.style.cursor = imgEl.style.opacity === '1' ? 'pointer' : 'not-allowed';
             });
         };
 
@@ -8996,7 +9104,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 actorSlot !== null && currentPlayerUsername && latestBoardState?.[currentPlayerUsername]
                     ? latestBoardState[currentPlayerUsername][actorSlot]
                     : null;
-            const usageState = getSkillUsageState(actorUnit, skill);
+            const usageState = getSkillUsageState(actorUnit, skill, actorSlot, skillIdx);
             if (skillInfo.imgEl) {
                 skillInfo.imgEl.src = skill.skillimage || '';
                 skillInfo.imgEl.alt = skill.name || 'Skill';
@@ -9179,7 +9287,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const effectiveSkill = getEffectiveSkillForActorSlot(meta.actorSlot, meta.skillIdx) || meta?.baseSkill;
                 if (!effectiveSkill) return;
                 const actorUnit = latestBoardState?.[currentPlayerUsername]?.[meta.actorSlot];
-                const usageState = getSkillUsageState(actorUnit, effectiveSkill);
+                const usageState = getSkillUsageState(actorUnit, effectiveSkill, meta.actorSlot, meta.skillIdx);
                 meta.skill = effectiveSkill;
                 const nextSrc = effectiveSkill.skillimage || '';
                 const nextAlt = effectiveSkill.name || `Skill ${meta.skillIdx + 1}`;
@@ -10683,6 +10791,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     event.stopPropagation();
                                     const effectiveSkill =
                                         getEffectiveSkillForActorSlot(slotIndex, skillIdx) || skill;
+                                    const actorUnit = latestBoardState?.[currentPlayerUsername]?.[slotIndex] || null;
                                     measureIngamePerf('click:skill-info', () =>
                                         renderSkillInfo(character, effectiveSkill, slotIndex, skillIdx)
                                     );
@@ -10703,6 +10812,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                                         return;
                                     }
                                     if (queued) {
+                                        triggerBlockedSkillFeedback(imgEl);
+                                        return;
+                                    }
+                                    const usageState = getSkillUsageState(
+                                        actorUnit,
+                                        effectiveSkill,
+                                        slotIndex,
+                                        skillIdx
+                                    );
+                                    if (
+                                        usageState.isBlocked ||
+                                        getCooldownRemainingForSkill(actorUnit, effectiveSkill) > 0 ||
+                                        isSkillBlockedByClassLock(actorUnit, effectiveSkill) ||
+                                        isSkillBlockedByIndexLock(actorUnit, skillIdx) ||
+                                        (isActorEnemyTargetingStunned(actorUnit) && skillIsEnemyTargeting(effectiveSkill))
+                                    ) {
                                         triggerBlockedSkillFeedback(imgEl);
                                         return;
                                     }
