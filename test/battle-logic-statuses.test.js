@@ -504,6 +504,74 @@ test('skipFirstTurnStartTick delays turn-start damage until the following turn c
     assert.equal(match.board.player[0].hp, 90);
 });
 
+test('Smog deals damage on the source turn end even if the caster is stunned afterward', () => {
+    const match = {
+        players: [
+            { username: 'player' },
+            { username: 'enemy' },
+        ],
+        board: {
+            player: [
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    state: {
+                        statuses: [
+                            {
+                                id: 'stunned',
+                                remainingTurns: 1,
+                                metadata: {
+                                    harmful: true,
+                                    cannotUseSkills: true,
+                                },
+                            },
+                        ],
+                        snapshots: {},
+                    },
+                },
+            ],
+            enemy: [
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    state: {
+                        statuses: [
+                            {
+                                id: 'koffing_smog_cloud',
+                                remainingTurns: 4,
+                                sourceSkillId: 'koffing-smog',
+                                sourceUsername: 'player',
+                                sourceSlot: 0,
+                                fresh: true,
+                                metadata: {
+                                    harmful: true,
+                                    allowDuplicateStatusInstances: true,
+                                    turnEndDamage: 5,
+                                    fixedTurnEndDamage: true,
+                                    triggerOnApply: true,
+                                    afflictionDamage: true,
+                                    ignoreTargetDamageReduction: true,
+                                    ignoreTargetDestructibleDefense: true,
+                                    turnEndTrigger: 'source_turn',
+                                    turnDurationAnchor: 'source_turn',
+                                },
+                            },
+                        ],
+                        snapshots: {},
+                    },
+                },
+            ],
+        },
+    };
+
+    tickStatusesForTurnEnd({ match, endingUsername: 'player' });
+
+    assert.equal(match.board.enemy[0].hp, 95);
+    assert.equal(match.board.enemy[0].state.statuses[0].remainingTurns, 3);
+});
+
 test('affliction damage ignores destructible defense', () => {
     const unit = {
         alive: true,

@@ -21722,9 +21722,12 @@ const characters = [
                             "harmful": true,
                             "allowDuplicateStatusInstances": true,
                             "turnEndDamage": 5,
+                            "fixedTurnEndDamage": true,
+                            "triggerOnApply": true,
                             "afflictionDamage": true,
                             "ignoreTargetDamageReduction": true,
                             "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
                             "tooltipText": "This character takes 5 affliction damage each turn from Smog."
                         }
@@ -22015,9 +22018,12 @@ const characters = [
                             "harmful": true,
                             "allowDuplicateStatusInstances": true,
                             "turnEndDamage": 5,
+                            "fixedTurnEndDamage": true,
+                            "triggerOnApply": true,
                             "afflictionDamage": true,
                             "ignoreTargetDamageReduction": true,
                             "ignoreTargetDestructibleDefense": true,
+                            "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
                             "tooltipText": "This character takes 5 affliction damage each turn from Smog."
                         }
