@@ -7,6 +7,7 @@ const {
     buildMatchPayloadForUser,
     buildMatchActionStatePayload,
     areQueuedSkillRequestsEquivalent,
+    resolveExpiredTurnStartChoiceIfNeeded,
 } = require('../server.js');
 
 test('normalizeArenaMode keeps pokemon and falls back invalid values to comic', () => {
@@ -238,5 +239,99 @@ test('areQueuedSkillRequestsEquivalent matches repeated queue submissions', () =
             targetSelection: [{ username: 'ash', slot: 0 }, { username: 'gary', slot: 1 }],
         }),
         false
+    );
+});
+
+test('resolveExpiredTurnStartChoiceIfNeeded auto-picks the default prompt option', () => {
+    const pendingTurn = makeEmptyPendingTurn();
+    pendingTurn.turnStartChoice = {
+        actorSlot: 0,
+        sourceSkillId: 'saint-walker-radiant-hope',
+        sourceUsername: 'ash',
+        sourceSlot: 0,
+        sourceStatusId: 'saint_walker_radiant_hope_active',
+        promptText: 'Select 1 Radiant Hope effect.',
+        options: [
+            {
+                key: 'defense',
+                label: 'Grant one ally 20 permanent destructible defense',
+                targetStrategy: 'alive-ally-lowest-hp',
+                effect: {
+                    type: 'apply_status',
+                    statusId: 'saint_walker_radiant_hope_defense_option',
+                    duration: 99,
+                    metadata: {
+                        destructibleDefensePoints: 20,
+                        infiniteDuration: true,
+                        tooltipText:
+                            'This character has 20 points of permanent destructible defense from Radiant Hope.',
+                    },
+                },
+            },
+        ],
+        maxUses: 1,
+        usesUsed: 0,
+    };
+
+    const match = {
+        matchId: 'match-test-turn-start-choice-timeout',
+        mode: 'quick',
+        arena: 'comic',
+        status: 'active',
+        currentTurn: 'ash',
+        players: [
+            { username: 'ash', team: [1, 2, 3], aliveCount: 1, profile: {} },
+            { username: 'gary', team: [4, 5, 6], aliveCount: 1, profile: {} },
+        ],
+        board: {
+            ash: [
+                {
+                    slot: 0,
+                    rosterIndex: 1,
+                    alive: true,
+                    hp: 40,
+                    state: {
+                        statuses: [
+                            {
+                                id: 'saint_walker_radiant_hope_active',
+                                remainingTurns: 1,
+                                metadata: {
+                                    turnStartChoiceQueued: true,
+                                    turnStartChoiceMaxUses: 1,
+                                    turnStartChoiceUsesUsed: 0,
+                                },
+                            },
+                        ],
+                    },
+                },
+            ],
+            gary: [
+                {
+                    slot: 0,
+                    rosterIndex: 4,
+                    alive: true,
+                    hp: 100,
+                    state: { statuses: [] },
+                },
+            ],
+        },
+        pendingTurns: {
+            ash: pendingTurn,
+            gary: makeEmptyPendingTurn(),
+        },
+    };
+
+    const resolved = resolveExpiredTurnStartChoiceIfNeeded({
+        match,
+        username: 'ash',
+    });
+
+    assert.equal(resolved, true);
+    assert.equal(match.pendingTurns.ash.turnStartChoice, null);
+    assert.equal(match.board.ash[0].state.statuses[0].metadata.turnStartChoiceQueued, false);
+    assert.equal(match.board.ash[0].state.statuses[0].metadata.turnStartChoiceUsesUsed, 1);
+    assert.match(
+        match.board.ash[0].state.statuses[1].id,
+        /saint_walker_radiant_hope_defense_option/
     );
 });

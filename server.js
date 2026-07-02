@@ -8828,6 +8828,26 @@ const resolveTurnStartChoiceForUser = ({
     match.pendingTurns[username] = pendingTurn;
 };
 
+const resolveExpiredTurnStartChoiceIfNeeded = ({ match, username }) => {
+    if (!match || !username) return false;
+    const pendingTurn = getPendingTurn(match, username);
+    if (!hasPendingTurnStartChoice(pendingTurn)) {
+        return false;
+    }
+    const defaultChoice = Array.isArray(pendingTurn.turnStartChoice?.options)
+        ? pendingTurn.turnStartChoice.options[0]
+        : null;
+    if (!defaultChoice?.key) {
+        return false;
+    }
+    resolveTurnStartChoiceForUser({
+        match,
+        username,
+        choiceKey: defaultChoice.key,
+    });
+    return true;
+};
+
 const getBattleBotMaxQueuedSkillsForMatch = (match = {}) => {
     const pveMissionId = slugifyMissionId(match.specialPveMissionId || match.pveBattle?.missionId || '');
     if (!pveMissionId) {
@@ -9537,10 +9557,6 @@ const finalizeTurn = async (match, username) => {
 
 const autoAdvanceTurnIfExpired = async (match) => {
     if (!match || !match.turnExpiresAt) return match;
-    const pendingTurnChoice = getPendingTurn(match, match?.currentTurn || '');
-    if (hasPendingTurnStartChoice(pendingTurnChoice)) {
-        return match;
-    }
     await ensureBoardState(match);
     const expiry =
         match.turnExpiresAt instanceof Date
@@ -9548,6 +9564,10 @@ const autoAdvanceTurnIfExpired = async (match) => {
             : new Date(match.turnExpiresAt).getTime();
     if (Number.isNaN(expiry)) return match;
     if (Date.now() <= expiry) return match;
+    resolveExpiredTurnStartChoiceIfNeeded({
+        match,
+        username: match.currentTurn,
+    });
     return finalizeTurn(match, match.currentTurn);
 };
 
@@ -13917,5 +13937,7 @@ if (require.main === module) {
         buildMatchPayloadForUser,
         buildMatchActionStatePayload,
         areQueuedSkillRequestsEquivalent,
+        resolveExpiredTurnStartChoiceIfNeeded,
+        autoAdvanceTurnIfExpired,
     };
 }
