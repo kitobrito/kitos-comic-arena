@@ -168,7 +168,6 @@ test('buildMatchPayloadForUser resolves viewer-scoped energy with username case 
     });
     assert.deepEqual(payload.ladderResult, { ladderPointsDelta: 18, rating: 1210 });
 });
-
 test('buildMatchActionStatePayload carries current safe state for stale actions', () => {
     const match = {
         matchId: 'match-test-2',

@@ -45,6 +45,16 @@ const skillShowcase = (characterId, skillId, text) => {
     };
 };
 
+const sectionNote = (sectionName, text, changeType = 'quality') => ({
+    text,
+    changeType,
+    characterName: sectionName,
+    facePicture: '',
+    skillId: '',
+    skillName: '',
+    skillimage: '',
+});
+
 const now = new Date();
 
 const krabbyMission = {
@@ -109,8 +119,46 @@ const newsPost = {
             text: 'Pokemon Trainer\'s Rare Candy now supports Krabby too, so evolution-focused teams can skip the usual Harden timer and bring Kingler online immediately.',
         },
         {
+            type: 'divider',
+        },
+        {
             type: 'paragraph',
-            text: 'This update also highlights the newest Pokemon Arena combat animation batches. Recent casts now include Butterfree\'s Psybeam, Stun Spore, Whirlwind, and Sleep Powder, Pokemon Trainer\'s ball and item skills, Abra and Kadabra\'s psychic setup tools, and Zubat/Golbat\'s drain-and-bite attacks.',
+            text: 'Bug Fixes',
+        },
+        {
+            type: 'paragraph',
+            text: 'Recent fixes cover match flow, mobile controls, and evolution cleanup. Match timeout recovery no longer force-clears the cached account and boots players to login, ended matches no longer trap players in a repeated victory-screen loop, and mobile players can now press-and-drag to reorder queued skills directly from the in-game skill list.',
+        },
+        {
+            type: 'paragraph',
+            text: 'Pokemon Trainer\'s Rare Candy evolution statuses are now unremovable, so evolved targets cannot be unevolved by later cleanse or status-removal effects. Pokemon piercing skills were also cleaned up so moves that are only supposed to ignore normal damage reduction no longer incorrectly bypass destructible defense through old override data.',
+        },
+        {
+            type: 'paragraph',
+            text: 'Matchmaking join recovery was also hardened around stale or half-hydrated active matches, which should reduce cases where players get stranded in broken queue or match-join states.',
+        },
+        {
+            type: 'divider',
+        },
+        {
+            type: 'paragraph',
+            text: 'Animations',
+        },
+        {
+            type: 'paragraph',
+            text: 'The animation rollout now spans four Pokemon Arena batches. The first batch covered Ivysaur\'s Solar Beam and Leech Seed, Pikachu\'s Thunder, Charmeleon\'s Flamethrower, Wartortle\'s Hydro Pump, Kadabra\'s Future Sight, Golbat\'s Supersonic, Blissey\'s Pokemon Center Healing, Weezing\'s Smog, and Scyther\'s X-Cutter.',
+        },
+        {
+            type: 'paragraph',
+            text: 'The second batch added Butterfree\'s Psybeam, Stun Spore, Whirlwind, and Sleep Powder, plus Pokemon Trainer FX for Pokeball, Great Ball, Ultra Ball, Master Ball, X-Stats, and Rare Candy.',
+        },
+        {
+            type: 'paragraph',
+            text: 'The third batch added Psychic, Calm Mind, and Teleport for both Abra and Kadabra, along with Leech Life and Bite for both Zubat and Golbat.',
+        },
+        {
+            type: 'paragraph',
+            text: 'The newest Krabby/Kingler batch adds Metal Claw, Bubble, Crabhammer, and Harden, and evolved Kingler now also gets a live portrait aura with snapping crab pincers on every corner and rising bubbles around the face card.',
         },
     ],
     paragraphs: [
@@ -118,7 +166,15 @@ const newsPost = {
         'Krabby is a bruiser built around permanent stat growth. Metal Claw chips through defenses with piercing damage and can permanently boost Krabby\'s non-affliction damage, Bubble permanently opens one enemy up to extra physical punishment, Crabhammer stuns and can crit for a burst spike, and Harden stacks permanent destructible defense while buying time with damage reduction.',
         'After Krabby has spent 3 turns with Harden\'s destructible defense active, it evolves into Kingler. Kingler doubles down on the same identity with stronger Metal Claw scaling, a harsher Bubble mark, a heavier Crabhammer, and a more durable Harden window.',
         'Pokemon Trainer\'s Rare Candy now supports Krabby too, so evolution-focused teams can skip the usual Harden timer and bring Kingler online immediately.',
-        'This update also highlights the newest Pokemon Arena combat animation batches. Recent casts now include Butterfree\'s Psybeam, Stun Spore, Whirlwind, and Sleep Powder, Pokemon Trainer\'s ball and item skills, Abra and Kadabra\'s psychic setup tools, and Zubat/Golbat\'s drain-and-bite attacks.',
+        'Bug Fixes',
+        'Recent fixes cover match flow, mobile controls, and evolution cleanup. Match timeout recovery no longer force-clears the cached account and boots players to login, ended matches no longer trap players in a repeated victory-screen loop, and mobile players can now press-and-drag to reorder queued skills directly from the in-game skill list.',
+        'Pokemon Trainer\'s Rare Candy evolution statuses are now unremovable, so evolved targets cannot be unevolved by later cleanse or status-removal effects. Pokemon piercing skills were also cleaned up so moves that are only supposed to ignore normal damage reduction no longer incorrectly bypass destructible defense through old override data.',
+        'Matchmaking join recovery was also hardened around stale or half-hydrated active matches, which should reduce cases where players get stranded in broken queue or match-join states.',
+        'Animations',
+        'The animation rollout now spans four Pokemon Arena batches. The first batch covered Ivysaur\'s Solar Beam and Leech Seed, Pikachu\'s Thunder, Charmeleon\'s Flamethrower, Wartortle\'s Hydro Pump, Kadabra\'s Future Sight, Golbat\'s Supersonic, Blissey\'s Pokemon Center Healing, Weezing\'s Smog, and Scyther\'s X-Cutter.',
+        'The second batch added Butterfree\'s Psybeam, Stun Spore, Whirlwind, and Sleep Powder, plus Pokemon Trainer FX for Pokeball, Great Ball, Ultra Ball, Master Ball, X-Stats, and Rare Candy.',
+        'The third batch added Psychic, Calm Mind, and Teleport for both Abra and Kadabra, along with Leech Life and Bite for both Zubat and Golbat.',
+        'The newest Krabby/Kingler batch adds Metal Claw, Bubble, Crabhammer, and Harden, and evolved Kingler now also gets a live portrait aura with snapping crab pincers on every corner and rising bubbles around the face card.',
     ],
     changes: [
         skillShowcase('krabby', 'krabby-metal-claw', 'Metal Claw deals piercing damage and has a 30% chance to permanently add more non-affliction damage to Krabby\'s kit.'),
@@ -127,6 +183,16 @@ const newsPost = {
         skillShowcase('krabby', 'krabby-harden', 'Harden adds permanent destructible defense immediately, grants a 2-turn damage reduction shell, and feeds Krabby\'s evolution clock into Kingler.'),
         skillShowcase('krabby', 'krabby-passive-evolution-kingler', 'Evolution - Kingler triggers after 3 turns protected by Harden\'s defense and upgrades the full Krabby kit.'),
         skillShowcase('pokemon-trainer', 'pokemon-trainer-rare-candy', 'Rare Candy now includes Krabby among its instant-evolution targets, letting Pokemon Trainer jump straight to Kingler.'),
+        sectionNote('Bug Fixes', 'Match timeout expiry now sends players back toward selection without forcibly logging them out, and finished matches can be dismissed cleanly without the victory overlay reopening in a loop.'),
+        sectionNote('Bug Fixes', 'Mobile queue previews now support touch drag-and-drop reordering, so phone players can change queued skill order the same way desktop players can.'),
+        sectionNote('Bug Fixes', 'Rare Candy evolution states are now marked unremovable, which prevents cleanse-style effects from stripping an evolved form and undoing Pokemon Trainer progress.'),
+        sectionNote('Bug Fixes', 'Pokemon piercing cleanup removed mistaken destructible-defense bypass flags from skills and override records that were only meant to ignore standard damage reduction.'),
+        sectionNote('Bug Fixes', 'Matchmaking join recovery now rehydrates stale active matches more safely so players are less likely to get stuck in broken join or queue states.'),
+        sectionNote('Animations', 'Batch 1 added custom portrait FX for Solar Beam, Leech Seed, Thunder, Flamethrower, Hydro Pump, Future Sight, Supersonic, Pokemon Center Healing, Smog, and X-Cutter.', 'new'),
+        sectionNote('Animations', 'Batch 2 added Psybeam, Stun Spore, Whirlwind, Sleep Powder, Pokeball, Great Ball, Ultra Ball, Master Ball, X-Stats, and Rare Candy.', 'new'),
+        sectionNote('Animations', 'Batch 3 added Psychic, Calm Mind, and Teleport for Abra/Kadabra plus Leech Life and Bite for Zubat/Golbat.', 'new'),
+        sectionNote('Animations', 'Krabby and Kingler now animate Metal Claw, Bubble, Crabhammer, and Harden.', 'new'),
+        sectionNote('Animations', 'Evolved Kingler now projects a live portrait aura with snapping claw corners and floating bubbles when Krabby has evolved.', 'new'),
     ],
     author: 'kito',
     createdAt: now,
