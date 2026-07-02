@@ -460,6 +460,50 @@ test('Magikarp evolution tracker gains a turn stack at turn start', () => {
     assert.equal(tracker?.metadata?.magikarpTurnCount, 1);
 });
 
+test('skipFirstTurnStartTick delays turn-start damage until the following turn cycle', () => {
+    const match = {
+        economy: {
+            turnCounts: {
+                player: 1,
+            },
+        },
+        board: {
+            player: [
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    state: {
+                        statuses: [
+                            {
+                                id: 'delayed_water_mark',
+                                remainingTurns: 2,
+                                sourceSkillId: 'squirtle-water-gun',
+                                sourceUsername: 'enemy',
+                                sourceSlot: 0,
+                                metadata: {
+                                    harmful: true,
+                                    turnStartDamage: 10,
+                                    fixedTurnStartDamage: true,
+                                    skipFirstTurnStartTick: true,
+                                },
+                            },
+                        ],
+                        snapshots: {},
+                    },
+                },
+            ],
+        },
+    };
+
+    processTurnStartStatusEffects({ match, startingUsername: 'player' });
+    assert.equal(match.board.player[0].hp, 100);
+
+    match.economy.turnCounts.player = 2;
+    processTurnStartStatusEffects({ match, startingUsername: 'player' });
+    assert.equal(match.board.player[0].hp, 90);
+});
+
 test('affliction damage ignores destructible defense', () => {
     const unit = {
         alive: true,

@@ -17750,6 +17750,7 @@ const characters = [
                             "harmful": true,
                             "turnStartDamage": 10,
                             "fixedTurnStartDamage": true,
+                            "skipFirstTurnStartTick": true,
                             "onOwnerUseSkillTrigger": true,
                             "onOwnerUseSkillHarmfulOnly": true,
                             "onOwnerUseSkillApplyStatusToOwner": {
@@ -18016,6 +18017,7 @@ const characters = [
                             "harmful": true,
                             "turnStartDamage": 20,
                             "fixedTurnStartDamage": true,
+                            "skipFirstTurnStartTick": true,
                             "onOwnerUseSkillTrigger": true,
                             "onOwnerUseSkillHarmfulOnly": true,
                             "onOwnerUseSkillApplyStatusToOwner": {

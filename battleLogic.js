@@ -4877,6 +4877,16 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
                 typeof status.metadata.turnStartBonusDamageIfTargetHasStatusId === 'object'
                     ? status.metadata.turnStartBonusDamageIfTargetHasStatusId
                     : null;
+            if (
+                Boolean(status?.metadata?.skipFirstTurnStartTick) &&
+                !Boolean(status?.metadata?._skipFirstTurnStartTickConsumed)
+            ) {
+                status.metadata = {
+                    ...(status.metadata || {}),
+                    _skipFirstTurnStartTickConsumed: true,
+                };
+                return;
+            }
             const bonusDamageFromStatus =
                 turnStartBonusDamageIfTargetHasStatusId?.statusId &&
                 hasStatus(state, turnStartBonusDamageIfTargetHasStatusId.statusId)
