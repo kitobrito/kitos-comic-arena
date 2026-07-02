@@ -17218,8 +17218,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Charmander/ember.jpg",
                 "skilldescription": "Charmander deals 15 affliction damage to one enemy. This skill has a 30% chance to Burn the target. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
                 "energy": [
-                    "Bloodline",
-                    "Random"
+                    "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -18777,8 +18776,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Pikachu/thundershock.jpg",
                 "skilldescription": "Deals 20 piercing damage to one targeted enemy and 15 piercing damage to a random different enemy, paralyzes the targeted enemy's cooldowns, and makes Thunder cost 1 white energy and 1 Random energy for 1 turn. If the targeted enemy is affected by Static, their cooldowns are paralyzed for 2 turns instead.",
                 "energy": [
-                    "Genjutsu",
-                    "Random"
+                    "Genjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -21147,8 +21145,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pidgey/gust.webp",
                 "skilldescription": "Pidgey deals 20 piercing damage to one enemy and 10 physical damage to all other enemies. Pidgey becomes invulnerable to non-mental skills for 1 turn.",
                 "energy": [
-                    "Bloodline",
-                    "Random"
+                    "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -21382,8 +21379,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pidgey/pidgeottogust.webp",
                 "skilldescription": "Pidgeotto deals 20 piercing damage to one enemy and 15 piercing damage to all other enemies. Pidgeotto becomes invulnerable to non-mental skills for 1 turn.",
                 "energy": [
-                    "Bloodline",
-                    "Random"
+                    "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -22791,8 +22787,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/gastley/lick.webp",
                 "skilldescription": "Deals 20 affliction damage to one enemy. This skill has a 1% chance to stun the target's harmful skills for 1 turn for each point of health Gastly is missing.",
                 "energy": [
-                    "Ninjutsu",
-                    "Random"
+                    "Ninjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -23009,8 +23004,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/gastley/haunterlick.webp",
                 "skilldescription": "Deals 20 affliction damage to one enemy. This skill has a 2% chance to stun the target's harmful skills for 1 turn for each point of health Gastly is missing.",
                 "energy": [
-                    "Ninjutsu",
-                    "Random"
+                    "Ninjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
