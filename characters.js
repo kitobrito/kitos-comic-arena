@@ -26258,6 +26258,289 @@ const characters = [
         "roleCategory": "damage",
         "description": "A famously weak Water-type Pokemon whose plan is surviving long enough to become Gyarados, then cashing in with overwhelming ranged pressure.",
         "descriptionHtml": "A famously weak Water-type Pokemon whose plan is surviving long enough to become Gyarados, then cashing in with overwhelming ranged pressure."
+    },
+    {
+        "id": "mr-mime",
+        "characterId": "mr-mime",
+        "name": "Mr. Mime",
+        "facePicture": "assets/images/PokemonArena/Mr.mime/fp.jpg",
+        "characterdeescription": "A trickster support Pokemon that turns odd protection timing into tempo. Mr. Mime softens teams with Dazzling Gleam, hands enemies Forcefield they have to burn through on their own turns, and keeps allies safe with layered Shields and Safeguard utility.",
+        "skills": [
+            {
+                "id": "mr-mime-dazzling-gleam",
+                "name": "Dazzling Gleam",
+                "skillimage": "assets/images/PokemonArena/Mr.mime/dazzlinggleam.png",
+                "skilldescription": "Deals 30 damage to one enemy and 10 damage to the other enemies. The next Forcefield or Light Screen grants 5 additional Barrier or Shield. This effect stacks.",
+                "energy": [
+                    "Ninjutsu",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "all-other-enemies"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "mr_mime_screen_charge",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "mimeScreenChargeStacks": 1,
+                            "stackMetadataKey": "mimeScreenChargeStacks",
+                            "stackDelta": 1,
+                            "stackMax": 20,
+                            "stackDerivedNumericKeys": {
+                                "mimeProtectionBonus": 5
+                            },
+                            "onOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillIdsAny": [
+                                "mr-mime-forcefield",
+                                "mr-mime-light-screen"
+                            ],
+                            "statusIconUrl": "assets/images/PokemonArena/Mr.mime/dazzlinggleam.png",
+                            "tooltipTextTemplate": "Mr. Mime's next Forcefield or Light Screen grants {mimeProtectionBonus} additional protection."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "mr-mime-forcefield",
+                "name": "Forcefield",
+                "skillimage": "assets/images/PokemonArena/Mr.mime/forcefield.jpg",
+                "skilldescription": "Applies 20 Barrier to every enemy for 1 turn. During the next turn, Light Screen costs 1 less Random energy.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "mr_mime_forcefield",
+                        "duration": 1,
+                        "durationFromStatusMetadata": {
+                            "scope": "self",
+                            "statusId": "mr_mime_safeguard",
+                            "metadataKey": "mrMimeScreenDuration"
+                        },
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "barrierPoints": 20,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/Mr.mime/forcefield.jpg",
+                            "tooltipTextTemplate": "This character has {barrierPoints} barrier."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "mr_mime_forcefield_bonus",
+                        "duration": 1,
+                        "durationFromStatusMetadata": {
+                            "scope": "self",
+                            "statusId": "mr_mime_safeguard",
+                            "metadataKey": "mrMimeScreenDuration"
+                        },
+                        "scope": "all-enemy",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "mr_mime_screen_charge"
+                        },
+                        "metadata": {
+                            "barrierPoints": 0,
+                            "mimeScreenChargeStacks": 0,
+                            "stackMetadataKey": "mimeScreenChargeStacks",
+                            "stackDerivedNumericKeys": {
+                                "barrierPoints": 5,
+                                "mimeProtectionBonus": 5
+                            },
+                            "copyStatusMetadataToMetadataKeys": [
+                                {
+                                    "scope": "self",
+                                    "statusId": "mr_mime_screen_charge",
+                                    "metadataKey": "mimeScreenChargeStacks",
+                                    "targetKey": "mimeScreenChargeStacks"
+                                }
+                            ],
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/Mr.mime/forcefield.jpg",
+                            "tooltipTextTemplate": "This character has {barrierPoints} barrier from Dazzling Gleam."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "mr_mime_light_screen_discount",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "skillCostOverridesBySkillId": {
+                                "mr-mime-light-screen": {
+                                    "requiredRandom": 1
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/Mr.mime/forcefield.jpg",
+                            "tooltipText": "Light Screen costs 1 less random energy."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "mr-mime-light-screen",
+                "name": "Light Screen",
+                "skillimage": "assets/images/PokemonArena/Mr.mime/lightscreen.jpg",
+                "skilldescription": "Grants your team 20 Shield for 1 turn. During the next turn, Forcefield costs 1 less Random energy.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "all-allies",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "mr_mime_light_screen",
+                        "duration": 1,
+                        "durationFromStatusMetadata": {
+                            "scope": "self",
+                            "statusId": "mr_mime_safeguard",
+                            "metadataKey": "mrMimeScreenDuration"
+                        },
+                        "scope": "all-allies",
+                        "metadata": {
+                            "destructibleDefensePoints": 20,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/Mr.mime/lightscreen.jpg",
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "mr_mime_light_screen_bonus",
+                        "duration": 1,
+                        "durationFromStatusMetadata": {
+                            "scope": "self",
+                            "statusId": "mr_mime_safeguard",
+                            "metadataKey": "mrMimeScreenDuration"
+                        },
+                        "scope": "all-allies",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "mr_mime_screen_charge"
+                        },
+                        "metadata": {
+                            "destructibleDefensePoints": 0,
+                            "mimeScreenChargeStacks": 0,
+                            "stackMetadataKey": "mimeScreenChargeStacks",
+                            "stackDerivedNumericKeys": {
+                                "destructibleDefensePoints": 5,
+                                "mimeProtectionBonus": 5
+                            },
+                            "copyStatusMetadataToMetadataKeys": [
+                                {
+                                    "scope": "self",
+                                    "statusId": "mr_mime_screen_charge",
+                                    "metadataKey": "mimeScreenChargeStacks",
+                                    "targetKey": "mimeScreenChargeStacks"
+                                }
+                            ],
+                            "allowShieldBonus": false,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/Mr.mime/lightscreen.jpg",
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Dazzling Gleam."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "mr_mime_forcefield_discount",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "skillCostOverridesBySkillId": {
+                                "mr-mime-forcefield": {
+                                    "requiredRandom": 1
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/Mr.mime/lightscreen.jpg",
+                            "tooltipText": "Forcefield costs 1 less random energy."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "mr-mime-safeguard",
+                "name": "Safeguard",
+                "skillimage": "assets/images/PokemonArena/Mr.mime/safeguard.jpg",
+                "skilldescription": "For 3 turns, stun effects on your team last 1 less turn, healing received by your team is increased by 25%, skills that grant Shield grant 5 additional Shield, and Forcefield and Light Screen last 1 additional turn while this skill is active.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "all-allies",
+                "damage": 0,
+                "cooldown": 5,
+                "classes": [
+                    "Mental",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "mr_mime_safeguard",
+                        "duration": 3,
+                        "scope": "all-allies",
+                        "metadata": {
+                            "healReceivedMultiplier": 1.25,
+                            "additionalIncomingShieldPoints": 5,
+                            "mrMimeScreenDuration": 2,
+                            "reduceIncomingStatusDuration": [
+                                {
+                                    "whenStatusHasMetadataFlag": "stunLikeEffect",
+                                    "by": 1
+                                }
+                            ],
+                            "statusIconUrl": "assets/images/PokemonArena/Mr.mime/safeguard.jpg",
+                            "tooltipText": "This character receives 25% more healing, shield-granting skills add 5 additional shield, Forcefield and Light Screen last 1 additional turn from Mr. Mime, and stun effects last 1 less turn."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Support",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "support",
+        "description": "A trickster support Pokemon that manipulates protection timing, softens teams with Dazzling Gleam, and keeps allies stable with Light Screen and Safeguard.",
+        "descriptionHtml": "A trickster support Pokemon that manipulates protection timing, softens teams with Dazzling Gleam, and keeps allies stable with Light Screen and Safeguard."
     }
 ];
 

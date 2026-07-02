@@ -2658,6 +2658,51 @@ const getAdditionalIncomingStatusDuration = ({ targetState, incomingStatusId, in
     }, 0);
 };
 
+const getIncomingStatusDurationReduction = ({ targetState, incomingStatusId, incomingMetadata }) => {
+    const statuses = Array.isArray(targetState?.statuses) ? targetState.statuses : [];
+    if (!statuses.length) return 0;
+    return statuses.reduce((sum, status) => {
+        const remaining = Number(status?.remainingTurns) || 0;
+        if (remaining <= 0) return sum;
+        const rules = Array.isArray(status?.metadata?.reduceIncomingStatusDuration)
+            ? status.metadata.reduceIncomingStatusDuration
+            : [];
+        if (!rules.length) return sum;
+        const reduction = rules.reduce((acc, rule) => {
+            const by = Number(rule?.by) || 0;
+            if (by <= 0) return acc;
+            if (rule?.whenStatusId && rule.whenStatusId !== incomingStatusId) return acc;
+            if (
+                rule?.whenStatusHasMetadataFlag &&
+                !Boolean(incomingMetadata?.[rule.whenStatusHasMetadataFlag])
+            ) {
+                return acc;
+            }
+            return acc + by;
+        }, 0);
+        return sum + reduction;
+    }, 0);
+};
+
+const getAdditionalIncomingProtectionPoints = ({
+    targetState,
+    incomingMetadata,
+    metadataKey,
+    allowMetadataKey,
+}) => {
+    if (!targetState || !incomingMetadata || incomingMetadata?.harmful) {
+        return 0;
+    }
+    if (allowMetadataKey && incomingMetadata?.[allowMetadataKey] === false) {
+        return 0;
+    }
+    return (Array.isArray(targetState?.statuses) ? targetState.statuses : []).reduce((sum, status) => {
+        const remaining = Number(status?.remainingTurns) || 0;
+        if (remaining <= 0) return sum;
+        return sum + Math.max(0, Number(status?.metadata?.[metadataKey]) || 0);
+    }, 0);
+};
+
 const getSkillSpecificDamageBonus = (actorState, skillId) => {
     if (!skillId) return 0;
     const statuses = Array.isArray(actorState?.statuses) ? actorState.statuses : [];
@@ -6880,6 +6925,17 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             runtimeMetadata.cannotUseSkillIndices.length > 0) ||
                         (Array.isArray(runtimeMetadata?.cannotUseSkillClasses) &&
                             runtimeMetadata.cannotUseSkillClasses.length > 0);
+                    const durationReduction = getIncomingStatusDurationReduction({
+                        targetState: destinationState,
+                        incomingStatusId: runtimeStatusId,
+                        incomingMetadata: {
+                            ...(runtimeMetadata || {}),
+                            ...(applyingStun ? { stunLikeEffect: true } : {}),
+                        },
+                    });
+                    if (durationReduction > 0) {
+                        runtimeDuration = Math.max(0, Number(runtimeDuration) || 0) - durationReduction;
+                    }
                     if (applyingStun && hasStatusMetadataFlag(destinationState, 'cannotBeStunned')) {
                         // Keep stun feedback visible, but strip all functional stun locks.
                         applyStatus({
@@ -6905,6 +6961,23 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             ...(runtimeMetadata || {}),
                             cannotTargetAlliesOfUsername: actingUsername,
                             allowedTargetSlot: actorSlot,
+                        };
+                    }
+                    const additionalShieldPoints =
+                        Number(runtimeMetadata?.destructibleDefensePoints) > 0
+                            ? getAdditionalIncomingProtectionPoints({
+                                  targetState: destinationState,
+                                  incomingMetadata: runtimeMetadata,
+                                  metadataKey: 'additionalIncomingShieldPoints',
+                                  allowMetadataKey: 'allowShieldBonus',
+                              })
+                            : 0;
+                    if (additionalShieldPoints > 0) {
+                        runtimeMetadata = {
+                            ...(runtimeMetadata || {}),
+                            destructibleDefensePoints:
+                                Math.max(0, Number(runtimeMetadata?.destructibleDefensePoints) || 0) +
+                                additionalShieldPoints,
                         };
                     }
                     const sourceSkillClassesSnapshot = (Array.isArray(skill?.classes) ? skill.classes : [])

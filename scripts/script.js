@@ -853,22 +853,70 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const getCharacterDescriptionText = (character) => {
         if (!character) return '';
-        return (
+        return normalizeProtectionTerminology(
+            (
             character.description ||
             character.characterdescription ||
             character.characterdeescription ||
             textFromHtml(character.descriptionHtml || '') ||
             ''
+            )
         );
+    };
+
+    const getProtectionTerminologyArena = () => {
+        if (typeof currentMatchArena === 'string' && currentMatchArena) {
+            return currentMatchArena;
+        }
+        if (typeof activeArenaMode === 'string' && activeArenaMode) {
+            return activeArenaMode;
+        }
+        if (typeof defaultArenaModeFromPage === 'string' && defaultArenaModeFromPage) {
+            return defaultArenaModeFromPage;
+        }
+        return 'comic';
+    };
+
+    const replaceTermWithCase = (text, pattern, replacement) =>
+        String(text || '').replace(pattern, (match) => {
+            if (!match) return replacement;
+            if (match === match.toUpperCase()) {
+                return replacement.toUpperCase();
+            }
+            if (match[0] === match[0].toUpperCase()) {
+                return replacement.charAt(0).toUpperCase() + replacement.slice(1);
+            }
+            return replacement;
+        });
+
+    const normalizeProtectionTerminology = (value, arena = getProtectionTerminologyArena()) => {
+        let text = typeof value === 'string' ? value : '';
+        if (!text) return '';
+        text = replaceTermWithCase(text, /\bdestructible defenses\b/gi, 'shields');
+        text = replaceTermWithCase(text, /\bdestructible defense\b/gi, 'shield');
+        if (arena === 'pokemon') {
+            text = replaceTermWithCase(text, /\bbarriers\b/gi, 'forcefields');
+            text = replaceTermWithCase(text, /\bbarrier\b/gi, 'forcefield');
+        }
+        return text;
+    };
+
+    const getProtectionDisplayLabel = (kind, arena = getProtectionTerminologyArena()) => {
+        if (kind === 'forcefield') {
+            return arena === 'pokemon' ? 'FORCEFIELD' : 'BARRIER';
+        }
+        return 'SHIELD';
     };
 
     const getSkillDescriptionText = (skill) => {
         if (!skill) return '';
-        return (
+        return normalizeProtectionTerminology(
+            (
             skill.description ||
             skill.skilldescription ||
             textFromHtml(skill.descriptionHtml || '') ||
             ''
+            )
         );
     };
 
@@ -6333,7 +6381,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const maxHp = Number.isFinite(Number(unit.maxHp)) ? Math.max(0, Number(unit.maxHp)) : '';
             const alive = unit.alive === false ? 0 : 1;
             const defense = getDestructibleDefenseValue(unit);
-            return [unit.rosterIndex ?? '', alive, hp, maxHp, defense].join(':');
+            const barrier = getBarrierValue(unit);
+            return [unit.rosterIndex ?? '', alive, hp, maxHp, defense, barrier].join(':');
         };
 
         const buildUnitStatusSignature = (unit = null) => {
@@ -6734,6 +6783,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             playGeneratedIngameSound('shield-hit');
         };
 
+        const animateBarrierImpact = (card, delta) => {
+            if (!card || !delta) return;
+            const burst = document.createElement('div');
+            burst.className = `combat-impact-burst forcefield ${delta < 0 ? 'break' : 'gain'}`;
+            card.appendChild(burst);
+            scheduleCombatFxRemoval(burst, 1100);
+            showPixelImpactFx(card, delta < 0 ? 'shield-break' : 'shield');
+            playGeneratedIngameSound('shield-hit');
+        };
+
         const escapeCssUrl = (value = '') => String(value).replaceAll('\\', '\\\\').replaceAll("'", "\\'");
 
         const LASER_DEATH_KILLER_IDS = new Set(['homelander', 'superman', 'billy-butcher']);
@@ -7029,6 +7088,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         const getDestructibleDefenseValue = (unit) =>
             getActiveStatuses(unit).reduce((sum, status) => {
                 const points = Number(status?.metadata?.destructibleDefensePoints);
+                return Number.isFinite(points) && points > 0 ? sum + points : sum;
+            }, 0);
+
+        const getBarrierValue = (unit) =>
+            getActiveStatuses(unit).reduce((sum, status) => {
+                const points = Number(status?.metadata?.barrierPoints);
                 return Number.isFinite(points) && points > 0 ? sum + points : sum;
             }, 0);
 
@@ -7973,6 +8038,51 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (healthText.textContent !== nextHealthText) {
                 healthText.textContent = nextHealthText;
             }
+            const shieldValue = getDestructibleDefenseValue(unit);
+            const barrierValue = getBarrierValue(unit);
+            const ensureProtectionBar = (className) => {
+                let bar = healthContainer.querySelector(`.${className}`);
+                if (bar) return bar;
+                bar = document.createElement('span');
+                bar.className = `health-protection-bar ${className}`;
+                healthContainer.appendChild(bar);
+                return bar;
+            };
+            const shieldBar = ensureProtectionBar('health-shield-bar');
+            const forcefieldBar = ensureProtectionBar('health-forcefield-bar');
+            const shieldWidth = Math.max(
+                0,
+                Math.min(HEALTH_BAR_MAX_WIDTH, Math.round((HEALTH_BAR_MAX_WIDTH * shieldValue) / MAX_HP))
+            );
+            const forcefieldWidth = Math.max(
+                0,
+                Math.min(HEALTH_BAR_MAX_WIDTH, Math.round((HEALTH_BAR_MAX_WIDTH * barrierValue) / MAX_HP))
+            );
+            shieldBar.style.width = `${shieldWidth}px`;
+            shieldBar.hidden = shieldValue <= 0;
+            shieldBar.title = shieldValue > 0 ? `Shield: ${shieldValue}` : '';
+            forcefieldBar.style.width = `${forcefieldWidth}px`;
+            forcefieldBar.hidden = barrierValue <= 0;
+            forcefieldBar.title =
+                barrierValue > 0
+                    ? `${getProtectionDisplayLabel('forcefield')}: ${barrierValue}`
+                    : '';
+            healthContainer.title =
+                shieldValue > 0 || barrierValue > 0
+                    ? [
+                          shieldValue > 0 ? `Shield ${shieldValue}` : '',
+                          barrierValue > 0
+                              ? `${getProtectionDisplayLabel('forcefield')
+                                    .charAt(0)}${getProtectionDisplayLabel('forcefield')
+                                    .slice(1)
+                                    .toLowerCase()} ${barrierValue}`
+                              : '',
+                      ]
+                          .filter(Boolean)
+                          .join(' | ')
+                    : '';
+            card.classList.toggle('has-shield-bar', shieldValue > 0);
+            card.classList.toggle('has-forcefield-bar', barrierValue > 0);
             const hpBand = hp <= 30 ? 'low' : hp <= 60 ? 'mid' : 'high';
             if (card.dataset.renderedHpBand !== hpBand) {
                 healthBar.classList.remove('hp-mid', 'hp-low');
@@ -8109,6 +8219,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!previousUnit) return 0;
                 return getDestructibleDefenseValue(nextUnit) - getDestructibleDefenseValue(previousUnit);
             };
+            const getBarrierDelta = (username, slot, nextUnit) => {
+                if (!showHpAnimations || !username || !Number.isInteger(slot)) return 0;
+                const previousUnit = Array.isArray(previousBoard[username]) ? previousBoard[username][slot] : null;
+                if (!previousUnit) return 0;
+                return getBarrierValue(nextUnit) - getBarrierValue(previousUnit);
+            };
             const gainedEvadeNotification = (username, slot, nextUnit) => {
                 if (!showHpAnimations || !username || !Number.isInteger(slot) || !nextUnit) return false;
                 const previousUnit = Array.isArray(previousBoard[username]) ? previousBoard[username][slot] : null;
@@ -8137,6 +8253,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 playerCards.forEach((card, slot) => {
                     const delta = getHpDelta(currentPlayerUsername, slot, playerUnits[slot]);
                     const defenseDelta = getDefenseDelta(currentPlayerUsername, slot, playerUnits[slot]);
+                    const barrierDelta = getBarrierDelta(currentPlayerUsername, slot, playerUnits[slot]);
                     const died = unitDiedBetweenStates(previousBoard?.[currentPlayerUsername]?.[slot], playerUnits[slot]);
                     const evaded = gainedEvadeNotification(currentPlayerUsername, slot, playerUnits[slot]);
                     const seaSharkDelta = getSeaSharkStackDelta(currentPlayerUsername, slot, playerUnits[slot]);
@@ -8171,10 +8288,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (defenseDelta) {
                         showFloatingCombatText(
                             card,
-                            `${defenseDelta > 0 ? '+' : ''}${defenseDelta} DEF`,
+                            `${defenseDelta > 0 ? '+' : ''}${defenseDelta} ${getProtectionDisplayLabel('shield')}`,
                             `shield ${defenseDelta < 0 ? 'break' : 'gain'}`
                         );
                         animateDefenseImpact(card, defenseDelta);
+                    }
+                    if (barrierDelta) {
+                        showFloatingCombatText(
+                            card,
+                            `${barrierDelta > 0 ? '+' : ''}${barrierDelta} ${getProtectionDisplayLabel('forcefield')}`,
+                            `forcefield ${barrierDelta < 0 ? 'break' : 'gain'}`
+                        );
+                        animateBarrierImpact(card, barrierDelta);
                     }
                     if (evaded) {
                         showEvadeFeedback(card, playerUnits[slot]);
@@ -8185,6 +8310,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 enemyCards.forEach((card, slot) => {
                     const delta = getHpDelta(opponentUsername, slot, opponentUnits[slot]);
                     const defenseDelta = getDefenseDelta(opponentUsername, slot, opponentUnits[slot]);
+                    const barrierDelta = getBarrierDelta(opponentUsername, slot, opponentUnits[slot]);
                     const died = unitDiedBetweenStates(previousBoard?.[opponentUsername]?.[slot], opponentUnits[slot]);
                     const evaded = gainedEvadeNotification(opponentUsername, slot, opponentUnits[slot]);
                     const seaSharkDelta = getSeaSharkStackDelta(opponentUsername, slot, opponentUnits[slot]);
@@ -8219,10 +8345,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (defenseDelta) {
                         showFloatingCombatText(
                             card,
-                            `${defenseDelta > 0 ? '+' : ''}${defenseDelta} DEF`,
+                            `${defenseDelta > 0 ? '+' : ''}${defenseDelta} ${getProtectionDisplayLabel('shield')}`,
                             `shield ${defenseDelta < 0 ? 'break' : 'gain'}`
                         );
                         animateDefenseImpact(card, defenseDelta);
+                    }
+                    if (barrierDelta) {
+                        showFloatingCombatText(
+                            card,
+                            `${barrierDelta > 0 ? '+' : ''}${barrierDelta} ${getProtectionDisplayLabel('forcefield')}`,
+                            `forcefield ${barrierDelta < 0 ? 'break' : 'gain'}`
+                        );
+                        animateBarrierImpact(card, barrierDelta);
                     }
                     if (evaded) {
                         showEvadeFeedback(card, opponentUnits[slot]);
@@ -9114,6 +9248,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                             text = `This character deals ${groupedDamageDebuffTotal} less damage.`;
                         }
                     }
+                    text = normalizeProtectionTerminology(
+                        text,
+                        currentMatchArena || getProtectionTerminologyArena()
+                    );
                     const skillDamageBonuses =
                         status?.metadata?.skillDamageBonuses &&
                         typeof status.metadata.skillDamageBonuses === 'object'

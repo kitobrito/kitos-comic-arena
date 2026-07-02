@@ -3443,6 +3443,64 @@ const POKEMON_MAGIKARP_MISSION_ENTRY = {
     sortOrder: 10,
 };
 
+const POKEMON_MR_MIME_MISSION_ENTRY = {
+    missionId: 'mr-mime-stage-trial',
+    title: 'Mr. Mime Stage Trial',
+    level_requirement: 10,
+    rank: '10',
+    reward_character: 'mr-mime',
+    reward_character_name: 'Mr. Mime',
+    reward: 'Unlock Mr. Mime.',
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/Mr.mime/fp.jpg',
+    imageAlt: 'Mr. Mime mission artwork',
+    characterName: 'Mr. Mime',
+    portrait: 'assets/images/PokemonArena/Mr.mime/fp.jpg',
+    portraitAlt: 'Mr. Mime portrait',
+    requirements: [
+        'Mr. Mime unlocks through a control-and-support trial built around clean team play.',
+        'Clear a 4-win streak with Abra and Chansey on the same team.',
+    ],
+    goals: [
+        {
+            type: 'win_matches',
+            character_id: 'abra',
+            character_name: 'Abra',
+            wins: 8,
+        },
+        {
+            type: 'win_matches',
+            character_id: 'chansey',
+            character_name: 'Chansey',
+            wins: 8,
+        },
+        {
+            type: 'win_streak_same_team',
+            character_ids: ['abra', 'chansey'],
+            character_names: ['Abra', 'Chansey'],
+            wins: 4,
+        },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 11,
+};
+
 const POKEMON_STARTER_MISSION_ENTRIES = [
     {
         missionId: 'pikachu-starter-path',
@@ -3518,6 +3576,7 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     upsertRequiredMission(POKEMON_EKANS_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'ekans');
     upsertRequiredMission(POKEMON_MACHOP_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'machop');
     upsertRequiredMission(POKEMON_MAGIKARP_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'magikarp');
+    upsertRequiredMission(POKEMON_MR_MIME_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'mr-mime');
     return normalizeMissionCatalog(catalog);
 };
 
