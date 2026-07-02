@@ -237,6 +237,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         let synthContext = null;
         let noiseBuffer = null;
         const ambientIntervals = new Map();
+        const comicIngameMusicTracks = ['assets/audio/track2.mp3', 'assets/audio/track3.mp3'];
+        const wildPokemonBattleMusicTrack =
+            'assets/images/PokemonArena/Wild Pokémon Battle (Movie 7) - Pokémon (Anime) Music Extended.mp3';
+        const pokemonIngameMusicTracks = [wildPokemonBattleMusicTrack];
 
         const getSynthContext = () => {
             const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
@@ -523,6 +527,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         };
 
+        const buildTrackSignature = (tracks = []) =>
+            (Array.isArray(tracks) ? tracks : [tracks])
+                .map((track) => (typeof track === 'string' ? track.trim() : ''))
+                .filter(Boolean)
+                .join('||');
+
         const updateMusicVolume = () => {
             if (currentMusic) {
                 currentMusic.volume = settings.musicMuted ? 0 : settings.volume;
@@ -647,7 +657,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             },
             startMusic(tracks) {
-                musicTracks = Array.isArray(tracks) ? tracks : [tracks];
+                const nextTracks = Array.isArray(tracks) ? tracks.filter(Boolean) : [tracks].filter(Boolean);
+                const nextSignature = buildTrackSignature(nextTracks);
+                const currentSignature = buildTrackSignature(musicTracks);
+                if (nextSignature && nextSignature === currentSignature && currentMusic) {
+                    updateMusicVolume();
+                    if (currentMusic.paused) {
+                        currentMusic.play().catch(() => {});
+                    }
+                    return;
+                }
+                musicTracks = nextTracks;
                 currentTrackIndex = -1;
                 playNextTrack();
             },
@@ -656,6 +676,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                     currentMusic.pause();
                     currentMusic = null;
                 }
+                musicTracks = [];
+                currentTrackIndex = -1;
+            },
+            ensureIngameBattleMusic(arena = 'comic') {
+                const normalizedArena =
+                    typeof arena === 'string' && arena.trim().toLowerCase() === 'pokemon' ? 'pokemon' : 'comic';
+                const tracks =
+                    normalizedArena === 'pokemon' ? pokemonIngameMusicTracks : comicIngameMusicTracks;
+                this.startMusic(tracks);
             },
             playGeneratedEffect,
             syncAmbientEffects,
@@ -668,7 +697,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (isSelectionPage) {
         soundManager.startMusic(['assets/audio/track1.mp3']);
     } else if (isIngamePage) {
-        soundManager.startMusic(['assets/audio/track2.mp3', 'assets/audio/track3.mp3']);
+        soundManager.ensureIngameBattleMusic('comic');
     }
     if (shouldUseGameClickSound) {
         const clickSound = new Audio('assets/audio/sounds/click.mp3');
@@ -2740,7 +2769,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const updateEndTurnButtons = () => {
-            const pending = normalizePendingTurn(pendingTurnState);
+            const pending = getPendingTurnWithOptimisticQueues();
             const hasUnresolvedRandom = pending.unresolvedRandom > 0;
             if (endTurnCancelButton) {
                 endTurnCancelButton.style.opacity = '1';
@@ -3291,7 +3320,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const getOrderedQueuedEntries = () => {
-            const pending = normalizePendingTurn(pendingTurnState);
+            const pending = getPendingTurnWithOptimisticQueues();
             const bySlot = pending.queuedByActorSlot || {};
             const ordered = [];
             const used = new Set();
@@ -3451,11 +3480,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     renderChakra(getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || emptyPool());
                     pendingTurnState = normalizePendingTurn(data.pendingTurn);
                     applyQueuedSkillVisuals();
+                    syncEndTurnModalIfVisible();
                     syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
                 })
                 .catch((error) => {
                     optimisticCancelledActorSlots.delete(actorSlot);
                     applyQueuedSkillVisuals();
+                    syncEndTurnModalIfVisible();
                     console.warn('Failed to cancel skill.', error);
                     announceMatchIssue(
                         `Could not cancel that skill cleanly. ${error?.message || 'Refreshing your turn...'}`,
@@ -5984,9 +6015,108 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         };
 
+        let lastAppliedMatchVisualSignature = '';
+
+        const buildChakraSignature = (pool = {}) => {
+            const normalizedPool = normalizePool(pool);
+            return [
+                normalizedPool.taijutsu,
+                normalizedPool.ninjutsu,
+                normalizedPool.bloodline,
+                normalizedPool.genjutsu,
+            ].join('|');
+        };
+
+        const buildUnitHealthSignature = (unit = null) => {
+            if (!unit || typeof unit !== 'object') return 'x';
+            const hp = Number.isFinite(Number(unit.hp)) ? Math.max(0, Number(unit.hp)) : '';
+            const maxHp = Number.isFinite(Number(unit.maxHp)) ? Math.max(0, Number(unit.maxHp)) : '';
+            const alive = unit.alive === false ? 0 : 1;
+            const defense = getDestructibleDefenseValue(unit);
+            return [unit.rosterIndex ?? '', alive, hp, maxHp, defense].join(':');
+        };
+
+        const buildUnitStatusSignature = (unit = null) => {
+            const statuses = getActiveStatuses(unit);
+            return statuses
+                .map((status) =>
+                    [
+                        status?.id || '',
+                        Number(status?.remainingTurns) || 0,
+                        Number(status?.stacks) || 0,
+                        status?.metadata?.sourceSkillId || '',
+                    ].join(':')
+                )
+                .join('|');
+        };
+
+        const buildUnitCooldownSignature = (unit = null) => {
+            const cooldowns = unit?.state?.cooldowns && typeof unit.state.cooldowns === 'object' ? unit.state.cooldowns : {};
+            return Object.keys(cooldowns)
+                .sort()
+                .map((key) => `${key}:${Math.max(0, Number(cooldowns[key]) || 0)}`)
+                .join('|');
+        };
+
+        const buildPendingTurnSignature = (pending = null) => {
+            const normalizedPending = normalizePendingTurn(pending);
+            const queuedEntries = Object.values(normalizedPending.queuedByActorSlot || {})
+                .map((queued) =>
+                    [
+                        Number.parseInt(queued?.actorSlot, 10),
+                        Number.parseInt(queued?.skillIndex, 10),
+                        queued?.classChoice || '',
+                        queued?.absorptionChoice || '',
+                        JSON.stringify(queued?.targetSelection || []),
+                    ].join(':')
+                )
+                .sort();
+            const turnStartChoice = normalizedPending.turnStartChoice
+                ? [
+                      normalizedPending.turnStartChoice?.sourceStatusId || '',
+                      normalizedPending.turnStartChoice?.usesUsed || 0,
+                      normalizedPending.turnStartChoice?.promptText || '',
+                      JSON.stringify(normalizedPending.turnStartChoice?.options || []),
+                  ].join(':')
+                : '';
+            return [
+                normalizedPending.unresolvedRandom || 0,
+                JSON.stringify(normalizedPending.randomAssignments || {}),
+                JSON.stringify(normalizedPending.queueOrder || []),
+                queuedEntries.join('|'),
+                turnStartChoice,
+            ].join('||');
+        };
+
+        const buildMatchVisualSignature = (data, overrides = {}) => {
+            const board = data?.board && typeof data.board === 'object' ? data.board : null;
+            const playerUsername = overrides.playerUsername || currentPlayerUsername;
+            const opponentUsername = overrides.opponentUsername || data?.opponent?.username || currentOpponentUsername;
+            const arena = overrides.arena || currentMatchArena;
+            const mode = overrides.mode || currentMatchMode;
+            const playerUnits = playerUsername && board ? board[playerUsername] : null;
+            const opponentUnits = opponentUsername && board ? board[opponentUsername] : null;
+            const pool = data?.chakraPools?.[playerUsername] || playerPoolState || emptyPool();
+            return [
+                arena,
+                mode,
+                playerUsername || '',
+                opponentUsername || '',
+                data?.currentTurn || '',
+                buildChakraSignature(pool),
+                Array.isArray(playerUnits) ? playerUnits.map(buildUnitHealthSignature).join('|') : '',
+                Array.isArray(opponentUnits) ? opponentUnits.map(buildUnitHealthSignature).join('|') : '',
+                Array.isArray(playerUnits) ? playerUnits.map(buildUnitStatusSignature).join('|') : '',
+                Array.isArray(opponentUnits) ? opponentUnits.map(buildUnitStatusSignature).join('|') : '',
+                Array.isArray(playerUnits) ? playerUnits.map(buildUnitCooldownSignature).join('|') : '',
+                Array.isArray(opponentUnits) ? opponentUnits.map(buildUnitCooldownSignature).join('|') : '',
+                buildPendingTurnSignature(data?.pendingTurn),
+            ].join('##');
+        };
+
         const renderEndTurnModal = (pool = {}, pending = null) => {
             const normalizedPool = normalizePool(pool);
-            const normalizedPending = normalizePendingTurn(pending);
+            const normalizedPending = pending ? normalizePendingTurn(pending) : getPendingTurnWithOptimisticQueues();
             Object.entries(normalizedPool).forEach(([type, amount]) => {
                 const leftEl = endTurnLeftAmountEls[type];
                 if (leftEl) {
@@ -6005,12 +6135,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             updateEndTurnButtons();
         };
 
+        const syncEndTurnModalIfVisible = () => {
+            if (!endTurnModalEl || endTurnModalEl.style.visibility !== 'visible') return;
+            renderEndTurnModal(playerPoolState, getPendingTurnWithOptimisticQueues());
+        };
+
         const openEndTurnModal = () => {
             if (!endTurnModalEl || !matchIdFromUrl) return;
             const refreshVersion = ++endTurnModalRefreshVersion;
             // Show immediately from the last known client state; refresh in the background below.
             endTurnModalEl.style.visibility = 'visible';
-            renderEndTurnModal(playerPoolState, pendingTurnState);
+            renderEndTurnModal(playerPoolState, getPendingTurnWithOptimisticQueues());
             const requestMutationVersion = randomChakraMutationVersion;
             fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}`, {
                 credentials: 'include',
@@ -6043,7 +6178,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const playerPool = getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || {};
                     pendingTurnState = normalizePendingTurn(data.pendingTurn);
                     if (endTurnModalEl?.style.visibility === 'visible') {
-                        renderEndTurnModal(playerPool, pendingTurnState);
+                        renderEndTurnModal(playerPool, getPendingTurnWithOptimisticQueues());
                     }
                 })
                 .catch((error) => {
@@ -6166,6 +6301,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const stopMatchRealtime = () => {
             clearMatchSocketReconnect();
             closeMatchSocket();
+            soundManager.stopMusic();
             if (turnTimerInterval) {
                 clearInterval(turnTimerInterval);
                 turnTimerInterval = null;
@@ -9022,8 +9158,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 deferredResolutionMatchState = data;
                 return;
             }
-            targetOptionsCache.clear();
-            clearTransientPortraitAnimationState();
             if (data.player?.username) {
                 currentPlayerUsername = data.player.username;
             }
@@ -9038,6 +9172,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             writeCachedMatchArena(matchIdFromUrl || data.matchId, currentMatchArena);
             setIngameArenaUiAssets(currentMatchArena);
             syncEnergyNameLabels();
+            soundManager.ensureIngameBattleMusic(currentMatchArena);
             if (data.player?.profile) {
                 const playerProfileView = getArenaProfileView(data.player.profile, currentMatchArena);
                 applyPlayerIdentity({
@@ -9082,6 +9217,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ).catch(() => {});
                 }
             }
+            const nextVisualSignature = buildMatchVisualSignature(data, {
+                playerUsername: currentPlayerUsername,
+                opponentUsername: currentOpponentUsername,
+                arena: currentMatchArena,
+                mode: currentMatchMode,
+            });
+            if (nextVisualSignature === lastAppliedMatchVisualSignature) {
+                syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
+                return;
+            }
+            lastAppliedMatchVisualSignature = nextVisualSignature;
+            targetOptionsCache.clear();
+            clearTransientPortraitAnimationState();
             const pool =
                 getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) ||
                 playerPoolState ||
@@ -9561,6 +9709,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const playBattleIntro = async (data) => {
             if (hasPlayedBattleIntro || !battleIntroOverlayEl) return;
             hasPlayedBattleIntro = true;
+            soundManager.ensureIngameBattleMusic(data?.arena || currentMatchArena);
             if (!uiSettings.battleIntro) {
                 battleIntroOverlayEl.classList.remove('visible');
                 battleIntroOverlayEl.setAttribute('aria-hidden', 'true');
@@ -10403,11 +10552,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     renderChakra(getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || emptyPool());
                     pendingTurnState = normalizePendingTurn(data.pendingTurn);
                     applyQueuedSkillVisuals();
+                    syncEndTurnModalIfVisible();
                     syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
                 })
                 .catch((error) => {
                     optimisticQueuedByActorSlot.delete(actorSlot);
                     applyQueuedSkillVisuals();
+                    syncEndTurnModalIfVisible();
                     console.warn('Failed to queue skill.', error);
                     announceMatchIssue(
                         `Could not queue that skill. ${error?.message || 'The match state may be stale.'}`,
@@ -10784,6 +10935,34 @@ document.addEventListener('DOMContentLoaded', async () => {
             );
             if (shouldKeepTargeting) return;
             if (activeChoicePopupMode === 'turn-start-target') return;
+            clearActiveSkillTargeting();
+        });
+
+        document.addEventListener('dblclick', (event) => {
+            if (!activeTargetOptions && !activeCastingSkill) return;
+            if (activeChoicePopupMode === 'turn-start-target') return;
+            const target = event.target;
+            if (!target?.closest) return;
+            const interactiveTarget = target.closest(
+                [
+                    'button',
+                    'a',
+                    'input',
+                    'select',
+                    'textarea',
+                    'label',
+                    '[role="button"]',
+                    '.character-card',
+                    '.skillimage',
+                    '.skillpreview',
+                    '.skill-browser-icon',
+                    '.exchange_symbol',
+                    '.ready-section',
+                    '.exchange-label',
+                    '.surrenderbutton',
+                ].join(',')
+            );
+            if (interactiveTarget) return;
             clearActiveSkillTargeting();
         });
 

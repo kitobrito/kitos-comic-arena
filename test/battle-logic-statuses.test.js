@@ -273,6 +273,93 @@ test('reduceHulkRageForInactiveTurn applies inactive-turn status hooks without c
     assert.ok(evolution);
 });
 
+test('Krabby evolution removes the Harden turn tracker once Kingler is reached', () => {
+    const match = {
+        economy: {
+            turnCounts: {
+                player: 3,
+            },
+        },
+        board: {
+            player: [
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    state: {
+                        statuses: [
+                            {
+                                id: 'krabby_harden_defense',
+                                remainingTurns: 999,
+                                sourceSkillId: 'krabby-harden',
+                                metadata: {
+                                    infiniteDuration: true,
+                                    destructibleDefensePoints: 20,
+                                    turnStartApplyStatusToOwner: {
+                                        statusId: 'krabby_harden_turn_tracker',
+                                        duration: 99,
+                                        metadata: {
+                                            infiniteDuration: true,
+                                            krabbyHardenTurns: 0,
+                                            stackMetadataKey: 'krabbyHardenTurns',
+                                            stackDelta: 1,
+                                            stackMax: 3,
+                                            applyStatusAtStack: {
+                                                metadataKey: 'krabbyHardenTurns',
+                                                value: 3,
+                                                statusId: 'krabby_kingler_evolution',
+                                                duration: 99,
+                                                metadata: {
+                                                    infiniteDuration: true,
+                                                    removeStatusIdsOnApply: ['krabby_harden_turn_tracker'],
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            {
+                                id: 'krabby_harden_turn_tracker',
+                                remainingTurns: 99,
+                                sourceSkillId: 'krabby-harden',
+                                metadata: {
+                                    infiniteDuration: true,
+                                    krabbyHardenTurns: 2,
+                                    stackMetadataKey: 'krabbyHardenTurns',
+                                    stackDelta: 1,
+                                    stackMax: 3,
+                                    applyStatusAtStack: {
+                                        metadataKey: 'krabbyHardenTurns',
+                                        value: 3,
+                                        statusId: 'krabby_kingler_evolution',
+                                        duration: 99,
+                                        metadata: {
+                                            infiniteDuration: true,
+                                            removeStatusIdsOnApply: ['krabby_harden_turn_tracker'],
+                                        },
+                                    },
+                                },
+                            },
+                        ],
+                    },
+                },
+            ],
+        },
+    };
+
+    processTurnStartStatusEffects({ match, startingUsername: 'player' });
+
+    const statuses = match.board.player[0].state.statuses;
+    assert.equal(
+        statuses.some((status) => status.id === 'krabby_harden_turn_tracker'),
+        false
+    );
+    assert.equal(
+        statuses.some((status) => status.id === 'krabby_kingler_evolution'),
+        true
+    );
+});
+
 test('breaking Rare Candy destructible defense does not remove the evolution status', () => {
     const unit = {
         alive: true,
