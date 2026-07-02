@@ -21608,12 +21608,12 @@ const characters = [
                     "infiniteDuration": true,
                     "koffingUniqueSkillCount": 0,
                     "stackMetadataKey": "koffingUniqueSkillCount",
-                    "stackMax": 3,
+                    "stackMax": 4,
                     "statusIconUrl": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
-                    "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/3 unique skills and will evolve into Weezing at 3.",
+                    "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/4 unique skills and will evolve into Weezing at 4.",
                     "applyStatusAtStack": {
                         "metadataKey": "koffingUniqueSkillCount",
-                        "value": 3,
+                        "value": 4,
                         "statusId": "koffing_weezing_evolution",
                         "duration": 99,
                         "metadata": {
@@ -21749,9 +21749,9 @@ const characters = [
                             "koffingUsedSmog": true,
                             "stackMetadataKey": "koffingUniqueSkillCount",
                             "stackDelta": 1,
-                            "stackMax": 3,
+                            "stackMax": 4,
                             "statusIconUrl": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
-                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/3 unique skills and will evolve into Weezing at 3."
+                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/4 unique skills and will evolve into Weezing at 4."
                         }
                     }
                 ]
@@ -21806,9 +21806,9 @@ const characters = [
                             "koffingUsedHaze": true,
                             "stackMetadataKey": "koffingUniqueSkillCount",
                             "stackDelta": 1,
-                            "stackMax": 3,
+                            "stackMax": 4,
                             "statusIconUrl": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
-                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/3 unique skills and will evolve into Weezing at 3."
+                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/4 unique skills and will evolve into Weezing at 4."
                         }
                     }
                 ]
@@ -21886,9 +21886,9 @@ const characters = [
                             "koffingUsedSelfDestruct": true,
                             "stackMetadataKey": "koffingUniqueSkillCount",
                             "stackDelta": 1,
-                            "stackMax": 3,
+                            "stackMax": 4,
                             "statusIconUrl": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
-                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/3 unique skills and will evolve into Weezing at 3."
+                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/4 unique skills and will evolve into Weezing at 4."
                         }
                     }
                 ]
@@ -21937,9 +21937,9 @@ const characters = [
                             "koffingUsedSmokescreen": true,
                             "stackMetadataKey": "koffingUniqueSkillCount",
                             "stackDelta": 1,
-                            "stackMax": 3,
+                            "stackMax": 4,
                             "statusIconUrl": "assets/images/PokemonArena/koffing/evolutionweezing.webp",
-                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/3 unique skills and will evolve into Weezing at 3."
+                            "tooltipTextTemplate": "Koffing has used {koffingUniqueSkillCount}/4 unique skills and will evolve into Weezing at 4."
                         }
                     }
                 ]
