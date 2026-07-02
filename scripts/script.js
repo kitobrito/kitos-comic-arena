@@ -2325,6 +2325,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             return units[actorSlot] || null;
         };
 
+        const getUnitByUsernameSlot = (username, slot) => {
+            if (!username || !Number.isInteger(slot) || slot < 0) return null;
+            const units = latestBoardState?.[username];
+            if (!Array.isArray(units)) return null;
+            return units[slot] || null;
+        };
+
         const isUnitBanished = (unit) => {
             const statuses = Array.isArray(unit?.state?.statuses) ? unit.state.statuses : [];
             return statuses.some((status) => {
@@ -4033,6 +4040,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 'blissey-pokemon-center-healing',
                 'koffing-smog',
                 'koffing-weezing-smog',
+                'koffing-haze',
+                'koffing-weezing-haze',
+                'koffing-smokescreen',
+                'koffing-weezing-smokescreen',
+                'koffing-self-destruct',
+                'koffing-weezing-self-destruct',
                 'darth-vader-saber-strike-down',
                 'obi-wan-kenobi-soresu-style-cut',
                 'boba-fett-bounty-hunter-blaster',
@@ -4407,6 +4420,214 @@ document.addEventListener('DOMContentLoaded', async () => {
                     'pokemon-smog-fx',
                     '<span class="smog-cloud cloud-a"></span><span class="smog-cloud cloud-b"></span><span class="smog-cloud cloud-c"></span><span class="smog-cloud cloud-d"></span>',
                     1700
+                );
+            });
+            playGeneratedIngameSound('status-harmful');
+        };
+
+        const countActivePokemonSmogStacks = (unit) => {
+            const statuses = Array.isArray(unit?.state?.statuses) ? unit.state.statuses : [];
+            return statuses.filter((status) => {
+                const remaining = Number(status?.remainingTurns) || 0;
+                return (
+                    remaining > 0 &&
+                    (status?.id === 'koffing_smog_cloud' || status?.id === 'weezing_smog_cloud')
+                );
+            }).length;
+        };
+
+        const buildKoffingTeamFogHtml = (density = 1) => {
+            const clampedDensity = Math.max(1, Math.min(6, Number(density) || 1));
+            const cloudClasses = [
+                'cloud-a',
+                'cloud-b',
+                'cloud-c',
+                'cloud-d',
+                'cloud-e',
+                'cloud-f',
+                'cloud-g',
+                'cloud-h',
+            ];
+            const clouds = cloudClasses
+                .slice(0, Math.min(clampedDensity + 3, cloudClasses.length))
+                .map((className) => `<span class="team-fog-cloud ${className}"></span>`)
+                .join('');
+            return `${clouds}<span class="team-fog-veil veil-a"></span><span class="team-fog-veil veil-b"></span>`;
+        };
+
+        const showKoffingTeamFogFx = (selection, variant = 'smog') => {
+            const targets = normalizeTargetSelectionList(selection);
+            targets.forEach((target, index) => {
+                const slot = Number.parseInt(target?.slot, 10);
+                const targetCard = getCardByUsernameSlot(target?.username || '', slot);
+                if (!targetCard) return;
+                let density = 2;
+                if (variant === 'smog') {
+                    const unit = getUnitByUsernameSlot(target?.username || '', slot);
+                    density = countActivePokemonSmogStacks(unit);
+                }
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        `pokemon-koffing-team-fog-fx ${variant}`,
+                        buildKoffingTeamFogHtml(density),
+                        variant === 'smog' ? 2100 : 1800
+                    );
+                    const effect = targetCard.querySelector('.pokemon-koffing-team-fog-fx:last-child');
+                    if (effect) {
+                        effect.style.setProperty('--fog-density', String(Math.max(1, Math.min(6, density))));
+                    }
+                }, index * 55);
+            });
+            playGeneratedIngameSound(variant === 'smog' ? 'status-harmful' : 'status-helpful');
+        };
+
+        const showKoffingScreenExplosionFx = (sourceCard, weezing = false) => {
+            const sourceFace = sourceCard?.querySelector?.('.character-face') || sourceCard;
+            const rect = sourceFace?.getBoundingClientRect?.();
+            if (!rect) return;
+            const existing = document.querySelector('.pokemon-koffing-screen-explosion-fx');
+            existing?.remove();
+            const overlay = document.createElement('div');
+            overlay.className = 'pokemon-koffing-screen-explosion-fx';
+            if (weezing) overlay.classList.add('weezing');
+            overlay.style.setProperty('--explosion-x', `${rect.left + rect.width / 2}px`);
+            overlay.style.setProperty('--explosion-y', `${rect.top + rect.height / 2}px`);
+            overlay.innerHTML =
+                '<span class="blast-flash"></span><span class="blast-ring ring-a"></span><span class="blast-ring ring-b"></span><span class="blast-cloud cloud-a"></span><span class="blast-cloud cloud-b"></span><span class="blast-cloud cloud-c"></span><span class="blast-sprite"></span>';
+            document.body.appendChild(overlay);
+            playGeneratedIngameSound('explosion');
+            scheduleCombatFxRemoval(overlay, weezing ? 1900 : 1650);
+        };
+
+        const showEkansPoisonFangFx = (targetCards = [], biteCount = 2) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-ekans-poison-fang-fx',
+                    Array.from({ length: Math.max(1, Math.min(4, biteCount)) }, (_, index) =>
+                        `<span class="fang-bite bite-${index + 1}"><span class="fang-top"></span><span class="fang-bottom"></span></span>`
+                    ).join(''),
+                    1700 + Math.max(0, biteCount - 2) * 180
+                );
+            });
+            playGeneratedIngameSound('bite-crunch');
+        };
+
+        const showEkansCrunchFx = (targetCards = [], biteCount = 1) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-ekans-crunch-fx',
+                    Array.from({ length: Math.max(1, Math.min(3, biteCount)) }, (_, index) =>
+                        `<span class="crunch-bite bite-${index + 1}"><span class="crunch-top"></span><span class="crunch-bottom"></span></span>`
+                    ).join(''),
+                    1650 + Math.max(0, biteCount - 1) * 220
+                );
+            });
+            playGeneratedIngameSound('bite-crunch');
+        };
+
+        const showEkansToxicFx = ({ actorCard, targetCards = [], doubled = false }) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    if (actorCard) {
+                        showPokemonTravelBeam({
+                            sourceCard: actorCard,
+                            targetCard,
+                            className: `pokemon-ekans-toxic-stream${doubled ? ' doubled' : ''}`,
+                            duration: 1250,
+                            yRatio: 0.46,
+                            targetYRatio: 0.46,
+                            html:
+                                '<span class="goo-core"></span><span class="goo-blob blob-a"></span><span class="goo-blob blob-b"></span>' +
+                                (doubled ? '<span class="goo-blob blob-c"></span><span class="goo-blob blob-d"></span>' : ''),
+                        });
+                    }
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-ekans-toxic-impact-fx',
+                        '<span class="toxic-bubble bubble-a"></span><span class="toxic-bubble bubble-b"></span><span class="toxic-bubble bubble-c"></span><span class="toxic-splash splash-a"></span><span class="toxic-splash splash-b"></span>',
+                        doubled ? 2000 : 1750
+                    );
+                }, index * 70);
+            });
+            playGeneratedIngameSound('status-harmful');
+        };
+
+        const showEkansShedSkinFx = (targetCards = []) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-ekans-shed-skin-fx',
+                    '<span class="shed-layer layer-a"></span><span class="shed-layer layer-b"></span><span class="shed-heal heal-a">+</span><span class="shed-heal heal-b">+</span><span class="shed-heal heal-c">+</span>',
+                    2100
+                );
+            });
+            playGeneratedIngameSound('status-helpful');
+        };
+
+        const getMachopBulkUpPower = (unit = null) => {
+            const statuses = Array.isArray(unit?.state?.statuses) ? unit.state.statuses : [];
+            const bulkStatus = statuses.find((status) => status?.id === 'machop_bulk_up_bonus');
+            const raw = Number(bulkStatus?.metadata?.machopBulkUpBonus) || 0;
+            return Math.max(0, raw);
+        };
+
+        const getMachopBulkUpIntensity = (unit = null) => {
+            const power = getMachopBulkUpPower(unit);
+            if (power <= 0) return 0;
+            return Math.max(1, Math.min(8, Math.round(power / 10)));
+        };
+
+        const showMachopBrickBreakFx = (targetCards = [], intensity = 1, machoke = false) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    `pokemon-machop-brick-break-fx${machoke ? ' machoke' : ''}`,
+                    '<span class="karate-hand"></span><span class="karate-impact impact-a"></span><span class="karate-impact impact-b"></span>',
+                    1500
+                );
+                const effect = targetCard.querySelector('.pokemon-machop-brick-break-fx:last-child');
+                if (effect) effect.style.setProperty('--machop-power', String(Math.max(1, intensity)));
+            });
+            playGeneratedIngameSound('damage');
+        };
+
+        const showMachopCounterFx = (targetCards = [], intensity = 1, machoke = false) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    `pokemon-machop-counter-fx${machoke ? ' machoke' : ''}`,
+                    '<span class="counter-hand"></span><span class="counter-pressure pressure-a"></span><span class="counter-pressure pressure-b"></span>',
+                    1600
+                );
+                const effect = targetCard.querySelector('.pokemon-machop-counter-fx:last-child');
+                if (effect) effect.style.setProperty('--machop-power', String(Math.max(1, intensity)));
+            });
+            playGeneratedIngameSound('damage');
+        };
+
+        const showMachopBulkUpCastFx = (actorCard, intensity = 1) => {
+            if (!actorCard) return;
+            showTemporaryCardFx(
+                actorCard,
+                'pokemon-machop-bulk-up-cast-fx',
+                '<span class="bulk-cast-ring ring-a"></span><span class="bulk-cast-ring ring-b"></span><span class="bulk-cast-burst burst-a"></span><span class="bulk-cast-burst burst-b"></span>',
+                1650
+            );
+            const effect = actorCard.querySelector('.pokemon-machop-bulk-up-cast-fx:last-child');
+            if (effect) effect.style.setProperty('--machop-power', String(Math.max(1, intensity)));
+            playGeneratedIngameSound('status-helpful');
+        };
+
+        const showMachopTauntFx = (targetCards = []) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-machop-taunt-fx',
+                    '<span class="taunt-hand"></span><span class="taunt-finger"></span><span class="taunt-callout">COME AT ME</span>',
+                    1750
                 );
             });
             playGeneratedIngameSound('status-harmful');
@@ -5326,6 +5547,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isPokemonXCutter = skillId === 'scyther-x-cutter';
             const isPokemonCenterHealing = ['chansey-pokemon-center-healing', 'blissey-pokemon-center-healing'].includes(skillId);
             const isPokemonSmog = ['koffing-smog', 'koffing-weezing-smog'].includes(skillId);
+            const isPokemonHaze = ['koffing-haze', 'koffing-weezing-haze'].includes(skillId);
+            const isPokemonSmokescreen = ['koffing-smokescreen', 'koffing-weezing-smokescreen'].includes(skillId);
+            const isPokemonSelfDestruct = ['koffing-self-destruct', 'koffing-weezing-self-destruct'].includes(skillId);
+            const isEkansPoisonFang = ['ekans-poison-fang', 'arbok-poison-fang'].includes(skillId);
+            const isEkansToxic = ['ekans-toxic', 'arbok-toxic'].includes(skillId);
+            const isEkansShedSkin = ['ekans-shed-skin', 'arbok-shed-skin'].includes(skillId);
+            const isEkansCrunch = ['ekans-crunch', 'arbok-crunch'].includes(skillId);
+            const isMachopBrickBreak = ['machop-brick-break', 'machoke-brick-break'].includes(skillId);
+            const isMachopCounter = ['machop-counter', 'machoke-counter'].includes(skillId);
+            const isMachopBulkUp = ['machop-bulk-up', 'machoke-bulk-up'].includes(skillId);
+            const isMachopTaunt = ['machop-taunt', 'machoke-taunt'].includes(skillId);
             const isPokemonPsybeam = skillId === 'butterfree-psybeam';
             const isPokemonStunSpore = skillId === 'butterfree-stun-spore';
             const isPokemonWhirlwind = skillId === 'butterfree-whirlwind';
@@ -5408,6 +5640,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 !isPokemonXCutter &&
                 !isPokemonCenterHealing &&
                 !isPokemonSmog &&
+                !isPokemonHaze &&
+                !isPokemonSmokescreen &&
+                !isPokemonSelfDestruct &&
+                !isEkansPoisonFang &&
+                !isEkansToxic &&
+                !isEkansShedSkin &&
+                !isEkansCrunch &&
+                !isMachopBrickBreak &&
+                !isMachopCounter &&
+                !isMachopBulkUp &&
+                !isMachopTaunt &&
                 !isPokemonPsybeam &&
                 !isPokemonStunSpore &&
                 !isPokemonWhirlwind &&
@@ -5440,6 +5683,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
             const targetCards = getTargetCardsFromSelection(selection);
+            const castActorSlot = Number.isInteger(activeCastingSkill?.actorSlot) ? activeCastingSkill.actorSlot : null;
+            const actorUnit = Number.isInteger(castActorSlot)
+                ? getActorUnitForSlot(currentPlayerUsername, castActorSlot)
+                : null;
             if (isVaderSaberStrikeDown) {
                 showLightsaberPortraitSlashFx(targetCards, 'red-vertical');
                 return;
@@ -5516,7 +5763,60 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
             if (isPokemonSmog) {
-                showPokemonSmogFx(targetCards);
+                showKoffingTeamFogFx(selection, 'smog');
+                return;
+            }
+            if (isPokemonHaze) {
+                showKoffingTeamFogFx(selection, 'haze');
+                return;
+            }
+            if (isPokemonSmokescreen) {
+                showKoffingTeamFogFx(selection, 'smokescreen');
+                return;
+            }
+            if (isPokemonSelfDestruct) {
+                showKoffingScreenExplosionFx(actorCard, skillId === 'koffing-weezing-self-destruct');
+                targetCards.forEach((targetCard) => showExplosionFx(targetCard));
+                return;
+            }
+            if (isEkansPoisonFang) {
+                showEkansPoisonFangFx(targetCards, skillId === 'arbok-poison-fang' ? 3 : 2);
+                return;
+            }
+            if (isEkansToxic) {
+                showEkansToxicFx({ actorCard, targetCards, doubled: skillId === 'arbok-toxic' });
+                return;
+            }
+            if (isEkansShedSkin) {
+                showEkansShedSkinFx(actorCard ? [actorCard] : targetCards);
+                return;
+            }
+            if (isEkansCrunch) {
+                showEkansCrunchFx(targetCards, skillId === 'arbok-crunch' ? 2 : 1);
+                return;
+            }
+            if (isMachopBrickBreak) {
+                showMachopBrickBreakFx(
+                    targetCards,
+                    getMachopBulkUpIntensity(actorUnit),
+                    skillId === 'machoke-brick-break'
+                );
+                return;
+            }
+            if (isMachopCounter) {
+                showMachopCounterFx(
+                    targetCards,
+                    getMachopBulkUpIntensity(actorUnit),
+                    skillId === 'machoke-counter'
+                );
+                return;
+            }
+            if (isMachopBulkUp) {
+                showMachopBulkUpCastFx(actorCard, getMachopBulkUpIntensity(actorUnit) + 1);
+                return;
+            }
+            if (isMachopTaunt) {
+                showMachopTauntFx(targetCards);
                 return;
             }
             if (isPokemonPsybeam) {
@@ -6599,6 +6899,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             return true;
         };
 
+        const triggerCrunchKillAnimation = (card) =>
+            triggerPortraitKillOverlay(
+                card,
+                'crunch-kill',
+                'CRUNCH',
+                Array.from({ length: 24 }, (_, index) => `<span class="crunch-piece piece-${index + 1}"></span>`).join(''),
+                3200,
+                'bite-crunch'
+            );
+
         const triggerAdvancedSaberedAnimation = (card, variant = 'yoda') => {
             const isGrievous = variant === 'grievous';
             const slashes = isGrievous
@@ -7190,6 +7500,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             return false;
         };
 
+        const wasEkansCrunchKill = (previousUnit, nextUnit) => {
+            const killerId = String(nextUnit?.state?.killedByCharacterId || '').trim().toLowerCase();
+            if (killerId !== 'ekans' && killerId !== 'arbok') return false;
+            const statuses = Array.isArray(previousUnit?.state?.statuses) ? previousUnit.state.statuses : [];
+            return statuses.some((status) => status?.id === 'ekans_crunch_mark');
+        };
+
         const syncCharacterSpecificFx = (card, unit) => {
             if (!card) return;
             const fxClasses = [
@@ -7238,7 +7555,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 (Number.isFinite(hpForFx) && hpForFx <= 0 && !isBanishedForFx);
             if (isDeadForFx) {
                 fxClasses.forEach((className) => card.classList.remove(className));
-                ['joker-detonator-light', 'space-marine-channel-bar', 'rex-charge-counter', 'aquaman-sea-shark-ring', 'predator-bleeder-spears', 'xenomorph-facehugger-overlay', 'venom-ally-symbiosis-marker', 'negan-iron-overlay', 'negan-iron-scar-overlay', 'parasite-host-mutation-marker', 'parasite-overload-marker', 'parasite-absorption-marker', 'seraphina-med-plus-overlay', 'seraphina-buckshot-pattern', 'seraphina-road-flare', 'taunt-callout', 'flash-phase-speed-lines', 'scorpion-venom-drop', 'scorpion-poison-drops', 'pokemon-evolution-aura'].forEach((className) =>
+                ['joker-detonator-light', 'space-marine-channel-bar', 'rex-charge-counter', 'aquaman-sea-shark-ring', 'predator-bleeder-spears', 'xenomorph-facehugger-overlay', 'venom-ally-symbiosis-marker', 'negan-iron-overlay', 'negan-iron-scar-overlay', 'parasite-host-mutation-marker', 'parasite-overload-marker', 'parasite-absorption-marker', 'seraphina-med-plus-overlay', 'seraphina-buckshot-pattern', 'seraphina-road-flare', 'taunt-callout', 'flash-phase-speed-lines', 'scorpion-venom-drop', 'scorpion-poison-drops', 'pokemon-evolution-aura', 'pokemon-ekans-toxic-status', 'pokemon-machop-bulk-up-status'].forEach((className) =>
                     removeCharacterFxElement(card, className)
                 );
                 card.classList.remove('has-pokemon-evolution-aura');
@@ -7259,6 +7576,33 @@ document.addEventListener('DOMContentLoaded', async () => {
                 removeCharacterFxElement(card, 'taunt-callout');
             }
             syncPokemonEvolutionAura(card, statuses);
+
+            const toxicStatuses = statuses.filter((status) =>
+                status?.id === 'ekans_badly_poison' || status?.id === 'ekans_badly_poison_2'
+            );
+            if (toxicStatuses.length > 0) {
+                const toxicEl = ensureCharacterFxElement(
+                    card,
+                    'pokemon-ekans-toxic-status',
+                    '<span class="bubble bubble-a"></span><span class="bubble bubble-b"></span><span class="bubble bubble-c"></span><span class="bubble bubble-d"></span><span class="toxic-goo goo-a"></span><span class="toxic-goo goo-b"></span>'
+                );
+                toxicEl?.style.setProperty('--toxic-stack-count', String(Math.min(2, toxicStatuses.length)));
+            } else {
+                removeCharacterFxElement(card, 'pokemon-ekans-toxic-status');
+            }
+
+            const machopBulkStatus = statuses.find((status) => status?.id === 'machop_bulk_up_bonus');
+            const machopBulkIntensity = getMachopBulkUpIntensity({ state: { statuses } });
+            if (machopBulkStatus && machopBulkIntensity > 0) {
+                const bulkEl = ensureCharacterFxElement(
+                    card,
+                    'pokemon-machop-bulk-up-status',
+                    '<span class="bulk-ring ring-a"></span><span class="bulk-ring ring-b"></span><span class="bulk-ring ring-c"></span><span class="bulk-spark spark-a"></span><span class="bulk-spark spark-b"></span><span class="bulk-spark spark-c"></span>'
+                );
+                bulkEl?.style.setProperty('--bulk-intensity', String(machopBulkIntensity));
+            } else {
+                removeCharacterFxElement(card, 'pokemon-machop-bulk-up-status');
+            }
 
             const isBatmanSmoke = hasStatus((status) => status?.id === 'batman_smoke_bomb_blind');
             const isBatmanEmp = hasStatus((status) => typeof status?.id === 'string' && status.id.startsWith('batman_pocket_emp'));
@@ -7810,8 +8154,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                         renderAquamanSeaSharkFx(card, getAquamanSeaSharkStacks(playerUnits[slot]), seaSharkDelta);
                     }
                     if (died) {
+                        const previousUnit = previousBoard?.[currentPlayerUsername]?.[slot];
                         const killerId = playerUnits[slot]?.state?.killedByCharacterId;
-                        if (!triggerSpecialDeathAnimation(card, killerId)) {
+                        if (wasEkansCrunchKill(previousUnit, playerUnits[slot])) {
+                            triggerCrunchKillAnimation(card);
+                            scheduleCharacterDeathFinale(card, 980);
+                        } else if (!triggerSpecialDeathAnimation(card, killerId)) {
                             showCharacterDeathAnimation(card);
                         }
                         restartDeathCrackAnimation(card);
@@ -7854,8 +8202,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                         renderAquamanSeaSharkFx(card, getAquamanSeaSharkStacks(opponentUnits[slot]), seaSharkDelta);
                     }
                     if (died) {
+                        const previousUnit = previousBoard?.[opponentUsername]?.[slot];
                         const killerId = opponentUnits[slot]?.state?.killedByCharacterId;
-                        if (!triggerSpecialDeathAnimation(card, killerId)) {
+                        if (wasEkansCrunchKill(previousUnit, opponentUnits[slot])) {
+                            triggerCrunchKillAnimation(card);
+                            scheduleCharacterDeathFinale(card, 980);
+                        } else if (!triggerSpecialDeathAnimation(card, killerId)) {
                             showCharacterDeathAnimation(card);
                         }
                         restartDeathCrackAnimation(card);

@@ -422,6 +422,19 @@ body.skill-effects-muted .pokemon-future-sight-fx,
 body.skill-effects-muted .pokemon-x-cutter-fx,
 body.skill-effects-muted .pokemon-center-healing-fx,
 body.skill-effects-muted .pokemon-smog-fx,
+body.skill-effects-muted .pokemon-koffing-team-fog-fx,
+body.skill-effects-muted .pokemon-koffing-screen-explosion-fx,
+body.skill-effects-muted .pokemon-ekans-poison-fang-fx,
+body.skill-effects-muted .pokemon-ekans-toxic-stream,
+body.skill-effects-muted .pokemon-ekans-toxic-impact-fx,
+body.skill-effects-muted .pokemon-ekans-toxic-status,
+body.skill-effects-muted .pokemon-ekans-shed-skin-fx,
+body.skill-effects-muted .pokemon-ekans-crunch-fx,
+body.skill-effects-muted .pokemon-machop-brick-break-fx,
+body.skill-effects-muted .pokemon-machop-counter-fx,
+body.skill-effects-muted .pokemon-machop-bulk-up-cast-fx,
+body.skill-effects-muted .pokemon-machop-bulk-up-status,
+body.skill-effects-muted .pokemon-machop-taunt-fx,
 body.skill-effects-muted .pokemon-psybeam-stream,
 body.skill-effects-muted .pokemon-psybeam-impact-fx,
 body.skill-effects-muted .pokemon-powder-stream,
@@ -3258,6 +3271,19 @@ body.ui-disable-skill-cast-animations .pokemon-future-sight-fx,
 body.ui-disable-skill-cast-animations .pokemon-x-cutter-fx,
 body.ui-disable-skill-cast-animations .pokemon-center-healing-fx,
 body.ui-disable-skill-cast-animations .pokemon-smog-fx,
+body.ui-disable-skill-cast-animations .pokemon-koffing-team-fog-fx,
+body.ui-disable-skill-cast-animations .pokemon-koffing-screen-explosion-fx,
+body.ui-disable-skill-cast-animations .pokemon-ekans-poison-fang-fx,
+body.ui-disable-skill-cast-animations .pokemon-ekans-toxic-stream,
+body.ui-disable-skill-cast-animations .pokemon-ekans-toxic-impact-fx,
+body.ui-disable-skill-cast-animations .pokemon-ekans-toxic-status,
+body.ui-disable-skill-cast-animations .pokemon-ekans-shed-skin-fx,
+body.ui-disable-skill-cast-animations .pokemon-ekans-crunch-fx,
+body.ui-disable-skill-cast-animations .pokemon-machop-brick-break-fx,
+body.ui-disable-skill-cast-animations .pokemon-machop-counter-fx,
+body.ui-disable-skill-cast-animations .pokemon-machop-bulk-up-cast-fx,
+body.ui-disable-skill-cast-animations .pokemon-machop-bulk-up-status,
+body.ui-disable-skill-cast-animations .pokemon-machop-taunt-fx,
 body.ui-disable-skill-cast-animations .pokemon-psybeam-stream,
 body.ui-disable-skill-cast-animations .pokemon-psybeam-impact-fx,
 body.ui-disable-skill-cast-animations .pokemon-powder-stream,
@@ -5239,6 +5265,337 @@ body.arena-mode-pokemon .skillimage {
 .pokemon-smog-fx .cloud-b { right: 6px; top: 10px; width: 24px; height: 18px; animation-delay: 180ms; }
 .pokemon-smog-fx .cloud-c { left: 22px; bottom: 10px; width: 28px; height: 20px; animation-delay: 340ms; }
 .pokemon-smog-fx .cloud-d { right: 12px; bottom: 16px; width: 18px; height: 14px; animation-delay: 520ms; }
+
+.pokemon-koffing-team-fog-fx {
+    position: absolute;
+    inset: -6px;
+    z-index: 83;
+    pointer-events: none;
+    overflow: hidden;
+    --fog-density: 2;
+}
+
+.pokemon-koffing-team-fog-fx .team-fog-cloud,
+.pokemon-koffing-team-fog-fx .team-fog-veil {
+    position: absolute;
+    border-radius: 999px;
+    pointer-events: none;
+}
+
+.pokemon-koffing-team-fog-fx .team-fog-cloud {
+    background: radial-gradient(circle, rgba(186, 118, 232, 0.86) 0%, rgba(113, 68, 156, 0.62) 56%, rgba(113, 68, 156, 0) 100%);
+    filter: blur(5px);
+    opacity: calc(0.48 + (var(--fog-density) * 0.05));
+    animation: pokemon-koffing-fog-drift 1.8s ease-in-out infinite;
+}
+
+.pokemon-koffing-team-fog-fx.smokescreen .team-fog-cloud {
+    background: radial-gradient(circle, rgba(170, 170, 170, 0.78) 0%, rgba(102, 102, 102, 0.56) 58%, rgba(102, 102, 102, 0) 100%);
+}
+
+.pokemon-koffing-team-fog-fx.haze .team-fog-cloud {
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.68) 0%, rgba(218, 232, 238, 0.46) 58%, rgba(218, 232, 238, 0) 100%);
+}
+
+.pokemon-koffing-team-fog-fx .team-fog-veil {
+    inset: 8px;
+    background: radial-gradient(circle, rgba(156, 100, 212, 0.16) 0%, rgba(93, 48, 135, 0.3) 48%, rgba(93, 48, 135, 0) 100%);
+    filter: blur(8px);
+    animation: pokemon-koffing-fog-veil 1.35s ease-in-out infinite;
+}
+
+.pokemon-koffing-team-fog-fx.smokescreen .team-fog-veil {
+    background: radial-gradient(circle, rgba(155, 155, 155, 0.14) 0%, rgba(72, 72, 72, 0.28) 50%, rgba(72, 72, 72, 0) 100%);
+}
+
+.pokemon-koffing-team-fog-fx.haze .team-fog-veil {
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0%, rgba(207, 224, 231, 0.24) 50%, rgba(207, 224, 231, 0) 100%);
+}
+
+.pokemon-koffing-team-fog-fx .veil-b {
+    inset: 16px 10px 10px;
+    animation-delay: 220ms;
+}
+
+.pokemon-koffing-team-fog-fx .cloud-a { left: -2px; top: 8px; width: 34px; height: 24px; }
+.pokemon-koffing-team-fog-fx .cloud-b { right: 0; top: 0; width: 30px; height: 22px; animation-delay: 160ms; }
+.pokemon-koffing-team-fog-fx .cloud-c { left: 16px; top: 18px; width: 32px; height: 24px; animation-delay: 320ms; }
+.pokemon-koffing-team-fog-fx .cloud-d { right: 10px; bottom: 8px; width: 28px; height: 21px; animation-delay: 470ms; }
+.pokemon-koffing-team-fog-fx .cloud-e { left: 4px; bottom: 4px; width: 24px; height: 18px; animation-delay: 620ms; }
+.pokemon-koffing-team-fog-fx .cloud-f { left: 26px; top: -2px; width: 22px; height: 18px; animation-delay: 790ms; }
+.pokemon-koffing-team-fog-fx .cloud-g { right: 22px; top: 20px; width: 22px; height: 18px; animation-delay: 940ms; }
+.pokemon-koffing-team-fog-fx .cloud-h { left: 30px; bottom: 0; width: 26px; height: 18px; animation-delay: 1080ms; }
+
+.pokemon-ekans-poison-fang-fx,
+.pokemon-ekans-toxic-impact-fx,
+.pokemon-ekans-shed-skin-fx,
+.pokemon-ekans-crunch-fx,
+.pokemon-machop-brick-break-fx,
+.pokemon-machop-counter-fx,
+.pokemon-machop-bulk-up-cast-fx,
+.pokemon-machop-bulk-up-status,
+.pokemon-machop-taunt-fx,
+.pokemon-ekans-toxic-status {
+    position: absolute;
+    inset: 0;
+    z-index: 83;
+    pointer-events: none;
+    overflow: visible;
+}
+
+.pokemon-ekans-poison-fang-fx .fang-bite,
+.pokemon-ekans-crunch-fx .crunch-bite {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    animation: pokemon-bite-impact 620ms ease-out both;
+}
+
+.pokemon-ekans-poison-fang-fx .bite-2,
+.pokemon-ekans-crunch-fx .bite-2 { animation-delay: 180ms; }
+.pokemon-ekans-poison-fang-fx .bite-3,
+.pokemon-ekans-crunch-fx .bite-3 { animation-delay: 360ms; }
+
+.pokemon-ekans-poison-fang-fx .fang-top,
+.pokemon-ekans-poison-fang-fx .fang-bottom,
+.pokemon-ekans-crunch-fx .crunch-top,
+.pokemon-ekans-crunch-fx .crunch-bottom {
+    position: absolute;
+    left: 8px;
+    width: 59px;
+    height: 24px;
+    clip-path: polygon(0 0, 16% 28%, 32% 0, 48% 28%, 64% 0, 80% 28%, 100% 0, 100% 100%, 0 100%);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.pokemon-ekans-poison-fang-fx .fang-top,
+.pokemon-ekans-poison-fang-fx .fang-bottom {
+    background: linear-gradient(180deg, #f0d7ff 0%, #a252da 30%, #5a1d8d 100%);
+}
+
+.pokemon-ekans-crunch-fx .crunch-top,
+.pokemon-ekans-crunch-fx .crunch-bottom {
+    background: linear-gradient(180deg, #ffffff 0%, #f4f4f4 44%, #c8c8c8 100%);
+}
+
+.pokemon-ekans-poison-fang-fx .fang-top,
+.pokemon-ekans-crunch-fx .crunch-top { top: 6px; transform-origin: center bottom; animation: pokemon-bite-top 620ms ease-out both; }
+.pokemon-ekans-poison-fang-fx .fang-bottom,
+.pokemon-ekans-crunch-fx .crunch-bottom { bottom: 6px; transform-origin: center top; transform: rotate(180deg); animation: pokemon-bite-bottom 620ms ease-out both; }
+
+.pokemon-ekans-toxic-stream {
+    position: fixed;
+    z-index: 9002;
+    height: 12px;
+    transform-origin: left center;
+    pointer-events: none;
+}
+
+.pokemon-ekans-toxic-stream .goo-core {
+    position: absolute;
+    inset: 2px 0;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(138, 255, 70, 0), rgba(148, 255, 88, 0.72) 12%, rgba(105, 200, 49, 0.95) 48%, rgba(84, 154, 39, 0.88) 78%, rgba(84, 154, 39, 0));
+    box-shadow: 0 0 8px rgba(131, 226, 53, 0.75);
+}
+
+.pokemon-ekans-toxic-stream .goo-blob {
+    position: absolute;
+    top: 50%;
+    width: 12px;
+    height: 12px;
+    margin-top: -6px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #d8ff8f 0%, #74ce37 42%, rgba(116, 206, 55, 0) 72%);
+    animation: pokemon-toxic-blob 720ms ease-out infinite;
+}
+
+.pokemon-ekans-toxic-stream .blob-a { left: 28%; }
+.pokemon-ekans-toxic-stream .blob-b { left: 66%; animation-delay: 160ms; }
+.pokemon-ekans-toxic-stream.doubled .blob-c { left: 46%; animation-delay: 260ms; }
+.pokemon-ekans-toxic-stream.doubled .blob-d { left: 84%; animation-delay: 360ms; }
+
+.pokemon-ekans-toxic-impact-fx .toxic-bubble,
+.pokemon-ekans-toxic-status .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(216, 255, 143, 0.96) 0%, rgba(117, 214, 54, 0.82) 52%, rgba(117, 214, 54, 0) 74%);
+    box-shadow: 0 0 8px rgba(139, 236, 61, 0.72);
+    animation: pokemon-toxic-bubble-rise 1.2s ease-in infinite;
+}
+
+.pokemon-ekans-toxic-impact-fx .bubble-a,
+.pokemon-ekans-toxic-status .bubble-a { left: 16px; bottom: 10px; width: 10px; height: 10px; }
+.pokemon-ekans-toxic-impact-fx .bubble-b,
+.pokemon-ekans-toxic-status .bubble-b { left: 34px; bottom: 8px; width: 12px; height: 12px; animation-delay: 220ms; }
+.pokemon-ekans-toxic-impact-fx .bubble-c,
+.pokemon-ekans-toxic-status .bubble-c { right: 14px; bottom: 12px; width: 9px; height: 9px; animation-delay: 420ms; }
+.pokemon-ekans-toxic-status .bubble-d { right: 26px; bottom: 18px; width: 8px; height: 8px; animation-delay: 620ms; }
+
+.pokemon-ekans-toxic-impact-fx .toxic-splash,
+.pokemon-ekans-toxic-status .toxic-goo {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(128, 212, 54, 0.46) 0%, rgba(61, 115, 22, 0.42) 58%, rgba(61, 115, 22, 0) 100%);
+    filter: blur(3px);
+}
+
+.pokemon-ekans-toxic-impact-fx .splash-a,
+.pokemon-ekans-toxic-status .goo-a { inset: 12px 12px 18px; }
+.pokemon-ekans-toxic-impact-fx .splash-b,
+.pokemon-ekans-toxic-status .goo-b { inset: 24px 18px 10px 20px; animation-delay: 240ms; }
+.pokemon-ekans-toxic-status {
+    z-index: 62;
+    opacity: calc(0.52 + (min(2, var(--toxic-stack-count, 1)) * 0.14));
+}
+
+.pokemon-ekans-shed-skin-fx .shed-layer {
+    position: absolute;
+    inset: 3px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(247, 233, 214, 0.82), rgba(181, 154, 128, 0.22));
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.42), 0 0 10px rgba(211, 194, 148, 0.3);
+    animation: pokemon-shed-skin-peel 1900ms ease-in-out both;
+}
+
+.pokemon-ekans-shed-skin-fx .layer-b { animation-delay: 180ms; opacity: 0.72; }
+.pokemon-ekans-shed-skin-fx .shed-heal {
+    position: absolute;
+    color: #caff8b;
+    font: 900 18px/1 'Franklin', Arial, sans-serif;
+    text-shadow: 0 0 8px rgba(154, 255, 108, 0.92), 1px 1px 0 #163109;
+    animation: pokemon-heal-plus-float 1200ms ease-out both;
+}
+
+.pokemon-ekans-shed-skin-fx .heal-a { left: 12px; top: 14px; }
+.pokemon-ekans-shed-skin-fx .heal-b { left: 30px; top: 6px; animation-delay: 180ms; }
+.pokemon-ekans-shed-skin-fx .heal-c { right: 12px; top: 20px; animation-delay: 320ms; }
+
+.pokemon-machop-brick-break-fx,
+.pokemon-machop-counter-fx,
+.pokemon-machop-bulk-up-cast-fx,
+.pokemon-machop-bulk-up-status {
+    --machop-power: 1;
+}
+
+.pokemon-machop-brick-break-fx .karate-hand,
+.pokemon-machop-counter-fx .counter-hand,
+.pokemon-machop-taunt-fx .taunt-hand {
+    position: absolute;
+    background: linear-gradient(180deg, rgba(36,36,36,0.98), rgba(0,0,0,0.86));
+    box-shadow: 0 0 10px rgba(0,0,0,0.55);
+}
+
+.pokemon-machop-brick-break-fx .karate-hand {
+    left: 27px;
+    top: -28px;
+    width: 20px;
+    height: 54px;
+    border-radius: 12px 12px 8px 8px;
+    transform-origin: center bottom;
+    animation: pokemon-machop-hand-chop 700ms cubic-bezier(0.16, 0.84, 0.22, 1) both;
+}
+
+.pokemon-machop-counter-fx .counter-hand {
+    left: 22px;
+    top: 18px;
+    width: 30px;
+    height: 24px;
+    border-radius: 12px;
+    animation: pokemon-machop-counter-press 820ms ease-out both;
+}
+
+.pokemon-machop-counter-fx.machoke .counter-hand,
+.pokemon-machop-brick-break-fx.machoke .karate-hand {
+    filter: drop-shadow(0 0 10px rgba(255,255,255,0.16));
+}
+
+.pokemon-machop-brick-break-fx .karate-impact,
+.pokemon-machop-counter-fx .counter-pressure {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border-radius: 50%;
+    border: 3px solid rgba(255,255,255,0.82);
+    opacity: 0;
+    animation: pokemon-machop-impact-ring 700ms ease-out both;
+}
+
+.pokemon-machop-brick-break-fx .impact-a,
+.pokemon-machop-counter-fx .pressure-a { width: 32px; height: 32px; margin-left: -16px; margin-top: -16px; }
+.pokemon-machop-brick-break-fx .impact-b,
+.pokemon-machop-counter-fx .pressure-b { width: 48px; height: 48px; margin-left: -24px; margin-top: -24px; animation-delay: 120ms; }
+
+.pokemon-machop-bulk-up-cast-fx .bulk-cast-ring,
+.pokemon-machop-bulk-up-status .bulk-ring {
+    position: absolute;
+    inset: 6px;
+    border: 2px solid rgba(247, 255, 178, 0.82);
+    border-radius: 50%;
+    box-shadow: 0 0 calc(8px + var(--bulk-intensity, var(--machop-power, 1)) * 2px) rgba(244, 255, 121, 0.58);
+    animation: pokemon-machop-bulk-ring 1.2s ease-in-out infinite;
+}
+
+.pokemon-machop-bulk-up-cast-fx .ring-b,
+.pokemon-machop-bulk-up-status .ring-b { inset: 12px; animation-delay: 180ms; opacity: 0.7; }
+.pokemon-machop-bulk-up-cast-fx .ring-c,
+.pokemon-machop-bulk-up-status .ring-c { inset: 18px; animation-delay: 360ms; opacity: 0.5; }
+
+.pokemon-machop-bulk-up-cast-fx .bulk-cast-burst,
+.pokemon-machop-bulk-up-status .bulk-spark {
+    position: absolute;
+    width: 8px;
+    height: 24px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,214,74,0.1));
+    border-radius: 999px;
+    box-shadow: 0 0 10px rgba(255, 236, 121, 0.62);
+    animation: pokemon-machop-bulk-spark 900ms ease-out infinite;
+}
+
+.pokemon-machop-bulk-up-cast-fx .burst-a,
+.pokemon-machop-bulk-up-status .spark-a { left: 18px; top: 6px; transform: rotate(-18deg); }
+.pokemon-machop-bulk-up-cast-fx .burst-b,
+.pokemon-machop-bulk-up-status .spark-b { right: 18px; top: 12px; transform: rotate(22deg); animation-delay: 180ms; }
+.pokemon-machop-bulk-up-status .spark-c { left: 34px; bottom: 10px; transform: rotate(8deg); animation-delay: 360ms; }
+
+.pokemon-machop-bulk-up-status {
+    z-index: 62;
+    opacity: calc(0.44 + (min(8, var(--bulk-intensity, 1)) * 0.055));
+}
+
+.pokemon-machop-taunt-fx .taunt-hand {
+    left: 26px;
+    top: 18px;
+    width: 22px;
+    height: 26px;
+    border-radius: 12px;
+    animation: pokemon-machop-taunt-hand 1100ms ease-in-out both;
+}
+
+.pokemon-machop-taunt-fx .taunt-finger {
+    position: absolute;
+    left: 35px;
+    top: 2px;
+    width: 6px;
+    height: 28px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 0 8px rgba(255,255,255,0.72);
+    transform-origin: bottom center;
+    animation: pokemon-machop-finger-wag 1100ms ease-in-out both;
+}
+
+.pokemon-machop-taunt-fx .taunt-callout {
+    position: absolute;
+    left: 50%;
+    bottom: -8px;
+    transform: translateX(-50%);
+    color: #fff5c9;
+    font: 900 10px/1 'Franklin', Arial, sans-serif;
+    white-space: nowrap;
+    text-shadow: 1px 1px 0 #000, 0 0 8px rgba(255,255,255,0.44);
+    animation: pokemon-machop-taunt-text 1100ms ease-out both;
+}
 
 .pokemon-psybeam-stream .beam-core {
     height: 8px;
@@ -10715,6 +11072,93 @@ body.arena-mode-pokemon .chakra-box.white {
     transform: scale(0.92);
 }
 
+.pokemon-koffing-screen-explosion-fx {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    pointer-events: none;
+    --explosion-size: 360px;
+    --explosion-x: 50vw;
+    --explosion-y: 50vh;
+}
+
+.pokemon-koffing-screen-explosion-fx.weezing {
+    --explosion-size: 480px;
+}
+
+.pokemon-koffing-screen-explosion-fx .blast-flash,
+.pokemon-koffing-screen-explosion-fx .blast-ring,
+.pokemon-koffing-screen-explosion-fx .blast-cloud,
+.pokemon-koffing-screen-explosion-fx .blast-sprite {
+    position: absolute;
+    left: var(--explosion-x);
+    top: var(--explosion-y);
+    transform: translate(-50%, -50%);
+}
+
+.pokemon-koffing-screen-explosion-fx .blast-flash {
+    width: 100vw;
+    height: 100vh;
+    background: radial-gradient(circle at center, rgba(255, 232, 180, 0.42) 0%, rgba(255, 170, 40, 0.22) 18%, rgba(82, 36, 12, 0.18) 34%, rgba(0, 0, 0, 0) 62%);
+    animation: pokemon-koffing-screen-flash 720ms ease-out both;
+}
+
+.pokemon-koffing-screen-explosion-fx .blast-sprite {
+    width: var(--explosion-size);
+    height: var(--explosion-size);
+    margin-left: calc(var(--explosion-size) / -2);
+    margin-top: calc(var(--explosion-size) / -2);
+    background-image: url('../assets/Animations/spritesheet/Explosions/epic_explosion_002/epic_explosion_002_large_yellow/spritesheet.png');
+    background-repeat: no-repeat;
+    background-size: calc(var(--explosion-size) * 15) var(--explosion-size);
+    filter: drop-shadow(0 0 18px rgba(255, 159, 31, 0.95));
+    animation: pokemon-koffing-screen-explosion 1100ms steps(15) forwards;
+}
+
+.pokemon-koffing-screen-explosion-fx .blast-ring {
+    border-radius: 50%;
+    border: 10px solid rgba(255, 214, 136, 0.82);
+    box-shadow: 0 0 30px rgba(255, 140, 33, 0.58);
+    animation: pokemon-koffing-ring-expand 900ms ease-out both;
+}
+
+.pokemon-koffing-screen-explosion-fx .ring-a {
+    width: calc(var(--explosion-size) * 0.48);
+    height: calc(var(--explosion-size) * 0.48);
+}
+
+.pokemon-koffing-screen-explosion-fx .ring-b {
+    width: calc(var(--explosion-size) * 0.78);
+    height: calc(var(--explosion-size) * 0.78);
+    animation-delay: 120ms;
+}
+
+.pokemon-koffing-screen-explosion-fx .blast-cloud {
+    border-radius: 50%;
+    filter: blur(10px);
+    animation: pokemon-koffing-blast-cloud 1300ms ease-out both;
+}
+
+.pokemon-koffing-screen-explosion-fx .cloud-a {
+    width: calc(var(--explosion-size) * 0.68);
+    height: calc(var(--explosion-size) * 0.38);
+    background: radial-gradient(circle, rgba(255, 160, 54, 0.56) 0%, rgba(96, 53, 18, 0.18) 62%, rgba(96, 53, 18, 0) 100%);
+}
+
+.pokemon-koffing-screen-explosion-fx .cloud-b {
+    width: calc(var(--explosion-size) * 1.05);
+    height: calc(var(--explosion-size) * 0.48);
+    background: radial-gradient(circle, rgba(88, 88, 88, 0.34) 0%, rgba(32, 32, 32, 0.22) 60%, rgba(32, 32, 32, 0) 100%);
+    animation-delay: 100ms;
+}
+
+.pokemon-koffing-screen-explosion-fx .cloud-c {
+    width: calc(var(--explosion-size) * 1.18);
+    height: calc(var(--explosion-size) * 0.58);
+    background: radial-gradient(circle, rgba(176, 125, 211, 0.28) 0%, rgba(88, 54, 110, 0.18) 56%, rgba(88, 54, 110, 0) 100%);
+    animation-delay: 180ms;
+}
+
 @keyframes explosion-anim {
     from { background-position: 0 0; }
     to { background-position: -2880px 0; }
@@ -11484,6 +11928,134 @@ body.arena-mode-pokemon .chakra-box.white {
     25% { opacity: 0.74; }
     65% { transform: translate(4px, -4px) scale(1.08); opacity: 0.66; }
     100% { transform: translate(-4px, -14px) scale(0.84); opacity: 0; }
+}
+
+@keyframes pokemon-koffing-fog-drift {
+    0% { transform: translate(0, 10px) scale(0.72); opacity: 0.12; }
+    30% { opacity: 0.82; }
+    65% { transform: translate(6px, -2px) scale(1.08); opacity: 0.74; }
+    100% { transform: translate(-8px, -16px) scale(0.9); opacity: 0; }
+}
+
+@keyframes pokemon-koffing-fog-veil {
+    0% { transform: scale(0.86); opacity: 0.18; }
+    50% { transform: scale(1.02); opacity: 0.42; }
+    100% { transform: scale(1.1); opacity: 0; }
+}
+
+@keyframes pokemon-koffing-screen-flash {
+    0% { opacity: 0; }
+    16% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes pokemon-koffing-screen-explosion {
+    from { background-position: 0 0; opacity: 1; }
+    to { background-position: calc(var(--explosion-size) * -15) 0; opacity: 0; }
+}
+
+@keyframes pokemon-koffing-ring-expand {
+    0% { transform: translate(-50%, -50%) scale(0.26); opacity: 0.92; }
+    100% { transform: translate(-50%, -50%) scale(1.46); opacity: 0; }
+}
+
+@keyframes pokemon-koffing-blast-cloud {
+    0% { transform: translate(-50%, -50%) scale(0.34); opacity: 0.2; }
+    28% { opacity: 0.78; }
+    100% { transform: translate(-50%, -50%) scale(1.18); opacity: 0; }
+}
+
+@keyframes pokemon-bite-impact {
+    0% { opacity: 0; }
+    15%, 72% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes pokemon-bite-top {
+    0% { transform: translateY(-20px) scaleY(0.2); }
+    35%, 70% { transform: translateY(0) scaleY(calc(1 + var(--bite-scale, 0))); }
+    100% { transform: translateY(4px) scaleY(0.38); }
+}
+
+@keyframes pokemon-bite-bottom {
+    0% { transform: rotate(180deg) translateY(-20px) scaleY(0.2); }
+    35%, 70% { transform: rotate(180deg) translateY(0) scaleY(calc(1 + var(--bite-scale, 0))); }
+    100% { transform: rotate(180deg) translateY(4px) scaleY(0.38); }
+}
+
+@keyframes pokemon-toxic-blob {
+    0% { transform: translate(0, 0) scale(0.4); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translate(16px, 0) scale(0.2); opacity: 0; }
+}
+
+@keyframes pokemon-toxic-bubble-rise {
+    0% { transform: translateY(0) scale(0.2); opacity: 0; }
+    18% { opacity: 1; }
+    100% { transform: translateY(-26px) scale(1.1); opacity: 0; }
+}
+
+@keyframes pokemon-shed-skin-peel {
+    0% { opacity: 0; transform: translateX(0) skewX(0deg); }
+    24% { opacity: 0.92; }
+    100% { opacity: 0; transform: translateX(16px) skewX(14deg); }
+}
+
+@keyframes pokemon-heal-plus-float {
+    0% { opacity: 0; transform: translateY(12px) scale(0.4); }
+    25% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-16px) scale(1.12); }
+}
+
+@keyframes pokemon-machop-hand-chop {
+    0% { transform: translateY(-16px) scaleY(0.4) scaleX(calc(1 + var(--machop-power) * 0.06)); opacity: 0; }
+    36% { opacity: 1; transform: translateY(18px) scaleY(calc(1 + var(--machop-power) * 0.08)) scaleX(calc(1 + var(--machop-power) * 0.06)); }
+    100% { opacity: 0; transform: translateY(28px) scaleY(0.72) scaleX(calc(1 + var(--machop-power) * 0.06)); }
+}
+
+@keyframes pokemon-machop-counter-press {
+    0% { opacity: 0; transform: scale(0.3) scale(calc(1 + var(--machop-power) * 0.08)); }
+    22%, 60% { opacity: 1; transform: scale(calc(1 + var(--machop-power) * 0.08)); }
+    100% { opacity: 0; transform: scale(0.58) scale(calc(1 + var(--machop-power) * 0.08)); }
+}
+
+@keyframes pokemon-machop-impact-ring {
+    0% { opacity: 0; transform: scale(0.3) scale(calc(1 + var(--machop-power) * 0.06)); }
+    22% { opacity: 1; }
+    100% { opacity: 0; transform: scale(calc(1.3 + var(--machop-power) * 0.08)); }
+}
+
+@keyframes pokemon-machop-bulk-ring {
+    0% { opacity: 0.26; transform: scale(0.82); }
+    50% { opacity: 1; transform: scale(calc(1 + min(8, var(--bulk-intensity, var(--machop-power, 1))) * 0.03)); }
+    100% { opacity: 0.32; transform: scale(1.08); }
+}
+
+@keyframes pokemon-machop-bulk-spark {
+    0% { opacity: 0; transform: translateY(8px) scaleY(0.4); }
+    25% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(-18px) scaleY(1); }
+}
+
+@keyframes pokemon-machop-taunt-hand {
+    0% { opacity: 0; transform: translateX(14px) scale(0.4); }
+    28%, 62% { opacity: 1; transform: translateX(-8px) scale(1); }
+    100% { opacity: 0; transform: translateX(12px) scale(0.68); }
+}
+
+@keyframes pokemon-machop-finger-wag {
+    0% { opacity: 0; transform: rotate(16deg); }
+    20% { opacity: 1; }
+    36% { transform: rotate(-14deg); }
+    52% { transform: rotate(14deg); }
+    72% { transform: rotate(-10deg) translateX(-8px); }
+    100% { opacity: 0; transform: rotate(18deg) translateX(8px); }
+}
+
+@keyframes pokemon-machop-taunt-text {
+    0% { opacity: 0; transform: translateX(-50%) translateY(8px) scale(0.5); }
+    22%, 70% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-8px) scale(0.82); }
 }
 
 @keyframes pokemon-psybeam-wave {
@@ -12770,6 +13342,32 @@ body.arena-mode-pokemon .chakra-box.white {
     .pokemon-center-healing-fx *,
     .pokemon-smog-fx,
     .pokemon-smog-fx *,
+    .pokemon-koffing-team-fog-fx,
+    .pokemon-koffing-team-fog-fx *,
+    .pokemon-koffing-screen-explosion-fx,
+    .pokemon-koffing-screen-explosion-fx *,
+    .pokemon-ekans-poison-fang-fx,
+    .pokemon-ekans-poison-fang-fx *,
+    .pokemon-ekans-toxic-stream,
+    .pokemon-ekans-toxic-stream *,
+    .pokemon-ekans-toxic-impact-fx,
+    .pokemon-ekans-toxic-impact-fx *,
+    .pokemon-ekans-toxic-status,
+    .pokemon-ekans-toxic-status *,
+    .pokemon-ekans-shed-skin-fx,
+    .pokemon-ekans-shed-skin-fx *,
+    .pokemon-ekans-crunch-fx,
+    .pokemon-ekans-crunch-fx *,
+    .pokemon-machop-brick-break-fx,
+    .pokemon-machop-brick-break-fx *,
+    .pokemon-machop-counter-fx,
+    .pokemon-machop-counter-fx *,
+    .pokemon-machop-bulk-up-cast-fx,
+    .pokemon-machop-bulk-up-cast-fx *,
+    .pokemon-machop-bulk-up-status,
+    .pokemon-machop-bulk-up-status *,
+    .pokemon-machop-taunt-fx,
+    .pokemon-machop-taunt-fx *,
     .pokemon-psybeam-stream,
     .pokemon-psybeam-stream *,
     .pokemon-psybeam-impact-fx,
@@ -13483,6 +14081,54 @@ body.arena-mode-pokemon .chakra-box.white {
     animation: advanced-sabered-portrait 3500ms cubic-bezier(0.16, 0.8, 0.22, 1) both;
 }
 
+.special-kill-overlay.crunch-kill .special-kill-portrait {
+    animation: crunch-kill-portrait-break 3200ms ease-out both;
+    filter: contrast(1.08) saturate(0.92);
+}
+
+.special-kill-overlay.crunch-kill .special-kill-label {
+    color: #fff;
+    text-shadow: 2px 2px 0 #000, 0 0 12px rgba(255,255,255,0.9), 0 0 20px rgba(191, 191, 191, 0.86);
+    letter-spacing: 1px;
+}
+
+.special-kill-overlay.crunch-kill .crunch-piece {
+    position: absolute;
+    left: 31px;
+    top: 31px;
+    width: 16px;
+    height: 16px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(214,214,214,0.74));
+    box-shadow: 0 0 8px rgba(255,255,255,0.42);
+    clip-path: polygon(50% 0%, 100% 35%, 82% 100%, 20% 84%, 0% 28%);
+    animation: crunch-piece-burst 1400ms ease-out both;
+}
+
+.special-kill-overlay.crunch-kill .piece-1 { --sx: -38px; --sy: -34px; --rot: -24deg; }
+.special-kill-overlay.crunch-kill .piece-2 { --sx: -20px; --sy: -38px; --rot: 18deg; animation-delay: 40ms; }
+.special-kill-overlay.crunch-kill .piece-3 { --sx: 4px; --sy: -40px; --rot: -12deg; animation-delay: 80ms; }
+.special-kill-overlay.crunch-kill .piece-4 { --sx: 24px; --sy: -36px; --rot: 28deg; animation-delay: 120ms; }
+.special-kill-overlay.crunch-kill .piece-5 { --sx: 36px; --sy: -20px; --rot: -32deg; animation-delay: 160ms; }
+.special-kill-overlay.crunch-kill .piece-6 { --sx: 40px; --sy: 0px; --rot: 24deg; animation-delay: 200ms; }
+.special-kill-overlay.crunch-kill .piece-7 { --sx: 34px; --sy: 22px; --rot: -18deg; animation-delay: 240ms; }
+.special-kill-overlay.crunch-kill .piece-8 { --sx: 18px; --sy: 36px; --rot: 36deg; animation-delay: 280ms; }
+.special-kill-overlay.crunch-kill .piece-9 { --sx: -2px; --sy: 40px; --rot: -14deg; animation-delay: 320ms; }
+.special-kill-overlay.crunch-kill .piece-10 { --sx: -24px; --sy: 34px; --rot: 22deg; animation-delay: 360ms; }
+.special-kill-overlay.crunch-kill .piece-11 { --sx: -38px; --sy: 18px; --rot: -20deg; animation-delay: 400ms; }
+.special-kill-overlay.crunch-kill .piece-12 { --sx: -42px; --sy: -2px; --rot: 30deg; animation-delay: 440ms; }
+.special-kill-overlay.crunch-kill .piece-13 { --sx: -14px; --sy: -16px; --rot: -30deg; animation-delay: 60ms; }
+.special-kill-overlay.crunch-kill .piece-14 { --sx: 10px; --sy: -18px; --rot: 26deg; animation-delay: 100ms; }
+.special-kill-overlay.crunch-kill .piece-15 { --sx: 20px; --sy: 8px; --rot: -16deg; animation-delay: 140ms; }
+.special-kill-overlay.crunch-kill .piece-16 { --sx: -10px; --sy: 18px; --rot: 20deg; animation-delay: 180ms; }
+.special-kill-overlay.crunch-kill .piece-17 { --sx: -26px; --sy: 6px; --rot: -10deg; animation-delay: 220ms; }
+.special-kill-overlay.crunch-kill .piece-18 { --sx: 28px; --sy: -8px; --rot: 34deg; animation-delay: 260ms; }
+.special-kill-overlay.crunch-kill .piece-19 { --sx: -6px; --sy: -28px; --rot: 12deg; animation-delay: 300ms; }
+.special-kill-overlay.crunch-kill .piece-20 { --sx: 8px; --sy: 28px; --rot: -26deg; animation-delay: 340ms; }
+.special-kill-overlay.crunch-kill .piece-21 { --sx: -30px; --sy: -8px; --rot: 14deg; animation-delay: 380ms; }
+.special-kill-overlay.crunch-kill .piece-22 { --sx: 32px; --sy: 10px; --rot: -22deg; animation-delay: 420ms; }
+.special-kill-overlay.crunch-kill .piece-23 { --sx: -18px; --sy: 26px; --rot: 18deg; animation-delay: 460ms; }
+.special-kill-overlay.crunch-kill .piece-24 { --sx: 16px; --sy: -26px; --rot: -18deg; animation-delay: 500ms; }
+
 .advanced-sabered-kill.grievous .special-kill-portrait {
     animation-duration: 3800ms;
 }
@@ -13581,6 +14227,18 @@ body.arena-mode-pokemon .chakra-box.white {
 @keyframes special-kill-portrait-fade {
     0%, 68% { opacity: 1; }
     100% { opacity: 0; transform: scale(1.08); }
+}
+
+@keyframes crunch-kill-portrait-break {
+    0%, 20% { opacity: 1; transform: scale(1); }
+    45% { opacity: 0.82; transform: scale(1.02); }
+    100% { opacity: 0; transform: scale(0.92); }
+}
+
+@keyframes crunch-piece-burst {
+    0% { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(0.2); }
+    12% { opacity: 1; }
+    100% { opacity: 0; transform: translate(var(--sx), var(--sy)) rotate(var(--rot)) scale(0.18); }
 }
 
 .eviscerated-gashes span,
