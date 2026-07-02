@@ -24924,6 +24924,16 @@ const characters = [
                 ],
                 "effects": [
                     {
+                        "type": "damage",
+                        "amount": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "damageType": "affliction",
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
                         "type": "apply_status",
                         "statusId": "ekans_badly_poison",
                         "duration": 999,
@@ -25148,6 +25158,16 @@ const characters = [
                     "Instant"
                 ],
                 "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "damageType": "affliction",
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
                     {
                         "type": "apply_status",
                         "statusId": "ekans_badly_poison",
