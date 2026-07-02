@@ -864,12 +864,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         );
     };
 
-    const getProtectionTerminologyArena = () => {
-        if (typeof currentMatchArena === 'string' && currentMatchArena) {
-            return currentMatchArena;
+    const normalizeRuntimeArenaMode = (value = '') => {
+        const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
+        return normalized === 'pokemon' ? 'pokemon' : normalized === 'comic' ? 'comic' : '';
+    };
+
+    const setProtectionTerminologyArena = (arena) => {
+        const normalizedArena = normalizeRuntimeArenaMode(arena);
+        if (normalizedArena) {
+            window.__comicArenaRuntimeMode = normalizedArena;
+            return normalizedArena;
         }
-        if (typeof activeArenaMode === 'string' && activeArenaMode) {
-            return activeArenaMode;
+        delete window.__comicArenaRuntimeMode;
+        return '';
+    };
+
+    const getProtectionTerminologyArena = () => {
+        const runtimeArena = normalizeRuntimeArenaMode(window.__comicArenaRuntimeMode);
+        if (runtimeArena) {
+            return runtimeArena;
+        }
+        const arenaFromQuery = normalizeRuntimeArenaMode(new URLSearchParams(window.location.search).get('arena'));
+        if (arenaFromQuery) {
+            return arenaFromQuery;
+        }
+        const storedArena = normalizeRuntimeArenaMode(localStorage.getItem('comicArenaMode'));
+        if (storedArena) {
+            return storedArena;
         }
         if (typeof defaultArenaModeFromPage === 'string' && defaultArenaModeFromPage) {
             return defaultArenaModeFromPage;
@@ -1129,10 +1150,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (normalizedOverride === 'pokemon' || normalizedOverride === 'comic') {
             return normalizedOverride;
         }
-        if (typeof currentMatchArena === 'string' && currentMatchArena.trim().toLowerCase() === 'pokemon') {
-            return 'pokemon';
-        }
-        if (typeof activeArenaMode === 'string' && activeArenaMode.trim().toLowerCase() === 'pokemon') {
+        if (getProtectionTerminologyArena() === 'pokemon') {
             return 'pokemon';
         }
         return localStorage.getItem('comicArenaMode') === 'pokemon' ? 'pokemon' : 'comic';
@@ -1636,6 +1654,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             normalizeArenaModeValue(arenaModeFromUrl) ||
             readCachedMatchArena(matchIdFromUrl) ||
             (localStorage.getItem('comicArenaMode') === 'pokemon' ? 'pokemon' : 'comic');
+        setProtectionTerminologyArena(currentMatchArena);
         if (matchIdFromUrl) {
             writeCachedMatchArena(matchIdFromUrl, currentMatchArena);
         }
@@ -9658,6 +9677,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (typeof data.arena === 'string' && data.arena.trim()) {
                 currentMatchArena = data.arena.trim().toLowerCase() === 'pokemon' ? 'pokemon' : 'comic';
+                setProtectionTerminologyArena(currentMatchArena);
             }
             writeCachedMatchArena(matchIdFromUrl || data.matchId, currentMatchArena);
             setIngameArenaUiAssets(currentMatchArena);
@@ -12243,6 +12263,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ? 'comic'
                 : defaultArenaModeFromPage || (localStorage.getItem('comicArenaMode') === 'pokemon' ? 'pokemon' : 'comic')
                 ;
+    setProtectionTerminologyArena(activeArenaMode);
     if (arenaModeFromUrl === 'pokemon' || arenaModeFromUrl === 'comic') {
         localStorage.setItem('comicArenaMode', activeArenaMode);
     }
@@ -14300,6 +14321,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         activeArenaMode = nextArenaMode;
+        setProtectionTerminologyArena(activeArenaMode);
         localStorage.setItem('comicArenaMode', activeArenaMode);
         syncArenaModeButtons();
         clearSelectedTeamForArenaMode();
