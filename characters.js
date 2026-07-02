@@ -17287,7 +17287,7 @@ const characters = [
                 "id": "charmander-scratch",
                 "name": "Scratch",
                 "skillimage": "assets/images/PokemonArena/Charmander/scratch.webp",
-                "skilldescription": "Charmander deals 20 damage to one enemy. This skill has a 30% chance to critically strike, dealing 10 additional damage and becoming Piercing.",
+                "skilldescription": "Charmander deals 25 damage to one enemy. This skill has a 30% chance to critically strike, dealing 10 additional damage and becoming Piercing.",
                 "energy": [
                     "Taijutsu",
                     "Random"
@@ -17303,7 +17303,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 20,
+                        "amount": 25,
                         "scope": "target",
                         "metadata": {
                             "bonusPerStatusMetadata": {
@@ -17343,7 +17343,6 @@ const characters = [
                 "skilldescription": "Charmander deals 20 affliction damage to all enemies. Each enemy has a 30% chance to be Burned. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
                 "energy": [
                     "Bloodline",
-                    "Random",
                     "Random"
                 ],
                 "target": "all-enemy",
@@ -17416,8 +17415,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Charmander/charmanderrage.webp",
                 "skilldescription": "For 1 turn, Charmander gains 25% damage reduction. The first time during this turn that Charmander takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 2 stacks.",
                 "energy": [
-                    "Bloodline",
-                    "Random"
+                    "Bloodline"
                 ],
                 "target": "self",
                 "damage": 0,
@@ -17481,8 +17479,7 @@ const characters = [
                 "skilldescription": "Charmeleon deals 15 physical damage and 30 affliction damage to one enemy. This skill has a 30% chance to Burn the target. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
                 "energy": [
                     "Bloodline",
-                    "Bloodline",
-                    "Random"
+                    "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -17553,7 +17550,6 @@ const characters = [
                 "skilldescription": "Charmeleon deals 30 damage to one enemy. This skill has a 30% chance to critically strike, dealing 10 additional damage and becoming Piercing.",
                 "energy": [
                     "Taijutsu",
-                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -17599,7 +17595,6 @@ const characters = [
                 "skilldescription": "Deals 30 affliction damage to all enemies. Each enemy has a 30% chance to be Burned. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
                 "energy": [
                     "Bloodline",
-                    "Random",
                     "Random",
                     "Random"
                 ],
@@ -18260,10 +18255,9 @@ const characters = [
                 "id": "bulbasaur-leech-seed",
                 "name": "Leech Seed",
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/bulbasaurleechseed.jpg",
-                "skilldescription": "Bulbasaur plants a seed on one enemy for 2 turns. At the start of each turn, that enemy loses 15 health and Bulbasaur restores 15 health. Bulbasaur gains 1 Sun whenever Leech Seed deals damage.",
+                "skilldescription": "Bulbasaur plants a seed on one enemy for 3 turns. At the start of each turn, that enemy loses 10 health and Bulbasaur restores 10 health. Bulbasaur gains 1 Sun whenever Leech Seed deals damage.",
                 "energy": [
-                    "Taijutsu",
-                    "Random"
+                    "Taijutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -18277,12 +18271,12 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "bulbasaur_leech_seed",
-                        "duration": 2,
+                        "duration": 3,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "turnStartDamage": 15,
-                            "turnStartHealSourceAmount": 15,
+                            "turnStartDamage": 10,
+                            "turnStartHealSourceAmount": 10,
                             "fixedTurnStartDamage": true,
                             "ignoreTargetDamageReduction": true,
                             "ignoreTargetDestructibleDefense": true,
@@ -18330,7 +18324,7 @@ const characters = [
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/bulbasaurleechseed.jpg",
-                            "tooltipText": "This character loses 15 health at the start of each turn. Bulbasaur restores 15 health and gains 1 Sun whenever this deals damage."
+                            "tooltipText": "This character loses 10 health at the start of each turn. Bulbasaur restores 10 health and gains 1 Sun whenever this deals damage."
                         }
                     }
                 ]
@@ -18339,7 +18333,7 @@ const characters = [
                 "id": "bulbasaur-vine-whip",
                 "name": "Vine Whip",
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/bulbasaurvinewhip.jpg",
-                "skilldescription": "Bulbasaur deals 15 piercing damage to one enemy. That enemy's harmful skills are stunned for 1 turn. This skill has a 10% chance to critically strike for each Sun stack, dealing 15 additional damage.",
+                "skilldescription": "Bulbasaur deals 25 piercing damage to one enemy. That enemy's harmful skills are stunned for 1 turn. This skill has a 10% chance to critically strike for each Sun stack, dealing 15 additional damage.",
                 "energy": [
                     "Taijutsu",
                     "Random"
@@ -18355,7 +18349,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 15,
+                        "amount": 25,
                         "scope": "target",
                         "metadata": {
                             "ignoreDamageReduction": true
@@ -18498,9 +18492,8 @@ const characters = [
                     "statusId": "bulbasaur_ivysaur_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaurleechseed.png",
-                "skilldescription": "Ivysaur plants a seed on one enemy for 2 turns. At the start of each turn, that enemy loses 25 health and Ivysaur restores 25 health. Ivysaur gains 1 Sun whenever Leech Seed deals damage.",
+                "skilldescription": "Ivysaur plants a seed on one enemy for 3 turns. At the start of each turn, that enemy loses 15 health and Ivysaur restores 15 health. Ivysaur gains 1 Sun whenever Leech Seed deals damage.",
                 "energy": [
-                    "Taijutsu",
                     "Taijutsu",
                     "Random"
                 ],
@@ -18516,12 +18509,12 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "ivysaur_leech_seed",
-                        "duration": 2,
+                        "duration": 3,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "turnStartDamage": 25,
-                            "turnStartHealSourceAmount": 25,
+                            "turnStartDamage": 15,
+                            "turnStartHealSourceAmount": 15,
                             "fixedTurnStartDamage": true,
                             "ignoreTargetDamageReduction": true,
                             "ignoreTargetDestructibleDefense": true,
@@ -18569,7 +18562,7 @@ const characters = [
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/ivysaurleechseed.png",
-                            "tooltipText": "This character loses 20 health at the start of each turn. Ivysaur restores 20 health and gains 1 Sun whenever this deals damage."
+                            "tooltipText": "This character loses 15 health at the start of each turn. Ivysaur restores 15 health and gains 1 Sun whenever this deals damage."
                         }
                     }
                 ]
@@ -18584,7 +18577,6 @@ const characters = [
                 "skilldescription": "Ivysaur deals 35 piercing damage to one enemy. That enemy's harmful skills are stunned for 1 turn. This skill has a 10% chance to critically strike for each Sun stack, dealing 15 additional damage.",
                 "energy": [
                     "Taijutsu",
-                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -18639,7 +18631,7 @@ const characters = [
                     "statusId": "bulbasaur_ivysaur_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaurrazorleaf.jpg",
-                "skilldescription": "Ivysaur deals 25 damage to one enemy and 20 damage to all other enemies. This skill has a 10% chance to critically strike each enemy for each Sun stack, dealing 10 additional damage and becoming Piercing.",
+                "skilldescription": "Ivysaur deals 30 damage to one enemy and 25 damage to all other enemies. This skill has a 10% chance to critically strike each enemy for each Sun stack, dealing 10 additional damage and becoming Piercing.",
                 "energy": [
                     "Random",
                     "Random",
@@ -18656,12 +18648,12 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 25,
+                        "amount": 30,
                         "scope": "target"
                     },
                     {
                         "type": "damage",
-                        "amount": 20,
+                        "amount": 25,
                         "scope": "other-enemies"
                     },
                     {
@@ -19051,7 +19043,7 @@ const characters = [
                 "id": "butterfree-confusion",
                 "name": "Confusion",
                 "skillimage": "assets/images/PokemonArena/butterfree/confusion.webp",
-                "skilldescription": "Butterfree deals 25 damage to one enemy. This skill has a 25% chance to reflect the next harmful skill used by that enemy back onto its user for 1 turn. For 1 turn, Psybeam deals 5 additional damage.",
+                "skilldescription": "Butterfree deals 25 damage to one enemy. This skill has a 25% chance to reflect the next harmful skill used by that enemy back onto its user for 1 turn. For 1 turn, Psybeam deals 5 additional damage and costs 1 less Random energy.",
                 "energy": [
                     "Taijutsu",
                     "Random"
@@ -19099,8 +19091,13 @@ const characters = [
                             "skillDamageBonuses": {
                                 "butterfree-psybeam": 5
                             },
+                            "skillCostOverridesBySkillId": {
+                                "butterfree-psybeam": {
+                                    "requiredRandom": 0
+                                }
+                            },
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "Psybeam deals 5 additional damage."
+                            "tooltipText": "Psybeam deals 5 additional damage and costs 1 less random energy."
                         }
                     }
                 ]
@@ -19109,7 +19106,7 @@ const characters = [
                 "id": "butterfree-psybeam",
                 "name": "Psybeam",
                 "skillimage": "assets/images/PokemonArena/butterfree/psybeam.webp",
-                "skilldescription": "Butterfree deals 25 damage to one enemy and increases their next skill cooldown by 2 turns for 1 turn. For 1 turn, Confusion deals 5 additional damage.",
+                "skilldescription": "Butterfree deals 25 damage to one enemy and increases their next skill cooldown by 2 turns for 1 turn. For 1 turn, Confusion deals 5 additional damage and costs 1 less Random energy.",
                 "energy": [
                     "Ninjutsu",
                     "Random"
@@ -19153,8 +19150,13 @@ const characters = [
                             "skillDamageBonuses": {
                                 "butterfree-confusion": 5
                             },
+                            "skillCostOverridesBySkillId": {
+                                "butterfree-confusion": {
+                                    "requiredRandom": 0
+                                }
+                            },
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "Confusion deals 5 additional damage."
+                            "tooltipText": "Confusion deals 5 additional damage and costs 1 less random energy."
                         }
                     }
                 ]
@@ -19165,8 +19167,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/butterfree/stunspore.webp",
                 "skilldescription": "For 2 turns, one enemy takes 10 affliction damage each turn and their cooldowns are paralyzed for 1 turn each turn. This swaps to Sleep Powder after being used.",
                 "energy": [
-                    "Random",
-                    "Random"
+                    "Genjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -19219,8 +19220,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/butterfree/whirlwind.webp",
                 "skilldescription": "For 1 turn, your team is invulnerable to non-mental skills.",
                 "energy": [
-                    "Taijutsu",
-                    "Random"
+                    "Ninjutsu"
                 ],
                 "target": "all-allies",
                 "damage": 0,
@@ -19316,8 +19316,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/Pokeball.jpeg",
                 "skilldescription": "Stuns one enemy and makes them invulnerable to all skills for 1 turn. If used when their health is at 10 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed. This skill swaps to Great Ball.",
                 "energy": [
-                    "Random",
-                    "Random"
+                    "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -19480,7 +19479,6 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/xstats.png",
                 "skilldescription": "Grants one ally +5 non-affliction damage and 5 damage reduction for the rest of the game. This effect stacks.",
                 "energy": [
-                    "Random",
                     "Random"
                 ],
                 "target": "single-ally",
@@ -20322,8 +20320,7 @@ const characters = [
                 "skilldescription": "Stuns one enemy and makes them invulnerable to all skills for 3 turns. If used when their health is at 40 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed. This skill swaps to Master Ball.",
                 "energy": [
                     "Genjutsu",
-                    "Genjutsu",
-                    "Random"
+                    "Genjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -20467,8 +20464,7 @@ const characters = [
                 "energy": [
                     "Bloodline",
                     "Ninjutsu",
-                    "Genjutsu",
-                    "Random"
+                    "Genjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -20514,7 +20510,6 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/Revive.jpg",
                 "skilldescription": "Revives one defeated ally with 30 HP. If used on a living ally instead, heals them for 50 HP.",
                 "energy": [
-                    "Random",
                     "Random",
                     "Random",
                     "Random"
@@ -23217,7 +23212,7 @@ const characters = [
                     "abraCalmMindUses": 0,
                     "stackMetadataKey": "abraCalmMindUses",
                     "stackDelta": 0,
-                    "stackMax": 2,
+                    "stackMax": 3,
                     "onOwnerUseSkillTrigger": true,
                     "onOwnerUseSkillIdsAny": [
                         "abra-calm-mind",
@@ -23232,14 +23227,14 @@ const characters = [
                             "abraCalmMindUses": 0,
                             "stackMetadataKey": "abraCalmMindUses",
                             "stackDelta": 1,
-                            "stackMax": 2,
+                            "stackMax": 3,
                             "statusIconUrl": "assets/images/PokemonArena/abra/calmmind.webp",
-                            "tooltipTextTemplate": "Abra has used Calm Mind {abraCalmMindUses}/2 times and will evolve into Kadabra at 2."
+                            "tooltipTextTemplate": "Abra has used Calm Mind {abraCalmMindUses}/3 times and will evolve into Kadabra at 3."
                         }
                     },
                     "applyStatusAtStack": {
                         "metadataKey": "abraCalmMindUses",
-                        "value": 2,
+                        "value": 3,
                         "statusId": "abra_kadabra_evolution",
                         "duration": 99,
                         "metadata": {
@@ -23256,7 +23251,7 @@ const characters = [
                         }
                     },
                     "statusIconUrl": "assets/images/PokemonArena/abra/calmmind.webp",
-                    "tooltipTextTemplate": "Abra has used Calm Mind {abraCalmMindUses}/2 times and will evolve into Kadabra at 2."
+                    "tooltipTextTemplate": "Abra has used Calm Mind {abraCalmMindUses}/3 times and will evolve into Kadabra at 3."
                 }
             }
         ],
@@ -23265,7 +23260,7 @@ const characters = [
                 "id": "abra-future-sight",
                 "name": "Future Sight",
                 "skillimage": "assets/images/PokemonArena/abra/futuresight.webp",
-                "skilldescription": "Marks an enemy for 2 turns. When the mark expires, the target takes 15 damage.",
+                "skilldescription": "Marks an enemy for 2 turns. When the mark expires, the target takes 20 damage.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -23289,7 +23284,7 @@ const characters = [
                             "onExpireEffects": [
                                 {
                                     "type": "damage",
-                                    "amount": 15,
+                                    "amount": 20,
                                     "scope": "target",
                                     "metadata": {
                                         "ignoreDamageReduction": true,
@@ -23307,7 +23302,7 @@ const characters = [
                 "id": "abra-psychic",
                 "name": "Psychic",
                 "skillimage": "assets/images/PokemonArena/abra/psychic.webp",
-                "skilldescription": "Deals 20 damage to one enemy and Guard Breaks them for 2 turns. If Future Sight damages that enemy this turn, it deals an additional 20 damage.",
+                "skilldescription": "Deals 30 damage to one enemy and Guard Breaks them for 2 turns. If Future Sight damages that enemy this turn, it deals an additional 20 damage.",
                 "energy": [
                     "Ninjutsu",
                     "Random"
@@ -23323,7 +23318,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 20,
+                        "amount": 30,
                         "scope": "target",
                         "metadata": {
                             "guardBreak": true
@@ -23347,10 +23342,9 @@ const characters = [
                 "id": "abra-calm-mind",
                 "name": "Calm Mind",
                 "skillimage": "assets/images/PokemonArena/abra/calmmind.webp",
-                "skilldescription": "Abra gains 10% unpierceable damage reduction and deals 5 additional damage for 3 turns.",
+                "skilldescription": "Abra gains 15% unpierceable damage reduction and deals 15 additional damage for 3 turns.",
                 "energy": [
-                    "Genjutsu",
-                    "Random"
+                    "Genjutsu"
                 ],
                 "target": "self",
                 "damage": 0,
@@ -23366,11 +23360,11 @@ const characters = [
                         "duration": 3,
                         "scope": "self",
                         "metadata": {
-                            "damageReductionPercent": 10,
-                            "damageBonusFlat": 5,
+                            "damageReductionPercent": 15,
+                            "damageBonusFlat": 15,
                             "turnDurationAnchor": "source_turn",
                             "statusIconUrl": "assets/images/PokemonArena/abra/calmmind.webp",
-                            "tooltipText": "Abra has 10% damage reduction and deals 5 additional damage."
+                            "tooltipText": "Abra has 15% damage reduction and deals 15 additional damage."
                         }
                     }
                 ]
@@ -23379,12 +23373,12 @@ const characters = [
                 "id": "abra-teleport",
                 "name": "Teleport",
                 "skillimage": "assets/images/PokemonArena/abra/teleport.webp",
-                "skilldescription": "Targets Abra or an ally. For 1 turn, that character becomes invulnerable.",
+                "skilldescription": "Abra and one selected ally become invulnerable for 1 turn.",
                 "energy": [
                     "Random",
                     "Random"
                 ],
-                "target": "single-character",
+                "target": "self-or-single-ally",
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
@@ -23396,7 +23390,7 @@ const characters = [
                         "type": "apply_status",
                         "statusId": "abra_teleport_cover",
                         "duration": 1,
-                        "scope": "target",
+                        "scope": "self-or-single-ally",
                         "metadata": {
                             "invulnerable": true,
                             "turnDurationAnchor": "source_turn",
@@ -23410,7 +23404,7 @@ const characters = [
                 "id": "abra-passive-evolution-kadabra",
                 "name": "Evolution - Kadabra",
                 "skillimage": "assets/images/PokemonArena/abra/evolutionkadabra.webp",
-                "skilldescription": "After Abra has used Calm Mind 2 times during the battle, it evolves into Kadabra. Kadabra's skills are improved.",
+                "skilldescription": "After Abra has used Calm Mind 3 times during the battle, it evolves into Kadabra. Kadabra's skills are improved.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -23472,7 +23466,7 @@ const characters = [
                     "statusId": "abra_kadabra_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/abra/kadabrapsychic.webp",
-                "skilldescription": "Deals 20 damage to one enemy and Guard Breaks them for 2 turns. If Future Sight damages that enemy this turn, it deals an additional 20 damage and stuns their skills for 1 turn.",
+                "skilldescription": "Deals 35 damage to one enemy and Guard Breaks them for 2 turns. If Future Sight damages that enemy this turn, it deals an additional 20 damage and stuns their skills for 1 turn.",
                 "energy": [
                     "Ninjutsu",
                     "Random"
@@ -23488,7 +23482,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 20,
+                        "amount": 35,
                         "scope": "target",
                         "metadata": {
                             "guardBreak": true
@@ -23531,10 +23525,9 @@ const characters = [
                     "statusId": "abra_kadabra_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/abra/kadabracalmmind.webp",
-                "skilldescription": "Abra gains 20% unpierceable damage reduction and deals 10 additional damage for 3 turns.",
+                "skilldescription": "Kadabra gains 15% unpierceable damage reduction and deals 15 additional damage for 3 turns.",
                 "energy": [
-                    "Genjutsu",
-                    "Random"
+                    "Genjutsu"
                 ],
                 "target": "self",
                 "damage": 0,
@@ -23550,11 +23543,11 @@ const characters = [
                         "duration": 3,
                         "scope": "self",
                         "metadata": {
-                            "damageReductionPercent": 20,
-                            "damageBonusFlat": 10,
+                            "damageReductionPercent": 15,
+                            "damageBonusFlat": 15,
                             "turnDurationAnchor": "source_turn",
                             "statusIconUrl": "assets/images/PokemonArena/abra/kadabracalmmind.webp",
-                            "tooltipText": "Abra has 20% damage reduction and deals 10 additional damage."
+                            "tooltipText": "Kadabra has 15% damage reduction and deals 15 additional damage."
                         }
                     }
                 ]
@@ -23566,12 +23559,12 @@ const characters = [
                     "statusId": "abra_kadabra_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/abra/Kadabrateleport.webp",
-                "skilldescription": "Targets Abra or an ally. For 1 turn, that character becomes invulnerable and all enemy skills currently affecting them are removed.",
+                "skilldescription": "Kadabra and one selected ally become invulnerable for 1 turn, and all enemy skills currently affecting them are removed.",
                 "energy": [
                     "Random",
                     "Random"
                 ],
-                "target": "single-character",
+                "target": "self-or-single-ally",
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
@@ -23583,7 +23576,7 @@ const characters = [
                         "type": "apply_status",
                         "statusId": "abra_teleport_cover",
                         "duration": 1,
-                        "scope": "target",
+                        "scope": "self-or-single-ally",
                         "metadata": {
                             "invulnerable": true,
                             "turnDurationAnchor": "source_turn",
@@ -23593,7 +23586,7 @@ const characters = [
                     },
                     {
                         "type": "cleanse_statuses",
-                        "scope": "target",
+                        "scope": "self-or-single-ally",
                         "sourceRelation": "enemy",
                         "metadata": {
                             "statusIconUrl": "assets/images/PokemonArena/abra/Kadabrateleport.webp",
@@ -24286,9 +24279,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/eevee/eevee/dig.png",
                 "skilldescription": "Eevee becomes invulnerable for 1 turn and deals 30 damage to one enemy.",
                 "energy": [
-                    "Random",
-                    "Random",
                     "Random"
+                    ,"Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -24351,7 +24343,6 @@ const characters = [
                 "energy": [
                     "Random",
                     "Random",
-                    "Random",
                     "Random"
                 ],
                 "target": "random-enemy",
@@ -24394,7 +24385,6 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/eevee/eevee/protect.png",
                 "skilldescription": "Eevee makes one ally invulnerable for 1 turn.",
                 "energy": [
-                    "Random",
                     "Random"
                 ],
                 "target": "single-ally",
@@ -25085,8 +25075,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/ekans/ekanstoxic.png",
                 "skilldescription": "Badly poisons one enemy, dealing 2 affliction damage. Whenever that enemy uses a new skill, this damage doubles. Each enemy may only have 1 stack of Badly Poison.",
                 "energy": [
-                    "Bloodline",
-                    "Random"
+                    "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -25182,8 +25171,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/ekans/ekanscrunch.png",
                 "skilldescription": "One enemy takes 10 additional damage from affliction-only damage this turn. If that enemy has 25 HP or less, they are executed.",
                 "energy": [
-                    "Bloodline",
-                    "Random"
+                    "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -25325,9 +25313,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/ekans/arboktoxic.png",
                 "skilldescription": "Badly poisons one enemy, dealing 2 affliction damage. Whenever that enemy uses a new skill, this damage doubles. Each enemy may have up to 2 stacks of Badly Poison instead.",
                 "energy": [
-                    "Bloodline",
-                    "Random",
-                    "Random"
+                    "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -25421,7 +25407,6 @@ const characters = [
                 "skilldescription": "Removes all enemy affliction skills from Arbok and heals 25 HP each turn for 2 turns instead.",
                 "energy": [
                     "Random",
-                    "Random",
                     "Random"
                 ],
                 "target": "self",
@@ -25461,9 +25446,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/ekans/arbokcrunch.png",
                 "skilldescription": "One enemy takes 15 additional damage from affliction-only damage this turn instead. If that enemy has 35 HP or less, they are executed.",
                 "energy": [
-                    "Bloodline",
-                    "Random",
-                    "Random"
+                    "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
