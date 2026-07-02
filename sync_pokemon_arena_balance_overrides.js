@@ -49,44 +49,25 @@ const normalizeStoredCharacterOverrides = (state = null) => {
         .filter(Boolean);
 };
 
+const deepClone = (value) => JSON.parse(JSON.stringify(value));
+
 const syncPokemonOverrideCharacter = (overrideCharacter, canonicalCharacter) => {
     if (!overrideCharacter || !canonicalCharacter) return overrideCharacter;
-    const canonicalSkills = new Map(
-        Array.isArray(canonicalCharacter.skills)
-            ? canonicalCharacter.skills
-                  .filter((skill) => skill && typeof skill.id === 'string' && skill.id)
-                  .map((skill) => [skill.id, skill])
-            : []
-    );
-
-    const syncedSkills = Array.isArray(overrideCharacter.skills)
-        ? overrideCharacter.skills.map((skill) => {
-              if (!skill || typeof skill !== 'object') return skill;
-              const canonicalSkill = canonicalSkills.get(skill.id);
-              if (!canonicalSkill) return skill;
-              return {
-                  ...skill,
-                  actorCondition: canonicalSkill.actorCondition,
-                  classes: Array.isArray(canonicalSkill.classes) ? [...canonicalSkill.classes] : [],
-                  cooldown: canonicalSkill.cooldown,
-                  damage: canonicalSkill.damage,
-                  effects: Array.isArray(canonicalSkill.effects)
-                      ? JSON.parse(JSON.stringify(canonicalSkill.effects))
-                      : [],
-                  energy: Array.isArray(canonicalSkill.energy) ? [...canonicalSkill.energy] : [],
-                  target: canonicalSkill.target,
-              };
-          })
-        : overrideCharacter.skills;
-
     return {
         ...overrideCharacter,
         arena: canonicalCharacter.arena,
-        startStatuses: Array.isArray(canonicalCharacter.startStatuses)
-            ? JSON.parse(JSON.stringify(canonicalCharacter.startStatuses))
-            : [],
-        skills: syncedSkills,
         universe: canonicalCharacter.universe,
+        name: canonicalCharacter.name,
+        facePicture: canonicalCharacter.facePicture,
+        role: canonicalCharacter.role,
+        roleCategory: canonicalCharacter.roleCategory,
+        characterdeescription: canonicalCharacter.characterdeescription,
+        description: canonicalCharacter.description,
+        descriptionHtml: canonicalCharacter.descriptionHtml,
+        startStatuses: Array.isArray(canonicalCharacter.startStatuses)
+            ? deepClone(canonicalCharacter.startStatuses)
+            : [],
+        skills: Array.isArray(canonicalCharacter.skills) ? deepClone(canonicalCharacter.skills) : [],
     };
 };
 
@@ -111,7 +92,7 @@ async function syncPokemonArenaBalanceOverrides() {
                     key: characterOverridesKey,
                     overrides: normalizedOverrides.map((entry) => ({
                         characterId: entry.characterId,
-                        character: isPokemonCharacter(entry.character)
+                        character: canonicalPokemonById.has(entry.characterId)
                             ? syncPokemonOverrideCharacter(
                                   entry.character,
                                   canonicalPokemonById.get(entry.characterId) || entry.character
