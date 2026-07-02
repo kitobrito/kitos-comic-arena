@@ -1499,6 +1499,7 @@ const resolveDurationFromStatusMetadata = ({ effect = {}, actorState, targetStat
 
 const applyStatus = ({
     targetState,
+    targetUnit = null,
     statusId,
     duration,
     sourceSkillId,
@@ -1633,6 +1634,7 @@ const applyStatus = ({
             if (stackKey && stackValue >= threshold && applyStatusAtStack.statusId) {
                 applyStatus({
                     targetState,
+                    targetUnit,
                     statusId: applyStatusAtStack.statusId,
                     duration: applyStatusAtStack.duration,
                     sourceSkillId: sourceSkillId || null,
@@ -1711,6 +1713,14 @@ const applyStatus = ({
         fresh: Boolean(fresh),
     };
     targetState.statuses.push(createdStatus);
+    const healOnApplyFlat = Math.max(0, Number(createdStatus?.metadata?.healOnApplyFlat) || 0);
+    if (healOnApplyFlat > 0 && targetUnit) {
+        applyHealToUnit(targetUnit, healOnApplyFlat, {
+            sourceSkillId: sourceSkillId || null,
+            sourceUsername: sourceUsername || null,
+            sourceSlot: Number.isInteger(sourceSlot) ? sourceSlot : null,
+        });
+    }
     const removeStatusIdsOnApply = Array.isArray(createdStatus?.metadata?.removeStatusIdsOnApply)
         ? createdStatus.metadata.removeStatusIdsOnApply.filter((id) => typeof id === 'string' && id)
         : [];
@@ -1730,6 +1740,7 @@ const applyStatus = ({
         if (stackKey && stackValue >= threshold && applyStatusAtStack.statusId) {
             applyStatus({
                 targetState,
+                targetUnit,
                 statusId: applyStatusAtStack.statusId,
                 duration: applyStatusAtStack.duration,
                 sourceSkillId: sourceSkillId || null,
@@ -4525,6 +4536,7 @@ const triggerSourceKillHooks = ({
         if (applyStatusToSelf?.statusId) {
             applyStatus({
                 targetState: sourceState,
+                targetUnit: sourceUnit,
                 statusId: applyStatusToSelf.statusId,
                 duration: applyStatusToSelf.duration,
                 sourceSkillId: resolveTriggeredEffectSourceSkillId({
@@ -4799,6 +4811,7 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
                     };
                     applyStatus({
                         targetState: state,
+                        targetUnit: unit,
                         statusId: turnStartStatus.statusId,
                         duration: turnStartStatus.duration,
                         sourceSkillId: turnStartStatus.sourceSkillId || status?.sourceSkillId || null,
@@ -4931,6 +4944,7 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
                 if (sourceState && applyStatusToSourceOwner?.statusId && sourceUnit?.alive !== false) {
                     applyStatus({
                         targetState: sourceState,
+                        targetUnit: sourceUnit,
                         statusId: applyStatusToSourceOwner.statusId,
                         duration: applyStatusToSourceOwner.duration,
                         sourceSkillId: applyStatusToSourceOwner.sourceSkillId || status?.sourceSkillId || null,
@@ -5450,6 +5464,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 applyStatusesToOwner.forEach((applyStatusToOwner) => {
                     applyStatus({
                         targetState: actorState,
+                        targetUnit: actorUnit,
                         statusId: applyStatusToOwner.statusId,
                         duration: applyStatusToOwner.duration,
                         sourceSkillId: status?.sourceSkillId || null,
@@ -7124,6 +7139,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     }
                     const appliedStatus = applyStatus({
                         targetState: destinationState,
+                        targetUnit: recipient.unit,
                         statusId: runtimeStatusId,
                         duration: runtimeDuration,
                         sourceSkillId: effect?.sourceSkillId || skill.id || null,
@@ -7158,6 +7174,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         if (onSuccessApplyStatusToOwner?.statusId) {
                             applyStatus({
                                 targetState: actorState,
+                                targetUnit: actorUnit,
                                 statusId: onSuccessApplyStatusToOwner.statusId,
                                 duration: onSuccessApplyStatusToOwner.duration,
                                 sourceSkillId: effect?.sourceSkillId || skill.id || null,

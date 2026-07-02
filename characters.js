@@ -12,6 +12,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/3ulWurz.png",
                 "skilldescription": "Deals 15 damage to one enemy per turn for 2 turns. If Overcharge is active, this instead deals 30 energy damage and stuns the target for 1 turn.",
                 "energy": [
+                    "Taijutsu",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -74,7 +75,8 @@ const characters = [
                 "skillimage": "https://i.imgur.com/XxNKoKu.png",
                 "skilldescription": "For 1 turn, Iron Man's Repulsor Blast and Proton Cannon is improved and gains a new effect.",
                 "energy": [
-                    "Ninjutsu"
+                    "Ninjutsu",
+                    "Random"
                 ],
                 "target": "self-or-single-ally",
                 "damage": 0,
@@ -102,7 +104,8 @@ const characters = [
                 "skillimage": "https://i.imgur.com/cUWpevS.png",
                 "skilldescription": "Iron Man may use this skill on himself or an ally. If used on himself, Repulsor Blast becomes Proton Cannon, this skill becomes Energy Burst, and Iron Man gains 10 points of unpierceable damage reduction. If used on an ally, they gain 2 bonus non-affliction damage and 10 permanent destructible defense. This effect stacks on allies and is permanent.",
                 "energy": [
-                    "Bloodline"
+                    "Bloodline",
+                    "Random"
                 ],
                 "target": "self-or-single-ally",
                 "damage": 0,
@@ -159,6 +162,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/JC495sM.png",
                 "skilldescription": "Iron Man and any ally affected by Armor Upgrade become invulnerable for 1 turn.",
                 "energy": [
+                    "Taijutsu",
                     "Random"
                 ],
                 "target": "self",
@@ -205,6 +209,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/5AoKo39.png",
                 "skilldescription": "Deals 18 damage to one enemy per turn for 2 turns. If Overcharge is active, this instead deals 38 affliction damage.",
                 "energy": [
+                    "Bloodline",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -351,7 +356,8 @@ const characters = [
                 "skillimage": "https://i.imgur.com/FKv3P8m.png",
                 "skilldescription": "Deals 20 damage to one enemy. This deals 5 additional damage to an enemy affected by 'Web Shot' or 'Web Wrap' and becomes piercing if Spider-Man is under the effects of 'Web Slinging'. Increases 'Passive: Spider Senses' by 5%.",
                 "energy": [
-                    "Taijutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -408,7 +414,8 @@ const characters = [
                 "skillimage": "https://i.imgur.com/696d5RE.jpeg",
                 "skilldescription": "Stuns one enemy’s harmful skills for 1 turn. If the target is affected by 'Web Wrap', the cost of their skills is increased by 1 random energy until they use a new skill (does not stack). Increases 'Passive: Spider Senses' by 5%.",
                 "energy": [
-                    "Genjutsu"
+                    "Genjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -517,6 +524,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/jKG2vsk.jpeg",
                 "skilldescription": "Spider-Man ignores enemy stun effects and deals 5 bonus damage with 'Spider Strike' for 2 turns. Increases 'Passive: Spider Senses' by 10%.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "self",
@@ -1091,7 +1099,8 @@ const characters = [
                 "skilldescription": "Laser Eyes is empowered, dealing 20 piercing damage and 20 affliction damage to one enemy.",
                 "energy": [
                     "Bloodline",
-                    "Bloodline"
+                    "Bloodline",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -1201,6 +1210,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/WJmxjLz.jpeg",
                 "skilldescription": "Deals 5 damage and 4 affliction damage to all enemies. For the next turn, this skill instead targets one enemy and strikes them three times, each hit dealing 5 damage and 4 affliction damage, before returning to its normal effect.",
                 "energy": [
+                    "Ninjutsu",
                     "Random"
                 ],
                 "target": "all-enemy",
@@ -1293,6 +1303,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/c3nX3zy.jpeg",
                 "skilldescription": "Batman evades danger using his grappling hook, becoming invulnerable for 1 turn and removing all harmful effects from himself. One enemy becomes unable to go invulnerable for 1 turn and takes 5 additional damage from all sources during that time. This skill then swaps to 'Bullet-Deflecting Cape'.",
                 "energy": [
+                    "Taijutsu",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -1459,6 +1470,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/c0AlSs8.jpeg",
                 "skilldescription": "For 1 turn, the first non-mental harmful skill used on Batman is reflected onto a random enemy. This skill then swaps back to 'Grappling Hook'.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "self",
@@ -1603,6 +1615,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/8EK9yEi.png",
                 "skilldescription": "Batman hurls three explosive batarangs at one enemy, each hit dealing 5 damage and 4 affliction damage.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -1807,6 +1820,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/XF2SCm0.jpeg",
                 "skilldescription": "For 2 turns, the enemy player only has 40 seconds to complete their turn and you are given 20 additional seconds to complete yours. The Flash gains 'Speed Up' and this swaps to 'Flashpoint Surge' while active.",
                 "energy": [
+                    "Taijutsu",
                     "Random",
                     "Random"
                 ],
@@ -2044,7 +2058,8 @@ const characters = [
                 "description": "For 1 turn, the next non-mental skill used on Wonder Woman will be reflected to a random enemy.",
                 "descriptionHtml": "For 1 turn, the next non-mental skill used on Wonder Woman will be reflected to a random enemy.<br>",
                 "energy": [
-                    "Ninjutsu"
+                    "Ninjutsu",
+                    "Random"
                 ],
                 "target": "self",
                 "damage": 0,
@@ -2087,7 +2102,8 @@ const characters = [
                 "description": "Stuns one enemy's physical and mental skills and paralyzes their cooldowns for 1 turn. For the rest of the game, this enemy takes 5 additional damage from all sources.",
                 "descriptionHtml": "Stuns one enemy's physical and mental skills and paralyzes their cooldowns for 1 turn.<br>For the rest of the game, this enemy takes 5 additional damage from all sources.",
                 "energy": [
-                    "Ninjutsu"
+                    "Ninjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -2142,6 +2158,7 @@ const characters = [
                 "description": "Grants Wonder Woman or one selected ally 15 points of destructible defense for 1 turn.",
                 "descriptionHtml": "Grants Wonder Woman or one selected ally 15 points of destructible defense for 1 turn.<br>",
                 "energy": [
+                    "Bloodline",
                     "Random"
                 ],
                 "target": "self-or-single-ally",
@@ -2179,7 +2196,8 @@ const characters = [
                 "description": "Wonder Woman deals 25 damage to one enemy and casts Amazonian Guard on herself for 15 points of destructible defense.",
                 "descriptionHtml": "Wonder Woman deals 25 damage to one enemy and casts Amazonian Guard on herself for 15 points of destructible defense.",
                 "energy": [
-                    "Taijutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -2229,7 +2247,8 @@ const characters = [
                 "description": "Aquaman strikes one enemy with his trident, dealing 24 damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn. If the target is affected by Tidal Wave, they are given a stack of Sea Sharks.",
                 "descriptionHtml": "Aquaman strikes one enemy with his trident, dealing 24 damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn.<br>If the target is affected by Tidal Wave, they are given a stack of Sea Sharks.",
                 "energy": [
-                    "Taijutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -2428,6 +2447,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/0NmOe89.jpeg",
                 "skilldescription": "This skill makes Aquaman invulnerable for 1 turn and grants all enemies a stack of 'Sea Sharks'.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "self",
@@ -4718,7 +4738,8 @@ const characters = [
                 "skilldescription": "Andrea deals 60 piercing damage to one Locked On enemy, but only while Sniper Tower is active and she is currently invulnerable from it.",
                 "energy": [
                     "Genjutsu",
-                    "Genjutsu"
+                    "Genjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -4752,6 +4773,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/MFmkXQ2.png",
                 "skilldescription": "Andrea removes all harmful effects from herself and makes one ally invulnerable for 1 turn.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "single-ally",
@@ -5243,7 +5265,8 @@ const characters = [
                 "skillimage": "https://i.imgur.com/5i9qL6M.png",
                 "skilldescription": "Hershel heals his entire team 15 HP and grants them 10 points of destructible defense.",
                 "energy": [
-                    "Taijutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "self",
                 "damage": 0,
@@ -6076,7 +6099,8 @@ const characters = [
                 "skillimage": "https://i.imgur.com/JClGCas.jpeg",
                 "skilldescription": "Grants one enemy 15 points of Barrier for 1 turn and deals 20 damage to them.",
                 "energy": [
-                    "Ninjutsu"
+                    "Ninjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -6188,6 +6212,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/yzflAg2.jpeg",
                 "skilldescription": "Eve may use this on herself or an ally. Grants the target 20 points of damage reduction for 3 turns.",
                 "energy": [
+                    "Genjutsu",
                     "Random"
                 ],
                 "target": "self-or-single-ally",
@@ -6559,7 +6584,8 @@ const characters = [
                 "skillimage": "https://i.imgur.com/oSJHrpN.jpeg",
                 "skilldescription": "Targets one enemy for 1 turn, and if they use a new harmful skill they are countered and have 'Dimension Abandon' cast on them.",
                 "energy": [
-                    "Taijutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -6711,6 +6737,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/2CXX1YE.jpeg",
                 "skilldescription": "This skill makes Angstrom Levy or an ally invulnerable for 1 turn.",
                 "energy": [
+                    "Genjutsu",
                     "Random"
                 ],
                 "target": "self-or-single-ally",
@@ -9787,7 +9814,8 @@ const characters = [
                 "descriptionHtml": "Deals 45 piercing damage to one enemy. If this kills the target, Predalien gains 1 stack of 'Plated Armor' permanently and deals 10 bonus damage permanently that stacks.",
                 "energy": [
                     "Genjutsu",
-                    "Genjutsu"
+                    "Genjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -12167,7 +12195,8 @@ const characters = [
                 "descriptionHtml": "Saint Walker makes his whole team invulnerable for 1 turn and grants them 15 points of permanent destructible defense.",
                 "energy": [
                     "Ninjutsu",
-                    "Ninjutsu"
+                    "Ninjutsu",
+                    "Random"
                 ],
                 "target": "all-allies",
                 "damage": 0,
@@ -12483,6 +12512,7 @@ const characters = [
                 "description": "Indigo-1 grants her team 90% unpierceable damage reduction for 1 turn.",
                 "descriptionHtml": "Indigo-1 grants her team 90% unpierceable damage reduction for 1 turn.",
                 "energy": [
+                    "Ninjutsu",
                     "Random",
                     "Random"
                 ],
@@ -14097,7 +14127,8 @@ const characters = [
                 "energy": [
                     "Bloodline",
                     "Ninjutsu",
-                    "Genjutsu"
+                    "Genjutsu",
+                    "Random"
                 ],
                 "target": "self",
                 "damage": 0,
@@ -14381,6 +14412,7 @@ const characters = [
                 "skillimage": "assets/images/doombotdecoy.webp",
                 "skilldescription": "Doctor Doom summons a Doombot with 30 destructible defense for 2 turns. While the Doombot is active, all enemies are taunted toward it. If the Doombot is destroyed by an enemy skill, the attacker takes 20 damage.",
                 "energy": [
+                    "Taijutsu",
                     "Random",
                     "Random"
                 ],
@@ -17186,7 +17218,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Charmander/ember.jpg",
                 "skilldescription": "Charmander deals 15 affliction damage to one enemy. This skill has a 30% chance to Burn the target. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
                 "energy": [
-                    "Bloodline"
+                    "Bloodline",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -17257,6 +17290,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Charmander/scratch.webp",
                 "skilldescription": "Charmander deals 20 damage to one enemy. This skill has a 30% chance to critically strike, dealing 10 additional damage and becoming Piercing.",
                 "energy": [
+                    "Taijutsu",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -17310,6 +17344,7 @@ const characters = [
                 "skilldescription": "Charmander deals 20 affliction damage to all enemies. Each enemy has a 30% chance to be Burned. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
                 "energy": [
                     "Bloodline",
+                    "Random",
                     "Random"
                 ],
                 "target": "all-enemy",
@@ -17382,6 +17417,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Charmander/charmanderrage.webp",
                 "skilldescription": "For 1 turn, Charmander gains 25% damage reduction. The first time during this turn that Charmander takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 2 stacks.",
                 "energy": [
+                    "Bloodline",
                     "Random"
                 ],
                 "target": "self",
@@ -17446,7 +17482,8 @@ const characters = [
                 "skilldescription": "Charmeleon deals 15 physical damage and 30 affliction damage to one enemy. This skill has a 30% chance to Burn the target. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
                 "energy": [
                     "Bloodline",
-                    "Bloodline"
+                    "Bloodline",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -17516,6 +17553,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Charmander/dragonclaw.jpg",
                 "skilldescription": "Charmeleon deals 30 damage to one enemy. This skill has a 30% chance to critically strike, dealing 10 additional damage and becoming Piercing.",
                 "energy": [
+                    "Taijutsu",
                     "Random",
                     "Random"
                 ],
@@ -17562,6 +17600,7 @@ const characters = [
                 "skilldescription": "Deals 30 affliction damage to all enemies. Each enemy has a 30% chance to be Burned. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
                 "energy": [
                     "Bloodline",
+                    "Random",
                     "Random",
                     "Random"
                 ],
@@ -17627,6 +17666,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Charmander/charmeleonrage.jpg",
                 "skilldescription": "For 2 turns, Charmeleon gains 50% damage reduction. The first time each turn Charmeleon takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 4 stacks.",
                 "energy": [
+                    "Bloodline",
                     "Random"
                 ],
                 "target": "self",
@@ -17725,7 +17765,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/squirtle/watergun.jpg",
                 "skilldescription": "Squirtle deals 20 damage to one enemy this turn and 10 damage next turn. For 1 turn, if the target uses a new harmful skill, they are affected by Guard Break for 2 turns. (Guard Break=unable to reduce damage or become invulnerable)",
                 "energy": [
-                    "Ninjutsu"
+                    "Ninjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -17789,6 +17830,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/squirtle/withdraw.webp",
                 "skilldescription": "For 1 turn, one member of your team will block the first enemy harmful skill used on them, negating its damage and ignoring its effect completely that turn.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "self-or-single-ally",
@@ -17834,6 +17876,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/squirtle/bubble.jpg",
                 "skilldescription": "Squirtle deals 5 damage to one enemy for 3 turns. If the target is affected by Guard Break, this deals 10 bonus damage to them. This skill stacks.",
                 "energy": [
+                    "Ninjutsu",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -17877,6 +17920,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/squirtle/rapidspin.webp",
                 "skilldescription": "Squirtle removes all harmful skills from himself or one ally and deals 10 damage to all enemies.",
                 "energy": [
+                    "Taijutsu",
                     "Random"
                 ],
                 "target": "self-or-single-ally",
@@ -17942,6 +17986,7 @@ const characters = [
                 "skilldescription": "For 1 turn, Wartortle blocks all enemy harmful skills used on himself and one selected ally.",
                 "energy": [
                     "Random",
+                    "Random",
                     "Random"
                 ],
                 "target": "self-or-single-ally",
@@ -17992,7 +18037,8 @@ const characters = [
                 "skilldescription": "Wartortle deals 30 damage to one enemy this turn and 20 damage next turn. For 1 turn, if the target uses a new harmful skill, they are affected by Guard Break for 3 turns.",
                 "energy": [
                     "Ninjutsu",
-                    "Ninjutsu"
+                    "Ninjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -18059,6 +18105,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/squirtle/bubblebeam.jpeg",
                 "skilldescription": "Wartortle deals 10 damage to all enemies for 3 turns. Enemies affected by Guard Break take 10 additional damage each turn.",
                 "energy": [
+                    "Ninjutsu",
                     "Random",
                     "Random"
                 ],
@@ -18099,6 +18146,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/squirtle/aquaspin.jpg",
                 "skilldescription": "Wartortle removes all harmful skills from his team and deals 20 damage to the enemy team.",
                 "energy": [
+                    "Taijutsu",
                     "Random",
                     "Random"
                 ],
@@ -18215,7 +18263,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/bulbasaurleechseed.jpg",
                 "skilldescription": "Bulbasaur plants a seed on one enemy for 2 turns. At the start of each turn, that enemy loses 15 health and Bulbasaur restores 15 health. Bulbasaur gains 1 Sun whenever Leech Seed deals damage.",
                 "energy": [
-                    "Taijutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -18293,7 +18342,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/bulbasaurvinewhip.jpg",
                 "skilldescription": "Bulbasaur deals 15 piercing damage to one enemy. That enemy's harmful skills are stunned for 1 turn. This skill has a 10% chance to critically strike for each Sun stack, dealing 15 additional damage.",
                 "energy": [
-                    "Taijutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -18346,6 +18396,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/bulbasaurrazorleaf.jpg",
                 "skilldescription": "Bulbasaur deals 15 damage to one enemy and 10 damage to all other enemies. This skill has a 10% chance to critically strike each enemy for each Sun stack, dealing 10 additional damage and becoming Piercing.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -18451,7 +18502,8 @@ const characters = [
                 "skilldescription": "Ivysaur plants a seed on one enemy for 2 turns. At the start of each turn, that enemy loses 25 health and Ivysaur restores 25 health. Ivysaur gains 1 Sun whenever Leech Seed deals damage.",
                 "energy": [
                     "Taijutsu",
-                    "Taijutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -18533,6 +18585,7 @@ const characters = [
                 "skilldescription": "Ivysaur deals 35 piercing damage to one enemy. That enemy's harmful skills are stunned for 1 turn. This skill has a 10% chance to critically strike for each Sun stack, dealing 15 additional damage.",
                 "energy": [
                     "Taijutsu",
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -18589,6 +18642,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaurrazorleaf.jpg",
                 "skilldescription": "Ivysaur deals 25 damage to one enemy and 20 damage to all other enemies. This skill has a 10% chance to critically strike each enemy for each Sun stack, dealing 10 additional damage and becoming Piercing.",
                 "energy": [
+                    "Random",
                     "Random",
                     "Random"
                 ],
@@ -18723,7 +18777,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Pikachu/thundershock.jpg",
                 "skilldescription": "Deals 20 piercing damage to one targeted enemy and 15 piercing damage to a random different enemy, paralyzes the targeted enemy's cooldowns, and makes Thunder cost 1 white energy and 1 Random energy for 1 turn. If the targeted enemy is affected by Static, their cooldowns are paralyzed for 2 turns instead.",
                 "energy": [
-                    "Genjutsu"
+                    "Genjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -18804,7 +18859,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Pikachu/volttackle.jpeg",
                 "skilldescription": "Pikachu deals 30 piercing damage to one enemy then loses 15 health. For 1 turn, if the target uses a new skill it will have its cooldown increased by 2 turns. If the target is affected by Static, their cooldowns are increased for 4 turns instead.",
                 "energy": [
-                    "Taijutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -18869,7 +18925,8 @@ const characters = [
                 "skilldescription": "Deals 45 piercing damage to one enemy. If the target is affected by Static, they also take 5 piercing damage, have their harmful skills stunned for 1 turn, and Static is re-applied to them.",
                 "energy": [
                     "Genjutsu",
-                    "Genjutsu"
+                    "Genjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -18940,6 +18997,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Pikachu/agility.jpeg",
                 "skilldescription": "Pikachu becomes invulnerable for 1 turn.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "self",
@@ -18997,7 +19055,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/butterfree/confusion.webp",
                 "skilldescription": "Butterfree deals 25 damage to one enemy. This skill has a 25% chance to reflect the next harmful skill used by that enemy back onto its user for 1 turn. For 1 turn, Psybeam deals 5 additional damage.",
                 "energy": [
-                    "Taijutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -19054,7 +19113,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/butterfree/psybeam.webp",
                 "skilldescription": "Butterfree deals 25 damage to one enemy and increases their next skill cooldown by 2 turns for 1 turn. For 1 turn, Confusion deals 5 additional damage.",
                 "energy": [
-                    "Ninjutsu"
+                    "Ninjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -19107,6 +19167,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/butterfree/stunspore.webp",
                 "skilldescription": "For 2 turns, one enemy takes 10 affliction damage each turn and their cooldowns are paralyzed for 1 turn each turn. This swaps to Sleep Powder after being used.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -19160,7 +19221,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/butterfree/whirlwind.webp",
                 "skilldescription": "For 1 turn, your team is invulnerable to non-mental skills.",
                 "energy": [
-                    "Taijutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "all-allies",
                 "damage": 0,
@@ -19189,6 +19251,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/butterfree/sleeppowder.webp",
                 "skilldescription": "For 2 turns, one enemy is stunned. Any new damage will cancel this effect. This swaps to Stun Spore after being used.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -19255,6 +19318,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/Pokeball.jpeg",
                 "skilldescription": "Stuns one enemy and makes them invulnerable to all skills for 1 turn. If used when their health is at 10 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed. This skill swaps to Great Ball.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -19394,6 +19458,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/Potion.jpg",
                 "skilldescription": "Heals one ally or Pokemon Trainer for 30 HP.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "self-or-single-ally",
@@ -19417,6 +19482,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/xstats.png",
                 "skilldescription": "Grants one ally +5 non-affliction damage and 5 damage reduction for the rest of the game. This effect stacks.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "single-ally",
@@ -19451,7 +19517,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/Rare Candy.jpeg",
                 "skilldescription": "Evolves one applicable Pokemon, ignoring its normal evolution condition. That Pokemon also gains 25 permanent destructible defense. This skill swaps to Revive for the rest of the game.",
                 "energy": [
-                    "Ninjutsu"
+                    "Ninjutsu",
+                    "Random"
                 ],
                 "target": "single-ally",
                 "damage": 0,
@@ -19485,7 +19552,8 @@ const characters = [
                                 "charmander-flamethrower": "charmander-charmeleon-flamethrower",
                                 "charmander-rage": "charmander-charmeleon-rage"
                             },
-                            "tooltipText": "Charmander has evolved into Charmeleon from Rare Candy."
+                            "tooltipText": "Charmander has evolved into Charmeleon from Rare Candy.",
+                            "healOnApplyFlat": 10
                         }
                     },
                     {
@@ -19533,7 +19601,8 @@ const characters = [
                                 "squirtle-bubble": "wartortle-bubblebeam",
                                 "squirtle-rapid-spin": "wartortle-aqua-spin"
                             },
-                            "tooltipText": "Squirtle has evolved into Wartortle from Rare Candy."
+                            "tooltipText": "Squirtle has evolved into Wartortle from Rare Candy.",
+                            "healOnApplyFlat": 10
                         }
                     },
                     {
@@ -19581,7 +19650,8 @@ const characters = [
                                 "bulbasaur-razor-leaf": "ivysaur-razor-leaf",
                                 "bulbasaur-solar-beam": "ivysaur-solar-beam"
                             },
-                            "tooltipText": "Bulbasaur has evolved into Ivysaur from Rare Candy."
+                            "tooltipText": "Bulbasaur has evolved into Ivysaur from Rare Candy.",
+                            "healOnApplyFlat": 10
                         }
                     },
                     {
@@ -19629,7 +19699,8 @@ const characters = [
                                 "chansey-softboil": "blissey-softboil",
                                 "chansey-emergency-life-support": "blissey-emergency-life-support"
                             },
-                            "tooltipText": "Chansey has evolved into Blissey from Rare Candy."
+                            "tooltipText": "Chansey has evolved into Blissey from Rare Candy.",
+                            "healOnApplyFlat": 10
                         }
                     },
                     {
@@ -19677,7 +19748,8 @@ const characters = [
                                 "pidgey-peck": "pidgeotto-peck",
                                 "pidgey-sand-attack": "pidgeotto-sand-attack"
                             },
-                            "tooltipText": "Pidgey has evolved into Pidgeotto from Rare Candy."
+                            "tooltipText": "Pidgey has evolved into Pidgeotto from Rare Candy.",
+                            "healOnApplyFlat": 10
                         }
                     },
                     {
@@ -19731,7 +19803,8 @@ const characters = [
                                 "koffing-self-destruct": "koffing-weezing-self-destruct",
                                 "koffing-smokescreen": "koffing-weezing-smokescreen"
                             },
-                            "tooltipText": "Koffing has evolved into Weezing from Rare Candy."
+                            "tooltipText": "Koffing has evolved into Weezing from Rare Candy.",
+                            "healOnApplyFlat": 10
                         }
                     },
                     {
@@ -19777,7 +19850,8 @@ const characters = [
                                 "zubat-bite": "golbat-bite",
                                 "zubat-draining-fangs": "golbat-draining-fangs"
                             },
-                            "tooltipText": "Zubat has evolved into Golbat from Rare Candy."
+                            "tooltipText": "Zubat has evolved into Golbat from Rare Candy.",
+                            "healOnApplyFlat": 10
                         }
                     },
                     {
@@ -19824,7 +19898,8 @@ const characters = [
                                 "gastly-spite": "haunter-spite",
                                 "gastly-glare": "haunter-glare"
                             },
-                            "tooltipText": "Gastly has evolved into Haunter from Rare Candy."
+                            "tooltipText": "Gastly has evolved into Haunter from Rare Candy.",
+                            "healOnApplyFlat": 10
                         }
                     },
                     {
@@ -19871,7 +19946,8 @@ const characters = [
                                 "abra-calm-mind": "kadabra-calm-mind",
                                 "abra-teleport": "kadabra-teleport"
                             },
-                            "tooltipText": "Abra has evolved into Kadabra from Rare Candy."
+                            "tooltipText": "Abra has evolved into Kadabra from Rare Candy.",
+                            "healOnApplyFlat": 10
                         }
                     },
                     {
@@ -19920,7 +19996,8 @@ const characters = [
                                 "krabby-crabhammer": "kingler-crabhammer",
                                 "krabby-harden": "kingler-harden"
                             },
-                            "tooltipText": "Krabby has evolved into Kingler from Rare Candy."
+                            "tooltipText": "Krabby has evolved into Kingler from Rare Candy.",
+                            "healOnApplyFlat": 10
                         }
                     },
                     {
@@ -19965,7 +20042,8 @@ const characters = [
                                 "ekans-shed-skin": "arbok-shed-skin",
                                 "ekans-crunch": "arbok-crunch"
                             },
-                            "tooltipText": "Ekans has evolved into Arbok from Rare Candy."
+                            "tooltipText": "Ekans has evolved into Arbok from Rare Candy.",
+                            "healOnApplyFlat": 10
                         }
                     },
                     {
@@ -20010,7 +20088,8 @@ const characters = [
                                 "machop-bulk-up": "machoke-bulk-up",
                                 "machop-taunt": "machoke-taunt"
                             },
-                            "tooltipText": "Machop has evolved into Machoke from Rare Candy."
+                            "tooltipText": "Machop has evolved into Machoke from Rare Candy.",
+                            "healOnApplyFlat": 10
                         }
                     },
                     {
@@ -20058,7 +20137,8 @@ const characters = [
                                 "magikarp-flail": "gyarados-ice-fang",
                                 "magikarp-struggle": "gyarados-hydro-pump"
                             },
-                            "tooltipText": "Magikarp has evolved into Gyarados from Rare Candy."
+                            "tooltipText": "Magikarp has evolved into Gyarados from Rare Candy.",
+                            "healOnApplyFlat": 10
                         }
                     },
                     {
@@ -20103,7 +20183,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/Great ball.png",
                 "skilldescription": "Stuns one enemy and makes them invulnerable to all skills for 2 turns. If used when their health is at 25 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed. This skill swaps to Ultra Ball.",
                 "energy": [
-                    "Ninjutsu"
+                    "Ninjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -20243,7 +20324,8 @@ const characters = [
                 "skilldescription": "Stuns one enemy and makes them invulnerable to all skills for 3 turns. If used when their health is at 40 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed. This skill swaps to Master Ball.",
                 "energy": [
                     "Genjutsu",
-                    "Genjutsu"
+                    "Genjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -20387,7 +20469,8 @@ const characters = [
                 "energy": [
                     "Bloodline",
                     "Ninjutsu",
-                    "Genjutsu"
+                    "Genjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -20433,6 +20516,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/Revive.jpg",
                 "skilldescription": "Revives one defeated ally with 30 HP. If used on a living ally instead, heals them for 50 HP.",
                 "energy": [
+                    "Random",
                     "Random",
                     "Random",
                     "Random"
@@ -20523,6 +20607,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Chansey/chanseyeggbomb.webp",
                 "skilldescription": "Deals 20 affliction damage to one enemy and causes them to ignore all healing effects for 1 turn.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -20562,6 +20647,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Chansey/chanseypokemoncenterhealing.webp",
                 "skilldescription": "Heals Chansey's team for 5 HP and grants them 5 destructible defense each turn for 3 turns. During this skill, Softboil will always make its target unable to die.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "all-allies",
@@ -20633,7 +20719,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Chansey/softboilforchanseyandblissey.webp",
                 "skilldescription": "Heals one ally for 25 HP. That ally has a 50% chance to become unable to die for 1 turn.",
                 "energy": [
-                    "Genjutsu"
+                    "Genjutsu",
+                    "Random"
                 ],
                 "target": "single-ally",
                 "damage": 0,
@@ -20701,7 +20788,8 @@ const characters = [
                 "skilldescription": "Heals one ally for 50 HP, and removes all enemy skills currently affecting them.",
                 "energy": [
                     "Bloodline",
-                    "Genjutsu"
+                    "Genjutsu",
+                    "Random"
                 ],
                 "target": "single-ally",
                 "damage": 0,
@@ -20786,6 +20874,7 @@ const characters = [
                 "skilldescription": "Deals 30 affliction damage to one enemy and causes them to ignore all healing effects for 1 turn.",
                 "energy": [
                     "Random",
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -20828,6 +20917,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Chansey/blisseypokemoncenterhealing.png",
                 "skilldescription": "Heals Blissey's team for 10 HP and grants them 10 destructible defense each turn for 3 turns. During this skill, Softboil will always make its target unable to die.",
                 "energy": [
+                    "Random",
                     "Random",
                     "Random"
                 ],
@@ -20888,7 +20978,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Chansey/softboilforchanseyandblissey.webp",
                 "skilldescription": "Heals one ally for 25 HP. Blissey and the other ally are also healed for 15 HP. The primary target becomes unable to die for 1 turn.",
                 "energy": [
-                    "Genjutsu"
+                    "Genjutsu",
+                    "Random"
                 ],
                 "target": "single-ally",
                 "damage": 0,
@@ -20955,6 +21046,7 @@ const characters = [
                 "energy": [
                     "Bloodline",
                     "Genjutsu",
+                    "Random",
                     "Random"
                 ],
                 "target": "single-ally-or-dead-ally",
@@ -21055,7 +21147,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pidgey/gust.webp",
                 "skilldescription": "Pidgey deals 20 piercing damage to one enemy and 10 physical damage to all other enemies. Pidgey becomes invulnerable to non-mental skills for 1 turn.",
                 "energy": [
-                    "Bloodline"
+                    "Bloodline",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -21143,7 +21236,8 @@ const characters = [
                 "skilldescription": "For 2 turns, the enemy team's non-affliction damage is reduced by 50%. Pidgey's team becomes invulnerable for 1 turn.",
                 "energy": [
                     "Bloodline",
-                    "Bloodline"
+                    "Bloodline",
+                    "Random"
                 ],
                 "target": "all-enemy",
                 "damage": 0,
@@ -21185,6 +21279,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pidgey/peck.webp",
                 "skilldescription": "Pidgey deals 15 piercing damage to one enemy and marks them. Marks do not stack. Pidgey's next Gust used against a marked enemy consumes the mark and deals 10 additional piercing damage.",
                 "energy": [
+                    "Taijutsu",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -21238,6 +21333,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pidgey/sandattack.webp",
                 "skilldescription": "For 2 turns, one enemy's attacks have a 30% chance to miss.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -21286,7 +21382,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pidgey/pidgeottogust.webp",
                 "skilldescription": "Pidgeotto deals 20 piercing damage to one enemy and 15 piercing damage to all other enemies. Pidgeotto becomes invulnerable to non-mental skills for 1 turn.",
                 "energy": [
-                    "Bloodline"
+                    "Bloodline",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -21390,7 +21487,8 @@ const characters = [
                 "skilldescription": "For 3 turns, the enemy team's non-affliction damage is reduced by 50%. Pidgeotto's team becomes invulnerable for 1 turn.",
                 "energy": [
                     "Bloodline",
-                    "Bloodline"
+                    "Bloodline",
+                    "Random"
                 ],
                 "target": "all-enemy",
                 "damage": 0,
@@ -21435,6 +21533,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pidgey/pidgeottopeck.webp",
                 "skilldescription": "Pidgeotto deals 20 piercing damage to one enemy and marks them. Marks do not stack. Pidgeotto's next Gust used against a marked enemy consumes the mark and causes Gust to deal 15 additional piercing damage instead.",
                 "energy": [
+                    "Taijutsu",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -21491,6 +21590,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pidgey/pidgeottosandattack.webp",
                 "skilldescription": "For 2 turns, one enemy's attacks have a 60% chance to miss.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -21702,7 +21802,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/koffing/koffingsmog.webp",
                 "skilldescription": "Koffing deals 5 affliction damage to all enemies each turn for 4 turns. This effect stacks.",
                 "energy": [
-                    "Ninjutsu"
+                    "Ninjutsu",
+                    "Random"
                 ],
                 "target": "all-enemy",
                 "damage": 0,
@@ -21762,6 +21863,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/koffing/koffinghaze.jpeg",
                 "skilldescription": "For 1 turn, Koffing's team ignores all enemy non-damaging effects.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "all-allies",
@@ -21819,7 +21921,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/koffing/koffingexplosion.webp",
                 "skilldescription": "Koffing deals 20 affliction damage to all enemies and loses 20 HP. If this defeats Koffing, all enemies take 5 additional affliction damage.",
                 "energy": [
-                    "Ninjutsu"
+                    "Ninjutsu",
+                    "Random"
                 ],
                 "target": "all-enemy",
                 "damage": 0,
@@ -21899,6 +22002,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/koffing/koffingsmokescreen.webp",
                 "skilldescription": "Koffing's team gains 20% evasion for 2 turns.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "all-allies",
@@ -21998,6 +22102,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/koffing/weezingsmog.webp",
                 "skilldescription": "Weezing deals 5 affliction damage to all enemies each turn for 4 turns. This effect stacks.",
                 "energy": [
+                    "Ninjutsu",
+                    "Random",
                     "Random"
                 ],
                 "target": "all-enemy",
@@ -22039,6 +22145,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/koffing/weezinghaze.webp",
                 "skilldescription": "For 2 turns, Weezing's team ignores all enemy non-damaging effects.",
                 "energy": [
+                    "Random",
+                    "Random",
                     "Random"
                 ],
                 "target": "all-allies",
@@ -22078,6 +22186,7 @@ const characters = [
                 "skilldescription": "Weezing deals 30 affliction damage to all enemies and loses 30 HP. If this defeats Weezing, all enemies take 5 additional affliction damage.",
                 "energy": [
                     "Ninjutsu",
+                    "Random",
                     "Random"
                 ],
                 "target": "all-enemy",
@@ -22139,6 +22248,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/koffing/weezingsmokescreen.webp",
                 "skilldescription": "Weezing's team gains 25% evasion for 3 turns.",
                 "energy": [
+                    "Random",
                     "Random",
                     "Random"
                 ],
@@ -22218,6 +22328,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/zubat/leechlife.webp",
                 "skilldescription": "Steals 10 HP from one enemy. For 1 turn, if that enemy uses a new skill, Zubat steals an additional 10 HP from them.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -22312,7 +22423,9 @@ const characters = [
                 "name": "Supersonic",
                 "skillimage": "assets/images/PokemonArena/zubat/supersonic.webp",
                 "skilldescription": "For 1 turn, an enemy has a 40% chance for any skill they use to fail. If a skill fails this way, they lose 15 HP. Zubat's skills steal 10 additional HP from enemies affected by Supersonic.",
-                "energy": [],
+                "energy": [
+                    "Genjutsu"
+                ],
                 "target": "single-enemy",
                 "damage": 0,
                 "cooldown": 3,
@@ -22345,7 +22458,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/zubat/bite.webp",
                 "skilldescription": "Deals 20 damage to one enemy. During the next turn, Leech Life steals 10 additional HP.",
                 "energy": [
-                    "Taijutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -22380,7 +22494,9 @@ const characters = [
                 "name": "Draining Fangs",
                 "skillimage": "assets/images/PokemonArena/zubat/drainingfangs.webp",
                 "skilldescription": "For 2 turns, Leech Life and Bite remove 1 random energy from their target.",
-                "energy": [],
+                "energy": [
+                    "Bloodline"
+                ],
                 "target": "self",
                 "damage": 0,
                 "cooldown": 3,
@@ -22426,7 +22542,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/zubat/golbatleechlife.webp",
                 "skilldescription": "Steals 20 HP from one enemy. For 1 turn, if that enemy uses a new skill, Golbat steals an additional 10 HP from them.",
                 "energy": [
-                    "Bloodline"
+                    "Bloodline",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -22524,6 +22641,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/zubat/golbatsupersonic.webp",
                 "skilldescription": "For 2 turns, an enemy has a 40% chance for any skill they use to fail. If a skill fails this way, they lose 15 HP. Golbat's skills steal 10 additional HP from enemies affected by Supersonic.",
                 "energy": [
+                    "Genjutsu",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -22561,7 +22679,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/zubat/golbatbite.webp",
                 "skilldescription": "Deals 25 piercing damage to one enemy.",
                 "energy": [
-                    "Taijutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -22590,7 +22709,10 @@ const characters = [
                 },
                 "skillimage": "assets/images/PokemonArena/zubat/golbatdrainingfangs.webp",
                 "skilldescription": "For 2 turns, Leech Life and Bite steal 1 random energy from their target instead.",
-                "energy": [],
+                "energy": [
+                    "Bloodline",
+                    "Random"
+                ],
                 "target": "self",
                 "damage": 0,
                 "cooldown": 3,
@@ -22669,7 +22791,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/gastley/lick.webp",
                 "skilldescription": "Deals 20 affliction damage to one enemy. This skill has a 1% chance to stun the target's harmful skills for 1 turn for each point of health Gastly is missing.",
                 "energy": [
-                    "Ninjutsu"
+                    "Ninjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -22728,6 +22851,7 @@ const characters = [
                 "skilldescription": "Marks one enemy permanently. While marked, that enemy takes 15 affliction damage every turn. This damage cannot be ignored. Gastly loses 35 HP. Only one enemy may be affected by Curse at a time.",
                 "energy": [
                     "Ninjutsu",
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -22799,7 +22923,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/gastley/spite.webp",
                 "skilldescription": "For 2 turns, one enemy's damage is capped at 20 and they take 5 additional damage from affliction skills.",
                 "energy": [
-                    "Genjutsu"
+                    "Genjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -22831,6 +22956,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/gastley/glare.webp",
                 "skilldescription": "Guard Breaks one enemy and paralyzes their cooldowns for 1 turn. If that enemy uses a new skill while affected, they take 10 affliction damage.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -22883,7 +23009,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/gastley/haunterlick.webp",
                 "skilldescription": "Deals 20 affliction damage to one enemy. This skill has a 2% chance to stun the target's harmful skills for 1 turn for each point of health Gastly is missing.",
                 "energy": [
-                    "Ninjutsu"
+                    "Ninjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -22931,6 +23058,7 @@ const characters = [
                 "skilldescription": "Marks one enemy permanently. While marked, that enemy takes 15 affliction damage every turn. This damage cannot be ignored. Gastly loses 35 HP. Up to two enemies may be affected by Curse at the same time.",
                 "energy": [
                     "Ninjutsu",
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -23005,7 +23133,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/gastley/haunterspite.webp",
                 "skilldescription": "For 2 turns, one enemy's damage is capped at 20 and they take 10 additional damage from affliction skills.",
                 "energy": [
-                    "Genjutsu"
+                    "Genjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -23040,6 +23169,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/gastley/haunterglare.webp",
                 "skilldescription": "Guard Breaks one enemy and paralyzes their cooldowns for 2 turns. If that enemy uses a new skill while affected, they take 20 affliction damage instead.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -23142,7 +23272,9 @@ const characters = [
                 "name": "Future Sight",
                 "skillimage": "assets/images/PokemonArena/abra/futuresight.webp",
                 "skilldescription": "Marks an enemy for 2 turns. When the mark expires, the target takes 15 damage.",
-                "energy": [],
+                "energy": [
+                    "Genjutsu"
+                ],
                 "target": "single-enemy",
                 "damage": 0,
                 "cooldown": 2,
@@ -23183,7 +23315,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/abra/psychic.webp",
                 "skilldescription": "Deals 20 damage to one enemy and Guard Breaks them for 2 turns. If Future Sight damages that enemy this turn, it deals an additional 20 damage.",
                 "energy": [
-                    "Ninjutsu"
+                    "Ninjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -23222,7 +23355,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/abra/calmmind.webp",
                 "skilldescription": "Abra gains 10% unpierceable damage reduction and deals 5 additional damage for 3 turns.",
                 "energy": [
-                    "Genjutsu"
+                    "Genjutsu",
+                    "Random"
                 ],
                 "target": "self",
                 "damage": 0,
@@ -23253,6 +23387,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/abra/teleport.webp",
                 "skilldescription": "Targets Abra or an ally. For 1 turn, that character becomes invulnerable.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "single-character",
@@ -23299,7 +23434,9 @@ const characters = [
                 },
                 "skillimage": "assets/images/PokemonArena/abra/kadabrafuturesight.webp",
                 "skilldescription": "Marks an enemy for 1 turn. When the mark expires, the target takes 30 damage.",
-                "energy": [],
+                "energy": [
+                    "Genjutsu"
+                ],
                 "target": "single-enemy",
                 "damage": 0,
                 "cooldown": 2,
@@ -23343,7 +23480,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/abra/kadabrapsychic.webp",
                 "skilldescription": "Deals 20 damage to one enemy and Guard Breaks them for 2 turns. If Future Sight damages that enemy this turn, it deals an additional 20 damage and stuns their skills for 1 turn.",
                 "energy": [
-                    "Ninjutsu"
+                    "Ninjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -23401,7 +23539,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/abra/kadabracalmmind.webp",
                 "skilldescription": "Abra gains 20% unpierceable damage reduction and deals 10 additional damage for 3 turns.",
                 "energy": [
-                    "Genjutsu"
+                    "Genjutsu",
+                    "Random"
                 ],
                 "target": "self",
                 "damage": 0,
@@ -23435,6 +23574,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/abra/Kadabrateleport.webp",
                 "skilldescription": "Targets Abra or an ally. For 1 turn, that character becomes invulnerable and all enemy skills currently affecting them are removed.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "single-character",
@@ -23504,6 +23644,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Krabby/krabbymetalclaw.png",
                 "skilldescription": "Deals 15 piercing damage to one enemy. This skill has a 30% chance to permanently increase the non-affliction damage of Krabby's skills by 5. This effect stacks.",
                 "energy": [
+                    "Taijutsu",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -23546,7 +23687,9 @@ const characters = [
                 "name": "Bubble",
                 "skillimage": "assets/images/PokemonArena/Krabby/krabbybubble.png",
                 "skilldescription": "Permanently increases the physical damage one enemy takes by 5. This effect stacks.",
-                "energy": [],
+                "energy": [
+                    "Random"
+                ],
                 "target": "single-enemy",
                 "damage": 0,
                 "cooldown": 3,
@@ -23580,7 +23723,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Krabby/krabbycrabhammer.jpg",
                 "skilldescription": "Deals 25 damage to one enemy and stuns their skills for 1 turn. This skill has a 30% chance to critically strike, dealing 15 additional damage.",
                 "energy": [
-                    "Bloodline"
+                    "Bloodline",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -23622,6 +23766,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Krabby/krabbyharden.png",
                 "skilldescription": "Krabby gains 20 permanent destructible defense and 25% damage reduction for 2 turns.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "self",
@@ -23718,6 +23863,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Krabby/kinglermetalclaw.png",
                 "skilldescription": "Deals 30 piercing damage to one enemy instead. This skill has a 30% chance to permanently increase the non-affliction damage of Kingler's skills by 10 instead. This effect stacks.",
                 "energy": [
+                    "Taijutsu",
                     "Random",
                     "Random"
                 ],
@@ -23764,7 +23910,10 @@ const characters = [
                 },
                 "skillimage": "assets/images/PokemonArena/Krabby/kinglerbubble.jpg",
                 "skilldescription": "Permanently increases the physical damage one enemy takes by 10 instead. This effect stacks.",
-                "energy": [],
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
                 "target": "single-enemy",
                 "damage": 0,
                 "cooldown": 3,
@@ -23802,7 +23951,8 @@ const characters = [
                 "skilldescription": "Deals 40 damage to one enemy instead and stuns their skills for 1 turn. This skill still has a 30% chance to critically strike, dealing 15 additional damage.",
                 "energy": [
                     "Bloodline",
-                    "Bloodline"
+                    "Bloodline",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -23847,6 +23997,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Krabby/kinglerharden.png",
                 "skilldescription": "Kingler gains 30 permanent destructible defense and 50% damage reduction for 2 turns instead.",
                 "energy": [
+                    "Random",
                     "Random",
                     "Random"
                 ],
@@ -23907,7 +24058,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/scyther/furycutter.webp",
                 "skilldescription": "Deals 15 damage to one enemy. This skill permanently gains 5 damage each time it is used. This effect stacks. During Swords Dance, Fury Cutter deals piercing damage.",
                 "energy": [
-                    "Taijutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -23989,6 +24141,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/scyther/swordsdance.webp",
                 "skilldescription": "For 3 turns, Scyther's damaging skills deal 10 additional damage. During this time, Fury Cutter deals piercing damage and X-Cutter gains an additional 25% chance to critically strike.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "self",
@@ -24020,7 +24173,8 @@ const characters = [
                 "skilldescription": "Deals 40 piercing damage to one enemy. This skill has a 25% chance to critically strike, dealing 15 additional damage. This skill has a 50% chance to critically strike against enemies at or below 50 HP. During Swords Dance, this skill gains an additional 25% chance to critically strike.",
                 "energy": [
                     "Taijutsu",
-                    "Taijutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -24082,6 +24236,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/scyther/doubleteam.webp",
                 "skilldescription": "Scyther gains 100% evasion for 1 turn. If Scyther defeats an enemy while this effect is active, Double Team is extended by 1 turn.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "self",
@@ -24138,6 +24293,7 @@ const characters = [
                 "skilldescription": "Eevee becomes invulnerable for 1 turn and deals 30 damage to one enemy.",
                 "energy": [
                     "Random",
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -24174,6 +24330,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/eevee/eevee/swift.png",
                 "skilldescription": "Deals 15 damage to all enemies.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "all-enemy",
@@ -24198,6 +24355,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/eevee/eevee/hiddenpower.png",
                 "skilldescription": "Deals 30 affliction damage to a random enemy, 20 piercing damage to a random enemy, and 10 energy damage to a random enemy.",
                 "energy": [
+                    "Random",
                     "Random",
                     "Random",
                     "Random"
@@ -24242,6 +24400,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/eevee/eevee/protect.png",
                 "skilldescription": "Eevee makes one ally invulnerable for 1 turn.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "single-ally",
@@ -24287,7 +24446,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/eevee/jolteon/pinmissile.png",
                 "skilldescription": "Jolteon deals 15 piercing damage to one enemy team. For 1 turn, any enemy that uses a new skill on Jolteon takes 10 piercing damage.",
                 "energy": [
-                    "Taijutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "all-enemy",
                 "damage": 0,
@@ -24326,7 +24486,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/eevee/jolteon/thunderbolt.png",
                 "skilldescription": "Deals 25 piercing damage to one enemy. For 1 turn, any enemy to use a new skill on Jolteon has their cooldowns paralyzed for 2 turns.",
                 "energy": [
-                    "Genjutsu"
+                    "Genjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -24372,7 +24533,8 @@ const characters = [
                 "skilldescription": "Deals 35 piercing damage to one enemy and stuns their skills for 1 turn. For the rest of the game, the target's cooldowns are increased by +1.",
                 "energy": [
                     "Taijutsu",
-                    "Genjutsu"
+                    "Genjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -24422,6 +24584,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/eevee/jolteon/charge.png",
                 "skilldescription": "Jolteon gains 50% unpierceable damage reduction for 2 turns. During this time, his skills cost 1 less yellow energy and deal 5 more damage.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "self",
@@ -24477,6 +24640,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/eevee/flareon/heatingup.png",
                 "skilldescription": "Flareon gains 20 points of permanent destructible defense. While Flareon has this defense, she deals 5 affliction damage to the enemy team each turn. This does not stack.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "self",
@@ -24521,7 +24685,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/eevee/flareon/firespin.png",
                 "skilldescription": "For 3 turns, one enemy becomes invulnerable to all helpful skills and takes 10 affliction damage each turn. This cannot be used on an already affected enemy.",
                 "energy": [
-                    "Bloodline"
+                    "Bloodline",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -24558,7 +24723,8 @@ const characters = [
                 "skilldescription": "Deals 20 affliction damage to one enemy, then causes them to take 10 affliction damage every turn for the rest of the battle. While that enemy is alive, all other enemies take 5 affliction damage each turn.",
                 "energy": [
                     "Genjutsu",
-                    "Bloodline"
+                    "Bloodline",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -24613,6 +24779,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/eevee/flareon/doubleteam.png",
                 "skilldescription": "Flareon becomes invulnerable for 1 turn.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "self",
@@ -24658,7 +24825,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/eevee/vaporeon/aurorabeam.png",
                 "skilldescription": "Deal 20 damage to one enemy and reduce their non-affliction damage by 5 for 1 turn or heal Vaporeon or one ally for 20 HP and increase their non-affliction damage by 5 for 1 turn.",
                 "energy": [
-                    "Taijutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "single-enemy-or-ally",
                 "damage": 0,
@@ -24729,7 +24897,9 @@ const characters = [
                 "name": "Sand-Attack",
                 "skillimage": "assets/images/PokemonArena/eevee/vaporeon/sandattack.png",
                 "skilldescription": "One enemy is blinded for 1 turn, causing their new harmful skills to randomly target your team. Aurora Beam deals 10 more damage to an affected enemy and makes Hydro Pump cost 1 less purple energy for 1 turn.",
-                "energy": [],
+                "energy": [
+                    "Random"
+                ],
                 "target": "single-enemy",
                 "damage": 0,
                 "cooldown": 3,
@@ -24776,7 +24946,8 @@ const characters = [
                 "skilldescription": "Deals 35 damage to one enemy. Vaporeon's team heals 15 HP.",
                 "energy": [
                     "Taijutsu",
-                    "Ninjutsu"
+                    "Ninjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -24805,7 +24976,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/eevee/vaporeon/acidarmor.png",
                 "skilldescription": "Vaporeon ignores enemy skills for 1 turn. Vaporeon's team heals 10 HP for every new enemy skill used on her during this time.",
                 "energy": [
-                    "Taijutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "self",
                 "damage": 0,
@@ -24859,7 +25031,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/ekans/ekansvenomfang.png",
                 "skilldescription": "Deals 10 physical damage and 15 affliction damage to one enemy. If the target is Badly Poisoned, they also take 3 permanent affliction damage. This effect stacks.",
                 "energy": [
-                    "Bloodline"
+                    "Bloodline",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -24918,7 +25091,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/ekans/ekanstoxic.png",
                 "skilldescription": "Badly poisons one enemy, dealing 2 affliction damage. Whenever that enemy uses a new skill, this damage doubles. Each enemy may only have 1 stack of Badly Poison.",
                 "energy": [
-                    "Bloodline"
+                    "Bloodline",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -24977,6 +25151,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/ekans/ekansshedskin.png",
                 "skilldescription": "Removes all enemy affliction skills from Ekans and heals 15 HP each turn for 2 turns.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "self",
@@ -25013,7 +25188,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/ekans/ekanscrunch.png",
                 "skilldescription": "One enemy takes 10 additional damage from affliction-only damage this turn. If that enemy has 25 HP or less, they are executed.",
                 "energy": [
-                    "Bloodline"
+                    "Bloodline",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -25091,7 +25267,9 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/ekans/arbokvenomfang.png",
                 "skilldescription": "Deals 25 physical damage and 20 affliction damage to one enemy instead. If the target is Badly Poisoned, they also take 6 permanent affliction damage instead. This effect stacks.",
                 "energy": [
-                    "Bloodline"
+                    "Bloodline",
+                    "Random",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -25153,7 +25331,9 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/ekans/arboktoxic.png",
                 "skilldescription": "Badly poisons one enemy, dealing 2 affliction damage. Whenever that enemy uses a new skill, this damage doubles. Each enemy may have up to 2 stacks of Badly Poison instead.",
                 "energy": [
-                    "Bloodline"
+                    "Bloodline",
+                    "Random",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -25247,6 +25427,7 @@ const characters = [
                 "skilldescription": "Removes all enemy affliction skills from Arbok and heals 25 HP each turn for 2 turns instead.",
                 "energy": [
                     "Random",
+                    "Random",
                     "Random"
                 ],
                 "target": "self",
@@ -25286,7 +25467,9 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/ekans/arbokcrunch.png",
                 "skilldescription": "One enemy takes 15 additional damage from affliction-only damage this turn instead. If that enemy has 35 HP or less, they are executed.",
                 "energy": [
-                    "Bloodline"
+                    "Bloodline",
+                    "Random",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -25347,7 +25530,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/machop/machopbrickbreak.jpg",
                 "skilldescription": "Destroys one enemy's destructible defense and deals 25 damage.",
                 "energy": [
-                    "Ninjutsu"
+                    "Ninjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -25399,7 +25583,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/machop/machopcounter.png",
                 "skilldescription": "Marks one enemy for 1 turn. When the mark ends, all damage that enemy dealt to Machop during this time is dealt back to them. If Machop is still alive, Counter deals 5 additional damage.",
                 "energy": [
-                    "Ninjutsu"
+                    "Ninjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -25540,6 +25725,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/machop/machopbulkup.png",
                 "skilldescription": "Grants Machop's next Brick Break or Counter 10 additional damage. This effect stacks. Machop also gains 10 permanent destructible defense.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "self",
@@ -25576,7 +25762,9 @@ const characters = [
                 "name": "Taunt",
                 "skillimage": "assets/images/PokemonArena/machop/machoptaunt.png",
                 "skilldescription": "For 2 turns, one enemy may only use new harmful skills on Machop.",
-                "energy": [],
+                "energy": [
+                    "Genjutsu"
+                ],
                 "target": "single-enemy",
                 "damage": 0,
                 "cooldown": 2,
@@ -25622,7 +25810,9 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/machop/machokebrickbreak.png",
                 "skilldescription": "Destroys one enemy's destructible defense and deals 30 damage instead. If Bulk Up is active, Brick Break also stuns the target's non-mental skills for 1 turn.",
                 "energy": [
-                    "Ninjutsu"
+                    "Ninjutsu",
+                    "Random",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -25693,6 +25883,7 @@ const characters = [
                 "skilldescription": "Marks one enemy for 1 turn. When the mark ends, all damage that enemy dealt to Machoke during this time is dealt back to them twice. If Machoke is still alive, Counter deals 10 additional damage instead.",
                 "energy": [
                     "Ninjutsu",
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -25792,6 +25983,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/machop/machokebulkup.png",
                 "skilldescription": "Grants Machoke's next Brick Break or Counter 15 additional damage instead. This effect stacks. Machoke also gains 15 permanent destructible defense instead.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "self",
@@ -25831,7 +26023,9 @@ const characters = [
                 },
                 "skillimage": "assets/images/PokemonArena/machop/machoketaunt.png",
                 "skilldescription": "For 3 turns, one enemy may only use new harmful skills on Machoke.",
-                "energy": [],
+                "energy": [
+                    "Genjutsu"
+                ],
                 "target": "single-enemy",
                 "damage": 0,
                 "cooldown": 3,
@@ -25925,6 +26119,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/magikarp/magikarptackle.png",
                 "skilldescription": "Deals 15 damage.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -26000,6 +26195,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/magikarp/magikarpflail.png",
                 "skilldescription": "Deals 20 damage.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -26023,7 +26219,9 @@ const characters = [
                 "name": "Struggle",
                 "skillimage": "assets/images/PokemonArena/magikarp/magikarpstruggle.png",
                 "skilldescription": "Deals 25 damage but may only be used when all of Magikarp's other skills are on cooldown. Magikarp also loses 5 health.",
-                "energy": [],
+                "energy": [
+                    "Random"
+                ],
                 "target": "single-enemy",
                 "damage": 0,
                 "cooldown": 0,
@@ -26074,6 +26272,7 @@ const characters = [
                 "energy": [
                     "Random",
                     "Random",
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -26117,6 +26316,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/magikarp/hyperbeam.png",
                 "skilldescription": "Deals 50 affliction damage. Gyarados may not use a new skill for 1 turn.",
                 "energy": [
+                    "Random",
                     "Random",
                     "Random",
                     "Random"
@@ -26163,7 +26363,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/magikarp/dragonrage.png",
                 "skilldescription": "Deals 15 affliction damage to one enemy each turn for 3 turns and makes Hyper Beam deal affliction damage during this time.",
                 "energy": [
-                    "Taijutsu"
+                    "Taijutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -26212,6 +26413,7 @@ const characters = [
                 "skilldescription": "Deals 35 piercing damage to one enemy and stuns them for 1 turn.",
                 "energy": [
                     "Ninjutsu",
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -26255,6 +26457,7 @@ const characters = [
                 "skilldescription": "Deals 40 damage to one enemy and 20 damage to the other enemies.",
                 "energy": [
                     "Ninjutsu",
+                    "Random",
                     "Random",
                     "Random"
                 ],
@@ -26354,6 +26557,7 @@ const characters = [
                 "skilldescription": "Applies 20 Barrier to every enemy for 1 turn. During the next turn, Light Screen costs 1 less Random energy.",
                 "energy": [
                     "Random",
+                    "Random",
                     "Random"
                 ],
                 "target": "all-enemy",
@@ -26441,6 +26645,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Mr.mime/lightscreen.jpg",
                 "skilldescription": "Grants your team 20 Shield for 1 turn. During the next turn, Forcefield costs 1 less Random energy.",
                 "energy": [
+                    "Random",
                     "Random",
                     "Random"
                 ],
@@ -26531,6 +26736,7 @@ const characters = [
                 "skilldescription": "For 3 turns, stun effects on your team last 1 less turn, healing received by your team is increased by 25%, skills that grant Shield grant 5 additional Shield, and Forcefield and Light Screen last 1 additional turn while this skill is active.",
                 "energy": [
                     "Random",
+                    "Random",
                     "Random"
                 ],
                 "target": "all-allies",
@@ -26570,11 +26776,7 @@ const characters = [
         "description": "A trickster support Pokemon that manipulates protection timing, softens teams with Dazzling Gleam, and keeps allies stable with Light Screen and Safeguard.",
         "descriptionHtml": "A trickster support Pokemon that manipulates protection timing, softens teams with Dazzling Gleam, and keeps allies stable with Light Screen and Safeguard."
     }
-];
-
-if (typeof window !== 'undefined') {
-    window.characters = characters;
-}
+]
 
 if (typeof module !== 'undefined') {
     module.exports = characters;
