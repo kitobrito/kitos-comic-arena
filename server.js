@@ -82,6 +82,10 @@ const LEGACY_DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/zG3W1w6K/itachi.png'
 const MISSION_CATALOG_STATE_KEY = 'missions';
 const BOT_TEAMS_STATE_KEY = 'bot_teams';
 const POKEMON_STARTER_SELECTION_VERSION = 3;
+const LADDER_UNLOCK_POINTS_WIN = 10;
+const LADDER_UNLOCK_POINTS_LOSS = 3;
+const MISSION_UNLOCK_POINT_PRICE_MIN = 80;
+const MISSION_UNLOCK_POINT_PRICE_MAX = 250;
 let missionCatalogCache = null;
 let botTeamsCache = null;
 let maintenanceModeCache = {
@@ -2374,9 +2378,25 @@ const createDefaultMissionState = () => {
             negan: neganProgress,
         },
         unlockedCharacterIds: [],
+        unlockPoints: 0,
+        purchasedUnlocks: [],
         starterCharacterId: null,
         starterSelectionVersion: 0,
         eeveeEvolutionCharacterId: null,
+    };
+};
+
+const normalizeMissionPurchasedUnlock = (entry = {}) => {
+    const source = entry && typeof entry === 'object' ? entry : {};
+    const characterId = normalizeCharacterId(source.characterId ?? source.character_id ?? source.character);
+    if (!characterId) {
+        return null;
+    }
+    return {
+        characterId,
+        missionId: slugifyMissionId(source.missionId ?? source.mission_id ?? source.mission ?? ''),
+        cost: Math.max(0, Math.floor(Number(source.cost) || 0)),
+        purchasedAt: source.purchasedAt || source.purchased_at || null,
     };
 };
 
@@ -2406,6 +2426,18 @@ const normalizeMissionState = (missions = {}) => {
             .map((entry) => normalizeCharacterId(entry))
             .filter(Boolean)
     );
+    const unlockPoints = Math.max(
+        0,
+        Math.floor(Number(source.unlockPoints ?? source.unlock_points ?? 0) || 0)
+    );
+    const purchasedUnlocks = (Array.isArray(source.purchasedUnlocks)
+        ? source.purchasedUnlocks
+        : Array.isArray(source.purchased_unlocks)
+            ? source.purchased_unlocks
+            : []
+    )
+        .map(normalizeMissionPurchasedUnlock)
+        .filter(Boolean);
     const starterCharacterId = normalizeCharacterId(
         source.starterCharacterId ??
             source.starter_character_id ??
@@ -2457,6 +2489,8 @@ const normalizeMissionState = (missions = {}) => {
         progressByMissionId,
         progress: progressByMissionId,
         unlockedCharacterIds: Array.from(unlockedCharacterIds),
+        unlockPoints,
+        purchasedUnlocks,
         starterCharacterId: starterCharacterId && getPokemonStarterCharacterIds().has(starterCharacterId)
             ? starterCharacterId
             : null,
@@ -3697,6 +3731,56 @@ const getMissionLockedCharacterIds = async () => {
     );
 };
 
+const getMissionUnlockRewardCharacterIds = (mission = {}) => [
+    normalizeCharacterId(mission.reward_character),
+    ...(Array.isArray(mission.reward_character_ids)
+        ? mission.reward_character_ids.map((entry) => normalizeCharacterId(entry))
+        : []),
+].filter(Boolean);
+
+const findMissionForPurchasableCharacter = (missions = [], characterId = '', arena = DEFAULT_ARENA_MODE) => {
+    const normalizedCharacterId = normalizeCharacterId(characterId);
+    const normalizedArena = normalizeArenaMode(arena);
+    if (!normalizedCharacterId) {
+        return null;
+    }
+    return (Array.isArray(missions) ? missions : []).find((mission) => {
+        if (normalizeArenaMode(mission?.arena) !== normalizedArena) {
+            return false;
+        }
+        return normalizeCharacterId(mission?.reward_character) === normalizedCharacterId;
+    }) || null;
+};
+
+const resolveMissionUnlockPointCost = (mission = {}) => {
+    const explicitCost = Number(
+        mission.unlock_point_cost ??
+            mission.unlockPointCost ??
+            mission.shop_cost ??
+            mission.shopCost
+    );
+    if (Number.isFinite(explicitCost) && explicitCost > 0) {
+        return Math.max(
+            MISSION_UNLOCK_POINT_PRICE_MIN,
+            Math.min(MISSION_UNLOCK_POINT_PRICE_MAX, Math.floor(explicitCost))
+        );
+    }
+
+    const rankValue = Number(mission.level_requirement ?? mission.rank ?? 1);
+    const levelRequirement = Number.isFinite(rankValue) ? Math.max(1, Math.floor(rankValue)) : 1;
+    if (levelRequirement >= 31) return MISSION_UNLOCK_POINT_PRICE_MAX;
+    if (levelRequirement >= 21) return 200;
+    if (levelRequirement >= 11) return 150;
+    if (levelRequirement >= 6) return 120;
+    return MISSION_UNLOCK_POINT_PRICE_MIN;
+};
+
+const addUnlockPointCostsToMissions = (missions = []) =>
+    (Array.isArray(missions) ? missions : []).map((mission = {}) => ({
+        ...mission,
+        unlockPointCost: resolveMissionUnlockPointCost(mission),
+    }));
+
 const profileHasUnlockedCharacter = (profile, characterId, lockedCharacterIds = new Set(), arena = DEFAULT_ARENA_MODE) => {
     const normalizedCharacterId =
         typeof characterId === 'string' ? normalizeCharacterId(characterId) : '';
@@ -3794,6 +3878,7 @@ const buildDefaultUserProfile = (user = {}) => {
             highestStreak: 0,
             highestLevel: 1,
             famePoints: 0,
+            unlockPoints: 0,
             isHokage: false,
         },
         activity: {
@@ -3863,6 +3948,9 @@ const normalizeArenaProgressState = (source = {}, user = {}) => {
             famePoints: Number.isFinite(Number(ladder.famePoints))
                 ? Math.max(0, Number(ladder.famePoints))
                 : defaults.ladder.famePoints,
+            unlockPoints: Number.isFinite(Number(ladder.unlockPoints))
+                ? Math.max(0, Math.floor(Number(ladder.unlockPoints)))
+                : defaults.ladder.unlockPoints,
             isHokage,
         },
     };
@@ -4230,6 +4318,9 @@ const normalizeUserProfile = (user = {}) => {
             famePoints: Number.isFinite(Number(ladder.famePoints))
                 ? Math.max(0, Number(ladder.famePoints))
                 : defaults.ladder.famePoints,
+            unlockPoints: Number.isFinite(Number(ladder.unlockPoints))
+                ? Math.max(0, Math.floor(Number(ladder.unlockPoints)))
+                : defaults.ladder.unlockPoints,
             isHokage,
         },
         activity: {
@@ -4916,6 +5007,14 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
             arenaProfile.ladder.losses += 1;
             arenaProfile.ladder.streak = Math.min(0, Number(arenaProfile.ladder.streak) || 0) - 1;
         }
+        const unlockPointDelta = winnerUsername
+            ? didWin
+                ? LADDER_UNLOCK_POINTS_WIN
+                : LADDER_UNLOCK_POINTS_LOSS
+            : 0;
+        arenaProfile.missions = normalizeMissionState(arenaProfile.missions);
+        arenaProfile.missions.unlockPoints += unlockPointDelta;
+        arenaProfile.ladder.unlockPoints = arenaProfile.missions.unlockPoints;
 
         const expDelta = nextExperiencePoints - previousExperiencePoints;
         const clanRankKey = normalizeClanRankKey(profile.clan?.rankKey || '', user, profile.clan);
@@ -4938,6 +5037,7 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
                     '',
                 expDelta,
                 clanExpDelta,
+                unlockPointDelta,
             },
             ...(Array.isArray(arenaProfile.recentLadderGames) ? arenaProfile.recentLadderGames : []),
         ]);
@@ -4963,7 +5063,9 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
             didWin,
             expDelta,
             clanExpDelta,
+            unlockPointDelta,
             previousExperiencePoints,
+            previousUnlockPoints: initialArenaProfiles.get(username)?.missions?.unlockPoints || 0,
             previousLevel: initialArenaProfiles.get(username)?.ladder?.level || 1,
             previousRank: initialArenaProfiles.get(username)?.ladder?.rank || 'Academy Student',
         });
@@ -4981,8 +5083,11 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
             didWin: prelim.didWin,
             expDelta: prelim.expDelta,
             clanExpDelta: prelim.clanExpDelta || 0,
+            unlockPointDelta: prelim.unlockPointDelta || 0,
             previousExperiencePoints: prelim.previousExperiencePoints,
             currentExperiencePoints: getProfileArenaState(finalProfile, arena).ladder.experiencePoints,
+            previousUnlockPoints: prelim.previousUnlockPoints || 0,
+            currentUnlockPoints: getProfileArenaState(finalProfile, arena).missions.unlockPoints || 0,
             previousLevel: prelim.previousLevel,
             currentLevel: getProfileArenaState(finalProfile, arena).ladder.level,
             previousRank: prelim.previousRank,
@@ -11484,9 +11589,9 @@ app.get('/api/missions', async (req, res) => {
     try {
         res.set('Cache-Control', 'no-store');
         const arena = normalizeArenaMode(req.query?.arena);
-        const missions = (await getStoredMissionCatalog()).filter(
+        const missions = addUnlockPointCostsToMissions((await getStoredMissionCatalog()).filter(
             (mission) => normalizeArenaMode(mission?.arena) === arena
-        );
+        ));
         let missionState = createDefaultMissionState();
         try {
             const token = req.cookies?.[SESSION_COOKIE_NAME];
@@ -11504,10 +11609,105 @@ app.get('/api/missions', async (req, res) => {
             missions,
             missionProgressByMissionId: missionState.progressByMissionId,
             unlockedCharacterIds: missionState.unlockedCharacterIds,
+            unlockPoints: missionState.unlockPoints,
+            unlockPointPriceMin: MISSION_UNLOCK_POINT_PRICE_MIN,
+            unlockPointPriceMax: MISSION_UNLOCK_POINT_PRICE_MAX,
+            purchasedUnlocks: missionState.purchasedUnlocks,
         });
     } catch (error) {
         console.error('Mission catalog load error:', error);
         return res.status(500).json({ error: 'Unable to load missions.' });
+    }
+});
+
+app.post('/api/missions/unlock-points/purchase', requireSession, async (req, res) => {
+    try {
+        const arena = normalizeArenaMode(req.body?.arena || req.query?.arena);
+        const characterId = normalizeCharacterId(req.body?.characterId || req.body?.character_id || '');
+        if (!characterId) {
+            return res.status(400).json({ error: 'Character is required.' });
+        }
+
+        const user = await usersCollection.findOne({ username: req.authUser.username });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        const missions = await getStoredMissionCatalog();
+        const mission = findMissionForPurchasableCharacter(missions, characterId, arena);
+        if (!mission) {
+            return res.status(400).json({ error: 'This character is not a mission-locked unlock.' });
+        }
+        const unlockPointCost = resolveMissionUnlockPointCost(mission);
+
+        const profile = normalizeUserProfile(user);
+        const arenaState = getProfileArenaState(profile, arena);
+        const missionState = normalizeMissionState(arenaState.missions);
+        const unlockedIds = new Set(
+            missionState.unlockedCharacterIds
+                .map((entry) => normalizeCharacterId(entry))
+                .filter(Boolean)
+        );
+        if (unlockedIds.has(characterId)) {
+            return res.status(409).json({ error: 'Character is already unlocked.' });
+        }
+        if (missionState.unlockPoints < unlockPointCost) {
+            return res.status(400).json({
+                error: `You need ${unlockPointCost} unlock points to buy this character.`,
+                unlockPoints: missionState.unlockPoints,
+                unlockPointCost,
+            });
+        }
+
+        const now = new Date();
+        missionState.unlockPoints -= unlockPointCost;
+        unlockedIds.add(characterId);
+        missionState.unlockedCharacterIds = Array.from(unlockedIds);
+        missionState.purchasedUnlocks = [
+            ...missionState.purchasedUnlocks,
+            {
+                characterId,
+                missionId: mission.missionId || '',
+                cost: unlockPointCost,
+                purchasedAt: now,
+            },
+        ];
+        arenaState.missions = normalizeMissionState(missionState);
+        arenaState.ladder = {
+            ...(arenaState.ladder || {}),
+            unlockPoints: arenaState.missions.unlockPoints,
+        };
+
+        const normalizedProfile = normalizeUserProfile({
+            ...user,
+            profile: setProfileArenaState(profile, arena, arenaState),
+        });
+        await usersCollection.updateOne(
+            { _id: user._id },
+            {
+                $set: {
+                    profile: normalizedProfile,
+                },
+            }
+        );
+
+        return res.json({
+            ok: true,
+            arena,
+            characterId,
+            missionId: mission.missionId || '',
+            unlockPoints: arenaState.missions.unlockPoints,
+            unlockPointCost,
+            unlockPointPriceMin: MISSION_UNLOCK_POINT_PRICE_MIN,
+            unlockPointPriceMax: MISSION_UNLOCK_POINT_PRICE_MAX,
+            unlockedCharacterIds: arenaState.missions.unlockedCharacterIds,
+            purchasedUnlocks: arenaState.missions.purchasedUnlocks,
+            missionProgressByMissionId: arenaState.missions.progressByMissionId,
+            profile: normalizedProfile,
+        });
+    } catch (error) {
+        console.error('Unlock point purchase error:', error);
+        return res.status(500).json({ error: 'Unable to buy character unlock.' });
     }
 });
 

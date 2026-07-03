@@ -965,6 +965,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const selectedAssignments = selectedSlots.map(() => null);
     const teamStorageKey = 'comicSelectedTeam';
     const defaultLadderRankHat = 'assets/images/hats/academy.png';
+    const DEFAULT_UNLOCK_POINT_COST = 80;
     let profileCache = null;
     let missionLockedCharacterIds = new Set();
     let selectionClickTimer = null;
@@ -999,6 +1000,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             wins: Number.isFinite(Number(source.wins)) ? Math.max(0, Number(source.wins)) : 0,
             losses: Number.isFinite(Number(source.losses)) ? Math.max(0, Number(source.losses)) : 0,
             streak: Number.isFinite(Number(source.streak)) ? Number(source.streak) : 0,
+            unlockPoints: Number.isFinite(Number(source.unlockPoints))
+                ? Math.max(0, Math.floor(Number(source.unlockPoints)))
+                : 0,
             rankHatUrl:
                 typeof source.rankHatUrl === 'string' && source.rankHatUrl.trim()
                     ? source.rankHatUrl.trim()
@@ -6684,7 +6688,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             }, 0);
         };
 
-        const showBattleEndOverlay = ({ didWin, opponentUsername, expDelta = null, clanExpDelta = null }) => {
+        const showBattleEndOverlay = ({
+            didWin,
+            opponentUsername,
+            expDelta = null,
+            clanExpDelta = null,
+            unlockPointDelta = null,
+        }) => {
             if (!battleEndOverlayEl || battleEndShown) return;
             const opponent = (opponentUsername || currentOpponentUsername || 'UNKNOWN').trim();
             const isLadderMatch = currentMatchMode === 'ladder';
@@ -6694,6 +6704,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const clanExpLine =
                 normalizedClanExpDelta > 0
                     ? `<br>YOUR CLAN GAINED ${normalizedClanExpDelta.toLocaleString()} EXP`
+                    : '';
+            const normalizedUnlockPointDelta = Math.max(0, Number(unlockPointDelta) || 0);
+            const unlockPointLine =
+                isLadderMatch && normalizedUnlockPointDelta > 0
+                    ? `<br>YOU EARNED ${normalizedUnlockPointDelta.toLocaleString()} UNLOCK POINTS`
                     : '';
             if (battleEndPortraitEl) {
                 const isPokemonArena = currentMatchArena === 'pokemon';
@@ -6712,12 +6727,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (battleEndMessageEl) {
                 battleEndMessageEl.innerHTML = didWin
                     ? isLadderMatch
-                        ? `YOU WON A LADDER BATTLE AGAINST ${opponent}.<br>YOU GAINED ${expMagnitude} EXP${clanExpLine}`
+                        ? `YOU WON A LADDER BATTLE AGAINST ${opponent}.<br>YOU GAINED ${expMagnitude} EXP${clanExpLine}${unlockPointLine}`
                         : currentMatchMode === 'private'
                             ? `YOU WIN!<br>YOU WON A PRIVATE GAME AGAINST ${opponent}`
                         : `CONGRATULATIONS!<br>YOU HAVE WON A QUICK BATTLE AGAINST ${opponent}.`
                     : isLadderMatch
-                        ? `YOU LOST A LADDER BATTLE AGAINST ${opponent}.<br>YOU LOST ${expMagnitude} EXP`
+                        ? `YOU LOST A LADDER BATTLE AGAINST ${opponent}.<br>YOU LOST ${expMagnitude} EXP${unlockPointLine}`
                         : currentMatchMode === 'private'
                             ? `TOO BAD!<br>YOU LOST A PRIVATE GAME AGAINST ${opponent}`
                         : `TOO BAD!<br>YOU HAVE LOST A QUICK BATTLE AGAINST ${opponent}.`;
@@ -9784,6 +9799,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         currentOpponentUsername,
                     expDelta: data.ladderResult?.expDelta,
                     clanExpDelta: data.ladderResult?.clanExpDelta,
+                    unlockPointDelta: data.ladderResult?.unlockPointDelta,
                 });
                 return;
             }
@@ -12391,6 +12407,84 @@ document.addEventListener('DOMContentLoaded', async () => {
         return 'No tracked progress yet.';
     };
 
+    const getMissionUnlockPointCost = (mission = {}, payload = {}) => {
+        const explicitCost = Number(mission.unlockPointCost ?? mission.unlock_point_cost);
+        if (Number.isFinite(explicitCost) && explicitCost > 0) {
+            return Math.floor(explicitCost);
+        }
+        const fallbackCost = Number(payload.unlockPointCost);
+        if (Number.isFinite(fallbackCost) && fallbackCost > 0) {
+            return Math.floor(fallbackCost);
+        }
+        return DEFAULT_UNLOCK_POINT_COST;
+    };
+
+    const getMissionRewardCharacterIds = (mission = {}) => [
+        String(mission.reward_character || '').trim().toLowerCase(),
+    ].filter(Boolean);
+
+    const getMissionRewardCharacterLabel = (mission = {}, rewardCharacterId = '') => {
+        const normalizedRewardId = String(rewardCharacterId || '').trim().toLowerCase();
+        if (
+            normalizedRewardId &&
+            String(mission.reward_character || '').trim().toLowerCase() === normalizedRewardId &&
+            typeof mission.reward_character_name === 'string' &&
+            mission.reward_character_name.trim()
+        ) {
+            return mission.reward_character_name.trim();
+        }
+        const character = roster.find(
+            (entry) => String(entry?.characterId || '').trim().toLowerCase() === normalizedRewardId
+        );
+        return character?.name || normalizedRewardId || 'Character';
+    };
+
+    const applyMissionPurchaseProfile = (payload = {}) => {
+        if (!payload.profile || !profileCache?.username) {
+            return;
+        }
+        profileCache = {
+            ...profileCache,
+            profile: payload.profile,
+        };
+        writeCachedUser(profileCache);
+        syncArenaModePlayerIdentity();
+    };
+
+    const buyMissionCharacterUnlock = async (characterId, button = null) => {
+        const normalizedCharacterId = String(characterId || '').trim().toLowerCase();
+        if (!normalizedCharacterId) return;
+        if (button) button.disabled = true;
+        setSelectionMissionsStatus('Buying character unlock...');
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/missions/unlock-points/purchase`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    arena: activeArenaMode,
+                    characterId: normalizedCharacterId,
+                }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || 'Unable to buy character unlock.');
+            }
+            applyMissionPurchaseProfile(payload);
+            setSelectionMissionsStatus('Character unlocked with ladder points.');
+            await loadMissionLockedCharacterIds();
+            await loadSelectionMissions();
+            rebuildRosterDisplayIndices();
+            syncRosterFilterSelect();
+            renderRosterPage();
+            updateGameButtons();
+            applySavedTeam();
+        } catch (error) {
+            if (button) button.disabled = false;
+            setSelectionMissionsStatus(error.message || 'Unable to buy character unlock.');
+        }
+    };
+
     const getEeveeEvolutionOptions = () => [
         { id: 'jolteon', name: 'Jolteon' },
         { id: 'flareon', name: 'Flareon' },
@@ -12529,12 +12623,30 @@ document.addEventListener('DOMContentLoaded', async () => {
               })
             : [];
         const progressByMissionId = payload.missionProgressByMissionId || {};
+        const unlockPoints = Math.max(0, Math.floor(Number(payload.unlockPoints) || 0));
+        const unlockPointPriceMin = Math.max(
+            1,
+            Math.floor(Number(payload.unlockPointPriceMin) || DEFAULT_UNLOCK_POINT_COST)
+        );
+        const unlockPointPriceMax = Math.max(
+            unlockPointPriceMin,
+            Math.floor(Number(payload.unlockPointPriceMax) || 250)
+        );
         const unlockedIds = new Set(
             (Array.isArray(payload.unlockedCharacterIds) ? payload.unlockedCharacterIds : [])
                 .map((entry) => String(entry || '').trim().toLowerCase())
                 .filter(Boolean)
         );
         selectionMissionsListEl.innerHTML = '';
+        const wallet = document.createElement('div');
+        wallet.className = 'selection-unlock-wallet';
+        const walletTotal = document.createElement('strong');
+        walletTotal.textContent = `${unlockPoints.toLocaleString()} unlock points`;
+        const walletHint = document.createElement('span');
+        walletHint.textContent = `Earn points from ladder games. Shop prices range from ${unlockPointPriceMin.toLocaleString()} to ${unlockPointPriceMax.toLocaleString()} points by character rank.`;
+        wallet.appendChild(walletTotal);
+        wallet.appendChild(walletHint);
+        selectionMissionsListEl.appendChild(wallet);
         if (!missions.length) {
             const empty = document.createElement('div');
             empty.className = 'selection-mission-card';
@@ -12577,6 +12689,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ? 'Unlocked. PvE fights can be replayed.'
                 : getSelectionMissionProgressText(mission, progress);
             card.appendChild(progressText);
+
+            getMissionRewardCharacterIds(mission).forEach((rewardId) => {
+                if (!rewardId || unlockedIds.has(rewardId)) return;
+                const unlockPointCost = getMissionUnlockPointCost(mission, payload);
+                const buyWrap = document.createElement('div');
+                buyWrap.className = 'selection-mission-buy';
+                const buyText = document.createElement('span');
+                buyText.textContent = `${getMissionRewardCharacterLabel(mission, rewardId)} costs ${unlockPointCost.toLocaleString()} unlock points.`;
+                const buyButton = document.createElement('button');
+                buyButton.type = 'button';
+                buyButton.className = 'selection-mission-action selection-mission-buy-action';
+                buyButton.textContent = unlockPoints >= unlockPointCost ? 'Buy Unlock' : 'Need Points';
+                buyButton.disabled = unlockPoints < unlockPointCost;
+                buyButton.addEventListener('click', () => {
+                    buyMissionCharacterUnlock(rewardId, buyButton);
+                });
+                buyWrap.appendChild(buyText);
+                buyWrap.appendChild(buyButton);
+                card.appendChild(buyWrap);
+            });
 
             const specialPve = mission.special_pve || mission.specialPve || {};
             if (specialPve.enabled) {
