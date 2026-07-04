@@ -1286,6 +1286,14 @@ text-transform: uppercase;
     display: block;
 }
 
+.selected-slot-placeholder-image {
+    width: 72%;
+    height: 72%;
+    object-fit: contain;
+    display: block;
+    pointer-events: none;
+}
+
 .button-container {
     display: flex;
     gap: 15px;

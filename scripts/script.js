@@ -13958,6 +13958,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         buildRosterSlot(index);
     };
 
+    const renderEmptySelectedSlot = (slotElement, slotIndex) => {
+        if (!slotElement) return;
+        slotElement.innerHTML = '';
+        if (activeArenaMode === 'pokemon') {
+            const img = document.createElement('img');
+            img.src = POKEMON_FOUND_ICON_URL;
+            img.alt = `Empty Pokemon team slot ${slotIndex + 1}`;
+            img.className = 'selected-slot-placeholder-image';
+            img.draggable = false;
+            slotElement.appendChild(img);
+            return;
+        }
+        slotElement.textContent = String(slotIndex + 1);
+    };
+
+    const refreshEmptySelectedSlots = () => {
+        selectedSlots.forEach((slotElement, slotIndex) => {
+            if (selectedAssignments[slotIndex]) return;
+            renderEmptySelectedSlot(slotElement, slotIndex);
+        });
+    };
+
     const setSelectedSlot = (slotIndex, assignment) => {
         const slotElement = selectedSlots[slotIndex];
         if (!slotElement) return;
@@ -13968,7 +13990,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         slotElement.innerHTML = '';
         slotElement.classList.remove('drag-over');
         if (!assignment) {
-            slotElement.textContent = String(slotIndex + 1);
+            renderEmptySelectedSlot(slotElement, slotIndex);
             return;
         }
         const character = roster[assignment.characterIndex];
@@ -14503,6 +14525,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         rosterFilterTabs.forEach((entry) =>
             entry.classList.toggle('active', entry.dataset.rosterFilterMode === activeRosterFilterMode)
         );
+        refreshEmptySelectedSlots();
         loadMissionLockedCharacterIds()
             .catch(() => {})
             .finally(() => {
@@ -14559,6 +14582,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     rebuildRosterDisplayIndices();
     syncRosterFilterSelect();
+    refreshEmptySelectedSlots();
     renderRosterPage();
     updateGameButtons();
     persistTeamSelection();
