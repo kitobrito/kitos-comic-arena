@@ -126,6 +126,10 @@
   var changeAvatarForm = document.getElementById("change-avatar-form");
   var changeAvatarCurrentImage = document.getElementById("change-avatar-current-image");
   var changeAvatarUrlInput = document.getElementById("change-avatar-url");
+  var comicAvatarCurrentImage = document.getElementById("comic-avatar-current-image");
+  var pokemonAvatarCurrentImage = document.getElementById("pokemon-avatar-current-image");
+  var comicAvatarUrlInput = document.getElementById("comic-avatar-url");
+  var pokemonAvatarUrlInput = document.getElementById("pokemon-avatar-url");
   var changeAvatarSubmit = document.getElementById("change-avatar-submit");
   var changeAvatarStatus = document.getElementById("change-avatar-status");
   var resetAccountTrigger = document.getElementById("reset-account-trigger");
@@ -2739,6 +2743,17 @@
     return profile || {};
   }
 
+  function getProfileAvatarUrl(profile, arena) {
+    if (!profile) {
+      return defaultProfileAvatar;
+    }
+    if (arena === "pokemon") {
+      var pokemonProfile = getArenaProfileState(profile, "pokemon");
+      return pokemonProfile.avatarUrl || profile.avatarUrl || defaultProfileAvatar;
+    }
+    return profile.avatarUrl || defaultProfileAvatar;
+  }
+
   function populateArenaLadder(arenaProfile, nodes) {
     var ladder = arenaProfile && arenaProfile.ladder ? arenaProfile.ladder : {};
     var wins = Number(ladder.wins) || 0;
@@ -3450,10 +3465,24 @@
     var winPercentage = totalGames > 0 ? ((wins / totalGames) * 100).toFixed(2) : "0.00";
 
     if (profileAvatarImage) {
-      profileAvatarImage.src = profile.avatarUrl || defaultProfileAvatar;
+      profileAvatarImage.src = getProfileAvatarUrl(profile, "comic");
     }
     if (changeAvatarCurrentImage) {
-      changeAvatarCurrentImage.src = profile.avatarUrl || defaultProfileAvatar;
+      changeAvatarCurrentImage.src = getProfileAvatarUrl(profile, "comic");
+    }
+    if (comicAvatarCurrentImage) {
+      comicAvatarCurrentImage.src = getProfileAvatarUrl(profile, "comic");
+    }
+    if (pokemonAvatarCurrentImage) {
+      pokemonAvatarCurrentImage.src = getProfileAvatarUrl(profile, "pokemon");
+    }
+    if (comicAvatarUrlInput) {
+      var comicAvatarUrl = getProfileAvatarUrl(profile, "comic");
+      comicAvatarUrlInput.value = comicAvatarUrl === defaultProfileAvatar ? "" : comicAvatarUrl;
+    }
+    if (pokemonAvatarUrlInput) {
+      var pokemonAvatarUrl = getProfileAvatarUrl(profile, "pokemon");
+      pokemonAvatarUrlInput.value = pokemonAvatarUrl === defaultProfileAvatar ? "" : pokemonAvatarUrl;
     }
     setText(profileUsername, user.username);
     setText(profileSiteRank, formatRole(user.role));
@@ -4043,6 +4072,15 @@
 
   if (changeAvatarButton) {
     changeAvatarButton.addEventListener("click", function () {
+      if (changeAvatarForm) {
+        changeAvatarForm.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (comicAvatarUrlInput) {
+          comicAvatarUrlInput.focus();
+        } else if (changeAvatarUrlInput) {
+          changeAvatarUrlInput.focus();
+        }
+        return;
+      }
       window.location.href = "changeavatar.html";
     });
   }
@@ -4868,36 +4906,57 @@
   if (changeAvatarForm) {
     changeAvatarForm.addEventListener("submit", async function (event) {
       event.preventDefault();
-      var avatarUrl = String(changeAvatarUrlInput && changeAvatarUrlInput.value ? changeAvatarUrlInput.value : "").trim();
-      if (!avatarUrl) {
+      var avatarUpdates = comicAvatarUrlInput || pokemonAvatarUrlInput
+        ? [
+            {
+              arena: "comic",
+              avatarUrl: String(comicAvatarUrlInput && comicAvatarUrlInput.value ? comicAvatarUrlInput.value : "").trim()
+            },
+            {
+              arena: "pokemon",
+              avatarUrl: String(pokemonAvatarUrlInput && pokemonAvatarUrlInput.value ? pokemonAvatarUrlInput.value : "").trim()
+            }
+          ]
+        : [
+            {
+              arena: "comic",
+              avatarUrl: String(changeAvatarUrlInput && changeAvatarUrlInput.value ? changeAvatarUrlInput.value : "").trim()
+            }
+          ];
+      if (avatarUpdates.some(function (entry) { return !entry.avatarUrl; })) {
         setChangeAvatarStatus("A direct image URL is required.", "error");
         return;
       }
 
-      setChangeAvatarStatus("Saving avatar...", "");
+      setChangeAvatarStatus("Saving avatars...", "");
       if (changeAvatarSubmit) {
         changeAvatarSubmit.disabled = true;
       }
 
       try {
-        var response = await fetch("/api/profile/avatar", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          credentials: "same-origin",
-          body: JSON.stringify({
-            avatarUrl: avatarUrl
-          })
-        });
-        var data = await response.json().catch(function () {
-          return {};
-        });
-        if (!response.ok) {
-          setChangeAvatarStatus(data && data.error ? data.error : "Unable to update avatar.", "error");
-          return;
+        var updatedUser = null;
+        for (var index = 0; index < avatarUpdates.length; index += 1) {
+          var entry = avatarUpdates[index];
+          var response = await fetch("/api/profile/avatar", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({
+              avatarUrl: entry.avatarUrl,
+              arena: entry.arena
+            })
+          });
+          var data = await response.json().catch(function () {
+            return {};
+          });
+          if (!response.ok) {
+            setChangeAvatarStatus(data && data.error ? data.error : "Unable to update avatar.", "error");
+            return;
+          }
+          updatedUser = data && data.user && data.user.username ? data.user : updatedUser;
         }
-        var updatedUser = data && data.user && data.user.username ? data.user : null;
         if (updatedUser) {
           setCurrentSessionUser(updatedUser);
           cacheSessionUser(updatedUser);
@@ -4905,10 +4964,10 @@
           if (changeAvatarUrlInput) {
             changeAvatarUrlInput.value = updatedUser.profile && updatedUser.profile.avatarUrl
               ? updatedUser.profile.avatarUrl
-              : avatarUrl;
+              : avatarUpdates[0].avatarUrl;
           }
         }
-        setChangeAvatarStatus("Avatar updated.", "success");
+        setChangeAvatarStatus("Avatars updated.", "success");
       } catch (error) {
         setChangeAvatarStatus("Unable to reach the server.", "error");
       } finally {

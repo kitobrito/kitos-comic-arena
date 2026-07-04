@@ -22317,7 +22317,7 @@ const characters = [
                 "id": "zubat-leech-life",
                 "name": "Leech Life",
                 "skillimage": "assets/images/PokemonArena/zubat/leechlife.webp",
-                "skilldescription": "Steals 10 HP from one enemy. For 1 turn, if that enemy uses a new skill, Zubat steals an additional 10 HP from them.",
+                "skilldescription": "Steals 15 HP from one enemy. If that enemy is affected by Supersonic, this steals 10 additional HP. For 1 turn, if that enemy uses a new skill, Zubat steals 15 additional HP from them.",
                 "energy": [
                     "Random",
                     "Random"
@@ -22333,8 +22333,33 @@ const characters = [
                 "effects": [
                     {
                         "type": "health_steal_damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "onSuccessfulDamageApplyStatusToOwner": {
+                                "statusId": "zubat_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "hidden": true,
+                                    "infiniteDuration": true,
+                                    "zubatHpStolen": 0,
+                                    "stackMetadataKey": "zubatHpStolen",
+                                    "stackDeltaFromDamageDealt": true,
+                                    "stackMax": 50,
+                                    "statusIconUrl": "assets/images/PokemonArena/zubat/leechlife.webp",
+                                    "tooltipTextTemplate": "Zubat has stolen {zubatHpStolen}/50 total HP and will evolve into Golbat at 50."
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "health_steal_damage",
                         "amount": 10,
                         "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "zubat_supersonic_mark"
+                        },
                         "metadata": {
                             "onSuccessfulDamageApplyStatusToOwner": {
                                 "statusId": "zubat_evolution_tracker",
@@ -22387,8 +22412,8 @@ const characters = [
                             "infiniteDuration": false,
                             "onOwnerUseSkillTrigger": true,
                             "onOwnerUseSkillRequireNewSkill": true,
-                            "onOwnerUseSkillSelfDamage": 10,
-                            "onOwnerUseSkillHealSourceAmount": 10,
+                            "onOwnerUseSkillSelfDamage": 15,
+                            "onOwnerUseSkillHealSourceAmount": 15,
                             "onOwnerUseSkillApplyStatusToSourceOwner": {
                                 "statusId": "zubat_evolution_tracker",
                                 "duration": 99,
@@ -22404,7 +22429,17 @@ const characters = [
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/zubat/leechlife.webp",
-                            "tooltipText": "The next new skill this character uses, they lose 10 HP and Zubat heals for 10 HP."
+                            "tooltipText": "The next new skill this character uses, they lose 15 HP and Zubat heals for 15 HP."
+                        }
+                    },
+                    {
+                        "type": "drain_chakra",
+                        "amount": 1,
+                        "chakraType": "random",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "zubat_draining_fangs_active"
                         }
                     }
                 ]
@@ -22413,7 +22448,7 @@ const characters = [
                 "id": "zubat-supersonic",
                 "name": "Supersonic",
                 "skillimage": "assets/images/PokemonArena/zubat/supersonic.webp",
-                "skilldescription": "For 1 turn, an enemy has a 40% chance for any skill they use to fail. If a skill fails this way, they lose 15 HP. Zubat's skills steal 10 additional HP from enemies affected by Supersonic.",
+                "skilldescription": "For 1 turn, an enemy has a 45% chance for any skill they use to fail, their skills cost 1 additional random energy, and Leech Life steals 10 additional HP from them. If a skill fails this way, they lose 15 HP.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -22433,12 +22468,11 @@ const characters = [
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "skillFailChancePercent": 40,
+                            "skillFailChancePercent": 45,
                             "skillFailDamageAmount": 15,
-                            "bonusDamageFromSourceCharacterId": "zubat",
-                            "bonusDamageFromSourceSkillsFlat": 10,
+                            "randomCostIncrease": 1,
                             "statusIconUrl": "assets/images/PokemonArena/zubat/supersonic.webp",
-                            "tooltipText": "This character has a 40% chance for any skill they use to fail."
+                            "tooltipText": "This character has a 45% chance for any skill they use to fail, their skills cost 1 additional random energy, and Leech Life steals 10 additional HP from them."
                         }
                     }
                 ]
@@ -22447,7 +22481,7 @@ const characters = [
                 "id": "zubat-bite",
                 "name": "Bite",
                 "skillimage": "assets/images/PokemonArena/zubat/bite.webp",
-                "skilldescription": "Deals 20 damage to one enemy. During the next turn, Leech Life steals 10 additional HP.",
+                "skilldescription": "Deals 25 damage to one enemy. If they are affected by Supersonic, their cooldowns are increased by 1. During the next turn, Leech Life steals 10 additional HP.",
                 "energy": [
                     "Taijutsu",
                     "Random"
@@ -22463,7 +22497,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 20,
+                        "amount": 25,
                         "scope": "target",
                         "metadata": {
                             "onSuccessfulDamageApplyStatusToOwner": {
@@ -22477,6 +22511,30 @@ const characters = [
                                 }
                             }
                         }
+                    },
+                    {
+                        "type": "modify_cooldowns",
+                        "operation": "add",
+                        "amount": 1,
+                        "includeAllCharacterSkills": true,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "zubat_supersonic_mark"
+                        },
+                        "metadata": {
+                            "harmful": true
+                        }
+                    },
+                    {
+                        "type": "drain_chakra",
+                        "amount": 1,
+                        "chakraType": "random",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "zubat_draining_fangs_active"
+                        }
                     }
                 ]
             },
@@ -22484,7 +22542,7 @@ const characters = [
                 "id": "zubat-draining-fangs",
                 "name": "Draining Fangs",
                 "skillimage": "assets/images/PokemonArena/zubat/drainingfangs.webp",
-                "skilldescription": "For 2 turns, Leech Life and Bite remove 1 random energy from their target.",
+                "skilldescription": "For 3 turns, Leech Life and Bite steal 1 random energy from their target.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -22499,13 +22557,13 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "zubat_draining_fangs_active",
-                        "duration": 2,
+                        "duration": 3,
                         "scope": "self",
                         "metadata": {
                             "hidden": true,
                             "infiniteDuration": false,
                             "statusIconUrl": "assets/images/PokemonArena/zubat/drainingfangs.webp",
-                            "tooltipText": "Leech Life and Bite remove 1 random energy from their target."
+                            "tooltipText": "Leech Life and Bite steal 1 random energy from their target."
                         }
                     }
                 ]
@@ -22531,7 +22589,7 @@ const characters = [
                     "statusId": "zubat_golbat_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/zubat/golbatleechlife.webp",
-                "skilldescription": "Steals 20 HP from one enemy. For 1 turn, if that enemy uses a new skill, Golbat steals an additional 10 HP from them.",
+                "skilldescription": "Steals 20 HP from one enemy. If that enemy is affected by Supersonic, this steals 15 additional HP. For 1 turn, if that enemy uses a new skill, Golbat steals 20 additional HP from them.",
                 "energy": [
                     "Bloodline",
                     "Random"
@@ -22568,7 +22626,32 @@ const characters = [
                     },
                     {
                         "type": "health_steal_damage",
-                        "amount": 10,
+                        "amount": 15,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "zubat_supersonic_mark"
+                        },
+                        "metadata": {
+                            "onSuccessfulDamageApplyStatusToOwner": {
+                                "statusId": "zubat_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "hidden": true,
+                                    "infiniteDuration": true,
+                                    "zubatHpStolen": 0,
+                                    "stackMetadataKey": "zubatHpStolen",
+                                    "stackDeltaFromDamageDealt": true,
+                                    "stackMax": 50,
+                                    "statusIconUrl": "assets/images/PokemonArena/zubat/golbatleechlife.webp",
+                                    "tooltipTextTemplate": "Zubat has stolen {zubatHpStolen}/50 total HP and will evolve into Golbat at 50."
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "health_steal_damage",
+                        "amount": 15,
                         "scope": "target",
                         "condition": {
                             "scope": "self",
@@ -22601,8 +22684,8 @@ const characters = [
                             "infiniteDuration": false,
                             "onOwnerUseSkillTrigger": true,
                             "onOwnerUseSkillRequireNewSkill": true,
-                            "onOwnerUseSkillSelfDamage": 10,
-                            "onOwnerUseSkillHealSourceAmount": 10,
+                            "onOwnerUseSkillSelfDamage": 20,
+                            "onOwnerUseSkillHealSourceAmount": 20,
                             "onOwnerUseSkillApplyStatusToSourceOwner": {
                                 "statusId": "zubat_evolution_tracker",
                                 "duration": 99,
@@ -22611,14 +22694,24 @@ const characters = [
                                     "infiniteDuration": true,
                                     "zubatHpStolen": 0,
                                     "stackMetadataKey": "zubatHpStolen",
-                                    "stackDelta": 10,
+                                    "stackDelta": 20,
                                     "stackMax": 50,
                                     "statusIconUrl": "assets/images/PokemonArena/zubat/golbatleechlife.webp",
                                     "tooltipTextTemplate": "Zubat has stolen {zubatHpStolen}/50 total HP and will evolve into Golbat at 50."
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/zubat/golbatleechlife.webp",
-                            "tooltipText": "The next new skill this character uses, they lose 10 HP and Golbat heals for 10 HP."
+                            "tooltipText": "The next new skill this character uses, they lose 20 HP and Golbat heals for 20 HP."
+                        }
+                    },
+                    {
+                        "type": "drain_chakra",
+                        "amount": 1,
+                        "chakraType": "random",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "zubat_draining_fangs_active"
                         }
                     }
                 ]
@@ -22630,7 +22723,7 @@ const characters = [
                     "statusId": "zubat_golbat_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/zubat/golbatsupersonic.webp",
-                "skilldescription": "For 2 turns, an enemy has a 40% chance for any skill they use to fail. If a skill fails this way, they lose 15 HP. Golbat's skills steal 10 additional HP from enemies affected by Supersonic.",
+                "skilldescription": "For 2 turns, an enemy has a 45% chance for any skill they use to fail, their skills cost 1 additional random energy, and Leech Life steals 15 additional HP from them. If a skill fails this way, they lose 15 HP.",
                 "energy": [
                     "Genjutsu",
                     "Random"
@@ -22651,12 +22744,11 @@ const characters = [
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "skillFailChancePercent": 40,
+                            "skillFailChancePercent": 45,
                             "skillFailDamageAmount": 15,
-                            "bonusDamageFromSourceCharacterId": "zubat",
-                            "bonusDamageFromSourceSkillsFlat": 10,
+                            "randomCostIncrease": 1,
                             "statusIconUrl": "assets/images/PokemonArena/zubat/golbatsupersonic.webp",
-                            "tooltipText": "This character has a 40% chance for any skill they use to fail."
+                            "tooltipText": "This character has a 45% chance for any skill they use to fail, their skills cost 1 additional random energy, and Leech Life steals 15 additional HP from them."
                         }
                     }
                 ]
@@ -22668,7 +22760,7 @@ const characters = [
                     "statusId": "zubat_golbat_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/zubat/golbatbite.webp",
-                "skilldescription": "Deals 25 piercing damage to one enemy.",
+                "skilldescription": "Deals 30 damage to one enemy. If they are affected by Supersonic, their cooldowns are increased by 1. During the next turn, Leech Life steals 15 additional HP.",
                 "energy": [
                     "Taijutsu",
                     "Random"
@@ -22684,10 +22776,44 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 25,
+                        "amount": 30,
                         "scope": "target",
                         "metadata": {
-                            "ignoreDamageReduction": true
+                            "ignoreDamageReduction": true,
+                            "onSuccessfulDamageApplyStatusToOwner": {
+                                "statusId": "zubat_bite_bonus",
+                                "duration": 1,
+                                "metadata": {
+                                    "hidden": true,
+                                    "infiniteDuration": false,
+                                    "statusIconUrl": "assets/images/PokemonArena/zubat/bite.webp",
+                                    "tooltipText": "Zubat's next Leech Life steals 15 additional HP."
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "modify_cooldowns",
+                        "operation": "add",
+                        "amount": 1,
+                        "includeAllCharacterSkills": true,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "zubat_supersonic_mark"
+                        },
+                        "metadata": {
+                            "harmful": true
+                        }
+                    },
+                    {
+                        "type": "drain_chakra",
+                        "amount": 1,
+                        "chakraType": "random",
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "zubat_draining_fangs_active"
                         }
                     }
                 ]
@@ -22699,7 +22825,7 @@ const characters = [
                     "statusId": "zubat_golbat_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/zubat/golbatdrainingfangs.webp",
-                "skilldescription": "For 2 turns, Leech Life and Bite steal 1 random energy from their target instead.",
+                "skilldescription": "For 3 turns, Leech Life and Bite steal 1 random energy from their target instead.",
                 "energy": [
                     "Bloodline",
                     "Random"
@@ -22715,7 +22841,7 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "zubat_draining_fangs_active",
-                        "duration": 2,
+                        "duration": 3,
                         "scope": "self",
                         "metadata": {
                             "hidden": true,
@@ -22731,8 +22857,9 @@ const characters = [
         "universe": "pokemon",
         "arena": "pokemon",
         "roleCategory": "damage",
-        "description": "A cave-dwelling bat Pokemon that steals momentum with life drain, confusion, and energy theft. Zubat builds toward Golbat by steadily stealing HP during battle.",
-        "descriptionHtml": "A cave-dwelling bat Pokemon that steals momentum with life drain, confusion, and energy theft. Zubat builds toward Golbat by steadily stealing HP during battle."
+        "description": "A cave-dwelling bat Pokemon that hunts marked enemies with Supersonic disruption, life drain, cooldown pressure, and energy theft. Zubat builds toward Golbat by steadily stealing HP during battle.",
+        "descriptionHtml": "A cave-dwelling bat Pokemon that hunts marked enemies with Supersonic disruption, life drain, cooldown pressure, and energy theft. Zubat builds toward Golbat by steadily stealing HP during battle.",
+        "characterdeescription": null
     },
     {
         "id": "gastly",
@@ -23629,10 +23756,9 @@ const characters = [
                 "id": "krabby-metal-claw",
                 "name": "Metal Claw",
                 "skillimage": "assets/images/PokemonArena/Krabby/krabbymetalclaw.png",
-                "skilldescription": "Deals 15 piercing damage to one enemy. This skill has a 30% chance to permanently increase the non-affliction damage of Krabby's skills by 5. This effect stacks.",
+                "skilldescription": "Deals 20 piercing damage to one enemy. This skill has a 30% chance to permanently increase the non-affliction damage of Krabby's skills by 5. This effect stacks.",
                 "energy": [
-                    "Taijutsu",
-                    "Random"
+                    "Taijutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -23645,7 +23771,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 15,
+                        "amount": 20,
                         "scope": "target",
                         "metadata": {
                             "ignoreDamageReduction": true
@@ -23673,7 +23799,7 @@ const characters = [
                 "id": "krabby-leer",
                 "name": "Bubble",
                 "skillimage": "assets/images/PokemonArena/Krabby/krabbybubble.png",
-                "skilldescription": "Permanently increases the physical damage one enemy takes by 5. This effect stacks.",
+                "skilldescription": "Deals 20 damage to one enemy, increases their cooldowns by 1, and drenches them for 2 turns. A drenched enemy takes 10 additional physical damage and their skills cost 1 additional random energy.",
                 "energy": [
                     "Random"
                 ],
@@ -23687,19 +23813,32 @@ const characters = [
                 ],
                 "effects": [
                     {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "modify_cooldowns",
+                        "operation": "add",
+                        "amount": 1,
+                        "includeAllCharacterSkills": true,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    },
+                    {
                         "type": "apply_status",
-                        "statusId": "krabby_leer_mark",
-                        "duration": 99,
+                        "statusId": "krabby_bubble_drenched",
+                        "duration": 2,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "infiniteDuration": true,
-                            "physicalDamageTakenBonusFlat": 5,
-                            "mergeNumericAddKeys": [
-                                "physicalDamageTakenBonusFlat"
-                            ],
+                            "physicalDamageTakenBonusFlat": 10,
+                            "randomCostIncrease": 1,
+                            "turnDurationAnchor": "source_turn",
                             "statusIconUrl": "assets/images/PokemonArena/Krabby/krabbybubble.png",
-                            "tooltipTextTemplate": "This character takes {physicalDamageTakenBonusFlat} additional damage from physical skills."
+                            "tooltipTextTemplate": "This character is drenched, takes {physicalDamageTakenBonusFlat} additional physical damage, and their skills cost {randomCostIncrease} additional random energy."
                         }
                     }
                 ]
@@ -23751,9 +23890,8 @@ const characters = [
                 "id": "krabby-harden",
                 "name": "Harden",
                 "skillimage": "assets/images/PokemonArena/Krabby/krabbyharden.png",
-                "skilldescription": "Krabby gains 20 permanent destructible defense and 25% damage reduction for 2 turns.",
+                "skilldescription": "Krabby gains 20 permanent Shield and 25% damage reduction for 2 turns.",
                 "energy": [
-                    "Random",
                     "Random"
                 ],
                 "target": "self",
@@ -23806,11 +23944,11 @@ const characters = [
                                         }
                                     },
                                     "statusIconUrl": "assets/images/PokemonArena/Krabby/evolutionkingler.png",
-                                    "tooltipTextTemplate": "Krabby has spent {krabbyHardenTurns}/3 turns with Harden defense and will evolve into Kingler at 3."
+                                    "tooltipTextTemplate": "Krabby has spent {krabbyHardenTurns}/3 turns with Harden Shield and will evolve into Kingler at 3."
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/Krabby/krabbyharden.png",
-                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} permanent destructible defense from Harden."
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} permanent Shield from Harden."
                         }
                     },
                     {
@@ -23831,7 +23969,7 @@ const characters = [
                 "id": "krabby-passive-evolution-kingler",
                 "name": "Evolution - Kingler",
                 "skillimage": "assets/images/PokemonArena/Krabby/evolutionkingler.png",
-                "skilldescription": "After Krabby has spent 3 turns with destructible defense granted by Harden, it evolves into Kingler. Kingler's skills are improved.",
+                "skilldescription": "After Krabby has spent 3 turns with Shield granted by Harden, it evolves into Kingler. Kingler's skills are improved.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -23851,7 +23989,6 @@ const characters = [
                 "skilldescription": "Deals 30 piercing damage to one enemy instead. This skill has a 30% chance to permanently increase the non-affliction damage of Kingler's skills by 10 instead. This effect stacks.",
                 "energy": [
                     "Taijutsu",
-                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -23896,9 +24033,8 @@ const characters = [
                     "statusId": "krabby_kingler_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Krabby/kinglerbubble.jpg",
-                "skilldescription": "Permanently increases the physical damage one enemy takes by 10 instead. This effect stacks.",
+                "skilldescription": "Deals 25 damage to one enemy and 10 damage to all other enemies. The main target's cooldowns are increased by 2 and they are drenched for 2 turns. A drenched enemy takes 15 additional physical damage and their skills cost 1 additional random energy.",
                 "energy": [
-                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -23911,19 +24047,37 @@ const characters = [
                 ],
                 "effects": [
                     {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "other-enemies"
+                    },
+                    {
+                        "type": "modify_cooldowns",
+                        "operation": "add",
+                        "amount": 2,
+                        "includeAllCharacterSkills": true,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true
+                        }
+                    },
+                    {
                         "type": "apply_status",
-                        "statusId": "krabby_leer_mark",
-                        "duration": 99,
+                        "statusId": "kingler_bubble_drenched",
+                        "duration": 2,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "infiniteDuration": true,
-                            "physicalDamageTakenBonusFlat": 10,
-                            "mergeNumericAddKeys": [
-                                "physicalDamageTakenBonusFlat"
-                            ],
+                            "physicalDamageTakenBonusFlat": 15,
+                            "randomCostIncrease": 1,
+                            "turnDurationAnchor": "source_turn",
                             "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglerbubble.jpg",
-                            "tooltipTextTemplate": "This character takes {physicalDamageTakenBonusFlat} additional damage from physical skills."
+                            "tooltipTextTemplate": "This character is drenched, takes {physicalDamageTakenBonusFlat} additional physical damage, and their skills cost {randomCostIncrease} additional random energy."
                         }
                     }
                 ]
@@ -23938,8 +24092,7 @@ const characters = [
                 "skilldescription": "Deals 40 damage to one enemy instead and stuns their skills for 1 turn. This skill still has a 30% chance to critically strike, dealing 15 additional damage.",
                 "energy": [
                     "Bloodline",
-                    "Bloodline",
-                    "Random"
+                    "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -23982,9 +24135,8 @@ const characters = [
                     "statusId": "krabby_kingler_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Krabby/kinglerharden.png",
-                "skilldescription": "Kingler gains 30 permanent destructible defense and 50% damage reduction for 2 turns instead.",
+                "skilldescription": "Kingler gains 30 permanent Shield and 50% damage reduction for 2 turns instead.",
                 "energy": [
-                    "Random",
                     "Random",
                     "Random"
                 ],
@@ -24008,7 +24160,7 @@ const characters = [
                                 "destructibleDefensePoints"
                             ],
                             "statusIconUrl": "assets/images/PokemonArena/Krabby/kinglerharden.png",
-                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} permanent destructible defense from Harden."
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} permanent Shield from Harden."
                         }
                     },
                     {
@@ -24279,8 +24431,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/eevee/eevee/dig.png",
                 "skilldescription": "Eevee becomes invulnerable for 1 turn and deals 30 damage to one enemy.",
                 "energy": [
+                    "Random",
                     "Random"
-                    ,"Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -26753,7 +26905,11 @@ const characters = [
         "description": "A trickster support Pokemon that manipulates protection timing, softens teams with Dazzling Gleam, and keeps allies stable with Light Screen and Safeguard.",
         "descriptionHtml": "A trickster support Pokemon that manipulates protection timing, softens teams with Dazzling Gleam, and keeps allies stable with Light Screen and Safeguard."
     }
-]
+];
+
+if (typeof window !== 'undefined') {
+    window.characters = characters;
+}
 
 if (typeof module !== 'undefined') {
     module.exports = characters;

@@ -820,6 +820,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         ] || 'assets/images/PokemonArena/characterselectbgpokemonarena.png';
     const COMIC_INGAME_BACKGROUND_URL = 'assets/images/newingamebgCA.png';
     const POKEMON_INGAME_BACKGROUND_URL = 'assets/images/PokemonArena/newingamebgPA.png';
+    const COMIC_SELECTION_SCROLL_URL = 'assets/images/selectionscroll.png';
+    const POKEMON_SELECTION_SCROLL_URL = 'assets/images/PokemonArena/selectionscroll-pokeball.png';
     const COMIC_INGAME_SCROLL_BEHIND_URL = 'assets/images/ingamescrollbehind.png';
     const POKEMON_INGAME_SCROLL_BEHIND_URL = 'assets/images/PokemonArena/ingamescrollbehind-pokeball.png';
     const COMIC_FOUND_ICON_URL = 'assets/images/found.png';
@@ -12333,6 +12335,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const syncArenaModeBackground = () => {
         document.body.classList.toggle('arena-mode-pokemon', activeArenaMode === 'pokemon');
         document.body.classList.toggle('arena-mode-comic', activeArenaMode !== 'pokemon');
+        const selectionScroll = document.querySelector('.selectionscroll');
+        if (selectionScroll) {
+            selectionScroll.src =
+                activeArenaMode === 'pokemon' ? POKEMON_SELECTION_SCROLL_URL : COMIC_SELECTION_SCROLL_URL;
+        }
         const selectionBackground = document.querySelector('.background');
         if (!selectionBackground) return;
         if (activeArenaMode === 'pokemon') {

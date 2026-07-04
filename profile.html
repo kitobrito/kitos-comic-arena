@@ -385,6 +385,39 @@
       font-size: 18px;
     }
 
+    .arena-avatar-form {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 3px solid rgba(21, 17, 11, 0.24);
+    }
+
+    .arena-avatar-row {
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+    }
+
+    .arena-avatar-preview {
+      width: 52px;
+      height: 52px;
+      object-fit: cover;
+      border: 3px solid var(--line);
+      background: #fff;
+    }
+
+    .arena-avatar-field {
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
     .main {
       padding: 0;
     }
@@ -1203,6 +1236,24 @@
               <span>Log Out</span>
             </button>
           </div>
+          <form class="arena-avatar-form" id="change-avatar-form">
+            <div class="arena-avatar-row">
+              <img class="arena-avatar-preview" id="comic-avatar-current-image" src="https://i.postimg.cc/3JqVcPXm/default.png" alt="Comic Arena avatar" />
+              <label class="arena-avatar-field">
+                <span>Comic Arena Avatar</span>
+                <input class="auth-input" type="url" id="comic-avatar-url" placeholder="Direct image URL" autocomplete="off" />
+              </label>
+            </div>
+            <div class="arena-avatar-row">
+              <img class="arena-avatar-preview" id="pokemon-avatar-current-image" src="assets/images/PokemonArena/found-pokeball.png" alt="Pokemon Arena avatar" />
+              <label class="arena-avatar-field">
+                <span>Pokemon Arena Avatar</span>
+                <input class="auth-input" type="url" id="pokemon-avatar-url" placeholder="Direct image URL" autocomplete="off" />
+              </label>
+            </div>
+            <button class="auth-button" type="submit" id="change-avatar-submit">Save Avatars</button>
+            <p class="auth-status" id="change-avatar-status" aria-live="polite"></p>
+          </form>
           <p class="auth-status" id="account-status" aria-live="polite"></p>
         </div>
       </section>
@@ -1710,7 +1761,7 @@
       </section>
     </aside>
   </div>
-  <script src="./scripts/index.js" defer></script>
+  <script src="./scripts/index.js?v=pokemon-scroll-avatar-v1" defer></script>
   <script>
     window.addEventListener("DOMContentLoaded", () => {
       const pairs = [
@@ -1761,4 +1812,3 @@
   </script>
 </body>
 </html>
-

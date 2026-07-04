@@ -1022,6 +1022,10 @@ body.skill-effects-muted .storm-hail-weather::before {
         z-index: 2;
 }
 
+body.arena-mode-pokemon .selectionscroll {
+    content: url('../assets/images/PokemonArena/selectionscroll-pokeball.png');
+}
+
 .selectionpage {
     background-image: url('../assets/images/selectionpage.png');
     width: 697px;

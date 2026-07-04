@@ -3913,6 +3913,10 @@ const normalizeArenaProgressState = (source = {}, user = {}) => {
     const isHokage = Boolean(ladder.isHokage) && normalizedLadderState.level >= 46;
     const rankInfo = getRankInfoForLevel(normalizedLadderState.level, isHokage);
     return {
+        avatarUrl:
+            typeof arenaSource.avatarUrl === 'string' && arenaSource.avatarUrl.trim()
+                ? arenaSource.avatarUrl.trim()
+                : '',
         recentQuickGames: normalizeRecentQuickGames(arenaSource.recentQuickGames),
         recentPrivateGames: normalizeRecentQuickGames(arenaSource.recentPrivateGames),
         recentLadderGames,
@@ -9933,6 +9937,7 @@ const maintenanceModeUpdateSchema = Joi.object({
 
 const avatarUpdateSchema = Joi.object({
     avatarUrl: Joi.string().trim().uri({ scheme: ['http', 'https'] }).max(2048).required(),
+    arena: Joi.string().trim().valid('comic', 'pokemon').default('comic'),
 });
 
 const backgroundUpdateSchema = Joi.object({
@@ -12531,7 +12536,17 @@ app.post('/api/profile/avatar', requireSession, async (req, res) => {
             return res.status(404).json({ error: 'User not found.' });
         }
         const profile = normalizeUserProfile(user);
-        profile.avatarUrl = value.avatarUrl;
+        if (value.arena === 'pokemon') {
+            profile.arenas = {
+                ...(profile.arenas || {}),
+                pokemon: {
+                    ...(profile.arenas?.pokemon || normalizeArenaProgressState({}, user)),
+                    avatarUrl: value.avatarUrl,
+                },
+            };
+        } else {
+            profile.avatarUrl = value.avatarUrl;
+        }
         await usersCollection.updateOne(
             { _id: user._id },
             {
