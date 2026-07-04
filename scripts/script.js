@@ -837,6 +837,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         return normalizedUrl ? `url("${normalizedUrl}")` : '';
     };
 
+    const resolvePlayerAvatarUrl = (avatarUrl = '', arenaMode = 'comic') => {
+        const normalizedUrl = typeof avatarUrl === 'string' ? avatarUrl.trim() : '';
+        if (arenaMode === 'pokemon' && (!normalizedUrl || normalizedUrl === defaultProfileAvatar)) {
+            return POKEMON_FOUND_ICON_URL;
+        }
+        return normalizedUrl || defaultProfileAvatar;
+    };
+
     const setBackgroundImage = (element, url = '', important = false) => {
         if (!element) return;
         const normalizedUrl = typeof url === 'string' ? url.trim() : '';
@@ -1378,7 +1386,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const applyPlayerIdentity = (options = {}) => {
         const name = options.name || null;
-        const avatarUrl = options.avatarUrl || defaultProfileAvatar;
+        const identityArenaMode =
+            options.arenaMode ||
+            (document.body.classList.contains('arena-mode-pokemon') ? 'pokemon' : 'comic');
+        const avatarUrl = resolvePlayerAvatarUrl(options.avatarUrl, identityArenaMode);
         const clanAbbreviation = options.clanAbbreviation || 'None';
         const ladder = normalizeLadderPresentation(options.ladder);
         const nameElements = Array.from(
@@ -12344,6 +12355,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             avatarUrl: playerProfileView.avatarUrl || defaultProfileAvatar,
             clanAbbreviation: playerProfileView.clan?.abbreviation || 'None',
             ladder: playerProfileView.ladder || null,
+            arenaMode: activeArenaMode,
         });
     };
 
