@@ -794,7 +794,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     const defaultProfileAvatar = 'https://i.postimg.cc/3JqVcPXm/default.png';
-    const POKEMON_SELECTION_BACKGROUND_URL = 'assets/images/PokemonArena/characterselectbgpokemonarena.png';
+    const POKEMON_SELECTION_BACKGROUND_URLS = [
+        'assets/images/PokemonArena/newcharacterselectpics/1783126094113.png',
+        'assets/images/PokemonArena/newcharacterselectpics/1783125825613~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783125669621~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783125222996~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783124935773~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783125363672.png',
+        'assets/images/PokemonArena/newcharacterselectpics/1783118419529~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783118688305~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783118773369~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783118967296~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783119104044~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783118568441.png',
+        'assets/images/PokemonArena/newcharacterselectpics/1783142547570.png',
+        'assets/images/PokemonArena/newcharacterselectpics/1783142323541.png',
+        'assets/images/PokemonArena/newcharacterselectpics/1783142044589.png',
+        'assets/images/PokemonArena/newcharacterselectpics/1783130943581~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783130738233~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783127005390.png',
+    ];
+    const POKEMON_SELECTION_BACKGROUND_URL =
+        POKEMON_SELECTION_BACKGROUND_URLS[
+            Math.floor(Math.random() * POKEMON_SELECTION_BACKGROUND_URLS.length)
+        ] || 'assets/images/PokemonArena/characterselectbgpokemonarena.png';
     const COMIC_INGAME_BACKGROUND_URL = 'assets/images/newingamebgCA.png';
     const POKEMON_INGAME_BACKGROUND_URL = 'assets/images/PokemonArena/newingamebgPA.png';
     const COMIC_INGAME_SCROLL_BEHIND_URL = 'assets/images/ingamescrollbehind.png';
@@ -12302,9 +12325,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const selectionBackground = document.querySelector('.background');
         if (!selectionBackground) return;
         if (activeArenaMode === 'pokemon') {
+            selectionBackground.style.setProperty(
+                '--pokemon-selection-background',
+                toBackgroundImageValue(POKEMON_SELECTION_BACKGROUND_URL)
+            );
             setBackgroundImage(selectionBackground, POKEMON_SELECTION_BACKGROUND_URL, true);
             return;
         }
+        selectionBackground.style.removeProperty('--pokemon-selection-background');
         setBackgroundImage(selectionBackground, profileCache?.profile?.backgrounds?.selectionUrl || '');
     };
 

@@ -263,7 +263,7 @@ h1, h2, h3 {
 }
 
 body.arena-mode-pokemon .background {
-    background-image: url('../assets/images/PokemonArena/characterselectbgpokemonarena.png') !important;
+    background-image: var(--pokemon-selection-background, url('../assets/images/PokemonArena/newcharacterselectpics/1783126094113.png')) !important;
 }
 
 .sound-controller {
