@@ -12468,6 +12468,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const getMissionRewardCharacterIds = (mission = {}) => [
         String(mission.reward_character || '').trim().toLowerCase(),
+        ...(Array.isArray(mission.reward_character_ids)
+            ? mission.reward_character_ids.map((entry) => String(entry || '').trim().toLowerCase())
+            : []),
     ].filter(Boolean);
 
     const getMissionRewardCharacterLabel = (mission = {}, rewardCharacterId = '') => {
@@ -12690,7 +12693,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const walletTotal = document.createElement('strong');
         walletTotal.textContent = `${unlockPoints.toLocaleString()} unlock points`;
         const walletHint = document.createElement('span');
-        walletHint.textContent = `Earn points from ladder games. Shop prices range from ${unlockPointPriceMin.toLocaleString()} to ${unlockPointPriceMax.toLocaleString()} points by character rank.`;
+        walletHint.textContent =
+            unlockPointPriceMax >= 500 && activeArenaMode === 'pokemon'
+                ? `Earn points from ladder games. Most shop prices range from ${unlockPointPriceMin.toLocaleString()} to 250 points by character rank. Extra Eeveelutions cost 500 points after Eevee Evolution Path.`
+                : `Earn points from ladder games. Shop prices range from ${unlockPointPriceMin.toLocaleString()} to ${unlockPointPriceMax.toLocaleString()} points by character rank.`;
         wallet.appendChild(walletTotal);
         wallet.appendChild(walletHint);
         selectionMissionsListEl.appendChild(wallet);
@@ -12737,8 +12743,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 : getSelectionMissionProgressText(mission, progress);
             card.appendChild(progressText);
 
+            const isEeveeEvolutionMission =
+                mission.missionId === 'eevee-evolution-path' && activeArenaMode === 'pokemon';
+            const selectedEeveeEvolutionId = isEeveeEvolutionMission ? getSelectedEeveeEvolutionId() : '';
+            const canBuyEeveeEvolution =
+                !isEeveeEvolutionMission || (progress?.completedAt && selectedEeveeEvolutionId);
             getMissionRewardCharacterIds(mission).forEach((rewardId) => {
                 if (!rewardId || unlockedIds.has(rewardId)) return;
+                if (isEeveeEvolutionMission && rewardId === selectedEeveeEvolutionId) return;
+                if (!canBuyEeveeEvolution) return;
                 const unlockPointCost = getMissionUnlockPointCost(mission, payload);
                 const buyWrap = document.createElement('div');
                 buyWrap.className = 'selection-mission-buy';

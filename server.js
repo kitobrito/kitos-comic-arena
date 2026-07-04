@@ -86,6 +86,7 @@ const LADDER_UNLOCK_POINTS_WIN = 10;
 const LADDER_UNLOCK_POINTS_LOSS = 3;
 const MISSION_UNLOCK_POINT_PRICE_MIN = 80;
 const MISSION_UNLOCK_POINT_PRICE_MAX = 250;
+const MISSION_EEVEE_EVOLUTION_UNLOCK_POINT_COST = 500;
 let missionCatalogCache = null;
 let botTeamsCache = null;
 let maintenanceModeCache = {
@@ -3748,11 +3749,15 @@ const findMissionForPurchasableCharacter = (missions = [], characterId = '', are
         if (normalizeArenaMode(mission?.arena) !== normalizedArena) {
             return false;
         }
-        return normalizeCharacterId(mission?.reward_character) === normalizedCharacterId;
+        return getMissionUnlockRewardCharacterIds(mission).includes(normalizedCharacterId);
     }) || null;
 };
 
 const resolveMissionUnlockPointCost = (mission = {}) => {
+    if (mission?.missionId === 'eevee-evolution-path') {
+        return MISSION_EEVEE_EVOLUTION_UNLOCK_POINT_COST;
+    }
+
     const explicitCost = Number(
         mission.unlock_point_cost ??
             mission.unlockPointCost ??
@@ -11616,7 +11621,10 @@ app.get('/api/missions', async (req, res) => {
             unlockedCharacterIds: missionState.unlockedCharacterIds,
             unlockPoints: missionState.unlockPoints,
             unlockPointPriceMin: MISSION_UNLOCK_POINT_PRICE_MIN,
-            unlockPointPriceMax: MISSION_UNLOCK_POINT_PRICE_MAX,
+            unlockPointPriceMax: Math.max(
+                MISSION_UNLOCK_POINT_PRICE_MAX,
+                MISSION_EEVEE_EVOLUTION_UNLOCK_POINT_COST
+            ),
             purchasedUnlocks: missionState.purchasedUnlocks,
         });
     } catch (error) {
@@ -11655,6 +11663,23 @@ app.post('/api/missions/unlock-points/purchase', requireSession, async (req, res
         );
         if (unlockedIds.has(characterId)) {
             return res.status(409).json({ error: 'Character is already unlocked.' });
+        }
+        if (
+            arena === 'pokemon' &&
+            mission.missionId === 'eevee-evolution-path' &&
+            getPokemonEeveeEvolutionCharacterIds().has(characterId)
+        ) {
+            const eeveeMissionProgress = normalizeMissionProgressEntry(
+                missionState.progressByMissionId?.['eevee-evolution-path'] || {}
+            );
+            if (!eeveeMissionProgress.completedAt) {
+                return res.status(403).json({ error: 'Complete Eevee Evolution Path first.' });
+            }
+            if (!getPokemonEeveeEvolutionCharacterIds().has(missionState.eeveeEvolutionCharacterId)) {
+                return res.status(403).json({
+                    error: 'Choose your first Eevee evolution before buying the others.',
+                });
+            }
         }
         if (missionState.unlockPoints < unlockPointCost) {
             return res.status(400).json({
@@ -11704,7 +11729,10 @@ app.post('/api/missions/unlock-points/purchase', requireSession, async (req, res
             unlockPoints: arenaState.missions.unlockPoints,
             unlockPointCost,
             unlockPointPriceMin: MISSION_UNLOCK_POINT_PRICE_MIN,
-            unlockPointPriceMax: MISSION_UNLOCK_POINT_PRICE_MAX,
+            unlockPointPriceMax: Math.max(
+                MISSION_UNLOCK_POINT_PRICE_MAX,
+                MISSION_EEVEE_EVOLUTION_UNLOCK_POINT_COST
+            ),
             unlockedCharacterIds: arenaState.missions.unlockedCharacterIds,
             purchasedUnlocks: arenaState.missions.purchasedUnlocks,
             missionProgressByMissionId: arenaState.missions.progressByMissionId,
