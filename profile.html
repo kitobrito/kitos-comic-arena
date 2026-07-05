@@ -258,6 +258,12 @@
       box-shadow: 0 0 0 4px rgba(31, 117, 255, 0.15);
     }
 
+    input.auth-input[type="file"] {
+      height: auto;
+      padding: 10px 12px;
+      line-height: 1.15;
+    }
+
     .auth-button {
       width: 100%;
       height: 44px;
@@ -1242,6 +1248,7 @@
               <label class="arena-avatar-field">
                 <span>Comic Arena Avatar</span>
                 <input class="auth-input" type="url" id="comic-avatar-url" placeholder="Direct image URL" autocomplete="off" />
+                <input class="auth-input" type="file" id="comic-avatar-file" accept="image/*" />
               </label>
             </div>
             <div class="arena-avatar-row">
@@ -1249,6 +1256,7 @@
               <label class="arena-avatar-field">
                 <span>Pokemon Arena Avatar</span>
                 <input class="auth-input" type="url" id="pokemon-avatar-url" placeholder="Direct image URL" autocomplete="off" />
+                <input class="auth-input" type="file" id="pokemon-avatar-file" accept="image/*" />
               </label>
             </div>
             <button class="auth-button" type="submit" id="change-avatar-submit">Save Avatars</button>

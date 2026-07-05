@@ -833,16 +833,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     const COMIC_LOSE_PORTRAIT_URL = 'assets/images/lose.png';
     const POKEMON_WIN_PORTRAIT_URL = 'assets/images/PokemonArena/wingamepicture.jpeg';
     const POKEMON_LOSE_PORTRAIT_URL = 'assets/images/PokemonArena/losegamepicture.jpeg';
+    const POKEMON_BATTLE_AVATAR_URL = 'assets/images/PokemonArena/newbattlepic/1783150082785.png';
 
     const toBackgroundImageValue = (url = '') => {
         const normalizedUrl = typeof url === 'string' ? url.trim() : '';
         return normalizedUrl ? `url("${normalizedUrl}")` : '';
     };
 
+    const getArenaDefaultAvatarUrl = (arenaMode = 'comic') =>
+        arenaMode === 'pokemon' ? POKEMON_BATTLE_AVATAR_URL : defaultProfileAvatar;
+
     const resolvePlayerAvatarUrl = (avatarUrl = '', arenaMode = 'comic') => {
         const normalizedUrl = typeof avatarUrl === 'string' ? avatarUrl.trim() : '';
         if (arenaMode === 'pokemon' && (!normalizedUrl || normalizedUrl === defaultProfileAvatar)) {
-            return POKEMON_FOUND_ICON_URL;
+            return POKEMON_BATTLE_AVATAR_URL;
         }
         return normalizedUrl || defaultProfileAvatar;
     };
@@ -1444,7 +1448,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const applyOpponentIdentity = (options = {}) => {
-        const avatarUrl = options.avatarUrl || defaultProfileAvatar;
+        const arenaMode = options.arenaMode || currentMatchArena || getProtectionTerminologyArena();
+        const avatarUrl = resolvePlayerAvatarUrl(options.avatarUrl || '', arenaMode);
         const name = options.name || null;
         const ladder = normalizeLadderPresentation(options.ladder);
         const opponentAvatar = document.querySelector('.player-avatar-right');
@@ -1546,17 +1551,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const hydratePlayerIdentity = async (options = {}) => {
+        const resolvedArenaMode =
+            options.arenaOverride ||
+            getProtectionTerminologyArena() ||
+            (document.body.classList.contains('arena-mode-pokemon') ? 'pokemon' : 'comic');
         const cachedUser = readCachedUser();
         if (cachedUser?.username) {
             applyPlayerIdentity({
                 name: cachedUser.username,
-                avatarUrl: cachedUser.avatarUrl || defaultProfileAvatar,
+                avatarUrl: cachedUser.avatarUrl || getArenaDefaultAvatarUrl(resolvedArenaMode),
                 clanAbbreviation: cachedUser.clanAbbreviation || 'None',
                 ladder: cachedUser.ladder,
             });
         } else {
             applyPlayerIdentity({
-                avatarUrl: defaultProfileAvatar,
+                avatarUrl: getArenaDefaultAvatarUrl(resolvedArenaMode),
                 clanAbbreviation: 'None',
                 ladder: null,
             });
@@ -1566,7 +1575,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (apiUser?.username) {
             applyPlayerIdentity({
                 name: apiUser.username,
-                avatarUrl: apiUser.profile?.avatarUrl || defaultProfileAvatar,
+                avatarUrl: apiUser.profile?.avatarUrl || getArenaDefaultAvatarUrl(resolvedArenaMode),
                 clanAbbreviation: apiUser.profile?.clan?.abbreviation || 'None',
                 ladder: apiUser.profile?.ladder || null,
             });
@@ -1604,10 +1613,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const hydrateOpponentIdentity = async (username, fallbackProfile = null, fallbackDisplayName = '') => {
+        const resolvedArenaMode = currentMatchArena || getProtectionTerminologyArena();
         if (!username) {
             applyOpponentIdentity({
                 name: fallbackDisplayName || null,
-                avatarUrl: defaultProfileAvatar,
+                avatarUrl: getArenaDefaultAvatarUrl(resolvedArenaMode),
                 ladder: fallbackProfile?.ladder || null,
             });
             return;
@@ -1615,7 +1625,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (isGameBotUsername(username)) {
             applyOpponentIdentity({
                 name: fallbackDisplayName || username,
-                avatarUrl: fallbackProfile?.avatarUrl || defaultProfileAvatar,
+                avatarUrl: fallbackProfile?.avatarUrl || getArenaDefaultAvatarUrl(resolvedArenaMode),
                 ladder: fallbackProfile?.ladder || null,
             });
             return;
@@ -1625,7 +1635,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const fallbackLadder = getArenaLadder(fallbackProfile, currentMatchArena);
         applyOpponentIdentity({
             name: user?.username || fallbackDisplayName || username,
-            avatarUrl: user?.profile?.avatarUrl || fallbackProfile?.avatarUrl || defaultProfileAvatar,
+            avatarUrl:
+                user?.profile?.avatarUrl ||
+                fallbackProfile?.avatarUrl ||
+                getArenaDefaultAvatarUrl(resolvedArenaMode),
             ladder: fetchedLadder || fallbackLadder || null,
         });
     };
@@ -9738,7 +9751,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const playerProfileView = getArenaProfileView(data.player.profile, currentMatchArena);
                 applyPlayerIdentity({
                     name: data.player.username || currentPlayerUsername,
-                    avatarUrl: playerProfileView.avatarUrl || defaultProfileAvatar,
+                    avatarUrl: playerProfileView.avatarUrl || getArenaDefaultAvatarUrl(currentMatchArena),
                     clanAbbreviation: playerProfileView.clan?.abbreviation || 'None',
                     ladder: playerProfileView.ladder || null,
                 });
@@ -9746,7 +9759,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const playerProfileView = getArenaProfileView(profileCache.profile, currentMatchArena);
                 applyPlayerIdentity({
                     name: profileCache.username || currentPlayerUsername,
-                    avatarUrl: playerProfileView.avatarUrl || defaultProfileAvatar,
+                    avatarUrl: playerProfileView.avatarUrl || getArenaDefaultAvatarUrl(currentMatchArena),
                     clanAbbreviation: playerProfileView.clan?.abbreviation || 'None',
                     ladder: playerProfileView.ladder || null,
                 });
@@ -12359,7 +12372,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const playerProfileView = getArenaProfileView(profileCache.profile, activeArenaMode);
         applyPlayerIdentity({
             name: profileCache.username,
-            avatarUrl: playerProfileView.avatarUrl || defaultProfileAvatar,
+            avatarUrl: playerProfileView.avatarUrl || getArenaDefaultAvatarUrl(activeArenaMode),
             clanAbbreviation: playerProfileView.clan?.abbreviation || 'None',
             ladder: playerProfileView.ladder || null,
             arenaMode: activeArenaMode,

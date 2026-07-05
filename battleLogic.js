@@ -4840,7 +4840,15 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
                           )
                         : [];
                     if (options.length > 0) {
-                        const picked = options[Math.floor(Math.random() * options.length)];
+                        const weightedOptions = [];
+                        options.forEach((option) => {
+                            const weight = Math.max(1, Number(option?.weight) || 1);
+                            for (let repeat = 0; repeat < weight; repeat += 1) {
+                                weightedOptions.push(option);
+                            }
+                        });
+                        const pool = weightedOptions.length > 0 ? weightedOptions : options;
+                        const picked = pool[Math.floor(Math.random() * pool.length)];
                         const blockedSkillIndices = Array.isArray(picked.blockedSkillIndices)
                             ? picked.blockedSkillIndices
                                   .map((entry) => Number.parseInt(entry, 10))

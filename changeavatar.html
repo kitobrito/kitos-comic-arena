@@ -261,6 +261,12 @@
       box-shadow: 0 0 0 4px rgba(31, 117, 255, 0.15);
     }
 
+    input.auth-input[type="file"] {
+      height: auto;
+      padding: 10px 12px;
+      line-height: 1.15;
+    }
+
     .auth-button {
       width: 100%;
       height: 44px;
@@ -520,6 +526,12 @@
     .avatar-input:focus {
       border-color: var(--accent-3);
       box-shadow: 0 0 0 4px rgba(31, 117, 255, 0.15);
+    }
+
+    .avatar-input[type="file"] {
+      min-height: auto;
+      padding: 10px 12px;
+      line-height: 1.15;
     }
 
     .avatar-save {
@@ -947,22 +959,27 @@
             alt="Current user avatar"
           />
             <strong>Current User Avatar</strong>
-            <span class="avatar-preview-note">75 x 75 only</span>
-            <span>Paste a direct image link below. The existing save flow, preview target, and account controls all stay wired exactly as they are now.</span>
+            <span class="avatar-preview-note">Any size, resized to 75 x 75</span>
+            <span>Upload an image here or paste a direct link below. The site will resize uploads down to 75 x 75 before saving.</span>
           </div>
         </div>
         <form class="avatar-form" id="change-avatar-form">
+          <input
+            class="avatar-input auth-input"
+            id="change-avatar-file"
+            type="file"
+            accept="image/*"
+          />
           <input
             class="avatar-input"
             id="change-avatar-url"
             type="url"
             inputmode="url"
             autocomplete="off"
-            placeholder="Direct image URL only"
-            required
+            placeholder="Direct image URL fallback"
           />
           <button class="avatar-save" type="submit" id="change-avatar-submit">Save Avatar</button>
-          <p class="avatar-hint">Avatars are to be 75x75 only.</p>
+          <p class="avatar-hint">Uploads will be resized to 75 x 75 automatically.</p>
           <p class="avatar-status" id="change-avatar-status" aria-live="polite"></p>
         </form>
       </section>

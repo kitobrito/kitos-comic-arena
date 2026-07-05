@@ -125,9 +125,12 @@
   var clanProfileStatus = document.getElementById("clan-profile-status");
   var changeAvatarForm = document.getElementById("change-avatar-form");
   var changeAvatarCurrentImage = document.getElementById("change-avatar-current-image");
+  var changeAvatarFileInput = document.getElementById("change-avatar-file");
   var changeAvatarUrlInput = document.getElementById("change-avatar-url");
   var comicAvatarCurrentImage = document.getElementById("comic-avatar-current-image");
   var pokemonAvatarCurrentImage = document.getElementById("pokemon-avatar-current-image");
+  var comicAvatarFileInput = document.getElementById("comic-avatar-file");
+  var pokemonAvatarFileInput = document.getElementById("pokemon-avatar-file");
   var comicAvatarUrlInput = document.getElementById("comic-avatar-url");
   var pokemonAvatarUrlInput = document.getElementById("pokemon-avatar-url");
   var changeAvatarSubmit = document.getElementById("change-avatar-submit");
@@ -434,6 +437,87 @@
       return;
     }
     delete changeAvatarStatus.dataset.state;
+  }
+
+  function readImageFileAsDataUrl(file) {
+    return new Promise(function (resolve, reject) {
+      if (!file) {
+        reject(new Error("Missing file."));
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function () {
+        resolve(String(reader.result || ""));
+      };
+      reader.onerror = function () {
+        reject(new Error("Unable to read the selected image."));
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function loadImageFromDataUrl(dataUrl) {
+    return new Promise(function (resolve, reject) {
+      if (!dataUrl) {
+        reject(new Error("Missing image data."));
+        return;
+      }
+      var image = new Image();
+      image.onload = function () {
+        resolve(image);
+      };
+      image.onerror = function () {
+        reject(new Error("Unable to load the selected image."));
+      };
+      image.src = dataUrl;
+    });
+  }
+
+  function resizeAvatarFileToDataUrl(file, size) {
+    return readImageFileAsDataUrl(file)
+      .then(function (dataUrl) {
+        return loadImageFromDataUrl(dataUrl);
+      })
+      .then(function (image) {
+        var canvas = document.createElement("canvas");
+        var targetSize = Math.max(1, Number(size) || 75);
+        var context = canvas.getContext("2d");
+        if (!context) {
+          throw new Error("Unable to resize the selected image.");
+        }
+        canvas.width = targetSize;
+        canvas.height = targetSize;
+        context.clearRect(0, 0, targetSize, targetSize);
+        context.imageSmoothingEnabled = true;
+        context.imageSmoothingQuality = "high";
+        context.drawImage(image, 0, 0, targetSize, targetSize);
+        return canvas.toDataURL("image/png");
+      });
+  }
+
+  function resolveAvatarSubmissionValue(fileInput, urlInput) {
+    var selectedFile = fileInput && fileInput.files && fileInput.files.length > 0 ? fileInput.files[0] : null;
+    if (selectedFile) {
+      return resizeAvatarFileToDataUrl(selectedFile, 75);
+    }
+    return Promise.resolve(String(urlInput && urlInput.value ? urlInput.value : "").trim());
+  }
+
+  function wireAvatarPreview(fileInput, previewImage) {
+    if (!fileInput || !previewImage) {
+      return;
+    }
+    fileInput.addEventListener("change", async function () {
+      var selectedFile = fileInput.files && fileInput.files.length > 0 ? fileInput.files[0] : null;
+      if (!selectedFile) {
+        return;
+      }
+      try {
+        previewImage.src = await resizeAvatarFileToDataUrl(selectedFile, 75);
+      } catch (error) {
+        console.warn("Unable to preview avatar image.", error);
+      }
+    });
   }
 
   function setResetAccountStatus(message, state) {
@@ -4074,7 +4158,9 @@
     changeAvatarButton.addEventListener("click", function () {
       if (changeAvatarForm) {
         changeAvatarForm.scrollIntoView({ behavior: "smooth", block: "center" });
-        if (comicAvatarUrlInput) {
+        if (comicAvatarFileInput) {
+          comicAvatarFileInput.focus();
+        } else if (comicAvatarUrlInput) {
           comicAvatarUrlInput.focus();
         } else if (changeAvatarUrlInput) {
           changeAvatarUrlInput.focus();
@@ -4084,6 +4170,10 @@
       window.location.href = "changeavatar.html";
     });
   }
+
+  wireAvatarPreview(changeAvatarFileInput, changeAvatarCurrentImage);
+  wireAvatarPreview(comicAvatarFileInput, comicAvatarCurrentImage);
+  wireAvatarPreview(pokemonAvatarFileInput, pokemonAvatarCurrentImage);
 
   if (clanPanelButton) {
     clanPanelButton.addEventListener("click", function () {
@@ -4906,27 +4996,26 @@
   if (changeAvatarForm) {
     changeAvatarForm.addEventListener("submit", async function (event) {
       event.preventDefault();
-      var avatarUpdates = comicAvatarUrlInput || pokemonAvatarUrlInput
+      var avatarUpdates = comicAvatarUrlInput || pokemonAvatarUrlInput || comicAvatarFileInput || pokemonAvatarFileInput
         ? [
             {
               arena: "comic",
-              avatarUrl: String(comicAvatarUrlInput && comicAvatarUrlInput.value ? comicAvatarUrlInput.value : "").trim()
+              fileInput: comicAvatarFileInput,
+              urlInput: comicAvatarUrlInput
             },
             {
               arena: "pokemon",
-              avatarUrl: String(pokemonAvatarUrlInput && pokemonAvatarUrlInput.value ? pokemonAvatarUrlInput.value : "").trim()
+              fileInput: pokemonAvatarFileInput,
+              urlInput: pokemonAvatarUrlInput
             }
           ]
         : [
             {
               arena: "comic",
-              avatarUrl: String(changeAvatarUrlInput && changeAvatarUrlInput.value ? changeAvatarUrlInput.value : "").trim()
+              fileInput: changeAvatarFileInput,
+              urlInput: changeAvatarUrlInput
             }
           ];
-      if (avatarUpdates.some(function (entry) { return !entry.avatarUrl; })) {
-        setChangeAvatarStatus("A direct image URL is required.", "error");
-        return;
-      }
 
       setChangeAvatarStatus("Saving avatars...", "");
       if (changeAvatarSubmit) {
@@ -4937,6 +5026,11 @@
         var updatedUser = null;
         for (var index = 0; index < avatarUpdates.length; index += 1) {
           var entry = avatarUpdates[index];
+          var avatarValue = await resolveAvatarSubmissionValue(entry.fileInput, entry.urlInput);
+          if (!String(avatarValue || "").trim()) {
+            setChangeAvatarStatus("Choose an image file or paste a direct image URL.", "error");
+            return;
+          }
           var response = await fetch("/api/profile/avatar", {
             method: "POST",
             headers: {
@@ -4944,7 +5038,7 @@
             },
             credentials: "same-origin",
             body: JSON.stringify({
-              avatarUrl: entry.avatarUrl,
+              avatarUrl: avatarValue,
               arena: entry.arena
             })
           });
@@ -4961,10 +5055,19 @@
           setCurrentSessionUser(updatedUser);
           cacheSessionUser(updatedUser);
           populateProfile(updatedUser);
+          if (changeAvatarFileInput) {
+            changeAvatarFileInput.value = "";
+          }
+          if (comicAvatarFileInput) {
+            comicAvatarFileInput.value = "";
+          }
+          if (pokemonAvatarFileInput) {
+            pokemonAvatarFileInput.value = "";
+          }
           if (changeAvatarUrlInput) {
             changeAvatarUrlInput.value = updatedUser.profile && updatedUser.profile.avatarUrl
               ? updatedUser.profile.avatarUrl
-              : avatarUpdates[0].avatarUrl;
+              : "";
           }
         }
         setChangeAvatarStatus("Avatars updated.", "success");

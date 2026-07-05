@@ -6589,8 +6589,30 @@ const getImageDimensionsFromBuffer = (buffer) =>
     readJpegDimensions(buffer) ||
     readWebpDimensions(buffer);
 
+const getAvatarImageBuffer = async (url) => {
+    const normalizedUrl = typeof url === 'string' ? url.trim() : '';
+    if (!normalizedUrl) {
+        throw new Error('A valid image is required.');
+    }
+
+    if (normalizedUrl.toLowerCase().startsWith('data:image/')) {
+        const commaIndex = normalizedUrl.indexOf(',');
+        if (commaIndex === -1) {
+            throw new Error('Unsupported image format.');
+        }
+        const base64Payload = normalizedUrl.slice(commaIndex + 1).replace(/\s+/g, '');
+        const buffer = Buffer.from(base64Payload, 'base64');
+        if (!buffer.length) {
+            throw new Error('Unsupported image format.');
+        }
+        return buffer;
+    }
+
+    return getRemoteImageBuffer(normalizedUrl);
+};
+
 const validateAvatarUrl = async (url) => {
-    const buffer = await getRemoteImageBuffer(url);
+    const buffer = await getAvatarImageBuffer(url);
     const dimensions = getImageDimensionsFromBuffer(buffer);
     if (!dimensions) {
         throw new Error('Unsupported image format.');
@@ -9941,7 +9963,7 @@ const maintenanceModeUpdateSchema = Joi.object({
 });
 
 const avatarUpdateSchema = Joi.object({
-    avatarUrl: Joi.string().trim().uri({ scheme: ['http', 'https'] }).max(2048).required(),
+    avatarUrl: Joi.string().trim().max(200000).required(),
     arena: Joi.string().trim().valid('comic', 'pokemon').default('comic'),
 });
 
@@ -12555,7 +12577,7 @@ app.post('/api/profile/avatar', requireSession, async (req, res) => {
     try {
         const { error: validationError, value } = avatarUpdateSchema.validate(req.body || {});
         if (validationError) {
-            return res.status(400).json({ error: 'A valid direct image URL is required.' });
+            return res.status(400).json({ error: 'A valid image URL or uploaded image is required.' });
         }
 
         await validateAvatarUrl(value.avatarUrl);
@@ -12638,7 +12660,7 @@ app.post('/api/clan/avatar', requireSession, async (req, res) => {
     try {
         const { error: validationError, value } = avatarUpdateSchema.validate(req.body || {});
         if (validationError) {
-            return res.status(400).json({ error: 'A valid direct image URL is required.' });
+            return res.status(400).json({ error: 'A valid image URL or uploaded image is required.' });
         }
 
         await validateAvatarUrl(value.avatarUrl);
