@@ -102,7 +102,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/cUWpevS.png",
                 "skilldescription": "Iron Man may use this skill on himself or an ally. If used on himself, Repulsor Blast becomes Proton Cannon, this skill becomes Energy Burst, and Iron Man gains 10 points of unpierceable damage reduction. If used on an ally, they gain 2 bonus non-affliction damage and 10 permanent shield. This effect stacks on allies and is permanent.",
                 "energy": [
-                    "Bloodline"
+                    "Random"
                 ],
                 "target": "self-or-single-ally",
                 "damage": 0,
@@ -259,7 +259,6 @@ const characters = [
                 "skillimage": "https://i.imgur.com/r6cDktw.png",
                 "skilldescription": "Deals 22 damage to all enemies and stuns their energy skills for 1 turn.",
                 "energy": [
-                    "Ninjutsu",
                     "Random"
                 ],
                 "target": "all-enemy",
@@ -469,8 +468,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/zIKyZk2.jpeg",
                 "skilldescription": "Increases the cost of one enemy’s skills by 2 White Energy until they use a new skill. This does not stack and may only affect one enemy at a time (will remove itself from a previous enemy if used on a new one). Increases 'Passive: Spider Senses' by 5%.",
                 "energy": [
-                    "Genjutsu",
-                    "Genjutsu"
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -685,7 +683,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/uulT2pq.jpeg",
                 "skilldescription": "Deals 25 damage to one main enemy and 15 damage to a random different enemy then silences the main enemy's harmful skills for 1 turn.",
                 "energy": [
-                    "Bloodline"
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -14112,9 +14110,7 @@ const characters = [
                 "skillimage": "assets/images/doctorstrangeskill5.webp",
                 "skilldescription": "For 3 turns, Doctor Strange ignores harmful and helpful non-damage effects. At the start of each turn, one of his other skills is randomly upgraded and locked for that turn.",
                 "energy": [
-                    "Bloodline",
-                    "Ninjutsu",
-                    "Genjutsu"
+                    "Bloodline"
                 ],
                 "target": "self",
                 "damage": 0,
@@ -20504,6 +20500,7 @@ const characters = [
                     "turnStartApplyRandomSkillReplacementToOwner": {
                         "statusId": "pokemon_trainer_ball_cycle_random",
                         "duration": 1,
+                        "tooltipText": "Pokemon Trainer's ball slot changes at the start of each turn: Pokeball 40%, Great Ball 30%, Ultra Ball 20%, Master Ball 10%.",
                         "options": [
                             {
                                 "fromSkillId": "pokemon-trainer-pokeball",
