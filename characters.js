@@ -19311,7 +19311,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/Pokeball.jpeg",
                 "skilldescription": "At the start of each turn, Pokemon Trainer's ball slot randomly becomes Pokeball 40%, Great Ball 30%, Ultra Ball 20%, or Master Ball 10%. Stuns one enemy and makes them invulnerable to all skills for 1 turn. If used when their health is at 10 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed.",
                 "energy": [
-                    "Random"
+                    "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -20158,8 +20158,8 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/Great ball.png",
                 "skilldescription": "At the start of each turn, Pokemon Trainer's ball slot randomly becomes Pokeball 40%, Great Ball 30%, Ultra Ball 20%, or Master Ball 10%. Stuns one enemy and makes them invulnerable to all skills for 2 turns. If used when their health is at 25 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed.",
                 "energy": [
+                    "Ninjutsu",
                     "Random",
-                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -20282,9 +20282,8 @@ const characters = [
                 "skillimage": "https://i.imgur.com/6VVZEkQ.jpeg",
                 "skilldescription": "At the start of each turn, Pokemon Trainer's ball slot randomly becomes Pokeball 40%, Great Ball 30%, Ultra Ball 20%, or Master Ball 10%. Stuns one enemy and makes them invulnerable to all skills for 3 turns. If used when their health is at 40 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed.",
                 "energy": [
-                    "Random",
-                    "Random",
-                    "Random"
+                    "Genjutsu",
+                    "Genjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -20410,10 +20409,9 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/master ball.jpeg",
                 "skilldescription": "At the start of each turn, Pokemon Trainer's ball slot randomly becomes Pokeball 40%, Great Ball 30%, Ultra Ball 20%, or Master Ball 10%. Permanently banishes one enemy and swaps Pokemon Trainer's skills to theirs for the rest of the game. This cannot be ignored, countered, or reflected.",
                 "energy": [
-                    "Random",
-                    "Random",
-                    "Random",
-                    "Random"
+                    "Bloodline",
+                    "Ninjutsu",
+                    "Genjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
