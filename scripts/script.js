@@ -819,7 +819,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             Math.floor(Math.random() * POKEMON_SELECTION_BACKGROUND_URLS.length)
         ] || 'assets/images/PokemonArena/characterselectbgpokemonarena.png';
     const COMIC_INGAME_BACKGROUND_URL = 'assets/images/newingamebgCA.png';
-    const POKEMON_INGAME_BACKGROUND_URL = 'assets/images/PokemonArena/newingamebgPA.png';
+    const POKEMON_INGAME_BACKGROUND_URL = 'assets/images/PokemonArena/newbattlepic/1783150082785.png';
     const COMIC_SELECTION_SCROLL_URL = 'assets/images/selectionscroll.png';
     const POKEMON_SELECTION_SCROLL_URL = 'assets/images/PokemonArena/selectionscroll-pokeball.png';
     const COMIC_INGAME_SCROLL_BEHIND_URL = 'assets/images/ingamescrollbehind.png';
@@ -833,7 +833,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const COMIC_LOSE_PORTRAIT_URL = 'assets/images/lose.png';
     const POKEMON_WIN_PORTRAIT_URL = 'assets/images/PokemonArena/wingamepicture.jpeg';
     const POKEMON_LOSE_PORTRAIT_URL = 'assets/images/PokemonArena/losegamepicture.jpeg';
-    const POKEMON_BATTLE_AVATAR_URL = 'assets/images/PokemonArena/newbattlepic/1783150082785.png';
+    const POKEMON_BATTLE_AVATAR_URL = POKEMON_FOUND_ICON_URL;
 
     const toBackgroundImageValue = (url = '') => {
         const normalizedUrl = typeof url === 'string' ? url.trim() : '';
@@ -1458,6 +1458,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         const opponentHatEls = Array.from(document.querySelectorAll('.enemy-characters .rank-hat'));
         if (opponentAvatar) {
             opponentAvatar.src = avatarUrl;
+            opponentAvatar.style.cursor = options.username ? 'pointer' : 'default';
+            opponentAvatar.title = options.username ? 'Click to view opponent stats' : '';
+            opponentAvatar.onclick = options.username ? () => openOpponentStatsPanel() : null;
+            opponentAvatar.setAttribute('role', options.username ? 'button' : 'img');
+            if (options.username) {
+                opponentAvatar.setAttribute('tabindex', '0');
+                opponentAvatar.onkeydown = (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        openOpponentStatsPanel();
+                    }
+                };
+            } else {
+                opponentAvatar.removeAttribute('tabindex');
+                opponentAvatar.onkeydown = null;
+            }
         }
         if (opponentNameEl && name) {
             opponentNameEl.textContent = name;
@@ -1612,10 +1628,115 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    const closeOpponentStatsPanel = () => {
+        const panel = document.getElementById('opponent-stats-panel');
+        if (panel) {
+            panel.remove();
+        }
+    };
+
+    const openOpponentStatsPanel = async () => {
+        const username = currentOpponentUsername || '';
+        if (!username) return;
+        closeOpponentStatsPanel();
+
+        const panel = document.createElement('div');
+        panel.id = 'opponent-stats-panel';
+        panel.style.cssText = [
+            'position:fixed',
+            'inset:0',
+            'z-index:10000',
+            'display:flex',
+            'align-items:center',
+            'justify-content:center',
+            'background:rgba(0,0,0,0.6)',
+            'backdrop-filter:blur(4px)',
+            'padding:24px',
+        ].join(';');
+
+        const card = document.createElement('div');
+        card.style.cssText = [
+            'width:min(92vw, 360px)',
+            'border:2px solid rgba(255,255,255,0.18)',
+            'border-radius:18px',
+            'background:linear-gradient(180deg, rgba(20,24,40,0.98), rgba(10,12,20,0.98))',
+            'box-shadow:0 24px 70px rgba(0,0,0,0.45)',
+            'color:#f5f7ff',
+            'padding:20px',
+            'font-family:Arial, sans-serif',
+        ].join(';');
+
+        const header = document.createElement('div');
+        header.style.cssText =
+            'display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;font-weight:700;font-size:18px;';
+        header.textContent = currentOpponentDisplayName || username;
+
+        const closeButton = document.createElement('button');
+        closeButton.type = 'button';
+        closeButton.textContent = 'Close';
+        closeButton.style.cssText = [
+            'border:0',
+            'border-radius:999px',
+            'padding:8px 12px',
+            'cursor:pointer',
+            'background:#f5c542',
+            'color:#10131a',
+            'font-weight:700',
+        ].join(';');
+        closeButton.addEventListener('click', closeOpponentStatsPanel);
+        header.appendChild(closeButton);
+
+        const body = document.createElement('div');
+        body.style.cssText = 'display:grid;gap:10px;font-size:15px;line-height:1.35;';
+        body.textContent = 'Loading stats...';
+
+        card.appendChild(header);
+        card.appendChild(body);
+        panel.appendChild(card);
+        panel.addEventListener('click', (event) => {
+            if (event.target === panel) {
+                closeOpponentStatsPanel();
+            }
+        });
+        document.body.appendChild(panel);
+
+        const cachedProfile =
+            currentOpponentProfileView && currentOpponentProfileView.username === username
+                ? currentOpponentProfileView
+                : null;
+        const fetchedProfile =
+            cachedProfile || (isGameBotUsername(username) ? null : await fetchPublicProfile(username));
+        if (fetchedProfile && fetchedProfile.username) {
+            currentOpponentProfileView = fetchedProfile;
+        }
+        const ladder = normalizeLadderPresentation(
+            fetchedProfile?.profile?.ladder || currentOpponentProfileView?.profile?.ladder || {}
+        );
+        body.textContent = '';
+        [
+            ['Wins', ladder.wins],
+            ['Losses', ladder.losses],
+            ['Streak', formatSignedNumber(ladder.streak)],
+            ['Highest Streak', formatSignedNumber(ladder.highestStreak)],
+        ].forEach(([label, value]) => {
+            const row = document.createElement('div');
+            row.style.cssText = 'display:flex;justify-content:space-between;gap:12px;';
+            const labelEl = document.createElement('span');
+            labelEl.textContent = label;
+            const valueEl = document.createElement('strong');
+            valueEl.textContent = String(value ?? 0);
+            row.appendChild(labelEl);
+            row.appendChild(valueEl);
+            body.appendChild(row);
+        });
+    };
+
     const hydrateOpponentIdentity = async (username, fallbackProfile = null, fallbackDisplayName = '') => {
         const resolvedArenaMode = currentMatchArena || getProtectionTerminologyArena();
         if (!username) {
+            currentOpponentProfileView = null;
             applyOpponentIdentity({
+                username: '',
                 name: fallbackDisplayName || null,
                 avatarUrl: getArenaDefaultAvatarUrl(resolvedArenaMode),
                 ladder: fallbackProfile?.ladder || null,
@@ -1623,7 +1744,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         if (isGameBotUsername(username)) {
+            currentOpponentProfileView = fallbackProfile ? { username, profile: fallbackProfile } : null;
             applyOpponentIdentity({
+                username,
                 name: fallbackDisplayName || username,
                 avatarUrl: fallbackProfile?.avatarUrl || getArenaDefaultAvatarUrl(resolvedArenaMode),
                 ladder: fallbackProfile?.ladder || null,
@@ -1631,9 +1754,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         const user = await fetchPublicProfile(username);
+        currentOpponentProfileView = user || (fallbackProfile ? { username, profile: fallbackProfile } : null);
         const fetchedLadder = getArenaLadder(user?.profile, currentMatchArena);
         const fallbackLadder = getArenaLadder(fallbackProfile, currentMatchArena);
         applyOpponentIdentity({
+            username,
             name: user?.username || fallbackDisplayName || username,
             avatarUrl:
                 user?.profile?.avatarUrl ||
@@ -1702,6 +1827,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let currentTurnUsername = null;
         let currentOpponentUsername = null;
         let currentOpponentDisplayName = null;
+        let currentOpponentProfileView = null;
         let currentMatchMode = 'quick';
         let currentMatchArena =
             normalizeArenaModeValue(arenaModeFromUrl) ||
