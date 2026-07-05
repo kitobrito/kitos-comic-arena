@@ -17207,7 +17207,7 @@ const characters = [
                 "id": "charmander-ember",
                 "name": "Ember",
                 "skillimage": "assets/images/PokemonArena/Charmander/ember.jpg",
-                "skilldescription": "Charmander deals 15 affliction damage to one enemy. This skill has a 30% chance to Burn the target. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
+                "skilldescription": "Charmander deals 20 affliction damage to one enemy. This skill has a 30% chance to Burn the target. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -17223,7 +17223,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 15,
+                        "amount": 20,
                         "scope": "target",
                         "metadata": {
                             "afflictionDamage": true,
@@ -17278,10 +17278,9 @@ const characters = [
                 "id": "charmander-scratch",
                 "name": "Scratch",
                 "skillimage": "assets/images/PokemonArena/Charmander/scratch.webp",
-                "skilldescription": "Charmander deals 25 damage to one enemy. This skill has a 30% chance to critically strike, dealing 10 additional damage and becoming Piercing.",
+                "skilldescription": "Charmander deals 20 damage to one enemy. This skill has a 30% chance to critically strike, dealing 10 additional damage and becoming Piercing.",
                 "energy": [
-                    "Taijutsu",
-                    "Random"
+                    "Taijutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -17294,7 +17293,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 25,
+                        "amount": 20,
                         "scope": "target",
                         "metadata": {
                             "bonusPerStatusMetadata": {
@@ -17750,8 +17749,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/squirtle/watergun.jpg",
                 "skilldescription": "Squirtle deals 20 damage to one enemy this turn and 10 damage next turn. For 1 turn, if the target uses a new harmful skill, they are affected by Guard Break for 2 turns. (Guard Break=unable to reduce damage or become invulnerable)",
                 "energy": [
-                    "Ninjutsu",
-                    "Random"
+                    "Ninjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -17859,7 +17857,7 @@ const characters = [
                 "id": "squirtle-bubble",
                 "name": "Bubble",
                 "skillimage": "assets/images/PokemonArena/squirtle/bubble.jpg",
-                "skilldescription": "Squirtle deals 5 damage to one enemy for 3 turns. If the target is affected by Guard Break, this deals 10 bonus damage to them. This skill stacks.",
+                "skilldescription": "Squirtle deals 10 damage to one enemy for 5 turns. If the target is affected by Guard Break, this deals 10 bonus damage to them. This skill stacks.",
                 "energy": [
                     "Ninjutsu",
                     "Random"
@@ -17876,7 +17874,7 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "squirtle_bubble",
-                        "duration": 3,
+                        "duration": 5,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
@@ -17885,9 +17883,9 @@ const characters = [
                             "stackDelta": 1,
                             "stackMax": 99,
                             "stackDerivedNumericKeys": {
-                                "turnStartDamage": 5
+                                "turnStartDamage": 10
                             },
-                            "turnStartDamage": 5,
+                            "turnStartDamage": 10,
                             "turnStartBonusDamageIfTargetHasStatusId": {
                                 "statusId": "squirtle_guard_break",
                                 "amount": 10
@@ -17903,7 +17901,7 @@ const characters = [
                 "id": "squirtle-rapid-spin",
                 "name": "Rapid Spin",
                 "skillimage": "assets/images/PokemonArena/squirtle/rapidspin.webp",
-                "skilldescription": "Squirtle removes all harmful skills from himself or one ally and deals 10 damage to all enemies.",
+                "skilldescription": "Squirtle removes all harmful skills from himself or one ally and deals 15 damage to all enemies.",
                 "energy": [
                     "Taijutsu",
                     "Random"
@@ -17942,7 +17940,7 @@ const characters = [
                     },
                     {
                         "type": "damage",
-                        "amount": 10,
+                        "amount": 15,
                         "scope": "all-enemy"
                     }
                 ]
@@ -17970,7 +17968,6 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/squirtle/shellguard.jpg",
                 "skilldescription": "For 1 turn, Wartortle blocks all enemy harmful skills used on himself and one selected ally.",
                 "energy": [
-                    "Random",
                     "Random",
                     "Random"
                 ],
@@ -18022,8 +18019,7 @@ const characters = [
                 "skilldescription": "Wartortle deals 30 damage to one enemy this turn and 20 damage next turn. For 1 turn, if the target uses a new harmful skill, they are affected by Guard Break for 3 turns.",
                 "energy": [
                     "Ninjutsu",
-                    "Ninjutsu",
-                    "Random"
+                    "Ninjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -18088,7 +18084,7 @@ const characters = [
                     "statusId": "squirtle_wartortle_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/squirtle/bubblebeam.jpeg",
-                "skilldescription": "Wartortle deals 10 damage to all enemies for 3 turns. Enemies affected by Guard Break take 10 additional damage each turn.",
+                "skilldescription": "Wartortle deals 10 damage to all enemies for 5 turns. Enemies affected by Guard Break take 10 additional damage each turn.",
                 "energy": [
                     "Ninjutsu",
                     "Random",
@@ -18106,7 +18102,7 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "wartortle_bubblebeam",
-                        "duration": 3,
+                        "duration": 5,
                         "scope": "all-enemy",
                         "metadata": {
                             "harmful": true,
@@ -18129,7 +18125,7 @@ const characters = [
                     "statusId": "squirtle_wartortle_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/squirtle/aquaspin.jpg",
-                "skilldescription": "Wartortle removes all harmful skills from his team and deals 20 damage to the enemy team.",
+                "skilldescription": "Wartortle removes all harmful skills from his team and deals 25 damage to the enemy team.",
                 "energy": [
                     "Taijutsu",
                     "Random",
@@ -18168,7 +18164,7 @@ const characters = [
                     },
                     {
                         "type": "damage",
-                        "amount": 20,
+                        "amount": 25,
                         "scope": "all-enemy"
                     }
                 ]
@@ -18841,14 +18837,14 @@ const characters = [
                 "id": "pikachu-volt-tackle",
                 "name": "Volt Tackle",
                 "skillimage": "assets/images/PokemonArena/Pikachu/volttackle.jpeg",
-                "skilldescription": "Pikachu deals 30 piercing damage to one enemy then loses 15 health. For 1 turn, if the target uses a new skill it will have its cooldown increased by 2 turns. If the target is affected by Static, their cooldowns are increased for 4 turns instead.",
+                "skilldescription": "Pikachu deals 35 piercing damage to one enemy then loses 15 health. For 1 turn, if the target uses a new skill it will have its cooldown increased by 2 turns. If the target is affected by Static, their cooldowns are increased for 4 turns instead.",
                 "energy": [
                     "Taijutsu",
                     "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 3,
+                "cooldown": 0,
                 "classes": [
                     "Energy",
                     "Melee",
@@ -18858,7 +18854,7 @@ const characters = [
                     {
                         "scope": "target",
                         "type": "damage",
-                        "amount": 30,
+                        "amount": 35,
                         "metadata": {
                             "harmful": true,
                             "ignoreDamageReduction": true
@@ -18909,12 +18905,11 @@ const characters = [
                 "skilldescription": "Deals 45 piercing damage to one enemy. If the target is affected by Static, they also take 5 piercing damage, have their harmful skills stunned for 1 turn, and Static is re-applied to them.",
                 "energy": [
                     "Genjutsu",
-                    "Genjutsu",
-                    "Random"
+                    "Genjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 0,
+                "cooldown": 1,
                 "classes": [
                     "Energy",
                     "Ranged",
@@ -20631,8 +20626,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Chansey/chanseypokemoncenterhealing.webp",
                 "skilldescription": "Heals Chansey's team for 10 HP and grants them 5 Shield each turn for 3 turns. During this skill, Softboil will always make its target unable to die.",
                 "energy": [
-                    "Random",
-                    "Random"
+                    "Bloodline"
                 ],
                 "target": "all-allies",
                 "damage": 0,
@@ -20900,7 +20894,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Chansey/blisseypokemoncenterhealing.png",
                 "skilldescription": "Heals Blissey's team for 15 HP and grants them 10 Shield each turn for 3 turns. During this skill, Softboil will always make its target unable to die.",
                 "energy": [
-                    "Random",
+                    "Bloodline",
                     "Random"
                 ],
                 "target": "all-allies",
@@ -22303,10 +22297,9 @@ const characters = [
                 "id": "zubat-leech-life",
                 "name": "Leech Life",
                 "skillimage": "assets/images/PokemonArena/zubat/leechlife.webp",
-                "skilldescription": "Steals 15 HP from one enemy. If that enemy is affected by Supersonic, this steals 10 additional HP. For 1 turn, if that enemy uses a new skill, Zubat steals 15 additional HP from them.",
+                "skilldescription": "Steals 15 HP from one enemy. If that enemy is affected by Supersonic, this steals 5 additional HP. If Bite improved this skill, it steals 5 additional HP. For 1 turn, if that enemy uses a new skill, Zubat steals 5 additional HP from them.",
                 "energy": [
-                    "Random",
-                    "Random"
+                    "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -22340,7 +22333,7 @@ const characters = [
                     },
                     {
                         "type": "health_steal_damage",
-                        "amount": 10,
+                        "amount": 5,
                         "scope": "target",
                         "condition": {
                             "scope": "target",
@@ -22365,7 +22358,7 @@ const characters = [
                     },
                     {
                         "type": "health_steal_damage",
-                        "amount": 10,
+                        "amount": 5,
                         "scope": "target",
                         "condition": {
                             "scope": "self",
@@ -22398,8 +22391,8 @@ const characters = [
                             "infiniteDuration": false,
                             "onOwnerUseSkillTrigger": true,
                             "onOwnerUseSkillRequireNewSkill": true,
-                            "onOwnerUseSkillSelfDamage": 15,
-                            "onOwnerUseSkillHealSourceAmount": 15,
+                            "onOwnerUseSkillSelfDamage": 5,
+                            "onOwnerUseSkillHealSourceAmount": 5,
                             "onOwnerUseSkillApplyStatusToSourceOwner": {
                                 "statusId": "zubat_evolution_tracker",
                                 "duration": 99,
@@ -22408,14 +22401,14 @@ const characters = [
                                     "infiniteDuration": true,
                                     "zubatHpStolen": 0,
                                     "stackMetadataKey": "zubatHpStolen",
-                                    "stackDelta": 10,
+                                    "stackDelta": 5,
                                     "stackMax": 50,
                                     "statusIconUrl": "assets/images/PokemonArena/zubat/leechlife.webp",
                                     "tooltipTextTemplate": "Zubat has stolen {zubatHpStolen}/50 total HP and will evolve into Golbat at 50."
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/zubat/leechlife.webp",
-                            "tooltipText": "The next new skill this character uses, they lose 15 HP and Zubat heals for 15 HP."
+                            "tooltipText": "The next new skill this character uses, they lose 5 HP and Zubat heals for 5 HP."
                         }
                     },
                     {
@@ -22434,7 +22427,7 @@ const characters = [
                 "id": "zubat-supersonic",
                 "name": "Supersonic",
                 "skillimage": "assets/images/PokemonArena/zubat/supersonic.webp",
-                "skilldescription": "For 1 turn, an enemy has a 45% chance for any skill they use to fail, their skills cost 1 additional random energy, and Leech Life steals 10 additional HP from them. If a skill fails this way, they lose 15 HP.",
+                "skilldescription": "For 1 turn, an enemy has a 45% chance for any skill they use to fail, their skills cost 1 additional random energy, and Leech Life steals 5 additional HP from them. If a skill fails this way, they lose 15 HP.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -22458,7 +22451,7 @@ const characters = [
                             "skillFailDamageAmount": 15,
                             "randomCostIncrease": 1,
                             "statusIconUrl": "assets/images/PokemonArena/zubat/supersonic.webp",
-                            "tooltipText": "This character has a 45% chance for any skill they use to fail, their skills cost 1 additional random energy, and Leech Life steals 10 additional HP from them."
+                            "tooltipText": "This character has a 45% chance for any skill they use to fail, their skills cost 1 additional random energy, and Leech Life steals 5 additional HP from them."
                         }
                     }
                 ]
@@ -22467,10 +22460,9 @@ const characters = [
                 "id": "zubat-bite",
                 "name": "Bite",
                 "skillimage": "assets/images/PokemonArena/zubat/bite.webp",
-                "skilldescription": "Deals 25 damage to one enemy. If they are affected by Supersonic, their cooldowns are increased by 1. During the next turn, Leech Life steals 10 additional HP.",
+                "skilldescription": "Deals 20 damage to one enemy. If they are affected by Supersonic, their cooldowns are increased by 1. During the next turn, Leech Life steals 5 additional HP.",
                 "energy": [
-                    "Taijutsu",
-                    "Random"
+                    "Taijutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -22483,7 +22475,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 25,
+                        "amount": 20,
                         "scope": "target",
                         "metadata": {
                             "onSuccessfulDamageApplyStatusToOwner": {
@@ -22493,7 +22485,7 @@ const characters = [
                                     "hidden": true,
                                     "infiniteDuration": false,
                                     "statusIconUrl": "assets/images/PokemonArena/zubat/bite.webp",
-                                    "tooltipText": "Zubat's next Leech Life steals 10 additional HP."
+                                    "tooltipText": "Zubat's next Leech Life steals 5 additional HP."
                                 }
                             }
                         }
@@ -22575,7 +22567,7 @@ const characters = [
                     "statusId": "zubat_golbat_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/zubat/golbatleechlife.webp",
-                "skilldescription": "Steals 20 HP from one enemy. If that enemy is affected by Supersonic, this steals 15 additional HP. For 1 turn, if that enemy uses a new skill, Golbat steals 20 additional HP from them.",
+                "skilldescription": "Steals 20 HP from one enemy. If that enemy is affected by Supersonic, this steals 10 additional HP. If Bite improved this skill, it steals 10 additional HP. For 1 turn, if that enemy uses a new skill, Golbat steals 20 additional HP from them.",
                 "energy": [
                     "Bloodline",
                     "Random"
@@ -22612,7 +22604,7 @@ const characters = [
                     },
                     {
                         "type": "health_steal_damage",
-                        "amount": 15,
+                        "amount": 10,
                         "scope": "target",
                         "condition": {
                             "scope": "target",
@@ -22637,7 +22629,7 @@ const characters = [
                     },
                     {
                         "type": "health_steal_damage",
-                        "amount": 15,
+                        "amount": 10,
                         "scope": "target",
                         "condition": {
                             "scope": "self",
@@ -22709,7 +22701,7 @@ const characters = [
                     "statusId": "zubat_golbat_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/zubat/golbatsupersonic.webp",
-                "skilldescription": "For 2 turns, an enemy has a 45% chance for any skill they use to fail, their skills cost 1 additional random energy, and Leech Life steals 15 additional HP from them. If a skill fails this way, they lose 15 HP.",
+                "skilldescription": "For 2 turns, an enemy has a 45% chance for any skill they use to fail, their skills cost 1 additional random energy, and Leech Life steals 10 additional HP from them. If a skill fails this way, they lose 15 HP.",
                 "energy": [
                     "Genjutsu",
                     "Random"
@@ -22734,7 +22726,7 @@ const characters = [
                             "skillFailDamageAmount": 15,
                             "randomCostIncrease": 1,
                             "statusIconUrl": "assets/images/PokemonArena/zubat/golbatsupersonic.webp",
-                            "tooltipText": "This character has a 45% chance for any skill they use to fail, their skills cost 1 additional random energy, and Leech Life steals 15 additional HP from them."
+                            "tooltipText": "This character has a 45% chance for any skill they use to fail, their skills cost 1 additional random energy, and Leech Life steals 10 additional HP from them."
                         }
                     }
                 ]
@@ -22746,7 +22738,7 @@ const characters = [
                     "statusId": "zubat_golbat_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/zubat/golbatbite.webp",
-                "skilldescription": "Deals 30 damage to one enemy. If they are affected by Supersonic, their cooldowns are increased by 1. During the next turn, Leech Life steals 15 additional HP.",
+                "skilldescription": "Deals 30 damage to one enemy. If they are affected by Supersonic, their cooldowns are increased by 1. During the next turn, Leech Life steals 10 additional HP.",
                 "energy": [
                     "Taijutsu",
                     "Random"
@@ -22773,7 +22765,7 @@ const characters = [
                                     "hidden": true,
                                     "infiniteDuration": false,
                                     "statusIconUrl": "assets/images/PokemonArena/zubat/bite.webp",
-                                    "tooltipText": "Zubat's next Leech Life steals 15 additional HP."
+                                    "tooltipText": "Zubat's next Leech Life steals 10 additional HP."
                                 }
                             }
                         }
@@ -23372,7 +23364,7 @@ const characters = [
                 "id": "abra-future-sight",
                 "name": "Future Sight",
                 "skillimage": "assets/images/PokemonArena/abra/futuresight.webp",
-                "skilldescription": "Marks an enemy for 2 turns. When the mark expires, the target takes 20 damage.",
+                "skilldescription": "Marks an enemy for 2 turns. When the mark expires, the target takes 25 damage.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -23396,7 +23388,7 @@ const characters = [
                             "onExpireEffects": [
                                 {
                                     "type": "damage",
-                                    "amount": 20,
+                                    "amount": 25,
                                     "scope": "target",
                                     "metadata": {
                                         "ignoreDamageReduction": true,
@@ -23539,7 +23531,7 @@ const characters = [
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 2,
+                "cooldown": 1,
                 "classes": [
                     "Mental",
                     "Ranged",
