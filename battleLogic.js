@@ -4853,8 +4853,6 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
                             ? picked.blockedSkillIndices
                                   .map((entry) => Number.parseInt(entry, 10))
                                   .filter((entry) => Number.isInteger(entry) && entry >= 0)
-                            : Number.isInteger(picked.skillIndex)
-                            ? [picked.skillIndex]
                             : [];
                         const replacementStatusId =
                             typeof randomSkillReplacementConfig.statusId === 'string' &&

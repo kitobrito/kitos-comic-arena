@@ -14140,17 +14140,26 @@ const characters = [
                                     {
                                         "fromSkillId": "doctor-strange-eldritch-manifestation",
                                         "toSkillId": "doctor-strange-eldritch-manifestation-improved",
-                                        "skillIndex": 0
+                                        "skillIndex": 0,
+                                        "blockedSkillIndices": [
+                                            0
+                                        ]
                                     },
                                     {
                                         "fromSkillId": "doctor-strange-shield-of-the-seraphim",
                                         "toSkillId": "doctor-strange-shield-of-the-seraphim-improved",
-                                        "skillIndex": 1
+                                        "skillIndex": 1,
+                                        "blockedSkillIndices": [
+                                            1
+                                        ]
                                     },
                                     {
                                         "fromSkillId": "doctor-strange-bolts-of-balthakk",
                                         "toSkillId": "doctor-strange-bolts-of-balthakk-improved",
-                                        "skillIndex": 2
+                                        "skillIndex": 2,
+                                        "blockedSkillIndices": [
+                                            2
+                                        ]
                                     }
                                 ]
                             }
