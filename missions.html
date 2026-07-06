@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cosmic-Arena Missions</title>
+  <title>Pokemon Arena Missions</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -1725,9 +1725,13 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2H20v16H8.5A2.5 2.5 0 0 0 6 20.5z" /><path d="M6 4.5V22" /><path d="M9.5 7H16" /><path d="M9.5 11H17" /></svg>
             <span>Game Manual</span>
           </a>
-          <a class="nav-link" href="charactersandskills.html">
+          <a class="nav-link" id="comic-characters-link" href="charactersandskills.html">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h16" /><path d="M7.5 4v16" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg>
-            <span>Characters and Skills</span>
+            <span>Comic Characters</span>
+          </a>
+          <a class="nav-link" id="pokemon-characters-link" href="pokemon-charactersandskills.html">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h16" /><path d="M7.5 4v16" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg>
+            <span>Pokemon Characters</span>
           </a>
         </nav>
       </section>
@@ -2354,14 +2358,22 @@
       const pageMissionLabel = pageArena === "pokemon" ? "Pokemon Missions" : "Comic Missions";
       const playNowButton = document.getElementById("play-now-button");
 
-      document.title = pageArena === "pokemon" ? "Cosmic-Arena Pokemon Missions" : "Cosmic-Arena Comic Missions";
+      document.title = pageArena === "pokemon" ? "Pokemon Arena Missions" : "Comic Arena Missions";
       const activeMissionNavLink = document.querySelector('.nav-link.active[href="missions.html"]');
+      const comicCharactersLink = document.getElementById("comic-characters-link");
+      const pokemonCharactersLink = document.getElementById("pokemon-characters-link");
       if (activeMissionNavLink) {
         activeMissionNavLink.href = pageArena === "pokemon" ? "missions.html?arena=pokemon" : "missions.html";
         const navLabel = activeMissionNavLink.querySelector("span");
         if (navLabel) {
           navLabel.textContent = pageMissionLabel;
         }
+      }
+      if (comicCharactersLink) {
+        comicCharactersLink.href = "charactersandskills.html";
+      }
+      if (pokemonCharactersLink) {
+        pokemonCharactersLink.href = "pokemon-charactersandskills.html";
       }
       if (playNowButton) {
         playNowButton.textContent = pageArena === "pokemon" ? "Pokemon Arena" : "Comic Arena";
