@@ -3536,15 +3536,14 @@ const POKEMON_MR_MIME_MISSION_ENTRY = {
     sortOrder: 11,
 };
 
-const POKEMON_HITMONS_MAGNEMITE_MISSION_ENTRY = {
-    missionId: 'hitmons-magnemite-power-grid',
-    title: 'Hitmons and Magnemite Power Grid',
+const POKEMON_HITMONCHAN_MISSION_ENTRY = {
+    missionId: 'hitmonchan-power-grid',
+    title: 'Hitmonchan Power Grid',
     level_requirement: 11,
     rank: '11',
-    reward_character: '',
-    reward_character_name: 'Hitmonchan, Hitmonlee, and Magnemite',
-    reward_character_ids: ['hitmonchan', 'hitmonlee', 'magnemite'],
-    reward: 'Unlock Hitmonchan, Hitmonlee, and Magnemite.',
+    reward_character: 'hitmonchan',
+    reward_character_name: 'Hitmonchan',
+    reward: 'Unlock Hitmonchan.',
     arena: 'pokemon',
     mode_restriction: {
         allowed_modes: ['quick', 'ladder'],
@@ -3555,13 +3554,13 @@ const POKEMON_HITMONS_MAGNEMITE_MISSION_ENTRY = {
         wins: 0,
     },
     image: 'assets/images/PokemonArena/hitmonchan/fp.webp',
-    imageAlt: 'Hitmonchan, Hitmonlee, and Magnemite mission artwork',
-    characterName: 'Pokemon Arena Trio',
-    portrait: 'assets/images/PokemonArena/mangemite/magnemitefp.webp',
-    portraitAlt: 'Magnemite portrait',
+    imageAlt: 'Hitmonchan mission artwork',
+    characterName: 'Hitmonchan',
+    portrait: 'assets/images/PokemonArena/hitmonchan/fp.webp',
+    portraitAlt: 'Hitmonchan portrait',
     requirements: [
-        'This mission opens the next Pokemon Arena trio all at once.',
-        'Win with Machop and Pikachu, then close a streak with both on the same team.',
+        'Hitmonchan unlocks through a tempo-and-combo mission built around pressure and precision.',
+        'Clear a 4-win streak with Machop and Pikachu on the same team.',
     ],
     goals: [
         {
@@ -3593,6 +3592,122 @@ const POKEMON_HITMONS_MAGNEMITE_MISSION_ENTRY = {
         playerTeamCharacterIds: [],
     },
     sortOrder: 12,
+};
+
+const POKEMON_HITMONLEE_MISSION_ENTRY = {
+    missionId: 'hitmonlee-kick-circuit',
+    title: 'Hitmonlee Kick Circuit',
+    level_requirement: 12,
+    rank: '12',
+    reward_character: 'hitmonlee',
+    reward_character_name: 'Hitmonlee',
+    reward: 'Unlock Hitmonlee.',
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/hitmonlee/fp.webp',
+    imageAlt: 'Hitmonlee mission artwork',
+    characterName: 'Hitmonlee',
+    portrait: 'assets/images/PokemonArena/hitmonlee/fp.webp',
+    portraitAlt: 'Hitmonlee portrait',
+    requirements: [
+        'Hitmonlee unlocks through a pressure mission built around physical momentum and clean finishers.',
+        'Clear a 4-win streak with Machop and Scyther on the same team.',
+    ],
+    goals: [
+        {
+            type: 'win_matches',
+            character_id: 'machop',
+            character_name: 'Machop',
+            wins: 10,
+        },
+        {
+            type: 'win_matches',
+            character_id: 'scyther',
+            character_name: 'Scyther',
+            wins: 10,
+        },
+        {
+            type: 'win_streak_same_team',
+            character_ids: ['machop', 'scyther'],
+            character_names: ['Machop', 'Scyther'],
+            wins: 4,
+        },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 13,
+};
+
+const POKEMON_MAGNEMITE_MISSION_ENTRY = {
+    missionId: 'magnemite-magnet-rise',
+    title: 'Magnemite Magnet Rise',
+    level_requirement: 12,
+    rank: '12',
+    reward_character: 'magnemite',
+    reward_character_name: 'Magnemite',
+    reward: 'Unlock Magnemite.',
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/mangemite/magnemitefp.webp',
+    imageAlt: 'Magnemite mission artwork',
+    characterName: 'Magnemite',
+    portrait: 'assets/images/PokemonArena/mangemite/magnemitefp.webp',
+    portraitAlt: 'Magnemite portrait',
+    requirements: [
+        'Magnemite unlocks through a control mission built around electric pressure and clean setup.',
+        'Clear a 4-win streak with Pikachu and Abra on the same team.',
+    ],
+    goals: [
+        {
+            type: 'win_matches',
+            character_id: 'pikachu',
+            character_name: 'Pikachu',
+            wins: 10,
+        },
+        {
+            type: 'win_matches',
+            character_id: 'abra',
+            character_name: 'Abra',
+            wins: 10,
+        },
+        {
+            type: 'win_streak_same_team',
+            character_ids: ['pikachu', 'abra'],
+            character_names: ['Pikachu', 'Abra'],
+            wins: 4,
+        },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 14,
 };
 
 const POKEMON_STARTER_MISSION_ENTRIES = [
@@ -3671,7 +3786,9 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     upsertRequiredMission(POKEMON_MACHOP_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'machop');
     upsertRequiredMission(POKEMON_MAGIKARP_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'magikarp');
     upsertRequiredMission(POKEMON_MR_MIME_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'mr-mime');
-    upsertRequiredMission(POKEMON_HITMONS_MAGNEMITE_MISSION_ENTRY, (mission) => mission?.missionId === 'hitmons-magnemite-power-grid');
+    upsertRequiredMission(POKEMON_HITMONCHAN_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'hitmonchan');
+    upsertRequiredMission(POKEMON_HITMONLEE_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'hitmonlee');
+    upsertRequiredMission(POKEMON_MAGNEMITE_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'magnemite');
     return normalizeMissionCatalog(catalog);
 };
 

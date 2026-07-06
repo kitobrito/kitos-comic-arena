@@ -45,26 +45,25 @@ const skillShowcase = (characterId, skillId, text, changeType = 'new') => {
     };
 };
 
-const trioMission = {
-    missionId: 'hitmons-magnemite-power-grid',
-    title: 'Hitmons and Magnemite Power Grid',
+const hitmonchanMission = {
+    missionId: 'hitmonchan-power-grid',
+    title: 'Hitmonchan Power Grid',
     level_requirement: 11,
     rank: '11',
-    reward_character: '',
-    reward_character_name: 'Hitmonchan, Hitmonlee, and Magnemite',
-    reward_character_ids: ['hitmonchan', 'hitmonlee', 'magnemite'],
-    reward: 'Unlock Hitmonchan, Hitmonlee, and Magnemite.',
+    reward_character: 'hitmonchan',
+    reward_character_name: 'Hitmonchan',
+    reward: 'Unlock Hitmonchan.',
     arena: 'pokemon',
     mode_restriction: { allowed_modes: ['quick', 'ladder'] },
     win_streak: { character_id: '', character_name: '', wins: 0 },
     image: 'assets/images/PokemonArena/hitmonchan/fp.webp',
-    imageAlt: 'Hitmonchan, Hitmonlee, and Magnemite mission artwork',
-    characterName: 'Pokemon Arena Trio',
-    portrait: 'assets/images/PokemonArena/mangemite/magnemitefp.webp',
-    portraitAlt: 'Magnemite portrait',
+    imageAlt: 'Hitmonchan mission artwork',
+    characterName: 'Hitmonchan',
+    portrait: 'assets/images/PokemonArena/hitmonchan/fp.webp',
+    portraitAlt: 'Hitmonchan portrait',
     requirements: [
-        'This mission opens the next Pokemon Arena trio all at once.',
-        'Win with Machop and Pikachu, then close a streak with both on the same team.',
+        'Hitmonchan unlocks through a tempo-and-combo mission built around pressure and precision.',
+        'Clear a 4-win streak with Machop and Pikachu on the same team.',
     ],
     goals: [
         { type: 'win_matches', character_id: 'machop', character_name: 'Machop', wins: 10 },
@@ -86,6 +85,90 @@ const trioMission = {
         playerTeamCharacterIds: [],
     },
     sortOrder: 12,
+};
+
+const hitmonleeMission = {
+    missionId: 'hitmonlee-kick-circuit',
+    title: 'Hitmonlee Kick Circuit',
+    level_requirement: 12,
+    rank: '12',
+    reward_character: 'hitmonlee',
+    reward_character_name: 'Hitmonlee',
+    reward: 'Unlock Hitmonlee.',
+    arena: 'pokemon',
+    mode_restriction: { allowed_modes: ['quick', 'ladder'] },
+    win_streak: { character_id: '', character_name: '', wins: 0 },
+    image: 'assets/images/PokemonArena/hitmonlee/fp.webp',
+    imageAlt: 'Hitmonlee mission artwork',
+    characterName: 'Hitmonlee',
+    portrait: 'assets/images/PokemonArena/hitmonlee/fp.webp',
+    portraitAlt: 'Hitmonlee portrait',
+    requirements: [
+        'Hitmonlee unlocks through a pressure mission built around physical momentum and clean finishers.',
+        'Clear a 4-win streak with Machop and Scyther on the same team.',
+    ],
+    goals: [
+        { type: 'win_matches', character_id: 'machop', character_name: 'Machop', wins: 10 },
+        { type: 'win_matches', character_id: 'scyther', character_name: 'Scyther', wins: 10 },
+        {
+            type: 'win_streak_same_team',
+            character_ids: ['machop', 'scyther'],
+            character_names: ['Machop', 'Scyther'],
+            wins: 4,
+        },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 13,
+};
+
+const magnemiteMission = {
+    missionId: 'magnemite-magnet-rise',
+    title: 'Magnemite Magnet Rise',
+    level_requirement: 12,
+    rank: '12',
+    reward_character: 'magnemite',
+    reward_character_name: 'Magnemite',
+    reward: 'Unlock Magnemite.',
+    arena: 'pokemon',
+    mode_restriction: { allowed_modes: ['quick', 'ladder'] },
+    win_streak: { character_id: '', character_name: '', wins: 0 },
+    image: 'assets/images/PokemonArena/mangemite/magnemitefp.webp',
+    imageAlt: 'Magnemite mission artwork',
+    characterName: 'Magnemite',
+    portrait: 'assets/images/PokemonArena/mangemite/magnemitefp.webp',
+    portraitAlt: 'Magnemite portrait',
+    requirements: [
+        'Magnemite unlocks through a control mission built around electric pressure and clean setup.',
+        'Clear a 4-win streak with Pikachu and Abra on the same team.',
+    ],
+    goals: [
+        { type: 'win_matches', character_id: 'pikachu', character_name: 'Pikachu', wins: 10 },
+        { type: 'win_matches', character_id: 'abra', character_name: 'Abra', wins: 10 },
+        {
+            type: 'win_streak_same_team',
+            character_ids: ['pikachu', 'abra'],
+            character_names: ['Pikachu', 'Abra'],
+            wins: 4,
+        },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 14,
 };
 
 const now = new Date();
@@ -111,7 +194,7 @@ const newsPost = {
         },
         {
             type: 'paragraph',
-            text: 'This release also opens a new Pokemon Arena mission that unlocks all three of these roster additions together, and the latest releases strip now points at Magnemite, Hitmonlee, and Hitmonchan.',
+            text: 'This release also opens three new Pokemon Arena missions, one for each of these roster additions, and the latest releases strip now points at Magnemite, Hitmonlee, and Hitmonchan.',
         },
     ],
     paragraphs: [
@@ -119,7 +202,7 @@ const newsPost = {
         'Hitmonchan arrives as a combo bruiser. Thunder Punch, Fire Punch, and Ice Punch each prime Mega Punch for heavier follow-up damage, so the whole kit rewards mixing elements before cashing out.',
         'Hitmonlee comes in as a momentum striker. Double Kick and Low Kick keep swapping each other in and out, Focus Energy loads a huge crit window, and High Jump Kick stays risky enough to swing games both ways.',
         'Magnemite rounds the trio out with a new Electric-Steel evolution line. Spark and Thunder Wave become the setup pair, Magnet Rise creates the safe window, and using both setup skills during that window evolves Magnemite into Magneton while restoring 10 HP.',
-        'This release also opens a new Pokemon Arena mission that unlocks all three of these roster additions together, and the latest releases strip now points at Magnemite, Hitmonlee, and Hitmonchan.',
+        'This release also opens three new Pokemon Arena missions, one for each of these roster additions, and the latest releases strip now points at Magnemite, Hitmonlee, and Hitmonchan.',
     ],
     changes: [
         skillShowcase('hitmonchan', 'hitmonchan-thunder-punch', 'Thunder Punch deals piercing damage, paralyzes cooldowns, and adds to the next Mega Punch.'),
@@ -143,7 +226,9 @@ const mergeMissionCatalog = (currentMissions = []) => {
             .filter((mission) => mission && mission.missionId)
             .map((mission) => [mission.missionId, mission])
     );
-    missionsById.set(trioMission.missionId, trioMission);
+    missionsById.set(hitmonchanMission.missionId, hitmonchanMission);
+    missionsById.set(hitmonleeMission.missionId, hitmonleeMission);
+    missionsById.set(magnemiteMission.missionId, magnemiteMission);
     return Array.from(missionsById.values()).sort(
         (left, right) => (Number(left.sortOrder) || 0) - (Number(right.sortOrder) || 0)
     );
