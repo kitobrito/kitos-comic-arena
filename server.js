@@ -97,6 +97,16 @@ const PAYPAL_MERCHANT_EMAIL = process.env.PAYPAL_MERCHANT_EMAIL || 'kienevul@gma
 const PUBLIC_APP_URL = process.env.PUBLIC_APP_URL || '';
 const UNLOCK_POINT_STORE_PACKAGES = [
     {
+        packageId: 'pokemon-750-points',
+        arena: 'pokemon',
+        points: 750,
+        amountUsd: '5.00',
+        currency: 'USD',
+        provider: 'paypal',
+        label: '750 Unlock Points',
+        description: '750 Pokemon Arena unlock points',
+    },
+    {
         packageId: 'pokemon-1500-points',
         arena: 'pokemon',
         points: 1500,
@@ -105,6 +115,16 @@ const UNLOCK_POINT_STORE_PACKAGES = [
         provider: 'paypal',
         label: '1,500 Unlock Points',
         description: '1,500 Pokemon Arena unlock points',
+    },
+    {
+        packageId: 'pokemon-3000-points',
+        arena: 'pokemon',
+        points: 3000,
+        amountUsd: '20.00',
+        currency: 'USD',
+        provider: 'paypal',
+        label: '3,000 Unlock Points',
+        description: '3,000 Pokemon Arena unlock points',
     },
 ];
 let missionCatalogCache = null;
@@ -4108,16 +4128,21 @@ const getStoredMissionCatalog = async () => {
         missionCatalogCache = defaultCatalog;
         return defaultCatalog;
     }
-
-    const storedState = await appStateCollection.findOne({ key: MISSION_CATALOG_STATE_KEY });
-    const storedCatalog = normalizeMissionCatalog(
-        storedState && Array.isArray(storedState.missions) ? storedState.missions : []
-    );
-    const nextCatalog = ensureRequiredMissionCatalogEntries(
-        storedCatalog.length ? storedCatalog : defaultCatalog
-    );
-    missionCatalogCache = nextCatalog;
-    return nextCatalog;
+    try {
+        const storedState = await appStateCollection.findOne({ key: MISSION_CATALOG_STATE_KEY });
+        const storedCatalog = normalizeMissionCatalog(
+            storedState && Array.isArray(storedState.missions) ? storedState.missions : []
+        );
+        const nextCatalog = ensureRequiredMissionCatalogEntries(
+            storedCatalog.length ? storedCatalog : defaultCatalog
+        );
+        missionCatalogCache = nextCatalog;
+        return nextCatalog;
+    } catch (error) {
+        console.error('Mission catalog fallback engaged:', error);
+        missionCatalogCache = defaultCatalog;
+        return defaultCatalog;
+    }
 };
 
 const saveMissionCatalog = async (missions, updatedBy) => {
