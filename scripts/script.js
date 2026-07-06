@@ -12729,6 +12729,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                   ...entry,
                   skinId: normalizeSkinId(entry.skinId),
                   characterId: normalizeSkinCharacterId(entry.characterId),
+                  skillImageOverridesBySkillId:
+                      entry.skillImageOverridesBySkillId && typeof entry.skillImageOverridesBySkillId === 'object'
+                          ? entry.skillImageOverridesBySkillId
+                          : {},
               }))
             : [];
         if (arena === activeArenaMode) {
@@ -13709,7 +13713,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!skinEntry?.patch || typeof skinEntry.patch !== 'object') {
                 return character;
             }
-            return mergeSkinPatchValue(character, skinEntry.patch);
+            const patchedCharacter = mergeSkinPatchValue(character, skinEntry.patch);
+            const skillImageOverridesBySkillId =
+                skinEntry.skillImageOverridesBySkillId && typeof skinEntry.skillImageOverridesBySkillId === 'object'
+                    ? skinEntry.skillImageOverridesBySkillId
+                    : {};
+            if (!Array.isArray(patchedCharacter.skills) || !Object.keys(skillImageOverridesBySkillId).length) {
+                return patchedCharacter;
+            }
+            patchedCharacter.skills = patchedCharacter.skills.map((skill = {}) => {
+                const override = skillImageOverridesBySkillId[skill.id];
+                return override ? { ...skill, skillimage: override } : skill;
+            });
+            return patchedCharacter;
         });
     };
 

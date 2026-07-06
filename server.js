@@ -2400,8 +2400,24 @@ const normalizeSkinId = (value = '') =>
         .replace(/^-+|-+$/g, '');
 
 const POKEMON_SKIN_CATALOG = [
-    // Add future Pokemon skins here. Example patch fields can override
-    // facePicture, spriteSheet, skill images, descriptions, or other character data.
+    {
+        skinId: 'pikachu-raichu',
+        characterId: 'pikachu',
+        name: 'Raichu',
+        description: 'A Raichu-inspired skin for Pikachu with custom portrait and skill art.',
+        unlockPointCost: 750,
+        previewFacePicture: 'assets/images/PokemonArena/Pikachu/skins/raichu/fp.webp',
+        patch: {
+            facePicture: 'assets/images/PokemonArena/Pikachu/skins/raichu/fp.webp',
+        },
+        skillImageOverridesBySkillId: {
+            'pikachu-thundershock': 'assets/images/PokemonArena/Pikachu/skins/raichu/skill1.webp',
+            'pikachu-volt-tackle': 'assets/images/PokemonArena/Pikachu/skins/raichu/skill2.webp',
+            'pikachu-thunder': 'assets/images/PokemonArena/Pikachu/skins/raichu/skill3.webp',
+            'pikachu-agility': 'assets/images/PokemonArena/Pikachu/skins/raichu/skill4.webp',
+            'pikachu-passive-static': 'assets/images/PokemonArena/Pikachu/skins/raichu/skill5.webp',
+        },
+    },
 ];
 
 const getArenaSkinCatalog = (arena = DEFAULT_ARENA_MODE) =>
@@ -2484,6 +2500,10 @@ const serializeSkinCatalogEntryForClient = (entry = {}) => ({
                 ? entry.patch.facePicture.trim()
                 : '',
     patch: entry.patch && typeof entry.patch === 'object' ? entry.patch : {},
+    skillImageOverridesBySkillId:
+        entry.skillImageOverridesBySkillId && typeof entry.skillImageOverridesBySkillId === 'object'
+            ? entry.skillImageOverridesBySkillId
+            : {},
 });
 
 const normalizeMissionPurchasedUnlock = (entry = {}) => {
@@ -7337,6 +7357,24 @@ const buildMatchActionStatePayload = (match, username, extra = {}) => {
     };
 };
 
+const findMostRecentActiveMatchForUser = async (username, arena = '') => {
+    const normalizedArena =
+        typeof arena === 'string' && arena.trim() ? normalizeArenaMode(arena) : '';
+    return matchesCollection.findOne(
+        {
+            'players.username': username,
+            status: { $ne: 'ended' },
+            ...(normalizedArena ? { arena: normalizedArena } : {}),
+        },
+        {
+            sort: {
+                matchStartsAt: -1,
+                createdAt: -1,
+            },
+        }
+    );
+};
+
 const respondWithCurrentMatchState = (res, match, username, extra = {}) =>
     res.json(buildMatchActionStatePayload(match, username, extra));
 
@@ -10848,17 +10886,22 @@ app.get('/api/match/status', requireSession, async (req, res) => {
             });
         }
 
-        const queuedEntry = findQueuedEntry(username, null, requestedArena || null);
-        const botMatch = await maybeCreateBattleBotMatch({
-            username,
-            mode: queuedEntry?.mode || 'quick',
-            arena: queuedEntry?.entry?.arena || requestedArena || DEFAULT_ARENA_MODE,
-            userProfile: normalizedProfile,
-        });
-        if (botMatch?.draftId) {
-            return res.json(serializeDraftForUser(botMatch, username));
-        }
-        if (botMatch) {
+        // Prefer a persisted active match before creating any new bot match.
+        const match = await findMostRecentActiveMatchForUser(username, requestedArena);
+        if (!match) {
+            const queuedEntry = findQueuedEntry(username, null, requestedArena || null);
+            const botMatch = await maybeCreateBattleBotMatch({
+                username,
+                mode: queuedEntry?.mode || 'quick',
+                arena: queuedEntry?.entry?.arena || requestedArena || DEFAULT_ARENA_MODE,
+                userProfile: normalizedProfile,
+            });
+            if (botMatch?.draftId) {
+                return res.json(serializeDraftForUser(botMatch, username));
+            }
+            if (!botMatch) {
+                return res.json({ ok: true, matchFound: false });
+            }
             scheduleBattleBotTurn(botMatch);
             const safePayload = buildMatchPayloadForUser(botMatch, username);
             return res.json({
@@ -10880,16 +10923,6 @@ app.get('/api/match/status', requireSession, async (req, res) => {
                 lastChakraGain: safePayload?.lastChakraGain || null,
                 pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
             });
-        }
-
-        // Fallback: lookup persisted match
-        const match = await matchesCollection.findOne({
-            'players.username': username,
-            status: { $ne: 'ended' },
-            ...(requestedArena ? { arena: requestedArena } : {}),
-        });
-        if (!match) {
-            return res.json({ ok: true, matchFound: false });
         }
         const hydratedTurn = await ensureMatchTurnData(match);
         const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
