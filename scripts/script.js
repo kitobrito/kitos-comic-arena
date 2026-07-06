@@ -12753,6 +12753,92 @@ document.addEventListener('DOMContentLoaded', async () => {
         return payload;
     };
 
+    const stripUnlockPointsPaymentQueryParams = () => {
+        const url = new URL(window.location.href);
+        [
+            'unlockPointsPayment',
+            'token',
+            'PayerID',
+            'payerId',
+            'packageId',
+        ].forEach((key) => url.searchParams.delete(key));
+        window.history.replaceState({}, document.title, url.toString());
+    };
+
+    const startPayPalUnlockPointCheckout = async (packageId, button = null) => {
+        const normalizedPackageId = String(packageId || '').trim().toLowerCase();
+        if (!normalizedPackageId) return;
+        if (button) button.disabled = true;
+        setSelectionMissionsStatus('Redirecting to PayPal...');
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/unlock-points/paypal/create-order`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    arena: activeArenaMode,
+                    packageId: normalizedPackageId,
+                }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || 'Unable to start PayPal checkout.');
+            }
+            if (!payload.approveUrl) {
+                throw new Error('PayPal did not return an approval link.');
+            }
+            window.location.assign(payload.approveUrl);
+        } catch (error) {
+            if (button) button.disabled = false;
+            setSelectionMissionsStatus(error.message || 'Unable to start PayPal checkout.');
+        }
+    };
+
+    const captureReturnedPayPalUnlockPoints = async () => {
+        const currentSearchParams = new URLSearchParams(window.location.search);
+        const paymentState = currentSearchParams.get('unlockPointsPayment') || '';
+        const orderId = currentSearchParams.get('token') || '';
+        if (paymentState === 'paypal-cancelled') {
+            const message = 'PayPal checkout was cancelled.';
+            setSelectionMissionsStatus(message);
+            stripUnlockPointsPaymentQueryParams();
+            return message;
+        }
+        if (paymentState !== 'paypal' || !orderId) {
+            return '';
+        }
+        setSelectionMissionsStatus('Confirming PayPal payment...');
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/unlock-points/paypal/capture`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    arena: activeArenaMode,
+                    orderId,
+                }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || 'Unable to confirm PayPal payment.');
+            }
+            if (payload.profile) {
+                applyUpdatedProfile(payload.profile);
+            }
+            stripUnlockPointsPaymentQueryParams();
+            const message =
+                payload.alreadyGranted
+                    ? 'This PayPal payment was already credited.'
+                    : `${Number(payload.pointsGranted || 0).toLocaleString()} unlock points added.`;
+            setSelectionMissionsStatus(message);
+            return message;
+        } catch (error) {
+            const message = error.message || 'Unable to confirm PayPal payment.';
+            setSelectionMissionsStatus(message);
+            return message;
+        }
+    };
+
     const buyMissionCharacterUnlock = async (characterId, button = null) => {
         const normalizedCharacterId = String(characterId || '').trim().toLowerCase();
         if (!normalizedCharacterId) return;
@@ -13116,6 +13202,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             unlockPointPriceMin,
             Math.floor(Number(payload.unlockPointPriceMax) || 250)
         );
+        const pointStore = payload.pointStore && typeof payload.pointStore === 'object' ? payload.pointStore : {};
+        const pointStorePackages = Array.isArray(pointStore.pointStorePackages) ? pointStore.pointStorePackages : [];
         const unlockedIds = new Set(
             (Array.isArray(payload.unlockedCharacterIds) ? payload.unlockedCharacterIds : [])
                 .map((entry) => String(entry || '').trim().toLowerCase())
@@ -13134,6 +13222,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         wallet.appendChild(walletTotal);
         wallet.appendChild(walletHint);
         selectionMissionsListEl.appendChild(wallet);
+        if (activeArenaMode === 'pokemon' && pointStorePackages.length) {
+            const storeCard = document.createElement('article');
+            storeCard.className = 'selection-mission-card';
+            const title = document.createElement('h3');
+            title.className = 'selection-mission-title';
+            title.textContent = 'Buy Points';
+            const subtitle = document.createElement('p');
+            subtitle.className = 'selection-mission-progress';
+            subtitle.textContent = pointStore.paypalAvailable
+                ? 'Securely buy Pokemon Arena unlock points with PayPal.'
+                : 'PayPal checkout is not configured yet.';
+            storeCard.appendChild(title);
+            storeCard.appendChild(subtitle);
+            pointStorePackages.forEach((entry = {}) => {
+                const buyWrap = document.createElement('div');
+                buyWrap.className = 'selection-mission-buy';
+                const buyText = document.createElement('span');
+                const points = Math.max(1, Number(entry.points) || 0);
+                buyText.textContent = `${points.toLocaleString()} points for $${entry.amountUsd || '0.00'} ${entry.currency || 'USD'}.`;
+                const buyButton = document.createElement('button');
+                buyButton.type = 'button';
+                buyButton.className = 'selection-mission-action selection-mission-buy-action';
+                buyButton.textContent = pointStore.paypalAvailable ? 'Pay with PayPal' : 'Unavailable';
+                buyButton.disabled = !pointStore.paypalAvailable;
+                buyButton.addEventListener('click', () => {
+                    startPayPalUnlockPointCheckout(entry.packageId, buyButton);
+                });
+                buyWrap.appendChild(buyText);
+                buyWrap.appendChild(buyButton);
+                storeCard.appendChild(buyWrap);
+            });
+            selectionMissionsListEl.appendChild(storeCard);
+        }
         if (!missions.length) {
             const empty = document.createElement('div');
             empty.className = 'selection-mission-card';
@@ -13238,6 +13359,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!selectionMissionsListEl) return;
         setSelectionMissionsStatus('Loading missions...');
         try {
+            const paymentStatusMessage = await captureReturnedPayPalUnlockPoints();
             const [missionsResponse, skinsPayload] = await Promise.all([
                 fetch(`${API_BASE_URL}/api/missions?arena=${encodeURIComponent(activeArenaMode)}`, {
                     credentials: 'include',
@@ -13251,7 +13373,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             renderSelectionMissions(payload);
             renderSelectionSkins(skinsPayload);
-            setSelectionMissionsStatus('');
+            setSelectionMissionsStatus(paymentStatusMessage || '');
         } catch (error) {
             setSelectionMissionsStatus(error.message || 'Unable to load missions.');
         }
@@ -13300,7 +13422,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 loadSelectionMissions();
             }
         });
-        if (pageSearchParams.get('missions') === 'open' || selectionMissionIdFromUrl) {
+        if (
+            pageSearchParams.get('missions') === 'open' ||
+            selectionMissionIdFromUrl ||
+            pageSearchParams.get('unlockPointsPayment')
+        ) {
             selectionMissionsEl.classList.remove('collapsed');
             selectionMissionsToggle.classList.add('active');
             selectionMissionsToggle.setAttribute('aria-expanded', 'true');

@@ -50,6 +50,7 @@ const USERS_COLLECTION = process.env.MONGODB_USERS_COLLECTION || 'users';
 const MATCHES_COLLECTION = process.env.MONGODB_MATCHES_COLLECTION || 'matches';
 const APP_STATE_COLLECTION = process.env.MONGODB_APP_STATE_COLLECTION || 'app_state';
 const NEWS_POSTS_COLLECTION = process.env.MONGODB_NEWS_POSTS_COLLECTION || 'news_posts';
+const POINT_PURCHASES_COLLECTION = process.env.MONGODB_POINT_PURCHASES_COLLECTION || 'point_purchases';
 const CHARACTERS_FILE_PATH = path.join(__dirname, 'characters.js');
 const CHARACTER_OVERRIDES_STATE_KEY = 'character_overrides';
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -87,6 +88,25 @@ const LADDER_UNLOCK_POINTS_LOSS = 3;
 const MISSION_UNLOCK_POINT_PRICE_MIN = 80;
 const MISSION_UNLOCK_POINT_PRICE_MAX = 250;
 const MISSION_EEVEE_EVOLUTION_UNLOCK_POINT_COST = 500;
+const PAYPAL_CLIENT_ID = process.env.PAYPAL_CLIENT_ID || '';
+const PAYPAL_CLIENT_SECRET = process.env.PAYPAL_CLIENT_SECRET || '';
+const PAYPAL_ENV = process.env.PAYPAL_ENV === 'live' ? 'live' : 'sandbox';
+const PAYPAL_API_BASE_URL =
+    PAYPAL_ENV === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
+const PAYPAL_MERCHANT_EMAIL = process.env.PAYPAL_MERCHANT_EMAIL || 'kienevul@gmail.com';
+const PUBLIC_APP_URL = process.env.PUBLIC_APP_URL || '';
+const UNLOCK_POINT_STORE_PACKAGES = [
+    {
+        packageId: 'pokemon-1500-points',
+        arena: 'pokemon',
+        points: 1500,
+        amountUsd: '10.00',
+        currency: 'USD',
+        provider: 'paypal',
+        label: '1,500 Unlock Points',
+        description: '1,500 Pokemon Arena unlock points',
+    },
+];
 let missionCatalogCache = null;
 let botTeamsCache = null;
 let maintenanceModeCache = {
@@ -1861,6 +1881,7 @@ let usersCollection;
 let matchesCollection;
 let appStateCollection;
 let newsPostsCollection;
+let pointPurchasesCollection;
 let characterOverrideCache = new Map();
 const matchSocketRooms = new Map();
 const wsConnections = new Set();
@@ -2505,6 +2526,172 @@ const serializeSkinCatalogEntryForClient = (entry = {}) => ({
             ? entry.skillImageOverridesBySkillId
             : {},
 });
+
+const isPayPalConfigured = () => Boolean(PAYPAL_CLIENT_ID && PAYPAL_CLIENT_SECRET);
+
+const getUnlockPointStorePackages = (arena = DEFAULT_ARENA_MODE) =>
+    UNLOCK_POINT_STORE_PACKAGES.filter((entry) => normalizeArenaMode(entry.arena) === normalizeArenaMode(arena));
+
+const serializeUnlockPointStorePackageForClient = (entry = {}) => ({
+    packageId: String(entry.packageId || '').trim(),
+    arena: normalizeArenaMode(entry.arena),
+    points: Math.max(1, Math.floor(Number(entry.points) || 0)),
+    amountUsd: String(entry.amountUsd || '').trim(),
+    currency: String(entry.currency || 'USD').trim().toUpperCase(),
+    provider: String(entry.provider || 'paypal').trim().toLowerCase(),
+    label: String(entry.label || '').trim(),
+    description: String(entry.description || '').trim(),
+});
+
+const findUnlockPointStorePackage = (packageId = '', arena = DEFAULT_ARENA_MODE) =>
+    getUnlockPointStorePackages(arena).find(
+        (entry) => String(entry.packageId || '').trim().toLowerCase() === String(packageId || '').trim().toLowerCase()
+    ) || null;
+
+const buildUnlockPointStoreResponse = ({ arena = DEFAULT_ARENA_MODE, profile = null } = {}) => {
+    const normalizedArena = normalizeArenaMode(arena);
+    const arenaProfile = profile ? getProfileArenaState(profile, normalizedArena) : {};
+    const missionState = normalizeMissionState(arenaProfile?.missions);
+    return {
+        arena: normalizedArena,
+        unlockPoints: missionState.unlockPoints,
+        merchantEmail: PAYPAL_MERCHANT_EMAIL,
+        paypalAvailable: isPayPalConfigured(),
+        paypalEnvironment: PAYPAL_ENV,
+        pointStorePackages: getUnlockPointStorePackages(normalizedArena).map(
+            serializeUnlockPointStorePackageForClient
+        ),
+    };
+};
+
+const createPayPalPointsCustomId = ({ username = '', arena = DEFAULT_ARENA_MODE, packageId = '' } = {}) =>
+    JSON.stringify({
+        username: String(username || '').trim(),
+        arena: normalizeArenaMode(arena),
+        packageId: String(packageId || '').trim(),
+    });
+
+const parsePayPalPointsCustomId = (value = '') => {
+    try {
+        const parsed = JSON.parse(String(value || ''));
+        return {
+            username: String(parsed?.username || '').trim(),
+            arena: normalizeArenaMode(parsed?.arena),
+            packageId: String(parsed?.packageId || '').trim(),
+        };
+    } catch (error) {
+        return {
+            username: '',
+            arena: '',
+            packageId: '',
+        };
+    }
+};
+
+const getPayPalAccessToken = async () => {
+    if (!isPayPalConfigured()) {
+        throw new Error('PayPal is not configured.');
+    }
+    const response = await fetch(`${PAYPAL_API_BASE_URL}/v1/oauth2/token`, {
+        method: 'POST',
+        headers: {
+            Authorization: `Basic ${Buffer.from(`${PAYPAL_CLIENT_ID}:${PAYPAL_CLIENT_SECRET}`).toString('base64')}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'grant_type=client_credentials',
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload?.access_token) {
+        throw new Error(payload?.error_description || payload?.error || 'Unable to authenticate with PayPal.');
+    }
+    return payload.access_token;
+};
+
+const buildPayPalOrderHeaders = async () => ({
+    Authorization: `Bearer ${await getPayPalAccessToken()}`,
+    'Content-Type': 'application/json',
+});
+
+const extractPayPalApproveUrl = (payload = {}) =>
+    (Array.isArray(payload?.links) ? payload.links : []).find(
+        (entry) => entry?.rel === 'payer-action' || entry?.rel === 'approve'
+    )?.href || '';
+
+const extractCompletedPayPalCapture = (payload = {}) => {
+    const purchaseUnit = Array.isArray(payload?.purchase_units) ? payload.purchase_units[0] : null;
+    const capture = Array.isArray(purchaseUnit?.payments?.captures) ? purchaseUnit.payments.captures[0] : null;
+    if (!capture || String(capture.status || '').trim().toUpperCase() !== 'COMPLETED') {
+        return null;
+    }
+    return {
+        captureId: String(capture.id || '').trim(),
+        amountValue: String(capture.amount?.value || '').trim(),
+        currencyCode: String(capture.amount?.currency_code || '').trim().toUpperCase(),
+        customId: String(purchaseUnit?.custom_id || '').trim(),
+        payerId: String(payload?.payer?.payer_id || '').trim(),
+        payerEmail: String(payload?.payer?.email_address || '').trim(),
+    };
+};
+
+const grantUnlockPointsPurchase = async ({
+    user,
+    arena = DEFAULT_ARENA_MODE,
+    packageEntry,
+    orderId = '',
+    captureId = '',
+    payerId = '',
+    payerEmail = '',
+}) => {
+    const normalizedProfile = normalizeUserProfile(user);
+    const arenaState = getProfileArenaState(normalizedProfile, arena);
+    const missionState = normalizeMissionState(arenaState.missions);
+    missionState.unlockPoints += Math.max(1, Math.floor(Number(packageEntry?.points) || 0));
+    arenaState.missions = normalizeMissionState(missionState);
+    arenaState.ladder = {
+        ...(arenaState.ladder || {}),
+        unlockPoints: arenaState.missions.unlockPoints,
+    };
+    const nextProfile = normalizeUserProfile({
+        ...user,
+        profile: setProfileArenaState(normalizedProfile, arena, arenaState),
+    });
+    const grantedAt = new Date();
+    await usersCollection.updateOne(
+        { _id: user._id },
+        {
+            $set: {
+                profile: nextProfile,
+            },
+        }
+    );
+    await pointPurchasesCollection.updateOne(
+        { provider: 'paypal', orderId: String(orderId || '').trim() },
+        {
+            $set: {
+                provider: 'paypal',
+                orderId: String(orderId || '').trim(),
+                captureId: String(captureId || '').trim(),
+                username: user.username,
+                arena: normalizeArenaMode(arena),
+                packageId: String(packageEntry?.packageId || '').trim(),
+                pointsGranted: Math.max(1, Math.floor(Number(packageEntry?.points) || 0)),
+                amountUsd: String(packageEntry?.amountUsd || '').trim(),
+                currency: String(packageEntry?.currency || 'USD').trim().toUpperCase(),
+                payerId: String(payerId || '').trim(),
+                payerEmail: String(payerEmail || '').trim(),
+                status: 'granted',
+                merchantEmail: PAYPAL_MERCHANT_EMAIL,
+                grantedAt,
+                updatedAt: grantedAt,
+            },
+            $setOnInsert: {
+                createdAt: grantedAt,
+            },
+        },
+        { upsert: true }
+    );
+    return nextProfile;
+};
 
 const normalizeMissionPurchasedUnlock = (entry = {}) => {
     const source = entry && typeof entry === 'object' ? entry : {};
@@ -6539,6 +6726,8 @@ const resolveRequestOrigin = (req) => {
     return normalizeOrigin(`${protocol}://${host}`);
 };
 
+const resolvePublicAppUrl = (req) => normalizeOrigin(PUBLIC_APP_URL) || resolveRequestOrigin(req);
+
 const isAllowedCorsOrigin = (origin, req) => {
     if (!origin) {
         return true;
@@ -10038,6 +10227,7 @@ async function initDb() {
     matchesCollection = db.collection(MATCHES_COLLECTION);
     appStateCollection = db.collection(APP_STATE_COLLECTION);
     newsPostsCollection = db.collection(NEWS_POSTS_COLLECTION);
+    pointPurchasesCollection = db.collection(POINT_PURCHASES_COLLECTION);
     await usersCollection.createIndex({ username: 1 }, { unique: true });
     await usersCollection.createIndex({ usernameLower: 1 });
     await usersCollection.createIndex(
@@ -10047,6 +10237,8 @@ async function initDb() {
     await matchesCollection.createIndex({ matchId: 1 }, { unique: true });
     await appStateCollection.createIndex({ key: 1 }, { unique: true });
     await newsPostsCollection.createIndex({ createdAt: -1 });
+    await pointPurchasesCollection.createIndex({ provider: 1, orderId: 1 }, { unique: true });
+    await pointPurchasesCollection.createIndex({ username: 1, createdAt: -1 });
     await hydrateCharactersDataFromStoredOverrides();
     await backfillUserProfiles();
     console.log('Connected to MongoDB.');
@@ -11944,6 +12136,7 @@ const buildArenaSkinsResponse = ({ arena = DEFAULT_ARENA_MODE, profile = null } 
         unlockedSkinIds: skinState.unlockedSkinIds,
         equippedSkinByCharacterId: skinState.equippedSkinByCharacterId,
         unlockPoints: missionState.unlockPoints,
+        pointStore: buildUnlockPointStoreResponse({ arena: normalizedArena, profile }),
     };
 };
 
@@ -11978,6 +12171,7 @@ app.get('/api/missions', async (req, res) => {
                 MISSION_EEVEE_EVOLUTION_UNLOCK_POINT_COST
             ),
             purchasedUnlocks: missionState.purchasedUnlocks,
+            pointStore: buildUnlockPointStoreResponse({ arena, profile: normalizedProfile }),
         });
     } catch (error) {
         console.error('Mission catalog load error:', error);
@@ -12240,6 +12434,178 @@ app.post('/api/skins/equip', requireSession, async (req, res) => {
     } catch (error) {
         console.error('Skin equip error:', error);
         return res.status(500).json({ error: 'Unable to equip skin.' });
+    }
+});
+
+app.post('/api/unlock-points/paypal/create-order', requireSession, async (req, res) => {
+    try {
+        const arena = normalizeArenaMode(req.body?.arena || req.query?.arena);
+        const packageId = String(req.body?.packageId || req.body?.package_id || '').trim().toLowerCase();
+        if (!isPayPalConfigured()) {
+            return res.status(503).json({ error: 'PayPal payments are not configured yet.' });
+        }
+        const packageEntry = findUnlockPointStorePackage(packageId, arena);
+        if (!packageEntry || packageEntry.provider !== 'paypal') {
+            return res.status(404).json({ error: 'Point package not found.' });
+        }
+        const baseUrl = resolvePublicAppUrl(req);
+        if (!baseUrl) {
+            return res.status(500).json({ error: 'Unable to resolve the public app URL.' });
+        }
+        const username = req.authUser.username;
+        const returnUrl = `${baseUrl}/selection.html?arena=${encodeURIComponent(arena)}&unlockPointsPayment=paypal`;
+        const cancelUrl = `${baseUrl}/selection.html?arena=${encodeURIComponent(arena)}&unlockPointsPayment=paypal-cancelled`;
+        const headers = await buildPayPalOrderHeaders();
+        const response = await fetch(`${PAYPAL_API_BASE_URL}/v2/checkout/orders`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+                intent: 'CAPTURE',
+                purchase_units: [
+                    {
+                        custom_id: createPayPalPointsCustomId({ username, arena, packageId }),
+                        description: packageEntry.description,
+                        amount: {
+                            currency_code: packageEntry.currency,
+                            value: packageEntry.amountUsd,
+                        },
+                    },
+                ],
+                payment_source: {
+                    paypal: {
+                        experience_context: {
+                            brand_name: 'Comic Arena',
+                            shipping_preference: 'NO_SHIPPING',
+                            user_action: 'PAY_NOW',
+                            return_url: returnUrl,
+                            cancel_url: cancelUrl,
+                        },
+                    },
+                },
+            }),
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(payload?.message || payload?.name || 'Unable to create PayPal order.');
+        }
+        const approveUrl = extractPayPalApproveUrl(payload);
+        if (!payload?.id || !approveUrl) {
+            throw new Error('PayPal did not return an approval URL.');
+        }
+        const now = new Date();
+        await pointPurchasesCollection.updateOne(
+            { provider: 'paypal', orderId: payload.id },
+            {
+                $set: {
+                    provider: 'paypal',
+                    orderId: payload.id,
+                    username,
+                    arena,
+                    packageId: packageEntry.packageId,
+                    pointsGranted: packageEntry.points,
+                    amountUsd: packageEntry.amountUsd,
+                    currency: packageEntry.currency,
+                    merchantEmail: PAYPAL_MERCHANT_EMAIL,
+                    status: 'created',
+                    approveUrl,
+                    paypalEnvironment: PAYPAL_ENV,
+                    updatedAt: now,
+                },
+                $setOnInsert: {
+                    createdAt: now,
+                },
+            },
+            { upsert: true }
+        );
+        return res.json({
+            ok: true,
+            arena,
+            packageId: packageEntry.packageId,
+            orderId: payload.id,
+            approveUrl,
+        });
+    } catch (error) {
+        console.error('PayPal order creation error:', error);
+        return res.status(500).json({ error: error.message || 'Unable to create PayPal order.' });
+    }
+});
+
+app.post('/api/unlock-points/paypal/capture', requireSession, async (req, res) => {
+    try {
+        const arena = normalizeArenaMode(req.body?.arena || req.query?.arena);
+        const orderId = String(req.body?.orderId || req.body?.order_id || req.body?.token || '').trim();
+        if (!isPayPalConfigured()) {
+            return res.status(503).json({ error: 'PayPal payments are not configured yet.' });
+        }
+        if (!orderId) {
+            return res.status(400).json({ error: 'Order ID is required.' });
+        }
+        const existingPurchase = await pointPurchasesCollection.findOne({ provider: 'paypal', orderId });
+        const user = await usersCollection.findOne({ username: req.authUser.username });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+        if (existingPurchase?.status === 'granted') {
+            const currentProfile = normalizeUserProfile(user);
+            return res.json({
+                ok: true,
+                arena,
+                orderId,
+                alreadyGranted: true,
+                profile: currentProfile,
+                pointStore: buildUnlockPointStoreResponse({ arena, profile: currentProfile }),
+            });
+        }
+
+        const headers = await buildPayPalOrderHeaders();
+        const response = await fetch(`${PAYPAL_API_BASE_URL}/v2/checkout/orders/${encodeURIComponent(orderId)}/capture`, {
+            method: 'POST',
+            headers,
+            body: '{}',
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(payload?.message || payload?.name || 'Unable to capture PayPal order.');
+        }
+        const capture = extractCompletedPayPalCapture(payload);
+        if (!capture) {
+            throw new Error('PayPal order was not completed.');
+        }
+        const customId = parsePayPalPointsCustomId(capture.customId);
+        if (!customId?.username || !usernamesEqual(customId.username, req.authUser.username)) {
+            return res.status(403).json({ error: 'This PayPal order does not belong to your account.' });
+        }
+        const packageEntry = findUnlockPointStorePackage(customId.packageId, customId.arena || arena);
+        if (!packageEntry || packageEntry.provider !== 'paypal') {
+            return res.status(400).json({ error: 'The purchased point package is no longer available.' });
+        }
+        if (
+            capture.amountValue !== packageEntry.amountUsd ||
+            capture.currencyCode !== String(packageEntry.currency || 'USD').trim().toUpperCase()
+        ) {
+            return res.status(400).json({ error: 'The captured PayPal amount does not match this point package.' });
+        }
+        const nextProfile = await grantUnlockPointsPurchase({
+            user,
+            arena: customId.arena || arena,
+            packageEntry,
+            orderId,
+            captureId: capture.captureId,
+            payerId: capture.payerId,
+            payerEmail: capture.payerEmail,
+        });
+        return res.json({
+            ok: true,
+            arena: customId.arena || arena,
+            orderId,
+            packageId: packageEntry.packageId,
+            pointsGranted: packageEntry.points,
+            profile: nextProfile,
+            pointStore: buildUnlockPointStoreResponse({ arena: customId.arena || arena, profile: nextProfile }),
+        });
+    } catch (error) {
+        console.error('PayPal capture error:', error);
+        return res.status(500).json({ error: error.message || 'Unable to capture PayPal order.' });
     }
 });
 
