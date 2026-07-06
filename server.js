@@ -12148,11 +12148,12 @@ app.get('/api/missions', async (req, res) => {
             (mission) => normalizeArenaMode(mission?.arena) === arena
         ));
         let missionState = createDefaultMissionState();
+        let normalizedProfile = null;
         try {
             const token = req.cookies?.[SESSION_COOKIE_NAME];
             const authUser = token ? await getSessionUserFromToken(token) : null;
             if (authUser) {
-                const normalizedProfile = normalizeUserProfile(authUser);
+                normalizedProfile = normalizeUserProfile(authUser);
                 missionState = normalizeMissionState(getProfileArenaState(normalizedProfile, arena).missions);
             }
         } catch (sessionError) {
