@@ -27204,7 +27204,7 @@ const characters = [
                 "id": "hitmonlee-focus-energy",
                 "name": "Focus Energy",
                 "skillimage": "assets/images/PokemonArena/hitmonlee/focusenergy.webp",
-                "skilldescription": "For 2 turns, Hitmonlee's damaging skills gain 50% additional critical strike chance and deal 10 additional damage.",
+                "skilldescription": "For 2 turns, Hitmonlee's damaging skills gain 50% additional critical strike chance and deal 5 additional damage.",
                 "energy": [
                     "Random"
                 ],
@@ -27223,7 +27223,7 @@ const characters = [
                         "scope": "self",
                         "metadata": {
                             "statusIconUrl": "assets/images/PokemonArena/hitmonlee/focusenergy.webp",
-                            "tooltipText": "Hitmonlee's damaging skills gain 50% additional critical strike chance and deal 10 additional damage."
+                            "tooltipText": "Hitmonlee's damaging skills gain 50% additional critical strike chance and deal 5 additional damage."
                         }
                     }
                 ]
@@ -27254,7 +27254,7 @@ const characters = [
                     },
                     {
                         "type": "damage",
-                        "amount": 10,
+                        "amount": 5,
                         "scope": "target",
                         "condition": {
                             "scope": "self",
@@ -27263,7 +27263,7 @@ const characters = [
                     },
                     {
                         "type": "damage",
-                        "amount": 10,
+                        "amount": 5,
                         "scope": "target",
                         "chance": 25,
                         "condition": {
@@ -27276,7 +27276,7 @@ const characters = [
                     },
                     {
                         "type": "damage",
-                        "amount": 10,
+                        "amount": 5,
                         "scope": "target",
                         "chance": 75,
                         "condition": {
@@ -27329,7 +27329,7 @@ const characters = [
                     },
                     {
                         "type": "damage",
-                        "amount": 10,
+                        "amount": 5,
                         "scope": "target",
                         "condition": {
                             "scope": "self",
