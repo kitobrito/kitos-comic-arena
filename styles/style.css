@@ -1724,6 +1724,31 @@ text-transform: uppercase;
     transform-origin: right center;
 }
 
+body.arena-mode-pokemon .skillviewer::before,
+body.arena-mode-pokemon .skillviewer::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    z-index: 3;
+}
+
+body.arena-mode-pokemon .skillviewer::before {
+    left: 529px;
+    top: 86px;
+    width: 50px;
+    height: 50px;
+    border-radius: 999px;
+    background: #fffdf7;
+}
+
+body.arena-mode-pokemon .skillviewer::after {
+    left: 532px;
+    top: 89px;
+    width: 44px;
+    height: 44px;
+    background: url('../assets/images/PokemonArena/found-pokeball.png') center / contain no-repeat;
+}
+
 .skillscroll {
     z-index: 2;
     position: relative;
