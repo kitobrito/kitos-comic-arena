@@ -13686,6 +13686,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         'xenomorph-drone',
         'predalien',
     ];
+    const preferredPokemonCharacterDisplayOrder = [
+        'pokemon-trainer',
+        'bulbasaur',
+        'charmander',
+        'squirtle',
+        'butterfree',
+        'pidgey',
+        'ekans',
+        'pikachu',
+        'zubat',
+        'abra',
+        'machop',
+        'magnemite',
+        'gastly',
+        'krabby',
+        'hitmonlee',
+        'hitmonchan',
+        'koffing',
+        'chansey',
+        'mr-mime',
+        'scyther',
+        'magikarp',
+        'eevee',
+        'vaporeon',
+        'jolteon',
+        'flareon',
+    ];
     const getCharacterDisplayId = (character) => character?.characterId || character?.id || '';
     const getCharacterArenaMode = (character = {}) => {
         const explicitArena = typeof character?.arena === 'string' ? character.arena.trim().toLowerCase() : '';
@@ -13698,7 +13725,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const getBaseRosterDisplayIndices = () => {
         const displayOrder =
             activeArenaMode === 'pokemon'
-                ? ['pokemon-trainer', ...preferredCharacterDisplayOrder]
+                ? preferredPokemonCharacterDisplayOrder
                 : preferredCharacterDisplayOrder;
         const used = new Set();
         const ordered = displayOrder

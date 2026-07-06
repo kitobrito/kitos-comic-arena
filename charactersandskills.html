@@ -572,8 +572,35 @@
         "predator-stalker",
         "xenomorph-drone"
       ];
+      var preferredPokemonCharacterDisplayOrder = [
+        "pokemon-trainer",
+        "bulbasaur",
+        "charmander",
+        "squirtle",
+        "butterfree",
+        "pidgey",
+        "ekans",
+        "pikachu",
+        "zubat",
+        "abra",
+        "machop",
+        "magnemite",
+        "gastly",
+        "krabby",
+        "hitmonlee",
+        "hitmonchan",
+        "koffing",
+        "chansey",
+        "mr-mime",
+        "scyther",
+        "magikarp",
+        "eevee",
+        "vaporeon",
+        "jolteon",
+        "flareon"
+      ];
       if (pageArena === "pokemon") {
-        preferredCharacterDisplayOrder = ["pokemon-trainer"].concat(preferredCharacterDisplayOrder);
+        preferredCharacterDisplayOrder = preferredPokemonCharacterDisplayOrder;
       }
       var preferredCharacterDisplayRank = preferredCharacterDisplayOrder.reduce(function (map, id, index) {
         map[id] = index;
