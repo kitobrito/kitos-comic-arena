@@ -1036,8 +1036,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/BMQtiPt.jpeg",
                 "skilldescription": "Superman becomes invulnerable for 1 turn and deals 25 damage to one enemy.",
                 "energy": [
-                    "Random",
-                    "Random"
+                    "Bloodline"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -1460,7 +1459,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/c0AlSs8.jpeg",
                 "skilldescription": "For 1 turn, the first non-mental harmful skill used on Batman is reflected onto a random enemy. This skill then swaps back to 'Grappling Hook'.",
                 "energy": [
-                    "Random",
+                    "Bloodline",
                     "Random"
                 ],
                 "target": "self",
@@ -26874,6 +26873,1149 @@ const characters = [
         "roleCategory": "support",
         "description": "A trickster support Pokemon that manipulates protection timing, softens teams with Dazzling Gleam, and keeps allies stable with Light Screen and Safeguard.",
         "descriptionHtml": "A trickster support Pokemon that manipulates protection timing, softens teams with Dazzling Gleam, and keeps allies stable with Light Screen and Safeguard.",
+        "startStatuses": []
+    },
+    {
+        "id": "hitmonchan",
+        "characterId": "hitmonchan",
+        "name": "Hitmonchan",
+        "facePicture": "assets/images/PokemonArena/hitmonchan/fp.webp",
+        "characterdeescription": "A relentless boxer Pokemon that strings together elemental punches to set up a crushing Mega Punch finisher.",
+        "skills": [
+            {
+                "id": "hitmonchan-thunder-punch",
+                "name": "Thunder Punch",
+                "skillimage": "assets/images/PokemonArena/hitmonchan/thunderpunch.webp",
+                "skilldescription": "Deals 25 piercing damage to one enemy and paralyzes their cooldowns for 1 turn. The next Mega Punch deals 10 additional damage.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "hitmonchan_thunder_punch_paralysis",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "paralyzeCooldowns": true,
+                            "statusIconUrl": "assets/images/PokemonArena/hitmonchan/thunderpunch.webp",
+                            "tooltipText": "This character's cooldowns are paralyzed."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "hitmonchan_mega_punch_bonus",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "hitmonchanMegaPunchBonus": 10,
+                            "stackMetadataKey": "hitmonchanMegaPunchBonus",
+                            "stackDelta": 10,
+                            "stackMax": 999,
+                            "statusIconUrl": "assets/images/PokemonArena/hitmonchan/megapunch.webp",
+                            "tooltipTextTemplate": "Hitmonchan's next Mega Punch deals {hitmonchanMegaPunchBonus} additional damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "hitmonchan-fire-punch",
+                "name": "Fire Punch",
+                "skillimage": "assets/images/PokemonArena/hitmonchan/firepunch.webp",
+                "skilldescription": "Deals 25 affliction damage to one enemy. The next Mega Punch deals 10 additional damage.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "hitmonchan_mega_punch_bonus",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "hitmonchanMegaPunchBonus": 10,
+                            "stackMetadataKey": "hitmonchanMegaPunchBonus",
+                            "stackDelta": 10,
+                            "stackMax": 999,
+                            "statusIconUrl": "assets/images/PokemonArena/hitmonchan/megapunch.webp",
+                            "tooltipTextTemplate": "Hitmonchan's next Mega Punch deals {hitmonchanMegaPunchBonus} additional damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "hitmonchan-ice-punch",
+                "name": "Ice Punch",
+                "skillimage": "assets/images/PokemonArena/hitmonchan/icepunch.webp",
+                "skilldescription": "Deals 25 damage to one enemy and stuns their non-mental skills for 1 turn. The next Mega Punch deals 10 additional damage.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "hitmonchan_ice_punch_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseNonMentalSkills": true,
+                            "statusIconUrl": "assets/images/PokemonArena/hitmonchan/icepunch.webp",
+                            "tooltipText": "This character's non-mental skills are stunned."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "hitmonchan_mega_punch_bonus",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "hitmonchanMegaPunchBonus": 10,
+                            "stackMetadataKey": "hitmonchanMegaPunchBonus",
+                            "stackDelta": 10,
+                            "stackMax": 999,
+                            "statusIconUrl": "assets/images/PokemonArena/hitmonchan/megapunch.webp",
+                            "tooltipTextTemplate": "Hitmonchan's next Mega Punch deals {hitmonchanMegaPunchBonus} additional damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "hitmonchan-mega-punch",
+                "name": "Mega Punch",
+                "skillimage": "assets/images/PokemonArena/hitmonchan/megapunch.webp",
+                "skilldescription": "Deals 10 damage to one enemy. This skill deals 10 additional damage for each Thunder Punch, Fire Punch, and Ice Punch used since the last time Mega Punch was activated. After Mega Punch is used, this bonus is removed.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "metadata": {
+                            "bonusPerStatusMetadata": {
+                                "scope": "self",
+                                "statusId": "hitmonchan_mega_punch_bonus",
+                                "metadataKey": "hitmonchanMegaPunchBonus",
+                                "multiplier": 1
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "hitmonchan_mega_punch_bonus_spent",
+                        "duration": 0,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "hitmonchan_mega_punch_bonus"
+                        },
+                        "metadata": {
+                            "removeStatusIdsOnApply": [
+                                "hitmonchan_mega_punch_bonus"
+                            ],
+                            "tooltipText": "Mega Punch bonus has been consumed."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Damage",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "damage",
+        "description": "A disciplined boxer Pokemon that builds momentum through elemental punches, then cashes everything in with a massive finishing blow.",
+        "descriptionHtml": "A disciplined boxer Pokemon that builds momentum through elemental punches, then cashes everything in with a massive finishing blow.",
+        "startStatuses": []
+    },
+    {
+        "id": "hitmonlee",
+        "characterId": "hitmonlee",
+        "name": "Hitmonlee",
+        "facePicture": "assets/images/PokemonArena/hitmonlee/fp.webp",
+        "characterdeescription": "A relentless kicking specialist Pokemon that alternates pressure between rapid strikes and crushing finishers.",
+        "skills": [
+            {
+                "id": "hitmonlee-double-kick",
+                "name": "Double Kick",
+                "skillimage": "assets/images/PokemonArena/hitmonlee/doublekick.webp",
+                "skilldescription": "Deals 10 damage to one enemy twice. Each hit has a 25% chance to critically hit, dealing 5 additional damage. This skill swaps to Low Kick.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "hitmonlee_focus_energy"
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "target",
+                        "chance": 25,
+                        "condition": {
+                            "scope": "self",
+                            "missingStatusId": "hitmonlee_focus_energy"
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "target",
+                        "chance": 75,
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "hitmonlee_focus_energy"
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "target",
+                        "chance": 25,
+                        "condition": {
+                            "scope": "self",
+                            "missingStatusId": "hitmonlee_focus_energy"
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "target",
+                        "chance": 75,
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "hitmonlee_focus_energy"
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "hitmonlee_double_kick_swap",
+                        "duration": 99,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "skillReplacements": {
+                                "hitmonlee-double-kick": "hitmonlee-low-kick"
+                            },
+                            "removeStatusIdsOnApply": [
+                                "hitmonlee_low_kick_swap"
+                            ],
+                            "tooltipText": "Double Kick is replaced by Low Kick."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "hitmonlee-low-kick",
+                "name": "Low Kick",
+                "skillimage": "assets/images/PokemonArena/hitmonlee/lowkick.webp",
+                "skilldescription": "Deals 20 damage to one enemy and reduces their non-affliction damage by 15 for 1 turn. This skill has a 25% chance to critically hit, dealing 10 additional damage. This skill swaps to Double Kick.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "hitmonlee_focus_energy"
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "chance": 25,
+                        "condition": {
+                            "scope": "self",
+                            "missingStatusId": "hitmonlee_focus_energy"
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "chance": 75,
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "hitmonlee_focus_energy"
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "hitmonlee_low_kick_debuff",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "nonAfflictionDamageDebuffFlat": 15,
+                            "statusIconUrl": "assets/images/PokemonArena/hitmonlee/lowkick.webp",
+                            "tooltipText": "This character deals 15 less non-affliction damage."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "hitmonlee_low_kick_swap",
+                        "duration": 99,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "skillReplacements": {
+                                "hitmonlee-low-kick": "hitmonlee-double-kick"
+                            },
+                            "removeStatusIdsOnApply": [
+                                "hitmonlee_double_kick_swap"
+                            ],
+                            "tooltipText": "Low Kick is replaced by Double Kick."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "hitmonlee-focus-energy",
+                "name": "Focus Energy",
+                "skillimage": "assets/images/PokemonArena/hitmonlee/focusenergy.webp",
+                "skilldescription": "For 2 turns, Hitmonlee's damaging skills gain 50% additional critical strike chance and deal 10 additional damage.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "hitmonlee_focus_energy",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "statusIconUrl": "assets/images/PokemonArena/hitmonlee/focusenergy.webp",
+                            "tooltipText": "Hitmonlee's damaging skills gain 50% additional critical strike chance and deal 10 additional damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "hitmonlee-mega-kick",
+                "name": "Mega Kick",
+                "skillimage": "assets/images/PokemonArena/hitmonlee/megakick.webp",
+                "skilldescription": "Deals 40 damage to one enemy. This skill has a 25% chance to critically hit, dealing 10 additional damage.",
+                "energy": [
+                    "Random",
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 40,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "hitmonlee_focus_energy"
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "chance": 25,
+                        "condition": {
+                            "scope": "self",
+                            "missingStatusId": "hitmonlee_focus_energy"
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "chance": 75,
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "hitmonlee_focus_energy"
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "hitmonlee-high-jump-kick",
+                "name": "High Jump Kick",
+                "skillimage": "assets/images/PokemonArena/hitmonlee/high-jumpkick.webp",
+                "skilldescription": "Deals 45 damage to one enemy. This skill has a 30% chance to miss. If this skill misses, Hitmonlee loses 30 HP. This skill has a 25% chance to critically hit, dealing 5 additional damage and becoming Piercing.",
+                "energy": [
+                    "Genjutsu",
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "hitmonlee_high_jump_kick_hit_confirmed",
+                        "duration": 1,
+                        "scope": "self",
+                        "chance": 70,
+                        "metadata": {
+                            "hideTooltipFromUnitOwner": true,
+                            "hideTooltipFromEnemy": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 45,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "hitmonlee_high_jump_kick_hit_confirmed"
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusIdsAll": [
+                                "hitmonlee_high_jump_kick_hit_confirmed",
+                                "hitmonlee_focus_energy"
+                            ]
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "target",
+                        "chance": 25,
+                        "condition": {
+                            "scope": "self",
+                            "missingStatusId": "hitmonlee_focus_energy",
+                            "statusId": "hitmonlee_high_jump_kick_hit_confirmed"
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "target",
+                        "chance": 75,
+                        "condition": {
+                            "scope": "self",
+                            "statusIdsAll": [
+                                "hitmonlee_high_jump_kick_hit_confirmed",
+                                "hitmonlee_focus_energy"
+                            ]
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "missingStatusId": "hitmonlee_high_jump_kick_hit_confirmed"
+                        },
+                        "metadata": {
+                            "fixedDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                            "ignoreDamageImmunity": true
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Damage",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "damage",
+        "description": "A precision kicking Pokemon that alternates tempo with stance changes, then cashes in Focus Energy through brutal finishers.",
+        "descriptionHtml": "A precision kicking Pokemon that alternates tempo with stance changes, then cashes in Focus Energy through brutal finishers.",
+        "startStatuses": []
+    },
+    {
+        "id": "magnemite",
+        "characterId": "magnemite",
+        "name": "Magnemite",
+        "facePicture": "assets/images/PokemonArena/mangemite/magnemitefp.webp",
+        "skills": [
+            {
+                "id": "magnemite-spark",
+                "name": "Spark",
+                "skillimage": "assets/images/PokemonArena/mangemite/magnemitespark.webp",
+                "skilldescription": "Deals 10 piercing damage to one enemy and 5 piercing damage to all other enemies. If the target is affected by Thunder Wave, Spark deals 15 additional damage to that enemy.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "magnemite_thunder_wave_mark",
+                            "consumeOnMatch": true
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "other-enemies",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "magnemite_used_spark_during_rise",
+                        "duration": 3,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "magnemite_magnet_rise_active",
+                            "missingStatusId": "magnemite_used_spark_during_rise"
+                        },
+                        "metadata": {
+                            "hidden": true,
+                            "turnDurationAnchor": "source_turn"
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "magnemite_magneton_evolution",
+                        "duration": 99,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "statusIdsAll": [
+                                "magnemite_magnet_rise_active",
+                                "magnemite_used_thunder_wave_during_rise"
+                            ],
+                            "missingStatusId": "magnemite_magneton_evolution"
+                        },
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "facePictureOverride": "assets/images/PokemonArena/mangemite/magnetonfp.webp",
+                            "skillReplacements": {
+                                "magnemite-spark": "magneton-spark",
+                                "magnemite-thunder-wave": "magneton-thunder-wave",
+                                "magnemite-swift": "magneton-flash-cannon",
+                                "magnemite-magnet-rise": "magneton-magnet-rise"
+                            },
+                            "removeStatusIdsOnApply": [
+                                "magnemite_used_spark_during_rise",
+                                "magnemite_used_thunder_wave_during_rise"
+                            ],
+                            "tooltipText": "Magnemite has evolved into Magneton. Its skills are improved.",
+                            "healOnApplyFlat": 10
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "magnemite-thunder-wave",
+                "name": "Thunder Wave",
+                "skillimage": "assets/images/PokemonArena/mangemite/magnemitethunderwave.webp",
+                "skilldescription": "Stuns one enemy's non-mental skills and paralyzes their cooldowns for 1 turn. During the next turn, Spark deals 15 additional damage to that enemy.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "magnemite_thunder_wave_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseNonMentalSkills": true,
+                            "freezeCooldowns": true,
+                            "statusIconUrl": "assets/images/PokemonArena/mangemite/magnemitethunderwave.webp",
+                            "tooltipText": "This character's non-mental skills are stunned and their cooldowns are paralyzed."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "magnemite_thunder_wave_mark",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/mangemite/magnemitethunderwave.webp",
+                            "tooltipText": "Spark deals 15 additional damage to this character."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "magnemite_used_thunder_wave_during_rise",
+                        "duration": 3,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "magnemite_magnet_rise_active",
+                            "missingStatusId": "magnemite_used_thunder_wave_during_rise"
+                        },
+                        "metadata": {
+                            "hidden": true,
+                            "turnDurationAnchor": "source_turn"
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "magnemite_magneton_evolution",
+                        "duration": 99,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "statusIdsAll": [
+                                "magnemite_magnet_rise_active",
+                                "magnemite_used_spark_during_rise"
+                            ],
+                            "missingStatusId": "magnemite_magneton_evolution"
+                        },
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "facePictureOverride": "assets/images/PokemonArena/mangemite/magnetonfp.webp",
+                            "skillReplacements": {
+                                "magnemite-spark": "magneton-spark",
+                                "magnemite-thunder-wave": "magneton-thunder-wave",
+                                "magnemite-swift": "magneton-flash-cannon",
+                                "magnemite-magnet-rise": "magneton-magnet-rise"
+                            },
+                            "removeStatusIdsOnApply": [
+                                "magnemite_used_spark_during_rise",
+                                "magnemite_used_thunder_wave_during_rise"
+                            ],
+                            "tooltipText": "Magnemite has evolved into Magneton. Its skills are improved.",
+                            "healOnApplyFlat": 10
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "magnemite-swift",
+                "name": "Swift",
+                "skillimage": "assets/images/PokemonArena/mangemite/swift.webp",
+                "skilldescription": "Deals 30 damage to one enemy. The next piercing damage they take is increased by 5.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "magnemite_piercing_vulnerability",
+                        "duration": 99,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "magnemitePiercingBonus": 5,
+                            "stackMetadataKey": "magnemitePiercingBonus",
+                            "stackDelta": 5,
+                            "stackMax": 999,
+                            "statusIconUrl": "assets/images/PokemonArena/mangemite/swift.webp",
+                            "tooltipTextTemplate": "The next Spark or Flash Cannon from Magnemite gains {magnemitePiercingBonus} bonus damage against this character."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "magnemite-magnet-rise",
+                "name": "Magnet Rise",
+                "skillimage": "assets/images/PokemonArena/mangemite/magnemitemagnetrise.webp",
+                "skilldescription": "For 3 turns, Magnemite ignores all enemy Physical skills. During this time, Magnemite deals 5 additional damage.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 6,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "magnemite_magnet_rise_active",
+                        "duration": 3,
+                        "scope": "self",
+                        "metadata": {
+                            "ignoreEnemyPhysicalSkills": true,
+                            "ignoreSkillClasses": [
+                                "physical"
+                            ],
+                            "damageBonusFlat": 5,
+                            "turnDurationAnchor": "source_turn",
+                            "removeStatusIdsOnApply": [
+                                "magnemite_used_spark_during_rise",
+                                "magnemite_used_thunder_wave_during_rise"
+                            ],
+                            "statusIconUrl": "assets/images/PokemonArena/mangemite/magnemitemagnetrise.webp",
+                            "tooltipText": "Magnemite ignores enemy Physical skills and deals 5 additional damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "magnemite-passive-evolution-magneton",
+                "name": "Evolution - Magneton",
+                "skillimage": "assets/images/PokemonArena/mangemite/evolutionmangeton.webp",
+                "skilldescription": "If Magnemite uses both Spark and Thunder Wave while Magnet Rise is active, it evolves into Magneton and heals 10 HP. Magneton's skills are improved.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            },
+            {
+                "id": "magneton-spark",
+                "name": "Spark",
+                "actorCondition": {
+                    "statusId": "magnemite_magneton_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/mangemite/magnetonspark.webp",
+                "skilldescription": "Deals 10 piercing damage to one enemy and 5 piercing damage to all other enemies 3 times. If the target is affected by Thunder Wave, the first hit deals 15 additional damage.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "magnemite_thunder_wave_mark",
+                            "consumeOnMatch": true
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "magnemite_piercing_vulnerability",
+                            "consumeOnMatch": true
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "other-enemies",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "other-enemies",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "other-enemies",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "magneton-thunder-wave",
+                "name": "Thunder Wave",
+                "actorCondition": {
+                    "statusId": "magnemite_magneton_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/mangemite/magnetonthunderwave.webp",
+                "skilldescription": "Stuns the entire enemy team's non-mental skills and paralyzes their cooldowns for 1 turn. During the next turn, Spark deals 15 additional damage to the chosen target.",
+                "energy": [
+                    "Genjutsu",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "magneton_thunder_wave_stun",
+                        "duration": 1,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseNonMentalSkills": true,
+                            "freezeCooldowns": true,
+                            "statusIconUrl": "assets/images/PokemonArena/mangemite/magnetonthunderwave.webp",
+                            "tooltipText": "This character's non-mental skills are stunned and their cooldowns are paralyzed."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "magnemite_thunder_wave_mark",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/mangemite/magnetonthunderwave.webp",
+                            "tooltipText": "Spark deals 15 additional damage to this character."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "magneton-flash-cannon",
+                "name": "Flash Cannon",
+                "actorCondition": {
+                    "statusId": "magnemite_magneton_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/mangemite/flashcannon.png",
+                "skilldescription": "Deals 45 damage to one enemy. The next piercing damage they take is increased by 10.",
+                "energy": [
+                    "Random",
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 45,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "magnemite_piercing_vulnerability",
+                            "consumeOnMatch": true
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "magnemite_piercing_vulnerability",
+                        "duration": 99,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "magnemitePiercingBonus": 10,
+                            "stackMetadataKey": "magnemitePiercingBonus",
+                            "stackDelta": 10,
+                            "stackMax": 999,
+                            "statusIconUrl": "assets/images/PokemonArena/mangemite/flashcannon.png",
+                            "tooltipTextTemplate": "The next Spark or Flash Cannon from Magneton gains {magnemitePiercingBonus} bonus damage against this character."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "magneton-magnet-rise",
+                "name": "Magnet Rise",
+                "actorCondition": {
+                    "statusId": "magnemite_magneton_evolution"
+                },
+                "skillimage": "assets/images/PokemonArena/mangemite/magnetonmagnetrise.webp",
+                "skilldescription": "For 3 turns, Magneton ignores all enemy Physical skills. During this time, all of Magneton's damaging skills deal 10 additional damage.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 6,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "magnemite_magnet_rise_active",
+                        "duration": 3,
+                        "scope": "self",
+                        "metadata": {
+                            "ignoreEnemyPhysicalSkills": true,
+                            "ignoreSkillClasses": [
+                                "physical"
+                            ],
+                            "damageBonusFlat": 10,
+                            "turnDurationAnchor": "source_turn",
+                            "removeStatusIdsOnApply": [
+                                "magnemite_used_spark_during_rise",
+                                "magnemite_used_thunder_wave_during_rise"
+                            ],
+                            "statusIconUrl": "assets/images/PokemonArena/mangemite/magnetonmagnetrise.webp",
+                            "tooltipText": "Magneton ignores enemy Physical skills and deals 10 additional damage."
+                        }
+                    }
+                ]
+            }
+        ],
+        "role": "Damage",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "damage",
+        "description": "An electric steel Pokemon that builds toward Magneton by pairing Spark and Thunder Wave during Magnet Rise, then overwhelms teams with repeated piercing bursts.",
+        "descriptionHtml": "An electric steel Pokemon that builds toward Magneton by pairing Spark and Thunder Wave during Magnet Rise, then overwhelms teams with repeated piercing bursts.",
         "startStatuses": []
     }
 ];

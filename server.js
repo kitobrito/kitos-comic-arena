@@ -68,13 +68,13 @@ const LATEST_CHARACTER_RELEASES_BY_ARENA = {
         { label: 'General Grievous', characterId: 'general-grievous' },
     ],
     pokemon: [
-        { label: 'Zubat', characterId: 'zubat' },
-        { label: 'Gastly', characterId: 'gastly' },
-        { label: 'Abra', characterId: 'abra' },
+        { label: 'Magnemite', characterId: 'magnemite' },
+        { label: 'Hitmonlee', characterId: 'hitmonlee' },
+        { label: 'Hitmonchan', characterId: 'hitmonchan' },
     ],
 };
 const LATEST_CHARACTER_RELEASES_STATE_KEY = 'latest_character_releases';
-const LATEST_CHARACTER_RELEASES_VERSION = 'pokemon-release-v3-2-0';
+const LATEST_CHARACTER_RELEASES_VERSION = 'pokemon-release-v3-2-9-magnemite-hitmons';
 const MAINTENANCE_MODE_STATE_KEY = 'maintenance_mode';
 const MAINTENANCE_MODE_CACHE_TTL_MS = 10 * 1000;
 const DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/3JqVcPXm/default.png';
@@ -3536,6 +3536,65 @@ const POKEMON_MR_MIME_MISSION_ENTRY = {
     sortOrder: 11,
 };
 
+const POKEMON_HITMONS_MAGNEMITE_MISSION_ENTRY = {
+    missionId: 'hitmons-magnemite-power-grid',
+    title: 'Hitmons and Magnemite Power Grid',
+    level_requirement: 11,
+    rank: '11',
+    reward_character: '',
+    reward_character_name: 'Hitmonchan, Hitmonlee, and Magnemite',
+    reward_character_ids: ['hitmonchan', 'hitmonlee', 'magnemite'],
+    reward: 'Unlock Hitmonchan, Hitmonlee, and Magnemite.',
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/hitmonchan/fp.webp',
+    imageAlt: 'Hitmonchan, Hitmonlee, and Magnemite mission artwork',
+    characterName: 'Pokemon Arena Trio',
+    portrait: 'assets/images/PokemonArena/mangemite/magnemitefp.webp',
+    portraitAlt: 'Magnemite portrait',
+    requirements: [
+        'This mission opens the next Pokemon Arena trio all at once.',
+        'Win with Machop and Pikachu, then close a streak with both on the same team.',
+    ],
+    goals: [
+        {
+            type: 'win_matches',
+            character_id: 'machop',
+            character_name: 'Machop',
+            wins: 10,
+        },
+        {
+            type: 'win_matches',
+            character_id: 'pikachu',
+            character_name: 'Pikachu',
+            wins: 10,
+        },
+        {
+            type: 'win_streak_same_team',
+            character_ids: ['machop', 'pikachu'],
+            character_names: ['Machop', 'Pikachu'],
+            wins: 4,
+        },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 12,
+};
+
 const POKEMON_STARTER_MISSION_ENTRIES = [
     {
         missionId: 'pikachu-starter-path',
@@ -3612,6 +3671,7 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     upsertRequiredMission(POKEMON_MACHOP_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'machop');
     upsertRequiredMission(POKEMON_MAGIKARP_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'magikarp');
     upsertRequiredMission(POKEMON_MR_MIME_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'mr-mime');
+    upsertRequiredMission(POKEMON_HITMONS_MAGNEMITE_MISSION_ENTRY, (mission) => mission?.missionId === 'hitmons-magnemite-power-grid');
     return normalizeMissionCatalog(catalog);
 };
 
