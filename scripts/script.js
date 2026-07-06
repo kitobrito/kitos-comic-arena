@@ -819,7 +819,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             Math.floor(Math.random() * POKEMON_SELECTION_BACKGROUND_URLS.length)
         ] || 'assets/images/PokemonArena/characterselectbgpokemonarena.png';
     const COMIC_INGAME_BACKGROUND_URL = 'assets/images/newingamebgCA.png';
-    const POKEMON_INGAME_BACKGROUND_URL = 'assets/images/PokemonArena/newbattlepic/1783150082785.png';
+    const POKEMON_INGAME_BACKGROUND_URLS = [
+        'assets/images/PokemonArena/newbattlepic/1783150082785.png',
+        'assets/images/PokemonArena/newbattlepic/1783302648918.webp',
+        'assets/images/PokemonArena/newbattlepic/1783302767196.webp',
+    ];
+    const getRandomPokemonIngameBackgroundUrl = () =>
+        POKEMON_INGAME_BACKGROUND_URLS[
+            Math.floor(Math.random() * POKEMON_INGAME_BACKGROUND_URLS.length)
+        ] || 'assets/images/PokemonArena/newbattlepic/1783150082785.png';
     const COMIC_SELECTION_SCROLL_URL = 'assets/images/selectionscroll.png';
     const POKEMON_SELECTION_SCROLL_URL = 'assets/images/PokemonArena/selectionscroll-pokeball.png';
     const COMIC_INGAME_SCROLL_BEHIND_URL = 'assets/images/ingamescrollbehind.png';
@@ -9894,7 +9902,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (backgroundEl) {
                 const fallbackUrl =
                     currentMatchArena === 'pokemon'
-                        ? POKEMON_INGAME_BACKGROUND_URL
+                        ? getRandomPokemonIngameBackgroundUrl()
                         : COMIC_INGAME_BACKGROUND_URL;
                 setBackgroundImage(backgroundEl, fallbackUrl, currentMatchArena === 'pokemon');
             }
