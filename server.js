@@ -97,6 +97,36 @@ const PAYPAL_MERCHANT_EMAIL = process.env.PAYPAL_MERCHANT_EMAIL || 'kienevul@gma
 const PUBLIC_APP_URL = process.env.PUBLIC_APP_URL || '';
 const UNLOCK_POINT_STORE_PACKAGES = [
     {
+        packageId: 'comic-750-points',
+        arena: 'comic',
+        points: 750,
+        amountUsd: '5.00',
+        currency: 'USD',
+        provider: 'paypal',
+        label: '750 Unlock Points',
+        description: '750 Comic Arena unlock points',
+    },
+    {
+        packageId: 'comic-1500-points',
+        arena: 'comic',
+        points: 1500,
+        amountUsd: '10.00',
+        currency: 'USD',
+        provider: 'paypal',
+        label: '1,500 Unlock Points',
+        description: '1,500 Comic Arena unlock points',
+    },
+    {
+        packageId: 'comic-3000-points',
+        arena: 'comic',
+        points: 3000,
+        amountUsd: '20.00',
+        currency: 'USD',
+        provider: 'paypal',
+        label: '3,000 Unlock Points',
+        description: '3,000 Comic Arena unlock points',
+    },
+    {
         packageId: 'pokemon-750-points',
         arena: 'pokemon',
         points: 750,

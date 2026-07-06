@@ -13222,7 +13222,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         wallet.appendChild(walletTotal);
         wallet.appendChild(walletHint);
         selectionMissionsListEl.appendChild(wallet);
-        if (activeArenaMode === 'pokemon' && pointStorePackages.length) {
+        if (pointStorePackages.length) {
             const storeCard = document.createElement('article');
             storeCard.className = 'selection-mission-card';
             const title = document.createElement('h3');
@@ -13230,8 +13230,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             title.textContent = 'Buy Points';
             const subtitle = document.createElement('p');
             subtitle.className = 'selection-mission-progress';
+            const arenaLabel = activeArenaMode === 'pokemon' ? 'Pokemon Arena' : 'Comic Arena';
             subtitle.textContent = pointStore.paypalAvailable
-                ? 'Securely buy Pokemon Arena unlock points with PayPal.'
+                ? `Securely buy ${arenaLabel} unlock points with PayPal.`
                 : 'PayPal checkout is not configured yet.';
             storeCard.appendChild(title);
             storeCard.appendChild(subtitle);
