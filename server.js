@@ -3749,6 +3749,7 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
         'squirtle-starter-path',
         'charmander-starter-path',
         'bulbasaur-starter-path',
+        'hitmons-magnemite-power-grid',
     ]);
     const catalog = cloneMissionCatalog(missions).filter(
         (mission) =>

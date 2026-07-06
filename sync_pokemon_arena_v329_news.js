@@ -226,6 +226,7 @@ const mergeMissionCatalog = (currentMissions = []) => {
             .filter((mission) => mission && mission.missionId)
             .map((mission) => [mission.missionId, mission])
     );
+    missionsById.delete('hitmons-magnemite-power-grid');
     missionsById.set(hitmonchanMission.missionId, hitmonchanMission);
     missionsById.set(hitmonleeMission.missionId, hitmonleeMission);
     missionsById.set(magnemiteMission.missionId, magnemiteMission);
