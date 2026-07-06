@@ -2387,6 +2387,105 @@ const createDefaultMissionState = () => {
     };
 };
 
+const createDefaultArenaSkinState = () => ({
+    unlockedSkinIds: [],
+    equippedSkinByCharacterId: {},
+});
+
+const normalizeSkinId = (value = '') =>
+    String(value || '')
+        .trim()
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+const POKEMON_SKIN_CATALOG = [
+    // Add future Pokemon skins here. Example patch fields can override
+    // facePicture, spriteSheet, skill images, descriptions, or other character data.
+];
+
+const getArenaSkinCatalog = (arena = DEFAULT_ARENA_MODE) =>
+    normalizeArenaMode(arena) === 'pokemon' ? POKEMON_SKIN_CATALOG : [];
+
+const getArenaSkinCatalogById = (arena = DEFAULT_ARENA_MODE) => {
+    const catalog = new Map();
+    getArenaSkinCatalog(arena).forEach((entry = {}) => {
+        const skinId = normalizeSkinId(entry.skinId ?? entry.id);
+        const characterId = normalizeCharacterId(entry.characterId ?? entry.character_id);
+        if (!skinId || !characterId) {
+            return;
+        }
+        catalog.set(skinId, {
+            ...entry,
+            skinId,
+            characterId,
+            unlockPointCost: Math.max(
+                1,
+                Math.floor(Number(entry.unlockPointCost ?? entry.unlock_point_cost ?? 100) || 100)
+            ),
+        });
+    });
+    return catalog;
+};
+
+const normalizeArenaSkinState = (skins = {}, arena = DEFAULT_ARENA_MODE) => {
+    const source = skins && typeof skins === 'object' ? skins : {};
+    const catalogById = getArenaSkinCatalogById(arena);
+    const unlockedSkinIds = Array.from(
+        new Set(
+            (Array.isArray(source.unlockedSkinIds)
+                ? source.unlockedSkinIds
+                : Array.isArray(source.unlocked_skins)
+                    ? source.unlocked_skins
+                    : []
+            )
+                .map((entry) => normalizeSkinId(entry))
+                .filter((skinId) => catalogById.has(skinId))
+        )
+    );
+    const equippedSource =
+        source.equippedSkinByCharacterId && typeof source.equippedSkinByCharacterId === 'object'
+            ? source.equippedSkinByCharacterId
+            : source.selectedSkinByCharacterId && typeof source.selectedSkinByCharacterId === 'object'
+                ? source.selectedSkinByCharacterId
+                : {};
+    const equippedSkinByCharacterId = {};
+    Object.entries(equippedSource).forEach(([characterId, skinId]) => {
+        const normalizedCharacterId = normalizeCharacterId(characterId);
+        const normalizedSkin = normalizeSkinId(skinId);
+        const catalogEntry = catalogById.get(normalizedSkin);
+        if (!normalizedCharacterId || !catalogEntry) {
+            return;
+        }
+        if (!unlockedSkinIds.includes(normalizedSkin)) {
+            return;
+        }
+        if (catalogEntry.characterId !== normalizedCharacterId) {
+            return;
+        }
+        equippedSkinByCharacterId[normalizedCharacterId] = normalizedSkin;
+    });
+    return {
+        unlockedSkinIds,
+        equippedSkinByCharacterId,
+    };
+};
+
+const serializeSkinCatalogEntryForClient = (entry = {}) => ({
+    skinId: entry.skinId,
+    characterId: entry.characterId,
+    name: typeof entry.name === 'string' ? entry.name.trim() : '',
+    description: typeof entry.description === 'string' ? entry.description.trim() : '',
+    unlockPointCost: Math.max(1, Math.floor(Number(entry.unlockPointCost) || 100)),
+    previewFacePicture:
+        typeof entry.previewFacePicture === 'string' && entry.previewFacePicture.trim()
+            ? entry.previewFacePicture.trim()
+            : typeof entry.patch?.facePicture === 'string' && entry.patch.facePicture.trim()
+                ? entry.patch.facePicture.trim()
+                : '',
+    patch: entry.patch && typeof entry.patch === 'object' ? entry.patch : {},
+});
+
 const normalizeMissionPurchasedUnlock = (entry = {}) => {
     const source = entry && typeof entry === 'object' ? entry : {};
     const characterId = normalizeCharacterId(source.characterId ?? source.character_id ?? source.character);
@@ -3729,7 +3828,7 @@ const POKEMON_STARTER_MISSION_ENTRIES = [
         portraitAlt: 'Pikachu portrait',
         requirements: [],
         goals: [
-            { type: 'win_matches', character_id: 'pidgey', character_name: 'Pidgey', wins: 16 },
+            { type: 'win_matches', character_id: 'pidgey', character_name: 'Pidgey', wins: 10 },
         ],
         special_pve: {
             enabled: false,
@@ -4107,6 +4206,7 @@ const normalizeArenaProgressState = (source = {}, user = {}) => {
         recentPrivateGamesCount24Hours: normalizeRecentQuickGames(arenaSource.recentPrivateGames).length,
         recentLadderGamesCount24Hours: recentLadderGames.length,
         missions: normalizeMissionState(arenaSource.missions),
+        skins: normalizeArenaSkinState(arenaSource.skins, 'pokemon'),
         ladder: {
             level: normalizedLadderState.level,
             rank: rankInfo.rank,
@@ -5328,6 +5428,7 @@ const serializeArenaProfileForClient = (profile = {}, arena = DEFAULT_ARENA_MODE
         recentPrivateGamesCount24Hours: arenaState.recentPrivateGamesCount24Hours,
         recentLadderGamesCount24Hours: arenaState.recentLadderGamesCount24Hours,
         missions: arenaState.missions,
+        skins: arenaState.skins,
         ladder: arenaState.ladder,
     };
 };
@@ -11795,6 +11896,24 @@ app.get('/api/news', async (req, res) => {
     }
 });
 
+const buildArenaSkinsResponse = ({ arena = DEFAULT_ARENA_MODE, profile = null } = {}) => {
+    const normalizedArena = normalizeArenaMode(arena);
+    const arenaProfile = profile ? getProfileArenaState(profile, normalizedArena) : {};
+    const missionState = normalizeMissionState(arenaProfile?.missions);
+    const skinState = normalizeArenaSkinState(arenaProfile?.skins, normalizedArena);
+    const catalog = Array.from(getArenaSkinCatalogById(normalizedArena).values()).map(
+        serializeSkinCatalogEntryForClient
+    );
+    return {
+        ok: true,
+        arena: normalizedArena,
+        skins: catalog,
+        unlockedSkinIds: skinState.unlockedSkinIds,
+        equippedSkinByCharacterId: skinState.equippedSkinByCharacterId,
+        unlockPoints: missionState.unlockPoints,
+    };
+};
+
 app.get('/api/missions', async (req, res) => {
     try {
         res.set('Cache-Control', 'no-store');
@@ -11830,6 +11949,27 @@ app.get('/api/missions', async (req, res) => {
     } catch (error) {
         console.error('Mission catalog load error:', error);
         return res.status(500).json({ error: 'Unable to load missions.' });
+    }
+});
+
+app.get('/api/skins', async (req, res) => {
+    try {
+        res.set('Cache-Control', 'no-store');
+        const arena = normalizeArenaMode(req.query?.arena);
+        let normalizedProfile = null;
+        try {
+            const token = req.cookies?.[SESSION_COOKIE_NAME];
+            const authUser = token ? await getSessionUserFromToken(token) : null;
+            if (authUser) {
+                normalizedProfile = normalizeUserProfile(authUser);
+            }
+        } catch (sessionError) {
+            console.warn('Skin session lookup failed:', sessionError);
+        }
+        return res.json(buildArenaSkinsResponse({ arena, profile: normalizedProfile }));
+    } catch (error) {
+        console.error('Skin catalog load error:', error);
+        return res.status(500).json({ error: 'Unable to load skins.' });
     }
 });
 
@@ -11941,6 +12081,132 @@ app.post('/api/missions/unlock-points/purchase', requireSession, async (req, res
     } catch (error) {
         console.error('Unlock point purchase error:', error);
         return res.status(500).json({ error: 'Unable to buy character unlock.' });
+    }
+});
+
+app.post('/api/skins/unlock', requireSession, async (req, res) => {
+    try {
+        const arena = normalizeArenaMode(req.body?.arena || req.query?.arena);
+        const skinId = normalizeSkinId(req.body?.skinId || req.body?.skin_id || '');
+        if (!skinId) {
+            return res.status(400).json({ error: 'Skin is required.' });
+        }
+
+        const user = await usersCollection.findOne({ username: req.authUser.username });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        const catalogEntry = getArenaSkinCatalogById(arena).get(skinId);
+        if (!catalogEntry) {
+            return res.status(404).json({ error: 'Skin not found.' });
+        }
+
+        const profile = normalizeUserProfile(user);
+        const arenaState = getProfileArenaState(profile, arena);
+        const missionState = normalizeMissionState(arenaState.missions);
+        const skinState = normalizeArenaSkinState(arenaState.skins, arena);
+        if (skinState.unlockedSkinIds.includes(skinId)) {
+            return res.status(409).json({ error: 'Skin is already unlocked.' });
+        }
+        if (missionState.unlockPoints < catalogEntry.unlockPointCost) {
+            return res.status(400).json({
+                error: `You need ${catalogEntry.unlockPointCost} unlock points to buy this skin.`,
+                unlockPoints: missionState.unlockPoints,
+                unlockPointCost: catalogEntry.unlockPointCost,
+            });
+        }
+
+        missionState.unlockPoints -= catalogEntry.unlockPointCost;
+        skinState.unlockedSkinIds = [...skinState.unlockedSkinIds, skinId];
+        arenaState.missions = normalizeMissionState(missionState);
+        arenaState.skins = normalizeArenaSkinState(skinState, arena);
+        arenaState.ladder = {
+            ...(arenaState.ladder || {}),
+            unlockPoints: arenaState.missions.unlockPoints,
+        };
+
+        const normalizedProfile = normalizeUserProfile({
+            ...user,
+            profile: setProfileArenaState(profile, arena, arenaState),
+        });
+        await usersCollection.updateOne(
+            { _id: user._id },
+            {
+                $set: {
+                    profile: normalizedProfile,
+                },
+            }
+        );
+
+        return res.json({
+            ...buildArenaSkinsResponse({ arena, profile: normalizedProfile }),
+            skinId,
+            unlockPointCost: catalogEntry.unlockPointCost,
+            profile: normalizedProfile,
+        });
+    } catch (error) {
+        console.error('Skin unlock error:', error);
+        return res.status(500).json({ error: 'Unable to unlock skin.' });
+    }
+});
+
+app.post('/api/skins/equip', requireSession, async (req, res) => {
+    try {
+        const arena = normalizeArenaMode(req.body?.arena || req.query?.arena);
+        const characterId = normalizeCharacterId(req.body?.characterId || req.body?.character_id || '');
+        const skinId = normalizeSkinId(req.body?.skinId || req.body?.skin_id || '');
+        if (!characterId) {
+            return res.status(400).json({ error: 'Character is required.' });
+        }
+
+        const user = await usersCollection.findOne({ username: req.authUser.username });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        const profile = normalizeUserProfile(user);
+        const arenaState = getProfileArenaState(profile, arena);
+        const skinState = normalizeArenaSkinState(arenaState.skins, arena);
+        if (!skinId) {
+            delete skinState.equippedSkinByCharacterId[characterId];
+        } else {
+            const catalogEntry = getArenaSkinCatalogById(arena).get(skinId);
+            if (!catalogEntry) {
+                return res.status(404).json({ error: 'Skin not found.' });
+            }
+            if (catalogEntry.characterId !== characterId) {
+                return res.status(400).json({ error: 'That skin does not belong to this Pokemon.' });
+            }
+            if (!skinState.unlockedSkinIds.includes(skinId)) {
+                return res.status(403).json({ error: 'Unlock the skin before equipping it.' });
+            }
+            skinState.equippedSkinByCharacterId[characterId] = skinId;
+        }
+        arenaState.skins = normalizeArenaSkinState(skinState, arena);
+
+        const normalizedProfile = normalizeUserProfile({
+            ...user,
+            profile: setProfileArenaState(profile, arena, arenaState),
+        });
+        await usersCollection.updateOne(
+            { _id: user._id },
+            {
+                $set: {
+                    profile: normalizedProfile,
+                },
+            }
+        );
+
+        return res.json({
+            ...buildArenaSkinsResponse({ arena, profile: normalizedProfile }),
+            characterId,
+            skinId: skinId || null,
+            profile: normalizedProfile,
+        });
+    } catch (error) {
+        console.error('Skin equip error:', error);
+        return res.status(500).json({ error: 'Unable to equip skin.' });
     }
 });
 

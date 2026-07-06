@@ -1075,6 +1075,63 @@ document.addEventListener('DOMContentLoaded', async () => {
         return arenaProfile?.ladder || profile?.ladder || null;
     };
 
+    const cloneRosterData = (entries = []) => JSON.parse(JSON.stringify(Array.isArray(entries) ? entries : []));
+
+    const mergeSkinPatchValue = (baseValue, patchValue) => {
+        if (Array.isArray(patchValue)) {
+            return JSON.parse(JSON.stringify(patchValue));
+        }
+        if (patchValue && typeof patchValue === 'object') {
+            const baseObject = baseValue && typeof baseValue === 'object' && !Array.isArray(baseValue) ? baseValue : {};
+            const next = { ...baseObject };
+            Object.entries(patchValue).forEach(([key, value]) => {
+                next[key] = mergeSkinPatchValue(baseObject[key], value);
+            });
+            return next;
+        }
+        return patchValue;
+    };
+
+    const normalizeSkinId = (value = '') =>
+        String(value || '')
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+
+    const normalizeSkinCharacterId = (value = '') =>
+        String(value || '')
+            .trim()
+            .toLowerCase();
+
+    const arenaSkinCatalogCache = {
+        comic: [],
+        pokemon: [],
+    };
+
+    const getArenaSkinState = (profile = null, arena = 'comic') => {
+        const arenaProfile = getArenaProfileView(profile, arena);
+        const source = arenaProfile?.skins && typeof arenaProfile.skins === 'object' ? arenaProfile.skins : {};
+        const unlockedSkinIds = Array.isArray(source.unlockedSkinIds)
+            ? source.unlockedSkinIds.map((entry) => normalizeSkinId(entry)).filter(Boolean)
+            : [];
+        const equippedSource =
+            source.equippedSkinByCharacterId && typeof source.equippedSkinByCharacterId === 'object'
+                ? source.equippedSkinByCharacterId
+                : {};
+        const equippedSkinByCharacterId = {};
+        Object.entries(equippedSource).forEach(([characterId, skinId]) => {
+            const normalizedCharacterId = normalizeSkinCharacterId(characterId);
+            const normalizedSkinId = normalizeSkinId(skinId);
+            if (!normalizedCharacterId || !normalizedSkinId) return;
+            equippedSkinByCharacterId[normalizedCharacterId] = normalizedSkinId;
+        });
+        return {
+            unlockedSkinIds,
+            equippedSkinByCharacterId,
+        };
+    };
+
     const normalizeMatchmakingPresentation = (matchmaking = null) => {
         const source = matchmaking && typeof matchmaking === 'object' ? matchmaking : {};
         return {
@@ -12636,16 +12693,60 @@ document.addEventListener('DOMContentLoaded', async () => {
         return character?.name || normalizedRewardId || 'Character';
     };
 
-    const applyMissionPurchaseProfile = (payload = {}) => {
-        if (!payload.profile || !profileCache?.username) {
+    const refreshSelectionRosterPresentation = () => {
+        rebuildRosterWithEquippedSkins();
+        rebuildRosterDisplayIndices();
+        syncRosterFilterSelect();
+        renderRosterPage();
+        updateGameButtons();
+        applySavedTeam();
+    };
+
+    const applyUpdatedProfile = (profile = null) => {
+        if (!profile || !profileCache?.username) {
             return;
         }
         profileCache = {
             ...profileCache,
-            profile: payload.profile,
+            profile,
         };
         writeCachedUser(profileCache);
         syncArenaModePlayerIdentity();
+        refreshSelectionRosterPresentation();
+    };
+
+    const applyMissionPurchaseProfile = (payload = {}) => {
+        if (!payload.profile) {
+            return;
+        }
+        applyUpdatedProfile(payload.profile);
+    };
+
+    const applyArenaSkinCatalogPayload = (payload = {}) => {
+        const arena = payload?.arena === 'pokemon' ? 'pokemon' : 'comic';
+        arenaSkinCatalogCache[arena] = Array.isArray(payload?.skins)
+            ? payload.skins.map((entry = {}) => ({
+                  ...entry,
+                  skinId: normalizeSkinId(entry.skinId),
+                  characterId: normalizeSkinCharacterId(entry.characterId),
+              }))
+            : [];
+        if (arena === activeArenaMode) {
+            refreshSelectionRosterPresentation();
+        }
+    };
+
+    const fetchArenaSkins = async (arena = activeArenaMode) => {
+        const response = await fetch(`${API_BASE_URL}/api/skins?arena=${encodeURIComponent(arena)}`, {
+            credentials: 'include',
+            cache: 'no-store',
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(payload.error || 'Unable to load skins.');
+        }
+        applyArenaSkinCatalogPayload(payload);
+        return payload;
     };
 
     const buyMissionCharacterUnlock = async (characterId, button = null) => {
@@ -12706,15 +12807,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!response.ok) {
                 throw new Error(payload.error || 'Unable to save Eevee evolution.');
             }
-            if (payload.user?.username) {
-                profileCache = payload.user;
-                writeCachedUser(payload.user);
+            if (payload.user?.profile) {
+                if (payload.user?.username) {
+                    profileCache = payload.user;
+                    writeCachedUser(payload.user);
+                    syncArenaModePlayerIdentity();
+                    refreshSelectionRosterPresentation();
+                } else {
+                    applyUpdatedProfile(payload.user.profile);
+                }
             } else {
                 await fetchProfile();
             }
             await loadMissionLockedCharacterIds();
-            rebuildRosterDisplayIndices();
-            renderRosterPage();
             loadSelectedTeam();
             updateGameButtons();
             await loadSelectionMissions();
@@ -12808,6 +12913,184 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (button) button.disabled = false;
             setSelectionMissionsStatus(error.message || 'Unable to start mission fight.');
         }
+    };
+
+    const unlockSelectionSkin = async (skinId, button = null) => {
+        const normalizedSkinId = normalizeSkinId(skinId);
+        if (!normalizedSkinId) return;
+        if (button) button.disabled = true;
+        setSelectionMissionsStatus('Unlocking skin...');
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/skins/unlock`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    arena: activeArenaMode,
+                    skinId: normalizedSkinId,
+                }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || 'Unable to unlock skin.');
+            }
+            if (payload.profile) {
+                applyUpdatedProfile(payload.profile);
+            }
+            applyArenaSkinCatalogPayload(payload);
+            await loadSelectionMissions();
+            setSelectionMissionsStatus('Skin unlocked with ladder points.');
+        } catch (error) {
+            if (button) button.disabled = false;
+            setSelectionMissionsStatus(error.message || 'Unable to unlock skin.');
+        }
+    };
+
+    const equipSelectionSkin = async (characterId, skinId, button = null) => {
+        const normalizedCharacterId = normalizeSkinCharacterId(characterId);
+        const normalizedSkinId = normalizeSkinId(skinId);
+        if (!normalizedCharacterId) return;
+        if (button) button.disabled = true;
+        setSelectionMissionsStatus(normalizedSkinId ? 'Equipping skin...' : 'Switching to default...');
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/skins/equip`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    arena: activeArenaMode,
+                    characterId: normalizedCharacterId,
+                    skinId: normalizedSkinId,
+                }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || 'Unable to equip skin.');
+            }
+            if (payload.profile) {
+                applyUpdatedProfile(payload.profile);
+            }
+            applyArenaSkinCatalogPayload(payload);
+            await loadSelectionMissions();
+            setSelectionMissionsStatus(normalizedSkinId ? 'Skin equipped.' : 'Default look restored.');
+        } catch (error) {
+            if (button) button.disabled = false;
+            setSelectionMissionsStatus(error.message || 'Unable to equip skin.');
+        }
+    };
+
+    const renderSelectionSkins = (payload = {}) => {
+        if (!selectionMissionsListEl) return;
+        const skins = Array.isArray(payload?.skins) ? payload.skins : [];
+        const section = document.createElement('section');
+        section.className = 'selection-skins-section';
+        const heading = document.createElement('h3');
+        heading.className = 'selection-section-title';
+        heading.textContent = activeArenaMode === 'pokemon' ? 'Skin Shop' : 'Skins';
+        section.appendChild(heading);
+
+        if (!skins.length) {
+            const empty = document.createElement('div');
+            empty.className = 'selection-mission-card selection-skin-card';
+            empty.textContent =
+                activeArenaMode === 'pokemon'
+                    ? 'Skin slots are ready. Add the first Pokemon skin images and they will show up here for unlock points.'
+                    : 'No skins available in this arena.';
+            section.appendChild(empty);
+            selectionMissionsListEl.appendChild(section);
+            return;
+        }
+
+        const unlockedSkinIds = new Set(
+            getArenaSkinState(profileCache?.profile, activeArenaMode).unlockedSkinIds.map((entry) => normalizeSkinId(entry))
+        );
+        const equippedSkinByCharacterId = getArenaSkinState(
+            profileCache?.profile,
+            activeArenaMode
+        ).equippedSkinByCharacterId;
+
+        skins.forEach((skin = {}) => {
+            const skinId = normalizeSkinId(skin.skinId);
+            const characterId = normalizeSkinCharacterId(skin.characterId);
+            if (!skinId || !characterId) return;
+            const baseCharacter = baseRoster.find(
+                (entry) => normalizeSkinCharacterId(entry?.characterId || entry?.id) === characterId
+            );
+            const characterLabel = baseCharacter?.name || characterId || 'this Pokemon';
+            const isUnlocked = unlockedSkinIds.has(skinId);
+            const isEquipped = equippedSkinByCharacterId[characterId] === skinId;
+            const card = document.createElement('article');
+            card.className = 'selection-mission-card selection-skin-card';
+
+            const head = document.createElement('div');
+            head.className = 'selection-mission-head';
+            const image = document.createElement('img');
+            image.className = 'selection-mission-image';
+            image.src =
+                skin.previewFacePicture ||
+                baseCharacter?.facePicture ||
+                'assets/images/default-avatar.png';
+            image.alt = skin.name || 'Skin';
+            const titleWrap = document.createElement('div');
+            const title = document.createElement('h3');
+            title.className = 'selection-mission-title';
+            title.textContent = skin.name || 'Skin';
+            const reward = document.createElement('p');
+            reward.className = 'selection-mission-reward';
+            reward.textContent = skin.description || `Alternate look for ${characterLabel}.`;
+            titleWrap.appendChild(title);
+            titleWrap.appendChild(reward);
+            head.appendChild(image);
+            head.appendChild(titleWrap);
+            card.appendChild(head);
+
+            const progressText = document.createElement('p');
+            progressText.className = 'selection-mission-progress';
+            progressText.textContent = isEquipped
+                ? 'Equipped on your Pokemon.'
+                : isUnlocked
+                    ? 'Unlocked. You can equip this look at any time.'
+                    : `Costs ${Math.max(1, Number(skin.unlockPointCost) || DEFAULT_UNLOCK_POINT_COST).toLocaleString()} unlock points.`;
+            card.appendChild(progressText);
+
+            const actionRow = document.createElement('div');
+            actionRow.className = 'selection-mission-buy';
+            const actionLabel = document.createElement('span');
+            actionLabel.textContent = isUnlocked
+                ? `Applies to ${characterLabel}.`
+                : `Buy for ${Math.max(1, Number(skin.unlockPointCost) || DEFAULT_UNLOCK_POINT_COST).toLocaleString()} unlock points.`;
+            const actionButton = document.createElement('button');
+            actionButton.type = 'button';
+            actionButton.className = 'selection-mission-action selection-mission-buy-action';
+            if (!isUnlocked) {
+                const unlockPoints = Math.max(
+                    0,
+                    Number(getArenaLadder(profileCache?.profile, activeArenaMode)?.unlockPoints) || 0
+                );
+                const cost = Math.max(1, Number(skin.unlockPointCost) || DEFAULT_UNLOCK_POINT_COST);
+                actionButton.textContent = unlockPoints >= cost ? 'Buy Skin' : 'Need Points';
+                actionButton.disabled = unlockPoints < cost;
+                actionButton.addEventListener('click', () => {
+                    unlockSelectionSkin(skinId, actionButton);
+                });
+            } else if (isEquipped) {
+                actionButton.textContent = 'Use Default';
+                actionButton.addEventListener('click', () => {
+                    equipSelectionSkin(characterId, '', actionButton);
+                });
+            } else {
+                actionButton.textContent = 'Equip Skin';
+                actionButton.addEventListener('click', () => {
+                    equipSelectionSkin(characterId, skinId, actionButton);
+                });
+            }
+            actionRow.appendChild(actionLabel);
+            actionRow.appendChild(actionButton);
+            card.appendChild(actionRow);
+            section.appendChild(card);
+        });
+
+        selectionMissionsListEl.appendChild(section);
     };
 
     const renderSelectionMissions = (payload = {}) => {
@@ -12951,15 +13234,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!selectionMissionsListEl) return;
         setSelectionMissionsStatus('Loading missions...');
         try {
-            const response = await fetch(`${API_BASE_URL}/api/missions?arena=${encodeURIComponent(activeArenaMode)}`, {
-                credentials: 'include',
-                cache: 'no-store',
-            });
-            const payload = await response.json().catch(() => ({}));
-            if (!response.ok) {
+            const [missionsResponse, skinsPayload] = await Promise.all([
+                fetch(`${API_BASE_URL}/api/missions?arena=${encodeURIComponent(activeArenaMode)}`, {
+                    credentials: 'include',
+                    cache: 'no-store',
+                }),
+                fetchArenaSkins(activeArenaMode),
+            ]);
+            const payload = await missionsResponse.json().catch(() => ({}));
+            if (!missionsResponse.ok) {
                 throw new Error(payload.error || 'Unable to load missions.');
             }
             renderSelectionMissions(payload);
+            renderSelectionSkins(skinsPayload);
             setSelectionMissionsStatus('');
         } catch (error) {
             setSelectionMissionsStatus(error.message || 'Unable to load missions.');
@@ -13388,14 +13675,43 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    let roster = [];
+    let baseRoster = [];
     if (typeof characters !== 'undefined' && Array.isArray(characters)) {
-        roster = characters;
+        baseRoster = cloneRosterData(characters);
     } else if (Array.isArray(window.characters)) {
-        roster = window.characters;
+        baseRoster = cloneRosterData(window.characters);
     } else if (Array.isArray(globalThis.characters)) {
-        roster = globalThis.characters;
+        baseRoster = cloneRosterData(globalThis.characters);
     }
+    let roster = cloneRosterData(baseRoster);
+
+    const rebuildRosterWithEquippedSkins = (arena = activeArenaMode) => {
+        const baseCharacters = cloneRosterData(baseRoster);
+        if (arena !== 'pokemon') {
+            roster = baseCharacters;
+            return;
+        }
+        const catalog = Array.isArray(arenaSkinCatalogCache[arena]) ? arenaSkinCatalogCache[arena] : [];
+        if (!catalog.length) {
+            roster = baseCharacters;
+            return;
+        }
+        const equippedSkinByCharacterId = getArenaSkinState(profileCache?.profile, arena).equippedSkinByCharacterId;
+        const catalogById = new Map(
+            catalog
+                .map((entry = {}) => [normalizeSkinId(entry.skinId), entry])
+                .filter(([skinId]) => !!skinId)
+        );
+        roster = baseCharacters.map((character = {}) => {
+            const characterId = normalizeSkinCharacterId(character.characterId || character.id);
+            const equippedSkinId = equippedSkinByCharacterId[characterId];
+            const skinEntry = equippedSkinId ? catalogById.get(equippedSkinId) : null;
+            if (!skinEntry?.patch || typeof skinEntry.patch !== 'object') {
+                return character;
+            }
+            return mergeSkinPatchValue(character, skinEntry.patch);
+        });
+    };
 
     const clearDraftIntervals = () => {
         if (activeDraftPoll) {
@@ -14723,13 +15039,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         loadMissionLockedCharacterIds()
             .catch(() => {})
             .finally(() => {
-                applyRosterFilter();
-                applySavedTeam();
-                updateGameButtons();
-                if (selectionMissionsEl && !selectionMissionsEl.classList.contains('collapsed')) {
-                    loadSelectionMissions();
-                }
-                maybePromptPokemonStarterChoice();
+                fetchArenaSkins(activeArenaMode)
+                    .catch(() => {})
+                    .finally(() => {
+                        applyRosterFilter();
+                        applySavedTeam();
+                        updateGameButtons();
+                        if (selectionMissionsEl && !selectionMissionsEl.classList.contains('collapsed')) {
+                            loadSelectionMissions();
+                        }
+                        maybePromptPokemonStarterChoice();
+                    });
             });
     };
 
@@ -14787,9 +15107,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     void hydratePlayerIdentity({
         redirectOnUnauthorized: true,
         arenaOverride: activeArenaMode,
-    }).catch((error) => {
-        console.warn('Failed to hydrate selection player identity.', error);
-    });
+    })
+        .then(() => fetchArenaSkins(activeArenaMode))
+        .catch((error) => {
+            console.warn('Failed to hydrate selection player identity.', error);
+        });
 
     void loadMissionLockedCharacterIds()
         .catch((error) => {
