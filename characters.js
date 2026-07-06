@@ -27201,93 +27201,6 @@ const characters = [
                 ]
             },
             {
-                "id": "hitmonlee-low-kick",
-                "name": "Low Kick",
-                "skillimage": "assets/images/PokemonArena/hitmonlee/lowkick.webp",
-                "skilldescription": "Deals 20 damage to one enemy and reduces their non-affliction damage by 15 for 1 turn. This skill has a 25% chance to critically hit, dealing 10 additional damage. This skill swaps to Double Kick.",
-                "energy": [
-                    "Genjutsu"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Physical",
-                    "Melee",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 20,
-                        "scope": "target"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "hitmonlee_focus_energy"
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "chance": 25,
-                        "condition": {
-                            "scope": "self",
-                            "missingStatusId": "hitmonlee_focus_energy"
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "chance": 75,
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "hitmonlee_focus_energy"
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "hitmonlee_low_kick_debuff",
-                        "duration": 1,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "nonAfflictionDamageDebuffFlat": 15,
-                            "statusIconUrl": "assets/images/PokemonArena/hitmonlee/lowkick.webp",
-                            "tooltipText": "This character deals 15 less non-affliction damage."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "hitmonlee_low_kick_swap",
-                        "duration": 99,
-                        "scope": "self",
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "skillReplacements": {
-                                "hitmonlee-low-kick": "hitmonlee-double-kick"
-                            },
-                            "removeStatusIdsOnApply": [
-                                "hitmonlee_double_kick_swap"
-                            ],
-                            "tooltipText": "Low Kick is replaced by Double Kick."
-                        }
-                    }
-                ]
-            },
-            {
                 "id": "hitmonlee-focus-energy",
                 "name": "Focus Energy",
                 "skillimage": "assets/images/PokemonArena/hitmonlee/focusenergy.webp",
@@ -27469,6 +27382,96 @@ const characters = [
                             "ignoreDamageReduction": true,
                             "ignoreDestructibleDefense": true,
                             "ignoreDamageImmunity": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "hitmonlee-low-kick",
+                "name": "Low Kick",
+                "actorCondition": {
+                    "statusId": "hitmonlee_double_kick_swap"
+                },
+                "skillimage": "assets/images/PokemonArena/hitmonlee/lowkick.webp",
+                "skilldescription": "Deals 20 damage to one enemy and reduces their non-affliction damage by 15 for 1 turn. This skill has a 25% chance to critically hit, dealing 10 additional damage. This skill swaps to Double Kick.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "hitmonlee_focus_energy"
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "chance": 25,
+                        "condition": {
+                            "scope": "self",
+                            "missingStatusId": "hitmonlee_focus_energy"
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "chance": 75,
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "hitmonlee_focus_energy"
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "hitmonlee_low_kick_debuff",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "nonAfflictionDamageDebuffFlat": 15,
+                            "statusIconUrl": "assets/images/PokemonArena/hitmonlee/lowkick.webp",
+                            "tooltipText": "This character deals 15 less non-affliction damage."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "hitmonlee_low_kick_swap",
+                        "duration": 99,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "skillReplacements": {
+                                "hitmonlee-low-kick": "hitmonlee-double-kick"
+                            },
+                            "removeStatusIdsOnApply": [
+                                "hitmonlee_double_kick_swap"
+                            ],
+                            "tooltipText": "Low Kick is replaced by Double Kick."
                         }
                     }
                 ]
