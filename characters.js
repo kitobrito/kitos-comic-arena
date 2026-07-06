@@ -20405,7 +20405,8 @@ const characters = [
                 "energy": [
                     "Bloodline",
                     "Ninjutsu",
-                    "Genjutsu"
+                    "Genjutsu",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -26174,7 +26175,7 @@ const characters = [
                     "infiniteDuration": true,
                     "magikarpTurnCount": 0,
                     "stackMetadataKey": "magikarpTurnCount",
-                    "stackMax": 7,
+                    "stackMax": 6,
                     "turnStartApplyStatusToOwner": {
                         "statusId": "magikarp_evolution_tracker",
                         "duration": 999,
@@ -26184,10 +26185,10 @@ const characters = [
                             "infiniteDuration": true,
                             "stackMetadataKey": "magikarpTurnCount",
                             "stackDelta": 1,
-                            "stackMax": 7,
+                            "stackMax": 6,
                             "applyStatusAtStack": {
                                 "metadataKey": "magikarpTurnCount",
-                                "value": 7,
+                                "value": 6,
                                 "statusId": "magikarp_gyarados_evolution",
                                 "duration": 999,
                                 "metadata": {
@@ -26207,11 +26208,11 @@ const characters = [
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/magikarp/evolutiongyarados.png",
-                            "tooltipTextTemplate": "Magikarp is on turn {magikarpTurnCount}/7 and will evolve into Gyarados on turn 7."
+                            "tooltipTextTemplate": "Magikarp is on turn {magikarpTurnCount}/6 and will evolve into Gyarados on turn 6."
                         }
                     },
                     "statusIconUrl": "assets/images/PokemonArena/magikarp/evolutiongyarados.png",
-                    "tooltipTextTemplate": "Magikarp is on turn {magikarpTurnCount}/7 and will evolve into Gyarados on turn 7."
+                    "tooltipTextTemplate": "Magikarp is on turn {magikarpTurnCount}/6 and will evolve into Gyarados on turn 6."
                 }
             }
         ],
@@ -26265,10 +26266,10 @@ const characters = [
                             "infiniteDuration": true,
                             "stackMetadataKey": "magikarpTurnCount",
                             "stackDelta": 1,
-                            "stackMax": 7,
+                            "stackMax": 6,
                             "applyStatusAtStack": {
                                 "metadataKey": "magikarpTurnCount",
-                                "value": 7,
+                                "value": 6,
                                 "statusId": "magikarp_gyarados_evolution",
                                 "duration": 999,
                                 "metadata": {
@@ -26288,7 +26289,7 @@ const characters = [
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/magikarp/magikarpsplash.png",
-                            "tooltipTextTemplate": "Magikarp is on turn {magikarpTurnCount}/7 and will evolve into Gyarados on turn 7."
+                            "tooltipTextTemplate": "Magikarp is on turn {magikarpTurnCount}/6 and will evolve into Gyarados on turn 6."
                         }
                     }
                 ]
@@ -26354,7 +26355,7 @@ const characters = [
                 "id": "magikarp-passive-evolution-gyarados",
                 "name": "Evolution - Gyarados",
                 "skillimage": "assets/images/PokemonArena/magikarp/evolutiongyarados.png",
-                "skilldescription": "On Magikarp's 7th turn, it evolves into Gyarados. Gyarados has completely new skills.",
+                "skilldescription": "On Magikarp's 6th turn, it evolves into Gyarados. Gyarados has completely new skills.",
                 "energy": [],
                 "target": "",
                 "damage": 0,

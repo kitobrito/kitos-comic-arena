@@ -429,7 +429,7 @@ test('Magikarp evolution tracker gains a turn stack at turn start', () => {
                                     infiniteDuration: true,
                                     magikarpTurnCount: 0,
                                     stackMetadataKey: 'magikarpTurnCount',
-                                    stackMax: 7,
+                                    stackMax: 6,
                                     turnStartApplyStatusToOwner: {
                                         statusId: 'magikarp_evolution_tracker',
                                         duration: 999,
@@ -439,7 +439,7 @@ test('Magikarp evolution tracker gains a turn stack at turn start', () => {
                                             infiniteDuration: true,
                                             stackMetadataKey: 'magikarpTurnCount',
                                             stackDelta: 1,
-                                            stackMax: 7,
+                                            stackMax: 6,
                                         },
                                     },
                                 },
@@ -662,7 +662,7 @@ test('turn-end damage statuses trigger on their first eligible turn-end', () => 
     assert.equal(match.board.enemy[0].hp, 95);
 });
 
-test('Splash can advance Magikarp into Gyarados immediately at 7 stacks', () => {
+test('Splash can advance Magikarp into Gyarados immediately at 6 stacks', () => {
     const state = {
         statuses: [
             {
@@ -671,9 +671,9 @@ test('Splash can advance Magikarp into Gyarados immediately at 7 stacks', () => 
                 metadata: {
                     hidden: true,
                     infiniteDuration: true,
-                    magikarpTurnCount: 6,
+                    magikarpTurnCount: 5,
                     stackMetadataKey: 'magikarpTurnCount',
-                    stackMax: 7,
+                    stackMax: 6,
                 },
             },
         ],
@@ -692,10 +692,10 @@ test('Splash can advance Magikarp into Gyarados immediately at 7 stacks', () => 
             infiniteDuration: true,
             stackMetadataKey: 'magikarpTurnCount',
             stackDelta: 1,
-            stackMax: 7,
+            stackMax: 6,
             applyStatusAtStack: {
                 metadataKey: 'magikarpTurnCount',
-                value: 7,
+                value: 6,
                 statusId: 'magikarp_gyarados_evolution',
                 duration: 999,
                 metadata: {
@@ -710,6 +710,6 @@ test('Splash can advance Magikarp into Gyarados immediately at 7 stacks', () => 
     const tracker = state.statuses.find((status) => status.id === 'magikarp_evolution_tracker');
     const evolution = state.statuses.find((status) => status.id === 'magikarp_gyarados_evolution');
 
-    assert.equal(tracker?.metadata?.magikarpTurnCount, 7);
+    assert.equal(tracker?.metadata?.magikarpTurnCount, 6);
     assert.ok(evolution);
 });
