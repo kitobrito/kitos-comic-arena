@@ -27123,15 +27123,6 @@ const characters = [
                     },
                     {
                         "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "hitmonlee_focus_energy"
-                        }
-                    },
-                    {
-                        "type": "damage",
                         "amount": 5,
                         "scope": "target",
                         "chance": 25,
@@ -27204,7 +27195,7 @@ const characters = [
                 "id": "hitmonlee-focus-energy",
                 "name": "Focus Energy",
                 "skillimage": "assets/images/PokemonArena/hitmonlee/focusenergy.webp",
-                "skilldescription": "For 2 turns, Hitmonlee's damaging skills gain 50% additional critical strike chance and deal 5 additional damage.",
+                "skilldescription": "For 2 turns, Hitmonlee's damaging skills gain 50% additional critical strike chance.",
                 "energy": [
                     "Random"
                 ],
@@ -27223,7 +27214,7 @@ const characters = [
                         "scope": "self",
                         "metadata": {
                             "statusIconUrl": "assets/images/PokemonArena/hitmonlee/focusenergy.webp",
-                            "tooltipText": "Hitmonlee's damaging skills gain 50% additional critical strike chance and deal 5 additional damage."
+                            "tooltipText": "Hitmonlee's damaging skills gain 50% additional critical strike chance."
                         }
                     }
                 ]
@@ -27251,15 +27242,6 @@ const characters = [
                         "type": "damage",
                         "amount": 40,
                         "scope": "target"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "hitmonlee_focus_energy"
-                        }
                     },
                     {
                         "type": "damage",
@@ -27325,18 +27307,6 @@ const characters = [
                         "condition": {
                             "scope": "self",
                             "statusId": "hitmonlee_high_jump_kick_hit_confirmed"
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 5,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusIdsAll": [
-                                "hitmonlee_high_jump_kick_hit_confirmed",
-                                "hitmonlee_focus_energy"
-                            ]
                         }
                     },
                     {
@@ -27410,15 +27380,6 @@ const characters = [
                         "type": "damage",
                         "amount": 20,
                         "scope": "target"
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 10,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "hitmonlee_focus_energy"
-                        }
                     },
                     {
                         "type": "damage",
