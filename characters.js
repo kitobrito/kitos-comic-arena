@@ -27837,7 +27837,7 @@ const characters = [
                 "skilldescription": "Stuns the entire enemy team's non-mental skills and paralyzes their cooldowns for 1 turn. During the next turn, Spark deals 15 additional damage to the chosen target.",
                 "energy": [
                     "Genjutsu",
-                    "Random"
+                    "Genjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
