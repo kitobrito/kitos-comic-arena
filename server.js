@@ -4380,6 +4380,12 @@ const normalizeComicMissionDifficulty = (mission = {}) => {
     }
     const first = requiredPair[0];
     const second = requiredPair[1];
+    const missionLevel = Math.max(
+        0,
+        Number(mission?.level_requirement ?? mission?.levelRequirement ?? mission?.rank ?? 0) || 0
+    );
+    const earlyMatchWins = missionLevel > 0 && missionLevel <= 3 ? 5 : 10;
+    const earlySameTeamStreak = missionLevel > 0 && missionLevel <= 3 ? 2 : 4;
     return {
         ...mission,
         goals: [
@@ -4387,19 +4393,19 @@ const normalizeComicMissionDifficulty = (mission = {}) => {
                 type: 'win_matches',
                 character_id: first.characterId,
                 character_name: first.characterName,
-                wins: 10,
+                wins: earlyMatchWins,
             },
             {
                 type: 'win_matches',
                 character_id: second.characterId,
                 character_name: second.characterName,
-                wins: 10,
+                wins: earlyMatchWins,
             },
             {
                 type: 'win_streak_same_team',
                 character_ids: [first.characterId, second.characterId],
                 character_names: [first.characterName, second.characterName],
-                wins: 4,
+                wins: earlySameTeamStreak,
             },
         ],
     };
