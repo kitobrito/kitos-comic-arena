@@ -14486,6 +14486,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const normalizeSelectionRoleCategory = (category = '') => {
         const value = String(category || '').trim().toLowerCase();
         if (value === 'control' || value === 'strategic') return 'controller';
+        if (activeArenaMode === 'pokemon' && value === 'support') return 'utility-support';
+        if (activeArenaMode === 'pokemon' && value === 'damage') return 'hybrid';
         return value;
     };
 
@@ -14500,9 +14502,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (role.includes('fast dps')) return 'fast-dps';
         if (role.includes('spike dps')) return 'spike-dps';
         if (role.includes('tank') || role.includes('juggernaut')) return 'tank';
+        if (role.includes('damage support')) return 'damage-support';
+        if (role.includes('utility support')) return 'utility-support';
         if (role.includes('heal support') || role.includes('healer')) return 'heal-support';
         if (role.includes('shield support')) return 'shield-support';
-        if (role.includes('support') || role.includes('heal') || role.includes('shield')) return 'support';
+        if (role.includes('support')) return activeArenaMode === 'pokemon' ? 'utility-support' : 'support';
         if (role.includes('assassin') || role.includes('execution')) return 'assassin';
         if (role.includes('bruiser') || role.includes('brawler') || role.includes('beserker') || role.includes('berserker')) return 'bruiser';
         if (role.includes('hybrid')) return 'hybrid';
@@ -14516,6 +14520,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         if (role.includes('disrupt')) return 'disruptor';
         if (role.includes('specialist') || role.includes('punisher')) return 'specialist';
+        if (activeArenaMode === 'pokemon' && (role.includes('dps') || role.includes('damage') || role.includes('carry') || role.includes('mage'))) {
+            return 'hybrid';
+        }
         if (role.includes('dps') || role.includes('damage') || role.includes('carry') || role.includes('mage')) return 'damage';
         return 'specialist';
     };
@@ -15060,16 +15067,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         sourceElement.addEventListener('pointercancel', handlePointerCancel);
     };
 
-    const rosterFilterOptions = {
-        role: [
+    const comicRoleFilterOptions = [
             ['all', 'All Roles'],
             ['tank', 'Tank'],
             ['damage', 'Damage'],
+            ['spike-dps', 'Spike DPS'],
+            ['support', 'Support'],
+            ['controller', 'Controller'],
+            ['hybrid', 'Hybrid'],
+            ['assassin', 'Assassin'],
+            ['bruiser', 'Bruiser'],
+            ['specialist', 'Specialist'],
+        ];
+
+    const pokemonRoleFilterOptions = [
+            ['all', 'All Roles'],
+            ['tank', 'Tank'],
             ['dot-dps', 'DOT DPS'],
             ['aoe-dps', 'AOE DPS'],
             ['fast-dps', 'Fast DPS'],
             ['spike-dps', 'Spike DPS'],
-            ['support', 'Support'],
+            ['damage-support', 'Damage Support'],
+            ['utility-support', 'Utility Support'],
             ['heal-support', 'Heal Support'],
             ['shield-support', 'Shield Support'],
             ['controller', 'Controller'],
@@ -15078,7 +15097,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             ['assassin', 'Assassin'],
             ['bruiser', 'Bruiser'],
             ['specialist', 'Specialist'],
-        ],
+        ];
+
+    const rosterFilterOptions = {
         unlock: [
             ['all', 'All Unlocks'],
             ['starter', 'Starters'],
@@ -15118,10 +15139,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         ];
     };
 
-    const getRosterFilterOptions = () =>
-        activeRosterFilterMode === 'energy'
-            ? buildEnergyFilterOptions()
-            : rosterFilterOptions[activeRosterFilterMode] || rosterFilterOptions.role;
+    const getRosterFilterOptions = () => {
+        if (activeRosterFilterMode === 'energy') {
+            return buildEnergyFilterOptions();
+        }
+        if (activeRosterFilterMode === 'role') {
+            return activeArenaMode === 'pokemon' ? pokemonRoleFilterOptions : comicRoleFilterOptions;
+        }
+        return rosterFilterOptions[activeRosterFilterMode] || (activeArenaMode === 'pokemon' ? pokemonRoleFilterOptions : comicRoleFilterOptions);
+    };
 
     const doesCharacterMatchRosterFilter = (character) => {
         if (activeRosterFilterValue === 'all') return true;

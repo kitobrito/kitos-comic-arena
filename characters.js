@@ -19552,7 +19552,7 @@ const characters = [
         "role": "Drain Fighter",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "damage",
+        "roleCategory": "hybrid",
         "description": "A patient and resilient Grass-type Pokémon that draws strength from sunlight. Bulbasaur grows more powerful as the sun shines overhead, eventually evolving into Ivysaur and unleashing devastating solar attacks.",
         "descriptionHtml": "A patient and resilient Grass-type Pokémon that draws strength from sunlight. Bulbasaur grows more powerful as the sun shines overhead, eventually evolving into Ivysaur and unleashing devastating solar attacks."
     },
@@ -26472,7 +26472,7 @@ const characters = [
         "role": "Assassin",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "damage",
+        "roleCategory": "assassin",
         "description": "A venom-focused Pokemon that ramps poison pressure, punishes enemies for acting, and evolves into Arbok after landing a Crunch execution.",
         "descriptionHtml": "A venom-focused Pokemon that ramps poison pressure, punishes enemies for acting, and evolves into Arbok after landing a Crunch execution.",
         "startStatuses": []
@@ -27443,10 +27443,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "AOE DPS",
+        "role": "Hybrid",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "aoe-dps",
+        "roleCategory": "hybrid",
         "description": "A famously weak Water-type Pokemon whose plan is surviving long enough to become Gyarados, then cashing in with overwhelming ranged pressure.",
         "descriptionHtml": "A famously weak Water-type Pokemon whose plan is surviving long enough to become Gyarados, then cashing in with overwhelming ranged pressure."
     },
