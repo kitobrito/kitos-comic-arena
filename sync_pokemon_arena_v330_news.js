@@ -453,7 +453,7 @@ const newsPost = {
                 facePicture: megaCharizardXFace,
                 groupKey: 'charmander-charizard-showcase',
                 groupName: 'Charizard Skin',
-                skillName: 'Mega Charizard X Fire Punch',
+                skillName: 'Flamethrower',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXSkill1.webp',
             }
         ),
@@ -466,7 +466,7 @@ const newsPost = {
                 facePicture: megaCharizardXFace,
                 groupKey: 'charmander-charizard-showcase',
                 groupName: 'Charizard Skin',
-                skillName: 'Mega Charizard X Dragon Claw',
+                skillName: 'Dragon Claw',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXskill2.webp',
             }
         ),
@@ -492,7 +492,7 @@ const newsPost = {
                 facePicture: megaCharizardXFace,
                 groupKey: 'charmander-charizard-showcase',
                 groupName: 'Charizard Skin',
-                skillName: "Mega Charizard X's Flamethrower",
+                skillName: 'Fire Blast',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXskill3.webp',
             }
         ),
@@ -505,7 +505,7 @@ const newsPost = {
                 facePicture: megaCharizardXFace,
                 groupKey: 'charmander-charizard-showcase',
                 groupName: 'Charizard Skin',
-                skillName: "Mega Charizard X's Rage",
+                skillName: 'Mega Charizard X Rampage',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXskill4.webp',
             }
         ),
@@ -518,7 +518,7 @@ const newsPost = {
                 facePicture: megaCharizardYFace,
                 groupKey: 'charmander-charizard-showcase',
                 groupName: 'Charizard Skin',
-                skillName: 'Mega Charizard Y Fire Punch',
+                skillName: 'Overheat',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill1.webp',
             }
         ),
@@ -544,7 +544,7 @@ const newsPost = {
                 facePicture: megaCharizardYFace,
                 groupKey: 'charmander-charizard-showcase',
                 groupName: 'Charizard Skin',
-                skillName: 'Mega Charizard Y Dragon Claw',
+                skillName: 'Dragon Tail',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill2.webp',
             }
         ),
@@ -557,7 +557,7 @@ const newsPost = {
                 facePicture: megaCharizardYFace,
                 groupKey: 'charmander-charizard-showcase',
                 groupName: 'Charizard Skin',
-                skillName: "Mega Charizard Y's Flamethrower",
+                skillName: 'Fire Spin',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill3.webp',
             }
         ),
@@ -570,7 +570,7 @@ const newsPost = {
                 facePicture: megaCharizardYFace,
                 groupKey: 'charmander-charizard-showcase',
                 groupName: 'Charizard Skin',
-                skillName: "Mega Charizard Y's Rage",
+                skillName: 'Mega Charizard Y Flight',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill4.webp',
             }
         ),

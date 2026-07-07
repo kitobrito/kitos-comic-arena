@@ -3271,7 +3271,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     (status) =>
                         status?.id === statusId && Math.max(0, Number(status?.remainingTurns) || 0) > 0
                 );
-            if (condition?.statusId && !hasStatusId(condition.statusId)) return true;
+            if (condition?.statusId && !hasStatusId(condition.statusId)) return false;
             if (
                 Array.isArray(condition?.statusIdsAny) &&
                 condition.statusIdsAny.length > 0 &&

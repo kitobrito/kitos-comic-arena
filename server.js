@@ -2546,59 +2546,59 @@ const POKEMON_SKIN_CATALOG = [
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill4.webp',
             },
             'charmander-fire-punch': {
-                name: 'Charizard Fire Punch',
+                name: 'Flamethrower',
                 skilldescription:
                     'Charizard deals 15 physical damage and 30 affliction damage to one enemy. This skill has a 30% chance to Burn the target. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill1.webp',
             },
             'charmander-dragon-claw': {
-                name: 'Charizard Dragon Claw',
+                name: 'Seismic Toss',
                 skilldescription:
                     'Charizard deals 30 damage to one enemy. This skill has a 30% chance to critically strike, dealing 10 additional damage and becoming Piercing.',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill2.webp',
             },
             'charmander-charmeleon-flamethrower': {
-                name: "Charizard's Flamethrower",
+                name: 'Fire Blast',
                 skilldescription:
                     'Charizard deals 30 affliction damage to all enemies. Each enemy has a 30% chance to be Burned. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill3.webp',
             },
             'charmander-charmeleon-rage': {
-                name: "Charizard's Rage",
+                name: 'Charizard Flight',
                 skilldescription:
                     'For 2 turns, Charizard gains 50% damage reduction. The first time each turn Charizard takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 4 stacks.',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill4.webp',
             },
             'charmander-charizard-x-fire-punch': {
-                name: 'Mega Charizard X Fire Punch',
+                name: 'Flamethrower',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXSkill1.webp',
             },
             'charmander-charizard-x-dragon-claw': {
-                name: 'Mega Charizard X Dragon Claw',
+                name: 'Dragon Claw',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXskill2.webp',
             },
             'charmander-charizard-x-flamethrower': {
-                name: "Mega Charizard X's Flamethrower",
+                name: 'Fire Blast',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXskill3.webp',
             },
             'charmander-charizard-x-rage': {
-                name: "Mega Charizard X's Rage",
+                name: 'Mega Charizard X Rampage',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXskill4.webp',
             },
             'charmander-charizard-y-fire-punch': {
-                name: 'Mega Charizard Y Fire Punch',
+                name: 'Overheat',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill1.webp',
             },
             'charmander-charizard-y-dragon-claw': {
-                name: 'Mega Charizard Y Dragon Claw',
+                name: 'Dragon Tail',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill2.webp',
             },
             'charmander-charizard-y-flamethrower': {
-                name: "Mega Charizard Y's Flamethrower",
+                name: 'Fire Spin',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill3.webp',
             },
             'charmander-charizard-y-rage': {
-                name: "Mega Charizard Y's Rage",
+                name: 'Mega Charizard Y Flight',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill4.webp',
             },
         },
