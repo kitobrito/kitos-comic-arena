@@ -193,7 +193,7 @@ const DEFAULT_MISSION_CATALOG = [
         goals: [
             {
                 type: 'text',
-                text: 'Clear the outbreak by defeating 3 Walkers at the Greene Farm using Rick Grimes, Andrea, and Hershel Greene.'
+                text: 'Defeat the Walker Herd at Greene Farm to unlock Walker.'
             }
         ],
         special_pve: {
@@ -204,11 +204,7 @@ const DEFAULT_MISSION_CATALOG = [
             botTeamSize: 3,
             botMaxQueuedSkillsPerTurn: 1,
             backgroundImage: 'assets/images/WalkerBG.png',
-            playerTeamCharacterIds: [
-                'rick-grimes',
-                'andrea',
-                'hershel-greene'
-            ]
+            playerTeamCharacterIds: []
         },
         sortOrder: 1
     },
@@ -458,7 +454,7 @@ const DEFAULT_MISSION_CATALOG = [
         goals: [
             {
                 type: 'text',
-                text: 'Contain the Rage Virus by defeating 3 Rage Infected using Rick Grimes, Andrea, and Hershel Greene.'
+                text: 'Defeat the Rage Outbreak to unlock Rage Infected.'
             }
         ],
         special_pve: {
@@ -469,11 +465,7 @@ const DEFAULT_MISSION_CATALOG = [
             botTeamSize: 3,
             botMaxQueuedSkillsPerTurn: 1,
             backgroundImage: 'assets/images/RageInfectedBG.png',
-            playerTeamCharacterIds: [
-                'rick-grimes',
-                'andrea',
-                'hershel-greene'
-            ]
+            playerTeamCharacterIds: []
         },
         sortOrder: 5
     },
@@ -1415,7 +1407,7 @@ const DEFAULT_MISSION_CATALOG = [
         goals: [
             {
                 type: 'text',
-                text: 'Survive the hunt by defeating 3 Predator Stalkers using Sergeant William Hillford, Pvt. Saunders, and Lieutenant Seraphina Vale.'
+                text: 'Defeat the Predator Hunting Party to unlock Predator Stalker.'
             }
         ],
         special_pve: {
@@ -1426,11 +1418,7 @@ const DEFAULT_MISSION_CATALOG = [
             botTeamSize: 3,
             botMaxQueuedSkillsPerTurn: 2,
             backgroundImage: 'assets/images/PredatorStalkerBG.png',
-            playerTeamCharacterIds: [
-                'space-marine-smartgunner',
-                'space-marine-infantry',
-                'space-marine-medic'
-            ]
+            playerTeamCharacterIds: []
         },
         sortOrder: 23
     },
@@ -1462,7 +1450,7 @@ const DEFAULT_MISSION_CATALOG = [
         goals: [
             {
                 type: 'text',
-                text: 'Beat 3 Xenomorphs in the Xenomorph Hive using Sergeant William Hillford, Pvt. Saunders, and Lieutenant Seraphina Vale.'
+                text: 'Beat the Xenomorph Nest to unlock Xenomorph Drone.'
             }
         ],
         special_pve: {
@@ -1473,11 +1461,7 @@ const DEFAULT_MISSION_CATALOG = [
             botTeamSize: 3,
             botMaxQueuedSkillsPerTurn: 2,
             backgroundImage: 'assets/images/XenomorphDroneBG.png',
-            playerTeamCharacterIds: [
-                'space-marine-smartgunner',
-                'space-marine-infantry',
-                'space-marine-medic'
-            ]
+            playerTeamCharacterIds: []
         },
         sortOrder: 14
     },
@@ -2002,16 +1986,12 @@ const XENOMORPH_DRONE_SPECIAL_PVE = {
     botTeamSize: 3,
     backgroundImage: 'assets/images/XenomorphDroneBG.png',
     botMaxQueuedSkillsPerTurn: 2,
-    playerTeamCharacterIds: [
-        'sergeant-william-hillford',
-        'space-marine-infantry',
-        'lieutenant-seraphina-vale',
-    ],
+    playerTeamCharacterIds: [],
 };
 const XENOMORPH_HIVE_MISSION_GOALS = [
     {
         type: 'text',
-        text: 'Beat 3 Xenomorphs in the Xenomorph Hive using Sergeant William Hillford, Pvt. Saunders, and Lieutenant Seraphina Vale.',
+        text: 'Beat the Xenomorph Nest to unlock Xenomorph Drone.',
     },
 ];
 
@@ -3339,10 +3319,7 @@ const normalizeMissionSpecialPve = (source = {}, rewardCharacterId = '') => {
                     : Array.isArray(defaults.playerTeamCharacterIds)
                         ? defaults.playerTeamCharacterIds
                         : [];
-    const playerTeamCharacterIds = rawPlayerTeamCharacterIds
-        .map((entry) => normalizeCharacterId(entry))
-        .filter(Boolean)
-        .slice(0, 3);
+    const playerTeamCharacterIds = [];
     const rawMaxQueuedSkills =
         raw.botMaxQueuedSkillsPerTurn ??
         raw.bot_max_queued_skills_per_turn ??
@@ -4298,6 +4275,38 @@ const shouldNormalizeComicMissionDifficulty = (mission = {}) => {
     return !goals.some((goal) => String(goal?.type || '').trim().toLowerCase() === 'reach_rank');
 };
 
+const OPEN_TEAM_PVE_MISSION_GOAL_TEXT_BY_ID = {
+    walker: 'Defeat the Walker Herd at Greene Farm to unlock Walker.',
+    'rage-infected-mission': 'Defeat the Rage Outbreak to unlock Rage Infected.',
+    predatorstalker: 'Defeat the Predator Hunting Party to unlock Predator Stalker.',
+    'raid-on-the-xenomorph-hive': 'Beat the Xenomorph Nest to unlock Xenomorph Drone.',
+};
+
+const normalizeOpenTeamPveMission = (mission = {}) => {
+    if (!Boolean(mission?.special_pve?.enabled)) {
+        return mission;
+    }
+    const missionId = String(mission?.missionId || '').trim();
+    const goalText = OPEN_TEAM_PVE_MISSION_GOAL_TEXT_BY_ID[missionId];
+    return {
+        ...mission,
+        goals: goalText
+            ? [
+                  {
+                      type: 'text',
+                      text: goalText,
+                  },
+              ]
+            : Array.isArray(mission?.goals)
+            ? mission.goals
+            : [],
+        special_pve: {
+            ...(mission?.special_pve || {}),
+            playerTeamCharacterIds: [],
+        },
+    };
+};
+
 const COMIC_MISSION_REQUIRED_PAIR_OVERRIDES = {
     venom: [
         { characterId: 'spider-man', characterName: 'Spider-Man' },
@@ -4467,7 +4476,9 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     upsertRequiredMission(POKEMON_HITMONCHAN_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'hitmonchan');
     upsertRequiredMission(POKEMON_HITMONLEE_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'hitmonlee');
     upsertRequiredMission(POKEMON_MAGNEMITE_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'magnemite');
-    return normalizeMissionCatalog(catalog).map((mission) => normalizeComicMissionDifficulty(mission));
+    return normalizeMissionCatalog(catalog)
+        .map((mission) => normalizeOpenTeamPveMission(mission))
+        .map((mission) => normalizeComicMissionDifficulty(mission));
 };
 
 const getDefaultMissionCatalog = () =>
@@ -13089,21 +13100,9 @@ app.post('/api/missions/:missionId/pve/start', requireSession, async (req, res) 
             return res.status(403).json({ error: `Requires level ${levelRequirement}.` });
         }
 
-        const presetTeamCharacterIds = Array.isArray(specialPve.playerTeamCharacterIds)
-            ? specialPve.playerTeamCharacterIds.map((entry) => normalizeCharacterId(entry)).filter(Boolean)
+        const team = Array.isArray(req.body?.team)
+            ? req.body.team.map((slot) => Number.parseInt(slot, 10))
             : [];
-        const presetTeam =
-            presetTeamCharacterIds.length > 0
-                ? presetTeamCharacterIds.map((characterId) => getRosterIndexByCharacterId(characterId))
-                : [];
-        if (presetTeam.some((rosterIndex) => !Number.isInteger(rosterIndex) || rosterIndex < 0)) {
-            return res.status(400).json({ error: 'Mission preset team is missing a roster character.' });
-        }
-        const team = presetTeam.length > 0
-            ? presetTeam
-            : Array.isArray(req.body?.team)
-                ? req.body.team.map((slot) => Number.parseInt(slot, 10))
-                : [];
         await assertTeamCanBeUsed(profile, team, user.role, arena);
 
         const botRosterIndex = getRosterIndexByCharacterId(specialPve.botTeamCharacterId);

@@ -12718,12 +12718,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const specialPve = mission?.special_pve || mission?.specialPve || {};
         if (specialPve.enabled) {
             const botName = specialPve.botName || 'Mission Bot';
-            const botCharacterName =
+            const rewardName =
                 mission?.reward_character_name ||
                 specialPve.botTeamCharacterName ||
-                specialPve.botTeamCharacterId ||
-                'mission enemy';
-            return `Defeat ${botName} using ${botCharacterName}. Requires level ${mission.level_requirement || 1}.`;
+                'the mission reward';
+            return `Defeat ${botName} to unlock ${rewardName}. Requires level ${mission.level_requirement || 1}.`;
         }
         return 'No tracked progress yet.';
     };
