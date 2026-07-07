@@ -20670,6 +20670,56 @@ const characters = [
                     },
                     {
                         "type": "apply_status",
+                        "statusId": "magnemite_magneton_evolution",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "magnemite",
+                            "missingStatusId": "magnemite_magneton_evolution"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "facePictureOverride": "assets/images/PokemonArena/mangemite/magnetonfp.webp",
+                            "skillReplacements": {
+                                "magnemite-spark": "magneton-spark",
+                                "magnemite-thunder-wave": "magneton-thunder-wave",
+                                "magnemite-swift": "magneton-flash-cannon",
+                                "magnemite-magnet-rise": "magneton-magnet-rise"
+                            },
+                            "removeStatusIdsOnApply": [
+                                "magnemite_used_spark_during_rise",
+                                "magnemite_used_thunder_wave_during_rise"
+                            ],
+                            "tooltipText": "Magnemite has evolved into Magneton from Rare Candy.",
+                            "healOnApplyFlat": 10
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "magnemite_magneton_rare_candy_defense",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "magnemite",
+                            "missingStatusId": "magnemite_magneton_rare_candy_defense"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "destructibleDefensePoints": 25,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
                         "statusId": "pokemon_trainer_rare_candy_swap",
                         "duration": 99,
                         "scope": "self",
