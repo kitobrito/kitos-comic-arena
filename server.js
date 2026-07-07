@@ -4286,6 +4286,50 @@ const POKEMON_STARTER_MISSION_ENTRIES = [
     },
 ];
 
+const shouldNormalizeComicMissionDifficulty = (mission = {}) => {
+    const normalizedArena = normalizeArenaMode(mission?.arena || '');
+    if (normalizedArena === 'pokemon') {
+        return false;
+    }
+    if (Boolean(mission?.special_pve?.enabled)) {
+        return false;
+    }
+    const goals = Array.isArray(mission?.goals) ? mission.goals : [];
+    return !goals.some((goal) => String(goal?.type || '').trim().toLowerCase() === 'reach_rank');
+};
+
+const normalizeComicMissionDifficulty = (mission = {}) => {
+    if (!shouldNormalizeComicMissionDifficulty(mission)) {
+        return mission;
+    }
+    const goals = Array.isArray(mission?.goals) ? mission.goals : [];
+    return {
+        ...mission,
+        goals: goals.map((goal) => {
+            const goalType = String(goal?.type || '').trim().toLowerCase();
+            if (goalType === 'win_matches') {
+                return {
+                    ...goal,
+                    wins: Math.min(6, Math.max(0, Number(goal?.wins) || 0)),
+                };
+            }
+            if (goalType === 'win_matches_same_team') {
+                return {
+                    ...goal,
+                    wins: Math.min(5, Math.max(0, Number(goal?.wins) || 0)),
+                };
+            }
+            if (goalType === 'win_streak') {
+                return {
+                    ...goal,
+                    wins: Math.min(2, Math.max(0, Number(goal?.wins) || 0)),
+                };
+            }
+            return goal;
+        }),
+    };
+};
+
 const ensureRequiredMissionCatalogEntries = (missions = []) => {
     const removedPokemonStarterMissionIds = new Set([
         'squirtle-starter-path',
@@ -4338,7 +4382,7 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     upsertRequiredMission(POKEMON_HITMONCHAN_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'hitmonchan');
     upsertRequiredMission(POKEMON_HITMONLEE_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'hitmonlee');
     upsertRequiredMission(POKEMON_MAGNEMITE_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'magnemite');
-    return normalizeMissionCatalog(catalog);
+    return normalizeMissionCatalog(catalog).map((mission) => normalizeComicMissionDifficulty(mission));
 };
 
 const getDefaultMissionCatalog = () =>
