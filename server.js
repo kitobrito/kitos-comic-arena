@@ -2551,24 +2551,28 @@ const POKEMON_SKIN_CATALOG = [
             },
             'charmander-fire-punch': {
                 name: 'Flamethrower',
+                hiddenFromSelectionViewer: true,
                 skilldescription:
                     'Charizard deals 15 physical damage and 30 affliction damage to one enemy. This skill has a 30% chance to Burn the target. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill1.webp',
             },
             'charmander-dragon-claw': {
                 name: 'Seismic Toss',
+                hiddenFromSelectionViewer: true,
                 skilldescription:
                     'Charizard deals 30 damage to one enemy. This skill has a 30% chance to critically strike, dealing 10 additional damage and becoming Piercing.',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill2.webp',
             },
             'charmander-charmeleon-flamethrower': {
                 name: 'Fire Blast',
+                hiddenFromSelectionViewer: true,
                 skilldescription:
                     'Charizard deals 30 affliction damage to all enemies. Each enemy has a 30% chance to be Burned. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill3.webp',
             },
             'charmander-charmeleon-rage': {
                 name: 'Charizard Flight',
+                hiddenFromSelectionViewer: true,
                 skilldescription:
                     'For 2 turns, Charizard gains 50% damage reduction. The first time each turn Charizard takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 4 stacks.',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill4.webp',
