@@ -75,7 +75,7 @@ const newsPost = {
         ),
         buildSkillShowcase(
             'darth-maul-sith-code',
-            'Sith Code costs 2 Random, lets one ally gain 10 permanent damage every time a non-mental skill is used on them for 2 turns, and gives Darth Maul 1 random energy whenever a mental skill is used on him or that ally.'
+            'Sith Code costs 2 Random, lets one ally gain 5 permanent damage every time a non-mental skill is used on them for 2 turns, and gives Darth Maul 1 random energy whenever a mental skill is used on him or that ally.'
         ),
         buildSkillShowcase(
             'darth-maul-parry',

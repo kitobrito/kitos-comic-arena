@@ -15656,7 +15656,7 @@ const characters = [
                 "id": "darth-maul-sith-code",
                 "name": "Sith Code",
                 "skillimage": "assets/images/darthmaul/sithcode.jpg",
-                "skilldescription": "For 2 turns, one selected ally will deal 10 more damage for the rest of the game every time a non-mental skill is used on them. Darth Maul gains 1 random energy every time a mental skill is used on him or the target.",
+                "skilldescription": "For 2 turns, one selected ally will deal 5 more damage for the rest of the game every time a non-mental skill is used on them. Darth Maul gains 1 random energy every time a mental skill is used on him or the target.",
                 "energy": [
                     "Random",
                     "Random"
@@ -15682,7 +15682,7 @@ const characters = [
                                 "duration": 99,
                                 "metadata": {
                                     "infiniteDuration": true,
-                                    "damageBonusFlat": 10,
+                                    "damageBonusFlat": 5,
                                     "mergeNumericAddKeys": [
                                         "damageBonusFlat"
                                     ],
@@ -15691,7 +15691,7 @@ const characters = [
                                 }
                             },
                             "statusIconUrl": "assets/images/darthmaul/sithcode.jpg",
-                            "tooltipText": "Whenever a non-mental skill is used on this character, they gain 10 permanent damage."
+                            "tooltipText": "Whenever a non-mental skill is used on this character, they gain 5 permanent damage."
                         }
                     },
                     {
