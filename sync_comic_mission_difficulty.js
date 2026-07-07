@@ -35,6 +35,10 @@ const COMIC_MISSION_REQUIRED_PAIR_OVERRIDES = {
         { characterId: 'atrocitus', characterName: 'Atrocitus' },
         { characterId: 'sinestro', characterName: 'Sinestro' },
     ],
+    'sinestro-mission': [
+        { characterId: 'green-lantern-hal-jordan', characterName: 'Green Lantern (Hal Jordan)' },
+        { characterId: 'indigo-1', characterName: 'Indigo-1' },
+    ],
     'boba-fett': [
         { characterId: 'ghost-rider', characterName: 'Ghost Rider' },
         { characterId: 'captain-america', characterName: 'Captain America' },

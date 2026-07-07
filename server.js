@@ -1208,18 +1208,18 @@ const DEFAULT_MISSION_CATALOG = [
                 type: 'win_matches_same_team',
                 character_ids: [
                     'green-lantern-hal-jordan',
-                    'saint-walker'
+                    'indigo-1'
                 ],
                 character_names: [
                     'Green Lantern (Hal Jordan)',
-                    'Saint Walker'
+                    'Indigo-1'
                 ],
                 wins: 4
             },
             {
                 type: 'win_streak',
-                character_id: 'green-lantern-hal-jordan',
-                character_name: 'Green Lantern (Hal Jordan)',
+                character_id: 'indigo-1',
+                character_name: 'Indigo-1',
                 wins: 3
             }
         ],
@@ -4310,6 +4310,10 @@ const COMIC_MISSION_REQUIRED_PAIR_OVERRIDES = {
     'sorrow-mission': [
         { characterId: 'atrocitus', characterName: 'Atrocitus' },
         { characterId: 'sinestro', characterName: 'Sinestro' },
+    ],
+    'sinestro-mission': [
+        { characterId: 'green-lantern-hal-jordan', characterName: 'Green Lantern (Hal Jordan)' },
+        { characterId: 'indigo-1', characterName: 'Indigo-1' },
     ],
     'boba-fett': [
         { characterId: 'ghost-rider', characterName: 'Ghost Rider' },
