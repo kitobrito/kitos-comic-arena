@@ -2520,7 +2520,7 @@ const POKEMON_SKIN_CATALOG = [
         characterId: 'charmander',
         name: 'Charizard',
         description:
-            'A legendary Charizard skin for Charmander that branches into Mega Charizard X on Scratch evolution procs or Mega Charizard Y on Ember or Flamethrower evolution procs.',
+            'A legendary Charizard skin for Charmander that branches into Mega Charizard X if Seismic Toss activates the evolution or Mega Charizard Y if Flamethrower or Fire Blast activates the evolution.',
         unlockPointCost: 1350,
         previewFacePicture: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardfp.jpg',
         patch: {
@@ -2530,7 +2530,7 @@ const POKEMON_SKIN_CATALOG = [
             'charmander-passive-evolution-charmeleon': {
                 name: 'Legendary Evolution - Charizard',
                 skilldescription:
-                    "After Charmander critically strikes or burns an enemy twice, he evolves with his legendary Charizard skin. If Scratch activates the evolution, he becomes Mega Charizard X. If Ember or Flamethrower activates the evolution, he becomes Mega Charizard Y.",
+                    "After Charmander critically strikes or burns an enemy twice, he evolves with his legendary Charizard skin. If Seismic Toss activates the evolution, he becomes Mega Charizard X. If Flamethrower or Fire Blast activates the evolution, he becomes Mega Charizard Y.",
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYpassive.webp',
             },
             'charmander-ember': {
