@@ -4546,6 +4546,7 @@ const setProfileArenaState = (profile, arena = DEFAULT_ARENA_MODE, arenaState = 
 };
 
 const QUICK_GAME_RETENTION_MS = 24 * 60 * 60 * 1000;
+const REPEAT_LADDER_SURRENDER_LOOKBACK_COUNT = 1;
 
 const normalizeClanInvitations = (entries = []) =>
     (Array.isArray(entries) ? entries : [])
@@ -4718,6 +4719,13 @@ const normalizeRecentLadderGames = (entries = []) => {
                 typeof entry?.winnerUsername === 'string' ? entry.winnerUsername.trim() : '',
             expDelta: Number(entry?.expDelta) || 0,
             clanExpDelta: Math.max(0, Number(entry?.clanExpDelta) || 0),
+            unlockPointDelta: Math.max(0, Number(entry?.unlockPointDelta) || 0),
+            surrenderedBy:
+                typeof entry?.surrenderedBy === 'string' ? entry.surrenderedBy.trim() : '',
+            endReason:
+                typeof entry?.endReason === 'string' ? entry.endReason.trim().toLowerCase() : '',
+            rewardSuppressedReason:
+                typeof entry?.rewardSuppressedReason === 'string' ? entry.rewardSuppressedReason.trim() : '',
         }))
         .filter((entry) => entry.playedAt && entry.opponentUsername)
         .map((entry) => {
@@ -4734,6 +4742,22 @@ const normalizeRecentLadderGames = (entries = []) => {
         .sort((left, right) => right.playedAt.getTime() - left.playedAt.getTime())
         .slice(0, 25);
 };
+
+const countRecentLadderSurrendersByUser = ({ username = '', recentLadderGames = [] } = {}) => {
+    const normalizedUsername = typeof username === 'string' ? username.trim().toLowerCase() : '';
+    if (!normalizedUsername || !Array.isArray(recentLadderGames)) return 0;
+    return recentLadderGames.reduce((count, game) => {
+        const surrenderedBy =
+            typeof game?.surrenderedBy === 'string' ? game.surrenderedBy.trim().toLowerCase() : '';
+        const endReason =
+            typeof game?.endReason === 'string' ? game.endReason.trim().toLowerCase() : '';
+        return endReason === 'surrender' && surrenderedBy === normalizedUsername ? count + 1 : count;
+    }, 0);
+};
+
+const isRepeatLadderSurrenderer = ({ username = '', recentLadderGames = [] } = {}) =>
+    countRecentLadderSurrendersByUser({ username, recentLadderGames }) >=
+    REPEAT_LADDER_SURRENDER_LOOKBACK_COUNT;
 
 const inferCurrentLadderLossStreak = ({ username = '', recentLadderGames = [] } = {}) => {
     const normalizedUsername = typeof username === 'string' ? username.trim().toLowerCase() : '';
@@ -5507,6 +5531,9 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
         })
     );
     const preliminaryResults = new Map();
+    const surrenderedByUsername =
+        typeof match?.surrenderedBy === 'string' ? match.surrenderedBy.trim() : '';
+    const endedBySurrender = match?.endReason === 'surrender' && Boolean(surrenderedByUsername);
 
     for (const username of usernames) {
         const user = userByUsername.get(username);
@@ -5532,7 +5559,22 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
         }
 
         const didWin = Boolean(winnerUsername) && winnerUsername === username;
-        const expChange = winnerUsername
+        const surrenderedThisMatch = endedBySurrender && usernamesEqual(surrenderedByUsername, username);
+        const opponentIsRepeatSurrenderer =
+            endedBySurrender &&
+            didWin &&
+            opponentUsername &&
+            isRepeatLadderSurrenderer({
+                username: opponentUsername,
+                recentLadderGames: initialArenaProfiles.get(opponentUsername)?.recentLadderGames || [],
+            });
+        const suppressRankedPointRewards = surrenderedThisMatch || opponentIsRepeatSurrenderer;
+        const rewardSuppressedReason = surrenderedThisMatch
+            ? 'self-surrender'
+            : opponentIsRepeatSurrenderer
+            ? 'opponent-repeat-surrender'
+            : '';
+        const expChange = winnerUsername && !suppressRankedPointRewards
             ? resolveLadderExperienceDelta({
                   playerLevel: arenaProfile.ladder.level,
                   opponentLevel: opponentProfile.ladder.level,
@@ -5556,7 +5598,7 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
             arenaProfile.ladder.losses += 1;
             arenaProfile.ladder.streak = Math.min(0, Number(arenaProfile.ladder.streak) || 0) - 1;
         }
-        const unlockPointDelta = winnerUsername
+        const unlockPointDelta = winnerUsername && !suppressRankedPointRewards
             ? didWin
                 ? LADDER_UNLOCK_POINTS_WIN
                 : LADDER_UNLOCK_POINTS_LOSS
@@ -5587,6 +5629,9 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
                 expDelta,
                 clanExpDelta,
                 unlockPointDelta,
+                surrenderedBy: surrenderedByUsername,
+                endReason: match?.endReason || '',
+                rewardSuppressedReason,
             },
             ...(Array.isArray(arenaProfile.recentLadderGames) ? arenaProfile.recentLadderGames : []),
         ]);
@@ -5613,6 +5658,7 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
             expDelta,
             clanExpDelta,
             unlockPointDelta,
+            rewardSuppressedReason,
             previousExperiencePoints,
             previousUnlockPoints: initialArenaProfiles.get(username)?.missions?.unlockPoints || 0,
             previousLevel: initialArenaProfiles.get(username)?.ladder?.level || 1,
@@ -5633,6 +5679,7 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
             expDelta: prelim.expDelta,
             clanExpDelta: prelim.clanExpDelta || 0,
             unlockPointDelta: prelim.unlockPointDelta || 0,
+            rewardSuppressedReason: prelim.rewardSuppressedReason || '',
             previousExperiencePoints: prelim.previousExperiencePoints,
             currentExperiencePoints: getProfileArenaState(finalProfile, arena).ladder.experiencePoints,
             previousUnlockPoints: prelim.previousUnlockPoints || 0,
@@ -15103,5 +15150,8 @@ if (require.main === module) {
         areQueuedSkillRequestsEquivalent,
         resolveExpiredTurnStartChoiceIfNeeded,
         autoAdvanceTurnIfExpired,
+        normalizeRecentLadderGames,
+        countRecentLadderSurrendersByUser,
+        isRepeatLadderSurrenderer,
     };
 }

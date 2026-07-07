@@ -7,6 +7,9 @@ const {
     buildMatchPayloadForUser,
     buildMatchActionStatePayload,
     areQueuedSkillRequestsEquivalent,
+    normalizeRecentLadderGames,
+    countRecentLadderSurrendersByUser,
+    isRepeatLadderSurrenderer,
     resolveExpiredTurnStartChoiceIfNeeded,
 } = require('../server.js');
 
@@ -154,7 +157,7 @@ test('buildMatchPayloadForUser resolves viewer-scoped energy with username case 
             gary: makeEmptyPendingTurn(),
         },
         ladderResults: {
-            ash: { ladderPointsDelta: 18, rating: 1210 },
+            ash: { ladderPointsDelta: 18, rating: 1210, rewardSuppressedReason: '' },
         },
     };
 
@@ -167,7 +170,74 @@ test('buildMatchPayloadForUser resolves viewer-scoped energy with username case 
     assert.deepEqual(payload.lastChakraGain, {
         Ash: { taijutsu: 0, ninjutsu: 1, bloodline: 0, genjutsu: 0 },
     });
-    assert.deepEqual(payload.ladderResult, { ladderPointsDelta: 18, rating: 1210 });
+    assert.deepEqual(payload.ladderResult, {
+        ladderPointsDelta: 18,
+        rating: 1210,
+        rewardSuppressedReason: '',
+    });
+});
+
+test('normalizeRecentLadderGames preserves surrender metadata for repeat-surrender checks', () => {
+    const normalized = normalizeRecentLadderGames([
+        {
+            playedAt: new Date(),
+            opponentUsername: 'Gary',
+            winnerUsername: 'Gary',
+            expDelta: 0,
+            clanExpDelta: 0,
+            unlockPointDelta: 0,
+            surrenderedBy: 'Ash',
+            endReason: 'SURRENDER',
+            rewardSuppressedReason: 'self-surrender',
+        },
+    ]);
+
+    assert.equal(normalized.length, 1);
+    assert.equal(normalized[0].surrenderedBy, 'Ash');
+    assert.equal(normalized[0].endReason, 'surrender');
+    assert.equal(normalized[0].rewardSuppressedReason, 'self-surrender');
+    assert.equal(normalized[0].unlockPointDelta, 0);
+});
+
+test('repeat surrenderer helpers treat one prior ladder surrender as repeat behavior', () => {
+    const recentLadderGames = normalizeRecentLadderGames([
+        {
+            playedAt: new Date(),
+            opponentUsername: 'Gary',
+            winnerUsername: 'Gary',
+            surrenderedBy: 'Ash',
+            endReason: 'surrender',
+        },
+        {
+            playedAt: new Date(Date.now() - 1000),
+            opponentUsername: 'Misty',
+            winnerUsername: 'Ash',
+            surrenderedBy: '',
+            endReason: 'elimination',
+        },
+    ]);
+
+    assert.equal(
+        countRecentLadderSurrendersByUser({
+            username: 'ash',
+            recentLadderGames,
+        }),
+        1
+    );
+    assert.equal(
+        isRepeatLadderSurrenderer({
+            username: 'ash',
+            recentLadderGames,
+        }),
+        true
+    );
+    assert.equal(
+        isRepeatLadderSurrenderer({
+            username: 'gary',
+            recentLadderGames,
+        }),
+        false
+    );
 });
 test('buildMatchActionStatePayload carries current safe state for stale actions', () => {
     const match = {
