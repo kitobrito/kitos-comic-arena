@@ -21198,7 +21198,7 @@ const characters = [
                 "id": "pidgey-whirlwind",
                 "name": "Whirlwind",
                 "skillimage": "assets/images/PokemonArena/pidgey/whirlwind.webp",
-                "skilldescription": "For 1 turn, Pidgey gains 25% evasion, and Gust and Peck deal 5 additional piercing damage to all other enemies.",
+                "skilldescription": "For 2 turns, Pidgey gains 25% evasion, and Gust and Peck deal 5 additional piercing damage to all other enemies.",
                 "energy": [
                     "Bloodline",
                     "Bloodline"
@@ -21214,7 +21214,7 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "pidgey_whirlwind_team_cover",
-                        "duration": 1,
+                        "duration": 2,
                         "scope": "self",
                         "metadata": {
                             "evadeChancePercent": 25,
@@ -21296,13 +21296,13 @@ const characters = [
                 "id": "pidgey-sand-attack",
                 "name": "Sand-Attack",
                 "skillimage": "assets/images/PokemonArena/pidgey/sandattack.webp",
-                "skilldescription": "For 2 turns, one enemy's harmful skills target their own team randomly. Gust and Peck deal additional damage to enemies affected by Sand-Attack.",
+                "skilldescription": "For 2 turns, one enemy's harmful skills target any character randomly. Gust and Peck deal additional damage to enemies affected by Sand-Attack.",
                 "energy": [
                     "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 4,
+                "cooldown": 5,
                 "classes": [
                     "Physical",
                     "Ranged",
@@ -21316,9 +21316,9 @@ const characters = [
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "harmfulBlind": true,
+                            "fullBlind": true,
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character's harmful skills target their own team randomly. Pidgey's Gust and Peck deal additional damage to them."
+                            "tooltipText": "This character's harmful skills target any character randomly. Pidgey's Gust and Peck deal additional damage to them."
                         }
                     }
                 ]
@@ -21423,7 +21423,7 @@ const characters = [
                     "statusId": "pidgey_pidgeotto_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/pidgey/pidgeottowhirlwind.webp",
-                "skilldescription": "For 1 turn, Pidgeotto gains 50% evasion, and Gust and Peck deal 10 additional piercing damage to all other enemies.",
+                "skilldescription": "For 3 turns, Pidgeotto gains 50% evasion, and Gust and Peck deal 10 additional piercing damage to all other enemies.",
                 "energy": [
                     "Bloodline",
                     "Bloodline",
@@ -21440,7 +21440,7 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "pidgeotto_whirlwind_team_cover",
-                        "duration": 1,
+                        "duration": 3,
                         "scope": "self",
                         "metadata": {
                             "evadeChancePercent": 50,
@@ -21528,14 +21528,14 @@ const characters = [
                     "statusId": "pidgey_pidgeotto_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/pidgey/pidgeottosandattack.webp",
-                "skilldescription": "For 3 turns, one enemy's harmful skills target their own team randomly. Pidgeotto's Gust and Peck deal additional damage to enemies affected by Sand-Attack.",
+                "skilldescription": "For 3 turns, one enemy's harmful skills target any character randomly. Pidgeotto's Gust and Peck deal additional damage to enemies affected by Sand-Attack.",
                 "energy": [
                     "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 5,
+                "cooldown": 6,
                 "classes": [
                     "Physical",
                     "Ranged",
@@ -21549,9 +21549,9 @@ const characters = [
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "harmfulBlind": true,
+                            "fullBlind": true,
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character's harmful skills target their own team randomly. Pidgeotto's Gust and Peck deal additional damage to them."
+                            "tooltipText": "This character's harmful skills target any character randomly. Pidgeotto's Gust and Peck deal additional damage to them."
                         }
                     }
                 ]
