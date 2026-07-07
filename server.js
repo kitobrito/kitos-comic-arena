@@ -2489,6 +2489,32 @@ const POKEMON_SKIN_CATALOG = [
             'pikachu-passive-static': 'assets/images/PokemonArena/Pikachu/skins/raichu/skill5.webp',
         },
     },
+    {
+        skinId: 'magikarp-golden-gyarados-red',
+        characterId: 'magikarp',
+        name: 'Golden Magikarp',
+        description: 'A golden Magikarp skin that evolves into a red Gyarados with custom portrait and skill art.',
+        unlockPointCost: 1000,
+        previewFacePicture: 'assets/images/PokemonArena/magikarp/skins/gold/goldenfp.jpeg',
+        patch: {
+            facePicture: 'assets/images/PokemonArena/magikarp/skins/gold/goldenfp.jpeg',
+        },
+        skillImageOverridesBySkillId: {
+            'magikarp-tackle': 'assets/images/PokemonArena/magikarp/skins/gold/goldentackle.jpeg',
+            'magikarp-splash': 'assets/images/PokemonArena/magikarp/skins/gold/goldensplash.jpeg',
+            'magikarp-flail': 'assets/images/PokemonArena/magikarp/skins/gold/goldenflail.jpeg',
+            'magikarp-struggle': 'assets/images/PokemonArena/magikarp/skins/gold/goldenstruggle.jpeg',
+            'magikarp-passive-evolution-gyarados': 'assets/images/PokemonArena/magikarp/skins/gold/goldenevolutiongyarados.jpeg',
+            'gyarados-hyper-beam': 'assets/images/PokemonArena/magikarp/skins/gold/redhyperbeam.jpeg',
+            'gyarados-hyper-beam-affliction': 'assets/images/PokemonArena/magikarp/skins/gold/redhyperbeam.jpeg',
+            'gyarados-dragon-rage': 'assets/images/PokemonArena/magikarp/skins/gold/reddragonrage.jpeg',
+            'gyarados-ice-fang': 'assets/images/PokemonArena/magikarp/skins/gold/redicefang.jpeg',
+            'gyarados-hydro-pump': 'assets/images/PokemonArena/magikarp/skins/gold/redhydropump.jpeg',
+        },
+        statusFacePictureOverridesByStatusId: {
+            magikarp_gyarados_evolution: 'assets/images/PokemonArena/magikarp/skins/gold/redfp.jpeg',
+        },
+    },
 ];
 
 const getArenaSkinCatalog = (arena = DEFAULT_ARENA_MODE) =>
@@ -2574,6 +2600,11 @@ const serializeSkinCatalogEntryForClient = (entry = {}) => ({
     skillImageOverridesBySkillId:
         entry.skillImageOverridesBySkillId && typeof entry.skillImageOverridesBySkillId === 'object'
             ? entry.skillImageOverridesBySkillId
+            : {},
+    statusFacePictureOverridesByStatusId:
+        entry.statusFacePictureOverridesByStatusId &&
+        typeof entry.statusFacePictureOverridesByStatusId === 'object'
+            ? entry.statusFacePictureOverridesByStatusId
             : {},
 });
 

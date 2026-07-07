@@ -12733,6 +12733,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                       entry.skillImageOverridesBySkillId && typeof entry.skillImageOverridesBySkillId === 'object'
                           ? entry.skillImageOverridesBySkillId
                           : {},
+                  statusFacePictureOverridesByStatusId:
+                      entry.statusFacePictureOverridesByStatusId &&
+                      typeof entry.statusFacePictureOverridesByStatusId === 'object'
+                          ? entry.statusFacePictureOverridesByStatusId
+                          : {},
               }))
             : [];
         if (arena === activeArenaMode) {
@@ -13845,12 +13850,56 @@ document.addEventListener('DOMContentLoaded', async () => {
                 skinEntry.skillImageOverridesBySkillId && typeof skinEntry.skillImageOverridesBySkillId === 'object'
                     ? skinEntry.skillImageOverridesBySkillId
                     : {};
-            if (!Array.isArray(patchedCharacter.skills) || !Object.keys(skillImageOverridesBySkillId).length) {
+            const statusFacePictureOverridesByStatusId =
+                skinEntry.statusFacePictureOverridesByStatusId &&
+                typeof skinEntry.statusFacePictureOverridesByStatusId === 'object'
+                    ? skinEntry.statusFacePictureOverridesByStatusId
+                    : {};
+            if (
+                !Array.isArray(patchedCharacter.skills) ||
+                (!Object.keys(skillImageOverridesBySkillId).length &&
+                    !Object.keys(statusFacePictureOverridesByStatusId).length)
+            ) {
                 return patchedCharacter;
             }
             patchedCharacter.skills = patchedCharacter.skills.map((skill = {}) => {
                 const override = skillImageOverridesBySkillId[skill.id];
-                return override ? { ...skill, skillimage: override } : skill;
+                const nextSkill = override ? { ...skill, skillimage: override } : { ...skill };
+                if (!Array.isArray(nextSkill.effects) || !Object.keys(statusFacePictureOverridesByStatusId).length) {
+                    return nextSkill;
+                }
+                nextSkill.effects = nextSkill.effects.map((effect = {}) => {
+                    const statusId =
+                        typeof effect?.statusId === 'string'
+                            ? effect.statusId
+                            : typeof effect?.applyStatusAtStack?.statusId === 'string'
+                                ? effect.applyStatusAtStack.statusId
+                                : '';
+                    const facePictureOverride = statusFacePictureOverridesByStatusId[statusId];
+                    if (!facePictureOverride) {
+                        return effect;
+                    }
+                    if (effect?.applyStatusAtStack && typeof effect.applyStatusAtStack === 'object') {
+                        return {
+                            ...effect,
+                            applyStatusAtStack: {
+                                ...effect.applyStatusAtStack,
+                                metadata: {
+                                    ...(effect.applyStatusAtStack.metadata || {}),
+                                    facePictureOverride,
+                                },
+                            },
+                        };
+                    }
+                    return {
+                        ...effect,
+                        metadata: {
+                            ...(effect.metadata || {}),
+                            facePictureOverride,
+                        },
+                    };
+                });
+                return nextSkill;
             });
             return patchedCharacter;
         });
