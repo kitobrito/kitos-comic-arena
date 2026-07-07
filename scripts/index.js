@@ -840,7 +840,9 @@
       changeList.className = "news-change-list";
       var groupedChanges = [];
       changes.forEach(function (entry) {
-        var groupKey = entry && entry.characterId
+        var groupKey = entry && entry.groupKey
+          ? "custom:" + String(entry.groupKey)
+          : entry && entry.characterId
           ? "character:" + entry.characterId
           : entry && entry.characterName
             ? "name:" + String(entry.characterName).toLowerCase()
@@ -855,7 +857,7 @@
         groupedChanges.push({
           key: groupKey,
           facePicture: entry && entry.facePicture ? String(entry.facePicture) : "",
-          characterName: entry && entry.characterName ? String(entry.characterName) : "",
+          characterName: entry && (entry.groupName || entry.characterName) ? String(entry.groupName || entry.characterName) : "",
           entries: [entry]
         });
       });
