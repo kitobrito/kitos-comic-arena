@@ -472,6 +472,45 @@ const newsPost = {
         ),
         skillShowcase(
             'charmander',
+            'charmander-passive-evolution-charmeleon',
+            'Mega Charizard X also has its own passive card in the skin set for the Scratch-triggered evolution branch.',
+            'new',
+            {
+                facePicture: megaCharizardXFace,
+                groupKey: 'charmander-charizard-showcase',
+                groupName: 'Charizard Skin',
+                skillName: 'Mega Charizard X Passive',
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXpassive.webp',
+            }
+        ),
+        skillShowcase(
+            'charmander',
+            'charmander-charmeleon-flamethrower',
+            'Mega Charizard X keeps its own Flamethrower art card once the Scratch branch is the one that triggered the evolution.',
+            'new',
+            {
+                facePicture: megaCharizardXFace,
+                groupKey: 'charmander-charizard-showcase',
+                groupName: 'Charizard Skin',
+                skillName: "Mega Charizard X's Flamethrower",
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXskill3.webp',
+            }
+        ),
+        skillShowcase(
+            'charmander',
+            'charmander-charmeleon-rage',
+            'Mega Charizard X Rage completes the full four-skill branch art set after Scratch procs the evolution.',
+            'new',
+            {
+                facePicture: megaCharizardXFace,
+                groupKey: 'charmander-charizard-showcase',
+                groupName: 'Charizard Skin',
+                skillName: "Mega Charizard X's Rage",
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXskill4.webp',
+            }
+        ),
+        skillShowcase(
+            'charmander',
             'charmander-fire-punch',
             'If Ember or Flamethrower is the proc that activates the evolution, the skin instead swaps to Mega Charizard Y with its own portrait and Fire Punch art.',
             'new',
@@ -485,6 +524,32 @@ const newsPost = {
         ),
         skillShowcase(
             'charmander',
+            'charmander-passive-evolution-charmeleon',
+            'Mega Charizard Y also has its own passive card in the skin set for the Ember or Flamethrower-triggered evolution branch.',
+            'new',
+            {
+                facePicture: megaCharizardYFace,
+                groupKey: 'charmander-charizard-showcase',
+                groupName: 'Charizard Skin',
+                skillName: 'Mega Charizard Y Passive',
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYpassive.webp',
+            }
+        ),
+        skillShowcase(
+            'charmander',
+            'charmander-dragon-claw',
+            'Mega Charizard Y also gets its own Dragon Claw art once Ember or Flamethrower is the proc that locked in the branch.',
+            'new',
+            {
+                facePicture: megaCharizardYFace,
+                groupKey: 'charmander-charizard-showcase',
+                groupName: 'Charizard Skin',
+                skillName: 'Mega Charizard Y Dragon Claw',
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill2.webp',
+            }
+        ),
+        skillShowcase(
+            'charmander',
             'charmander-charmeleon-flamethrower',
             'Mega Charizard Y keeps its own Flamethrower art card once the Ember or Flamethrower branch is the one that triggered the evolution.',
             'new',
@@ -494,6 +559,19 @@ const newsPost = {
                 groupName: 'Charizard Skin',
                 skillName: "Mega Charizard Y's Flamethrower",
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill3.webp',
+            }
+        ),
+        skillShowcase(
+            'charmander',
+            'charmander-charmeleon-rage',
+            'Mega Charizard Y Rage completes the full four-skill branch art set after Ember or Flamethrower procs the evolution.',
+            'new',
+            {
+                facePicture: megaCharizardYFace,
+                groupKey: 'charmander-charizard-showcase',
+                groupName: 'Charizard Skin',
+                skillName: "Mega Charizard Y's Rage",
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill4.webp',
             }
         ),
         skillShowcase(

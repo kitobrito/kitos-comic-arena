@@ -10344,8 +10344,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         const renderSkillBrowserForCharacter = (character, actorSlot = null, selectedSkillIdx = null) => {
             if (!skillInfo.browserIconsEl) return;
             skillInfo.browserIconsEl.innerHTML = '';
-            const skills = Array.isArray(character?.skills) ? character.skills.slice(0, 6) : [];
-            skills.forEach((skill, index) => {
+            const actorUnit =
+                Number.isInteger(actorSlot) && currentPlayerUsername
+                    ? getActorUnitForSlot(currentPlayerUsername, actorSlot)
+                    : null;
+            const replacementMap = actorUnit ? getSkillReplacementMapFromUnit(actorUnit) : {};
+            const replacedSkillIds = new Set(Object.keys(replacementMap));
+            const skills = Array.isArray(character?.skills)
+                ? character.skills
+                      .map((skill, index) => ({ skill, index }))
+                      .filter(({ skill, index }) => {
+                          if (!skill || skill.hiddenFromSelectionViewer) return false;
+                          if (replacedSkillIds.has(skill.id || '')) return false;
+                          if (
+                              actorUnit &&
+                              !doesActorMeetSkillConditionClient(actorUnit, skill, actorSlot, index)
+                          ) {
+                              return false;
+                          }
+                          return true;
+                      })
+                : [];
+            skillInfo.browserIconsEl.classList.toggle('skill-browser-icons-wrap', skills.length > 6);
+            skills.forEach(({ skill, index }) => {
                 if (!skill || skill.hiddenFromSelectionViewer) return;
                 const button = document.createElement('button');
                 button.type = 'button';

@@ -6781,6 +6781,12 @@ body.arena-mode-pokemon .skillimage {
     z-index: 5;
 }
 
+.skill-browser-icons.skill-browser-icons-wrap {
+    flex-wrap: wrap;
+    max-width: 164px;
+    row-gap: 4px;
+}
+
 .skill-browser-icon {
     width: 24px;
     height: 24px;
