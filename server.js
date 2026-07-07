@@ -4298,35 +4298,110 @@ const shouldNormalizeComicMissionDifficulty = (mission = {}) => {
     return !goals.some((goal) => String(goal?.type || '').trim().toLowerCase() === 'reach_rank');
 };
 
+const COMIC_MISSION_REQUIRED_PAIR_OVERRIDES = {
+    venom: [
+        { characterId: 'spider-man', characterName: 'Spider-Man' },
+        { characterId: 'batman', characterName: 'Batman' },
+    ],
+    omniman: [
+        { characterId: 'invincible', characterName: 'Invincible' },
+        { characterId: 'atom-eve', characterName: 'Atom Eve' },
+    ],
+    'sorrow-mission': [
+        { characterId: 'atrocitus', characterName: 'Atrocitus' },
+        { characterId: 'sinestro', characterName: 'Sinestro' },
+    ],
+    'boba-fett': [
+        { characterId: 'ghost-rider', characterName: 'Ghost Rider' },
+        { characterId: 'captain-america', characterName: 'Captain America' },
+    ],
+    'obi-wan-kenobi': [
+        { characterId: 'wonder-woman', characterName: 'Wonder Woman' },
+        { characterId: 'ghost-rider', characterName: 'Ghost Rider' },
+    ],
+};
+
+const collectComicMissionCharacterReferences = (mission = {}) => {
+    const goals = Array.isArray(mission?.goals) ? mission.goals : [];
+    const references = [];
+    const seen = new Set();
+    const addReference = (characterId, characterName) => {
+        const normalizedCharacterId = normalizeCharacterId(characterId);
+        if (!normalizedCharacterId || seen.has(normalizedCharacterId)) {
+            return;
+        }
+        seen.add(normalizedCharacterId);
+        references.push({
+            characterId: normalizedCharacterId,
+            characterName:
+                String(characterName || '').trim() || getCharacterDisplayNameById(normalizedCharacterId),
+        });
+    };
+
+    goals.forEach((goal) => {
+        const goalType = String(goal?.type || '').trim().toLowerCase();
+        if (goalType === 'win_matches' || goalType === 'win_streak') {
+            addReference(goal?.character_id ?? goal?.characterId, goal?.character_name ?? goal?.characterName);
+            return;
+        }
+        if (goalType === 'win_matches_same_team' || goalType === 'win_streak_same_team') {
+            const ids = Array.isArray(goal?.character_ids) ? goal.character_ids : [];
+            const names = Array.isArray(goal?.character_names) ? goal.character_names : [];
+            ids.forEach((characterId, index) => {
+                addReference(characterId, names[index]);
+            });
+        }
+    });
+
+    return references;
+};
+
+const getComicMissionRequiredPair = (mission = {}) => {
+    const missionId = String(mission?.missionId || '').trim();
+    const overridePair = COMIC_MISSION_REQUIRED_PAIR_OVERRIDES[missionId];
+    if (Array.isArray(overridePair) && overridePair.length >= 2) {
+        return overridePair.slice(0, 2).map((entry) => ({
+            characterId: normalizeCharacterId(entry?.characterId),
+            characterName:
+                String(entry?.characterName || '').trim() ||
+                getCharacterDisplayNameById(normalizeCharacterId(entry?.characterId)),
+        }));
+    }
+    return collectComicMissionCharacterReferences(mission).slice(0, 2);
+};
+
 const normalizeComicMissionDifficulty = (mission = {}) => {
     if (!shouldNormalizeComicMissionDifficulty(mission)) {
         return mission;
     }
-    const goals = Array.isArray(mission?.goals) ? mission.goals : [];
+    const requiredPair = getComicMissionRequiredPair(mission);
+    if (requiredPair.length < 2) {
+        return mission;
+    }
+    const first = requiredPair[0];
+    const second = requiredPair[1];
     return {
         ...mission,
-        goals: goals.map((goal) => {
-            const goalType = String(goal?.type || '').trim().toLowerCase();
-            if (goalType === 'win_matches') {
-                return {
-                    ...goal,
-                    wins: Math.min(6, Math.max(0, Number(goal?.wins) || 0)),
-                };
-            }
-            if (goalType === 'win_matches_same_team') {
-                return {
-                    ...goal,
-                    wins: Math.min(5, Math.max(0, Number(goal?.wins) || 0)),
-                };
-            }
-            if (goalType === 'win_streak') {
-                return {
-                    ...goal,
-                    wins: Math.min(5, Math.max(0, Number(goal?.wins) || 0)),
-                };
-            }
-            return goal;
-        }),
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: first.characterId,
+                character_name: first.characterName,
+                wins: 10,
+            },
+            {
+                type: 'win_matches',
+                character_id: second.characterId,
+                character_name: second.characterName,
+                wins: 10,
+            },
+            {
+                type: 'win_streak_same_team',
+                character_ids: [first.characterId, second.characterId],
+                character_names: [first.characterName, second.characterName],
+                wins: 4,
+            },
+        ],
     };
 };
 
