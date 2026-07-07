@@ -46,7 +46,7 @@ const normalizeComicMissionDifficulty = (mission = {}) => {
             if (goalType === 'win_streak') {
                 return {
                     ...goal,
-                    wins: Math.min(2, Math.max(0, Number(goal?.wins) || 0)),
+                    wins: Math.min(5, Math.max(0, Number(goal?.wins) || 0)),
                 };
             }
             return goal;
