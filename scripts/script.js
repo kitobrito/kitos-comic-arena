@@ -14414,6 +14414,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (role.includes('dot dps')) return 'dot-dps';
         if (role.includes('aoe dps')) return 'aoe-dps';
         if (role.includes('fast dps')) return 'fast-dps';
+        if (role.includes('spike dps')) return 'spike-dps';
         if (role.includes('tank') || role.includes('juggernaut')) return 'tank';
         if (role.includes('heal support') || role.includes('healer')) return 'heal-support';
         if (role.includes('shield support')) return 'shield-support';
@@ -14983,6 +14984,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             ['dot-dps', 'DOT DPS'],
             ['aoe-dps', 'AOE DPS'],
             ['fast-dps', 'Fast DPS'],
+            ['spike-dps', 'Spike DPS'],
             ['support', 'Support'],
             ['heal-support', 'Heal Support'],
             ['shield-support', 'Shield Support'],

@@ -438,6 +438,7 @@
               <button class="role-tab active" data-role="all">All Roles</button>
               <button class="role-tab" data-role="tank">Tank</button>
               <button class="role-tab" data-role="damage">Damage</button>
+              <button class="role-tab" data-role="spike-dps">Spike DPS</button>
               <button class="role-tab" data-role="support">Support</button>
               <button class="role-tab" data-role="controller">Controller</button>
               <button class="role-tab" data-role="hybrid">Hybrid</button>
@@ -645,6 +646,7 @@
           return category;
         }
         var role = getCharacterRole(character).toLowerCase();
+        if (role.indexOf("spike dps") !== -1) return "spike-dps";
         if (role.indexOf("tank") !== -1 || role.indexOf("juggernaut") !== -1) return "tank";
         if (role.indexOf("support") !== -1 || role.indexOf("heal") !== -1 || role.indexOf("shield") !== -1) return "support";
         if (role.indexOf("assassin") !== -1 || role.indexOf("execution") !== -1) return "assassin";

@@ -19013,10 +19013,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "AOE DPS",
+        "role": "Spike DPS",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "aoe-dps",
+        "roleCategory": "spike-dps",
         "description": "When several of these Pokémon gather, their electricity could build up and cause lightning storms. Forest dwellers, they are few in number and exceptionally rare. The pouches in their cheeks discharge electricity at their opponents. The Pikachu are believed to be highly intelligent.",
         "descriptionHtml": "When several of these Pokémon gather, their electricity could build up and cause lightning storms. Forest dwellers, they are few in number and exceptionally rare. The pouches in their cheeks discharge electricity at their opponents. The Pikachu are believed to be highly intelligent."
     },
@@ -27047,10 +27047,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Damage",
+        "role": "Spike DPS",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "damage",
+        "roleCategory": "spike-dps",
         "description": "A disciplined boxer Pokemon that builds momentum through elemental punches, then cashes everything in with a massive finishing blow.",
         "descriptionHtml": "A disciplined boxer Pokemon that builds momentum through elemental punches, then cashes everything in with a massive finishing blow.",
         "startStatuses": []
