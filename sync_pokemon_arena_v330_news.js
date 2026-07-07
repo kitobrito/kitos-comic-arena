@@ -74,7 +74,7 @@ const newsPost = {
         },
         {
             type: 'paragraph',
-            text: 'This release also introduces the new Pokemon skin system. Skins are unlocked with points, and the first live skins are Raichu for Pikachu at 750 points, Golden Magikarp for 1,000 points, and Charizard for Charmander at 1,250 points. Magikarp evolves into a red Gyarados skin, while the Charizard skin branches into Mega Charizard X if Scratch triggers the evolution or Mega Charizard Y if Ember or Flamethrower triggers it.',
+            text: 'This release also introduces the new Pokemon skin system. Skins are unlocked with points, and the first live skins are Raichu for Pikachu at 750 points, Golden Magikarp for 1,000 points, and Charizard for Charmander at 1,350 points. Magikarp evolves into a red Gyarados skin, while the Charizard skin branches into Mega Charizard X if Scratch triggers the evolution or Mega Charizard Y if Ember or Flamethrower triggers it.',
         },
         {
             type: 'paragraph',
@@ -90,7 +90,7 @@ const newsPost = {
         'The biggest battle fix in this pass is turn-end stability. A server-side effect-resolution crash that could leave players stuck on a broken in-game screen has been patched, and stale active-match cleanup was checked live afterward.',
         'Unlock points now have live PayPal purchase options in both Pokemon Arena and Comic Arena. Players can buy 750 points for $5 USD, 1,500 points for $10 USD, or 3,000 points for $20 USD directly from the missions and unlock flow.',
         'Players can also keep earning unlock points for free just by playing ladder. Each ranked win gives 10 unlock points, and each ranked loss still gives 3 unlock points, so skins and character unlocks can be earned without paying.',
-        'This release also introduces the new Pokemon skin system. Skins are unlocked with points, and the first live skins are Raichu for Pikachu at 750 points, Golden Magikarp for 1,000 points, and Charizard for Charmander at 1,250 points. Magikarp evolves into a red Gyarados skin, while the Charizard skin branches into Mega Charizard X if Scratch triggers the evolution or Mega Charizard Y if Ember or Flamethrower triggers it.',
+        'This release also introduces the new Pokemon skin system. Skins are unlocked with points, and the first live skins are Raichu for Pikachu at 750 points, Golden Magikarp for 1,000 points, and Charizard for Charmander at 1,350 points. Magikarp evolves into a red Gyarados skin, while the Charizard skin branches into Mega Charizard X if Scratch triggers the evolution or Mega Charizard Y if Ember or Flamethrower triggers it.',
         'A few Pokemon Arena presentation and roster details were also cleaned up: the Pokemon missions page now uses the correct title, its Pokemon and Comic character tabs are clickable, the character roster is ordered by Pokedex number with Pokemon Trainer first, and the in-battle skill scroll now shows a Pokeball instead of the leftover Spider-Man image.',
         'Balance and ladder handling were tightened up too. Pikachu’s mission was made easier, Magneton’s Thunder Wave now costs 2 Genjutsu, and ladder surrender rewards were adjusted so surrendering players do not gain ranked points and repeat surrender quits no longer feed free ranked rewards to the winner.',
     ],
@@ -360,7 +360,7 @@ const newsPost = {
         skillShowcase(
             'charmander',
             'charmander-ember',
-            'Charizard joins the skin shop at 1,250 points with a full custom portrait before the rest of the legendary skin set takes over.',
+            'Charizard joins the skin shop at 1,350 points with a full custom portrait before the rest of the legendary skin set takes over.',
             'new',
             {
                 facePicture: charizardFace,

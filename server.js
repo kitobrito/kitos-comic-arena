@@ -2521,7 +2521,7 @@ const POKEMON_SKIN_CATALOG = [
         name: 'Charizard',
         description:
             'A legendary Charizard skin for Charmander that branches into Mega Charizard X on Scratch evolution procs or Mega Charizard Y on Ember or Flamethrower evolution procs.',
-        unlockPointCost: 1250,
+        unlockPointCost: 1350,
         previewFacePicture: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardfp.jpg',
         patch: {
             facePicture: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardfp.jpg',
