@@ -7868,11 +7868,21 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             }
 
             if (effectType === 'trigger_status_effects') {
-                const recipients = resolveRecipients(effect);
+                const triggerStatusEffectConfig =
+                    effect && typeof effect === 'object'
+                        ? effect
+                        : rawEffect && typeof rawEffect === 'object'
+                        ? rawEffect
+                        : {};
+                const recipients = resolveRecipients(triggerStatusEffectConfig);
                 const requestedStatusIds = [
-                    ...(typeof effect?.statusId === 'string' && effect.statusId ? [effect.statusId] : []),
-                    ...(Array.isArray(effect?.statusIdsAny)
-                        ? effect.statusIdsAny.filter((entry) => typeof entry === 'string' && entry)
+                    ...(typeof triggerStatusEffectConfig?.statusId === 'string' && triggerStatusEffectConfig.statusId
+                        ? [triggerStatusEffectConfig.statusId]
+                        : []),
+                    ...(Array.isArray(triggerStatusEffectConfig?.statusIdsAny)
+                        ? triggerStatusEffectConfig.statusIdsAny.filter(
+                              (entry) => typeof entry === 'string' && entry
+                          )
                         : []),
                 ];
                 if (!requestedStatusIds.length) return;
@@ -7893,7 +7903,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             targetUsername: recipient.username,
                             targetSlot: recipient.slot,
                         });
-                        if (Boolean(effect?.consumeMatchedStatus ?? true) && matchedStatus?.id) {
+                        if (Boolean(triggerStatusEffectConfig?.consumeMatchedStatus ?? true) && matchedStatus?.id) {
                             consumeStatus(targetState, matchedStatus.id);
                         }
                     });
@@ -7915,11 +7925,17 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             }
 
             if (effectType === 'gain_chakra_by_last_skill') {
+                const gainChakraByLastSkillEffectConfig =
+                    effect && typeof effect === 'object'
+                        ? effect
+                        : rawEffect && typeof rawEffect === 'object'
+                        ? rawEffect
+                        : {};
                 const targetState = ensureUnitStateShape(actorUnit);
                 const lastSkillStatus = Array.isArray(targetState.statuses)
                     ? targetState.statuses.find(
                           (status) =>
-                              status?.id === effect?.statusId &&
+                              status?.id === gainChakraByLastSkillEffectConfig?.statusId &&
                               (Number(status?.remainingTurns) || 0) > 0
                       )
                     : null;
@@ -7927,25 +7943,38 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     typeof lastSkillStatus?.metadata?.lastSkillId === 'string'
                         ? lastSkillStatus.metadata.lastSkillId
                         : '';
-                const map = effect?.map && typeof effect.map === 'object' ? effect.map : {};
+                const map =
+                    gainChakraByLastSkillEffectConfig?.map &&
+                    typeof gainChakraByLastSkillEffectConfig.map === 'object'
+                        ? gainChakraByLastSkillEffectConfig.map
+                        : {};
                 const chakraType = typeof map[lastSkillId] === 'string' ? map[lastSkillId] : '';
                 if (!chakraType) return;
                 applyChakraGainToMatch({
                     match,
                     username: actingUsername,
                     chakraType,
-                    amount: effect?.amount || 1,
+                    amount: gainChakraByLastSkillEffectConfig?.amount || 1,
                 });
                 return;
             }
 
             if (effectType === 'gain_chakra') {
-                const amount = Math.max(0, Number(effect?.amount) || 0);
+                const gainChakraEffectConfig =
+                    effect && typeof effect === 'object'
+                        ? effect
+                        : rawEffect && typeof rawEffect === 'object'
+                        ? rawEffect
+                        : {};
+                const amount = Math.max(0, Number(gainChakraEffectConfig?.amount) || 0);
                 if (amount <= 0) return;
-                const rawType = typeof effect?.chakraType === 'string' ? effect.chakraType.trim().toLowerCase() : '';
+                const rawType =
+                    typeof gainChakraEffectConfig?.chakraType === 'string'
+                        ? gainChakraEffectConfig.chakraType.trim().toLowerCase()
+                        : '';
                 const chakraRecipients =
-                    effect?.scope && effect.scope !== 'self'
-                        ? resolveRecipients(effect).filter((recipient) => recipient?.username)
+                    gainChakraEffectConfig?.scope && gainChakraEffectConfig.scope !== 'self'
+                        ? resolveRecipients(gainChakraEffectConfig).filter((recipient) => recipient?.username)
                         : [{ username: actingUsername }];
                 const grantChakra = (username, chakraType) => {
                     applyChakraGainToMatch({

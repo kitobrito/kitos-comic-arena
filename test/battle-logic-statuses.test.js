@@ -9,6 +9,7 @@ const {
     doesEffectConditionMatch,
     processTurnStartStatusEffects,
     reduceHulkRageForInactiveTurn,
+    resolvePendingTurnSkills,
     tickStatusesForTurnEnd,
 } = require('../battleLogic.js');
 
@@ -188,6 +189,90 @@ test('Pokemon Trainer ball thresholds gain 10 HP against stunned or cooldown-par
         }),
         true
     );
+});
+
+test('resolvePendingTurnSkills applies gain_chakra effects without crashing queued turn resolution', () => {
+    const match = {
+        players: [{ username: 'ash' }, { username: 'gary' }],
+        board: {
+            ash: [
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    rosterIndex: 0,
+                    state: {
+                        statuses: [],
+                        cooldowns: {},
+                        snapshots: {},
+                    },
+                },
+            ],
+            gary: [
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    rosterIndex: 1,
+                    state: {
+                        statuses: [],
+                        cooldowns: {},
+                        snapshots: {},
+                    },
+                },
+            ],
+        },
+        chakraPools: {
+            ash: { taijutsu: 0, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+            gary: { taijutsu: 0, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+        },
+        pendingTurns: {
+            ash: {
+                queueOrder: ['0'],
+                queuedByActorSlot: {
+                    '0': {
+                        skillIndex: 0,
+                        targetSelection: [],
+                    },
+                },
+            },
+        },
+        pendingActions: [],
+        pendingQueuedEffects: [],
+        economy: {
+            turnCounts: {
+                ash: 1,
+                gary: 1,
+            },
+        },
+    };
+    const characters = [
+        {
+            id: 'test-caster',
+            skills: [
+                {
+                    id: 'test-gain-chakra',
+                    classes: ['Energy', 'Instant'],
+                    effects: [
+                        {
+                            type: 'gain_chakra',
+                            amount: 1,
+                            chakraType: 'genjutsu',
+                            scope: 'self',
+                        },
+                    ],
+                },
+            ],
+        },
+        {
+            id: 'test-target',
+            skills: [],
+        },
+    ];
+
+    resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+
+    assert.equal(match.chakraPools.ash.genjutsu, 1);
 });
 
 test('reduceHulkRageForInactiveTurn applies inactive-turn status hooks without crashing', () => {
