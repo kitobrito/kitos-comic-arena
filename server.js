@@ -6221,10 +6221,25 @@ const resolveNewsChangeAssets = (entry = {}) => {
     return {
         characterId: character ? character.characterId : characterId,
         characterName: character ? character.name : characterName,
-        facePicture: character ? character.facePicture : '',
+        facePicture:
+            typeof entry.facePicture === 'string' && entry.facePicture.trim()
+                ? entry.facePicture.trim()
+                : character
+                ? character.facePicture
+                : '',
         skillId: skill ? skill.id : skillId,
-        skillName: skill ? skill.name : skillName,
-        skillimage: skill ? skill.skillimage : '',
+        skillName:
+            typeof entry.skillName === 'string' && entry.skillName.trim()
+                ? entry.skillName.trim()
+                : skill
+                ? skill.name
+                : skillName,
+        skillimage:
+            typeof entry.skillimage === 'string' && entry.skillimage.trim()
+                ? entry.skillimage.trim()
+                : skill
+                ? skill.skillimage
+                : '',
     };
 };
 
@@ -6248,6 +6263,14 @@ const normalizeNewsChanges = (value) =>
                 changeType:
                     typeof entry.changeType === 'string' && entry.changeType.trim()
                         ? entry.changeType.trim().toLowerCase()
+                        : '',
+                groupKey:
+                    typeof entry.groupKey === 'string' && entry.groupKey.trim()
+                        ? entry.groupKey.trim()
+                        : '',
+                groupName:
+                    typeof entry.groupName === 'string' && entry.groupName.trim()
+                        ? entry.groupName.trim()
                         : '',
                 characterId: assets.characterId,
                 characterName: assets.characterName,
