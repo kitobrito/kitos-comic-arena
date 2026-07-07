@@ -2534,15 +2534,19 @@ const POKEMON_SKIN_CATALOG = [
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYpassive.webp',
             },
             'charmander-ember': {
+                name: 'Flamethrower',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill1.webp',
             },
             'charmander-scratch': {
+                name: 'Seismic Toss',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill2.webp',
             },
             'charmander-flamethrower': {
+                name: 'Fire Blast',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill3.webp',
             },
             'charmander-rage': {
+                name: 'Charizard Flight',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill4.webp',
             },
             'charmander-fire-punch': {

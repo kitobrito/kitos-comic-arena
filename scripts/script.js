@@ -10350,7 +10350,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     : null;
             const replacementMap = actorUnit ? getSkillReplacementMapFromUnit(actorUnit) : {};
             const replacedSkillIds = new Set(Object.keys(replacementMap));
-            const skills = Array.isArray(character?.skills)
+            const visibleSkills = Array.isArray(character?.skills)
                 ? character.skills
                       .map((skill, index) => ({ skill, index }))
                       .filter(({ skill, index }) => {
@@ -10365,6 +10365,22 @@ document.addEventListener('DOMContentLoaded', async () => {
                           return true;
                       })
                 : [];
+            const seenSkillBrowserEntries = new Set();
+            const skills = [];
+            for (let i = visibleSkills.length - 1; i >= 0; i -= 1) {
+                const entry = visibleSkills[i];
+                const skill = entry?.skill;
+                const dedupeKey =
+                    (typeof skill?.skillimage === 'string' && skill.skillimage.trim()) ||
+                    (typeof skill?.name === 'string' && skill.name.trim()) ||
+                    (typeof skill?.id === 'string' && skill.id.trim()) ||
+                    String(i);
+                if (seenSkillBrowserEntries.has(dedupeKey)) {
+                    continue;
+                }
+                seenSkillBrowserEntries.add(dedupeKey);
+                skills.unshift(entry);
+            }
             skillInfo.browserIconsEl.classList.toggle('skill-browser-icons-wrap', skills.length > 6);
             skills.forEach(({ skill, index }) => {
                 if (!skill || skill.hiddenFromSelectionViewer) return;
