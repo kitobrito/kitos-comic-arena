@@ -15489,6 +15489,309 @@ const characters = [
         "descriptionHtml": "Once the heroic Anakin Skywalker, Darth Vader now serves as the Emperor's ruthless enforcer. A relentless juggernaut of the dark side, Vader overwhelms his enemies through fear, pain, and sheer power. Those who survive his assaults often find themselves unable to escape his grasp."
     },
     {
+        "id": "darth-maul",
+        "characterId": "darth-maul",
+        "name": "Darth Maul",
+        "facePicture": "assets/images/darthmaul/fp.png",
+        "characterdeescription": "A savage Sith assassin driven by hatred, Darth Maul locks enemies down with brutal force techniques and punishes anyone who dares test his focus. Every failed attempt to stop him only feeds his anger, turning counters and ignored attacks into permanent power.",
+        "startStatuses": [
+            {
+                "statusId": "darth_maul_hatred_passive",
+                "sourceSkillId": "darth-maul-passive-hatred",
+                "duration": 99,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "ignoreExecutionEffects": true,
+                    "onOwnerSkillCounteredOrIgnoredApplyStatusToOwner": {
+                        "statusId": "darth_maul_hatred_damage_bonus",
+                        "duration": 99,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "damageBonusFlat": 10,
+                            "mergeNumericAddKeys": [
+                                "damageBonusFlat"
+                            ],
+                            "statusIconUrl": "assets/images/darthmaul/hatred.webp",
+                            "tooltipTextTemplate": "Darth Maul deals {damageBonusFlat} additional damage from Hatred."
+                        }
+                    },
+                    "statusIconUrl": "assets/images/darthmaul/hatred.webp",
+                    "tooltipText": "Darth Maul ignores execution effects. Whenever one of his skills is countered or ignored, he gains 10 permanent damage."
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "darth-maul-force-choke",
+                "name": "Force Choke",
+                "skillimage": "assets/images/darthmaul/forcechoke.webp",
+                "skilldescription": "Stuns one enemy for 1 turn. If they have an active skill on them, all of their cooldowns are increased by 2 immediately. For 2 turns, if they use a skill, that skill's cooldown is increased by 2.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "darth_maul_force_choke_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "statusIconUrl": "assets/images/darthmaul/forcechoke.webp",
+                            "tooltipText": "This character is stunned."
+                        }
+                    },
+                    {
+                        "type": "modify_cooldowns",
+                        "operation": "add",
+                        "amount": 2,
+                        "includeAllCharacterSkills": true,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "hasAnyActiveSkillStatus": true
+                        },
+                        "metadata": {
+                            "harmful": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "darth_maul_force_choke_followup",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "onOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillEffectsToOwner": [
+                                {
+                                    "type": "modify_cooldowns",
+                                    "operation": "add",
+                                    "amount": 2,
+                                    "scope": "self",
+                                    "metadata": {
+                                        "targetTriggeredSkillOnly": true,
+                                        "harmful": true
+                                    }
+                                }
+                            ],
+                            "statusIconUrl": "assets/images/darthmaul/forcechoke.webp",
+                            "tooltipText": "If this character uses a skill while Force Choke lingers, that skill's cooldown is increased by 2."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "darth-maul-dual-sided-saber",
+                "name": "Dual-Sided Saber",
+                "skillimage": "assets/images/darthmaul/formviijuuyo.jpg",
+                "skilldescription": "Deals 15 piercing damage and 15 affliction damage to one enemy. If they use a skill next turn, they receive 15 energy damage. If the target was affected by Force Choke and has 25 HP or less, they are executed.",
+                "energy": [
+                    "Bloodline",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Energy",
+                    "Melee",
+                    "Instant",
+                    "Affliction"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "darth_maul_dual_sided_saber_mark",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "onOwnerUseSkillSelfDamage": 15,
+                            "onOwnerUseSkillSelfDamageIgnoreDamageReduction": true,
+                            "onOwnerUseSkillSelfDamageIgnoreDestructibleDefense": true,
+                            "statusIconUrl": "assets/images/darthmaul/formviijuuyo.jpg",
+                            "tooltipText": "If this character uses a skill next turn, they take 15 energy damage."
+                        }
+                    },
+                    {
+                        "type": "execute_below_hp",
+                        "threshold": 25,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "darth_maul_force_choke_followup"
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "darth-maul-sith-code",
+                "name": "Sith Code",
+                "skillimage": "assets/images/darthmaul/sithcode.jpg",
+                "skilldescription": "For 2 turns, one selected ally will deal 10 more damage for the rest of the game every time a non-mental skill is used on them. Darth Maul gains 1 random energy every time a mental skill is used on him or the target.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-ally",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Mental",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "darth_maul_sith_code_targeted_boon",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "onOwnerTargetedBySkillTrigger": true,
+                            "onOwnerTargetedByNonMentalSkillOnly": true,
+                            "onOwnerTargetedBySkillApplyStatusToOwner": {
+                                "statusId": "darth_maul_sith_code_damage_bonus",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "damageBonusFlat": 10,
+                                    "mergeNumericAddKeys": [
+                                        "damageBonusFlat"
+                                    ],
+                                    "statusIconUrl": "assets/images/darthmaul/sithcode.jpg",
+                                    "tooltipTextTemplate": "This character deals {damageBonusFlat} additional damage from Sith Code."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/darthmaul/sithcode.jpg",
+                            "tooltipText": "Whenever a non-mental skill is used on this character, they gain 10 permanent damage."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "darth_maul_sith_code_mental_link_target",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "onOwnerTargetedBySkillTrigger": true,
+                            "onOwnerTargetedBySkillClassesAny": [
+                                "mental"
+                            ],
+                            "onOwnerTargetedBySkillGainChakraToSourceOwner": {
+                                "chakraType": "random",
+                                "amount": 1
+                            },
+                            "statusIconUrl": "assets/images/darthmaul/sithcode.jpg",
+                            "tooltipText": "When a mental skill is used on this character, Darth Maul gains 1 random energy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "darth_maul_sith_code_mental_link_self",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "onOwnerTargetedBySkillTrigger": true,
+                            "onOwnerTargetedBySkillClassesAny": [
+                                "mental"
+                            ],
+                            "onOwnerTargetedBySkillGainChakraToSourceOwner": {
+                                "chakraType": "random",
+                                "amount": 1
+                            },
+                            "statusIconUrl": "assets/images/darthmaul/sithcode.jpg",
+                            "tooltipText": "When a mental skill is used on Darth Maul, he gains 1 random energy."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "darth-maul-parry",
+                "name": "Parry",
+                "skillimage": "assets/images/darthmaul/parry.webp",
+                "skilldescription": "Darth Maul becomes invulnerable for 1 turn. Any enemy that uses a new skill on Darth Maul during this time takes 15 bleed damage.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Energy",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "darth_maul_parry_active",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "onOwnerTargetedBySkillTrigger": true,
+                            "onOwnerTargetedByEnemyOnly": true,
+                            "onOwnerTargetedByRequireNewSkill": true,
+                            "onOwnerTargetedBySkillDamageToSourceAmount": 15,
+                            "onOwnerTargetedBySkillDamageToSourceAfflictionDamage": true,
+                            "onOwnerTargetedBySkillDamageToSourceIgnoreDamageReduction": true,
+                            "onOwnerTargetedBySkillDamageToSourceIgnoreDestructibleDefense": true,
+                            "onOwnerTargetedBySkillDamageToSourceLabel": "Parry",
+                            "onOwnerTargetedBySkillDamageToSourceReason": "parry",
+                            "statusIconUrl": "assets/images/darthmaul/parry.webp",
+                            "tooltipText": "Darth Maul is invulnerable. New enemy skills used on him cause 15 bleed damage to their owner."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "darth-maul-passive-hatred",
+                "name": "Hatred",
+                "skillimage": "assets/images/darthmaul/hatred.webp",
+                "skilldescription": "Permanently, Darth Maul ignores execution effects. He deals 10 more damage for the rest of the game any time one of his skills is countered or ignored.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            }
+        ],
+        "role": "Bruiser",
+        "universe": "star-wars",
+        "roleCategory": "bruiser",
+        "description": "A savage Sith assassin driven by hatred, Darth Maul locks enemies down with brutal force techniques and punishes anyone who dares test his focus. Every failed attempt to stop him only feeds his anger, turning counters and ignored attacks into permanent power.",
+        "descriptionHtml": "A savage Sith assassin driven by hatred, Darth Maul locks enemies down with brutal force techniques and punishes anyone who dares test his focus. Every failed attempt to stop him only feeds his anger, turning counters and ignored attacks into permanent power."
+    },
+    {
         "id": "boba-fett",
         "characterId": "boba-fett",
         "name": "Boba Fett",

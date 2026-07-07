@@ -1434,6 +1434,18 @@ const doesEffectConditionMatch = ({
         const maxValue = Math.max(0, Number(condition.sourceSkillUsesAtMost.value) || 0);
         if (!skillId || getSkillUseCount(actorState, skillId) > maxValue) return false;
     }
+    if (condition?.hasAnyActiveSkillStatus) {
+        const hasActiveSkillStatus = Array.isArray(scopedState.statuses)
+            ? scopedState.statuses.some(
+                  (status) =>
+                      status &&
+                      (Number(status?.remainingTurns) || 0) > 0 &&
+                      typeof status?.sourceSkillId === 'string' &&
+                      status.sourceSkillId
+              )
+            : false;
+        if (!hasActiveSkillStatus) return false;
+    }
     return true;
 };
 
@@ -2878,6 +2890,62 @@ const applyOnSkillEvadedBonuses = ({
     }
 };
 
+const applyOnSkillCounteredOrIgnoredBonuses = ({
+    match = null,
+    actorState,
+    ownerUsername,
+    ownerSlot,
+    sourceUsername,
+    sourceSlot,
+    sourceSkillId,
+}) => {
+    const statuses = Array.isArray(actorState?.statuses) ? actorState.statuses : [];
+    const triggeredStatusIds = new Set();
+    statuses.forEach((status) => {
+        const remaining = Number(status?.remainingTurns) || 0;
+        if (remaining <= 0) return;
+        const applyStatusToOwner = status?.metadata?.onOwnerSkillCounteredOrIgnoredApplyStatusToOwner;
+        if (!applyStatusToOwner?.statusId) return;
+        actorState.snapshots = actorState.snapshots || {};
+        const turnCount = Math.max(0, Number(match?.economy?.turnCounts?.[ownerUsername || '']) || 0);
+        const triggerKey = [
+            ownerUsername || '',
+            Number.isInteger(ownerSlot) ? ownerSlot : '',
+            sourceSkillId || '',
+            turnCount,
+            status?.id || '',
+        ].join('|');
+        if (actorState.snapshots._ownerSkillCounteredOrIgnoredTriggerKey === triggerKey) return;
+        actorState.snapshots._ownerSkillCounteredOrIgnoredTriggerKey = triggerKey;
+        applyStatus({
+            targetState: actorState,
+            statusId: applyStatusToOwner.statusId,
+            duration: applyStatusToOwner.duration,
+            sourceSkillId: resolveTriggeredEffectSourceSkillId({
+                status,
+                config: applyStatusToOwner,
+                fallbackSkillId: sourceSkillId,
+            }),
+            sourceUsername: ownerUsername || sourceUsername || null,
+            sourceSlot: Number.isInteger(ownerSlot)
+                ? ownerSlot
+                : Number.isInteger(sourceSlot)
+                ? sourceSlot
+                : null,
+            metadata: applyStatusToOwner.metadata || {},
+            fresh: false,
+        });
+        if (status?.id && !Boolean(status?.metadata?.persistOnOwnerSkillCounteredOrIgnoredTrigger)) {
+            triggeredStatusIds.add(status.id);
+        }
+    });
+    if (triggeredStatusIds.size > 0) {
+        actorState.statuses = (Array.isArray(actorState.statuses) ? actorState.statuses : []).filter(
+            (status) => !triggeredStatusIds.has(status?.id)
+        );
+    }
+};
+
 const isHarmfulEffect = (effect) => {
     const type = effect?.type;
     if (type === 'damage' || type === 'health_steal_damage') return true;
@@ -3730,7 +3798,11 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
             },
             null
         );
-        if (executeThreshold !== null && unit.hp <= executeThreshold) {
+        if (
+            executeThreshold !== null &&
+            unit.hp <= executeThreshold &&
+            !hasStatusMetadataFlag(targetState, 'ignoreExecutionEffects')
+        ) {
             unit.hp = 0;
             unit.alive = false;
         }
@@ -5080,6 +5152,124 @@ const applyChakraGainToMatch = ({ match, username, chakraType, amount = 1 }) => 
     return gain;
 };
 
+const triggerOnOwnerTargetedBySkillBonuses = ({
+    match,
+    targetState,
+    targetUnit,
+    targetUsername,
+    targetSlot = null,
+    actingUsername,
+    actorSlot = null,
+    skill = null,
+}) => {
+    if (!match || !targetState || !targetUnit || !targetUsername || !skill) return;
+    const statuses = Array.isArray(targetState.statuses) ? targetState.statuses : [];
+    const skillClasses = Array.isArray(skill?.classes) ? skill.classes : [];
+    const skillIsMental = hasSkillClass(skillClasses, 'mental');
+    const sourceTurnCount = Math.max(0, Number(match?.economy?.turnCounts?.[actingUsername || '']) || 0);
+    const sourceUnit = match.board?.[actingUsername]?.[Number(actorSlot)] || null;
+    const sourceState = sourceUnit ? ensureUnitStateShape(sourceUnit) : null;
+    statuses.forEach((status) => {
+        if (!isStatusActiveForMetadata(status, targetUnit)) return;
+        const metadata = status?.metadata || {};
+        if (!Boolean(metadata?.onOwnerTargetedBySkillTrigger)) return;
+        if (Boolean(metadata?.onOwnerTargetedByEnemyOnly) && targetUsername === actingUsername) return;
+        if (Boolean(metadata?.onOwnerTargetedByNonMentalSkillOnly) && skillIsMental) return;
+        const classesAny = Array.isArray(metadata?.onOwnerTargetedBySkillClassesAny)
+            ? metadata.onOwnerTargetedBySkillClassesAny
+                  .map((entry) => normalizeSkillClassName(entry))
+                  .filter(Boolean)
+            : [];
+        if (classesAny.length > 0 && !classesAny.some((entry) => hasSkillClass(skillClasses, entry))) return;
+        const skillIdsAny = Array.isArray(metadata?.onOwnerTargetedBySkillIdsAny)
+            ? metadata.onOwnerTargetedBySkillIdsAny
+                  .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
+                  .filter(Boolean)
+            : [];
+        if (skillIdsAny.length > 0 && !skillIdsAny.includes(skill?.id || '')) return;
+        if (Boolean(metadata?.onOwnerTargetedByRequireNewSkill) && sourceState) {
+            const skillUseCount = getSkillUseCount(sourceState, skill?.id || '');
+            if (skillUseCount > 1) return;
+        }
+        targetState.snapshots = targetState.snapshots || {};
+        const triggerKey = [
+            targetUsername,
+            Number.isInteger(targetSlot) ? targetSlot : '',
+            actingUsername || '',
+            Number.isInteger(actorSlot) ? actorSlot : '',
+            skill?.id || '',
+            sourceTurnCount,
+            status?.id || '',
+        ].join('|');
+        if (targetState.snapshots._ownerTargetedBySkillTriggerKey === triggerKey) return;
+        targetState.snapshots._ownerTargetedBySkillTriggerKey = triggerKey;
+        const applyStatusToOwner = metadata?.onOwnerTargetedBySkillApplyStatusToOwner;
+        if (applyStatusToOwner?.statusId) {
+            applyStatus({
+                targetState,
+                statusId: applyStatusToOwner.statusId,
+                duration: applyStatusToOwner.duration,
+                sourceSkillId: resolveTriggeredEffectSourceSkillId({
+                    status,
+                    config: applyStatusToOwner,
+                    fallbackSkillId: skill?.id || null,
+                }),
+                sourceUsername: status?.sourceUsername || actingUsername || null,
+                sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
+                metadata: applyStatusToOwner.metadata || {},
+                fresh: false,
+            });
+        }
+        const sourceOwnerGain = metadata?.onOwnerTargetedBySkillGainChakraToSourceOwner;
+        if (
+            sourceOwnerGain?.chakraType &&
+            status?.sourceUsername &&
+            sourceOwnerGain.amount !== 0
+        ) {
+            applyChakraGainToMatch({
+                match,
+                username: status.sourceUsername,
+                chakraType: sourceOwnerGain.chakraType,
+                amount: Math.max(0, Number(sourceOwnerGain.amount) || 0),
+            });
+        }
+        const sourceDamage = Math.max(0, Number(metadata?.onOwnerTargetedBySkillDamageToSourceAmount) || 0);
+        if (
+            sourceDamage > 0 &&
+            actingUsername &&
+            targetUsername !== actingUsername
+        ) {
+            const sourceUnit = match.board?.[actingUsername]?.[Number(actorSlot)] || null;
+            if (sourceUnit && sourceUnit.alive !== false) {
+                applyDamageToUnit(sourceUnit, sourceDamage, {
+                    match,
+                    sourceUsername: status?.sourceUsername || targetUsername,
+                    sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : targetSlot,
+                    targetUsername: actingUsername,
+                    targetSlot: Number.isInteger(actorSlot) ? actorSlot : null,
+                    sourceSkillId: status?.sourceSkillId || skill?.id || null,
+                    afflictionDamage: Boolean(metadata?.onOwnerTargetedBySkillDamageToSourceAfflictionDamage),
+                    ignoreDamageReduction:
+                        metadata?.onOwnerTargetedBySkillDamageToSourceIgnoreDamageReduction !== false,
+                    ignoreDestructibleDefense:
+                        metadata?.onOwnerTargetedBySkillDamageToSourceIgnoreDestructibleDefense !== false,
+                    skillClasses: Array.isArray(metadata?.onOwnerTargetedBySkillDamageToSourceSkillClasses)
+                        ? metadata.onOwnerTargetedBySkillDamageToSourceSkillClasses
+                        : [],
+                    damageDebugLabel:
+                        typeof metadata?.onOwnerTargetedBySkillDamageToSourceLabel === 'string'
+                            ? metadata.onOwnerTargetedBySkillDamageToSourceLabel
+                            : 'Targeted Trigger',
+                    damageDebugReason:
+                        typeof metadata?.onOwnerTargetedBySkillDamageToSourceReason === 'string'
+                            ? metadata.onOwnerTargetedBySkillDamageToSourceReason
+                            : 'targeted trigger',
+                });
+            }
+        }
+    });
+};
+
 const removeRandomChakraFromMatch = ({ match, username, amount = 1 }) => {
     if (!match || !username) return 0;
     const lossAmount = Math.max(0, Number(amount) || 0);
@@ -5602,6 +5792,36 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         fresh: false,
                     });
                 }
+            }
+            const effectsToOwner = Array.isArray(status?.metadata?.onOwnerUseSkillEffectsToOwner)
+                ? status.metadata.onOwnerUseSkillEffectsToOwner.filter(
+                      (entry) => entry && typeof entry === 'object'
+                  )
+                : [];
+            if (effectsToOwner.length > 0) {
+                const materializedEffects = effectsToOwner.map((effect) => {
+                    if (
+                        effect?.type === 'modify_cooldowns' &&
+                        Boolean(effect?.metadata?.targetTriggeredSkillOnly) &&
+                        typeof skill?.id === 'string' &&
+                        skill.id
+                    ) {
+                        return {
+                            ...effect,
+                            skillIds: [skill.id],
+                        };
+                    }
+                    return effect;
+                });
+                applyTriggeredEffectsFromStatus({
+                    effects: materializedEffects,
+                    match,
+                    status,
+                    targetUnit: actorUnit,
+                    targetState: actorState,
+                    targetUsername: actingUsername,
+                    targetSlot: Number.isInteger(actorSlot) ? actorSlot : null,
+                });
             }
         });
         if (ownerUseSkillTriggeredStatusIds.size > 0) {
@@ -6342,6 +6562,16 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     if (skillInterrupted) return;
                     if (!recipient?.unit || recipient.unit.alive === false) return;
                     const targetState = ensureUnitStateShape(recipient.unit);
+                    triggerOnOwnerTargetedBySkillBonuses({
+                        match,
+                        targetState,
+                        targetUnit: recipient.unit,
+                        targetUsername: recipient.username,
+                        targetSlot: Number.isInteger(recipient?.slot) ? recipient.slot : null,
+                        actingUsername,
+                        actorSlot,
+                        skill,
+                    });
                     const recipientChance = resolveEffectChancePercent({ effect, actorState, actorUnit, targetState });
                     if (rollPerRecipient && Number.isFinite(recipientChance) && recipientChance >= 0 && recipientChance < 100) {
                         if (!rollPercentSuccess(recipientChance)) return;
@@ -6366,6 +6596,15 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             isEnemySkill: recipient.username !== actingUsername,
                         })
                     ) {
+                        applyOnSkillCounteredOrIgnoredBonuses({
+                            match,
+                            actorState,
+                            ownerUsername: actingUsername,
+                            ownerSlot: actorSlot,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            sourceSkillId: skill.id || null,
+                        });
                         return;
                     }
                     if (!Boolean(effect?.metadata?.cannotBeEvaded) && shouldCancelByEvade(recipient)) {
@@ -6385,6 +6624,15 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             sourceSkillId: skill.id || null,
                         });
                         if (counterCancelled) {
+                            applyOnSkillCounteredOrIgnoredBonuses({
+                                match,
+                                actorState,
+                                ownerUsername: actingUsername,
+                                ownerSlot: actorSlot,
+                                sourceUsername: actingUsername,
+                                sourceSlot: actorSlot,
+                                sourceSkillId: skill.id || null,
+                            });
                             return;
                         }
                         }
@@ -6627,6 +6875,16 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     const targetState = ensureUnitStateShape(recipient.unit);
                     const appliesToSelf = effect?.scope === 'self';
                     const destinationState = appliesToSelf ? actorState : targetState;
+                    triggerOnOwnerTargetedBySkillBonuses({
+                        match,
+                        targetState,
+                        targetUnit: recipient.unit,
+                        targetUsername: recipient.username,
+                        targetSlot: Number.isInteger(recipient?.slot) ? recipient.slot : null,
+                        actingUsername,
+                        actorSlot,
+                        skill,
+                    });
                     if (
                         doesEffectTargetHelpfulRecipient({ effect, recipient, actingUsername }) &&
                         !doesEffectIgnoreHelpfulInvulnerability(effect) &&
@@ -6641,6 +6899,15 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             isEnemySkill: appliesToSelf ? false : recipient.username !== actingUsername,
                         })
                     ) {
+                        applyOnSkillCounteredOrIgnoredBonuses({
+                            match,
+                            actorState,
+                            ownerUsername: actingUsername,
+                            ownerSlot: actorSlot,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            sourceSkillId: skill.id || null,
+                        });
                         return;
                     }
                     if (
@@ -6676,6 +6943,15 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             sourceSkillId: skill.id || null,
                         });
                         if (counterCancelled) {
+                            applyOnSkillCounteredOrIgnoredBonuses({
+                                match,
+                                actorState,
+                                ownerUsername: actingUsername,
+                                ownerSlot: actorSlot,
+                                sourceUsername: actingUsername,
+                                sourceSlot: actorSlot,
+                                sourceSkillId: skill.id || null,
+                            });
                             return;
                         }
                         }
@@ -7260,6 +7536,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     }
                     const hp = Math.max(0, Number(recipient.unit.hp) || 0);
                     if (hp > threshold) return;
+                    if (hasStatusMetadataFlag(targetState, 'ignoreExecutionEffects')) return;
                     recipient.unit.hp = 0;
                     recipient.unit.alive = false;
                     targetState.killedByCharacterId = actingCharacterId || null;
@@ -7332,6 +7609,16 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 recipients.forEach((recipient) => {
                     if (!recipient?.unit || recipient.unit.alive === false) return;
                     const targetState = ensureUnitStateShape(recipient.unit);
+                    triggerOnOwnerTargetedBySkillBonuses({
+                        match,
+                        targetState,
+                        targetUnit: recipient.unit,
+                        targetUsername: recipient.username,
+                        targetSlot: Number.isInteger(recipient?.slot) ? recipient.slot : null,
+                        actingUsername,
+                        actorSlot,
+                        skill,
+                    });
                     if (doesTargetIgnoreHelpfulNonDamageEffects(targetState)) {
                         return;
                     }
@@ -7342,6 +7629,15 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             isEnemySkill: recipient.username !== actingUsername,
                         })
                     ) {
+                        applyOnSkillCounteredOrIgnoredBonuses({
+                            match,
+                            actorState,
+                            ownerUsername: actingUsername,
+                            ownerSlot: actorSlot,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            sourceSkillId: skill.id || null,
+                        });
                         return;
                     }
                     const sourceHealingBonus = Math.max(
@@ -7373,6 +7669,16 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 recipients.forEach((recipient) => {
                     if (!recipient?.unit || recipient.unit.alive !== false) return;
                     const targetState = ensureUnitStateShape(recipient.unit);
+                    triggerOnOwnerTargetedBySkillBonuses({
+                        match,
+                        targetState,
+                        targetUnit: recipient.unit,
+                        targetUsername: recipient.username,
+                        targetSlot: Number.isInteger(recipient?.slot) ? recipient.slot : null,
+                        actingUsername,
+                        actorSlot,
+                        skill,
+                    });
                     if (doesTargetIgnoreHelpfulNonDamageEffects(targetState)) {
                         return;
                     }
@@ -7383,6 +7689,15 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             isEnemySkill: recipient.username !== actingUsername,
                         })
                     ) {
+                        applyOnSkillCounteredOrIgnoredBonuses({
+                            match,
+                            actorState,
+                            ownerUsername: actingUsername,
+                            ownerSlot: actorSlot,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            sourceSkillId: skill.id || null,
+                        });
                         return;
                     }
                     const reviveAmount = resolveScalarEffectAmount({
@@ -7795,6 +8110,16 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     const targetState = ensureUnitStateShape(recipient.unit);
                     const appliesToSelf = effect?.scope === 'self';
                     const destinationState = appliesToSelf ? actorState : targetState;
+                    triggerOnOwnerTargetedBySkillBonuses({
+                        match,
+                        targetState,
+                        targetUnit: recipient.unit,
+                        targetUsername: recipient.username,
+                        targetSlot: Number.isInteger(recipient?.slot) ? recipient.slot : null,
+                        actingUsername,
+                        actorSlot,
+                        skill,
+                    });
                     if (
                         doesTargetIgnoreSkillByClass({
                             targetState: destinationState,
@@ -7802,6 +8127,15 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             isEnemySkill: appliesToSelf ? false : recipient.username !== actingUsername,
                         })
                     ) {
+                        applyOnSkillCounteredOrIgnoredBonuses({
+                            match,
+                            actorState,
+                            ownerUsername: actingUsername,
+                            ownerSlot: actorSlot,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            sourceSkillId: skill.id || null,
+                        });
                         return;
                     }
                     if (
@@ -7826,6 +8160,15 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             sourceSkillId: skill.id || null,
                         });
                         if (counterCancelled) {
+                            applyOnSkillCounteredOrIgnoredBonuses({
+                                match,
+                                actorState,
+                                ownerUsername: actingUsername,
+                                ownerSlot: actorSlot,
+                                sourceUsername: actingUsername,
+                                sourceSlot: actorSlot,
+                                sourceSkillId: skill.id || null,
+                            });
                             return;
                         }
                         }

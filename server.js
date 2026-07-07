@@ -1724,6 +1724,48 @@ const DEFAULT_MISSION_CATALOG = [
         sortOrder: 29
     },
     {
+        missionId: 'darth-maul',
+        title: 'At Last We Will Reveal Ourselves',
+        level_requirement: 16,
+        rank: '16',
+        reward_character: 'darth-maul',
+        reward_character_name: 'Darth Maul',
+        reward: 'Unlock Darth Maul',
+        mode_restriction: {
+            allowed_modes: [
+                'quick',
+                'ladder'
+            ]
+        },
+        win_streak: {
+            character_id: '',
+            character_name: '',
+            wins: 0
+        },
+        image: 'assets/images/darthmaul/darthmaulmissionpic.jpg',
+        imageAlt: 'Darth Maul mission artwork',
+        characterName: 'Darth Maul',
+        portrait: 'assets/images/darthmaul/fp.png',
+        portraitAlt: 'Darth Maul portrait',
+        requirements: [],
+        goals: [
+            {
+                type: 'reach_rank',
+                rank: 16
+            }
+        ],
+        special_pve: {
+            enabled: false,
+            buttonLabel: 'Start Fight',
+            botName: 'Mission Bot',
+            botTeamCharacterId: '',
+            botTeamSize: 3,
+            backgroundImage: '',
+            playerTeamCharacterIds: []
+        },
+        sortOrder: 29.5
+    },
+    {
         missionId: 'boba-fett',
         title: 'Dead or Alive',
         level_requirement: 10,
@@ -4274,6 +4316,12 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     );
     if (ghostRiderMission) {
         upsertRequiredMission(ghostRiderMission, (mission) => normalizeCharacterId(mission?.reward_character) === 'ghost-rider');
+    }
+    const darthMaulMission = DEFAULT_MISSION_CATALOG.find(
+        (m) => normalizeCharacterId(m.reward_character) === 'darth-maul'
+    );
+    if (darthMaulMission) {
+        upsertRequiredMission(darthMaulMission, (mission) => normalizeCharacterId(mission?.reward_character) === 'darth-maul');
     }
 
     POKEMON_STARTER_MISSION_ENTRIES.forEach((entry) => {
