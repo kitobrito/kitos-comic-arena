@@ -17690,10 +17690,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Damage",
+        "role": "DOT DPS",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "damage",
+        "roleCategory": "dot-dps",
         "description": "A fiery and determined Pokémon whose burning tail reflects its fighting spirit. Though small and inexperienced, Charmander grows stronger as battle progresses, eventually evolving into the fierce Charmeleon.",
         "descriptionHtml": "A fiery and determined Pokémon whose burning tail reflects its fighting spirit. Though small and inexperienced, Charmander grows stronger as battle progresses, eventually evolving into the fierce Charmeleon."
     },
@@ -19013,10 +19013,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Mage",
+        "role": "AOE DPS",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "damage",
+        "roleCategory": "aoe-dps",
         "description": "When several of these Pokémon gather, their electricity could build up and cause lightning storms. Forest dwellers, they are few in number and exceptionally rare. The pouches in their cheeks discharge electricity at their opponents. The Pikachu are believed to be highly intelligent.",
         "descriptionHtml": "When several of these Pokémon gather, their electricity could build up and cause lightning storms. Forest dwellers, they are few in number and exceptionally rare. The pouches in their cheeks discharge electricity at their opponents. The Pikachu are believed to be highly intelligent."
     },
@@ -20485,10 +20485,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Hybrid",
+        "role": "Specialist",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "hybrid",
+        "roleCategory": "specialist",
         "description": "A tactical Pokemon handler who controls battle tempo with capture tools, item support, and forced evolution tricks. Pokemon Trainer can lock enemies down with stronger and stronger balls, power up allies with X-Stats, and turn one teammate's evolution online instantly with Rare Candy.",
         "descriptionHtml": "A tactical Pokemon handler who controls battle tempo with capture tools, item support, and forced evolution tricks. Pokemon Trainer can lock enemies down with stronger and stronger balls, power up allies with X-Stats, and turn one teammate's evolution online instantly with Rare Candy.",
         "startStatuses": [
@@ -21066,10 +21066,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Support",
+        "role": "Heal Support",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "support",
+        "roleCategory": "heal-support",
         "description": "A support Pokemon that keeps the squad alive with healing, protection, and a late-game evolution into Blissey. Chansey builds momentum by restoring HP, then turns that healing into a sturdier second form.",
         "descriptionHtml": "A support Pokemon that keeps the squad alive with healing, protection, and a late-game evolution into Blissey. Chansey builds momentum by restoring HP, then turns that healing into a sturdier second form."
     },
@@ -21116,13 +21116,13 @@ const characters = [
                 }
             }
         ],
-        "characterdeescription": "A small and quick Flying-type Pokemon that keeps pressure on with steady damage, disruptive marks, and evasive control. Pidgey builds toward evolution by fighting actively, eventually becoming the sturdier Pidgeotto.",
+        "characterdeescription": "A fast Flying-type swarmer that strikes one target and scatters damage across the rest of the enemy team. Pidgey pressures formations with immediate splash damage, then evolves into a stronger Pidgeotto once she has dealt enough damage.",
         "skills": [
             {
                 "id": "pidgey-gust",
                 "name": "Gust",
                 "skillimage": "assets/images/PokemonArena/pidgey/gust.webp",
-                "skilldescription": "Pidgey deals 20 piercing damage to one enemy and 10 physical damage to all other enemies. Pidgey becomes invulnerable to non-mental skills for 1 turn.",
+                "skilldescription": "Pidgey deals 15 piercing damage to one enemy and 10 piercing damage to all other enemies. If the target is affected by Sand-Attack, this skill deals 10 additional piercing damage to that enemy.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -21132,6 +21132,113 @@ const characters = [
                 "classes": [
                     "Physical",
                     "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "ignoreDamageReduction": true,
+                            "onSuccessfulDamageApplyStatusToOwner": {
+                                "statusId": "pidgey_evolution_tracker",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "pidgeyDamageDealt": 0,
+                                    "stackMetadataKey": "pidgeyDamageDealt",
+                                    "stackDeltaFromDamageDealt": true,
+                                    "stackMax": 100,
+                                    "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
+                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "other-enemies",
+                        "metadata": {
+                            "harmful": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "pidgey_sand_attack_evasion"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "other-enemies",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "pidgey_whirlwind_team_cover"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "ignoreDamageReduction": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "pidgey-whirlwind",
+                "name": "Whirlwind",
+                "skillimage": "assets/images/PokemonArena/pidgey/whirlwind.webp",
+                "skilldescription": "For 1 turn, Pidgey gains 25% evasion, and Gust and Peck deal 5 additional piercing damage to all other enemies.",
+                "energy": [
+                    "Bloodline",
+                    "Bloodline"
+                ],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "pidgey_whirlwind_team_cover",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "evadeChancePercent": 25,
+                            "turnDurationAnchor": "source_turn",
+                            "tooltipText": "Pidgey has 25% evasion, and Gust and Peck deal 5 additional damage to all other enemies."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "pidgey-peck",
+                "name": "Peck",
+                "skillimage": "assets/images/PokemonArena/pidgey/peck.webp",
+                "skilldescription": "Pidgey deals 20 piercing damage to one enemy. If the target is affected by Sand-Attack, Peck deals 10 additional piercing damage. While Whirlwind is active, Peck also deals 10 piercing damage to all other enemies.",
+                "energy": [
+                    "Taijutsu",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Melee",
                     "Instant"
                 ],
                 "effects": [
@@ -21163,8 +21270,7 @@ const characters = [
                         "scope": "target",
                         "condition": {
                             "scope": "target",
-                            "statusId": "pidgey_peck_mark",
-                            "consumeOnMatch": true
+                            "statusId": "pidgey_sand_attack_evasion"
                         },
                         "metadata": {
                             "harmful": true,
@@ -21175,129 +21281,13 @@ const characters = [
                         "type": "damage",
                         "amount": 10,
                         "scope": "other-enemies",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "pidgey_whirlwind_team_cover"
+                        },
                         "metadata": {
                             "harmful": true,
-                            "onSuccessfulDamageApplyStatusToOwner": {
-                                "statusId": "pidgey_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "pidgeyDamageDealt": 0,
-                                    "stackMetadataKey": "pidgeyDamageDealt",
-                                    "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 100,
-                                    "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
-                                }
-                            }
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "pidgey_gust_cover",
-                        "duration": 1,
-                        "scope": "self",
-                        "metadata": {
-                            "invulnerableToNonMentalSkills": true,
-                            "turnDurationAnchor": "source_turn",
-                            "tooltipText": "Pidgey is invulnerable to non-mental skills."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "pidgey-whirlwind",
-                "name": "Whirlwind",
-                "skillimage": "assets/images/PokemonArena/pidgey/whirlwind.webp",
-                "skilldescription": "For 2 turns, the enemy team's non-affliction damage is reduced by 50%. Pidgey's team becomes invulnerable for 1 turn.",
-                "energy": [
-                    "Bloodline",
-                    "Bloodline"
-                ],
-                "target": "all-enemy",
-                "damage": 0,
-                "cooldown": 3,
-                "classes": [
-                    "Physical",
-                    "Ranged",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "apply_status",
-                        "statusId": "pidgey_whirlwind_damage_shock",
-                        "duration": 2,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "nonAfflictionDamageMultiplier": 0.5,
-                            "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character's non-affliction damage is reduced by 50%."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "pidgey_whirlwind_team_cover",
-                        "duration": 1,
-                        "scope": "all-allies",
-                        "metadata": {
-                            "invulnerable": true,
-                            "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character is invulnerable."
-                        }
-                    }
-                ]
-            },
-            {
-                "id": "pidgey-peck",
-                "name": "Peck",
-                "skillimage": "assets/images/PokemonArena/pidgey/peck.webp",
-                "skilldescription": "Pidgey deals 25 piercing damage to one enemy and marks them. Marks do not stack. Pidgey's next Gust used against a marked enemy consumes the mark and deals 10 additional piercing damage.",
-                "energy": [
-                    "Taijutsu",
-                    "Random"
-                ],
-                "target": "single-enemy",
-                "damage": 0,
-                "cooldown": 0,
-                "classes": [
-                    "Physical",
-                    "Melee",
-                    "Instant"
-                ],
-                "effects": [
-                    {
-                        "type": "damage",
-                        "amount": 25,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "ignoreDamageReduction": true,
-                            "onSuccessfulDamageApplyStatusToOwner": {
-                                "statusId": "pidgey_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "pidgeyDamageDealt": 0,
-                                    "stackMetadataKey": "pidgeyDamageDealt",
-                                    "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 100,
-                                    "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
-                                }
-                            }
-                        }
-                    },
-                    {
-                        "type": "apply_status",
-                        "statusId": "pidgey_peck_mark",
-                        "duration": 99,
-                        "scope": "target",
-                        "metadata": {
-                            "harmful": true,
-                            "infiniteDuration": true,
-                            "statusIconUrl": "assets/images/PokemonArena/pidgey/peck.webp",
-                            "tooltipText": "This character is marked by Peck."
+                            "ignoreDamageReduction": true
                         }
                     }
                 ]
@@ -21306,7 +21296,7 @@ const characters = [
                 "id": "pidgey-sand-attack",
                 "name": "Sand-Attack",
                 "skillimage": "assets/images/PokemonArena/pidgey/sandattack.webp",
-                "skilldescription": "For 2 turns, one enemy's attacks have a 30% chance to miss.",
+                "skilldescription": "For 2 turns, one enemy's harmful skills target their own team randomly. Gust and Peck deal additional damage to enemies affected by Sand-Attack.",
                 "energy": [
                     "Random"
                 ],
@@ -21326,9 +21316,9 @@ const characters = [
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "evadeChancePercent": 30,
+                            "harmfulBlind": true,
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "Enemy attacks have a 30% chance to miss."
+                            "tooltipText": "This character's harmful skills target their own team randomly. Pidgey's Gust and Peck deal additional damage to them."
                         }
                     }
                 ]
@@ -21354,7 +21344,7 @@ const characters = [
                     "statusId": "pidgey_pidgeotto_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/pidgey/pidgeottogust.webp",
-                "skilldescription": "Pidgeotto deals 20 piercing damage to one enemy and 15 piercing damage to all other enemies. Pidgeotto becomes invulnerable to non-mental skills for 1 turn.",
+                "skilldescription": "Pidgeotto deals 20 piercing damage to one enemy and 15 piercing damage to all other enemies. If the target is affected by Sand-Attack, this skill deals 10 additional piercing damage to that enemy. While Whirlwind is active, Gust deals 10 additional piercing damage to all other enemies.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -21392,60 +21382,36 @@ const characters = [
                     {
                         "type": "damage",
                         "amount": 15,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "statusId": "pidgey_peck_mark",
-                            "consumeOnMatch": true
-                        },
+                        "scope": "other-enemies",
                         "metadata": {
                             "harmful": true,
-                            "ignoreDamageReduction": true,
-                            "onSuccessfulDamageApplyStatusToOwner": {
-                                "statusId": "pidgey_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "pidgeyDamageDealt": 0,
-                                    "stackMetadataKey": "pidgeyDamageDealt",
-                                    "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 100,
-                                    "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
-                                }
-                            }
+                            "ignoreDamageReduction": true
                         }
                     },
                     {
                         "type": "damage",
-                        "amount": 15,
-                        "scope": "other-enemies",
+                        "amount": 10,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "pidgeotto_sand_attack_evasion"
+                        },
                         "metadata": {
                             "harmful": true,
-                            "onSuccessfulDamageApplyStatusToOwner": {
-                                "statusId": "pidgey_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "pidgeyDamageDealt": 0,
-                                    "stackMetadataKey": "pidgeyDamageDealt",
-                                    "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 100,
-                                    "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
-                                }
-                            }
+                            "ignoreDamageReduction": true
                         }
                     },
                     {
-                        "type": "apply_status",
-                        "statusId": "pidgey_gust_cover",
-                        "duration": 1,
-                        "scope": "self",
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "other-enemies",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "pidgeotto_whirlwind_team_cover"
+                        },
                         "metadata": {
-                            "invulnerableToNonMentalSkills": true,
-                            "turnDurationAnchor": "source_turn",
-                            "tooltipText": "Pidgeotto is invulnerable to non-mental skills."
+                            "harmful": true,
+                            "ignoreDamageReduction": true
                         }
                     }
                 ]
@@ -21457,42 +21423,29 @@ const characters = [
                     "statusId": "pidgey_pidgeotto_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/pidgey/pidgeottowhirlwind.webp",
-                "skilldescription": "For 3 turns, the enemy team's non-affliction damage is reduced by 50%. Pidgeotto's team becomes invulnerable for 1 turn.",
+                "skilldescription": "For 1 turn, Pidgeotto gains 50% evasion, and Gust and Peck deal 10 additional piercing damage to all other enemies.",
                 "energy": [
                     "Bloodline",
                     "Bloodline",
                     "Random"
                 ],
-                "target": "all-enemy",
+                "target": "self",
                 "damage": 0,
                 "cooldown": 3,
                 "classes": [
                     "Physical",
-                    "Ranged",
                     "Instant"
                 ],
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "pidgeotto_whirlwind_damage_shock",
-                        "duration": 3,
-                        "scope": "all-enemy",
-                        "metadata": {
-                            "harmful": true,
-                            "nonAfflictionDamageMultiplier": 0.5,
-                            "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character's non-affliction damage is reduced by 50%."
-                        }
-                    },
-                    {
-                        "type": "apply_status",
                         "statusId": "pidgeotto_whirlwind_team_cover",
                         "duration": 1,
-                        "scope": "all-allies",
+                        "scope": "self",
                         "metadata": {
-                            "invulnerable": true,
+                            "evadeChancePercent": 50,
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character is invulnerable."
+                            "tooltipText": "Pidgeotto has 50% evasion, and Gust and Peck deal 10 additional damage to all other enemies."
                         }
                     }
                 ]
@@ -21504,7 +21457,7 @@ const characters = [
                     "statusId": "pidgey_pidgeotto_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/pidgey/pidgeottopeck.webp",
-                "skilldescription": "Pidgeotto deals 30 piercing damage to one enemy and marks them. Marks do not stack. Pidgeotto's next Gust used against a marked enemy consumes the mark and causes Gust to deal 15 additional piercing damage instead.",
+                "skilldescription": "Pidgeotto deals 30 piercing damage to one enemy. If the target is affected by Sand-Attack, Peck deals 15 additional piercing damage. While Whirlwind is active, Peck also deals 15 piercing damage to all other enemies.",
                 "energy": [
                     "Taijutsu",
                     "Random"
@@ -21541,15 +21494,29 @@ const characters = [
                         }
                     },
                     {
-                        "type": "apply_status",
-                        "statusId": "pidgey_peck_mark",
-                        "duration": 99,
+                        "type": "damage",
+                        "amount": 15,
                         "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "pidgeotto_sand_attack_evasion"
+                        },
                         "metadata": {
                             "harmful": true,
-                            "infiniteDuration": true,
-                            "statusIconUrl": "assets/images/PokemonArena/pidgey/peck.webp",
-                            "tooltipText": "This character is marked by Peck."
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "other-enemies",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "pidgeotto_whirlwind_team_cover"
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "ignoreDamageReduction": true
                         }
                     }
                 ]
@@ -21561,7 +21528,7 @@ const characters = [
                     "statusId": "pidgey_pidgeotto_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/pidgey/pidgeottosandattack.webp",
-                "skilldescription": "For 3 turns, one enemy's attacks have a 50% chance to miss.",
+                "skilldescription": "For 3 turns, one enemy's harmful skills target their own team randomly. Pidgeotto's Gust and Peck deal additional damage to enemies affected by Sand-Attack.",
                 "energy": [
                     "Random",
                     "Random"
@@ -21582,20 +21549,20 @@ const characters = [
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "evadeChancePercent": 50,
+                            "harmfulBlind": true,
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "Enemy attacks have a 50% chance to miss."
+                            "tooltipText": "This character's harmful skills target their own team randomly. Pidgeotto's Gust and Peck deal additional damage to them."
                         }
                     }
                 ]
             }
         ],
-        "role": "Damage",
+        "role": "AOE DPS",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "damage",
-        "description": "A small and quick Flying-type Pokemon that keeps pressure on with steady damage, disruptive marks, and evasive control. Pidgey builds toward evolution by fighting actively, eventually becoming the sturdier Pidgeotto.",
-        "descriptionHtml": "A small and quick Flying-type Pokemon that keeps pressure on with steady damage, disruptive marks, and evasive control. Pidgey builds toward evolution by fighting actively, eventually becoming the sturdier Pidgeotto."
+        "roleCategory": "aoe-dps",
+        "description": "A fast Flying-type swarmer that strikes one target and scatters damage across the rest of the enemy team. Pidgey pressures formations with immediate splash damage, then evolves into a stronger Pidgeotto once she has dealt enough damage.",
+        "descriptionHtml": "A fast Flying-type swarmer that strikes one target and scatters damage across the rest of the enemy team. Pidgey pressures formations with immediate splash damage, then evolves into a stronger Pidgeotto once she has dealt enough damage."
     },
     {
         "id": "koffing",
@@ -22244,10 +22211,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Controller",
+        "role": "Disruptor",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "controller",
+        "roleCategory": "disruptor",
         "description": "A poisonous Gas-type Pokemon that clouds the battlefield, disrupts enemy setups, and evolves into a more volatile Weezing after fully using its tricks.",
         "descriptionHtml": "A poisonous Gas-type Pokemon that clouds the battlefield, disrupts enemy setups, and evolves into a more volatile Weezing after fully using its tricks."
     },
@@ -22831,10 +22798,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Damage",
+        "role": "Fast DPS",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "damage",
+        "roleCategory": "fast-dps",
         "description": "A cave-dwelling bat Pokemon that hunts marked enemies with Supersonic disruption, life drain, cooldown pressure, and energy theft. Zubat builds toward Golbat by steadily stealing HP during battle.",
         "descriptionHtml": "A cave-dwelling bat Pokemon that hunts marked enemies with Supersonic disruption, life drain, cooldown pressure, and energy theft. Zubat builds toward Golbat by steadily stealing HP during battle.",
         "characterdeescription": null
@@ -23291,10 +23258,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Controller",
+        "role": "Disruptor",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "controller",
+        "roleCategory": "disruptor",
         "description": "A mischievous Ghost-type Pokemon that turns missing health into pressure, punishes skill usage, and evolves into the far nastier Haunter.",
         "descriptionHtml": "A mischievous Ghost-type Pokemon that turns missing health into pressure, punishes skill usage, and evolves into the far nastier Haunter.",
         "characterdeescription": null
@@ -24539,10 +24506,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Damage",
+        "role": "Fast DPS",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "damage",
+        "roleCategory": "fast-dps",
         "description": "A plain, all-random Normal-type Pokemon that leans on basic survival, simple chip damage, and straightforward utility before its evolution mission eventually replaces it.",
         "descriptionHtml": "A plain, all-random Normal-type Pokemon that leans on basic survival, simple chip damage, and straightforward utility before its evolution mission eventually replaces it.",
         "startStatuses": []
@@ -24731,10 +24698,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Damage",
+        "role": "Fast DPS",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "damage",
+        "roleCategory": "fast-dps",
         "description": "A fast Electric-type Pokemon that uses piercing attacks, cooldown paralysis, and Charge to punish enemies who keep acting into its lightning.",
         "descriptionHtml": "A fast Electric-type Pokemon that uses piercing attacks, cooldown paralysis, and Charge to punish enemies who keep acting into its lightning.",
         "startStatuses": []
@@ -24914,10 +24881,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Damage",
+        "role": "DOT DPS",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "damage",
+        "roleCategory": "dot-dps",
         "description": "A fiery Pokemon that builds permanent defense with heat, spreads flames, and converts burns into reliable damage over time.",
         "descriptionHtml": "A fiery Pokemon that builds permanent defense with heat, spreads flames, and converts burns into reliable damage over time.",
         "startStatuses": []
@@ -25118,10 +25085,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Support",
+        "role": "Heal Support",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "support",
+        "roleCategory": "heal-support",
         "description": "A resilient Water-type Pokemon that weakens attackers, redirects pressure, heals the team, and ignores enemy skills with Acid Armor.",
         "descriptionHtml": "A resilient Water-type Pokemon that weakens attackers, redirects pressure, heals the team, and ignores enemy skills with Acid Armor.",
         "startStatuses": []
@@ -26586,10 +26553,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Damage",
+        "role": "AOE DPS",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "damage",
+        "roleCategory": "aoe-dps",
         "description": "A famously weak Water-type Pokemon whose plan is surviving long enough to become Gyarados, then cashing in with overwhelming ranged pressure.",
         "descriptionHtml": "A famously weak Water-type Pokemon whose plan is surviving long enough to become Gyarados, then cashing in with overwhelming ranged pressure."
     },
@@ -26868,10 +26835,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Support",
+        "role": "Shield Support",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "support",
+        "roleCategory": "shield-support",
         "description": "A trickster support Pokemon that manipulates protection timing, softens teams with Dazzling Gleam, and keeps allies stable with Light Screen and Safeguard.",
         "descriptionHtml": "A trickster support Pokemon that manipulates protection timing, softens teams with Dazzling Gleam, and keeps allies stable with Light Screen and Safeguard.",
         "startStatuses": []
@@ -27975,10 +27942,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Damage",
+        "role": "AOE DPS",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "damage",
+        "roleCategory": "aoe-dps",
         "description": "An electric steel Pokemon that builds toward Magneton by pairing Spark and Thunder Wave during Magnet Rise, then overwhelms teams with repeated piercing bursts.",
         "descriptionHtml": "An electric steel Pokemon that builds toward Magneton by pairing Spark and Thunder Wave during Magnet Rise, then overwhelms teams with repeated piercing bursts.",
         "startStatuses": []

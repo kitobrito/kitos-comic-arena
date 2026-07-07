@@ -14401,7 +14401,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const normalizeSelectionRoleCategory = (category = '') => {
         const value = String(category || '').trim().toLowerCase();
-        if (value === 'control' || value === 'strategic' || value === 'disruptor') return 'controller';
+        if (value === 'control' || value === 'strategic') return 'controller';
         return value;
     };
 
@@ -14411,20 +14411,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         );
         if (category) return category;
         const role = getSelectionCharacterRole(character).toLowerCase();
+        if (role.includes('dot dps')) return 'dot-dps';
+        if (role.includes('aoe dps')) return 'aoe-dps';
+        if (role.includes('fast dps')) return 'fast-dps';
         if (role.includes('tank') || role.includes('juggernaut')) return 'tank';
+        if (role.includes('heal support') || role.includes('healer')) return 'heal-support';
+        if (role.includes('shield support')) return 'shield-support';
         if (role.includes('support') || role.includes('heal') || role.includes('shield')) return 'support';
         if (role.includes('assassin') || role.includes('execution')) return 'assassin';
         if (role.includes('bruiser') || role.includes('brawler') || role.includes('beserker') || role.includes('berserker')) return 'bruiser';
         if (role.includes('hybrid')) return 'hybrid';
         if (
             role.includes('controller') ||
-            role.includes('disrupt') ||
             role.includes('control') ||
             role.includes('trickster') ||
             role.includes('remover')
         ) {
             return 'controller';
         }
+        if (role.includes('disrupt')) return 'disruptor';
         if (role.includes('specialist') || role.includes('punisher')) return 'specialist';
         if (role.includes('dps') || role.includes('damage') || role.includes('carry') || role.includes('mage')) return 'damage';
         return 'specialist';
@@ -14975,9 +14980,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             ['all', 'All Roles'],
             ['tank', 'Tank'],
             ['damage', 'Damage'],
+            ['dot-dps', 'DOT DPS'],
+            ['aoe-dps', 'AOE DPS'],
+            ['fast-dps', 'Fast DPS'],
             ['support', 'Support'],
+            ['heal-support', 'Heal Support'],
+            ['shield-support', 'Shield Support'],
             ['controller', 'Controller'],
             ['hybrid', 'Hybrid'],
+            ['disruptor', 'Disruptor'],
             ['assassin', 'Assassin'],
             ['bruiser', 'Bruiser'],
             ['specialist', 'Specialist'],
