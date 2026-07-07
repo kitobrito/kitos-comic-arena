@@ -889,6 +889,17 @@
           var item = document.createElement("div");
           item.className = "news-change-item";
 
+          if (entry && entry.skillimage) {
+            var artFrame = document.createElement("div");
+            artFrame.className = "news-change-art-frame";
+            var artImage = document.createElement("img");
+            artImage.className = "news-change-art";
+            artImage.src = String(entry.skillimage);
+            artImage.alt = entry && entry.skillName ? String(entry.skillName) : "Skill art";
+            artFrame.appendChild(artImage);
+            item.appendChild(artFrame);
+          }
+
           var copy = document.createElement("div");
           copy.className = "news-change-copy";
 
