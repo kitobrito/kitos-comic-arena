@@ -4546,7 +4546,7 @@ const setProfileArenaState = (profile, arena = DEFAULT_ARENA_MODE, arenaState = 
 };
 
 const QUICK_GAME_RETENTION_MS = 24 * 60 * 60 * 1000;
-const REPEAT_LADDER_SURRENDER_LOOKBACK_COUNT = 1;
+const REPEAT_LADDER_SURRENDER_LOOKBACK_COUNT = 3;
 
 const normalizeClanInvitations = (entries = []) =>
     (Array.isArray(entries) ? entries : [])
@@ -4743,20 +4743,25 @@ const normalizeRecentLadderGames = (entries = []) => {
         .slice(0, 25);
 };
 
-const countRecentLadderSurrendersByUser = ({ username = '', recentLadderGames = [] } = {}) => {
+const countCurrentLadderSurrenderStreakByUser = ({ username = '', recentLadderGames = [] } = {}) => {
     const normalizedUsername = typeof username === 'string' ? username.trim().toLowerCase() : '';
     if (!normalizedUsername || !Array.isArray(recentLadderGames)) return 0;
-    return recentLadderGames.reduce((count, game) => {
+    let streak = 0;
+    for (const game of recentLadderGames) {
         const surrenderedBy =
             typeof game?.surrenderedBy === 'string' ? game.surrenderedBy.trim().toLowerCase() : '';
         const endReason =
             typeof game?.endReason === 'string' ? game.endReason.trim().toLowerCase() : '';
-        return endReason === 'surrender' && surrenderedBy === normalizedUsername ? count + 1 : count;
-    }, 0);
+        if (endReason !== 'surrender' || surrenderedBy !== normalizedUsername) {
+            break;
+        }
+        streak += 1;
+    }
+    return streak;
 };
 
 const isRepeatLadderSurrenderer = ({ username = '', recentLadderGames = [] } = {}) =>
-    countRecentLadderSurrendersByUser({ username, recentLadderGames }) >=
+    countCurrentLadderSurrenderStreakByUser({ username, recentLadderGames }) >=
     REPEAT_LADDER_SURRENDER_LOOKBACK_COUNT;
 
 const inferCurrentLadderLossStreak = ({ username = '', recentLadderGames = [] } = {}) => {
@@ -15151,7 +15156,7 @@ if (require.main === module) {
         resolveExpiredTurnStartChoiceIfNeeded,
         autoAdvanceTurnIfExpired,
         normalizeRecentLadderGames,
-        countRecentLadderSurrendersByUser,
+        countCurrentLadderSurrenderStreakByUser,
         isRepeatLadderSurrenderer,
     };
 }

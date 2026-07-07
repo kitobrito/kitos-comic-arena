@@ -8,7 +8,7 @@ const {
     buildMatchActionStatePayload,
     areQueuedSkillRequestsEquivalent,
     normalizeRecentLadderGames,
-    countRecentLadderSurrendersByUser,
+    countCurrentLadderSurrenderStreakByUser,
     isRepeatLadderSurrenderer,
     resolveExpiredTurnStartChoiceIfNeeded,
 } = require('../server.js');
@@ -199,7 +199,7 @@ test('normalizeRecentLadderGames preserves surrender metadata for repeat-surrend
     assert.equal(normalized[0].unlockPointDelta, 0);
 });
 
-test('repeat surrenderer helpers treat one prior ladder surrender as repeat behavior', () => {
+test('repeat surrenderer helpers require three ladder surrenders in a row', () => {
     const recentLadderGames = normalizeRecentLadderGames([
         {
             playedAt: new Date(),
@@ -210,7 +210,21 @@ test('repeat surrenderer helpers treat one prior ladder surrender as repeat beha
         },
         {
             playedAt: new Date(Date.now() - 1000),
+            opponentUsername: 'Brock',
+            winnerUsername: 'Brock',
+            surrenderedBy: 'Ash',
+            endReason: 'surrender',
+        },
+        {
+            playedAt: new Date(Date.now() - 2000),
             opponentUsername: 'Misty',
+            winnerUsername: 'Misty',
+            surrenderedBy: 'Ash',
+            endReason: 'surrender',
+        },
+        {
+            playedAt: new Date(Date.now() - 3000),
+            opponentUsername: 'Lt. Surge',
             winnerUsername: 'Ash',
             surrenderedBy: '',
             endReason: 'elimination',
@@ -218,11 +232,11 @@ test('repeat surrenderer helpers treat one prior ladder surrender as repeat beha
     ]);
 
     assert.equal(
-        countRecentLadderSurrendersByUser({
+        countCurrentLadderSurrenderStreakByUser({
             username: 'ash',
             recentLadderGames,
         }),
-        1
+        3
     );
     assert.equal(
         isRepeatLadderSurrenderer({
