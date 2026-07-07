@@ -2515,6 +2515,101 @@ const POKEMON_SKIN_CATALOG = [
             magikarp_gyarados_evolution: 'assets/images/PokemonArena/magikarp/skins/gold/redfp.jpeg',
         },
     },
+    {
+        skinId: 'charmander-charizard-legendary',
+        characterId: 'charmander',
+        name: 'Charizard',
+        description:
+            'A legendary Charizard skin for Charmander that branches into Mega Charizard X on Scratch evolution procs or Mega Charizard Y on Ember or Flamethrower evolution procs.',
+        unlockPointCost: 1250,
+        previewFacePicture: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardfp.jpg',
+        patch: {
+            facePicture: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardfp.jpg',
+        },
+        skillOverridesBySkillId: {
+            'charmander-passive-evolution-charmeleon': {
+                name: 'Legendary Evolution - Charizard',
+                skilldescription:
+                    "After Charmander critically strikes or burns an enemy twice, he evolves with his legendary Charizard skin. If Scratch activates the evolution, he becomes Mega Charizard X. If Ember or Flamethrower activates the evolution, he becomes Mega Charizard Y.",
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYpassive.webp',
+            },
+            'charmander-ember': {
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill1.webp',
+            },
+            'charmander-scratch': {
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill2.webp',
+            },
+            'charmander-flamethrower': {
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill3.webp',
+            },
+            'charmander-rage': {
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill4.webp',
+            },
+            'charmander-fire-punch': {
+                name: 'Charizard Fire Punch',
+                skilldescription:
+                    'Charizard deals 15 physical damage and 30 affliction damage to one enemy. This skill has a 30% chance to Burn the target. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.',
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill1.webp',
+            },
+            'charmander-dragon-claw': {
+                name: 'Charizard Dragon Claw',
+                skilldescription:
+                    'Charizard deals 30 damage to one enemy. This skill has a 30% chance to critically strike, dealing 10 additional damage and becoming Piercing.',
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill2.webp',
+            },
+            'charmander-charmeleon-flamethrower': {
+                name: "Charizard's Flamethrower",
+                skilldescription:
+                    'Charizard deals 30 affliction damage to all enemies. Each enemy has a 30% chance to be Burned. Burn: The target takes 5 permanent affliction damage and deals 5 less non-affliction damage. This effect stacks.',
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill3.webp',
+            },
+            'charmander-charmeleon-rage': {
+                name: "Charizard's Rage",
+                skilldescription:
+                    'For 2 turns, Charizard gains 50% damage reduction. The first time each turn Charizard takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 4 stacks.',
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill4.webp',
+            },
+            'charmander-charizard-x-fire-punch': {
+                name: 'Mega Charizard X Fire Punch',
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXSkill1.webp',
+            },
+            'charmander-charizard-x-dragon-claw': {
+                name: 'Mega Charizard X Dragon Claw',
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXskill2.webp',
+            },
+            'charmander-charizard-x-flamethrower': {
+                name: "Mega Charizard X's Flamethrower",
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXskill3.webp',
+            },
+            'charmander-charizard-x-rage': {
+                name: "Mega Charizard X's Rage",
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXskill4.webp',
+            },
+            'charmander-charizard-y-fire-punch': {
+                name: 'Mega Charizard Y Fire Punch',
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill1.webp',
+            },
+            'charmander-charizard-y-dragon-claw': {
+                name: 'Mega Charizard Y Dragon Claw',
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill2.webp',
+            },
+            'charmander-charizard-y-flamethrower': {
+                name: "Mega Charizard Y's Flamethrower",
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill3.webp',
+            },
+            'charmander-charizard-y-rage': {
+                name: "Mega Charizard Y's Rage",
+                skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill4.webp',
+            },
+        },
+        statusFacePictureOverridesByStatusId: {
+            charmander_charmeleon_evolution: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardfp.jpg',
+            charmander_charizard_x_evolution_branch:
+                'assets/images/PokemonArena/Charmander/skins/charizard/charizardXFP.webp',
+            charmander_charizard_y_evolution_branch:
+                'assets/images/PokemonArena/Charmander/skins/charizard/charizardYFP.webp',
+        },
+    },
 ];
 
 const getArenaSkinCatalog = (arena = DEFAULT_ARENA_MODE) =>
@@ -2600,6 +2695,10 @@ const serializeSkinCatalogEntryForClient = (entry = {}) => ({
     skillImageOverridesBySkillId:
         entry.skillImageOverridesBySkillId && typeof entry.skillImageOverridesBySkillId === 'object'
             ? entry.skillImageOverridesBySkillId
+            : {},
+    skillOverridesBySkillId:
+        entry.skillOverridesBySkillId && typeof entry.skillOverridesBySkillId === 'object'
+            ? entry.skillOverridesBySkillId
             : {},
     statusFacePictureOverridesByStatusId:
         entry.statusFacePictureOverridesByStatusId &&

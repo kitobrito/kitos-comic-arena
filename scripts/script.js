@@ -8412,13 +8412,46 @@ document.addEventListener('DOMContentLoaded', async () => {
                 } else {
                     const statuses = getActiveStatuses(unit);
                     const faceOverride = statuses
-                        .find(
-                            (status) =>
-                                typeof status?.metadata?.facePictureOverride === 'string' &&
-                                status.metadata.facePictureOverride.trim()
+                        .map((status) =>
+                            typeof status?.metadata?.facePictureOverride === 'string' &&
+                            status.metadata.facePictureOverride.trim()
+                                ? status.metadata.facePictureOverride.trim()
+                                : ''
                         )
-                        ?.metadata?.facePictureOverride;
-                    nextFaceSrc = faceOverride || face.dataset.aliveSrc;
+                        .filter(Boolean)
+                        .pop();
+                    const character =
+                        Number.isInteger(unit?.rosterIndex) && Array.isArray(rosterData)
+                            ? rosterData[unit.rosterIndex]
+                            : null;
+                    const characterId = normalizeSkinCharacterId(character?.characterId || character?.id || '');
+                    const renderArena = currentMatchArena === 'pokemon' ? 'pokemon' : activeArenaMode;
+                    const equippedSkinByCharacterId = getArenaSkinState(
+                        profileCache?.profile,
+                        renderArena
+                    ).equippedSkinByCharacterId;
+                    const equippedSkinId = equippedSkinByCharacterId[characterId];
+                    const skinEntry = Array.isArray(arenaSkinCatalogCache?.[renderArena])
+                        ? arenaSkinCatalogCache[renderArena].find(
+                              (entry = {}) => normalizeSkinId(entry.skinId) === equippedSkinId
+                          )
+                        : null;
+                    const statusFacePictureOverridesByStatusId =
+                        skinEntry?.statusFacePictureOverridesByStatusId &&
+                        typeof skinEntry.statusFacePictureOverridesByStatusId === 'object'
+                            ? skinEntry.statusFacePictureOverridesByStatusId
+                            : {};
+                    const skinFaceOverride = usernamesMatch(card.dataset.username || '', currentPlayerUsername || '')
+                        ? statuses
+                              .map((status) =>
+                                  typeof status?.id === 'string'
+                                      ? statusFacePictureOverridesByStatusId[status.id] || ''
+                                      : ''
+                              )
+                              .filter(Boolean)
+                              .pop()
+                        : '';
+                    nextFaceSrc = skinFaceOverride || faceOverride || face.dataset.aliveSrc;
                 }
                 if (cachedFaceSrc !== nextFaceSrc) {
                     face.src = nextFaceSrc;
@@ -12733,6 +12766,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                       entry.skillImageOverridesBySkillId && typeof entry.skillImageOverridesBySkillId === 'object'
                           ? entry.skillImageOverridesBySkillId
                           : {},
+                  skillOverridesBySkillId:
+                      entry.skillOverridesBySkillId && typeof entry.skillOverridesBySkillId === 'object'
+                          ? entry.skillOverridesBySkillId
+                          : {},
                   statusFacePictureOverridesByStatusId:
                       entry.statusFacePictureOverridesByStatusId &&
                       typeof entry.statusFacePictureOverridesByStatusId === 'object'
@@ -13850,6 +13887,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 skinEntry.skillImageOverridesBySkillId && typeof skinEntry.skillImageOverridesBySkillId === 'object'
                     ? skinEntry.skillImageOverridesBySkillId
                     : {};
+            const skillOverridesBySkillId =
+                skinEntry.skillOverridesBySkillId && typeof skinEntry.skillOverridesBySkillId === 'object'
+                    ? skinEntry.skillOverridesBySkillId
+                    : {};
             const statusFacePictureOverridesByStatusId =
                 skinEntry.statusFacePictureOverridesByStatusId &&
                 typeof skinEntry.statusFacePictureOverridesByStatusId === 'object'
@@ -13858,13 +13899,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (
                 !Array.isArray(patchedCharacter.skills) ||
                 (!Object.keys(skillImageOverridesBySkillId).length &&
+                    !Object.keys(skillOverridesBySkillId).length &&
                     !Object.keys(statusFacePictureOverridesByStatusId).length)
             ) {
                 return patchedCharacter;
             }
             patchedCharacter.skills = patchedCharacter.skills.map((skill = {}) => {
+                const structuredOverride = skillOverridesBySkillId[skill.id];
                 const override = skillImageOverridesBySkillId[skill.id];
-                const nextSkill = override ? { ...skill, skillimage: override } : { ...skill };
+                const nextSkill = structuredOverride && typeof structuredOverride === 'object'
+                    ? mergeSkinPatchValue(skill, structuredOverride)
+                    : { ...skill };
+                if (override) {
+                    nextSkill.skillimage = override;
+                }
                 if (!Array.isArray(nextSkill.effects) || !Object.keys(statusFacePictureOverridesByStatusId).length) {
                     return nextSkill;
                 }

@@ -7161,9 +7161,15 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                                       !runtimeMetadata?.triggerOnApply),
                     });
                     if (appliedStatus) {
+                        const onSuccessApplyStatusesToOwner = Array.isArray(
+                            effect?.metadata?.onSuccessApplyStatusesToOwner
+                        )
+                            ? effect.metadata.onSuccessApplyStatusesToOwner.filter((entry) => entry?.statusId)
+                            : [];
                         const onSuccessApplyStatusToOwner =
                             effect?.metadata?.onSuccessApplyStatusToOwner ||
-                            ((skill.id === 'charmander-ember' || skill.id === 'charmander-flamethrower') &&
+                            (!onSuccessApplyStatusesToOwner.length &&
+                            (skill.id === 'charmander-ember' || skill.id === 'charmander-flamethrower') &&
                             effect?.statusId === 'charmander_burn'
                                 ? {
                                       statusId: 'charmander_evolution_tracker',
@@ -7177,19 +7183,37 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                                       },
                                   }
                                 : null);
-                        if (onSuccessApplyStatusToOwner?.statusId) {
+                        const ownerSuccessStatuses = [
+                            ...(onSuccessApplyStatusToOwner?.statusId ? [onSuccessApplyStatusToOwner] : []),
+                            ...onSuccessApplyStatusesToOwner,
+                        ];
+                        ownerSuccessStatuses.forEach((applyStatusToOwner) => {
+                            if (
+                                applyStatusToOwner.condition &&
+                                !doesEffectConditionMatch({
+                                    condition: applyStatusToOwner.condition,
+                                    actorState,
+                                    targetState: destinationState,
+                                    actorUnit,
+                                    targetUnit: recipient.unit,
+                                    actorUsername: actingUsername,
+                                    targetUsername: recipient.username,
+                                })
+                            ) {
+                                return;
+                            }
                             applyStatus({
                                 targetState: actorState,
                                 targetUnit: actorUnit,
-                                statusId: onSuccessApplyStatusToOwner.statusId,
-                                duration: onSuccessApplyStatusToOwner.duration,
+                                statusId: applyStatusToOwner.statusId,
+                                duration: applyStatusToOwner.duration,
                                 sourceSkillId: effect?.sourceSkillId || skill.id || null,
                                 sourceUsername: actingUsername,
                                 sourceSlot: actorSlot,
-                                metadata: onSuccessApplyStatusToOwner.metadata || {},
+                                metadata: applyStatusToOwner.metadata || {},
                                 fresh: false,
                             });
-                        }
+                        });
                     }
                     if (Boolean(runtimeMetadata?.removeEnemyAfflictionStatusesOnApply)) {
                         cleanseEnemyAfflictionStatuses(
