@@ -25246,7 +25246,7 @@ const characters = [
         "role": "Assassin",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "damage",
+        "roleCategory": "assassin",
         "description": "A fast mantis Pokemon that stacks pressure through repeated slashes, evasion, and heavy burst windows after Swords Dance.",
         "descriptionHtml": "A fast mantis Pokemon that stacks pressure through repeated slashes, evasion, and heavy burst windows after Swords Dance.",
         "startStatuses": [],
@@ -27937,10 +27937,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Spike DPS",
+        "role": "Fast DPS",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "spike-dps",
+        "roleCategory": "fast-dps",
         "description": "A disciplined boxer Pokemon that builds momentum through elemental punches, then cashes everything in with a massive finishing blow.",
         "descriptionHtml": "A disciplined boxer Pokemon that builds momentum through elemental punches, then cashes everything in with a massive finishing blow.",
         "startStatuses": []
@@ -28296,10 +28296,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Damage",
+        "role": "Spike DPS",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "damage",
+        "roleCategory": "spike-dps",
         "description": "A precision kicking Pokemon that alternates tempo with stance changes, then cashes in Focus Energy through brutal finishers.",
         "descriptionHtml": "A precision kicking Pokemon that alternates tempo with stance changes, then cashes in Focus Energy through brutal finishers.",
         "startStatuses": []

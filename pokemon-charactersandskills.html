@@ -438,10 +438,16 @@
               <button class="role-tab active" data-role="all">All Roles</button>
               <button class="role-tab" data-role="tank">Tank</button>
               <button class="role-tab" data-role="damage">Damage</button>
+              <button class="role-tab" data-role="dot-dps">DOT DPS</button>
+              <button class="role-tab" data-role="aoe-dps">AOE DPS</button>
+              <button class="role-tab" data-role="fast-dps">Fast DPS</button>
               <button class="role-tab" data-role="spike-dps">Spike DPS</button>
               <button class="role-tab" data-role="support">Support</button>
+              <button class="role-tab" data-role="heal-support">Heal Support</button>
+              <button class="role-tab" data-role="shield-support">Shield Support</button>
               <button class="role-tab" data-role="controller">Controller</button>
               <button class="role-tab" data-role="hybrid">Hybrid</button>
+              <button class="role-tab" data-role="disruptor">Disruptor</button>
               <button class="role-tab" data-role="assassin">Assassin</button>
               <button class="role-tab" data-role="bruiser">Bruiser</button>
               <button class="role-tab" data-role="specialist">Specialist</button>
@@ -646,12 +652,18 @@
           return category;
         }
         var role = getCharacterRole(character).toLowerCase();
+        if (role.indexOf("dot dps") !== -1) return "dot-dps";
+        if (role.indexOf("aoe dps") !== -1) return "aoe-dps";
+        if (role.indexOf("fast dps") !== -1) return "fast-dps";
         if (role.indexOf("spike dps") !== -1) return "spike-dps";
+        if (role.indexOf("heal support") !== -1) return "heal-support";
+        if (role.indexOf("shield support") !== -1) return "shield-support";
         if (role.indexOf("tank") !== -1 || role.indexOf("juggernaut") !== -1) return "tank";
         if (role.indexOf("support") !== -1 || role.indexOf("heal") !== -1 || role.indexOf("shield") !== -1) return "support";
         if (role.indexOf("assassin") !== -1 || role.indexOf("execution") !== -1) return "assassin";
         if (role.indexOf("bruiser") !== -1 || role.indexOf("brawler") !== -1 || role.indexOf("beserker") !== -1 || role.indexOf("berserker") !== -1) return "bruiser";
         if (role.indexOf("hybrid") !== -1) return "hybrid";
+        if (role.indexOf("disruptor") !== -1) return "disruptor";
         if (role.indexOf("controller") !== -1 || role.indexOf("disrupt") !== -1 || role.indexOf("control") !== -1 || role.indexOf("trickster") !== -1 || role.indexOf("remover") !== -1) return "controller";
         if (role.indexOf("specialist") !== -1 || role.indexOf("punisher") !== -1) return "specialist";
         if (role.indexOf("dps") !== -1 || role.indexOf("damage") !== -1 || role.indexOf("carry") !== -1 || role.indexOf("mage") !== -1) return "damage";
