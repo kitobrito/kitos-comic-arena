@@ -2547,6 +2547,8 @@ const POKEMON_SKIN_CATALOG = [
             },
             'charmander-rage': {
                 name: 'Charizard Flight',
+                skilldescription:
+                    'For 4 turns, Charizard gains 25% damage reduction. The first time each turn Charizard takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 2 stacks.',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill4.webp',
             },
             'charmander-fire-punch': {
@@ -2574,7 +2576,7 @@ const POKEMON_SKIN_CATALOG = [
                 name: 'Charizard Flight',
                 hiddenFromSelectionViewer: true,
                 skilldescription:
-                    'For 2 turns, Charizard gains 50% damage reduction. The first time each turn Charizard takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 4 stacks.',
+                    'For 4 turns, Charizard gains 50% damage reduction. The first time each turn Charizard takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 4 stacks.',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill4.webp',
             },
             'charmander-charizard-x-fire-punch': {
@@ -2591,6 +2593,8 @@ const POKEMON_SKIN_CATALOG = [
             },
             'charmander-charizard-x-rage': {
                 name: 'Mega Charizard X Rampage',
+                skilldescription:
+                    'For 4 turns, Mega Charizard X gains 50% damage reduction. The first time each turn Mega Charizard X takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 4 stacks.',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardXskill4.webp',
             },
             'charmander-charizard-y-fire-punch': {
@@ -2607,6 +2611,8 @@ const POKEMON_SKIN_CATALOG = [
             },
             'charmander-charizard-y-rage': {
                 name: 'Mega Charizard Y Flight',
+                skilldescription:
+                    'For 4 turns, Mega Charizard Y gains 50% damage reduction. The first time each turn Mega Charizard Y takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 4 stacks.',
                 skillimage: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYskill4.webp',
             },
         },

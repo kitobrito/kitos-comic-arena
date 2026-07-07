@@ -17477,7 +17477,7 @@ const characters = [
                 "id": "charmander-rage",
                 "name": "Charmander's Rage",
                 "skillimage": "assets/images/PokemonArena/Charmander/charmanderrage.webp",
-                "skilldescription": "For 1 turn, Charmander gains 25% damage reduction. The first time during this turn that Charmander takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 2 stacks.",
+                "skilldescription": "For 4 turns, Charmander gains 25% damage reduction. The first time each turn Charmander takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 2 stacks.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -17493,7 +17493,7 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "charmander_rage_active",
-                        "duration": 1,
+                        "duration": 4,
                         "scope": "self",
                         "metadata": {
                             "damageReductionPercent": 25,
@@ -17514,7 +17514,7 @@ const characters = [
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/Charmander/charmanderrage.webp",
-                            "tooltipText": "Charmander has 25% damage reduction. The first time he takes damage this turn, his damaging skills gain 5 permanent damage."
+                            "tooltipText": "Charmander has 25% damage reduction. The first time each turn he takes damage, his damaging skills gain 5 permanent damage."
                         }
                     }
                 ]
@@ -17722,7 +17722,7 @@ const characters = [
                     "statusId": "charmander_charmeleon_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Charmander/charmeleonrage.jpg",
-                "skilldescription": "For 2 turns, Charmeleon gains 50% damage reduction. The first time each turn Charmeleon takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 4 stacks.",
+                "skilldescription": "For 4 turns, Charmeleon gains 50% damage reduction. The first time each turn Charmeleon takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 4 stacks.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -17738,7 +17738,7 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "charmander_charmeleon_rage_active",
-                        "duration": 2,
+                        "duration": 4,
                         "scope": "self",
                         "metadata": {
                             "damageReductionPercent": 50,
@@ -17953,7 +17953,7 @@ const characters = [
                     "statusId": "charmander_charizard_x_evolution_branch"
                 },
                 "skillimage": "assets/images/PokemonArena/Charmander/charmeleonrage.jpg",
-                "skilldescription": "For 2 turns, Charmeleon gains 50% damage reduction. The first time each turn Charmeleon takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 4 stacks.",
+                "skilldescription": "For 4 turns, Charmeleon gains 50% damage reduction. The first time each turn Charmeleon takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 4 stacks.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -17969,7 +17969,7 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "charmander_charmeleon_rage_active",
-                        "duration": 2,
+                        "duration": 4,
                         "scope": "self",
                         "metadata": {
                             "damageReductionPercent": 50,
@@ -18184,7 +18184,7 @@ const characters = [
                     "statusId": "charmander_charizard_y_evolution_branch"
                 },
                 "skillimage": "assets/images/PokemonArena/Charmander/charmeleonrage.jpg",
-                "skilldescription": "For 2 turns, Charmeleon gains 50% damage reduction. The first time each turn Charmeleon takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 4 stacks.",
+                "skilldescription": "For 4 turns, Charmeleon gains 50% damage reduction. The first time each turn Charmeleon takes damage, the damage of his damaging skills is permanently increased by 5. Maximum: 4 stacks.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -18200,7 +18200,7 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "charmander_charmeleon_rage_active",
-                        "duration": 2,
+                        "duration": 4,
                         "scope": "self",
                         "metadata": {
                             "damageReductionPercent": 50,
