@@ -3614,6 +3614,7 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     pointer-events: none;
     opacity: 0.9;
     transition: width 260ms cubic-bezier(0.2, 0.82, 0.24, 1);
+    display: none !important;
 }
 
 .health-shield-bar {

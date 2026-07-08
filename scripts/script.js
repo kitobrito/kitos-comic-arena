@@ -1779,70 +1779,66 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    const renderOpponentProfileInfo = (profileView = null) => {
+        const username = currentOpponentUsername || profileView?.username || '';
+        const profile = profileView?.profile || {};
+        const ladder = normalizeLadderPresentation(
+            getArenaLadder(profile, currentMatchArena) || profile?.ladder || {}
+        );
+        const clanAbbreviation = profile?.clan?.abbreviation || 'None';
+        const avatarUrl = resolvePlayerAvatarUrl(
+            profile?.avatarUrl || '',
+            currentMatchArena || getProtectionTerminologyArena()
+        );
+        skillInfo.selectedViewMode = 'opponent-profile';
+        skillInfo.selectedActorSlot = null;
+        skillInfo.selectedSkillIdx = null;
+        if (skillInfo.imgEl) {
+            skillInfo.imgEl.src = avatarUrl;
+            skillInfo.imgEl.alt = currentOpponentDisplayName || username || 'Opponent';
+        }
+        if (skillInfo.nameEl) {
+            skillInfo.nameEl.textContent = currentOpponentDisplayName || username || 'Opponent';
+        }
+        if (skillInfo.roleEl) {
+            skillInfo.roleEl.textContent = `Clan: ${clanAbbreviation}`;
+            skillInfo.roleEl.style.display = '';
+        }
+        if (skillInfo.descEl) {
+            skillInfo.descEl.textContent = [
+                `Wins: ${ladder.wins}`,
+                `Losses: ${ladder.losses}`,
+                `Streak: ${formatSignedNumber(ladder.streak)}`,
+                `Highest Streak: ${formatSignedNumber(ladder.highestStreak)}`,
+            ].join('\n');
+        }
+        if (skillInfo.cooldownEl) {
+            skillInfo.cooldownEl.textContent = '';
+        }
+        if (skillInfo.classesEl) {
+            skillInfo.classesEl.textContent = `Opponent | Clan: ${clanAbbreviation}`;
+        }
+        if (skillInfo.classPickerWrapEl && skillInfo.classPickerEl) {
+            skillInfo.classPickerWrapEl.style.display = 'none';
+            skillInfo.classPickerEl.innerHTML = '';
+        }
+        if (skillInfo.energyEl) {
+            skillInfo.energyEl.innerHTML = '';
+            const label = document.createElement('span');
+            label.textContent = 'Stats:';
+            skillInfo.energyEl.appendChild(label);
+        }
+        if (skillInfo.browserIconsEl) {
+            skillInfo.browserIconsEl.innerHTML = '';
+            skillInfo.browserIconsEl.classList.remove('skill-browser-icons-wrap');
+        }
+    };
+
     const openOpponentStatsPanel = async () => {
         const username = currentOpponentUsername || '';
         if (!username) return;
         closeOpponentStatsPanel();
-
-        const panel = document.createElement('div');
-        panel.id = 'opponent-stats-panel';
-        panel.style.cssText = [
-            'position:fixed',
-            'inset:0',
-            'z-index:10000',
-            'display:flex',
-            'align-items:center',
-            'justify-content:center',
-            'background:rgba(0,0,0,0.6)',
-            'backdrop-filter:blur(4px)',
-            'padding:24px',
-        ].join(';');
-
-        const card = document.createElement('div');
-        card.style.cssText = [
-            'width:min(92vw, 360px)',
-            'border:2px solid rgba(255,255,255,0.18)',
-            'border-radius:18px',
-            'background:linear-gradient(180deg, rgba(20,24,40,0.98), rgba(10,12,20,0.98))',
-            'box-shadow:0 24px 70px rgba(0,0,0,0.45)',
-            'color:#f5f7ff',
-            'padding:20px',
-            'font-family:Arial, sans-serif',
-        ].join(';');
-
-        const header = document.createElement('div');
-        header.style.cssText =
-            'display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;font-weight:700;font-size:18px;';
-        header.textContent = currentOpponentDisplayName || username;
-
-        const closeButton = document.createElement('button');
-        closeButton.type = 'button';
-        closeButton.textContent = 'Close';
-        closeButton.style.cssText = [
-            'border:0',
-            'border-radius:999px',
-            'padding:8px 12px',
-            'cursor:pointer',
-            'background:#f5c542',
-            'color:#10131a',
-            'font-weight:700',
-        ].join(';');
-        closeButton.addEventListener('click', closeOpponentStatsPanel);
-        header.appendChild(closeButton);
-
-        const body = document.createElement('div');
-        body.style.cssText = 'display:grid;gap:10px;font-size:15px;line-height:1.35;';
-        body.textContent = 'Loading stats...';
-
-        card.appendChild(header);
-        card.appendChild(body);
-        panel.appendChild(card);
-        panel.addEventListener('click', (event) => {
-            if (event.target === panel) {
-                closeOpponentStatsPanel();
-            }
-        });
-        document.body.appendChild(panel);
+        renderOpponentProfileInfo(currentOpponentProfileView);
 
         const cachedProfile =
             currentOpponentProfileView && currentOpponentProfileView.username === username
@@ -1853,26 +1849,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (fetchedProfile && fetchedProfile.username) {
             currentOpponentProfileView = fetchedProfile;
         }
-        const ladder = normalizeLadderPresentation(
-            fetchedProfile?.profile?.ladder || currentOpponentProfileView?.profile?.ladder || {}
-        );
-        body.textContent = '';
-        [
-            ['Wins', ladder.wins],
-            ['Losses', ladder.losses],
-            ['Streak', formatSignedNumber(ladder.streak)],
-            ['Highest Streak', formatSignedNumber(ladder.highestStreak)],
-        ].forEach(([label, value]) => {
-            const row = document.createElement('div');
-            row.style.cssText = 'display:flex;justify-content:space-between;gap:12px;';
-            const labelEl = document.createElement('span');
-            labelEl.textContent = label;
-            const valueEl = document.createElement('strong');
-            valueEl.textContent = String(value ?? 0);
-            row.appendChild(labelEl);
-            row.appendChild(valueEl);
-            body.appendChild(row);
-        });
+        renderOpponentProfileInfo(fetchedProfile || currentOpponentProfileView);
     };
 
     const hydrateOpponentIdentity = async (username, fallbackProfile = null, fallbackDisplayName = '') => {
@@ -2109,6 +2086,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let currentTurnDurationMs = TURN_DURATION_MS;
         let turnTimerInterval = null;
         let autoEndRequested = false;
+        let expiredOpponentTurnRecoveryAtMs = 0;
         let isEndingTurn = false;
         let pendingTurnState = null;
         let playerPoolState = {
@@ -3205,6 +3183,59 @@ document.addEventListener('DOMContentLoaded', async () => {
             return pending.queuedByActorSlot?.[String(actorSlot)] || null;
         };
 
+        const buildDisplayedChakraPool = () => {
+            const displayedPool = normalizePool(playerPoolState);
+            const confirmedPending = normalizePendingTurn(pendingTurnState);
+            optimisticCancelledActorSlots.forEach((actorSlot) => {
+                const confirmedQueued = confirmedPending.queuedByActorSlot?.[String(actorSlot)] || null;
+                const reservedSpecific =
+                    confirmedQueued?.reservedSpecific && typeof confirmedQueued.reservedSpecific === 'object'
+                        ? confirmedQueued.reservedSpecific
+                        : {};
+                chakraTypes.forEach((type) => {
+                    displayedPool[type] = (displayedPool[type] || 0) + (Number(reservedSpecific[type]) || 0);
+                });
+            });
+            optimisticQueuedByActorSlot.forEach((queued, actorSlot) => {
+                const confirmedQueued = confirmedPending.queuedByActorSlot?.[String(actorSlot)] || null;
+                if (confirmedQueued) return;
+                const reservedSpecific =
+                    queued?.reservedSpecific && typeof queued.reservedSpecific === 'object'
+                        ? queued.reservedSpecific
+                        : {};
+                chakraTypes.forEach((type) => {
+                    displayedPool[type] = Math.max(
+                        0,
+                        (displayedPool[type] || 0) - (Number(reservedSpecific[type]) || 0)
+                    );
+                });
+            });
+            return displayedPool;
+        };
+
+        const renderDisplayedChakra = () => {
+            if (!chakraDisplay) return;
+            const normalizedPool = buildDisplayedChakraPool();
+            Object.entries(chakraCountEls || {}).forEach(([type, el]) => {
+                if (!el) return;
+                if (type === 'total') {
+                    const totalAmount =
+                        normalizedPool.taijutsu +
+                        normalizedPool.ninjutsu +
+                        normalizedPool.bloodline +
+                        normalizedPool.genjutsu;
+                    el.textContent = `x ${totalAmount}`;
+                } else {
+                    const amount = normalizedPool[type] || 0;
+                    el.textContent = `x ${amount}`;
+                }
+            });
+            updateSkillAffordability();
+            if (exchangeModalEl && exchangeModalEl.style.visibility === 'visible') {
+                renderExchangeModal(normalizedPool);
+            }
+        };
+
         const updateEndTurnButtons = () => {
             const pending = getPendingTurnWithOptimisticQueues();
             const hasUnresolvedRandom = pending.unresolvedRandom > 0;
@@ -3752,7 +3783,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             queuedSkillKeySet = nextQueuedKeys;
             renderSkillOrderQueue(newlyQueuedKeys);
             renderQueueOrderLabels();
-            updateSkillAffordability();
+            renderDisplayedChakra();
             scheduleQueuedSkillDeferredVisuals();
         };
 
@@ -6579,16 +6610,33 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (timerCountdown) {
                 timerCountdown.textContent = String(Math.ceil(remaining / 1000));
             }
+            const isPlayersTurn =
+                currentPlayerUsername &&
+                currentTurnUsername &&
+                usernamesMatch(currentTurnUsername, currentPlayerUsername);
             if (
                 remaining <= 0 &&
-                currentPlayerUsername &&
-                usernamesMatch(currentTurnUsername, currentPlayerUsername) &&
+                isPlayersTurn &&
                 normalizePendingTurn(pendingTurnState).unresolvedRandom === 0 &&
                 !normalizePendingTurn(pendingTurnState).turnStartChoice &&
                 !autoEndRequested
             ) {
                 autoEndRequested = true;
                 endTurnDueToTimeout();
+                return;
+            }
+            if (
+                remaining <= 0 &&
+                currentTurnUsername &&
+                !isPlayersTurn &&
+                !activeMatchRecoveryPromise &&
+                Date.now() - expiredOpponentTurnRecoveryAtMs >= 2500
+            ) {
+                expiredOpponentTurnRecoveryAtMs = Date.now();
+                recoverCurrentMatchState({
+                    reason: 'opponent-turn-timeout',
+                    message: 'Refreshing the match after the opponent timer expired...',
+                }).catch(() => {});
             }
         };
 
@@ -6631,6 +6679,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (turnChanged) {
                 lastTurnOwner = turnOwner;
                 autoEndRequested = false;
+                expiredOpponentTurnRecoveryAtMs = 0;
             }
             currentTurnDurationMs = resolvedDurationMs;
             if (parsedExpiry) {
@@ -6725,24 +6774,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!chakraDisplay) return;
             const normalizedPool = normalizePool(pool);
             playerPoolState = normalizedPool;
-            Object.entries(chakraCountEls || {}).forEach(([type, el]) => {
-                if (!el) return;
-                if (type === 'total') {
-                    const totalAmount =
-                        normalizedPool.taijutsu +
-                        normalizedPool.ninjutsu +
-                        normalizedPool.bloodline +
-                        normalizedPool.genjutsu;
-                    el.textContent = `x ${totalAmount}`;
-                } else {
-                    const amount = normalizedPool[type] || 0;
-                    el.textContent = `x ${amount}`;
-                }
-            });
-            updateSkillAffordability();
-            if (exchangeModalEl && exchangeModalEl.style.visibility === 'visible') {
-                renderExchangeModal(normalizedPool);
-            }
+            renderDisplayedChakra();
         };
 
         let lastAppliedMatchVisualSignature = '';
@@ -8448,23 +8480,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             };
             const shieldBar = ensureProtectionBar('health-shield-bar');
             const forcefieldBar = ensureProtectionBar('health-forcefield-bar');
-            const shieldWidth = Math.max(
-                0,
-                Math.min(HEALTH_BAR_MAX_WIDTH, Math.round((HEALTH_BAR_MAX_WIDTH * shieldValue) / displayMaxHp))
-            );
-            const forcefieldWidth = Math.max(
-                0,
-                Math.min(HEALTH_BAR_MAX_WIDTH, Math.round((HEALTH_BAR_MAX_WIDTH * barrierValue) / displayMaxHp))
-            );
-            shieldBar.style.width = `${shieldWidth}px`;
-            shieldBar.hidden = shieldValue <= 0;
-            shieldBar.title = shieldValue > 0 ? `Shield: ${shieldValue}` : '';
-            forcefieldBar.style.width = `${forcefieldWidth}px`;
-            forcefieldBar.hidden = barrierValue <= 0;
-            forcefieldBar.title =
-                barrierValue > 0
-                    ? `${getProtectionDisplayLabel('forcefield')}: ${barrierValue}`
-                    : '';
+            shieldBar.style.width = '0px';
+            shieldBar.hidden = true;
+            shieldBar.title = '';
+            forcefieldBar.style.width = '0px';
+            forcefieldBar.hidden = true;
+            forcefieldBar.title = '';
             healthContainer.title =
                 shieldValue > 0 || barrierValue > 0
                     ? [
@@ -8479,8 +8500,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                           .filter(Boolean)
                           .join(' | ')
                     : '';
-            card.classList.toggle('has-shield-bar', shieldValue > 0);
-            card.classList.toggle('has-forcefield-bar', barrierValue > 0);
+            card.classList.remove('has-shield-bar', 'has-forcefield-bar');
             const hpBand = hp <= 30 ? 'low' : hp <= 60 ? 'mid' : 'high';
             if (card.dataset.renderedHpBand !== hpBand) {
                 healthBar.classList.remove('hp-mid', 'hp-low');
@@ -10423,6 +10443,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const character = getEffectiveCharacterForUnit(actorUnit);
                 if (!character) return;
                 renderCharacterInfo(character, skillInfo.selectedActorSlot);
+                return;
+            }
+            if (skillInfo.selectedViewMode === 'opponent-profile') {
+                renderOpponentProfileInfo(currentOpponentProfileView);
             }
         };
 
@@ -11491,10 +11515,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             clearSkillInteractionCache();
             inFlightSkillRequestByActorSlot.add(actorSlot);
             optimisticCancelledActorSlots.delete(actorSlot);
+            const effectiveSkill = getEffectiveSkillForActorSlot(actorSlot, skillIdx) || null;
+            const effectiveEnergy = getEffectiveEnergyList(effectiveSkill?.energy, actorSlot, effectiveSkill);
+            const optimisticCost = getEnergyCost(effectiveEnergy);
             optimisticQueuedByActorSlot.set(actorSlot, {
                 actorSlot,
                 skillIndex: skillIdx,
                 targetSelection: selection,
+                reservedSpecific: optimisticCost.specific,
+                requiredRandom: optimisticCost.random,
                 ...(classChoice ? { classChoice } : {}),
                 ...(absorptionChoice ? { absorptionChoice } : {}),
             });

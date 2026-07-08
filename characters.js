@@ -27234,7 +27234,7 @@ const characters = [
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
+                "cooldown": 3,
                 "classes": [
                     "Energy",
                     "Ranged",
@@ -27280,7 +27280,7 @@ const characters = [
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 1,
+                "cooldown": 3,
                 "classes": [
                     "Energy",
                     "Ranged",
@@ -27318,7 +27318,7 @@ const characters = [
                     "statusId": "magikarp_gyarados_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/magikarp/dragonrage.png",
-                "skilldescription": "Deals 20 affliction damage to one enemy each turn for 3 turns and makes Hyper Beam deal affliction damage during this time.",
+                "skilldescription": "Deals 20 affliction damage to one enemy at the end of Gyarados's turns for 3 turns and makes Hyper Beam deal affliction damage during this time.",
                 "energy": [
                     "Taijutsu",
                     "Random"
@@ -27340,9 +27340,12 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "turnEndDamage": 20,
+                            "turnEndTrigger": "source_turn",
+                            "turnDurationAnchor": "source_turn",
+                            "triggerOnApply": true,
                             "damageType": "affliction",
                             "statusIconUrl": "assets/images/PokemonArena/magikarp/dragonrage.png",
-                            "tooltipText": "This character takes 20 affliction damage each turn from Dragon Rage."
+                            "tooltipText": "This character takes 20 affliction damage at the end of Gyarados's turns from Dragon Rage."
                         }
                     },
                     {

@@ -7407,6 +7407,20 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             runtimeMetadata = nextMetadata;
                         }
                     }
+                    if (
+                        (!runtimeMetadata || typeof runtimeMetadata !== 'object' || !runtimeMetadata.ongoingClass) &&
+                        Array.isArray(skill?.classes)
+                    ) {
+                        const inferredOngoingClass = skill.classes
+                            .map((entry) => (typeof entry === 'string' ? entry.trim().toLowerCase() : ''))
+                            .find((entry) => entry === 'action' || entry === 'control' || entry === 'channeled');
+                        if (inferredOngoingClass) {
+                            runtimeMetadata = {
+                                ...(runtimeMetadata && typeof runtimeMetadata === 'object' ? runtimeMetadata : {}),
+                                ongoingClass: inferredOngoingClass,
+                            };
+                        }
+                    }
                     if (runtimeMetadata?.uniqueEnemyMarkFromSource && recipient.username !== actingUsername) {
                         const enemyUnits = Array.isArray(match.board?.[recipient.username])
                             ? match.board[recipient.username]
