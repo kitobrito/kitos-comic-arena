@@ -2271,6 +2271,15 @@ const getRosterCharacterName = (rosterIndex) => {
     return typeof character?.name === 'string' ? character.name.trim() : '';
 };
 
+const getRosterCharacterArena = (rosterIndex) => {
+    const index = Number.parseInt(rosterIndex, 10);
+    if (!Number.isInteger(index) || index < 0) {
+        return '';
+    }
+    const character = Array.isArray(charactersData) ? charactersData[index] : null;
+    return character ? normalizeArenaMode(character.arena || character.universe) : '';
+};
+
 const getRosterIndexByCharacterId = (characterId) => {
     const normalizedCharacterId = normalizeCharacterId(characterId);
     if (!normalizedCharacterId || !Array.isArray(charactersData)) {
@@ -4700,6 +4709,7 @@ const profileHasUnlockedCharacter = (profile, characterId, lockedCharacterIds = 
 };
 
 const assertTeamCanBeUsed = async (profile, team = [], userRole = 'player', arena = DEFAULT_ARENA_MODE) => {
+    const normalizedArena = normalizeArenaMode(arena);
     if (teamHasDuplicateCharacters(team)) {
         throw new Error('Team characters must be unique.');
     }
@@ -4716,14 +4726,18 @@ const assertTeamCanBeUsed = async (profile, team = [], userRole = 'player', aren
     const invalidCharacter = Array.isArray(team)
         ? team.find((slot) => {
               const rosterCharacterId = getRosterCharacterId(slot);
+              const rosterArena = getRosterCharacterArena(slot);
               if (!rosterCharacterId) {
+                  return true;
+              }
+              if (rosterArena !== normalizedArena) {
                   return true;
               }
               return !profileHasUnlockedCharacter(
                   normalizedProfile,
                   rosterCharacterId,
                   lockedCharacterIds,
-                  arena
+                  normalizedArena
               );
           })
         : null;
@@ -4734,6 +4748,10 @@ const assertTeamCanBeUsed = async (profile, team = [], userRole = 'player', aren
     const rosterCharacterName = getRosterCharacterName(invalidCharacter) || rosterCharacterId || 'Character';
     if (!rosterCharacterId) {
         throw new Error('Invalid team selection.');
+    }
+    const rosterArena = getRosterCharacterArena(invalidCharacter);
+    if (rosterArena && rosterArena !== normalizedArena) {
+        throw new Error(`${rosterCharacterName} does not belong to ${normalizedArena === 'pokemon' ? 'Pokemon Arena' : 'Comic Arena'}.`);
     }
     throw new Error(`${rosterCharacterName} is locked.`);
 };
@@ -15501,6 +15519,7 @@ if (require.main === module) {
         normalizeArenaMode,
         createEmptyChakraPool,
         makeEmptyPendingTurn,
+        assertTeamCanBeUsed,
         sanitizeBoardForViewer,
         serializeMatchPlayerForViewer,
         buildMatchPayloadForUser,
