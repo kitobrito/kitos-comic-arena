@@ -3600,7 +3600,7 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     width: 75px;
     height: 13px;
     top: 2px;
-    overflow: hidden;
+    overflow: visible;
     background-color: #ffffff;
     border: 1px solid #000;
     box-sizing: content-box;
@@ -3609,7 +3609,7 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 .health-protection-bar {
     position: absolute;
     left: 0;
-    height: 4px;
+    height: 2px;
     z-index: 0;
     pointer-events: none;
     opacity: 0.9;
@@ -3617,12 +3617,12 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
 }
 
 .health-shield-bar {
-    top: 0;
+    top: -4px;
     background: linear-gradient(90deg, #79d9ff 0%, #45a8ff 100%);
 }
 
 .health-forcefield-bar {
-    bottom: 0;
+    bottom: -4px;
     background: linear-gradient(90deg, #ff8fd2 0%, #ff4fb2 100%);
 }
 
