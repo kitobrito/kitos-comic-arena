@@ -2842,7 +2842,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const getEffectiveSkillForActorSlot = (actorSlot, baseSkillIdx) => {
             const meta = playerSkillMetaByKey.get(`${actorSlot}:${baseSkillIdx}`);
             const unit = getActorUnitForSlot(currentPlayerUsername, actorSlot);
-            const character = getEffectiveCharacterForUnit(unit);
+            const character = buildCharacterWithEquippedSkin(
+                getEffectiveCharacterForUnit(unit),
+                profileCache?.profile || null,
+                currentMatchArena
+            );
             const baseSkill =
                 (Array.isArray(character?.skills) ? character.skills[baseSkillIdx] : null) ||
                 meta?.baseSkill ||
