@@ -7,6 +7,12 @@
   },
   "scripts": {
     "start": "node server.js",
+    "balance:drift": "node scripts/balance-drift-checker.js",
+    "character-payload:inspect": "node scripts/character-payload-tool.js inspect",
+    "live-deploy:verify": "node scripts/live-deploy-verifier.js",
+    "match:debug": "node scripts/match-debugger.js",
+    "pokemon-overrides:inspect": "node scripts/pokemon-override-tool.js inspect",
+    "pokemon-overrides:sync": "node scripts/pokemon-override-tool.js sync",
     "stale-matches:check": "node scripts/stale-matches.js",
     "stale-matches:force": "node scripts/stale-matches.js --force",
     "test": "node --test test/*.test.js",

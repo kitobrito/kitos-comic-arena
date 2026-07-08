@@ -748,6 +748,67 @@ test('turn-end damage statuses trigger on their first eligible turn-end', () => 
     assert.equal(match.board.enemy[0].hp, 95);
 });
 
+test('Dragon Rage deals damage on the same Gyarados turn it is applied', () => {
+    const match = {
+        board: {
+            player: [
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    state: { statuses: [], snapshots: {} },
+                },
+            ],
+            enemy: [
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    state: { statuses: [], snapshots: {} },
+                },
+            ],
+        },
+        players: [
+            { username: 'player' },
+            { username: 'enemy' },
+        ],
+        pendingActions: [],
+        pendingTurns: [],
+        pendingQueuedEffects: [],
+        economy: {
+            turnCounts: {
+                player: 1,
+                enemy: 1,
+            },
+        },
+    };
+
+    applyStatus({
+        targetState: match.board.enemy[0].state,
+        statusId: 'gyarados_dragon_rage_burn',
+        duration: 3,
+        sourceSkillId: 'gyarados-dragon-rage',
+        sourceUsername: 'player',
+        sourceSlot: 0,
+        metadata: {
+            harmful: true,
+            turnEndDamage: 20,
+            turnEndTrigger: 'source_turn',
+            turnDurationAnchor: 'source_turn',
+            triggerOnApply: true,
+            damageType: 'affliction',
+            statusIconUrl: 'assets/images/PokemonArena/magikarp/dragonrage.png',
+            tooltipText:
+                "This character takes 20 affliction damage at the end of Gyarados's turns from Dragon Rage.",
+        },
+    });
+
+    tickStatusesForTurnEnd({ match, endingUsername: 'player' });
+
+    assert.equal(match.board.enemy[0].hp, 80);
+    assert.equal(match.board.enemy[0].state.statuses[0].remainingTurns, 2);
+});
+
 test('Splash can advance Magikarp into Gyarados immediately at 6 stacks', () => {
     const state = {
         statuses: [
