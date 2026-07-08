@@ -1802,6 +1802,20 @@
       transform: none;
     }
 
+    body.home-classic-page .nav-link.play-now {
+      width: 100%;
+      min-height: 48px;
+      box-shadow: none;
+      transform: none;
+      font-size: 18px;
+      background: transparent;
+    }
+
+    body.home-classic-page .nav-link.play-now:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.95);
+    }
+
     body.home-classic-page .nav-link.active,
     body.home-classic-page .account-action.active,
     body.home-classic-page .hero-link.is-accent,
@@ -2287,6 +2301,14 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" /></svg>
             <span>Home</span>
           </a>
+          <button class="nav-link play-now comic" type="button" data-play-arena="comic" aria-label="Play Comic-Arena">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5 18 12 8 18.5z" /></svg>
+            <span>Play Comic-Arena</span>
+          </button>
+          <button class="nav-link play-now pokemon" type="button" data-play-arena="pokemon" aria-label="Play Pokemon-Arena">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5 18 12 8 18.5z" /></svg>
+            <span>Play Pokemon-Arena</span>
+          </button>
           <a class="nav-link" href="community.html">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg>
             <span>Community</span>
@@ -2435,15 +2457,11 @@
 
     <main class="main">
       <section class="hero">
-        <div class="hero-copy">
+          <div class="hero-copy">
           <div class="eyebrow">Live Browser Battle Arena</div>
           <h1 class="hero-title">two arenas in one. pokemon. comics. choose your game.</h1>
           <p>Comic-Arena is a fast tactical battler built around team reads, cooldown pressure, ladder climbs, and constant roster shakeups.</p>
           <div class="hero-actions">
-            <div class="hero-play-stack">
-              <button class="play-now comic" type="button" data-play-arena="comic">Play Comic-Arena</button>
-              <button class="play-now pokemon" type="button" data-play-arena="pokemon">Play Pokemon-Arena</button>
-            </div>
             <a class="hero-link is-accent" href="missions.html">Comic Missions</a>
             <a class="hero-link is-accent" href="missions.html?arena=pokemon">Pokemon Missions</a>
             <a class="hero-link" href="charactersandskills.html">Comic Characters</a>
