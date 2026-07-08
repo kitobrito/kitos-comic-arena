@@ -1132,6 +1132,93 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
     };
 
+    const buildCharacterWithEquippedSkin = (character = {}, profile = null, arena = activeArenaMode) => {
+        if (!character || typeof character !== 'object' || arena !== 'pokemon') {
+            return character;
+        }
+        const catalog = Array.isArray(arenaSkinCatalogCache[arena]) ? arenaSkinCatalogCache[arena] : [];
+        if (!catalog.length) {
+            return character;
+        }
+        const equippedSkinByCharacterId = getArenaSkinState(profile, arena).equippedSkinByCharacterId;
+        const characterId = normalizeSkinCharacterId(character.characterId || character.id);
+        const equippedSkinId = equippedSkinByCharacterId[characterId];
+        const skinEntry = equippedSkinId
+            ? catalog.find((entry = {}) => normalizeSkinId(entry.skinId) === equippedSkinId) || null
+            : null;
+        if (!skinEntry?.patch || typeof skinEntry.patch !== 'object') {
+            return character;
+        }
+        const patchedCharacter = mergeSkinPatchValue(character, skinEntry.patch);
+        const skillImageOverridesBySkillId =
+            skinEntry.skillImageOverridesBySkillId && typeof skinEntry.skillImageOverridesBySkillId === 'object'
+                ? skinEntry.skillImageOverridesBySkillId
+                : {};
+        const skillOverridesBySkillId =
+            skinEntry.skillOverridesBySkillId && typeof skinEntry.skillOverridesBySkillId === 'object'
+                ? skinEntry.skillOverridesBySkillId
+                : {};
+        const statusFacePictureOverridesByStatusId =
+            skinEntry.statusFacePictureOverridesByStatusId &&
+            typeof skinEntry.statusFacePictureOverridesByStatusId === 'object'
+                ? skinEntry.statusFacePictureOverridesByStatusId
+                : {};
+        if (
+            !Array.isArray(patchedCharacter.skills) ||
+            (!Object.keys(skillImageOverridesBySkillId).length &&
+                !Object.keys(skillOverridesBySkillId).length &&
+                !Object.keys(statusFacePictureOverridesByStatusId).length)
+        ) {
+            return patchedCharacter;
+        }
+        patchedCharacter.skills = patchedCharacter.skills.map((skill = {}) => {
+            const structuredOverride = skillOverridesBySkillId[skill.id];
+            const imageOverride = skillImageOverridesBySkillId[skill.id];
+            const nextSkill = structuredOverride && typeof structuredOverride === 'object'
+                ? mergeSkinPatchValue(skill, structuredOverride)
+                : { ...skill };
+            if (imageOverride) {
+                nextSkill.skillimage = imageOverride;
+            }
+            if (!Array.isArray(nextSkill.effects) || !Object.keys(statusFacePictureOverridesByStatusId).length) {
+                return nextSkill;
+            }
+            nextSkill.effects = nextSkill.effects.map((effect = {}) => {
+                const statusId =
+                    typeof effect?.statusId === 'string'
+                        ? effect.statusId
+                        : typeof effect?.applyStatusAtStack?.statusId === 'string'
+                            ? effect.applyStatusAtStack.statusId
+                            : '';
+                const facePictureOverride = statusFacePictureOverridesByStatusId[statusId];
+                if (!facePictureOverride) {
+                    return effect;
+                }
+                if (effect?.applyStatusAtStack && typeof effect.applyStatusAtStack === 'object') {
+                    return {
+                        ...effect,
+                        applyStatusAtStack: {
+                            ...effect.applyStatusAtStack,
+                            metadata: {
+                                ...(effect.applyStatusAtStack.metadata || {}),
+                                facePictureOverride,
+                            },
+                        },
+                    };
+                }
+                return {
+                    ...effect,
+                    metadata: {
+                        ...(effect.metadata || {}),
+                        facePictureOverride,
+                    },
+                };
+            });
+            return nextSkill;
+        });
+        return patchedCharacter;
+    };
+
     const normalizeMatchmakingPresentation = (matchmaking = null) => {
         const source = matchmaking && typeof matchmaking === 'object' ? matchmaking : {};
         return {
@@ -1894,6 +1981,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let currentOpponentDisplayName = null;
         let currentOpponentProfileView = null;
         let currentMatchMode = 'quick';
+        let currentMatchBackgroundUrl = '';
         let currentMatchArena =
             normalizeArenaModeValue(arenaModeFromUrl) ||
             readCachedMatchArena(matchIdFromUrl) ||
@@ -2661,6 +2749,42 @@ document.addEventListener('DOMContentLoaded', async () => {
         }).catch((error) => {
             console.warn('Failed to hydrate ingame player identity.', error);
         });
+        const cacheArenaSkinCatalogForIngame = (arena, payload = {}) => {
+            const normalizedArena = arena === 'pokemon' ? 'pokemon' : 'comic';
+            arenaSkinCatalogCache[normalizedArena] = Array.isArray(payload?.skins)
+                ? payload.skins.map((entry = {}) => ({
+                      ...entry,
+                      skinId: normalizeSkinId(entry.skinId),
+                      characterId: normalizeSkinCharacterId(entry.characterId),
+                      skillImageOverridesBySkillId:
+                          entry.skillImageOverridesBySkillId && typeof entry.skillImageOverridesBySkillId === 'object'
+                              ? entry.skillImageOverridesBySkillId
+                              : {},
+                      skillOverridesBySkillId:
+                          entry.skillOverridesBySkillId && typeof entry.skillOverridesBySkillId === 'object'
+                              ? entry.skillOverridesBySkillId
+                              : {},
+                      statusFacePictureOverridesByStatusId:
+                          entry.statusFacePictureOverridesByStatusId &&
+                          typeof entry.statusFacePictureOverridesByStatusId === 'object'
+                              ? entry.statusFacePictureOverridesByStatusId
+                              : {},
+                  }))
+                : [];
+        };
+        const fetchArenaSkinsForIngame = async (arena = currentMatchArena) => {
+            const normalizedArena = arena === 'pokemon' ? 'pokemon' : 'comic';
+            const response = await fetch(`${API_BASE_URL}/api/skins?arena=${encodeURIComponent(normalizedArena)}`, {
+                credentials: 'include',
+                cache: 'no-store',
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || 'Unable to load skins.');
+            }
+            cacheArenaSkinCatalogForIngame(normalizedArena, payload);
+            return payload;
+        };
         const getSkillReplacementMapFromUnit = (unit) => {
             const map = {};
             const statuses = Array.isArray(unit?.state?.statuses) ? unit.state.statuses : [];
@@ -9967,10 +10091,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 setProtectionTerminologyArena(currentMatchArena);
             }
             writeCachedMatchArena(matchIdFromUrl || data.matchId, currentMatchArena);
+            if (typeof data.backgroundOverride === 'string' && data.backgroundOverride.trim()) {
+                currentMatchBackgroundUrl = data.backgroundOverride.trim();
+            }
             setIngameArenaUiAssets(currentMatchArena);
             syncEnergyNameLabels();
             soundManager.ensureIngameBattleMusic(currentMatchArena);
             if (data.player?.profile) {
+                profileCache = {
+                    ...(profileCache && typeof profileCache === 'object' ? profileCache : {}),
+                    username: data.player.username || currentPlayerUsername || profileCache?.username || '',
+                    profile: data.player.profile,
+                };
+                writeCachedUser(profileCache);
                 const playerProfileView = getArenaProfileView(data.player.profile, currentMatchArena);
                 applyPlayerIdentity({
                     name: data.player.username || currentPlayerUsername,
@@ -9990,9 +10123,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             const backgroundEl = document.querySelector('.backgroundingame');
             if (backgroundEl) {
                 const fallbackUrl =
-                    currentMatchArena === 'pokemon'
-                        ? getRandomPokemonIngameBackgroundUrl()
-                        : COMIC_INGAME_BACKGROUND_URL;
+                    currentMatchBackgroundUrl ||
+                    (currentMatchArena === 'pokemon'
+                        ? POKEMON_INGAME_BACKGROUND_URLS[0] || 'assets/images/PokemonArena/newbattlepic/1783150082785.png'
+                        : COMIC_INGAME_BACKGROUND_URL);
                 setBackgroundImage(backgroundEl, fallbackUrl, currentMatchArena === 'pokemon');
             }
             if (typeof data.mode === 'string' && data.mode.trim()) {
@@ -11838,6 +11972,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     arenaOverride: currentMatchArena,
                 });
                 if (!data) return;
+                if (normalizeArenaModeValue(data.arena || currentMatchArena) === 'pokemon') {
+                    await fetchArenaSkinsForIngame('pokemon').catch((error) => {
+                        console.warn('Unable to preload Pokemon skin catalog for ingame.', error);
+                    });
+                }
 
                 const normalizeRosterIndex = (value) => {
                     if (Number.isInteger(value)) return value;
@@ -11914,8 +12053,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 }
 
-                const populateCard = (card, rosterIndex, isPlayer, slotIndex) => {
-                    const character = rosterData[rosterIndex];
+                const populateCard = (card, rosterIndex, isPlayer, slotIndex, profile = null) => {
+                    const character = buildCharacterWithEquippedSkin(
+                        rosterData[rosterIndex],
+                        profile,
+                        currentMatchArena
+                    );
                     if (!character) return;
                     const showCharacterSkills = () => {
                         const username = isPlayer ? currentPlayerUsername : currentOpponentUsername;
@@ -12057,8 +12200,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 };
 
-                playerCardsLocal.forEach((card, idx) => populateCard(card, resolvedTeam[idx], true, idx));
-                enemyCardsLocal.forEach((card, idx) => populateCard(card, resolvedEnemyTeam[idx], false, idx));
+                playerCardsLocal.forEach((card, idx) =>
+                    populateCard(
+                        card,
+                        resolvedTeam[idx],
+                        true,
+                        idx,
+                        data.player?.profile || profileCache?.profile || null
+                    )
+                );
+                enemyCardsLocal.forEach((card, idx) =>
+                    populateCard(card, resolvedEnemyTeam[idx], false, idx, data.opponent?.profile || null)
+                );
                 enemyCards = enemyCardsLocal;
                 playerCards = playerCardsLocal;
                 attachCardTargetHandlers(enemyCards, currentOpponentUsername || '');
