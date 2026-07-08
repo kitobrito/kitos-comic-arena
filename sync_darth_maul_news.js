@@ -57,12 +57,17 @@ const newsPost = {
         {
             type: 'paragraph',
             text: 'This release also adds Darth Maul to the Comic Arena latest releases panel so players can find him immediately from the front page.'
+        },
+        {
+            type: 'paragraph',
+            text: 'Design credit for Darth Maul goes to ckretstyle.'
         }
     ],
     paragraphs: [
         'Darth Maul has arrived in Comic Arena as a relentless bruiser who locks enemies down, punishes counterplay, and turns every failed attempt to stop him into permanent damage.',
         'His kit mixes targeted control, execution pressure, ally scaling, and reactive defense, with Hatred permanently ignoring execution effects while rewarding Darth Maul whenever one of his skills is countered or ignored.',
-        'This release also adds Darth Maul to the Comic Arena latest releases panel so players can find him immediately from the front page.'
+        'This release also adds Darth Maul to the Comic Arena latest releases panel so players can find him immediately from the front page.',
+        'Design credit for Darth Maul goes to ckretstyle.'
     ],
     changes: [
         buildSkillShowcase(

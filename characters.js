@@ -102,7 +102,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/cUWpevS.png",
                 "skilldescription": "Iron Man may use this skill on himself or an ally. If used on himself, Repulsor Blast becomes Proton Cannon, this skill becomes Energy Burst, and Iron Man gains 10 points of unpierceable damage reduction. If used on an ally, they gain 2 bonus non-affliction damage and 10 permanent shield. This effect stacks on allies and is permanent.",
                 "energy": [
-                    "Random"
+                    "Bloodline"
                 ],
                 "target": "self-or-single-ally",
                 "damage": 0,
@@ -259,6 +259,7 @@ const characters = [
                 "skillimage": "https://i.imgur.com/r6cDktw.png",
                 "skilldescription": "Deals 22 damage to all enemies and stuns their energy skills for 1 turn.",
                 "energy": [
+                    "Ninjutsu",
                     "Random"
                 ],
                 "target": "all-enemy",
@@ -468,7 +469,8 @@ const characters = [
                 "skillimage": "https://i.imgur.com/zIKyZk2.jpeg",
                 "skilldescription": "Increases the cost of one enemy’s skills by 2 White Energy until they use a new skill. This does not stack and may only affect one enemy at a time (will remove itself from a previous enemy if used on a new one). Increases 'Passive: Spider Senses' by 5%.",
                 "energy": [
-                    "Random"
+                    "Genjutsu",
+                    "Genjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -14109,7 +14111,9 @@ const characters = [
                 "skillimage": "assets/images/doctorstrangeskill5.webp",
                 "skilldescription": "For 3 turns, Doctor Strange ignores harmful and helpful non-damage effects. At the start of each turn, one of his other skills is randomly upgraded and locked for that turn.",
                 "energy": [
-                    "Bloodline"
+                    "Bloodline",
+                    "Ninjutsu",
+                    "Genjutsu"
                 ],
                 "target": "self",
                 "damage": 0,
@@ -14139,26 +14143,17 @@ const characters = [
                                     {
                                         "fromSkillId": "doctor-strange-eldritch-manifestation",
                                         "toSkillId": "doctor-strange-eldritch-manifestation-improved",
-                                        "skillIndex": 0,
-                                        "blockedSkillIndices": [
-                                            0
-                                        ]
+                                        "skillIndex": 0
                                     },
                                     {
                                         "fromSkillId": "doctor-strange-shield-of-the-seraphim",
                                         "toSkillId": "doctor-strange-shield-of-the-seraphim-improved",
-                                        "skillIndex": 1,
-                                        "blockedSkillIndices": [
-                                            1
-                                        ]
+                                        "skillIndex": 1
                                     },
                                     {
                                         "fromSkillId": "doctor-strange-bolts-of-balthakk",
                                         "toSkillId": "doctor-strange-bolts-of-balthakk-improved",
-                                        "skillIndex": 2,
-                                        "blockedSkillIndices": [
-                                            2
-                                        ]
+                                        "skillIndex": 2
                                     }
                                 ]
                             }
@@ -17496,7 +17491,7 @@ const characters = [
                                 "charmander-rage": "charmander-charmeleon-rage"
                             },
                             "tooltipText": "Charmander has evolved into Charmeleon. All of his skills have improved effects.",
-                            "healOnApplyFlat": 10,
+                            "healOnApplyFlat": 10
                         }
                     },
                     "tooltipText": "Charmander evolves into Charmeleon after critically striking or burning an enemy twice."
@@ -18572,7 +18567,7 @@ const characters = [
                                 "squirtle-rapid-spin": "wartortle-aqua-spin"
                             },
                             "tooltipText": "Squirtle has evolved into Wartortle. All of his skills have improved effects.",
-                            "healOnApplyFlat": 10,
+                            "healOnApplyFlat": 10
                         }
                     },
                     "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
@@ -19065,7 +19060,7 @@ const characters = [
                                         "bulbasaur-solar-beam": "ivysaur-solar-beam"
                                     },
                                     "tooltipText": "Bulbasaur has evolved into Ivysaur. All of his skills have improved effects.",
-                            "healOnApplyFlat": 10,
+                                    "healOnApplyFlat": 10
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
@@ -19144,7 +19139,7 @@ const characters = [
                                                 "bulbasaur-solar-beam": "ivysaur-solar-beam"
                                             },
                                             "tooltipText": "Bulbasaur has evolved into Ivysaur. All of his skills have improved effects.",
-                            "healOnApplyFlat": 10,
+                                            "healOnApplyFlat": 10
                                         }
                                     },
                                     "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
@@ -19383,7 +19378,7 @@ const characters = [
                                                 "bulbasaur-solar-beam": "ivysaur-solar-beam"
                                             },
                                             "tooltipText": "Bulbasaur has evolved into Ivysaur. All of his skills have improved effects.",
-                            "healOnApplyFlat": 10,
+                                            "healOnApplyFlat": 10
                                         }
                                     },
                                     "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
@@ -19552,7 +19547,7 @@ const characters = [
         "role": "Drain Fighter",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "hybrid",
+        "roleCategory": "damage",
         "description": "A patient and resilient Grass-type Pokémon that draws strength from sunlight. Bulbasaur grows more powerful as the sun shines overhead, eventually evolving into Ivysaur and unleashing devastating solar attacks.",
         "descriptionHtml": "A patient and resilient Grass-type Pokémon that draws strength from sunlight. Bulbasaur grows more powerful as the sun shines overhead, eventually evolving into Ivysaur and unleashing devastating solar attacks."
     },
@@ -20259,7 +20254,7 @@ const characters = [
                             "turnDurationAnchor": "source_turn",
                             "tooltipText": "This character is sealed inside a Pokeball and is invulnerable."
                         }
-                    },
+                    }
                 ]
             },
             {
@@ -21043,7 +21038,7 @@ const characters = [
                 "skilldescription": "At the start of each turn, Pokemon Trainer's ball slot randomly becomes Pokeball 40%, Great Ball 30%, Ultra Ball 20%, or Master Ball 10%. Stuns one enemy and makes them invulnerable to all skills for 2 turns. If used when their health is at 25 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed.",
                 "energy": [
                     "Ninjutsu",
-                    "Random",
+                    "Random"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -21157,7 +21152,7 @@ const characters = [
                             "turnDurationAnchor": "source_turn",
                             "tooltipText": "This character is sealed inside a Great Ball and is invulnerable."
                         }
-                    },
+                    }
                 ]
             },
             {
@@ -21281,7 +21276,7 @@ const characters = [
                             "turnDurationAnchor": "source_turn",
                             "tooltipText": "This character is sealed inside an Ultra Ball and is invulnerable."
                         }
-                    },
+                    }
                 ]
             },
             {
@@ -21462,7 +21457,7 @@ const characters = [
                                 "chansey-emergency-life-support": "blissey-emergency-life-support"
                             },
                             "tooltipText": "Chansey has evolved into Blissey. Blissey's skills are improved.",
-                            "healOnApplyFlat": 10,
+                            "healOnApplyFlat": 10
                         }
                     },
                     "statusIconUrl": "assets/images/PokemonArena/Chansey/evolutionblissey.webp",
@@ -21998,7 +21993,7 @@ const characters = [
                                 "pidgey-sand-attack": "pidgeotto-sand-attack"
                             },
                             "tooltipText": "Pidgey has evolved into Pidgeotto. All of his skills have improved effects.",
-                            "healOnApplyFlat": 10,
+                            "healOnApplyFlat": 10
                         }
                     },
                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
@@ -22620,7 +22615,7 @@ const characters = [
                                 ]
                             },
                             "tooltipText": "Koffing has evolved into Weezing. All of his skills have improved effects.",
-                            "healOnApplyFlat": 10,
+                            "healOnApplyFlat": 10
                         }
                     }
                 }
@@ -23141,7 +23136,7 @@ const characters = [
                                 "zubat-draining-fangs": "golbat-draining-fangs"
                             },
                             "tooltipText": "Zubat has evolved into Golbat. Golbat's skills are improved.",
-                            "healOnApplyFlat": 10,
+                            "healOnApplyFlat": 10
                         }
                     },
                     "statusIconUrl": "assets/images/PokemonArena/zubat/leechlife.webp",
@@ -23730,7 +23725,7 @@ const characters = [
                                 "gastly-glare": "haunter-glare"
                             },
                             "tooltipText": "Gastly has evolved into Haunter. Haunter's skills are improved.",
-                            "healOnApplyFlat": 10,
+                            "healOnApplyFlat": 10
                         }
                     },
                     "statusIconUrl": "assets/images/PokemonArena/gastley/evolutionhaunter.webp",
@@ -24151,7 +24146,7 @@ const characters = [
         "role": "Disruptor",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "disruptor",
+        "roleCategory": "Disruptor",
         "description": "A mischievous Ghost-type Pokemon that turns missing health into pressure, punishes skill usage, and evolves into the far nastier Haunter.",
         "descriptionHtml": "A mischievous Ghost-type Pokemon that turns missing health into pressure, punishes skill usage, and evolves into the far nastier Haunter.",
         "characterdeescription": null
@@ -24208,7 +24203,7 @@ const characters = [
                                 "abra-teleport": "kadabra-teleport"
                             },
                             "tooltipText": "Abra has evolved into Kadabra. Kadabra's skills are improved.",
-                            "healOnApplyFlat": 10,
+                            "healOnApplyFlat": 10
                         }
                     },
                     "statusIconUrl": "assets/images/PokemonArena/abra/calmmind.webp",
@@ -24776,7 +24771,7 @@ const characters = [
                                                 "krabby-harden": "kingler-harden"
                                             },
                                             "tooltipText": "Krabby has evolved into Kingler. Kingler's skills are improved.",
-                            "healOnApplyFlat": 10,
+                                            "healOnApplyFlat": 10
                                         }
                                     },
                                     "statusIconUrl": "assets/images/PokemonArena/Krabby/evolutionkingler.png",
@@ -25246,7 +25241,7 @@ const characters = [
         "role": "Assassin",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "assassin",
+        "roleCategory": "Assassin",
         "description": "A fast mantis Pokemon that stacks pressure through repeated slashes, evasion, and heavy burst windows after Swords Dance.",
         "descriptionHtml": "A fast mantis Pokemon that stacks pressure through repeated slashes, evasion, and heavy burst windows after Swords Dance.",
         "startStatuses": [],
@@ -25396,10 +25391,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Fast DPS",
+        "role": "AOE DPS",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "fast-dps",
+        "roleCategory": "AOE-dps",
         "description": "A plain, all-random Normal-type Pokemon that leans on basic survival, simple chip damage, and straightforward utility before its evolution mission eventually replaces it.",
         "descriptionHtml": "A plain, all-random Normal-type Pokemon that leans on basic survival, simple chip damage, and straightforward utility before its evolution mission eventually replaces it.",
         "startStatuses": []
@@ -26201,7 +26196,7 @@ const characters = [
                                         "ekans-crunch": "arbok-crunch"
                                     },
                                     "tooltipText": "Ekans has evolved into Arbok. Arbok's skills are improved.",
-                            "healOnApplyFlat": 10,
+                                    "healOnApplyFlat": 10
                                 }
                             }
                         }
@@ -26472,7 +26467,7 @@ const characters = [
         "role": "Assassin",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "assassin",
+        "roleCategory": "Assassin",
         "description": "A venom-focused Pokemon that ramps poison pressure, punishes enemies for acting, and evolves into Arbok after landing a Crunch execution.",
         "descriptionHtml": "A venom-focused Pokemon that ramps poison pressure, punishes enemies for acting, and evolves into Arbok after landing a Crunch execution.",
         "startStatuses": []
@@ -26598,7 +26593,7 @@ const characters = [
                                                     "machop-taunt": "machoke-taunt"
                                                 },
                                                 "tooltipText": "Machop has evolved into Machoke. Machoke's skills are improved.",
-                            "healOnApplyFlat": 10,
+                                                "healOnApplyFlat": 10
                                             }
                                         }
                                     }
@@ -26627,7 +26622,7 @@ const characters = [
                                                     "machop-taunt": "machoke-taunt"
                                                 },
                                                 "tooltipText": "Machop has evolved into Machoke. Machoke's skills are improved.",
-                            "healOnApplyFlat": 10,
+                                                "healOnApplyFlat": 10
                                             }
                                         }
                                     }
@@ -26653,7 +26648,7 @@ const characters = [
                                                     "machop-taunt": "machoke-taunt"
                                                 },
                                                 "tooltipText": "Machop has evolved into Machoke. Machoke's skills are improved.",
-                            "healOnApplyFlat": 10,
+                                                "healOnApplyFlat": 10
                                             }
                                         }
                                     }
@@ -27061,7 +27056,7 @@ const characters = [
                                         "magikarp-struggle": "gyarados-hydro-pump"
                                     },
                                     "tooltipText": "Magikarp has evolved into Gyarados. Gyarados' skills are completely new.",
-                            "healOnApplyFlat": 10,
+                                    "healOnApplyFlat": 10
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/magikarp/evolutiongyarados.png",
@@ -27142,7 +27137,7 @@ const characters = [
                                         "magikarp-struggle": "gyarados-hydro-pump"
                                     },
                                     "tooltipText": "Magikarp has evolved into Gyarados. Gyarados' skills are completely new.",
-                            "healOnApplyFlat": 10,
+                                    "healOnApplyFlat": 10
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/magikarp/magikarpsplash.png",
@@ -27443,10 +27438,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Hybrid",
+        "role": "AOE DPS",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "hybrid",
+        "roleCategory": "aoe-dps",
         "description": "A famously weak Water-type Pokemon whose plan is surviving long enough to become Gyarados, then cashing in with overwhelming ranged pressure.",
         "descriptionHtml": "A famously weak Water-type Pokemon whose plan is surviving long enough to become Gyarados, then cashing in with overwhelming ranged pressure."
     },

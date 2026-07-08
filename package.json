@@ -7,6 +7,8 @@
   },
   "scripts": {
     "start": "node server.js",
+    "stale-matches:check": "node scripts/stale-matches.js",
+    "stale-matches:force": "node scripts/stale-matches.js --force",
     "test": "node --test test/*.test.js",
     "test:e2e": "playwright test"
   },

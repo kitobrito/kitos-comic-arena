@@ -68,7 +68,7 @@ const krabbyMission = {
     arena: 'pokemon',
     mode_restriction: { allowed_modes: ['quick', 'ladder'] },
     win_streak: { character_id: '', character_name: '', wins: 0 },
-    image: 'assets/images/PokemonArena/Krabby/krabbyfp.png',
+    image: 'assets/images/PokemonArena/missionpics/krabby.webp',
     imageAlt: 'Krabby mission artwork',
     characterName: 'Krabby',
     portrait: 'assets/images/PokemonArena/Krabby/krabbyfp.png',

@@ -113,7 +113,7 @@ const mrMimeMission = {
     arena: 'pokemon',
     mode_restriction: { allowed_modes: ['quick', 'ladder'] },
     win_streak: { character_id: '', character_name: '', wins: 0 },
-    image: 'assets/images/PokemonArena/Mr.mime/fp.jpg',
+    image: 'assets/images/PokemonArena/missionpics/mr.mime.avif',
     imageAlt: 'Mr. Mime mission artwork',
     characterName: 'Mr. Mime',
     portrait: 'assets/images/PokemonArena/Mr.mime/fp.jpg',

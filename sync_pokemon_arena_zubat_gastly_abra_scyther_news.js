@@ -163,7 +163,7 @@ const starterMissions = [
         arena: 'pokemon',
         mode_restriction: { allowed_modes: ['quick', 'ladder'] },
         win_streak: { character_id: '', character_name: '', wins: 0 },
-        image: 'assets/images/PokemonArena/newpikachufp.jpeg',
+        image: 'assets/images/PokemonArena/missionpics/pikachu.avif',
         imageAlt: 'Pikachu starter mission artwork',
         characterName: 'Pikachu',
         portrait: 'assets/images/PokemonArena/Pikachu/pikachufp.jpeg',
