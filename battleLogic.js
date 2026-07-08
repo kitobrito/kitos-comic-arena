@@ -693,7 +693,13 @@ const doesActorSatisfySkillCondition = (actorUnit, actorState, skill, context = 
                   })
                 : null;
         const activeSkills = Array.isArray(effectiveCharacter?.skills)
-            ? effectiveCharacter.skills.filter((entry) => entry && !Boolean(entry.hiddenFromSelectionViewer))
+            ? effectiveCharacter.skills.filter((entry) => {
+                  if (!entry || Boolean(entry.hiddenFromSelectionViewer)) return false;
+                  const classes = Array.isArray(entry.classes) ? entry.classes : [];
+                  return !classes.some(
+                      (className) => typeof className === 'string' && className.trim().toLowerCase() === 'passive'
+                  );
+              })
             : [];
         const otherSkills = activeSkills.filter((entry) => (entry?.id || '') !== (skill?.id || ''));
         if (

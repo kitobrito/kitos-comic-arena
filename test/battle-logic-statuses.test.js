@@ -5,6 +5,7 @@ const {
     applyDamageToUnit,
     applyStatus,
     cleanseHarmfulStatuses,
+    computeTargetOptions,
     computeEffectiveEnergyCost,
     doesEffectConditionMatch,
     processTurnStartStatusEffects,
@@ -797,4 +798,108 @@ test('Splash can advance Magikarp into Gyarados immediately at 6 stacks', () => 
 
     assert.equal(tracker?.metadata?.magikarpTurnCount, 6);
     assert.ok(evolution);
+});
+
+test('Struggle ignores passive skills when checking if all other skills are on cooldown', () => {
+    const characters = [
+        {
+            characterId: 'magikarp',
+            skills: [
+                {
+                    id: 'magikarp-tackle',
+                    name: 'Tackle',
+                    target: 'single-enemy',
+                    energy: ['Random'],
+                    cooldown: 3,
+                    classes: ['Physical', 'Melee', 'Instant'],
+                },
+                {
+                    id: 'magikarp-splash',
+                    name: 'Splash',
+                    target: 'self',
+                    energy: [],
+                    cooldown: 3,
+                    classes: ['Physical', 'Instant'],
+                },
+                {
+                    id: 'magikarp-flail',
+                    name: 'Flail',
+                    target: 'single-enemy',
+                    energy: ['Random', 'Random'],
+                    cooldown: 3,
+                    classes: ['Physical', 'Melee', 'Instant'],
+                },
+                {
+                    id: 'magikarp-struggle',
+                    name: 'Struggle',
+                    target: 'single-enemy',
+                    energy: ['Random'],
+                    cooldown: 0,
+                    actorCondition: {
+                        allOtherSkillsOnCooldown: true,
+                    },
+                    classes: ['Physical', 'Melee', 'Instant'],
+                },
+                {
+                    id: 'magikarp-passive-evolution-gyarados',
+                    name: 'Evolution - Gyarados',
+                    target: '',
+                    energy: [],
+                    cooldown: 0,
+                    classes: ['Passive', 'Instant'],
+                },
+            ],
+        },
+    ];
+
+    const match = {
+        players: [{ username: 'ash' }, { username: 'gary' }],
+        board: {
+            ash: [
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    rosterIndex: 0,
+                    state: {
+                        statuses: [],
+                        cooldowns: {
+                            'magikarp-tackle': 1,
+                            'magikarp-splash': 1,
+                            'magikarp-flail': 1,
+                            'magikarp-struggle': 0,
+                        },
+                        skillUses: {},
+                        snapshots: {},
+                    },
+                },
+            ],
+            gary: [
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    rosterIndex: 0,
+                    state: {
+                        statuses: [],
+                        cooldowns: {},
+                        skillUses: {},
+                        snapshots: {},
+                    },
+                },
+            ],
+        },
+    };
+
+    const options = computeTargetOptions({
+        match,
+        actingUsername: 'ash',
+        actorSlot: 0,
+        skillIndex: 3,
+        characters,
+    });
+
+    assert.equal(options.targetType, 'single-enemy');
+    assert.equal(options.mode, 'single');
+    assert.equal(options.targets.length, 1);
 });
