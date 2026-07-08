@@ -5,7 +5,7 @@ const { parseArgs: parseCharacterArgs } = require('../scripts/character-payload-
 const { parseArgs: parseLiveArgs, hashValue } = require('../scripts/live-deploy-verifier');
 const { parseArgs: parseMatchArgs, summarizeUnit } = require('../scripts/match-debugger');
 const { detectSkillDrift } = require('../scripts/balance-drift-checker');
-const { assertTeamCanBeUsed } = require('../server');
+const { assertTeamCanBeUsed, usernamesEqual } = require('../server');
 const characters = require('../characters');
 
 test('character payload tool parses inspect args', () => {
@@ -58,6 +58,11 @@ test('balance drift checker catches text-to-effect mismatch', () => {
         ],
     });
     assert.equal(issues.length, 2);
+});
+
+test('usernamesEqual ignores case and surrounding whitespace', () => {
+    assert.equal(usernamesEqual('Vylheim', 'vylheim'), true);
+    assert.equal(usernamesEqual(' BloodBlood ', 'bloodblood'), true);
 });
 
 test('assertTeamCanBeUsed rejects Pokemon roster picks in Comic Arena', async () => {

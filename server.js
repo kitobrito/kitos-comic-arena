@@ -10508,7 +10508,7 @@ const ensureBoardState = async (match) => {
 };
 
 const finalizeTurn = async (match, username) => {
-    if (!match || match.currentTurn !== username) return match;
+    if (!match || !usernamesEqual(match.currentTurn, username)) return match;
     if (match.status === 'ended') return match;
     if (!match.board) {
         match.board = battleLogic.buildInitialBoard(match.players || []);
@@ -11845,7 +11845,12 @@ app.post('/api/match/:matchId/turn/end', requireSession, async (req, res) => {
             });
         }
 
-        const username = req.authUser.username;
+        const authUsername = req.authUser.username;
+        const playerEntry = hydrated.players.find((p) => usernamesEqual(p.username, authUsername));
+        if (!playerEntry) {
+            return res.status(403).json({ error: 'Not part of this match.' });
+        }
+        const username = playerEntry.username;
         console.info('[match-turn-end] request', {
             matchId,
             username,
@@ -11853,7 +11858,7 @@ app.post('/api/match/:matchId/turn/end', requireSession, async (req, res) => {
             currentTurn: hydrated.currentTurn,
             status: hydrated.status,
         });
-        if (hydrated.currentTurn !== username) {
+        if (!usernamesEqual(hydrated.currentTurn, username)) {
             queueMatchStateBroadcast(hydrated);
             console.warn('[match-turn-end] rejected-not-your-turn', {
                 matchId,
@@ -12054,8 +12059,13 @@ app.post('/api/match/:matchId/turn/start-choice', requireSession, async (req, re
                 actionRejected: 'match-ended',
             });
         }
-        const username = req.authUser.username;
-        if (hydrated.currentTurn !== username) {
+        const authUsername = req.authUser.username;
+        const playerEntry = hydrated.players.find((p) => usernamesEqual(p.username, authUsername));
+        if (!playerEntry) {
+            return res.status(403).json({ error: 'Not part of this match.' });
+        }
+        const username = playerEntry.username;
+        if (!usernamesEqual(hydrated.currentTurn, username)) {
             return respondWithCurrentMatchState(res, hydrated, username, {
                 actionRejected: 'not-your-turn',
             });
@@ -12176,12 +12186,13 @@ app.post('/api/match/:matchId/skill/reorder', requireSession, async (req, res) =
             actionRejected: 'match-ended',
         });
     }
-    const username = req.authUser.username;
-    const playerEntry = hydrated.players.find((p) => p.username === username);
+    const authUsername = req.authUser.username;
+    const playerEntry = hydrated.players.find((p) => usernamesEqual(p.username, authUsername));
     if (!playerEntry) {
         return res.status(403).json({ error: 'Not part of this match.' });
     }
-    if (hydrated.currentTurn !== username) {
+    const username = playerEntry.username;
+    if (!usernamesEqual(hydrated.currentTurn, username)) {
         return respondWithCurrentMatchState(res, hydrated, username, {
             actionRejected: 'not-your-turn',
         });
@@ -12229,12 +12240,13 @@ app.post('/api/match/:matchId/turn/random/adjust', requireSession, async (req, r
             actionRejected: 'match-ended',
         });
     }
-    const username = req.authUser.username;
-    const playerEntry = hydrated.players.find((p) => p.username === username);
+    const authUsername = req.authUser.username;
+    const playerEntry = hydrated.players.find((p) => usernamesEqual(p.username, authUsername));
     if (!playerEntry) {
         return res.status(403).json({ error: 'Not part of this match.' });
     }
-    if (hydrated.currentTurn !== username) {
+    const username = playerEntry.username;
+    if (!usernamesEqual(hydrated.currentTurn, username)) {
         return respondWithCurrentMatchState(res, hydrated, username, {
             actionRejected: 'not-your-turn',
         });
@@ -12291,12 +12303,13 @@ app.post('/api/match/:matchId/chakra/exchange', requireSession, async (req, res)
             actionRejected: 'match-ended',
         });
     }
-    const username = req.authUser.username;
-    const playerEntry = hydrated.players.find((p) => p.username === username);
+    const authUsername = req.authUser.username;
+    const playerEntry = hydrated.players.find((p) => usernamesEqual(p.username, authUsername));
     if (!playerEntry) {
         return res.status(403).json({ error: 'Not part of this match.' });
     }
-    if (hydrated.currentTurn !== username) {
+    const username = playerEntry.username;
+    if (!usernamesEqual(hydrated.currentTurn, username)) {
         return respondWithCurrentMatchState(res, hydrated, username, {
             actionRejected: 'not-your-turn',
         });
@@ -12360,12 +12373,13 @@ app.post('/api/match/:matchId/skill/targets', requireSession, async (req, res) =
         });
     }
 
-    const username = req.authUser.username;
-    const playerEntry = hydrated.players.find((p) => p.username === username);
+    const authUsername = req.authUser.username;
+    const playerEntry = hydrated.players.find((p) => usernamesEqual(p.username, authUsername));
     if (!playerEntry) {
         return res.status(403).json({ error: 'Not part of this match.' });
     }
-    if (hydrated.currentTurn !== username) {
+    const username = playerEntry.username;
+    if (!usernamesEqual(hydrated.currentTurn, username)) {
         return respondWithCurrentMatchState(res, hydrated, username, {
             actionRejected: 'not-your-turn',
             targetType: '',
@@ -15520,6 +15534,7 @@ if (require.main === module) {
         createEmptyChakraPool,
         makeEmptyPendingTurn,
         assertTeamCanBeUsed,
+        usernamesEqual,
         sanitizeBoardForViewer,
         serializeMatchPlayerForViewer,
         buildMatchPayloadForUser,
