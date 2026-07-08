@@ -3560,7 +3560,7 @@ const characters = [
                 "id": "poison-ivy-lashing-thorns",
                 "name": "Lashing Thorns",
                 "skillimage": "assets/images/lashingthorns.webp",
-                "skilldescription": "Ivy deals 5 affliction damage to the enemy team for 2 turns. If Vine Forest Growth is active, this lasts until Ivy dies. This skill stacks.",
+                "skilldescription": "Ivy deals 5 affliction damage to the enemy team immediately and then for 2 turns. If Vine Forest Growth is active, this lasts until Ivy dies. This skill stacks.",
                 "energy": [
                     "Random"
                 ],
@@ -3574,6 +3574,16 @@ const characters = [
                     "Affliction"
                 ],
                 "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "afflictionDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
                     {
                         "type": "apply_status",
                         "statusId": "poison_ivy_lashing_thorns",
@@ -3591,7 +3601,7 @@ const characters = [
                             "ignoreTargetDestructibleDefense": true,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
-                            "triggerOnApply": true,
+                            "triggerOnApply": false,
                             "ongoingClass": "action",
                             "stackMetadataKey": "poisonIvyLashingThornsStacks",
                             "stackDelta": 1,
@@ -3620,7 +3630,7 @@ const characters = [
                             "ignoreTargetDestructibleDefense": true,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
-                            "triggerOnApply": true,
+                            "triggerOnApply": false,
                             "ongoingClass": "action",
                             "stackMetadataKey": "poisonIvyLashingThornsStacks",
                             "stackDelta": 1,

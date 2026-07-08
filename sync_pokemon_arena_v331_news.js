@@ -7,7 +7,7 @@ const newsCollectionName = process.env.MONGODB_NEWS_POSTS_COLLECTION || 'news_po
 
 const now = new Date();
 const genericArt = 'assets/images/PokemonArena/found-pokeball.png';
-const magikarpArt = 'assets/images/PokemonArena/magikarp/FP.jpeg';
+const magikarpArt = 'assets/images/PokemonArena/magikarp/magikarpfp.png';
 const battleArt = 'assets/images/PokemonArena/newbattlepic/1783150082785.png';
 
 const newsPost = {
@@ -119,7 +119,7 @@ const newsPost = {
             facePicture: magikarpArt,
             skillId: 'magikarp-struggle',
             skillName: 'Struggle',
-            skillimage: 'assets/images/PokemonArena/magikarp/struggle.png',
+            skillimage: 'assets/images/PokemonArena/magikarp/magikarpstruggle.png',
         },
         {
             text: 'Dragon Rage now ticks at the end of Gyarados\'s turns, and both Hyper Beam versions now have a 3-turn cooldown.',

@@ -276,6 +276,87 @@ test('resolvePendingTurnSkills applies gain_chakra effects without crashing queu
     assert.equal(match.chakraPools.ash.genjutsu, 1);
 });
 
+test('Poison Ivy Lashing Thorns deals immediate affliction damage on cast', () => {
+    const characters = require('../characters.js');
+    const poisonIvyIndex = characters.findIndex((character) => character?.id === 'poison-ivy');
+    const ironManIndex = characters.findIndex((character) => character?.id === 'iron-man');
+    const captainAmericaIndex = characters.findIndex((character) => character?.id === 'captain-america');
+
+    assert.notEqual(poisonIvyIndex, -1);
+    assert.notEqual(ironManIndex, -1);
+    assert.notEqual(captainAmericaIndex, -1);
+
+    const match = {
+        players: [{ username: 'ivy' }, { username: 'enemy' }],
+        board: {
+            ivy: [
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    rosterIndex: poisonIvyIndex,
+                    state: {
+                        statuses: [],
+                        cooldowns: {},
+                        snapshots: {},
+                    },
+                },
+            ],
+            enemy: [
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    rosterIndex: ironManIndex,
+                    state: {
+                        statuses: [],
+                        cooldowns: {},
+                        snapshots: {},
+                    },
+                },
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    rosterIndex: captainAmericaIndex,
+                    state: {
+                        statuses: [],
+                        cooldowns: {},
+                        snapshots: {},
+                    },
+                },
+            ],
+        },
+        chakraPools: {
+            ivy: { taijutsu: 0, ninjutsu: 0, bloodline: 0, genjutsu: 0 },
+            enemy: { taijutsu: 0, ninjutsu: 0, bloodline: 0, genjutsu: 0 },
+        },
+        pendingTurns: {
+            ivy: {
+                queueOrder: ['0'],
+                queuedByActorSlot: {
+                    '0': {
+                        skillIndex: 1,
+                        targetSelection: [],
+                    },
+                },
+            },
+        },
+        currentTurn: 'ivy',
+        turnCount: 2,
+        economy: { turnCounts: { ivy: 1, enemy: 0 } },
+    };
+
+    resolvePendingTurnSkills({
+        match,
+        actingUsername: 'ivy',
+        characters,
+    });
+
+    assert.equal(match.board.enemy[0].hp, 95);
+    assert.equal(match.board.enemy[1].hp, 95);
+});
+
 test('reduceHulkRageForInactiveTurn applies inactive-turn status hooks without crashing', () => {
     const match = {
         economy: {
