@@ -11782,7 +11782,18 @@ app.post('/api/match/:matchId/surrender', requireSession, async (req, res) => {
     quickMatches.delete(matchId);
     (match.players || []).forEach((player) => userToMatch.delete(player.username));
     queueMatchStateBroadcast(endedMatch);
-    res.json({
+    let ladderResults = null;
+    try {
+        ladderResults = await applyMatchCompletionRewards(endedMatch, winnerUsername, endedAt);
+        if (ladderResults) {
+            endedMatch.ladderResults = ladderResults;
+            await matchesCollection.updateOne({ matchId }, { $set: { ladderResults } });
+            queueMatchStateBroadcast(endedMatch);
+        }
+    } catch (error) {
+        console.error('Surrender reward processing error:', error);
+    }
+    return res.json({
         ok: true,
         mode: endedMatch.mode,
         status: 'ended',
@@ -11790,17 +11801,8 @@ app.post('/api/match/:matchId/surrender', requireSession, async (req, res) => {
         winner: winnerUsername,
         endReason: 'surrender',
         endedAt,
+        ladderResult: ladderResults?.[username] || null,
     });
-    applyMatchCompletionRewards(endedMatch, winnerUsername, endedAt)
-        .then(async (ladderResults) => {
-            if (ladderResults) {
-                await matchesCollection.updateOne({ matchId }, { $set: { ladderResults } });
-                queueMatchStateBroadcast(matchId);
-            }
-        })
-        .catch((error) => {
-            console.error('Surrender reward processing error:', error);
-        });
 });
 
 app.post('/api/match/:matchId/turn/end', requireSession, async (req, res) => {

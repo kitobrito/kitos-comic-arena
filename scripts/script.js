@@ -8443,7 +8443,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (bar) return bar;
                 bar = document.createElement('span');
                 bar.className = `health-protection-bar ${className}`;
-                healthContainer.appendChild(bar);
+                healthContainer.insertBefore(bar, healthContainer.firstChild || null);
                 return bar;
             };
             const shieldBar = ensureProtectionBar('health-shield-bar');
