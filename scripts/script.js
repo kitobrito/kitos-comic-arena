@@ -1876,7 +1876,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const buildIngameMatchUrl = (matchId, arena) =>
         `ingame.html?matchId=${encodeURIComponent(matchId)}&arena=${encodeURIComponent(arena)}`;
 
-    if (!slotList) {
+    if (isIngamePage) {
         const rosterData = Array.isArray(window.characters)
             ? window.characters
             : typeof characters !== 'undefined' && Array.isArray(characters)
@@ -2289,7 +2289,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (response.status === 401 || response.status === 403) {
                         redirectToSelectionLogin(arenaOverride, {
                             clearUser: false,
-                            preferSelection: true,
                             replace: true,
                         });
                         return null;
@@ -11814,11 +11813,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const loadMatchForIngame = async () => {
             const matchId = matchIdFromUrl;
-            if (!matchId || !Array.isArray(rosterData) || rosterData.length === 0) {
-                console.warn('Unable to initialize match: missing match ID or character roster.');
+            if (!matchId) {
+                console.warn('Unable to initialize match: missing match ID.');
+                redirectToSelectionLogin(currentMatchArena, {
+                    clearUser: false,
+                    replace: true,
+                });
+                return;
+            }
+            if (!Array.isArray(rosterData) || rosterData.length === 0) {
+                console.warn('Unable to initialize match: character roster unavailable.');
                 announceMatchIssue('This match could not initialize correctly.', {
                     dismissible: false,
-                    onRetry: null,
+                    onRetry: () => window.location.replace(buildIngameMatchUrl(matchId, currentMatchArena || 'comic')),
+                    retryLabel: 'Reload Match',
                 });
                 return;
             }

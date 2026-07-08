@@ -1663,8 +1663,607 @@
       }
     }
   </style>
+  <style>
+    body.home-classic-page {
+      color: #13233b;
+      font-family: "Barlow Condensed", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(255, 210, 111, 0.35), transparent 22%),
+        radial-gradient(circle at 20% 18%, rgba(255, 255, 255, 0.12), transparent 0 14%),
+        linear-gradient(180deg, #f0a135 0%, #de7e10 100%);
+    }
+
+    body.home-classic-page .app {
+      width: min(1080px, 100%);
+      grid-template-columns: 185px minmax(0, 1fr) 185px;
+      gap: 10px;
+      padding: 10px 8px 20px;
+      align-items: start;
+    }
+
+    body.home-classic-page .panel,
+    body.home-classic-page .hero,
+    body.home-classic-page .arena-split,
+    body.home-classic-page .pulse-tile,
+    body.home-classic-page .feature-card,
+    body.home-classic-page .release-panel,
+    body.home-classic-page .news-shell,
+    body.home-classic-page .ladder,
+    body.home-classic-page .stats-panel,
+    body.home-classic-page .stats-highlight {
+      border: 1px solid #fff;
+      box-shadow:
+        0 0 0 2px #0f417b,
+        0 0 0 4px #5ea2ef,
+        0 0 0 6px #f4a62d;
+      border-radius: 0;
+    }
+
+    body.home-classic-page .sidebar,
+    body.home-classic-page .aside {
+      padding: 10px;
+      background:
+        linear-gradient(180deg, rgba(116, 188, 255, 0.22), rgba(8, 65, 128, 0.04)),
+        linear-gradient(180deg, #1c6dba 0%, #0b4f95 100%);
+    }
+
+    body.home-classic-page .sidebar::before,
+    body.home-classic-page .aside::before {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 18%, rgba(2, 18, 38, 0.14) 100%);
+    }
+
+    body.home-classic-page .brand,
+    body.home-classic-page .arena-badge,
+    body.home-classic-page .auth-shell,
+    body.home-classic-page .stats-highlight {
+      margin-bottom: 12px;
+      padding: 12px;
+      border: 1px solid #fff;
+      background:
+        linear-gradient(180deg, #fff6dd 0%, #f5ddad 100%);
+      box-shadow:
+        0 0 0 2px #b56a12,
+        0 0 0 4px #ffd16d;
+    }
+
+    body.home-classic-page .brand-name,
+    body.home-classic-page .arena-badge-name,
+    body.home-classic-page .group-title,
+    body.home-classic-page .stats-highlight h3,
+    body.home-classic-page .section-heading h2,
+    body.home-classic-page .release-title,
+    body.home-classic-page .hero-card-title,
+    body.home-classic-page .feature-title,
+    body.home-classic-page .pulse-label,
+    body.home-classic-page .ladder-title,
+    body.home-classic-page .stats-title {
+      color: #f08c12;
+      font-family: "Bangers", cursive;
+      text-shadow: 1px 1px 0 #fff;
+      letter-spacing: 0.04em;
+    }
+
+    body.home-classic-page .brand-name,
+    body.home-classic-page .arena-badge-name {
+      font-size: 28px;
+    }
+
+    body.home-classic-page .brand-tagline,
+    body.home-classic-page .arena-badge-copy,
+    body.home-classic-page .group-note,
+    body.home-classic-page .stats-highlight p,
+    body.home-classic-page .section-heading p,
+    body.home-classic-page .release-copy,
+    body.home-classic-page .hero-copy p,
+    body.home-classic-page .hero-card-copy,
+    body.home-classic-page .hero-card-item span,
+    body.home-classic-page .hero-point-copy,
+    body.home-classic-page .pulse-copy,
+    body.home-classic-page .feature-copy,
+    body.home-classic-page .arena-split-copy,
+    body.home-classic-page .stats-list,
+    body.home-classic-page .ladder-name,
+    body.home-classic-page .release-label {
+      color: #173052;
+      text-transform: none;
+      line-height: 1.25;
+    }
+
+    body.home-classic-page .group-title,
+    body.home-classic-page .ladder-title,
+    body.home-classic-page .stats-title,
+    body.home-classic-page .section-heading h2 {
+      font-size: 22px;
+    }
+
+    body.home-classic-page .nav {
+      gap: 6px;
+    }
+
+    body.home-classic-page .nav-link,
+    body.home-classic-page .account-action,
+    body.home-classic-page .auth-button,
+    body.home-classic-page .auth-link,
+    body.home-classic-page .play-now,
+    body.home-classic-page .hero-link,
+    body.home-classic-page .arena-split-link {
+      min-height: 34px;
+      border: 1px solid #fff;
+      background:
+        linear-gradient(180deg, #2d82d1 0%, #115da8 100%);
+      color: #fff;
+      box-shadow:
+        inset 0 0 0 2px #0b427e,
+        inset 0 0 0 3px rgba(255, 255, 255, 0.2);
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: none;
+      transform: none;
+    }
+
+    body.home-classic-page .nav-link.active,
+    body.home-classic-page .account-action.active,
+    body.home-classic-page .hero-link.is-accent,
+    body.home-classic-page .play-now.comic {
+      background: linear-gradient(180deg, #ffa83b 0%, #d96d0c 100%);
+      color: #fff;
+    }
+
+    body.home-classic-page .play-now.pokemon,
+    body.home-classic-page .arena-split-card.pokemon .arena-split-link {
+      background: linear-gradient(180deg, #ffcf63 0%, #2f7dd2 100%);
+      color: #fff;
+    }
+
+    body.home-classic-page .nav-link:hover,
+    body.home-classic-page .account-action:hover,
+    body.home-classic-page .play-now:hover,
+    body.home-classic-page .hero-link:hover,
+    body.home-classic-page .arena-split-link:hover,
+    body.home-classic-page .auth-button:hover,
+    body.home-classic-page .auth-link:hover {
+      transform: none;
+      border-color: #fff;
+      background: linear-gradient(180deg, #ffbf52 0%, #e27b10 100%);
+      box-shadow:
+        inset 0 0 0 2px #9d4f08,
+        inset 0 0 0 3px rgba(255, 255, 255, 0.2);
+    }
+
+    body.home-classic-page .nav-link.active::after {
+      width: 18px;
+      height: 18px;
+      border: 1px solid #fff;
+      background: #fff0aa;
+      color: #9f5609;
+      font-size: 12px;
+    }
+
+    body.home-classic-page .main {
+      gap: 10px;
+    }
+
+    body.home-classic-page .hero {
+      grid-template-columns: minmax(0, 1fr) 200px;
+      gap: 8px;
+      padding: 62px 8px 8px;
+      background:
+        linear-gradient(180deg, #2c7fce 0, #2c7fce 46px, #fffaf0 46px, #f0e5cf 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    body.home-classic-page .hero::before {
+      content: "Comic Arena + Pokemon Arena Portal";
+      top: 8px;
+      left: 8px;
+      right: 8px;
+      padding: 6px 10px;
+      border: 1px solid #fff;
+      background: linear-gradient(180deg, #ffb13f 0%, #e27a12 100%);
+      color: #fff;
+      font-size: 22px;
+      text-align: center;
+      transform: none;
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.35);
+    }
+
+    body.home-classic-page .eyebrow {
+      margin-bottom: 8px;
+      border: 1px solid #fff;
+      background: linear-gradient(180deg, #fff7d7 0%, #f7dda0 100%);
+      color: #9d5308;
+      box-shadow: none;
+      text-transform: none;
+    }
+
+    body.home-classic-page .eyebrow::before {
+      background: #f08c12;
+      border-color: #9f5a10;
+    }
+
+    body.home-classic-page .hero-title {
+      max-width: none;
+      color: #13406d;
+      font-size: clamp(2rem, 3.8vw, 2.85rem);
+      text-shadow: none;
+      line-height: 0.95;
+    }
+
+    body.home-classic-page .hero-copy p {
+      margin-top: 8px;
+      max-width: none;
+      font-size: 15px;
+    }
+
+    body.home-classic-page .hero-actions {
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    body.home-classic-page .hero-play-stack {
+      min-width: min(100%, 190px);
+    }
+
+    body.home-classic-page .hero-link.is-discord {
+      background: linear-gradient(180deg, #7587ff 0%, #4c5ee0 100%);
+    }
+
+    body.home-classic-page .hero-link.is-partner {
+      background: #fff;
+      box-shadow:
+        inset 0 0 0 2px #0b427e,
+        inset 0 0 0 3px rgba(255, 255, 255, 0.2);
+    }
+
+    body.home-classic-page .hero-points,
+    body.home-classic-page .pulse-strip,
+    body.home-classic-page .feature-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    body.home-classic-page .hero-point,
+    body.home-classic-page .pulse-tile,
+    body.home-classic-page .feature-card,
+    body.home-classic-page .hero-card-item,
+    body.home-classic-page .release-card,
+    body.home-classic-page .ladder-row,
+    body.home-classic-page .stats-list li {
+      border: 1px solid #c9dff5;
+      background: linear-gradient(180deg, #ffffff 0%, #edf5ff 100%);
+      box-shadow: inset 0 0 0 1px #ffffff;
+    }
+
+    body.home-classic-page .hero-point-label,
+    body.home-classic-page .pulse-label,
+    body.home-classic-page .feature-kicker,
+    body.home-classic-page .arena-split-badge {
+      color: #d66d06;
+      background: #fff1c4;
+      border: 1px solid #d0a34d;
+      font-size: 12px;
+      text-shadow: none;
+    }
+
+    body.home-classic-page .hero-side {
+      gap: 10px;
+    }
+
+    body.home-classic-page .hero-card,
+    body.home-classic-page .release-panel,
+    body.home-classic-page .news-shell,
+    body.home-classic-page .arena-split {
+      background: linear-gradient(180deg, #fffaf0 0%, #efe3cb 100%);
+    }
+
+    body.home-classic-page .hero-card {
+      padding: 10px;
+    }
+
+    body.home-classic-page .hero-card-list {
+      gap: 8px;
+    }
+
+    body.home-classic-page .hero-card-item strong,
+    body.home-classic-page .feature-link,
+    body.home-classic-page .auth-switch,
+    body.home-classic-page .ladder-name a {
+      color: #1b69ba;
+      text-transform: none;
+    }
+
+    body.home-classic-page .arena-split {
+      gap: 10px;
+      padding: 12px;
+    }
+
+    body.home-classic-page .arena-split::before,
+    body.home-classic-page .release-panel::before {
+      border: 1px solid #fff;
+      background: linear-gradient(180deg, #2c7fce 0%, #125ca5 100%);
+      font-size: 18px;
+      transform: none;
+    }
+
+    body.home-classic-page .arena-split-grid {
+      grid-template-columns: minmax(0, 1fr) 54px minmax(0, 1fr);
+      gap: 8px;
+    }
+
+    body.home-classic-page .arena-split-card {
+      padding: 12px;
+      border: 1px solid #fff;
+      box-shadow:
+        0 0 0 2px #0f417b,
+        inset 0 0 0 1px rgba(255, 255, 255, 0.24);
+    }
+
+    body.home-classic-page .arena-split-card.comic {
+      background: linear-gradient(180deg, #fff5d1 0%, #f0d08e 100%);
+    }
+
+    body.home-classic-page .arena-split-card.pokemon {
+      background: linear-gradient(180deg, #5aa6ef 0%, #1f68b4 100%);
+    }
+
+    body.home-classic-page .arena-split-card::after {
+      font-size: 34px;
+    }
+
+    body.home-classic-page .arena-vs-divider {
+      border: 1px solid #fff;
+      background: linear-gradient(180deg, #f7bd4d 0%, #e48313 100%);
+      box-shadow:
+        0 0 0 2px #b4660e,
+        inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+      font-size: 28px;
+      text-shadow: none;
+      transform: none;
+    }
+
+    body.home-classic-page .section-heading {
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #d1c1a1;
+    }
+
+    body.home-classic-page .section-heading p {
+      font-size: 14px;
+    }
+
+    body.home-classic-page .release-panel,
+    body.home-classic-page .news-shell {
+      padding: 12px;
+    }
+
+    body.home-classic-page .release-title {
+      font-size: 32px;
+    }
+
+    body.home-classic-page .release-copy {
+      margin-top: 6px;
+      font-size: 16px;
+    }
+
+    body.home-classic-page .release-grid {
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    body.home-classic-page .release-card {
+      padding: 12px 10px;
+      transform: none;
+    }
+
+    body.home-classic-page .release-face {
+      width: 88px;
+      height: 88px;
+      border: 1px solid #fff;
+      box-shadow:
+        0 0 0 2px #0f417b,
+        0 0 0 4px #5ea2ef;
+    }
+
+    body.home-classic-page .news-feed-button {
+      border: 1px solid #fff;
+      background: linear-gradient(180deg, #2c7fce 0%, #125ca5 100%);
+      color: #fff;
+    }
+
+    body.home-classic-page .ladder,
+    body.home-classic-page .stats-panel {
+      padding: 10px;
+      background: linear-gradient(180deg, #fffaf0 0%, #efe3cb 100%);
+    }
+
+    body.home-classic-page .ladder-list {
+      gap: 6px;
+    }
+
+    body.home-classic-page .ladder-row {
+      padding: 6px;
+      border-bottom: 0;
+    }
+
+    body.home-classic-page .ladder-rank {
+      border: 1px solid #b87112;
+      background: linear-gradient(180deg, #ffe19a 0%, #f1b64d 100%);
+      color: #8f4b0b;
+    }
+
+    body.home-classic-page .ladder-bar {
+      border: 1px solid #9cc2ea;
+      background: #d9e8f9;
+    }
+
+    body.home-classic-page .ladder-fill {
+      background: linear-gradient(90deg, #f3b248 0%, #d96f0c 100%);
+    }
+
+    body.home-classic-page .stats-group + .stats-group {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #cdb991;
+    }
+
+    body.home-classic-page .stats-list li + li {
+      margin-top: 6px;
+    }
+
+    .classic-stack {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .classic-info-panel {
+      padding: 14px;
+      border: 4px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 247, 226, 0.94)),
+        var(--panel);
+      box-shadow: var(--shadow-md);
+    }
+
+    .classic-info-kicker {
+      display: inline-flex;
+      align-items: center;
+      margin-bottom: 8px;
+      padding: 5px 10px;
+      border: 3px solid var(--line);
+      background: var(--accent-2);
+      color: var(--line);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .classic-info-title {
+      margin: 0 0 6px;
+      color: var(--ink);
+      font-family: "Bangers", cursive;
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .classic-info-copy {
+      margin: 0;
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.35;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .classic-bullet-list {
+      margin: 10px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 6px;
+    }
+
+    .classic-bullet-list li {
+      position: relative;
+      padding-left: 18px;
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.35;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .classic-bullet-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 7px;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      border: 2px solid var(--line);
+    }
+
+    body.home-classic-page .classic-stack {
+      gap: 6px;
+    }
+
+    body.home-classic-page .classic-info-panel {
+      padding: 8px;
+      border: 1px solid #c9dff5;
+      background: linear-gradient(180deg, #ffffff 0%, #edf5ff 100%);
+      box-shadow: inset 0 0 0 1px #ffffff;
+    }
+
+    body.home-classic-page .classic-info-kicker {
+      margin-bottom: 6px;
+      padding: 3px 6px;
+      border: 1px solid #d0a34d;
+      background: #fff1c4;
+      color: #d66d06;
+      font-size: 10px;
+      text-shadow: none;
+    }
+
+    body.home-classic-page .classic-info-title {
+      color: #f08c12;
+      font-size: 18px;
+      text-shadow: 1px 1px 0 #fff;
+    }
+
+    body.home-classic-page .classic-info-copy,
+    body.home-classic-page .classic-bullet-list li {
+      color: #173052;
+      font-size: 12px;
+      text-transform: none;
+      line-height: 1.25;
+    }
+
+    body.home-classic-page .classic-bullet-list {
+      margin-top: 8px;
+      gap: 4px;
+    }
+
+    body.home-classic-page .classic-bullet-list li {
+      padding-left: 14px;
+    }
+
+    body.home-classic-page .classic-bullet-list li::before {
+      top: 5px;
+      width: 6px;
+      height: 6px;
+      border-width: 1px;
+    }
+
+    @media (max-width: 1080px) {
+      body.home-classic-page .app {
+        grid-template-columns: 1fr;
+      }
+
+      body.home-classic-page .hero,
+      body.home-classic-page .arena-split-grid,
+      body.home-classic-page .hero-points,
+      body.home-classic-page .classic-stack,
+      body.home-classic-page .pulse-strip,
+      body.home-classic-page .feature-grid {
+        grid-template-columns: 1fr;
+      }
+
+      body.home-classic-page .arena-vs-divider {
+        min-height: 48px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="styles/portal-theme.css?v=na-portal-v1" />
 </head>
-<body>
+<body class="home-classic-page">
   <div class="app">
     <aside class="sidebar panel">
         <div class="brand">
@@ -1809,6 +2408,29 @@
           <p class="auth-status" id="account-status" aria-live="polite"></p>
         </div>
       </section>
+
+      <section class="group auth-shell">
+        <h2 class="group-title">Latest News</h2>
+        <ul class="classic-bullet-list">
+          <li>Balance updates and new character drops land on the front page first.</li>
+          <li>Comic Arena and Pokemon Arena updates stay split by lane.</li>
+          <li>Mission spotlights and unlock guides are linked from events.</li>
+        </ul>
+      </section>
+
+      <section class="group auth-shell">
+        <h2 class="group-title">Arena Links</h2>
+        <ul class="classic-bullet-list">
+          <li>Check Community for registered players, profiles, and clan pages.</li>
+          <li>Use Events to browse release posts, mission spotlights, and patch notes.</li>
+          <li>Open Characters pages before queueing if you need roster or skill info.</li>
+        </ul>
+      </section>
+
+      <section class="group auth-shell">
+        <h2 class="group-title">First Time Playing?</h2>
+        <p class="group-note">Read the basics, grab a simple team, and learn the flow before grinding harder unlock paths.</p>
+      </section>
     </aside>
 
     <main class="main">
@@ -1870,6 +2492,23 @@
               </div>
             </div>
           </div>
+          <div class="hero-card">
+            <h2 class="hero-card-title">Portal Updates</h2>
+            <div class="hero-card-list">
+              <div class="hero-card-item">
+                <strong>Comic Ladder</strong>
+                <span>Original roster battles, missions, and account progress live here.</span>
+              </div>
+              <div class="hero-card-item">
+                <strong>Pokemon Ladder</strong>
+                <span>Separate teams, separate releases, and separate mission unlock flow.</span>
+              </div>
+              <div class="hero-card-item">
+                <strong>Daily Rhythm</strong>
+                <span>Check the rankings, read the news board, then jump straight into queue.</span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -1897,43 +2536,43 @@
         </div>
       </section>
 
-      <section class="pulse-strip" aria-label="Quick destinations">
-        <article class="pulse-tile">
-          <h2 class="pulse-label">Community</h2>
-          <p class="pulse-copy">Browse registered players, ladder ranks, clan ties, and profile entry points.</p>
+      <section class="classic-stack" aria-label="Portal guides">
+        <article class="classic-info-panel">
+          <div class="classic-info-kicker">First Time?</div>
+          <h2 class="classic-info-title">Start Here</h2>
+          <p class="classic-info-copy">Check the basics, build a simple team, and queue a few games before chasing harder unlock paths.</p>
+          <ul class="classic-bullet-list">
+            <li>Read the manual for energy, statuses, and counters.</li>
+            <li>Use comic missions or pokemon missions to widen your roster.</li>
+            <li>Scout characters and skills before spending unlock points.</li>
+          </ul>
         </article>
-        <article class="pulse-tile">
-          <h2 class="pulse-label">Events Board</h2>
-          <p class="pulse-copy">Track live updates, latest releases, and mission spotlights from one page.</p>
+        <article class="classic-info-panel">
+          <div class="classic-info-kicker">Latest News</div>
+          <h2 class="classic-info-title">Patch Board</h2>
+          <ul class="classic-bullet-list">
+            <li>Balance updates and new character drops land on the front page first.</li>
+            <li>Comic Arena and Pokemon Arena releases stay separated by lane.</li>
+            <li>Mission pictures, unlock guides, and roster notes are all linked from events.</li>
+          </ul>
         </article>
-        <article class="pulse-tile">
-          <h2 class="pulse-label">Manual</h2>
-          <p class="pulse-copy">Learn the energy system, status rules, damage classes, and role structure fast.</p>
+        <article class="classic-info-panel">
+          <div class="classic-info-kicker">Mission Videos</div>
+          <h2 class="classic-info-title">Unlock Help</h2>
+          <ul class="classic-bullet-list">
+            <li>Starter paths and roster unlock routes are worth checking before grinding.</li>
+            <li>Pokemon mission lineups can differ a lot from comic mission lineups.</li>
+            <li>Use the mission board to jump directly into available encounters.</li>
+          </ul>
         </article>
-        <article class="pulse-tile">
-          <h2 class="pulse-label">Private Matches</h2>
-          <p class="pulse-copy">Search for specific players, run practice battles, and test niche team ideas safely.</p>
-        </article>
-      </section>
-
-      <section class="feature-grid" aria-label="Homepage highlights">
-        <article class="feature-card">
-          <div class="feature-kicker">Mode 01</div>
-          <h2 class="feature-title">Mission Runs</h2>
-          <p class="feature-copy">Targeted encounters and unlock chains give players a cleaner path into roster growth.</p>
-          <a class="feature-link" href="missions.html">View mission board</a>
-        </article>
-        <article class="feature-card">
-          <div class="feature-kicker">Mode 02</div>
-          <h2 class="feature-title">Roster Intel</h2>
-          <p class="feature-copy">Check kits, identities, and skill pressure before you commit to a composition.</p>
-          <a class="feature-link" href="charactersandskills.html">Study the comic roster</a>
-        </article>
-        <article class="feature-card">
-          <div class="feature-kicker">Mode 03</div>
-          <h2 class="feature-title">Account Depth</h2>
-          <p class="feature-copy">Profiles, cosmetics, clan identity, and tracked progress give each account real weight.</p>
-          <a class="feature-link" href="profile.html">See player profiles</a>
+        <article class="classic-info-panel">
+          <div class="classic-info-kicker">Ladder Videos</div>
+          <h2 class="classic-info-title">Rank Up Faster</h2>
+          <ul class="classic-bullet-list">
+            <li>Check win streak lists and player levels on the right rail before queuing.</li>
+            <li>Private matches are the fastest way to test niche teams safely.</li>
+            <li>Comic Arena and Pokemon Arena both reward tighter team identity over random picks.</li>
+          </ul>
         </article>
       </section>
 

@@ -1,0 +1,1162 @@
+body {
+  background:
+    radial-gradient(circle at 20% 14%, rgba(255, 235, 170, 0.18), transparent 0 14%),
+    linear-gradient(180deg, #f5a42e 0%, #de7f11 100%) !important;
+}
+
+body,
+button,
+input,
+select,
+textarea {
+  font-family: "Barlow Condensed", system-ui, sans-serif;
+}
+
+.app,
+.shell {
+  width: min(1000px, 100%) !important;
+  padding: 8px 6px 16px !important;
+  gap: 8px !important;
+}
+
+.app {
+  grid-template-columns: 176px minmax(0, 1fr) 176px !important;
+  align-items: start;
+}
+
+.shell {
+  gap: 10px !important;
+}
+
+.sidebar,
+.aside,
+.panel,
+.hero,
+.topbar,
+.mini-panel,
+.player-card,
+.stats-highlight,
+.news-shell,
+.release-panel,
+.feature-card,
+.pulse-tile,
+.ladder,
+.stats-panel {
+  border: 1px solid #fff !important;
+  border-radius: 0 !important;
+  box-shadow:
+    0 0 0 2px #0f417b,
+    0 0 0 4px #5ea2ef,
+    0 0 0 6px #f4a62d !important;
+}
+
+.sidebar,
+.aside {
+  background:
+    linear-gradient(180deg, rgba(116, 188, 255, 0.22), rgba(8, 65, 128, 0.04)),
+    linear-gradient(180deg, #1c6dba 0%, #0b4f95 100%) !important;
+  padding: 10px !important;
+}
+
+.sidebar::before,
+.aside::before {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 18%, rgba(2, 18, 38, 0.14) 100%) !important;
+}
+
+.brand,
+.arena-badge,
+.auth-shell,
+.stats-highlight,
+.mini-panel {
+  margin-bottom: 12px !important;
+  padding: 12px !important;
+  border: 1px solid #fff !important;
+  background: linear-gradient(180deg, #fff6dd 0%, #f5ddad 100%) !important;
+  box-shadow:
+    0 0 0 2px #b56a12,
+    0 0 0 4px #ffd16d !important;
+}
+
+.brand-name,
+.arena-badge-name,
+.group-title,
+.stats-highlight h3,
+.section-heading h2,
+.release-title,
+.hero-card-title,
+.feature-title,
+.pulse-label,
+.ladder-title,
+.stats-title,
+.topbar .brand-name,
+.hero h1,
+.manual-section h2,
+.manual-section h3,
+.mini-panel h2 {
+  color: #f08c12 !important;
+  font-family: "Bangers", cursive !important;
+  text-shadow: 1px 1px 0 #fff !important;
+  letter-spacing: 0.04em !important;
+}
+
+.brand-name,
+.arena-badge-name,
+.topbar .brand-name {
+  font-size: 28px !important;
+}
+
+.group-title,
+.ladder-title,
+.stats-title,
+.section-heading h2,
+.mini-panel h2,
+.manual-section h3 {
+  font-size: 22px !important;
+}
+
+.brand-tagline,
+.arena-badge-copy,
+.group-note,
+.stats-highlight p,
+.section-heading p,
+.release-copy,
+.hero p,
+.hero-copy p,
+.hero-card-copy,
+.hero-card-item span,
+.hero-point-copy,
+.pulse-copy,
+.feature-copy,
+.arena-split-copy,
+.stats-list,
+.ladder-name,
+.release-label,
+.mini-panel p,
+.manual-section p,
+.manual-section li,
+.fact-card span,
+.fact-card strong {
+  color: #173052 !important;
+  text-transform: none !important;
+  line-height: 1.25 !important;
+}
+
+.nav-link,
+.account-action,
+.auth-button,
+.auth-link,
+.play-now,
+.hero-link,
+.arena-split-link,
+.topnav a,
+.toc a,
+button,
+input[type="submit"] {
+  min-height: 34px !important;
+  border: 1px solid #fff !important;
+  background: linear-gradient(180deg, #2d82d1 0%, #115da8 100%) !important;
+  color: #fff !important;
+  box-shadow:
+    inset 0 0 0 2px #0b427e,
+    inset 0 0 0 3px rgba(255, 255, 255, 0.2) !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  text-transform: none !important;
+  transform: none !important;
+}
+
+.nav-link.active,
+.account-action.active,
+.hero-link.is-accent,
+.play-now.comic,
+.topnav a.active {
+  background: linear-gradient(180deg, #ffa83b 0%, #d96d0c 100%) !important;
+}
+
+.play-now.pokemon,
+.arena-split-card.pokemon .arena-split-link {
+  background: linear-gradient(180deg, #ffcf63 0%, #2f7dd2 100%) !important;
+}
+
+.nav-link:hover,
+.account-action:hover,
+.play-now:hover,
+.hero-link:hover,
+.arena-split-link:hover,
+.auth-button:hover,
+.auth-link:hover,
+.topnav a:hover,
+.toc a:hover,
+button:hover {
+  background: linear-gradient(180deg, #ffbf52 0%, #e27b10 100%) !important;
+  border-color: #fff !important;
+}
+
+.panel,
+.hero,
+.hero-card,
+.release-panel,
+.news-shell,
+.arena-split,
+.topbar,
+.player-card,
+.feature-card,
+.pulse-tile,
+.ladder,
+.stats-panel,
+.fact-card {
+  background: linear-gradient(180deg, #fffaf0 0%, #efe3cb 100%) !important;
+}
+
+.hero {
+  padding: 50px 8px 8px !important;
+}
+
+.hero::before {
+  top: 6px !important;
+  left: 8px !important;
+  right: 8px !important;
+  padding: 4px 8px !important;
+  border: 1px solid #fff !important;
+  background: linear-gradient(180deg, #ffb13f 0%, #e27a12 100%) !important;
+  transform: none !important;
+  font-size: 16px !important;
+}
+
+.hero h1,
+.hero-title {
+  font-size: clamp(1.55rem, 3.2vw, 2.25rem) !important;
+  line-height: 0.95 !important;
+  text-shadow: none !important;
+}
+
+.hero p,
+.hero-copy p {
+  font-size: 13px !important;
+  max-width: none !important;
+}
+
+.hero-point,
+.pulse-tile,
+.feature-card,
+.hero-card-item,
+.release-card,
+.ladder-row,
+.stats-list li,
+.fact-card {
+  padding: 8px !important;
+  border: 1px solid #c9dff5 !important;
+  background: linear-gradient(180deg, #ffffff 0%, #edf5ff 100%) !important;
+  box-shadow: inset 0 0 0 1px #ffffff !important;
+}
+
+.release-panel,
+.news-shell,
+.ladder,
+.stats-panel {
+  padding: 8px !important;
+}
+
+.topbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 8px !important;
+  padding: 8px !important;
+  background: linear-gradient(180deg, #fffaf0 0%, #efe3cb 100%) !important;
+}
+
+.topbar .brand {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 0 !important;
+  padding: 6px 8px !important;
+  box-shadow:
+    0 0 0 2px #b56a12,
+    0 0 0 4px #ffd16d !important;
+}
+
+.topbar .brand img,
+.brand img,
+.brand-mark {
+  width: 34px !important;
+  height: 34px !important;
+  max-height: 34px !important;
+}
+
+.topnav {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+}
+
+.topnav a {
+  min-height: 28px !important;
+  padding: 4px 8px !important;
+  font-size: 12px !important;
+}
+
+.section-head,
+.section-heading {
+  margin-bottom: 8px !important;
+  gap: 8px !important;
+}
+
+.section-head h2,
+.section-heading h2,
+.release-title {
+  font-size: 22px !important;
+}
+
+.section-head p,
+.section-heading p,
+.status,
+.release-copy {
+  font-size: 11px !important;
+}
+
+.releases-grid,
+.news-grid,
+.missions-grid,
+.stats,
+.toc,
+.mechanics-grid,
+.roles-grid,
+.feature-grid,
+.pulse-strip,
+.release-grid,
+.hero-points,
+.hero-card-list,
+.arena-split-grid {
+  gap: 6px !important;
+}
+
+.release-card,
+.news-card,
+.mission-card {
+  padding: 8px !important;
+}
+
+.release-card h3,
+.news-card h3,
+.mission-card h3,
+.manual-section h2 {
+  font-size: 18px !important;
+  margin: 6px 0 !important;
+}
+
+.release-panel::before,
+.hero::before {
+  letter-spacing: 0.03em !important;
+}
+
+.release-card p,
+.news-card p,
+.mission-card p,
+.manual-section p,
+.manual-section li,
+.fact-card span {
+  font-size: 12px !important;
+}
+
+.news-meta,
+.mission-meta,
+.fact-card strong {
+  font-size: 11px !important;
+}
+
+.mission-link,
+.news-link,
+.feature-link,
+.toc a {
+  min-height: 28px !important;
+  padding: 4px 8px !important;
+  font-size: 11px !important;
+}
+
+.release-face {
+  width: 72px !important;
+  height: 72px !important;
+}
+
+.main {
+  gap: 10px !important;
+}
+
+.mainsection,
+.character-directory,
+.character-directory-header {
+  gap: 10px !important;
+}
+
+.mainsection,
+.release-panel {
+  padding: 10px !important;
+}
+
+.character-search-row,
+.role-filters {
+  gap: 8px !important;
+}
+
+.character-search-label {
+  font-size: 22px !important;
+  text-shadow: 1px 1px 0 #fff !important;
+}
+
+.character-directory-copy {
+  font-size: 12px !important;
+  text-transform: none !important;
+  line-height: 1.25 !important;
+}
+
+.character-directory-list {
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)) !important;
+  gap: 10px !important;
+}
+
+.character-portrait-card {
+  border: 1px solid #fff !important;
+  box-shadow:
+    0 0 0 2px #0f417b,
+    0 0 0 4px #5ea2ef !important;
+}
+
+.character-portrait-card:hover {
+  transform: none !important;
+  box-shadow:
+    0 0 0 2px #0f417b,
+    0 0 0 4px #5ea2ef !important;
+}
+
+.character-portrait-tooltip {
+  width: 180px !important;
+  padding: 8px !important;
+  border: 1px solid #fff !important;
+  box-shadow:
+    0 0 0 2px #0f417b,
+    0 0 0 4px #5ea2ef !important;
+  font-size: 11px !important;
+}
+
+.character-portrait-name {
+  font-size: 16px !important;
+}
+
+.character-portrait-role {
+  font-size: 10px !important;
+}
+
+.release-face,
+.character-row-image,
+.character-modal-image,
+.character-skill-image {
+  border: 1px solid #fff !important;
+  box-shadow:
+    0 0 0 2px #0f417b,
+    0 0 0 4px #5ea2ef !important;
+}
+
+.character-row,
+.mission-card,
+.news-card {
+  padding: 8px !important;
+}
+
+.character-modal-backdrop {
+  align-items: flex-start !important;
+  overflow: auto !important;
+  padding: 12px !important;
+}
+
+.character-modal {
+  width: min(1280px, calc(100vw - 24px)) !important;
+  max-height: none !important;
+  overflow: visible !important;
+  margin: 8px auto !important;
+  padding: 10px !important;
+}
+
+.character-modal-header {
+  gap: 6px !important;
+  padding-bottom: 8px !important;
+  margin-bottom: 8px !important;
+}
+
+.character-modal-template-name {
+  font-size: 24px !important;
+}
+
+.character-modal-summary {
+  grid-template-columns: 74px minmax(0, 1fr) !important;
+  gap: 8px !important;
+}
+
+.character-modal-image,
+.character-skill-image {
+  width: 64px !important;
+  height: 64px !important;
+}
+
+.character-modal-description,
+.character-skill-description {
+  font-size: 13px !important;
+  line-height: 1.3 !important;
+}
+
+.character-modal-meta-row,
+.character-modal-unlock,
+.character-skill-meta,
+.character-skill-classes,
+.character-modal-description-label {
+  font-size: 11px !important;
+}
+
+.character-modal-skill-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px 12px !important;
+}
+
+.character-skill-card {
+  padding-bottom: 6px !important;
+}
+
+.character-skill-title {
+  margin: 6px 0 !important;
+  font-size: 20px !important;
+}
+
+.character-skill-body {
+  grid-template-columns: 72px minmax(0, 1fr) !important;
+  gap: 8px !important;
+}
+
+.manual-section ul {
+  margin-top: 6px !important;
+}
+
+.manual-section li + li {
+  margin-top: 4px !important;
+}
+
+.ladder-title,
+.stats-title {
+  margin-bottom: 6px !important;
+}
+
+.ladder-list,
+.stats-list {
+  gap: 4px !important;
+}
+
+.ladder-row {
+  padding: 4px !important;
+}
+
+.ladder-rank {
+  width: 22px !important;
+  height: 22px !important;
+  font-size: 10px !important;
+}
+
+.news-feed-button {
+  min-height: 24px !important;
+  min-width: 24px !important;
+  padding: 0 6px !important;
+  font-size: 12px !important;
+}
+
+body.portal-shell-page {
+  --portal-paper: #f2dcc0;
+  --portal-paper-deep: #e3bf88;
+  --portal-ink: #1a120c;
+  --portal-blue: #1b57a6;
+  --portal-blue-deep: #12366f;
+  --portal-red: #be2a22;
+  --portal-gold: #f6be4a;
+  --portal-shell-width: 1180px;
+  --portal-rail-width: 194px;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 1px 1px, rgba(85, 29, 3, 0.3) 1px, transparent 0) 0 0 / 16px 16px,
+    radial-gradient(circle at 20% 20%, rgba(255, 214, 136, 0.22), transparent 28%),
+    radial-gradient(circle at 80% 10%, rgba(255, 247, 211, 0.2), transparent 24%),
+    linear-gradient(180deg, #d76d16 0%, #b44e0a 100%);
+  color: var(--portal-ink);
+}
+
+.portal-page {
+  width: min(calc(100% - 24px), var(--portal-shell-width));
+  margin: 12px auto;
+}
+
+.portal-topbar {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 9px;
+  margin-bottom: 6px;
+  border: 3px solid #082247;
+  background:
+    linear-gradient(180deg, rgba(254, 234, 187, 0.98), rgba(240, 195, 118, 0.96)),
+    var(--portal-paper);
+  box-shadow: 0 6px 0 rgba(12, 31, 58, 0.38);
+  position: relative;
+}
+
+.portal-topbar::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 -8px 0;
+  height: 8px;
+  background: repeating-linear-gradient(90deg, #1a4e94 0 24px, #eab346 24px 48px);
+}
+
+.portal-topbar-brand {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.portal-topbar-kicker {
+  display: inline-block;
+  font: 700 11px 'Libre Franklin', Arial, sans-serif;
+  letter-spacing: 0.12em;
+  color: #88300c;
+}
+
+.portal-topbar-title {
+  margin: 1px 0 2px;
+  font: 25px 'Pedra', serif;
+  line-height: 1;
+  color: #0e3268;
+  text-shadow: 1px 1px 0 rgba(255, 251, 235, 0.85);
+}
+
+.portal-topbar-copy {
+  margin: 0;
+  max-width: 560px;
+  font: 700 10px/1.25 'Libre Franklin', Arial, sans-serif;
+  text-transform: none;
+}
+
+.portal-topbar-art {
+  width: 170px;
+  height: 78px;
+  object-fit: cover;
+  border: 3px solid #09254f;
+  box-shadow: 0 3px 0 rgba(9, 37, 79, 0.35);
+  background: #fff6dd;
+}
+
+.portal-topbar-sidecar {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.portal-topbar-ticker {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 7px;
+  border: 2px solid #0d3470;
+  background: linear-gradient(180deg, #fff5d6, #f0ca78);
+  box-shadow: 2px 2px 0 rgba(8, 34, 71, 0.24);
+  font: 700 10px 'Libre Franklin', Arial, sans-serif;
+}
+
+.portal-subnav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.portal-subnav span {
+  min-height: 20px;
+  padding: 0 10px;
+  display: inline-flex;
+  align-items: center;
+  border: 2px solid #0d3470;
+  background: linear-gradient(180deg, #fff7d8, #efc268);
+  box-shadow: 2px 2px 0 rgba(8, 34, 71, 0.2);
+  font: 700 9px 'Libre Franklin', Arial, sans-serif;
+}
+
+.portal-topbar-ticker strong {
+  color: #12366f;
+}
+
+.portal-shell {
+  display: grid;
+  grid-template-columns: var(--portal-rail-width) 770px var(--portal-rail-width);
+  gap: 8px;
+  align-items: start;
+}
+
+.portal-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.portal-stage {
+  min-width: 0;
+  position: relative;
+}
+
+.portal-stage-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
+.portal-stage-badge {
+  min-height: 20px;
+  padding: 0 8px;
+  display: inline-flex;
+  align-items: center;
+  border: 2px solid #0d3470;
+  background: linear-gradient(180deg, #fff7d8, #efc268);
+  box-shadow: 2px 2px 0 rgba(8, 34, 71, 0.2);
+  font: 700 9px 'Libre Franklin', Arial, sans-serif;
+}
+
+.portal-panel {
+  border: 3px solid #0d3470;
+  background: linear-gradient(180deg, #2d71c3 0, #1d4e93 18px, #f6deb6 18px, #eed09d 100%);
+  box-shadow: 0 5px 0 rgba(8, 34, 71, 0.34);
+  overflow: hidden;
+  position: relative;
+}
+
+.portal-panel::before {
+  content: '';
+  position: absolute;
+  inset: 21px 0 auto 0;
+  height: 1px;
+  background: rgba(10, 35, 73, 0.3);
+}
+
+.portal-panel-title {
+  margin: 0;
+  padding: 3px 8px 4px;
+  font: 700 10px 'Libre Franklin', Arial, sans-serif;
+  color: #fff6db;
+  letter-spacing: 0.1em;
+}
+
+.portal-panel-copy,
+.portal-link-list,
+.portal-news-list,
+.portal-stat-grid {
+  margin: 0;
+  padding: 8px 8px 9px;
+  background: linear-gradient(180deg, rgba(255, 250, 235, 0.94), rgba(240, 214, 165, 0.96));
+  font: 700 9px/1.35 'Libre Franklin', Arial, sans-serif;
+}
+
+.portal-link-list,
+.portal-news-list {
+  list-style: none;
+}
+
+.portal-link-list li,
+.portal-news-list li {
+  position: relative;
+  padding-left: 10px;
+  margin-bottom: 6px;
+}
+
+.portal-link-list li:last-child,
+.portal-news-list li:last-child {
+  margin-bottom: 0;
+}
+
+.portal-link-list li::before,
+.portal-news-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 5px;
+  height: 5px;
+  background: var(--portal-red);
+  border: 1px solid #4b100d;
+}
+
+.portal-panel-highlight .portal-panel-copy {
+  background: linear-gradient(180deg, rgba(255, 244, 209, 0.97), rgba(255, 224, 144, 0.96));
+}
+
+.portal-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.portal-stat-grid div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 7px;
+  border: 2px solid rgba(13, 52, 112, 0.28);
+  background: rgba(255, 251, 241, 0.78);
+}
+
+.portal-stat-label {
+  color: #6a2f10;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+}
+
+.portal-stat-value {
+  color: #163e7f;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.portal-panel-art .portal-panel-image {
+  display: block;
+  width: calc(100% - 16px);
+  margin: 8px;
+  border: 2px solid #12366f;
+  box-sizing: border-box;
+}
+
+body.portal-shell-page .background {
+  box-shadow:
+    0 0 0 4px #0f356f,
+    0 0 0 8px #f3ddae,
+    0 12px 24px rgba(28, 13, 4, 0.4);
+}
+
+body.selection-portal-enabled .sound-controller {
+  background: rgba(249, 234, 197, 0.92);
+  border: 2px solid #082247;
+  box-shadow: 2px 2px 0 rgba(8, 34, 71, 0.2);
+  transform: scale(0.92);
+  transform-origin: top left;
+}
+
+body.selection-portal-enabled .selection-mode-controls {
+  right: 22px;
+  bottom: 498px;
+}
+
+body.selection-portal-enabled .player-card {
+  left: 66.3%;
+}
+
+body.selection-portal-enabled .button-container {
+  position: relative;
+  left: 24px;
+}
+
+body.arena-mode-pokemon.portal-shell-page {
+  background:
+    radial-gradient(circle at 1px 1px, rgba(18, 54, 111, 0.25) 1px, transparent 0) 0 0 / 16px 16px,
+    radial-gradient(circle at 18% 18%, rgba(255, 248, 210, 0.2), transparent 25%),
+    radial-gradient(circle at 78% 12%, rgba(183, 229, 255, 0.24), transparent 22%),
+    linear-gradient(180deg, #c78a21 0%, #7f4d12 100%);
+}
+
+body.arena-mode-pokemon .portal-topbar {
+  border-color: #143d7d;
+  background: linear-gradient(180deg, rgba(255, 246, 214, 0.98), rgba(236, 209, 150, 0.96));
+}
+
+body.arena-mode-pokemon .portal-topbar-title,
+body.arena-mode-pokemon .portal-stat-value {
+  color: #17468d;
+}
+
+body.arena-mode-pokemon .portal-panel {
+  background: linear-gradient(180deg, #2f66b9 0, #17448c 18px, #fff0c8 18px, #ead49b 100%);
+}
+
+body.arena-mode-pokemon .portal-link-list li::before,
+body.arena-mode-pokemon .portal-news-list li::before {
+  background: #cf2c2c;
+}
+
+@media (max-width: 1210px) {
+  body.portal-shell-page {
+    --portal-shell-width: 992px;
+    --portal-rail-width: 150px;
+  }
+
+  .portal-shell {
+    grid-template-columns: var(--portal-rail-width) minmax(0, 770px) var(--portal-rail-width);
+  }
+
+  .portal-topbar-art {
+    width: 160px;
+  }
+}
+
+@media (max-width: 1080px) {
+  body.portal-shell-page {
+    --portal-shell-width: 770px;
+  }
+
+  .portal-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .portal-rail {
+    order: 2;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .portal-stage {
+    order: 1;
+  }
+}
+
+@media (max-width: 820px) {
+  .portal-page {
+    width: min(calc(100% - 16px), 770px);
+    margin: 8px auto;
+  }
+
+  .portal-topbar {
+    flex-direction: column;
+  }
+
+  .portal-topbar-art {
+    width: 100%;
+    height: 144px;
+  }
+
+  .portal-rail {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  body.portal-shell-page .background {
+    transform-origin: top center;
+  }
+
+  .portal-shell {
+    overflow-x: auto;
+  }
+}
+
+.portal-page {
+  width: min(1000px, calc(100% - 12px)) !important;
+  margin: 8px auto 16px !important;
+}
+
+body.portal-shell-page {
+  --portal-shell-width: 1000px !important;
+  --portal-rail-width: 172px !important;
+}
+
+.portal-topbar,
+.portal-panel,
+.portal-stage,
+.portal-subnav,
+.portal-stage-badge {
+  border-radius: 0 !important;
+}
+
+.portal-topbar {
+  padding: 8px !important;
+  min-height: 0 !important;
+  background: linear-gradient(180deg, #fffaf0 0%, #efe3cb 100%) !important;
+  border: 1px solid #fff !important;
+  box-shadow:
+    0 0 0 2px #0f417b,
+    0 0 0 4px #5ea2ef,
+    0 0 0 6px #f4a62d !important;
+}
+
+.portal-topbar::after {
+  display: none !important;
+}
+
+.portal-topbar-brand {
+  gap: 4px !important;
+}
+
+.portal-topbar-kicker,
+.portal-topbar-copy,
+.portal-topbar-ticker span,
+.portal-topbar-ticker strong,
+.portal-panel-copy,
+.portal-link-list,
+.portal-news-list,
+.portal-stat-label,
+.portal-stat-value {
+  font-size: 11px !important;
+  text-transform: none !important;
+}
+
+.portal-topbar-title,
+.portal-panel-title {
+  font-family: "Bangers", cursive !important;
+  color: #f08c12 !important;
+  text-shadow: 1px 1px 0 #fff !important;
+}
+
+.portal-topbar-title {
+  font-size: 20px !important;
+}
+
+.portal-topbar-art {
+  width: 52px !important;
+  height: 52px !important;
+  object-fit: contain !important;
+}
+
+.portal-subnav {
+  gap: 4px !important;
+  padding: 6px !important;
+  background: linear-gradient(180deg, #1c6dba 0%, #0b4f95 100%) !important;
+  border: 1px solid #fff !important;
+  box-shadow:
+    0 0 0 2px #0f417b,
+    0 0 0 4px #5ea2ef !important;
+}
+
+.portal-subnav span,
+.portal-stage-badge {
+  padding: 3px 6px !important;
+  border: 1px solid #fff !important;
+  background: linear-gradient(180deg, #2d82d1 0%, #115da8 100%) !important;
+  color: #fff !important;
+  font-size: 11px !important;
+}
+
+.portal-shell {
+  gap: 8px !important;
+  grid-template-columns: var(--portal-rail-width) minmax(0, 1fr) var(--portal-rail-width) !important;
+}
+
+.portal-rail {
+  gap: 8px !important;
+}
+
+.portal-stage {
+  padding: 8px !important;
+  background: linear-gradient(180deg, #fffaf0 0%, #efe3cb 100%) !important;
+  border: 1px solid #fff !important;
+  box-shadow:
+    0 0 0 2px #0f417b,
+    0 0 0 4px #5ea2ef,
+    0 0 0 6px #f4a62d !important;
+}
+
+.portal-stage-header {
+  gap: 4px !important;
+  margin-bottom: 8px !important;
+}
+
+.portal-panel {
+  padding: 8px !important;
+  background: linear-gradient(180deg, #fffaf0 0%, #efe3cb 100%) !important;
+  border: 1px solid #fff !important;
+  box-shadow:
+    0 0 0 2px #0f417b,
+    0 0 0 4px #5ea2ef,
+    0 0 0 6px #f4a62d !important;
+}
+
+.portal-panel::before {
+  display: none !important;
+}
+
+.portal-panel-title {
+  font-size: 18px !important;
+  margin-bottom: 6px !important;
+}
+
+.portal-link-list li,
+.portal-news-list li {
+  padding: 4px 0 !important;
+  border-bottom: 1px solid #cdb991 !important;
+}
+
+.release-title {
+  font-size: 26px !important;
+}
+
+.release-copy,
+.section-heading p,
+.news-status,
+.news-feed-counter {
+  font-size: 12px !important;
+}
+
+.release-face {
+  border: 1px solid #fff !important;
+  box-shadow:
+    0 0 0 2px #0f417b,
+    0 0 0 4px #5ea2ef !important;
+}
+
+.ladder-rank {
+  border: 1px solid #b87112 !important;
+  background: linear-gradient(180deg, #ffe19a 0%, #f1b64d 100%) !important;
+  color: #8f4b0b !important;
+}
+
+.ladder-bar {
+  border: 1px solid #9cc2ea !important;
+  background: #d9e8f9 !important;
+}
+
+.ladder-fill {
+  background: linear-gradient(90deg, #f3b248 0%, #d96f0c 100%) !important;
+}
+
+input,
+select,
+textarea {
+  border: 1px solid #8eb3da !important;
+  background: #fffdf6 !important;
+  color: #173052 !important;
+  box-shadow: inset 0 0 0 1px #ffffff !important;
+}
+
+table {
+  border-collapse: collapse;
+  background: linear-gradient(180deg, #fffaf0 0%, #efe3cb 100%);
+}
+
+th,
+td {
+  border: 1px solid #b8cde5 !important;
+}
+
+@media (max-width: 1080px) {
+  .app {
+    grid-template-columns: 1fr !important;
+  }
+
+  .character-modal {
+    width: min(100%, calc(100vw - 16px)) !important;
+  }
+}
+
+@media (max-width: 800px) {
+  .character-modal {
+    overflow: auto !important;
+    max-height: calc(100vh - 24px) !important;
+  }
+
+  .character-modal-skill-grid,
+  .character-skill-body,
+  .character-modal-summary {
+    grid-template-columns: 1fr !important;
+  }
+}
