@@ -1942,10 +1942,24 @@ const getRegularMatchBackgroundPool = () => {
 
 const getRegularMatchBackgroundForArena = (arena = DEFAULT_ARENA_MODE) =>
     normalizeArenaMode(arena) === 'pokemon'
-        ? 'assets/images/PokemonArena/newingamebgPA.png'
+        ? 'assets/images/PokemonArena/newbattlepic/1783150082785.png'
         : 'assets/images/newingamebgCA.png';
 
 const getRandomRegularBackground = (arena = DEFAULT_ARENA_MODE) => getRegularMatchBackgroundForArena(arena);
+
+const normalizeMatchBackgroundOverride = (backgroundOverride = '', arena = DEFAULT_ARENA_MODE) => {
+    const normalizedBackground = typeof backgroundOverride === 'string' ? backgroundOverride.trim() : '';
+    if (!normalizedBackground) {
+        return '';
+    }
+    if (
+        normalizeArenaMode(arena) === 'pokemon' &&
+        normalizedBackground === 'assets/images/PokemonArena/newingamebgPA.png'
+    ) {
+        return getRegularMatchBackgroundForArena('pokemon');
+    }
+    return normalizedBackground;
+};
 
 const getPveMissionBackgroundForReward = (rewardCharacterId = '', fallback = '') => {
     const replacementAsset = PVE_MISSION_BACKGROUND_ASSETS[normalizeCharacterId(rewardCharacterId)];
@@ -5896,7 +5910,6 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
         }
 
         const didWin = Boolean(winnerUsername) && winnerUsername === username;
-        const surrenderedThisMatch = endedBySurrender && usernamesEqual(surrenderedByUsername, username);
         const opponentIsRepeatSurrenderer =
             endedBySurrender &&
             didWin &&
@@ -5905,10 +5918,8 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
                 username: opponentUsername,
                 recentLadderGames: initialArenaProfiles.get(opponentUsername)?.recentLadderGames || [],
             });
-        const suppressRankedPointRewards = surrenderedThisMatch || opponentIsRepeatSurrenderer;
-        const rewardSuppressedReason = surrenderedThisMatch
-            ? 'self-surrender'
-            : opponentIsRepeatSurrenderer
+        const suppressRankedPointRewards = opponentIsRepeatSurrenderer;
+        const rewardSuppressedReason = opponentIsRepeatSurrenderer
             ? 'opponent-repeat-surrender'
             : '';
         const expChange = winnerUsername && !suppressRankedPointRewards
@@ -7965,10 +7976,7 @@ const buildMatchPayloadForUser = (match, username) => {
         lastChakraGain: sanitizeLastChakraGainForViewer(match.economy?.lastChakraGain, username),
         pendingTurn: getPendingTurn(match, username),
         ladderResult: ladderResultKey ? match.ladderResults?.[ladderResultKey] || null : null,
-        backgroundOverride:
-            typeof match.backgroundOverride === 'string' && match.backgroundOverride.trim()
-                ? match.backgroundOverride.trim()
-                : '',
+        backgroundOverride: normalizeMatchBackgroundOverride(match.backgroundOverride, match.arena),
         pveBattle:
             match.pveBattle && typeof match.pveBattle === 'object'
                 ? cloneSerializable(match.pveBattle)

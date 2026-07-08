@@ -8414,20 +8414,25 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderEvadePercentBadge(card, unit);
             syncCharacterSpecificFx(card, unit);
             const rawHp = isUnitBanished(unit) ? 0 : Number(unit?.hp);
-            const hp = Math.max(0, Math.min(MAX_HP, Number.isFinite(rawHp) ? Math.ceil(rawHp) : MAX_HP));
-            const hpCap = Math.max(0, Math.min(MAX_HP, Number(unit?.hpCap) || MAX_HP));
+            const unitMaxHp = Number.isFinite(Number(unit?.maxHp)) ? Math.max(1, Math.ceil(Number(unit.maxHp))) : MAX_HP;
+            const hpCapRaw = Number.isFinite(Number(unit?.hpCap)) ? Math.ceil(Number(unit.hpCap)) : unitMaxHp;
+            const displayMaxHp = Math.max(1, unitMaxHp, hpCapRaw);
+            const hp = Math.max(0, Math.min(displayMaxHp, Number.isFinite(rawHp) ? Math.ceil(rawHp) : displayMaxHp));
+            const hpCap = Math.max(0, Math.min(displayMaxHp, hpCapRaw));
             const cachedHp = Number(card.dataset.renderedHp);
             const cachedHpCap = Number(card.dataset.renderedHpCap);
+            const cachedDisplayMaxHp = Number(card.dataset.renderedDisplayMaxHp);
             const cachedDead = card.dataset.renderedDead === 'true';
             const cachedFaceSrc = card.dataset.renderedFaceSrc || '';
-            const ratio = hp / MAX_HP;
+            const ratio = hp / displayMaxHp;
             const width = Math.max(0, Math.round(HEALTH_BAR_MAX_WIDTH * ratio));
-            if (cachedHp !== hp || cachedHpCap !== hpCap) {
+            if (cachedHp !== hp || cachedHpCap !== hpCap || cachedDisplayMaxHp !== displayMaxHp) {
                 healthBar.style.width = `${width}px`;
                 card.dataset.renderedHp = String(hp);
                 card.dataset.renderedHpCap = String(hpCap);
+                card.dataset.renderedDisplayMaxHp = String(displayMaxHp);
             }
-            const nextHealthText = hpCap < MAX_HP ? `${hp}/${hpCap}` : `${hp}/${MAX_HP}`;
+            const nextHealthText = hpCap < displayMaxHp ? `${hp}/${hpCap}` : `${hp}/${displayMaxHp}`;
             if (healthText.textContent !== nextHealthText) {
                 healthText.textContent = nextHealthText;
             }
@@ -8445,11 +8450,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const forcefieldBar = ensureProtectionBar('health-forcefield-bar');
             const shieldWidth = Math.max(
                 0,
-                Math.min(HEALTH_BAR_MAX_WIDTH, Math.round((HEALTH_BAR_MAX_WIDTH * shieldValue) / MAX_HP))
+                Math.min(HEALTH_BAR_MAX_WIDTH, Math.round((HEALTH_BAR_MAX_WIDTH * shieldValue) / displayMaxHp))
             );
             const forcefieldWidth = Math.max(
                 0,
-                Math.min(HEALTH_BAR_MAX_WIDTH, Math.round((HEALTH_BAR_MAX_WIDTH * barrierValue) / MAX_HP))
+                Math.min(HEALTH_BAR_MAX_WIDTH, Math.round((HEALTH_BAR_MAX_WIDTH * barrierValue) / displayMaxHp))
             );
             shieldBar.style.width = `${shieldWidth}px`;
             shieldBar.hidden = shieldValue <= 0;
@@ -8487,13 +8492,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 card.dataset.renderedHpBand = hpBand;
             }
             let capMarker = healthContainer.querySelector('.health-cap-marker');
-            if (hpCap > 0 && hpCap < MAX_HP) {
+            if (hpCap > 0 && hpCap < displayMaxHp) {
                 if (!capMarker) {
                     capMarker = document.createElement('span');
                     capMarker.className = 'health-cap-marker';
                     healthContainer.appendChild(capMarker);
                 }
-                capMarker.style.left = `${Math.max(0, Math.round((HEALTH_BAR_MAX_WIDTH * hpCap) / MAX_HP) - 2)}px`;
+                capMarker.style.left = `${Math.max(0, Math.round((HEALTH_BAR_MAX_WIDTH * hpCap) / displayMaxHp) - 2)}px`;
                 capMarker.title = `Healing capped at ${hpCap} HP for the rest of the match`;
                 const capIcon = ensureCharacterFxElement(card, 'health-cap-icon', '<span>CAP</span>');
                 if (capIcon) {
