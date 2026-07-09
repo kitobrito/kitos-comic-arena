@@ -996,11 +996,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const skillImagesContainer = document.querySelector('.skill-images');
     let skillImages = Array.from(document.querySelectorAll('.skill-image'));
     const selectedSlots = Array.from(document.querySelectorAll('.selected-character-slot'));
+    const selectionTeamStatusEl = document.querySelector('.selection-team-status');
     const nextPageButton = document.querySelector('.nextpage');
     const lastPageButton = document.querySelector('.lastpage');
     const rosterSlotElements = [];
     const selectedAssignments = selectedSlots.map(() => null);
-    const teamStorageKey = 'comicSelectedTeam';
     const defaultLadderRankHat = 'assets/images/hats/academy.png';
     const DEFAULT_UNLOCK_POINT_COST = 80;
     let profileCache = null;
@@ -15106,6 +15106,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             btn.style.opacity = enabled ? '1' : '0.5';
             btn.style.pointerEvents = enabled ? 'auto' : 'none';
         });
+        if (selectionTeamStatusEl) {
+            selectionTeamStatusEl.textContent = enabled
+                ? ''
+                : `Choose ${selectedSlots.length} ${getArenaModeLabel()} characters to enable match start. (${filled}/${selectedSlots.length})`;
+        }
     };
 
     const getTeamIndices = () =>
