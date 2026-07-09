@@ -19858,10 +19858,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Spike DPS",
+        "role": "Bruiser",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "spike-dps",
+        "roleCategory": "bruiser",
         "description": "When several of these Pokémon gather, their electricity could build up and cause lightning storms. Forest dwellers, they are few in number and exceptionally rare. The pouches in their cheeks discharge electricity at their opponents. The Pikachu are believed to be highly intelligent.",
         "descriptionHtml": "When several of these Pokémon gather, their electricity could build up and cause lightning storms. Forest dwellers, they are few in number and exceptionally rare. The pouches in their cheeks discharge electricity at their opponents. The Pikachu are believed to be highly intelligent."
     },
