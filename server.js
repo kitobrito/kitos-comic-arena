@@ -2335,6 +2335,55 @@ const isValidTeamSelectionForMatch = (team = []) =>
     }) &&
     !teamHasDuplicateCharacters(team);
 
+const sanitizeSavedTeamIndicesForArena = (team = [], arena = DEFAULT_ARENA_MODE) => {
+    if (!Array.isArray(team)) {
+        return [];
+    }
+    const normalizedArena = normalizeArenaMode(arena);
+    const used = new Set();
+    const sanitized = [];
+    team.forEach((slot) => {
+        if (sanitized.length >= 3) {
+            return;
+        }
+        const rosterIndex = Number.parseInt(slot, 10);
+        if (!Number.isInteger(rosterIndex) || rosterIndex < 0) {
+            return;
+        }
+        if (!getRosterCharacterKey(rosterIndex)) {
+            return;
+        }
+        if (getRosterCharacterArena(rosterIndex) !== normalizedArena) {
+            return;
+        }
+        if (used.has(rosterIndex)) {
+            return;
+        }
+        used.add(rosterIndex);
+        sanitized.push(rosterIndex);
+    });
+    return sanitized;
+};
+
+const buildSanitizedSavedTeamIndicesByArena = (user = {}) => {
+    const savedTeamIndicesByArena =
+        user.savedTeamIndicesByArena && typeof user.savedTeamIndicesByArena === 'object'
+            ? user.savedTeamIndicesByArena
+            : {};
+    const comicFallback = Array.isArray(savedTeamIndicesByArena.comic)
+        ? savedTeamIndicesByArena.comic
+        : Array.isArray(user.savedTeamIndices)
+            ? user.savedTeamIndices
+            : [];
+    const pokemonFallback = Array.isArray(savedTeamIndicesByArena.pokemon)
+        ? savedTeamIndicesByArena.pokemon
+        : [];
+    return {
+        comic: sanitizeSavedTeamIndicesForArena(comicFallback, 'comic'),
+        pokemon: sanitizeSavedTeamIndicesForArena(pokemonFallback, 'pokemon'),
+    };
+};
+
 const normalizeCharacterId = (value) =>
     String(value || '')
         .trim()
@@ -6136,27 +6185,18 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
     return results;
 };
 
-const serializeUserForClient = (user = {}) => ({
-    username: user.username,
-    email: user.email,
-    role: user.role || 'player',
-    createdAt: user.createdAt,
-    savedTeamIndices: Array.isArray(user.savedTeamIndices) ? user.savedTeamIndices : [],
-    savedTeamIndicesByArena: {
-        ...(user.savedTeamIndicesByArena && typeof user.savedTeamIndicesByArena === 'object'
-            ? user.savedTeamIndicesByArena
-            : {}),
-        comic: Array.isArray(user.savedTeamIndicesByArena?.comic)
-            ? user.savedTeamIndicesByArena.comic
-            : Array.isArray(user.savedTeamIndices)
-                ? user.savedTeamIndices
-                : [],
-        pokemon: Array.isArray(user.savedTeamIndicesByArena?.pokemon)
-            ? user.savedTeamIndicesByArena.pokemon
-            : [],
-    },
-    profile: normalizeUserProfile(user),
-});
+const serializeUserForClient = (user = {}) => {
+    const savedTeamIndicesByArena = buildSanitizedSavedTeamIndicesByArena(user);
+    return {
+        username: user.username,
+        email: user.email,
+        role: user.role || 'player',
+        createdAt: user.createdAt,
+        savedTeamIndices: savedTeamIndicesByArena.comic,
+        savedTeamIndicesByArena,
+        profile: normalizeUserProfile(user),
+    };
+};
 
 const serializePublicUserProfile = (user = {}) => ({
     username: user.username,
@@ -6217,16 +6257,20 @@ const serializeCommunityUserSummary = (user = {}) => {
     };
 };
 
-const serializeAdminUserDocument = (user = {}) => ({
-    username: user.username,
-    usernameLower: user.usernameLower,
-    email: user.email,
-    passwordHash: user.passwordHash,
-    role: user.role || 'player',
-    createdAt: user.createdAt,
-    savedTeamIndices: Array.isArray(user.savedTeamIndices) ? user.savedTeamIndices : [],
-    profile: normalizeUserProfile(user),
-});
+const serializeAdminUserDocument = (user = {}) => {
+    const savedTeamIndicesByArena = buildSanitizedSavedTeamIndicesByArena(user);
+    return {
+        username: user.username,
+        usernameLower: user.usernameLower,
+        email: user.email,
+        passwordHash: user.passwordHash,
+        role: user.role || 'player',
+        createdAt: user.createdAt,
+        savedTeamIndices: savedTeamIndicesByArena.comic,
+        savedTeamIndicesByArena,
+        profile: normalizeUserProfile(user),
+    };
+};
 
 const normalizeNewsParagraphs = (value) =>
     (Array.isArray(value) ? value : [])
@@ -7029,14 +7073,23 @@ const backfillUserProfiles = async () => {
             continue;
         }
         const normalizedProfile = normalizeUserProfile(user);
-        const nextSavedTeamIndices = Array.isArray(user.savedTeamIndices) ? user.savedTeamIndices : [];
+        const nextSavedTeamIndicesByArena = buildSanitizedSavedTeamIndicesByArena(user);
+        const nextSavedTeamIndices = nextSavedTeamIndicesByArena.comic;
         const nextUsernameLower =
             typeof user.username === 'string' ? user.username.trim().toLowerCase() : '';
         const needsProfile =
             JSON.stringify(user.profile || null) !== JSON.stringify(normalizedProfile);
-        const needsSavedTeams = !Array.isArray(user.savedTeamIndices);
+        const needsSavedTeams =
+            JSON.stringify(Array.isArray(user.savedTeamIndices) ? user.savedTeamIndices : []) !==
+            JSON.stringify(nextSavedTeamIndices);
+        const needsSavedTeamsByArena =
+            JSON.stringify(
+                user.savedTeamIndicesByArena && typeof user.savedTeamIndicesByArena === 'object'
+                    ? user.savedTeamIndicesByArena
+                    : {}
+            ) !== JSON.stringify(nextSavedTeamIndicesByArena);
         const needsUsernameLower = user.usernameLower !== nextUsernameLower;
-        if (!needsProfile && !needsSavedTeams && !needsUsernameLower) {
+        if (!needsProfile && !needsSavedTeams && !needsSavedTeamsByArena && !needsUsernameLower) {
             continue;
         }
         await usersCollection.updateOne(
@@ -7046,6 +7099,7 @@ const backfillUserProfiles = async () => {
                     usernameLower: nextUsernameLower,
                     profile: normalizedProfile,
                     savedTeamIndices: nextSavedTeamIndices,
+                    savedTeamIndicesByArena: nextSavedTeamIndicesByArena,
                 },
             }
         );
@@ -8024,6 +8078,9 @@ const serializeMatchPlayerForViewer = (player = {}, arena = DEFAULT_ARENA_MODE) 
         ...cloneSerializable(player),
         displayName: getPlayerDisplayName(player),
     };
+    if (Array.isArray(safePlayer.team)) {
+        safePlayer.team = sanitizeSavedTeamIndicesForArena(safePlayer.team, arena);
+    }
     if (safePlayer.profile && typeof safePlayer.profile === 'object') {
         safePlayer.profile = serializeArenaProfileForClient(safePlayer.profile, arena);
     }
@@ -11115,19 +11172,22 @@ app.post('/api/login', loginLimiter, async (req, res) => {
 
         const normalizedProfile = normalizeUserProfile(user);
         normalizedProfile.activity.lastOnlineAt = new Date();
+        const savedTeamIndicesByArena = buildSanitizedSavedTeamIndicesByArena(user);
         await usersCollection.updateOne(
             { _id: user._id },
             {
                 $set: {
                     profile: normalizedProfile,
-                    savedTeamIndices: Array.isArray(user.savedTeamIndices) ? user.savedTeamIndices : [],
+                    savedTeamIndices: savedTeamIndicesByArena.comic,
+                    savedTeamIndicesByArena,
                 },
             }
         );
         const hydratedUser = {
             ...user,
             profile: normalizedProfile,
-            savedTeamIndices: Array.isArray(user.savedTeamIndices) ? user.savedTeamIndices : [],
+            savedTeamIndices: savedTeamIndicesByArena.comic,
+            savedTeamIndicesByArena,
         };
 
         const token = signSession(hydratedUser);
@@ -11184,6 +11244,10 @@ app.post('/api/register', registerLimiter, async (req, res) => {
             role: 'player',
             createdAt,
             savedTeamIndices: [],
+            savedTeamIndicesByArena: {
+                comic: [],
+                pokemon: [],
+            },
             profile,
         };
 
@@ -11228,20 +11292,20 @@ app.post('/api/team/save', requireSession, async (req, res) => {
     } catch (error) {
         return res.status(403).json({ error: error.message || 'Character is locked.' });
     }
-    const savedTeamIndicesByArena = {
-        ...(user.savedTeamIndicesByArena && typeof user.savedTeamIndicesByArena === 'object'
-            ? user.savedTeamIndicesByArena
-            : {}),
-        [arena]: team,
-    };
-    if (!Array.isArray(savedTeamIndicesByArena.comic)) {
-        savedTeamIndicesByArena.comic = Array.isArray(user.savedTeamIndices) ? user.savedTeamIndices : [];
-    }
+    const savedTeamIndicesByArena = buildSanitizedSavedTeamIndicesByArena({
+        ...user,
+        savedTeamIndicesByArena: {
+            ...(user.savedTeamIndicesByArena && typeof user.savedTeamIndicesByArena === 'object'
+                ? user.savedTeamIndicesByArena
+                : {}),
+            [arena]: sanitizeSavedTeamIndicesForArena(team, arena),
+        },
+    });
     await usersCollection.updateOne(
         { _id: user._id },
         {
             $set: {
-                savedTeamIndices: arena === DEFAULT_ARENA_MODE ? team : Array.isArray(user.savedTeamIndices) ? user.savedTeamIndices : [],
+                savedTeamIndices: savedTeamIndicesByArena.comic,
                 savedTeamIndicesByArena,
                 profile,
             },
@@ -12539,19 +12603,22 @@ app.get('/api/me', requireSession, async (req, res) => {
     }
     const normalizedProfile = normalizeUserProfile(user);
     normalizedProfile.activity.lastOnlineAt = new Date();
+    const savedTeamIndicesByArena = buildSanitizedSavedTeamIndicesByArena(user);
     await usersCollection.updateOne(
         { _id: user._id },
         {
             $set: {
                 profile: normalizedProfile,
-                savedTeamIndices: Array.isArray(user.savedTeamIndices) ? user.savedTeamIndices : [],
+                savedTeamIndices: savedTeamIndicesByArena.comic,
+                savedTeamIndicesByArena,
             },
         }
     );
     const hydratedUser = {
         ...user,
         profile: normalizedProfile,
-        savedTeamIndices: Array.isArray(user.savedTeamIndices) ? user.savedTeamIndices : [],
+        savedTeamIndices: savedTeamIndicesByArena.comic,
+        savedTeamIndicesByArena,
     };
     res.json({ ok: true, user: serializeUserForClient(hydratedUser) });
 });
@@ -13795,6 +13862,15 @@ app.put('/api/admin/users/:username', requireSession, async (req, res) => {
             }
         }
 
+        const nextSavedTeamIndicesByArena = buildSanitizedSavedTeamIndicesByArena({
+            ...existingUser,
+            savedTeamIndices: Array.isArray(document.savedTeamIndices) ? document.savedTeamIndices : [],
+            savedTeamIndicesByArena:
+                document.savedTeamIndicesByArena &&
+                typeof document.savedTeamIndicesByArena === 'object'
+                    ? document.savedTeamIndicesByArena
+                    : existingUser.savedTeamIndicesByArena,
+        });
         const nextUser = {
             username: nextUsername,
             usernameLower: nextUsername.toLowerCase(),
@@ -13808,7 +13884,8 @@ app.put('/api/admin/users/:username', requireSession, async (req, res) => {
                     ? document.role.trim().toLowerCase()
                     : existingUser.role || 'player',
             createdAt: document.createdAt || existingUser.createdAt,
-            savedTeamIndices: Array.isArray(document.savedTeamIndices) ? document.savedTeamIndices : [],
+            savedTeamIndices: nextSavedTeamIndicesByArena.comic,
+            savedTeamIndicesByArena: nextSavedTeamIndicesByArena,
             profile: normalizeUserProfile({
                 ...existingUser,
                 profile: document.profile || existingUser.profile,
@@ -14397,13 +14474,18 @@ app.post('/api/profile/pokemon/eevee-evolution', requireSession, async (req, res
         ) {
             savedTeamIndicesByArena.pokemon = [];
         }
+        const nextSavedTeamIndicesByArena = buildSanitizedSavedTeamIndicesByArena({
+            ...user,
+            savedTeamIndicesByArena,
+        });
 
         await usersCollection.updateOne(
             { _id: user._id },
             {
                 $set: {
                     profile: normalizedProfile,
-                    savedTeamIndicesByArena,
+                    savedTeamIndices: nextSavedTeamIndicesByArena.comic,
+                    savedTeamIndicesByArena: nextSavedTeamIndicesByArena,
                 },
             }
         );
@@ -14414,7 +14496,8 @@ app.post('/api/profile/pokemon/eevee-evolution', requireSession, async (req, res
             user: serializeUserForClient({
                 ...user,
                 profile: normalizedProfile,
-                savedTeamIndicesByArena,
+                savedTeamIndices: nextSavedTeamIndicesByArena.comic,
+                savedTeamIndicesByArena: nextSavedTeamIndicesByArena,
             }),
         });
     } catch (error) {
@@ -15609,6 +15692,9 @@ if (require.main === module) {
         makeEmptyPendingTurn,
         assertTeamCanBeUsed,
         usernamesEqual,
+        sanitizeSavedTeamIndicesForArena,
+        buildSanitizedSavedTeamIndicesByArena,
+        serializeUserForClient,
         sanitizeBoardForViewer,
         serializeMatchPlayerForViewer,
         buildMatchPayloadForUser,

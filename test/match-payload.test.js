@@ -1,9 +1,13 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const characters = require('../characters.js');
 
 const {
     normalizeArenaMode,
     makeEmptyPendingTurn,
+    sanitizeSavedTeamIndicesForArena,
+    buildSanitizedSavedTeamIndicesByArena,
+    serializeUserForClient,
     buildMatchPayloadForUser,
     buildMatchActionStatePayload,
     areQueuedSkillRequestsEquivalent,
@@ -13,11 +17,80 @@ const {
     resolveExpiredTurnStartChoiceIfNeeded,
 } = require('../server.js');
 
+const firstComicRosterIndex = characters.findIndex(
+    (character) => normalizeArenaMode(character?.arena || character?.universe) === 'comic'
+);
+const firstPokemonRosterIndex = characters.findIndex(
+    (character) => normalizeArenaMode(character?.arena || character?.universe) === 'pokemon'
+);
+
 test('normalizeArenaMode keeps pokemon and falls back invalid values to comic', () => {
     assert.equal(normalizeArenaMode('pokemon'), 'pokemon');
     assert.equal(normalizeArenaMode('comic'), 'comic');
     assert.equal(normalizeArenaMode(' naruto '), 'comic');
     assert.equal(normalizeArenaMode(''), 'comic');
+});
+
+test('sanitizeSavedTeamIndicesForArena strips cross-arena, duplicate, and invalid slots', () => {
+    assert.ok(firstComicRosterIndex >= 0);
+    assert.ok(firstPokemonRosterIndex >= 0);
+
+    assert.deepEqual(
+        sanitizeSavedTeamIndicesForArena(
+            [
+                firstPokemonRosterIndex,
+                firstComicRosterIndex,
+                firstComicRosterIndex,
+                firstPokemonRosterIndex + 1,
+                -1,
+            ],
+            'comic'
+        ),
+        [firstComicRosterIndex]
+    );
+
+    assert.deepEqual(
+        sanitizeSavedTeamIndicesForArena(
+            [firstComicRosterIndex, firstPokemonRosterIndex, firstPokemonRosterIndex, 9999],
+            'pokemon'
+        ),
+        [firstPokemonRosterIndex]
+    );
+});
+
+test('serializeUserForClient keeps comic and pokemon saved teams isolated', () => {
+    assert.ok(firstComicRosterIndex >= 0);
+    assert.ok(firstPokemonRosterIndex >= 0);
+
+    const serializedUser = serializeUserForClient({
+        username: 'ArenaTester',
+        savedTeamIndices: [firstPokemonRosterIndex, firstComicRosterIndex],
+        savedTeamIndicesByArena: {
+            comic: [firstPokemonRosterIndex, firstComicRosterIndex],
+            pokemon: [firstComicRosterIndex, firstPokemonRosterIndex],
+        },
+        profile: {},
+    });
+
+    assert.deepEqual(serializedUser.savedTeamIndices, [firstComicRosterIndex]);
+    assert.deepEqual(serializedUser.savedTeamIndicesByArena, {
+        comic: [firstComicRosterIndex],
+        pokemon: [firstPokemonRosterIndex],
+    });
+});
+
+test('buildSanitizedSavedTeamIndicesByArena falls back legacy comic teams without leaking into pokemon', () => {
+    assert.ok(firstComicRosterIndex >= 0);
+    assert.ok(firstPokemonRosterIndex >= 0);
+
+    const savedTeams = buildSanitizedSavedTeamIndicesByArena({
+        savedTeamIndices: [firstComicRosterIndex, firstPokemonRosterIndex],
+    });
+
+    assert.deepEqual(savedTeams, {
+        comic: [firstComicRosterIndex],
+        pokemon: [],
+    });
 });
 
 test('buildMatchPayloadForUser preserves pokemon arena and hides opponent cooldowns', () => {
