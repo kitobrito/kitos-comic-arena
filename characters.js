@@ -28329,7 +28329,7 @@ const characters = [
                     "selfSkillHealthLossShieldStatusIconUrl": "assets/images/PokemonArena/aerodactyl/passive.png",
                     "selfSkillHealthLossShieldTooltipTextTemplate": "Aerodactyl has {destructibleDefensePoints} destructible defense from Tough Head.",
                     "statusIconUrl": "assets/images/PokemonArena/aerodactyl/passive.png",
-                    "tooltipText": "Skills that make Aerodactyl lose HP instead grant the same amount as destructible defense. Aerodactyl's own self-damage skills cannot kill it."
+                    "tooltipText": "Aerodactyl's own skills that make it lose HP instead grant the same amount as destructible defense. Aerodactyl's own self-damage skills cannot kill it."
                 }
             }
         ],
@@ -28519,7 +28519,7 @@ const characters = [
                 "id": "aerodactyl-passive-tough-head",
                 "name": "Passive: Tough Head",
                 "skillimage": "assets/images/PokemonArena/aerodactyl/passive.png",
-                "skilldescription": "Skills that cause Aerodactyl to lose health will instead grant it destructible defense equal to the health lost. This destructible defense is consumed directly by Rock Slide and Stone Edge, and Stone Edge turns that defense into extra stun chance.",
+                "skilldescription": "Aerodactyl's own skills that cause it to lose health will instead grant it destructible defense equal to the health lost. This destructible defense is consumed directly by Rock Slide and Stone Edge, and Stone Edge turns that defense into extra stun chance.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
