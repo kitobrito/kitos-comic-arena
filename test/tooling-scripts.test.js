@@ -5,7 +5,11 @@ const { parseArgs: parseCharacterArgs } = require('../scripts/character-payload-
 const { parseArgs: parseLiveArgs, hashValue } = require('../scripts/live-deploy-verifier');
 const { parseArgs: parseMatchArgs, summarizeUnit } = require('../scripts/match-debugger');
 const { detectSkillDrift } = require('../scripts/balance-drift-checker');
-const { assertTeamCanBeUsed, usernamesEqual } = require('../server');
+const {
+    assertTeamCanBeUsed,
+    ensureRequiredMissionCatalogEntries,
+    usernamesEqual,
+} = require('../server');
 const characters = require('../characters');
 
 test('character payload tool parses inspect args', () => {
@@ -95,4 +99,21 @@ test('assertTeamCanBeUsed rejects Pokemon roster picks in Comic Arena', async ()
             ),
         /does not belong to Comic Arena/i
     );
+});
+
+test('ensureRequiredMissionCatalogEntries restores Poison Ivy mission into older comic catalogs', () => {
+    const repaired = ensureRequiredMissionCatalogEntries([
+        {
+            missionId: 'walker',
+            arena: 'comic',
+            reward_character: 'walker',
+            reward_character_name: 'Walker',
+            reward: 'Unlock Walker',
+        },
+    ]);
+
+    const poisonIvyMission = repaired.find((mission) => mission.reward_character === 'poison-ivy');
+    assert.ok(poisonIvyMission);
+    assert.equal(poisonIvyMission.missionId, 'poison-ivy');
+    assert.equal(poisonIvyMission.arena, 'comic');
 });

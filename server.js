@@ -4458,6 +4458,13 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
         (mission) =>
             !removedPokemonStarterMissionIds.has(mission?.missionId)
     );
+    const ensureMissionPresentIfMissing = (entry, matcher) => {
+        const existingIndex = catalog.findIndex((mission) => matcher(mission));
+        if (existingIndex !== -1) {
+            return;
+        }
+        catalog.push(normalizeMissionCatalogEntry(entry, catalog.length));
+    };
     const upsertRequiredMission = (entry, matcher) => {
         const normalizedEntry = normalizeMissionCatalogEntry(entry, catalog.length);
         const existingIndex = catalog.findIndex((mission) => matcher(mission));
@@ -4484,6 +4491,17 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     if (darthMaulMission) {
         upsertRequiredMission(darthMaulMission, (mission) => normalizeCharacterId(mission?.reward_character) === 'darth-maul');
     }
+    DEFAULT_MISSION_CATALOG
+        .filter((entry) => normalizeArenaMode(entry?.arena) === 'comic')
+        .forEach((entry) => {
+            const rewardCharacterId = normalizeCharacterId(entry?.reward_character);
+            ensureMissionPresentIfMissing(entry, (mission) => {
+                if (rewardCharacterId) {
+                    return normalizeCharacterId(mission?.reward_character) === rewardCharacterId;
+                }
+                return mission?.missionId === entry?.missionId;
+            });
+        });
 
     POKEMON_STARTER_MISSION_ENTRIES.forEach((entry) => {
         upsertRequiredMission(entry, (mission) => normalizeCharacterId(mission?.reward_character) === normalizeCharacterId(entry.reward_character));
@@ -15539,6 +15557,7 @@ if (require.main === module) {
         serializeMatchPlayerForViewer,
         buildMatchPayloadForUser,
         buildMatchActionStatePayload,
+        ensureRequiredMissionCatalogEntries,
         areQueuedSkillRequestsEquivalent,
         resolveExpiredTurnStartChoiceIfNeeded,
         autoAdvanceTurnIfExpired,
