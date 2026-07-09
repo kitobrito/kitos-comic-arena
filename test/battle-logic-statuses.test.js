@@ -885,6 +885,91 @@ test('Aerodactyl Tough Head converts self health loss into destructible defense 
     );
 });
 
+test('Aerodactyl Stone Edge turns Tough Head defense into extra stun chance and crit damage', () => {
+    const aerodactylIndex = characters.findIndex((character) => character?.id === 'aerodactyl');
+    assert.notEqual(aerodactylIndex, -1);
+
+    const match = {
+        players: [{ username: 'ash' }, { username: 'gary' }],
+        board: {
+            ash: [
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    rosterIndex: aerodactylIndex,
+                    state: {
+                        statuses: [
+                            {
+                                id: 'aerodactyl_tough_head_passive',
+                                remainingTurns: 99,
+                                metadata: structuredClone(
+                                    characters[aerodactylIndex].startStatuses?.[0]?.metadata || {}
+                                ),
+                            },
+                            {
+                                id: 'aerodactyl_tough_head_defense',
+                                remainingTurns: 99,
+                                metadata: {
+                                    destructibleDefensePoints: 100,
+                                },
+                            },
+                        ],
+                        cooldowns: {},
+                        skillUses: {},
+                        snapshots: {},
+                    },
+                },
+            ],
+            gary: [
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    rosterIndex: 0,
+                    state: { statuses: [], cooldowns: {}, skillUses: {}, snapshots: {} },
+                },
+            ],
+        },
+        chakraPools: {
+            ash: { taijutsu: 0, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+            gary: { taijutsu: 0, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+        },
+        pendingTurns: {
+            ash: {
+                queueOrder: ['0'],
+                queuedByActorSlot: {
+                    '0': {
+                        skillIndex: 3,
+                        targetSelection: [{ username: 'gary', slot: 0 }],
+                    },
+                },
+            },
+        },
+        pendingActions: [],
+        pendingQueuedEffects: [],
+        economy: {
+            turnCounts: { ash: 1, gary: 1 },
+        },
+    };
+
+    resolvePendingTurnSkills({
+        match,
+        actingUsername: 'ash',
+        characters,
+    });
+
+    const aerodactylUnit = match.board.ash[0];
+    assert.equal(match.board.gary[0].hp, 60);
+    assert.ok(
+        match.board.gary[0].state.statuses.some((status) => status.id === 'aerodactyl_stone_edge_stun')
+    );
+    assert.equal(
+        aerodactylUnit.state.statuses.some((status) => status.id === 'aerodactyl_tough_head_defense'),
+        false
+    );
+});
+
 test('turn-end damage statuses trigger on their first eligible turn-end', () => {
     const match = {
         board: {

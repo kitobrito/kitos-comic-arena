@@ -28448,7 +28448,7 @@ const characters = [
                 "id": "aerodactyl-stone-edge",
                 "name": "Stone Edge",
                 "skillimage": "assets/images/PokemonArena/aerodactyl/stoneedge.webp",
-                "skilldescription": "Deals 35 damage to one enemy. This skill has a 30% chance to stun that enemy's skills for 2 turns. Aerodactyl consumes all destructible defense from Tough Head to gain the same additional critical strike chance for this use, dealing 15 additional damage on a critical hit.",
+                "skilldescription": "Deals 35 damage to one enemy. This skill has a 30% chance to stun that enemy's skills for 2 turns. Aerodactyl consumes all destructible defense from Tough Head to add the same amount as bonus stun chance for this use. If the stun lands, it counts as a crit and deals 5 additional piercing damage.",
                 "energy": [
                     "Genjutsu",
                     "Random"
@@ -28468,31 +28468,37 @@ const characters = [
                         "scope": "target"
                     },
                     {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "chance": 0,
-                        "metadata": {
-                            "ignoreDamageReduction": true,
-                            "chancePerStatusMetadata": {
-                                "statusId": "aerodactyl_tough_head_defense",
-                                "metadataKey": "destructibleDefensePoints",
-                                "multiplier": 1,
-                                "scope": "self"
-                            }
-                        }
-                    },
-                    {
                         "type": "apply_status",
                         "statusId": "aerodactyl_stone_edge_stun",
                         "duration": 2,
                         "scope": "target",
                         "chance": 30,
                         "metadata": {
+                            "chancePerStatusMetadata": {
+                                "statusId": "aerodactyl_tough_head_defense",
+                                "metadataKey": "destructibleDefensePoints",
+                                "multiplier": 1,
+                                "scope": "self"
+                            },
+                            "critBonusDamage": 5,
                             "harmful": true,
                             "cannotUseSkills": true,
                             "statusIconUrl": "assets/images/PokemonArena/aerodactyl/stoneedge.webp",
-                            "tooltipText": "This character's skills are stunned."
+                            "tooltipText": "This character's skills are stunned.",
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 0,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "bonusPerStatusMetadata": {
+                                "statusId": "aerodactyl_stone_edge_stun",
+                                "metadataKey": "critBonusDamage",
+                                "multiplier": 1,
+                                "scope": "target"
+                            }
                         }
                     },
                     {
@@ -28513,7 +28519,7 @@ const characters = [
                 "id": "aerodactyl-passive-tough-head",
                 "name": "Passive: Tough Head",
                 "skillimage": "assets/images/PokemonArena/aerodactyl/passive.png",
-                "skilldescription": "Skills that cause Aerodactyl to lose health will instead grant it destructible defense equal to the health lost. This destructible defense is consumed directly by Rock Slide and Stone Edge.",
+                "skilldescription": "Skills that cause Aerodactyl to lose health will instead grant it destructible defense equal to the health lost. This destructible defense is consumed directly by Rock Slide and Stone Edge, and Stone Edge turns that defense into extra stun chance.",
                 "energy": [],
                 "target": "",
                 "damage": 0,

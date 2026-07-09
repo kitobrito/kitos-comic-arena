@@ -4252,6 +4252,64 @@ const POKEMON_MAGNEMITE_MISSION_ENTRY = {
     sortOrder: 14,
 };
 
+const POKEMON_AERODACTYL_MISSION_ENTRY = {
+    missionId: 'aerodactyl-fossil-flight',
+    title: 'Aerodactyl Fossil Flight',
+    level_requirement: 13,
+    rank: '13',
+    reward_character: 'aerodactyl',
+    reward_character_name: 'Aerodactyl',
+    reward: 'Unlock Aerodactyl.',
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/missionpics/aerodactyl.avif',
+    imageAlt: 'Aerodactyl mission artwork',
+    characterName: 'Aerodactyl',
+    portrait: 'assets/images/PokemonArena/aerodactyl/fp.webp',
+    portraitAlt: 'Aerodactyl portrait',
+    requirements: [
+        'Aerodactyl unlocks through a high-speed fossil trial built around recoil and fast finishes.',
+        'Clear a 4-win streak with Scyther and Hitmonlee on the same team.',
+    ],
+    goals: [
+        {
+            type: 'win_matches',
+            character_id: 'scyther',
+            character_name: 'Scyther',
+            wins: 10,
+        },
+        {
+            type: 'win_matches',
+            character_id: 'hitmonlee',
+            character_name: 'Hitmonlee',
+            wins: 10,
+        },
+        {
+            type: 'win_streak_same_team',
+            character_ids: ['scyther', 'hitmonlee'],
+            character_names: ['Scyther', 'Hitmonlee'],
+            wins: 4,
+        },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 15,
+};
+
 const POKEMON_STARTER_MISSION_ENTRIES = [
     {
         missionId: 'pikachu-starter-path',
@@ -4510,6 +4568,7 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     upsertRequiredMission(POKEMON_HITMONCHAN_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'hitmonchan');
     upsertRequiredMission(POKEMON_HITMONLEE_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'hitmonlee');
     upsertRequiredMission(POKEMON_MAGNEMITE_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'magnemite');
+    upsertRequiredMission(POKEMON_AERODACTYL_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'aerodactyl');
     return normalizeMissionCatalog(catalog)
         .map((mission) => normalizeOpenTeamPveMission(mission))
         .map((mission) => normalizeComicMissionDifficulty(mission));

@@ -159,3 +159,47 @@ test('ensureRequiredMissionCatalogEntries restores and refreshes Poison Ivy miss
         ]
     );
 });
+
+test('ensureRequiredMissionCatalogEntries restores Aerodactyl mission from pokemon defaults', () => {
+    const repaired = ensureRequiredMissionCatalogEntries([
+        {
+            missionId: 'aerodactyl-fossil-flight',
+            arena: 'pokemon',
+            reward_character: 'aerodactyl',
+        },
+    ]);
+
+    const aerodactylMission = repaired.find((mission) => mission.reward_character === 'aerodactyl');
+    assert.ok(aerodactylMission);
+    assert.equal(aerodactylMission.missionId, 'aerodactyl-fossil-flight');
+    assert.equal(aerodactylMission.arena, 'pokemon');
+    assert.equal(aerodactylMission.image, 'assets/images/PokemonArena/missionpics/aerodactyl.avif');
+    assert.deepEqual(
+        aerodactylMission.goals.map((goal) => ({
+            type: goal.type,
+            character_id: goal.character_id || '',
+            character_ids: goal.character_ids || [],
+            wins: goal.wins,
+        })),
+        [
+            {
+                type: 'win_matches',
+                character_id: 'scyther',
+                character_ids: [],
+                wins: 10,
+            },
+            {
+                type: 'win_matches',
+                character_id: 'hitmonlee',
+                character_ids: [],
+                wins: 10,
+            },
+            {
+                type: 'win_streak_same_team',
+                character_id: '',
+                character_ids: ['scyther', 'hitmonlee'],
+                wins: 4,
+            },
+        ]
+    );
+});
