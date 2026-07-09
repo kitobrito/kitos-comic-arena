@@ -12186,8 +12186,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const enemyTeam = resolveTeamRosterIndices(data.opponent?.team);
                 const boardTeam = resolveTeamRosterIndices(data.board?.[data.player?.username]);
                 const boardEnemyTeam = resolveTeamRosterIndices(data.board?.[data.opponent?.username]);
-                const resolvedTeam = team.length > 0 ? team : boardTeam;
-                const resolvedEnemyTeam = enemyTeam.length > 0 ? enemyTeam : boardEnemyTeam;
+                const resolveRenderableTeam = (directTeam = [], fallbackTeam = [], expectedCount = 0) => {
+                    if (Array.isArray(directTeam) && directTeam.length >= expectedCount) {
+                        return directTeam;
+                    }
+                    if (Array.isArray(fallbackTeam) && fallbackTeam.length >= expectedCount) {
+                        return fallbackTeam;
+                    }
+                    return Array.isArray(directTeam) && directTeam.length > 0 ? directTeam : fallbackTeam;
+                };
+                const resolvedTeam = resolveRenderableTeam(team, boardTeam, playerCardsLocal.length);
+                const resolvedEnemyTeam = resolveRenderableTeam(
+                    enemyTeam,
+                    boardEnemyTeam,
+                    enemyCardsLocal.length
+                );
                 if (data.player?.username) currentPlayerUsername = data.player.username;
                 assertRenderableTeam(resolvedTeam, playerCardsLocal.length, 'Player team');
                 assertRenderableTeam(resolvedEnemyTeam, enemyCardsLocal.length, 'Opponent team');

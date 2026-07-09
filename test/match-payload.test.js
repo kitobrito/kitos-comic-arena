@@ -202,6 +202,73 @@ test('buildMatchPayloadForUser preserves pokemon arena and hides opponent cooldo
     assert.equal(payload.backgroundOverride, 'assets/images/PokemonArena/newbattlepic/1783150082785.png');
 });
 
+test('buildMatchPayloadForUser rebuilds incomplete match teams from board state', () => {
+    assert.ok(firstPokemonRosterIndex >= 0);
+    const secondPokemonRosterIndex = characters.findIndex(
+        (character, index) =>
+            index !== firstPokemonRosterIndex &&
+            normalizeArenaMode(character?.arena || character?.universe) === 'pokemon'
+    );
+    const thirdPokemonRosterIndex = characters.findIndex(
+        (character, index) =>
+            index !== firstPokemonRosterIndex &&
+            index !== secondPokemonRosterIndex &&
+            normalizeArenaMode(character?.arena || character?.universe) === 'pokemon'
+    );
+    assert.ok(secondPokemonRosterIndex >= 0);
+    assert.ok(thirdPokemonRosterIndex >= 0);
+
+    const payload = buildMatchPayloadForUser(
+        {
+            matchId: 'match-incomplete-team',
+            arena: 'pokemon',
+            mode: 'quick',
+            status: 'active',
+            currentTurn: 'ash',
+            players: [
+                {
+                    username: 'ash',
+                    team: [firstPokemonRosterIndex],
+                    profile: {},
+                },
+                {
+                    username: 'gary',
+                    team: [firstPokemonRosterIndex],
+                    profile: {},
+                },
+            ],
+            board: {
+                ash: [
+                    { slot: 0, rosterIndex: firstPokemonRosterIndex, alive: true, hp: 100, state: { statuses: [] } },
+                    { slot: 1, rosterIndex: secondPokemonRosterIndex, alive: true, hp: 100, state: { statuses: [] } },
+                    { slot: 2, rosterIndex: thirdPokemonRosterIndex, alive: true, hp: 100, state: { statuses: [] } },
+                ],
+                gary: [
+                    { slot: 0, rosterIndex: thirdPokemonRosterIndex, alive: true, hp: 100, state: { statuses: [] } },
+                    { slot: 1, rosterIndex: secondPokemonRosterIndex, alive: true, hp: 100, state: { statuses: [] } },
+                    { slot: 2, rosterIndex: firstPokemonRosterIndex, alive: true, hp: 100, state: { statuses: [] } },
+                ],
+            },
+            pendingTurns: {
+                ash: makeEmptyPendingTurn(),
+                gary: makeEmptyPendingTurn(),
+            },
+        },
+        'ash'
+    );
+
+    assert.deepEqual(payload.player.team, [
+        firstPokemonRosterIndex,
+        secondPokemonRosterIndex,
+        thirdPokemonRosterIndex,
+    ]);
+    assert.deepEqual(payload.opponent.team, [
+        thirdPokemonRosterIndex,
+        secondPokemonRosterIndex,
+        firstPokemonRosterIndex,
+    ]);
+});
+
 test('buildMatchPayloadForUser resolves viewer-scoped energy with username case differences', () => {
     const match = {
         matchId: 'match-test-case-scope',

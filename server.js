@@ -2365,6 +2365,34 @@ const sanitizeSavedTeamIndicesForArena = (team = [], arena = DEFAULT_ARENA_MODE)
     return sanitized;
 };
 
+const resolveRenderableMatchTeamForArena = ({
+    team = [],
+    boardUnits = [],
+    arena = DEFAULT_ARENA_MODE,
+} = {}) => {
+    const sanitizedTeam = sanitizeSavedTeamIndicesForArena(team, arena);
+    if (sanitizedTeam.length >= 3) {
+        return sanitizedTeam;
+    }
+    const boardTeam = sanitizeSavedTeamIndicesForArena(
+        (Array.isArray(boardUnits) ? boardUnits : []).map((unit) => unit?.rosterIndex),
+        arena
+    );
+    if (boardTeam.length >= 3) {
+        return boardTeam;
+    }
+    const used = new Set();
+    const merged = [];
+    [...sanitizedTeam, ...boardTeam].forEach((rosterIndex) => {
+        if (merged.length >= 3 || used.has(rosterIndex)) {
+            return;
+        }
+        used.add(rosterIndex);
+        merged.push(rosterIndex);
+    });
+    return merged;
+};
+
 const buildSanitizedSavedTeamIndicesByArena = (user = {}) => {
     const savedTeamIndicesByArena =
         user.savedTeamIndicesByArena && typeof user.savedTeamIndicesByArena === 'object'
@@ -8072,15 +8100,21 @@ const sanitizeLastChakraGainForViewer = (lastChakraGain, viewerUsername) => {
     return ownGain ? { [viewerUsername]: ownGain } : null;
 };
 
-const serializeMatchPlayerForViewer = (player = {}, arena = DEFAULT_ARENA_MODE) => {
+const serializeMatchPlayerForViewer = (
+    player = {},
+    arena = DEFAULT_ARENA_MODE,
+    boardUnits = []
+) => {
     if (!player || typeof player !== 'object') return null;
     const safePlayer = {
         ...cloneSerializable(player),
         displayName: getPlayerDisplayName(player),
     };
-    if (Array.isArray(safePlayer.team)) {
-        safePlayer.team = sanitizeSavedTeamIndicesForArena(safePlayer.team, arena);
-    }
+    safePlayer.team = resolveRenderableMatchTeamForArena({
+        team: safePlayer.team,
+        boardUnits,
+        arena,
+    });
     if (safePlayer.profile && typeof safePlayer.profile === 'object') {
         safePlayer.profile = serializeArenaProfileForClient(safePlayer.profile, arena);
     }
@@ -8113,8 +8147,12 @@ const buildMatchPayloadForUser = (match, username) => {
         surrenderedBy: match.surrenderedBy || null,
         endReason: match.endReason || null,
         endedAt: match.endedAt || null,
-        player: serializeMatchPlayerForViewer(playerEntry, match.arena),
-        opponent: serializeMatchPlayerForViewer(opponentEntry, match.arena),
+        player: serializeMatchPlayerForViewer(playerEntry, match.arena, match.board?.[playerEntry?.username]),
+        opponent: serializeMatchPlayerForViewer(
+            opponentEntry,
+            match.arena,
+            match.board?.[opponentEntry?.username]
+        ),
         currentTurn: match.currentTurn || null,
         turnOrder: match.turnOrder || null,
         turnStartedAt: match.turnStartedAt || null,
