@@ -453,6 +453,55 @@ const getContextualMinimumHp = (targetState, ownerUnit, context = {}) => {
     return minimumHp;
 };
 
+const isSelfSkillDamageContext = (context = {}) =>
+    typeof context?.sourceSkillId === 'string' &&
+    context.sourceSkillId &&
+    context?.sourceUsername &&
+    context?.targetUsername &&
+    context.sourceUsername === context.targetUsername &&
+    Number.isInteger(context?.sourceSlot) &&
+    Number.isInteger(context?.targetSlot) &&
+    context.sourceSlot === context.targetSlot;
+
+const grantDestructibleDefenseFromSelfSkillHealthLoss = (unit, lostAmount, context = {}) => {
+    if (!unit || unit.alive === false || !isSelfSkillDamageContext(context)) return;
+    const shieldAmount = Math.max(0, roundCombatAmountUp(lostAmount));
+    if (shieldAmount <= 0) return;
+    const targetState = ensureUnitStateShape(unit);
+    const statuses = Array.isArray(targetState?.statuses) ? targetState.statuses : [];
+    statuses.forEach((status) => {
+        if (!isStatusActiveForMetadata(status, unit)) return;
+        const shieldStatusId =
+            typeof status?.metadata?.selfSkillHealthLossShieldStatusId === 'string'
+                ? status.metadata.selfSkillHealthLossShieldStatusId
+                : '';
+        if (!shieldStatusId) return;
+        const tooltipTextTemplate =
+            typeof status?.metadata?.selfSkillHealthLossShieldTooltipTextTemplate === 'string'
+                ? status.metadata.selfSkillHealthLossShieldTooltipTextTemplate
+                : 'This character has {destructibleDefensePoints} destructible defense.';
+        applyStatus({
+            targetState,
+            statusId: shieldStatusId,
+            duration: Math.max(1, Number(status?.metadata?.selfSkillHealthLossShieldDuration) || 99),
+            sourceSkillId: context.sourceSkillId || null,
+            sourceUsername: context.sourceUsername || null,
+            sourceSlot: Number.isInteger(context?.sourceSlot) ? context.sourceSlot : null,
+            metadata: {
+                infiniteDuration: status?.metadata?.selfSkillHealthLossShieldInfiniteDuration !== false,
+                destructibleDefensePoints: shieldAmount,
+                mergeNumericAddKeys: ['destructibleDefensePoints'],
+                statusIconUrl:
+                    status?.metadata?.selfSkillHealthLossShieldStatusIconUrl ||
+                    status?.metadata?.statusIconUrl ||
+                    '',
+                tooltipTextTemplate,
+            },
+            fresh: false,
+        });
+    });
+};
+
 const getSkillCooldownRemaining = (actorState, skillId) => {
     if (!actorState || !skillId) return 0;
     const cooldowns =
@@ -4065,6 +4114,8 @@ const applyHealthLossToUnit = (unit, rawAmount, context = {}) => {
     const targetState = ensureUnitStateShape(unit);
     const contextualMinimumHp = getContextualMinimumHp(targetState, unit, context);
     unit.hp = Math.max(contextualMinimumHp, before - loss);
+    const lostAmount = Math.max(0, before - unit.hp);
+    grantDestructibleDefenseFromSelfSkillHealthLoss(unit, lostAmount, context);
     setLastDamageDebug(targetState, loss, context);
     if (unit.hp <= 0) {
         unit.alive = false;
@@ -4093,7 +4144,7 @@ const applyHealthLossToUnit = (unit, rawAmount, context = {}) => {
             sourceSkillClasses: Array.isArray(context?.skillClasses) ? context.skillClasses : [],
         });
     }
-    return Math.max(0, before - unit.hp);
+    return lostAmount;
 };
 
 const applyHealthCapLossToUnit = (unit, rawAmount, context = {}) => {
@@ -7799,6 +7850,9 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         }),
                         {
                             match,
+                            sourceSkillId: skill?.id || null,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
                             targetUsername: recipient.username,
                             targetSlot: recipient.slot,
                         }

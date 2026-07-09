@@ -13,6 +13,7 @@ const {
     resolvePendingTurnSkills,
     tickStatusesForTurnEnd,
 } = require('../battleLogic.js');
+const characters = require('../characters');
 
 test('cleanseHarmfulStatuses keeps unremovable harmful statuses', () => {
     const unit = {
@@ -768,6 +769,120 @@ test('affliction damage ignores destructible defense', () => {
     assert.equal(dealt, 20);
     assert.equal(unit.hp, 80);
     assert.equal(unit.state.statuses[0].metadata.destructibleDefensePoints, 25);
+});
+
+test('Aerodactyl Tough Head converts self health loss into destructible defense and Rock Slide consumes it for main-target bonus damage', () => {
+    const aerodactylIndex = characters.findIndex((character) => character?.id === 'aerodactyl');
+    assert.notEqual(aerodactylIndex, -1);
+
+    const match = {
+        players: [{ username: 'ash' }, { username: 'gary' }],
+        board: {
+            ash: [
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    rosterIndex: aerodactylIndex,
+                    state: {
+                        statuses: [
+                            {
+                                id: 'aerodactyl_tough_head_passive',
+                                remainingTurns: 99,
+                                metadata: structuredClone(
+                                    characters[aerodactylIndex].startStatuses?.[0]?.metadata || {}
+                                ),
+                            },
+                        ],
+                        cooldowns: {},
+                        skillUses: {},
+                        snapshots: {},
+                    },
+                },
+            ],
+            gary: [
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    rosterIndex: 0,
+                    state: { statuses: [], cooldowns: {}, skillUses: {}, snapshots: {} },
+                },
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    rosterIndex: 1,
+                    state: { statuses: [], cooldowns: {}, skillUses: {}, snapshots: {} },
+                },
+                {
+                    alive: true,
+                    hp: 100,
+                    maxHp: 100,
+                    rosterIndex: 2,
+                    state: { statuses: [], cooldowns: {}, skillUses: {}, snapshots: {} },
+                },
+            ],
+        },
+        chakraPools: {
+            ash: { taijutsu: 0, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+            gary: { taijutsu: 0, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+        },
+        pendingTurns: {
+            ash: {
+                queueOrder: ['0'],
+                queuedByActorSlot: {
+                    '0': {
+                        skillIndex: 0,
+                        targetSelection: [{ username: 'gary', slot: 2 }],
+                    },
+                },
+            },
+        },
+        pendingActions: [],
+        pendingQueuedEffects: [],
+        economy: {
+            turnCounts: { ash: 1, gary: 1 },
+        },
+    };
+
+    resolvePendingTurnSkills({
+        match,
+        actingUsername: 'ash',
+        characters,
+    });
+
+    const aerodactylUnit = match.board.ash[0];
+    assert.equal(aerodactylUnit.hp, 90);
+    const toughHeadDefense = aerodactylUnit.state.statuses.find(
+        (status) => status.id === 'aerodactyl_tough_head_defense'
+    );
+    assert.ok(toughHeadDefense);
+    assert.equal(toughHeadDefense.metadata.destructibleDefensePoints, 10);
+
+    match.pendingTurns.ash = {
+        queueOrder: ['0'],
+        queuedByActorSlot: {
+            '0': {
+                skillIndex: 1,
+                targetSelection: [{ username: 'gary', slot: 0 }],
+            },
+        },
+    };
+
+    resolvePendingTurnSkills({
+        match,
+        actingUsername: 'ash',
+        characters,
+    });
+
+    assert.equal(match.board.gary[0].hp, 80);
+    assert.equal(match.board.gary[1].hp, 90);
+    assert.equal(match.board.gary[2].hp, 70);
+    assert.equal(
+        aerodactylUnit.state.statuses.some((status) => status.id === 'aerodactyl_tough_head_defense'),
+        false
+    );
 });
 
 test('turn-end damage statuses trigger on their first eligible turn-end', () => {

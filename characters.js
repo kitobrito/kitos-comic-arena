@@ -28313,6 +28313,225 @@ const characters = [
         "startStatuses": []
     },
     {
+        "id": "aerodactyl",
+        "characterId": "aerodactyl",
+        "name": "Aerodactyl",
+        "facePicture": "assets/images/PokemonArena/aerodactyl/fp.webp",
+        "startStatuses": [
+            {
+                "statusId": "aerodactyl_tough_head_passive",
+                "sourceSkillId": "aerodactyl-passive-tough-head",
+                "duration": 99,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "minimumHpFromSelfSkillDamage": 1,
+                    "selfSkillHealthLossShieldStatusId": "aerodactyl_tough_head_defense",
+                    "selfSkillHealthLossShieldStatusIconUrl": "assets/images/PokemonArena/aerodactyl/passive.png",
+                    "selfSkillHealthLossShieldTooltipTextTemplate": "Aerodactyl has {destructibleDefensePoints} destructible defense from Tough Head.",
+                    "statusIconUrl": "assets/images/PokemonArena/aerodactyl/passive.png",
+                    "tooltipText": "Skills that make Aerodactyl lose HP instead grant the same amount as destructible defense. Aerodactyl's own self-damage skills cannot kill it."
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "aerodactyl-take-down",
+                "name": "Take Down",
+                "skillimage": "assets/images/PokemonArena/aerodactyl/takedown.webp",
+                "skilldescription": "Deals 20 damage to one enemy. Aerodactyl loses 10 HP that cannot kill it. Tough Head converts that lost HP into destructible defense.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "HealthLoss",
+                        "amount": 10,
+                        "scope": "self"
+                    }
+                ]
+            },
+            {
+                "id": "aerodactyl-rock-slide",
+                "name": "Rock Slide",
+                "skillimage": "assets/images/PokemonArena/aerodactyl/rockslide.webp",
+                "skilldescription": "Deals 10 damage to the enemy team. Aerodactyl then consumes all destructible defense from Tough Head to deal bonus damage equal to the amount consumed to the main target. Each enemy has a 30% chance to have their harmful skills stunned for 1 turn.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "all-enemy"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 0,
+                        "scope": "target",
+                        "metadata": {
+                            "bonusPerStatusMetadata": {
+                                "statusId": "aerodactyl_tough_head_defense",
+                                "metadataKey": "destructibleDefensePoints",
+                                "multiplier": 1,
+                                "scope": "self",
+                                "consumeStatus": true
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "aerodactyl_rock_slide_harmful_stun",
+                        "duration": 1,
+                        "scope": "all-enemy",
+                        "chance": 30,
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseHarmfulSkills": true,
+                            "statusIconUrl": "assets/images/PokemonArena/aerodactyl/rockslide.webp",
+                            "tooltipText": "This character's harmful skills are stunned."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "aerodactyl-double-edge",
+                "name": "Double Edge",
+                "skillimage": "assets/images/PokemonArena/aerodactyl/doubleedge.webp",
+                "skilldescription": "Deals 35 damage to one enemy. Aerodactyl loses 15 HP that cannot kill it. Tough Head converts that lost HP into destructible defense.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 3,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "HealthLoss",
+                        "amount": 15,
+                        "scope": "self"
+                    }
+                ]
+            },
+            {
+                "id": "aerodactyl-stone-edge",
+                "name": "Stone Edge",
+                "skillimage": "assets/images/PokemonArena/aerodactyl/stoneedge.webp",
+                "skilldescription": "Deals 35 damage to one enemy. This skill has a 30% chance to stun that enemy's skills for 2 turns. Aerodactyl consumes all destructible defense from Tough Head to gain the same additional critical strike chance for this use, dealing 15 additional damage on a critical hit.",
+                "energy": [
+                    "Genjutsu",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "chance": 0,
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "chancePerStatusMetadata": {
+                                "statusId": "aerodactyl_tough_head_defense",
+                                "metadataKey": "destructibleDefensePoints",
+                                "multiplier": 1,
+                                "scope": "self"
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "aerodactyl_stone_edge_stun",
+                        "duration": 2,
+                        "scope": "target",
+                        "chance": 30,
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "statusIconUrl": "assets/images/PokemonArena/aerodactyl/stoneedge.webp",
+                            "tooltipText": "This character's skills are stunned."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "aerodactyl_stone_edge_consumed",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "hidden": true,
+                            "removeStatusIdsOnApply": [
+                                "aerodactyl_tough_head_defense"
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "aerodactyl-passive-tough-head",
+                "name": "Passive: Tough Head",
+                "skillimage": "assets/images/PokemonArena/aerodactyl/passive.png",
+                "skilldescription": "Skills that cause Aerodactyl to lose health will instead grant it destructible defense equal to the health lost. This destructible defense is consumed directly by Rock Slide and Stone Edge.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            }
+        ],
+        "role": "Spike DPS",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "spike-dps",
+        "description": "A prehistoric flying striker that converts its own recoil into destructible defense, then cashes that defense out through Rock Slide pressure and Stone Edge finishers.",
+        "descriptionHtml": "A prehistoric flying striker that converts its own recoil into destructible defense, then cashes that defense out through Rock Slide pressure and Stone Edge finishers."
+    },
+    {
         "id": "magnemite",
         "characterId": "magnemite",
         "name": "Magnemite",
