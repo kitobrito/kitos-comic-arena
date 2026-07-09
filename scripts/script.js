@@ -3910,6 +3910,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                     syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
                     return;
                 }
+                const actionRejected =
+                    typeof data?.actionRejected === 'string' ? data.actionRejected.trim().toLowerCase() : '';
+                if (data?.staleAction && actionRejected) {
+                    applyIncomingMatchState(data);
+                    syncTurnActionStateFromPayload(data);
+                    announceMatchIssue('The queued skill order changed on the server, so the turn was resynced.', {
+                        tone: 'info',
+                        reason: 'reorder-queued-skills-resynced',
+                    });
+                    return;
+                }
                 targetOptionsCache.clear();
                 pendingTurnState = normalizePendingTurn(data.pendingTurn);
                 applyQueuedSkillVisuals();
@@ -3953,6 +3964,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                     optimisticCancelledActorSlots.delete(actorSlot);
                     targetOptionsCache.clear();
+                    const actionRejected =
+                        typeof data?.actionRejected === 'string' ? data.actionRejected.trim().toLowerCase() : '';
+                    if (data?.staleAction && actionRejected) {
+                        applyIncomingMatchState(data);
+                        syncTurnActionStateFromPayload(data);
+                        syncEndTurnModalIfVisible();
+                        if (actionRejected === 'not-your-turn') {
+                            announceMatchIssue('That turn has already moved on. Resyncing to the live match state...', {
+                                tone: 'info',
+                                reason: 'cancel-skill-turn-moved',
+                            });
+                            return;
+                        }
+                        announceMatchIssue('The queued turn changed on the server, so it was resynced.', {
+                            tone: 'info',
+                            reason: 'cancel-skill-resynced',
+                        });
+                        return;
+                    }
                     renderChakra(getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || emptyPool());
                     pendingTurnState = normalizePendingTurn(data.pendingTurn);
                     applyQueuedSkillVisuals();
@@ -12562,6 +12592,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 if (requestMutationVersion !== randomChakraMutationVersion) {
                     syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
+                    return;
+                }
+                const actionRejected =
+                    typeof data?.actionRejected === 'string' ? data.actionRejected.trim().toLowerCase() : '';
+                if (data?.staleAction && actionRejected) {
+                    applyIncomingMatchState(data);
+                    syncTurnActionStateFromPayload(data);
+                    if (actionRejected === 'not-your-turn') {
+                        closeEndTurnModal();
+                        announceMatchIssue('That turn has already moved on. Resyncing to the live match state...', {
+                            tone: 'info',
+                            reason: 'random-adjust-turn-moved',
+                        });
+                        return;
+                    }
+                    if (actionRejected === 'unresolved-random' && endTurnModalEl?.style.visibility === 'visible') {
+                        renderEndTurnModal(playerPoolState, pendingTurnState);
+                    }
+                    announceMatchIssue('Your turn energy changed on the server, so it was resynced.', {
+                        tone: 'info',
+                        reason: 'random-adjust-resynced',
+                    });
                     return;
                 }
                 renderChakra(getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || emptyPool());
