@@ -28530,10 +28530,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Spike DPS",
+        "role": "Bruiser",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "spike-dps",
+        "roleCategory": "bruiser",
         "description": "A prehistoric flying striker that converts its own recoil into destructible defense, then cashes that defense out through Rock Slide pressure and Stone Edge finishers.",
         "descriptionHtml": "A prehistoric flying striker that converts its own recoil into destructible defense, then cashes that defense out through Rock Slide pressure and Stone Edge finishers."
     },
