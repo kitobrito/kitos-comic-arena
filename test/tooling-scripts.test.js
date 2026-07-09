@@ -203,3 +203,52 @@ test('ensureRequiredMissionCatalogEntries restores Aerodactyl mission from pokem
         ]
     );
 });
+
+test('ensureRequiredMissionCatalogEntries keeps the easier Scyther mission from pokemon defaults', () => {
+    const repaired = ensureRequiredMissionCatalogEntries([
+        {
+            missionId: 'scyther-trial',
+            arena: 'pokemon',
+            reward_character: 'scyther',
+        },
+    ]);
+
+    const scytherMission = repaired.find((mission) => mission.reward_character === 'scyther');
+    assert.ok(scytherMission);
+    assert.equal(scytherMission.missionId, 'scyther-trial');
+    assert.equal(scytherMission.arena, 'pokemon');
+    assert.deepEqual(
+        scytherMission.goals.map((goal) => ({
+            type: goal.type,
+            character_id: goal.character_id || '',
+            character_ids: goal.character_ids || [],
+            wins: goal.wins,
+        })),
+        [
+            {
+                type: 'win_matches',
+                character_id: 'chansey',
+                character_ids: [],
+                wins: 4,
+            },
+            {
+                type: 'win_matches',
+                character_id: 'pidgey',
+                character_ids: [],
+                wins: 4,
+            },
+            {
+                type: 'win_matches',
+                character_id: 'koffing',
+                character_ids: [],
+                wins: 4,
+            },
+            {
+                type: 'win_streak_same_team',
+                character_id: '',
+                character_ids: ['zubat', 'gastly'],
+                wins: 3,
+            },
+        ]
+    );
+});

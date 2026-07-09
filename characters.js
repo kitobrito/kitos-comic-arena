@@ -28327,7 +28327,7 @@ const characters = [
                     "minimumHpFromSelfSkillDamage": 1,
                     "selfSkillHealthLossShieldStatusId": "aerodactyl_tough_head_defense",
                     "selfSkillHealthLossShieldStatusIconUrl": "assets/images/PokemonArena/aerodactyl/passive.png",
-                    "selfSkillHealthLossShieldTooltipTextTemplate": "Aerodactyl has {destructibleDefensePoints} destructible defense from Tough Head.",
+                    "selfSkillHealthLossShieldTooltipTextTemplate": "Aerodactyl has {destructibleDefensePoints} destructible defense from Rock Head.",
                     "statusIconUrl": "assets/images/PokemonArena/aerodactyl/passive.png",
                     "tooltipText": "Aerodactyl's own skills that make it lose HP instead grant the same amount as destructible defense. Aerodactyl's own self-damage skills cannot kill it."
                 }
@@ -28338,7 +28338,7 @@ const characters = [
                 "id": "aerodactyl-take-down",
                 "name": "Take Down",
                 "skillimage": "assets/images/PokemonArena/aerodactyl/takedown.webp",
-                "skilldescription": "Deals 20 damage to one enemy. Aerodactyl loses 10 HP that cannot kill it. Tough Head converts that lost HP into destructible defense.",
+                "skilldescription": "Deals 20 damage to one enemy. Aerodactyl loses 10 HP that cannot kill it. Rock Head converts that lost HP into destructible defense.",
                 "energy": [
                     "Random"
                 ],
@@ -28367,7 +28367,7 @@ const characters = [
                 "id": "aerodactyl-rock-slide",
                 "name": "Rock Slide",
                 "skillimage": "assets/images/PokemonArena/aerodactyl/rockslide.webp",
-                "skilldescription": "Deals 10 damage to the enemy team. Aerodactyl then consumes all destructible defense from Tough Head to deal bonus damage equal to the amount consumed to the main target. Each enemy has a 30% chance to have their harmful skills stunned for 1 turn.",
+                "skilldescription": "Deals 10 damage to the enemy team. Aerodactyl then consumes all destructible defense from Rock Head to deal bonus damage equal to the amount consumed to the main target. Each enemy has a 30% chance to have their harmful skills stunned for 1 turn.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -28418,7 +28418,7 @@ const characters = [
                 "id": "aerodactyl-double-edge",
                 "name": "Double Edge",
                 "skillimage": "assets/images/PokemonArena/aerodactyl/doubleedge.webp",
-                "skilldescription": "Deals 35 damage to one enemy. Aerodactyl loses 15 HP that cannot kill it. Tough Head converts that lost HP into destructible defense.",
+                "skilldescription": "Deals 35 damage to one enemy. Aerodactyl loses 15 HP that cannot kill it. Rock Head converts that lost HP into destructible defense.",
                 "energy": [
                     "Random",
                     "Random"
@@ -28448,7 +28448,7 @@ const characters = [
                 "id": "aerodactyl-stone-edge",
                 "name": "Stone Edge",
                 "skillimage": "assets/images/PokemonArena/aerodactyl/stoneedge.webp",
-                "skilldescription": "Deals 35 damage to one enemy. This skill has a 30% chance to stun that enemy's skills for 2 turns. Aerodactyl consumes all destructible defense from Tough Head to add the same amount as bonus stun chance for this use. If the stun lands, it counts as a crit and deals 5 additional piercing damage.",
+                "skilldescription": "Deals 35 damage to one enemy. This skill has a 30% chance to stun that enemy's skills for 2 turns. Aerodactyl consumes all destructible defense from Rock Head to add the same amount as bonus stun chance for this use. If the stun lands, it counts as a crit and deals 5 additional piercing damage.",
                 "energy": [
                     "Genjutsu",
                     "Random"
@@ -28517,7 +28517,7 @@ const characters = [
             },
             {
                 "id": "aerodactyl-passive-tough-head",
-                "name": "Passive: Tough Head",
+                "name": "Passive: Rock Head",
                 "skillimage": "assets/images/PokemonArena/aerodactyl/passive.png",
                 "skilldescription": "Aerodactyl's own skills that cause it to lose health will instead grant it destructible defense equal to the health lost. This destructible defense is consumed directly by Rock Slide and Stone Edge, and Stone Edge turns that defense into extra stun chance.",
                 "energy": [],

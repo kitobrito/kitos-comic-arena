@@ -58,6 +58,8 @@ const aerodactylMission = {
     sortOrder: 15,
 };
 
+const pikachuMissionImage = 'assets/images/PokemonArena/missionpics/pikachu.jpeg';
+
 const upsertMission = (missions = []) => {
     const list = Array.isArray(missions) ? missions.slice() : [];
     const normalizedAerodactyl = {
@@ -74,6 +76,17 @@ const upsertMission = (missions = []) => {
         list[existingIndex] = {
             ...list[existingIndex],
             ...normalizedAerodactyl,
+        };
+    }
+    const pikachuIndex = list.findIndex(
+        (mission) =>
+            String(mission?.missionId || '').trim().toLowerCase() === 'pikachu-starter-path' ||
+            String(mission?.reward_character || '').trim().toLowerCase() === 'pikachu'
+    );
+    if (pikachuIndex !== -1) {
+        list[pikachuIndex] = {
+            ...list[pikachuIndex],
+            image: pikachuMissionImage,
         };
     }
     return ensureRequiredMissionCatalogEntries(list);
