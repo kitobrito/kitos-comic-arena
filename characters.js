@@ -28304,10 +28304,10 @@ const characters = [
                 ]
             }
         ],
-        "role": "Spike DPS",
+        "role": "Bruiser",
         "universe": "pokemon",
         "arena": "pokemon",
-        "roleCategory": "spike-dps",
+        "roleCategory": "bruiser",
         "description": "A precision kicking Pokemon that alternates tempo with stance changes, then cashes in Focus Energy through brutal finishers.",
         "descriptionHtml": "A precision kicking Pokemon that alternates tempo with stance changes, then cashes in Focus Energy through brutal finishers.",
         "startStatuses": []
