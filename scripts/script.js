@@ -2055,6 +2055,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const BATTLE_INTRO_DURATION_MS = 3000;
         let hasPlayedBattleIntro = false;
         const endTurnModalEl = document.querySelector('.ChakraChooseEndTurn');
+        const endTurnStatusEl = endTurnModalEl?.querySelector('.end-turn-status');
         const skillOrderEl = endTurnModalEl?.querySelector('.skillorder');
         const endTurnOkButton = document.querySelector('.ok-buttonendturn');
         const endTurnCancelButton = document.querySelector('.cancel-buttonendturn');
@@ -3236,6 +3237,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         };
 
+        const setEndTurnModalStatus = (message = '', tone = 'info') => {
+            if (!endTurnStatusEl) return;
+            endTurnStatusEl.textContent = message;
+            endTurnStatusEl.classList.toggle('is-info', tone === 'info');
+        };
+
         const updateEndTurnButtons = () => {
             const pending = getPendingTurnWithOptimisticQueues();
             const hasUnresolvedRandom = pending.unresolvedRandom > 0;
@@ -3243,8 +3250,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 endTurnCancelButton.style.opacity = '1';
             }
             if (endTurnOkButton) {
-                endTurnOkButton.disabled = hasUnresolvedRandom;
-                endTurnOkButton.style.opacity = hasUnresolvedRandom ? '0.4' : '1';
+                endTurnOkButton.disabled = isEndingTurn;
+                endTurnOkButton.style.opacity = isEndingTurn ? '0.4' : '1';
+                endTurnOkButton.textContent = hasUnresolvedRandom ? 'CHOOSE' : 'OK';
             }
         };
 
@@ -6895,12 +6903,28 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (endTurnChooseCountEl) {
                 endTurnChooseCountEl.textContent = String(normalizedPending.unresolvedRandom || 0);
             }
+            if ((normalizedPending.unresolvedRandom || 0) > 0) {
+                setEndTurnModalStatus(
+                    `Choose ${normalizedPending.unresolvedRandom} random energy with the + and - buttons before ending your turn.`,
+                    'info'
+                );
+            } else {
+                setEndTurnModalStatus('');
+            }
             updateEndTurnButtons();
         };
 
         const syncEndTurnModalIfVisible = () => {
             if (!endTurnModalEl || endTurnModalEl.style.visibility !== 'visible') return;
             renderEndTurnModal(playerPoolState, getPendingTurnWithOptimisticQueues());
+        };
+
+        const syncTurnActionStateFromPayload = (data) => {
+            if (!data || typeof data !== 'object') return;
+            renderChakra(getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || emptyPool());
+            pendingTurnState = normalizePendingTurn(data.pendingTurn);
+            applyQueuedSkillVisuals();
+            syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
         };
 
         const openEndTurnModal = () => {
@@ -6953,6 +6977,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!endTurnModalEl) return;
             endTurnModalRefreshVersion += 1;
             endTurnModalEl.style.visibility = 'hidden';
+            setEndTurnModalStatus('');
         };
 
         const getExchangeTypeFromButton = (button) => {
@@ -11451,6 +11476,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!data?.ok) {
                     throw new Error(data?.error || 'Unable to fetch targets.');
                 }
+                const actionRejected =
+                    typeof data?.actionRejected === 'string' ? data.actionRejected.trim().toLowerCase() : '';
+                if (data?.staleAction && actionRejected) {
+                    applyIncomingMatchState(data);
+                    syncTurnActionStateFromPayload(data);
+                    if (actionRejected === 'not-your-turn') {
+                        announceMatchIssue('That turn has already moved on. Resyncing to the live match state...', {
+                            tone: 'info',
+                            reason: 'target-fetch-turn-moved',
+                        });
+                    } else if (actionRejected === 'pending-turn-start-choice') {
+                        announceMatchIssue('A turn-start choice still needs to be resolved before using that skill.', {
+                            tone: 'info',
+                            reason: 'target-fetch-turn-start-choice',
+                        });
+                    }
+                    clearActiveTargetSelectionState();
+                    return;
+                }
                 const effectiveSkill = skill || getEffectiveSkillForActorSlot(actorSlot, skillIdx);
                 if (!isActorSkillSelectableNow(actorSlot, skillIdx, effectiveSkill)) {
                     clearActiveTargetSelectionState();
@@ -11545,14 +11589,54 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (!response.ok || !data?.ok) {
                         throw new Error(data?.error || 'Unable to queue skill.');
                     }
-                    playIngameSound(applySkillSound);
                     optimisticQueuedByActorSlot.delete(actorSlot);
                     targetOptionsCache.clear();
+                    const actionRejected =
+                        typeof data?.actionRejected === 'string' ? data.actionRejected.trim().toLowerCase() : '';
+                    if (data?.staleAction && actionRejected) {
+                        applyIncomingMatchState(data);
+                        syncTurnActionStateFromPayload(data);
+                        syncEndTurnModalIfVisible();
+                        if (actionRejected === 'duplicate-skill-queue') {
+                            return;
+                        }
+                        if (actionRejected === 'not-your-turn') {
+                            announceMatchIssue('That turn has already moved on. Resyncing to the live match state...', {
+                                tone: 'info',
+                                reason: 'queue-skill-turn-moved',
+                            });
+                            return;
+                        }
+                        if (actionRejected === 'pending-turn-start-choice') {
+                            announceMatchIssue('A turn-start choice still needs to be resolved before queueing that skill.', {
+                                tone: 'info',
+                                reason: 'queue-skill-turn-start-choice',
+                            });
+                            return;
+                        }
+                        announceMatchIssue('The match state changed while that skill was being queued, so the turn was resynced.', {
+                            tone: 'info',
+                            reason: 'queue-skill-resynced',
+                        });
+                        return;
+                    }
+                    playIngameSound(applySkillSound);
                     renderChakra(getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || emptyPool());
                     pendingTurnState = normalizePendingTurn(data.pendingTurn);
                     applyQueuedSkillVisuals();
                     syncEndTurnModalIfVisible();
                     syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
+                    if ((pendingTurnState?.unresolvedRandom || 0) > 0 && endTurnModalEl?.style.visibility !== 'visible') {
+                        announceMatchIssue(
+                            `This queued turn still needs ${pendingTurnState.unresolvedRandom} random energy chosen before it can end.`,
+                            {
+                                tone: 'info',
+                                dismissible: true,
+                                autoHideMs: 2200,
+                                reason: 'queued-random-energy-reminder',
+                            }
+                        );
+                    }
                 })
                 .catch((error) => {
                     optimisticQueuedByActorSlot.delete(actorSlot);
@@ -12299,6 +12383,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 await waitForPendingSkillQueues();
                 const pending = normalizePendingTurn(pendingTurnState);
                 if (pending.unresolvedRandom > 0) {
+                    setEndTurnModalStatus(
+                        `Choose ${pending.unresolvedRandom} random energy with the + and - buttons before ending your turn.`,
+                        'info'
+                    );
                     updateEndTurnButtons();
                     return;
                 }
@@ -12319,9 +12407,47 @@ document.addEventListener('DOMContentLoaded', async () => {
                     });
                     return;
                 }
+                const actionRejected =
+                    typeof data?.actionRejected === 'string' ? data.actionRejected.trim().toLowerCase() : '';
                 if (!response.ok || !data?.ok) {
                     const detailSuffix = data?.details ? ` Details: ${data.details}` : '';
                     throw new Error((data?.error || 'Failed to end turn.') + detailSuffix);
+                }
+                if (data?.staleAction && actionRejected) {
+                    applyIncomingMatchState(data);
+                    syncTurnActionStateFromPayload(data);
+                    if (actionRejected === 'unresolved-random') {
+                        setEndTurnModalStatus(
+                            `Choose ${normalizePendingTurn(data.pendingTurn).unresolvedRandom || 0} random energy with the + and - buttons before ending your turn.`,
+                            'info'
+                        );
+                        if (endTurnModalEl?.style.visibility === 'visible') {
+                            renderEndTurnModal(playerPoolState, pendingTurnState);
+                        }
+                        return;
+                    }
+                    if (actionRejected === 'pending-turn-start-choice') {
+                        closeEndTurnModal();
+                        announceMatchIssue('A turn-start choice still needs to be resolved before you can end your turn.', {
+                            tone: 'info',
+                            reason: 'turn-start-choice-required',
+                        });
+                        return;
+                    }
+                    if (actionRejected === 'not-your-turn') {
+                        closeEndTurnModal();
+                        announceMatchIssue('That turn has already moved on. Resyncing to the live match state...', {
+                            tone: 'info',
+                            reason: 'turn-ended-elsewhere',
+                        });
+                        return;
+                    }
+                    closeEndTurnModal();
+                    announceMatchIssue('Your turn state changed on the server, so the match was resynced.', {
+                        tone: 'info',
+                        reason: 'turn-state-resynced',
+                    });
+                    return;
                 }
                 playIngameSound(nextRoundSound);
                 try {

@@ -2481,6 +2481,7 @@ const characters = [
             {
                 "id": "aquaman-sea-sharks",
                 "name": "Sea Sharks",
+                "hiddenFromSelectionViewer": true,
                 "skillimage": "https://i.imgur.com/38s3F0Z.jpeg",
                 "skilldescription": "Deals 3 piercing damage each turn for 4 turns (stacks).",
                 "energy": [],
