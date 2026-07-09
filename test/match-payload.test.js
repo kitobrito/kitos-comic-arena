@@ -126,7 +126,7 @@ test('buildMatchPayloadForUser preserves pokemon arena and hides opponent cooldo
     assert.deepEqual(payload.pendingTurn.queueOrder, [0]);
     assert.deepEqual(payload.board.ash[0].state.cooldowns, { 'skill-a': 2 });
     assert.equal(payload.board.gary[0].state.cooldowns, undefined);
-    assert.equal(payload.backgroundOverride, 'assets/images/PokemonArena/newingamebgPA.png');
+    assert.equal(payload.backgroundOverride, 'assets/images/PokemonArena/newbattlepic/1783150082785.png');
 });
 
 test('buildMatchPayloadForUser resolves viewer-scoped energy with username case differences', () => {

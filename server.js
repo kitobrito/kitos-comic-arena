@@ -5,21 +5,25 @@ const { execFile } = require('child_process');
 const util = require('util');
 const execFilePromise = util.promisify(execFile);
 
-// Diagnostic logging for environment variables
-console.log('--- Startup Diagnostics ---');
-console.log('Current working directory:', process.cwd());
 const envPath = path.join(__dirname, '.env');
-console.log('.env file expected at:', envPath);
-console.log('.env file exists:', fs.existsSync(envPath));
-const dotenvResult = require('dotenv').config();
-if (dotenvResult.error) {
-    console.error('dotenv.config() error:', dotenvResult.error);
-} else {
-    console.log('dotenv.config() successfully loaded.');
+const shouldLogStartupDiagnostics =
+    require.main === module || process.env.SERVER_STARTUP_DIAGNOSTICS === 'true';
+const dotenvResult = require('dotenv').config({ path: envPath });
+
+if (shouldLogStartupDiagnostics) {
+    console.log('--- Startup Diagnostics ---');
+    console.log('Current working directory:', process.cwd());
+    console.log('.env file expected at:', envPath);
+    console.log('.env file exists:', fs.existsSync(envPath));
+    if (dotenvResult.error) {
+        console.error('dotenv.config() error:', dotenvResult.error);
+    } else {
+        console.log('dotenv.config() successfully loaded.');
+    }
+    console.log('MONGODB_URI present:', !!process.env.MONGODB_URI);
+    console.log('JWT_SECRET present:', !!process.env.JWT_SECRET);
+    console.log('---------------------------');
 }
-console.log('MONGODB_URI present:', !!process.env.MONGODB_URI);
-console.log('JWT_SECRET present:', !!process.env.JWT_SECRET);
-console.log('---------------------------');
 
 const express = require('express');
 const cors = require('cors');
