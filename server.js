@@ -4458,13 +4458,6 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
         (mission) =>
             !removedPokemonStarterMissionIds.has(mission?.missionId)
     );
-    const ensureMissionPresentIfMissing = (entry, matcher) => {
-        const existingIndex = catalog.findIndex((mission) => matcher(mission));
-        if (existingIndex !== -1) {
-            return;
-        }
-        catalog.push(normalizeMissionCatalogEntry(entry, catalog.length));
-    };
     const upsertRequiredMission = (entry, matcher) => {
         const normalizedEntry = normalizeMissionCatalogEntry(entry, catalog.length);
         const existingIndex = catalog.findIndex((mission) => matcher(mission));
@@ -4495,7 +4488,7 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
         .filter((entry) => normalizeArenaMode(entry?.arena) === 'comic')
         .forEach((entry) => {
             const rewardCharacterId = normalizeCharacterId(entry?.reward_character);
-            ensureMissionPresentIfMissing(entry, (mission) => {
+            upsertRequiredMission(entry, (mission) => {
                 if (rewardCharacterId) {
                     return normalizeCharacterId(mission?.reward_character) === rewardCharacterId;
                 }

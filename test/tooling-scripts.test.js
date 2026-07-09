@@ -101,14 +101,28 @@ test('assertTeamCanBeUsed rejects Pokemon roster picks in Comic Arena', async ()
     );
 });
 
-test('ensureRequiredMissionCatalogEntries restores Poison Ivy mission into older comic catalogs', () => {
+test('ensureRequiredMissionCatalogEntries restores and refreshes Poison Ivy mission from comic defaults', () => {
     const repaired = ensureRequiredMissionCatalogEntries([
         {
-            missionId: 'walker',
+            missionId: 'poison-ivy',
             arena: 'comic',
-            reward_character: 'walker',
-            reward_character_name: 'Walker',
-            reward: 'Unlock Walker',
+            reward_character: 'poison-ivy',
+            reward_character_name: 'Poison Ivy',
+            reward: 'Unlock Poison Ivy',
+            goals: [
+                {
+                    type: 'win_matches',
+                    character_id: 'the-joker',
+                    character_name: 'The Joker',
+                    wins: 5,
+                },
+                {
+                    type: 'win_matches_same_team',
+                    character_ids: ['the-joker', 'batman'],
+                    character_names: ['The Joker', 'Batman'],
+                    wins: 2,
+                },
+            ],
         },
     ]);
 
@@ -116,4 +130,32 @@ test('ensureRequiredMissionCatalogEntries restores Poison Ivy mission into older
     assert.ok(poisonIvyMission);
     assert.equal(poisonIvyMission.missionId, 'poison-ivy');
     assert.equal(poisonIvyMission.arena, 'comic');
+    assert.deepEqual(
+        poisonIvyMission.goals.map((goal) => ({
+            type: goal.type,
+            character_id: goal.character_id || '',
+            character_ids: goal.character_ids || [],
+            wins: goal.wins,
+        })),
+        [
+            {
+                type: 'win_matches',
+                character_id: 'the-joker',
+                character_ids: [],
+                wins: 5,
+            },
+            {
+                type: 'win_matches',
+                character_id: 'batman',
+                character_ids: [],
+                wins: 5,
+            },
+            {
+                type: 'win_streak_same_team',
+                character_id: '',
+                character_ids: ['the-joker', 'batman'],
+                wins: 2,
+            },
+        ]
+    );
 });
