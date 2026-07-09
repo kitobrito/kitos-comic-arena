@@ -11854,6 +11854,29 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!response.ok || !data?.ok) {
                     throw new Error(data?.error || 'Unable to resolve choice.');
                 }
+                const actionRejected =
+                    typeof data?.actionRejected === 'string' ? data.actionRejected.trim().toLowerCase() : '';
+                if (data?.staleAction && actionRejected) {
+                    applyIncomingMatchState(data);
+                    syncTurnActionStateFromPayload(data);
+                    if (actionRejected === 'not-your-turn') {
+                        announceMatchIssue('That turn has already moved on. Resyncing to the live match state...', {
+                            tone: 'info',
+                            reason: 'turn-start-choice-turn-moved',
+                        });
+                    } else if (actionRejected === 'no-pending-turn-start-choice') {
+                        announceMatchIssue('That choice is no longer pending, so the match was resynced.', {
+                            tone: 'info',
+                            reason: 'turn-start-choice-no-longer-pending',
+                        });
+                    } else {
+                        announceMatchIssue('The turn-start choice changed on the server, so the match was resynced.', {
+                            tone: 'info',
+                            reason: 'turn-start-choice-resynced',
+                        });
+                    }
+                    return;
+                }
                 pendingTurnState = normalizePendingTurn(data.pendingTurn);
                 applyMatchState({
                     ok: true,
@@ -12689,6 +12712,34 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 if (!response.ok || !data?.ok) {
                     throw new Error(data?.error || 'Unable to exchange chakra.');
+                }
+                const actionRejected =
+                    typeof data?.actionRejected === 'string' ? data.actionRejected.trim().toLowerCase() : '';
+                if (data?.staleAction && actionRejected) {
+                    applyIncomingMatchState(data);
+                    syncTurnActionStateFromPayload(data);
+                    if (actionRejected === 'not-your-turn') {
+                        closeExchangeModal();
+                        announceMatchIssue('That turn has already moved on. Resyncing to the live match state...', {
+                            tone: 'info',
+                            reason: 'chakra-exchange-turn-moved',
+                        });
+                        return;
+                    }
+                    if (actionRejected === 'pending-turn-start-choice') {
+                        closeExchangeModal();
+                        announceMatchIssue('A turn-start choice still needs to be resolved before exchanging energy.', {
+                            tone: 'info',
+                            reason: 'chakra-exchange-turn-start-choice',
+                        });
+                        return;
+                    }
+                    closeExchangeModal();
+                    announceMatchIssue('The turn energy changed on the server, so the match was resynced.', {
+                        tone: 'info',
+                        reason: 'chakra-exchange-resynced',
+                    });
+                    return;
                 }
                 renderChakra(getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || emptyPool());
                 pendingTurnState = normalizePendingTurn(data.pendingTurn);
