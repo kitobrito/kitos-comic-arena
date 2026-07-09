@@ -28448,7 +28448,7 @@ const characters = [
                 "id": "aerodactyl-stone-edge",
                 "name": "Stone Edge",
                 "skillimage": "assets/images/PokemonArena/aerodactyl/stoneedge.webp",
-                "skilldescription": "Deals 35 damage to one enemy. This skill has a 30% chance to stun that enemy's skills for 2 turns. Aerodactyl consumes all destructible defense from Rock Head to add the same amount as bonus stun chance for this use. If the stun lands, it counts as a crit and deals 5 additional piercing damage.",
+                "skilldescription": "Deals 35 damage to one enemy. This skill has a 30% chance to stun that enemy's skills for 2 turns. Aerodactyl consumes all destructible defense from Rock Head to add the same amount as bonus stun chance for this use. If the stun lands, it counts as a crit and deals 5 additional damage and becomes piercing.",
                 "energy": [
                     "Genjutsu",
                     "Random"

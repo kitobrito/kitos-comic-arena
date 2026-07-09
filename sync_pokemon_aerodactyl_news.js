@@ -71,7 +71,7 @@ const newsPost = {
         },
         {
             type: 'paragraph',
-            text: 'Stone Edge is the finisher. It deals 35 damage to one enemy, has a 30% chance plus all consumed Rock Head defense as extra stun chance to stun that enemy\'s skills for 2 turns, and if the stun lands it counts as a crit for 5 additional piercing damage.',
+            text: 'Stone Edge is the finisher. It deals 35 damage to one enemy, has a 30% chance plus all consumed Rock Head defense as extra stun chance to stun that enemy\'s skills for 2 turns, and if the stun lands it counts as a crit and deals 5 additional damage and becomes piercing.',
         },
         {
             type: 'paragraph',
@@ -84,7 +84,7 @@ const newsPost = {
         'Take Down is the fast opener: 20 damage to one enemy for 1 Random, while Aerodactyl loses 10 HP that cannot kill it and immediately turns that recoil into Rock Head defense.',
         'Rock Slide is the team-pressure skill: it deals 10 damage to the enemy team, has a 30% chance to stun each enemy\'s harmful skills for 1 turn, and then spends all current Rock Head defense to hit the chosen main target for that exact bonus damage.',
         'Double Edge is the heavy self-feed option: 35 damage to one enemy for 2 Random, then 15 HP recoil that cannot kill Aerodactyl and becomes an even larger Rock Head defense bank.',
-        'Stone Edge is the finisher. It deals 35 damage to one enemy, has a 30% chance plus all consumed Rock Head defense as extra stun chance to stun that enemy\'s skills for 2 turns, and if the stun lands it counts as a crit for 5 additional piercing damage.',
+        'Stone Edge is the finisher. It deals 35 damage to one enemy, has a 30% chance plus all consumed Rock Head defense as extra stun chance to stun that enemy\'s skills for 2 turns, and if the stun lands it counts as a crit and deals 5 additional damage and becomes piercing.',
         'This update also pushes Aerodactyl into the Pokemon Arena latest releases strip so the roster card is visible immediately from the front page.',
     ],
     changes: [
@@ -111,7 +111,7 @@ const newsPost = {
         skillShowcase(
             'aerodactyl',
             'aerodactyl-stone-edge',
-            'Stone Edge acts as the payoff finisher: 35 base damage, a 30% chance plus all consumed Rock Head defense as extra stun chance, and a crit that adds 5 additional piercing damage when the stun lands.'
+            'Stone Edge acts as the payoff finisher: 35 base damage, a 30% chance plus all consumed Rock Head defense as extra stun chance, and a crit that deals 5 additional damage and becomes piercing when the stun lands.'
         ),
     ],
     author: 'kito',
