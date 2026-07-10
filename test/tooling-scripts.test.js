@@ -6,11 +6,48 @@ const { parseArgs: parseLiveArgs, hashValue } = require('../scripts/live-deploy-
 const { parseArgs: parseMatchArgs, summarizeUnit } = require('../scripts/match-debugger');
 const { detectSkillDrift } = require('../scripts/balance-drift-checker');
 const {
+    normalizeArenaMode,
     assertTeamCanBeUsed,
     ensureRequiredMissionCatalogEntries,
     usernamesEqual,
+    findMatchPlayerByUsername,
+    findMatchOpponentByUsername,
+    buildBattleBotTeam,
+    isTeamRosterInArena,
+    buildPairedMatchDocument,
+    setCachedBotTeamsForTests,
+    resetMatchmakingStateForTests,
+    getUserMatchForTests,
 } = require('../server');
 const characters = require('../characters');
+
+const getCharacterId = (character = {}) => character.characterId || character.id || '';
+const getCharacterArena = (character = {}) => normalizeArenaMode(character.arena || character.universe);
+const getPlayableCharacterIdsForArena = (arena) =>
+    characters
+        .filter(
+            (character) =>
+                getCharacterId(character) &&
+                Array.isArray(character.skills) &&
+                character.skills.length > 0 &&
+                getCharacterArena(character) === arena
+        )
+        .map((character) => getCharacterId(character))
+        .slice(0, 3);
+const getRosterIndexByCharacterIdForTest = (characterId) =>
+    characters.findIndex((character) => getCharacterId(character) === characterId);
+const getRosterIndicesForArena = (arena) =>
+    getPlayableCharacterIdsForArena(arena).map((characterId) =>
+        getRosterIndexByCharacterIdForTest(characterId)
+    );
+
+const assertTeamBelongsToArena = (team, arena) => {
+    assert.equal(team.length, 3);
+    assert.equal(isTeamRosterInArena(team, arena), true);
+    team.forEach((rosterIndex) => {
+        assert.equal(getCharacterArena(characters[rosterIndex]), arena);
+    });
+};
 
 test('character payload tool parses inspect args', () => {
     const parsed = parseCharacterArgs(['inspect', '--character', 'magikarp', '--json']);
@@ -67,6 +104,120 @@ test('balance drift checker catches text-to-effect mismatch', () => {
 test('usernamesEqual ignores case and surrounding whitespace', () => {
     assert.equal(usernamesEqual('Vylheim', 'vylheim'), true);
     assert.equal(usernamesEqual(' BloodBlood ', 'bloodblood'), true);
+});
+
+test('buildBattleBotTeam keeps Comic bot teams Comic-only when stored teams contain Pokemon', async () => {
+    const pokemonIds = getPlayableCharacterIdsForArena('pokemon');
+    assert.equal(pokemonIds.length, 3);
+
+    setCachedBotTeamsForTests([
+        {
+            teamId: 'pokemon-only',
+            name: 'Pokemon Only',
+            characterIds: pokemonIds,
+        },
+    ]);
+
+    try {
+        const team = await buildBattleBotTeam('comic');
+        assertTeamBelongsToArena(team, 'comic');
+    } finally {
+        setCachedBotTeamsForTests(null);
+    }
+});
+
+test('buildBattleBotTeam keeps Pokemon bot teams Pokemon-only with mixed stored teams', async () => {
+    const comicIds = getPlayableCharacterIdsForArena('comic');
+    const pokemonIds = getPlayableCharacterIdsForArena('pokemon');
+    assert.equal(comicIds.length, 3);
+    assert.equal(pokemonIds.length, 3);
+
+    setCachedBotTeamsForTests([
+        {
+            teamId: 'comic-only',
+            name: 'Comic Only',
+            characterIds: comicIds,
+        },
+        {
+            teamId: 'pokemon-only',
+            name: 'Pokemon Only',
+            characterIds: pokemonIds,
+        },
+    ]);
+
+    try {
+        const team = await buildBattleBotTeam('pokemon');
+        assertTeamBelongsToArena(team, 'pokemon');
+    } finally {
+        setCachedBotTeamsForTests(null);
+    }
+});
+
+test('buildPairedMatchDocument stores the requested arena in paired match mappings', () => {
+    const team = getRosterIndicesForArena('pokemon');
+    assertTeamBelongsToArena(team, 'pokemon');
+    resetMatchmakingStateForTests();
+
+    try {
+        const match = buildPairedMatchDocument({
+            username: 'Ash',
+            team,
+            opponent: {
+                username: 'Gary',
+                team,
+            },
+            mode: 'quick',
+            arena: 'pokemon',
+            profile: {},
+        });
+
+        assert.equal(match.arena, 'pokemon');
+        assert.equal(getUserMatchForTests('Ash').arena, 'pokemon');
+        assert.equal(getUserMatchForTests('Gary').arena, 'pokemon');
+        assert.equal(getUserMatchForTests('Ash').matchId, match.matchId);
+    } finally {
+        resetMatchmakingStateForTests();
+    }
+});
+
+test('buildPairedMatchDocument rejects cross-arena paired match teams before saving', () => {
+    const comicTeam = getRosterIndicesForArena('comic');
+    const pokemonTeam = getRosterIndicesForArena('pokemon');
+    assertTeamBelongsToArena(comicTeam, 'comic');
+    assertTeamBelongsToArena(pokemonTeam, 'pokemon');
+    resetMatchmakingStateForTests();
+
+    try {
+        assert.throws(
+            () =>
+                buildPairedMatchDocument({
+                    username: 'ComicPlayer',
+                    team: comicTeam,
+                    opponent: {
+                        username: 'PokemonPlayer',
+                        team: pokemonTeam,
+                    },
+                    mode: 'quick',
+                    arena: 'comic',
+                    profile: {},
+                }),
+            /does not belong to Comic Arena/i
+        );
+    } finally {
+        resetMatchmakingStateForTests();
+    }
+});
+
+test('match membership helpers ignore username casing for fetch recovery', () => {
+    const match = {
+        players: [
+            { username: 'BloodBlood', team: [] },
+            { username: 'ComicOpponent', team: [] },
+        ],
+    };
+
+    assert.equal(findMatchPlayerByUsername(match, 'bloodblood').username, 'BloodBlood');
+    assert.equal(findMatchOpponentByUsername(match, ' bloodblood ').username, 'ComicOpponent');
 });
 
 test('assertTeamCanBeUsed rejects Pokemon roster picks in Comic Arena', async () => {

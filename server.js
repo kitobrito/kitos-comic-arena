@@ -5466,11 +5466,11 @@ const recordRecentQuickGameForUsers = async ({ players, winnerUsername, endedAt,
     await Promise.all(
         existingUsers.map(async (user) => {
             const opponentPlayer = (Array.isArray(players) ? players : []).find(
-                (player) => player?.username && player.username !== user.username
+                (player) => player?.username && !usernamesEqual(player.username, user.username)
             );
             const opponentUsername = getPlayerDisplayName(opponentPlayer) || '';
             const winnerPlayer = (Array.isArray(players) ? players : []).find(
-                (player) => player?.username && player.username === winnerUsername
+                (player) => player?.username && usernamesEqual(player.username, winnerUsername)
             );
             const profile = normalizeUserProfile(user);
             const arenaState = getProfileArenaState(profile, arena);
@@ -5526,11 +5526,11 @@ const recordRecentPrivateGameForUsers = async ({ players, winnerUsername, endedA
     await Promise.all(
         existingUsers.map(async (user) => {
             const opponentPlayer = (Array.isArray(players) ? players : []).find(
-                (player) => player?.username && player.username !== user.username
+                (player) => player?.username && !usernamesEqual(player.username, user.username)
             );
             const opponentUsername = getPlayerDisplayName(opponentPlayer) || '';
             const winnerPlayer = (Array.isArray(players) ? players : []).find(
-                (player) => player?.username && player.username === winnerUsername
+                (player) => player?.username && usernamesEqual(player.username, winnerUsername)
             );
             const profile = normalizeUserProfile(user);
             const arenaState = getProfileArenaState(profile, arena);
@@ -5562,9 +5562,7 @@ const teamHasCharacterId = (match, username, characterId) => {
     if (!match || !username || !characterId) {
         return false;
     }
-    const playerEntry = Array.isArray(match.players)
-        ? match.players.find((player) => player && player.username === username)
-        : null;
+    const playerEntry = findMatchPlayerByUsername(match, username);
     const team = Array.isArray(playerEntry?.team) ? playerEntry.team : [];
     return team.some((rosterIndex) => getRosterCharacterId(rosterIndex) === characterId);
 };
@@ -7881,7 +7879,7 @@ const broadcastMatchChatMessage = async (ws, rawText) => {
         });
         return;
     }
-    const playerEntry = match.players.find((player) => player?.username === ws.username);
+    const playerEntry = findMatchPlayerByUsername(match, ws.username);
     if (!playerEntry) {
         sendJsonToSocket(ws, {
             type: 'chat_error',
@@ -8311,7 +8309,7 @@ const attachWebSocketSupport = (server) => {
                 socket.destroy();
                 return;
             }
-            const playerEntry = match.players.find((player) => player?.username === authUser.username);
+            const playerEntry = findMatchPlayerByUsername(match, authUser.username);
             if (!playerEntry) {
                 socket.destroy();
                 return;
@@ -8539,14 +8537,34 @@ const shuffleList = (items = []) => {
 };
 
 const getBattleBotAllowedCharacterIdsForArena = (arena = DEFAULT_ARENA_MODE) => {
-    if (normalizeArenaMode(arena) !== 'pokemon') {
-        return null;
-    }
+    const normalizedArena = normalizeArenaMode(arena);
     return new Set(
         (Array.isArray(charactersData) ? charactersData : [])
-            .filter((character) => normalizeArenaMode(character?.arena || character?.universe) === 'pokemon')
+            .filter((character) => normalizeArenaMode(character?.arena || character?.universe) === normalizedArena)
             .map((character) => normalizeCharacterId(character?.characterId || character?.id))
             .filter(Boolean)
+    );
+};
+
+const isRosterIndexInArena = (rosterIndex, arena = DEFAULT_ARENA_MODE) =>
+    getRosterCharacterArena(rosterIndex) === normalizeArenaMode(arena);
+
+const isTeamRosterInArena = (team = [], arena = DEFAULT_ARENA_MODE) =>
+    Array.isArray(team) &&
+    team.length > 0 &&
+    team.every((rosterIndex) => isRosterIndexInArena(rosterIndex, arena));
+
+const assertMatchTeamsBelongToArena = (players = [], arena = DEFAULT_ARENA_MODE) => {
+    const normalizedArena = normalizeArenaMode(arena);
+    const invalidPlayer = (Array.isArray(players) ? players : []).find(
+        (player) => !isTeamRosterInArena(player?.team, normalizedArena)
+    );
+    if (!invalidPlayer) {
+        return;
+    }
+    const displayName = getPlayerDisplayName(invalidPlayer) || invalidPlayer?.username || 'Player';
+    throw new Error(
+        `${displayName}'s team includes a character that does not belong to ${normalizedArena === 'pokemon' ? 'Pokemon Arena' : 'Comic Arena'}.`
     );
 };
 
@@ -8562,17 +8580,14 @@ const buildBattleBotTeam = async (arena = DEFAULT_ARENA_MODE) => {
             if (!Array.isArray(team?.characterIds) || team.characterIds.length < 3) {
                 return false;
             }
-            if (!allowedCharacterIds) {
-                return true;
-            }
             return team.characterIds.every((characterId) => allowedCharacterIds.has(characterId));
         });
         if (eligibleStoredTeams.length > 0) {
             const team = eligibleStoredTeams[Math.floor(Math.random() * eligibleStoredTeams.length)];
             const indices = team.characterIds
                 .map((id) => getRosterIndexByCharacterId(id))
-                .filter((idx) => idx !== -1);
-            if (indices.length >= 3) {
+                .filter((idx) => idx !== -1 && isRosterIndexInArena(idx, normalizedArena));
+            if (indices.length >= 3 && isTeamRosterInArena(indices.slice(0, 3), normalizedArena)) {
                 return indices.slice(0, 3);
             }
             // Fallback to random if stored team is invalid/incomplete
@@ -8592,7 +8607,7 @@ const buildBattleBotTeam = async (arena = DEFAULT_ARENA_MODE) => {
                     typeof entry.character.characterId === 'string' &&
                     Array.isArray(entry.character.skills) &&
                     entry.character.skills.length > 0 &&
-                    (!allowedCharacterIds || allowedCharacterIds.has(entry.character.characterId))
+                    allowedCharacterIds.has(normalizeCharacterId(entry.character.characterId))
             )
     );
     const selected = [];
@@ -8620,23 +8635,30 @@ const buildBattleBotTeam = async (arena = DEFAULT_ARENA_MODE) => {
         selected.push(fallbackPool.shift());
     }
 
-    return selected.slice(0, 3).map((entry) => entry.rosterIndex);
+    return selected
+        .slice(0, 3)
+        .map((entry) => entry.rosterIndex)
+        .filter((rosterIndex) => isRosterIndexInArena(rosterIndex, normalizedArena));
 };
 
-const getPlayableRosterIndices = () =>
-    (Array.isArray(charactersData) ? charactersData : [])
+const getPlayableRosterIndices = (arena = '') => {
+    const normalizedArena = typeof arena === 'string' && arena.trim() ? normalizeArenaMode(arena) : '';
+    return (Array.isArray(charactersData) ? charactersData : [])
         .map((character, rosterIndex) => ({ character, rosterIndex }))
         .filter(
             (entry) =>
                 entry.character &&
                 typeof entry.character.characterId === 'string' &&
                 Array.isArray(entry.character.skills) &&
-                entry.character.skills.length > 0
+                entry.character.skills.length > 0 &&
+                (!normalizedArena ||
+                    normalizeArenaMode(entry.character.arena || entry.character.universe) === normalizedArena)
         )
         .map((entry) => entry.rosterIndex);
+};
 
-const normalizeDraftBans = (bans = []) => {
-    const validRoster = new Set(getPlayableRosterIndices());
+const normalizeDraftBans = (bans = [], arena = '') => {
+    const validRoster = new Set(getPlayableRosterIndices(arena));
     const seen = new Set();
     return (Array.isArray(bans) ? bans : [])
         .map((slot) => Number.parseInt(slot, 10))
@@ -8648,8 +8670,8 @@ const normalizeDraftBans = (bans = []) => {
         .slice(0, DRAFT_BAN_COUNT);
 };
 
-const normalizeDraftTeam = (team = [], bannedSet = new Set()) => {
-    const validRoster = new Set(getPlayableRosterIndices());
+const normalizeDraftTeam = (team = [], bannedSet = new Set(), arena = '') => {
+    const validRoster = new Set(getPlayableRosterIndices(arena));
     const seen = new Set();
     return (Array.isArray(team) ? team : [])
         .map((slot) => Number.parseInt(slot, 10))
@@ -8668,10 +8690,11 @@ const normalizeDraftTeam = (team = [], bannedSet = new Set()) => {
         .slice(0, DRAFT_TEAM_SIZE);
 };
 
-const pickRandomDraftBans = () => shuffleList(getPlayableRosterIndices()).slice(0, DRAFT_BAN_COUNT);
+const pickRandomDraftBans = (arena = '') =>
+    shuffleList(getPlayableRosterIndices(arena)).slice(0, DRAFT_BAN_COUNT);
 
-const pickRandomDraftTeam = (bannedSet = new Set()) =>
-    shuffleList(getPlayableRosterIndices().filter((slot) => !bannedSet.has(slot))).slice(0, DRAFT_TEAM_SIZE);
+const pickRandomDraftTeam = (bannedSet = new Set(), arena = '') =>
+    shuffleList(getPlayableRosterIndices(arena).filter((slot) => !bannedSet.has(slot))).slice(0, DRAFT_TEAM_SIZE);
 
 const makeEmptyPendingTurn = () => ({
     queuedByActorSlot: {},
@@ -8847,9 +8870,7 @@ const getTurnDurationMsForUser = (match, username) => {
         }, 0);
     };
 
-    const opponentUsername =
-        (Array.isArray(match.players) ? match.players : []).find((player) => player?.username && player.username !== username)
-            ?.username || null;
+    const opponentUsername = findMatchOpponentByUsername(match, username)?.username || null;
     const bonusMs = collectTeamMetadataSum(username, 'ownTurnDurationBonusMs');
     const penaltyMs = opponentUsername ? collectTeamMetadataSum(opponentUsername, 'enemyTurnDurationPenaltyMs') : 0;
     return Math.max(10000, TURN_DURATION_MS + bonusMs - penaltyMs);
@@ -9001,6 +9022,70 @@ const createBattleBotPlayer = ({ matchId, team, ladderLevel = 1, arena = DEFAULT
     };
 };
 
+const buildPairedMatchDocument = ({ username, team, opponent, mode, arena, profile }) => {
+    const normalizedArena = normalizeArenaMode(arena);
+    assertMatchTeamsBelongToArena(
+        [
+            { username, team },
+            { username: opponent?.username, team: opponent?.team },
+        ],
+        normalizedArena
+    );
+    const aliveLookup = {
+        [username]: Array.isArray(team) ? team.length : 3,
+        [opponent.username]: Array.isArray(opponent.team) ? opponent.team.length : 3,
+    };
+    const {
+        matchId,
+        matchStartsAt,
+        turnOrder,
+        currentTurn,
+        chakraPools,
+        economy,
+        pendingTurns,
+        turnStartedAt,
+        turnExpiresAt,
+    } = buildMatch([username, opponent.username], aliveLookup, {
+        arena: normalizedArena,
+    });
+    const playerDocs = [
+        {
+            username,
+            team,
+            aliveCount: aliveLookup[username],
+            profile: serializeArenaProfileForClient(profile, normalizedArena),
+        },
+        {
+            username: opponent.username,
+            team: opponent.team,
+            aliveCount: aliveLookup[opponent.username],
+            profile:
+                opponent.profile && typeof opponent.profile === 'object'
+                    ? serializeArenaProfileForClient(opponent.profile, normalizedArena)
+                    : null,
+        },
+    ];
+    const board = battleLogic.buildInitialBoard(playerDocs);
+    return {
+        matchId,
+        mode,
+        arena: normalizedArena,
+        status: 'active',
+        createdAt: new Date(),
+        matchStartsAt,
+        chakraPools,
+        economy,
+        pendingTurns,
+        currentTurn,
+        turnStartedAt,
+        turnOrder,
+        turnExpiresAt,
+        board,
+        players: playerDocs,
+        backgroundOverride: getRandomRegularBackground(normalizedArena),
+    };
+};
+
 const buildBattleBotMatch = async ({ username, team, mode, arena, playerProfile }) => {
     const normalizedArena = normalizeArenaMode(arena);
     const matchId = `match-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -9027,6 +9112,7 @@ const buildBattleBotMatch = async ({ username, team, mode, arena, playerProfile 
         },
         botPlayer,
     ];
+    assertMatchTeamsBelongToArena(playerDocs, normalizedArena);
     const board = battleLogic.buildInitialBoard(playerDocs);
     const matchDocument = {
         matchId: built.matchId,
@@ -9069,6 +9155,7 @@ const createMatchDocumentFromTeams = async ({ mode, arena, players, botMatch = n
         ...player,
         aliveCount: aliveLookup[player.username],
     }));
+    assertMatchTeamsBelongToArena(playerDocs, normalizedArena);
     const board = battleLogic.buildInitialBoard(playerDocs);
     const matchDocument = {
         matchId: built.matchId,
@@ -9151,7 +9238,7 @@ const maybeCreateBattleBotMatch = async ({ username, mode, arena, userProfile = 
 };
 
 const getDraftOpponentName = (draft, username) => {
-    const opponent = (draft?.players || []).find((player) => player.username !== username);
+    const opponent = (draft?.players || []).find((player) => !usernamesEqual(player.username, username));
     if (!opponent) return null;
     return getPlayerDisplayName(opponent);
 };
@@ -9159,7 +9246,8 @@ const getDraftOpponentName = (draft, username) => {
 const serializeDraftForUser = (draft, username) => {
     if (!draft) return null;
     const submitted = draft.submissions?.[username] || {};
-    const opponentUsername = (draft.players || []).find((player) => player.username !== username)?.username || null;
+    const opponentUsername =
+        (draft.players || []).find((player) => !usernamesEqual(player.username, username))?.username || null;
     const opponentSubmitted = opponentUsername ? draft.submissions?.[opponentUsername] || {} : {};
     const bansRevealed = draft.phase !== 'ban';
     return {
@@ -9237,7 +9325,7 @@ const finishDraftWithMatch = async (draft) => {
     draft.matchStartsAt = matchDocument.matchStartsAt;
     players.forEach((player) => {
         if (player.isBot) return;
-        const opponent = players.find((entry) => entry.username !== player.username);
+        const opponent = players.find((entry) => !usernamesEqual(entry.username, player.username));
         userToMatch.set(player.username, {
             matchId: matchDocument.matchId,
             opponent: opponent ? getPlayerDisplayName(opponent) : null,
@@ -9257,7 +9345,7 @@ const advanceDraftIfNeeded = async (draft) => {
         const allBans = [];
         players.forEach((player) => {
             const submitted = draft.submissions?.[player.username] || {};
-            submitted.bans = normalizeDraftBans(submitted.bans);
+            submitted.bans = normalizeDraftBans(submitted.bans, draft.arena);
             submitted.banSubmitted = true;
             draft.submissions[player.username] = submitted;
             allBans.push(...submitted.bans);
@@ -9270,7 +9358,7 @@ const advanceDraftIfNeeded = async (draft) => {
             if (!player.isBot) return;
             draft.submissions[player.username] = {
                 ...(draft.submissions[player.username] || {}),
-                team: pickRandomDraftTeam(bannedSet),
+                team: pickRandomDraftTeam(bannedSet, draft.arena),
                 teamSubmitted: true,
             };
         });
@@ -9282,7 +9370,7 @@ const advanceDraftIfNeeded = async (draft) => {
         const failed = [];
         players.forEach((player) => {
             const submitted = draft.submissions?.[player.username] || {};
-            submitted.team = normalizeDraftTeam(submitted.team, bannedSet);
+            submitted.team = normalizeDraftTeam(submitted.team, bannedSet, draft.arena);
             if (submitted.team.length !== DRAFT_TEAM_SIZE) {
                 failed.push(player.username);
             } else {
@@ -9313,7 +9401,7 @@ const createDraftSession = ({ mode, arena, players }) => {
         revealedBans: [],
     };
     players.forEach((player) => {
-        const bans = player.isBot ? pickRandomDraftBans() : [];
+        const bans = player.isBot ? pickRandomDraftBans(arena) : [];
         draft.submissions[player.username] = {
             bans,
             banSubmitted: player.isBot,
@@ -9350,7 +9438,7 @@ const dequeuePrivateOpponent = (username, targetUsername, arena = DEFAULT_ARENA_
 };
 
 const getAliveCountForUser = (match, username) => {
-    const playerEntry = (match.players || []).find((p) => p.username === username);
+    const playerEntry = findMatchPlayerByUsername(match, username);
     if (playerEntry && Number.isInteger(playerEntry.aliveCount)) {
         return playerEntry.aliveCount;
     }
@@ -9833,9 +9921,7 @@ const scoreBattleBotSkillCandidate = ({
     const controlSkill = isLikelyBattleBotControlSkill(skill);
     const recentDamage = getBattleBotRecentDamage(match, username, actorSlot);
     const actorHp = Math.max(0, Number(actorUnit?.hp) || 0);
-    const opponentUsername =
-        (Array.isArray(match?.players) ? match.players : []).find((player) => player?.username && player.username !== username)
-            ?.username || null;
+    const opponentUsername = findMatchOpponentByUsername(match, username)?.username || null;
     const enemyAliveCount = opponentUsername ? countBattleBotLivingUnits(match, opponentUsername) : 0;
     const deadAllyCount = countBattleBotUnitsMatching(match, username, (unit) => unit && (unit.alive === false || (Number(unit.hp) || 0) <= 0));
     const lowAllyCount = countBattleBotUnitsMatching(match, username, (unit) => unit && unit.alive !== false && (Number(unit.hp) || 0) <= 45);
@@ -10358,6 +10444,20 @@ const usernamesEqual = (left, right) =>
     typeof right === 'string' &&
     left.trim().toLowerCase() === right.trim().toLowerCase();
 
+const findMatchPlayerByUsername = (match, username) =>
+    Array.isArray(match?.players)
+        ? match.players.find(
+              (player) => typeof player?.username === 'string' && usernamesEqual(player.username, username)
+          ) || null
+        : null;
+
+const findMatchOpponentByUsername = (match, username) =>
+    Array.isArray(match?.players)
+        ? match.players.find(
+              (player) => typeof player?.username === 'string' && !usernamesEqual(player.username, username)
+          ) || null
+        : null;
+
 const queueSkillForActorSlot = ({
     match,
     username,
@@ -10785,7 +10885,7 @@ const finalizeTurn = async (match, username) => {
 
     econ.turnCounts[username] += 1;
 
-    const opponentEntry = match.players.find((p) => p.username !== username);
+    const opponentEntry = findMatchOpponentByUsername(match, username);
     const opponent = opponentEntry ? opponentEntry.username : username;
     const nextTurn = opponent;
     match.currentTurn = nextTurn;
@@ -11457,7 +11557,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                 if (!hydrated || hydrated.status === 'ended') {
                     return res.json({ ok: true, matchFound: false });
                 }
-                const opponentEntry = hydrated.players.find((p) => p.username !== username);
+                const opponentEntry = findMatchOpponentByUsername(hydrated, username);
                 const opponent = opponentEntry ? getPlayerDisplayName(opponentEntry) : null;
                 userToMatch.set(username, { matchId: hydrated.matchId, opponent, arena });
                 scheduleBattleBotTurn(hydrated);
@@ -11540,56 +11640,14 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                     });
                     return res.json(serializeDraftForUser(draft, username));
                 }
-                const aliveLookup = {
-                    [username]: Array.isArray(team) ? team.length : 3,
-                    [opponent.username]: Array.isArray(opponent.team) ? opponent.team.length : 3,
-                };
-                const {
-                    matchId,
-                    matchStartsAt,
-                    turnOrder,
-                    currentTurn,
-                    chakraPools,
-                    economy,
-                    pendingTurns,
-                    turnExpiresAt,
-                } =
-                    buildMatch([username, opponent.username], aliveLookup);
-                const playerDocs = [
-                    {
-                        username,
-                        team,
-                        aliveCount: aliveLookup[username],
-                        profile: serializeArenaProfileForClient(profile, arena),
-                    },
-                    {
-                        username: opponent.username,
-                        team: opponent.team,
-                        aliveCount: aliveLookup[opponent.username],
-                        profile:
-                            opponent.profile && typeof opponent.profile === 'object'
-                                ? serializeArenaProfileForClient(opponent.profile, arena)
-                                : null,
-                    },
-                ];
-                const board = battleLogic.buildInitialBoard(playerDocs);
-                const matchDocument = {
-                    matchId,
+                const matchDocument = buildPairedMatchDocument({
+                    username,
+                    team,
+                    opponent,
                     mode,
                     arena,
-                    status: 'active',
-                    createdAt: new Date(),
-                    matchStartsAt,
-                    chakraPools,
-                    economy,
-                    pendingTurns,
-                    currentTurn,
-                    turnOrder,
-                    turnExpiresAt,
-                    board,
-                    players: playerDocs,
-                    backgroundOverride: getRandomRegularBackground(arena),
-                };
+                    profile,
+                });
                 await matchesCollection.insertOne(matchDocument);
                 const createdMatch = matchDocument;
                 scheduleBattleBotTurn(createdMatch);
@@ -11597,16 +11655,16 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                 return res.json({
                     ok: true,
                     matchFound: true,
-                    matchId,
+                    matchId: matchDocument.matchId,
                     mode,
                     arena,
                     opponent: opponentName,
-                    matchStartsAt,
-                    matchReady: new Date(matchStartsAt).getTime() <= Date.now(),
-                    currentTurn,
-                    turnOrder,
-                    turnExpiresAt,
-                    turnDurationMs: getTurnDurationMsForUser({ players: playerDocs, board }, currentTurn),
+                    matchStartsAt: matchDocument.matchStartsAt,
+                    matchReady: new Date(matchDocument.matchStartsAt).getTime() <= Date.now(),
+                    currentTurn: matchDocument.currentTurn,
+                    turnOrder: matchDocument.turnOrder,
+                    turnExpiresAt: matchDocument.turnExpiresAt,
+                    turnDurationMs: getTurnDurationMsForUser(matchDocument, matchDocument.currentTurn),
                     pendingTurn: makeEmptyPendingTurn(),
                     backgroundOverride: matchDocument.backgroundOverride,
                 });
@@ -11788,7 +11846,7 @@ app.get('/api/match/status', requireSession, async (req, res) => {
         if (!hydrated || hydrated.status === 'ended') {
             return res.json({ ok: true, matchFound: false });
         }
-        const opponentEntry = hydrated.players.find((p) => p.username !== username);
+        const opponentEntry = findMatchOpponentByUsername(hydrated, username);
         const opponent = opponentEntry ? getPlayerDisplayName(opponentEntry) : null;
         userToMatch.set(username, { matchId: hydrated.matchId, opponent, arena: normalizeArenaMode(hydrated.arena) });
         scheduleBattleBotTurn(hydrated);
@@ -11842,23 +11900,25 @@ app.post('/api/draft/:draftId/bans', requireSession, async (req, res) => {
     try {
         const username = req.authUser.username;
         const draft = await advanceDraftIfNeeded(draftSessions.get(req.params.draftId));
-        if (!draft || !draft.players?.some((player) => player.username === username)) {
+        const draftPlayer = draft?.players?.find((player) => usernamesEqual(player.username, username));
+        if (!draft || !draftPlayer) {
             return res.status(404).json({ error: 'Draft not found.' });
         }
+        const draftUsername = draftPlayer.username;
         if (draft.phase !== 'ban') {
             return res.status(400).json({ error: 'Ban phase is closed.' });
         }
-        const bans = normalizeDraftBans(req.body?.bans);
+        const bans = normalizeDraftBans(req.body?.bans, draft.arena);
         if (bans.length !== DRAFT_BAN_COUNT) {
             return res.status(400).json({ error: `Select ${DRAFT_BAN_COUNT} bans.` });
         }
-        draft.submissions[username] = {
-            ...(draft.submissions[username] || {}),
+        draft.submissions[draftUsername] = {
+            ...(draft.submissions[draftUsername] || {}),
             bans,
             banSubmitted: true,
         };
         await advanceDraftIfNeeded(draft);
-        return res.json(serializeDraftForUser(draft, username));
+        return res.json(serializeDraftForUser(draft, draftUsername));
     } catch (error) {
         console.error('Draft ban error:', error);
         return res.status(500).json({ error: 'Internal server error.' });
@@ -11869,14 +11929,16 @@ app.post('/api/draft/:draftId/team', requireSession, async (req, res) => {
     try {
         const username = req.authUser.username;
         const draft = await advanceDraftIfNeeded(draftSessions.get(req.params.draftId));
-        if (!draft || !draft.players?.some((player) => player.username === username)) {
+        const draftPlayer = draft?.players?.find((player) => usernamesEqual(player.username, username));
+        if (!draft || !draftPlayer) {
             return res.status(404).json({ error: 'Draft not found.' });
         }
+        const draftUsername = draftPlayer.username;
         if (draft.phase !== 'pick') {
             return res.status(400).json({ error: 'Pick phase is not open.' });
         }
         const bannedSet = new Set(draft.revealedBans || []);
-        const team = normalizeDraftTeam(req.body?.team, bannedSet);
+        const team = normalizeDraftTeam(req.body?.team, bannedSet, draft.arena);
         if (team.length !== DRAFT_TEAM_SIZE) {
             return res.status(400).json({ error: `Select ${DRAFT_TEAM_SIZE} available characters.` });
         }
@@ -11889,13 +11951,13 @@ app.post('/api/draft/:draftId/team', requireSession, async (req, res) => {
         } catch (error) {
             return res.status(403).json({ error: error.message || 'Character is locked.' });
         }
-        draft.submissions[username] = {
-            ...(draft.submissions[username] || {}),
+        draft.submissions[draftUsername] = {
+            ...(draft.submissions[draftUsername] || {}),
             team,
             teamSubmitted: true,
         };
         await advanceDraftIfNeeded(draft);
-        return res.json(serializeDraftForUser(draft, username));
+        return res.json(serializeDraftForUser(draft, draftUsername));
     } catch (error) {
         console.error('Draft team error:', error);
         return res.status(500).json({ error: 'Internal server error.' });
@@ -11913,7 +11975,7 @@ app.get('/api/match/:matchId', requireSession, async (req, res) => {
     if (!hydrated) {
         return res.status(404).json({ error: 'Match not found.' });
     }
-    const playerEntry = hydrated.players.find((p) => p.username === req.authUser.username);
+    const playerEntry = findMatchPlayerByUsername(hydrated, req.authUser.username);
     if (!playerEntry) {
         return res.status(403).json({ error: 'Not part of this match.' });
     }
@@ -11928,7 +11990,7 @@ app.post('/api/match/:matchId/surrender', requireSession, async (req, res) => {
         return res.status(404).json({ error: 'Match not found.' });
     }
     const username = req.authUser.username;
-    const playerEntry = match.players.find((p) => p.username === username);
+    const playerEntry = findMatchPlayerByUsername(match, username);
     if (!playerEntry) {
         return res.status(403).json({ error: 'Not part of this match.' });
     }
@@ -11944,7 +12006,7 @@ app.post('/api/match/:matchId/surrender', requireSession, async (req, res) => {
             ladderResult: match.ladderResults?.[username] || null,
         });
     }
-    const opponentEntry = match.players.find((p) => p.username !== username);
+    const opponentEntry = findMatchOpponentByUsername(match, username);
     const endedAt = new Date();
     const winnerUsername = opponentEntry ? opponentEntry.username : null;
     const endedMatch = {
@@ -15718,6 +15780,24 @@ const startServer = async () => {
     });
 };
 
+const setCachedBotTeamsForTests = (teams = null) => {
+    botTeamsCache = Array.isArray(teams)
+        ? teams.map((team, index) => normalizeBotTeam(team, index))
+        : teams;
+};
+
+const resetMatchmakingStateForTests = () => {
+    quickQueue = [];
+    ladderQueue = [];
+    privateQueue = [];
+    quickMatches.clear();
+    userToMatch.clear();
+    draftSessions.clear();
+    userToDraft.clear();
+};
+
+const getUserMatchForTests = (username) => userToMatch.get(username) || null;
+
 if (require.main === module) {
     startServer().catch((error) => {
         console.error('Failed to initialize the server:', error);
@@ -15730,6 +15810,11 @@ if (require.main === module) {
         makeEmptyPendingTurn,
         assertTeamCanBeUsed,
         usernamesEqual,
+        findMatchPlayerByUsername,
+        findMatchOpponentByUsername,
+        buildBattleBotTeam,
+        isTeamRosterInArena,
+        buildPairedMatchDocument,
         sanitizeSavedTeamIndicesForArena,
         buildSanitizedSavedTeamIndicesByArena,
         serializeUserForClient,
@@ -15744,5 +15829,8 @@ if (require.main === module) {
         normalizeRecentLadderGames,
         countCurrentLadderSurrenderStreakByUser,
         isRepeatLadderSurrenderer,
+        setCachedBotTeamsForTests,
+        resetMatchmakingStateForTests,
+        getUserMatchForTests,
     };
 }
