@@ -29073,6 +29073,308 @@ const characters = [
         "description": "An electric steel Pokemon that builds toward Magneton by pairing Spark and Thunder Wave during Magnet Rise, then overwhelms teams with repeated piercing bursts.",
         "descriptionHtml": "An electric steel Pokemon that builds toward Magneton by pairing Spark and Thunder Wave during Magnet Rise, then overwhelms teams with repeated piercing bursts.",
         "startStatuses": []
+    },
+    {
+        "id": "onix",
+        "characterId": "onix",
+        "name": "Onix",
+        "facePicture": "assets/images/PokemonArena/onix/fp.webp",
+        "characterdeescription": "A towering Rock and Ground-type tank that stacks permanent damage reduction, punishes reckless skill use, and refuses to fall the first time it is broken.",
+        "startStatuses": [
+            {
+                "statusId": "onix_sturdy_passive",
+                "duration": 999,
+                "sourceSkillId": "onix-passive-sturdy",
+                "metadata": {
+                    "infiniteDuration": true,
+                    "minimumHp": 1,
+                    "consumeOnPreventedDeath": true,
+                    "ignoreExecutionEffects": true,
+                    "statusIconUrl": "assets/images/PokemonArena/onix/passive.webp",
+                    "tooltipText": "The first time Onix would be reduced to 0 HP, it survives at 1 HP instead. Onix ignores execute effects."
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "onix-rock-throw",
+                "name": "Rock Throw",
+                "skillimage": "assets/images/PokemonArena/onix/rockthrow.webp",
+                "skilldescription": "Deals 15 damage to the enemy team. For 1 turn, Iron Tail grants 5 more damage reduction.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "all-enemy"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "onix_rock_throw_iron_tail_bonus",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/onix/rockthrow.webp",
+                            "tooltipText": "Iron Tail grants 5 additional permanent damage reduction this turn."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "onix-iron-tail",
+                "name": "Iron Tail",
+                "skillimage": "assets/images/PokemonArena/onix/irontail.webp",
+                "skilldescription": "Onix gains 3 permanent damage reduction, then deals 30 damage to one enemy. If Rock Throw was used last turn, Iron Tail grants 5 additional permanent damage reduction.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "onix_iron_tail_reduction",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "onixIronTailReduction": 3,
+                            "stackMetadataKey": "onixIronTailReduction",
+                            "stackDelta": 3,
+                            "stackMax": 999,
+                            "damageReductionFlat": 3,
+                            "mergeNumericAddKeys": [
+                                "onixIronTailReduction",
+                                "damageReductionFlat"
+                            ],
+                            "statusIconUrl": "assets/images/PokemonArena/onix/irontail.webp",
+                            "tooltipTextTemplate": "Onix has {damageReductionFlat} permanent damage reduction from Iron Tail."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "onix_iron_tail_reduction",
+                        "duration": 999,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "onix_rock_throw_iron_tail_bonus"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "onixIronTailReduction": 5,
+                            "stackMetadataKey": "onixIronTailReduction",
+                            "stackDelta": 5,
+                            "stackMax": 999,
+                            "damageReductionFlat": 5,
+                            "mergeNumericAddKeys": [
+                                "onixIronTailReduction",
+                                "damageReductionFlat"
+                            ],
+                            "statusIconUrl": "assets/images/PokemonArena/onix/irontail.webp",
+                            "tooltipTextTemplate": "Onix has {damageReductionFlat} permanent damage reduction from Iron Tail."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "onix_iron_tail_bonus_spent",
+                        "duration": 0,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "onix_rock_throw_iron_tail_bonus"
+                        },
+                        "metadata": {
+                            "removeStatusIdsOnApply": [
+                                "onix_rock_throw_iron_tail_bonus"
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "onix-stealth-rock",
+                "name": "Stealth Rock",
+                "skillimage": "assets/images/PokemonArena/onix/stealthrock.webp",
+                "skilldescription": "For 3 turns, the enemy team is marked. While marked, if an affected enemy uses a new skill, that skill's cooldown is increased by 1 turn, their non-affliction damage is reduced by 10 for 1 turn, and Stealth Rock's final burst deals 5 more damage to them, stacking. When the mark ends, affected enemies take 10 piercing damage plus any stacked bonus.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 6,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "onix_stealth_rock_mark",
+                        "duration": 3,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "stealthRockEndDamageBonus": 0,
+                            "newSkillCooldownIncrease": 1,
+                            "onOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillRequireNewSkill": true,
+                            "persistOnOwnerUseSkillTrigger": true,
+                            "onOwnerUseSkillApplyStatusesToOwner": [
+                                {
+                                    "statusId": "onix_stealth_rock_damage_debuff",
+                                    "duration": 1,
+                                    "metadata": {
+                                        "harmful": true,
+                                        "nonAfflictionDamageDebuffFlat": 10,
+                                        "turnDurationAnchor": "source_turn",
+                                        "statusIconUrl": "assets/images/PokemonArena/onix/stealthrock.webp",
+                                        "tooltipText": "This character deals 10 less non-affliction damage."
+                                    }
+                                },
+                                {
+                                    "statusId": "onix_stealth_rock_mark",
+                                    "duration": 3,
+                                    "metadata": {
+                                        "harmful": true,
+                                        "stealthRockEndDamageBonus": 5,
+                                        "mergeNumericAddKeys": [
+                                            "stealthRockEndDamageBonus"
+                                        ],
+                                        "newSkillCooldownIncrease": 1,
+                                        "onOwnerUseSkillTrigger": true,
+                                        "onOwnerUseSkillRequireNewSkill": true,
+                                        "persistOnOwnerUseSkillTrigger": true,
+                                        "statusIconUrl": "assets/images/PokemonArena/onix/stealthrock.webp",
+                                        "tooltipTextTemplate": "Stealth Rock is active. This character's new skills gain 1 cooldown, they deal 10 less non-affliction damage for 1 turn when they act, and the final burst has {stealthRockEndDamageBonus} bonus damage."
+                                    }
+                                }
+                            ],
+                            "onExpireEffects": [
+                                {
+                                    "type": "damage",
+                                    "amount": 10,
+                                    "scope": "target",
+                                    "metadata": {
+                                        "ignoreDamageReduction": true,
+                                        "currentStatusMetadataBonus": {
+                                            "metadataKey": "stealthRockEndDamageBonus",
+                                            "multiplier": 1
+                                        }
+                                    }
+                                }
+                            ],
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/onix/stealthrock.webp",
+                            "tooltipTextTemplate": "Stealth Rock is active. This character's new skills gain 1 cooldown, they deal 10 less non-affliction damage for 1 turn when they act, and the final burst has {stealthRockEndDamageBonus} bonus damage."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "onix-harden",
+                "name": "Harden",
+                "skillimage": "assets/images/PokemonArena/onix/harden.webp",
+                "skilldescription": "Onix taunts the enemy team and gains 10 destructible defense for 1 turn. While active, up to 10 of Iron Tail's damage reduction becomes unpierceable.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 4,
+                "classes": [
+                    "Physical",
+                    "Instant",
+                    "Ranged"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "onix_harden_taunt",
+                        "duration": 1,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "taunt": true,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/onix/harden.webp",
+                            "tooltipText": "This character is taunted and can only target Onix."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "onix_harden_active",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "destructibleDefensePoints": 10,
+                            "onixIronTailReduction": 0,
+                            "copyStatusMetadataToMetadataKeys": [
+                                {
+                                    "scope": "self",
+                                    "statusId": "onix_iron_tail_reduction",
+                                    "metadataKey": "onixIronTailReduction",
+                                    "targetKey": "onixIronTailReduction"
+                                }
+                            ],
+                            "unpierceableDamageReductionFlatPerStatusMetadataKey": "onixIronTailReduction",
+                            "unpierceableDamageReductionFlatPerStatusMetadataStep": 1,
+                            "unpierceableDamageReductionFlatPerStatusMetadataAmount": 1,
+                            "unpierceableDamageReductionFlatPerStatusMetadataMaximum": 10,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/onix/harden.webp",
+                            "tooltipTextTemplate": "Onix has {destructibleDefensePoints} destructible defense and {currentUnpierceableDamageReductionFlat} unpierceable damage reduction from Harden."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "onix-passive-sturdy",
+                "name": "Passive: Sturdy",
+                "skillimage": "assets/images/PokemonArena/onix/passive.webp",
+                "skilldescription": "The first time Onix's health drops to 0 HP, it is set to 1 HP instead. This can only happen once, and Onix ignores execute effects.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            }
+        ],
+        "role": "Tank",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "tank",
+        "description": "A towering Rock and Ground-type tank that stacks permanent damage reduction, punishes reckless skill use, and refuses to fall the first time it is broken.",
+        "descriptionHtml": "A towering Rock and Ground-type tank that stacks permanent damage reduction, punishes reckless skill use, and refuses to fall the first time it is broken."
     }
 ];
 

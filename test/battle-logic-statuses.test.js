@@ -84,6 +84,71 @@ test('physicalDamageTakenBonusFlat only affects physical damage', () => {
     assert.equal(nonPhysicalTarget.hp, 90);
 });
 
+test('consumeOnPreventedDeath removes Sturdy after surviving lethal damage at 1 HP', () => {
+    const unit = {
+        alive: true,
+        hp: 20,
+        maxHp: 20,
+        state: {
+            statuses: [
+                {
+                    id: 'onix_sturdy',
+                    remainingTurns: 99,
+                    metadata: {
+                        infiniteDuration: true,
+                        minimumHp: 1,
+                        consumeOnPreventedDeath: true,
+                        ignoreExecutionEffects: true,
+                    },
+                },
+            ],
+        },
+    };
+
+    const dealt = applyDamageToUnit(unit, 25, {
+        sourceUsername: 'enemy',
+        targetUsername: 'player',
+        skillClasses: ['Physical', 'Melee', 'Instant'],
+    });
+
+    assert.equal(dealt, 25);
+    assert.equal(unit.hp, 1);
+    assert.deepEqual(unit.state.statuses, []);
+});
+
+test('unpierceableDamageReductionFlatPerStatusMetadataMaximum caps derived reduction', () => {
+    const unit = {
+        alive: true,
+        hp: 100,
+        maxHp: 100,
+        state: {
+            statuses: [
+                {
+                    id: 'onix_harden',
+                    remainingTurns: 1,
+                    metadata: {
+                        onixIronTailReduction: 14,
+                        unpierceableDamageReductionFlatPerStatusMetadataKey: 'onixIronTailReduction',
+                        unpierceableDamageReductionFlatPerStatusMetadataStep: 1,
+                        unpierceableDamageReductionFlatPerStatusMetadataAmount: 1,
+                        unpierceableDamageReductionFlatPerStatusMetadataMaximum: 10,
+                    },
+                },
+            ],
+        },
+    };
+
+    const dealt = applyDamageToUnit(unit, 20, {
+        sourceUsername: 'enemy',
+        targetUsername: 'player',
+        skillClasses: ['Physical', 'Melee', 'Instant'],
+        ignoreDamageReduction: true,
+    });
+
+    assert.equal(dealt, 10);
+    assert.equal(unit.hp, 90);
+});
+
 test('computeEffectiveEnergyCost applies stack-based random reductions for Bulbasaur Solar Beam', () => {
     const actorState = {
         statuses: [

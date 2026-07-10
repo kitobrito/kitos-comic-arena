@@ -2616,6 +2616,24 @@ const POKEMON_SKIN_CATALOG = [
         },
     },
     {
+        skinId: 'onix-crystal',
+        characterId: 'onix',
+        name: 'Crystal Onix',
+        description: 'A crystal-blue Onix skin with custom portrait and full skill art.',
+        unlockPointCost: 750,
+        previewFacePicture: 'assets/images/PokemonArena/onix/skins/crystal/crystalfp.webp',
+        patch: {
+            facePicture: 'assets/images/PokemonArena/onix/skins/crystal/crystalfp.webp',
+        },
+        skillImageOverridesBySkillId: {
+            'onix-rock-throw': 'assets/images/PokemonArena/onix/skins/crystal/crystalrockthrow.webp',
+            'onix-iron-tail': 'assets/images/PokemonArena/onix/skins/crystal/crystalirontail.webp',
+            'onix-stealth-rock': 'assets/images/PokemonArena/onix/skins/crystal/crystalstealthrock.webp',
+            'onix-harden': 'assets/images/PokemonArena/onix/skins/crystal/crystalharden.webp',
+            'onix-passive-sturdy': 'assets/images/PokemonArena/onix/skins/crystal/crystalpassive.webp',
+        },
+    },
+    {
         skinId: 'magikarp-golden-gyarados-red',
         characterId: 'magikarp',
         name: 'Golden Magikarp',
@@ -4391,6 +4409,64 @@ const POKEMON_AERODACTYL_MISSION_ENTRY = {
     sortOrder: 15,
 };
 
+const POKEMON_ONIX_MISSION_ENTRY = {
+    missionId: 'onix-stonewall-trial',
+    title: 'Onix Stonewall Trial',
+    level_requirement: 13,
+    rank: '13',
+    reward_character: 'onix',
+    reward_character_name: 'Onix',
+    reward: 'Unlock Onix.',
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/missionpics/onix.jpeg',
+    imageAlt: 'Onix mission artwork',
+    characterName: 'Onix',
+    portrait: 'assets/images/PokemonArena/onix/fp.webp',
+    portraitAlt: 'Onix portrait',
+    requirements: [
+        'Onix unlocks through a tank-focused trial built around bulk, tempo, and clean frontline play.',
+        'Clear a 4-win streak with Squirtle and Machop on the same team.',
+    ],
+    goals: [
+        {
+            type: 'win_matches',
+            character_id: 'squirtle',
+            character_name: 'Squirtle',
+            wins: 10,
+        },
+        {
+            type: 'win_matches',
+            character_id: 'machop',
+            character_name: 'Machop',
+            wins: 10,
+        },
+        {
+            type: 'win_streak_same_team',
+            character_ids: ['squirtle', 'machop'],
+            character_names: ['Squirtle', 'Machop'],
+            wins: 4,
+        },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 16,
+};
+
 const POKEMON_STARTER_MISSION_ENTRIES = [
     {
         missionId: 'pikachu-starter-path',
@@ -4650,6 +4726,7 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     upsertRequiredMission(POKEMON_HITMONLEE_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'hitmonlee');
     upsertRequiredMission(POKEMON_MAGNEMITE_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'magnemite');
     upsertRequiredMission(POKEMON_AERODACTYL_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'aerodactyl');
+    upsertRequiredMission(POKEMON_ONIX_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'onix');
     return normalizeMissionCatalog(catalog)
         .map((mission) => normalizeOpenTeamPveMission(mission))
         .map((mission) => normalizeComicMissionDifficulty(mission));

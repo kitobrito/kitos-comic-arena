@@ -337,7 +337,12 @@ const getStatusMetadataTotals = (actorState, ownerUnit = null) => {
             );
             const step = Math.max(1, Number(metadata.unpierceableDamageReductionFlatPerStatusMetadataStep) || 1);
             const amount = Number(metadata.unpierceableDamageReductionFlatPerStatusMetadataAmount) || 0;
-            totals.unpierceableDamageReductionFlat += Math.floor(stackValue / step) * amount;
+            const scaledAmount = Math.floor(stackValue / step) * amount;
+            const maximum = Number.isFinite(Number(metadata.unpierceableDamageReductionFlatPerStatusMetadataMaximum))
+                ? Math.max(0, Number(metadata.unpierceableDamageReductionFlatPerStatusMetadataMaximum) || 0)
+                : null;
+            totals.unpierceableDamageReductionFlat +=
+                maximum === null ? scaledAmount : Math.min(maximum, scaledAmount);
         }
         totals.damageReductionPercent += Math.max(0, Number(metadata.damageReductionPercent) || 0);
         totals.unpierceableDamageReductionPercent += Math.max(
@@ -3737,7 +3742,22 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
             return 0;
         }
     }
-    unit.hp = Math.max(contextualMinimumHp, (Number(unit.hp) || 0) - dealt);
+    const previousHp = Math.max(0, Number(unit.hp) || 0);
+    unit.hp = Math.max(contextualMinimumHp, previousHp - dealt);
+    if (dealt > 0 && unit.hp === contextualMinimumHp && previousHp > contextualMinimumHp) {
+        const preventedDeathStatus = (Array.isArray(targetState.statuses) ? targetState.statuses : []).find(
+            (status) =>
+                isStatusActiveForMetadata(status, unit) &&
+                Boolean(status?.metadata?.consumeOnPreventedDeath) &&
+                Math.max(0, previousHp - dealt) < contextualMinimumHp
+        );
+        if (preventedDeathStatus) {
+            targetState.statuses = (Array.isArray(targetState.statuses) ? targetState.statuses : []).filter(
+                (status) => status !== preventedDeathStatus
+            );
+            refreshDerivedStatusTooltips(targetState);
+        }
+    }
     if (dealt > 0) {
         setLastDamageDebug(targetState, dealt, context);
     }
