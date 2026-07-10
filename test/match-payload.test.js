@@ -202,6 +202,66 @@ test('buildMatchPayloadForUser preserves pokemon arena and hides opponent cooldo
     assert.equal(payload.backgroundOverride, 'assets/images/PokemonArena/newbattlepic/1783150082785.png');
 });
 
+test('buildMatchPayloadForUser preserves status icon URLs for client passive icons', () => {
+    const statusIconUrl = 'assets/images/ghostridermotorcycle.png';
+    const match = {
+        matchId: 'match-status-icon-url',
+        mode: 'quick',
+        arena: 'comic',
+        status: 'active',
+        currentTurn: 'ash',
+        players: [
+            { username: 'ash', team: [firstComicRosterIndex], profile: {} },
+            { username: 'gary', team: [firstComicRosterIndex], profile: {} },
+        ],
+        board: {
+            ash: [
+                {
+                    slot: 0,
+                    rosterIndex: firstComicRosterIndex,
+                    alive: true,
+                    hp: 100,
+                    state: {
+                        statuses: [
+                            {
+                                id: 'comic_passive_status_icon',
+                                remainingTurns: 99,
+                                sourceSkillId: null,
+                                metadata: {
+                                    statusIconUrl,
+                                    tooltipText: 'Passive tracker is active.',
+                                },
+                            },
+                        ],
+                        cooldowns: {},
+                        skillUses: {},
+                    },
+                },
+            ],
+            gary: [
+                {
+                    slot: 0,
+                    rosterIndex: firstComicRosterIndex,
+                    alive: true,
+                    hp: 100,
+                    state: { statuses: [] },
+                },
+            ],
+        },
+        pendingTurns: {
+            ash: makeEmptyPendingTurn(),
+            gary: makeEmptyPendingTurn(),
+        },
+    };
+
+    const payload = buildMatchPayloadForUser(match, 'ash');
+
+    assert.equal(
+        payload.board.ash[0].state.statuses[0].metadata.statusIconUrl,
+        statusIconUrl
+    );
+});
+
 test('buildMatchPayloadForUser rebuilds incomplete match teams from board state', () => {
     assert.ok(firstPokemonRosterIndex >= 0);
     const secondPokemonRosterIndex = characters.findIndex(

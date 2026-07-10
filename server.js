@@ -7956,6 +7956,7 @@ const CLIENT_SAFE_STATUS_METADATA_KEYS = new Set([
     'sourceSkillName',
     'stackMetadataKey',
     'stackDerivedNumericKeys',
+    'statusIconUrl',
     'taijutsuCostIncrease',
     'taijutsuCostReduction',
     'tooltipText',

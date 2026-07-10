@@ -1899,6 +1899,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
         return normalized === 'pokemon' ? 'pokemon' : normalized === 'comic' ? 'comic' : '';
     };
+    let activeArenaMode =
+        normalizeArenaModeValue(arenaModeFromUrl) ||
+        defaultArenaModeFromPage ||
+        (localStorage.getItem('comicArenaMode') === 'pokemon' ? 'pokemon' : 'comic');
     const readCachedMatchArenaMap = () => {
         try {
             const raw = sessionStorage.getItem(MATCH_ARENA_CACHE_KEY);
@@ -1955,6 +1959,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             normalizeArenaModeValue(arenaModeFromUrl) ||
             readCachedMatchArena(matchIdFromUrl) ||
             (localStorage.getItem('comicArenaMode') === 'pokemon' ? 'pokemon' : 'comic');
+        activeArenaMode = currentMatchArena;
         setProtectionTerminologyArena(currentMatchArena);
         if (matchIdFromUrl) {
             writeCachedMatchArena(matchIdFromUrl, currentMatchArena);
@@ -8624,7 +8629,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                             ? rosterData[unit.rosterIndex]
                             : null;
                     const characterId = normalizeSkinCharacterId(character?.characterId || character?.id || '');
-                    const renderArena = currentMatchArena === 'pokemon' ? 'pokemon' : activeArenaMode;
+                    const renderArena = currentMatchArena || activeArenaMode || 'comic';
                     const equippedSkinByCharacterId = getArenaSkinState(
                         profileCache?.profile,
                         renderArena
@@ -10164,6 +10169,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (typeof data.arena === 'string' && data.arena.trim()) {
                 currentMatchArena = data.arena.trim().toLowerCase() === 'pokemon' ? 'pokemon' : 'comic';
+                activeArenaMode = currentMatchArena;
                 setProtectionTerminologyArena(currentMatchArena);
             }
             writeCachedMatchArena(matchIdFromUrl || data.matchId, currentMatchArena);
@@ -13025,13 +13031,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     let isSearching = false;
     let pendingMatchRedirect = null;
     let draftModeEnabled = localStorage.getItem('comicDraftModeEnabled') === 'true';
-    let activeArenaMode =
-        arenaModeFromUrl === 'pokemon'
-            ? 'pokemon'
-            : arenaModeFromUrl === 'comic'
-                ? 'comic'
-                : defaultArenaModeFromPage || (localStorage.getItem('comicArenaMode') === 'pokemon' ? 'pokemon' : 'comic')
-                ;
     setProtectionTerminologyArena(activeArenaMode);
     if (arenaModeFromUrl === 'pokemon' || arenaModeFromUrl === 'comic') {
         localStorage.setItem('comicArenaMode', activeArenaMode);

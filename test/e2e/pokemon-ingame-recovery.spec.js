@@ -21,6 +21,7 @@ const squirtle = findCharacter(characters, 'squirtle');
 const ironMan = findCharacter(characters, 'iron-man');
 const spiderMan = findCharacter(characters, 'spider-man');
 const captainAmerica = findCharacter(characters, 'captain-america');
+const spiderSensesIconUrl = 'https://i.imgur.com/ImdCo6q.jpeg';
 
 const buildTurnTimestamps = () => ({
     turnStartedAt: new Date(Date.now()).toISOString(),
@@ -130,7 +131,27 @@ const buildComicMatchPayload = ({ currentTurn = 'ash' } = {}) => ({
     board: {
         ash: [
             { slot: 0, rosterIndex: characters.findIndex((entry) => entry === ironMan), alive: true, hp: 100, state: { statuses: [], cooldowns: {}, skillUses: {} } },
-            { slot: 1, rosterIndex: characters.findIndex((entry) => entry === spiderMan), alive: true, hp: 100, state: { statuses: [], cooldowns: {}, skillUses: {} } },
+            {
+                slot: 1,
+                rosterIndex: characters.findIndex((entry) => entry === spiderMan),
+                alive: true,
+                hp: 100,
+                state: {
+                    statuses: [
+                        {
+                            id: 'spider_man_spider_senses_passive',
+                            remainingTurns: 99,
+                            sourceSkillId: 'spider-man-passive-spider-senses',
+                            metadata: {
+                                statusIconUrl: spiderSensesIconUrl,
+                                tooltipText: 'Spider Senses is active.',
+                            },
+                        },
+                    ],
+                    cooldowns: {},
+                    skillUses: {},
+                },
+            },
             { slot: 2, rosterIndex: characters.findIndex((entry) => entry === captainAmerica), alive: true, hp: 100, state: { statuses: [], cooldowns: {}, skillUses: {} } },
         ],
         doom: [
@@ -161,6 +182,8 @@ const createHarnessServer = async () => {
         comicMatchGets: 0,
         turnEnds: 0,
         comicTurnEnds: 0,
+        comicSkillTargets: 0,
+        comicSkillQueues: 0,
         useBrokenInitialPayload: false,
         useComicStaleNotYourTurnOnEnd: false,
         payload: buildHealthyMatchPayload(),
@@ -222,6 +245,51 @@ const createHarnessServer = async () => {
             state.comicMatchGets += 1;
             res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
             res.end(JSON.stringify(state.comicPayload));
+            return;
+        }
+
+        if (pathname === '/api/match/match-e2e-comic-1/skill/targets' && req.method === 'POST') {
+            state.comicSkillTargets += 1;
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                ok: true,
+                targetType: 'single-enemy',
+                mode: 'single',
+                skillIndex: 0,
+                targets: [{ username: 'doom', slot: 0, rosterIndex: characters.findIndex((entry) => entry === captainAmerica), alive: true }],
+                pendingTurn: state.comicPayload.pendingTurn,
+            }));
+            return;
+        }
+
+        if (pathname === '/api/match/match-e2e-comic-1/skill/queue' && req.method === 'POST') {
+            state.comicSkillQueues += 1;
+            const pendingTurn = {
+                queuedByActorSlot: {
+                    '0': {
+                        actorSlot: 0,
+                        skillIndex: 0,
+                        targetSelection: { username: 'doom', slot: 0 },
+                    },
+                },
+                queueOrder: [0],
+                unresolvedRandom: 1,
+                randomAssignments: { taijutsu: 0, ninjutsu: 0, bloodline: 0, genjutsu: 0 },
+                turnStartChoice: null,
+            };
+            state.comicPayload = {
+                ...state.comicPayload,
+                pendingTurn,
+            };
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                ok: true,
+                chakraPools: state.comicPayload.chakraPools,
+                pendingTurn,
+                currentTurn: state.comicPayload.currentTurn,
+                turnExpiresAt: state.comicPayload.turnExpiresAt,
+                turnDurationMs: state.comicPayload.turnDurationMs,
+            }));
             return;
         }
 
@@ -330,6 +398,8 @@ test.beforeEach(async () => {
     harness.state.comicMatchGets = 0;
     harness.state.turnEnds = 0;
     harness.state.comicTurnEnds = 0;
+    harness.state.comicSkillTargets = 0;
+    harness.state.comicSkillQueues = 0;
     harness.state.useBrokenInitialPayload = false;
     harness.state.useComicStaleNotYourTurnOnEnd = false;
     harness.state.payload = buildHealthyMatchPayload();
@@ -374,7 +444,24 @@ test('comic ingame ends turn without reloading the match page', async ({ page })
     expect(harness.state.comicTurnEnds).toBe(1);
     await page.waitForTimeout(600);
     expect(page.url()).toBe(initialUrl);
-    expect(harness.state.comicMatchGets).toBe(2);
+    expect(harness.state.comicMatchGets).toBe(1);
+    await expect(page.locator('.match-issue-banner')).toBeHidden();
+});
+
+test('comic ingame renders passive status icons and queues skill clicks', async ({ page }) => {
+    await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-comic-1&arena=comic`);
+
+    await expect(page.locator('body')).toHaveClass(/arena-mode-comic/);
+    const passiveIcon = page.locator('.player-characters .character-card').nth(1).locator('.skilltooltips .skilltooltipimage').first();
+    await expect(passiveIcon).toHaveAttribute('src', /ImdCo6q/);
+    await waitForBattleIntroToFinish(page);
+
+    await page.locator('.player-characters .character-card').first().locator('.skillimage').first().click({ force: true });
+    await expect.poll(() => harness.state.comicSkillTargets).toBeGreaterThanOrEqual(1);
+    await page.locator('.enemy-characters .character-card').first().click({ force: true });
+
+    await expect.poll(() => harness.state.comicSkillQueues).toBe(1);
+    await expect(page.locator('.match-issue-banner')).toBeHidden();
 });
 
 test('comic stale not-your-turn end response is treated as already advanced', async ({ page }) => {
@@ -391,7 +478,7 @@ test('comic stale not-your-turn end response is treated as already advanced', as
     expect(harness.state.comicTurnEnds).toBe(1);
     await page.waitForTimeout(600);
     expect(page.url()).toBe(initialUrl);
-    expect(harness.state.comicMatchGets).toBe(2);
+    expect(harness.state.comicMatchGets).toBe(1);
     await expect(page.locator('.match-issue-banner')).toBeHidden();
 });
 
