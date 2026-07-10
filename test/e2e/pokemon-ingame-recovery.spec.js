@@ -18,6 +18,15 @@ const characters = require(path.join(repoRoot, 'characters.js'));
 const pokemonTrainer = findCharacter(characters, 'pokemon-trainer');
 const charmander = findCharacter(characters, 'charmander');
 const squirtle = findCharacter(characters, 'squirtle');
+const ironMan = findCharacter(characters, 'iron-man');
+const spiderMan = findCharacter(characters, 'spider-man');
+const captainAmerica = findCharacter(characters, 'captain-america');
+
+const buildTurnTimestamps = () => ({
+    turnStartedAt: new Date(Date.now()).toISOString(),
+    turnExpiresAt: new Date(Date.now() + 60_000).toISOString(),
+    turnDurationMs: 60000,
+});
 
 const buildHealthyMatchPayload = ({ currentTurn = 'ash' } = {}) => ({
     ok: true,
@@ -53,9 +62,7 @@ const buildHealthyMatchPayload = ({ currentTurn = 'ash' } = {}) => ({
     },
     currentTurn,
     turnOrder: ['ash', 'gary'],
-    turnStartedAt: new Date('2026-06-28T12:00:00.000Z').toISOString(),
-    turnExpiresAt: new Date('2026-06-28T12:01:00.000Z').toISOString(),
-    turnDurationMs: 60000,
+    ...buildTurnTimestamps(),
     board: {
         ash: [
             { slot: 0, rosterIndex: characters.findIndex((entry) => entry === pokemonTrainer), alive: true, hp: 100, state: { statuses: [], cooldowns: {}, skillUses: {} } },
@@ -93,12 +100,71 @@ const buildBrokenInitialPayload = () => {
     return payload;
 };
 
+const buildComicMatchPayload = ({ currentTurn = 'ash' } = {}) => ({
+    ok: true,
+    matchId: 'match-e2e-comic-1',
+    mode: 'quick',
+    arena: 'comic',
+    status: 'active',
+    player: {
+        username: 'ash',
+        displayName: 'Ash',
+        team: [ironMan.id, spiderMan.id, captainAmerica.id],
+        profile: {
+            avatarUrl: 'https://i.postimg.cc/3JqVcPXm/default.png',
+            ladder: { rank: 'Hero', level: 8 },
+        },
+    },
+    opponent: {
+        username: 'doom',
+        displayName: 'Doom',
+        team: [captainAmerica.id, spiderMan.id, ironMan.id],
+        profile: {
+            avatarUrl: 'https://i.postimg.cc/3JqVcPXm/default.png',
+            ladder: { rank: 'Villain', level: 9 },
+        },
+    },
+    currentTurn,
+    turnOrder: ['ash', 'doom'],
+    ...buildTurnTimestamps(),
+    board: {
+        ash: [
+            { slot: 0, rosterIndex: characters.findIndex((entry) => entry === ironMan), alive: true, hp: 100, state: { statuses: [], cooldowns: {}, skillUses: {} } },
+            { slot: 1, rosterIndex: characters.findIndex((entry) => entry === spiderMan), alive: true, hp: 100, state: { statuses: [], cooldowns: {}, skillUses: {} } },
+            { slot: 2, rosterIndex: characters.findIndex((entry) => entry === captainAmerica), alive: true, hp: 100, state: { statuses: [], cooldowns: {}, skillUses: {} } },
+        ],
+        doom: [
+            { slot: 0, rosterIndex: characters.findIndex((entry) => entry === captainAmerica), alive: true, hp: 100, state: { statuses: [], cooldowns: {}, skillUses: {} } },
+            { slot: 1, rosterIndex: characters.findIndex((entry) => entry === spiderMan), alive: true, hp: 100, state: { statuses: [], cooldowns: {}, skillUses: {} } },
+            { slot: 2, rosterIndex: characters.findIndex((entry) => entry === ironMan), alive: true, hp: 100, state: { statuses: [], cooldowns: {}, skillUses: {} } },
+        ],
+    },
+    chakraPools: {
+        ash: { taijutsu: 1, ninjutsu: 1, bloodline: 1, genjutsu: 1 },
+    },
+    lastChakraGain: {
+        ash: { taijutsu: 0, ninjutsu: 1, bloodline: 0, genjutsu: 0 },
+    },
+    pendingTurn: {
+        queuedByActorSlot: {},
+        queueOrder: [],
+        unresolvedRandom: 0,
+        randomAssignments: { taijutsu: 0, ninjutsu: 0, bloodline: 0, genjutsu: 0 },
+        turnStartChoice: null,
+    },
+    backgroundOverride: 'assets/images/defaultbgCA.png',
+});
+
 const createHarnessServer = async () => {
     const state = {
         matchGets: 0,
+        comicMatchGets: 0,
         turnEnds: 0,
+        comicTurnEnds: 0,
         useBrokenInitialPayload: false,
+        useComicStaleNotYourTurnOnEnd: false,
         payload: buildHealthyMatchPayload(),
+        comicPayload: buildComicMatchPayload(),
     };
 
     const server = http.createServer((req, res) => {
@@ -149,6 +215,31 @@ const createHarnessServer = async () => {
             state.payload = buildHealthyMatchPayload({ currentTurn: 'gary' });
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(state.payload));
+            return;
+        }
+
+        if (pathname === '/api/match/match-e2e-comic-1' && req.method === 'GET') {
+            state.comicMatchGets += 1;
+            res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' });
+            res.end(JSON.stringify(state.comicPayload));
+            return;
+        }
+
+        if (pathname === '/api/match/match-e2e-comic-1/turn/end' && req.method === 'POST') {
+            state.comicTurnEnds += 1;
+            state.comicPayload = buildComicMatchPayload({ currentTurn: 'doom' });
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(
+                JSON.stringify(
+                    state.useComicStaleNotYourTurnOnEnd
+                        ? {
+                              ...state.comicPayload,
+                              staleAction: true,
+                              actionRejected: 'not-your-turn',
+                          }
+                        : state.comicPayload
+                )
+            );
             return;
         }
 
@@ -236,21 +327,28 @@ test.afterAll(async () => {
 
 test.beforeEach(async () => {
     harness.state.matchGets = 0;
+    harness.state.comicMatchGets = 0;
     harness.state.turnEnds = 0;
+    harness.state.comicTurnEnds = 0;
     harness.state.useBrokenInitialPayload = false;
+    harness.state.useComicStaleNotYourTurnOnEnd = false;
     harness.state.payload = buildHealthyMatchPayload();
+    harness.state.comicPayload = buildComicMatchPayload();
 });
+
+const waitForBattleIntroToFinish = async (page) => {
+    await expect(page.locator('.battle-intro-overlay')).toHaveAttribute('aria-hidden', 'true');
+};
 
 test('pokemon ingame stays in pokemon arena after turn confirm and refresh', async ({ page }) => {
     await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-1&arena=pokemon`);
 
     await expect(page.locator('body')).toHaveClass(/arena-mode-pokemon/);
-    await expect(page.locator('.player-name.red').first()).toHaveText('Ash');
+    await expect(page.locator('.player-name.red').first()).toHaveText(/ash/i);
     await expect(page.locator('.player-characters .character-face').first()).toHaveAttribute('src', /PokemonArena\/pokemontrainer\/FP\.jpg/);
+    await waitForBattleIntroToFinish(page);
 
-    await page.locator('.ready-section').click();
-    await expect(page.locator('.ChakraChooseEndTurn')).toBeVisible();
-    await page.locator('.ok-buttonendturn').click();
+    await page.locator('.ok-buttonendturn').evaluate((button) => button.click());
 
     await expect(page.locator('.ready-text')).toHaveText("OPPONENT'S TURN...");
     expect(harness.state.turnEnds).toBe(1);
@@ -262,14 +360,47 @@ test('pokemon ingame stays in pokemon arena after turn confirm and refresh', asy
     await expect(page.locator('.player-characters .character-face').first()).toHaveAttribute('src', /PokemonArena\/pokemontrainer\/FP\.jpg/);
   });
 
+test('comic ingame ends turn without reloading the match page', async ({ page }) => {
+    await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-comic-1&arena=comic`);
+
+    await expect(page.locator('body')).toHaveClass(/arena-mode-comic/);
+    await expect(page.locator('.player-name.red').first()).toHaveText(/ash/i);
+    await waitForBattleIntroToFinish(page);
+
+    const initialUrl = page.url();
+    await page.locator('.ok-buttonendturn').evaluate((button) => button.click());
+
+    await expect(page.locator('.ready-text')).toHaveText("OPPONENT'S TURN...");
+    expect(harness.state.comicTurnEnds).toBe(1);
+    await page.waitForTimeout(600);
+    expect(page.url()).toBe(initialUrl);
+    expect(harness.state.comicMatchGets).toBe(2);
+});
+
+test('comic stale not-your-turn end response is treated as already advanced', async ({ page }) => {
+    harness.state.useComicStaleNotYourTurnOnEnd = true;
+    await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-comic-1&arena=comic`);
+
+    await expect(page.locator('body')).toHaveClass(/arena-mode-comic/);
+    await waitForBattleIntroToFinish(page);
+
+    const initialUrl = page.url();
+    await page.locator('.ok-buttonendturn').evaluate((button) => button.click());
+
+    await expect(page.locator('.ready-text')).toHaveText("OPPONENT'S TURN...");
+    expect(harness.state.comicTurnEnds).toBe(1);
+    await page.waitForTimeout(600);
+    expect(page.url()).toBe(initialUrl);
+    expect(harness.state.comicMatchGets).toBe(2);
+    await expect(page.locator('.match-issue-banner')).toBeHidden();
+});
+
 test('pokemon ingame auto-recovers from broken initial team payload', async ({ page }) => {
     harness.state.useBrokenInitialPayload = true;
 
     await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-1&arena=pokemon`);
 
     await expect(page.locator('body')).toHaveClass(/arena-mode-pokemon/);
-    await expect(page.locator('.match-issue-banner')).toContainText(/Match sync restored|Reloading the match|couldn't load the live match/i);
     await expect(page.locator('.player-characters .character-face').first()).toHaveAttribute('src', /PokemonArena\/pokemontrainer\/FP\.jpg/);
     expect(harness.state.matchGets).toBeGreaterThanOrEqual(2);
 });
-

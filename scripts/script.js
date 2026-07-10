@@ -12502,6 +12502,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                     if (actionRejected === 'not-your-turn') {
                         closeEndTurnModal();
+                        const payloadPlayerUsername = data?.player?.username || currentPlayerUsername || '';
+                        const turnAlreadyAdvanced =
+                            data?.currentTurn &&
+                            payloadPlayerUsername &&
+                            !usernamesMatch(data.currentTurn, payloadPlayerUsername);
+                        if (turnAlreadyAdvanced) {
+                            clearMatchIssueBanner();
+                            return;
+                        }
                         announceMatchIssue('That turn has already moved on. Resyncing to the live match state...', {
                             tone: 'info',
                             reason: 'turn-ended-elsewhere',
@@ -12520,10 +12529,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     await applyMatchStateAfterResolutionSequence(data, resolutionAnimationEntries);
                 } catch (renderError) {
                     console.warn('Failed to render post-turn match state.', renderError);
-                    if (attemptMatchAutoRecovery('turn-end-render')) {
-                        return;
-                    }
-                    throw renderError;
+                    recoverCurrentMatchState({
+                        reason: 'turn-end-render',
+                        message: 'Syncing the updated turn state...',
+                    }).catch(() => {});
+                    return;
                 }
                 closeEndTurnModal();
             } catch (error) {
