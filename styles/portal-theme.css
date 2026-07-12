@@ -1160,3 +1160,76 @@ td {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* Pokemon Arena red-and-white portal identity. Kept last to win shared Comic styling. */
+body:is(.arena-mode-pokemon, .home-arena-pokemon, [data-page-arena="pokemon"]) {
+  --portal-ink: #351010;
+  --portal-blue: #b51f2e;
+  --portal-blue-dark: #7f101b;
+  --portal-blue-light: #e14855;
+  --portal-gold: #ffffff;
+  --portal-gold-light: #fff5f5;
+  --portal-orange: #c62836;
+  --portal-cream: #ffffff;
+  color: #351010 !important;
+  background: linear-gradient(145deg, #fff 0%, #fff1f2 64%, #d62d3a 100%) fixed !important;
+}
+
+body:is(.arena-mode-pokemon, .home-arena-pokemon, [data-page-arena="pokemon"])
+  :is(.portal-topbar, .portal-subnav, .portal-stage, .portal-panel, .panel, .auth-shell, .news-feed-shell, .character-modal) {
+  border-color: #a61926 !important;
+  background: linear-gradient(180deg, #fff 0%, #fff1f2 100%) !important;
+  color: #351010 !important;
+  box-shadow: 0 0 0 1px #fff, 0 4px 12px rgba(126, 16, 27, 0.25) !important;
+}
+
+body:is(.arena-mode-pokemon, .home-arena-pokemon, [data-page-arena="pokemon"])
+  :is(.sidebar, .aside, .portal-topbar-title, .portal-section-title, .section-heading, .panel-title, .news-feed-title, .modal-heading) {
+  border-color: #72101a !important;
+  background: linear-gradient(180deg, #d93643 0%, #a31724 55%, #750d17 100%) !important;
+  color: #fff !important;
+  text-shadow: 0 1px 0 #5b0911 !important;
+}
+
+body:is(.arena-mode-pokemon, .home-arena-pokemon, [data-page-arena="pokemon"])
+  :is(button, .button, .nav-link, .portal-button, .auth-button, .home-arena-switch) {
+  border-color: #780f19 !important;
+  background: linear-gradient(180deg, #e64451 0%, #b51f2e 55%, #8b121e 100%) !important;
+  color: #fff !important;
+  text-shadow: 0 1px 0 #5f0a12 !important;
+}
+
+body:is(.arena-mode-pokemon, .home-arena-pokemon, [data-page-arena="pokemon"])
+  :is(button, .button, .nav-link, .portal-button, .auth-button, .home-arena-switch):hover {
+  background: linear-gradient(180deg, #f05a65 0%, #c62836 55%, #981520 100%) !important;
+}
+
+body:is(.arena-mode-pokemon, .home-arena-pokemon, [data-page-arena="pokemon"])
+  :is(input, select, textarea) {
+  border-color: #c44650 !important;
+  background: #fff !important;
+  color: #351010 !important;
+}
+
+body:is(.arena-mode-pokemon, .home-arena-pokemon, [data-page-arena="pokemon"])
+  :is(table, .ladder-rank, .ladder-bar) {
+  border-color: #c44650 !important;
+  background: linear-gradient(180deg, #fff 0%, #ffe9eb 100%) !important;
+  color: #6f111a !important;
+}
+
+body:is(.arena-mode-pokemon, .home-arena-pokemon, [data-page-arena="pokemon"])
+  .ladder-fill {
+  background: linear-gradient(90deg, #ed5965 0%, #a61926 100%) !important;
+}
+
+body.home-arena-pokemon.home-classic-page .hero {
+  border-color: #81101a !important;
+  background: linear-gradient(180deg, #d93643 0 46px, #fff 46px 100%) !important;
+}
+
+body.home-arena-pokemon.home-classic-page .hero::before {
+  border-color: #81101a !important;
+  background: #b51f2e !important;
+  color: #fff !important;
+}

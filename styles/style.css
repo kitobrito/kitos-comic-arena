@@ -14675,3 +14675,40 @@ body.arena-mode-pokemon .chakra-box.white {
 }
 @keyframes lucille-swing { 0% { transform: rotate(-28deg) translateX(-70px); } 45%, 70% { transform: rotate(-28deg) translateX(0); } 100% { transform: rotate(-28deg) translateX(82px); opacity: 0; } }
 @keyframes lucille-impact { 0%, 35% { opacity: 0; transform: scale(0.2); } 48%, 82% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.8); } }
+
+/* Pokemon Arena interface chrome. Skill and energy colors remain functional. */
+body.arena-mode-pokemon {
+    color: #351010;
+    background: linear-gradient(145deg, #fff 0%, #fff1f2 64%, #d62d3a 100%) fixed !important;
+}
+
+body.arena-mode-pokemon :is(.login, .player-card, .selection-mode-controls, .selection-filter-controls, .private-match-panel, .searching, .matchmaking-status, .skillviewer, .skillqueue) {
+    border-color: #a61926 !important;
+    background: linear-gradient(180deg, #fff 0%, #ffecef 100%) !important;
+    color: #351010 !important;
+    box-shadow: 0 0 0 1px #fff, 0 4px 12px rgba(126, 16, 27, 0.24) !important;
+}
+
+body.arena-mode-pokemon :is(.ok-button, .register-button, .arena-mode-button, .findmatch, .quickmatch, .laddermatch, .private-match-button, .endturnbutton, .surrenderbutton, .returnbutton) {
+    border-color: #780f19 !important;
+    background: linear-gradient(180deg, #e64451 0%, #b51f2e 55%, #8b121e 100%) !important;
+    color: #fff !important;
+    text-shadow: 0 1px 0 #5f0a12 !important;
+}
+
+body.arena-mode-pokemon :is(.ok-button, .register-button, .arena-mode-button, .findmatch, .quickmatch, .laddermatch, .private-match-button, .endturnbutton, .surrenderbutton, .returnbutton):hover {
+    background: linear-gradient(180deg, #f05a65 0%, #c62836 55%, #981520 100%) !important;
+}
+
+body.arena-mode-pokemon .arena-mode-button.active {
+    border-color: #a61926 !important;
+    background: #fff !important;
+    color: #a61926 !important;
+    text-shadow: none !important;
+}
+
+body.arena-mode-pokemon :is(input, select, textarea) {
+    border-color: #c44650 !important;
+    background: #fff !important;
+    color: #351010 !important;
+}

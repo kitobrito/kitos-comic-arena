@@ -2392,6 +2392,9 @@
       const pageMissionLabel = pageArena === "pokemon" ? "Pokemon Missions" : "Comic Missions";
       const playNowButton = document.getElementById("play-now-button");
 
+      document.body.classList.toggle("arena-mode-pokemon", pageArena === "pokemon");
+      document.body.classList.toggle("arena-mode-comic", pageArena !== "pokemon");
+
       document.title = pageArena === "pokemon" ? "Pokemon Arena Missions" : "Comic Arena Missions";
       const activeMissionNavLink = document.querySelector('.nav-link.active[href="missions.html"]');
       const comicCharactersLink = document.getElementById("comic-characters-link");

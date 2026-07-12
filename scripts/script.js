@@ -1903,6 +1903,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         normalizeArenaModeValue(arenaModeFromUrl) ||
         defaultArenaModeFromPage ||
         (localStorage.getItem('comicArenaMode') === 'pokemon' ? 'pokemon' : 'comic');
+    document.body.classList.toggle('arena-mode-pokemon', activeArenaMode === 'pokemon');
+    document.body.classList.toggle('arena-mode-comic', activeArenaMode !== 'pokemon');
     const readCachedMatchArenaMap = () => {
         try {
             const raw = sessionStorage.getItem(MATCH_ARENA_CACHE_KEY);
