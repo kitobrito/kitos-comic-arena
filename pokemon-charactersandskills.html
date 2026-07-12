@@ -348,6 +348,23 @@
     .character-evolution-toggle span { display: block; margin-top: 4px; font-weight: 700; }
     .character-evolution-skills { grid-column: 1 / -1; }
     .character-evolution-skills[hidden] { display: none; }
+    .character-modal-tabs { display: flex; gap: 8px; margin: 0 0 14px; }
+    .character-modal-tab {
+      padding: 9px 16px;
+      border: 2px solid #a61926;
+      background: #fff;
+      color: #8b121e;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .character-modal-tab.active { background: #b51f2e; color: #fff; }
+    .character-modal-view[hidden] { display: none; }
+    .character-skin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+    .character-skin-card { border: 2px solid #a61926; background: #fff5f5; padding: 12px; text-align: center; }
+    .character-skin-card img { width: 120px; height: 120px; object-fit: cover; border: 2px solid #a61926; }
+    .character-skin-card h3 { margin: 8px 0 4px; color: #7f101b; font-size: 22px; }
+    .character-skin-price { margin: 0 0 6px; color: #b51f2e; font-size: 18px; font-weight: 900; }
+    .character-skin-description { margin: 0; color: #351010; line-height: 1.35; }
     .character-skill-description {
       margin: 0;
       color: #2a2a2a;
@@ -570,6 +587,13 @@
       var modalContent = document.getElementById("character-modal-content");
       var playButtons = document.querySelectorAll("[data-play-arena]");
       var requestedCharacterId = new URLSearchParams(window.location.search).get("characterId");
+      var skinCatalog = [];
+      var skinCatalogPromise = fetch("/api/skins?arena=pokemon", { credentials: "same-origin" })
+        .then(function (response) { return response.ok ? response.json() : {}; })
+        .then(function (data) {
+          skinCatalog = data && Array.isArray(data.skins) ? data.skins : [];
+        })
+        .catch(function () { skinCatalog = []; });
       var pageArena = (document.body && document.body.dataset && document.body.dataset.pageArena ? String(document.body.dataset.pageArena).trim().toLowerCase() : "pokemon") || "pokemon";
       var roster = Array.isArray(window.characters)
         ? window.characters
@@ -822,12 +846,18 @@
         return card;
       }
 
-      function openCharacterModal(character) {
+      async function openCharacterModal(character) {
         if (!modalBackdrop || !modalContent || !character) {
           return;
         }
 
+        await skinCatalogPromise;
+
         var visibleSkills = getVisibleSkills(character);
+        var characterId = String(character.characterId || character.id || "").toLowerCase();
+        var characterSkins = skinCatalog.filter(function (skin) {
+          return skin && String(skin.characterId || "").toLowerCase() === characterId;
+        });
         modalContent.innerHTML = "";
 
         var header = document.createElement("section");
@@ -882,11 +912,68 @@
         header.appendChild(summary);
         modalContent.appendChild(header);
 
+        var skillsView = document.createElement("div");
+        skillsView.className = "character-modal-view";
+        var skinsView = document.createElement("div");
+        skinsView.className = "character-modal-view";
+        skinsView.hidden = true;
+
+        if (characterSkins.length) {
+          var tabs = document.createElement("div");
+          tabs.className = "character-modal-tabs";
+          var skillsTab = document.createElement("button");
+          skillsTab.type = "button";
+          skillsTab.className = "character-modal-tab active";
+          skillsTab.textContent = "Skills";
+          var skinsTab = document.createElement("button");
+          skinsTab.type = "button";
+          skinsTab.className = "character-modal-tab";
+          skinsTab.textContent = "Skins (" + characterSkins.length + ")";
+          function showModalTab(showSkins) {
+            skillsView.hidden = showSkins;
+            skinsView.hidden = !showSkins;
+            skillsTab.classList.toggle("active", !showSkins);
+            skinsTab.classList.toggle("active", showSkins);
+          }
+          skillsTab.addEventListener("click", function () { showModalTab(false); });
+          skinsTab.addEventListener("click", function () { showModalTab(true); });
+          tabs.appendChild(skillsTab);
+          tabs.appendChild(skinsTab);
+          modalContent.appendChild(tabs);
+
+          var skinGrid = document.createElement("div");
+          skinGrid.className = "character-skin-grid";
+          characterSkins.forEach(function (skin) {
+            var skinCard = document.createElement("article");
+            skinCard.className = "character-skin-card";
+            var skinImage = document.createElement("img");
+            skinImage.src = skin.previewFacePicture || character.facePicture || "";
+            skinImage.alt = (skin.name || "Character skin") + " portrait";
+            var skinName = document.createElement("h3");
+            skinName.textContent = skin.name || "Character Skin";
+            var skinPrice = document.createElement("p");
+            skinPrice.className = "character-skin-price";
+            skinPrice.textContent = Number(skin.unlockPointCost || 0).toLocaleString() + " points";
+            var skinDescription = document.createElement("p");
+            skinDescription.className = "character-skin-description";
+            skinDescription.textContent = skin.description || "Alternate character appearance.";
+            skinCard.appendChild(skinImage);
+            skinCard.appendChild(skinName);
+            skinCard.appendChild(skinPrice);
+            skinCard.appendChild(skinDescription);
+            skinGrid.appendChild(skinCard);
+          });
+          skinsView.appendChild(skinGrid);
+        }
+
+        modalContent.appendChild(skillsView);
+        if (characterSkins.length) modalContent.appendChild(skinsView);
+
         if (!visibleSkills.length) {
           var empty = document.createElement("div");
           empty.className = "character-modal-empty";
           empty.textContent = "No visible skills are available for this character.";
-          modalContent.appendChild(empty);
+          skillsView.appendChild(empty);
         } else {
           var grid = document.createElement("div");
           grid.className = "character-modal-skill-grid";
@@ -938,7 +1025,7 @@
             grid.appendChild(evolutionPanel);
           });
 
-          modalContent.appendChild(grid);
+          skillsView.appendChild(grid);
         }
 
         modalBackdrop.classList.add("visible");
