@@ -2617,6 +2617,24 @@ const POKEMON_SKIN_CATALOG = [
         },
     },
     {
+        skinId: 'butterfree-pink',
+        characterId: 'butterfree',
+        name: 'Pink Butterfree',
+        description: 'A rosy Pink Butterfree skin with custom portrait and full skill art.',
+        unlockPointCost: 750,
+        previewFacePicture: 'assets/images/PokemonArena/butterfree/skins/Pink/PinkFP.png',
+        patch: {
+            facePicture: 'assets/images/PokemonArena/butterfree/skins/Pink/PinkFP.png',
+        },
+        skillImageOverridesBySkillId: {
+            'butterfree-confusion': 'assets/images/PokemonArena/butterfree/skins/Pink/PinkConfusion.png',
+            'butterfree-psybeam': 'assets/images/PokemonArena/butterfree/skins/Pink/PinkPSybeam.png',
+            'butterfree-stun-spore': 'assets/images/PokemonArena/butterfree/skins/Pink/PinkStunspore.png',
+            'butterfree-sleep-powder': 'assets/images/PokemonArena/butterfree/skins/Pink/PinkSleepPowder.png',
+            'butterfree-whirlwind': 'assets/images/PokemonArena/butterfree/skins/Pink/PinkWhirlwind.png',
+        },
+    },
+    {
         skinId: 'onix-crystal',
         characterId: 'onix',
         name: 'Crystal Onix',

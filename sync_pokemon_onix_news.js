@@ -175,6 +175,45 @@ const buildAdditionalOnixSkinShowcases = () => additionalOnixSkins.flatMap((skin
     return [portrait, ...skillCards];
 });
 
+const pinkButterfreeFace = 'assets/images/PokemonArena/butterfree/skins/Pink/PinkFP.png';
+const pinkButterfreeImages = {
+    'butterfree-confusion': 'assets/images/PokemonArena/butterfree/skins/Pink/PinkConfusion.png',
+    'butterfree-psybeam': 'assets/images/PokemonArena/butterfree/skins/Pink/PinkPSybeam.png',
+    'butterfree-stun-spore': 'assets/images/PokemonArena/butterfree/skins/Pink/PinkStunspore.png',
+    'butterfree-sleep-powder': 'assets/images/PokemonArena/butterfree/skins/Pink/PinkSleepPowder.png',
+    'butterfree-whirlwind': 'assets/images/PokemonArena/butterfree/skins/Pink/PinkWhirlwind.png',
+};
+
+const buildPinkButterfreeShowcases = () => {
+    const groupKey = 'butterfree-pink-showcase';
+    const groupName = 'Pink Butterfree Skin';
+    const portrait = skillShowcase(
+        'butterfree',
+        'butterfree-confusion',
+        'Pink Butterfree joins the skin shop for 750 points with a portrait and full alternate skill-art set.',
+        'new',
+        {
+            facePicture: pinkButterfreeFace,
+            groupKey,
+            groupName,
+            skillName: 'Pink Butterfree Portrait',
+            skillimage: pinkButterfreeFace,
+        }
+    );
+    return [
+        portrait,
+        ...Object.entries(pinkButterfreeImages).map(([skillId, skillimage]) =>
+            skillShowcase(
+                'butterfree',
+                skillId,
+                `Pink Butterfree includes custom ${getSkill(getCharacter('butterfree'), skillId).name} art.`,
+                'new',
+                { facePicture: pinkButterfreeFace, groupKey, groupName, skillimage }
+            )
+        ),
+    ];
+};
+
 const newsPost = {
     title: 'Pokemon Arena Update V.3.3.1',
     blocks: [
@@ -206,6 +245,10 @@ const newsPost = {
             type: 'paragraph',
             text: 'Four more complete Onix skins are now available: Bismuth Onix, Golden Onix, and Magma Onix cost 750 points each, while Cosmic Onix costs 1,250 points. Every skin includes its own portrait and full skill-art set.',
         },
+        {
+            type: 'paragraph',
+            text: 'Pink Butterfree is also available for 750 points with a custom portrait and alternate art for Confusion, Psybeam, Stun Spore, Sleep Powder, and Whirlwind.',
+        },
     ],
     paragraphs: [
         'Pokemon Arena Update V.3.3.1 adds Onix as a new tank unlock, opens his mission, and brings in the Crystal Onix skin for 750 points.',
@@ -215,6 +258,7 @@ const newsPost = {
         'Harden finishes the kit by taunting the enemy team, adding temporary Shield, and converting up to 10 of Iron Tail’s reduction into unpierceable defense for the turn.',
         'This release also opens the Onix Stonewall Trial mission and adds Crystal Onix to the skin shop for 750 points with a full alternate portrait and complete skill-art set.',
         'Four more complete Onix skins are now available: Bismuth Onix, Golden Onix, and Magma Onix cost 750 points each, while Cosmic Onix costs 1,250 points. Every skin includes its own portrait and full skill-art set.',
+        'Pink Butterfree is also available for 750 points with a custom portrait and alternate art for Confusion, Psybeam, Stun Spore, Sleep Powder, and Whirlwind.',
     ],
     changes: [
         skillShowcase(
@@ -341,6 +385,7 @@ const newsPost = {
             }
         ),
         ...buildAdditionalOnixSkinShowcases(),
+        ...buildPinkButterfreeShowcases(),
     ],
     author: 'kito',
     createdAt: now,

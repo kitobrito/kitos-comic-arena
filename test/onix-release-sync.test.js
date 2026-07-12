@@ -75,6 +75,15 @@ test('Onix skin catalog includes all five skins at the configured prices', () =>
     });
 });
 
+test('Pink Butterfree skin costs 750 points and overrides all five skills', () => {
+    const pinkButterfree = POKEMON_SKIN_CATALOG.find(
+        (skin) => skin.skinId === 'butterfree-pink'
+    );
+    assert.equal(pinkButterfree.characterId, 'butterfree');
+    assert.equal(pinkButterfree.unlockPointCost, 750);
+    assert.equal(Object.keys(pinkButterfree.skillImageOverridesBySkillId).length, 5);
+});
+
 test('Onix Iron Tail grants 3 reduction plus a 2-point Rock Throw bonus', () => {
     const onix = characters.find((character) => character.characterId === 'onix');
     const ironTail = onix.skills.find((skill) => skill.id === 'onix-iron-tail');
