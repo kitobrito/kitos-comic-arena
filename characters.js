@@ -29100,7 +29100,7 @@ const characters = [
                 "id": "onix-rock-throw",
                 "name": "Rock Throw",
                 "skillimage": "assets/images/PokemonArena/onix/rockthrow.webp",
-                "skilldescription": "Deals 15 damage to the enemy team. For 1 turn, Iron Tail grants 5 more damage reduction.",
+                "skilldescription": "Deals 15 damage to the enemy team. For 1 turn, Iron Tail grants 2 more damage reduction.",
                 "energy": [
                     "Random"
                 ],
@@ -29126,7 +29126,7 @@ const characters = [
                         "metadata": {
                             "turnDurationAnchor": "source_turn",
                             "statusIconUrl": "assets/images/PokemonArena/onix/rockthrow.webp",
-                            "tooltipText": "Iron Tail grants 5 additional permanent damage reduction this turn."
+                            "tooltipText": "Iron Tail grants 2 additional permanent damage reduction this turn."
                         }
                     }
                 ]
@@ -29135,7 +29135,7 @@ const characters = [
                 "id": "onix-iron-tail",
                 "name": "Iron Tail",
                 "skillimage": "assets/images/PokemonArena/onix/irontail.webp",
-                "skilldescription": "Onix gains 3 permanent damage reduction, then deals 30 damage to one enemy. If Rock Throw was used last turn, Iron Tail grants 5 additional permanent damage reduction.",
+                "skilldescription": "Onix gains 3 permanent damage reduction, then deals 25 damage to one enemy. If Rock Throw was used last turn, Iron Tail grants 2 additional permanent damage reduction, for 5 total.",
                 "energy": [
                     "Random",
                     "Random"
@@ -29180,11 +29180,11 @@ const characters = [
                         },
                         "metadata": {
                             "infiniteDuration": true,
-                            "onixIronTailReduction": 5,
+                            "onixIronTailReduction": 2,
                             "stackMetadataKey": "onixIronTailReduction",
-                            "stackDelta": 5,
+                            "stackDelta": 2,
                             "stackMax": 999,
-                            "damageReductionFlat": 5,
+                            "damageReductionFlat": 2,
                             "mergeNumericAddKeys": [
                                 "onixIronTailReduction",
                                 "damageReductionFlat"
@@ -29195,7 +29195,7 @@ const characters = [
                     },
                     {
                         "type": "damage",
-                        "amount": 30,
+                        "amount": 25,
                         "scope": "target"
                     },
                     {

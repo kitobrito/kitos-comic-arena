@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const test = require('node:test');
 
 const { syncPokemonOnixRelease } = require('../sync_pokemon_onix_news');
+const characters = require('../characters');
 
 const makeDb = () => {
     const documents = new Map();
@@ -39,8 +40,8 @@ test('Onix release sync migrates MongoDB once and preserves existing missions', 
         missions: [{ missionId: 'existing-mission', sortOrder: 1 }],
     });
 
-    assert.deepEqual(await syncPokemonOnixRelease(db), { migrated: true });
-    assert.deepEqual(await syncPokemonOnixRelease(db), { migrated: false });
+    assert.deepEqual(await syncPokemonOnixRelease(db), { migrated: true, newsSynced: true });
+    assert.deepEqual(await syncPokemonOnixRelease(db), { migrated: false, newsSynced: true });
 
     const missionState = db.documents.get('app_state:missions');
     assert.ok(missionState.missions.some((mission) => mission.missionId === 'existing-mission'));
@@ -54,4 +55,20 @@ test('Onix release sync migrates MongoDB once and preserves existing missions', 
     assert.equal(db.documents.get('news_posts:Pokemon Arena Update V.3.3.1').title,
         'Pokemon Arena Update V.3.3.1');
     assert.equal(db.documents.get('app_state:release_migration:pokemon-v3-3-1-onix').completed, true);
+});
+
+test('Onix Iron Tail grants 3 reduction plus a 2-point Rock Throw bonus', () => {
+    const onix = characters.find((character) => character.characterId === 'onix');
+    const ironTail = onix.skills.find((skill) => skill.id === 'onix-iron-tail');
+    const reductionEffects = ironTail.effects.filter(
+        (effect) => effect.statusId === 'onix_iron_tail_reduction'
+    );
+
+    assert.equal(reductionEffects[0].metadata.stackDelta, 3);
+    assert.equal(reductionEffects[1].metadata.stackDelta, 2);
+    assert.equal(
+        reductionEffects.reduce((total, effect) => total + effect.metadata.stackDelta, 0),
+        5
+    );
+    assert.equal(ironTail.effects.find((effect) => effect.type === 'damage').amount, 25);
 });
