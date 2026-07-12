@@ -37,6 +37,7 @@ const { MongoClient, ObjectId } = require('mongodb');
 const bcrypt = require('bcryptjs');
 const { WebSocketServer, WebSocket } = require('ws');
 const battleLogic = require('./battleLogic');
+const { syncPokemonOnixRelease } = require('./sync_pokemon_onix_news');
 let charactersData = require('./characters');
 
 const app = express();
@@ -73,13 +74,13 @@ const LATEST_CHARACTER_RELEASES_BY_ARENA = {
         { label: 'General Grievous', characterId: 'general-grievous' },
     ],
     pokemon: [
+        { label: 'Onix', characterId: 'onix' },
+        { label: 'Aerodactyl', characterId: 'aerodactyl' },
         { label: 'Magnemite', characterId: 'magnemite' },
-        { label: 'Hitmonlee', characterId: 'hitmonlee' },
-        { label: 'Hitmonchan', characterId: 'hitmonchan' },
     ],
 };
 const LATEST_CHARACTER_RELEASES_STATE_KEY = 'latest_character_releases';
-const LATEST_CHARACTER_RELEASES_VERSION = 'pokemon-release-v3-2-9-magnemite-hitmons';
+const LATEST_CHARACTER_RELEASES_VERSION = 'pokemon-release-v3-3-1-onix';
 const MAINTENANCE_MODE_STATE_KEY = 'maintenance_mode';
 const MAINTENANCE_MODE_CACHE_TTL_MS = 10 * 1000;
 const DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/3JqVcPXm/default.png';
@@ -11075,6 +11076,10 @@ async function initDb() {
     await pointPurchasesCollection.createIndex({ provider: 1, orderId: 1 }, { unique: true });
     await pointPurchasesCollection.createIndex({ username: 1, createdAt: -1 });
     await hydrateCharactersDataFromStoredOverrides();
+    const onixReleaseSync = await syncPokemonOnixRelease(db);
+    if (onixReleaseSync.migrated) {
+        console.log('Applied the Pokemon Arena V.3.3.1 Onix release to MongoDB.');
+    }
     await backfillUserProfiles();
     console.log('Connected to MongoDB.');
 }

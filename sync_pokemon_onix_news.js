@@ -9,6 +9,7 @@ const newsCollectionName = process.env.MONGODB_NEWS_POSTS_COLLECTION || 'news_po
 const appStateCollectionName = process.env.MONGODB_APP_STATE_COLLECTION || 'app_state';
 const latestReleasesKey = 'latest_character_releases';
 const missionsKey = 'missions';
+const releaseMigrationKey = 'release_migration:pokemon-v3-3-1-onix';
 
 const getCharacter = (characterId) => {
     const character = characters.find(
@@ -295,6 +296,62 @@ const buildLatestReleasesState = (existingState = null) => {
     };
 };
 
+async function syncPokemonOnixRelease(db) {
+    if (!db) {
+        throw new Error('A MongoDB database connection is required.');
+    }
+    const newsPosts = db.collection(newsCollectionName);
+    const appState = db.collection(appStateCollectionName);
+    const completedMigration = await appState.findOne({ key: releaseMigrationKey });
+    if (completedMigration?.completed) {
+        return { migrated: false };
+    }
+
+    const { createdAt, ...newsPostUpdate } = newsPost;
+    await newsPosts.updateOne(
+        { title: newsPost.title },
+        { $set: { ...newsPostUpdate, updatedAt: new Date() }, $setOnInsert: { createdAt } },
+        { upsert: true }
+    );
+
+    const missionState = await appState.findOne({ key: missionsKey });
+    await appState.updateOne(
+        { key: missionsKey },
+        {
+            $set: {
+                key: missionsKey,
+                missions: mergeMissionCatalog(
+                    Array.isArray(missionState?.missions) ? missionState.missions : []
+                ),
+                updatedAt: new Date(),
+                updatedBy: 'sync_pokemon_onix_news',
+            },
+        },
+        { upsert: true }
+    );
+
+    const latestReleasesState = await appState.findOne({ key: latestReleasesKey });
+    await appState.updateOne(
+        { key: latestReleasesKey },
+        { $set: buildLatestReleasesState(latestReleasesState) },
+        { upsert: true }
+    );
+
+    await appState.updateOne(
+        { key: releaseMigrationKey },
+        {
+            $set: {
+                key: releaseMigrationKey,
+                completed: true,
+                completedAt: new Date(),
+                updatedBy: 'sync_pokemon_onix_news',
+            },
+        },
+        { upsert: true }
+    );
+    return { migrated: true };
+}
+
 async function syncPokemonOnixNews() {
     if (!uri) {
         throw new Error('MONGODB_URI is required in the environment.');
@@ -303,49 +360,27 @@ async function syncPokemonOnixNews() {
     const client = new MongoClient(uri);
     try {
         await client.connect();
-        const db = client.db(dbName);
-        const newsPosts = db.collection(newsCollectionName);
-        const appState = db.collection(appStateCollectionName);
-
-        const { createdAt, ...newsPostUpdate } = newsPost;
-        await newsPosts.updateOne(
-            { title: newsPost.title },
-            { $set: { ...newsPostUpdate, updatedAt: new Date() }, $setOnInsert: { createdAt } },
-            { upsert: true }
-        );
-
-        const missionState = await appState.findOne({ key: missionsKey });
-        await appState.updateOne(
-            { key: missionsKey },
-            {
-                $set: {
-                    key: missionsKey,
-                    missions: mergeMissionCatalog(
-                        Array.isArray(missionState?.missions) ? missionState.missions : []
-                    ),
-                    updatedAt: new Date(),
-                    updatedBy: 'sync_pokemon_onix_news',
-                },
-            },
-            { upsert: true }
-        );
-
-        const latestReleasesState = await appState.findOne({ key: latestReleasesKey });
-        await appState.updateOne(
-            { key: latestReleasesKey },
-            {
-                $set: buildLatestReleasesState(latestReleasesState),
-            },
-            { upsert: true }
-        );
-
-        console.log('Synced Pokemon Arena Update V.3.3.1 news, Onix mission, and latest releases.');
+        const result = await syncPokemonOnixRelease(client.db(dbName));
+        console.log(result.migrated
+            ? 'Synced Pokemon Arena Update V.3.3.1 news, Onix mission, and latest releases.'
+            : 'Pokemon Arena Update V.3.3.1 was already synced.');
     } finally {
         await client.close();
     }
 }
 
-syncPokemonOnixNews().catch((error) => {
-    console.error(error.message || error);
-    process.exitCode = 1;
-});
+if (require.main === module) {
+    syncPokemonOnixNews().catch((error) => {
+        console.error(error.message || error);
+        process.exitCode = 1;
+    });
+}
+
+module.exports = {
+    buildLatestReleasesState,
+    mergeMissionCatalog,
+    newsPost,
+    onixMission,
+    syncPokemonOnixNews,
+    syncPokemonOnixRelease,
+};
