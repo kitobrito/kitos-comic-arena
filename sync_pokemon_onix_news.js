@@ -92,6 +92,88 @@ const onixMission = {
 
 const now = new Date();
 const crystalFace = 'assets/images/PokemonArena/onix/skins/crystal/crystalfp.webp';
+const additionalOnixSkins = [
+    {
+        key: 'bismuth',
+        name: 'Bismuth Onix',
+        price: 750,
+        facePicture: 'assets/images/PokemonArena/onix/skins/Bismuth/BismuthFP.png',
+        images: {
+            'onix-rock-throw': 'assets/images/PokemonArena/onix/skins/Bismuth/BismuthRockThrow.png',
+            'onix-iron-tail': 'assets/images/PokemonArena/onix/skins/Bismuth/BismuthIronTail.png',
+            'onix-stealth-rock': 'assets/images/PokemonArena/onix/skins/Bismuth/BismuthStealthRock.png',
+            'onix-harden': 'assets/images/PokemonArena/onix/skins/Bismuth/BismuthHarden.png',
+            'onix-passive-sturdy': 'assets/images/PokemonArena/onix/skins/Bismuth/BismuthSturdy.png',
+        },
+    },
+    {
+        key: 'golden',
+        name: 'Golden Onix',
+        price: 750,
+        facePicture: 'assets/images/PokemonArena/onix/skins/Golden/GoldFP.png',
+        images: {
+            'onix-rock-throw': 'assets/images/PokemonArena/onix/skins/Golden/GoldRockThrow.png',
+            'onix-iron-tail': 'assets/images/PokemonArena/onix/skins/Golden/GoldIronTail.png',
+            'onix-stealth-rock': 'assets/images/PokemonArena/onix/skins/Golden/GoldStealthRock.png',
+            'onix-harden': 'assets/images/PokemonArena/onix/skins/Golden/GoldHarden.png',
+            'onix-passive-sturdy': 'assets/images/PokemonArena/onix/skins/Golden/GoldSturdy.png',
+        },
+    },
+    {
+        key: 'magma',
+        name: 'Magma Onix',
+        price: 750,
+        facePicture: 'assets/images/PokemonArena/onix/skins/Magma/MagmaFP.png',
+        images: {
+            'onix-rock-throw': 'assets/images/PokemonArena/onix/skins/Magma/MagmaRockThrow.png',
+            'onix-iron-tail': 'assets/images/PokemonArena/onix/skins/Magma/MagmaIronTail.png',
+            'onix-stealth-rock': 'assets/images/PokemonArena/onix/skins/Magma/Magmastealthrock.png',
+            'onix-harden': 'assets/images/PokemonArena/onix/skins/Magma/Magmaharden.png',
+            'onix-passive-sturdy': 'assets/images/PokemonArena/onix/skins/Magma/Magmasturdy.png',
+        },
+    },
+    {
+        key: 'cosmic',
+        name: 'Cosmic Onix',
+        price: 1250,
+        facePicture: 'assets/images/PokemonArena/onix/skins/Cosmic/CosmicFP.png',
+        images: {
+            'onix-rock-throw': 'assets/images/PokemonArena/onix/skins/Cosmic/CosmicRockThrow.png',
+            'onix-iron-tail': 'assets/images/PokemonArena/onix/skins/Cosmic/CosmicIronTail.png',
+            'onix-stealth-rock': 'assets/images/PokemonArena/onix/skins/Cosmic/CosmicStealthRock.png',
+            'onix-harden': 'assets/images/PokemonArena/onix/skins/Cosmic/CosmicHarden.png',
+            'onix-passive-sturdy': 'assets/images/PokemonArena/onix/skins/Cosmic/CosmicSturdy.png',
+        },
+    },
+];
+
+const buildAdditionalOnixSkinShowcases = () => additionalOnixSkins.flatMap((skin) => {
+    const groupKey = `onix-${skin.key}-showcase`;
+    const groupName = `${skin.name} Skin`;
+    const portrait = skillShowcase(
+        'onix',
+        'onix-rock-throw',
+        `${skin.name} joins the skin shop for ${skin.price} points with a complete alternate art set.`,
+        'new',
+        {
+            facePicture: skin.facePicture,
+            groupKey,
+            groupName,
+            skillName: `${skin.name} Portrait`,
+            skillimage: skin.facePicture,
+        }
+    );
+    const skillCards = Object.entries(skin.images).map(([skillId, skillimage]) =>
+        skillShowcase(
+            'onix',
+            skillId,
+            `${skin.name} includes custom ${getSkill(getCharacter('onix'), skillId).name} art.`,
+            'new',
+            { facePicture: skin.facePicture, groupKey, groupName, skillimage }
+        )
+    );
+    return [portrait, ...skillCards];
+});
 
 const newsPost = {
     title: 'Pokemon Arena Update V.3.3.1',
@@ -120,6 +202,10 @@ const newsPost = {
             type: 'paragraph',
             text: 'This release also opens the Onix Stonewall Trial mission and adds Crystal Onix to the skin shop for 750 points with a full alternate portrait and complete skill-art set.',
         },
+        {
+            type: 'paragraph',
+            text: 'Four more complete Onix skins are now available: Bismuth Onix, Golden Onix, and Magma Onix cost 750 points each, while Cosmic Onix costs 1,250 points. Every skin includes its own portrait and full skill-art set.',
+        },
     ],
     paragraphs: [
         'Pokemon Arena Update V.3.3.1 adds Onix as a new tank unlock, opens his mission, and brings in the Crystal Onix skin for 750 points.',
@@ -128,6 +214,7 @@ const newsPost = {
         'Stealth Rock is Onix’s control tool. It punishes new skill usage by increasing cooldowns, lowering non-affliction damage for the turn, and building toward a stronger piercing burst when the mark expires.',
         'Harden finishes the kit by taunting the enemy team, adding temporary Shield, and converting up to 10 of Iron Tail’s reduction into unpierceable defense for the turn.',
         'This release also opens the Onix Stonewall Trial mission and adds Crystal Onix to the skin shop for 750 points with a full alternate portrait and complete skill-art set.',
+        'Four more complete Onix skins are now available: Bismuth Onix, Golden Onix, and Magma Onix cost 750 points each, while Cosmic Onix costs 1,250 points. Every skin includes its own portrait and full skill-art set.',
     ],
     changes: [
         skillShowcase(
@@ -253,6 +340,7 @@ const newsPost = {
                 skillimage: 'assets/images/PokemonArena/onix/skins/crystal/crystalpassive.webp',
             }
         ),
+        ...buildAdditionalOnixSkinShowcases(),
     ],
     author: 'kito',
     createdAt: now,

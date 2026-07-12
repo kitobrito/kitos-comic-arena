@@ -3,6 +3,7 @@ const test = require('node:test');
 
 const { syncPokemonOnixRelease } = require('../sync_pokemon_onix_news');
 const characters = require('../characters');
+const { POKEMON_SKIN_CATALOG } = require('../server');
 
 const makeDb = () => {
     const documents = new Map();
@@ -55,6 +56,23 @@ test('Onix release sync migrates MongoDB once and preserves existing missions', 
     assert.equal(db.documents.get('news_posts:Pokemon Arena Update V.3.3.1').title,
         'Pokemon Arena Update V.3.3.1');
     assert.equal(db.documents.get('app_state:release_migration:pokemon-v3-3-1-onix').completed, true);
+});
+
+test('Onix skin catalog includes all five skins at the configured prices', () => {
+    const onixSkins = POKEMON_SKIN_CATALOG.filter((skin) => skin.characterId === 'onix');
+    assert.deepEqual(
+        Object.fromEntries(onixSkins.map((skin) => [skin.skinId, skin.unlockPointCost])),
+        {
+            'onix-crystal': 750,
+            'onix-bismuth': 750,
+            'onix-golden': 750,
+            'onix-magma': 750,
+            'onix-cosmic': 1250,
+        }
+    );
+    onixSkins.forEach((skin) => {
+        assert.equal(Object.keys(skin.skillImageOverridesBySkillId).length, 5);
+    });
 });
 
 test('Onix Iron Tail grants 3 reduction plus a 2-point Rock Throw bonus', () => {
