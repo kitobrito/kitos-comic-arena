@@ -305,6 +305,27 @@
       border: 1px solid #666;
       box-shadow: none;
     }
+    .character-evolution-toggle {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #a61926;
+      background: linear-gradient(180deg, #fff 0%, #ffe9eb 100%);
+      color: #7f101b;
+      cursor: pointer;
+      text-align: center;
+    }
+    .character-evolution-toggle img {
+      width: 96px;
+      height: 96px;
+      display: block;
+      margin: 0 auto 8px;
+      border: 2px solid #a61926;
+      object-fit: cover;
+    }
+    .character-evolution-toggle strong { display: block; font-size: 22px; }
+    .character-evolution-toggle span { display: block; margin-top: 4px; font-weight: 700; }
+    .character-evolution-skills { grid-column: 1 / -1; }
+    .character-evolution-skills[hidden] { display: none; }
     .character-skill-description {
       margin: 0;
       color: #2a2a2a;
@@ -702,6 +723,83 @@
         return wrapper;
       }
 
+      function getEvolutionStatusId(skill) {
+        var statusId = skill && skill.actorCondition && skill.actorCondition.statusId
+          ? String(skill.actorCondition.statusId)
+          : "";
+        return /evolution/i.test(statusId) ? statusId : "";
+      }
+
+      function findEvolutionPortrait(character, statusId) {
+        var portrait = "";
+        var visited = [];
+        function walk(value) {
+          if (portrait || !value || typeof value !== "object" || visited.indexOf(value) !== -1) return;
+          visited.push(value);
+          if (String(value.statusId || "") === statusId && value.metadata && value.metadata.facePictureOverride) {
+            portrait = String(value.metadata.facePictureOverride);
+            return;
+          }
+          Object.keys(value).forEach(function (key) { walk(value[key]); });
+        }
+        walk(character);
+        return portrait;
+      }
+
+      function getEvolutionName(character, statusId) {
+        var baseId = String(character && (character.characterId || character.id) || "").replace(/-/g, "_").toLowerCase();
+        var parts = String(statusId || "").toLowerCase().split("_").filter(function (part) {
+          return part && part !== "evolution" && part !== baseId;
+        });
+        var evolvedName = parts.length ? parts[parts.length - 1] : "Evolution";
+        return evolvedName.charAt(0).toUpperCase() + evolvedName.slice(1);
+      }
+
+      function createSkillCard(skill) {
+        var card = document.createElement("article");
+        card.className = "character-skill-card";
+        var skillTitle = document.createElement("h3");
+        skillTitle.className = "character-skill-title";
+        skillTitle.innerHTML = "<span class=\"character-skill-name\">" + (skill.name ? String(skill.name) : "Unknown Skill") + "</span>";
+        var body = document.createElement("div");
+        body.className = "character-skill-body";
+        var skillImage = document.createElement("img");
+        skillImage.className = "character-skill-image";
+        skillImage.src = skill.skillimage ? String(skill.skillimage) : "";
+        skillImage.alt = skill.name ? String(skill.name) : "Skill image";
+        var copy = document.createElement("div");
+        var skillDescription = document.createElement("p");
+        skillDescription.className = "character-skill-description";
+        var desc = skill.description || skill.skilldescription || "";
+        skillDescription.textContent = desc ? String(desc) : "No description available.";
+        var meta = document.createElement("div");
+        meta.className = "character-skill-meta";
+        var topMetaLine = document.createElement("div");
+        topMetaLine.className = "character-skill-meta-row";
+        var cooldownLine = document.createElement("div");
+        cooldownLine.innerHTML = "<strong>Cooldown:</strong> " + (skill.cooldown === 0 ? "None" : (skill.cooldown != null ? String(skill.cooldown) : "None"));
+        var chakraLine = document.createElement("div");
+        var chakraLabel = document.createElement("strong");
+        chakraLabel.textContent = "Cost:";
+        chakraLine.appendChild(chakraLabel);
+        chakraLine.appendChild(createEnergyPips(skill.energy));
+        var classLine = document.createElement("div");
+        classLine.className = "character-skill-classes";
+        var visibleClasses = Array.isArray(skill.classes) ? skill.classes.filter(function (entry) { return !!String(entry || "").trim(); }) : [];
+        classLine.innerHTML = "Classes: " + (visibleClasses.length ? visibleClasses.join(", ") : "None");
+        topMetaLine.appendChild(cooldownLine);
+        topMetaLine.appendChild(chakraLine);
+        meta.appendChild(topMetaLine);
+        meta.appendChild(classLine);
+        copy.appendChild(skillDescription);
+        copy.appendChild(meta);
+        body.appendChild(skillImage);
+        body.appendChild(copy);
+        card.appendChild(skillTitle);
+        card.appendChild(body);
+        return card;
+      }
+
       function openCharacterModal(character) {
         if (!modalBackdrop || !modalContent || !character) {
           return;
@@ -771,64 +869,51 @@
           var grid = document.createElement("div");
           grid.className = "character-modal-skill-grid";
 
+          var baseSkills = [];
+          var evolutionGroups = {};
           visibleSkills.forEach(function (skill) {
-            var card = document.createElement("article");
-            card.className = "character-skill-card";
-
-            var skillTitle = document.createElement("h3");
-            skillTitle.className = "character-skill-title";
-            skillTitle.innerHTML = "<span class=\"character-skill-name\">" + (skill.name ? String(skill.name) : "Unknown Skill") + "</span>";
-
-            var body = document.createElement("div");
-            body.className = "character-skill-body";
-
-            var skillImage = document.createElement("img");
-            skillImage.className = "character-skill-image";
-            skillImage.src = skill.skillimage ? String(skill.skillimage) : "";
-            skillImage.alt = skill.name ? String(skill.name) : "Skill image";
-
-            var copy = document.createElement("div");
-
-            var skillDescription = document.createElement("p");
-            skillDescription.className = "character-skill-description";
-            var desc = skill.description || skill.skilldescription || "";
-            skillDescription.textContent = desc ? String(desc) : "No description available.";
-
-            var meta = document.createElement("div");
-            meta.className = "character-skill-meta";
-
-            var topMetaLine = document.createElement("div");
-            topMetaLine.className = "character-skill-meta-row";
-
-            var cooldownLine = document.createElement("div");
-            cooldownLine.innerHTML = "<strong>Cooldown:</strong> " + (skill.cooldown === 0 ? "None" : (skill.cooldown != null ? String(skill.cooldown) : "None"));
-
-            var chakraLine = document.createElement("div");
-            var chakraLabel = document.createElement("strong");
-            chakraLabel.textContent = "Cost:";
-            chakraLine.appendChild(chakraLabel);
-            chakraLine.appendChild(createEnergyPips(skill.energy));
-
-            var classLine = document.createElement("div");
-            classLine.className = "character-skill-classes";
-            var visibleClasses = Array.isArray(skill.classes)
-              ? skill.classes.filter(function (entry) {
-                  return !!String(entry || "").trim();
-                })
-              : [];
-            classLine.innerHTML = "Classes: " + (visibleClasses.length ? visibleClasses.join(", ") : "None");
-
-            topMetaLine.appendChild(cooldownLine);
-            topMetaLine.appendChild(chakraLine);
-            meta.appendChild(topMetaLine);
-            meta.appendChild(classLine);
-            copy.appendChild(skillDescription);
-            copy.appendChild(meta);
-            body.appendChild(skillImage);
-            body.appendChild(copy);
-            card.appendChild(skillTitle);
-            card.appendChild(body);
-            grid.appendChild(card);
+            var evolutionStatusId = getEvolutionStatusId(skill);
+            if (!evolutionStatusId) {
+              baseSkills.push(skill);
+              return;
+            }
+            evolutionGroups[evolutionStatusId] = evolutionGroups[evolutionStatusId] || [];
+            evolutionGroups[evolutionStatusId].push(skill);
+          });
+          baseSkills.forEach(function (skill) {
+            grid.appendChild(createSkillCard(skill));
+          });
+          Object.keys(evolutionGroups).forEach(function (statusId) {
+            var evolutionName = getEvolutionName(character, statusId);
+            var evolutionSkills = evolutionGroups[statusId];
+            var toggle = document.createElement("button");
+            toggle.type = "button";
+            toggle.className = "character-evolution-toggle";
+            toggle.setAttribute("aria-expanded", "false");
+            var portrait = document.createElement("img");
+            portrait.src = findEvolutionPortrait(character, statusId) || character.facePicture || "";
+            portrait.alt = evolutionName + " portrait";
+            var title = document.createElement("strong");
+            title.textContent = evolutionName;
+            var prompt = document.createElement("span");
+            prompt.textContent = "View evolved skills";
+            toggle.appendChild(portrait);
+            toggle.appendChild(title);
+            toggle.appendChild(prompt);
+            var evolutionPanel = document.createElement("div");
+            evolutionPanel.className = "character-modal-skill-grid character-evolution-skills";
+            evolutionPanel.hidden = true;
+            evolutionSkills.forEach(function (skill) {
+              evolutionPanel.appendChild(createSkillCard(skill));
+            });
+            toggle.addEventListener("click", function () {
+              var opening = evolutionPanel.hidden;
+              evolutionPanel.hidden = !opening;
+              toggle.setAttribute("aria-expanded", opening ? "true" : "false");
+              prompt.textContent = opening ? "Hide evolved skills" : "View evolved skills";
+            });
+            grid.appendChild(toggle);
+            grid.appendChild(evolutionPanel);
           });
 
           modalContent.appendChild(grid);
