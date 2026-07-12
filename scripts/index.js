@@ -858,6 +858,7 @@
           key: groupKey,
           facePicture: entry && entry.facePicture ? String(entry.facePicture) : "",
           characterName: entry && (entry.groupName || entry.characterName) ? String(entry.groupName || entry.characterName) : "",
+          collapsible: !!(entry && entry.groupName && /\sSkin$/i.test(String(entry.groupName))),
           entries: [entry]
         });
       });
@@ -887,7 +888,37 @@
           groupCopy.appendChild(groupName);
         }
 
-        group.entries.forEach(function (entry) {
+        var visibleEntries = group.collapsible
+          ? group.entries.filter(function (entry) {
+            return !(entry && entry.skillName && /\sPortrait$/i.test(String(entry.skillName)));
+          })
+          : group.entries;
+        var entryContainer = groupCopy;
+
+        if (group.collapsible && visibleEntries.length) {
+          var toggleButton = document.createElement("button");
+          toggleButton.type = "button";
+          toggleButton.className = "news-change-toggle";
+          toggleButton.textContent = "View " + visibleEntries.length + " skill images";
+          toggleButton.setAttribute("aria-expanded", "false");
+
+          var collapsibleEntries = document.createElement("div");
+          collapsibleEntries.className = "news-change-collapsible";
+          collapsibleEntries.hidden = true;
+          toggleButton.addEventListener("click", function () {
+            var willExpand = collapsibleEntries.hidden;
+            collapsibleEntries.hidden = !willExpand;
+            toggleButton.setAttribute("aria-expanded", willExpand ? "true" : "false");
+            toggleButton.textContent = willExpand
+              ? "Hide skill images"
+              : "View " + visibleEntries.length + " skill images";
+          });
+          groupCopy.appendChild(toggleButton);
+          groupCopy.appendChild(collapsibleEntries);
+          entryContainer = collapsibleEntries;
+        }
+
+        visibleEntries.forEach(function (entry) {
           var item = document.createElement("div");
           item.className = "news-change-item";
 
@@ -942,7 +973,7 @@
           copy.appendChild(text);
 
           item.appendChild(copy);
-          groupCopy.appendChild(item);
+          entryContainer.appendChild(item);
         });
 
         groupNode.appendChild(groupCopy);

@@ -959,6 +959,35 @@
       text-transform: uppercase;
     }
 
+    .news-change-toggle {
+      justify-self: start;
+      padding: 8px 12px;
+      border: 3px solid var(--line);
+      background: var(--accent-2);
+      color: var(--line);
+      font: inherit;
+      font-size: 14px;
+      font-weight: 900;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .news-change-toggle:hover,
+    .news-change-toggle:focus-visible {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .news-change-collapsible {
+      display: grid;
+      gap: 10px;
+    }
+
+    .news-change-collapsible[hidden] {
+      display: none;
+    }
+
     .news-change-skill {
       display: inline-flex;
       align-items: center;
@@ -1792,4 +1821,3 @@
   <script src="./scripts/index.js" defer></script>
 </body>
 </html>
-
