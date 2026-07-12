@@ -361,10 +361,16 @@
     .character-modal-view[hidden] { display: none; }
     .character-skin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
     .character-skin-card { border: 2px solid #a61926; background: #fff5f5; padding: 12px; text-align: center; }
-    .character-skin-card img { width: 120px; height: 120px; object-fit: cover; border: 2px solid #a61926; }
+    .character-skin-portrait { width: 120px; height: 120px; object-fit: cover; border: 2px solid #a61926; cursor: pointer; }
     .character-skin-card h3 { margin: 8px 0 4px; color: #7f101b; font-size: 22px; }
     .character-skin-price { margin: 0 0 6px; color: #b51f2e; font-size: 18px; font-weight: 900; }
     .character-skin-description { margin: 0; color: #351010; line-height: 1.35; }
+    .character-skin-prompt { margin: 8px 0 0; color: #8b121e; font-weight: 800; }
+    .character-skin-gallery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #c44650; }
+    .character-skin-gallery[hidden] { display: none; }
+    .character-skin-skill { margin: 0; }
+    .character-skin-skill img { width: 76px; height: 76px; object-fit: cover; border: 1px solid #a61926; }
+    .character-skin-skill figcaption { margin-top: 3px; color: #351010; font-size: 12px; font-weight: 700; }
     .character-skill-description {
       margin: 0;
       color: #2a2a2a;
@@ -947,8 +953,13 @@
             var skinCard = document.createElement("article");
             skinCard.className = "character-skin-card";
             var skinImage = document.createElement("img");
+            skinImage.className = "character-skin-portrait";
             skinImage.src = skin.previewFacePicture || character.facePicture || "";
             skinImage.alt = (skin.name || "Character skin") + " portrait";
+            skinImage.tabIndex = 0;
+            skinImage.setAttribute("role", "button");
+            skinImage.setAttribute("aria-expanded", "false");
+            skinImage.setAttribute("aria-label", "Show " + (skin.name || "skin") + " skill pictures");
             var skinName = document.createElement("h3");
             skinName.textContent = skin.name || "Character Skin";
             var skinPrice = document.createElement("p");
@@ -957,10 +968,53 @@
             var skinDescription = document.createElement("p");
             skinDescription.className = "character-skin-description";
             skinDescription.textContent = skin.description || "Alternate character appearance.";
+            var skinPrompt = document.createElement("p");
+            skinPrompt.className = "character-skin-prompt";
+            skinPrompt.textContent = "Click portrait to view skill pictures";
+            var skinGallery = document.createElement("div");
+            skinGallery.className = "character-skin-gallery";
+            skinGallery.hidden = true;
+            var artworkBySkillId = {};
+            Object.keys(skin.skillImageOverridesBySkillId || {}).forEach(function (skillId) {
+              artworkBySkillId[skillId] = skin.skillImageOverridesBySkillId[skillId];
+            });
+            Object.keys(skin.skillOverridesBySkillId || {}).forEach(function (skillId) {
+              var override = skin.skillOverridesBySkillId[skillId] || {};
+              if (override.skillimage) artworkBySkillId[skillId] = override.skillimage;
+            });
+            Object.keys(artworkBySkillId).forEach(function (skillId) {
+              var baseSkill = (character.skills || []).find(function (skill) { return skill && skill.id === skillId; }) || {};
+              var override = (skin.skillOverridesBySkillId || {})[skillId] || {};
+              var skillFigure = document.createElement("figure");
+              skillFigure.className = "character-skin-skill";
+              var artwork = document.createElement("img");
+              artwork.src = artworkBySkillId[skillId];
+              artwork.alt = (override.name || baseSkill.name || skillId) + " skin artwork";
+              var caption = document.createElement("figcaption");
+              caption.textContent = override.name || baseSkill.name || skillId;
+              skillFigure.appendChild(artwork);
+              skillFigure.appendChild(caption);
+              skinGallery.appendChild(skillFigure);
+            });
+            function toggleSkinGallery() {
+              var opening = skinGallery.hidden;
+              skinGallery.hidden = !opening;
+              skinImage.setAttribute("aria-expanded", opening ? "true" : "false");
+              skinPrompt.textContent = opening ? "Click portrait to hide skill pictures" : "Click portrait to view skill pictures";
+            }
+            skinImage.addEventListener("click", toggleSkinGallery);
+            skinImage.addEventListener("keydown", function (event) {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                toggleSkinGallery();
+              }
+            });
             skinCard.appendChild(skinImage);
             skinCard.appendChild(skinName);
             skinCard.appendChild(skinPrice);
             skinCard.appendChild(skinDescription);
+            skinCard.appendChild(skinPrompt);
+            skinCard.appendChild(skinGallery);
             skinGrid.appendChild(skinCard);
           });
           skinsView.appendChild(skinGrid);
