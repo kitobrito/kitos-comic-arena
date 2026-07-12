@@ -16,12 +16,20 @@ const {
     scoreBattleBotDamageCoordination,
     buildHumanMatchStatsFilter,
     inferMatchArenaFromTeams,
+    normalizeNewsArena,
     isTeamRosterInArena,
     buildPairedMatchDocument,
     setCachedBotTeamsForTests,
     resetMatchmakingStateForTests,
     getUserMatchForTests,
 } = require('../server');
+
+test('news arena classification separates explicit and legacy Pokemon posts', () => {
+    assert.equal(normalizeNewsArena({ arena: 'pokemon', title: 'Onix arrives' }), 'pokemon');
+    assert.equal(normalizeNewsArena({ arena: 'comic', title: 'Pokemon crossover event' }), 'comic');
+    assert.equal(normalizeNewsArena({ title: 'Pokemon Arena Update V.3.3.1' }), 'pokemon');
+    assert.equal(normalizeNewsArena({ title: 'Comic Arena Balance Update' }), 'comic');
+});
 
 test('battle bots focus damage without attacking enemies already projected to fall', () => {
     assert.ok(scoreBattleBotDamageCoordination({ hp: 60, projectedDamage: 25, candidateDamage: 35 }) > 100);

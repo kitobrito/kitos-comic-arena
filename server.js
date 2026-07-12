@@ -7023,12 +7023,23 @@ const normalizeNewsBlocks = (value) =>
         .filter((entry) => entry.type === 'divider' || (entry.type === 'paragraph' && entry.text))
         .slice(0, 200);
 
+const normalizeNewsArena = (post = {}) => {
+    const explicitArena = typeof post.arena === 'string' ? post.arena.trim().toLowerCase() : '';
+    if (explicitArena === 'pokemon' || explicitArena === 'comic') {
+        return explicitArena;
+    }
+    return /pokemon\s*arena/i.test(typeof post.title === 'string' ? post.title : '')
+        ? 'pokemon'
+        : 'comic';
+};
+
 const serializeNewsPost = (post = {}) => ({
     id: post._id ? String(post._id) : '',
     title: typeof post.title === 'string' ? post.title : 'Untitled Post',
     paragraphs: normalizeNewsParagraphs(post.paragraphs),
     changes: normalizeNewsChanges(post.changes),
     blocks: normalizeNewsBlocks(post.blocks),
+    arena: normalizeNewsArena(post),
     author: typeof post.author === 'string' ? post.author : 'Unknown',
     createdAt: post.createdAt || null,
     updatedAt: post.updatedAt || null,
@@ -13129,9 +13140,15 @@ app.post('/api/admin/winrates/reset', requireSession, async (req, res) => {
 
 app.get('/api/news', async (req, res) => {
     try {
-        const posts = await newsPostsCollection
+        const requestedArena = typeof req.query?.arena === 'string' && req.query.arena.trim()
+            ? normalizeArenaMode(req.query.arena)
+            : '';
+        const storedPosts = await newsPostsCollection
             .find({}, { sort: { createdAt: -1 } })
             .toArray();
+        const posts = requestedArena
+            ? storedPosts.filter((post) => normalizeNewsArena(post) === requestedArena)
+            : storedPosts;
         return res.json({
             ok: true,
             posts: posts.map(serializeNewsPost),
@@ -14035,6 +14052,7 @@ app.post('/api/admin/news', requireSession, async (req, res) => {
     const blocks = normalizeNewsBlocks(req.body?.blocks);
     const paragraphs = normalizeNewsParagraphs(req.body?.paragraphs);
     const changes = normalizeNewsChanges(req.body?.changes);
+    const arena = normalizeArenaMode(req.body?.arena);
     if (!title) {
         return res.status(400).json({ error: 'Title is required.' });
     }
@@ -14043,6 +14061,7 @@ app.post('/api/admin/news', requireSession, async (req, res) => {
         const now = new Date();
         const post = {
             title,
+            arena,
             blocks,
             paragraphs,
             changes,
@@ -14075,6 +14094,7 @@ app.put('/api/admin/news/:id', requireSession, async (req, res) => {
     const blocks = normalizeNewsBlocks(req.body?.blocks);
     const paragraphs = normalizeNewsParagraphs(req.body?.paragraphs);
     const changes = normalizeNewsChanges(req.body?.changes);
+    const arena = normalizeArenaMode(req.body?.arena || 'comic');
     if (!title) {
         return res.status(400).json({ error: 'Title is required.' });
     }
@@ -14086,6 +14106,7 @@ app.put('/api/admin/news/:id', requireSession, async (req, res) => {
         }
         const nextPost = {
             title,
+            arena,
             blocks,
             paragraphs,
             changes,
@@ -16120,5 +16141,6 @@ if (require.main === module) {
         scoreBattleBotDamageCoordination,
         buildHumanMatchStatsFilter,
         inferMatchArenaFromTeams,
+        normalizeNewsArena,
     };
 }

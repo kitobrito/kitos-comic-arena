@@ -279,6 +279,7 @@
   var newsTitleInput = document.getElementById("news-title");
   var newsContentInput = document.getElementById("news-content");
   var newsChangesInput = document.getElementById("news-changes");
+  var newsArenaInput = document.getElementById("news-arena");
   var newsAdminStatus = document.getElementById("news-admin-status");
   var newsSaveButton = document.getElementById("news-save-button");
   var newsResetButton = document.getElementById("news-reset-button");
@@ -386,6 +387,10 @@
       }
     } catch (error) {}
     renderActiveHomeLeaderboards();
+    if (updateUrl && newsFeed) {
+      currentNewsPostIndex = 0;
+      loadPublicNews();
+    }
   }
 
   function ensureClanPanelNotification() {
@@ -1079,7 +1084,7 @@
     }
     setNewsStatus("Loading news...");
     try {
-      var response = await fetch("/api/news", {
+      var response = await fetch("/api/news?arena=" + encodeURIComponent(activeHomeArena), {
         credentials: "same-origin"
       });
       var data = await response.json().catch(function () {
@@ -1132,6 +1137,9 @@
     }
     if (newsTitleInput) {
       newsTitleInput.value = post.title || "";
+    }
+    if (newsArenaInput) {
+      newsArenaInput.value = post.arena === "pokemon" ? "pokemon" : "comic";
     }
     if (newsContentInput) {
       newsContentInput.value = buildNewsEditorText(post.blocks || []);
@@ -1459,6 +1467,7 @@
     var changes = parseNewsChanges(newsChangesInput && newsChangesInput.value ? newsChangesInput.value : "");
     var payload = {
       title: title,
+      arena: newsArenaInput && newsArenaInput.value === "pokemon" ? "pokemon" : "comic",
       blocks: blocks,
       paragraphs: buildNewsParagraphsFromBlocks(blocks),
       changes: changes
