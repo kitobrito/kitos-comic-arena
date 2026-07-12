@@ -13,6 +13,8 @@
   var homeArenaDescription = document.getElementById("home-arena-description");
   var activeHomeArena = (function () {
     try {
+      var declared = document.body && document.body.dataset ? document.body.dataset.pageArena : "";
+      if (declared === "pokemon" || declared === "comic") return declared;
       var requested = new URLSearchParams(window.location.search).get("arena");
       if (requested === "pokemon" || requested === "comic") return requested;
       return localStorage.getItem("comicArenaMode") === "pokemon" ? "pokemon" : "comic";
