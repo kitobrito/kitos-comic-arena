@@ -1487,7 +1487,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const loadCharacterPlayRates = async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/characters/play-rates`, {
+            const response = await fetch(`${API_BASE_URL}/api/characters/play-rates?arena=${encodeURIComponent(activeArenaMode)}`, {
                 credentials: 'include',
             });
             if (!response.ok) {

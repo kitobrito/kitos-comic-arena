@@ -5586,6 +5586,72 @@ const normalizeUserProfile = (user = {}) => {
 const isGameBotUsername = (username) =>
     typeof username === 'string' && username.trim().toLowerCase().startsWith(GAME_BOT_USERNAME_PREFIX);
 
+const buildHumanMatchStatsFilter = ({ arena = DEFAULT_ARENA_MODE, mode = '' } = {}) => {
+    const normalizedArena = normalizeArenaMode(arena);
+    const normalizedMode = ['quick', 'ladder'].includes(String(mode || '').trim().toLowerCase())
+        ? String(mode).trim().toLowerCase()
+        : null;
+    return {
+        arena: normalizedArena,
+        status: 'ended',
+        ...(normalizedMode ? { mode: normalizedMode } : { mode: { $in: ['quick', 'ladder'] } }),
+        'botMatch.enabled': { $ne: true },
+        players: {
+            $not: {
+                $elemMatch: {
+                    $or: [
+                        { isBot: true },
+                        { username: { $regex: '^__game_bot__:', $options: 'i' } },
+                    ],
+                },
+            },
+        },
+    };
+};
+
+const inferMatchArenaFromTeams = (match = {}) => {
+    const rosterIndices = (Array.isArray(match.players) ? match.players : [])
+        .flatMap((player) => (Array.isArray(player?.team) ? player.team : []))
+        .map((index) => Number.parseInt(index, 10))
+        .filter((index) => Number.isInteger(index) && index >= 0);
+    if (!rosterIndices.length) return null;
+    const arenas = new Set(
+        rosterIndices.map((index) => {
+            const character = charactersData?.[index];
+            return character ? normalizeArenaMode(character.arena || character.universe) : null;
+        })
+    );
+    arenas.delete(null);
+    return arenas.size === 1 ? Array.from(arenas)[0] : null;
+};
+
+const backfillMatchArenaMetadata = async () => {
+    if (!matchesCollection) return { updated: 0, skipped: 0 };
+    const matches = await matchesCollection.find(
+        { $or: [{ arena: { $exists: false } }, { arena: { $nin: ['comic', 'pokemon'] } }] },
+        { projection: { _id: 1, players: 1 } }
+    ).toArray();
+    const operations = [];
+    let skipped = 0;
+    matches.forEach((match) => {
+        const arena = inferMatchArenaFromTeams(match);
+        if (!arena) {
+            skipped += 1;
+            return;
+        }
+        operations.push({
+            updateOne: {
+                filter: { _id: match._id },
+                update: { $set: { arena, arenaBackfilledAt: new Date() } },
+            },
+        });
+    });
+    if (operations.length) {
+        await matchesCollection.bulkWrite(operations, { ordered: false });
+    }
+    return { updated: operations.length, skipped };
+};
+
 const getPlayerDisplayName = (player) => {
     const displayName =
         typeof player?.displayName === 'string' && player.displayName.trim()
@@ -11192,6 +11258,10 @@ async function initDb() {
     await pointPurchasesCollection.createIndex({ provider: 1, orderId: 1 }, { unique: true });
     await pointPurchasesCollection.createIndex({ username: 1, createdAt: -1 });
     await hydrateCharactersDataFromStoredOverrides();
+    const matchArenaBackfill = await backfillMatchArenaMetadata();
+    if (matchArenaBackfill.updated > 0) {
+        console.log(`Backfilled arena metadata for ${matchArenaBackfill.updated} matches.`);
+    }
     const onixReleaseSync = await syncPokemonOnixRelease(db);
     if (onixReleaseSync.migrated) {
         console.log('Applied the Pokemon Arena V.3.3.1 Onix release to MongoDB.');
@@ -12954,6 +13024,10 @@ app.get('/api/admin/winrates', requireSession, async (req, res) => {
     }
 
     try {
+        const arena = normalizeArenaMode(req.query?.arena);
+        const mode = ['quick', 'ladder'].includes(String(req.query?.mode || '').toLowerCase())
+            ? String(req.query.mode).toLowerCase()
+            : 'ladder';
         const winratesState = await appStateCollection.findOne({ key: 'winrates' });
         const resetAt =
             winratesState && winratesState.resetAt
@@ -12966,13 +13040,13 @@ app.get('/api/admin/winrates', requireSession, async (req, res) => {
             facePicture: typeof character.facePicture === 'string' ? character.facePicture : '',
             totalGamesWon: 0,
             totalMatchesPlayed: 0,
-        }));
+            arena: normalizeArenaMode(character.arena || character.universe),
+        })).filter((character) => character.arena === arena);
+        const charactersByIndex = new Map(characters.map((character) => [character.characterIndex, character]));
 
         const ladderMatches = await matchesCollection.find(
             {
-                mode: 'ladder',
-                status: 'ended',
-                players: { $exists: true, $ne: [] },
+                ...buildHumanMatchStatsFilter({ arena, mode }),
                 ...(resetAt && !Number.isNaN(resetAt.getTime())
                     ? {
                         endedAt: { $gte: resetAt },
@@ -13000,12 +13074,13 @@ app.get('/api/admin/winrates', requireSession, async (req, res) => {
 
                 team.forEach((characterIndex) => {
                     const index = Number(characterIndex);
-                    if (!Number.isInteger(index) || !characters[index]) {
+                    const characterStats = charactersByIndex.get(index);
+                    if (!Number.isInteger(index) || !characterStats) {
                         return;
                     }
-                    characters[index].totalMatchesPlayed += 1;
+                    characterStats.totalMatchesPlayed += 1;
                     if (didWin) {
-                        characters[index].totalGamesWon += 1;
+                        characterStats.totalGamesWon += 1;
                     }
                 });
             });
@@ -13013,6 +13088,8 @@ app.get('/api/admin/winrates', requireSession, async (req, res) => {
 
         return res.json({
             ok: true,
+            arena,
+            mode,
             characters,
         });
     } catch (error) {
@@ -13736,6 +13813,9 @@ app.get('/api/characters/play-rates', async (req, res) => {
     res.set('Cache-Control', 'no-store');
 
     try {
+        const arena = normalizeArenaMode(req.query?.arena);
+        const requestedMode = String(req.query?.mode || '').trim().toLowerCase();
+        const mode = ['quick', 'ladder'].includes(requestedMode) ? requestedMode : '';
         const rosterIndexToCharacterId = new Map(
             (Array.isArray(charactersData) ? charactersData : []).map((character, rosterIndex) => [
                 rosterIndex,
@@ -13747,6 +13827,7 @@ app.get('/api/characters/play-rates', async (req, res) => {
 
         const rows = await matchesCollection
             .aggregate([
+                { $match: buildHumanMatchStatsFilter({ arena, mode }) },
                 { $unwind: '$players' },
                 { $unwind: '$players.team' },
                 {
@@ -13773,8 +13854,12 @@ app.get('/api/characters/play-rates', async (req, res) => {
 
         return res.json({
             ok: true,
+            arena,
+            mode: mode || 'all-pvp',
             totalPicks,
-            playRates: (Array.isArray(charactersData) ? charactersData : []).map((character) => {
+            playRates: (Array.isArray(charactersData) ? charactersData : [])
+                .filter((character) => normalizeArenaMode(character?.arena || character?.universe) === arena)
+                .map((character) => {
                 const characterId = typeof character?.characterId === 'string' ? character.characterId : '';
                 const pickCount = pickCountsByCharacterId.get(characterId) || 0;
                 return {
@@ -13782,7 +13867,7 @@ app.get('/api/characters/play-rates', async (req, res) => {
                     pickCount,
                     playRatePercent: totalPicks > 0 ? (pickCount / totalPicks) * 100 : 0,
                 };
-            }),
+                }),
         });
     } catch (error) {
         console.error('Character play rate load error:', error);
@@ -16033,5 +16118,7 @@ if (require.main === module) {
         getUserMatchForTests,
         POKEMON_SKIN_CATALOG,
         scoreBattleBotDamageCoordination,
+        buildHumanMatchStatsFilter,
+        inferMatchArenaFromTeams,
     };
 }

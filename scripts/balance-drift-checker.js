@@ -53,9 +53,15 @@ function detectSkillDrift(skill = {}) {
 
     const describedTurns = parseNumber(description, /for\s+(\d+)\s+turn/i);
     if (describedTurns !== null && statusEffects.length > 0) {
-        const maxDuration = Math.max(...statusEffects.map((effect) => Number(effect.duration) || 0));
-        if (maxDuration > 0 && maxDuration !== describedTurns) {
-            issues.push(`description duration ${describedTurns} != status duration ${maxDuration}`);
+        const playerFacingDurations = statusEffects
+            .filter((effect) => !effect?.metadata?.infiniteDuration)
+            .map((effect) => Number(effect.duration) || 0)
+            .filter((duration) => duration > 0 && duration < 90);
+        if (playerFacingDurations.length > 0) {
+            const maxDuration = Math.max(...playerFacingDurations);
+            if (maxDuration !== describedTurns) {
+                issues.push(`description duration ${describedTurns} != status duration ${maxDuration}`);
+            }
         }
     }
 

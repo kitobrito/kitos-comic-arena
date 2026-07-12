@@ -14,6 +14,8 @@ const {
     findMatchOpponentByUsername,
     buildBattleBotTeam,
     scoreBattleBotDamageCoordination,
+    buildHumanMatchStatsFilter,
+    inferMatchArenaFromTeams,
     isTeamRosterInArena,
     buildPairedMatchDocument,
     setCachedBotTeamsForTests,
@@ -109,6 +111,40 @@ test('balance drift checker catches text-to-effect mismatch', () => {
         ],
     });
     assert.equal(issues.length, 2);
+});
+
+test('balance drift checker ignores internal tracker durations', () => {
+    const issues = detectSkillDrift({
+        skilldescription: 'Protects one ally for 1 turn.',
+        effects: [{ type: 'apply_status', duration: 99, metadata: { tracker: true } }],
+    });
+    assert.deepEqual(issues, []);
+});
+
+test('human match stats separate arena and mode while excluding bots', () => {
+    assert.deepEqual(buildHumanMatchStatsFilter({ arena: 'pokemon', mode: 'quick' }), {
+        arena: 'pokemon',
+        status: 'ended',
+        mode: 'quick',
+        'botMatch.enabled': { $ne: true },
+        players: {
+            $not: {
+                $elemMatch: {
+                    $or: [
+                        { isBot: true },
+                        { username: { $regex: '^__game_bot__:', $options: 'i' } },
+                    ],
+                },
+            },
+        },
+    });
+});
+
+test('legacy match arena inference requires every team slot to agree', () => {
+    const comicIndex = characters.findIndex((character) => getCharacterArena(character) === 'comic');
+    const pokemonIndex = characters.findIndex((character) => getCharacterArena(character) === 'pokemon');
+    assert.equal(inferMatchArenaFromTeams({ players: [{ team: [pokemonIndex, pokemonIndex] }] }), 'pokemon');
+    assert.equal(inferMatchArenaFromTeams({ players: [{ team: [comicIndex, pokemonIndex] }] }), null);
 });
 
 test('usernamesEqual ignores case and surrounding whitespace', () => {
