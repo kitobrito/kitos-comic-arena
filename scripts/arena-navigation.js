@@ -96,6 +96,17 @@
       url.searchParams.set("arena", arena);
       link.href = (url.pathname.split("/").pop() || "index.html") + url.search + url.hash;
     });
+    if (path !== "index.html" && path !== "charactersandskills.html" && path !== "pokemon-charactersandskills.html") {
+      document.querySelectorAll('a[href="charactersandskills.html"], a[href="pokemon-charactersandskills.html"]').forEach(function (link) {
+        link.href = arena === "pokemon" ? "pokemon-charactersandskills.html" : "charactersandskills.html";
+        if (/characters/i.test(link.textContent || "")) {
+          link.textContent = arena === "pokemon" ? "Pokemon Characters and Skills" : "Comic Characters and Skills";
+        }
+      });
+      document.querySelectorAll('a[href="missions.html"], a[href="missions.html?arena=pokemon"]').forEach(function (link) {
+        link.href = arena === "pokemon" ? "missions.html?arena=pokemon" : "missions.html";
+      });
+    }
   }
 
   var style = document.createElement("style");
