@@ -597,8 +597,13 @@
 
       function getVisibleSkills(character) {
         var skills = character && Array.isArray(character.skills) ? character.skills : [];
+        var characterId = character && (character.characterId || character.id)
+          ? String(character.characterId || character.id).toLowerCase()
+          : "";
         return skills.filter(function (skill) {
-          return skill && !skill.hiddenFromSelectionViewer;
+          if (!skill || skill.hiddenFromSelectionViewer) return false;
+          var skillId = skill.id ? String(skill.id).toLowerCase() : "";
+          return characterId !== "charmander" || !/^charmander-charizard-[xy]-/.test(skillId);
         });
       }
 
