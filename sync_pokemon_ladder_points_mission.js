@@ -17,8 +17,8 @@ const mission = {
     portrait: 'assets/images/PokemonArena/found-pokeball.png',
     portraitAlt: 'Pokemon Arena points reward',
     requirements: [
-        'Win 25 human Ladder matches in Pokemon Arena.',
-        'Bot, Quick, Private, and mission battles do not count.',
+        'Win 25 Ladder matches in Pokemon Arena.',
+        'Human and battle-bot Ladder wins both count. Quick, Private, and mission battles do not.',
         'Spend points on character unlocks, skins, and additional Eevee evolutions.',
     ],
     goals: [{ type: 'win_ladder_matches', wins: 25 }],

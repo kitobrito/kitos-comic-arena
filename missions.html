@@ -1817,7 +1817,7 @@
     <main class="main">
       <aside class="pokemon-points-promo" id="pokemon-points-promo" hidden>
         <strong>1,000 Points Are Waiting in Ladder</strong>
-        <p>Win 25 ranked games against real players. Use points to unlock Pokémon, buy alternate skins, and purchase additional Eevee evolutions.</p>
+        <p>Win 25 ranked games against players or battle bots. Use points to unlock Pokémon, buy alternate skins, and purchase additional Eevee evolutions.</p>
       </aside>
       <section class="missions-panel" aria-label="Missions">
         <div class="missions-toolbar">
@@ -2835,7 +2835,7 @@
           return "Reach rank " + normalized.rank + ". (" + Math.min(progressCount, normalized.rank) + "/" + normalized.rank + ")";
         }
         if (normalized.type === "win_ladder_matches") {
-          return "Win " + normalized.wins + " Pokemon Arena Ladder matches against real players. (" + Math.min(progressCount, normalized.wins) + "/" + normalized.wins + ")";
+          return "Win " + normalized.wins + " Pokemon Arena Ladder matches. Human and battle-bot wins both count. (" + Math.min(progressCount, normalized.wins) + "/" + normalized.wins + ")";
         }
         if (normalized.type === "win_matches") {
           const characterName = normalized.character_name || normalized.character_id;
