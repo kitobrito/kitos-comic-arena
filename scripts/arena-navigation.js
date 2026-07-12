@@ -56,19 +56,25 @@
   }
 
   function updateBranding() {
+    function getBrandArena(node) {
+      var scoped = node && node.closest ? node.closest("[data-home-arena]") : null;
+      var scopedArena = scoped ? scoped.getAttribute("data-home-arena") : "";
+      return scopedArena === "pokemon" || scopedArena === "comic" ? scopedArena : arena;
+    }
     document.querySelectorAll(".brand-name").forEach(function (node) {
-      node.textContent = arenaName;
+      node.textContent = getBrandArena(node) === "pokemon" ? "Pokemon Arena" : "Comic Arena";
     });
     document.querySelectorAll(".brand-tagline").forEach(function (node) {
-      node.textContent = arena === "pokemon"
+      node.textContent = getBrandArena(node) === "pokemon"
         ? "Build your team and become the champion"
         : "Your #1 Comic Online Multiplayer Game";
     });
     document.querySelectorAll(".brand img, img.brand-mark").forEach(function (image) {
-      image.src = arena === "pokemon"
+      var imageArena = getBrandArena(image);
+      image.src = imageArena === "pokemon"
         ? "assets/images/PokemonArena/found-pokeball.png"
         : "assets/images/sitelogo.png";
-      image.alt = arenaName + " logo";
+      image.alt = (imageArena === "pokemon" ? "Pokemon Arena" : "Comic Arena") + " logo";
     });
   }
 
