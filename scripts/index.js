@@ -8,6 +8,18 @@
   var authDescription = document.getElementById("auth-description");
   var authStatus = document.getElementById("auth-status");
   var playArenaButtons = document.querySelectorAll("[data-play-arena]");
+  var homeArenaSwitchButtons = document.querySelectorAll("[data-home-arena-switch]");
+  var homeArenaTitle = document.getElementById("home-arena-title");
+  var homeArenaDescription = document.getElementById("home-arena-description");
+  var activeHomeArena = (function () {
+    try {
+      var requested = new URLSearchParams(window.location.search).get("arena");
+      if (requested === "pokemon" || requested === "comic") return requested;
+      return localStorage.getItem("comicArenaMode") === "pokemon" ? "pokemon" : "comic";
+    } catch (error) {
+      return "comic";
+    }
+  }());
   var authForm = document.getElementById("auth-form");
   var authSubmit = document.getElementById("auth-submit");
   var authToggle = document.getElementById("auth-toggle");
@@ -295,6 +307,7 @@
   var maintenanceModeEnabled = false;
   var publicNewsPosts = [];
   var currentNewsPostIndex = 0;
+  var sidebarLeaderboardsByArena = { comic: null, pokemon: null };
   var profileLookupStorageKey = "comicProfileLookupUser";
   var requestedProfileUsername = (function () {
     try {
@@ -334,6 +347,45 @@
     if (node) {
       node.textContent = value;
     }
+  }
+
+  function renderActiveHomeLeaderboards() {
+    var boards = sidebarLeaderboardsByArena[activeHomeArena] || {};
+    renderSidebarBarList(sidebarTopPlayerLevels, boards.topPlayerLevels, "username", 50);
+    if (activeHomeArena === "comic") {
+      renderSidebarBarList(sidebarTopClanLevels, boards.topClanLevels, "clanName", 50);
+    }
+    renderSidebarStatList(sidebarTopCurrentStreaks, boards.topCurrentStreaks, formatSignedListNumber, "streak");
+    renderSidebarStatList(sidebarTopWins, boards.topWins, formatListNumber, "wins");
+    renderSidebarStatList(sidebarTopHighestStreaks, boards.topHighestStreaks, formatSignedListNumber, "streak");
+  }
+
+  function setActiveHomeArena(arena, updateUrl) {
+    activeHomeArena = arena === "pokemon" ? "pokemon" : "comic";
+    document.body.classList.toggle("home-arena-pokemon", activeHomeArena === "pokemon");
+    document.body.classList.toggle("home-arena-comic", activeHomeArena === "comic");
+    document.body.classList.add("home-arena-ready");
+    document.title = activeHomeArena === "pokemon" ? "Pokemon Arena Home" : "Comic-Arena Home";
+    setText(homeArenaTitle, activeHomeArena === "pokemon"
+      ? "Pokémon Arena: build your team and become the champion."
+      : "Comic Arena: choose your team and control the turn.");
+    setText(homeArenaDescription, activeHomeArena === "pokemon"
+      ? "Pokémon Arena is a separate tactical battler with its own roster, missions, skins, progression, and ladder."
+      : "Comic Arena is a fast tactical battler built around heroes, villains, team reads, cooldown pressure, and ladder climbs.");
+    homeArenaSwitchButtons.forEach(function (button) {
+      var selected = button.getAttribute("data-home-arena-switch") === activeHomeArena;
+      button.classList.toggle("active", selected);
+      button.setAttribute("aria-pressed", selected ? "true" : "false");
+    });
+    try {
+      localStorage.setItem("comicArenaMode", activeHomeArena);
+      if (updateUrl) {
+        var url = new URL(window.location.href);
+        url.searchParams.set("arena", activeHomeArena);
+        window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+      }
+    } catch (error) {}
+    renderActiveHomeLeaderboards();
   }
 
   function ensureClanPanelNotification() {
@@ -3491,17 +3543,9 @@
           return {};
         })
         : {};
-      var boards = data && data.leaderboards ? data.leaderboards : {};
-      var pokemonBoards = pokemonData && pokemonData.leaderboards ? pokemonData.leaderboards : {};
-      renderSidebarBarList(sidebarTopPlayerLevels, boards.topPlayerLevels, "username", 50);
-      renderSidebarBarList(sidebarTopClanLevels, boards.topClanLevels, "clanName", 50);
-      renderSidebarStatList(sidebarTopCurrentStreaks, boards.topCurrentStreaks, formatSignedListNumber, "streak");
-      renderSidebarStatList(sidebarTopWins, boards.topWins, formatListNumber, "wins");
-      renderSidebarStatList(sidebarTopHighestStreaks, boards.topHighestStreaks, formatSignedListNumber, "streak");
-      renderSidebarBarList(pokemonSidebarTopPlayerLevels, pokemonBoards.topPlayerLevels, "username", 50);
-      renderSidebarStatList(pokemonSidebarTopCurrentStreaks, pokemonBoards.topCurrentStreaks, formatSignedListNumber, "streak");
-      renderSidebarStatList(pokemonSidebarTopWins, pokemonBoards.topWins, formatListNumber, "wins");
-      renderSidebarStatList(pokemonSidebarTopHighestStreaks, pokemonBoards.topHighestStreaks, formatSignedListNumber, "streak");
+      sidebarLeaderboardsByArena.comic = data && data.leaderboards ? data.leaderboards : {};
+      sidebarLeaderboardsByArena.pokemon = pokemonData && pokemonData.leaderboards ? pokemonData.leaderboards : {};
+      renderActiveHomeLeaderboards();
     } catch (error) {}
   }
 
@@ -5276,6 +5320,15 @@
     });
   }
 
+  if (homeArenaSwitchButtons && homeArenaSwitchButtons.length) {
+    homeArenaSwitchButtons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        setActiveHomeArena(button.getAttribute("data-home-arena-switch"), true);
+      });
+    });
+  }
+
+  setActiveHomeArena(activeHomeArena, false);
   updateMode();
   initializeReleaseInputs();
   loadSidebarLeaderboards();

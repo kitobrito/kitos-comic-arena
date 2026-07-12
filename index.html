@@ -2066,6 +2066,59 @@
       transform: none;
     }
 
+    .home-arena-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin: 0 0 12px;
+      padding: 6px;
+      border: 1px solid #fff;
+      background: #0b4f95;
+      box-shadow: 0 0 0 2px #0f417b, 0 0 0 4px #5ea2ef;
+    }
+
+    .home-arena-switch-button {
+      min-height: 40px;
+      border: 1px solid #fff;
+      background: linear-gradient(180deg, #2d82d1, #115da8);
+      color: #fff;
+      font: inherit;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .home-arena-switch-button.active {
+      background: linear-gradient(180deg, #ffb13f, #e27a12);
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.25);
+    }
+
+    body.home-arena-pokemon .home-arena-switch-button.active {
+      background: linear-gradient(180deg, #ffcf63, #2f7dd2);
+    }
+
+    body.home-arena-comic [data-home-arena="pokemon"],
+    body.home-arena-pokemon [data-home-arena="comic"] {
+      display: none !important;
+    }
+
+    body.home-arena-ready .arena-split {
+      display: none;
+    }
+
+    body.home-arena-pokemon.home-classic-page .hero {
+      background: linear-gradient(180deg, #e33535 0, #e33535 46px, #f7fbff 46px, #dcecff 100%);
+    }
+
+    body.home-arena-pokemon.home-classic-page .hero::before {
+      content: "Pokemon Arena Portal";
+      background: linear-gradient(180deg, #ffdf67 0%, #e5ad24 100%);
+      color: #174b8f;
+    }
+
+    body.home-arena-comic.home-classic-page .hero::before {
+      content: "Comic Arena Portal";
+    }
+
     body.home-classic-page .section-heading {
       align-items: center;
       margin-bottom: 10px;
@@ -2309,17 +2362,21 @@
 <body class="home-classic-page">
   <div class="app">
     <aside class="sidebar panel">
-        <div class="brand">
+        <div class="brand" data-home-arena="comic">
           <img class="brand-mark" src="assets/images/sitelogo.png" alt="Comic-Arena logo" />
           <div class="brand-copy">
             <div class="brand-name">Comic-Arena</div>
             <div class="brand-tagline">Draft your fighters, read the board, and win the turn before it wins you.</div>
           </div>
         </div>
-        <div class="arena-badge pokemon">
+        <div class="arena-badge pokemon" data-home-arena="pokemon">
           <img class="arena-badge-mark" src="assets/images/PokemonArena/found-pokeball.png" alt="Pokemon Arena logo" />
           <div class="arena-badge-name">Pokemon Arena</div>
           <div class="arena-badge-copy">two arenas in one. pokemon. comics. choose your game.</div>
+        </div>
+        <div class="home-arena-switch" role="group" aria-label="Choose website arena">
+          <button class="home-arena-switch-button" id="home-arena-comic" type="button" data-home-arena-switch="comic">Comic</button>
+          <button class="home-arena-switch-button" id="home-arena-pokemon" type="button" data-home-arena-switch="pokemon">Pokémon</button>
         </div>
 
       <section class="group">
@@ -2330,11 +2387,11 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" /></svg>
             <span>Home</span>
           </a>
-          <button class="nav-link play-now comic" type="button" data-play-arena="comic" aria-label="Play Comic-Arena">
+          <button class="nav-link play-now comic" type="button" data-play-arena="comic" data-home-arena="comic" aria-label="Play Comic-Arena">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5 18 12 8 18.5z" /></svg>
             <span>Play Comic-Arena</span>
           </button>
-          <button class="nav-link play-now pokemon" type="button" data-play-arena="pokemon" aria-label="Play Pokemon-Arena">
+          <button class="nav-link play-now pokemon" type="button" data-play-arena="pokemon" data-home-arena="pokemon" aria-label="Play Pokemon-Arena">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5 18 12 8 18.5z" /></svg>
             <span>Play Pokemon-Arena</span>
           </button>
@@ -2346,11 +2403,11 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" /><rect x="14" y="4" width="6" height="6" /><rect x="4" y="14" width="6" height="6" /><rect x="14" y="14" width="6" height="6" /></svg>
             <span>Events</span>
           </a>
-          <a class="nav-link" href="missions.html">
+          <a class="nav-link" href="missions.html" data-home-arena="comic">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.1 2.8 7.9 7 9 4.2-1.1 7-4.9 7-9V6z" /><path d="M9 12h6" /><path d="M12 9v6" /></svg>
             <span>Comic Missions</span>
           </a>
-          <a class="nav-link" href="missions.html?arena=pokemon">
+          <a class="nav-link" href="missions.html?arena=pokemon" data-home-arena="pokemon">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.1 2.8 7.9 7 9 4.2-1.1 7-4.9 7-9V6z" /><path d="M9 12h6" /><path d="M12 9v6" /></svg>
             <span>Pokemon Missions</span>
           </a>
@@ -2358,11 +2415,11 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2H20v16H8.5A2.5 2.5 0 0 0 6 20.5z" /><path d="M6 4.5V22" /><path d="M9.5 7H16" /><path d="M9.5 11H17" /></svg>
             <span>Game Manual</span>
           </a>
-          <a class="nav-link" href="charactersandskills.html">
+          <a class="nav-link" href="charactersandskills.html" data-home-arena="comic">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h16" /><path d="M7.5 4v16" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg>
             <span>Comic Characters</span>
           </a>
-          <a class="nav-link" href="pokemon-charactersandskills.html">
+          <a class="nav-link" href="pokemon-charactersandskills.html" data-home-arena="pokemon">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" /><path d="M4 12h16" /><circle cx="12" cy="12" r="2.2" /></svg>
             <span>Pokemon Characters</span>
           </a>
@@ -2437,7 +2494,7 @@
             </button>
           </div>
           <form class="arena-avatar-form" id="change-avatar-form">
-            <div class="arena-avatar-row">
+            <div class="arena-avatar-row" data-home-arena="comic">
               <img class="arena-avatar-preview" id="comic-avatar-current-image" src="https://i.postimg.cc/3JqVcPXm/default.png" alt="Comic Arena avatar" />
               <label class="arena-avatar-field">
                 <span>Comic Arena Avatar</span>
@@ -2445,7 +2502,7 @@
                 <input class="auth-input" type="file" id="comic-avatar-file" accept="image/*" />
               </label>
             </div>
-            <div class="arena-avatar-row">
+            <div class="arena-avatar-row" data-home-arena="pokemon">
               <img class="arena-avatar-preview" id="pokemon-avatar-current-image" src="assets/images/PokemonArena/found-pokeball.png" alt="Pokemon Arena avatar" />
               <label class="arena-avatar-field">
                 <span>Pokemon Arena Avatar</span>
@@ -2464,7 +2521,7 @@
         <h2 class="group-title">Latest News</h2>
         <ul class="classic-bullet-list">
           <li>Balance updates and new character drops land on the front page first.</li>
-          <li>Comic Arena and Pokemon Arena updates stay split by lane.</li>
+          <li>Updates, releases, and missions stay focused on your selected arena.</li>
           <li>Mission spotlights and unlock guides are linked from events.</li>
         </ul>
       </section>
@@ -2488,13 +2545,13 @@
       <section class="hero">
           <div class="hero-copy">
           <div class="eyebrow">Live Browser Battle Arena</div>
-          <h1 class="hero-title">two arenas in one. pokemon. comics. choose your game.</h1>
-          <p>Comic-Arena is a fast tactical battler built around team reads, cooldown pressure, ladder climbs, and constant roster shakeups.</p>
+          <h1 class="hero-title" id="home-arena-title">Comic Arena: choose your team and control the turn.</h1>
+          <p id="home-arena-description">Comic Arena is a fast tactical battler built around heroes, villains, team reads, cooldown pressure, and ladder climbs.</p>
           <div class="hero-actions">
-            <a class="hero-link is-accent" href="missions.html">Comic Missions</a>
-            <a class="hero-link is-accent" href="missions.html?arena=pokemon">Pokemon Missions</a>
-            <a class="hero-link" href="charactersandskills.html">Comic Characters</a>
-            <a class="hero-link" href="pokemon-charactersandskills.html">Pokemon Characters</a>
+            <a class="hero-link is-accent" href="missions.html" data-home-arena="comic">Comic Missions</a>
+            <a class="hero-link is-accent" href="missions.html?arena=pokemon" data-home-arena="pokemon">Pokemon Missions</a>
+            <a class="hero-link" href="charactersandskills.html" data-home-arena="comic">Comic Characters</a>
+            <a class="hero-link" href="pokemon-charactersandskills.html" data-home-arena="pokemon">Pokemon Characters</a>
             <a class="hero-link" href="community.html">Meet The Community</a>
             <a class="hero-link is-discord" href="https://discord.gg/dabZKRDkf7" target="_blank" rel="noopener noreferrer">
               <img class="hero-link-icon" src="assets/images/discordlogo.png" alt="" aria-hidden="true">
@@ -2542,11 +2599,11 @@
           <div class="hero-card">
             <h2 class="hero-card-title">Portal Updates</h2>
             <div class="hero-card-list">
-              <div class="hero-card-item">
+              <div class="hero-card-item" data-home-arena="comic">
                 <strong>Comic Ladder</strong>
                 <span>Original roster battles, missions, and account progress live here.</span>
               </div>
-              <div class="hero-card-item">
+              <div class="hero-card-item" data-home-arena="pokemon">
                 <strong>Pokemon Ladder</strong>
                 <span>Separate teams, separate releases, and separate mission unlock flow.</span>
               </div>
@@ -2590,7 +2647,7 @@
           <p class="classic-info-copy">Check the basics, build a simple team, and queue a few games before chasing harder unlock paths.</p>
           <ul class="classic-bullet-list">
             <li>Read the manual for energy, statuses, and counters.</li>
-            <li>Use comic missions or pokemon missions to widen your roster.</li>
+            <li>Use missions in your selected arena to widen your roster.</li>
             <li>Scout characters and skills before spending unlock points.</li>
           </ul>
         </article>
@@ -2599,7 +2656,7 @@
           <h2 class="classic-info-title">Patch Board</h2>
           <ul class="classic-bullet-list">
             <li>Balance updates and new character drops land on the front page first.</li>
-            <li>Comic Arena and Pokemon Arena releases stay separated by lane.</li>
+            <li>Character releases stay organized around the arena you selected.</li>
             <li>Mission pictures, unlock guides, and roster notes are all linked from events.</li>
           </ul>
         </article>
@@ -2608,7 +2665,7 @@
           <h2 class="classic-info-title">Unlock Help</h2>
           <ul class="classic-bullet-list">
             <li>Starter paths and roster unlock routes are worth checking before grinding.</li>
-            <li>Pokemon mission lineups can differ a lot from comic mission lineups.</li>
+            <li>Mission lineups reward learning the strengths of your active roster.</li>
             <li>Use the mission board to jump directly into available encounters.</li>
           </ul>
         </article>
@@ -2618,12 +2675,12 @@
           <ul class="classic-bullet-list">
             <li>Check win streak lists and player levels on the right rail before queuing.</li>
             <li>Private matches are the fastest way to test niche teams safely.</li>
-            <li>Comic Arena and Pokemon Arena both reward tighter team identity over random picks.</li>
+            <li>Strong team identity usually matters more than three individually powerful picks.</li>
           </ul>
         </article>
       </section>
 
-      <section class="release-panel">
+      <section class="release-panel" data-home-arena="comic">
         <div class="section-heading">
           <div>
             <h2 class="release-title">Latest Character Releases</h2>
@@ -2652,7 +2709,7 @@
         </div>
       </section>
 
-      <section class="release-panel pokemon-release-panel">
+      <section class="release-panel pokemon-release-panel" data-home-arena="pokemon">
         <div class="section-heading">
           <div>
             <h2 class="release-title">Latest Pokemon Character Releases</h2>
@@ -2782,7 +2839,7 @@
         </div>
       </section>
 
-      <section class="ladder">
+      <section class="ladder" data-home-arena="comic">
         <h3 class="ladder-title">Top 10 Alliance Levels</h3>
         <div class="ladder-list" id="sidebar-top-clan-levels">
           <div class="ladder-row">
