@@ -81,8 +81,12 @@
     switchLink.textContent = "Switch to " + otherArenaName;
     switchLink.setAttribute("aria-label", "Switch this page to " + otherArenaName);
 
+    var existingArenaSwitch = document.querySelector(".arena-mode-switch");
     var brand = document.querySelector(".brand");
-    if (brand) {
+    if (existingArenaSwitch) {
+      switchLink.classList.add("global-arena-switch-inline");
+      existingArenaSwitch.appendChild(switchLink);
+    } else if (brand) {
       brand.insertAdjacentElement("afterend", switchLink);
     } else {
       switchLink.classList.add("global-arena-switch-floating");
@@ -114,6 +118,7 @@
     ".global-arena-switch{display:block;margin:0 auto 16px;padding:9px 12px;max-width:220px;text-align:center;text-decoration:none;font:700 13px/1.2 Arial,sans-serif;border:2px solid #76101a;border-radius:6px;background:linear-gradient(#e64451,#9b1723);color:#fff!important;box-shadow:0 3px 0 rgba(50,0,5,.3);position:relative;z-index:20}" +
     "body.arena-mode-comic .global-arena-switch{border-color:#173f73;background:linear-gradient(#347fc5,#174a83)}" +
     ".global-arena-switch:hover{filter:brightness(1.12);transform:translateY(-1px)}" +
+    ".global-arena-switch-inline{display:inline-flex;align-items:center;margin:0 0 0 10px;max-width:none;white-space:nowrap;vertical-align:middle}" +
     ".global-arena-switch-floating{position:fixed;top:10px;left:10px;margin:0;z-index:10000}";
   document.head.appendChild(style);
 
