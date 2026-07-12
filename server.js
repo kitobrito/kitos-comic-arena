@@ -44,6 +44,7 @@ const app = express();
 
 const PORT = process.env.PORT || 4000;
 const TURN_DURATION_MS = 60 * 1000;
+const MATCH_INACTIVITY_TURN_LIMIT = 3;
 const MATCH_FOUND_HOLD_MS = 3 * 1000;
 const BATTLE_BOT_QUEUE_TIMEOUT_MS = 20 * 1000;
 const BATTLE_BOT_ACTION_DELAY_MIN_MS = 15 * 1000;
@@ -11048,9 +11049,52 @@ const ensureBoardState = async (match) => {
     return match;
 };
 
-const finalizeTurn = async (match, username) => {
+const finalizeTurn = async (match, username, options = {}) => {
     if (!match || !usernamesEqual(match.currentTurn, username)) return match;
     if (match.status === 'ended') return match;
+    match.expiredTurnCountsByUsername =
+        match.expiredTurnCountsByUsername && typeof match.expiredTurnCountsByUsername === 'object'
+            ? match.expiredTurnCountsByUsername
+            : {};
+    const canonicalUsername = (match.players || []).find((player) =>
+        usernamesEqual(player?.username, username)
+    )?.username || username;
+    if (options.expired) {
+        match.expiredTurnCountsByUsername[canonicalUsername] =
+            (Number(match.expiredTurnCountsByUsername[canonicalUsername]) || 0) + 1;
+    } else {
+        match.expiredTurnCountsByUsername[canonicalUsername] = 0;
+    }
+    if (options.expired && match.expiredTurnCountsByUsername[canonicalUsername] >= MATCH_INACTIVITY_TURN_LIMIT) {
+        const opponentEntry = findMatchOpponentByUsername(match, canonicalUsername);
+        match.status = 'ended';
+        match.winner = opponentEntry?.username || null;
+        match.surrenderedBy = canonicalUsername;
+        match.endReason = 'inactivity';
+        match.endedAt = new Date();
+        match.currentTurn = null;
+        match.turnStartedAt = null;
+        match.turnExpiresAt = null;
+        match.ladderResults = await applyMatchCompletionRewards(match, match.winner, match.endedAt);
+        await matchesCollection.updateOne(
+            { matchId: match.matchId },
+            { $set: {
+                status: match.status,
+                winner: match.winner,
+                surrenderedBy: match.surrenderedBy,
+                endReason: match.endReason,
+                endedAt: match.endedAt,
+                currentTurn: null,
+                turnStartedAt: null,
+                turnExpiresAt: null,
+                expiredTurnCountsByUsername: match.expiredTurnCountsByUsername,
+                ladderResults: match.ladderResults || null,
+            } }
+        );
+        quickMatches.delete(match.matchId);
+        (match.players || []).forEach((player) => userToMatch.delete(player.username));
+        return match;
+    }
     if (!match.board) {
         match.board = battleLogic.buildInitialBoard(match.players || []);
     }
@@ -11202,6 +11246,7 @@ const finalizeTurn = async (match, username) => {
                 economy: econ,
                 pendingTurns: match.pendingTurns,
                 lastTurnDamageByUsername: match.lastTurnDamageByUsername,
+                expiredTurnCountsByUsername: match.expiredTurnCountsByUsername,
                 turnStartedAt: match.turnStartedAt,
                 turnExpiresAt: match.turnExpiresAt,
             },
@@ -11218,6 +11263,7 @@ const finalizeTurn = async (match, username) => {
             economy: econ,
             pendingTurns: match.pendingTurns,
             lastTurnDamageByUsername: match.lastTurnDamageByUsername,
+            expiredTurnCountsByUsername: match.expiredTurnCountsByUsername,
             turnStartedAt: match.turnStartedAt,
             turnExpiresAt: match.turnExpiresAt,
         });
@@ -11239,7 +11285,7 @@ const autoAdvanceTurnIfExpired = async (match) => {
         match,
         username: match.currentTurn,
     });
-    return finalizeTurn(match, match.currentTurn);
+    return finalizeTurn(match, match.currentTurn, { expired: true });
 };
 
 async function initDb() {
