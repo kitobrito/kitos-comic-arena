@@ -67,7 +67,7 @@ test('Onix skin catalog includes all five skins at the configured prices', () =>
             'onix-bismuth': 750,
             'onix-golden': 750,
             'onix-magma': 750,
-            'onix-cosmic': 1250,
+            'onix-cosmic': 1000,
         }
     );
     onixSkins.forEach((skin) => {

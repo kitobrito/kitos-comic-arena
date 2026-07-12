@@ -13,12 +13,22 @@ const {
     findMatchPlayerByUsername,
     findMatchOpponentByUsername,
     buildBattleBotTeam,
+    scoreBattleBotDamageCoordination,
     isTeamRosterInArena,
     buildPairedMatchDocument,
     setCachedBotTeamsForTests,
     resetMatchmakingStateForTests,
     getUserMatchForTests,
 } = require('../server');
+
+test('battle bots focus damage without attacking enemies already projected to fall', () => {
+    assert.ok(scoreBattleBotDamageCoordination({ hp: 60, projectedDamage: 25, candidateDamage: 35 }) > 100);
+    assert.ok(scoreBattleBotDamageCoordination({ hp: 60, projectedDamage: 60, candidateDamage: 35 }) < -100);
+    assert.ok(
+        scoreBattleBotDamageCoordination({ hp: 60, projectedDamage: 25, candidateDamage: 35 }) >
+        scoreBattleBotDamageCoordination({ hp: 60, projectedDamage: 0, candidateDamage: 35 })
+    );
+});
 const characters = require('../characters');
 
 const getCharacterId = (character = {}) => character.characterId || character.id || '';

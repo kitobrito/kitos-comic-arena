@@ -135,7 +135,7 @@ const additionalOnixSkins = [
     {
         key: 'cosmic',
         name: 'Cosmic Onix',
-        price: 1250,
+        price: 1000,
         facePicture: 'assets/images/PokemonArena/onix/skins/Cosmic/CosmicFP.png',
         images: {
             'onix-rock-throw': 'assets/images/PokemonArena/onix/skins/Cosmic/CosmicRockThrow.png',
@@ -243,7 +243,7 @@ const newsPost = {
         },
         {
             type: 'paragraph',
-            text: 'Four more complete Onix skins are now available: Bismuth Onix, Golden Onix, and Magma Onix cost 750 points each, while Cosmic Onix costs 1,250 points. Every skin includes its own portrait and full skill-art set.',
+            text: 'Four more complete Onix skins are now available: Bismuth Onix, Golden Onix, and Magma Onix cost 750 points each, while Cosmic Onix costs 1,000 points. Every skin includes its own portrait and full skill-art set.',
         },
         {
             type: 'paragraph',
@@ -257,7 +257,7 @@ const newsPost = {
         'Stealth Rock is Onix’s control tool. It punishes new skill usage by increasing cooldowns, lowering non-affliction damage for the turn, and building toward a stronger piercing burst when the mark expires.',
         'Harden finishes the kit by taunting the enemy team, adding temporary Shield, and converting up to 10 of Iron Tail’s reduction into unpierceable defense for the turn.',
         'This release also opens the Onix Stonewall Trial mission and adds Crystal Onix to the skin shop for 750 points with a full alternate portrait and complete skill-art set.',
-        'Four more complete Onix skins are now available: Bismuth Onix, Golden Onix, and Magma Onix cost 750 points each, while Cosmic Onix costs 1,250 points. Every skin includes its own portrait and full skill-art set.',
+        'Four more complete Onix skins are now available: Bismuth Onix, Golden Onix, and Magma Onix cost 750 points each, while Cosmic Onix costs 1,000 points. Every skin includes its own portrait and full skill-art set.',
         'Pink Butterfree is also available for 750 points with a custom portrait and alternate art for Confusion, Psybeam, Stun Spore, Sleep Powder, and Whirlwind.',
     ],
     changes: [

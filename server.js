@@ -2705,7 +2705,7 @@ const POKEMON_SKIN_CATALOG = [
         characterId: 'onix',
         name: 'Cosmic Onix',
         description: 'A celestial Cosmic Onix skin with custom portrait and full skill art.',
-        unlockPointCost: 1250,
+        unlockPointCost: 1000,
         previewFacePicture: 'assets/images/PokemonArena/onix/skins/Cosmic/CosmicFP.png',
         patch: { facePicture: 'assets/images/PokemonArena/onix/skins/Cosmic/CosmicFP.png' },
         skillImageOverridesBySkillId: {
@@ -9998,6 +9998,40 @@ const isLikelyBattleBotControlSkill = (skill) =>
         getBattleBotSkillText(skill)
     );
 
+const scoreBattleBotDamageCoordination = ({ hp = 0, projectedDamage = 0, candidateDamage = 0 } = {}) => {
+    const safeHp = Math.max(0, Number(hp) || 0);
+    const committedDamage = Math.max(0, Number(projectedDamage) || 0);
+    const nextDamage = Math.max(0, Number(candidateDamage) || 0);
+    if (safeHp <= 0 || nextDamage <= 0) return 0;
+    if (committedDamage >= safeHp) return -180;
+    const remainingHp = Math.max(1, safeHp - committedDamage);
+    let score = Math.min(36, committedDamage * 0.8);
+    if (nextDamage >= remainingHp) score += 110;
+    const wastedDamage = Math.max(0, nextDamage - remainingHp);
+    score -= Math.min(45, wastedDamage * 0.75);
+    return score;
+};
+
+const getBattleBotQueuedDamageForTarget = (match, username, target) => {
+    const pending = getPendingTurn(match, username);
+    return Object.values(pending?.queuedByActorSlot || {}).reduce((total, queued) => {
+        const hitsTarget = (Array.isArray(queued?.targetSelection) ? queued.targetSelection : [])
+            .some((entry) => usernamesEqual(entry?.username, target?.username) && Number(entry?.slot) === Number(target?.slot));
+        if (!hitsTarget) return total;
+        const actorSlot = Number.parseInt(queued.actorSlot, 10);
+        const actorUnit = match?.board?.[username]?.[actorSlot];
+        if (!actorUnit) return total;
+        const actorState = battleLogic.getUnitState(match, username, actorSlot);
+        const skill = battleLogic.resolveEffectiveSkill({
+            characters: charactersData,
+            rosterIndex: actorUnit.rosterIndex,
+            skillIndex: queued.skillIndex,
+            actorState,
+        });
+        return total + estimateBattleBotSkillDamage(skill);
+    }, 0);
+};
+
 const scoreBattleBotTarget = ({ match, username, actorSlot, skill, target, damageEstimate, healingEstimate }) => {
     const unit = getBattleBotUnitForTarget(match, target);
     if (!unit) return 0;
@@ -10031,9 +10065,11 @@ const scoreBattleBotTarget = ({ match, username, actorSlot, skill, target, damag
         if (duplicateStatusCount > 0 && harmfulStatusCount === 0) score -= duplicateStatusCount * 24;
         return score;
     }
-    score += Math.max(0, 100 - hp) / 2;
+    const projectedDamage = getBattleBotQueuedDamageForTarget(match, username, target);
+    const projectedHp = Math.max(0, hp - projectedDamage);
+    score += Math.max(0, 100 - projectedHp) / 2;
     if (damageEstimate > 0) score += Math.min(60, damageEstimate);
-    if (damageEstimate > 0 && damageEstimate >= hp) score += 90;
+    score += scoreBattleBotDamageCoordination({ hp, projectedDamage, candidateDamage: damageEstimate });
     if (isControlSkill && hp > damageEstimate) score += 18;
     if (duplicateStatusCount > 0 && damageEstimate <= 0) score -= duplicateStatusCount * 18;
     return score;
@@ -10112,7 +10148,7 @@ const scoreBattleBotSkillCandidate = ({
         if (target?.username !== username) return sum;
         return sum + countBattleBotHarmfulStatusesForTarget(match, target);
     }, 0);
-    let score = Math.random() * 8;
+    let score = Math.random() * 4;
 
     if (preferDefense && defensive) score += 110;
     if (preferDefense && skillIndex === 3) score += 70;
@@ -10133,7 +10169,7 @@ const scoreBattleBotSkillCandidate = ({
         score += harmfulAllyStatusCount > 0 ? 90 + selectedHarmfulStatusCount * 18 : -30;
     }
     if (defensive && lowAllyCount === 0 && harmfulAllyStatusCount === 0 && recentDamage.teamDamage < 25 && damageEstimate <= 0) {
-        score -= 20;
+        score -= 90;
     }
 
     selectedTargets.forEach((target) => {
@@ -10219,8 +10255,12 @@ const chooseBattleBotSkillCandidate = ({ match, username, actorSlot, actorUnit, 
         candidates.push({
             skillIndex,
             targetSelection,
-            classChoice: classChoiceOptions[0] || null,
-            absorptionChoice: absorptionChoiceKeys[0] || null,
+            classChoice: classChoiceOptions.length
+                ? classChoiceOptions[Math.floor(Math.random() * classChoiceOptions.length)]
+                : null,
+            absorptionChoice: absorptionChoiceKeys.length
+                ? absorptionChoiceKeys[Math.floor(Math.random() * absorptionChoiceKeys.length)]
+                : null,
             score: scored.score,
             defensive: scored.defensive || skillIndex === 3,
         });
@@ -10443,37 +10483,31 @@ const runBattleBotTurn = async (matchId) => {
         }
 
         const team = Array.isArray(hydrated.board?.[username]) ? hydrated.board[username] : [];
-        const actorSlots = shuffleList(
-            team
-                .map((unit, slot) => (unit && unit.alive !== false ? slot : null))
-                .filter((slot) => Number.isInteger(slot))
-        );
+        const remainingActorSlots = team
+            .map((unit, slot) => (unit && unit.alive !== false ? slot : null))
+            .filter((slot) => Number.isInteger(slot));
         const maxQueuedSkills = getBattleBotMaxQueuedSkillsForMatch(hydrated);
         let queuedSkills = 0;
-        for (const actorSlot of actorSlots) {
-            if (queuedSkills >= maxQueuedSkills) {
-                break;
-            }
-            const actorUnit = hydrated.board?.[username]?.[actorSlot];
-            if (!actorUnit || actorUnit.alive === false) {
-                continue;
-            }
-            const actorState = battleLogic.getUnitState(hydrated, username, actorSlot);
-            if (battleLogic.isActorUnableToUseSkills(actorState)) {
-                continue;
-            }
-            const character = charactersData?.[actorUnit.rosterIndex];
-            const candidate = chooseBattleBotSkillCandidate({
-                match: hydrated,
-                username,
-                actorSlot,
-                actorUnit,
-                actorState,
-                character,
-            });
-            if (!candidate) {
-                continue;
-            }
+        while (remainingActorSlots.length && queuedSkills < maxQueuedSkills) {
+            const turnPlans = remainingActorSlots.map((actorSlot) => {
+                const actorUnit = hydrated.board?.[username]?.[actorSlot];
+                if (!actorUnit || actorUnit.alive === false) return null;
+                const actorState = battleLogic.getUnitState(hydrated, username, actorSlot);
+                if (battleLogic.isActorUnableToUseSkills(actorState)) return null;
+                const candidate = chooseBattleBotSkillCandidate({
+                    match: hydrated,
+                    username,
+                    actorSlot,
+                    actorUnit,
+                    actorState,
+                    character: charactersData?.[actorUnit.rosterIndex],
+                });
+                return candidate ? { actorSlot, candidate } : null;
+            }).filter(Boolean).sort((left, right) => right.candidate.score - left.candidate.score);
+            const bestPlan = turnPlans[0] || null;
+            if (!bestPlan || bestPlan.candidate.score < 5) break;
+            const { actorSlot, candidate } = bestPlan;
+            remainingActorSlots.splice(remainingActorSlots.indexOf(actorSlot), 1);
             try {
                 queueSkillForActorSlot({
                     match: hydrated,
@@ -15998,5 +16032,6 @@ if (require.main === module) {
         resetMatchmakingStateForTests,
         getUserMatchForTests,
         POKEMON_SKIN_CATALOG,
+        scoreBattleBotDamageCoordination,
     };
 }
