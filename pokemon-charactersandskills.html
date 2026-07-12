@@ -98,6 +98,28 @@
         object-fit: cover;
         display: block;
     }
+    .character-portrait-card.has-evolution { overflow: visible; }
+    .character-evolution-preview {
+        position: absolute;
+        top: -9%;
+        right: -9%;
+        width: 82%;
+        height: 82%;
+        object-fit: cover;
+        border: 3px solid #a61926;
+        opacity: .9;
+        z-index: 0;
+    }
+    .character-portrait-card.has-evolution .character-portrait-img {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 88%;
+        height: 88%;
+        border-top: 3px solid var(--line);
+        border-right: 3px solid var(--line);
+        z-index: 1;
+    }
     .character-portrait-tooltip {
         position: absolute;
         top: 115%;
@@ -935,6 +957,21 @@
       function createCharacterPortrait(character) {
         var card = document.createElement("div");
         card.className = "character-portrait-card";
+
+        var evolutionStatusId = "";
+        getVisibleSkills(character).some(function (skill) {
+          evolutionStatusId = getEvolutionStatusId(skill);
+          return !!evolutionStatusId;
+        });
+        var evolutionPortrait = evolutionStatusId ? findEvolutionPortrait(character, evolutionStatusId) : "";
+        if (evolutionPortrait) {
+          card.classList.add("has-evolution");
+          var evolvedImage = document.createElement("img");
+          evolvedImage.className = "character-evolution-preview";
+          evolvedImage.src = evolutionPortrait;
+          evolvedImage.alt = getEvolutionName(character, evolutionStatusId) + " evolution portrait";
+          card.appendChild(evolvedImage);
+        }
 
         var image = document.createElement("img");
         image.className = "character-portrait-img";
