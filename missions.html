@@ -478,6 +478,10 @@
       position: relative;
       z-index: 1;
     }
+    .pokemon-points-promo { margin-bottom: 16px; padding: 16px; border: 4px solid #8b121e; background: linear-gradient(135deg, #fff, #ffe5e8); color: #4d0b12; box-shadow: 7px 7px 0 rgba(80,7,14,.35); }
+    .pokemon-points-promo[hidden] { display: none; }
+    .pokemon-points-promo strong { display: block; color: #a31724; font-size: 28px; }
+    .pokemon-points-promo p { margin: 7px 0 0; font-size: 17px; font-weight: 700; line-height: 1.4; }
 
     .mission-card {
       display: grid;
@@ -1811,6 +1815,10 @@
     </aside>
 
     <main class="main">
+      <aside class="pokemon-points-promo" id="pokemon-points-promo" hidden>
+        <strong>1,000 Points Are Waiting in Ladder</strong>
+        <p>Win 25 ranked games against real players. Use points to unlock Pokémon, buy alternate skins, and purchase additional Eevee evolutions.</p>
+      </aside>
       <section class="missions-panel" aria-label="Missions">
         <div class="missions-toolbar">
           <div class="missions-search">
@@ -2391,9 +2399,11 @@
       const pageArena = pageSearchParams.get("arena") === "pokemon" ? "pokemon" : "comic";
       const pageMissionLabel = pageArena === "pokemon" ? "Pokemon Missions" : "Comic Missions";
       const playNowButton = document.getElementById("play-now-button");
+      const pokemonPointsPromo = document.getElementById("pokemon-points-promo");
 
       document.body.classList.toggle("arena-mode-pokemon", pageArena === "pokemon");
       document.body.classList.toggle("arena-mode-comic", pageArena !== "pokemon");
+      if (pokemonPointsPromo) pokemonPointsPromo.hidden = pageArena !== "pokemon";
 
       document.title = pageArena === "pokemon" ? "Pokemon Arena Missions" : "Comic Arena Missions";
       const activeMissionNavLink = document.querySelector('.nav-link.active[href="missions.html"]');
@@ -2473,6 +2483,7 @@
               reward_character: rewardCharacter,
               reward_character_name: rewardCharacterName,
               reward: String(source.reward || "").trim(),
+              reward_unlock_points: Math.max(0, Number(source.reward_unlock_points || source.rewardUnlockPoints || 0) || 0),
               win_streak: {
                 character_id: streakCharacter,
                 character_name: streakCharacterName,
@@ -2710,6 +2721,9 @@
         const characterId = String(source.character_id || source.characterId || source.character || "").trim();
         const characterName = String(source.character_name || source.characterName || characterId).trim();
         const rank = Number(source.rank ?? source.level ?? source.target ?? source.goal ?? source.value ?? 0) || 0;
+        if (type === "win_ladder_matches" || type === "ladder_wins" || type === "ranked_wins") {
+          return wins ? { type: "win_ladder_matches", wins: wins } : null;
+        }
         if (type === "reach_rank") {
           if (!rank) {
             return null;
@@ -2820,6 +2834,9 @@
         if (normalized.type === "reach_rank") {
           return "Reach rank " + normalized.rank + ". (" + Math.min(progressCount, normalized.rank) + "/" + normalized.rank + ")";
         }
+        if (normalized.type === "win_ladder_matches") {
+          return "Win " + normalized.wins + " Pokemon Arena Ladder matches against real players. (" + Math.min(progressCount, normalized.wins) + "/" + normalized.wins + ")";
+        }
         if (normalized.type === "win_matches") {
           const characterName = normalized.character_name || normalized.character_id;
           return "Win " + normalized.wins + " matches with " + characterName + ". (" + Math.min(progressCount, normalized.wins) + "/" + normalized.wins + ")";
@@ -2871,6 +2888,10 @@
       }
 
       function getRewardText(mission) {
+        const pointReward = Math.max(0, Number(mission && mission.reward_unlock_points) || 0);
+        if (pointReward) {
+          return "Earn " + pointReward.toLocaleString() + " Pokemon Arena points.";
+        }
         const rewardCharacterName = String(
           mission && mission.reward_character_name
             ? mission.reward_character_name

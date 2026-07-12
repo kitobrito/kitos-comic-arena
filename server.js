@@ -3326,6 +3326,8 @@ const normalizeMissionGoalEntry = (entry = {}, index = 0) => {
     const normalizedType =
         type === 'win_matches' || type === 'win_match' || type === 'match_wins'
             ? 'win_matches'
+            : type === 'win_ladder_matches' || type === 'ladder_wins' || type === 'ranked_wins'
+                ? 'win_ladder_matches'
             : type === 'win_streak' || type === 'streak'
                 ? 'win_streak'
                 : type === 'win_streak_same_team' || type === 'same_team_streak'
@@ -3337,6 +3339,11 @@ const normalizeMissionGoalEntry = (entry = {}, index = 0) => {
                         type === 'same_team'
                         ? 'win_matches_same_team'
                 : 'text';
+
+    if (normalizedType === 'win_ladder_matches') {
+        const wins = Math.max(0, Number(source.wins ?? source.count ?? source.target ?? source.goal ?? 0) || 0);
+        return wins ? { type: 'win_ladder_matches', wins } : null;
+    }
 
     if (normalizedType === 'win_matches' || normalizedType === 'win_streak') {
         const wins = Math.max(
@@ -3686,6 +3693,10 @@ const normalizeMissionCatalogEntry = (mission = {}, index = 0) => {
                     : getCharacterDisplayNameById(rewardCharacterId),
         reward_character_ids: rewardCharacterIds,
         reward: typeof source.reward === 'string' ? source.reward.trim() : '',
+        reward_unlock_points: Math.max(
+            0,
+            Math.floor(Number(source.reward_unlock_points ?? source.rewardUnlockPoints ?? 0) || 0)
+        ),
         mode_restriction: modeRestriction,
         win_streak: {
             character_id: winStreakCharacterId,
@@ -4746,6 +4757,32 @@ const normalizeComicMissionDifficulty = (mission = {}) => {
     };
 };
 
+const POKEMON_LADDER_MILESTONE_MISSION_ENTRY = {
+    missionId: 'pokemon-ladder-first-25-wins',
+    title: 'Road to Champion: 25 Ladder Wins',
+    level_requirement: 1,
+    rank: '1',
+    reward_character: '',
+    reward_character_name: '',
+    reward: 'Earn 1,000 Pokemon Arena points.',
+    reward_unlock_points: 1000,
+    arena: 'pokemon',
+    mode_restriction: { allowed_modes: ['ladder'] },
+    image: 'assets/images/PokemonArena/found-pokeball.png',
+    imageAlt: 'Pokemon Arena 25 Ladder wins reward',
+    characterName: 'Pokemon Arena Champion',
+    portrait: 'assets/images/PokemonArena/found-pokeball.png',
+    portraitAlt: 'Pokemon Arena points reward',
+    requirements: [
+        'Win 25 human Ladder matches in Pokemon Arena.',
+        'Bot, Quick, Private, and mission battles do not count.',
+        'Spend points on character unlocks, skins, and additional Eevee evolutions.',
+    ],
+    goals: [{ type: 'win_ladder_matches', wins: 25 }],
+    special_pve: { enabled: false },
+    sortOrder: 1,
+};
+
 const ensureRequiredMissionCatalogEntries = (missions = []) => {
     const removedPokemonStarterMissionIds = new Set([
         'squirtle-starter-path',
@@ -4811,6 +4848,10 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     upsertRequiredMission(POKEMON_MAGNEMITE_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'magnemite');
     upsertRequiredMission(POKEMON_AERODACTYL_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'aerodactyl');
     upsertRequiredMission(POKEMON_ONIX_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'onix');
+    upsertRequiredMission(
+        POKEMON_LADDER_MILESTONE_MISSION_ENTRY,
+        (mission) => mission?.missionId === POKEMON_LADDER_MILESTONE_MISSION_ENTRY.missionId
+    );
     return normalizeMissionCatalog(catalog)
         .map((mission) => normalizeOpenTeamPveMission(mission))
         .map((mission) => normalizeComicMissionDifficulty(mission));
@@ -5852,6 +5893,7 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
             const userLevel = Number(arenaState?.ladder?.level) || 1;
             const didWin = Boolean(winnerUsername) && winnerUsername === username;
             let mutated = false;
+            let unlockPointRewardDelta = 0;
 
             for (const mission of missionCatalog) {
                 if (!mission || !mission.missionId) {
@@ -5932,6 +5974,7 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
                     const goalType = String(goal.type).trim().toLowerCase();
                     if (
                         goalType !== 'win_matches' &&
+                        goalType !== 'win_ladder_matches' &&
                         goalType !== 'win_streak' &&
                         goalType !== 'win_streak_same_team' &&
                         goalType !== 'reach_rank' &&
@@ -5967,7 +6010,17 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
                         ...existingGoalProgress,
                     };
 
-                    if (goalType === 'win_matches') {
+                    if (goalType === 'win_ladder_matches') {
+                        const isHumanMatch = !(match.players || []).some(
+                            (player) => player?.isBot || isGameBotUsername(player?.username)
+                        );
+                        if (match.mode === 'ladder' && didWin && isHumanMatch) {
+                            nextGoalProgress.count = Math.min(
+                                targetCount,
+                                Math.max(0, Number(existingGoalProgress.count) || 0) + 1
+                            );
+                        }
+                    } else if (goalType === 'win_matches') {
                         if (didWin && hasGoalCharacter) {
                             nextGoalProgress.count = Math.min(
                                 targetCount,
@@ -6026,6 +6079,12 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
                 if (hasTrackableGoals && allTrackableGoalsComplete) {
                     nextProgress.completedAt = existingProgress.completedAt || endedAt || new Date();
                     nextProgress.unlockedAt = nextProgress.completedAt;
+                    if (!alreadyCompleted) {
+                        unlockPointRewardDelta += Math.max(
+                            0,
+                            Math.floor(Number(mission.reward_unlock_points) || 0)
+                        );
+                    }
                     if (rewardCharacterId) {
                         unlockedIds.add(rewardCharacterId);
                     }
@@ -6053,10 +6112,14 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
 
             arenaState.missions = {
                 ...arenaState.missions,
+                unlockPoints:
+                    Math.max(0, Number(arenaState.missions?.unlockPoints) || 0) +
+                    unlockPointRewardDelta,
                 progressByMissionId,
                 progress: progressByMissionId,
                 unlockedCharacterIds: Array.from(unlockedIds),
             };
+            arenaState.ladder.unlockPoints = arenaState.missions.unlockPoints;
 
             const normalizedProfile = normalizeUserProfile({
                 ...user,

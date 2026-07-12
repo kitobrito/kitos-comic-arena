@@ -457,3 +457,13 @@ test('ensureRequiredMissionCatalogEntries keeps the easier Scyther mission from 
         ]
     );
 });
+
+test('Pokemon Ladder milestone awards 1000 points for 25 human ranked wins', () => {
+    const missions = ensureRequiredMissionCatalogEntries([]);
+    const milestone = missions.find((mission) => mission.missionId === 'pokemon-ladder-first-25-wins');
+    assert.ok(milestone);
+    assert.equal(milestone.arena, 'pokemon');
+    assert.equal(milestone.reward_unlock_points, 1000);
+    assert.deepEqual(milestone.mode_restriction.allowed_modes, ['ladder']);
+    assert.deepEqual(milestone.goals, [{ type: 'win_ladder_matches', wins: 25 }]);
+});
