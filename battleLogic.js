@@ -690,7 +690,7 @@ const filterHelpfulImmuneRecipients = ({ effect, recipients, actingUsername }) =
         return !isUnitInvulnerableToHelpfulSkills(recipient.unit);
     });
 
-const doesUnitSatisfySkillTargetCondition = (unit, skill) => {
+const doesUnitSatisfySkillTargetCondition = (unit, skill, context = {}) => {
     const condition = skill?.targetCondition;
     const state = ensureUnitStateShape(unit);
     if (condition?.statusId && !hasStatus(state, condition.statusId)) return false;
@@ -702,6 +702,16 @@ const doesUnitSatisfySkillTargetCondition = (unit, skill) => {
         return false;
     }
     if (condition?.missingStatusId && hasStatus(state, condition.missingStatusId)) return false;
+    if (condition?.missingStatusIdFromActorSource) {
+        const blockedByActorSource = (Array.isArray(state?.statuses) ? state.statuses : []).some(
+            (status) =>
+                status?.id === condition.missingStatusIdFromActorSource &&
+                (Number(status?.remainingTurns) || 0) > 0 &&
+                status?.sourceUsername === context?.actorUsername &&
+                Number(status?.sourceSlot) === Number(context?.actorSlot)
+        );
+        if (blockedByActorSource) return false;
+    }
     return true;
 };
 
@@ -836,7 +846,12 @@ const computeTargetOptions = ({ match, actingUsername, actorSlot, skillIndex, ch
                     return false;
                 }
                 if (!canActorTargetUnit({ actorState, targetUsername: username, targetSlot: slot })) return false;
-                if (!doesUnitSatisfySkillTargetCondition(unit, effectiveSkill)) return false;
+                if (
+                    !doesUnitSatisfySkillTargetCondition(unit, effectiveSkill, {
+                        actorUsername: actingUsername,
+                        actorSlot,
+                    })
+                ) return false;
                 return true;
             })
             .map(({ unit, slot }) => ({
@@ -3146,6 +3161,13 @@ const maybeTriggerReactiveDefenses = ({
         const remaining = Number(status?.remainingTurns) || 0;
         const metadata = status?.metadata || {};
         if (Boolean(metadata?.triggerOnOwnerHarmfulSkillOnly) && !isSelfTrapTrigger) return false;
+        if (
+            (Boolean(metadata?.triggerOnEnemyHarmfulNonMental) ||
+                Boolean(metadata?.triggerOnEnemyHarmfulSkill)) &&
+            !skillIsHarmful
+        ) {
+            return false;
+        }
         return (
             remaining > 0 &&
             (Boolean(metadata?.triggerOnEnemyHarmfulNonMental) ||
@@ -3310,6 +3332,30 @@ const maybeTriggerReactiveDefenses = ({
                 targetSlot: Number.isInteger(trapStatus.sourceSlot) ? trapStatus.sourceSlot : null,
             });
         }
+    }
+    const counterStealRandomChakraToSourceOwner = Math.max(
+        0,
+        Number(trapMetadata?.counterStealRandomChakraToSourceOwner) || 0
+    );
+    if (
+        counterStealRandomChakraToSourceOwner > 0 &&
+        match &&
+        actingUsername &&
+        trapStatus?.sourceUsername &&
+        actingUsername !== trapStatus.sourceUsername
+    ) {
+        match.chakraPools = match.chakraPools || {};
+        const targetPool = match.chakraPools[actingUsername] || createEmptyChakraCost();
+        const sourcePool = match.chakraPools[trapStatus.sourceUsername] || createEmptyChakraCost();
+        for (let i = 0; i < counterStealRandomChakraToSourceOwner; i += 1) {
+            const available = chakraTypes.filter((type) => (Number(targetPool[type]) || 0) > 0);
+            if (!available.length) break;
+            const picked = available[Math.floor(Math.random() * available.length)];
+            targetPool[picked] = Math.max(0, (Number(targetPool[picked]) || 0) - 1);
+            sourcePool[picked] = (Number(sourcePool[picked]) || 0) + 1;
+        }
+        match.chakraPools[actingUsername] = targetPool;
+        match.chakraPools[trapStatus.sourceUsername] = sourcePool;
     }
     if (Array.isArray(trapMetadata?.counterEffectsToEnemiesOfSource) && trapMetadata.counterEffectsToEnemiesOfSource.length > 0) {
         applyTriggeredEffectsToRecipients({
@@ -8372,6 +8418,52 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 return;
             }
 
+            if (effectType === 'extend_status_duration') {
+                const recipients = resolveRecipients(effect);
+                const requestedStatusIds = [
+                    ...(typeof effect?.statusId === 'string' && effect.statusId ? [effect.statusId] : []),
+                    ...(Array.isArray(effect?.statusIds)
+                        ? effect.statusIds.filter((entry) => typeof entry === 'string' && entry)
+                        : []),
+                ];
+                const additionalTurns = Math.max(0, Number(effect?.additionalTurns) || 0);
+                if (!requestedStatusIds.length || additionalTurns <= 0) return;
+                let extendedAny = false;
+                recipients.forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    const matchingStatuses = (Array.isArray(targetState.statuses) ? targetState.statuses : []).filter(
+                        (status) =>
+                            requestedStatusIds.includes(status?.id) &&
+                            (Number(status?.remainingTurns) || 0) > 0 &&
+                            (!Boolean(effect?.sourceMustBeActor) ||
+                                (status?.sourceUsername === actingUsername &&
+                                    Number(status?.sourceSlot) === Number(actorSlot)))
+                    );
+                    if (!matchingStatuses.length) return;
+                    matchingStatuses.forEach((status) => {
+                        status.remainingTurns = Math.max(0, Number(status.remainingTurns) || 0) + additionalTurns;
+                    });
+                    extendedAny = true;
+                    refreshDerivedStatusTooltips(targetState);
+                });
+                const ownerStatus = effect?.onSuccessfulExtensionApplyStatusToOwner;
+                if (extendedAny && ownerStatus?.statusId) {
+                    applyStatus({
+                        targetState: actorState,
+                        targetUnit: actorUnit,
+                        statusId: ownerStatus.statusId,
+                        duration: ownerStatus.duration,
+                        sourceSkillId: skill.id || null,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: ownerStatus.metadata || {},
+                        fresh: false,
+                    });
+                }
+                return;
+            }
+
             if (effectType === 'swap_positions') {
                 const recipients = resolveRecipients(effect);
                 recipients.forEach((recipient) => {
@@ -8513,6 +8605,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     match.chakraPools = match.chakraPools || {};
                     const targetPool = match.chakraPools[recipient.username] || createEmptyChakraCost();
                     const sourcePool = match.chakraPools[actingUsername] || createEmptyChakraCost();
+                    const drainedTypes = [];
                     for (let i = 0; i < maxAmount; i += 1) {
                         const available =
                             requestedType === 'random'
@@ -8524,9 +8617,53 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         const picked = available[Math.floor(Math.random() * available.length)];
                         targetPool[picked] = Math.max(0, (Number(targetPool[picked]) || 0) - 1);
                         sourcePool[picked] = (Number(sourcePool[picked]) || 0) + 1;
+                        drainedTypes.push(picked);
                     }
                     match.chakraPools[recipient.username] = targetPool;
                     match.chakraPools[actingUsername] = sourcePool;
+                    const costOverride = effect?.metadata?.onSuccessfulDrainApplySkillCostOverrideToOwner;
+                    if (drainedTypes.length > 0 && costOverride?.statusId) {
+                        const storedType = drainedTypes[0];
+                        const skillIds = Array.isArray(costOverride.skillIds)
+                            ? costOverride.skillIds.filter((entry) => typeof entry === 'string' && entry)
+                            : typeof costOverride.skillId === 'string' && costOverride.skillId
+                            ? [costOverride.skillId]
+                            : [];
+                        const randomCostSkillIds = new Set(
+                            Array.isArray(costOverride.preserveRandomForSkillIds)
+                                ? costOverride.preserveRandomForSkillIds.filter(
+                                      (entry) => typeof entry === 'string' && entry
+                                  )
+                                : []
+                        );
+                        const overrides = {};
+                        skillIds.forEach((skillId) => {
+                            overrides[skillId] = {
+                                energy: [storedType, ...(randomCostSkillIds.has(skillId) ? ['Random'] : [])],
+                            };
+                        });
+                        applyStatus({
+                            targetState: actorState,
+                            targetUnit: actorUnit,
+                            statusId: costOverride.statusId,
+                            duration: costOverride.duration || 99,
+                            sourceSkillId: skill.id || null,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            metadata: {
+                                hidden: true,
+                                infiniteDuration: true,
+                                storedChakraType: storedType,
+                                skillCostOverridesBySkillId: overrides,
+                                onOwnerUseSkillTrigger: true,
+                                onOwnerUseSkillIdsAny: skillIds,
+                                tooltipText:
+                                    costOverride.tooltipText ||
+                                    `The next matching skill uses ${storedType} energy instead.`,
+                            },
+                            fresh: false,
+                        });
+                    }
                 });
                 return;
             }

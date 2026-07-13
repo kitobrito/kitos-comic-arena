@@ -29408,6 +29408,622 @@ const characters = [
         "roleCategory": "tank",
         "description": "A towering Rock and Ground-type tank that stacks permanent damage reduction, punishes reckless skill use, and refuses to fall the first time it is broken.",
         "descriptionHtml": "A towering Rock and Ground-type tank that stacks permanent damage reduction, punishes reckless skill use, and refuses to fall the first time it is broken."
+    },
+    {
+        "id": "meowth",
+        "characterId": "meowth",
+        "name": "Meowth",
+        "facePicture": "assets/images/PokemonArena/Meowth/FP.png",
+        "startStatuses": [
+            {
+                "statusId": "meowth_persian_evolution_tracker",
+                "sourceSkillId": "meowth-passive-evolution-persian",
+                "duration": 99,
+                "metadata": {
+                    "hidden": true,
+                    "infiniteDuration": true,
+                    "meowthFurySwipesExtensions": 0,
+                    "stackMetadataKey": "meowthFurySwipesExtensions",
+                    "stackDelta": 0,
+                    "stackMax": 3,
+                    "applyStatusAtStack": {
+                        "metadataKey": "meowthFurySwipesExtensions",
+                        "value": 3,
+                        "statusId": "meowth_persian_evolution",
+                        "duration": 99,
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "facePictureOverride": "assets/images/PokemonArena/Meowth/persianfp.png",
+                            "skillReplacements": {
+                                "meowth-pay-day": "persian-pay-day",
+                                "meowth-fury-swipes": "persian-fury-swipes",
+                                "meowth-fake-out": "persian-fake-out",
+                                "meowth-night-slash": "persian-night-slash"
+                            },
+                            "healOnApplyFlat": 15,
+                            "statusIconUrl": "assets/images/PokemonArena/Meowth/evolutionpersian.png",
+                            "tooltipText": "Meowth has evolved into Persian. Persian's skills are improved."
+                        }
+                    },
+                    "statusIconUrl": "assets/images/PokemonArena/Meowth/evolutionpersian.png",
+                    "tooltipTextTemplate": "Meowth has extended Fury Swipes {meowthFurySwipesExtensions}/3 times and will evolve into Persian at 3."
+                }
+            }
+        ],
+        "skills": [
+            {
+                "id": "meowth-pay-day",
+                "name": "Pay Day",
+                "skillimage": "assets/images/PokemonArena/Meowth/payday.png",
+                "skilldescription": "Steals 1 random energy from the enemy team. The stolen type becomes the cost of Meowth's next Night Slash. If the target is affected by Fury Swipes, it is extended by 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "drain_chakra",
+                        "amount": 1,
+                        "chakraType": "random",
+                        "scope": "target",
+                        "metadata": {
+                            "onSuccessfulDrainApplySkillCostOverrideToOwner": {
+                                "statusId": "meowth_pay_day_night_slash_cost",
+                                "duration": 99,
+                                "skillIds": [
+                                    "meowth-night-slash",
+                                    "persian-night-slash"
+                                ],
+                                "preserveRandomForSkillIds": [
+                                    "persian-night-slash"
+                                ],
+                                "tooltipText": "Pay Day changed the colored cost of the next Night Slash."
+                            }
+                        }
+                    },
+                    {
+                        "type": "extend_status_duration",
+                        "scope": "target",
+                        "statusIds": [
+                            "meowth_fury_swipes_physical",
+                            "meowth_fury_swipes_affliction"
+                        ],
+                        "additionalTurns": 1,
+                        "sourceMustBeActor": true,
+                        "onSuccessfulExtensionApplyStatusToOwner": {
+                            "statusId": "meowth_persian_evolution_tracker",
+                            "duration": 99,
+                            "metadata": {
+                                "hidden": true,
+                                "infiniteDuration": true,
+                                "meowthFurySwipesExtensions": 0,
+                                "stackMetadataKey": "meowthFurySwipesExtensions",
+                                "stackDelta": 1,
+                                "stackMax": 3,
+                                "applyStatusAtStack": {
+                                    "metadataKey": "meowthFurySwipesExtensions",
+                                    "value": 3,
+                                    "statusId": "meowth_persian_evolution",
+                                    "duration": 99,
+                                    "metadata": {
+                                        "hidden": true,
+                                        "infiniteDuration": true,
+                                        "facePictureOverride": "assets/images/PokemonArena/Meowth/persianfp.png",
+                                        "skillReplacements": {
+                                            "meowth-pay-day": "persian-pay-day",
+                                            "meowth-fury-swipes": "persian-fury-swipes",
+                                            "meowth-fake-out": "persian-fake-out",
+                                            "meowth-night-slash": "persian-night-slash"
+                                        },
+                                        "healOnApplyFlat": 15,
+                                        "statusIconUrl": "assets/images/PokemonArena/Meowth/evolutionpersian.png",
+                                        "tooltipText": "Meowth has evolved into Persian. Persian's skills are improved."
+                                    }
+                                },
+                                "statusIconUrl": "assets/images/PokemonArena/Meowth/evolutionpersian.png",
+                                "tooltipTextTemplate": "Meowth has extended Fury Swipes {meowthFurySwipesExtensions}/3 times and will evolve into Persian at 3."
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "meowth-fury-swipes",
+                "name": "Fury Swipes",
+                "skillimage": "assets/images/PokemonArena/Meowth/furyswipes.png",
+                "skilldescription": "For 3 turns, Meowth deals 5 Physical and 5 Affliction damage to the enemy team each turn. Pay Day, Fake Out, or Night Slash used on an affected enemy extends Fury Swipes on them by 1 turn.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Action",
+                    "Affliction"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "meowth_fury_swipes_physical",
+                        "duration": 3,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "turnStartDamage": 5,
+                            "ongoingClass": "action",
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/Meowth/furyswipes.png",
+                            "tooltipText": "Takes 5 Physical damage each turn from Fury Swipes."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "meowth_fury_swipes_affliction",
+                        "duration": 3,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "turnStartDamage": 5,
+                            "afflictionDamage": true,
+                            "ongoingClass": "action",
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/Meowth/furyswipes.png",
+                            "tooltipText": "Takes 5 Affliction damage each turn from Fury Swipes."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "meowth-fake-out",
+                "name": "Fake Out",
+                "skillimage": "assets/images/PokemonArena/Meowth/fakeout.png",
+                "skilldescription": "Deals 10 damage and fully stuns one enemy for 1 turn. This ignores invulnerability and cannot target the same enemy more than once per match. If the target is affected by Fury Swipes, it is extended by 1 turn.",
+                "energy": [],
+                "target": "single-enemy",
+                "targetCondition": {
+                    "missingStatusIdFromActorSource": "meowth_fake_out_target_history"
+                },
+                "ignoreInvulnerability": true,
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "meowth_fake_out_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "statusIconUrl": "assets/images/PokemonArena/Meowth/fakeout.png",
+                            "tooltipText": "All skills are stunned."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "meowth_fake_out_target_history",
+                        "duration": 99,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "hidden": true,
+                            "unremovable": true,
+                            "infiniteDuration": true,
+                            "bypassTargetNonDamageIgnores": true
+                        }
+                    },
+                    {
+                        "type": "extend_status_duration",
+                        "scope": "target",
+                        "statusIds": [
+                            "meowth_fury_swipes_physical",
+                            "meowth_fury_swipes_affliction"
+                        ],
+                        "additionalTurns": 1,
+                        "sourceMustBeActor": true,
+                        "onSuccessfulExtensionApplyStatusToOwner": {
+                            "statusId": "meowth_persian_evolution_tracker",
+                            "duration": 99,
+                            "metadata": {
+                                "hidden": true,
+                                "infiniteDuration": true,
+                                "meowthFurySwipesExtensions": 0,
+                                "stackMetadataKey": "meowthFurySwipesExtensions",
+                                "stackDelta": 1,
+                                "stackMax": 3,
+                                "applyStatusAtStack": {
+                                    "metadataKey": "meowthFurySwipesExtensions",
+                                    "value": 3,
+                                    "statusId": "meowth_persian_evolution",
+                                    "duration": 99,
+                                    "metadata": {
+                                        "hidden": true,
+                                        "infiniteDuration": true,
+                                        "facePictureOverride": "assets/images/PokemonArena/Meowth/persianfp.png",
+                                        "skillReplacements": {
+                                            "meowth-pay-day": "persian-pay-day",
+                                            "meowth-fury-swipes": "persian-fury-swipes",
+                                            "meowth-fake-out": "persian-fake-out",
+                                            "meowth-night-slash": "persian-night-slash"
+                                        },
+                                        "healOnApplyFlat": 15,
+                                        "statusIconUrl": "assets/images/PokemonArena/Meowth/evolutionpersian.png",
+                                        "tooltipText": "Meowth has evolved into Persian. Persian's skills are improved."
+                                    }
+                                },
+                                "statusIconUrl": "assets/images/PokemonArena/Meowth/evolutionpersian.png",
+                                "tooltipTextTemplate": "Meowth has extended Fury Swipes {meowthFurySwipesExtensions}/3 times and will evolve into Persian at 3."
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "meowth-night-slash",
+                "name": "Night Slash",
+                "skillimage": "assets/images/PokemonArena/Meowth/nightslash.png",
+                "skilldescription": "Deals 25 damage to one enemy. If the target is at or below 50 HP, this critically strikes for 35 Piercing damage. If the target is affected by Fury Swipes, it is extended by 1 turn.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "sourceCurrentHpAtMost": 50
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "sourceCurrentHpAtLeast": 51
+                        }
+                    },
+                    {
+                        "type": "extend_status_duration",
+                        "scope": "target",
+                        "statusIds": [
+                            "meowth_fury_swipes_physical",
+                            "meowth_fury_swipes_affliction"
+                        ],
+                        "additionalTurns": 1,
+                        "sourceMustBeActor": true,
+                        "onSuccessfulExtensionApplyStatusToOwner": {
+                            "statusId": "meowth_persian_evolution_tracker",
+                            "duration": 99,
+                            "metadata": {
+                                "hidden": true,
+                                "infiniteDuration": true,
+                                "meowthFurySwipesExtensions": 0,
+                                "stackMetadataKey": "meowthFurySwipesExtensions",
+                                "stackDelta": 1,
+                                "stackMax": 3,
+                                "applyStatusAtStack": {
+                                    "metadataKey": "meowthFurySwipesExtensions",
+                                    "value": 3,
+                                    "statusId": "meowth_persian_evolution",
+                                    "duration": 99,
+                                    "metadata": {
+                                        "hidden": true,
+                                        "infiniteDuration": true,
+                                        "facePictureOverride": "assets/images/PokemonArena/Meowth/persianfp.png",
+                                        "skillReplacements": {
+                                            "meowth-pay-day": "persian-pay-day",
+                                            "meowth-fury-swipes": "persian-fury-swipes",
+                                            "meowth-fake-out": "persian-fake-out",
+                                            "meowth-night-slash": "persian-night-slash"
+                                        },
+                                        "healOnApplyFlat": 15,
+                                        "statusIconUrl": "assets/images/PokemonArena/Meowth/evolutionpersian.png",
+                                        "tooltipText": "Meowth has evolved into Persian. Persian's skills are improved."
+                                    }
+                                },
+                                "statusIconUrl": "assets/images/PokemonArena/Meowth/evolutionpersian.png",
+                                "tooltipTextTemplate": "Meowth has extended Fury Swipes {meowthFurySwipesExtensions}/3 times and will evolve into Persian at 3."
+                            }
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "meowth-passive-evolution-persian",
+                "name": "Evolution - Persian",
+                "skillimage": "assets/images/PokemonArena/Meowth/evolutionpersian.png",
+                "skilldescription": "After Meowth successfully extends Fury Swipes 3 times, it evolves into Persian and heals 15 HP. Persian's skills are improved.",
+                "energy": [],
+                "target": "",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ]
+            },
+            {
+                "id": "persian-pay-day",
+                "name": "Persian Pay Day",
+                "actorCondition": {
+                    "statusId": "meowth_persian_evolution"
+                },
+                "useBaseSkillCooldown": true,
+                "skillimage": "assets/images/PokemonArena/Meowth/persianpayday.png",
+                "skilldescription": "Steals 1 random energy immediately. That type replaces only the Taijutsu cost of Persian's next Night Slash. For 1 turn, each other enemy that uses a new harmful skill has 1 additional random energy stolen once.",
+                "energy": [
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "drain_chakra",
+                        "amount": 1,
+                        "chakraType": "random",
+                        "scope": "target",
+                        "metadata": {
+                            "onSuccessfulDrainApplySkillCostOverrideToOwner": {
+                                "statusId": "persian_pay_day_night_slash_cost",
+                                "duration": 99,
+                                "skillId": "persian-night-slash",
+                                "preserveRandomForSkillIds": [
+                                    "persian-night-slash"
+                                ],
+                                "tooltipText": "Persian Pay Day changed only the colored cost of the next Night Slash."
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "persian_pay_day_reactive_theft",
+                        "duration": 1,
+                        "scope": "other-enemies",
+                        "metadata": {
+                            "harmful": true,
+                            "triggerOnEnemyHarmfulSkill": true,
+                            "triggerOnOwnerHarmfulSkillOnly": true,
+                            "counterStealRandomChakraToSourceOwner": 1,
+                            "statusIconUrl": "assets/images/PokemonArena/Meowth/persianpayday.png",
+                            "tooltipText": "Using a new harmful skill causes Persian to steal 1 random energy. This triggers once."
+                        }
+                    },
+                    {
+                        "type": "extend_status_duration",
+                        "scope": "target",
+                        "statusIds": [
+                            "meowth_fury_swipes_physical",
+                            "meowth_fury_swipes_affliction"
+                        ],
+                        "additionalTurns": 1,
+                        "sourceMustBeActor": true
+                    }
+                ]
+            },
+            {
+                "id": "persian-fury-swipes",
+                "name": "Persian Fury Swipes",
+                "actorCondition": {
+                    "statusId": "meowth_persian_evolution"
+                },
+                "useBaseSkillCooldown": true,
+                "skillimage": "assets/images/PokemonArena/Meowth/persianfuryswipes.png",
+                "skilldescription": "For 3 turns, Persian deals 5 Piercing Physical and 5 Affliction damage to the enemy team each turn. Pay Day, Fake Out, or Night Slash used on an affected enemy extends Fury Swipes by 1 turn.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "target": "all-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Action",
+                    "Affliction"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "meowth_fury_swipes_physical",
+                        "duration": 3,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "turnStartDamage": 5,
+                            "ignoreTargetDamageReduction": true,
+                            "ongoingClass": "action",
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/Meowth/persianfuryswipes.png",
+                            "tooltipText": "Takes 5 Piercing Physical damage each turn from Persian Fury Swipes."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "meowth_fury_swipes_affliction",
+                        "duration": 3,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "turnStartDamage": 5,
+                            "afflictionDamage": true,
+                            "ongoingClass": "action",
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/Meowth/persianfuryswipes.png",
+                            "tooltipText": "Takes 5 Affliction damage each turn from Persian Fury Swipes."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "persian-fake-out",
+                "name": "Persian Fake Out",
+                "actorCondition": {
+                    "statusId": "meowth_persian_evolution"
+                },
+                "useBaseSkillCooldown": true,
+                "skillimage": "assets/images/PokemonArena/Meowth/persianfakeout.png",
+                "skilldescription": "Deals 15 damage and fully stuns one enemy for 1 turn. This ignores invulnerability and cannot target the same enemy more than once per match; Meowth's previous targets remain unavailable. Extends Fury Swipes by 1 turn.",
+                "energy": [],
+                "target": "single-enemy",
+                "targetCondition": {
+                    "missingStatusIdFromActorSource": "meowth_fake_out_target_history"
+                },
+                "ignoreInvulnerability": true,
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "persian_fake_out_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseSkills": true,
+                            "statusIconUrl": "assets/images/PokemonArena/Meowth/persianfakeout.png",
+                            "tooltipText": "All skills are stunned."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "meowth_fake_out_target_history",
+                        "duration": 99,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "hidden": true,
+                            "unremovable": true,
+                            "infiniteDuration": true,
+                            "bypassTargetNonDamageIgnores": true
+                        }
+                    },
+                    {
+                        "type": "extend_status_duration",
+                        "scope": "target",
+                        "statusIds": [
+                            "meowth_fury_swipes_physical",
+                            "meowth_fury_swipes_affliction"
+                        ],
+                        "additionalTurns": 1,
+                        "sourceMustBeActor": true
+                    }
+                ]
+            },
+            {
+                "id": "persian-night-slash",
+                "name": "Persian Night Slash",
+                "actorCondition": {
+                    "statusId": "meowth_persian_evolution"
+                },
+                "useBaseSkillCooldown": true,
+                "skillimage": "assets/images/PokemonArena/Meowth/persiannightslash.png",
+                "skilldescription": "Deals 30 damage to one enemy. At 50 HP or less, it critically strikes for 45 Piercing damage. Costs 1 Taijutsu and 1 Random; Persian Pay Day changes only the Taijutsu cost. Extends Fury Swipes by 1 turn.",
+                "energy": [
+                    "Taijutsu",
+                    "Random"
+                ],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 45,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "sourceCurrentHpAtMost": 50
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "sourceCurrentHpAtLeast": 51
+                        }
+                    },
+                    {
+                        "type": "extend_status_duration",
+                        "scope": "target",
+                        "statusIds": [
+                            "meowth_fury_swipes_physical",
+                            "meowth_fury_swipes_affliction"
+                        ],
+                        "additionalTurns": 1,
+                        "sourceMustBeActor": true
+                    }
+                ]
+            }
+        ],
+        "role": "Specialist",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "specialist",
+        "description": "A tempo specialist that steals energy and extends Fury Swipes before evolving into the faster, more lethal Persian.",
+        "descriptionHtml": "A tempo specialist that steals energy and extends Fury Swipes before evolving into the faster, more lethal Persian."
     }
 ];
 

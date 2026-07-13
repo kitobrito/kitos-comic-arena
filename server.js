@@ -38,6 +38,7 @@ const bcrypt = require('bcryptjs');
 const { WebSocketServer, WebSocket } = require('ws');
 const battleLogic = require('./battleLogic');
 const { syncPokemonOnixRelease } = require('./sync_pokemon_onix_news');
+const { syncPokemonMeowthRelease } = require('./sync_pokemon_meowth_release');
 let charactersData = require('./characters');
 
 const app = express();
@@ -75,13 +76,13 @@ const LATEST_CHARACTER_RELEASES_BY_ARENA = {
         { label: 'General Grievous', characterId: 'general-grievous' },
     ],
     pokemon: [
+        { label: 'Meowth', characterId: 'meowth' },
         { label: 'Onix', characterId: 'onix' },
         { label: 'Aerodactyl', characterId: 'aerodactyl' },
-        { label: 'Magnemite', characterId: 'magnemite' },
     ],
 };
 const LATEST_CHARACTER_RELEASES_STATE_KEY = 'latest_character_releases';
-const LATEST_CHARACTER_RELEASES_VERSION = 'pokemon-release-v3-3-1-onix';
+const LATEST_CHARACTER_RELEASES_VERSION = 'pokemon-release-meowth';
 const MAINTENANCE_MODE_STATE_KEY = 'maintenance_mode';
 const MAINTENANCE_MODE_CACHE_TTL_MS = 10 * 1000;
 const DEFAULT_PROFILE_AVATAR = '/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png';
@@ -7819,12 +7820,19 @@ app.use(
             useDefaults: false,
             directives: {
                 defaultSrc: ["'self'"],
-                scriptSrc: ["'self'", "'unsafe-inline'"],
+                scriptSrc: ["'self'", "'unsafe-inline'", 'https://www.googletagmanager.com'],
                 styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
                 fontSrc: ["'self'", 'https://fonts.gstatic.com', 'data:'],
                 imgSrc: ["'self'", 'data:', '*'],
-                connectSrc: ["'self'", ...configuredCorsOrigins],
+                connectSrc: [
+                    "'self'",
+                    ...configuredCorsOrigins,
+                    'https://www.googletagmanager.com',
+                    'https://www.google-analytics.com',
+                    'https://region1.google-analytics.com',
+                ],
                 objectSrc: ["'none'"],
+                frameSrc: ["'self'", 'https://www.googletagmanager.com'],
                 frameAncestors: ["'self'"],
                 baseUri: ["'self'"],
                 formAction: ["'self'"],
@@ -11389,6 +11397,10 @@ async function initDb() {
     const onixReleaseSync = await syncPokemonOnixRelease(db);
     if (onixReleaseSync.migrated) {
         console.log('Applied the Pokemon Arena V.3.3.1 Onix release to MongoDB.');
+    }
+    const meowthReleaseSync = await syncPokemonMeowthRelease(db);
+    if (meowthReleaseSync.migrated) {
+        console.log('Published Meowth and the upcoming 12-character Pokemon Arena announcement.');
     }
     await backfillUserProfiles();
     console.log('Connected to MongoDB.');
