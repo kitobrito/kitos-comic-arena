@@ -79,7 +79,7 @@
   }
 
   function addSwitch() {
-    if (document.querySelector("[data-global-arena-switch], [data-home-arena-switch]")) return;
+    if (document.querySelector("[data-global-arena-switch], [data-home-arena-switch], .arena-mode-switch")) return;
     var switchLink = document.createElement("a");
     switchLink.className = "global-arena-switch";
     switchLink.dataset.globalArenaSwitch = otherArena;
@@ -87,12 +87,8 @@
     switchLink.textContent = "Switch to " + otherArenaName;
     switchLink.setAttribute("aria-label", "Switch this page to " + otherArenaName);
 
-    var existingArenaSwitch = document.querySelector(".arena-mode-switch");
     var brand = document.querySelector(".brand");
-    if (existingArenaSwitch) {
-      switchLink.classList.add("global-arena-switch-inline");
-      existingArenaSwitch.appendChild(switchLink);
-    } else if (brand) {
+    if (brand) {
       brand.insertAdjacentElement("afterend", switchLink);
     } else {
       switchLink.classList.add("global-arena-switch-floating");
