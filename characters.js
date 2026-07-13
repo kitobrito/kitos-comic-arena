@@ -29788,6 +29788,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Meowth/persianpayday.png",
                 "skilldescription": "Steals 1 random energy immediately. That type replaces only the Taijutsu cost of Persian's next Night Slash. For 1 turn, each other enemy that uses a new harmful skill has 1 additional random energy stolen once.",
                 "energy": [
+                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",

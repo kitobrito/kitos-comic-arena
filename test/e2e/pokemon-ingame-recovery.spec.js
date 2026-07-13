@@ -421,6 +421,34 @@ test('pokemon battle intro uses the current match background', async ({ page }) 
     );
 });
 
+test('ingame resumes fullscreen intent and centers the game stage', async ({ page }) => {
+    await page.goto(harness.baseUrl, { waitUntil: 'domcontentloaded' });
+    await page.evaluate(() => {
+        sessionStorage.setItem('comicArenaFullscreenIntent', 'true');
+    });
+    await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-1&arena=pokemon`, {
+        waitUntil: 'domcontentloaded',
+    });
+
+    await expect(page.locator('.ingame-fullscreen-toggle')).toHaveText(/Resume Full|Exit Full/);
+    if (!(await page.evaluate(() => Boolean(document.fullscreenElement)))) {
+        await page.mouse.click(1400, 850);
+    }
+    await expect.poll(() => page.evaluate(() => Boolean(document.fullscreenElement))).toBe(true);
+
+    const placement = await page.locator('.ingame-stage').evaluate((stage) => {
+        const rect = stage.getBoundingClientRect();
+        return {
+            centerX: rect.left + rect.width / 2,
+            centerY: rect.top + rect.height / 2,
+            viewportCenterX: window.innerWidth / 2,
+            viewportCenterY: window.innerHeight / 2,
+        };
+    });
+    expect(Math.abs(placement.centerX - placement.viewportCenterX)).toBeLessThan(2);
+    expect(Math.abs(placement.centerY - placement.viewportCenterY)).toBeLessThan(2);
+});
+
 test('pokemon ingame stays in pokemon arena after turn confirm and refresh', async ({ page }) => {
     await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-1&arena=pokemon`);
 

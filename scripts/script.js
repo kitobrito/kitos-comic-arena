@@ -66,6 +66,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ? 'comic'
                 : '';
     const UI_SETTINGS_STORAGE_KEY = 'comicUiSettings';
+    const FULLSCREEN_INTENT_STORAGE_KEY = 'comicArenaFullscreenIntent';
+    const readFullscreenIntent = () => {
+        try {
+            return sessionStorage.getItem(FULLSCREEN_INTENT_STORAGE_KEY) === 'true';
+        } catch (error) {
+            return false;
+        }
+    };
+    const writeFullscreenIntent = (active) => {
+        try {
+            sessionStorage.setItem(FULLSCREEN_INTENT_STORAGE_KEY, active ? 'true' : 'false');
+        } catch (error) {
+            // Ignore storage failures.
+        }
+    };
     const defaultUiSettings = {
         targetFade: true,
         skillCastAnimations: true,
@@ -116,7 +131,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const active = Boolean(getFullscreenElement());
             fullscreenToggleButton.classList.toggle('active', active);
             fullscreenToggleButton.setAttribute('aria-pressed', active ? 'true' : 'false');
-            fullscreenToggleButton.textContent = active ? 'Exit Full' : 'Full';
+            fullscreenToggleButton.textContent = active
+                ? 'Exit Full'
+                : readFullscreenIntent()
+                    ? 'Resume Full'
+                    : 'Full';
         };
 
         const requestSelectionFullscreen = async () => {
@@ -142,8 +161,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             try {
                 if (getFullscreenElement()) {
                     await exitSelectionFullscreen();
+                    writeFullscreenIntent(false);
                 } else {
                     await requestSelectionFullscreen();
+                    writeFullscreenIntent(true);
                 }
             } catch (error) {
                 console.warn('Unable to toggle fullscreen.', error);
@@ -2446,7 +2467,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const active = Boolean(getFullscreenElement());
             fullscreenToggleButton.classList.toggle('active', active);
             fullscreenToggleButton.setAttribute('aria-pressed', active ? 'true' : 'false');
-            fullscreenToggleButton.textContent = active ? 'Exit Full' : 'Full';
+            fullscreenToggleButton.textContent = active
+                ? 'Exit Full'
+                : readFullscreenIntent()
+                    ? 'Resume Full'
+                    : 'Full';
         };
 
         const requestGameFullscreen = async () => {
@@ -2473,7 +2498,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 try {
                     if (getFullscreenElement()) {
                         await exitGameFullscreen();
+                        writeFullscreenIntent(false);
                     } else {
+                        writeFullscreenIntent(true);
                         await requestGameFullscreen();
                     }
                 } catch (error) {
@@ -2486,6 +2513,50 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.addEventListener('webkitfullscreenchange', syncFullscreenButton);
             document.addEventListener('MSFullscreenChange', syncFullscreenButton);
             syncFullscreenButton();
+
+            let fullscreenResumeArmed = false;
+            const disarmFullscreenResume = () => {
+                if (!fullscreenResumeArmed) return;
+                fullscreenResumeArmed = false;
+                document.removeEventListener('pointerdown', resumeFullscreenFromGesture, true);
+                document.removeEventListener('keydown', resumeFullscreenFromGesture, true);
+            };
+            const tryResumeGameFullscreen = async () => {
+                if (!readFullscreenIntent() || getFullscreenElement()) {
+                    disarmFullscreenResume();
+                    syncFullscreenButton();
+                    return;
+                }
+                try {
+                    await requestGameFullscreen();
+                    disarmFullscreenResume();
+                } catch (error) {
+                    // Browsers normally require a new user gesture after page navigation.
+                } finally {
+                    syncFullscreenButton();
+                }
+            };
+            function resumeFullscreenFromGesture(event) {
+                if (event?.target?.closest?.('.ingame-fullscreen-toggle')) return;
+                if (event?.type === 'keydown' && event.key === 'Escape') {
+                    writeFullscreenIntent(false);
+                    disarmFullscreenResume();
+                    syncFullscreenButton();
+                    return;
+                }
+                void tryResumeGameFullscreen();
+            }
+            const armFullscreenResume = () => {
+                if (fullscreenResumeArmed || !readFullscreenIntent() || getFullscreenElement()) return;
+                fullscreenResumeArmed = true;
+                document.addEventListener('pointerdown', resumeFullscreenFromGesture, true);
+                document.addEventListener('keydown', resumeFullscreenFromGesture, true);
+            };
+
+            if (readFullscreenIntent() && !getFullscreenElement()) {
+                armFullscreenResume();
+                void tryResumeGameFullscreen();
+            }
         }
         const chakraCountEls = chakraDisplay
             ? {

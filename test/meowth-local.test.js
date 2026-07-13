@@ -181,3 +181,8 @@ test('Persian Night Slash keeps its Random cost when Pay Day changes its colored
         requiredRandom: 1,
     });
 });
+
+test('Persian Pay Day costs two Random energy', () => {
+    const persianPayDay = meowth.skills.find((skill) => skill.id === 'persian-pay-day');
+    assert.deepEqual(persianPayDay.energy, ['Random', 'Random']);
+});

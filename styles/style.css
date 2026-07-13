@@ -2360,20 +2360,27 @@ body.arena-mode-pokemon .searchingscroll::after {
     position: relative;
 }
 
-.backgroundingame:fullscreen,
-.backgroundingame:-webkit-full-screen {
-    display: block;
-    position: fixed;
-    left: 50vw;
-    top: 50vh;
-    right: auto;
-    bottom: auto;
+.ingame-stage {
+    position: relative;
     width: 770px;
     height: 560px;
+    flex: 0 0 770px;
+}
+
+.backgroundingame:fullscreen,
+.backgroundingame:-webkit-full-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
     margin: 0;
-    transform: translate(-50%, -50%);
+    transform: none;
     background-color: #050505;
-    overflow: visible;
+    background-size: cover;
+    overflow: hidden;
 }
 
 .battle-intro-overlay {
