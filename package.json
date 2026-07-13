@@ -10,6 +10,7 @@
     "balance:drift": "node scripts/balance-drift-checker.js",
     "character-payload:inspect": "node scripts/character-payload-tool.js inspect",
     "pokemon-image:generate": "node scripts/gemini-pokemon-image.js",
+    "selection-thumbnails:build": "python scripts/build-selection-thumbnails.py",
     "live-deploy:verify": "node scripts/live-deploy-verifier.js",
     "match:debug": "node scripts/match-debugger.js",
     "pokemon-overrides:inspect": "node scripts/pokemon-override-tool.js inspect",

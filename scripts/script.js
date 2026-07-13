@@ -18,6 +18,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     const pageName = pagePath.split('/').pop() || 'index.html';
     const isSelectionPage = pageName === 'selection.html' || pageName === 'selection';
     const isIngamePage = pageName === 'ingame.html' || pageName === 'ingame';
+    const getSelectionThumbnailSource = (source = '') => {
+        const original = typeof source === 'string' ? source.trim() : '';
+        if (!isSelectionPage || !original || /^(?:data:|https?:)/i.test(original)) return original;
+        const match = original.match(/^(\/?assets\/images\/)(.+)$/i);
+        if (!match || match[2].startsWith('selection-thumbnails/')) return original;
+        return `${match[1]}selection-thumbnails/${match[2]}.webp`;
+    };
+    const setSelectionThumbnailWithFallback = (image, source = '') => {
+        if (!image) return;
+        const original = typeof source === 'string' ? source.trim() : '';
+        const thumbnail = getSelectionThumbnailSource(original);
+        image.onerror = null;
+        if (thumbnail && thumbnail !== original) {
+            image.onerror = () => {
+                image.onerror = null;
+                image.src = original;
+            };
+        }
+        image.src = thumbnail || original;
+    };
     const pageArenaMode =
         document.body && document.body.dataset && typeof document.body.dataset.pageArena === 'string'
             ? document.body.dataset.pageArena.trim().toLowerCase()
@@ -14498,7 +14518,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const chip = document.createElement('div');
             chip.className = 'draft-selected-chip';
             const image = document.createElement('img');
-            image.src = character?.facePicture || '';
+            setSelectionThumbnailWithFallback(image, character?.facePicture || '');
             image.alt = character?.name || 'Character';
             const label = document.createElement('span');
             label.textContent = character?.name || `Character ${rosterIndex + 1}`;
@@ -14526,7 +14546,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             button.classList.toggle('locked', locked);
             button.disabled = locked || (phase === 'pick' && banned) || activeDraft.myBanSubmitted && phase === 'ban' || activeDraft.myTeamSubmitted && phase === 'pick';
             const image = document.createElement('img');
-            image.src = character.facePicture || '';
+            setSelectionThumbnailWithFallback(image, character.facePicture || '');
             image.alt = character.name || `Character ${rosterIndex + 1}`;
             const label = document.createElement('span');
             label.textContent = character.name || `Character ${rosterIndex + 1}`;
@@ -14905,9 +14925,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         const url = typeof source === 'string' ? source.trim() : '';
         if (!url || selectionPreviewImageCache.has(url)) return;
         selectionPreviewImageCache.add(url);
+        const thumbnail = getSelectionThumbnailSource(url);
         const image = new Image();
         image.decoding = 'async';
-        image.src = url;
+        if (thumbnail && thumbnail !== url) {
+            image.onerror = () => {
+                image.onerror = null;
+                image.src = url;
+            };
+        }
+        image.src = thumbnail || url;
     };
 
     const preloadCharacterPreview = (character) => {
@@ -14921,6 +14948,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const loadSelectionPreviewImage = (image, source, alt, renderId) => {
         if (!image) return;
         const url = typeof source === 'string' ? source.trim() : '';
+        const thumbnail = getSelectionThumbnailSource(url);
         image.onload = null;
         image.onerror = null;
         image.dataset.previewRenderId = String(renderId);
@@ -14939,10 +14967,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             image.classList.toggle('load-failed', failed);
         };
         image.onload = () => finish(false);
-        image.onerror = () => finish(true);
+        let usedOriginalFallback = false;
+        image.onerror = () => {
+            if (!usedOriginalFallback && thumbnail && thumbnail !== url) {
+                usedOriginalFallback = true;
+                image.src = url;
+                return;
+            }
+            finish(true);
+        };
         image.decoding = 'async';
         image.fetchPriority = 'high';
-        image.src = url;
+        image.src = thumbnail || url;
         if (image.complete && image.naturalWidth > 0) {
             finish(false);
         }
@@ -15276,7 +15312,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (locked) {
             image.classList.add('slot-locked');
         }
-        image.src = character.facePicture;
+        setSelectionThumbnailWithFallback(image, character.facePicture);
         image.alt = character.name || `Character ${index + 1}`;
         image.draggable = false;
         image.title = locked ? `${character.name || 'Character'} is locked.` : character.name || `Character ${index + 1}`;
@@ -15331,7 +15367,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         const character = roster[assignment.characterIndex];
         const img = document.createElement('img');
-        img.src = character?.facePicture || '';
+        setSelectionThumbnailWithFallback(img, character?.facePicture || '');
         img.alt = character?.name || 'Selected character';
         img.className = 'selected-slot-image';
         img.draggable = false;
@@ -15817,6 +15853,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 listItem.classList.add('slot-empty');
                 listItem.draggable = false;
             }
+        }
+
+        const visibleCharacters = rosterDisplayIndices
+            .slice(pageStart, pageEnd)
+            .map((index) => roster[index])
+            .filter(Boolean);
+        const warmVisibleCharacterImages = () => {
+            visibleCharacters.forEach(preloadCharacterPreview);
+        };
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(warmVisibleCharacterImages, { timeout: 800 });
+        } else {
+            window.setTimeout(warmVisibleCharacterImages, 80);
         }
 
         updateRosterPageButtons();

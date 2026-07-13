@@ -7846,6 +7846,13 @@ app.get('/characters.js', (req, res) => {
             .send('window.characters = [];');
     }
 });
+app.use(
+    '/assets/images/selection-thumbnails',
+    express.static(path.join(__dirname, 'assets', 'images', 'selection-thumbnails'), {
+        etag: true,
+        maxAge: '7d',
+    })
+);
 app.use(express.static(path.join(__dirname)));
 app.use(express.json());
 app.use(cookieParser());
