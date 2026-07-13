@@ -467,7 +467,7 @@ body.skill-effects-muted .storm-hail-weather::before {
 
 .ingame-sound-controller {
     position: absolute;
-    top: 480px;
+    top: 525px;
     left: 40px;
     z-index: 7000;
     display: flex;
@@ -1240,15 +1240,17 @@ body.arena-mode-pokemon .selectionscroll {
 
 .player-card {
     display: flex;
+    box-sizing: border-box;
     color: #000000;
     font-family: 'Franklin', Arial, sans-serif;
     font-size: 13px;
     padding: 5px;
-    width: 280px;
-    left: 67%;
-    bottom: 67.8%;
-    position: relative;
-text-transform: uppercase;
+    width: 270px;
+    left: 500px;
+    top: 335px;
+    bottom: auto;
+    position: absolute;
+    text-transform: uppercase;
 }
 
 
@@ -1779,19 +1781,20 @@ body.arena-mode-pokemon .skillviewer::after {
 }
 
 body.arena-mode-pokemon .skillviewer::before {
-    left: 533px;
-    top: 90px;
-    width: 50px;
-    height: 50px;
+    left: 517px;
+    top: 74px;
+    width: 82px;
+    height: 82px;
     border-radius: 999px;
     background: #fffdf7;
+    box-shadow: 0 0 0 3px #fffdf7;
 }
 
 body.arena-mode-pokemon .skillviewer::after {
-    left: 536px;
-    top: 93px;
-    width: 44px;
-    height: 44px;
+    left: 522px;
+    top: 79px;
+    width: 72px;
+    height: 72px;
     background: url('../assets/images/PokemonArena/found-pokeball.png') center / contain no-repeat;
 }
 
@@ -2212,6 +2215,31 @@ body.arena-mode-pokemon .energy-pip.filled.energy-taijutsu {
     z-index: 6;
 }
 
+body.arena-mode-pokemon .searchingscroll::before,
+body.arena-mode-pokemon .searchingscroll::after {
+    content: "";
+    position: absolute;
+    pointer-events: none;
+    z-index: 7;
+}
+
+body.arena-mode-pokemon .searchingscroll::before {
+    left: 3px;
+    top: 113px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: #fffdf7;
+}
+
+body.arena-mode-pokemon .searchingscroll::after {
+    left: 6px;
+    top: 116px;
+    width: 50px;
+    height: 50px;
+    background: url('../assets/images/PokemonArena/found-pokeball.png') center / contain no-repeat;
+}
+
 .searching {
     margin-top: 50px;
     margin-left: 125px;
@@ -2259,8 +2287,11 @@ body.arena-mode-pokemon .energy-pip.filled.energy-taijutsu {
 
 .player-infoselection {
     display: flex;
+    flex: 1 1 auto;
     flex-direction: column;
     justify-content: center;
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .backgroundingame {
@@ -7005,18 +7036,12 @@ body.arena-mode-pokemon .skillimage {
     height: 46px;
     position: absolute;
     left: 30px;
-    top: 425px;
+    top: 470px;
     z-index: 1;
 }
 
 .sound {
-    background-image: url('../assets/images/optionscroll.png');
-    width: 182px;
-    height: 46px;
-    position: absolute;
-    left: 30px;
-    top: 470px;
-    z-index: 1;
+    display: none;
 }
 
 .surrenderbutton span {

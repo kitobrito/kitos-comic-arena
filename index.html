@@ -2184,6 +2184,83 @@
         linear-gradient(180deg, #dc3d4a 0%, #9e1723 100%);
     }
 
+    .pokemon-item-gallery {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 7px;
+      margin: 14px 0 4px;
+      padding: 10px;
+      border: 3px solid #a81724;
+      background: linear-gradient(180deg, #fff 0%, #f5f9ff 100%);
+      box-shadow: 4px 4px 0 #70101a;
+    }
+
+    .pokemon-item-gallery a {
+      display: grid;
+      gap: 4px;
+      justify-items: center;
+      min-width: 0;
+      color: #173f73;
+      font-size: 10px;
+      font-weight: 900;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .pokemon-item-gallery img {
+      width: 100%;
+      aspect-ratio: 1;
+      border: 2px solid #2b64a2;
+      border-radius: 50%;
+      background: #fff;
+      object-fit: cover;
+      box-shadow: 0 2px 0 #b51f2e;
+      transition: transform 140ms ease, filter 140ms ease;
+    }
+
+    .pokemon-stone-art {
+      display: grid;
+      place-items: center;
+      width: 100%;
+      aspect-ratio: 1;
+      border: 2px solid #2b64a2;
+      border-radius: 45% 55% 48% 52% / 52% 45% 55% 48%;
+      color: #fff;
+      font-size: clamp(17px, 2vw, 27px);
+      line-height: 1;
+      text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+      box-shadow: inset 4px 4px 0 rgba(255, 255, 255, 0.35), 0 2px 0 #b51f2e;
+      transform: rotate(-5deg);
+      transition: transform 140ms ease, filter 140ms ease;
+    }
+
+    .pokemon-stone-art.leaf { background: radial-gradient(circle at 35% 30%, #d9ff99 0 12%, #61bd45 13% 58%, #247636 59%); }
+    .pokemon-stone-art.thunder { background: radial-gradient(circle at 35% 30%, #fffbd0 0 12%, #f6cf31 13% 58%, #d08012 59%); }
+    .pokemon-stone-art.fire { background: radial-gradient(circle at 35% 30%, #ffe3a0 0 12%, #ef6934 13% 58%, #a8212c 59%); }
+    .pokemon-stone-art.water { background: radial-gradient(circle at 35% 30%, #d8fbff 0 12%, #3fa5df 13% 58%, #2256a4 59%); }
+
+    .pokemon-item-gallery a:hover img,
+    .pokemon-item-gallery a:hover .pokemon-stone-art {
+      filter: brightness(1.08) saturate(1.08);
+      transform: translateY(-3px) rotate(-3deg);
+    }
+
+    .pokemon-link-art {
+      width: 24px;
+      height: 24px;
+      margin-right: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      border-radius: 50%;
+      object-fit: cover;
+      vertical-align: middle;
+    }
+
+    @media (max-width: 720px) {
+      .pokemon-item-gallery {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+
     body.home-classic-page .section-heading {
       align-items: center;
       margin-bottom: 10px;
@@ -2614,9 +2691,9 @@
           <p id="home-arena-description">Comic Arena is a fast tactical battler built around heroes, villains, team reads, cooldown pressure, and ladder climbs.</p>
           <div class="hero-actions">
             <a class="hero-link is-accent" href="missions.html" data-home-arena="comic">Comic Missions</a>
-            <a class="hero-link is-accent" href="missions.html?arena=pokemon" data-home-arena="pokemon">Pokemon Missions</a>
+            <a class="hero-link is-accent" href="missions.html?arena=pokemon" data-home-arena="pokemon"><img class="pokemon-link-art" src="assets/images/PokemonArena/chooseyourstarter/pikachuball.jpg" alt="">Pokemon Missions</a>
             <a class="hero-link" href="charactersandskills.html" data-home-arena="comic">Comic Characters</a>
-            <a class="hero-link" href="pokemon-charactersandskills.html" data-home-arena="pokemon">Pokemon Characters</a>
+            <a class="hero-link" href="pokemon-charactersandskills.html" data-home-arena="pokemon"><img class="pokemon-link-art" src="assets/images/PokemonArena/chooseyourstarter/bulbasaurball.jpg" alt="">Pokemon Characters</a>
             <a class="hero-link" href="community.html">Meet The Community</a>
             <a class="hero-link is-discord" href="https://discord.gg/dabZKRDkf7" target="_blank" rel="noopener noreferrer">
               <img class="hero-link-icon" src="assets/images/discordlogo.png" alt="" aria-hidden="true">
@@ -2626,6 +2703,19 @@
               <img class="hero-partner-logo" src="assets/images/animearenalogo.png" alt="Try our partnered game Anime-Arena">
             </a>
           </div>
+          <nav class="pokemon-item-gallery" data-home-arena="pokemon" aria-label="Explore Pokemon Arena">
+            <a href="pokemon-charactersandskills.html"><img src="assets/images/PokemonArena/chooseyourstarter/bulbasaurball.jpg" alt="Bulbasaur themed ball"><span>Grass Teams</span></a>
+            <a href="pokemon-charactersandskills.html"><img src="assets/images/PokemonArena/chooseyourstarter/charmanderball.png" alt="Charmander themed ball"><span>Fire Teams</span></a>
+            <a href="pokemon-charactersandskills.html"><img src="assets/images/PokemonArena/chooseyourstarter/squirtleball.jpg" alt="Squirtle themed ball"><span>Water Teams</span></a>
+            <a href="missions.html?arena=pokemon"><img src="assets/images/PokemonArena/chooseyourstarter/pikachuball.jpg" alt="Pikachu themed ball"><span>Missions</span></a>
+            <a href="selection.html?arena=pokemon"><img src="assets/images/PokemonArena/pokemontrainer/Pokeball.jpeg" alt="Poke Ball"><span>Build a Team</span></a>
+            <a href="selection.html?arena=pokemon"><img src="assets/images/PokemonArena/pokemontrainer/Great ball.png" alt="Great Ball"><span>Play Ladder</span></a>
+            <a href="missions.html?arena=pokemon"><img src="assets/images/PokemonArena/pokemontrainer/Rare Candy.jpeg" alt="Rare Candy"><span>Earn Points</span></a>
+            <a href="pokemon-charactersandskills.html"><span class="pokemon-stone-art leaf" aria-label="Leaf Stone">&#x1F343;</span><span>Leaf Stone</span></a>
+            <a href="pokemon-charactersandskills.html"><span class="pokemon-stone-art thunder" aria-label="Thunder Stone">&#x26A1;</span><span>Thunder Stone</span></a>
+            <a href="pokemon-charactersandskills.html"><span class="pokemon-stone-art fire" aria-label="Fire Stone">&#x1F525;</span><span>Fire Stone</span></a>
+            <a href="pokemon-charactersandskills.html"><span class="pokemon-stone-art water" aria-label="Water Stone">&#x1F4A7;</span><span>Water Stone</span></a>
+          </nav>
           <aside class="pokemon-ladder-promo" data-home-arena="pokemon" aria-label="Pokemon Ladder reward">
             <strong>Win 25 Ladder Games. Get 1,000 Points.</strong>
             <p>Win Pokémon Arena Ranked/Ladder games against players or battle bots. Spend your reward on character unlocks, skins, and additional Eevee evolutions.</p>

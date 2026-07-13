@@ -3099,20 +3099,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const getPendingReservationState = (excludedActorSlot = null) => {
-            const pending = normalizePendingTurn(pendingTurnState);
+            const confirmedPending = normalizePendingTurn(pendingTurnState);
             const remainingPool = normalizePool(playerPoolState);
-            const randomAssignments = normalizePool(pending.randomAssignments);
-            let totalQueuedRandom = 0;
-            let excludedQueuedRandom = 0;
+            let reservedRandomTotal = Math.max(0, Number(confirmedPending.unresolvedRandom) || 0);
 
-            Object.values(pending.queuedByActorSlot || {}).forEach((queued) => {
-                const queuedActorSlot = Number.parseInt(queued?.actorSlot, 10);
-                const queuedRequiredRandom = Math.max(0, Number(queued?.requiredRandom) || 0);
-                totalQueuedRandom += queuedRequiredRandom;
-                if (Number.isInteger(excludedActorSlot) && queuedActorSlot === excludedActorSlot) {
-                    excludedQueuedRandom += queuedRequiredRandom;
-                    return;
-                }
+            // Confirmed reservations are already removed from playerPoolState by the server.
+            // Apply only local optimistic changes that have not reached the server yet.
+            optimisticCancelledActorSlots.forEach((actorSlot) => {
+                const confirmedQueued = confirmedPending.queuedByActorSlot?.[String(actorSlot)] || null;
+                if (!confirmedQueued) return;
+                const reservedSpecific =
+                    confirmedQueued.reservedSpecific && typeof confirmedQueued.reservedSpecific === 'object'
+                        ? confirmedQueued.reservedSpecific
+                        : {};
+                chakraTypes.forEach((type) => {
+                    remainingPool[type] =
+                        (Number(remainingPool[type]) || 0) + (Number(reservedSpecific[type]) || 0);
+                });
+                reservedRandomTotal = Math.max(
+                    0,
+                    reservedRandomTotal - Math.max(0, Number(confirmedQueued.requiredRandom) || 0)
+                );
+            });
+
+            optimisticQueuedByActorSlot.forEach((queued, actorSlot) => {
+                if (confirmedPending.queuedByActorSlot?.[String(actorSlot)]) return;
+                if (Number.isInteger(excludedActorSlot) && Number(actorSlot) === excludedActorSlot) return;
                 const reservedSpecific =
                     queued?.reservedSpecific && typeof queued.reservedSpecific === 'object'
                         ? queued.reservedSpecific
@@ -3123,18 +3135,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         (Number(remainingPool[type]) || 0) - (Number(reservedSpecific[type]) || 0)
                     );
                 });
+                reservedRandomTotal += Math.max(0, Number(queued?.requiredRandom) || 0);
             });
-
-            chakraTypes.forEach((type) => {
-                remainingPool[type] = Math.max(
-                    0,
-                    (Number(remainingPool[type]) || 0) - (Number(randomAssignments[type]) || 0)
-                );
-            });
-
-            const assignedRandomTotal = totalPool(randomAssignments);
-            const queuedRandomExcludingActor = Math.max(0, totalQueuedRandom - excludedQueuedRandom);
-            const reservedRandomTotal = Math.max(0, queuedRandomExcludingActor - assignedRandomTotal);
 
             return {
                 remainingPool,
@@ -3587,6 +3589,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             playerSkillMetaByKey.forEach((meta, key) => {
                 const imgEl = meta?.imgEl;
                 if (!imgEl) return;
+                imgEl.style.pointerEvents = '';
+                imgEl.removeAttribute('aria-disabled');
                 const actorUnit = Array.isArray(playerUnits) ? playerUnits[meta.actorSlot] : null;
                 const effectiveSkill = getEffectiveSkillForActorSlot(meta.actorSlot, meta.skillIdx) || meta?.skill;
                 const usageState = getSkillUsageState(actorUnit, effectiveSkill, meta.actorSlot, meta.skillIdx);
@@ -3618,14 +3622,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                     imgEl.style.cursor = 'pointer';
                     return;
                 }
-                imgEl.style.opacity = canAffordSkillWithPendingReservations(
+                const canAfford = canAffordSkillWithPendingReservations(
                     effectiveSkill?.energy,
                     meta.actorSlot,
                     effectiveSkill
-                )
-                    ? '1'
-                    : '0.4';
-                imgEl.style.cursor = imgEl.style.opacity === '1' ? 'pointer' : 'not-allowed';
+                );
+                imgEl.style.opacity = canAfford ? '1' : '0.4';
+                imgEl.style.cursor = canAfford ? 'pointer' : 'not-allowed';
+                if (!canAfford) {
+                    imgEl.style.pointerEvents = 'none';
+                    imgEl.setAttribute('aria-disabled', 'true');
+                }
             });
             if (
                 activeCastingSkill &&

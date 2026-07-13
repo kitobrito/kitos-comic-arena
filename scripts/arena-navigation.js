@@ -79,6 +79,8 @@
   }
 
   function addSwitch() {
+    // Arena switching belongs in the lobby/navigation UI, never over an active battle.
+    if (path === "ingame.html") return;
     if (document.querySelector("[data-global-arena-switch], [data-home-arena-switch], .arena-mode-switch")) return;
     var switchLink = document.createElement("a");
     switchLink.className = "global-arena-switch";
