@@ -15930,8 +15930,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    rosterFilterTabs.forEach((tab) => {
+    const closeSelectionAuxiliaryPanels = () => {
+        selectionMissionsEl?.classList.add('collapsed');
+        selectionMissionsToggle?.classList.remove('active');
+        selectionMissionsToggle?.setAttribute('aria-expanded', 'false');
+
+        const optionsPanel = document.querySelector('.selection-ui-options-panel');
+        const optionsToggle = document.querySelector('.ui-options-toggle[aria-controls="selection-ui-options"]');
+        if (optionsPanel) {
+            optionsPanel.hidden = true;
+            optionsPanel.classList.remove('open');
+            optionsPanel.closest('.roster-filter-panel')?.classList.remove('options-panel-open');
+        }
+        optionsToggle?.classList.remove('active');
+        optionsToggle?.setAttribute('aria-expanded', 'false');
+    };
+
+    rosterFilterTabs.filter((tab) => Boolean(tab.dataset.rosterFilterMode)).forEach((tab) => {
         tab.addEventListener('click', () => {
+            closeSelectionAuxiliaryPanels();
             const mode = tab.dataset.rosterFilterMode || 'role';
             activeRosterFilterMode = mode;
             activeRosterFilterValue = 'all';
@@ -15942,6 +15959,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (rosterFilterSelect) {
         rosterFilterSelect.addEventListener('change', () => {
+            closeSelectionAuxiliaryPanels();
             activeRosterFilterValue = rosterFilterSelect.value || 'all';
             applyRosterFilter();
         });

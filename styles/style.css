@@ -266,6 +266,16 @@ body.arena-mode-pokemon .background {
     background-image: var(--pokemon-selection-background, url('../assets/images/PokemonArena/newcharacterselectpics/1783126094113.png')) !important;
 }
 
+.background:fullscreen .selectionpage,
+.background:-webkit-full-screen .selectionpage {
+    left: calc(50% - 310px);
+}
+
+.background:fullscreen .selectionscroll,
+.background:-webkit-full-screen .selectionscroll {
+    left: calc(50% - 386px);
+}
+
 .sound-controller {
     position: absolute;
     left: 8px;
