@@ -2388,7 +2388,7 @@ body.arena-mode-pokemon .searchingscroll::after {
     gap: 18px;
     background:
         linear-gradient(180deg, rgba(22, 11, 8, 0.94), rgba(76, 17, 14, 0.9) 48%, rgba(22, 11, 8, 0.94)),
-        url('../assets/images/newingamebgCA.png') center / cover;
+        var(--battle-intro-background-image, url('../assets/images/newingamebgCA.png')) center / cover;
     font-family: 'Pedra', 'Libre Franklin', serif;
     overflow: hidden;
 }

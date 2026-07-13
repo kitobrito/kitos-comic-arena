@@ -410,6 +410,17 @@ const waitForBattleIntroToFinish = async (page) => {
     await expect(page.locator('.battle-intro-overlay')).toHaveAttribute('aria-hidden', 'true');
 };
 
+test('pokemon battle intro uses the current match background', async ({ page }) => {
+    await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-1&arena=pokemon`, {
+        waitUntil: 'domcontentloaded',
+    });
+
+    await expect(page.locator('.battle-intro-overlay')).toHaveCSS(
+        'background-image',
+        /PokemonArena\/newingamebgPA\.png/
+    );
+});
+
 test('pokemon ingame stays in pokemon arena after turn confirm and refresh', async ({ page }) => {
     await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-1&arena=pokemon`);
 

@@ -10904,6 +10904,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 'bottom'
             );
 
+            const introArena =
+                String(data?.arena || currentMatchArena || '').trim().toLowerCase() === 'pokemon'
+                    ? 'pokemon'
+                    : 'comic';
+            const introBackgroundUrl =
+                (typeof data?.backgroundOverride === 'string' && data.backgroundOverride.trim()) ||
+                currentMatchBackgroundUrl ||
+                (introArena === 'pokemon'
+                    ? POKEMON_INGAME_BACKGROUND_URL
+                    : COMIC_INGAME_BACKGROUND_URL);
+            battleIntroOverlayEl.style.setProperty(
+                '--battle-intro-background-image',
+                toBackgroundImageValue(introBackgroundUrl)
+            );
+
             getOpponentIntroAvatarUrl(data?.opponent || {})
                 .then((avatarUrl) => {
                     if (battleIntroTopAvatarEl && avatarUrl) battleIntroTopAvatarEl.src = avatarUrl;
