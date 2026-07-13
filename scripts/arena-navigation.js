@@ -115,16 +115,42 @@
     }
   }
 
+  function replacePokemonAlliancePanel() {
+    if (arena !== "pokemon") return;
+    document.querySelectorAll(".ladder").forEach(function (panel) {
+      var title = panel.querySelector(".ladder-title");
+      if (!title || !/alliance levels/i.test(title.textContent || "")) return;
+      panel.innerHTML = "";
+      var heading = document.createElement("h3");
+      heading.className = "ladder-title";
+      heading.textContent = "Pokemon Points & Ladder Rewards";
+      var reward = document.createElement("div");
+      reward.className = "pokemon-sidebar-reward";
+      reward.innerHTML =
+        "<strong>25 Ladder Wins = 1,000 Points</strong>" +
+        "<p>Player and battle-bot Ladder wins both count.</p>" +
+        "<p>Spend points on Pokemon unlocks, alternate skins, and additional Eevee evolutions.</p>" +
+        '<a href="missions.html?arena=pokemon">View the Reward Mission</a>';
+      panel.appendChild(heading);
+      panel.appendChild(reward);
+    });
+  }
+
   var style = document.createElement("style");
   style.textContent =
     ".global-arena-switch{display:block;margin:0 auto 16px;padding:9px 12px;max-width:220px;text-align:center;text-decoration:none;font:700 13px/1.2 Arial,sans-serif;border:2px solid #76101a;border-radius:6px;background:linear-gradient(#e64451,#9b1723);color:#fff!important;box-shadow:0 3px 0 rgba(50,0,5,.3);position:relative;z-index:20}" +
     "body.arena-mode-comic .global-arena-switch{border-color:#173f73;background:linear-gradient(#347fc5,#174a83)}" +
     ".global-arena-switch:hover{filter:brightness(1.12);transform:translateY(-1px)}" +
     ".global-arena-switch-inline{display:inline-flex;align-items:center;margin:0 0 0 10px;max-width:none;white-space:nowrap;vertical-align:middle}" +
-    ".global-arena-switch-floating{position:fixed;top:10px;left:10px;margin:0;z-index:10000}";
+    ".global-arena-switch-floating{position:fixed;top:10px;left:10px;margin:0;z-index:10000}" +
+    ".pokemon-sidebar-reward{padding:10px;border:1px solid #c44650;background:#fff5f5;color:#351010;text-align:left}" +
+    ".pokemon-sidebar-reward strong{display:block;color:#a31724;font-size:18px;line-height:1.15}" +
+    ".pokemon-sidebar-reward p{margin:8px 0;font-size:13px;font-weight:700;line-height:1.35}" +
+    ".pokemon-sidebar-reward a{display:block;padding:8px;background:#b51f2e;color:#fff!important;font-weight:900;text-align:center;text-decoration:none}";
   document.head.appendChild(style);
 
   updateBranding();
   addSwitch();
   keepSharedLinksInArena();
+  replacePokemonAlliancePanel();
 }());
