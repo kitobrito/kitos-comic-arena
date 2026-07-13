@@ -1006,6 +1006,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     let profileCache = null;
     let missionLockedCharacterIds = new Set();
     let selectionClickTimer = null;
+    let selectionPreviewRenderId = 0;
+    const selectionPreviewImageCache = new Set();
     let activeSelectionPointerDrag = null;
     let suppressSelectionClickUntil = 0;
 
@@ -14877,6 +14879,53 @@ document.addEventListener('DOMContentLoaded', async () => {
         skillImages = Array.from(skillImagesContainer.querySelectorAll('.skill-image'));
     };
 
+    const preloadSelectionPreviewImage = (source) => {
+        const url = typeof source === 'string' ? source.trim() : '';
+        if (!url || selectionPreviewImageCache.has(url)) return;
+        selectionPreviewImageCache.add(url);
+        const image = new Image();
+        image.decoding = 'async';
+        image.src = url;
+    };
+
+    const preloadCharacterPreview = (character) => {
+        if (!character) return;
+        preloadSelectionPreviewImage(character.facePicture);
+        (Array.isArray(character.skills) ? character.skills : [])
+            .filter((skill) => skill && !Boolean(skill.hiddenFromSelectionViewer))
+            .forEach((skill) => preloadSelectionPreviewImage(skill.skillimage));
+    };
+
+    const loadSelectionPreviewImage = (image, source, alt, renderId) => {
+        if (!image) return;
+        const url = typeof source === 'string' ? source.trim() : '';
+        image.onload = null;
+        image.onerror = null;
+        image.dataset.previewRenderId = String(renderId);
+        image.alt = alt;
+        image.classList.add('is-loading');
+        image.style.visibility = url ? 'visible' : 'hidden';
+        image.removeAttribute('src');
+        if (!url) {
+            image.classList.remove('is-loading');
+            return;
+        }
+
+        const finish = (failed = false) => {
+            if (image.dataset.previewRenderId !== String(renderId)) return;
+            image.classList.remove('is-loading');
+            image.classList.toggle('load-failed', failed);
+        };
+        image.onload = () => finish(false);
+        image.onerror = () => finish(true);
+        image.decoding = 'async';
+        image.fetchPriority = 'high';
+        image.src = url;
+        if (image.complete && image.naturalWidth > 0) {
+            finish(false);
+        }
+    };
+
     const renderSkill = (skill, activeIndex = 0) => {
         if (!skill) return;
         if (skillNameEl) {
@@ -15046,6 +15095,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const renderCharacter = (character, index) => {
         if (!character) return;
+        const renderId = ++selectionPreviewRenderId;
         currentCharacterIndex = index;
         if (nameEl) {
             nameEl.textContent = character.name || 'Unknown shinobi';
@@ -15055,8 +15105,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             roleEl.style.visibility = 'visible';
         }
         if (portraitEl) {
-            portraitEl.src = character.facePicture || (activeArenaMode === 'pokemon' ? POKEMON_FOUND_ICON_URL : '');
-            portraitEl.alt = character.name ? `${character.name} portrait` : 'Character portrait';
+            loadSelectionPreviewImage(
+                portraitEl,
+                character.facePicture || (activeArenaMode === 'pokemon' ? POKEMON_FOUND_ICON_URL : ''),
+                character.name ? `${character.name} portrait` : 'Character portrait',
+                renderId
+            );
         }
         renderCharacterOverview(character);
         if (Array.isArray(character.skills)) {
@@ -15071,11 +15125,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const targetImg = skillImages[skillIdx];
                 if (!targetImg) return;
                 if (skill) {
-                    targetImg.src = skill.skillimage || '';
-                    targetImg.alt = skill.name || `Skill ${skillIdx + 1}`;
-                    targetImg.style.visibility = 'visible';
                     targetImg.onclick = () => handleSkillSelect(skillIdx);
+                    loadSelectionPreviewImage(
+                        targetImg,
+                        skill.skillimage || '',
+                        skill.name || `Skill ${skillIdx + 1}`,
+                        renderId
+                    );
                 } else {
+                    targetImg.onload = null;
+                    targetImg.onerror = null;
                     targetImg.src = '';
                     targetImg.alt = `Skill ${skillIdx + 1}`;
                     targetImg.style.visibility = 'hidden';
@@ -15341,13 +15400,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const queueSelectionPreview = (callback) => {
-        if (selectionClickTimer) {
-            clearTimeout(selectionClickTimer);
-        }
-        selectionClickTimer = window.setTimeout(() => {
-            selectionClickTimer = null;
-            callback();
-        }, 225);
+        cancelSelectionPreview();
+        callback();
     };
 
     const cancelSelectionPreview = () => {
@@ -15722,6 +15776,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             listItem.addEventListener('click', handleClick);
             listItem.addEventListener('dblclick', handleDoubleClick);
+            listItem.addEventListener('pointerenter', () => {
+                if (Number.isInteger(rosterIndex)) preloadCharacterPreview(roster[rosterIndex]);
+            });
+            listItem.addEventListener('pointerdown', () => {
+                if (Number.isInteger(rosterIndex)) preloadCharacterPreview(roster[rosterIndex]);
+            }, { passive: true });
             listItem.addEventListener('dragstart', (event) => {
                 if (Number.isInteger(rosterIndex)) handleSlotDragStart(event, rosterIndex);
             });
