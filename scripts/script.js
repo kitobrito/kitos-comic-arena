@@ -143,8 +143,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!toggles.length && !panels.length) return;
         const setOpen = (panel, toggle, open) => {
             if (!panel) return;
+            if (open && panel.classList.contains('selection-ui-options-panel')) {
+                const missionsPanel = document.querySelector('.selection-missions');
+                const missionsToggle = document.querySelector('.selection-missions-toggle');
+                missionsPanel?.classList.add('collapsed');
+                missionsToggle?.classList.remove('active');
+                missionsToggle?.setAttribute('aria-expanded', 'false');
+            }
             panel.hidden = !open;
             panel.classList.toggle('open', open);
+            const stackingParent = panel.closest('.roster-filter-panel');
+            if (stackingParent) {
+                stackingParent.classList.toggle('options-panel-open', open);
+            }
             if (toggle) {
                 toggle.classList.toggle('active', open);
                 toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -13947,6 +13958,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (selectionMissionsToggle && selectionMissionsEl) {
         selectionMissionsToggle.addEventListener('click', () => {
             const willOpen = selectionMissionsEl.classList.contains('collapsed');
+            if (willOpen) {
+                const optionsPanel = document.querySelector('.selection-ui-options-panel');
+                const optionsToggle = document.querySelector('.ui-options-toggle[aria-controls="selection-ui-options"]');
+                if (optionsPanel) {
+                    optionsPanel.hidden = true;
+                    optionsPanel.classList.remove('open');
+                    optionsPanel.closest('.roster-filter-panel')?.classList.remove('options-panel-open');
+                }
+                optionsToggle?.classList.remove('active');
+                optionsToggle?.setAttribute('aria-expanded', 'false');
+            }
             selectionMissionsEl.classList.toggle('collapsed', !willOpen);
             selectionMissionsToggle.classList.toggle('active', willOpen);
             selectionMissionsToggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');

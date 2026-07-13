@@ -1100,6 +1100,10 @@ body.arena-mode-pokemon .selectionscroll {
     color: #1b120b;
 }
 
+.roster-filter-panel.options-panel-open {
+    z-index: 9500;
+}
+
 .roster-filter-tabs {
     display: flex;
     flex-wrap: wrap;
@@ -1361,7 +1365,7 @@ body.arena-mode-pokemon .selectionscroll {
 .selection-mode-controls {
     position: absolute;
     right: 18px;
-    bottom: 494px;
+    bottom: 504px;
     display: flex;
     align-items: flex-start;
     gap: 12px;
