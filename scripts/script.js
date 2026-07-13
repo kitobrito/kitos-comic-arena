@@ -15564,15 +15564,56 @@ document.addEventListener('DOMContentLoaded', async () => {
         return true;
     };
 
-    const finishSelectionPointerDrop = (payload, clientX, clientY) => {
+    const getSelectedSlotDropIndex = (clientX, clientY, dragState = null) => {
         const target = document.elementFromPoint(clientX, clientY);
         const selectedSlot = target?.closest?.('.selected-character-slot');
         const selectedSlotIndex = selectedSlot ? selectedSlots.indexOf(selectedSlot) : -1;
         if (selectedSlotIndex >= 0) {
+            return selectedSlotIndex;
+        }
+
+        if (!dragState?.rect) return -1;
+        const dragLeft = clientX - dragState.offsetX;
+        const dragTop = clientY - dragState.offsetY;
+        const dragRight = dragLeft + dragState.rect.width;
+        const dragBottom = dragTop + dragState.rect.height;
+        const snapPadding = 12;
+        let bestSlotIndex = -1;
+        let bestOverlap = 0;
+
+        selectedSlots.forEach((slot, slotIndex) => {
+            const rect = slot.getBoundingClientRect();
+            const overlapWidth = Math.max(
+                0,
+                Math.min(dragRight, rect.right + snapPadding) -
+                    Math.max(dragLeft, rect.left - snapPadding)
+            );
+            const overlapHeight = Math.max(
+                0,
+                Math.min(dragBottom, rect.bottom + snapPadding) -
+                    Math.max(dragTop, rect.top - snapPadding)
+            );
+            const overlap = overlapWidth * overlapHeight;
+            if (overlap > bestOverlap) {
+                bestOverlap = overlap;
+                bestSlotIndex = slotIndex;
+            }
+        });
+
+        return bestSlotIndex;
+    };
+
+    const finishSelectionPointerDrop = (payload, clientX, clientY, dragState = null) => {
+        const selectedSlotIndex = getSelectedSlotDropIndex(clientX, clientY, dragState);
+        if (selectedSlotIndex >= 0) {
             return moveDragPayloadToSelectedSlot(payload, selectedSlotIndex);
         }
+        const target = document.elementFromPoint(clientX, clientY);
         const rosterSlot = target?.closest?.('.slot-item');
         if (rosterSlot) {
+            return returnSelectedPayloadToRoster(payload);
+        }
+        if (payload?.type === 'selected') {
             return returnSelectedPayloadToRoster(payload);
         }
         return false;
@@ -15668,7 +15709,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             upEvent.preventDefault();
             suppressSelectionClickUntil = Date.now() + 350;
-            const dropped = finishSelectionPointerDrop(dragState.payload, upEvent.clientX, upEvent.clientY);
+            const dropped = finishSelectionPointerDrop(
+                dragState.payload,
+                upEvent.clientX,
+                upEvent.clientY,
+                dragState
+            );
             cleanupSelectionPointerDrag(dragState, !dropped);
         };
 

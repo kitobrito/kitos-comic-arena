@@ -40,3 +40,16 @@ test('selection identity uses the ladder profile for the active arena', () => {
     );
     assert.doesNotMatch(hydrateIdentityBlock, /ladder: apiUser\.profile\?\.ladder/);
 });
+
+test('selection drags snap near team slots and otherwise return selected characters to roster', () => {
+    assert.match(script, /const snapPadding = 12/);
+    assert.match(script, /getSelectedSlotDropIndex\(clientX, clientY, dragState\)/);
+    assert.match(
+        script,
+        /if \(payload\?\.type === 'selected'\) \{\s*return returnSelectedPayloadToRoster\(payload\);/s
+    );
+    assert.match(
+        script,
+        /finishSelectionPointerDrop\(\s*dragState\.payload,\s*upEvent\.clientX,\s*upEvent\.clientY,\s*dragState/s
+    );
+});
