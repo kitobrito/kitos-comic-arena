@@ -29,13 +29,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!image) return;
         const original = typeof source === 'string' ? source.trim() : '';
         const thumbnail = getSelectionThumbnailSource(original);
+        image.onload = null;
         image.onerror = null;
+        image.classList.remove('load-failed');
+        const markLoaded = () => {
+            image.classList.remove('load-failed');
+        };
+        const markFailed = () => {
+            image.onload = null;
+            image.onerror = null;
+            image.classList.add('load-failed');
+            image.removeAttribute('src');
+        };
+        image.onload = markLoaded;
         if (thumbnail && thumbnail !== original) {
             image.onerror = () => {
-                image.onerror = null;
+                image.onerror = markFailed;
                 image.src = original;
             };
+        } else {
+            image.onerror = markFailed;
         }
+        image.decoding = 'async';
         image.src = thumbnail || original;
     };
     const pageArenaMode =
@@ -15289,6 +15304,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         slot.innerHTML = '';
         slot.classList.add('slot-empty');
         slot.draggable = false;
+        delete slot.dataset.characterInitial;
+        slot.removeAttribute('aria-label');
+        slot.removeAttribute('tabindex');
     };
 
     const buildRosterSlot = (index) => {
@@ -15302,11 +15320,22 @@ document.addEventListener('DOMContentLoaded', async () => {
             slot.classList.add('slot-empty');
             slot.classList.remove('slot-locked');
             slot.draggable = false;
+            delete slot.dataset.characterInitial;
+            slot.removeAttribute('aria-label');
+            slot.removeAttribute('tabindex');
             return;
         }
         slot.classList.remove('slot-empty');
         slot.classList.toggle('slot-locked', locked);
         slot.draggable = false;
+        slot.dataset.characterInitial = String(character.name || '?').trim().charAt(0).toUpperCase() || '?';
+        slot.setAttribute(
+            'aria-label',
+            locked
+                ? `${character.name || 'Character'} is locked`
+                : `Select ${character.name || `character ${index + 1}`}`
+        );
+        slot.tabIndex = locked ? -1 : 0;
         const image = document.createElement('img');
         image.className = 'slot-image';
         if (locked) {
@@ -15319,8 +15348,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         slot.appendChild(image);
         if (!locked) {
             image.addEventListener('dragstart', (event) => handleSlotDragStart(event, index));
-            image.addEventListener('pointerdown', (event) =>
-                startSelectionPointerDrag(event, { type: 'roster', rosterIndex: index }, image)
+            slot.addEventListener('pointerdown', (event) =>
+                startSelectionPointerDrag(event, { type: 'roster', rosterIndex: index }, slot)
             );
         }
         image.addEventListener('dragend', handleSlotDragEnd);
@@ -15572,7 +15601,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const startSelectionPointerDrag = (event, payload, sourceElement) => {
         if (!sourceElement || !payload || event.button !== 0 || activeSelectionPointerDrag) return;
-        event.preventDefault();
         cancelSelectionPreview();
         const rect = sourceElement.getBoundingClientRect();
         const dragState = {
@@ -15613,6 +15641,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     sourceElement.releasePointerCapture?.(dragState.pointerId);
                 } catch (error) {
                     // Ignore capture cleanup races.
+                }
+                if (
+                    upEvent.pointerType !== 'mouse' &&
+                    dragState.payload?.type === 'roster' &&
+                    Number.isInteger(dragState.payload.rosterIndex)
+                ) {
+                    suppressSelectionClickUntil = Date.now() + 350;
+                    addRosterCharacterToSelection(dragState.payload.rosterIndex);
                 }
                 return;
             }

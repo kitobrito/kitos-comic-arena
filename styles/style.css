@@ -1212,6 +1212,22 @@ body.arena-mode-pokemon .selectionscroll {
     cursor: grab;
     user-select: none;
     touch-action: none;
+    position: relative;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+}
+
+.slot-item::before {
+    content: attr(data-character-initial);
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    background: linear-gradient(145deg, #fffdf2, #d9d4c5);
+    color: #5d1d22;
+    font: 800 22px 'Libre Franklin', Arial, sans-serif;
+    pointer-events: none;
 }
 
 .slot-item.slot-locked,
@@ -1235,6 +1251,14 @@ body.arena-mode-pokemon .selectionscroll {
     cursor: grab;
     user-select: none;
     touch-action: none;
+    position: relative;
+    z-index: 1;
+    pointer-events: none;
+    background: transparent;
+}
+
+.slot-image.load-failed {
+    visibility: hidden;
 }
 
 .slot-image.drag-hidden,
