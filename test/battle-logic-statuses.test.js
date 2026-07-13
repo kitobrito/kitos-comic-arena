@@ -950,6 +950,67 @@ test('Aerodactyl Tough Head converts self health loss into destructible defense 
     );
 });
 
+test('Hitmonlee High Jump Kick can miss and deals 30 recoil damage to Hitmonlee', () => {
+    const hitmonleeIndex = characters.findIndex((character) => character?.id === 'hitmonlee');
+    assert.notEqual(hitmonleeIndex, -1);
+    const highJumpKickIndex = characters[hitmonleeIndex].skills.findIndex(
+        (skill) => skill?.id === 'hitmonlee-high-jump-kick'
+    );
+    assert.notEqual(highJumpKickIndex, -1);
+    const match = {
+        players: [{ username: 'ash' }, { username: 'gary' }],
+        board: {
+            ash: [{
+                alive: true,
+                hp: 100,
+                maxHp: 100,
+                rosterIndex: hitmonleeIndex,
+                state: { statuses: [], cooldowns: {}, skillUses: {}, snapshots: {} },
+            }],
+            gary: [{
+                alive: true,
+                hp: 100,
+                maxHp: 100,
+                rosterIndex: 0,
+                state: { statuses: [], cooldowns: {}, skillUses: {}, snapshots: {} },
+            }],
+        },
+        chakraPools: {
+            ash: { taijutsu: 0, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+            gary: { taijutsu: 0, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+        },
+        pendingTurns: {
+            ash: {
+                queueOrder: ['0'],
+                queuedByActorSlot: {
+                    '0': {
+                        skillIndex: highJumpKickIndex,
+                        targetSelection: [{ username: 'gary', slot: 0 }],
+                    },
+                },
+            },
+        },
+        pendingActions: [],
+        pendingQueuedEffects: [],
+        economy: { turnCounts: { ash: 1, gary: 1 } },
+    };
+    const originalRandom = Math.random;
+    Math.random = () => 0.99;
+    try {
+        resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+    } finally {
+        Math.random = originalRandom;
+    }
+    assert.equal(match.board.gary[0].hp, 100);
+    assert.equal(match.board.ash[0].hp, 70);
+    assert.equal(
+        match.board.ash[0].state.statuses.some(
+            (status) => status.id === 'hitmonlee_high_jump_kick_hit_confirmed'
+        ),
+        false
+    );
+});
+
 test('Aerodactyl Stone Edge turns Tough Head defense into extra stun chance and crit damage', () => {
     const aerodactylIndex = characters.findIndex((character) => character?.id === 'aerodactyl');
     assert.notEqual(aerodactylIndex, -1);
