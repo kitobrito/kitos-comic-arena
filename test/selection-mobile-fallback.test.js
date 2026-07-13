@@ -24,3 +24,19 @@ test('failed roster portraits leave a visible and tappable character fallback', 
     assert.match(styles, /\.slot-image\.load-failed\s*\{[^}]*visibility:\s*hidden/s);
     assert.match(script, /delete slot\.dataset\.characterInitial/);
 });
+
+test('selection identity uses the ladder profile for the active arena', () => {
+    const hydrateIdentityBlock = script.match(
+        /const hydratePlayerIdentity = async[\s\S]*?\n    };\n\n    document\.addEventListener\('visibilitychange'/
+    )?.[0] || '';
+
+    assert.match(
+        hydrateIdentityBlock,
+        /getArenaProfileView\(cachedUser\.profile, resolvedArenaMode\)/
+    );
+    assert.match(
+        hydrateIdentityBlock,
+        /getArenaProfileView\(apiUser\.profile, resolvedArenaMode\)/
+    );
+    assert.doesNotMatch(hydrateIdentityBlock, /ladder: apiUser\.profile\?\.ladder/);
+});

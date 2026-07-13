@@ -1765,27 +1765,41 @@ document.addEventListener('DOMContentLoaded', async () => {
             (document.body.classList.contains('arena-mode-pokemon') ? 'pokemon' : 'comic');
         const cachedUser = readCachedUser();
         if (cachedUser?.username) {
+            const cachedProfileView = cachedUser.profile
+                ? getArenaProfileView(cachedUser.profile, resolvedArenaMode)
+                : null;
             applyPlayerIdentity({
                 name: cachedUser.username,
-                avatarUrl: cachedUser.avatarUrl || getArenaDefaultAvatarUrl(resolvedArenaMode),
-                clanAbbreviation: cachedUser.clanAbbreviation || 'None',
-                ladder: cachedUser.ladder,
+                avatarUrl:
+                    cachedProfileView?.avatarUrl ||
+                    cachedUser.avatarUrl ||
+                    getArenaDefaultAvatarUrl(resolvedArenaMode),
+                clanAbbreviation:
+                    cachedProfileView?.clan?.abbreviation ||
+                    cachedUser.clanAbbreviation ||
+                    'None',
+                ladder: cachedProfileView?.ladder || cachedUser.ladder,
+                arenaMode: resolvedArenaMode,
             });
         } else {
             applyPlayerIdentity({
                 avatarUrl: getArenaDefaultAvatarUrl(resolvedArenaMode),
                 clanAbbreviation: 'None',
                 ladder: null,
+                arenaMode: resolvedArenaMode,
             });
         }
 
         const apiUser = await fetchProfile(options);
         if (apiUser?.username) {
+            const apiProfileView = getArenaProfileView(apiUser.profile, resolvedArenaMode);
             applyPlayerIdentity({
                 name: apiUser.username,
-                avatarUrl: apiUser.profile?.avatarUrl || getArenaDefaultAvatarUrl(resolvedArenaMode),
-                clanAbbreviation: apiUser.profile?.clan?.abbreviation || 'None',
-                ladder: apiUser.profile?.ladder || null,
+                avatarUrl:
+                    apiProfileView.avatarUrl || getArenaDefaultAvatarUrl(resolvedArenaMode),
+                clanAbbreviation: apiProfileView.clan?.abbreviation || 'None',
+                ladder: apiProfileView.ladder || null,
+                arenaMode: resolvedArenaMode,
             });
             applyCustomBackgrounds(apiUser);
         }
