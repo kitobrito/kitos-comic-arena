@@ -21,7 +21,7 @@ const squirtle = findCharacter(characters, 'squirtle');
 const ironMan = findCharacter(characters, 'iron-man');
 const spiderMan = findCharacter(characters, 'spider-man');
 const captainAmerica = findCharacter(characters, 'captain-america');
-const spiderSensesIconUrl = 'https://i.imgur.com/ImdCo6q.jpeg';
+const spiderSensesIconUrl = '/assets/images/external-mirror/i.imgur.com/7d93942e20ecddadf0ae.jpg';
 
 const buildTurnTimestamps = () => ({
     turnStartedAt: new Date(Date.now()).toISOString(),
@@ -112,7 +112,7 @@ const buildComicMatchPayload = ({ currentTurn = 'ash' } = {}) => ({
         displayName: 'Ash',
         team: [ironMan.id, spiderMan.id, captainAmerica.id],
         profile: {
-            avatarUrl: 'https://i.postimg.cc/3JqVcPXm/default.png',
+            avatarUrl: '/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png',
             ladder: { rank: 'Hero', level: 8 },
         },
     },
@@ -121,7 +121,7 @@ const buildComicMatchPayload = ({ currentTurn = 'ash' } = {}) => ({
         displayName: 'Doom',
         team: [captainAmerica.id, spiderMan.id, ironMan.id],
         profile: {
-            avatarUrl: 'https://i.postimg.cc/3JqVcPXm/default.png',
+            avatarUrl: '/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png',
             ladder: { rank: 'Villain', level: 9 },
         },
     },

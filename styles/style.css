@@ -1243,14 +1243,15 @@ body.arena-mode-pokemon .selectionscroll {
     box-sizing: border-box;
     color: #000000;
     font-family: 'Franklin', Arial, sans-serif;
-    font-size: 13px;
+    font-size: 12px;
     padding: 5px;
-    width: 270px;
-    left: 500px;
-    top: 335px;
+    width: 210px;
+    left: 475px;
+    top: 85px;
     bottom: auto;
     position: absolute;
     text-transform: uppercase;
+    z-index: 5;
 }
 
 
@@ -1339,6 +1340,11 @@ body.arena-mode-pokemon .selectionscroll {
     display: flex;
     gap: 15px;
     align-items: center;
+    position: absolute;
+    left: -50px;
+    top: -70px;
+    width: max-content;
+    z-index: 5;
 }
 
 .selection-team-status {
@@ -1739,8 +1745,8 @@ body.arena-mode-pokemon .selectionscroll {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    bottom: 385px;
-    right: 30px;
+    bottom: auto;
+    right: auto;
     position: relative;
 }
 
@@ -2103,7 +2109,7 @@ body.arena-mode-pokemon .energy-pip.filled.energy-taijutsu {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.6);
-    z-index: 5;
+    z-index: 6000;
     display: none;
     align-items: center;
     justify-content: center;
@@ -2121,7 +2127,7 @@ body.arena-mode-pokemon .energy-pip.filled.energy-taijutsu {
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.6);
-    z-index: 5;
+    z-index: 6000;
     display: none;
     align-items: center;
     justify-content: center;

@@ -84,7 +84,7 @@ const LATEST_CHARACTER_RELEASES_STATE_KEY = 'latest_character_releases';
 const LATEST_CHARACTER_RELEASES_VERSION = 'pokemon-release-v3-3-1-onix';
 const MAINTENANCE_MODE_STATE_KEY = 'maintenance_mode';
 const MAINTENANCE_MODE_CACHE_TTL_MS = 10 * 1000;
-const DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/3JqVcPXm/default.png';
+const DEFAULT_PROFILE_AVATAR = '/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png';
 const LEGACY_DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/zG3W1w6K/itachi.png';
 const MISSION_CATALOG_STATE_KEY = 'missions';
 const BOT_TEAMS_STATE_KEY = 'bot_teams';
@@ -190,10 +190,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/IV0ZLi5_d.png?maxwidth=520&shape=thumb&fidelity=high',
+        image: '/assets/images/external-mirror/i.imgur.com/585f6eff56eb5d8e6dee.png',
         imageAlt: 'Walker mission artwork',
         characterName: 'Walker',
-        portrait: 'https://i.imgur.com/NqFhNs6.png',
+        portrait: '/assets/images/external-mirror/i.imgur.com/10678b50e174a94e7bfd.png',
         portraitAlt: 'Walker Mission portrait',
         requirements: [],
         goals: [
@@ -233,10 +233,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/UShiq12.png',
+        image: '/assets/images/external-mirror/i.imgur.com/6defc8aabbd705e740eb.png',
         imageAlt: 'Venom Mission Artwork',
         characterName: 'Venom',
-        portrait: 'https://i.imgur.com/T7RpFwn.png',
+        portrait: '/assets/images/external-mirror/i.imgur.com/fd69d685aa352e9bcfcc.png',
         portraitAlt: 'Venom Portrait',
         requirements: [],
         goals: [
@@ -283,10 +283,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/6JLRKuP_d.png?maxwidth=520&shape=thumb&fidelity=high',
+        image: '/assets/images/external-mirror/i.imgur.com/a8664f09cb76adceba45.png',
         imageAlt: 'Joker MIssion Artwork',
         characterName: 'The Joker',
-        portrait: 'https://i.imgur.com/DSEdkUO.png',
+        portrait: '/assets/images/external-mirror/i.imgur.com/9969b2e2630eeff76bad.png',
         portraitAlt: 'Joker portrait',
         requirements: [],
         goals: [
@@ -395,10 +395,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/tW20gY2.jpeg',
+        image: '/assets/images/external-mirror/i.imgur.com/554afa6fc89be6b797cd.jpg',
         imageAlt: 'Omni-Man mission artwork',
         characterName: 'Omni-Man',
-        portrait: 'https://i.imgur.com/YwXook2.png',
+        portrait: '/assets/images/external-mirror/i.imgur.com/ac8fe57ba3922ec61829.png',
         portraitAlt: 'Omni-Man Mission portrait',
         requirements: [],
         goals: [
@@ -451,10 +451,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/V33bQFx.png',
+        image: '/assets/images/external-mirror/i.imgur.com/3aa5296d9a3e1d5c2c91.png',
         imageAlt: 'Rage Infected mission artwork',
         characterName: 'Rage Infected',
-        portrait: 'https://i.imgur.com/k4lrBvO_d.png?maxwidth=520&shape=thumb&fidelity=high',
+        portrait: '/assets/images/external-mirror/i.imgur.com/7b7af7f4631f8dd09646.png',
         portraitAlt: 'Rage Infected Mission portrait',
         requirements: [],
         goals: [
@@ -493,10 +493,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/8E5HHDl.jpeg',
+        image: '/assets/images/external-mirror/i.imgur.com/da5dc00b4213b64c6900.jpg',
         imageAlt: 'The Green lantern mission artwork',
         characterName: 'The Green Lantern (Hal Jordan)',
-        portrait: 'https://i.imgur.com/G4WAQZH.jpeg',
+        portrait: '/assets/images/external-mirror/i.imgur.com/43f5cb414a651a8d3563.jpg',
         portraitAlt: 'The Green Lantern Mission portrait',
         requirements: [],
         goals: [
@@ -591,10 +591,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/PmVfCAU.png',
+        image: '/assets/images/external-mirror/i.imgur.com/c282ce8df12a9e2718f0.png',
         imageAlt: 'Saint Walker mission artwork',
         characterName: 'Saint Walker',
-        portrait: 'https://i.imgur.com/unzClm5.jpeg',
+        portrait: '/assets/images/external-mirror/i.imgur.com/e1625ef074e91d9786b7.jpg',
         portraitAlt: 'Saint Walker Mission portrait',
         requirements: [],
         goals: [
@@ -647,10 +647,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/XEBuicU.jpeg',
+        image: '/assets/images/external-mirror/i.imgur.com/78409de3cae7efec3b8b.jpg',
         imageAlt: 'Space Marine Medic Mission mission artwork',
         characterName: 'Lieutenant Seraphine Vale',
-        portrait: 'https://i.imgur.com/04OvCP9_d.webp?maxwidth=760&fidelity=grand',
+        portrait: '/assets/images/external-mirror/i.imgur.com/ae7cdb3ac508a3ce5245.webp',
         portraitAlt: 'Lieutenant Seraphine Vale Mission portrait',
         requirements: [],
         goals: [
@@ -703,10 +703,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/GyQcDQR_d.jpeg?maxwidth=520&shape=thumb&fidelity=high',
+        image: '/assets/images/external-mirror/i.imgur.com/d6f9c0d886580a6df5f4.jpg',
         imageAlt: 'Negan mission artwork',
         characterName: 'Negan',
-        portrait: 'https://i.imgur.com/csZvbwl.png',
+        portrait: '/assets/images/external-mirror/i.imgur.com/5a910b012994bee9b43f.png',
         portraitAlt: 'Negan portrait',
         requirements: [],
         goals: [
@@ -758,10 +758,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/claIiiZ.png',
+        image: '/assets/images/external-mirror/i.imgur.com/e30f14aa5720b9642063.png',
         imageAlt: 'Doctor Octopus Mission artwork',
         characterName: 'Doctor Octopus',
-        portrait: 'https://i.imgur.com/0rcAM48.png',
+        portrait: '/assets/images/external-mirror/i.imgur.com/1c05f5999cb70cb9bfc2.png',
         portraitAlt: 'Doctor Octopus portrait',
         requirements: [],
         goals: [
@@ -800,10 +800,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/I4fukyT_d.png?maxwidth=520&shape=thumb&fidelity=high',
+        image: '/assets/images/external-mirror/i.imgur.com/f625fda1b95ffcc8c946.png',
         imageAlt: 'New Mission mission artwork',
         characterName: 'The Green Goblin',
-        portrait: 'https://i.imgur.com/DvnhkRP.png',
+        portrait: '/assets/images/external-mirror/i.imgur.com/8a96e5dbf37a454fb5d6.png',
         portraitAlt: 'The Green Goblin portrait',
         requirements: [],
         goals: [
@@ -856,10 +856,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/NPTMsi8_d.png?maxwidth=520&shape=thumb&fidelity=high',
+        image: '/assets/images/external-mirror/i.imgur.com/add734219fae2cfe8872.png',
         imageAlt: 'Sandman mission artwork',
         characterName: 'Sandman',
-        portrait: 'https://i.imgur.com/pJj5Wz0.png',
+        portrait: '/assets/images/external-mirror/i.imgur.com/c7fa3786b92e8b1e2f65.png',
         portraitAlt: 'Sandman portrait',
         requirements: [],
         goals: [
@@ -912,10 +912,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/m9nVuSV.png',
+        image: '/assets/images/external-mirror/i.imgur.com/1e2774a22d482b0eaeb2.png',
         imageAlt: 'Mysterio mission artwork',
         characterName: 'Mysterio',
-        portrait: 'https://i.imgur.com/QOsgmSs.png',
+        portrait: '/assets/images/external-mirror/i.imgur.com/7cd20da314c458f658da.png',
         portraitAlt: 'Mysterio portrait',
         requirements: [],
         goals: [
@@ -962,10 +962,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/fM7sTno_d.png?maxwidth=520&shape=thumb&fidelity=high',
+        image: '/assets/images/external-mirror/i.imgur.com/697da691f842b432267c.png',
         imageAlt: 'Scorpion mission artwork',
         characterName: 'Scorpion',
-        portrait: 'https://i.imgur.com/ZlrriRW.png',
+        portrait: '/assets/images/external-mirror/i.imgur.com/c69622e1d742e673c572.png',
         portraitAlt: 'Scorpion Mission portrait',
         requirements: [],
         goals: [
@@ -1024,10 +1024,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/TSG2XPO_d.jpeg?maxwidth=520&shape=thumb&fidelity=high',
+        image: '/assets/images/external-mirror/i.imgur.com/c5e1d3c94f8ce3356767.jpg',
         imageAlt: 'Carnage mission artwork',
         characterName: 'Carnage',
-        portrait: 'https://i.imgur.com/ECJOkvk.png',
+        portrait: '/assets/images/external-mirror/i.imgur.com/d12f80d0cd5e9c5147ec.png',
         portraitAlt: 'Carnage Mission portrait',
         requirements: [],
         goals: [
@@ -1086,10 +1086,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/SBKdx9H.png',
+        image: '/assets/images/external-mirror/i.imgur.com/29f72694634161e84a28.png',
         imageAlt: 'Indigo-1 mission artwork',
         characterName: 'Indigo-1',
-        portrait: 'https://i.imgur.com/nOzu8z7.jpeg',
+        portrait: '/assets/images/external-mirror/i.imgur.com/238a7c60ae1950042f66.jpg',
         portraitAlt: 'Indigo-1 Mission portrait',
         requirements: [],
         goals: [
@@ -1147,10 +1147,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/ANKGdua.png',
+        image: '/assets/images/external-mirror/i.imgur.com/8ebb6c4a4912a073016a.png',
         imageAlt: 'Atrocitus mission artwork',
         characterName: 'Atrocitus',
-        portrait: 'https://i.imgur.com/nS6xXG6.png',
+        portrait: '/assets/images/external-mirror/i.imgur.com/e0b7a80b2d6fe960cd54.png',
         portraitAlt: 'Atrocitus Mission portrait',
         requirements: [],
         goals: [
@@ -1189,10 +1189,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/R8ndweR.png',
+        image: '/assets/images/external-mirror/i.imgur.com/ad797d96a549f7bcf1b3.png',
         imageAlt: 'Sinestro mission artwork',
         characterName: 'Sinestro',
-        portrait: 'https://i.imgur.com/v9pUryk.jpeg',
+        portrait: '/assets/images/external-mirror/i.imgur.com/30c24cab544768aa2ff2.jpg',
         portraitAlt: 'Sinestro Mission portrait',
         requirements: [],
         goals: [
@@ -1251,10 +1251,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/1kzcYy8.png',
+        image: '/assets/images/external-mirror/i.imgur.com/d99d00fa7e4a5955fc72.png',
         imageAlt: 'Sorrow mission artwork',
         characterName: 'Sorrow',
-        portrait: 'https://i.imgur.com/1T6Wf9Y.jpeg',
+        portrait: '/assets/images/external-mirror/i.imgur.com/5375f7852e58f9c672b6.jpg',
         portraitAlt: 'Sorrow Mission portrait',
         requirements: [],
         goals: [
@@ -1301,10 +1301,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/MgDOxZR.png',
+        image: '/assets/images/external-mirror/i.imgur.com/2e13dca68c9c25eeca97.png',
         imageAlt: 'John Stewart mission artwork',
         characterName: 'John Stewart',
-        portrait: 'https://i.imgur.com/s2MM50x.jpeg',
+        portrait: '/assets/images/external-mirror/i.imgur.com/b9efd520025bfa709d23.jpg',
         portraitAlt: 'John Stewart Mission portrait',
         requirements: [],
         goals: [
@@ -1362,10 +1362,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/mWmxCy8_d.png?maxwidth=520&shape=thumb&fidelity=high',
+        image: '/assets/images/external-mirror/i.imgur.com/7bd28b445ad1cec2c206.png',
         imageAlt: 'Angstrom Levy Mission artwork',
         characterName: 'Angstrom Levy',
-        portrait: 'https://i.imgur.com/Rg974iR.png',
+        portrait: '/assets/images/external-mirror/i.imgur.com/7c2ed60fe662b9175765.png',
         portraitAlt: 'Angstrom Levy portrait',
         requirements: [],
         goals: [
@@ -1404,10 +1404,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/XhDMIxf.jpeg',
+        image: '/assets/images/external-mirror/i.imgur.com/5c7223536b841c298c58.jpg',
         imageAlt: 'Predator mission artwork',
         characterName: 'Predator Stalker',
-        portrait: 'https://i.imgur.com/1NssQOv.jpeg',
+        portrait: '/assets/images/external-mirror/i.imgur.com/2e8a261917f60a597486.jpg',
         portraitAlt: 'Predator Mission portrait',
         requirements: [],
         goals: [
@@ -1450,7 +1450,7 @@ const DEFAULT_MISSION_CATALOG = [
         image: 'assets/images/xenomission.jpg',
         imageAlt: 'Xenomorph Drone mission artwork',
         characterName: 'Xenomorph Drone',
-        portrait: 'https://i.imgur.com/WMixx6V_d.png?maxwidth=520&shape=thumb&fidelity=high',
+        portrait: '/assets/images/external-mirror/i.imgur.com/d5fd5465fa69198c78aa.png',
         portraitAlt: 'Xenomorph Drone Mission portrait',
         requirements: [],
         goals: [
@@ -1490,10 +1490,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/KgKHqzO.jpeg',
+        image: '/assets/images/external-mirror/i.imgur.com/bbdfec4f5f29ff570fa1.jpg',
         imageAlt: 'Predalien mission artwork',
         characterName: 'Predalien',
-        portrait: 'https://i.imgur.com/Rq2FZug.jpeg',
+        portrait: '/assets/images/external-mirror/i.imgur.com/914ec103bf416d6bc888.jpg',
         portraitAlt: 'predalien portrait',
         requirements: [],
         goals: [
@@ -1551,10 +1551,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/I44oULS.jpeg',
+        image: '/assets/images/external-mirror/i.imgur.com/d864f8964176fd76313e.jpg',
         imageAlt: 'Homelander Mission mission artwork',
         characterName: 'Homelander',
-        portrait: 'https://i.imgur.com/DI93KSQ.jpeg',
+        portrait: '/assets/images/external-mirror/i.imgur.com/8aa98dc81a73db23fe49.jpg',
         portraitAlt: 'Homelander Mission portrait',
         requirements: [],
         goals: [
@@ -1592,10 +1592,10 @@ const DEFAULT_MISSION_CATALOG = [
             character_name: '',
             wins: 0
         },
-        image: 'https://i.imgur.com/dALRS3t.jpeg',
+        image: '/assets/images/external-mirror/i.imgur.com/417a7b301c74b4470ab5.jpg',
         imageAlt: 'Hulk Mission mission artwork',
         characterName: 'The Hulk',
-        portrait: 'https://i.imgur.com/SIkUVer.jpeg',
+        portrait: '/assets/images/external-mirror/i.imgur.com/16778f061908ca4cc4e6.jpg',
         portraitAlt: 'Hulk Mission portrait',
         requirements: [],
         goals: [
@@ -2073,34 +2073,34 @@ const getRankInfoForLevel = (level, isHokage = false) => {
 };
 
 const FAKE_BATTLE_PLAYER_ACCOUNTS = [
-    { username: 'Plastic', avatarUrl: 'https://i.imgur.com/rt5r1bu.png', level: 7, wins: 18, losses: 12, streak: 2 },
-    { username: 'Mastermind', avatarUrl: 'https://i.imgur.com/10hGC1C.jpeg', level: 11, wins: 31, losses: 24, streak: -1 },
-    { username: 'Lian', avatarUrl: 'https://i.imgur.com/SIkUVer.jpeg', level: 14, wins: 43, losses: 38, streak: 3 },
-    { username: 'TheDarkLegend', avatarUrl: 'https://i.imgur.com/7j5pcra.jpeg', level: 18, wins: 64, losses: 51, streak: 1 },
-    { username: 'Wespro', avatarUrl: 'https://i.imgur.com/mDgc01K.jpeg', level: 21, wins: 82, losses: 70, streak: -2 },
-    { username: 'Spiritinblack', avatarUrl: 'https://i.imgur.com/uV53DZN.jpeg', level: 24, wins: 101, losses: 83, streak: 4 },
-    { username: 'Mark', avatarUrl: 'https://i.imgur.com/hYpELKX.jpeg', level: 27, wins: 126, losses: 96, streak: 2 },
-    { username: 'Luapman', avatarUrl: 'https://i.imgur.com/ZAAWc5G.jpeg', level: 30, wins: 139, losses: 111, streak: -1 },
-    { username: 'Gametester', avatarUrl: 'https://i.imgur.com/76Svd5q.jpeg', level: 33, wins: 158, losses: 129, streak: 5 },
-    { username: 'SplashPage', avatarUrl: 'https://i.imgur.com/5v5AXWu.png', level: 36, wins: 184, losses: 141, streak: 1 },
-    { username: 'KOBurst', avatarUrl: 'https://i.imgur.com/T7RpFwn.png', level: 39, wins: 207, losses: 163, streak: -3 },
-    { username: 'FrameTrap', avatarUrl: 'https://i.imgur.com/kbaUc1f.png', level: 42, wins: 231, losses: 177, streak: 6 },
-    { username: 'ClashCaster', avatarUrl: 'https://i.imgur.com/SHLVdT9.jpeg', level: 45, wins: 260, losses: 198, streak: 2 },
+    { username: 'Plastic', avatarUrl: '/assets/images/external-mirror/i.imgur.com/81581ac5c8c1de4cd0ea.png', level: 7, wins: 18, losses: 12, streak: 2 },
+    { username: 'Mastermind', avatarUrl: '/assets/images/external-mirror/i.imgur.com/03b422ad677cfe45261e.jpg', level: 11, wins: 31, losses: 24, streak: -1 },
+    { username: 'Lian', avatarUrl: '/assets/images/external-mirror/i.imgur.com/16778f061908ca4cc4e6.jpg', level: 14, wins: 43, losses: 38, streak: 3 },
+    { username: 'TheDarkLegend', avatarUrl: '/assets/images/external-mirror/i.imgur.com/487921e61fc816173c77.jpg', level: 18, wins: 64, losses: 51, streak: 1 },
+    { username: 'Wespro', avatarUrl: '/assets/images/external-mirror/i.imgur.com/12748c5b9bfa8e1ffbfe.jpg', level: 21, wins: 82, losses: 70, streak: -2 },
+    { username: 'Spiritinblack', avatarUrl: '/assets/images/external-mirror/i.imgur.com/f4f1db741c69614f96d8.jpg', level: 24, wins: 101, losses: 83, streak: 4 },
+    { username: 'Mark', avatarUrl: '/assets/images/external-mirror/i.imgur.com/e2ae16dd021894183e60.jpg', level: 27, wins: 126, losses: 96, streak: 2 },
+    { username: 'Luapman', avatarUrl: '/assets/images/external-mirror/i.imgur.com/cc78b6b0d7f74621fa17.jpg', level: 30, wins: 139, losses: 111, streak: -1 },
+    { username: 'Gametester', avatarUrl: '/assets/images/external-mirror/i.imgur.com/e36e352c71fed68e0f6e.jpg', level: 33, wins: 158, losses: 129, streak: 5 },
+    { username: 'SplashPage', avatarUrl: '/assets/images/external-mirror/i.imgur.com/a6ad96af3509d3c49f29.png', level: 36, wins: 184, losses: 141, streak: 1 },
+    { username: 'KOBurst', avatarUrl: '/assets/images/external-mirror/i.imgur.com/fd69d685aa352e9bcfcc.png', level: 39, wins: 207, losses: 163, streak: -3 },
+    { username: 'FrameTrap', avatarUrl: '/assets/images/external-mirror/i.imgur.com/9ded7a58361f7b55bddf.png', level: 42, wins: 231, losses: 177, streak: 6 },
+    { username: 'ClashCaster', avatarUrl: '/assets/images/external-mirror/i.imgur.com/d88eefdb24916108510d.jpg', level: 45, wins: 260, losses: 198, streak: 2 },
     { username: 'VoidMeter', avatarUrl: 'assets/images/wolverinefp.webp', level: 47, wins: 288, losses: 216, streak: -1 },
     { username: 'OmegaDraft', avatarUrl: 'assets/images/YodaFP.webp', level: 49, wins: 316, losses: 241, streak: 7 },
-    { username: 'NightPanel', avatarUrl: 'https://i.imgur.com/jJpqV3f.jpeg', level: 6, wins: 15, losses: 9, streak: 1 },
-    { username: 'SkillIssue', avatarUrl: 'https://i.imgur.com/wTmLyGl.jpeg', level: 9, wins: 24, losses: 18, streak: -2 },
-    { username: 'ArcRunner', avatarUrl: 'https://i.imgur.com/6SJSKyY.jpeg', level: 13, wins: 39, losses: 29, streak: 2 },
-    { username: 'BluePanel', avatarUrl: 'https://i.imgur.com/lFKn0A0.png', level: 16, wins: 52, losses: 41, streak: 3 },
-    { username: 'ComboSmith', avatarUrl: 'https://i.imgur.com/ntQvjKH.jpeg', level: 19, wins: 70, losses: 55, streak: -1 },
-    { username: 'RedChakra', avatarUrl: 'https://i.imgur.com/O08XwjS.jpeg', level: 22, wins: 93, losses: 72, streak: 4 },
-    { username: 'DraftDemon', avatarUrl: 'https://i.imgur.com/n0iErJ8.png', level: 25, wins: 112, losses: 88, streak: 1 },
-    { username: 'PanelMage', avatarUrl: 'https://i.imgur.com/HZ86RDV.jpeg', level: 28, wins: 131, losses: 105, streak: -3 },
-    { username: 'CriticalHit', avatarUrl: 'https://i.imgur.com/MblvOMD.png', level: 31, wins: 149, losses: 116, streak: 2 },
-    { username: 'EnergyBender', avatarUrl: 'https://i.imgur.com/HdMCEue.jpeg', level: 34, wins: 171, losses: 132, streak: 5 },
-    { username: 'LastFrame', avatarUrl: 'https://i.imgur.com/053csjw.png', level: 37, wins: 196, losses: 151, streak: -1 },
-    { username: 'QueueMaster', avatarUrl: 'https://i.imgur.com/DvnhkRP.png', level: 40, wins: 218, losses: 169, streak: 3 },
-    { username: 'InkChampion', avatarUrl: 'https://i.imgur.com/achNzMq.png', level: 43, wins: 247, losses: 190, streak: 6 },
+    { username: 'NightPanel', avatarUrl: '/assets/images/external-mirror/i.imgur.com/04ad771af0842dc75ce7.jpg', level: 6, wins: 15, losses: 9, streak: 1 },
+    { username: 'SkillIssue', avatarUrl: '/assets/images/external-mirror/i.imgur.com/0cdc4224ae7ef7a8d977.jpg', level: 9, wins: 24, losses: 18, streak: -2 },
+    { username: 'ArcRunner', avatarUrl: '/assets/images/external-mirror/i.imgur.com/0a9c36a504d933d18a86.jpg', level: 13, wins: 39, losses: 29, streak: 2 },
+    { username: 'BluePanel', avatarUrl: '/assets/images/external-mirror/i.imgur.com/9575ae5319f9c9c0203f.png', level: 16, wins: 52, losses: 41, streak: 3 },
+    { username: 'ComboSmith', avatarUrl: '/assets/images/external-mirror/i.imgur.com/1424f52c9a337d34af17.jpg', level: 19, wins: 70, losses: 55, streak: -1 },
+    { username: 'RedChakra', avatarUrl: '/assets/images/external-mirror/i.imgur.com/aa47e82729490693179b.jpg', level: 22, wins: 93, losses: 72, streak: 4 },
+    { username: 'DraftDemon', avatarUrl: '/assets/images/external-mirror/i.imgur.com/78a817d846d15923f96f.png', level: 25, wins: 112, losses: 88, streak: 1 },
+    { username: 'PanelMage', avatarUrl: '/assets/images/external-mirror/i.imgur.com/8df709e0ded655b52945.jpg', level: 28, wins: 131, losses: 105, streak: -3 },
+    { username: 'CriticalHit', avatarUrl: '/assets/images/external-mirror/i.imgur.com/fb0b5f3f9d76a2d2fe33.png', level: 31, wins: 149, losses: 116, streak: 2 },
+    { username: 'EnergyBender', avatarUrl: '/assets/images/external-mirror/i.imgur.com/81eaf0a60fddb72ba06c.jpg', level: 34, wins: 171, losses: 132, streak: 5 },
+    { username: 'LastFrame', avatarUrl: '/assets/images/external-mirror/i.imgur.com/a237beaa257572f35328.png', level: 37, wins: 196, losses: 151, streak: -1 },
+    { username: 'QueueMaster', avatarUrl: '/assets/images/external-mirror/i.imgur.com/8a96e5dbf37a454fb5d6.png', level: 40, wins: 218, losses: 169, streak: 3 },
+    { username: 'InkChampion', avatarUrl: '/assets/images/external-mirror/i.imgur.com/50f5090e1f7385bb532c.png', level: 43, wins: 247, losses: 190, streak: 6 },
     { username: 'StreakBreaker', avatarUrl: 'assets/images/ghostriderfp.png', level: 46, wins: 274, losses: 209, streak: -2 },
     { username: 'FinalTurn', avatarUrl: 'assets/images/generalgrievousfp.png', level: 50, wins: 342, losses: 258, streak: 8 },
 ];

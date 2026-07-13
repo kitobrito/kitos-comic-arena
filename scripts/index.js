@@ -228,7 +228,7 @@
   var profileSearchForm = document.getElementById("profile-search-form");
   var profileSearchInput = document.getElementById("profile-search-input");
   var profileSearchStatus = document.getElementById("profile-search-status");
-  var defaultProfileAvatar = "https://i.postimg.cc/3JqVcPXm/default.png";
+  var defaultProfileAvatar = "/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png";
   var sidebarTopPlayerLevels = document.getElementById("sidebar-top-player-levels");
   var sidebarTopClanLevels = document.getElementById("sidebar-top-clan-levels");
   var sidebarTopCurrentStreaks = document.getElementById("sidebar-top-current-streaks");

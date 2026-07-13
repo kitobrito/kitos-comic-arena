@@ -793,7 +793,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         loginForm.addEventListener('submit', submitLogin);
     }
 
-    const defaultProfileAvatar = 'https://i.postimg.cc/3JqVcPXm/default.png';
+    const defaultProfileAvatar = '/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png';
     const POKEMON_SELECTION_BACKGROUND_URLS = [
         'assets/images/PokemonArena/newcharacterselectpics/1783126094113.png',
         'assets/images/PokemonArena/newcharacterselectpics/1783125825613~2.jpg',
@@ -5788,7 +5788,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 showTemporaryCardFx(
                     targetCard,
                     'negan-iron-slam-fx',
-                    '<img src="https://i.imgur.com/jHlzlE9.png" alt=""><span class="negan-iron-slam-glow"></span><span class="negan-iron-slam-smoke a"></span><span class="negan-iron-slam-smoke b"></span>',
+                    '<img src="/assets/images/external-mirror/i.imgur.com/e45f6ac5a39c4c9719e3.png" alt=""><span class="negan-iron-slam-glow"></span><span class="negan-iron-slam-smoke a"></span><span class="negan-iron-slam-smoke b"></span>',
                     1900
                 );
             });
@@ -8233,7 +8233,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ensureCharacterFxElement(
                     card,
                     'venom-ally-symbiosis-marker',
-                    '<img src="https://i.imgur.com/ESFy9nw.png" alt="">'
+                    '<img src="/assets/images/external-mirror/i.imgur.com/654380b8e7e0c45980f7.png" alt="">'
                 );
             } else {
                 removeCharacterFxElement(card, 'venom-ally-symbiosis-marker');
@@ -8253,7 +8253,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ensureCharacterFxElement(
                     card,
                     'negan-iron-overlay',
-                    '<img src="https://i.imgur.com/jHlzlE9.png" alt=""><span class="negan-iron-glow"></span><span class="negan-iron-steam a"></span><span class="negan-iron-steam b"></span><span class="negan-iron-smoke a"></span><span class="negan-iron-smoke b"></span><span class="negan-iron-scorch"></span>'
+                    '<img src="/assets/images/external-mirror/i.imgur.com/e45f6ac5a39c4c9719e3.png" alt=""><span class="negan-iron-glow"></span><span class="negan-iron-steam a"></span><span class="negan-iron-steam b"></span><span class="negan-iron-smoke a"></span><span class="negan-iron-smoke b"></span><span class="negan-iron-scorch"></span>'
                 );
             } else {
                 removeCharacterFxElement(card, 'negan-iron-overlay');
@@ -8783,7 +8783,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         showTemporaryCardFx(
                             card,
                             'negan-iron-rip-away-fx',
-                            '<img src="https://i.imgur.com/jHlzlE9.png" alt=""><span class="negan-iron-rip-burn a"></span><span class="negan-iron-rip-burn b"></span><span class="negan-iron-rip-smoke"></span>',
+                            '<img src="/assets/images/external-mirror/i.imgur.com/e45f6ac5a39c4c9719e3.png" alt=""><span class="negan-iron-rip-burn a"></span><span class="negan-iron-rip-burn b"></span><span class="negan-iron-rip-smoke"></span>',
                             1700
                         );
                     }
@@ -8840,7 +8840,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         showTemporaryCardFx(
                             card,
                             'negan-iron-rip-away-fx',
-                            '<img src="https://i.imgur.com/jHlzlE9.png" alt=""><span class="negan-iron-rip-burn a"></span><span class="negan-iron-rip-burn b"></span><span class="negan-iron-rip-smoke"></span>',
+                            '<img src="/assets/images/external-mirror/i.imgur.com/e45f6ac5a39c4c9719e3.png" alt=""><span class="negan-iron-rip-burn a"></span><span class="negan-iron-rip-burn b"></span><span class="negan-iron-rip-smoke"></span>',
                             1700
                         );
                     }
@@ -9538,25 +9538,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                 tooltipWrap?.querySelector('.skilltooltipimage');
             if (!tooltipWrap || !tooltipImgTemplate) return;
             const tentenWeaponStatusIconById = {
-                tenten_weapon_last_shuriken: 'https://i.imgur.com/ZcuORyu.png',
-                tenten_weapon_last_kunai: 'https://i.imgur.com/aibtrUO.png',
-                tenten_weapon_last_sword: 'https://i.imgur.com/RchMcXa.png',
-                tenten_weapon_last_hooked_sword: 'https://i.imgur.com/6j0UNBG.png',
-                tenten_weapon_last_scythe: 'https://i.imgur.com/NXDITvE.png',
-                tenten_weapon_last_mace: 'https://i.imgur.com/iRZ8SMk.png',
+                tenten_weapon_last_shuriken: '/assets/images/external-mirror/i.imgur.com/605263e83f834f43bba2.png',
+                tenten_weapon_last_kunai: '/assets/images/external-mirror/i.imgur.com/558bcd0fc9cebf608ad3.png',
+                tenten_weapon_last_sword: '/assets/images/external-mirror/i.imgur.com/ef949dfddd1a42df8f3c.png',
+                tenten_weapon_last_hooked_sword: '/assets/images/external-mirror/i.imgur.com/8832967b40afb1ce6a69.png',
+                tenten_weapon_last_scythe: '/assets/images/external-mirror/i.imgur.com/57ae60838de0a84fe316.png',
+                tenten_weapon_last_mace: '/assets/images/external-mirror/i.imgur.com/e720879596656a7a84c6.png',
             };
             const fallbackFace = card.querySelector('.character-face');
             const fallbackStatusIconSrc =
                 fallbackFace?.dataset?.aliveSrc || fallbackFace?.src || 'assets/images/skillqqueue.png';
             const rexAmmoStatusIconById = {
-                rex_splode_explosive_baton_usage: 'https://i.imgur.com/rSLzlpG.png',
-                rex_splode_explosive_baton_usage_tracker: 'https://i.imgur.com/rSLzlpG.png',
-                rex_splode_explosive_pocket_change_usage: 'https://i.imgur.com/rSLzlpG.png',
-                rex_splode_explosive_pocket_change_usage_tracker: 'https://i.imgur.com/rSLzlpG.png',
-                rex_splode_ammo_swap_tracker: 'https://i.imgur.com/rSLzlpG.png',
-                rex_splode_pocket_change_swap_tracker: 'https://i.imgur.com/rSLzlpG.png',
-                rex_splode_explosive_baton_spent: 'https://i.imgur.com/rSLzlpG.png',
-                rex_splode_explosive_pocket_change_spent: 'https://i.imgur.com/rSLzlpG.png',
+                rex_splode_explosive_baton_usage: '/assets/images/external-mirror/i.imgur.com/445ba3c98cb97a477497.png',
+                rex_splode_explosive_baton_usage_tracker: '/assets/images/external-mirror/i.imgur.com/445ba3c98cb97a477497.png',
+                rex_splode_explosive_pocket_change_usage: '/assets/images/external-mirror/i.imgur.com/445ba3c98cb97a477497.png',
+                rex_splode_explosive_pocket_change_usage_tracker: '/assets/images/external-mirror/i.imgur.com/445ba3c98cb97a477497.png',
+                rex_splode_ammo_swap_tracker: '/assets/images/external-mirror/i.imgur.com/445ba3c98cb97a477497.png',
+                rex_splode_pocket_change_swap_tracker: '/assets/images/external-mirror/i.imgur.com/445ba3c98cb97a477497.png',
+                rex_splode_explosive_baton_spent: '/assets/images/external-mirror/i.imgur.com/445ba3c98cb97a477497.png',
+                rex_splode_explosive_pocket_change_spent: '/assets/images/external-mirror/i.imgur.com/445ba3c98cb97a477497.png',
             };
             const resolveStatusIconSrc = (group, statusSkill) => {
                 const statusesInGroup = Array.isArray(group?.statuses) ? group.statuses : [];

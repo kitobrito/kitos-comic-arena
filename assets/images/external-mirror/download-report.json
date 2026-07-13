@@ -1,0 +1,1435 @@
+{
+  "generatedAt": "2026-07-13T07:38:43.990Z",
+  "discovered": 621,
+  "downloaded": 480,
+  "failed": 141,
+  "hostCounts": {
+    "cdn.discordapp.com": 120,
+    "i.imgur.com": 472,
+    "i.postimg.cc": 4,
+    "media.discordapp.net": 25
+  },
+  "duplicateContentGroups": [
+    [
+      "https://i.imgur.com/8JgkJPq.jpegg",
+      "https://i.imgur.com/8JgkJPq.jpeg"
+    ],
+    [
+      "https://i.imgur.com/IwSu3G7_d.png?maxwidth=520&shape=thumb&fidelity=high",
+      "https://i.imgur.com/WMixx6V_d.png?maxwidth=520&shape=thumb&fidelity=high"
+    ]
+  ],
+  "failures": [
+    {
+      "url": "https://cdn.discordapp.com/attachments/1043460995386974208/1090176212179112048/6_1_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 387
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1043460995386974208/1090176211713527808/3_2_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 331
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1043460995386974208/1090176211491246170/8_1_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 374
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1043460995386974208/1090176194223292446/1.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 282
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1007387639508377742/1098109887894011904/9_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 977
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1078430469034610749/1106834713521422397/lappy_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1170
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1043460995386974208/1090176211919044619/5_1_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 359
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1043460995386974208/1090176212401393714/7_1_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 308
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1079847016173154384/1088305314413150218/2_1_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 96
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1078430469034610749/1106834899308118086/lappy5_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1255
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1078430469034610749/1106835017298087996/lappy3_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1229
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1089337723648757860/1090533481278345257/5_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 397
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1079847016173154384/1088305315914727494/pikachu_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 124
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1090088421223055470/1097996226508619897/73.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 705
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1090088421223055470/1097996226768674896/74.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 689
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1078430469034610749/1106834816789385256/lappy4_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1195
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1090088421223055470/1097996227062268034/75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 733
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1090088421223055470/1097996227360080035/76.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 674
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1090088421223055470/1097996227603333180/77.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 720
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1090088421223055470/1097996594957254786/37.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 792
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1090088421223055470/1097996227884367954/79.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 640
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1090088421223055470/1097996595410255933/39.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 768
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1090088421223055470/1097996595175362660/38.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 848
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1090088421223055470/1097996595632537600/40.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 833
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1090088421223055470/1097997520484974682/71.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1270
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1106686648516890725/1123299896838062090/1234.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2484
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1106686648516890725/1123299897148457120/123.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2510
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1106686648516890725/1123299923455119444/8_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2336
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1106686648516890725/1123299923731959918/1_75x75_2.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2561
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1106686648516890725/1123299924260425758/3_75x75_3.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2603
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1106686648516890725/1123299938097442846/5_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2362
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1106686648516890725/1123299951234003085/7_75x75_1.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2407
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1125301800048803851/1125302694123425823/6_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 111
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1106686648516890725/1123306401306005676/4_75x75_5.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2453
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1125301800048803851/1125302464669827152/4_1_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 8
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1125301800048803851/1125302524900024413/7_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 45
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/1125301800048803851/1125302892581093446/2_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 70
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1090160836468809768/11_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 488
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1090160837039239178/18_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 460
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1090160836804366466/13_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 475
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1090160838620499978/6_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 432
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1090160837890682981/4_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 445
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1098017742445088859/3_1_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1802
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1098017820761129060/8_1_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1908
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1098017789370966136/2_1_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1839
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1098017855204761640/4_1_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1934
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1098054023623483422/Untitled-2_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1051
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1098054024110026833/3_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1115
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1098054024563003502/6_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1076
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1098054024340709477/5_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1100
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1098059486217900072/2_1_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1001
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1098059486423437382/3_1_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 904
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1098059486905782273/5_1_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 962
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1098059487459414180/7_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1041
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1100973120367636550/25.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1944
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1100973136779939930/21.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1977
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1100973146938540092/19.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2002
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1100973155264237658/23.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2025
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1100973161559887982/24.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2040
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1106895567159840918/4_75x75_2.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2940
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1106895586717872148/6_1_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2966
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1106895595915980860/Untitled-3.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2996
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1106895602337464320/7_1_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 3031
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1106895611812380732/3_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 3061
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107353876077756538/13_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1453
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107353876555894835/1_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1428
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1106895607064449075/12.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 3046
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107353876874674258/9_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1280
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107353877147291678/6_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1400
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107353877528985670/2_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1377
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107353877944213654/12_75x75_1.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1415
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107353878313308280/10_75x75_1.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1324
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107358537295863848/241.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1646
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107358558338682970/244.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1703
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107358559001382952/247.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1677
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107358559362109550/246.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1718
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107358559735386144/245.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1662
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107446033669169222/5_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2050
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107358822051368990/Untitled.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1756
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107358932139262062/14_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1731
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107995130813747200/123.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2301
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107995131136704573/18_75x75_1.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2272
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107995155270742147/21_75x75_1.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2238
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107995155522404402/24_75x75_1.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2285
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107995156348682250/26_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2326
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107995156570976356/25_75x75_1.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2212
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107995200074305546/2_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2259
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1108671475705204846/mega_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1160
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107995190888767499/14_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2164
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1108671480541237351/123_1_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1143
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1107995212837568553/4_75x75_3.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2187
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1151251611570683904/raichu_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 134
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1151251610396283032/raichu5_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 197
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1151251611860086844/raichu6_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 231
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1151341523162628116/raichu15_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 272
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1151341512089677824/raichu12_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 172
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1151341503214538904/raichu16_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 246
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1152539208511144006/tatss_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2836
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1152539208783761488/qwere_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2902
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1152539213292638208/asdf_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2861
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1152539212990664796/543_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2917
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1152539213649170562/12343_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2876
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1152575554353111160/1_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2721
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1152539213988905072/123213_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2930
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1152575567212855367/5_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2798
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1152575567514832987/4_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2773
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1152575574640971877/6_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2813
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1152575588490551296/3_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2826
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1152575588788342825/2_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2747
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1157377697429868544/4_75x75_6.png?ex=6518637a&is=651711fa&hm=f0e00b969422914e2c2e8940585afc17aec49425ea8cd13bf080b3b0b6465024&",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 3117
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1157377682938544128/5_75x75_1.png?ex=65186376&is=651711f6&hm=2206380dc93117365633e62de07415a96fa76cfcb22c6199037eeaf58265e495&",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 3071
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1157377727431720980/6_75x75_1.png?ex=65186381&is=65171201&hm=3a2ac57b82bbb7ccbdc45d6f0ac81352608ed19647d18e2d16d087ff2d3b7e5e&",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 3155
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1157377705545838772/7_75x75_2.png?ex=6518637c&is=651711fc&hm=b76d6ed066f56649355b0ec91c65210328d951074d86a12c32c9812183484774&",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 3142
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1157377736810180628/1_75x75_3.png?ex=65186383&is=65171203&hm=d80293122080a8760bd1154759a9149e1f3b97f9996b0636d310561d36996c0d&",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 3170
+        }
+      ]
+    },
+    {
+      "url": "https://cdn.discordapp.com/attachments/971753063046066266/1157377742896111716/3_75x75_3.png?ex=65186384&is=65171204&hm=3de9842889139971a1116caf4875905e56132efe554c067af6954ef76cb913df&",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 3183
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1038559057180635286/1152340654379249794/17_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2661
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1038559057180635286/1152340654979031090/16_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2698
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1038559057180635286/1152340655415230524/14_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2638
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1038559057180635286/1152340655197139095/13_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2685
+        }
+      ]
+    },
+    {
+      "url": "https://i.postimg.cc/zG3W1w6K/itachi.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "server.js",
+          "line": 88
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1038559057180635286/1152340655662702622/12_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2711
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1038559057180635286/1152340655864033311/11_75x75_1.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2613
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1078430469034610749/1100965983960703116/2.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1766
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1078430469034610749/1108793574478319646/3_75x75_1.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2090
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1078430469034610749/1108793602907324436/2_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2141
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1078430469034610749/1108793620405944340/4_75x75_3.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2154
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1078430469034610749/1108793590286667796/1_75x75_1.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 2115
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1090088421223055470/1098004083866095667/27.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 542
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1090088421223055470/1098004084088385667/29.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 567
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1090088421223055470/1098004084285509743/32.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 606
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1090088421223055470/1098004084482658375/33.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 630
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1090088421223055470/1098004084692365312/34.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 527
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1090088421223055470/1098004084897878126/35.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 582
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1090088421223055470/1104193058507067472/11_1_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1566
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1090088421223055470/1104184423479529563/ch_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1538
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1090088421223055470/1104193119911682079/10_1_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1579
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1090088421223055470/1098004085103415497/36.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 511
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1090088421223055470/1104194042285264966/13_1_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1602
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/1090088421223055470/1104196228419440750/224.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1636
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/971753063046066266/1098054023837388920/2_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 1130
+        }
+      ]
+    },
+    {
+      "url": "https://media.discordapp.net/attachments/971753063046066266/1090160838821818368/7_75x75.png",
+      "error": "HTTP 404",
+      "references": [
+        {
+          "file": "assets/images/PokemonArena/characters imported/characters.js",
+          "line": 501
+        }
+      ]
+    }
+  ],
+  "archiveRecovered": 5
+}

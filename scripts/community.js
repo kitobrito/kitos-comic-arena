@@ -93,7 +93,7 @@
 
       var avatar = document.createElement("img");
       avatar.className = "player-avatar";
-      avatar.src = user && user.avatarUrl ? String(user.avatarUrl) : "https://i.postimg.cc/3JqVcPXm/default.png";
+      avatar.src = user && user.avatarUrl ? String(user.avatarUrl) : "/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png";
       avatar.alt = user && user.username ? String(user.username) + " avatar" : "Player avatar";
       card.appendChild(avatar);
 
