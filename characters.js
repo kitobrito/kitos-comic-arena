@@ -21052,6 +21052,143 @@ const characters = [
                     },
                     {
                         "type": "apply_status",
+                        "statusId": "clefairy_clefable_evolution",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "clefairy",
+                            "missingStatusId": "clefairy_clefable_evolution"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
+                            "facePictureOverride": "assets/images/PokemonArena/clefairy/clefablefp.webp",
+                            "removeStatusIdsOnApply": [
+                                "clefairy_evolution_tracker"
+                            ],
+                            "tooltipText": "Clefairy has evolved into Clefable from Rare Candy.",
+                            "healOnApplyFlat": 10
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "clefairy_clefable_rare_candy_defense",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "clefairy",
+                            "missingStatusId": "clefairy_clefable_rare_candy_defense"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "destructibleDefensePoints": 25,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "jigglypuff_wigglytuff_evolution",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "jigglypuff",
+                            "missingStatusId": "jigglypuff_wigglytuff_evolution"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
+                            "facePictureOverride": "assets/images/PokemonArena/jigglypuff/wigglytufffp.webp",
+                            "removeStatusIdsOnApply": [
+                                "jigglypuff_evolution_tracker"
+                            ],
+                            "tooltipText": "Jigglypuff has evolved into Wigglytuff from Rare Candy.",
+                            "healOnApplyFlat": 10
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "jigglypuff_wigglytuff_rare_candy_defense",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "jigglypuff",
+                            "missingStatusId": "jigglypuff_wigglytuff_rare_candy_defense"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "destructibleDefensePoints": 25,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "meowth_persian_evolution",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "meowth",
+                            "missingStatusId": "meowth_persian_evolution"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "facePictureOverride": "assets/images/PokemonArena/Meowth/persianfp.png",
+                            "removeStatusIdsOnApply": [
+                                "meowth_persian_evolution_tracker"
+                            ],
+                            "skillReplacements": {
+                                "meowth-pay-day": "persian-pay-day",
+                                "meowth-fury-swipes": "persian-fury-swipes",
+                                "meowth-fake-out": "persian-fake-out",
+                                "meowth-night-slash": "persian-night-slash"
+                            },
+                            "tooltipText": "Meowth has evolved into Persian from Rare Candy.",
+                            "healOnApplyFlat": 10
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "meowth_persian_rare_candy_defense",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "meowth",
+                            "missingStatusId": "meowth_persian_rare_candy_defense"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "destructibleDefensePoints": 25,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
                         "statusId": "pokemon_trainer_rare_candy_swap",
                         "duration": 99,
                         "scope": "self",
@@ -29540,7 +29677,7 @@ const characters = [
                 "id": "meowth-fury-swipes",
                 "name": "Fury Swipes",
                 "skillimage": "assets/images/PokemonArena/Meowth/furyswipes.png",
-                "skilldescription": "For 3 turns, Meowth deals 5 Physical and 5 Affliction damage to the enemy team each turn. Pay Day, Fake Out, or Night Slash used on an affected enemy extends Fury Swipes on them by 1 turn.",
+                "skilldescription": "Immediately deals 5 Physical and 5 Affliction damage to the enemy team, then repeats that damage each turn for 3 turns. Pay Day, Fake Out, or Night Slash used on an affected enemy extends Fury Swipes on them by 1 turn.",
                 "energy": [
                     "Random",
                     "Random"
@@ -29563,6 +29700,7 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "turnStartDamage": 5,
+                            "damageImmediatelyOnApply": true,
                             "ongoingClass": "action",
                             "turnDurationAnchor": "source_turn",
                             "statusIconUrl": "assets/images/PokemonArena/Meowth/furyswipes.png",
@@ -29578,6 +29716,7 @@ const characters = [
                             "harmful": true,
                             "turnStartDamage": 5,
                             "afflictionDamage": true,
+                            "damageImmediatelyOnApply": true,
                             "ongoingClass": "action",
                             "turnDurationAnchor": "source_turn",
                             "statusIconUrl": "assets/images/PokemonArena/Meowth/furyswipes.png",
@@ -29852,7 +29991,7 @@ const characters = [
                 },
                 "useBaseSkillCooldown": true,
                 "skillimage": "assets/images/PokemonArena/Meowth/persianfuryswipes.png",
-                "skilldescription": "For 3 turns, Persian deals 5 Piercing Physical and 5 Affliction damage to the enemy team each turn. Pay Day, Fake Out, or Night Slash used on an affected enemy extends Fury Swipes by 1 turn.",
+                "skilldescription": "Immediately deals 5 Piercing Physical and 5 Affliction damage to the enemy team, then repeats that damage each turn for 3 turns. Pay Day, Fake Out, or Night Slash used on an affected enemy extends Fury Swipes by 1 turn.",
                 "energy": [
                     "Random",
                     "Random"
@@ -29876,6 +30015,7 @@ const characters = [
                             "harmful": true,
                             "turnStartDamage": 5,
                             "ignoreTargetDamageReduction": true,
+                            "damageImmediatelyOnApply": true,
                             "ongoingClass": "action",
                             "turnDurationAnchor": "source_turn",
                             "statusIconUrl": "assets/images/PokemonArena/Meowth/persianfuryswipes.png",
@@ -29891,6 +30031,7 @@ const characters = [
                             "harmful": true,
                             "turnStartDamage": 5,
                             "afflictionDamage": true,
+                            "damageImmediatelyOnApply": true,
                             "ongoingClass": "action",
                             "turnDurationAnchor": "source_turn",
                             "statusIconUrl": "assets/images/PokemonArena/Meowth/persianfuryswipes.png",
