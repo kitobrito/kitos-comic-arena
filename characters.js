@@ -24200,6 +24200,7 @@ const characters = [
                     "stackDelta": 0,
                     "stackMax": 3,
                     "onOwnerUseSkillTrigger": true,
+                    "preserveOnOwnerUseSkillTrigger": true,
                     "onOwnerUseSkillIdsAny": [
                         "abra-calm-mind",
                         "kadabra-calm-mind"
@@ -25901,7 +25902,7 @@ const characters = [
                 "id": "vaporeon-sand-attack",
                 "name": "Sand-Attack",
                 "skillimage": "assets/images/PokemonArena/eevee/vaporeon/sandattack.png",
-                "skilldescription": "One enemy is blinded for 1 turn, causing their new harmful skills to randomly target your team. Aurora Beam deals 10 more damage to an affected enemy and makes Hydro Pump cost 1 less purple energy for 1 turn.",
+                "skilldescription": "One enemy is blinded for 1 turn, causing their new harmful skills to randomly target your team. Aurora Beam deals 10 more damage to an affected enemy and makes Hydro Pump cost 1 less energy for 1 turn.",
                 "energy": [
                     "Random"
                 ],
@@ -25939,7 +25940,7 @@ const characters = [
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/eevee/vaporeon/sandattack.png",
-                            "tooltipText": "Hydro Pump costs 1 less purple energy."
+                            "tooltipText": "Hydro Pump costs 1 less energy."
                         }
                     }
                 ]

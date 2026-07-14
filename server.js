@@ -5886,6 +5886,13 @@ const teamHasCharacterId = (match, username, characterId) => {
     return team.some((rosterIndex) => getRosterCharacterId(rosterIndex) === characterId);
 };
 
+const buildMissionUserMap = (users = []) => new Map(
+    (Array.isArray(users) ? users : []).map((user) => [
+        String(user?.usernameLower || user?.username || '').trim().toLowerCase(),
+        user,
+    ])
+);
+
 const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
     if (!match || !Array.isArray(match.players) || match.players.length < 2) {
         return null;
@@ -5905,13 +5912,15 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
         return null;
     }
 
+    const usernameKeys = usernames.map((username) => username.trim().toLowerCase());
     const users = await usersCollection
         .find(
-            { username: { $in: usernames } },
+            { usernameLower: { $in: usernameKeys } },
             {
                 projection: {
                     _id: 1,
                     username: 1,
+                    usernameLower: 1,
                     profile: 1,
                     createdAt: 1,
                 },
@@ -5922,14 +5931,14 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
         return null;
     }
 
-    const userByUsername = new Map(users.map((user) => [user.username, user]));
+    const userByUsername = buildMissionUserMap(users);
     const missionCatalog = (await getStoredMissionCatalog()).filter(
         (mission) => normalizeArenaMode(mission?.arena) === arena
     );
 
     await Promise.all(
         usernames.map(async (username) => {
-            const user = userByUsername.get(username);
+            const user = userByUsername.get(username.trim().toLowerCase());
             if (!user) {
                 return;
             }
@@ -5942,7 +5951,7 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
             };
             const unlockedIds = new Set(missionState.unlockedCharacterIds || []);
             const userLevel = Number(arenaState?.ladder?.level) || 1;
-            const didWin = Boolean(winnerUsername) && winnerUsername === username;
+            const didWin = Boolean(winnerUsername) && usernamesEqual(winnerUsername, username);
             let mutated = false;
             let unlockPointRewardDelta = 0;
 
@@ -16307,6 +16316,7 @@ if (require.main === module) {
         serializeMatchPlayerForViewer,
         buildMatchPayloadForUser,
         buildMatchActionStatePayload,
+        buildMissionUserMap,
         ensureRequiredMissionCatalogEntries,
         areQueuedSkillRequestsEquivalent,
         resolveExpiredTurnStartChoiceIfNeeded,

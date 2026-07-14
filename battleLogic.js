@@ -6905,7 +6905,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 const bonus = Math.max(0, Number(tracker?.metadata?.bonusDamage) || 0);
                 resolveRecipients(effect).forEach((recipient) => {
                     if (!recipient?.unit || recipient.unit.alive === false) return;
-                    queueDamage(recipient, 35 + bonus, {
+                    queueDamage(recipient, 30 + bonus, {
                         ...effect,
                         metadata: { ...(effect?.metadata || {}), afflictionDamage: true },
                     });
@@ -6950,7 +6950,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         applyStatus({
                             targetState: ensureUnitStateShape(recipient.unit),
                             statusId: 'zapdos_thunderbolt_paralysis',
-                            duration: 2,
+                            duration: 1,
                             sourceSkillId: skill.id,
                             sourceUsername: actingUsername,
                             sourceSlot: actorSlot,

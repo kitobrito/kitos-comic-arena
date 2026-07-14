@@ -9,13 +9,80 @@ const appStateCollectionName = process.env.MONGODB_APP_STATE_COLLECTION || 'app_
 const latestReleasesKey = 'latest_character_releases';
 const migrationKey = 'release_migration:pokemon-wave-2-nine-character-launch';
 const releaseVersion = 'pokemon-wave-2-nine-character-launch';
+const missionsKey = 'missions';
 
 const launchIds = wave.map((character) => character.id);
 const headlineReleases = ['dragonite', 'mewtwo', 'mew'];
 
+const energyColorNames = {
+    Ninjutsu: 'Blue',
+    Bloodline: 'Red',
+    Taijutsu: 'Green',
+    Genjutsu: 'White',
+    Random: 'Random',
+};
+
 const describeSkill = (skill) => {
-    const cost = Array.isArray(skill?.energy) && skill.energy.length ? skill.energy.join(' + ') : 'No energy';
+    const cost = Array.isArray(skill?.energy) && skill.energy.length
+        ? skill.energy.map((energy) => energyColorNames[energy] || energy).join(' + ')
+        : 'No energy';
     return `${skill.name} — ${skill.skilldescription} Cost: ${cost}. Cooldown: ${Number(skill.cooldown) || 0}. Classes: ${(skill.classes || []).join(', ')}.`;
+};
+
+const wave2MissionConfigs = [
+    ['clefairy','Clefairy','Moon Stone Melody','clefairy.jpg',['chansey','mr-mime'],5],
+    ['jigglypuff','Jigglypuff','The Encore That Never Ends','jigglypuff.jpg',['gastly','clefairy'],5],
+    ['beedrill','Beedrill','Trial of the Hive','beedrill.jpg',['butterfree','scyther'],6],
+    ['articuno','Articuno','Frozen Legendary Trial','articuno.jpg',['squirtle','vaporeon'],7],
+    ['moltres','Moltres','Blazing Legendary Trial','moltres.webp',['charmander','flareon'],7],
+    ['zapdos','Zapdos','Storm Legendary Trial','zapdos.jpg',['pikachu','jolteon'],7],
+    ['mew','Mew','A Mythical Discovery','mew.jpg',['clefairy','jigglypuff'],8],
+    ['mewtwo','Mewtwo','Genetic Power Unbound','mewtwo.avif',['mew','dragonite'],9],
+    ['dragonite','Dragonite','Dragon Mastery','dragonite.webp',['aerodactyl','gyarados'],8],
+];
+
+const wave2MissionEntries = wave2MissionConfigs.map(
+    ([characterId, characterName, title, imageFile, team, wins], index) => ({
+        missionId: `pokemon-wave-2-${characterId}`,
+        title,
+        level_requirement: Math.min(12, 3 + index),
+        rank: String(Math.min(12, 3 + index)),
+        reward_character: characterId,
+        reward_character_name: characterName,
+        reward: `Unlock ${characterName}.`,
+        arena: 'pokemon',
+        mode_restriction: { allowed_modes: ['quick', 'ladder'] },
+        image: `assets/images/PokemonArena/missionpics/${imageFile}`,
+        imageAlt: `${characterName} mission artwork`,
+        characterName,
+        portrait: `assets/images/PokemonArena/missionpics/${imageFile}`,
+        portraitAlt: `${characterName} mission portrait`,
+        requirements: [
+            `Win ${wins} Quick or Ladder matches with ${team[0]} and ${team[1]} on the same team.`,
+            'Bot and human opponents both count.',
+        ],
+        goals: [{
+            type: 'win_matches_same_team',
+            character_ids: team,
+            character_names: team.map((id) => id.split('-').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ')),
+            wins,
+        }],
+        special_pve: { enabled: false },
+        sortOrder: 210 + index,
+    })
+);
+
+const mergeWave2Missions = (missions = []) => {
+    const merged = Array.isArray(missions) ? missions.map((mission) => ({ ...mission })) : [];
+    wave2MissionEntries.forEach((entry) => {
+        const index = merged.findIndex((mission) =>
+            mission?.missionId === entry.missionId ||
+            String(mission?.reward_character || '').trim().toLowerCase() === entry.reward_character
+        );
+        if (index >= 0) merged[index] = { ...entry };
+        else merged.push({ ...entry });
+    });
+    return merged;
 };
 
 const changes = wave.flatMap((character) =>
@@ -106,12 +173,25 @@ async function syncPokemonWave2Release(db, options = {}) {
         { $set: buildLatestReleasesState(existing) },
         { upsert: true }
     );
+    const existingMissions = await appState.findOne({ key: missionsKey });
+    await appState.updateOne(
+        { key: missionsKey },
+        {
+            $set: {
+                key: missionsKey,
+                missions: mergeWave2Missions(existingMissions?.missions),
+                updatedAt: now,
+                updatedBy: 'sync_pokemon_wave_2_release',
+            },
+        },
+        { upsert: true }
+    );
     await appState.updateOne(
         { key: migrationKey },
         { $set: { key: migrationKey, completed: true, completedAt: now, updatedBy: 'sync_pokemon_wave_2_release' } },
         { upsert: true }
     );
-    return { migrated: true, newsSynced: true, launchCharacterIds: launchIds };
+    return { migrated: true, newsSynced: true, missionsSynced: wave2MissionEntries.length, launchCharacterIds: launchIds };
 }
 
 async function syncPokemonWave2News() {
@@ -133,4 +213,12 @@ if (require.main === module) {
     });
 }
 
-module.exports = { buildLatestReleasesState, launchIds, newsPost, syncPokemonWave2News, syncPokemonWave2Release };
+module.exports = {
+    buildLatestReleasesState,
+    launchIds,
+    mergeWave2Missions,
+    newsPost,
+    syncPokemonWave2News,
+    syncPokemonWave2Release,
+    wave2MissionEntries,
+};
