@@ -1812,6 +1812,7 @@ body.arena-mode-pokemon .selectionscroll {
     position: absolute;
     bottom: 280px;
     left: 80px;
+    z-index: 4;
     transition: transform 0.58s cubic-bezier(0.42, 0, 0.2, 1), opacity 0.58s ease;
     transform-origin: right center;
 }

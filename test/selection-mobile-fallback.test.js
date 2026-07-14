@@ -53,3 +53,11 @@ test('selection drags snap near team slots and otherwise return selected charact
         /finishSelectionPointerDrop\(\s*dragState\.payload,\s*upEvent\.clientX,\s*upEvent\.clientY,\s*dragState/s
     );
 });
+
+test('the skill scroll stays above a full team so the third portrait cannot intercept it', () => {
+    const viewerRule = styles.match(/\.skillviewer\s*\{[^}]*\}/s)?.[0] || '';
+    const selectedListRule = styles.match(/\.selected-character-slot-list\s*\{[^}]*\}/s)?.[0] || '';
+
+    assert.match(viewerRule, /z-index:\s*4/);
+    assert.match(selectedListRule, /z-index:\s*3/);
+});
