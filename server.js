@@ -39,6 +39,7 @@ const { WebSocketServer, WebSocket } = require('ws');
 const battleLogic = require('./battleLogic');
 const { syncPokemonOnixRelease } = require('./sync_pokemon_onix_news');
 const { syncPokemonMeowthRelease } = require('./sync_pokemon_meowth_release');
+const { syncPokemonWave2Release } = require('./sync_pokemon_wave_2_release');
 let charactersData = require('./characters');
 
 const app = express();
@@ -76,13 +77,13 @@ const LATEST_CHARACTER_RELEASES_BY_ARENA = {
         { label: 'General Grievous', characterId: 'general-grievous' },
     ],
     pokemon: [
-        { label: 'Meowth', characterId: 'meowth' },
-        { label: 'Onix', characterId: 'onix' },
-        { label: 'Aerodactyl', characterId: 'aerodactyl' },
+        { label: 'Dragonite', characterId: 'dragonite' },
+        { label: 'Mewtwo', characterId: 'mewtwo' },
+        { label: 'Mew', characterId: 'mew' },
     ],
 };
 const LATEST_CHARACTER_RELEASES_STATE_KEY = 'latest_character_releases';
-const LATEST_CHARACTER_RELEASES_VERSION = 'pokemon-release-meowth';
+const LATEST_CHARACTER_RELEASES_VERSION = 'pokemon-wave-2-nine-character-launch';
 const MAINTENANCE_MODE_STATE_KEY = 'maintenance_mode';
 const MAINTENANCE_MODE_CACHE_TTL_MS = 10 * 1000;
 const DEFAULT_PROFILE_AVATAR = '/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png';
@@ -4784,6 +4785,49 @@ const POKEMON_LADDER_MILESTONE_MISSION_ENTRY = {
     sortOrder: 1,
 };
 
+const POKEMON_WAVE_2_MISSION_CONFIGS = [
+    ['clefairy','Clefairy','Moon Stone Melody','clefairy.jpg',['chansey','mr-mime'],5],
+    ['jigglypuff','Jigglypuff','The Encore That Never Ends','jigglypuff.jpg',['gastly','clefairy'],5],
+    ['beedrill','Beedrill','Trial of the Hive','beedrill.jpg',['butterfree','scyther'],6],
+    ['articuno','Articuno','Frozen Legendary Trial','articuno.jpg',['squirtle','vaporeon'],7],
+    ['moltres','Moltres','Blazing Legendary Trial','moltres.webp',['charmander','flareon'],7],
+    ['zapdos','Zapdos','Storm Legendary Trial','zapdos.jpg',['pikachu','jolteon'],7],
+    ['mew','Mew','A Mythical Discovery','mew.jpg',['clefairy','jigglypuff'],8],
+    ['mewtwo','Mewtwo','Genetic Power Unbound','mewtwo.avif',['mew','dragonite'],9],
+    ['dragonite','Dragonite','Dragon Mastery','dragonite.webp',['aerodactyl','gyarados'],8],
+];
+
+const POKEMON_WAVE_2_MISSION_ENTRIES = POKEMON_WAVE_2_MISSION_CONFIGS.map(
+    ([characterId, characterName, title, imageFile, team, wins], index) => ({
+        missionId: `pokemon-wave-2-${characterId}`,
+        title,
+        level_requirement: Math.min(12, 3 + index),
+        rank: String(Math.min(12, 3 + index)),
+        reward_character: characterId,
+        reward_character_name: characterName,
+        reward: `Unlock ${characterName}.`,
+        arena: 'pokemon',
+        mode_restriction: { allowed_modes: ['quick', 'ladder'] },
+        image: `assets/images/PokemonArena/missionpics/${imageFile}`,
+        imageAlt: `${characterName} mission artwork`,
+        characterName,
+        portrait: `assets/images/PokemonArena/missionpics/${imageFile}`,
+        portraitAlt: `${characterName} mission portrait`,
+        requirements: [
+            `Win ${wins} Quick or Ladder matches with ${team[0]} and ${team[1]} on the same team.`,
+            'Bot and human opponents both count.',
+        ],
+        goals: [{
+            type: 'win_matches_same_team',
+            character_ids: team,
+            character_names: team.map((id) => id.split('-').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ')),
+            wins,
+        }],
+        special_pve: { enabled: false },
+        sortOrder: 210 + index,
+    })
+);
+
 const ensureRequiredMissionCatalogEntries = (missions = []) => {
     const removedPokemonStarterMissionIds = new Set([
         'squirtle-starter-path',
@@ -4849,6 +4893,12 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     upsertRequiredMission(POKEMON_MAGNEMITE_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'magnemite');
     upsertRequiredMission(POKEMON_AERODACTYL_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'aerodactyl');
     upsertRequiredMission(POKEMON_ONIX_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'onix');
+    POKEMON_WAVE_2_MISSION_ENTRIES.forEach((entry) => {
+        upsertRequiredMission(
+            entry,
+            (mission) => normalizeCharacterId(mission?.reward_character) === normalizeCharacterId(entry.reward_character)
+        );
+    });
     upsertRequiredMission(
         POKEMON_LADDER_MILESTONE_MISSION_ENTRY,
         (mission) => mission?.missionId === POKEMON_LADDER_MILESTONE_MISSION_ENTRY.missionId
@@ -7065,6 +7115,7 @@ const normalizeNewsChanges = (value) =>
                     typeof entry.groupName === 'string' && entry.groupName.trim()
                         ? entry.groupName.trim()
                         : '',
+                collapsible: Boolean(entry.collapsible),
                 characterId: assets.characterId,
                 characterName: assets.characterName,
                 facePicture: assets.facePicture,
@@ -11401,6 +11452,10 @@ async function initDb() {
     const meowthReleaseSync = await syncPokemonMeowthRelease(db);
     if (meowthReleaseSync.migrated) {
         console.log('Published Meowth and the upcoming 12-character Pokemon Arena announcement.');
+    }
+    const wave2ReleaseSync = await syncPokemonWave2Release(db);
+    if (wave2ReleaseSync?.migrated) {
+        console.log('Published the nine-character Pokemon Arena launch, latest releases, and news post.');
     }
     await backfillUserProfiles();
     console.log('Connected to MongoDB.');

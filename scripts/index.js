@@ -917,7 +917,7 @@
           key: groupKey,
           facePicture: entry && entry.facePicture ? String(entry.facePicture) : "",
           characterName: entry && (entry.groupName || entry.characterName) ? String(entry.groupName || entry.characterName) : "",
-          collapsible: !!(entry && entry.groupName && /\sSkin$/i.test(String(entry.groupName))),
+          collapsible: !!(entry && (entry.collapsible || (entry.groupName && /\sSkin$/i.test(String(entry.groupName))))),
           entries: [entry]
         });
       });

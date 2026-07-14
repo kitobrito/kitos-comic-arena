@@ -245,7 +245,10 @@ const resolveEffectiveSkill = ({ characters, rosterIndex, skillIndex, actorState
     const baseSkill = character?.skills?.[skillIndex] || null;
     if (!baseSkill) return null;
     const replacementMap = buildSkillReplacementMap(actorState);
-    let resolvedSkill = baseSkill;
+    const useEvolvedSkills = (Array.isArray(actorState?.statuses) ? actorState.statuses : []).some(
+        (status) => (Number(status?.remainingTurns) || 0) > 0 && Boolean(status?.metadata?.useEvolvedSkills)
+    );
+    let resolvedSkill = useEvolvedSkills && baseSkill?.evolvesTo ? baseSkill.evolvesTo : baseSkill;
     const visited = new Set();
     while (resolvedSkill?.id && replacementMap[resolvedSkill.id] && !visited.has(resolvedSkill.id)) {
         visited.add(resolvedSkill.id);
@@ -3411,6 +3414,24 @@ const maybeTriggerReactiveDefenses = ({
 const applyDamageToUnit = (unit, rawAmount, context = {}) => {
     if (!unit || unit.alive === false || isUnitBanished(unit)) return 0;
     const targetState = ensureUnitStateShape(unit);
+    const hiveSwarm = (Array.isArray(targetState.statuses) ? targetState.statuses : []).find(
+        (status) =>
+            status?.id === 'beedrill_hive_swarm' &&
+            (Number(status?.remainingTurns) || 0) > 0 &&
+            Math.max(0, Number(status?.metadata?.ignoreNextEnemyDamageEffects) || 0) > 0
+    );
+    if (
+        hiveSwarm &&
+        context?.sourceUsername &&
+        context?.targetUsername &&
+        context.sourceUsername !== context.targetUsername
+    ) {
+        hiveSwarm.metadata.ignoreNextEnemyDamageEffects = Math.max(
+            0,
+            Number(hiveSwarm.metadata.ignoreNextEnemyDamageEffects) - 1
+        );
+        return 0;
+    }
     const fixedDamage = Boolean(context?.fixedDamage);
     const ownerDamagedReactiveStatuses = (Array.isArray(targetState.statuses) ? targetState.statuses : []).filter((status) => {
         if (!isStatusActiveForMetadata(status, unit)) return false;
@@ -3478,6 +3499,9 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
     const afflictionDamage =
         Boolean(context?.afflictionDamage) ||
         skillClasses.some((entry) => typeof entry === 'string' && entry.trim().toLowerCase() === 'affliction');
+    if (afflictionDamage && !fixedDamage) {
+        incoming += Math.max(0, Number(getStatusMetadataSum(targetState, 'additionalAfflictionDamageTaken')) || 0);
+    }
     if (
         afflictionDamage &&
         !Boolean(context?.ignoreAfflictionDamageImmunity) &&
@@ -4980,6 +5004,27 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
         const turnStartStatusesToRemove = new Set();
         statuses.forEach((status) => {
             if (!isStatusActiveForMetadata(status, unit)) return;
+            const turnStartHeal = Math.max(0, Number(status?.metadata?.turnStartHeal) || 0);
+            if (turnStartHeal > 0) {
+                applyHealToUnit(unit, turnStartHeal);
+            }
+            const turnStartGainHeat = Math.max(0, Number(status?.metadata?.turnStartGainHeat) || 0);
+            if (turnStartGainHeat > 0) {
+                const heat = state.statuses.find((entry) => entry?.id === 'moltres_heat');
+                if (heat?.metadata) {
+                    heat.metadata.heat = Math.min(3, Math.max(0, Number(heat.metadata.heat) || 0) + turnStartGainHeat);
+                }
+            }
+            const increaseGenjutsuReduction = Math.max(
+                0,
+                Number(status?.metadata?.increaseGenjutsuReductionEachTurn) || 0
+            );
+            if (increaseGenjutsuReduction > 0) {
+                status.metadata.genjutsuCostReduction = Math.max(
+                    0,
+                    Number(status.metadata.genjutsuCostReduction) || 0
+                ) + increaseGenjutsuReduction;
+            }
             const turnStartStatus = status?.metadata?.turnStartApplyStatusToOwner;
             if (turnStartStatus?.statusId) {
                 const minimumTurnCount = Math.max(0, Number(turnStartStatus.minimumOwnerTurnCount) || 0);
@@ -5275,6 +5320,28 @@ const applyChakraGainToMatch = ({ match, username, chakraType, amount = 1 }) => 
     return gain;
 };
 
+const advanceJigglypuffPerishSong = ({ match, targetState, sourceUsername, sourceSlot }) => {
+    if (!match || !targetState || !sourceUsername || !Number.isInteger(sourceSlot)) return false;
+    const mark = (Array.isArray(targetState.statuses) ? targetState.statuses : []).find(
+        (entry) =>
+            entry?.id === 'jigglypuff_perish_song' &&
+            entry?.sourceUsername === sourceUsername &&
+            Number(entry?.sourceSlot) === Number(sourceSlot) &&
+            (Number(entry?.remainingTurns) || 0) > 1
+    );
+    if (!mark) return false;
+    const sourceUnit = match.board?.[sourceUsername]?.[sourceSlot] || null;
+    if (!sourceUnit || sourceUnit.alive === false) return false;
+    const sourceState = ensureUnitStateShape(sourceUnit);
+    sourceState.snapshots = sourceState.snapshots || {};
+    const turnCount = Math.max(0, Number(match?.economy?.turnCounts?.[sourceUsername]) || 0);
+    const ledgerKey = `${sourceUsername}:${sourceSlot}:${turnCount}`;
+    if (sourceState.snapshots._jigglypuffPerishAccelerationKey === ledgerKey) return false;
+    sourceState.snapshots._jigglypuffPerishAccelerationKey = ledgerKey;
+    mark.remainingTurns = Math.max(1, (Number(mark.remainingTurns) || 0) - 1);
+    return true;
+};
+
 const triggerOnOwnerTargetedBySkillBonuses = ({
     match,
     targetState,
@@ -5326,6 +5393,18 @@ const triggerOnOwnerTargetedBySkillBonuses = ({
         ].join('|');
         if (targetState.snapshots._ownerTargetedBySkillTriggerKey === triggerKey) return;
         targetState.snapshots._ownerTargetedBySkillTriggerKey = triggerKey;
+        if (
+            Boolean(metadata?.wishAdvancePerishOnHarmful) &&
+            skillHasHarmfulEffects(skill) &&
+            sourceState
+        ) {
+            advanceJigglypuffPerishSong({
+                match,
+                targetState: sourceState,
+                sourceUsername: status?.sourceUsername,
+                sourceSlot: Number(status?.sourceSlot),
+            });
+        }
         const applyStatusToOwner = metadata?.onOwnerTargetedBySkillApplyStatusToOwner;
         if (applyStatusToOwner?.statusId) {
             applyStatus({
@@ -5946,6 +6025,22 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     targetSlot: Number.isInteger(actorSlot) ? actorSlot : null,
                 });
             }
+            if (Boolean(status?.metadata?.perishAcceleration)) {
+                const advanced = advanceJigglypuffPerishSong({
+                    match,
+                    targetState: actorState,
+                    sourceUsername: status?.sourceUsername,
+                    sourceSlot: Number(status?.sourceSlot),
+                });
+                if (advanced && Boolean(status?.metadata?.gainRandomChakraForSource)) {
+                    applyChakraGainToMatch({
+                        match,
+                        username: status?.sourceUsername,
+                        chakraType: chakraTypes[Math.floor(Math.random() * chakraTypes.length)],
+                        amount: 1,
+                    });
+                }
+            }
         });
         if (ownerUseSkillTriggeredStatusIds.size > 0) {
             actorState.statuses = (Array.isArray(actorState.statuses) ? actorState.statuses : []).filter(
@@ -5953,6 +6048,78 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     !ownerUseSkillTriggeredStatusIds.has(status?.id) ||
                     Boolean(status?.metadata?.preserveOnOwnerUseSkillTrigger)
             );
+        }
+
+        if (skillHasHarmfulEffects(skill)) {
+            (match.players || [])
+                .filter((player) => player?.username && player.username !== actingUsername)
+                .forEach((player) => {
+                    const trapUsername = player.username;
+                    const targetedTrapTeam = (Array.isArray(queued?.targetSelection) ? queued.targetSelection : [])
+                        .some((entry) => entry?.username === trapUsername);
+                    if (!targetedTrapTeam) return;
+                    (match.board?.[trapUsername] || []).forEach((trapUnit, trapSlot) => {
+                        if (!trapUnit || trapUnit.alive === false) return;
+                        const trapState = ensureUnitStateShape(trapUnit);
+                        (trapState.statuses || []).forEach((trapStatus) => {
+                            if (!isStatusActiveForMetadata(trapStatus, trapUnit)) return;
+                            const baseDamage = Math.max(0, Number(trapStatus?.metadata?.teamTrapEnemyHarmfulDamage) || 0);
+                            if (baseDamage <= 0) return;
+                            const flight = trapState.statuses.find(
+                                (entry) => entry?.id === 'zapdos_flight' && (Number(entry?.remainingTurns) || 0) > 0
+                            );
+                            const triggerDamage = Boolean(trapStatus?.metadata?.thunderboltTrigger)
+                                ? Math.max(baseDamage, Number(flight?.metadata?.zapdosThunderboltDamage) || 0)
+                                : baseDamage;
+                            applyDamageToUnit(actorUnit, triggerDamage, {
+                                match,
+                                sourceSkillId: trapStatus?.sourceSkillId || null,
+                                sourceUsername: trapUsername,
+                                sourceSlot: trapSlot,
+                                targetUsername: actingUsername,
+                                targetSlot: actorSlot,
+                                afflictionDamage: Boolean(trapStatus?.metadata?.afflictionDamage),
+                                ignoreDamageReduction: Boolean(trapStatus?.metadata?.thunderboltTrigger),
+                                ignoreDestructibleDefense: Boolean(trapStatus?.metadata?.thunderboltTrigger),
+                            });
+                            if (Boolean(trapStatus?.metadata?.thunderboltTrigger)) {
+                                applyStatus({
+                                    targetState: actorState,
+                                    statusId: 'zapdos_thunderbolt_cooldown_pressure',
+                                    duration: 1,
+                                    sourceSkillId: trapStatus?.sourceSkillId || null,
+                                    sourceUsername: trapUsername,
+                                    sourceSlot: trapSlot,
+                                    metadata: { harmful: true, newSkillCooldownIncrease: 1 },
+                                    fresh: false,
+                                });
+                                const cannon = actorState.statuses.find(
+                                    (entry) =>
+                                        entry?.id === 'zapdos_zap_cannon' &&
+                                        entry?.sourceUsername === trapUsername &&
+                                        Number(entry?.sourceSlot) === Number(trapSlot) &&
+                                        (Number(entry?.remainingTurns) || 0) > 0
+                                );
+                                if (cannon) {
+                                    cannon.metadata = { ...(cannon.metadata || {}), zapCannonBonus: Math.max(0, Number(cannon?.metadata?.zapCannonBonus) || 0) + 10 };
+                                    cannon.remainingTurns = Math.max(0, (Number(cannon.remainingTurns) || 0) - 1);
+                                    cannon.metadata.onExpireDamage = 30 + cannon.metadata.zapCannonBonus;
+                                    if (cannon.remainingTurns <= 0) {
+                                        triggerStoredStatusEffects({
+                                            match,
+                                            status: cannon,
+                                            targetUnit: actorUnit,
+                                            targetState: actorState,
+                                            targetUsername: actingUsername,
+                                            targetSlot: actorSlot,
+                                        });
+                                        actorState.statuses = actorState.statuses.filter((entry) => entry !== cannon);
+                                    }
+                                }
+                            }
+                        });
+                    });
+                });
         }
 
         applyOnTeamMemberUseSkillBonuses({
@@ -6676,6 +6843,266 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             if (!rollPerRecipient && Number.isFinite(activationChance) && !rollPercentSuccess(activationChance)) {
                 return;
             }
+            if (effectType === 'accelerate_perish') {
+                resolveRecipients(effect).forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    advanceJigglypuffPerishSong({
+                        match,
+                        targetState: ensureUnitStateShape(recipient.unit),
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                    });
+                });
+                return;
+            }
+            if (effectType === 'poison_sting_burst') {
+                resolveRecipients(effect).forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    const poison = targetState.statuses.find(
+                        (entry) => entry?.id === 'beedrill_poison_sting' && (Number(entry?.remainingTurns) || 0) > 0
+                    );
+                    if (!poison) return;
+                    const stacks = Math.max(1, Number(poison?.metadata?.poisonStingStacks) || 1);
+                    queueDamage(
+                        recipient,
+                        Math.max(0, Number(effect?.baseAmount) || 0) +
+                            stacks * Math.max(0, Number(effect?.amountPerStack) || 0),
+                        { ...effect, metadata: { ...(effect?.metadata || {}), afflictionDamage: true } }
+                    );
+                });
+                return;
+            }
+            if (effectType === 'gain_heat') {
+                const heatStatus = actorState.statuses.find((entry) => entry?.id === 'moltres_heat');
+                if (heatStatus?.metadata) {
+                    heatStatus.metadata.heat = Math.min(
+                        3,
+                        Math.max(0, Number(heatStatus.metadata.heat) || 0) + Math.max(0, Number(effect?.amount) || 0)
+                    );
+                }
+                return;
+            }
+            if (effectType === 'moltres_overheat') {
+                const heatStatus = actorState.statuses.find((entry) => entry?.id === 'moltres_heat');
+                const heat = Math.max(0, Math.min(3, Number(heatStatus?.metadata?.heat) || 0));
+                const penalty = Math.max(0, Number(heatStatus?.metadata?.overheatPenalty) || 0);
+                const perHeat = Math.max(0, 15 - penalty);
+                resolveRecipients(effect).forEach((recipient) =>
+                    queueDamage(recipient, heat * perHeat, {
+                        ...effect,
+                        metadata: { ...(effect?.metadata || {}), afflictionDamage: true },
+                    })
+                );
+                if (heatStatus?.metadata) {
+                    heatStatus.metadata.heat = 0;
+                    heatStatus.metadata.overheatPenalty = penalty + 5;
+                }
+                return;
+            }
+            if (effectType === 'articuno_sheer_cold') {
+                const tracker = actorState.statuses.find((entry) => entry?.id === 'articuno_sheer_cold_tracker');
+                const bonus = Math.max(0, Number(tracker?.metadata?.bonusDamage) || 0);
+                resolveRecipients(effect).forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    queueDamage(recipient, 35 + bonus, {
+                        ...effect,
+                        metadata: { ...(effect?.metadata || {}), afflictionDamage: true },
+                    });
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    applyStatus({
+                        targetState,
+                        statusId: 'articuno_blizzard',
+                        duration: 1,
+                        sourceSkillId: skill.id,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: { harmful: true, paralyzeCooldowns: true },
+                        fresh: false,
+                    });
+                    if (rollPercentSuccess(50)) {
+                        applyStatus({
+                            targetState,
+                            statusId: 'articuno_ice_beam_stun',
+                            duration: 1,
+                            sourceSkillId: skill.id,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            metadata: { harmful: true, cannotUseNonMentalSkills: true },
+                            fresh: false,
+                        });
+                    }
+                });
+                if (tracker?.metadata) tracker.metadata.bonusDamage = bonus + 5;
+                return;
+            }
+            if (effectType === 'zapdos_thunderbolt') {
+                const active = actorState.statuses.find(
+                    (entry) => entry?.id === 'zapdos_thunderbolt_active' && (Number(entry?.remainingTurns) || 0) > 0
+                );
+                if (active) {
+                    actorState.statuses = actorState.statuses.filter((entry) => entry !== active);
+                    getAliveEnemyRecipients({ match, username: actingUsername }).forEach((recipient) => {
+                        queueDamage(recipient, 15, {
+                            ...effect,
+                            metadata: { ignoreDamageReduction: true, ignoreDestructibleDefense: true },
+                        });
+                        applyStatus({
+                            targetState: ensureUnitStateShape(recipient.unit),
+                            statusId: 'zapdos_thunderbolt_paralysis',
+                            duration: 2,
+                            sourceSkillId: skill.id,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            metadata: { harmful: true, paralyzeCooldowns: true },
+                            fresh: false,
+                        });
+                    });
+                } else {
+                    applyStatus({
+                        targetState: actorState,
+                        statusId: 'zapdos_thunderbolt_active',
+                        duration: 3,
+                        sourceSkillId: skill.id,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: { teamTrapEnemyHarmfulDamage: 5, thunderboltTrigger: true },
+                        fresh: false,
+                    });
+                }
+                return;
+            }
+            if (effectType === 'grant_barrier' || effectType === 'grant_shield') {
+                resolveRecipients(effect).forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const isBarrier = effectType === 'grant_barrier';
+                    applyStatus({
+                        targetState: ensureUnitStateShape(recipient.unit),
+                        targetUnit: recipient.unit,
+                        statusId: effect?.statusId,
+                        duration: 999,
+                        sourceSkillId: skill.id,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: {
+                            infiniteDuration: true,
+                            harmful: isBarrier,
+                            ...(isBarrier
+                                ? { barrierPoints: Math.max(0, Number(effect?.amount) || 0), randomCostIncrease: 1, mergeNumericAddKeys: ['barrierPoints'] }
+                                : { destructibleDefensePoints: Math.max(0, Number(effect?.amount) || 0), randomCostReduction: 1, mergeNumericAddKeys: ['destructibleDefensePoints'] }),
+                        },
+                        fresh: false,
+                    });
+                });
+                return;
+            }
+            if (effectType === 'mew_life_dew') {
+                const recipients = [
+                    ...resolveRecipients(effect),
+                    ...(Boolean(effect?.includeSelf)
+                        ? [{ username: actingUsername, slot: actorSlot, unit: actorUnit }]
+                        : []),
+                ];
+                const unique = new Map(recipients.map((entry) => [`${entry.username}:${entry.slot}`, entry]));
+                unique.forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const state = ensureUnitStateShape(recipient.unit);
+                    const pink = state.statuses.find(
+                        (entry) => entry?.id === 'mew_pink_bubble' && (Number(entry?.remainingTurns) || 0) > 0
+                    );
+                    const shield = Math.max(0, Number(pink?.metadata?.destructibleDefensePoints) || 0);
+                    if (pink) state.statuses = state.statuses.filter((entry) => entry !== pink);
+                    recipient.unit.maxHp = Math.max(DEFAULT_HP, Number(recipient.unit.maxHp) || DEFAULT_HP) + shield;
+                    applyHealToUnit(recipient.unit, Math.floor(recipient.unit.maxHp * 0.25));
+                });
+                return;
+            }
+            if (effectType === 'steal_helpful_status') {
+                resolveRecipients(effect).forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    const picked = targetState.statuses.find(
+                        (entry) =>
+                            (Number(entry?.remainingTurns) || 0) > 0 &&
+                            !Boolean(entry?.metadata?.harmful) &&
+                            !Boolean(entry?.metadata?.unremovable) &&
+                            !Boolean(entry?.metadata?.infiniteDuration)
+                    );
+                    if (!picked) return;
+                    targetState.statuses = targetState.statuses.filter((entry) => entry !== picked);
+                    applyStatus({
+                        targetState: actorState,
+                        targetUnit: actorUnit,
+                        statusId: `mewtwo_stolen_${picked.id}`,
+                        duration: Math.min(Math.max(1, Number(effect?.maxDuration) || 2), Number(picked.remainingTurns) || 1),
+                        sourceSkillId: skill.id,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: { ...(picked.metadata || {}), harmful: false, unremovable: false, infiniteDuration: false },
+                        fresh: false,
+                    });
+                });
+                return;
+            }
+            if (effectType === 'moonlight') {
+                const sequence = [60, 40, 20, 0];
+                const previousSkill = actorState.snapshots?._clefairyLastSkillId;
+                const step = previousSkill === skill.id ? Math.min(3, Number(actorState.snapshots?._clefairyMoonlightStep) + 1 || 1) : 0;
+                actorState.snapshots = actorState.snapshots || {};
+                actorState.snapshots._clefairyMoonlightStep = step;
+                actorState.snapshots._clefairyLastSkillId = skill.id;
+                resolveRecipients(effect).forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const state = ensureUnitStateShape(recipient.unit);
+                    const before = Math.max(0, Number(recipient.unit.hp) || 0);
+                    applyHealToUnit(recipient.unit, Math.floor(before * sequence[step] / 100));
+                    const healed = Math.max(0, (Number(recipient.unit.hp) || 0) - before);
+                    state.statuses = state.statuses.filter((entry) => !Boolean(entry?.metadata?.afflictionDamage));
+                    const tracker = actorState.statuses.find((entry) => entry?.id === 'clefairy_evolution_tracker');
+                    if (tracker?.metadata) tracker.metadata.healingProgress = Math.max(0, Number(tracker.metadata.healingProgress) || 0) + healed;
+                });
+                return;
+            }
+            if (effectType === 'cleanse_accuracy_and_evasion') {
+                const allyUnits = Array.isArray(match.board?.[actingUsername]) ? match.board[actingUsername] : [];
+                allyUnits.forEach((unit) => {
+                    if (!unit) return;
+                    const state = ensureUnitStateShape(unit);
+                    state.statuses = state.statuses.filter((entry) =>
+                        !Boolean(entry?.metadata?.fullyBlind) &&
+                        !Boolean(entry?.metadata?.accuracyReduction) &&
+                        !Boolean(entry?.metadata?.reducedAccuracy)
+                    );
+                });
+                getAliveEnemyRecipients({ match, username: actingUsername }).forEach((recipient) => {
+                    const state = ensureUnitStateShape(recipient.unit);
+                    state.statuses = state.statuses.filter((entry) =>
+                        !Boolean(entry?.metadata?.evasionChance) && !Boolean(entry?.metadata?.evadeChance)
+                    );
+                });
+                return;
+            }
+            if (effectType === 'metronome') {
+                resolveRecipients(effect).forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    if (recipient.username !== actingUsername) {
+                        const pool = characters.flatMap((entry) => entry.skills || []).flatMap((entry) => entry.effects || [])
+                            .filter((entry) => entry?.type === 'damage' && Number(entry.amount) > 0 && entry.scope === 'target');
+                        const copied = pool[Math.floor(Math.random() * pool.length)] || { amount: 20 };
+                        queueDamage(recipient, Math.max(1, Number(copied.amount) || 20), copied);
+                    } else {
+                        const pool = characters.flatMap((entry) => entry.skills || []).flatMap((entry) => entry.effects || [])
+                            .filter((entry) => entry?.type === 'heal' && Number(entry.amount) > 0);
+                        const copied = pool[Math.floor(Math.random() * pool.length)] || { amount: 20 };
+                        const before = Number(recipient.unit.hp) || 0;
+                        applyHealToUnit(recipient.unit, Math.max(1, Number(copied.amount) || 20));
+                        const healed = Math.max(0, (Number(recipient.unit.hp) || 0) - before);
+                        const tracker = actorState.statuses.find((entry) => entry?.id === 'clefairy_evolution_tracker');
+                        if (tracker?.metadata) tracker.metadata.healingProgress = Math.max(0, Number(tracker.metadata.healingProgress) || 0) + healed;
+                    }
+                });
+                return;
+            }
             if (effectType === 'damage' || effectType === 'health_steal_damage') {
                 const isHealthStealDamage = effectType === 'health_steal_damage';
                 const recipients = resolveRecipients(effect);
@@ -7384,6 +7811,18 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             },
                             fresh: false,
                         });
+                        return;
+                    }
+                    if (
+                        applyingStun &&
+                        recipient.username !== actingUsername &&
+                        (destinationState.statuses || []).some(
+                            (entry) =>
+                                entry?.id === 'beedrill_hive_swarm' &&
+                                (Number(entry?.remainingTurns) || 0) > 0 &&
+                                Boolean(entry?.metadata?.ignoreEnemyStuns)
+                        )
+                    ) {
                         return;
                     }
                     if (runtimeStatusId === 'mind_body_switch_lock' || Boolean(runtimeMetadata?.taunt)) {
@@ -8908,6 +9347,63 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             }
         });
 
+        const applyWaveEvolution = ({ statusId, facePicture, replacements = null, heal = 0 }) => {
+            if (hasStatus(actorState, statusId)) return;
+            applyStatus({
+                targetState: actorState,
+                targetUnit: actorUnit,
+                statusId,
+                duration: 999,
+                sourceSkillId: skill.id || null,
+                sourceUsername: actingUsername,
+                sourceSlot: actorSlot,
+                metadata: {
+                    infiniteDuration: true,
+                    unremovable: true,
+                    useEvolvedSkills: true,
+                    ...(facePicture ? { facePictureOverride: facePicture } : {}),
+                    ...(replacements ? { skillReplacements: replacements } : {}),
+                },
+                fresh: false,
+            });
+            if (heal > 0) applyHealToUnit(actorUnit, heal);
+        };
+        const clefairyTracker = actorState.statuses.find((entry) => entry?.id === 'clefairy_evolution_tracker');
+        if (Math.max(0, Number(clefairyTracker?.metadata?.healingProgress) || 0) >= 75) {
+            applyWaveEvolution({
+                statusId: 'clefairy_clefable_evolution',
+                facePicture: clefairyTracker?.metadata?.evolvedFacePicture || null,
+            });
+        }
+        if (skill.id === 'beedrill-envenom') {
+            const tracker = actorState.statuses.find((entry) => entry?.id === 'beedrill_evolution_tracker');
+            if (tracker?.metadata) {
+                tracker.metadata.envenomUses = Math.max(0, Number(tracker.metadata.envenomUses) || 0) + 1;
+                if (tracker.metadata.envenomUses >= 2) {
+                    applyWaveEvolution({
+                        statusId: 'beedrill_mega_evolution',
+                        facePicture: tracker.metadata.evolvedFacePicture || null,
+                        heal: 25,
+                    });
+                    applyStatus({
+                        targetState: actorState,
+                        statusId: 'beedrill_mega_reduction',
+                        duration: 999,
+                        sourceSkillId: skill.id,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: { infiniteDuration: true, unremovable: true, unpierceableDamageReductionFlat: 10 },
+                        fresh: false,
+                    });
+                }
+            }
+        }
+        actorState.snapshots = actorState.snapshots || {};
+        if (skill.id !== 'clefairy-moonlight' && skill.id !== 'clefable-moonlight') {
+            actorState.snapshots._clefairyMoonlightStep = -1;
+        }
+        actorState.snapshots._clefairyLastSkillId = skill.id || '';
+
         const cooldownTurns = Math.max(0, Number(skill.cooldown) || 0);
         const cooldownReduction = resolveStatusMetadataThresholdAdjustment({
             actorState,
@@ -9133,6 +9629,10 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                     sourceDead &&
                     status?.id
                 ) {
+                    endedOngoingStatuses.add(status.id);
+                    return;
+                }
+                if (Boolean(status?.metadata?.endIfSourceDies) && sourceDead && status?.id) {
                     endedOngoingStatuses.add(status.id);
                     return;
                 }
@@ -10837,6 +11337,65 @@ const triggerStoredStatusEffects = ({
     pendingStatuses = null,
 }) => {
     if (!status || !match || !targetUnit || !targetState) return;
+    if (Boolean(status?.metadata?.instantKillOnExpire)) {
+        const sourceUnit = status?.sourceUsername && Number.isInteger(status?.sourceSlot)
+            ? match.board?.[status.sourceUsername]?.[Number(status.sourceSlot)] || null
+            : null;
+        if (sourceUnit && sourceUnit.alive !== false && targetUnit.alive !== false) {
+            targetUnit.hp = 0;
+            targetUnit.alive = false;
+            triggerTeamMemberDeathHooks({ match, deadUsername: targetUsername, deadSlot: targetSlot });
+            triggerOwnerDeathHooks({ unit: targetUnit, match, username: targetUsername, slot: targetSlot });
+            const sourceState = ensureUnitStateShape(sourceUnit);
+            const tracker = sourceState.statuses.find((entry) => entry?.id === 'jigglypuff_evolution_tracker');
+            if (tracker && !hasStatus(sourceState, 'jigglypuff_wigglytuff_evolution')) {
+                applyStatus({
+                    targetState: sourceState,
+                    targetUnit: sourceUnit,
+                    statusId: 'jigglypuff_wigglytuff_evolution',
+                    duration: 999,
+                    sourceSkillId: status?.sourceSkillId || null,
+                    sourceUsername: status.sourceUsername,
+                    sourceSlot: status.sourceSlot,
+                    metadata: {
+                        infiniteDuration: true,
+                        unremovable: true,
+                        useEvolvedSkills: true,
+                        facePictureOverride: tracker?.metadata?.evolvedFacePicture || null,
+                    },
+                    fresh: false,
+                });
+                applyHealToUnit(sourceUnit, 10);
+            }
+        }
+        return;
+    }
+    const expireDamage = Math.max(0, Number(status?.metadata?.onExpireDamage) || 0);
+    if (expireDamage > 0 && targetUnit.alive !== false) {
+        applyDamageToUnit(targetUnit, expireDamage, {
+            match,
+            sourceSkillId: status?.sourceSkillId || null,
+            sourceUsername: status?.sourceUsername || null,
+            sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
+            targetUsername,
+            targetSlot,
+            ignoreDamageReduction: Boolean(status?.metadata?.onExpirePiercing),
+            ignoreDestructibleDefense: Boolean(status?.metadata?.onExpirePiercing),
+        });
+        const stun = Math.max(0, Number(status?.metadata?.onExpireStun) || 0);
+        if (stun > 0 && targetUnit.alive !== false) {
+            applyStatus({
+                targetState,
+                statusId: `${status.id}_expire_stun`,
+                duration: stun,
+                sourceSkillId: status?.sourceSkillId || null,
+                sourceUsername: status?.sourceUsername || null,
+                sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
+                metadata: { harmful: true, cannotUseSkills: true },
+                fresh: false,
+            });
+        }
+    }
     const selfEffects = Array.isArray(status?.metadata?.onExpireEffects) ? status.metadata.onExpireEffects : [];
     if (selfEffects.length > 0) {
         applyTriggeredEffectsFromStatus({

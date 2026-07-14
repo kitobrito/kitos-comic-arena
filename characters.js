@@ -30028,6 +30028,10 @@ const characters = [
     }
 ];
 
+if (typeof module !== 'undefined' && module.exports) {
+    characters.push(...require('./pokemon-wave-2-live'));
+}
+
 if (typeof window !== 'undefined') {
     window.characters = characters;
 }
