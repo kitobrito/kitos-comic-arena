@@ -593,8 +593,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </section>
     </aside>
   </div>
-  <script src="./characters.js?v=predator-xeno-fx-toggle-v3"></script>
-  <script src="./pokemon-wave-2-live.js?v=wave2-launch-v1"></script>
+  <script src="./characters.js?v=pokemon-balance-v3"></script>
+  <script src="./pokemon-wave-2-live.js?v=pokemon-balance-v3"></script>
   <script src="./scripts/index.js?v=pokemon-wave-2-launch-v1" defer></script>
   <script>
     (function () {
@@ -622,14 +622,19 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         "charmander",
         "squirtle",
         "butterfree",
+        "beedrill",
         "pidgey",
         "ekans",
         "pikachu",
+        "clefairy",
+        "jigglypuff",
         "zubat",
+        "meowth",
         "abra",
         "machop",
         "magnemite",
         "gastly",
+        "onix",
         "krabby",
         "hitmonlee",
         "hitmonchan",
@@ -641,7 +646,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         "eevee",
         "vaporeon",
         "jolteon",
-        "flareon"
+        "flareon",
+        "aerodactyl",
+        "articuno",
+        "zapdos",
+        "moltres",
+        "dragonite",
+        "mewtwo",
+        "mew"
       ];
       var preferredCharacterDisplayRank = preferredCharacterDisplayOrder.reduce(function (map, id, index) {
         map[id] = index;
@@ -685,11 +697,22 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         var characterId = character && (character.characterId || character.id)
           ? String(character.characterId || character.id).toLowerCase()
           : "";
-        return skills.filter(function (skill) {
+        var baseSkills = skills.filter(function (skill) {
           if (!skill || skill.hiddenFromSelectionViewer) return false;
           var skillId = skill.id ? String(skill.id).toLowerCase() : "";
           return characterId !== "charmander" || !/^charmander-charizard-[xy]-/.test(skillId);
         });
+        var tracker = (character && Array.isArray(character.startStatuses) ? character.startStatuses : []).find(function (status) {
+          return status && status.metadata && typeof status.metadata.evolutionStatusId === "string" && status.metadata.evolutionStatusId;
+        });
+        var evolutionStatusId = tracker && tracker.metadata ? tracker.metadata.evolutionStatusId : "";
+        var evolvedSkills = baseSkills.map(function (skill) {
+          if (!skill || !skill.evolvesTo || skill.evolvesTo.hiddenFromSelectionViewer) return null;
+          return Object.assign({}, skill.evolvesTo, {
+            actorCondition: skill.evolvesTo.actorCondition || (evolutionStatusId ? { statusId: evolutionStatusId } : undefined)
+          });
+        }).filter(Boolean);
+        return baseSkills.concat(evolvedSkills);
       }
 
       function getCharacterSummary(character) {
@@ -800,8 +823,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         function walk(value) {
           if (portrait || !value || typeof value !== "object" || visited.indexOf(value) !== -1) return;
           visited.push(value);
-          if (String(value.statusId || "") === statusId && value.metadata && value.metadata.facePictureOverride) {
-            portrait = String(value.metadata.facePictureOverride);
+          if (
+            value.metadata &&
+            (String(value.statusId || "") === statusId || String(value.metadata.evolutionStatusId || "") === statusId) &&
+            (value.metadata.facePictureOverride || value.metadata.evolvedFacePicture)
+          ) {
+            portrait = String(value.metadata.facePictureOverride || value.metadata.evolvedFacePicture);
             return;
           }
           Object.keys(value).forEach(function (key) { walk(value[key]); });

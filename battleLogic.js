@@ -6897,6 +6897,14 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 if (heatStatus?.metadata) {
                     heatStatus.metadata.heat = 0;
                     heatStatus.metadata.overheatPenalty = penalty + 5;
+                    const overheatUses = Math.max(0, Number(heatStatus.metadata.overheatUses) || 0) + 1;
+                    heatStatus.metadata.overheatUses = overheatUses;
+                    heatStatus.metadata.skillCostOverridesBySkillId = {
+                        ...(heatStatus.metadata.skillCostOverridesBySkillId || {}),
+                        'moltres-overheat': {
+                            energy: overheatUses >= 2 ? ['Bloodline'] : ['Bloodline', 'Bloodline'],
+                        },
+                    };
                 }
                 return;
             }
@@ -8024,6 +8032,60 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                                       !runtimeMetadata?.triggerOnApply),
                     });
                     if (appliedStatus) {
+                        const appliedStatusEntry = (Array.isArray(destinationState?.statuses)
+                            ? destinationState.statuses
+                            : []
+                        ).find((entry) => entry?.id === runtimeStatusId);
+                        const appliedMetadata = appliedStatusEntry?.metadata || {};
+                        const immediateTurnStartDamage =
+                            !Boolean(appliedMetadata?.skipFirstTurnStartTick) ||
+                            Boolean(appliedMetadata?.damageImmediatelyOnApply)
+                                ? Math.max(0, Number(appliedMetadata?.turnStartDamage) || 0)
+                                : 0;
+                        const immediateTurnEndDamage = Boolean(appliedMetadata?.triggerOnApply)
+                            ? Math.max(0, Number(appliedMetadata?.turnEndDamage) || 0)
+                            : 0;
+                        const immediateDamageEntries = [
+                            {
+                                amount: immediateTurnStartDamage,
+                                fixed: Boolean(appliedMetadata?.fixedTurnStartDamage),
+                                kind: 'turn start',
+                            },
+                            {
+                                amount: immediateTurnEndDamage,
+                                fixed: Boolean(appliedMetadata?.fixedTurnEndDamage),
+                                kind: 'turn end',
+                            },
+                        ];
+                        if (immediateTurnEndDamage > 0) {
+                            appliedStatusEntry.metadata = {
+                                ...appliedMetadata,
+                                _skipNextTurnEndDamageAfterCast: true,
+                            };
+                        }
+                        immediateDamageEntries.forEach((entry) => {
+                            if (entry.amount <= 0 || recipient.unit.alive === false) return;
+                            const affliction = Boolean(appliedMetadata?.afflictionDamage);
+                            applyDamageToUnit(recipient.unit, entry.amount, {
+                                match,
+                                sourceSkillId: effect?.sourceSkillId || skill.id || null,
+                                sourceUsername: actingUsername,
+                                sourceSlot: actorSlot,
+                                targetUsername: recipient.username,
+                                targetSlot: recipient.slot,
+                                afflictionDamage: affliction,
+                                damageDebugReason: `${entry.kind} damage over time on cast`,
+                                fixedDamage: entry.fixed,
+                                ignoreDamageImmunity: Boolean(appliedMetadata?.ignoreDamageImmunity),
+                                ignoreAfflictionDamageImmunity: Boolean(
+                                    appliedMetadata?.ignoreAfflictionDamageImmunity
+                                ),
+                                ignoreDamageReduction:
+                                    affliction || Boolean(appliedMetadata?.ignoreTargetDamageReduction),
+                                ignoreDestructibleDefense:
+                                    affliction || Boolean(appliedMetadata?.ignoreTargetDestructibleDefense),
+                            });
+                        });
                         const onSuccessApplyStatusesToOwner = Array.isArray(
                             effect?.metadata?.onSuccessApplyStatusesToOwner
                         )
@@ -9416,6 +9478,21 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         actorState.snapshots._clefairyLastSkillId = skill.id || '';
         actorState.snapshots._mewtwoLastSkillId = skill.id || '';
 
+        if (skillHasHarmfulEffects(skill)) {
+            actorState.statuses.forEach((status) => {
+                if (
+                    Boolean(status?.metadata?.taunt) &&
+                    Boolean(status?.metadata?.refreshIfIgnoredOnce) &&
+                    (Number(status?.remainingTurns) || 0) > 0
+                ) {
+                    status.metadata = {
+                        ...(status.metadata || {}),
+                        _attackedWhileTaunted: true,
+                    };
+                }
+            });
+        }
+
         const cooldownTurns = Math.max(0, Number(skill.cooldown) || 0);
         const cooldownReduction = resolveStatusMetadataThresholdAdjustment({
             actorState,
@@ -9945,7 +10022,18 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                     );
                 }
                 if (ongoingClass === 'action' && (sourceStunned || targetInvulnerable)) return;
-                const baseTurnEndDamage = Math.max(0, Number(status?.metadata?.turnEndDamage) || 0);
+                const skipTurnEndDamageAfterCast = Boolean(
+                    status?.metadata?._skipNextTurnEndDamageAfterCast
+                );
+                if (skipTurnEndDamageAfterCast) {
+                    status.metadata = {
+                        ...(status.metadata || {}),
+                        _skipNextTurnEndDamageAfterCast: false,
+                    };
+                }
+                const baseTurnEndDamage = skipTurnEndDamageAfterCast
+                    ? 0
+                    : Math.max(0, Number(status?.metadata?.turnEndDamage) || 0);
                 let turnEndDamage = baseTurnEndDamage;
 
                 if (baseTurnEndDamage > 0) {
@@ -10508,6 +10596,22 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                         };
                     }
                     const nextRemaining = (status.remainingTurns || 0) - 1;
+                    if (
+                        nextRemaining <= 0 &&
+                        Boolean(status?.metadata?.refreshIfIgnoredOnce) &&
+                        !Boolean(status?.metadata?._refreshIfIgnoredOnceConsumed) &&
+                        !Boolean(status?.metadata?._attackedWhileTaunted)
+                    ) {
+                        return {
+                            ...status,
+                            fresh: false,
+                            remainingTurns: 1,
+                            metadata: {
+                                ...(status.metadata || {}),
+                                _refreshIfIgnoredOnceConsumed: true,
+                            },
+                        };
+                    }
                     const turnEndRandomizeConfig =
                         status?.metadata?.turnEndRandomizeMetadataKeyFromOptions &&
                         typeof status.metadata.turnEndRandomizeMetadataKeyFromOptions === 'object'

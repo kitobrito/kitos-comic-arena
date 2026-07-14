@@ -7,7 +7,13 @@ const vm = require('node:vm');
 const characters = require('../characters');
 const wave = require('../pokemon-wave-2-live');
 const { newsPost, launchIds, buildLatestReleasesState, mergeWave2Missions } = require('../sync_pokemon_wave_2_release');
-const { buildInitialBoard, resolveEffectiveSkill, resolvePendingTurnSkills } = require('../battleLogic');
+const {
+    buildInitialBoard,
+    computeEffectiveEnergyCost,
+    resolveEffectiveSkill,
+    resolvePendingTurnSkills,
+    tickStatusesForTurnEnd,
+} = require('../battleLogic');
 const { buildMissionUserMap, ensureRequiredMissionCatalogEntries, resolveMissionUnlockPointCost } = require('../server');
 
 const expectedIds = ['clefairy','jigglypuff','beedrill','articuno','moltres','zapdos','mew','mewtwo','dragonite'];
@@ -214,4 +220,212 @@ test('Jigglypuff and Wigglytuff Wish are invisible and advertise the Perish Song
     assert.equal(wish.effects[0].metadata.wishAdvancePerishOnHarmful, true);
     assert.ok(wish.evolvesTo.classes.includes('Invisible'));
     assert.equal(wish.evolvesTo.effects[0].metadata.wishAdvancePerishOnHarmful, true);
+});
+
+test('wave-two evolutions are exposed to both Pokemon roster viewers, including Fell Stinger', () => {
+    const root = path.resolve(__dirname, '..');
+    const selectionSource = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');
+    const skillsPageSource = fs.readFileSync(path.join(root, 'pokemon-charactersandskills.html'), 'utf8');
+    assert.match(selectionSource, /getSelectionVisibleSkills[\s\S]*?skill\?\.evolvesTo/);
+    assert.match(skillsPageSource, /var evolvedSkills = baseSkills\.map[\s\S]*?skill\.evolvesTo/);
+    assert.match(skillsPageSource, /metadata\.evolvedFacePicture/);
+
+    const beedrill = wave.find((character) => character.id === 'beedrill');
+    const fellStinger = beedrill.skills.find((skill) => skill.id === 'beedrill-envenom').evolvesTo;
+    assert.equal(fellStinger.id, 'mega-beedrill-fell-stinger');
+    assert.notEqual(fellStinger.hiddenFromSelectionViewer, true);
+});
+
+test('Pokemon roster presentation is Trainer first and then National Pokedex order', () => {
+    const expected = [
+        'pokemon-trainer','bulbasaur','charmander','squirtle','butterfree','beedrill','pidgey','ekans',
+        'pikachu','clefairy','jigglypuff','zubat','meowth','abra','machop','magnemite','gastly','onix',
+        'krabby','hitmonlee','hitmonchan','koffing','chansey','mr-mime','scyther','magikarp','eevee',
+        'vaporeon','jolteon','flareon','aerodactyl','articuno','zapdos','moltres','dragonite','mewtwo','mew',
+    ];
+    const root = path.resolve(__dirname, '..');
+    const selectionSource = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');
+    const skillsPageSource = fs.readFileSync(path.join(root, 'pokemon-charactersandskills.html'), 'utf8');
+    const selectionOrder = selectionSource.match(/const preferredPokemonCharacterDisplayOrder = \[([\s\S]*?)\];/)?.[1] || '';
+    const skillsOrder = skillsPageSource.match(/var preferredCharacterDisplayOrder = \[([\s\S]*?)\];/)?.[1] || '';
+    for (const source of [selectionOrder, skillsOrder]) {
+        const listedIds = [...source.matchAll(/["']([a-z0-9-]+)["']/g)].map((match) => match[1]);
+        assert.deepEqual(listedIds, expected);
+    }
+});
+
+test('Rare Candy can evolve Clefairy, Jigglypuff, and Meowth', () => {
+    const trainer = characters.find((character) => character.id === 'pokemon-trainer');
+    const rareCandy = trainer.skills.find((skill) => skill.id === 'pokemon-trainer-rare-candy');
+    for (const characterId of ['clefairy', 'jigglypuff', 'meowth']) {
+        const evolution = rareCandy.effects.find(
+            (effect) => effect.condition?.characterId === characterId && /_evolution$/.test(effect.statusId || '')
+        );
+        const defense = rareCandy.effects.find(
+            (effect) => effect.condition?.characterId === characterId && /rare_candy_defense$/.test(effect.statusId || '')
+        );
+        assert.ok(evolution, `Missing ${characterId} Rare Candy evolution`);
+        assert.ok(defense, `Missing ${characterId} Rare Candy defense`);
+    }
+});
+
+test('permanent stacking damage starts on cast and uses the current stack total', () => {
+    const beedrillIndex = characters.findIndex((character) => character.id === 'beedrill');
+    const poisonStingIndex = characters[beedrillIndex].skills.findIndex(
+        (skill) => skill.id === 'beedrill-poison-sting'
+    );
+    const players = [{ username: 'bee', team: [beedrillIndex] }, { username: 'target', team: [0] }];
+    const board = buildInitialBoard(players, characters);
+    const match = {
+        players,
+        board,
+        chakraPools: {
+            bee: { taijutsu: 2, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+            target: { taijutsu: 0, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+        },
+        pendingTurns: {}, pendingActions: [], pendingQueuedEffects: [],
+        economy: { turnCounts: { bee: 1, target: 1 } },
+    };
+    const cast = () => {
+        match.pendingTurns.bee = {
+            queueOrder: ['0'],
+            queuedByActorSlot: {
+                0: { skillIndex: poisonStingIndex, targetSelection: [{ username: 'target', slot: 0 }] },
+            },
+        };
+        resolvePendingTurnSkills({ match, actingUsername: 'bee', characters });
+        match.board.bee[0].state.cooldowns = {};
+    };
+    cast();
+    assert.equal(board.target[0].hp, 95);
+    cast();
+    assert.equal(board.target[0].hp, 85);
+});
+
+test('Overheat loses Random after one use and costs one Bloodline after two', () => {
+    const moltresIndex = characters.findIndex((character) => character.id === 'moltres');
+    const moltres = characters[moltresIndex];
+    const overheatIndex = moltres.skills.findIndex((skill) => skill.id === 'moltres-overheat');
+    const overheat = moltres.skills[overheatIndex];
+    const players = [{ username: 'moltres', team: [moltresIndex] }, { username: 'target', team: [0] }];
+    const board = buildInitialBoard(players, characters);
+    const match = {
+        players,
+        board,
+        chakraPools: {
+            moltres: { taijutsu: 2, ninjutsu: 0, genjutsu: 0, bloodline: 4 },
+            target: { taijutsu: 0, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+        },
+        pendingTurns: {}, pendingActions: [], pendingQueuedEffects: [],
+        economy: { turnCounts: { moltres: 1, target: 1 } },
+    };
+    const cast = () => {
+        match.pendingTurns.moltres = {
+            queueOrder: ['0'],
+            queuedByActorSlot: {
+                0: { skillIndex: overheatIndex, targetSelection: [{ username: 'target', slot: 0 }] },
+            },
+        };
+        resolvePendingTurnSkills({ match, actingUsername: 'moltres', characters });
+    };
+    cast();
+    assert.deepEqual(computeEffectiveEnergyCost({ skill: overheat, actorState: board.moltres[0].state }), {
+        reservedSpecific: { taijutsu: 0, ninjutsu: 0, bloodline: 2, genjutsu: 0 },
+        requiredRandom: 0,
+    });
+    cast();
+    assert.deepEqual(computeEffectiveEnergyCost({ skill: overheat, actorState: board.moltres[0].state }), {
+        reservedSpecific: { taijutsu: 0, ninjutsu: 0, bloodline: 1, genjutsu: 0 },
+        requiredRandom: 0,
+    });
+});
+
+test('Articuno uses only Ninjutsu costs and Zap Cannon costs two Genjutsu plus Random', () => {
+    const articuno = wave.find((character) => character.id === 'articuno');
+    articuno.skills.forEach((skill) => assert.ok(!(skill.energy || []).includes('Genjutsu')));
+    assert.deepEqual(articuno.skills.find((skill) => skill.id === 'articuno-blizzard').energy, ['Ninjutsu']);
+    assert.deepEqual(articuno.skills.find((skill) => skill.id === 'articuno-sheer-cold').energy, [
+        'Ninjutsu', 'Ninjutsu', 'Random',
+    ]);
+    const zapdos = wave.find((character) => character.id === 'zapdos');
+    assert.deepEqual(zapdos.skills.find((skill) => skill.id === 'zapdos-zap-cannon').energy, [
+        'Genjutsu', 'Genjutsu', 'Random',
+    ]);
+});
+
+test('Sunny Day grants exactly one Heat total', () => {
+    const moltres = wave.find((character) => character.id === 'moltres');
+    const sunnyDay = moltres.skills.find((skill) => skill.id === 'moltres-sunny-day');
+    assert.equal(sunnyDay.effects.filter((effect) => effect.type === 'gain_heat').length, 1);
+    assert.equal(sunnyDay.effects.find((effect) => effect.type === 'gain_heat').amount, 1);
+    assert.ok(!sunnyDay.effects.some((effect) => Number(effect?.metadata?.turnStartGainHeat) > 0));
+});
+
+test('requested Pokemon use only their assigned role categories', () => {
+    const roles = Object.fromEntries(wave.map((character) => [character.id, character.role]));
+    const roleCategories = Object.fromEntries(wave.map((character) => [character.id, character.roleCategory]));
+    assert.deepEqual(
+        {
+            mew: roles.mew,
+            clefairy: roles.clefairy,
+            jigglypuff: roles.jigglypuff,
+            articuno: roles.articuno,
+            mewtwo: roles.mewtwo,
+            dragonite: roles.dragonite,
+        },
+        {
+            mew: 'Shield Support',
+            clefairy: 'Damage Support',
+            jigglypuff: 'Utility Support',
+            articuno: 'AOE DPS',
+            mewtwo: 'Specialist',
+            dragonite: 'Tank',
+        }
+    );
+    assert.deepEqual(
+        {
+            mew: roleCategories.mew,
+            clefairy: roleCategories.clefairy,
+            jigglypuff: roleCategories.jigglypuff,
+            articuno: roleCategories.articuno,
+            mewtwo: roleCategories.mewtwo,
+            dragonite: roleCategories.dragonite,
+        },
+        {
+            mew: 'shield-support',
+            clefairy: 'damage-support',
+            jigglypuff: 'utility-support',
+            articuno: 'aoe-dps',
+            mewtwo: 'specialist',
+            dragonite: 'tank',
+        }
+    );
+});
+
+test('Dragonite Pressure stacks and an ignored taunt refreshes only once', () => {
+    const dragonite = wave.find((character) => character.id === 'dragonite');
+    const pressure = dragonite.skills.find((skill) => skill.id === 'dragonite-pressure');
+    assert.match(pressure.skilldescription, /stacking 10 unpierceable damage reduction/i);
+    assert.match(pressure.skilldescription, /does not attack[\s\S]*taunt refreshes once/i);
+    const pressureStatus = dragonite.startStatuses.find((status) => status.statusId === 'dragonite_pressure_passive');
+    assert.equal(
+        pressureStatus.metadata.onOwnerUseSkillApplyStatusToOwner.metadata.allowDuplicateStatusInstances,
+        true
+    );
+
+    const players = [{ username: 'dragonite', team: [0] }, { username: 'enemy', team: [1] }];
+    const board = buildInitialBoard(players, characters);
+    const match = { players, board };
+    const enemyState = board.enemy[0].state;
+    enemyState.statuses.push({
+        id: 'dragonite_taunt', remainingTurns: 1, fresh: false,
+        metadata: { harmful: true, taunt: true, refreshIfIgnoredOnce: true },
+    });
+    tickStatusesForTurnEnd({ match, endingUsername: 'enemy' });
+    let taunt = enemyState.statuses.find((status) => status.id === 'dragonite_taunt');
+    assert.equal(taunt.remainingTurns, 1);
+    assert.equal(taunt.metadata._refreshIfIgnoredOnceConsumed, true);
+    tickStatusesForTurnEnd({ match, endingUsername: 'enemy' });
+    taunt = enemyState.statuses.find((status) => status.id === 'dragonite_taunt');
+    assert.equal(taunt, undefined);
 });

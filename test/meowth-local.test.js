@@ -186,3 +186,15 @@ test('Persian Pay Day costs two Random energy', () => {
     const persianPayDay = meowth.skills.find((skill) => skill.id === 'persian-pay-day');
     assert.deepEqual(persianPayDay.energy, ['Random', 'Random']);
 });
+
+test('Fury Swipes deals its Physical and Affliction damage on cast', () => {
+    const match = buildMatch();
+    match.chakraPools.ash.taijutsu = 2;
+    queueMeowthSkill(match, 1);
+
+    resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+
+    assert.equal(match.board.gary[0].hp, 190);
+    assert.ok(match.board.gary[0].state.statuses.some((status) => status.id === 'meowth_fury_swipes_physical'));
+    assert.ok(match.board.gary[0].state.statuses.some((status) => status.id === 'meowth_fury_swipes_affliction'));
+});

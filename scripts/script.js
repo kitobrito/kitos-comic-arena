@@ -14901,14 +14901,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         'charmander',
         'squirtle',
         'butterfree',
+        'beedrill',
         'pidgey',
         'ekans',
         'pikachu',
+        'clefairy',
+        'jigglypuff',
         'zubat',
+        'meowth',
         'abra',
         'machop',
         'magnemite',
         'gastly',
+        'onix',
         'krabby',
         'hitmonlee',
         'hitmonchan',
@@ -14921,6 +14926,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         'vaporeon',
         'jolteon',
         'flareon',
+        'aerodactyl',
+        'articuno',
+        'zapdos',
+        'moltres',
+        'dragonite',
+        'mewtwo',
+        'mew',
     ];
     const getCharacterDisplayId = (character) => character?.characterId || character?.id || '';
     const getCharacterArenaMode = (character = {}) => {
@@ -15059,12 +15071,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         image.src = thumbnail || url;
     };
 
+    const getSelectionEvolutionStatusId = (character) => {
+        const tracker = (Array.isArray(character?.startStatuses) ? character.startStatuses : []).find(
+            (status) => typeof status?.metadata?.evolutionStatusId === 'string' && status.metadata.evolutionStatusId
+        );
+        return tracker?.metadata?.evolutionStatusId || '';
+    };
+
+    const getSelectionVisibleSkills = (character) => {
+        const baseSkills = (Array.isArray(character?.skills) ? character.skills : []).filter(
+            (skill) => skill && !Boolean(skill.hiddenFromSelectionViewer)
+        );
+        const evolutionStatusId = getSelectionEvolutionStatusId(character);
+        const evolvedSkills = baseSkills
+            .map((skill) => skill?.evolvesTo)
+            .filter((skill) => skill && !Boolean(skill.hiddenFromSelectionViewer))
+            .map((skill) => ({
+                ...skill,
+                actorCondition: skill.actorCondition || (evolutionStatusId ? { statusId: evolutionStatusId } : undefined),
+            }));
+        return [...baseSkills, ...evolvedSkills];
+    };
+
     const preloadCharacterPreview = (character) => {
         if (!character) return;
         preloadSelectionPreviewImage(character.facePicture);
-        (Array.isArray(character.skills) ? character.skills : [])
-            .filter((skill) => skill && !Boolean(skill.hiddenFromSelectionViewer))
-            .forEach((skill) => preloadSelectionPreviewImage(skill.skillimage));
+        getSelectionVisibleSkills(character).forEach((skill) => preloadSelectionPreviewImage(skill.skillimage));
     };
 
     const loadSelectionPreviewImage = (image, source, alt, renderId) => {
@@ -15265,9 +15297,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (currentCharacterIndex === null) return;
         const character = roster[currentCharacterIndex];
         if (!character || !Array.isArray(character.skills)) return;
-        const visibleSkills = character.skills.filter(
-            (skill) => skill && !Boolean(skill.hiddenFromSelectionViewer)
-        );
+        const visibleSkills = getSelectionVisibleSkills(character);
         const skill = visibleSkills[skillIndex];
         if (!skill) return;
         renderSkill(skill, skillIndex);
@@ -15294,9 +15324,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         renderCharacterOverview(character);
         if (Array.isArray(character.skills)) {
-            const visibleSkills = character.skills.filter(
-                (skill) => skill && !Boolean(skill.hiddenFromSelectionViewer)
-            );
+            const visibleSkills = getSelectionVisibleSkills(character);
             ensureSkillImageSlots(visibleSkills.length);
             if (skillImagesContainer) {
                 skillImagesContainer.scrollLeft = 0;
