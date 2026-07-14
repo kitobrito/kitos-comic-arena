@@ -18,7 +18,7 @@ const energyColorNames = {
     Ninjutsu: 'Blue',
     Bloodline: 'Red',
     Taijutsu: 'Green',
-    Genjutsu: 'White',
+    Genjutsu: 'Yellow',
     Random: 'Random',
 };
 

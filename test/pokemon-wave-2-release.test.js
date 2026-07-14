@@ -65,7 +65,8 @@ test('the launch news includes every character, every base skill, evolved skill 
     });
     const joinedNews = newsPost.changes.map((entry) => entry.text).join(' ');
     assert.doesNotMatch(joinedNews, /\b(?:Ninjutsu|Bloodline|Taijutsu|Genjutsu)\b/);
-    assert.match(joinedNews, /\b(?:Blue|Red|Green|White)\b/);
+    assert.match(joinedNews, /\b(?:Blue|Red|Green|Yellow)\b/);
+    assert.doesNotMatch(joinedNews, /\bWhite\b/);
 });
 
 test('Latest Releases highlights Dragonite, Mewtwo, and Mew without changing Comic releases', () => {
