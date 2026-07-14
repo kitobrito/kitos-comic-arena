@@ -5961,9 +5961,7 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
                 }
 
                 const levelRequirement = Math.max(0, Number(mission.level_requirement) || 0);
-                if (levelRequirement > 0 && userLevel < levelRequirement) {
-                    continue;
-                }
+                const meetsLevelRequirement = levelRequirement <= 0 || userLevel >= levelRequirement;
 
                 const rewardCharacterId = normalizeCharacterId(mission.reward_character);
                 const specialPve = mission.special_pve || {};
@@ -5972,6 +5970,9 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
                 );
                 const alreadyCompleted = Boolean(existingProgress.completedAt);
                 if (specialPve.enabled) {
+                    if (!meetsLevelRequirement) {
+                        continue;
+                    }
                     if (specialPveMissionId !== mission.missionId) {
                         continue;
                     }
@@ -6133,7 +6134,7 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
                     goalProgress: nextGoalProgressByIndex,
                 });
 
-                if (hasTrackableGoals && allTrackableGoalsComplete) {
+                if (hasTrackableGoals && allTrackableGoalsComplete && meetsLevelRequirement) {
                     nextProgress.completedAt = existingProgress.completedAt || endedAt || new Date();
                     nextProgress.unlockedAt = nextProgress.completedAt;
                     if (!alreadyCompleted) {
@@ -6156,6 +6157,7 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
                     rewardCharacterId &&
                     hasTrackableGoals &&
                     allTrackableGoalsComplete &&
+                    meetsLevelRequirement &&
                     !unlockedIds.has(rewardCharacterId)
                 ) {
                     unlockedIds.add(rewardCharacterId);
