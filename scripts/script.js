@@ -13871,6 +13871,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             : [];
         const progressByMissionId = payload.missionProgressByMissionId || {};
         const unlockPoints = Math.max(0, Math.floor(Number(payload.unlockPoints) || 0));
+        const playerLevel = Math.max(1, Math.floor(Number(payload.playerLevel) || 1));
         const unlockPointPriceMin = Math.max(
             1,
             Math.floor(Number(payload.unlockPointPriceMin) || DEFAULT_UNLOCK_POINT_COST)
@@ -13986,15 +13987,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (isEeveeEvolutionMission && rewardId === selectedEeveeEvolutionId) return;
                 if (!canBuyEeveeEvolution) return;
                 const unlockPointCost = getMissionUnlockPointCost(mission, payload);
+                const requiredRank = Math.max(1, Math.floor(Number(mission.level_requirement ?? mission.rank) || 1));
+                const purchaseRankLocked = Boolean(mission.purchase_requires_rank) && playerLevel < requiredRank;
                 const buyWrap = document.createElement('div');
                 buyWrap.className = 'selection-mission-buy';
                 const buyText = document.createElement('span');
-                buyText.textContent = `${getMissionRewardCharacterLabel(mission, rewardId)} costs ${unlockPointCost.toLocaleString()} unlock points.`;
+                buyText.textContent = purchaseRankLocked
+                    ? `Reach rank ${requiredRank} to buy ${getMissionRewardCharacterLabel(mission, rewardId)} for ${unlockPointCost.toLocaleString()} points.`
+                    : `${getMissionRewardCharacterLabel(mission, rewardId)} costs ${unlockPointCost.toLocaleString()} unlock points.`;
                 const buyButton = document.createElement('button');
                 buyButton.type = 'button';
                 buyButton.className = 'selection-mission-action selection-mission-buy-action';
-                buyButton.textContent = unlockPoints >= unlockPointCost ? 'Buy Unlock' : 'Need Points';
-                buyButton.disabled = unlockPoints < unlockPointCost;
+                buyButton.textContent = purchaseRankLocked
+                    ? `Rank ${requiredRank} Required`
+                    : unlockPoints >= unlockPointCost ? 'Buy Unlock' : 'Need Points';
+                buyButton.disabled = purchaseRankLocked || unlockPoints < unlockPointCost;
                 buyButton.addEventListener('click', () => {
                     buyMissionCharacterUnlock(rewardId, buyButton);
                 });

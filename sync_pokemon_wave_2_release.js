@@ -30,26 +30,30 @@ const describeSkill = (skill) => {
 };
 
 const wave2MissionConfigs = [
-    ['clefairy','Clefairy','Moon Stone Melody','clefairy.jpg',['chansey','mr-mime'],5],
-    ['jigglypuff','Jigglypuff','The Encore That Never Ends','jigglypuff.jpg',['gastly','clefairy'],5],
-    ['beedrill','Beedrill','Trial of the Hive','beedrill.jpg',['butterfree','scyther'],6],
-    ['articuno','Articuno','Frozen Legendary Trial','articuno.jpg',['squirtle','vaporeon'],7],
-    ['moltres','Moltres','Blazing Legendary Trial','moltres.webp',['charmander','flareon'],7],
-    ['zapdos','Zapdos','Storm Legendary Trial','zapdos.jpg',['pikachu','jolteon'],7],
-    ['mew','Mew','A Mythical Discovery','mew.jpg',['clefairy','jigglypuff'],8],
-    ['mewtwo','Mewtwo','Genetic Power Unbound','mewtwo.avif',['mew','dragonite'],9],
-    ['dragonite','Dragonite','Dragon Mastery','dragonite.webp',['aerodactyl','gyarados'],8],
+    ['clefairy','Clefairy','Moon Stone Melody','clefairy.jpg',['chansey','mr-mime'],5,3],
+    ['jigglypuff','Jigglypuff','The Encore That Never Ends','jigglypuff.jpg',['gastly','clefairy'],5,4],
+    ['beedrill','Beedrill','Trial of the Hive','beedrill.jpg',['butterfree','scyther'],6,5],
+    ['articuno','Articuno','Frozen Legendary Trial','articuno.jpg',['squirtle','vaporeon'],7,20],
+    ['moltres','Moltres','Blazing Legendary Trial','moltres.webp',['charmander','flareon'],7,21],
+    ['zapdos','Zapdos','Storm Legendary Trial','zapdos.jpg',['pikachu','jolteon'],7,22],
+    ['mew','Mew','A Mythical Discovery','mew.jpg',['clefairy','jigglypuff'],8,23],
+    ['mewtwo','Mewtwo','Genetic Power Unbound','mewtwo.avif',['mew','dragonite'],9,25],
+    ['dragonite','Dragonite','Dragon Mastery','dragonite.webp',['aerodactyl','gyarados'],8,18],
 ];
+const wave2LegendaryMissionIds = new Set(['articuno','moltres','zapdos','mew','mewtwo']);
 
 const wave2MissionEntries = wave2MissionConfigs.map(
-    ([characterId, characterName, title, imageFile, team, wins], index) => ({
+    ([characterId, characterName, title, imageFile, team, wins, missionRank], index) => {
+        const isLegendaryMission = wave2LegendaryMissionIds.has(characterId);
+        return {
         missionId: `pokemon-wave-2-${characterId}`,
         title,
-        level_requirement: Math.min(12, 3 + index),
-        rank: String(Math.min(12, 3 + index)),
+        level_requirement: missionRank,
+        rank: String(missionRank),
         reward_character: characterId,
         reward_character_name: characterName,
         reward: `Unlock ${characterName}.`,
+        ...(isLegendaryMission ? { unlock_point_cost: 500, purchase_requires_rank: true } : {}),
         arena: 'pokemon',
         mode_restriction: { allowed_modes: ['quick', 'ladder'] },
         image: `assets/images/PokemonArena/missionpics/${imageFile}`,
@@ -59,17 +63,22 @@ const wave2MissionEntries = wave2MissionConfigs.map(
         portraitAlt: `${characterName} mission portrait`,
         requirements: [
             `Win ${wins} Quick or Ladder matches with ${team[0]} and ${team[1]} on the same team.`,
+            `Win ${isLegendaryMission ? 6 : 4} Quick or Ladder matches in a row.`,
             'Bot and human opponents both count.',
         ],
-        goals: [{
-            type: 'win_matches_same_team',
-            character_ids: team,
-            character_names: team.map((id) => id.split('-').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ')),
-            wins,
-        }],
+        goals: [
+            {
+                type: 'win_matches_same_team',
+                character_ids: team,
+                character_names: team.map((id) => id.split('-').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ')),
+                wins,
+            },
+            { type: 'win_streak', wins: isLegendaryMission ? 6 : 4 },
+        ],
         special_pve: { enabled: false },
         sortOrder: 210 + index,
-    })
+    };
+    }
 );
 
 const mergeWave2Missions = (missions = []) => {

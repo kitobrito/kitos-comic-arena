@@ -7063,6 +7063,17 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 });
                 return;
             }
+            if (effectType === 'mewtwo_recover') {
+                const previousSkill = actorState.snapshots?._mewtwoLastSkillId;
+                const step = previousSkill === skill.id
+                    ? Math.max(0, Number(actorState.snapshots?._mewtwoRecoverStep) || 0) + 1
+                    : 0;
+                actorState.snapshots = actorState.snapshots || {};
+                actorState.snapshots._mewtwoRecoverStep = step;
+                actorState.snapshots._mewtwoLastSkillId = skill.id;
+                applyHealToUnit(actorUnit, Math.max(0, 20 - step * 2));
+                return;
+            }
             if (effectType === 'cleanse_accuracy_and_evasion') {
                 const allyUnits = Array.isArray(match.board?.[actingUsername]) ? match.board[actingUsername] : [];
                 allyUnits.forEach((unit) => {
@@ -9403,6 +9414,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             actorState.snapshots._clefairyMoonlightStep = -1;
         }
         actorState.snapshots._clefairyLastSkillId = skill.id || '';
+        actorState.snapshots._mewtwoLastSkillId = skill.id || '';
 
         const cooldownTurns = Math.max(0, Number(skill.cooldown) || 0);
         const cooldownReduction = resolveStatusMetadataThresholdAdjustment({

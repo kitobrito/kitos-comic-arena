@@ -3358,13 +3358,17 @@ const normalizeMissionGoalEntry = (entry = {}, index = 0) => {
         const characterName = String(
             source.character_name ?? source.characterName ?? getCharacterDisplayNameById(characterId)
         ).trim();
-        if (!wins || !characterId) {
+        if (!wins || (normalizedType === 'win_matches' && !characterId)) {
             return null;
         }
         return {
             type: normalizedType,
-            character_id: characterId,
-            character_name: characterName || getCharacterDisplayNameById(characterId),
+            ...(characterId
+                ? {
+                      character_id: characterId,
+                      character_name: characterName || getCharacterDisplayNameById(characterId),
+                  }
+                : {}),
             wins,
         };
     }
@@ -3695,6 +3699,13 @@ const normalizeMissionCatalogEntry = (mission = {}, index = 0) => {
                     : getCharacterDisplayNameById(rewardCharacterId),
         reward_character_ids: rewardCharacterIds,
         reward: typeof source.reward === 'string' ? source.reward.trim() : '',
+        unlock_point_cost: Math.max(
+            0,
+            Math.floor(Number(source.unlock_point_cost ?? source.unlockPointCost ?? 0) || 0)
+        ),
+        purchase_requires_rank: Boolean(
+            source.purchase_requires_rank ?? source.purchaseRequiresRank
+        ),
         reward_unlock_points: Math.max(
             0,
             Math.floor(Number(source.reward_unlock_points ?? source.rewardUnlockPoints ?? 0) || 0)
@@ -4786,26 +4797,30 @@ const POKEMON_LADDER_MILESTONE_MISSION_ENTRY = {
 };
 
 const POKEMON_WAVE_2_MISSION_CONFIGS = [
-    ['clefairy','Clefairy','Moon Stone Melody','clefairy.jpg',['chansey','mr-mime'],5],
-    ['jigglypuff','Jigglypuff','The Encore That Never Ends','jigglypuff.jpg',['gastly','clefairy'],5],
-    ['beedrill','Beedrill','Trial of the Hive','beedrill.jpg',['butterfree','scyther'],6],
-    ['articuno','Articuno','Frozen Legendary Trial','articuno.jpg',['squirtle','vaporeon'],7],
-    ['moltres','Moltres','Blazing Legendary Trial','moltres.webp',['charmander','flareon'],7],
-    ['zapdos','Zapdos','Storm Legendary Trial','zapdos.jpg',['pikachu','jolteon'],7],
-    ['mew','Mew','A Mythical Discovery','mew.jpg',['clefairy','jigglypuff'],8],
-    ['mewtwo','Mewtwo','Genetic Power Unbound','mewtwo.avif',['mew','dragonite'],9],
-    ['dragonite','Dragonite','Dragon Mastery','dragonite.webp',['aerodactyl','gyarados'],8],
+    ['clefairy','Clefairy','Moon Stone Melody','clefairy.jpg',['chansey','mr-mime'],5,3],
+    ['jigglypuff','Jigglypuff','The Encore That Never Ends','jigglypuff.jpg',['gastly','clefairy'],5,4],
+    ['beedrill','Beedrill','Trial of the Hive','beedrill.jpg',['butterfree','scyther'],6,5],
+    ['articuno','Articuno','Frozen Legendary Trial','articuno.jpg',['squirtle','vaporeon'],7,20],
+    ['moltres','Moltres','Blazing Legendary Trial','moltres.webp',['charmander','flareon'],7,21],
+    ['zapdos','Zapdos','Storm Legendary Trial','zapdos.jpg',['pikachu','jolteon'],7,22],
+    ['mew','Mew','A Mythical Discovery','mew.jpg',['clefairy','jigglypuff'],8,23],
+    ['mewtwo','Mewtwo','Genetic Power Unbound','mewtwo.avif',['mew','dragonite'],9,25],
+    ['dragonite','Dragonite','Dragon Mastery','dragonite.webp',['aerodactyl','gyarados'],8,18],
 ];
+const POKEMON_WAVE_2_LEGENDARY_MISSION_IDS = new Set(['articuno','moltres','zapdos','mew','mewtwo']);
 
 const POKEMON_WAVE_2_MISSION_ENTRIES = POKEMON_WAVE_2_MISSION_CONFIGS.map(
-    ([characterId, characterName, title, imageFile, team, wins], index) => ({
+    ([characterId, characterName, title, imageFile, team, wins, missionRank], index) => {
+        const isLegendaryMission = POKEMON_WAVE_2_LEGENDARY_MISSION_IDS.has(characterId);
+        return {
         missionId: `pokemon-wave-2-${characterId}`,
         title,
-        level_requirement: Math.min(12, 3 + index),
-        rank: String(Math.min(12, 3 + index)),
+        level_requirement: missionRank,
+        rank: String(missionRank),
         reward_character: characterId,
         reward_character_name: characterName,
         reward: `Unlock ${characterName}.`,
+        ...(isLegendaryMission ? { unlock_point_cost: 500, purchase_requires_rank: true } : {}),
         arena: 'pokemon',
         mode_restriction: { allowed_modes: ['quick', 'ladder'] },
         image: `assets/images/PokemonArena/missionpics/${imageFile}`,
@@ -4815,17 +4830,22 @@ const POKEMON_WAVE_2_MISSION_ENTRIES = POKEMON_WAVE_2_MISSION_CONFIGS.map(
         portraitAlt: `${characterName} mission portrait`,
         requirements: [
             `Win ${wins} Quick or Ladder matches with ${team[0]} and ${team[1]} on the same team.`,
+            `Win ${isLegendaryMission ? 6 : 4} Quick or Ladder matches in a row.`,
             'Bot and human opponents both count.',
         ],
-        goals: [{
-            type: 'win_matches_same_team',
-            character_ids: team,
-            character_names: team.map((id) => id.split('-').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ')),
-            wins,
-        }],
+        goals: [
+            {
+                type: 'win_matches_same_team',
+                character_ids: team,
+                character_names: team.map((id) => id.split('-').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ')),
+                wins,
+            },
+            { type: 'win_streak', wins: isLegendaryMission ? 6 : 4 },
+        ],
         special_pve: { enabled: false },
         sortOrder: 210 + index,
-    })
+    };
+    }
 );
 
 const ensureRequiredMissionCatalogEntries = (missions = []) => {
@@ -5065,7 +5085,10 @@ const resolveMissionUnlockPointCost = (mission = {}) => {
     if (Number.isFinite(explicitCost) && explicitCost > 0) {
         return Math.max(
             MISSION_UNLOCK_POINT_PRICE_MIN,
-            Math.min(MISSION_UNLOCK_POINT_PRICE_MAX, Math.floor(explicitCost))
+            Math.min(
+                Math.max(MISSION_UNLOCK_POINT_PRICE_MAX, MISSION_EEVEE_EVOLUTION_UNLOCK_POINT_COST),
+                Math.floor(explicitCost)
+            )
         );
     }
 
@@ -13395,6 +13418,7 @@ app.get('/api/missions', async (req, res) => {
             missionProgressByMissionId: missionState.progressByMissionId,
             unlockedCharacterIds: missionState.unlockedCharacterIds,
             unlockPoints: missionState.unlockPoints,
+            playerLevel: Number(getProfileArenaState(normalizedProfile || {}, arena)?.ladder?.level) || 1,
             unlockPointPriceMin: MISSION_UNLOCK_POINT_PRICE_MIN,
             unlockPointPriceMax: Math.max(
                 MISSION_UNLOCK_POINT_PRICE_MAX,
@@ -13453,6 +13477,15 @@ app.post('/api/missions/unlock-points/purchase', requireSession, async (req, res
         const profile = normalizeUserProfile(user);
         const arenaState = getProfileArenaState(profile, arena);
         const missionState = normalizeMissionState(arenaState.missions);
+        const playerLevel = Number(arenaState?.ladder?.level) || 1;
+        const requiredRank = Math.max(1, Number(mission.level_requirement ?? mission.rank) || 1);
+        if (mission.purchase_requires_rank && playerLevel < requiredRank) {
+            return res.status(403).json({
+                error: `Reach rank ${requiredRank} before buying this character.`,
+                playerLevel,
+                requiredRank,
+            });
+        }
         const unlockedIds = new Set(
             missionState.unlockedCharacterIds
                 .map((entry) => normalizeCharacterId(entry))
@@ -16320,6 +16353,7 @@ if (require.main === module) {
         buildMatchActionStatePayload,
         buildMissionUserMap,
         ensureRequiredMissionCatalogEntries,
+        resolveMissionUnlockPointCost,
         areQueuedSkillRequestsEquivalent,
         resolveExpiredTurnStartChoiceIfNeeded,
         autoAdvanceTurnIfExpired,

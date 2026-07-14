@@ -2,12 +2,13 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const vm = require('node:vm');
 
 const characters = require('../characters');
 const wave = require('../pokemon-wave-2-live');
 const { newsPost, launchIds, buildLatestReleasesState, mergeWave2Missions } = require('../sync_pokemon_wave_2_release');
 const { buildInitialBoard, resolveEffectiveSkill, resolvePendingTurnSkills } = require('../battleLogic');
-const { buildMissionUserMap, ensureRequiredMissionCatalogEntries } = require('../server');
+const { buildMissionUserMap, ensureRequiredMissionCatalogEntries, resolveMissionUnlockPointCost } = require('../server');
 
 const expectedIds = ['clefairy','jigglypuff','beedrill','articuno','moltres','zapdos','mew','mewtwo','dragonite'];
 const excludedIds = ['cyndaquil','chikorita','totodile'];
@@ -17,6 +18,19 @@ test('the launch contains exactly the nine approved Pokemon and excludes the hel
     assert.deepEqual(launchIds, expectedIds);
     expectedIds.forEach((id) => assert.ok(characters.some((character) => character.id === id), `Missing ${id}`));
     excludedIds.forEach((id) => assert.ok(!wave.some((character) => character.id === id), `${id} was promoted`));
+});
+
+test('the browser launch bundle does not append duplicate characters', () => {
+    const source = fs.readFileSync(path.resolve(__dirname, '..', 'pokemon-wave-2-live.js'), 'utf8');
+    const existing = wave.map((character) => ({ ...character }));
+    const context = { characters: existing };
+    context.window = context;
+    context.globalThis = context;
+    vm.runInNewContext(source, context);
+    assert.equal(context.characters.length, expectedIds.length);
+    expectedIds.forEach((id) => {
+        assert.equal(context.characters.filter((character) => character.id === id).length, 1);
+    });
 });
 
 test('every launch portrait, skill picture, evolved picture, and mission picture exists locally', () => {
@@ -68,6 +82,17 @@ test('the server mission catalog contains all nine unlock missions with the uplo
         assert.equal(mission.arena, 'pokemon');
         assert.ok(mission.image.includes('/missionpics/'));
         assert.ok(mission.goals.some((goal) => goal.type === 'win_matches_same_team'));
+        const streak = mission.goals.find((goal) => goal.type === 'win_streak');
+        assert.equal(streak.wins, ['articuno','moltres','zapdos','mew','mewtwo'].includes(id) ? 6 : 4);
+    });
+    const expectedRanks = { articuno:20, moltres:21, zapdos:22, mew:23, mewtwo:25, dragonite:18 };
+    Object.entries(expectedRanks).forEach(([id, rank]) => {
+        assert.equal(missions.find((mission) => mission.reward_character === id).level_requirement, rank);
+    });
+    ['articuno','moltres','zapdos','mew','mewtwo'].forEach((id) => {
+        const mission = missions.find((entry) => entry.reward_character === id);
+        assert.equal(mission.purchase_requires_rank, true);
+        assert.equal(resolveMissionUnlockPointCost(mission), 500);
     });
 });
 
@@ -93,6 +118,42 @@ test('follow-up balance values and replacement artwork are applied', () => {
     assert.equal(byId.get('articuno').skills.find((skill) => skill.id === 'articuno-ice-beam').effects[0].amount, 15);
     assert.equal(byId.get('moltres').skills.find((skill) => skill.id === 'moltres-fire-spin').effects[0].metadata.teamTrapEnemyHarmfulDamage, 10);
     assert.equal(byId.get('zapdos').skills.find((skill) => skill.id === 'zapdos-flight').effects[0].metadata.zapdosThunderboltDamage, 7);
+    const mewtwo = byId.get('mewtwo');
+    assert.equal(mewtwo.skills.find((skill) => skill.id === 'mewtwo-psychic').cooldown, 1);
+    assert.equal(mewtwo.skills.find((skill) => skill.id === 'mewtwo-recover').effects[0].type, 'mewtwo_recover');
+});
+
+test('Mewtwo Recover loses 2 healing on each consecutive use', () => {
+    const mewtwoIndex = characters.findIndex((character) => character.id === 'mewtwo');
+    const recoverIndex = characters[mewtwoIndex].skills.findIndex((skill) => skill.id === 'mewtwo-recover');
+    const players = [{ username: 'MewtwoUser', team: [mewtwoIndex] }, { username: 'Opponent', team: [0] }];
+    const board = buildInitialBoard(players, characters);
+    board.MewtwoUser[0].hp = 20;
+    const match = {
+        players,
+        board,
+        chakraPools: {
+            MewtwoUser: { taijutsu: 5, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+            Opponent: { taijutsu: 0, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+        },
+        pendingTurns: {},
+        pendingActions: [],
+        pendingQueuedEffects: [],
+        economy: { turnCounts: { MewtwoUser: 1, Opponent: 1 } },
+    };
+    const useRecover = () => {
+        match.pendingTurns.MewtwoUser = {
+            queueOrder: ['0'],
+            queuedByActorSlot: { 0: { skillIndex: recoverIndex, targetSelection: [{ username: 'MewtwoUser', slot: 0 }] } },
+        };
+        resolvePendingTurnSkills({ match, actingUsername: 'MewtwoUser', characters });
+    };
+    useRecover();
+    assert.equal(board.MewtwoUser[0].hp, 40);
+    useRecover();
+    assert.equal(board.MewtwoUser[0].hp, 58);
+    useRecover();
+    assert.equal(board.MewtwoUser[0].hp, 74);
 });
 
 test('Abra Calm Mind tracker survives its own trigger and Vaporeon uses player-facing wording', () => {

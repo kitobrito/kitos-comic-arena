@@ -1,7 +1,16 @@
 (function (root, factory) {
     const batch = factory();
     if (typeof module !== 'undefined' && module.exports) module.exports = batch;
-    else if (root && Array.isArray(root.characters)) root.characters.push(...batch);
+    else if (root && Array.isArray(root.characters)) {
+        const existingIds = new Set(root.characters.map((character) => character?.characterId || character?.id));
+        batch.forEach((character) => {
+            const characterId = character?.characterId || character?.id;
+            if (characterId && !existingIds.has(characterId)) {
+                root.characters.push(character);
+                existingIds.add(characterId);
+            }
+        });
+    }
 })(typeof window !== 'undefined' ? window : globalThis, function () {
     const img = (pokemon, file) => `assets/images/PokemonArena/${pokemon}/${file}`;
     const damage = (amount, scope = 'target', metadata = {}) => ({ type: 'damage', amount, scope, metadata });
@@ -99,10 +108,10 @@
         ]),
 
         character('mewtwo','Mewtwo','Specialist/Bruiser','mewtwo','fp.png','A deliberately direct bruiser with one efficient move for disruption, delay, sustain, and effect theft.',[
-            skill('mewtwo-psychic','Psychic','mewtwo','psychic.png','Deals 20 damage and steals one copy-safe helpful active effect from the enemy for up to 2 turns.', ['Ninjutsu'],0,'single-enemy',['Mental','Ranged','Instant'],[damage(20),{type:'steal_helpful_status',scope:'target',maxDuration:2}]),
+            skill('mewtwo-psychic','Psychic','mewtwo','psychic.png','Deals 20 damage and steals one copy-safe helpful active effect from the enemy for up to 2 turns.', ['Ninjutsu'],1,'single-enemy',['Mental','Ranged','Instant'],[damage(20),{type:'steal_helpful_status',scope:'target',maxDuration:2}]),
             skill('mewtwo-shadow-ball','Shadow Ball','mewtwo','shadowball.png','Deals 20 damage and delays the target\'s skills for 1 turn.', ['Bloodline'],1,'single-enemy',['Energy','Ranged','Instant'],[damage(20),{type:'modify_cooldowns',scope:'target',amount:1,includeAllCharacterSkills:true}]),
             skill('mewtwo-drain-punch','Drain Punch','mewtwo','drainpunch.png','Steals 20 HP from one enemy.', ['Genjutsu'],0,'single-enemy',['Physical','Melee','Instant'],[{type:'health_steal_damage',amount:20,scope:'target'}]),
-            skill('mewtwo-recover','Recover','mewtwo','recover.png','Heals Mewtwo for 20 HP.', ['Taijutsu'],0,'self',['Energy','Instant'],[{type:'heal',amount:20,scope:'self'}])
+            skill('mewtwo-recover','Recover','mewtwo','recover.png','Heals Mewtwo for 20 HP. Consecutive uses heal 2 less HP each time, stacking down to 0; using another skill resets it.', ['Taijutsu'],0,'self',['Energy','Instant'],[{type:'mewtwo_recover',scope:'self'}])
         ]),
 
         character('dragonite','Dragonite','Tank/Controller','dragonite','fp.png','A durable controller that taunts enemies and refreshes Pressure whenever it uses a skill.',[
