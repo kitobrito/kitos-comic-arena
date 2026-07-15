@@ -41,10 +41,26 @@ const wave2MissionConfigs = [
     ['dragonite','Dragonite','Dragon Mastery','dragonite.webp',['aerodactyl','gyarados'],8,18],
 ];
 const wave2LegendaryMissionIds = new Set(['articuno','moltres','zapdos','mew','mewtwo']);
+const getWave2SameTeamStreakWins = (missionRank) => {
+    const rank = Math.max(0, Number(missionRank) || 0);
+    if (rank <= 6) return 3;
+    if (rank <= 12) return 4;
+    if (rank <= 17) return 5;
+    return 6;
+};
+const getMissionUnlockPointCostForRank = (missionRank) => {
+    const rank = Math.max(1, Math.floor(Number(missionRank) || 1));
+    if (rank <= 6) return 150;
+    if (rank <= 12) return 250;
+    if (rank <= 17) return 350;
+    return 450;
+};
 
 const wave2MissionEntries = wave2MissionConfigs.map(
     ([characterId, characterName, title, imageFile, team, wins, missionRank], index) => {
         const isLegendaryMission = wave2LegendaryMissionIds.has(characterId);
+        const sameTeamStreakWins = getWave2SameTeamStreakWins(missionRank);
+        const teamNames = team.map((id) => id.split('-').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' '));
         return {
         missionId: `pokemon-wave-2-${characterId}`,
         title,
@@ -53,7 +69,8 @@ const wave2MissionEntries = wave2MissionConfigs.map(
         reward_character: characterId,
         reward_character_name: characterName,
         reward: `Unlock ${characterName}.`,
-        ...(isLegendaryMission ? { unlock_point_cost: 500, purchase_requires_rank: true } : {}),
+        unlock_point_cost: isLegendaryMission ? 600 : getMissionUnlockPointCostForRank(missionRank),
+        ...(isLegendaryMission ? { purchase_requires_rank: true } : {}),
         arena: 'pokemon',
         mode_restriction: { allowed_modes: ['quick', 'ladder'] },
         image: `assets/images/PokemonArena/missionpics/${imageFile}`,
@@ -63,17 +80,22 @@ const wave2MissionEntries = wave2MissionConfigs.map(
         portraitAlt: `${characterName} mission portrait`,
         requirements: [
             `Win ${wins} Quick or Ladder matches with ${team[0]} and ${team[1]} on the same team.`,
-            `Win ${isLegendaryMission ? 6 : 4} Quick or Ladder matches in a row.`,
+            `Win ${sameTeamStreakWins} Quick or Ladder matches in a row with ${team[0]} and ${team[1]} on the same team.`,
             'Bot and human opponents both count.',
         ],
         goals: [
             {
                 type: 'win_matches_same_team',
                 character_ids: team,
-                character_names: team.map((id) => id.split('-').map((part) => part.charAt(0).toUpperCase() + part.slice(1)).join(' ')),
+                character_names: teamNames,
                 wins,
             },
-            { type: 'win_streak', wins: isLegendaryMission ? 6 : 4 },
+            {
+                type: 'win_streak_same_team',
+                character_ids: team,
+                character_names: teamNames,
+                wins: sameTeamStreakWins,
+            },
         ],
         special_pve: { enabled: false },
         sortOrder: 210 + index,
