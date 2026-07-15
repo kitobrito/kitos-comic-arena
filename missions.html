@@ -1,9 +1,16 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K64P68MT');</script>
+<!-- End Google Tag Manager -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Cosmic-Arena Missions</title>
+  <title>Pokemon Arena Missions</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -478,6 +485,10 @@
       position: relative;
       z-index: 1;
     }
+    .pokemon-points-promo { margin-bottom: 16px; padding: 16px; border: 4px solid #8b121e; background: linear-gradient(135deg, #fff, #ffe5e8); color: #4d0b12; box-shadow: 7px 7px 0 rgba(80,7,14,.35); }
+    .pokemon-points-promo[hidden] { display: none; }
+    .pokemon-points-promo strong { display: block; color: #a31724; font-size: 28px; }
+    .pokemon-points-promo p { margin: 7px 0 0; font-size: 17px; font-weight: 700; line-height: 1.4; }
 
     .mission-card {
       display: grid;
@@ -1689,8 +1700,13 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="styles/portal-theme.css?v=na-portal-v1" />
 </head>
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K64P68MT"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
@@ -1725,9 +1741,13 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2H20v16H8.5A2.5 2.5 0 0 0 6 20.5z" /><path d="M6 4.5V22" /><path d="M9.5 7H16" /><path d="M9.5 11H17" /></svg>
             <span>Game Manual</span>
           </a>
-          <a class="nav-link" href="charactersandskills.html">
+          <a class="nav-link" id="comic-characters-link" href="charactersandskills.html">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h16" /><path d="M7.5 4v16" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg>
-            <span>Characters and Skills</span>
+            <span>Comic Characters</span>
+          </a>
+          <a class="nav-link" id="pokemon-characters-link" href="pokemon-charactersandskills.html">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h16" /><path d="M7.5 4v16" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg>
+            <span>Pokemon Characters</span>
           </a>
         </nav>
       </section>
@@ -1806,6 +1826,10 @@
     </aside>
 
     <main class="main">
+      <aside class="pokemon-points-promo" id="pokemon-points-promo" hidden>
+        <strong>1,000 Points Are Waiting in Ladder</strong>
+        <p>Win 25 ranked games against players or battle bots. Use points to unlock Pokémon, buy alternate skins, and purchase additional Eevee evolutions.</p>
+      </aside>
       <section class="missions-panel" aria-label="Missions">
         <div class="missions-toolbar">
           <div class="missions-search">
@@ -2121,10 +2145,10 @@
           reward_character: "negan",
           reward_character_name: "Negan",
           reward: "Unlock Negan.",
-          image: "https://i.imgur.com/csZvbwl.png",
+          image: "/assets/images/external-mirror/i.imgur.com/5a910b012994bee9b43f.png",
           imageAlt: "Negan mission artwork",
           characterName: "Rick Grimes",
-          portrait: "https://i.imgur.com/4p90X9r.png",
+          portrait: "/assets/images/external-mirror/i.imgur.com/9d4fae4f41c186d0145e.png",
           portraitAlt: "Rick Grimes portrait",
           requirements: [],
           goals: [
@@ -2137,6 +2161,129 @@
           ],
           available: true,
           sortOrder: 3
+        },
+        {
+          missionId: "pikachu-starter-path",
+          title: "Pikachu Starter Path",
+          level_requirement: 1,
+          rank: "1",
+          reward_character: "pikachu",
+          reward_character_name: "Pikachu",
+          reward: "Unlock Pikachu.",
+          arena: "pokemon",
+          mode_restriction: { allowed_modes: ["quick", "ladder"] },
+          win_streak: { character_id: "", character_name: "", wins: 0 },
+          image: "assets/images/PokemonArena/missionpics/pikachu.jpeg",
+          imageAlt: "Pikachu starter mission artwork",
+          characterName: "Pikachu",
+          portrait: "assets/images/PokemonArena/Pikachu/pikachufp.jpeg",
+          portraitAlt: "Pikachu portrait",
+          requirements: [],
+          goals: [
+            { type: "win_matches", character_id: "pidgey", character_name: "Pidgey", wins: 16 }
+          ],
+          available: true,
+          sortOrder: 3
+        },
+        {
+          missionId: "scyther-trial",
+          title: "The Scyther Trial",
+          level_requirement: 6,
+          rank: "6",
+          reward_character: "scyther",
+          reward_character_name: "Scyther",
+          reward: "Unlock Scyther.",
+          arena: "pokemon",
+          mode_restriction: { allowed_modes: ["quick", "ladder"] },
+          win_streak: { character_id: "", character_name: "", wins: 0 },
+          image: "assets/images/PokemonArena/scyther/scythermissionpic.jpeg",
+          imageAlt: "Scyther mission artwork",
+          characterName: "Scyther",
+          portrait: "assets/images/PokemonArena/scyther/scytherfp.webp",
+          portraitAlt: "Scyther portrait",
+          requirements: [
+            "This trial is still a milestone, but it is a much lighter climb than the original version.",
+            "Clear a 3-win streak with Zubat and Gastly on the same team."
+          ],
+          goals: [
+            { type: "win_matches", character_id: "chansey", character_name: "Chansey", wins: 4 },
+            { type: "win_matches", character_id: "pidgey", character_name: "Pidgey", wins: 4 },
+            { type: "win_matches", character_id: "koffing", character_name: "Koffing", wins: 4 },
+            {
+              type: "win_streak_same_team",
+              character_ids: ["zubat", "gastly"],
+              character_names: ["Zubat", "Gastly"],
+              wins: 3
+            }
+          ],
+          available: true,
+          sortOrder: 5
+        },
+        {
+          missionId: "gastly-haunted-tower",
+          title: "The Haunted Tower",
+          level_requirement: 6,
+          rank: "6",
+          reward_character: "gastly",
+          reward_character_name: "Gastly",
+          reward: "Unlock Gastly.",
+          arena: "pokemon",
+          mode_restriction: { allowed_modes: ["quick", "ladder"] },
+          win_streak: { character_id: "", character_name: "", wins: 0 },
+          image: "assets/images/PokemonArena/gastley/gastleymissionpic.jpeg",
+          imageAlt: "Gastly mission artwork",
+          characterName: "Gastly",
+          portrait: "assets/images/PokemonArena/gastley/gastleyfp.webp",
+          portraitAlt: "Gastly portrait",
+          requirements: [
+            "A grindy early Pokemon mission that asks for patience before it pays out.",
+            "Clear a 4-win streak with Zubat and Abra on the same team."
+          ],
+          goals: [
+            { type: "win_matches", character_id: "chansey", character_name: "Chansey", wins: 8 },
+            { type: "win_matches", character_id: "koffing", character_name: "Koffing", wins: 8 },
+            {
+              type: "win_streak_same_team",
+              character_ids: ["zubat", "abra"],
+              character_names: ["Zubat", "Abra"],
+              wins: 4
+            }
+          ],
+          available: true,
+          sortOrder: 6
+        },
+        {
+          missionId: "aerodactyl-fossil-flight",
+          title: "Aerodactyl Fossil Flight",
+          level_requirement: 13,
+          rank: "13",
+          reward_character: "aerodactyl",
+          reward_character_name: "Aerodactyl",
+          reward: "Unlock Aerodactyl.",
+          arena: "pokemon",
+          mode_restriction: { allowed_modes: ["quick", "ladder"] },
+          win_streak: { character_id: "", character_name: "", wins: 0 },
+          image: "assets/images/PokemonArena/missionpics/aerodactyl.avif",
+          imageAlt: "Aerodactyl mission artwork",
+          characterName: "Aerodactyl",
+          portrait: "assets/images/PokemonArena/aerodactyl/fp.webp",
+          portraitAlt: "Aerodactyl portrait",
+          requirements: [
+            "Aerodactyl unlocks through a high-speed fossil trial built around recoil and fast finishes.",
+            "Clear a 4-win streak with Scyther and Hitmonlee on the same team."
+          ],
+          goals: [
+            { type: "win_matches", character_id: "scyther", character_name: "Scyther", wins: 10 },
+            { type: "win_matches", character_id: "hitmonlee", character_name: "Hitmonlee", wins: 10 },
+            {
+              type: "win_streak_same_team",
+              character_ids: ["scyther", "hitmonlee"],
+              character_names: ["Scyther", "Hitmonlee"],
+              wins: 4
+            }
+          ],
+          available: true,
+          sortOrder: 7
         },
         {
           missionId: "parasite",
@@ -2178,6 +2325,69 @@
           ],
           available: true,
           sortOrder: 5
+        },
+        {
+          missionId: "darth-vader",
+          title: "Dark Lord of the Sith",
+          level_requirement: 18,
+          mode_restriction: { allowed_modes: ["quick", "ladder"] },
+          reward_character: "darth-vader",
+          reward_character_name: "Darth Vader",
+          reward: "Unlock Darth Vader.",
+          image: "assets/images/darthvadermission.jpeg",
+          imageAlt: "Darth Vader mission artwork",
+          characterName: "Darth Vader",
+          portrait: "assets/images/darthvaderfp.webp",
+          portraitAlt: "Darth Vader portrait",
+          requirements: [],
+          goals: [
+            { type: "reach_rank", rank: 18 },
+            { type: "win_matches", character_id: "the-joker", character_name: "The Joker", wins: 8 }
+          ],
+          available: true,
+          sortOrder: 29
+        },
+        {
+          missionId: "boba-fett",
+          title: "Dead or Alive",
+          level_requirement: 10,
+          mode_restriction: { allowed_modes: ["quick", "ladder"] },
+          reward_character: "boba-fett",
+          reward_character_name: "Boba Fett",
+          reward: "Unlock Boba Fett.",
+          image: "assets/images/bobafettmission.avif",
+          imageAlt: "Boba Fett mission artwork",
+          characterName: "Boba Fett",
+          portrait: "assets/images/bobafettfp.webp",
+          portraitAlt: "Boba Fett portrait",
+          requirements: [],
+          goals: [
+            { type: "win_matches", character_id: "ghost-rider", character_name: "Ghost Rider", wins: 4 },
+            { type: "win_streak", character_id: "ghost-rider", character_name: "Ghost Rider", wins: 2 }
+          ],
+          available: true,
+          sortOrder: 30
+        },
+        {
+          missionId: "obi-wan-kenobi",
+          title: "The Negotiator",
+          level_requirement: 10,
+          mode_restriction: { allowed_modes: ["quick", "ladder"] },
+          reward_character: "obi-wan-kenobi",
+          reward_character_name: "Obi-Wan Kenobi",
+          reward: "Unlock Obi-Wan Kenobi.",
+          image: "assets/images/obiwankenobimission.jpg",
+          imageAlt: "Obi-Wan Kenobi mission artwork",
+          characterName: "Obi-Wan Kenobi",
+          portrait: "assets/images/obiwankenobifp.webp",
+          portraitAlt: "Obi-Wan Kenobi portrait",
+          requirements: [],
+          goals: [
+            { type: "win_matches", character_id: "wonder-woman", character_name: "Wonder Woman", wins: 4 },
+            { type: "win_streak", character_id: "wonder-woman", character_name: "Wonder Woman", wins: 2 }
+          ],
+          available: true,
+          sortOrder: 31
         }
       ];
 
@@ -2196,6 +2406,41 @@
       const characterNameEl = document.getElementById("mission-sheet-character-name");
       const portraitEl = document.getElementById("mission-sheet-portrait");
       const goalsEl = document.getElementById("mission-sheet-goals");
+      const pageSearchParams = new URLSearchParams(window.location.search);
+      const pageArena = pageSearchParams.get("arena") === "pokemon" ? "pokemon" : "comic";
+      const pageMissionLabel = pageArena === "pokemon" ? "Pokemon Missions" : "Comic Missions";
+      const playNowButton = document.getElementById("play-now-button");
+      const pokemonPointsPromo = document.getElementById("pokemon-points-promo");
+
+      document.body.classList.toggle("arena-mode-pokemon", pageArena === "pokemon");
+      document.body.classList.toggle("arena-mode-comic", pageArena !== "pokemon");
+      if (pokemonPointsPromo) pokemonPointsPromo.hidden = pageArena !== "pokemon";
+
+      document.title = pageArena === "pokemon" ? "Pokemon Arena Missions" : "Comic Arena Missions";
+      const activeMissionNavLink = document.querySelector('.nav-link.active[href="missions.html"]');
+      const comicCharactersLink = document.getElementById("comic-characters-link");
+      const pokemonCharactersLink = document.getElementById("pokemon-characters-link");
+      if (activeMissionNavLink) {
+        activeMissionNavLink.href = pageArena === "pokemon" ? "missions.html?arena=pokemon" : "missions.html";
+        const navLabel = activeMissionNavLink.querySelector("span");
+        if (navLabel) {
+          navLabel.textContent = pageMissionLabel;
+        }
+      }
+      if (comicCharactersLink) {
+        comicCharactersLink.href = "charactersandskills.html";
+      }
+      if (pokemonCharactersLink) {
+        pokemonCharactersLink.href = "pokemon-charactersandskills.html";
+      }
+      if (playNowButton) {
+        playNowButton.textContent = pageArena === "pokemon" ? "Pokemon Arena" : "Comic Arena";
+        playNowButton.addEventListener("click", function () {
+          window.location.href = pageArena === "pokemon"
+            ? "selection.html?arena=pokemon"
+            : "selection.html?arena=comic";
+        });
+      }
 
       let missionCatalog = [];
       let missionMap = new Map();
@@ -2249,6 +2494,7 @@
               reward_character: rewardCharacter,
               reward_character_name: rewardCharacterName,
               reward: String(source.reward || "").trim(),
+              reward_unlock_points: Math.max(0, Number(source.reward_unlock_points || source.rewardUnlockPoints || 0) || 0),
               win_streak: {
                 character_id: streakCharacter,
                 character_name: streakCharacterName,
@@ -2259,6 +2505,7 @@
               characterName: String(source.characterName || "").trim(),
               portrait: String(source.portrait || "").trim(),
               portraitAlt: String(source.portraitAlt || source.portraitAltText || (source.characterName || source.title || "Mission") + " portrait").trim(),
+              arena: String(source.arena || source.arenaMode || source.rewardArena || source.reward_arena || "comic").trim().toLowerCase(),
               requirements: Array.isArray(source.requirements)
                 ? source.requirements.map(function (entry) { return String(entry || "").trim(); }).filter(Boolean)
                 : [],
@@ -2447,6 +2694,21 @@
             };
           }
 
+          const winStreakSameTeamMatch = text.match(/^Win\s+(\d+)\s+battles?\s+in\s+a\s+row\s+with\s+(.+?)\s+and\s+(.+?)\s+on\s+the\s+same\s+team(?:\.\s*\(0\/\d+\))?$/i);
+          if (winStreakSameTeamMatch) {
+            const firstCharacterName = String(winStreakSameTeamMatch[2] || "").trim();
+            const secondCharacterName = String(winStreakSameTeamMatch[3] || "").trim();
+            return {
+              type: "win_streak_same_team",
+              character_ids: [
+                firstCharacterName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
+                secondCharacterName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
+              ].filter(Boolean),
+              character_names: [firstCharacterName, secondCharacterName],
+              wins: Number(winStreakSameTeamMatch[1]) || 0,
+            };
+          }
+
           const winStreakMatch = text.match(/^Win\s+(\d+)\s+battles?\s+in\s+a\s+row\s+with\s+(.+?)(?:\.\s*\(0\/\d+\))?$/i);
           if (winStreakMatch) {
             const characterName = String(winStreakMatch[2] || "").trim();
@@ -2470,6 +2732,9 @@
         const characterId = String(source.character_id || source.characterId || source.character || "").trim();
         const characterName = String(source.character_name || source.characterName || characterId).trim();
         const rank = Number(source.rank ?? source.level ?? source.target ?? source.goal ?? source.value ?? 0) || 0;
+        if (type === "win_ladder_matches" || type === "ladder_wins" || type === "ranked_wins") {
+          return wins ? { type: "win_ladder_matches", wins: wins } : null;
+        }
         if (type === "reach_rank") {
           if (!rank) {
             return null;
@@ -2514,6 +2779,41 @@
             wins,
           };
         }
+        if (type === "win_streak_same_team") {
+          const characterIds = (
+            Array.isArray(source.character_ids)
+              ? source.character_ids
+              : [
+                  source.character_id || source.characterId || source.character || "",
+                  source.teammate_character_id || source.teammateCharacterId || source.character_two_id || source.characterTwoId || "",
+                ]
+          ).map(function (value) {
+            return String(value || "").trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+          }).filter(Boolean);
+          const uniqueCharacterIds = Array.from(new Set(characterIds)).slice(0, 2);
+          const characterNames = (
+            Array.isArray(source.character_names)
+              ? source.character_names
+              : [
+                  source.character_name || source.characterName || uniqueCharacterIds[0] || "",
+                  source.teammate_character_name || source.teammateCharacterName || source.character_two_name || source.characterTwoName || uniqueCharacterIds[1] || "",
+                ]
+          ).map(function (value) {
+            return String(value || "").trim();
+          });
+          if (!wins || uniqueCharacterIds.length < 2) {
+            return null;
+          }
+          return {
+            type: "win_streak_same_team",
+            character_ids: uniqueCharacterIds,
+            character_names: [
+              characterNames[0] || uniqueCharacterIds[0],
+              characterNames[1] || uniqueCharacterIds[1],
+            ],
+            wins,
+          };
+        }
         if (type === "win_matches" || type === "win_streak") {
           if (!wins || !characterId) {
             return null;
@@ -2545,6 +2845,9 @@
         if (normalized.type === "reach_rank") {
           return "Reach rank " + normalized.rank + ". (" + Math.min(progressCount, normalized.rank) + "/" + normalized.rank + ")";
         }
+        if (normalized.type === "win_ladder_matches") {
+          return "Win " + normalized.wins + " Pokemon Arena Ladder matches. Human and battle-bot wins both count. (" + Math.min(progressCount, normalized.wins) + "/" + normalized.wins + ")";
+        }
         if (normalized.type === "win_matches") {
           const characterName = normalized.character_name || normalized.character_id;
           return "Win " + normalized.wins + " matches with " + characterName + ". (" + Math.min(progressCount, normalized.wins) + "/" + normalized.wins + ")";
@@ -2552,6 +2855,10 @@
         if (normalized.type === "win_streak") {
           const characterName = normalized.character_name || normalized.character_id;
           return "Win " + normalized.wins + " battles in a row with " + characterName + ". (" + Math.min(progressCount, normalized.wins) + "/" + normalized.wins + ")";
+        }
+        if (normalized.type === "win_streak_same_team") {
+          const names = Array.isArray(normalized.character_names) ? normalized.character_names : normalized.character_ids;
+          return "Win " + normalized.wins + " battles in a row with " + (names[0] || normalized.character_ids[0]) + " and " + (names[1] || normalized.character_ids[1]) + " on the same team. (" + Math.min(progressCount, normalized.wins) + "/" + normalized.wins + ")";
         }
         if (normalized.type === "win_matches_same_team") {
           const names = Array.isArray(normalized.character_names) ? normalized.character_names : normalized.character_ids;
@@ -2592,6 +2899,10 @@
       }
 
       function getRewardText(mission) {
+        const pointReward = Math.max(0, Number(mission && mission.reward_unlock_points) || 0);
+        if (pointReward) {
+          return "Earn " + pointReward.toLocaleString() + " Pokemon Arena points.";
+        }
         const rewardCharacterName = String(
           mission && mission.reward_character_name
             ? mission.reward_character_name
@@ -2675,7 +2986,11 @@
         if (specialPve.enabled) {
           const fightLink = document.createElement("a");
           fightLink.className = "mission-pve-action";
-          fightLink.href = "selection.html?missions=open&missionId=" + encodeURIComponent(mission.missionId);
+          fightLink.href =
+            "selection.html?missions=open&missionId=" +
+            encodeURIComponent(mission.missionId) +
+            "&arena=" +
+            encodeURIComponent(pageArena);
           fightLink.textContent = completed ? "Replay Fight" : specialPve.buttonLabel || "Start Fight";
           fightLink.setAttribute("aria-label", "Select a team for " + mission.title);
           fightLink.addEventListener("click", function (event) {
@@ -2701,6 +3016,10 @@
         const searchValue = String(missionSearch && missionSearch.value ? missionSearch.value : "").trim().toLowerCase();
         const showAvailableOnly = Boolean(missionsAvailable && missionsAvailable.checked);
         const filtered = missionCatalog.filter(function (mission) {
+          const missionArena = String(mission.arena || "comic").trim().toLowerCase();
+          if (missionArena !== pageArena) {
+            return false;
+          }
           const levelRequirementText = String(getLevelRequirementValue(mission) || "");
           const matchesSearch =
             !searchValue ||
@@ -2798,7 +3117,7 @@
       async function loadMissionCatalog() {
         try {
           setStatus("Loading missions...");
-          const response = await fetch("/api/missions", {
+          const response = await fetch("/api/missions?arena=" + encodeURIComponent(pageArena), {
             credentials: "same-origin"
           });
           const data = await response.json().catch(function () {
@@ -2854,5 +3173,6 @@
     }());
   </script>
   <script src="./scripts/index.js" defer></script>
+  <script src="./scripts/arena-navigation.js?v=pokemon-sidebar-v4" defer></script>
 </body>
 </html>

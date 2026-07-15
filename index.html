@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K64P68MT');</script>
+<!-- End Google Tag Manager -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Comic-Arena Home</title>
@@ -151,6 +158,45 @@
       text-transform: uppercase;
     }
 
+    .arena-badge {
+      display: grid;
+      justify-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      padding: 18px 16px;
+      border: 4px solid var(--line);
+      background: rgba(225, 244, 255, 0.92);
+      box-shadow: var(--shadow-md);
+      text-align: center;
+    }
+
+    .arena-badge.pokemon {
+      background: linear-gradient(180deg, rgba(238, 250, 255, 0.96), rgba(195, 230, 255, 0.96));
+    }
+
+    .arena-badge-mark {
+      width: 62px;
+      max-height: 48px;
+      object-fit: contain;
+    }
+
+    .arena-badge-name {
+      font-family: "Bangers", cursive;
+      font-size: 40px;
+      line-height: 0.95;
+      letter-spacing: 0.05em;
+      color: var(--ink);
+      text-shadow: 4px 4px 0 var(--accent-2);
+    }
+
+    .arena-badge-copy {
+      color: var(--muted);
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.35;
+      text-transform: uppercase;
+    }
+
     .group {
       margin-bottom: 22px;
     }
@@ -243,13 +289,21 @@
       border: 4px solid var(--line);
       background: linear-gradient(180deg, #ffef7c 0%, #ff961b 100%);
       color: #151515;
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 800;
       text-transform: uppercase;
       cursor: pointer;
       box-shadow: 0 6px 0 rgba(0, 0, 0, 0.95);
       transform: rotate(-1deg);
       transition: transform 120ms ease, box-shadow 120ms ease;
+    }
+
+    .play-now.comic {
+      background: linear-gradient(180deg, #ffe56a 0%, #ff8c26 100%);
+    }
+
+    .play-now.pokemon {
+      background: linear-gradient(180deg, #f8f1a4 0%, #58a9ff 100%);
     }
 
     .play-now:hover {
@@ -308,6 +362,39 @@
       color: #fff;
     }
 
+    .arena-avatar-form {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 3px solid rgba(21, 17, 11, 0.24);
+    }
+
+    .arena-avatar-row {
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+    }
+
+    .arena-avatar-preview {
+      width: 52px;
+      height: 52px;
+      object-fit: cover;
+      border: 3px solid var(--line);
+      background: #fff;
+    }
+
+    .arena-avatar-field {
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
     .auth-input {
       width: 100%;
       min-height: 44px;
@@ -327,6 +414,12 @@
     .auth-input:focus {
       border-color: var(--accent-3);
       box-shadow: 0 0 0 4px rgba(21, 101, 255, 0.16);
+    }
+
+    input.auth-input[type="file"] {
+      height: auto;
+      padding: 10px 12px;
+      line-height: 1.15;
     }
 
     .auth-button {
@@ -487,6 +580,12 @@
       margin-top: 22px;
     }
 
+    .hero-play-stack {
+      display: grid;
+      gap: 10px;
+      min-width: min(100%, 260px);
+    }
+
     .hero-link {
       display: inline-flex;
       align-items: center;
@@ -632,6 +731,183 @@
       text-transform: uppercase;
     }
 
+    .arena-split {
+      display: grid;
+      gap: 16px;
+      padding: 20px;
+      border: 4px solid var(--line);
+      background:
+        linear-gradient(135deg, rgba(240, 75, 35, 0.16), transparent 38%),
+        linear-gradient(225deg, rgba(15, 99, 255, 0.16), transparent 38%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(255, 243, 218, 0.95)),
+        var(--panel);
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .arena-split::before {
+      content: "Choose Your Arena";
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      padding: 6px 12px;
+      border: 3px solid var(--line);
+      background: var(--accent-4);
+      color: #fff;
+      font-family: "Bangers", cursive;
+      font-size: 22px;
+      letter-spacing: 0.06em;
+      transform: rotate(2deg);
+      z-index: 1;
+    }
+
+    .arena-split > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .arena-split-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 88px minmax(0, 1fr);
+      gap: 14px;
+      align-items: stretch;
+    }
+
+    .arena-split-card {
+      display: grid;
+      gap: 12px;
+      min-height: 100%;
+      padding: 18px;
+      border: 4px solid var(--line);
+      box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.95);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .arena-split-card.comic {
+      background:
+        radial-gradient(circle at top left, rgba(255, 216, 76, 0.48), transparent 30%),
+        linear-gradient(180deg, rgba(255, 240, 186, 0.98), rgba(255, 205, 105, 0.92));
+    }
+
+    .arena-split-card.pokemon {
+      background:
+        radial-gradient(circle at top right, rgba(255, 216, 76, 0.32), transparent 28%),
+        linear-gradient(180deg, rgba(122, 188, 255, 0.95), rgba(83, 113, 255, 0.94));
+      color: #fff;
+    }
+
+    .arena-split-card::after {
+      content: attr(data-arena);
+      position: absolute;
+      right: 14px;
+      bottom: 10px;
+      font-family: "Bangers", cursive;
+      font-size: 52px;
+      letter-spacing: 0.08em;
+      opacity: 0.12;
+      pointer-events: none;
+    }
+
+    .arena-split-badge {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 5px 10px;
+      border: 3px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--ink);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .arena-split-title {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Bangers", cursive;
+      font-size: 38px;
+      line-height: 0.96;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .arena-split-card.pokemon .arena-split-title,
+    .arena-split-card.pokemon .arena-split-copy {
+      color: #fff;
+    }
+
+    .arena-split-copy {
+      margin: 0;
+      max-width: 520px;
+      color: var(--text);
+      font-size: 17px;
+      line-height: 1.35;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .arena-split-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: fit-content;
+      min-height: 44px;
+      padding: 0 16px;
+      border: 3px solid var(--line);
+      background: var(--panel-strong);
+      color: var(--ink);
+      font-size: 16px;
+      font-weight: 800;
+      text-transform: uppercase;
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.95);
+    }
+
+    .arena-split-card.pokemon .arena-split-link {
+      background: #101318;
+      color: #fff;
+    }
+
+    .arena-vs-divider {
+      display: grid;
+      place-items: center;
+      align-self: stretch;
+      border: 4px solid var(--line);
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.45), transparent 30%),
+        linear-gradient(180deg, #ffdf3f 0%, #f04b23 100%);
+      box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.95);
+      color: #fff;
+      font-family: "Bangers", cursive;
+      font-size: 50px;
+      letter-spacing: 0.08em;
+      text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.9);
+      transform: rotate(-2deg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .arena-vs-divider::before,
+    .arena-vs-divider::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 16px;
+      background: rgba(255, 255, 255, 0.22);
+      transform: skewX(-18deg);
+    }
+
+    .arena-vs-divider::before {
+      left: -6px;
+    }
+
+    .arena-vs-divider::after {
+      right: -6px;
+    }
+
     .feature-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -753,6 +1029,14 @@
         var(--panel);
       position: relative;
       overflow: hidden;
+    }
+
+    .release-panel.pokemon-release-panel {
+      background:
+        linear-gradient(135deg, rgba(21, 101, 255, 0.2), transparent 32%),
+        radial-gradient(circle at top right, rgba(110, 190, 255, 0.7), transparent 20%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(226, 245, 255, 0.98)),
+        var(--panel);
     }
 
     .release-panel::before {
@@ -1009,9 +1293,29 @@
     }
 
     .news-change-item {
+      display: grid;
+      grid-template-columns: minmax(120px, 176px) minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
       padding: 12px;
       border: 3px solid var(--line);
       background: rgba(255, 245, 216, 0.9);
+    }
+
+    .news-change-art-frame {
+      overflow: hidden;
+      border: 3px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.25), rgba(0, 0, 0, 0.08)),
+        #111;
+      box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.18);
+    }
+
+    .news-change-art {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
     }
 
     .news-change-header {
@@ -1027,6 +1331,35 @@
       font-size: 18px;
       font-weight: 800;
       text-transform: uppercase;
+    }
+
+    .news-change-toggle {
+      justify-self: start;
+      padding: 8px 12px;
+      border: 3px solid var(--line);
+      background: var(--accent-2);
+      color: var(--line);
+      font: inherit;
+      font-size: 14px;
+      font-weight: 900;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .news-change-toggle:hover,
+    .news-change-toggle:focus-visible {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .news-change-collapsible {
+      display: grid;
+      gap: 10px;
+    }
+
+    .news-change-collapsible[hidden] {
+      display: none;
     }
 
     .news-change-skill {
@@ -1263,6 +1596,15 @@
         grid-template-columns: 1fr;
       }
 
+      .arena-split-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .arena-vs-divider {
+        min-height: 88px;
+        transform: rotate(0deg);
+      }
+
       .hero-points {
         grid-template-columns: 1fr;
       }
@@ -1311,17 +1653,23 @@
       }
 
       .hero,
+      .arena-split,
       .release-panel,
       .news-shell {
         padding: 16px;
       }
 
       .hero::before,
+      .arena-split::before,
       .release-panel::before {
         position: static;
         display: inline-block;
         margin-bottom: 12px;
         transform: rotate(0deg);
+      }
+
+      .arena-split-grid {
+        gap: 12px;
       }
 
       .hero-title {
@@ -1345,19 +1693,844 @@
         width: 84px;
         height: 84px;
       }
+
+      .news-change-item {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
+  <style>
+    body.home-classic-page {
+      color: #13233b;
+      font-family: "Barlow Condensed", system-ui, sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(255, 210, 111, 0.35), transparent 22%),
+        radial-gradient(circle at 20% 18%, rgba(255, 255, 255, 0.12), transparent 0 14%),
+        linear-gradient(180deg, #f0a135 0%, #de7e10 100%);
+    }
+
+    body.home-classic-page .app {
+      width: min(1080px, 100%);
+      grid-template-columns: 185px minmax(0, 1fr) 185px;
+      gap: 10px;
+      padding: 10px 8px 20px;
+      align-items: start;
+    }
+
+    body.home-classic-page .panel,
+    body.home-classic-page .hero,
+    body.home-classic-page .arena-split,
+    body.home-classic-page .pulse-tile,
+    body.home-classic-page .feature-card,
+    body.home-classic-page .release-panel,
+    body.home-classic-page .news-shell,
+    body.home-classic-page .ladder,
+    body.home-classic-page .stats-panel,
+    body.home-classic-page .stats-highlight {
+      border: 1px solid #fff;
+      box-shadow:
+        0 0 0 2px #0f417b,
+        0 0 0 4px #5ea2ef,
+        0 0 0 6px #f4a62d;
+      border-radius: 0;
+    }
+
+    body.home-classic-page .sidebar,
+    body.home-classic-page .aside {
+      padding: 10px;
+      background:
+        linear-gradient(180deg, rgba(116, 188, 255, 0.22), rgba(8, 65, 128, 0.04)),
+        linear-gradient(180deg, #1c6dba 0%, #0b4f95 100%);
+    }
+
+    body.home-classic-page .sidebar::before,
+    body.home-classic-page .aside::before {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 18%, rgba(2, 18, 38, 0.14) 100%);
+    }
+
+    body.home-classic-page .brand,
+    body.home-classic-page .arena-badge,
+    body.home-classic-page .auth-shell,
+    body.home-classic-page .stats-highlight {
+      margin-bottom: 12px;
+      padding: 12px;
+      border: 1px solid #fff;
+      background:
+        linear-gradient(180deg, #fff6dd 0%, #f5ddad 100%);
+      box-shadow:
+        0 0 0 2px #b56a12,
+        0 0 0 4px #ffd16d;
+    }
+
+    body.home-classic-page .brand-name,
+    body.home-classic-page .arena-badge-name,
+    body.home-classic-page .group-title,
+    body.home-classic-page .stats-highlight h3,
+    body.home-classic-page .section-heading h2,
+    body.home-classic-page .release-title,
+    body.home-classic-page .hero-card-title,
+    body.home-classic-page .feature-title,
+    body.home-classic-page .pulse-label,
+    body.home-classic-page .ladder-title,
+    body.home-classic-page .stats-title {
+      color: #f08c12;
+      font-family: "Bangers", cursive;
+      text-shadow: 1px 1px 0 #fff;
+      letter-spacing: 0.04em;
+    }
+
+    body.home-classic-page .brand-name,
+    body.home-classic-page .arena-badge-name {
+      font-size: 28px;
+    }
+
+    body.home-classic-page .brand-tagline,
+    body.home-classic-page .arena-badge-copy,
+    body.home-classic-page .group-note,
+    body.home-classic-page .stats-highlight p,
+    body.home-classic-page .section-heading p,
+    body.home-classic-page .release-copy,
+    body.home-classic-page .hero-copy p,
+    body.home-classic-page .hero-card-copy,
+    body.home-classic-page .hero-card-item span,
+    body.home-classic-page .hero-point-copy,
+    body.home-classic-page .pulse-copy,
+    body.home-classic-page .feature-copy,
+    body.home-classic-page .arena-split-copy,
+    body.home-classic-page .stats-list,
+    body.home-classic-page .ladder-name,
+    body.home-classic-page .release-label {
+      color: #173052;
+      text-transform: none;
+      line-height: 1.25;
+    }
+
+    body.home-classic-page .group-title,
+    body.home-classic-page .ladder-title,
+    body.home-classic-page .stats-title,
+    body.home-classic-page .section-heading h2 {
+      font-size: 22px;
+    }
+
+    body.home-classic-page .nav {
+      gap: 6px;
+    }
+
+    body.home-classic-page .nav-link,
+    body.home-classic-page .account-action,
+    body.home-classic-page .auth-button,
+    body.home-classic-page .auth-link,
+    body.home-classic-page .play-now,
+    body.home-classic-page .hero-link,
+    body.home-classic-page .arena-split-link {
+      min-height: 34px;
+      border: 1px solid #fff;
+      background:
+        linear-gradient(180deg, #2d82d1 0%, #115da8 100%);
+      color: #fff;
+      box-shadow:
+        inset 0 0 0 2px #0b427e,
+        inset 0 0 0 3px rgba(255, 255, 255, 0.2);
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: none;
+      transform: none;
+    }
+
+    body.home-classic-page .nav-link.play-now {
+      width: 100%;
+      min-height: 48px;
+      box-shadow: none;
+      transform: none;
+      font-size: 18px;
+      background: transparent;
+    }
+
+    body.home-classic-page .nav-link.play-now:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.95);
+    }
+
+    body.home-classic-page .nav-link.active,
+    body.home-classic-page .account-action.active,
+    body.home-classic-page .hero-link.is-accent,
+    body.home-classic-page .play-now.comic {
+      background: linear-gradient(180deg, #ffa83b 0%, #d96d0c 100%);
+      color: #fff;
+    }
+
+    body.home-classic-page .play-now.pokemon,
+    body.home-classic-page .arena-split-card.pokemon .arena-split-link {
+      background: linear-gradient(180deg, #ffcf63 0%, #2f7dd2 100%);
+      color: #fff;
+    }
+
+    body.home-classic-page .nav-link:hover,
+    body.home-classic-page .account-action:hover,
+    body.home-classic-page .play-now:hover,
+    body.home-classic-page .hero-link:hover,
+    body.home-classic-page .arena-split-link:hover,
+    body.home-classic-page .auth-button:hover,
+    body.home-classic-page .auth-link:hover {
+      transform: none;
+      border-color: #fff;
+      background: linear-gradient(180deg, #ffbf52 0%, #e27b10 100%);
+      box-shadow:
+        inset 0 0 0 2px #9d4f08,
+        inset 0 0 0 3px rgba(255, 255, 255, 0.2);
+    }
+
+    body.home-classic-page .nav-link.active::after {
+      width: 18px;
+      height: 18px;
+      border: 1px solid #fff;
+      background: #fff0aa;
+      color: #9f5609;
+      font-size: 12px;
+    }
+
+    body.home-classic-page .main {
+      gap: 10px;
+    }
+
+    body.home-classic-page .hero {
+      grid-template-columns: minmax(0, 1fr) 200px;
+      gap: 8px;
+      padding: 62px 8px 8px;
+      background:
+        linear-gradient(180deg, #2c7fce 0, #2c7fce 46px, #fffaf0 46px, #f0e5cf 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    body.home-classic-page .hero::before {
+      content: "Comic Arena + Pokemon Arena Portal";
+      top: 8px;
+      left: 8px;
+      right: 8px;
+      padding: 6px 10px;
+      border: 1px solid #fff;
+      background: linear-gradient(180deg, #ffb13f 0%, #e27a12 100%);
+      color: #fff;
+      font-size: 22px;
+      text-align: center;
+      transform: none;
+      text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.35);
+    }
+
+    body.home-classic-page .eyebrow {
+      margin-bottom: 8px;
+      border: 1px solid #fff;
+      background: linear-gradient(180deg, #fff7d7 0%, #f7dda0 100%);
+      color: #9d5308;
+      box-shadow: none;
+      text-transform: none;
+    }
+
+    body.home-classic-page .eyebrow::before {
+      background: #f08c12;
+      border-color: #9f5a10;
+    }
+
+    body.home-classic-page .hero-title {
+      max-width: none;
+      color: #13406d;
+      font-size: clamp(2rem, 3.8vw, 2.85rem);
+      text-shadow: none;
+      line-height: 0.95;
+    }
+
+    body.home-classic-page .hero-copy p {
+      margin-top: 8px;
+      max-width: none;
+      font-size: 15px;
+    }
+
+    body.home-classic-page .hero-actions {
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    body.home-classic-page .hero-play-stack {
+      min-width: min(100%, 190px);
+    }
+
+    body.home-classic-page .hero-link.is-discord {
+      background: linear-gradient(180deg, #7587ff 0%, #4c5ee0 100%);
+    }
+
+    body.home-classic-page .hero-link.is-partner {
+      background: #fff;
+      box-shadow:
+        inset 0 0 0 2px #0b427e,
+        inset 0 0 0 3px rgba(255, 255, 255, 0.2);
+    }
+
+    body.home-classic-page .hero-points,
+    body.home-classic-page .pulse-strip,
+    body.home-classic-page .feature-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    body.home-classic-page .hero-point,
+    body.home-classic-page .pulse-tile,
+    body.home-classic-page .feature-card,
+    body.home-classic-page .hero-card-item,
+    body.home-classic-page .release-card,
+    body.home-classic-page .ladder-row,
+    body.home-classic-page .stats-list li {
+      border: 1px solid #c9dff5;
+      background: linear-gradient(180deg, #ffffff 0%, #edf5ff 100%);
+      box-shadow: inset 0 0 0 1px #ffffff;
+    }
+
+    body.home-classic-page .hero-point-label,
+    body.home-classic-page .pulse-label,
+    body.home-classic-page .feature-kicker,
+    body.home-classic-page .arena-split-badge {
+      color: #d66d06;
+      background: #fff1c4;
+      border: 1px solid #d0a34d;
+      font-size: 12px;
+      text-shadow: none;
+    }
+
+    body.home-classic-page .hero-side {
+      gap: 10px;
+    }
+
+    body.home-classic-page .hero-card,
+    body.home-classic-page .release-panel,
+    body.home-classic-page .news-shell,
+    body.home-classic-page .arena-split {
+      background: linear-gradient(180deg, #fffaf0 0%, #efe3cb 100%);
+    }
+
+    body.home-classic-page .hero-card {
+      padding: 10px;
+    }
+
+    body.home-classic-page .hero-card-list {
+      gap: 8px;
+    }
+
+    body.home-classic-page .hero-card-item strong,
+    body.home-classic-page .feature-link,
+    body.home-classic-page .auth-switch,
+    body.home-classic-page .ladder-name a {
+      color: #1b69ba;
+      text-transform: none;
+    }
+
+    body.home-classic-page .arena-split {
+      gap: 10px;
+      padding: 12px;
+    }
+
+    body.home-classic-page .arena-split::before,
+    body.home-classic-page .release-panel::before {
+      border: 1px solid #fff;
+      background: linear-gradient(180deg, #2c7fce 0%, #125ca5 100%);
+      font-size: 18px;
+      transform: none;
+    }
+
+    body.home-classic-page .arena-split-grid {
+      grid-template-columns: minmax(0, 1fr) 54px minmax(0, 1fr);
+      gap: 8px;
+    }
+
+    body.home-classic-page .arena-split-card {
+      padding: 12px;
+      border: 1px solid #fff;
+      box-shadow:
+        0 0 0 2px #0f417b,
+        inset 0 0 0 1px rgba(255, 255, 255, 0.24);
+    }
+
+    body.home-classic-page .arena-split-card.comic {
+      background: linear-gradient(180deg, #fff5d1 0%, #f0d08e 100%);
+    }
+
+    body.home-classic-page .arena-split-card.pokemon {
+      background: linear-gradient(180deg, #5aa6ef 0%, #1f68b4 100%);
+    }
+
+    body.home-classic-page .arena-split-card::after {
+      font-size: 34px;
+    }
+
+    body.home-classic-page .arena-vs-divider {
+      border: 1px solid #fff;
+      background: linear-gradient(180deg, #f7bd4d 0%, #e48313 100%);
+      box-shadow:
+        0 0 0 2px #b4660e,
+        inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+      font-size: 28px;
+      text-shadow: none;
+      transform: none;
+    }
+
+    .home-arena-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      margin: 0 0 12px;
+      padding: 6px;
+      border: 1px solid #fff;
+      background: #0b4f95;
+      box-shadow: 0 0 0 2px #0f417b, 0 0 0 4px #5ea2ef;
+    }
+
+    .home-arena-switch-button {
+      min-height: 40px;
+      border: 1px solid #fff;
+      background: linear-gradient(180deg, #2d82d1, #115da8);
+      color: #fff;
+      font: inherit;
+      font-weight: 900;
+      cursor: pointer;
+    }
+
+    .home-arena-switch-button.active {
+      background: linear-gradient(180deg, #ffb13f, #e27a12);
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.25);
+    }
+    .pokemon-ladder-promo {
+      margin: 18px 0 0;
+      padding: 16px 18px;
+      border: 4px solid #7f101b;
+      background: linear-gradient(135deg, #fff 0%, #ffe7ea 58%, #e13b48 100%);
+      color: #4d0b12;
+      box-shadow: 7px 7px 0 rgba(80, 7, 14, .45);
+    }
+    .pokemon-ladder-promo strong { display: block; color: #a31724; font-size: 28px; line-height: 1; }
+    .pokemon-ladder-promo p { margin: 7px 0 10px; font-size: 17px; font-weight: 700; }
+    .pokemon-ladder-promo a { display: inline-block; padding: 9px 13px; background: #a31724; color: #fff; font-weight: 900; text-decoration: none; }
+
+    body.home-arena-pokemon .home-arena-switch-button.active {
+      background: linear-gradient(180deg, #ffcf63, #2f7dd2);
+    }
+
+    body.home-arena-comic [data-home-arena="pokemon"],
+    body.home-arena-pokemon [data-home-arena="comic"] {
+      display: none !important;
+    }
+
+    body.home-arena-ready .arena-split {
+      display: none;
+    }
+
+    body.home-arena-pokemon.home-classic-page .hero {
+      background: linear-gradient(180deg, #e33535 0, #e33535 46px, #f7fbff 46px, #dcecff 100%);
+    }
+
+    body.home-arena-pokemon.home-classic-page .hero::before {
+      content: "Pokemon Arena Portal";
+      background: linear-gradient(180deg, #ffdf67 0%, #e5ad24 100%);
+      color: #174b8f;
+    }
+
+    body.home-arena-comic.home-classic-page .hero::before {
+      content: "Comic Arena Portal";
+    }
+
+    /* Keep each portal's palette isolated when the arena switch changes modes. */
+    body.home-arena-comic.home-classic-page {
+      background:
+        radial-gradient(circle at top, rgba(255, 238, 145, 0.5), transparent 24%),
+        linear-gradient(180deg, #ffd85a 0%, #e7ad20 100%);
+    }
+
+    body.home-arena-comic.home-classic-page .sidebar,
+    body.home-arena-comic.home-classic-page .aside {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.18), transparent 22%),
+        linear-gradient(180deg, #287fce 0%, #0b4f95 100%);
+    }
+
+    body.home-arena-comic.home-classic-page .nav-link,
+    body.home-arena-comic.home-classic-page .account-action,
+    body.home-arena-comic.home-classic-page .auth-button,
+    body.home-arena-comic.home-classic-page .auth-link,
+    body.home-arena-comic.home-classic-page .hero-link,
+    body.home-arena-comic.home-classic-page .news-feed-button {
+      background: linear-gradient(180deg, #2d82d1 0%, #115da8 100%);
+      box-shadow:
+        inset 0 0 0 2px #0b427e,
+        inset 0 0 0 3px rgba(255, 255, 255, 0.2);
+    }
+
+    body.home-arena-comic.home-classic-page .home-arena-switch {
+      background: #0b4f95;
+      box-shadow: 0 0 0 2px #0f417b, 0 0 0 4px #f4c43d;
+    }
+
+    body.home-arena-comic.home-classic-page .home-arena-switch-button {
+      background: linear-gradient(180deg, #2d82d1, #115da8);
+    }
+
+    body.home-arena-comic.home-classic-page .home-arena-switch-button.active,
+    body.home-arena-comic.home-classic-page .nav-link.active,
+    body.home-arena-comic.home-classic-page .account-action.active,
+    body.home-arena-comic.home-classic-page .hero-link.is-accent {
+      background: linear-gradient(180deg, #ffd85a 0%, #e7a81d 100%);
+      color: #133d72;
+    }
+
+    body.home-arena-pokemon.home-classic-page {
+      background: linear-gradient(180deg, #fff 0%, #f8e5e7 55%, #d94a57 100%);
+    }
+
+    body.home-arena-pokemon.home-classic-page .sidebar,
+    body.home-arena-pokemon.home-classic-page .aside {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 22%),
+        linear-gradient(180deg, #dc3d4a 0%, #9e1723 100%);
+    }
+
+    .pokemon-item-gallery {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 7px;
+      margin: 14px 0 4px;
+      padding: 10px;
+      border: 3px solid #a81724;
+      background: linear-gradient(180deg, #fff 0%, #f5f9ff 100%);
+      box-shadow: 4px 4px 0 #70101a;
+    }
+
+    .pokemon-item-gallery a {
+      display: grid;
+      gap: 4px;
+      justify-items: center;
+      min-width: 0;
+      color: #173f73;
+      font-size: 10px;
+      font-weight: 900;
+      text-align: center;
+      text-decoration: none;
+    }
+
+    .pokemon-item-gallery img {
+      width: 100%;
+      aspect-ratio: 1;
+      border: 2px solid #2b64a2;
+      border-radius: 50%;
+      background: #fff;
+      object-fit: cover;
+      box-shadow: 0 2px 0 #b51f2e;
+      transition: transform 140ms ease, filter 140ms ease;
+    }
+
+    .pokemon-stone-art {
+      display: grid;
+      place-items: center;
+      width: 100%;
+      aspect-ratio: 1;
+      border: 2px solid #2b64a2;
+      border-radius: 45% 55% 48% 52% / 52% 45% 55% 48%;
+      color: #fff;
+      font-size: clamp(17px, 2vw, 27px);
+      line-height: 1;
+      text-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+      box-shadow: inset 4px 4px 0 rgba(255, 255, 255, 0.35), 0 2px 0 #b51f2e;
+      transform: rotate(-5deg);
+      transition: transform 140ms ease, filter 140ms ease;
+    }
+
+    .pokemon-stone-art.leaf { background: radial-gradient(circle at 35% 30%, #d9ff99 0 12%, #61bd45 13% 58%, #247636 59%); }
+    .pokemon-stone-art.thunder { background: radial-gradient(circle at 35% 30%, #fffbd0 0 12%, #f6cf31 13% 58%, #d08012 59%); }
+    .pokemon-stone-art.fire { background: radial-gradient(circle at 35% 30%, #ffe3a0 0 12%, #ef6934 13% 58%, #a8212c 59%); }
+    .pokemon-stone-art.water { background: radial-gradient(circle at 35% 30%, #d8fbff 0 12%, #3fa5df 13% 58%, #2256a4 59%); }
+
+    .pokemon-item-gallery a:hover img,
+    .pokemon-item-gallery a:hover .pokemon-stone-art {
+      filter: brightness(1.08) saturate(1.08);
+      transform: translateY(-3px) rotate(-3deg);
+    }
+
+    .pokemon-link-art {
+      width: 24px;
+      height: 24px;
+      margin-right: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      border-radius: 50%;
+      object-fit: cover;
+      vertical-align: middle;
+    }
+
+    @media (max-width: 720px) {
+      .pokemon-item-gallery {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+
+    body.home-classic-page .section-heading {
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #d1c1a1;
+    }
+
+    body.home-classic-page .section-heading p {
+      font-size: 14px;
+    }
+
+    body.home-classic-page .release-panel,
+    body.home-classic-page .news-shell {
+      padding: 12px;
+    }
+
+    body.home-classic-page .release-title {
+      font-size: 32px;
+    }
+
+    body.home-classic-page .release-copy {
+      margin-top: 6px;
+      font-size: 16px;
+    }
+
+    body.home-classic-page .release-grid {
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    body.home-classic-page .release-card {
+      padding: 12px 10px;
+      transform: none;
+    }
+
+    body.home-classic-page .release-face {
+      width: 88px;
+      height: 88px;
+      border: 1px solid #fff;
+      box-shadow:
+        0 0 0 2px #0f417b,
+        0 0 0 4px #5ea2ef;
+    }
+
+    body.home-classic-page .news-feed-button {
+      border: 1px solid #fff;
+      background: linear-gradient(180deg, #2c7fce 0%, #125ca5 100%);
+      color: #fff;
+    }
+
+    body.home-classic-page .ladder,
+    body.home-classic-page .stats-panel {
+      padding: 10px;
+      background: linear-gradient(180deg, #fffaf0 0%, #efe3cb 100%);
+    }
+
+    body.home-classic-page .ladder-list {
+      gap: 6px;
+    }
+
+    body.home-classic-page .ladder-row {
+      padding: 6px;
+      border-bottom: 0;
+    }
+
+    body.home-classic-page .ladder-rank {
+      border: 1px solid #b87112;
+      background: linear-gradient(180deg, #ffe19a 0%, #f1b64d 100%);
+      color: #8f4b0b;
+    }
+
+    body.home-classic-page .ladder-bar {
+      border: 1px solid #9cc2ea;
+      background: #d9e8f9;
+    }
+
+    body.home-classic-page .ladder-fill {
+      background: linear-gradient(90deg, #f3b248 0%, #d96f0c 100%);
+    }
+
+    body.home-classic-page .stats-group + .stats-group {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #cdb991;
+    }
+
+    body.home-classic-page .stats-list li + li {
+      margin-top: 6px;
+    }
+
+    .classic-stack {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .classic-info-panel {
+      padding: 14px;
+      border: 4px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 247, 226, 0.94)),
+        var(--panel);
+      box-shadow: var(--shadow-md);
+    }
+
+    .classic-info-kicker {
+      display: inline-flex;
+      align-items: center;
+      margin-bottom: 8px;
+      padding: 5px 10px;
+      border: 3px solid var(--line);
+      background: var(--accent-2);
+      color: var(--line);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .classic-info-title {
+      margin: 0 0 6px;
+      color: var(--ink);
+      font-family: "Bangers", cursive;
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .classic-info-copy {
+      margin: 0;
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.35;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .classic-bullet-list {
+      margin: 10px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 6px;
+    }
+
+    .classic-bullet-list li {
+      position: relative;
+      padding-left: 18px;
+      color: var(--text);
+      font-size: 15px;
+      line-height: 1.35;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .classic-bullet-list li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 7px;
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      border: 2px solid var(--line);
+    }
+
+    body.home-classic-page .classic-stack {
+      gap: 6px;
+    }
+
+    body.home-classic-page .classic-info-panel {
+      padding: 8px;
+      border: 1px solid #c9dff5;
+      background: linear-gradient(180deg, #ffffff 0%, #edf5ff 100%);
+      box-shadow: inset 0 0 0 1px #ffffff;
+    }
+
+    body.home-classic-page .classic-info-kicker {
+      margin-bottom: 6px;
+      padding: 3px 6px;
+      border: 1px solid #d0a34d;
+      background: #fff1c4;
+      color: #d66d06;
+      font-size: 10px;
+      text-shadow: none;
+    }
+
+    body.home-classic-page .classic-info-title {
+      color: #f08c12;
+      font-size: 18px;
+      text-shadow: 1px 1px 0 #fff;
+    }
+
+    body.home-classic-page .classic-info-copy,
+    body.home-classic-page .classic-bullet-list li {
+      color: #173052;
+      font-size: 12px;
+      text-transform: none;
+      line-height: 1.25;
+    }
+
+    body.home-classic-page .classic-bullet-list {
+      margin-top: 8px;
+      gap: 4px;
+    }
+
+    body.home-classic-page .classic-bullet-list li {
+      padding-left: 14px;
+    }
+
+    body.home-classic-page .classic-bullet-list li::before {
+      top: 5px;
+      width: 6px;
+      height: 6px;
+      border-width: 1px;
+    }
+
+    @media (max-width: 1080px) {
+      body.home-classic-page .app {
+        grid-template-columns: 1fr;
+      }
+
+      body.home-classic-page .hero,
+      body.home-classic-page .arena-split-grid,
+      body.home-classic-page .hero-points,
+      body.home-classic-page .classic-stack,
+      body.home-classic-page .pulse-strip,
+      body.home-classic-page .feature-grid {
+        grid-template-columns: 1fr;
+      }
+
+      body.home-classic-page .arena-vs-divider {
+        min-height: 48px;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="styles/portal-theme.css?v=na-portal-v2" />
 </head>
-<body>
+<body class="home-classic-page">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K64P68MT"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
   <div class="app">
     <aside class="sidebar panel">
-      <div class="brand">
-        <img class="brand-mark" src="assets/images/sitelogo.png" alt="Comic-Arena logo" />
-        <div class="brand-copy">
-          <div class="brand-name">Comic-Arena</div>
-          <div class="brand-tagline">Draft your fighters, read the board, and win the turn before it wins you.</div>
+        <div class="brand" data-home-arena="comic">
+          <img class="brand-mark" src="assets/images/sitelogo.png" alt="Comic-Arena logo" />
+          <div class="brand-copy">
+            <div class="brand-name">Comic-Arena</div>
+            <div class="brand-tagline">Draft your fighters, read the board, and win the turn before it wins you.</div>
+          </div>
         </div>
-      </div>
+        <div class="arena-badge pokemon" data-home-arena="pokemon">
+          <img class="arena-badge-mark" src="assets/images/PokemonArena/found-pokeball.png" alt="Pokemon Arena logo" />
+          <div class="arena-badge-name">Pokemon Arena</div>
+          <div class="arena-badge-copy">two arenas in one. pokemon. comics. choose your game.</div>
+        </div>
+        <div class="home-arena-switch" role="group" aria-label="Choose website arena">
+          <button class="home-arena-switch-button" id="home-arena-comic" type="button" data-home-arena-switch="comic">Comic</button>
+          <button class="home-arena-switch-button" id="home-arena-pokemon" type="button" data-home-arena-switch="pokemon">Pokémon</button>
+        </div>
 
       <section class="group">
         <h2 class="group-title">Battle Menu</h2>
@@ -1367,6 +2540,14 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" /></svg>
             <span>Home</span>
           </a>
+          <button class="nav-link play-now comic" type="button" data-play-arena="comic" data-home-arena="comic" aria-label="Play Comic-Arena">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5 18 12 8 18.5z" /></svg>
+            <span>Play Comic-Arena</span>
+          </button>
+          <button class="nav-link play-now pokemon" type="button" data-play-arena="pokemon" data-home-arena="pokemon" aria-label="Play Pokemon-Arena">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5 18 12 8 18.5z" /></svg>
+            <span>Play Pokemon-Arena</span>
+          </button>
           <a class="nav-link" href="community.html">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg>
             <span>Community</span>
@@ -1375,17 +2556,25 @@
             <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" /><rect x="14" y="4" width="6" height="6" /><rect x="4" y="14" width="6" height="6" /><rect x="14" y="14" width="6" height="6" /></svg>
             <span>Events</span>
           </a>
-          <a class="nav-link" href="missions.html">
+          <a class="nav-link" href="missions.html" data-home-arena="comic">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.1 2.8 7.9 7 9 4.2-1.1 7-4.9 7-9V6z" /><path d="M9 12h6" /><path d="M12 9v6" /></svg>
             <span>Comic Missions</span>
+          </a>
+          <a class="nav-link" href="missions.html?arena=pokemon" data-home-arena="pokemon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.1 2.8 7.9 7 9 4.2-1.1 7-4.9 7-9V6z" /><path d="M9 12h6" /><path d="M12 9v6" /></svg>
+            <span>Pokemon Missions</span>
           </a>
           <a class="nav-link" href="manual.html">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2H20v16H8.5A2.5 2.5 0 0 0 6 20.5z" /><path d="M6 4.5V22" /><path d="M9.5 7H16" /><path d="M9.5 11H17" /></svg>
             <span>Game Manual</span>
           </a>
-          <a class="nav-link" href="charactersandskills.html">
+          <a class="nav-link" href="charactersandskills.html" data-home-arena="comic">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h16" /><path d="M7.5 4v16" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg>
-            <span>Characters and Skills</span>
+            <span>Comic Characters</span>
+          </a>
+          <a class="nav-link" href="pokemon-charactersandskills.html" data-home-arena="pokemon">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" /><path d="M4 12h16" /><circle cx="12" cy="12" r="2.2" /></svg>
+            <span>Pokemon Characters</span>
           </a>
         </nav>
       </section>
@@ -1457,21 +2646,65 @@
               <span>Log Out</span>
             </button>
           </div>
+          <form class="arena-avatar-form" id="change-avatar-form">
+            <div class="arena-avatar-row" data-home-arena="comic">
+              <img class="arena-avatar-preview" id="comic-avatar-current-image" src="/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png" alt="Comic Arena avatar" />
+              <label class="arena-avatar-field">
+                <span>Comic Arena Avatar</span>
+                <input class="auth-input" type="url" id="comic-avatar-url" placeholder="Direct image URL" autocomplete="off" />
+                <input class="auth-input" type="file" id="comic-avatar-file" accept="image/*" />
+              </label>
+            </div>
+            <div class="arena-avatar-row" data-home-arena="pokemon">
+              <img class="arena-avatar-preview" id="pokemon-avatar-current-image" src="assets/images/PokemonArena/found-pokeball.png" alt="Pokemon Arena avatar" />
+              <label class="arena-avatar-field">
+                <span>Pokemon Arena Avatar</span>
+                <input class="auth-input" type="url" id="pokemon-avatar-url" placeholder="Direct image URL" autocomplete="off" />
+                <input class="auth-input" type="file" id="pokemon-avatar-file" accept="image/*" />
+              </label>
+            </div>
+            <button class="auth-button" type="submit" id="change-avatar-submit">Save Avatars</button>
+            <p class="auth-status" id="change-avatar-status" aria-live="polite"></p>
+          </form>
           <p class="auth-status" id="account-status" aria-live="polite"></p>
         </div>
+      </section>
+
+      <section class="group auth-shell">
+        <h2 class="group-title">Latest News</h2>
+        <ul class="classic-bullet-list">
+          <li>Balance updates and new character drops land on the front page first.</li>
+          <li>Updates, releases, and missions stay focused on your selected arena.</li>
+          <li>Mission spotlights and unlock guides are linked from events.</li>
+        </ul>
+      </section>
+
+      <section class="group auth-shell">
+        <h2 class="group-title">Arena Links</h2>
+        <ul class="classic-bullet-list">
+          <li>Check Community for registered players, profiles, and clan pages.</li>
+          <li>Use Events to browse release posts, mission spotlights, and patch notes.</li>
+          <li>Open Characters pages before queueing if you need roster or skill info.</li>
+        </ul>
+      </section>
+
+      <section class="group auth-shell">
+        <h2 class="group-title">First Time Playing?</h2>
+        <p class="group-note">Read the basics, grab a simple team, and learn the flow before grinding harder unlock paths.</p>
       </section>
     </aside>
 
     <main class="main">
       <section class="hero">
-        <div class="hero-copy">
+          <div class="hero-copy">
           <div class="eyebrow">Live Browser Battle Arena</div>
-          <h1 class="hero-title">Pick the right three. Break the enemy turn.</h1>
-          <p>Comic-Arena is a fast tactical battler built around team reads, cooldown pressure, ladder climbs, and constant roster shakeups.</p>
+          <h1 class="hero-title" id="home-arena-title">Comic Arena: choose your team and control the turn.</h1>
+          <p id="home-arena-description">Comic Arena is a fast tactical battler built around heroes, villains, team reads, cooldown pressure, and ladder climbs.</p>
           <div class="hero-actions">
-            <button class="play-now" type="button" id="play-now-button">Play Now</button>
-            <a class="hero-link is-accent" href="missions.html">Explore Missions</a>
-            <a class="hero-link" href="charactersandskills.html">Browse Characters</a>
+            <a class="hero-link is-accent" href="missions.html" data-home-arena="comic">Comic Missions</a>
+            <a class="hero-link is-accent" href="missions.html?arena=pokemon" data-home-arena="pokemon"><img class="pokemon-link-art" src="assets/images/PokemonArena/chooseyourstarter/pikachuball.jpg" alt="">Pokemon Missions</a>
+            <a class="hero-link" href="charactersandskills.html" data-home-arena="comic">Comic Characters</a>
+            <a class="hero-link" href="pokemon-charactersandskills.html" data-home-arena="pokemon"><img class="pokemon-link-art" src="assets/images/PokemonArena/chooseyourstarter/bulbasaurball.jpg" alt="">Pokemon Characters</a>
             <a class="hero-link" href="community.html">Meet The Community</a>
             <a class="hero-link is-discord" href="https://discord.gg/dabZKRDkf7" target="_blank" rel="noopener noreferrer">
               <img class="hero-link-icon" src="assets/images/discordlogo.png" alt="" aria-hidden="true">
@@ -1481,6 +2714,24 @@
               <img class="hero-partner-logo" src="assets/images/animearenalogo.png" alt="Try our partnered game Anime-Arena">
             </a>
           </div>
+          <nav class="pokemon-item-gallery" data-home-arena="pokemon" aria-label="Explore Pokemon Arena">
+            <a href="pokemon-charactersandskills.html"><img src="assets/images/PokemonArena/chooseyourstarter/bulbasaurball.jpg" alt="Bulbasaur themed ball"><span>Grass Teams</span></a>
+            <a href="pokemon-charactersandskills.html"><img src="assets/images/PokemonArena/chooseyourstarter/charmanderball.png" alt="Charmander themed ball"><span>Fire Teams</span></a>
+            <a href="pokemon-charactersandskills.html"><img src="assets/images/PokemonArena/chooseyourstarter/squirtleball.jpg" alt="Squirtle themed ball"><span>Water Teams</span></a>
+            <a href="missions.html?arena=pokemon"><img src="assets/images/PokemonArena/chooseyourstarter/pikachuball.jpg" alt="Pikachu themed ball"><span>Missions</span></a>
+            <a href="selection.html?arena=pokemon"><img src="assets/images/PokemonArena/pokemontrainer/Pokeball.jpeg" alt="Poke Ball"><span>Build a Team</span></a>
+            <a href="selection.html?arena=pokemon"><img src="assets/images/PokemonArena/pokemontrainer/Great ball.png" alt="Great Ball"><span>Play Ladder</span></a>
+            <a href="missions.html?arena=pokemon"><img src="assets/images/PokemonArena/pokemontrainer/Rare Candy.jpeg" alt="Rare Candy"><span>Earn Points</span></a>
+            <a href="pokemon-charactersandskills.html"><span class="pokemon-stone-art leaf" aria-label="Leaf Stone">&#x1F343;</span><span>Leaf Stone</span></a>
+            <a href="pokemon-charactersandskills.html"><span class="pokemon-stone-art thunder" aria-label="Thunder Stone">&#x26A1;</span><span>Thunder Stone</span></a>
+            <a href="pokemon-charactersandskills.html"><span class="pokemon-stone-art fire" aria-label="Fire Stone">&#x1F525;</span><span>Fire Stone</span></a>
+            <a href="pokemon-charactersandskills.html"><span class="pokemon-stone-art water" aria-label="Water Stone">&#x1F4A7;</span><span>Water Stone</span></a>
+          </nav>
+          <aside class="pokemon-ladder-promo" data-home-arena="pokemon" aria-label="Pokemon Ladder reward">
+            <strong>Win 25 Ladder Games. Get 1,000 Points.</strong>
+            <p>Win Pokémon Arena Ranked/Ladder games against players or battle bots. Spend your reward on character unlocks, skins, and additional Eevee evolutions.</p>
+            <a href="missions.html?arena=pokemon">Track the 25-Win Mission</a>
+          </aside>
           <div class="hero-points">
             <article class="hero-point">
               <h2 class="hero-point-label">Build Teams</h2>
@@ -1516,50 +2767,91 @@
               </div>
             </div>
           </div>
+          <div class="hero-card">
+            <h2 class="hero-card-title">Portal Updates</h2>
+            <div class="hero-card-list">
+              <div class="hero-card-item" data-home-arena="comic">
+                <strong>Comic Ladder</strong>
+                <span>Original roster battles, missions, and account progress live here.</span>
+              </div>
+              <div class="hero-card-item" data-home-arena="pokemon">
+                <strong>Pokemon Ladder</strong>
+                <span>Separate teams, separate releases, and separate mission unlock flow.</span>
+              </div>
+              <div class="hero-card-item">
+                <strong>Daily Rhythm</strong>
+                <span>Check the rankings, read the news board, then jump straight into queue.</span>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section class="pulse-strip" aria-label="Quick destinations">
-        <article class="pulse-tile">
-          <h2 class="pulse-label">Community</h2>
-          <p class="pulse-copy">Browse registered players, ladder ranks, clan ties, and profile entry points.</p>
+      <section class="arena-split">
+        <div class="section-heading">
+          <div>
+            <h2 class="release-title">Comic Arena vs Pokemon Arena</h2>
+            <p class="release-copy">Choose your side and jump straight into the roster that fits the battle you want to play.</p>
+          </div>
+        </div>
+        <div class="arena-split-grid">
+          <article class="arena-split-card comic" data-arena="Comic Arena">
+            <span class="arena-split-badge">Original roster</span>
+            <h2 class="arena-split-title">Comic Arena</h2>
+            <p class="arena-split-copy">The home lineup of heroes, villains, and all the weird little matchup puzzles that built the game.</p>
+            <a class="arena-split-link" href="charactersandskills.html">Open Comic Roster</a>
+          </article>
+          <div class="arena-vs-divider" aria-hidden="true">VS</div>
+          <article class="arena-split-card pokemon" data-arena="Pokemon Arena">
+            <span class="arena-split-badge">New roster lane</span>
+            <h2 class="arena-split-title">Pokemon Arena</h2>
+            <p class="arena-split-copy">A separate battle lane with its own team flow, roster logic, and character kits.</p>
+            <a class="arena-split-link" href="pokemon-charactersandskills.html">Open Pokemon Roster</a>
+          </article>
+        </div>
+      </section>
+
+      <section class="classic-stack" aria-label="Portal guides">
+        <article class="classic-info-panel">
+          <div class="classic-info-kicker">First Time?</div>
+          <h2 class="classic-info-title">Start Here</h2>
+          <p class="classic-info-copy">Check the basics, build a simple team, and queue a few games before chasing harder unlock paths.</p>
+          <ul class="classic-bullet-list">
+            <li>Read the manual for energy, statuses, and counters.</li>
+            <li>Use missions in your selected arena to widen your roster.</li>
+            <li>Scout characters and skills before spending unlock points.</li>
+          </ul>
         </article>
-        <article class="pulse-tile">
-          <h2 class="pulse-label">Events Board</h2>
-          <p class="pulse-copy">Track live updates, latest releases, and mission spotlights from one page.</p>
+        <article class="classic-info-panel">
+          <div class="classic-info-kicker">Latest News</div>
+          <h2 class="classic-info-title">Patch Board</h2>
+          <ul class="classic-bullet-list">
+            <li>Balance updates and new character drops land on the front page first.</li>
+            <li>Character releases stay organized around the arena you selected.</li>
+            <li>Mission pictures, unlock guides, and roster notes are all linked from events.</li>
+          </ul>
         </article>
-        <article class="pulse-tile">
-          <h2 class="pulse-label">Manual</h2>
-          <p class="pulse-copy">Learn the energy system, status rules, damage classes, and role structure fast.</p>
+        <article class="classic-info-panel">
+          <div class="classic-info-kicker">Mission Videos</div>
+          <h2 class="classic-info-title">Unlock Help</h2>
+          <ul class="classic-bullet-list">
+            <li>Starter paths and roster unlock routes are worth checking before grinding.</li>
+            <li>Mission lineups reward learning the strengths of your active roster.</li>
+            <li>Use the mission board to jump directly into available encounters.</li>
+          </ul>
         </article>
-        <article class="pulse-tile">
-          <h2 class="pulse-label">Private Matches</h2>
-          <p class="pulse-copy">Search for specific players, run practice battles, and test niche team ideas safely.</p>
+        <article class="classic-info-panel">
+          <div class="classic-info-kicker">Ladder Videos</div>
+          <h2 class="classic-info-title">Rank Up Faster</h2>
+          <ul class="classic-bullet-list">
+            <li>Check win streak lists and player levels on the right rail before queuing.</li>
+            <li>Private matches are the fastest way to test niche teams safely.</li>
+            <li>Strong team identity usually matters more than three individually powerful picks.</li>
+          </ul>
         </article>
       </section>
 
-      <section class="feature-grid" aria-label="Homepage highlights">
-        <article class="feature-card">
-          <div class="feature-kicker">Mode 01</div>
-          <h2 class="feature-title">Mission Runs</h2>
-          <p class="feature-copy">Targeted encounters and unlock chains give players a cleaner path into roster growth.</p>
-          <a class="feature-link" href="missions.html">View mission board</a>
-        </article>
-        <article class="feature-card">
-          <div class="feature-kicker">Mode 02</div>
-          <h2 class="feature-title">Roster Intel</h2>
-          <p class="feature-copy">Check kits, identities, and skill pressure before you commit to a composition.</p>
-          <a class="feature-link" href="charactersandskills.html">Study the characters</a>
-        </article>
-        <article class="feature-card">
-          <div class="feature-kicker">Mode 03</div>
-          <h2 class="feature-title">Account Depth</h2>
-          <p class="feature-copy">Profiles, cosmetics, clan identity, and tracked progress give each account real weight.</p>
-          <a class="feature-link" href="profile.html">See player profiles</a>
-        </article>
-      </section>
-
-      <section class="release-panel">
+      <section class="release-panel" data-home-arena="comic">
         <div class="section-heading">
           <div>
             <h2 class="release-title">Latest Character Releases</h2>
@@ -1584,6 +2876,35 @@
               <img class="release-face" id="release-face-3" alt="Latest character 3" />
             </a>
             <div class="release-label" id="release-label-3"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="release-panel pokemon-release-panel" data-home-arena="pokemon">
+        <div class="section-heading">
+          <div>
+            <h2 class="release-title">Latest Pokemon Character Releases</h2>
+            <p class="release-copy">Fresh arrivals for Pokemon Arena live here. Open a face, inspect the kit, and decide how the new drop changes the fight.</p>
+          </div>
+        </div>
+        <div class="release-grid">
+          <div class="release-card">
+            <a class="release-face-link" id="pokemon-release-link-1" href="pokemon-charactersandskills.html">
+              <img class="release-face" id="pokemon-release-face-1" alt="Latest Pokemon character 1" />
+            </a>
+            <div class="release-label" id="pokemon-release-label-1"></div>
+          </div>
+          <div class="release-card">
+            <a class="release-face-link" id="pokemon-release-link-2" href="pokemon-charactersandskills.html">
+              <img class="release-face" id="pokemon-release-face-2" alt="Latest Pokemon character 2" />
+            </a>
+            <div class="release-label" id="pokemon-release-label-2"></div>
+          </div>
+          <div class="release-card">
+            <a class="release-face-link" id="pokemon-release-link-3" href="pokemon-charactersandskills.html">
+              <img class="release-face" id="pokemon-release-face-3" alt="Latest Pokemon character 3" />
+            </a>
+            <div class="release-label" id="pokemon-release-label-3"></div>
           </div>
         </div>
       </section>
@@ -1689,7 +3010,7 @@
         </div>
       </section>
 
-      <section class="ladder">
+      <section class="ladder" data-home-arena="comic">
         <h3 class="ladder-title">Top 10 Alliance Levels</h3>
         <div class="ladder-list" id="sidebar-top-clan-levels">
           <div class="ladder-row">
@@ -1824,6 +3145,7 @@
       </section>
     </aside>
   </div>
-  <script src="./scripts/index.js" defer></script>
+  <script src="./scripts/index.js?v=pokemon-wave-2-launch-v1" defer></script>
+  <script src="./scripts/arena-navigation.js?v=pokemon-sidebar-v4" defer></script>
 </body>
 </html>

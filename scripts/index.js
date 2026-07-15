@@ -7,7 +7,21 @@
   var authTitle = document.getElementById("auth-title");
   var authDescription = document.getElementById("auth-description");
   var authStatus = document.getElementById("auth-status");
-  var playNowButton = document.getElementById("play-now-button");
+  var playArenaButtons = document.querySelectorAll("[data-play-arena]");
+  var homeArenaSwitchButtons = document.querySelectorAll("[data-home-arena-switch]");
+  var homeArenaTitle = document.getElementById("home-arena-title");
+  var homeArenaDescription = document.getElementById("home-arena-description");
+  var activeHomeArena = (function () {
+    try {
+      var declared = document.body && document.body.dataset ? document.body.dataset.pageArena : "";
+      if (declared === "pokemon" || declared === "comic") return declared;
+      var requested = new URLSearchParams(window.location.search).get("arena");
+      if (requested === "pokemon" || requested === "comic") return requested;
+      return localStorage.getItem("comicArenaMode") === "pokemon" ? "pokemon" : "comic";
+    } catch (error) {
+      return "comic";
+    }
+  }());
   var authForm = document.getElementById("auth-form");
   var authSubmit = document.getElementById("auth-submit");
   var authToggle = document.getElementById("auth-toggle");
@@ -17,21 +31,42 @@
   var changeBackgroundsButton = document.getElementById("change-backgrounds-button");
   var resetAccountButton = document.getElementById("reset-account-button");
   var adminPanelSection = document.getElementById("admin-panel-section");
-  var releaseFaces = [
-    document.getElementById("release-face-1"),
-    document.getElementById("release-face-2"),
-    document.getElementById("release-face-3")
-  ];
-  var releaseLinks = [
-    document.getElementById("release-link-1"),
-    document.getElementById("release-link-2"),
-    document.getElementById("release-link-3")
-  ];
-  var releaseLabels = [
-    document.getElementById("release-label-1"),
-    document.getElementById("release-label-2"),
-    document.getElementById("release-label-3")
-  ];
+  var releaseGroups = {
+    comic: {
+      faces: [
+        document.getElementById("release-face-1"),
+        document.getElementById("release-face-2"),
+        document.getElementById("release-face-3")
+      ],
+      links: [
+        document.getElementById("release-link-1"),
+        document.getElementById("release-link-2"),
+        document.getElementById("release-link-3")
+      ],
+      labels: [
+        document.getElementById("release-label-1"),
+        document.getElementById("release-label-2"),
+        document.getElementById("release-label-3")
+      ]
+    },
+    pokemon: {
+      faces: [
+        document.getElementById("pokemon-release-face-1"),
+        document.getElementById("pokemon-release-face-2"),
+        document.getElementById("pokemon-release-face-3")
+      ],
+      links: [
+        document.getElementById("pokemon-release-link-1"),
+        document.getElementById("pokemon-release-link-2"),
+        document.getElementById("pokemon-release-link-3")
+      ],
+      labels: [
+        document.getElementById("pokemon-release-label-1"),
+        document.getElementById("pokemon-release-label-2"),
+        document.getElementById("pokemon-release-label-3")
+      ]
+    }
+  };
   var guestAuthView = document.getElementById("guest-auth-view");
   var accountPanel = document.getElementById("account-panel");
   var accountUsername = document.getElementById("account-username");
@@ -73,6 +108,19 @@
   var profileQuickGamesEmpty = document.getElementById("profile-quick-games-empty");
   var profilePrivateGamesList = document.getElementById("profile-private-games-list");
   var profilePrivateGamesEmpty = document.getElementById("profile-private-games-empty");
+  var pokemonProfileLevel = document.getElementById("pokemon-profile-level");
+  var pokemonProfileLevelMeter = document.getElementById("pokemon-profile-level-meter");
+  var pokemonProfileRank = document.getElementById("pokemon-profile-rank");
+  var pokemonProfileExperiencePoints = document.getElementById("pokemon-profile-experience-points");
+  var pokemonProfileLadderRank = document.getElementById("pokemon-profile-ladder-rank");
+  var pokemonProfileWins = document.getElementById("pokemon-profile-wins");
+  var pokemonProfileLosses = document.getElementById("pokemon-profile-losses");
+  var pokemonProfileWinPercentage = document.getElementById("pokemon-profile-win-percentage");
+  var pokemonProfileStreak = document.getElementById("pokemon-profile-streak");
+  var pokemonProfileHighestStreak = document.getElementById("pokemon-profile-highest-streak");
+  var pokemonProfileHighestLevel = document.getElementById("pokemon-profile-highest-level");
+  var pokemonProfileFamePoints = document.getElementById("pokemon-profile-fame-points");
+  var pokemonProfileLadderGamesList = document.getElementById("pokemon-profile-ladder-games-list");
   var clanProfileAvatarImage = document.getElementById("clan-profile-avatar-image");
   var clanProfileName = document.getElementById("clan-profile-name");
   var clanProfileAbbreviation = document.getElementById("clan-profile-abbreviation");
@@ -91,7 +139,14 @@
   var clanProfileStatus = document.getElementById("clan-profile-status");
   var changeAvatarForm = document.getElementById("change-avatar-form");
   var changeAvatarCurrentImage = document.getElementById("change-avatar-current-image");
+  var changeAvatarFileInput = document.getElementById("change-avatar-file");
   var changeAvatarUrlInput = document.getElementById("change-avatar-url");
+  var comicAvatarCurrentImage = document.getElementById("comic-avatar-current-image");
+  var pokemonAvatarCurrentImage = document.getElementById("pokemon-avatar-current-image");
+  var comicAvatarFileInput = document.getElementById("comic-avatar-file");
+  var pokemonAvatarFileInput = document.getElementById("pokemon-avatar-file");
+  var comicAvatarUrlInput = document.getElementById("comic-avatar-url");
+  var pokemonAvatarUrlInput = document.getElementById("pokemon-avatar-url");
   var changeAvatarSubmit = document.getElementById("change-avatar-submit");
   var changeAvatarStatus = document.getElementById("change-avatar-status");
   var resetAccountTrigger = document.getElementById("reset-account-trigger");
@@ -173,12 +228,16 @@
   var profileSearchForm = document.getElementById("profile-search-form");
   var profileSearchInput = document.getElementById("profile-search-input");
   var profileSearchStatus = document.getElementById("profile-search-status");
-  var defaultProfileAvatar = "https://i.postimg.cc/3JqVcPXm/default.png";
+  var defaultProfileAvatar = "/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png";
   var sidebarTopPlayerLevels = document.getElementById("sidebar-top-player-levels");
   var sidebarTopClanLevels = document.getElementById("sidebar-top-clan-levels");
   var sidebarTopCurrentStreaks = document.getElementById("sidebar-top-current-streaks");
   var sidebarTopWins = document.getElementById("sidebar-top-wins");
   var sidebarTopHighestStreaks = document.getElementById("sidebar-top-highest-streaks");
+  var pokemonSidebarTopPlayerLevels = document.getElementById("pokemon-sidebar-top-player-levels");
+  var pokemonSidebarTopCurrentStreaks = document.getElementById("pokemon-sidebar-top-current-streaks");
+  var pokemonSidebarTopWins = document.getElementById("pokemon-sidebar-top-wins");
+  var pokemonSidebarTopHighestStreaks = document.getElementById("pokemon-sidebar-top-highest-streaks");
   var winratesGrid = document.getElementById("winrates-grid");
   var winratesStatus = document.getElementById("winrates-status");
   var resetWinratesButton = document.getElementById("reset-winrates-button");
@@ -222,12 +281,18 @@
   var newsTitleInput = document.getElementById("news-title");
   var newsContentInput = document.getElementById("news-content");
   var newsChangesInput = document.getElementById("news-changes");
+  var newsArenaInput = document.getElementById("news-arena");
   var newsAdminStatus = document.getElementById("news-admin-status");
   var newsSaveButton = document.getElementById("news-save-button");
   var newsResetButton = document.getElementById("news-reset-button");
   var newsPostList = document.getElementById("news-post-list");
   var newsPostListStatus = document.getElementById("news-post-list-status");
   var latestReleasesForm = document.getElementById("latest-releases-form");
+  var latestReleasesArenaButtons = {
+    comic: document.getElementById("latest-releases-arena-comic"),
+    pokemon: document.getElementById("latest-releases-arena-pokemon")
+  };
+  var latestReleasesArenaTitle = document.getElementById("latest-releases-arena-title");
   var latestReleaseSelects = [
     document.getElementById("latest-release-1"),
     document.getElementById("latest-release-2"),
@@ -241,9 +306,11 @@
   var adminNewsPosts = [];
   var characterCatalog = [];
   var adminLatestReleases = [];
+  var activeLatestReleasesArena = "comic";
   var maintenanceModeEnabled = false;
   var publicNewsPosts = [];
   var currentNewsPostIndex = 0;
+  var sidebarLeaderboardsByArena = { comic: null, pokemon: null };
   var profileLookupStorageKey = "comicProfileLookupUser";
   var requestedProfileUsername = (function () {
     try {
@@ -282,6 +349,49 @@
   function setText(node, value) {
     if (node) {
       node.textContent = value;
+    }
+  }
+
+  function renderActiveHomeLeaderboards() {
+    var boards = sidebarLeaderboardsByArena[activeHomeArena] || {};
+    renderSidebarBarList(sidebarTopPlayerLevels, boards.topPlayerLevels, "username", 50);
+    if (activeHomeArena === "comic") {
+      renderSidebarBarList(sidebarTopClanLevels, boards.topClanLevels, "clanName", 50);
+    }
+    renderSidebarStatList(sidebarTopCurrentStreaks, boards.topCurrentStreaks, formatSignedListNumber, "streak");
+    renderSidebarStatList(sidebarTopWins, boards.topWins, formatListNumber, "wins");
+    renderSidebarStatList(sidebarTopHighestStreaks, boards.topHighestStreaks, formatSignedListNumber, "streak");
+  }
+
+  function setActiveHomeArena(arena, updateUrl) {
+    activeHomeArena = arena === "pokemon" ? "pokemon" : "comic";
+    document.body.classList.toggle("home-arena-pokemon", activeHomeArena === "pokemon");
+    document.body.classList.toggle("home-arena-comic", activeHomeArena === "comic");
+    document.body.classList.add("home-arena-ready");
+    document.title = activeHomeArena === "pokemon" ? "Pokemon Arena Home" : "Comic-Arena Home";
+    setText(homeArenaTitle, activeHomeArena === "pokemon"
+      ? "Pokémon Arena: build your team and become the champion."
+      : "Comic Arena: choose your team and control the turn.");
+    setText(homeArenaDescription, activeHomeArena === "pokemon"
+      ? "Pokémon Arena is a separate tactical battler with its own roster, missions, skins, progression, and ladder."
+      : "Comic Arena is a fast tactical battler built around heroes, villains, team reads, cooldown pressure, and ladder climbs.");
+    homeArenaSwitchButtons.forEach(function (button) {
+      var selected = button.getAttribute("data-home-arena-switch") === activeHomeArena;
+      button.classList.toggle("active", selected);
+      button.setAttribute("aria-pressed", selected ? "true" : "false");
+    });
+    try {
+      localStorage.setItem("comicArenaMode", activeHomeArena);
+      if (updateUrl) {
+        var url = new URL(window.location.href);
+        url.searchParams.set("arena", activeHomeArena);
+        window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+      }
+    } catch (error) {}
+    renderActiveHomeLeaderboards();
+    if (updateUrl && newsFeed) {
+      currentNewsPostIndex = 0;
+      loadPublicNews();
     }
   }
 
@@ -386,6 +496,87 @@
       return;
     }
     delete changeAvatarStatus.dataset.state;
+  }
+
+  function readImageFileAsDataUrl(file) {
+    return new Promise(function (resolve, reject) {
+      if (!file) {
+        reject(new Error("Missing file."));
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function () {
+        resolve(String(reader.result || ""));
+      };
+      reader.onerror = function () {
+        reject(new Error("Unable to read the selected image."));
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function loadImageFromDataUrl(dataUrl) {
+    return new Promise(function (resolve, reject) {
+      if (!dataUrl) {
+        reject(new Error("Missing image data."));
+        return;
+      }
+      var image = new Image();
+      image.onload = function () {
+        resolve(image);
+      };
+      image.onerror = function () {
+        reject(new Error("Unable to load the selected image."));
+      };
+      image.src = dataUrl;
+    });
+  }
+
+  function resizeAvatarFileToDataUrl(file, size) {
+    return readImageFileAsDataUrl(file)
+      .then(function (dataUrl) {
+        return loadImageFromDataUrl(dataUrl);
+      })
+      .then(function (image) {
+        var canvas = document.createElement("canvas");
+        var targetSize = Math.max(1, Number(size) || 75);
+        var context = canvas.getContext("2d");
+        if (!context) {
+          throw new Error("Unable to resize the selected image.");
+        }
+        canvas.width = targetSize;
+        canvas.height = targetSize;
+        context.clearRect(0, 0, targetSize, targetSize);
+        context.imageSmoothingEnabled = true;
+        context.imageSmoothingQuality = "high";
+        context.drawImage(image, 0, 0, targetSize, targetSize);
+        return canvas.toDataURL("image/png");
+      });
+  }
+
+  function resolveAvatarSubmissionValue(fileInput, urlInput) {
+    var selectedFile = fileInput && fileInput.files && fileInput.files.length > 0 ? fileInput.files[0] : null;
+    if (selectedFile) {
+      return resizeAvatarFileToDataUrl(selectedFile, 75);
+    }
+    return Promise.resolve(String(urlInput && urlInput.value ? urlInput.value : "").trim());
+  }
+
+  function wireAvatarPreview(fileInput, previewImage) {
+    if (!fileInput || !previewImage) {
+      return;
+    }
+    fileInput.addEventListener("change", async function () {
+      var selectedFile = fileInput.files && fileInput.files.length > 0 ? fileInput.files[0] : null;
+      if (!selectedFile) {
+        return;
+      }
+      try {
+        previewImage.src = await resizeAvatarFileToDataUrl(selectedFile, 75);
+      } catch (error) {
+        console.warn("Unable to preview avatar image.", error);
+      }
+    });
   }
 
   function setResetAccountStatus(message, state) {
@@ -524,6 +715,29 @@
     return characterCatalog.find(function (entry) {
       return entry && entry.name && String(entry.name).trim().toLowerCase() === target;
     }) || null;
+  }
+
+  function findCatalogCharacterById(characterId) {
+    var target = String(characterId || "").trim().toLowerCase();
+    if (!target) {
+      return null;
+    }
+    return characterCatalog.find(function (entry) {
+      return entry && entry.characterId && String(entry.characterId).trim().toLowerCase() === target;
+    }) || null;
+  }
+
+  function getCatalogCharacterArena(character) {
+    var explicitArena = character && character.arena ? String(character.arena).trim().toLowerCase() : "";
+    if (explicitArena === "comic" || explicitArena === "pokemon") {
+      return explicitArena;
+    }
+    var universe = character && character.universe ? String(character.universe).trim().toLowerCase() : "";
+    return universe === "pokemon" ? "pokemon" : "comic";
+  }
+
+  function getLatestReleaseGroup(arena) {
+    return releaseGroups[arena === "pokemon" ? "pokemon" : "comic"];
   }
 
   function findCatalogSkillByName(character, skillName) {
@@ -685,7 +899,9 @@
       changeList.className = "news-change-list";
       var groupedChanges = [];
       changes.forEach(function (entry) {
-        var groupKey = entry && entry.characterId
+        var groupKey = entry && entry.groupKey
+          ? "custom:" + String(entry.groupKey)
+          : entry && entry.characterId
           ? "character:" + entry.characterId
           : entry && entry.characterName
             ? "name:" + String(entry.characterName).toLowerCase()
@@ -700,7 +916,8 @@
         groupedChanges.push({
           key: groupKey,
           facePicture: entry && entry.facePicture ? String(entry.facePicture) : "",
-          characterName: entry && entry.characterName ? String(entry.characterName) : "",
+          characterName: entry && (entry.groupName || entry.characterName) ? String(entry.groupName || entry.characterName) : "",
+          collapsible: !!(entry && (entry.collapsible || (entry.groupName && /\sSkin$/i.test(String(entry.groupName))))),
           entries: [entry]
         });
       });
@@ -730,9 +947,50 @@
           groupCopy.appendChild(groupName);
         }
 
-        group.entries.forEach(function (entry) {
+        var visibleEntries = group.collapsible
+          ? group.entries.filter(function (entry) {
+            return !(entry && entry.skillName && /\sPortrait$/i.test(String(entry.skillName)));
+          })
+          : group.entries;
+        var entryContainer = groupCopy;
+
+        if (group.collapsible && visibleEntries.length) {
+          var toggleButton = document.createElement("button");
+          toggleButton.type = "button";
+          toggleButton.className = "news-change-toggle";
+          toggleButton.textContent = "View " + visibleEntries.length + " skill images";
+          toggleButton.setAttribute("aria-expanded", "false");
+
+          var collapsibleEntries = document.createElement("div");
+          collapsibleEntries.className = "news-change-collapsible";
+          collapsibleEntries.hidden = true;
+          toggleButton.addEventListener("click", function () {
+            var willExpand = collapsibleEntries.hidden;
+            collapsibleEntries.hidden = !willExpand;
+            toggleButton.setAttribute("aria-expanded", willExpand ? "true" : "false");
+            toggleButton.textContent = willExpand
+              ? "Hide skill images"
+              : "View " + visibleEntries.length + " skill images";
+          });
+          groupCopy.appendChild(toggleButton);
+          groupCopy.appendChild(collapsibleEntries);
+          entryContainer = collapsibleEntries;
+        }
+
+        visibleEntries.forEach(function (entry) {
           var item = document.createElement("div");
           item.className = "news-change-item";
+
+          if (entry && entry.skillimage) {
+            var artFrame = document.createElement("div");
+            artFrame.className = "news-change-art-frame";
+            var artImage = document.createElement("img");
+            artImage.className = "news-change-art";
+            artImage.src = String(entry.skillimage);
+            artImage.alt = entry && entry.skillName ? String(entry.skillName) : "Skill art";
+            artFrame.appendChild(artImage);
+            item.appendChild(artFrame);
+          }
 
           var copy = document.createElement("div");
           copy.className = "news-change-copy";
@@ -774,7 +1032,7 @@
           copy.appendChild(text);
 
           item.appendChild(copy);
-          groupCopy.appendChild(item);
+          entryContainer.appendChild(item);
         });
 
         groupNode.appendChild(groupCopy);
@@ -828,7 +1086,7 @@
     }
     setNewsStatus("Loading news...");
     try {
-      var response = await fetch("/api/news", {
+      var response = await fetch("/api/news?arena=" + encodeURIComponent(activeHomeArena), {
         credentials: "same-origin"
       });
       var data = await response.json().catch(function () {
@@ -881,6 +1139,9 @@
     }
     if (newsTitleInput) {
       newsTitleInput.value = post.title || "";
+    }
+    if (newsArenaInput) {
+      newsArenaInput.value = post.arena === "pokemon" ? "pokemon" : "comic";
     }
     if (newsContentInput) {
       newsContentInput.value = buildNewsEditorText(post.blocks || []);
@@ -1008,7 +1269,11 @@
     if (!latestReleaseSelects.length) {
       return;
     }
-    var characters = Array.isArray(characterCatalog) ? characterCatalog.slice() : [];
+    var characters = Array.isArray(characterCatalog)
+      ? characterCatalog.filter(function (character) {
+          return getCatalogCharacterArena(character) === activeLatestReleasesArena;
+        }).slice()
+      : [];
     characters.sort(function (left, right) {
       return String(left && left.name ? left.name : "").localeCompare(String(right && right.name ? right.name : ""));
     });
@@ -1047,13 +1312,34 @@
     setLatestReleasesStatus("");
   }
 
+  function setActiveLatestReleasesArena(arena) {
+    activeLatestReleasesArena = arena === "pokemon" ? "pokemon" : "comic";
+    if (latestReleasesArenaButtons.comic) {
+      latestReleasesArenaButtons.comic.classList.toggle("active", activeLatestReleasesArena === "comic");
+    }
+    if (latestReleasesArenaButtons.pokemon) {
+      latestReleasesArenaButtons.pokemon.classList.toggle("active", activeLatestReleasesArena === "pokemon");
+    }
+    if (latestReleasesArenaTitle) {
+      latestReleasesArenaTitle.textContent =
+        activeLatestReleasesArena === "pokemon"
+          ? "Latest Pokemon Character Releases"
+          : "Latest Comic Character Releases";
+    }
+    if (latestReleasesSaveButton) {
+      latestReleasesSaveButton.textContent =
+        activeLatestReleasesArena === "pokemon" ? "Save Pokemon Releases" : "Save Releases";
+    }
+    populateLatestReleaseSelectOptions();
+  }
+
   async function loadAdminLatestReleases() {
     if (!latestReleasesForm) {
       return;
     }
     setLatestReleasesStatus("Loading latest releases...");
     try {
-      var response = await fetch("/api/admin/latest-releases", {
+      var response = await fetch("/api/admin/latest-releases?arena=" + encodeURIComponent(activeLatestReleasesArena), {
         credentials: "same-origin"
       });
       var data = await response.json().catch(function () {
@@ -1063,6 +1349,7 @@
         setLatestReleasesStatus(data && data.error ? data.error : "Unable to load latest releases.", "error");
         return;
       }
+      setActiveLatestReleasesArena(data && data.arena ? data.arena : activeLatestReleasesArena);
       populateLatestReleasesEditor(data && Array.isArray(data.releases) ? data.releases : []);
     } catch (error) {
       setLatestReleasesStatus("Unable to reach the server.", "error");
@@ -1074,6 +1361,7 @@
       return;
     }
     var payload = {
+      arena: activeLatestReleasesArena,
       releases: latestReleaseSelects.map(function (select) {
         return {
           characterId: select && select.value ? String(select.value) : ""
@@ -1102,7 +1390,7 @@
       }
       populateLatestReleasesEditor(data && Array.isArray(data.releases) ? data.releases : []);
       setLatestReleasesStatus("Latest character releases updated.", "success");
-      loadLatestReleases();
+      loadAdminLatestReleases();
     } catch (error) {
       setLatestReleasesStatus("Unable to reach the server.", "error");
     } finally {
@@ -1181,6 +1469,7 @@
     var changes = parseNewsChanges(newsChangesInput && newsChangesInput.value ? newsChangesInput.value : "");
     var payload = {
       title: title,
+      arena: newsArenaInput && newsArenaInput.value === "pokemon" ? "pokemon" : "comic",
       blocks: blocks,
       paragraphs: buildNewsParagraphsFromBlocks(blocks),
       changes: changes
@@ -1854,7 +2143,16 @@
         characterEditorFace.src = savedCharacter && savedCharacter.facePicture ? savedCharacter.facePicture : defaultProfileAvatar;
       }
       var gitMessage = data && data.git && data.git.message ? String(data.git.message) : "";
-      setCharacterEditorModalStatus(gitMessage ? "Character updated. " + gitMessage : "Character updated.");
+      var gitError = data && data.git && data.git.error ? String(data.git.error) : "";
+      var gitWarning = data && data.git && data.git.warning;
+      setCharacterEditorModalStatus(
+        gitWarning
+          ? "Character updated locally. " + (gitError || gitMessage || "Git sync did not complete.")
+          : gitMessage
+            ? "Character updated. " + gitMessage
+            : "Character updated.",
+        gitWarning ? "warning" : "success"
+      );
       loadAdminCharacters();
       loadCharacterCatalog();
     } catch (error) {
@@ -2614,13 +2912,63 @@
   }
 
   function setProfileLevelMeterProgress(level, experienceIntoLevel, experienceForNextLevel) {
-    if (!profileLevelMeter) {
+    setLevelMeterProgress(profileLevelMeter, level, experienceIntoLevel, experienceForNextLevel);
+  }
+
+  function setLevelMeterProgress(meterNode, level, experienceIntoLevel, experienceForNextLevel) {
+    if (!meterNode) {
       return;
     }
-    profileLevelMeter.style.setProperty(
+    meterNode.style.setProperty(
       "--level-progress",
       getPlayerLevelProgressPercent(level, experienceIntoLevel, experienceForNextLevel) + "%"
     );
+  }
+
+  function getArenaProfileState(profile, arena) {
+    if (arena === "pokemon") {
+      return profile && profile.arenas && profile.arenas.pokemon
+        ? profile.arenas.pokemon
+        : {};
+    }
+    return profile || {};
+  }
+
+  function getProfileAvatarUrl(profile, arena) {
+    if (!profile) {
+      return defaultProfileAvatar;
+    }
+    if (arena === "pokemon") {
+      var pokemonProfile = getArenaProfileState(profile, "pokemon");
+      return pokemonProfile.avatarUrl || profile.avatarUrl || defaultProfileAvatar;
+    }
+    return profile.avatarUrl || defaultProfileAvatar;
+  }
+
+  function populateArenaLadder(arenaProfile, nodes) {
+    var ladder = arenaProfile && arenaProfile.ladder ? arenaProfile.ladder : {};
+    var wins = Number(ladder.wins) || 0;
+    var losses = Number(ladder.losses) || 0;
+    var totalGames = wins + losses;
+    var winPercentage = totalGames > 0 ? ((wins / totalGames) * 100).toFixed(2) : "0.00";
+
+    setText(nodes.level, formatInteger(ladder.level || 1));
+    setLevelMeterProgress(
+      nodes.levelMeter,
+      ladder.level || 1,
+      ladder.experienceIntoLevel,
+      ladder.experienceForNextLevel
+    );
+    setText(nodes.rank, ladder.rank || "Academy Student");
+    setText(nodes.experiencePoints, formatInteger(ladder.experiencePoints || 0) + " xp");
+    setText(nodes.ladderRank, ladder.ladderRank ? "#" + formatInteger(ladder.ladderRank) : "Unranked");
+    setText(nodes.wins, formatInteger(wins));
+    setText(nodes.losses, formatInteger(losses));
+    setText(nodes.winPercentage, winPercentage + " %");
+    setText(nodes.streak, formatSigned(ladder.streak));
+    setText(nodes.highestStreak, formatSigned(ladder.highestStreak));
+    setText(nodes.highestLevel, "Level " + formatInteger(ladder.highestLevel || ladder.level || 1));
+    setText(nodes.famePoints, formatInteger(ladder.famePoints));
   }
 
   function formatSignedListNumber(value) {
@@ -2768,22 +3116,23 @@
     );
   }
 
-  function renderLadderGames(user) {
-    if (!profileLadderGamesList) {
+  function renderArenaLadderGames(user, arena, listNode, emptyText, emptyId) {
+    if (!listNode) {
       return;
     }
 
-    clearChildren(profileLadderGamesList);
-    var games = user && user.profile && Array.isArray(user.profile.recentLadderGames)
-      ? user.profile.recentLadderGames
+    clearChildren(listNode);
+    var arenaProfile = getArenaProfileState(user && user.profile ? user.profile : null, arena);
+    var games = arenaProfile && Array.isArray(arenaProfile.recentLadderGames)
+      ? arenaProfile.recentLadderGames
       : [];
 
     if (!games.length) {
       var empty = document.createElement("div");
       empty.className = "quick-game-empty";
-      empty.id = "profile-ladder-games-empty";
-      empty.textContent = "No ladder games in the last 24 hours.";
-      profileLadderGamesList.appendChild(empty);
+      empty.id = emptyId;
+      empty.textContent = emptyText;
+      listNode.appendChild(empty);
       return;
     }
 
@@ -2824,8 +3173,28 @@
       row.appendChild(time);
       row.appendChild(matchup);
       row.appendChild(result);
-      profileLadderGamesList.appendChild(row);
+      listNode.appendChild(row);
     });
+  }
+
+  function renderLadderGames(user) {
+    renderArenaLadderGames(
+      user,
+      "comic",
+      profileLadderGamesList,
+      "No ladder games in the last 24 hours.",
+      "profile-ladder-games-empty"
+    );
+  }
+
+  function renderPokemonLadderGames(user) {
+    renderArenaLadderGames(
+      user,
+      "pokemon",
+      pokemonProfileLadderGamesList,
+      "No Pokemon-Arena ladder games in the last 24 hours.",
+      "pokemon-profile-ladder-games-empty"
+    );
   }
 
   function setClanProfileStatus(message, state) {
@@ -3156,27 +3525,38 @@
       !sidebarTopClanLevels &&
       !sidebarTopCurrentStreaks &&
       !sidebarTopWins &&
-      !sidebarTopHighestStreaks
+      !sidebarTopHighestStreaks &&
+      !pokemonSidebarTopPlayerLevels &&
+      !pokemonSidebarTopCurrentStreaks &&
+      !pokemonSidebarTopWins &&
+      !pokemonSidebarTopHighestStreaks
     ) {
       return;
     }
 
     try {
-      var response = await fetch("/api/leaderboards/sidebar", {
-        credentials: "same-origin"
-      });
-      if (!response.ok) {
+      var responses = await Promise.all([
+        fetch("/api/leaderboards/sidebar", {
+          credentials: "same-origin"
+        }),
+        fetch("/api/leaderboards/sidebar?arena=pokemon", {
+          credentials: "same-origin"
+        })
+      ]);
+      if (!responses[0].ok) {
         return;
       }
-      var data = await response.json().catch(function () {
+      var data = await responses[0].json().catch(function () {
         return {};
       });
-      var boards = data && data.leaderboards ? data.leaderboards : {};
-      renderSidebarBarList(sidebarTopPlayerLevels, boards.topPlayerLevels, "username", 50);
-      renderSidebarBarList(sidebarTopClanLevels, boards.topClanLevels, "clanName", 50);
-      renderSidebarStatList(sidebarTopCurrentStreaks, boards.topCurrentStreaks, formatSignedListNumber, "streak");
-      renderSidebarStatList(sidebarTopWins, boards.topWins, formatListNumber, "wins");
-      renderSidebarStatList(sidebarTopHighestStreaks, boards.topHighestStreaks, formatSignedListNumber, "streak");
+      var pokemonData = responses[1] && responses[1].ok
+        ? await responses[1].json().catch(function () {
+          return {};
+        })
+        : {};
+      sidebarLeaderboardsByArena.comic = data && data.leaderboards ? data.leaderboards : {};
+      sidebarLeaderboardsByArena.pokemon = pokemonData && pokemonData.leaderboards ? pokemonData.leaderboards : {};
+      renderActiveHomeLeaderboards();
     } catch (error) {}
   }
 
@@ -3221,6 +3601,20 @@
       setText(profileHighestStreak, "0");
       setText(profileHighestLevel, "Level 1");
       setText(profileFamePoints, "0");
+      populateArenaLadder({}, {
+        level: pokemonProfileLevel,
+        levelMeter: pokemonProfileLevelMeter,
+        rank: pokemonProfileRank,
+        experiencePoints: pokemonProfileExperiencePoints,
+        ladderRank: pokemonProfileLadderRank,
+        wins: pokemonProfileWins,
+        losses: pokemonProfileLosses,
+        winPercentage: pokemonProfileWinPercentage,
+        streak: pokemonProfileStreak,
+        highestStreak: pokemonProfileHighestStreak,
+        highestLevel: pokemonProfileHighestLevel,
+        famePoints: pokemonProfileFamePoints
+      });
       setText(profileLadderGamesLast24, "0");
       if (profileStatus) {
         profileStatus.textContent = "offline";
@@ -3229,7 +3623,9 @@
       setText(profileCurrentActivity, "Not available");
       setText(profileCurrentPage, "Not available");
       renderLadderGames(null);
+      renderPokemonLadderGames(null);
       renderQuickGames(null);
+      renderPrivateGames(null);
       if (clanPanelAvatar) {
         clanPanelAvatar.src = defaultProfileAvatar;
       }
@@ -3244,6 +3640,7 @@
 
     var profile = user.profile || {};
     var ladder = profile.ladder || {};
+    var pokemonArenaProfile = getArenaProfileState(profile, "pokemon");
     var clan = profile.clan || null;
     var wins = Number(ladder.wins) || 0;
     var losses = Number(ladder.losses) || 0;
@@ -3251,10 +3648,24 @@
     var winPercentage = totalGames > 0 ? ((wins / totalGames) * 100).toFixed(2) : "0.00";
 
     if (profileAvatarImage) {
-      profileAvatarImage.src = profile.avatarUrl || defaultProfileAvatar;
+      profileAvatarImage.src = getProfileAvatarUrl(profile, "comic");
     }
     if (changeAvatarCurrentImage) {
-      changeAvatarCurrentImage.src = profile.avatarUrl || defaultProfileAvatar;
+      changeAvatarCurrentImage.src = getProfileAvatarUrl(profile, "comic");
+    }
+    if (comicAvatarCurrentImage) {
+      comicAvatarCurrentImage.src = getProfileAvatarUrl(profile, "comic");
+    }
+    if (pokemonAvatarCurrentImage) {
+      pokemonAvatarCurrentImage.src = getProfileAvatarUrl(profile, "pokemon");
+    }
+    if (comicAvatarUrlInput) {
+      var comicAvatarUrl = getProfileAvatarUrl(profile, "comic");
+      comicAvatarUrlInput.value = comicAvatarUrl === defaultProfileAvatar ? "" : comicAvatarUrl;
+    }
+    if (pokemonAvatarUrlInput) {
+      var pokemonAvatarUrl = getProfileAvatarUrl(profile, "pokemon");
+      pokemonAvatarUrlInput.value = pokemonAvatarUrl === defaultProfileAvatar ? "" : pokemonAvatarUrl;
     }
     setText(profileUsername, user.username);
     setText(profileSiteRank, formatRole(user.role));
@@ -3303,6 +3714,20 @@
     setText(profileHighestStreak, formatSigned(ladder.highestStreak));
     setText(profileHighestLevel, "Level " + formatInteger(ladder.highestLevel || ladder.level || 1));
     setText(profileFamePoints, formatInteger(ladder.famePoints));
+    populateArenaLadder(pokemonArenaProfile, {
+      level: pokemonProfileLevel,
+      levelMeter: pokemonProfileLevelMeter,
+      rank: pokemonProfileRank,
+      experiencePoints: pokemonProfileExperiencePoints,
+      ladderRank: pokemonProfileLadderRank,
+      wins: pokemonProfileWins,
+      losses: pokemonProfileLosses,
+      winPercentage: pokemonProfileWinPercentage,
+      streak: pokemonProfileStreak,
+      highestStreak: pokemonProfileHighestStreak,
+      highestLevel: pokemonProfileHighestLevel,
+      famePoints: pokemonProfileFamePoints
+    });
     setText(
       profileLadderGamesLast24,
       formatInteger(
@@ -3328,6 +3753,7 @@
     );
     setText(profileCurrentPage, getProfileCurrentPageLabel(user));
     renderLadderGames(user);
+    renderPokemonLadderGames(user);
     renderQuickGames(user);
     renderPrivateGames(user);
   }
@@ -3356,23 +3782,28 @@
     }
   }
 
-  function updateReleasePreview(index, releaseItem, facePicture) {
-    var image = releaseFaces[index];
-    var link = releaseLinks[index];
-    var label = releaseLabels[index];
+  function updateReleasePreview(arena, index, releaseItem, facePicture) {
+    var group = getLatestReleaseGroup(arena);
+    var image = group && group.faces ? group.faces[index] : null;
+    var link = group && group.links ? group.links[index] : null;
+    var label = group && group.labels ? group.labels[index] : null;
     var name = releaseItem && releaseItem.label ? String(releaseItem.label) : "";
     var url = facePicture ? String(facePicture) : "";
     var characterId = releaseItem && releaseItem.characterId ? String(releaseItem.characterId) : "";
+    var character = findCatalogCharacterById(characterId);
+    var rosterPage = arena === "pokemon"
+      ? "pokemon-charactersandskills.html"
+      : "charactersandskills.html";
     if (label) {
       label.textContent = name || "Latest Character";
     }
     if (link) {
       if (characterId) {
-        link.href = "charactersandskills.html?characterId=" + encodeURIComponent(characterId);
+        link.href = rosterPage + "?characterId=" + encodeURIComponent(characterId);
         link.setAttribute("aria-label", "Open " + (name || "character") + " character page");
         link.title = "Open " + (name || "character") + " character page";
       } else {
-        link.href = "charactersandskills.html";
+        link.href = rosterPage;
         link.removeAttribute("aria-label");
         link.removeAttribute("title");
       }
@@ -3391,7 +3822,10 @@
   }
 
   async function initializeReleaseInputs() {
-    var releases = [];
+    var releasesByArena = {
+      comic: [],
+      pokemon: []
+    };
     try {
       var response = await fetch("/api/latest-releases", {
         credentials: "same-origin"
@@ -3400,16 +3834,27 @@
         var data = await response.json().catch(function () {
           return {};
         });
-        releases = Array.isArray(data && data.releases) ? data.releases : [];
+        if (data && data.releasesByArena) {
+          releasesByArena.comic = Array.isArray(data.releasesByArena.comic) ? data.releasesByArena.comic : [];
+          releasesByArena.pokemon = Array.isArray(data.releasesByArena.pokemon) ? data.releasesByArena.pokemon : [];
+        } else {
+          releasesByArena.comic = Array.isArray(data && data.releases) ? data.releases : [];
+          releasesByArena.pokemon = Array.isArray(data && data.pokemonReleases) ? data.pokemonReleases : [];
+        }
       }
     } catch (error) {}
 
-    releaseFaces.forEach(function (_, index) {
-      var releaseItem = releases[index] || null;
-      var facePicture = releaseItem && releaseItem.facePicture
-        ? releaseItem.facePicture
-        : "";
-      updateReleasePreview(index, releaseItem, facePicture);
+    Object.keys(releaseGroups).forEach(function (arena) {
+      var releases = Array.isArray(releasesByArena[arena]) ? releasesByArena[arena] : [];
+      releases.forEach(function (releaseItem, index) {
+        var facePicture = releaseItem && releaseItem.facePicture ? releaseItem.facePicture : "";
+        updateReleasePreview(arena, index, releaseItem, facePicture);
+      });
+      getLatestReleaseGroup(arena).faces.forEach(function (_, index) {
+        if (!releases[index]) {
+          updateReleasePreview(arena, index, null, "");
+        }
+      });
     });
   }
 
@@ -3810,9 +4255,24 @@
 
   if (changeAvatarButton) {
     changeAvatarButton.addEventListener("click", function () {
+      if (changeAvatarForm) {
+        changeAvatarForm.scrollIntoView({ behavior: "smooth", block: "center" });
+        if (comicAvatarFileInput) {
+          comicAvatarFileInput.focus();
+        } else if (comicAvatarUrlInput) {
+          comicAvatarUrlInput.focus();
+        } else if (changeAvatarUrlInput) {
+          changeAvatarUrlInput.focus();
+        }
+        return;
+      }
       window.location.href = "changeavatar.html";
     });
   }
+
+  wireAvatarPreview(changeAvatarFileInput, changeAvatarCurrentImage);
+  wireAvatarPreview(comicAvatarFileInput, comicAvatarCurrentImage);
+  wireAvatarPreview(pokemonAvatarFileInput, pokemonAvatarCurrentImage);
 
   if (clanPanelButton) {
     clanPanelButton.addEventListener("click", function () {
@@ -3927,6 +4387,20 @@
     latestReleasesForm.addEventListener("submit", function (event) {
       event.preventDefault();
       saveAdminLatestReleases();
+    });
+  }
+
+  if (latestReleasesArenaButtons.comic) {
+    latestReleasesArenaButtons.comic.addEventListener("click", function () {
+      setActiveLatestReleasesArena("comic");
+      loadAdminLatestReleases();
+    });
+  }
+
+  if (latestReleasesArenaButtons.pokemon) {
+    latestReleasesArenaButtons.pokemon.addEventListener("click", function () {
+      setActiveLatestReleasesArena("pokemon");
+      loadAdminLatestReleases();
     });
   }
 
@@ -4621,47 +5095,81 @@
   if (changeAvatarForm) {
     changeAvatarForm.addEventListener("submit", async function (event) {
       event.preventDefault();
-      var avatarUrl = String(changeAvatarUrlInput && changeAvatarUrlInput.value ? changeAvatarUrlInput.value : "").trim();
-      if (!avatarUrl) {
-        setChangeAvatarStatus("A direct image URL is required.", "error");
-        return;
-      }
+      var avatarUpdates = comicAvatarUrlInput || pokemonAvatarUrlInput || comicAvatarFileInput || pokemonAvatarFileInput
+        ? [
+            {
+              arena: "comic",
+              fileInput: comicAvatarFileInput,
+              urlInput: comicAvatarUrlInput
+            },
+            {
+              arena: "pokemon",
+              fileInput: pokemonAvatarFileInput,
+              urlInput: pokemonAvatarUrlInput
+            }
+          ]
+        : [
+            {
+              arena: "comic",
+              fileInput: changeAvatarFileInput,
+              urlInput: changeAvatarUrlInput
+            }
+          ];
 
-      setChangeAvatarStatus("Saving avatar...", "");
+      setChangeAvatarStatus("Saving avatars...", "");
       if (changeAvatarSubmit) {
         changeAvatarSubmit.disabled = true;
       }
 
       try {
-        var response = await fetch("/api/profile/avatar", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          credentials: "same-origin",
-          body: JSON.stringify({
-            avatarUrl: avatarUrl
-          })
-        });
-        var data = await response.json().catch(function () {
-          return {};
-        });
-        if (!response.ok) {
-          setChangeAvatarStatus(data && data.error ? data.error : "Unable to update avatar.", "error");
-          return;
+        var updatedUser = null;
+        for (var index = 0; index < avatarUpdates.length; index += 1) {
+          var entry = avatarUpdates[index];
+          var avatarValue = await resolveAvatarSubmissionValue(entry.fileInput, entry.urlInput);
+          if (!String(avatarValue || "").trim()) {
+            setChangeAvatarStatus("Choose an image file or paste a direct image URL.", "error");
+            return;
+          }
+          var response = await fetch("/api/profile/avatar", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            credentials: "same-origin",
+            body: JSON.stringify({
+              avatarUrl: avatarValue,
+              arena: entry.arena
+            })
+          });
+          var data = await response.json().catch(function () {
+            return {};
+          });
+          if (!response.ok) {
+            setChangeAvatarStatus(data && data.error ? data.error : "Unable to update avatar.", "error");
+            return;
+          }
+          updatedUser = data && data.user && data.user.username ? data.user : updatedUser;
         }
-        var updatedUser = data && data.user && data.user.username ? data.user : null;
         if (updatedUser) {
           setCurrentSessionUser(updatedUser);
           cacheSessionUser(updatedUser);
           populateProfile(updatedUser);
+          if (changeAvatarFileInput) {
+            changeAvatarFileInput.value = "";
+          }
+          if (comicAvatarFileInput) {
+            comicAvatarFileInput.value = "";
+          }
+          if (pokemonAvatarFileInput) {
+            pokemonAvatarFileInput.value = "";
+          }
           if (changeAvatarUrlInput) {
             changeAvatarUrlInput.value = updatedUser.profile && updatedUser.profile.avatarUrl
               ? updatedUser.profile.avatarUrl
-              : avatarUrl;
+              : "";
           }
         }
-        setChangeAvatarStatus("Avatar updated.", "success");
+        setChangeAvatarStatus("Avatars updated.", "success");
       } catch (error) {
         setChangeAvatarStatus("Unable to reach the server.", "error");
       } finally {
@@ -4788,38 +5296,50 @@
     });
   }
 
-  if (playNowButton) {
-    playNowButton.addEventListener("click", function () {
-      var destination = accountPanel.hidden ? "selection-login.html" : "selection.html";
-      var targetInnerWidth = 760;
-      var targetInnerHeight = 580;
-      var chromeWidth = Math.max(0, window.outerWidth - window.innerWidth);
-      var chromeHeight = Math.max(0, window.outerHeight - window.innerHeight);
-      var popupWidth = targetInnerWidth + chromeWidth;
-      var popupHeight = targetInnerHeight + chromeHeight;
-      var left = Math.max(0, Math.round((window.screen.width - popupWidth) / 2));
-      var top = Math.max(0, Math.round((window.screen.height - popupHeight) / 2));
-      var features = [
-        "width=" + popupWidth,
-        "height=" + popupHeight,
-        "left=" + left,
-        "top=" + top,
-        "resizable=yes",
-        "scrollbars=yes"
-      ].join(",");
-      var popup = window.open(destination, "comicArenaPlayNow", features);
-      if (popup) {
-        try {
-          popup.resizeTo(popupWidth, popupHeight);
-          popup.moveTo(left, top);
-        } catch (error) {}
-        popup.focus();
-        return;
-      }
-      window.location.href = destination;
+  if (playArenaButtons && playArenaButtons.length) {
+    playArenaButtons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        var arena = button.getAttribute("data-play-arena") === "pokemon" ? "pokemon" : "comic";
+        var destination = (accountPanel.hidden ? "selection-login.html" : "selection.html") + "?arena=" + encodeURIComponent(arena);
+        var targetInnerWidth = 760;
+        var targetInnerHeight = 580;
+        var chromeWidth = Math.max(0, window.outerWidth - window.innerWidth);
+        var chromeHeight = Math.max(0, window.outerHeight - window.innerHeight);
+        var popupWidth = targetInnerWidth + chromeWidth;
+        var popupHeight = targetInnerHeight + chromeHeight;
+        var left = Math.max(0, Math.round((window.screen.width - popupWidth) / 2));
+        var top = Math.max(0, Math.round((window.screen.height - popupHeight) / 2));
+        var features = [
+          "width=" + popupWidth,
+          "height=" + popupHeight,
+          "left=" + left,
+          "top=" + top,
+          "resizable=yes",
+          "scrollbars=yes"
+        ].join(",");
+        var popup = window.open(destination, "comicArenaPlayNow", features);
+        if (popup) {
+          try {
+            popup.resizeTo(popupWidth, popupHeight);
+            popup.moveTo(left, top);
+          } catch (error) {}
+          popup.focus();
+          return;
+        }
+        window.location.href = destination;
+      });
     });
   }
 
+  if (homeArenaSwitchButtons && homeArenaSwitchButtons.length) {
+    homeArenaSwitchButtons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        setActiveHomeArena(button.getAttribute("data-home-arena-switch"), true);
+      });
+    });
+  }
+
+  setActiveHomeArena(activeHomeArena, false);
   updateMode();
   initializeReleaseInputs();
   loadSidebarLeaderboards();
@@ -4829,6 +5349,7 @@
   loadPublicNews();
   loadAdminNewsPosts();
   loadCharacterCatalog();
+  setActiveLatestReleasesArena(activeLatestReleasesArena);
   loadAdminLatestReleases();
   loadMaintenanceMode();
 

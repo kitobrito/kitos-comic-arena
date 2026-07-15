@@ -1,6 +1,13 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K64P68MT');</script>
+<!-- End Google Tag Manager -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Comic-Arena Change Avatar</title>
@@ -259,6 +266,12 @@
     .auth-input:focus {
       border-color: var(--accent-3);
       box-shadow: 0 0 0 4px rgba(31, 117, 255, 0.15);
+    }
+
+    input.auth-input[type="file"] {
+      height: auto;
+      padding: 10px 12px;
+      line-height: 1.15;
     }
 
     .auth-button {
@@ -520,6 +533,12 @@
     .avatar-input:focus {
       border-color: var(--accent-3);
       box-shadow: 0 0 0 4px rgba(31, 117, 255, 0.15);
+    }
+
+    .avatar-input[type="file"] {
+      min-height: auto;
+      padding: 10px 12px;
+      line-height: 1.15;
     }
 
     .avatar-save {
@@ -817,8 +836,13 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="styles/portal-theme.css?v=na-portal-v1" />
 </head>
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K64P68MT"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
@@ -943,26 +967,31 @@
                       <img
             class="avatar-preview"
             id="change-avatar-current-image"
-            src="https://i.postimg.cc/3JqVcPXm/default.png"
+            src="/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png"
             alt="Current user avatar"
           />
             <strong>Current User Avatar</strong>
-            <span class="avatar-preview-note">75 x 75 only</span>
-            <span>Paste a direct image link below. The existing save flow, preview target, and account controls all stay wired exactly as they are now.</span>
+            <span class="avatar-preview-note">Any size, resized to 75 x 75</span>
+            <span>Upload an image here or paste a direct link below. The site will resize uploads down to 75 x 75 before saving.</span>
           </div>
         </div>
         <form class="avatar-form" id="change-avatar-form">
+          <input
+            class="avatar-input auth-input"
+            id="change-avatar-file"
+            type="file"
+            accept="image/*"
+          />
           <input
             class="avatar-input"
             id="change-avatar-url"
             type="url"
             inputmode="url"
             autocomplete="off"
-            placeholder="Direct image URL only"
-            required
+            placeholder="Direct image URL fallback"
           />
           <button class="avatar-save" type="submit" id="change-avatar-submit">Save Avatar</button>
-          <p class="avatar-hint">Avatars are to be 75x75 only.</p>
+          <p class="avatar-hint">Uploads will be resized to 75 x 75 automatically.</p>
           <p class="avatar-status" id="change-avatar-status" aria-live="polite"></p>
         </form>
       </section>
@@ -1189,5 +1218,6 @@
     </aside>
   </div>
   <script src="./scripts/index.js" defer></script>
+  <script src="./scripts/arena-navigation.js?v=pokemon-sidebar-v4" defer></script>
 </body>
 </html>

@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       setStatus('Account created. Redirecting to sign in...', 'success');
-      window.location.href = 'selection-login.html';
+      window.location.href = `selection-login.html${window.location.search || ''}`;
     } catch (error) {
       setStatus('Unable to reach the server.', 'error');
     } finally {

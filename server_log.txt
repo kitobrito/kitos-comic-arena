@@ -1,0 +1,9 @@
+--- Startup Diagnostics ---
+Current working directory: /home/kienevil1/kitos-comic-arena
+.env file expected at: /home/kienevil1/kitos-comic-arena/.env
+.env file exists: true
+[dotenv@17.2.3] injecting env (9) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+dotenv.config() successfully loaded.
+MONGODB_URI present: true
+JWT_SECRET present: true
+---------------------------

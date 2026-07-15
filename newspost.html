@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K64P68MT');</script>
+<!-- End Google Tag Manager -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Comic-Arena News Post</title>
@@ -707,6 +714,17 @@
       text-transform: uppercase;
     }
 
+    .latest-releases-arena-switch {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .latest-releases-arena-switch .news-admin-button {
+      min-width: 132px;
+    }
+
     .news-admin-form {
       display: grid;
       gap: 14px;
@@ -946,6 +964,35 @@
       font-size: 18px;
       font-weight: 800;
       text-transform: uppercase;
+    }
+
+    .news-change-toggle {
+      justify-self: start;
+      padding: 8px 12px;
+      border: 3px solid var(--line);
+      background: var(--accent-2);
+      color: var(--line);
+      font: inherit;
+      font-size: 14px;
+      font-weight: 900;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    .news-change-toggle:hover,
+    .news-change-toggle:focus-visible {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .news-change-collapsible {
+      display: grid;
+      gap: 10px;
+    }
+
+    .news-change-collapsible[hidden] {
+      display: none;
     }
 
     .news-change-skill {
@@ -1361,8 +1408,13 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="styles/portal-theme.css?v=na-portal-v1" />
 </head>
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K64P68MT"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
@@ -1499,6 +1551,13 @@
                 Title
                 <input class="news-admin-input" type="text" id="news-title" maxlength="120" required />
               </label>
+              <label class="news-admin-label" for="news-arena">
+                Arena
+                <select class="news-admin-input" id="news-arena">
+                  <option value="comic">Comic Arena</option>
+                  <option value="pokemon">Pokemon Arena</option>
+                </select>
+              </label>
               <label class="news-admin-label" for="news-content">
                 News Content
                 <textarea class="news-admin-textarea" id="news-content" placeholder="Write the announcement here. Use a line with --- to insert a divider."></textarea>
@@ -1525,8 +1584,12 @@
           </section>
 
           <section class="news-list-card">
-            <h2 class="news-list-title">Latest Character Releases</h2>
+            <h2 class="news-list-title" id="latest-releases-arena-title">Latest Comic Character Releases</h2>
             <p class="news-card-note">Choose which three characters appear in the homepage release strip.</p>
+            <div class="latest-releases-arena-switch" aria-label="Choose release editor arena">
+              <button class="news-admin-button secondary" type="button" id="latest-releases-arena-comic">Comic Arena</button>
+              <button class="news-admin-button secondary" type="button" id="latest-releases-arena-pokemon">Pokemon Arena</button>
+            </div>
             <form class="news-admin-form" id="latest-releases-form">
               <label class="news-admin-label" for="latest-release-1">
                 Release Slot 1
@@ -1774,6 +1837,6 @@
     </aside>
   </div>
   <script src="./scripts/index.js" defer></script>
+  <script src="./scripts/arena-navigation.js?v=pokemon-sidebar-v4" defer></script>
 </body>
 </html>
-

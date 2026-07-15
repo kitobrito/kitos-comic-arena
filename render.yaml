@@ -34,3 +34,13 @@ services:
         value: "true"
       - key: CORS_ORIGIN
         sync: false
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_ENV
+        value: live
+      - key: PAYPAL_MERCHANT_EMAIL
+        value: kienevul@gmail.com
+      - key: PUBLIC_APP_URL
+        value: https://www.comic-arena.net

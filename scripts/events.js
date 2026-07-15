@@ -3,6 +3,17 @@
   var releasesGrid = document.getElementById("events-releases");
   var newsGrid = document.getElementById("events-news");
   var missionsGrid = document.getElementById("events-missions");
+  var pageArena = (function () {
+    var queryArena = new URLSearchParams(window.location.search).get("arena");
+    if (queryArena === "pokemon") return "pokemon";
+    try {
+      return localStorage.getItem("comicArenaMode") === "pokemon" ? "pokemon" : "comic";
+    } catch (error) {
+      return "comic";
+    }
+  }());
+  document.body.classList.toggle("arena-mode-pokemon", pageArena === "pokemon");
+  document.body.classList.toggle("arena-mode-comic", pageArena === "comic");
 
   function setStatus(message, state) {
     if (!status) {
@@ -78,7 +89,7 @@
         '<p class="news-meta">' + formatDate(post && (post.updatedAt || post.createdAt)) + " | " + (post && post.author ? post.author : "Unknown") + "</p>" +
         "<h3>" + (post && post.title ? post.title : "Untitled Post") + "</h3>" +
         "<p>" + toPreviewText(firstParagraph && firstParagraph.text ? firstParagraph.text : "No summary available yet.").slice(0, 180) + "</p>" +
-        '<a class="news-link" href="index.html">Open News Feed</a>';
+        '<a class="news-link" href="index.html?arena=' + encodeURIComponent(pageArena) + '">Open News Feed</a>';
       newsGrid.appendChild(article);
     });
   }
@@ -102,7 +113,7 @@
         '<p class="mission-meta">Level ' + (mission && mission.level_requirement ? mission.level_requirement : 1) + " Required</p>" +
         "<h3>" + (mission && mission.title ? mission.title : "Mission") + "</h3>" +
         "<p>" + toPreviewText(goalText) + "</p>" +
-        '<a class="mission-link" href="missions.html">Open Missions</a>';
+        '<a class="mission-link" href="missions.html' + (pageArena === "pokemon" ? "?arena=pokemon" : "") + '">Open Missions</a>';
       missionsGrid.appendChild(article);
     });
   }
@@ -111,10 +122,10 @@
     setStatus("Loading board...");
     try {
       var responses = await Promise.all([
-        fetch("/api/latest-releases", { credentials: "same-origin" }),
-        fetch("/api/characters/catalog", { credentials: "same-origin" }),
-        fetch("/api/news", { credentials: "same-origin" }),
-        fetch("/api/missions", { credentials: "same-origin" })
+        fetch("/api/latest-releases?arena=" + encodeURIComponent(pageArena), { credentials: "same-origin" }),
+        fetch("/api/characters/catalog?arena=" + encodeURIComponent(pageArena), { credentials: "same-origin" }),
+        fetch("/api/news?arena=" + encodeURIComponent(pageArena), { credentials: "same-origin" }),
+        fetch("/api/missions?arena=" + encodeURIComponent(pageArena), { credentials: "same-origin" })
       ]);
       var payloads = await Promise.all(responses.map(function (response) {
         return response.json().catch(function () {

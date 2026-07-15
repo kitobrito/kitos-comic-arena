@@ -1,0 +1,78 @@
+{
+  "generatedAt": "2026-07-13T08:20:41.749Z",
+  "dryRun": false,
+  "manifestUrls": 480,
+  "changedFileCount": 17,
+  "totalReplacements": 669,
+  "changedFiles": [
+    {
+      "file": "assets/images/PokemonArena/characters imported/characters.js",
+      "replacements": 8
+    },
+    {
+      "file": "changeavatar.html",
+      "replacements": 1
+    },
+    {
+      "file": "characters.js",
+      "replacements": 382
+    },
+    {
+      "file": "clan panel.html",
+      "replacements": 2
+    },
+    {
+      "file": "clanprofile.html",
+      "replacements": 2
+    },
+    {
+      "file": "index.html",
+      "replacements": 1
+    },
+    {
+      "file": "ingame.html",
+      "replacements": 11
+    },
+    {
+      "file": "missions.html",
+      "replacements": 2
+    },
+    {
+      "file": "playeraccounts.html",
+      "replacements": 1
+    },
+    {
+      "file": "profile.html",
+      "replacements": 2
+    },
+    {
+      "file": "scripts/community.js",
+      "replacements": 1
+    },
+    {
+      "file": "scripts/index.js",
+      "replacements": 1
+    },
+    {
+      "file": "scripts/narutocharacters.js",
+      "replacements": 153
+    },
+    {
+      "file": "scripts/script.js",
+      "replacements": 20
+    },
+    {
+      "file": "selection.html",
+      "replacements": 1
+    },
+    {
+      "file": "server.js",
+      "replacements": 78
+    },
+    {
+      "file": "test/e2e/pokemon-ingame-recovery.spec.js",
+      "replacements": 3
+    }
+  ],
+  "missingReferences": []
+}

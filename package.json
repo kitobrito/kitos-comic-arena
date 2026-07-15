@@ -7,7 +7,18 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "node --test"
+    "balance:drift": "node scripts/balance-drift-checker.js",
+    "character-payload:inspect": "node scripts/character-payload-tool.js inspect",
+    "pokemon-image:generate": "node scripts/gemini-pokemon-image.js",
+    "selection-thumbnails:build": "python scripts/build-selection-thumbnails.py",
+    "live-deploy:verify": "node scripts/live-deploy-verifier.js",
+    "match:debug": "node scripts/match-debugger.js",
+    "pokemon-overrides:inspect": "node scripts/pokemon-override-tool.js inspect",
+    "pokemon-overrides:sync": "node scripts/pokemon-override-tool.js sync",
+    "stale-matches:check": "node scripts/stale-matches.js",
+    "stale-matches:force": "node scripts/stale-matches.js --force",
+    "test": "node --test test/*.test.js",
+    "test:e2e": "playwright test"
   },
   "keywords": [],
   "author": "",
@@ -28,6 +39,7 @@
     "ws": "^8.20.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "selfsigned": "^5.5.0"
   }
 }

@@ -1,10 +1,17 @@
-﻿
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K64P68MT');</script>
+<!-- End Google Tag Manager -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Comic-Arena Character Files</title>
+  <title>Comic Arena Character Files</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -33,7 +40,9 @@
     .nav-link svg, .account-action svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; flex: 0 0 auto; }
     .nav-link.active { color: #fff; background: var(--accent); border-color: var(--line); transform: translate(-4px,-4px); box-shadow: 4px 4px 0 rgba(0,0,0,1); }
     .nav-link.active::before { content: "!"; position: absolute; right: 10px; top: 50%; transform: translateY(-50%) rotate(-8deg); width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; background: var(--accent-2); color: var(--line); font-family: "Bangers", cursive; font-size: 18px; }
-    .play-now { width: 100%; height: 52px; margin-bottom: 10px; border: 4px solid var(--line); background: linear-gradient(180deg, #ffeb67 0%, #ff9e1b 100%); color: #101010; font: inherit; font-size: 24px; font-weight: 800; text-transform: uppercase; cursor: pointer; box-shadow: 0 6px 0 rgba(0,0,0,.95); transform: rotate(-1.5deg); }
+    .play-launches { display: grid; gap: 10px; margin-bottom: 10px; }
+    .play-now { width: 100%; min-height: 52px; border: 4px solid var(--line); background: linear-gradient(180deg, #ffeb67 0%, #ff9e1b 100%); color: #101010; font: inherit; font-size: 22px; font-weight: 800; text-transform: uppercase; cursor: pointer; box-shadow: 0 6px 0 rgba(0,0,0,.95); transform: rotate(-1.5deg); }
+    .play-now.pokemon { background: linear-gradient(180deg, #ffe97a 0%, #4aa6ff 100%); }
     .play-now:hover { transform: translateY(2px) rotate(-1.5deg); box-shadow: 0 4px 0 rgba(0,0,0,.95); }
     .auth-form { display: grid; gap: 10px; margin-top: 14px; }
     .auth-description { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.4; font-weight: 600; }
@@ -182,23 +191,152 @@
     .character-directory-empty { padding: 18px; border: 3px dashed rgba(21,17,11,.45); background: rgba(255,255,255,.45); }
     .character-modal-backdrop { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; padding: 24px; background: rgba(19,12,6,.74); z-index: 1000; }
     .character-modal-backdrop.visible { display: flex; }
-    .character-modal { width: min(1040px, 100%); max-height: min(88vh, 900px); overflow: auto; padding: 22px 18px; border: 4px solid var(--line); background: linear-gradient(145deg, rgba(255,255,255,.5), rgba(255,241,209,.98)), var(--panel); box-shadow: 10px 10px 0 rgba(0,0,0,.95); }
-    .character-modal-close-row { display: flex; justify-content: flex-end; margin-bottom: 10px; }
-    .character-modal-close { padding: 8px 14px; background: var(--accent); color: #fff; font-size: 16px; }
-    .character-modal-header { padding-bottom: 12px; border-bottom: 3px solid var(--line); margin-bottom: 16px; }
-    .character-modal-summary { grid-template-columns: 110px minmax(0, 1fr); }
-    .character-modal-image { width: 104px; height: 104px; }
-    .character-modal-description { margin: 0; color: var(--text); font-size: 19px; line-height: 1.35; font-weight: 600; }
-    .character-modal-unlock { margin: 8px 0 0; color: var(--muted); font-size: 16px; font-weight: 700; text-transform: uppercase; }
-    .character-modal-skill-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 16px; }
-    .character-skill-card { padding: 14px; border: 3px solid var(--line); background: var(--panel-strong); box-shadow: 4px 4px 0 rgba(0,0,0,.88); }
-    .character-skill-title { margin: 0 0 8px; color: var(--text); font-size: 18px; font-weight: 700; text-transform: uppercase; }
-    .character-skill-name { color: var(--accent); font-weight: 800; }
-    .character-skill-body { grid-template-columns: 90px minmax(0, 1fr); }
-    .character-skill-image { width: 84px; height: 84px; }
-    .character-skill-description { margin: 0; color: var(--text); font-size: 17px; line-height: 1.45; font-weight: 600; }
-    .character-skill-meta { margin-top: 8px; color: var(--text); font-size: 15px; line-height: 1.45; font-weight: 600; }
-    .character-skill-meta strong { color: var(--ink); font-weight: 800; }
+    .character-modal {
+      width: min(1040px, 100%);
+      max-height: min(88vh, 900px);
+      overflow: auto;
+      padding: 18px 18px 22px;
+      border: 4px solid #cfcfcf;
+      background: linear-gradient(180deg, #fdfdfd 0%, #f7f7f7 100%);
+      box-shadow: 10px 10px 0 rgba(0,0,0,.95);
+    }
+    .character-modal-close-row { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+    .character-modal-close {
+      padding: 8px 14px;
+      border: 2px solid #7b7b7b;
+      background: #f1f1f1;
+      color: #202020;
+      font-size: 15px;
+      font-weight: 700;
+      text-transform: uppercase;
+      box-shadow: none;
+    }
+    .character-modal-header {
+      display: grid;
+      gap: 10px;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+      border-bottom: 1px dashed #b7b7b7;
+    }
+    .character-modal-template-name {
+      margin: 0;
+      color: #2b1d8f;
+      font-size: 34px;
+      font-weight: 800;
+      line-height: 1;
+    }
+    .character-modal-summary {
+      display: grid;
+      grid-template-columns: 92px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+    .character-modal-image {
+      width: 74px;
+      height: 74px;
+      border: 1px solid #666;
+      box-shadow: none;
+    }
+    .character-modal-description-label,
+    .character-modal-meta-row,
+    .character-skill-classes {
+      color: #6f6f6f;
+      font-size: 15px;
+      font-weight: 500;
+    }
+    .character-modal-description-label {
+      margin: 0 0 6px;
+      text-transform: none;
+    }
+    .character-modal-description {
+      margin: 0;
+      color: #2a2a2a;
+      font-size: 18px;
+      line-height: 1.45;
+      font-weight: 500;
+    }
+    .character-modal-stats {
+      display: grid;
+      gap: 6px;
+      padding-top: 8px;
+      margin-top: 4px;
+      border-top: 1px dashed #b7b7b7;
+    }
+    .character-modal-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px 18px;
+      align-items: baseline;
+      color: #202020;
+      font-size: 16px;
+    }
+    .character-modal-meta-row strong {
+      color: #222;
+      font-weight: 800;
+    }
+    .character-modal-unlock {
+      margin: 0;
+      color: #202020;
+      font-size: 16px;
+      font-weight: 600;
+      text-transform: none;
+    }
+    .character-modal-skill-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 18px; }
+    .character-skill-card {
+      padding: 0 0 10px;
+      border: 0;
+      border-top: 1px dashed #b7b7b7;
+      border-bottom: 1px dashed #b7b7b7;
+      background: transparent;
+      box-shadow: none;
+    }
+    .character-skill-title {
+      margin: 10px 0 8px;
+      color: #ff9400;
+      font-size: 31px;
+      font-weight: 800;
+      line-height: 1;
+      text-transform: none;
+    }
+    .character-skill-name { color: inherit; font-weight: inherit; }
+    .character-skill-body {
+      display: grid;
+      grid-template-columns: 82px minmax(0, 1fr);
+      gap: 10px;
+      align-items: start;
+    }
+    .character-skill-image {
+      width: 74px;
+      height: 74px;
+      border: 1px solid #666;
+      box-shadow: none;
+    }
+    .character-skill-description {
+      margin: 0;
+      color: #2a2a2a;
+      font-size: 17px;
+      line-height: 1.45;
+      font-weight: 500;
+    }
+    .character-skill-meta {
+      display: grid;
+      gap: 3px;
+      margin-top: 8px;
+      color: #2a2a2a;
+      font-size: 15px;
+      line-height: 1.35;
+      font-weight: 500;
+    }
+    .character-skill-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 8px 16px;
+      align-items: center;
+    }
+    .character-skill-meta strong { color: #2a2a2a; font-weight: 500; text-decoration: underline; text-underline-offset: 2px; }
+    .character-skill-classes { text-align: left; }
     .character-energy-pips { display: inline-flex; align-items: center; gap: 4px; vertical-align: middle; margin-left: 8px; }
     .character-energy-pip { width: 12px; height: 12px; border: 2px solid var(--line); display: inline-block; }
     .character-energy-pip.taijutsu { background: #2ecc71; }
@@ -234,8 +372,13 @@
     @media (max-width: 860px) { .app { grid-template-columns: 1fr; } .sidebar { border-bottom-width: 4px; } .release-grid, .character-modal-skill-grid { grid-template-columns: 1fr; } }
     @media (max-width: 560px) { .main, .sidebar { padding-left: 14px; padding-right: 14px; } .release-title, .character-search-label { font-size: 30px; } .character-directory-copy { font-size: 17px; } .character-row-body, .character-modal-summary, .character-skill-body { grid-template-columns: 1fr; } .character-row-link { justify-self: start; } }
   </style>
+  <link rel="stylesheet" href="styles/portal-theme.css?v=na-portal-v1" />
 </head>
-<body>
+<body data-page-arena="comic">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K64P68MT"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
@@ -248,13 +391,17 @@
       <section class="group">
         <h2 class="group-title">Home Menu</h2>
         <nav class="nav">
-          <button class="play-now" type="button" id="play-now-button">Play Now</button>
+          <div class="play-launches">
+            <button class="play-now comic" type="button" data-play-arena="comic">Play Comic-Arena</button>
+            <button class="play-now pokemon" type="button" data-play-arena="pokemon">Play Pokemon-Arena</button>
+          </div>
           <a class="nav-link" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" /></svg><span>Home</span></a>
           <a class="nav-link" href="community.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="2.5" /><circle cx="16.5" cy="9.5" r="2" /><path d="M4.5 18c.8-2.7 3-4 5.5-4s4.7 1.3 5.5 4" /><path d="M14 17c.5-1.7 1.8-2.8 3.8-2.8 1.5 0 2.9.8 3.7 2.3" /></svg><span>Community</span></a>
           <a class="nav-link" href="events.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6" height="6" /><rect x="14" y="4" width="6" height="6" /><rect x="4" y="14" width="6" height="6" /><rect x="14" y="14" width="6" height="6" /></svg><span>Events</span></a>
           <a class="nav-link" href="missions.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.1 2.8 7.9 7 9 4.2-1.1 7-4.9 7-9V6z" /><path d="M9 12h6" /><path d="M12 9v6" /></svg><span>Comic Missions</span></a>
           <a class="nav-link" href="manual.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4.5A2.5 2.5 0 0 1 8.5 2H20v16H8.5A2.5 2.5 0 0 0 6 20.5z" /><path d="M6 4.5V22" /><path d="M9.5 7H16" /><path d="M9.5 11H17" /></svg><span>Game Manual</span></a>
-          <a class="nav-link active" href="charactersandskills.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h16" /><path d="M7.5 4v16" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg><span>Characters and Skills</span></a>
+          <a class="nav-link active" href="charactersandskills.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5h16" /><path d="M7.5 4v16" /><rect x="4" y="4" width="16" height="16" rx="2" /></svg><span>Comic Characters</span></a>
+          <a class="nav-link" href="pokemon-charactersandskills.html"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" /><path d="M4 12h16" /><circle cx="12" cy="12" r="2.2" /></svg><span>Pokemon Characters</span></a>
         </nav>
       </section>
       <section class="group" id="auth-panel">
@@ -303,8 +450,9 @@
               <button class="role-tab active" data-role="all">All Roles</button>
               <button class="role-tab" data-role="tank">Tank</button>
               <button class="role-tab" data-role="damage">Damage</button>
+              <button class="role-tab" data-role="spike-dps">Spike DPS</button>
               <button class="role-tab" data-role="support">Support</button>
-              <button class="role-tab" data-role="strategic">Strategic</button>
+              <button class="role-tab" data-role="controller">Controller</button>
               <button class="role-tab" data-role="hybrid">Hybrid</button>
               <button class="role-tab" data-role="assassin">Assassin</button>
               <button class="role-tab" data-role="bruiser">Bruiser</button>
@@ -315,6 +463,9 @@
               <button class="universe-tab" data-universe="marvel">Marvel</button>
               <button class="universe-tab" data-universe="dc">DC</button>
               <button class="universe-tab" data-universe="image">Image</button>
+              <button class="universe-tab" data-universe="the-boys">The Boys</button>
+              <button class="universe-tab" data-universe="aliens-vs-predator">Aliens vs Predator</button>
+              <button class="universe-tab" data-universe="star-wars">Star Wars</button>
               <button class="universe-tab" data-universe="other">Other</button>
             </div>
             <div class="character-search-row">
@@ -370,8 +521,9 @@
       </section>
     </aside>
   </div>
-  <script src="./characters.js?v=predator-xeno-fx-toggle-v1"></script>
-  <script src="./scripts/index.js?v=predator-xeno-fx-toggle-v1" defer></script>
+  <script src="./characters.js?v=pokemon-balance-v3"></script>
+  <script src="./pokemon-wave-2-live.js?v=pokemon-balance-v3"></script>
+  <script src="./scripts/index.js?v=pokemon-wave-2-launch-v1" defer></script>
   <script>
     (function () {
       var searchInput = document.getElementById("character-search-input");
@@ -379,7 +531,9 @@
       var modalBackdrop = document.getElementById("character-modal-backdrop");
       var modalClose = document.getElementById("character-modal-close");
       var modalContent = document.getElementById("character-modal-content");
+      var playButtons = document.querySelectorAll("[data-play-arena]");
       var requestedCharacterId = new URLSearchParams(window.location.search).get("characterId");
+      var pageArena = (document.body && document.body.dataset && document.body.dataset.pageArena ? String(document.body.dataset.pageArena).trim().toLowerCase() : "comic") || "comic";
       var roster = Array.isArray(window.characters)
         ? window.characters
         : (typeof characters !== "undefined" && Array.isArray(characters) ? characters : []);
@@ -395,13 +549,18 @@
         "sandman",
         "mysterio",
         "scorpion",
+        "ghost-rider",
+        "doctor-strange",
+        "doctor-doom",
         "the-hulk",
+        "wolverine",
         "superman",
         "batman",
         "aquaman",
         "the-flash-barry-allen",
         "wonder-woman",
         "green-lantern-hal-jordan",
+        "doctor-fate",
         "sinestro",
         "atrocitus",
         "saint-walker",
@@ -427,10 +586,48 @@
         "predator-stalker",
         "xenomorph-drone"
       ];
+      var preferredPokemonCharacterDisplayOrder = [
+        "pokemon-trainer",
+        "bulbasaur",
+        "charmander",
+        "squirtle",
+        "butterfree",
+        "pidgey",
+        "ekans",
+        "pikachu",
+        "zubat",
+        "abra",
+        "machop",
+        "magnemite",
+        "gastly",
+        "krabby",
+        "hitmonlee",
+        "hitmonchan",
+        "koffing",
+        "chansey",
+        "mr-mime",
+        "scyther",
+        "magikarp",
+        "eevee",
+        "vaporeon",
+        "jolteon",
+        "flareon"
+      ];
+      if (pageArena === "pokemon") {
+        preferredCharacterDisplayOrder = preferredPokemonCharacterDisplayOrder;
+      }
       var preferredCharacterDisplayRank = preferredCharacterDisplayOrder.reduce(function (map, id, index) {
         map[id] = index;
         return map;
       }, {});
+      function getCharacterArena(character) {
+        var explicitArena = character && typeof character.arena === "string" ? character.arena.trim().toLowerCase() : "";
+        if (explicitArena === "pokemon" || explicitArena === "comic") {
+          return explicitArena;
+        }
+        var universe = character && typeof character.universe === "string" ? character.universe.trim().toLowerCase() : "";
+        return universe === "pokemon" ? "pokemon" : "comic";
+      }
       roster = roster.slice().sort(function (left, right) {
         var leftId = left && (left.characterId || left.id) ? String(left.characterId || left.id) : "";
         var rightId = right && (right.characterId || right.id) ? String(right.characterId || right.id) : "";
@@ -443,6 +640,18 @@
         if (leftRank !== rightRank) return leftRank - rightRank;
         return String(left && left.name ? left.name : "").localeCompare(String(right && right.name ? right.name : ""));
       });
+      roster = roster.filter(function (character) {
+        return getCharacterArena(character) === pageArena;
+      });
+
+      var pageTitle = document.querySelector(".character-search-label");
+      var universeFilters = document.getElementById("universe-filters");
+      if (pageTitle) {
+        pageTitle.textContent = pageArena === "pokemon" ? "Pokemon Character Files" : "Comic Character Files";
+      }
+      if (universeFilters && pageArena === "pokemon") {
+        universeFilters.style.display = "none";
+      }
 
       function getVisibleSkills(character) {
         var skills = character && Array.isArray(character.skills) ? character.skills : [];
@@ -474,18 +683,41 @@
         return role || "None";
       }
 
+      function getCharacterMaxHealth(character) {
+        var numericHealth = Number(character && (character.maxHealth || character.health || character.hp));
+        return Number.isFinite(numericHealth) && numericHealth > 0 ? numericHealth : 100;
+      }
+
+      function getCharacterUnlockRequirement(character) {
+        if (!character || typeof character !== "object") {
+          return "None";
+        }
+        var unlock = character.unlockRequirement || character.unlockRequirementHtml || "";
+        if (typeof unlock === "string" && unlock.trim()) {
+          return unlock.trim();
+        }
+        return "None";
+      }
+
+      function normalizeRoleCategory(category) {
+        var value = typeof category === "string" ? category.trim().toLowerCase() : "";
+        if (value === "control" || value === "strategic" || value === "disruptor") return "controller";
+        return value;
+      }
+
       function getCharacterRoleCategory(character) {
-        var category = character && typeof character.roleCategory === "string" ? character.roleCategory.trim().toLowerCase() : "";
+        var category = normalizeRoleCategory(character && typeof character.roleCategory === "string" ? character.roleCategory : "");
         if (category) {
           return category;
         }
         var role = getCharacterRole(character).toLowerCase();
+        if (role.indexOf("spike dps") !== -1) return "spike-dps";
         if (role.indexOf("tank") !== -1 || role.indexOf("juggernaut") !== -1) return "tank";
         if (role.indexOf("support") !== -1 || role.indexOf("heal") !== -1 || role.indexOf("shield") !== -1) return "support";
         if (role.indexOf("assassin") !== -1 || role.indexOf("execution") !== -1) return "assassin";
         if (role.indexOf("bruiser") !== -1 || role.indexOf("brawler") !== -1 || role.indexOf("beserker") !== -1 || role.indexOf("berserker") !== -1) return "bruiser";
         if (role.indexOf("hybrid") !== -1) return "hybrid";
-        if (role.indexOf("disrupt") !== -1 || role.indexOf("control") !== -1 || role.indexOf("trickster") !== -1 || role.indexOf("remover") !== -1) return "strategic";
+        if (role.indexOf("controller") !== -1 || role.indexOf("disrupt") !== -1 || role.indexOf("control") !== -1 || role.indexOf("trickster") !== -1 || role.indexOf("remover") !== -1) return "controller";
         if (role.indexOf("specialist") !== -1 || role.indexOf("punisher") !== -1) return "specialist";
         if (role.indexOf("dps") !== -1 || role.indexOf("damage") !== -1 || role.indexOf("carry") !== -1 || role.indexOf("mage") !== -1) return "damage";
         return "specialist";
@@ -495,6 +727,13 @@
         var wrapper = document.createElement("span");
         wrapper.className = "character-energy-pips";
         var items = Array.isArray(energyList) ? energyList : [];
+        var energyLabels = {
+          taijutsu: "Green",
+          bloodline: "Red",
+          ninjutsu: "Blue",
+          genjutsu: "White",
+          random: "Random"
+        };
         if (!items.length) {
           wrapper.textContent = "None";
           return wrapper;
@@ -503,7 +742,7 @@
           var normalized = typeof entry === "string" ? entry.trim().toLowerCase() : "";
           var pip = document.createElement("span");
           pip.className = "character-energy-pip " + (normalized || "random");
-          pip.title = entry;
+          pip.title = energyLabels[normalized] || entry;
           wrapper.appendChild(pip);
         });
         return wrapper;
@@ -520,19 +759,9 @@
         var header = document.createElement("section");
         header.className = "character-modal-header";
 
-        var title = document.createElement("div");
-        title.className = "character-row-header";
-
-        var name = document.createElement("span");
-        name.className = "character-row-name";
+        var name = document.createElement("h2");
+        name.className = "character-modal-template-name";
         name.textContent = character.name ? String(character.name) : "Unknown Character";
-
-        var role = document.createElement("span");
-        role.className = "character-role-label";
-        role.textContent = " Role: " + getCharacterRole(character);
-
-        title.appendChild(name);
-        title.appendChild(role);
 
         var summary = document.createElement("div");
         summary.className = "character-modal-summary";
@@ -544,24 +773,38 @@
 
         var info = document.createElement("div");
 
+        var descriptionLabel = document.createElement("p");
+        descriptionLabel.className = "character-modal-description-label";
+        descriptionLabel.textContent = "Character Description";
+
         var description = document.createElement("p");
         description.className = "character-modal-description";
         description.textContent = getCharacterSummary(character);
 
-        var roleLine = document.createElement("p");
-        roleLine.className = "character-role-label";
-        roleLine.textContent = "Role: " + getCharacterRole(character);
+        var stats = document.createElement("div");
+        stats.className = "character-modal-stats";
+
+        var healthLine = document.createElement("div");
+        healthLine.className = "character-modal-meta-row";
+        healthLine.innerHTML = "<strong>Max Health:</strong> " + String(getCharacterMaxHealth(character));
+
+        var roleLine = document.createElement("div");
+        roleLine.className = "character-modal-meta-row";
+        roleLine.innerHTML = "<strong>Role:</strong> " + getCharacterRole(character);
 
         var unlock = document.createElement("p");
         unlock.className = "character-modal-unlock";
-        unlock.innerHTML = "<strong>Requirement to unlock:</strong> No requirements";
+        unlock.innerHTML = "<strong>Requirements to Unlock:</strong> " + getCharacterUnlockRequirement(character);
 
-        info.appendChild(roleLine);
+        stats.appendChild(healthLine);
+        stats.appendChild(roleLine);
+        stats.appendChild(unlock);
+        info.appendChild(descriptionLabel);
         info.appendChild(description);
-        info.appendChild(unlock);
+        info.appendChild(stats);
         summary.appendChild(image);
         summary.appendChild(info);
-        header.appendChild(title);
+        header.appendChild(name);
         header.appendChild(summary);
         modalContent.appendChild(header);
 
@@ -578,9 +821,9 @@
             var card = document.createElement("article");
             card.className = "character-skill-card";
 
-            var skillTitle = document.createElement("p");
+            var skillTitle = document.createElement("h3");
             skillTitle.className = "character-skill-title";
-            skillTitle.innerHTML = "Skill: <span class=\"character-skill-name\">" + (skill.name ? String(skill.name) : "Unknown Skill") + "</span>";
+            skillTitle.innerHTML = "<span class=\"character-skill-name\">" + (skill.name ? String(skill.name) : "Unknown Skill") + "</span>";
 
             var body = document.createElement("div");
             body.className = "character-skill-body";
@@ -600,25 +843,30 @@
             var meta = document.createElement("div");
             meta.className = "character-skill-meta";
 
+            var topMetaLine = document.createElement("div");
+            topMetaLine.className = "character-skill-meta-row";
+
             var cooldownLine = document.createElement("div");
             cooldownLine.innerHTML = "<strong>Cooldown:</strong> " + (skill.cooldown === 0 ? "None" : (skill.cooldown != null ? String(skill.cooldown) : "None"));
 
             var chakraLine = document.createElement("div");
             var chakraLabel = document.createElement("strong");
-            chakraLabel.textContent = "Chakra required:";
+            chakraLabel.textContent = "Cost:";
             chakraLine.appendChild(chakraLabel);
             chakraLine.appendChild(createEnergyPips(skill.energy));
 
             var classLine = document.createElement("div");
+            classLine.className = "character-skill-classes";
             var visibleClasses = Array.isArray(skill.classes)
               ? skill.classes.filter(function (entry) {
                   return !!String(entry || "").trim();
                 })
               : [];
-            classLine.innerHTML = "<strong>Classes:</strong> " + (visibleClasses.length ? visibleClasses.join(", ") : "None");
+            classLine.innerHTML = "Classes: " + (visibleClasses.length ? visibleClasses.join(", ") : "None");
 
-            meta.appendChild(cooldownLine);
-            meta.appendChild(chakraLine);
+            topMetaLine.appendChild(cooldownLine);
+            topMetaLine.appendChild(chakraLine);
+            meta.appendChild(topMetaLine);
             meta.appendChild(classLine);
             copy.appendChild(skillDescription);
             copy.appendChild(meta);
@@ -692,8 +940,9 @@
           var role = getCharacterRole(character).toLowerCase();
           var roleCategory = getCharacterRoleCategory(character);
           var universe = character && typeof character.universe === "string" ? character.universe.toLowerCase() : "other";
+          var universeLabel = universe.replace(/-/g, " ");
           
-          var matchesSearch = !query || name.indexOf(query) !== -1 || role.indexOf(query) !== -1 || roleCategory.indexOf(query) !== -1;
+          var matchesSearch = !query || name.indexOf(query) !== -1 || role.indexOf(query) !== -1 || roleCategory.indexOf(query) !== -1 || universe.indexOf(query) !== -1 || universeLabel.indexOf(query) !== -1;
           var matchesRole = activeRoleFilter === "all" || roleCategory === activeRoleFilter;
           var matchesUniverse = activeUniverseFilter === "all" || universe === activeUniverseFilter;
           
@@ -748,6 +997,49 @@
         }
       }
 
+      function openArenaSelection(arena) {
+        var normalizedArena = arena === "pokemon" ? "pokemon" : "comic";
+        var hasStoredSession = false;
+        try {
+          hasStoredSession = Boolean(localStorage.getItem("comicUser"));
+        } catch (error) {}
+        var destination = (hasStoredSession ? "selection.html" : "selection-login.html") + "?arena=" + encodeURIComponent(normalizedArena);
+        var targetInnerWidth = 760;
+        var targetInnerHeight = 580;
+        var chromeWidth = Math.max(0, window.outerWidth - window.innerWidth);
+        var chromeHeight = Math.max(0, window.outerHeight - window.innerHeight);
+        var popupWidth = targetInnerWidth + chromeWidth;
+        var popupHeight = targetInnerHeight + chromeHeight;
+        var left = Math.max(0, Math.round((window.screen.width - popupWidth) / 2));
+        var top = Math.max(0, Math.round((window.screen.height - popupHeight) / 2));
+        var features = [
+          "width=" + popupWidth,
+          "height=" + popupHeight,
+          "left=" + left,
+          "top=" + top,
+          "resizable=yes",
+          "scrollbars=yes"
+        ].join(",");
+        var popup = window.open(destination, "comicArenaPlayNow", features);
+        if (popup) {
+          try {
+            popup.resizeTo(popupWidth, popupHeight);
+            popup.moveTo(left, top);
+          } catch (error) {}
+          popup.focus();
+          return;
+        }
+        window.location.href = destination;
+      }
+
+      if (playButtons && playButtons.length) {
+        playButtons.forEach(function (button) {
+          button.addEventListener("click", function () {
+            openArenaSelection(button.getAttribute("data-play-arena"));
+          });
+        });
+      }
+
       if (searchInput) {
         searchInput.addEventListener("input", function () {
           renderCharacters(searchInput.value);
@@ -778,5 +1070,6 @@
       openRequestedCharacterFromQuery();
     }());
   </script>
+  <script src="./scripts/arena-navigation.js?v=pokemon-sidebar-v4" defer></script>
 </body>
 </html>

@@ -1,19 +1,31 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K64P68MT');</script>
+<!-- End Google Tag Manager -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comic-Arena Game</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&family=Petra&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/style.css?v=mission-pve-v2">
+    <link rel="stylesheet" href="styles/style.css?v=evolution-aura-health-fix-v1">
 </head>
-<body class="app-loading app-loading-ingame">
+<body class="app-loading app-loading-ingame ui-stable-ingame">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K64P68MT"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 <div class="backgroundingame">
+    <div class="ingame-stage">
     <div class="battle-intro-overlay" aria-hidden="true">
         <div class="battle-intro-row battle-intro-row-top">
-            <img class="battle-intro-avatar battle-intro-avatar-top" src="https://i.postimg.cc/3JqVcPXm/default.png" alt="Opponent avatar">
+            <img class="battle-intro-avatar battle-intro-avatar-top" src="/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png" alt="Opponent avatar">
             <div class="battle-intro-team-block">
                 <div class="battle-intro-name battle-intro-name-top">Opponent</div>
                 <div class="battle-intro-team battle-intro-team-top"></div>
@@ -33,7 +45,7 @@
             </div>
         </div>
         <div class="battle-intro-row battle-intro-row-bottom">
-            <img class="battle-intro-avatar battle-intro-avatar-bottom" src="https://i.postimg.cc/3JqVcPXm/default.png" alt="Player avatar">
+            <img class="battle-intro-avatar battle-intro-avatar-bottom" src="/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png" alt="Player avatar">
             <div class="battle-intro-team-block">
                 <div class="battle-intro-team battle-intro-team-bottom"></div>
                 <div class="battle-intro-name battle-intro-name-bottom">Player</div>
@@ -158,6 +170,7 @@
         <div class="skillorder">
             
         </div>
+        <p class="end-turn-status" aria-live="polite"></p>
         <button type="button" class="ok-buttonendturn">OK</button>
         <button type="button" class="cancel-buttonendturn">CANCEL</button>
     </div>
@@ -165,20 +178,21 @@
     <div class="exchange_chakra">
         <p class="exchange_chakra_title">CHOOSE YOUR NEW ENERGY</p>
         <div class="exchange_chakra_choices">
-            <button type="button" class="exchange_chakra_choice selected" aria-label="Taijutsu">
+            <button type="button" class="exchange_chakra_choice selected" aria-label="Green">
                 <span class="chakra-box green"></span>
             </button>
-            <button type="button" class="exchange_chakra_choice" aria-label="Bloodline">
+            <button type="button" class="exchange_chakra_choice" aria-label="Red">
                 <span class="chakra-box red"></span>
             </button>
-            <button type="button" class="exchange_chakra_choice" aria-label="Ninjutsu">
+            <button type="button" class="exchange_chakra_choice" aria-label="Blue">
                 <span class="chakra-box blue"></span>
             </button>
-            <button type="button" class="exchange_chakra_choice" aria-label="Genjutsu">
+            <button type="button" class="exchange_chakra_choice" aria-label="White">
                 <span class="chakra-box white"></span>
             </button>
         </div>
         <p class="exchange_chakra_subtitle">CHOOSE <span class="chakrachoosered">0</span> RANDOM ENERGY (S)</p>
+        <p class="exchange_chakra_status" aria-live="polite"></p>
 
         <div class="exchange_chakra_container">
             <div class="exchange_chakra_column">
@@ -250,7 +264,7 @@
                 <p class="surrender-confirm-title">ARE YOU SURE YOU WISH TO SURRENDER?</p>
 
                 <div class="surrender-confirm-preview-row">
-                    <img src="assets/images/surrenderimage.png" alt="Surrender preview" class="surrender-confirm-preview-image">
+                    <img src="assets/images/surrenderimage.png" alt="Surrender preview" class="surrender-confirm-preview-image" data-comic-src="assets/images/surrenderimage.png" data-pokemon-src="assets/images/PokemonArena/surrenderpicture.jpg">
                 </div>
 
                 <div class="surrender-confirm-actions">
@@ -280,7 +294,7 @@
                 <div class="player-name red">JAWSOFKIRJ</div>
                 <div class="player-status">ACADEMY STUDENT</div>
             </div>
-            <img src="https://i.postimg.cc/3JqVcPXm/default.png" alt="Player Avatar" class="player-avatar-left">
+            <img src="/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png" alt="Player Avatar" class="player-avatar-left">
         </div>
 
         <div class="ready-section">
@@ -315,7 +329,7 @@
         </div>
 
         <div class="player-right">
-            <img src="https://i.postimg.cc/3JqVcPXm/default.png" alt="Opponent Avatar" class="player-avatar-right">
+            <img src="/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png" alt="Opponent Avatar" class="player-avatar-right">
             <div class="player-inforight">
                 <div class="player-name red">ALLDEAD</div>
                 <div class="player-status">ACADEMY STUDENT</div>
@@ -329,10 +343,10 @@
 
         <div class="character-card">
             <div class="skilltooltips">
-                <img src="https://i.imgur.com/Uy1TKG3.png" alt="Skill" class="skilltooltipimage">
+                <img src="assets/images/found.png" alt="Skill" class="skilltooltipimage">
             </div>
             <img src="assets/images/hats/academy.png" alt="rankhat" class="rank-hat">
-            <img src="https://i.imgur.com/B52DL1t.png" alt="Character" class="character-face">
+            <img src="/assets/images/external-mirror/i.imgur.com/d5d41eda2acbb46d6825.png" alt="Character" class="character-face">
             <div class="health-bar-container">
                 <div class="health-bar">
                     <span class="health-text">100/100</span>
@@ -342,10 +356,10 @@
                 <img src="assets/images/ingamescrollbehind.png" alt="Skill" class="ingamescrollbehind">
                 <div class="skillscrollingame">
                     <img src="assets/images/skillqqueue.png" alt="Skillqueue" class="skillqueue">
-                    <img src="https://i.imgur.com/Uy1TKG3.png" alt="Skill" class="skillimage">
-                    <img src="https://i.imgur.com/Uy1TKG3.png" alt="Skill" class="skillimage">
-                    <img src="https://i.imgur.com/Uy1TKG3.png" alt="Skill" class="skillimage">
-                    <img src="https://i.imgur.com/Uy1TKG3.png" alt="Skill" class="skillimage">
+                    <img src="assets/images/found.png" alt="Skill" class="skillimage">
+                    <img src="assets/images/found.png" alt="Skill" class="skillimage">
+                    <img src="assets/images/found.png" alt="Skill" class="skillimage">
+                    <img src="assets/images/found.png" alt="Skill" class="skillimage">
                 </div>
             </div>
         </div>
@@ -353,10 +367,10 @@
 
         <div class="character-card">
                         <div class="skilltooltips">
-                            <img src="https://i.imgur.com/Uy1TKG3.png" alt="Skill" class="skilltooltipimage">
+                            <img src="assets/images/found.png" alt="Skill" class="skilltooltipimage">
                         </div>
             <img src="assets/images/hats/academy.png" alt="rankhat" class="rank-hat">
-            <img src="https://i.imgur.com/B52DL1t.png" alt="Character" class="character-face">
+            <img src="/assets/images/external-mirror/i.imgur.com/d5d41eda2acbb46d6825.png" alt="Character" class="character-face">
             <div class="health-bar-container">
                 <div class="health-bar">
                     <span class="health-text">100/100</span>
@@ -366,10 +380,10 @@
                 <img src="assets/images/ingamescrollbehind.png" alt="Skill" class="ingamescrollbehind">
                 <div class="skillscrollingame">
                     <img src="assets/images/skillqqueue.png" alt="Skillqueue" class="skillqueue">
-                    <img src="https://i.imgur.com/Uy1TKG3.png" alt="Skill" class="skillimage">
-                    <img src="https://i.imgur.com/Uy1TKG3.png" alt="Skill" class="skillimage">
-                    <img src="https://i.imgur.com/Uy1TKG3.png" alt="Skill" class="skillimage">
-                    <img src="https://i.imgur.com/Uy1TKG3.png" alt="Skill" class="skillimage">
+                    <img src="assets/images/found.png" alt="Skill" class="skillimage">
+                    <img src="assets/images/found.png" alt="Skill" class="skillimage">
+                    <img src="assets/images/found.png" alt="Skill" class="skillimage">
+                    <img src="assets/images/found.png" alt="Skill" class="skillimage">
                 </div>
             </div>
         </div>
@@ -377,10 +391,10 @@
 
         <div class="character-card">
                         <div class="skilltooltips">
-                            <img src="https://i.imgur.com/Uy1TKG3.png" alt="Skill" class="skilltooltipimage">
+                            <img src="assets/images/found.png" alt="Skill" class="skilltooltipimage">
                         </div>
             <img src="assets/images/hats/hokage.png" alt="rankhat" class="rank-hat">
-            <img src="https://i.imgur.com/B52DL1t.png" alt="Character" class="character-face">
+            <img src="/assets/images/external-mirror/i.imgur.com/d5d41eda2acbb46d6825.png" alt="Character" class="character-face">
             <div class="health-bar-container">
                 <div class="health-bar">
                     <span class="health-text">100/100</span>
@@ -390,10 +404,10 @@
                 <img src="assets/images/ingamescrollbehind.png" alt="Skill" class="ingamescrollbehind">
                 <div class="skillscrollingame">
                     <img src="assets/images/skillqqueue.png" alt="Skillqueue" class="skillqueue">
-                    <img src="https://i.imgur.com/Uy1TKG3.png" alt="Skill" class="skillimage">
-                    <img src="https://i.imgur.com/Uy1TKG3.png" alt="Skill" class="skillimage">
-                    <img src="https://i.imgur.com/Uy1TKG3.png" alt="Skill" class="skillimage">
-                    <img src="https://i.imgur.com/Uy1TKG3.png" alt="Skill" class="skillimage">
+                    <img src="assets/images/found.png" alt="Skill" class="skillimage">
+                    <img src="assets/images/found.png" alt="Skill" class="skillimage">
+                    <img src="assets/images/found.png" alt="Skill" class="skillimage">
+                    <img src="assets/images/found.png" alt="Skill" class="skillimage">
                 </div>
             </div>
         </div>
@@ -405,10 +419,10 @@
 
         <div class="character-card">
                                     <div class="skilltooltips">
-                            <img src="https://i.imgur.com/Uy1TKG3.png" alt="Skill" class="skilltooltipimage">
+                            <img src="assets/images/found.png" alt="Skill" class="skilltooltipimage">
                         </div>
                         <img src="assets/images/hats/hokage.png" alt="rankhat" class="rank-hat">
-            <img src="https://i.imgur.com/B52DL1t.png" alt="Character" class="character-face">
+            <img src="/assets/images/external-mirror/i.imgur.com/d5d41eda2acbb46d6825.png" alt="Character" class="character-face">
             <div class="health-bar-container">
                 <div class="health-bar">
                     <span class="health-text">100/100</span>
@@ -419,10 +433,10 @@
 
         <div class="character-card">
                                     <div class="skilltooltips">
-                            <img src="https://i.imgur.com/Uy1TKG3.png" alt="Skill" class="skilltooltipimage">
+                            <img src="assets/images/found.png" alt="Skill" class="skilltooltipimage">
                         </div>
                         <img src="assets/images/hats/academy.png" alt="rankhat" class="rank-hat">
-            <img src="https://i.imgur.com/B52DL1t.png" alt="Character" class="character-face">
+            <img src="/assets/images/external-mirror/i.imgur.com/d5d41eda2acbb46d6825.png" alt="Character" class="character-face">
             <div class="health-bar-container">
                 <div class="health-bar">
                     <span class="health-text">100/100</span>
@@ -434,10 +448,10 @@
 
         <div class="character-card">
                                     <div class="skilltooltips">
-                            <img src="https://i.imgur.com/Uy1TKG3.png" alt="Skill" class="skilltooltipimage">
+                            <img src="assets/images/found.png" alt="Skill" class="skilltooltipimage">
                         </div>
                         <img src="assets/images/hats/academy.png" alt="rankhat" class="rank-hat">
-            <img src="https://i.imgur.com/B52DL1t.png" alt="Character" class="character-face">
+            <img src="/assets/images/external-mirror/i.imgur.com/d5d41eda2acbb46d6825.png" alt="Character" class="character-face">
             <div class="health-bar-container">
                 <div class="health-bar">
                     <span class="health-text">100/100</span>
@@ -449,7 +463,7 @@
     </div>
 
     <div class="skillinformation">
-        <img src="https://i.imgur.com/thNhBRH.png" alt="skillviewimage" class="skillviewimage">
+        <img src="/assets/images/external-mirror/i.imgur.com/96df68fe4b4d741d7033.png" alt="skillviewimage" class="skillviewimage">
         <div class="skill-browser-icons" aria-label="Character skills"></div>
         <p class="ingameskillname">Skill Name</p>
         <p class="ingamecharacterrole"></p>
@@ -477,7 +491,10 @@
 </div>
 
 </div>
-<script src="characters.js?v=mission-pve-v2"></script>
-<script src="scripts/script.js?v=mission-pve-v2"></script>
+</div>
+<script src="characters.js?v=pokemon-balance-v3"></script>
+<script src="pokemon-wave-2-live.js?v=pokemon-balance-v3"></script>
+<script src="scripts/script.js?v=pokemon-balance-v3"></script>
+  <script src="./scripts/arena-navigation.js?v=hide-switch-ingame-v1" defer></script>
 </body>
 </html>

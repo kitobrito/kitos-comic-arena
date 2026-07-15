@@ -1,15 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K64P68MT');</script>
+<!-- End Google Tag Manager -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comic-Arena Selection</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&family=Petra&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/style.css?v=draft-pick-ban-v3">
+    <link rel="stylesheet" href="styles/style.css?v=selection-skill-scroll-v15">
 </head>
 <body class="app-loading app-loading-selection">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K64P68MT"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 <div class="background">
     <div class="sound-controller" aria-label="Sound controller">
         <button type="button" class="mute-button music-mute-button" aria-label="Mute music" title="Mute music"></button>
@@ -79,18 +90,18 @@
             <img data-skill-index="3" src="" alt="Skill 4" class="skill-image">
         </div>
     </div>
-    
+
     <div class="skill-title-bar">
         <div id="skill-name" class="skill-name">Skill name</div>
         <div class="energy-bar" id="energy-bar">
             <span class="energy-label">ENERGY:</span>
         </div>
     </div>
-    
+
     <div id="skill-description" class="skill-description">
         Choose a character to view skills.
     </div>
-    
+
     <div class="skill-footer">
         <div class="skill-classes" id="skill-classes">
             <span class="classes-label">CLASSES:</span>
@@ -101,7 +112,7 @@
         </div>
     </div>
 </div>
-        
+
     </div>
 
     </div>
@@ -114,7 +125,7 @@
         <button type="button" class="roster-filter-tab" data-roster-filter-mode="unlock">Unlock</button>
         <button type="button" class="roster-filter-tab" data-roster-filter-mode="universe">Universe</button>
         <button type="button" class="roster-filter-tab" data-roster-filter-mode="play-rate">Play Rate</button>
-        <button type="button" class="roster-filter-tab selection-missions-toggle" aria-expanded="false">Missions</button>
+        <button type="button" class="roster-filter-tab selection-missions-toggle" aria-expanded="false">Missions + Skins</button>
         <button type="button" class="roster-filter-tab ui-options-toggle" aria-expanded="false" aria-controls="selection-ui-options">Options</button>
         <button type="button" class="roster-filter-tab selection-fullscreen-toggle" aria-pressed="false" title="Toggle fullscreen">Full</button>
     </div>
@@ -131,7 +142,7 @@
         <label><input type="checkbox" data-ui-setting="battleIntro"> Battle intro overlay</label>
     </section>
 </div>
-<section class="selection-missions collapsed" aria-label="Mission progress">
+<section class="selection-missions collapsed" aria-label="Mission and skin progress">
     <div class="selection-missions-panel">
         <div class="selection-missions-list" aria-live="polite"></div>
         <p class="selection-missions-status"></p>
@@ -142,7 +153,7 @@
 
 
 <div class="player-card">
-    <img src="https://i.postimg.cc/3JqVcPXm/default.png" alt="Player Avatar" class="player-avatar">
+    <img src="/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png" alt="Player Avatar" class="player-avatar">
     <div class="player-infoselection">
         <div class="player-nameselection">Tester</div>
         <div class="player-stat">Academy Student</div>
@@ -154,9 +165,9 @@
 </div>
 
 <ul class="selected-character-slot-list">
-    <li class="selected-character-slot">1</li>
-    <li class="selected-character-slot">2</li>
-    <li class="selected-character-slot">3</li>
+    <li class="selected-character-slot"></li>
+    <li class="selected-character-slot"></li>
+    <li class="selected-character-slot"></li>
 </ul>
 
 <div class="button-container">
@@ -174,39 +185,31 @@
         <img src="assets/images/privatebutton.png" alt="Start Private Game">
     </button>
 </div>
+<aside class="pokemon-ladder-incentive">
+    <strong>25 LADDER WINS = 1,000 POINTS</strong>
+    <span>Spend points on Pokémon unlocks, skins, and extra Eevee evolutions.</span>
+    <a href="missions.html?arena=pokemon">View Mission</a>
+</aside>
+<p class="selection-team-status" aria-live="polite"></p>
 
-<div class="selection-mode-controls">
+    <div class="selection-mode-controls">
+        <div class="arena-mode-switch" aria-label="Arena mode">
+            <button type="button" class="arena-mode-button active" data-arena-mode="comic" aria-pressed="true">Comic Arena</button>
+            <button type="button" class="arena-mode-button" data-arena-mode="pokemon" aria-pressed="false">Pokemon Arena</button>
+        </div>
     <div class="draft-mode-check-wrap">
         <button type="button" class="draft-mode-check" id="draft-mode-button" aria-pressed="false">
             <span class="draft-mode-check-box" aria-hidden="true"></span>
             <span class="draft-mode-check-label">Draft Pick/Ban</span>
         </button>
     </div>
-
-    <div class="battle-bot-check-wrap">
-        <button type="button" class="battle-bot-check" id="battle-bot-wheel-button" aria-haspopup="dialog" aria-expanded="false">
-            <span class="battle-bot-check-box" aria-hidden="true"></span>
-            <span class="battle-bot-check-label">Game Bot</span>
-        </button>
-        <p class="battle-bot-check-status" id="battle-bot-wheel-status" aria-live="polite"></p>
-    </div>
-</div>
-
-<div class="battle-bot-choice-popup" id="battle-bot-choice-popup" aria-hidden="true">
-    <div class="battle-bot-choice-panel" role="dialog" aria-modal="true" aria-labelledby="battle-bot-choice-title">
-        <p class="battle-bot-choice-title" id="battle-bot-choice-title">Game Bot</p>
-        <p class="battle-bot-choice-copy">Choose whether to use the Game Bot. Game Bot is found if no players are found after 1 minute.</p>
-        <div class="battle-bot-choice-options">
-            <button type="button" class="battle-bot-choice-option" data-battle-bot-choice="enabled">Enable</button>
-            <button type="button" class="battle-bot-choice-option" data-battle-bot-choice="disabled">Disable</button>
-        </div>
-        <button type="button" class="battle-bot-choice-close" id="battle-bot-choice-close">Close</button>
-    </div>
 </div>
 
     </div>
 </div>
-<script src="characters.js?v=mission-pve-v2"></script>
-<script src="scripts/script.js?v=mission-pve-v2"></script>
+<script src="characters.js?v=pokemon-balance-v3"></script>
+<script src="pokemon-wave-2-live.js?v=pokemon-balance-v3"></script>
+<script src="scripts/script.js?v=pokemon-balance-v3"></script>
+  <script src="./scripts/arena-navigation.js?v=pokemon-sidebar-v4" defer></script>
 </body>
 </html>

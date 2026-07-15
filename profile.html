@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-K64P68MT');</script>
+<!-- End Google Tag Manager -->
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Comic-Arena Profile</title>
@@ -258,6 +265,12 @@
       box-shadow: 0 0 0 4px rgba(31, 117, 255, 0.15);
     }
 
+    input.auth-input[type="file"] {
+      height: auto;
+      padding: 10px 12px;
+      line-height: 1.15;
+    }
+
     .auth-button {
       width: 100%;
       height: 44px;
@@ -383,6 +396,39 @@
       color: var(--line);
       font-family: "Bangers", cursive;
       font-size: 18px;
+    }
+
+    .arena-avatar-form {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 3px solid rgba(21, 17, 11, 0.24);
+    }
+
+    .arena-avatar-row {
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr);
+      gap: 10px;
+      align-items: center;
+    }
+
+    .arena-avatar-preview {
+      width: 52px;
+      height: 52px;
+      object-fit: cover;
+      border: 3px solid var(--line);
+      background: #fff;
+    }
+
+    .arena-avatar-field {
+      display: grid;
+      gap: 5px;
+      min-width: 0;
+      color: var(--ink);
+      font-size: 14px;
+      font-weight: 800;
+      text-transform: uppercase;
     }
 
     .main {
@@ -1095,8 +1141,13 @@
       }
     }
   </style>
+  <link rel="stylesheet" href="styles/portal-theme.css?v=na-portal-v1" />
 </head>
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K64P68MT"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
   <div class="app">
     <aside class="sidebar">
       <div class="brand">
@@ -1203,6 +1254,26 @@
               <span>Log Out</span>
             </button>
           </div>
+          <form class="arena-avatar-form" id="change-avatar-form">
+            <div class="arena-avatar-row">
+              <img class="arena-avatar-preview" id="comic-avatar-current-image" src="/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png" alt="Comic Arena avatar" />
+              <label class="arena-avatar-field">
+                <span>Comic Arena Avatar</span>
+                <input class="auth-input" type="url" id="comic-avatar-url" placeholder="Direct image URL" autocomplete="off" />
+                <input class="auth-input" type="file" id="comic-avatar-file" accept="image/*" />
+              </label>
+            </div>
+            <div class="arena-avatar-row">
+              <img class="arena-avatar-preview" id="pokemon-avatar-current-image" src="assets/images/PokemonArena/found-pokeball.png" alt="Pokemon Arena avatar" />
+              <label class="arena-avatar-field">
+                <span>Pokemon Arena Avatar</span>
+                <input class="auth-input" type="url" id="pokemon-avatar-url" placeholder="Direct image URL" autocomplete="off" />
+                <input class="auth-input" type="file" id="pokemon-avatar-file" accept="image/*" />
+              </label>
+            </div>
+            <button class="auth-button" type="submit" id="change-avatar-submit">Save Avatars</button>
+            <p class="auth-status" id="change-avatar-status" aria-live="polite"></p>
+          </form>
           <p class="auth-status" id="account-status" aria-live="polite"></p>
         </div>
       </section>
@@ -1234,7 +1305,7 @@
 
         <section class="profile-section">
           <div class="profile-header">
-            <img class="profile-avatar" id="profile-avatar-image" src="https://i.postimg.cc/3JqVcPXm/default.png" alt="Profile avatar" />
+            <img class="profile-avatar" id="profile-avatar-image" src="/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png" alt="Profile avatar" />
             <div class="profile-block">
               <div class="profile-block-head">
                 <span class="profile-star">✦</span>
@@ -1351,6 +1422,61 @@
           <div class="profile-block">
             <div class="profile-block-head">
               <span class="profile-star">✦</span>
+              <span>Pokemon-Arena Ladder</span>
+            </div>
+            <div class="info-table">
+              <div class="info-row">
+                <div class="info-label">Level:</div>
+                <div class="info-value"><div class="level-meter" id="pokemon-profile-level-meter"><span id="pokemon-profile-level">1</span></div></div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Rank:</div>
+                <div class="info-value" id="pokemon-profile-rank">Sparkstrike</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Experience Points:</div>
+                <div class="info-value" id="pokemon-profile-experience-points">0 xp</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Ladder Rank:</div>
+                <div class="info-value" id="pokemon-profile-ladder-rank">Unranked</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Wins:</div>
+                <div class="info-value" id="pokemon-profile-wins">0</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Losses:</div>
+                <div class="info-value" id="pokemon-profile-losses">0</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Win percentage:</div>
+                <div class="info-value" id="pokemon-profile-win-percentage">0.00 %</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Streak:</div>
+                <div class="info-value" id="pokemon-profile-streak">0</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Highest Streak:</div>
+                <div class="info-value" id="pokemon-profile-highest-streak">0</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Highest Level:</div>
+                <div class="info-value" id="pokemon-profile-highest-level">Level 1</div>
+              </div>
+              <div class="info-row">
+                <div class="info-label">Fame Points:</div>
+                <div class="info-value" id="pokemon-profile-fame-points">0</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="profile-section">
+          <div class="profile-block">
+            <div class="profile-block-head">
+              <span class="profile-star">✦</span>
               <span>Site activity</span>
             </div>
             <div class="info-table">
@@ -1378,6 +1504,18 @@
             </div>
             <div class="quick-games-list" id="profile-ladder-games-list">
               <div class="quick-game-empty" id="profile-ladder-games-empty">No ladder games in the last 24 hours.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="profile-section">
+          <div class="profile-block">
+            <div class="profile-block-head">
+              <span class="profile-star">✦</span>
+              <span>Pokemon-Arena ladder games (in the last 24 hours)</span>
+            </div>
+            <div class="quick-games-list" id="pokemon-profile-ladder-games-list">
+              <div class="quick-game-empty" id="pokemon-profile-ladder-games-empty">No Pokemon-Arena ladder games in the last 24 hours.</div>
             </div>
           </div>
         </section>
@@ -1624,10 +1762,26 @@
             <li>Douglasschanu +57 streak</li>
           </ol>
         </div>
+        <div class="stats-group">
+          <h3 class="stats-title">Pokemon Top 10 Levels</h3>
+          <div class="ladder-list" id="pokemon-sidebar-top-player-levels"></div>
+        </div>
+        <div class="stats-group">
+          <h3 class="stats-title">Pokemon Top 10 Winstreak</h3>
+          <ol class="stats-list" id="pokemon-sidebar-top-current-streaks"></ol>
+        </div>
+        <div class="stats-group">
+          <h3 class="stats-title">Pokemon Top 10 Wins</h3>
+          <ol class="stats-list" id="pokemon-sidebar-top-wins"></ol>
+        </div>
+        <div class="stats-group">
+          <h3 class="stats-title">Pokemon Top 20 Highest Win Streak</h3>
+          <ol class="stats-list" id="pokemon-sidebar-top-highest-streaks"></ol>
+        </div>
       </section>
     </aside>
   </div>
-  <script src="./scripts/index.js" defer></script>
+  <script src="./scripts/index.js?v=pokemon-scroll-avatar-v1" defer></script>
   <script>
     window.addEventListener("DOMContentLoaded", () => {
       const pairs = [
@@ -1676,7 +1830,6 @@
       });
     });
   </script>
+  <script src="./scripts/arena-navigation.js?v=pokemon-sidebar-v4" defer></script>
 </body>
 </html>
-
-

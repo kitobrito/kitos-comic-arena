@@ -4,11 +4,83 @@ document.addEventListener('DOMContentLoaded', async () => {
         typeof right === 'string' &&
         left.trim().toLowerCase() === right.trim().toLowerCase();
 
+    const getScopedValueForCurrentUsername = (recordMap = {}, username = '') => {
+        if (!recordMap || typeof recordMap !== 'object' || !username) return null;
+        const directValue = recordMap?.[username];
+        if (directValue && typeof directValue === 'object') {
+            return directValue;
+        }
+        const matchedKey = Object.keys(recordMap).find((key) => usernamesMatch(key, username));
+        return matchedKey ? recordMap[matchedKey] || null : null;
+    };
+
     const pagePath = window.location.pathname.toLowerCase();
     const pageName = pagePath.split('/').pop() || 'index.html';
     const isSelectionPage = pageName === 'selection.html' || pageName === 'selection';
     const isIngamePage = pageName === 'ingame.html' || pageName === 'ingame';
+    const getSelectionThumbnailSource = (source = '') => {
+        const original = typeof source === 'string' ? source.trim() : '';
+        if (!isSelectionPage || !original || /^(?:data:|https?:)/i.test(original)) return original;
+        const match = original.match(/^(\/?assets\/images\/)(.+)$/i);
+        if (!match || match[2].startsWith('selection-thumbnails/')) return original;
+        return `${match[1]}selection-thumbnails/${match[2]}.webp`;
+    };
+    const setSelectionThumbnailWithFallback = (image, source = '') => {
+        if (!image) return;
+        const original = typeof source === 'string' ? source.trim() : '';
+        const thumbnail = getSelectionThumbnailSource(original);
+        image.onload = null;
+        image.onerror = null;
+        image.classList.remove('load-failed');
+        const markLoaded = () => {
+            image.classList.remove('load-failed');
+        };
+        const markFailed = () => {
+            image.onload = null;
+            image.onerror = null;
+            image.classList.add('load-failed');
+            image.removeAttribute('src');
+        };
+        image.onload = markLoaded;
+        if (thumbnail && thumbnail !== original) {
+            image.onerror = () => {
+                image.onerror = markFailed;
+                image.src = original;
+            };
+        } else {
+            image.onerror = markFailed;
+        }
+        image.decoding = 'async';
+        image.src = thumbnail || original;
+    };
+    const pageArenaMode =
+        document.body && document.body.dataset && typeof document.body.dataset.pageArena === 'string'
+            ? document.body.dataset.pageArena.trim().toLowerCase()
+            : '';
+    const defaultArenaModeFromPage =
+        pageArenaMode === 'pokemon' || pageArenaMode === 'comic'
+            ? pageArenaMode
+            : pageName === 'pokemon-charactersandskills.html' || pageName === 'pokemoncharactersandskills.html'
+            ? 'pokemon'
+            : pageName === 'charactersandskills.html'
+                ? 'comic'
+                : '';
     const UI_SETTINGS_STORAGE_KEY = 'comicUiSettings';
+    const FULLSCREEN_INTENT_STORAGE_KEY = 'comicArenaFullscreenIntent';
+    const readFullscreenIntent = () => {
+        try {
+            return sessionStorage.getItem(FULLSCREEN_INTENT_STORAGE_KEY) === 'true';
+        } catch (error) {
+            return false;
+        }
+    };
+    const writeFullscreenIntent = (active) => {
+        try {
+            sessionStorage.setItem(FULLSCREEN_INTENT_STORAGE_KEY, active ? 'true' : 'false');
+        } catch (error) {
+            // Ignore storage failures.
+        }
+    };
     const defaultUiSettings = {
         targetFade: true,
         skillCastAnimations: true,
@@ -59,7 +131,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const active = Boolean(getFullscreenElement());
             fullscreenToggleButton.classList.toggle('active', active);
             fullscreenToggleButton.setAttribute('aria-pressed', active ? 'true' : 'false');
-            fullscreenToggleButton.textContent = active ? 'Exit Full' : 'Full';
+            fullscreenToggleButton.textContent = active
+                ? 'Exit Full'
+                : readFullscreenIntent()
+                    ? 'Resume Full'
+                    : 'Full';
         };
 
         const requestSelectionFullscreen = async () => {
@@ -85,8 +161,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             try {
                 if (getFullscreenElement()) {
                     await exitSelectionFullscreen();
+                    writeFullscreenIntent(false);
                 } else {
                     await requestSelectionFullscreen();
+                    writeFullscreenIntent(true);
                 }
             } catch (error) {
                 console.warn('Unable to toggle fullscreen.', error);
@@ -121,8 +199,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!toggles.length && !panels.length) return;
         const setOpen = (panel, toggle, open) => {
             if (!panel) return;
+            if (open && panel.classList.contains('selection-ui-options-panel')) {
+                const missionsPanel = document.querySelector('.selection-missions');
+                const missionsToggle = document.querySelector('.selection-missions-toggle');
+                missionsPanel?.classList.add('collapsed');
+                missionsToggle?.classList.remove('active');
+                missionsToggle?.setAttribute('aria-expanded', 'false');
+            }
             panel.hidden = !open;
             panel.classList.toggle('open', open);
+            const stackingParent = panel.closest('.roster-filter-panel');
+            if (stackingParent) {
+                stackingParent.classList.toggle('options-panel-open', open);
+            }
             if (toggle) {
                 toggle.classList.toggle('active', open);
                 toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
@@ -215,6 +304,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         let synthContext = null;
         let noiseBuffer = null;
         const ambientIntervals = new Map();
+        const comicIngameMusicTracks = ['assets/audio/track2.mp3', 'assets/audio/track3.mp3'];
+        const wildPokemonBattleMusicTrack =
+            'assets/images/PokemonArena/Wild Pokémon Battle (Movie 7) - Pokémon (Anime) Music Extended.mp3';
+        const pokemonIngameMusicTracks = [wildPokemonBattleMusicTrack];
 
         const getSynthContext = () => {
             const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
@@ -501,6 +594,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         };
 
+        const buildTrackSignature = (tracks = []) =>
+            (Array.isArray(tracks) ? tracks : [tracks])
+                .map((track) => (typeof track === 'string' ? track.trim() : ''))
+                .filter(Boolean)
+                .join('||');
+
         const updateMusicVolume = () => {
             if (currentMusic) {
                 currentMusic.volume = settings.musicMuted ? 0 : settings.volume;
@@ -625,7 +724,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             },
             startMusic(tracks) {
-                musicTracks = Array.isArray(tracks) ? tracks : [tracks];
+                const nextTracks = Array.isArray(tracks) ? tracks.filter(Boolean) : [tracks].filter(Boolean);
+                const nextSignature = buildTrackSignature(nextTracks);
+                const currentSignature = buildTrackSignature(musicTracks);
+                if (nextSignature && nextSignature === currentSignature && currentMusic) {
+                    updateMusicVolume();
+                    if (currentMusic.paused) {
+                        currentMusic.play().catch(() => {});
+                    }
+                    return;
+                }
+                musicTracks = nextTracks;
                 currentTrackIndex = -1;
                 playNextTrack();
             },
@@ -634,6 +743,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                     currentMusic.pause();
                     currentMusic = null;
                 }
+                musicTracks = [];
+                currentTrackIndex = -1;
+            },
+            ensureIngameBattleMusic(arena = 'comic') {
+                const normalizedArena =
+                    typeof arena === 'string' && arena.trim().toLowerCase() === 'pokemon' ? 'pokemon' : 'comic';
+                const tracks =
+                    normalizedArena === 'pokemon' ? pokemonIngameMusicTracks : comicIngameMusicTracks;
+                this.startMusic(tracks);
             },
             playGeneratedEffect,
             syncAmbientEffects,
@@ -646,7 +764,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (isSelectionPage) {
         soundManager.startMusic(['assets/audio/track1.mp3']);
     } else if (isIngamePage) {
-        soundManager.startMusic(['assets/audio/track2.mp3', 'assets/audio/track3.mp3']);
+        soundManager.ensureIngameBattleMusic('comic');
     }
     if (shouldUseGameClickSound) {
         const clickSound = new Audio('assets/audio/sounds/click.mp3');
@@ -727,7 +845,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     battleBotEnabled: true,
                 },
             }));
-            window.location.href = 'selection.html';
+            const selectionReturnArena = pageSearchParams.get('arena') || activeArenaMode || 'comic';
+            window.location.href = `selection.html?arena=${encodeURIComponent(selectionReturnArena)}`;
         } catch (error) {
             console.error('Login failed:', error);
             setLoginStatus(error.message || 'Login failed. Please try again.', 'error');
@@ -741,7 +860,92 @@ document.addEventListener('DOMContentLoaded', async () => {
         loginForm.addEventListener('submit', submitLogin);
     }
 
-    const defaultProfileAvatar = 'https://i.postimg.cc/3JqVcPXm/default.png';
+    const defaultProfileAvatar = '/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png';
+    const POKEMON_SELECTION_BACKGROUND_URLS = [
+        'assets/images/PokemonArena/newcharacterselectpics/1783126094113.png',
+        'assets/images/PokemonArena/newcharacterselectpics/1783125825613~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783125669621~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783125222996~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783124935773~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783125363672.png',
+        'assets/images/PokemonArena/newcharacterselectpics/1783118419529~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783118688305~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783118773369~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783118967296~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783119104044~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783118568441.png',
+        'assets/images/PokemonArena/newcharacterselectpics/1783142547570.png',
+        'assets/images/PokemonArena/newcharacterselectpics/1783142323541.png',
+        'assets/images/PokemonArena/newcharacterselectpics/1783142044589.png',
+        'assets/images/PokemonArena/newcharacterselectpics/1783130943581~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783130738233~2.jpg',
+        'assets/images/PokemonArena/newcharacterselectpics/1783127005390.png',
+    ];
+    const POKEMON_SELECTION_BACKGROUND_URL =
+        POKEMON_SELECTION_BACKGROUND_URLS[
+            Math.floor(Math.random() * POKEMON_SELECTION_BACKGROUND_URLS.length)
+        ] || 'assets/images/PokemonArena/characterselectbgpokemonarena.png';
+    const COMIC_INGAME_BACKGROUND_URL = 'assets/images/newingamebgCA.png';
+    const POKEMON_INGAME_BACKGROUND_URL = 'assets/images/PokemonArena/newbattlepic/1783150082785.png';
+    const COMIC_SELECTION_SCROLL_URL = 'assets/images/selectionscroll.png';
+    const POKEMON_SELECTION_SCROLL_URL = 'assets/images/PokemonArena/selectionscroll-pokeball.png';
+    const COMIC_INGAME_SCROLL_BEHIND_URL = 'assets/images/ingamescrollbehind.png';
+    const POKEMON_INGAME_SCROLL_BEHIND_URL = 'assets/images/PokemonArena/ingamescrollbehind-pokeball.png';
+    const COMIC_FOUND_ICON_URL = 'assets/images/found.png';
+    const POKEMON_FOUND_ICON_URL = 'assets/images/PokemonArena/found-pokeball.png';
+    const POKEMON_SEARCHING_ICON_URL = POKEMON_FOUND_ICON_URL;
+    const COMIC_SURRENDER_PREVIEW_URL = 'assets/images/surrenderimage.png';
+    const POKEMON_SURRENDER_PREVIEW_URL = 'assets/images/PokemonArena/surrenderpicture.jpg';
+    const COMIC_WIN_PORTRAIT_URL = 'assets/images/win.png';
+    const COMIC_LOSE_PORTRAIT_URL = 'assets/images/lose.png';
+    const POKEMON_WIN_PORTRAIT_URL = 'assets/images/PokemonArena/wingamepicture.jpeg';
+    const POKEMON_LOSE_PORTRAIT_URL = 'assets/images/PokemonArena/losegamepicture.jpeg';
+    const POKEMON_BATTLE_AVATAR_URL = POKEMON_FOUND_ICON_URL;
+
+    const toBackgroundImageValue = (url = '') => {
+        const normalizedUrl = typeof url === 'string' ? url.trim() : '';
+        return normalizedUrl ? `url("${normalizedUrl}")` : '';
+    };
+
+    const getArenaDefaultAvatarUrl = (arenaMode = 'comic') =>
+        arenaMode === 'pokemon' ? POKEMON_BATTLE_AVATAR_URL : defaultProfileAvatar;
+
+    const resolvePlayerAvatarUrl = (avatarUrl = '', arenaMode = 'comic') => {
+        const normalizedUrl = typeof avatarUrl === 'string' ? avatarUrl.trim() : '';
+        if (arenaMode === 'pokemon' && (!normalizedUrl || normalizedUrl === defaultProfileAvatar)) {
+            return POKEMON_BATTLE_AVATAR_URL;
+        }
+        return normalizedUrl || defaultProfileAvatar;
+    };
+
+    const setBackgroundImage = (element, url = '', important = false) => {
+        if (!element) return;
+        const normalizedUrl = typeof url === 'string' ? url.trim() : '';
+        if (!normalizedUrl) {
+            element.style.removeProperty('background-image');
+            return;
+        }
+        element.style.setProperty(
+            'background-image',
+            toBackgroundImageValue(normalizedUrl),
+            important ? 'important' : ''
+        );
+    };
+
+    const setIngameArenaUiAssets = (arena = 'comic') => {
+        const scrollBehindUrl =
+            arena === 'pokemon' ? POKEMON_INGAME_SCROLL_BEHIND_URL : COMIC_INGAME_SCROLL_BEHIND_URL;
+        document.body.classList.toggle('arena-mode-pokemon', arena === 'pokemon');
+        document.body.classList.toggle('arena-mode-comic', arena !== 'pokemon');
+        document.querySelectorAll('.ingamescrollbehind').forEach((image) => {
+            image.src = scrollBehindUrl;
+        });
+        const surrenderPreviewImage = document.querySelector('.surrender-confirm-preview-image');
+        if (surrenderPreviewImage) {
+            surrenderPreviewImage.src =
+                arena === 'pokemon' ? POKEMON_SURRENDER_PREVIEW_URL : COMIC_SURRENDER_PREVIEW_URL;
+        }
+    };
 
     const textFromHtml = (value = '') => {
         const text = typeof value === 'string' ? value : '';
@@ -753,22 +957,91 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const getCharacterDescriptionText = (character) => {
         if (!character) return '';
-        return (
+        return normalizeProtectionTerminology(
+            (
             character.description ||
             character.characterdescription ||
             character.characterdeescription ||
             textFromHtml(character.descriptionHtml || '') ||
             ''
+            )
         );
+    };
+
+    const normalizeRuntimeArenaMode = (value = '') => {
+        const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
+        return normalized === 'pokemon' ? 'pokemon' : normalized === 'comic' ? 'comic' : '';
+    };
+
+    const setProtectionTerminologyArena = (arena) => {
+        const normalizedArena = normalizeRuntimeArenaMode(arena);
+        if (normalizedArena) {
+            window.__comicArenaRuntimeMode = normalizedArena;
+            return normalizedArena;
+        }
+        delete window.__comicArenaRuntimeMode;
+        return '';
+    };
+
+    const getProtectionTerminologyArena = () => {
+        const runtimeArena = normalizeRuntimeArenaMode(window.__comicArenaRuntimeMode);
+        if (runtimeArena) {
+            return runtimeArena;
+        }
+        const arenaFromQuery = normalizeRuntimeArenaMode(new URLSearchParams(window.location.search).get('arena'));
+        if (arenaFromQuery) {
+            return arenaFromQuery;
+        }
+        const storedArena = normalizeRuntimeArenaMode(localStorage.getItem('comicArenaMode'));
+        if (storedArena) {
+            return storedArena;
+        }
+        if (typeof defaultArenaModeFromPage === 'string' && defaultArenaModeFromPage) {
+            return defaultArenaModeFromPage;
+        }
+        return 'comic';
+    };
+
+    const replaceTermWithCase = (text, pattern, replacement) =>
+        String(text || '').replace(pattern, (match) => {
+            if (!match) return replacement;
+            if (match === match.toUpperCase()) {
+                return replacement.toUpperCase();
+            }
+            if (match[0] === match[0].toUpperCase()) {
+                return replacement.charAt(0).toUpperCase() + replacement.slice(1);
+            }
+            return replacement;
+        });
+
+    const normalizeProtectionTerminology = (value, arena = getProtectionTerminologyArena()) => {
+        let text = typeof value === 'string' ? value : '';
+        if (!text) return '';
+        text = replaceTermWithCase(text, /\bdestructible defenses\b/gi, 'shields');
+        text = replaceTermWithCase(text, /\bdestructible defense\b/gi, 'shield');
+        if (arena === 'pokemon') {
+            text = replaceTermWithCase(text, /\bbarriers\b/gi, 'forcefields');
+            text = replaceTermWithCase(text, /\bbarrier\b/gi, 'forcefield');
+        }
+        return text;
+    };
+
+    const getProtectionDisplayLabel = (kind, arena = getProtectionTerminologyArena()) => {
+        if (kind === 'forcefield') {
+            return arena === 'pokemon' ? 'FORCEFIELD' : 'BARRIER';
+        }
+        return 'SHIELD';
     };
 
     const getSkillDescriptionText = (skill) => {
         if (!skill) return '';
-        return (
+        return normalizeProtectionTerminology(
+            (
             skill.description ||
             skill.skilldescription ||
             textFromHtml(skill.descriptionHtml || '') ||
             ''
+            )
         );
     };
 
@@ -790,15 +1063,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     const skillImagesContainer = document.querySelector('.skill-images');
     let skillImages = Array.from(document.querySelectorAll('.skill-image'));
     const selectedSlots = Array.from(document.querySelectorAll('.selected-character-slot'));
+    const selectionTeamStatusEl = document.querySelector('.selection-team-status');
     const nextPageButton = document.querySelector('.nextpage');
     const lastPageButton = document.querySelector('.lastpage');
     const rosterSlotElements = [];
     const selectedAssignments = selectedSlots.map(() => null);
-    const teamStorageKey = 'comicSelectedTeam';
     const defaultLadderRankHat = 'assets/images/hats/academy.png';
+    const DEFAULT_UNLOCK_POINT_COST = 80;
     let profileCache = null;
     let missionLockedCharacterIds = new Set();
     let selectionClickTimer = null;
+    let selectionPreviewRenderId = 0;
+    const selectionPreviewImageCache = new Set();
     let activeSelectionPointerDrag = null;
     let suppressSelectionClickUntil = 0;
 
@@ -830,11 +1106,178 @@ document.addEventListener('DOMContentLoaded', async () => {
             wins: Number.isFinite(Number(source.wins)) ? Math.max(0, Number(source.wins)) : 0,
             losses: Number.isFinite(Number(source.losses)) ? Math.max(0, Number(source.losses)) : 0,
             streak: Number.isFinite(Number(source.streak)) ? Number(source.streak) : 0,
+            unlockPoints: Number.isFinite(Number(source.unlockPoints))
+                ? Math.max(0, Math.floor(Number(source.unlockPoints)))
+                : 0,
             rankHatUrl:
                 typeof source.rankHatUrl === 'string' && source.rankHatUrl.trim()
                     ? source.rankHatUrl.trim()
                     : defaultLadderRankHat,
         };
+    };
+
+    const getArenaProfileView = (profile = null, arena = 'comic') => {
+        const source = profile && typeof profile === 'object' ? profile : {};
+        if (arena !== 'pokemon') {
+            return source;
+        }
+        const pokemonState =
+            source.arenas && typeof source.arenas === 'object' && source.arenas.pokemon
+                ? source.arenas.pokemon
+                : {};
+        return {
+            ...source,
+            ...(pokemonState && typeof pokemonState === 'object' ? pokemonState : {}),
+        };
+    };
+
+    const getArenaLadder = (profile = null, arena = 'comic') => {
+        const arenaProfile = getArenaProfileView(profile, arena);
+        return arenaProfile?.ladder || profile?.ladder || null;
+    };
+
+    const cloneRosterData = (entries = []) => JSON.parse(JSON.stringify(Array.isArray(entries) ? entries : []));
+
+    const mergeSkinPatchValue = (baseValue, patchValue) => {
+        if (Array.isArray(patchValue)) {
+            return JSON.parse(JSON.stringify(patchValue));
+        }
+        if (patchValue && typeof patchValue === 'object') {
+            const baseObject = baseValue && typeof baseValue === 'object' && !Array.isArray(baseValue) ? baseValue : {};
+            const next = { ...baseObject };
+            Object.entries(patchValue).forEach(([key, value]) => {
+                next[key] = mergeSkinPatchValue(baseObject[key], value);
+            });
+            return next;
+        }
+        return patchValue;
+    };
+
+    const normalizeSkinId = (value = '') =>
+        String(value || '')
+            .trim()
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+
+    const normalizeSkinCharacterId = (value = '') =>
+        String(value || '')
+            .trim()
+            .toLowerCase();
+
+    const arenaSkinCatalogCache = {
+        comic: [],
+        pokemon: [],
+    };
+
+    const getArenaSkinState = (profile = null, arena = 'comic') => {
+        const arenaProfile = getArenaProfileView(profile, arena);
+        const source = arenaProfile?.skins && typeof arenaProfile.skins === 'object' ? arenaProfile.skins : {};
+        const unlockedSkinIds = Array.isArray(source.unlockedSkinIds)
+            ? source.unlockedSkinIds.map((entry) => normalizeSkinId(entry)).filter(Boolean)
+            : [];
+        const equippedSource =
+            source.equippedSkinByCharacterId && typeof source.equippedSkinByCharacterId === 'object'
+                ? source.equippedSkinByCharacterId
+                : {};
+        const equippedSkinByCharacterId = {};
+        Object.entries(equippedSource).forEach(([characterId, skinId]) => {
+            const normalizedCharacterId = normalizeSkinCharacterId(characterId);
+            const normalizedSkinId = normalizeSkinId(skinId);
+            if (!normalizedCharacterId || !normalizedSkinId) return;
+            equippedSkinByCharacterId[normalizedCharacterId] = normalizedSkinId;
+        });
+        return {
+            unlockedSkinIds,
+            equippedSkinByCharacterId,
+        };
+    };
+
+    const buildCharacterWithEquippedSkin = (character = {}, profile = null, arena = activeArenaMode) => {
+        if (!character || typeof character !== 'object' || arena !== 'pokemon') {
+            return character;
+        }
+        const catalog = Array.isArray(arenaSkinCatalogCache[arena]) ? arenaSkinCatalogCache[arena] : [];
+        if (!catalog.length) {
+            return character;
+        }
+        const equippedSkinByCharacterId = getArenaSkinState(profile, arena).equippedSkinByCharacterId;
+        const characterId = normalizeSkinCharacterId(character.characterId || character.id);
+        const equippedSkinId = equippedSkinByCharacterId[characterId];
+        const skinEntry = equippedSkinId
+            ? catalog.find((entry = {}) => normalizeSkinId(entry.skinId) === equippedSkinId) || null
+            : null;
+        if (!skinEntry?.patch || typeof skinEntry.patch !== 'object') {
+            return character;
+        }
+        const patchedCharacter = mergeSkinPatchValue(character, skinEntry.patch);
+        const skillImageOverridesBySkillId =
+            skinEntry.skillImageOverridesBySkillId && typeof skinEntry.skillImageOverridesBySkillId === 'object'
+                ? skinEntry.skillImageOverridesBySkillId
+                : {};
+        const skillOverridesBySkillId =
+            skinEntry.skillOverridesBySkillId && typeof skinEntry.skillOverridesBySkillId === 'object'
+                ? skinEntry.skillOverridesBySkillId
+                : {};
+        const statusFacePictureOverridesByStatusId =
+            skinEntry.statusFacePictureOverridesByStatusId &&
+            typeof skinEntry.statusFacePictureOverridesByStatusId === 'object'
+                ? skinEntry.statusFacePictureOverridesByStatusId
+                : {};
+        if (
+            !Array.isArray(patchedCharacter.skills) ||
+            (!Object.keys(skillImageOverridesBySkillId).length &&
+                !Object.keys(skillOverridesBySkillId).length &&
+                !Object.keys(statusFacePictureOverridesByStatusId).length)
+        ) {
+            return patchedCharacter;
+        }
+        patchedCharacter.skills = patchedCharacter.skills.map((skill = {}) => {
+            const structuredOverride = skillOverridesBySkillId[skill.id];
+            const imageOverride = skillImageOverridesBySkillId[skill.id];
+            const nextSkill = structuredOverride && typeof structuredOverride === 'object'
+                ? mergeSkinPatchValue(skill, structuredOverride)
+                : { ...skill };
+            if (imageOverride) {
+                nextSkill.skillimage = imageOverride;
+            }
+            if (!Array.isArray(nextSkill.effects) || !Object.keys(statusFacePictureOverridesByStatusId).length) {
+                return nextSkill;
+            }
+            nextSkill.effects = nextSkill.effects.map((effect = {}) => {
+                const statusId =
+                    typeof effect?.statusId === 'string'
+                        ? effect.statusId
+                        : typeof effect?.applyStatusAtStack?.statusId === 'string'
+                            ? effect.applyStatusAtStack.statusId
+                            : '';
+                const facePictureOverride = statusFacePictureOverridesByStatusId[statusId];
+                if (!facePictureOverride) {
+                    return effect;
+                }
+                if (effect?.applyStatusAtStack && typeof effect.applyStatusAtStack === 'object') {
+                    return {
+                        ...effect,
+                        applyStatusAtStack: {
+                            ...effect.applyStatusAtStack,
+                            metadata: {
+                                ...(effect.applyStatusAtStack.metadata || {}),
+                                facePictureOverride,
+                            },
+                        },
+                    };
+                }
+                return {
+                    ...effect,
+                    metadata: {
+                        ...(effect.metadata || {}),
+                        facePictureOverride,
+                    },
+                };
+            });
+            return nextSkill;
+        });
+        return patchedCharacter;
     };
 
     const normalizeMatchmakingPresentation = (matchmaking = null) => {
@@ -895,6 +1338,112 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    const clearCachedUser = () => {
+        localStorage.removeItem('comicUser');
+    };
+
+    const DISMISSED_ENDED_MATCH_STORAGE_KEY = 'comicDismissedEndedMatch';
+
+    const readDismissedEndedMatch = () => {
+        try {
+            const raw = window.sessionStorage.getItem(DISMISSED_ENDED_MATCH_STORAGE_KEY);
+            if (!raw) return null;
+            const parsed = JSON.parse(raw);
+            return parsed && typeof parsed === 'object' ? parsed : null;
+        } catch (error) {
+            return null;
+        }
+    };
+
+    const writeDismissedEndedMatch = (matchId, arenaOverride = '') => {
+        const normalizedMatchId = typeof matchId === 'string' ? matchId.trim() : '';
+        if (!normalizedMatchId) return;
+        try {
+            window.sessionStorage.setItem(
+                DISMISSED_ENDED_MATCH_STORAGE_KEY,
+                JSON.stringify({
+                    matchId: normalizedMatchId,
+                    arena: getLoginRedirectArena(arenaOverride),
+                    recordedAt: Date.now(),
+                })
+            );
+        } catch (error) {
+            // Ignore storage failures.
+        }
+    };
+
+    const clearDismissedEndedMatch = (matchId = '') => {
+        const normalizedMatchId = typeof matchId === 'string' ? matchId.trim() : '';
+        try {
+            const existing = readDismissedEndedMatch();
+            if (normalizedMatchId && existing?.matchId && existing.matchId !== normalizedMatchId) {
+                return;
+            }
+            window.sessionStorage.removeItem(DISMISSED_ENDED_MATCH_STORAGE_KEY);
+        } catch (error) {
+            // Ignore storage failures.
+        }
+    };
+
+    const isDismissedEndedMatch = (matchId, maxAgeMs = 15 * 60 * 1000) => {
+        const normalizedMatchId = typeof matchId === 'string' ? matchId.trim() : '';
+        if (!normalizedMatchId) return false;
+        const existing = readDismissedEndedMatch();
+        if (!existing || existing.matchId !== normalizedMatchId) return false;
+        const recordedAt = Number(existing.recordedAt) || 0;
+        if (!recordedAt || Date.now() - recordedAt > maxAgeMs) {
+            clearDismissedEndedMatch(normalizedMatchId);
+            return false;
+        }
+        return true;
+    };
+
+    const getLoginRedirectArena = (arenaOverride = '') => {
+        const normalizedOverride =
+            typeof arenaOverride === 'string' ? arenaOverride.trim().toLowerCase() : '';
+        if (normalizedOverride === 'pokemon' || normalizedOverride === 'comic') {
+            return normalizedOverride;
+        }
+        if (getProtectionTerminologyArena() === 'pokemon') {
+            return 'pokemon';
+        }
+        return localStorage.getItem('comicArenaMode') === 'pokemon' ? 'pokemon' : 'comic';
+    };
+
+    const redirectToArenaSelection = (arenaOverride = '', options = {}) => {
+        const clearUser = Boolean(options?.clearUser);
+        const replace = Boolean(options?.replace);
+        if (clearUser) {
+            clearCachedUser();
+        }
+        const targetUrl = `selection.html?arena=${encodeURIComponent(getLoginRedirectArena(arenaOverride))}`;
+        if (replace) {
+            window.location.replace(targetUrl);
+            return;
+        }
+        window.location.href = targetUrl;
+    };
+
+    const redirectToSelectionLogin = (arenaOverride = '', options = {}) => {
+        const clearUser = options?.clearUser !== false;
+        const replace = Boolean(options?.replace);
+        if (options?.preferSelection) {
+            redirectToArenaSelection(arenaOverride, { clearUser, replace });
+            return;
+        }
+        if (clearUser) {
+            clearCachedUser();
+        }
+        const targetUrl = `selection-login.html?arena=${encodeURIComponent(
+            getLoginRedirectArena(arenaOverride)
+        )}`;
+        if (replace) {
+            window.location.replace(targetUrl);
+            return;
+        }
+        window.location.href = targetUrl;
+    };
+
     const writeCachedUser = (user) => {
         if (!user?.username) return;
         localStorage.setItem(
@@ -904,6 +1453,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 role: typeof user.role === 'string' ? user.role : 'player',
                 avatarUrl: user.profile?.avatarUrl || defaultProfileAvatar,
                 clanAbbreviation: user.profile?.clan?.abbreviation || '',
+                savedTeamIndices: Array.isArray(user.savedTeamIndices) ? user.savedTeamIndices : [],
+                savedTeamIndicesByArena:
+                    user.savedTeamIndicesByArena && typeof user.savedTeamIndicesByArena === 'object'
+                        ? user.savedTeamIndicesByArena
+                        : {},
+                profile: user.profile || {},
                 ladder: normalizeLadderPresentation(user.profile?.ladder),
                 missions: user.profile?.missions || {
                     progress: {},
@@ -926,12 +1481,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const getUnlockedCharacterIdSet = () => {
         const unlockedIds = new Set();
-        const cachedMissions = profileCache?.profile?.missions;
+        const cachedArenaMissions =
+            activeArenaMode === 'pokemon'
+                ? profileCache?.profile?.arenas?.pokemon?.missions
+                : profileCache?.profile?.missions;
+        const cachedMissions = cachedArenaMissions || profileCache?.profile?.missions;
         const cachedStorageUser = readCachedUser();
+        const cachedStorageArenaMissions =
+            activeArenaMode === 'pokemon'
+                ? cachedStorageUser?.profile?.arenas?.pokemon?.missions || cachedStorageUser?.arenas?.pokemon?.missions
+                : cachedStorageUser?.missions;
         const sourceIds = Array.isArray(cachedMissions?.unlockedCharacterIds)
             ? cachedMissions.unlockedCharacterIds
-            : Array.isArray(cachedStorageUser?.missions?.unlockedCharacterIds)
-                ? cachedStorageUser.missions.unlockedCharacterIds
+            : Array.isArray(cachedStorageArenaMissions?.unlockedCharacterIds)
+                ? cachedStorageArenaMissions.unlockedCharacterIds
                 : [];
         sourceIds.forEach((entry) => {
             const normalized = typeof entry === 'string' ? entry.trim().toLowerCase() : '';
@@ -942,9 +1505,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         return unlockedIds;
     };
 
+    const getSelectedEeveeEvolutionId = () => {
+        const cachedArenaMissions =
+            activeArenaMode === 'pokemon'
+                ? profileCache?.profile?.arenas?.pokemon?.missions
+                : profileCache?.profile?.missions;
+        const cachedMissions = cachedArenaMissions || profileCache?.profile?.missions || {};
+        const cachedStorageUser = readCachedUser();
+        const cachedStorageArenaMissions =
+            activeArenaMode === 'pokemon'
+                ? cachedStorageUser?.profile?.arenas?.pokemon?.missions || cachedStorageUser?.arenas?.pokemon?.missions
+                : cachedStorageUser?.missions;
+        const value =
+            cachedMissions.eeveeEvolutionCharacterId ||
+            cachedMissions.eevee_evolution_character_id ||
+            cachedStorageArenaMissions?.eeveeEvolutionCharacterId ||
+            '';
+        return typeof value === 'string' ? value.trim().toLowerCase() : '';
+    };
+
     const loadMissionLockedCharacterIds = async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/missions`, {
+            const response = await fetch(`${API_BASE_URL}/api/missions?arena=${encodeURIComponent(activeArenaMode)}`, {
                 credentials: 'include',
             });
             if (!response.ok) {
@@ -960,6 +1542,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (rewardCharacterId) {
                     lockedIds.add(rewardCharacterId);
                 }
+                (Array.isArray(mission?.reward_character_ids) ? mission.reward_character_ids : [])
+                    .map((entry) => (typeof entry === 'string' ? entry.trim().toLowerCase() : ''))
+                    .filter(Boolean)
+                    .forEach((entry) => lockedIds.add(entry));
             });
             missionLockedCharacterIds = lockedIds;
         } catch (error) {
@@ -970,7 +1556,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const loadCharacterPlayRates = async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/characters/play-rates`, {
+            const response = await fetch(`${API_BASE_URL}/api/characters/play-rates?arena=${encodeURIComponent(activeArenaMode)}`, {
                 credentials: 'include',
             });
             if (!response.ok) {
@@ -1004,6 +1590,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!characterId) {
             return false;
         }
+        if (
+            activeArenaMode === 'pokemon' &&
+            characterId === 'eevee' &&
+            getSelectedEeveeEvolutionId()
+        ) {
+            return true;
+        }
         if (!missionLockedCharacterIds.has(characterId)) {
             return false;
         }
@@ -1012,7 +1605,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const applyPlayerIdentity = (options = {}) => {
         const name = options.name || null;
-        const avatarUrl = options.avatarUrl || defaultProfileAvatar;
+        const identityArenaMode =
+            options.arenaMode ||
+            (document.body.classList.contains('arena-mode-pokemon') ? 'pokemon' : 'comic');
+        const avatarUrl = resolvePlayerAvatarUrl(options.avatarUrl, identityArenaMode);
         const clanAbbreviation = options.clanAbbreviation || 'None';
         const ladder = normalizeLadderPresentation(options.ladder);
         const nameElements = Array.from(
@@ -1065,7 +1661,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const applyOpponentIdentity = (options = {}) => {
-        const avatarUrl = options.avatarUrl || defaultProfileAvatar;
+        const arenaMode = options.arenaMode || currentMatchArena || getProtectionTerminologyArena();
+        const avatarUrl = resolvePlayerAvatarUrl(options.avatarUrl || '', arenaMode);
         const name = options.name || null;
         const ladder = normalizeLadderPresentation(options.ladder);
         const opponentAvatar = document.querySelector('.player-avatar-right');
@@ -1074,6 +1671,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         const opponentHatEls = Array.from(document.querySelectorAll('.enemy-characters .rank-hat'));
         if (opponentAvatar) {
             opponentAvatar.src = avatarUrl;
+            opponentAvatar.style.cursor = options.username ? 'pointer' : 'default';
+            opponentAvatar.title = options.username ? 'Click to view opponent stats' : '';
+            opponentAvatar.onclick = options.username ? () => openOpponentStatsPanel() : null;
+            opponentAvatar.setAttribute('role', options.username ? 'button' : 'img');
+            if (options.username) {
+                opponentAvatar.setAttribute('tabindex', '0');
+                opponentAvatar.onkeydown = (event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        openOpponentStatsPanel();
+                    }
+                };
+            } else {
+                opponentAvatar.removeAttribute('tabindex');
+                opponentAvatar.onkeydown = null;
+            }
         }
         if (opponentNameEl && name) {
             opponentNameEl.textContent = name;
@@ -1086,18 +1699,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const applyCustomBackgrounds = (user) => {
         const selectionBackground = document.querySelector('.background');
-        const ingameBackground = document.querySelector('.backgroundingame');
         const selectionUrl = user?.profile?.backgrounds?.selectionUrl || '';
-        const ingameUrl = user?.profile?.backgrounds?.ingameUrl || '';
-        if (selectionBackground) {
-            selectionBackground.style.backgroundImage = selectionUrl
-                ? `url("${selectionUrl}")`
-                : '';
+        if (activeArenaMode === 'pokemon') {
+            if (selectionBackground) {
+                setBackgroundImage(selectionBackground, POKEMON_SELECTION_BACKGROUND_URL, true);
+            }
+            return;
         }
-        if (ingameBackground) {
-            ingameBackground.style.backgroundImage = ingameUrl
-                ? `url("${ingameUrl}")`
-                : '';
+        if (selectionBackground && selectionUrl) {
+            setBackgroundImage(selectionBackground, selectionUrl);
         }
     };
 
@@ -1108,6 +1718,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             'clanprofile.html': 'Comic Arena > Clan Profile',
             'selection.html': 'Comic Arena > Selection',
             'ingame.html': 'Comic Arena > In Game',
+            'charactersandskills.html': 'Comic Arena > Characters and Skills',
+            'pokemon-charactersandskills.html': 'Pokemon Arena > Characters and Skills',
+            'pokemoncharactersandskills.html': 'Pokemon Arena > Characters and Skills',
         };
         return pageMap[pageName] || `Comic Arena > ${pageName.replace(/\.html$/i, '').replace(/[-_]+/g, ' ')}`;
     };
@@ -1139,12 +1752,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    const fetchProfile = async () => {
+    const fetchProfile = async (options = {}) => {
+        const redirectOnUnauthorized = Boolean(options?.redirectOnUnauthorized);
+        const arenaOverride =
+            typeof options?.arenaOverride === 'string' ? options.arenaOverride : '';
         try {
             const response = await fetch(`${API_BASE_URL}/api/me`, {
                 credentials: 'include',
             });
             if (!response.ok) {
+                if ((response.status === 401 || response.status === 403) && redirectOnUnauthorized) {
+                    redirectToSelectionLogin(arenaOverride);
+                }
                 throw new Error('Unauthorized');
             }
             const data = await response.json();
@@ -1160,37 +1779,48 @@ document.addEventListener('DOMContentLoaded', async () => {
         return null;
     };
 
-    const getBattleBotPreference = () => {
-        const cachedUser = readCachedUser();
-        return normalizeMatchmakingPresentation(
-            profileCache?.profile?.matchmaking || cachedUser?.matchmaking
-        ).battleBotEnabled;
-    };
-
-    const hydratePlayerIdentity = async () => {
+    const hydratePlayerIdentity = async (options = {}) => {
+        const resolvedArenaMode =
+            options.arenaOverride ||
+            getProtectionTerminologyArena() ||
+            (document.body.classList.contains('arena-mode-pokemon') ? 'pokemon' : 'comic');
         const cachedUser = readCachedUser();
         if (cachedUser?.username) {
+            const cachedProfileView = cachedUser.profile
+                ? getArenaProfileView(cachedUser.profile, resolvedArenaMode)
+                : null;
             applyPlayerIdentity({
                 name: cachedUser.username,
-                avatarUrl: cachedUser.avatarUrl || defaultProfileAvatar,
-                clanAbbreviation: cachedUser.clanAbbreviation || 'None',
-                ladder: cachedUser.ladder,
+                avatarUrl:
+                    cachedProfileView?.avatarUrl ||
+                    cachedUser.avatarUrl ||
+                    getArenaDefaultAvatarUrl(resolvedArenaMode),
+                clanAbbreviation:
+                    cachedProfileView?.clan?.abbreviation ||
+                    cachedUser.clanAbbreviation ||
+                    'None',
+                ladder: cachedProfileView?.ladder || cachedUser.ladder,
+                arenaMode: resolvedArenaMode,
             });
         } else {
             applyPlayerIdentity({
-                avatarUrl: defaultProfileAvatar,
+                avatarUrl: getArenaDefaultAvatarUrl(resolvedArenaMode),
                 clanAbbreviation: 'None',
                 ladder: null,
+                arenaMode: resolvedArenaMode,
             });
         }
 
-        const apiUser = await fetchProfile();
+        const apiUser = await fetchProfile(options);
         if (apiUser?.username) {
+            const apiProfileView = getArenaProfileView(apiUser.profile, resolvedArenaMode);
             applyPlayerIdentity({
                 name: apiUser.username,
-                avatarUrl: apiUser.profile?.avatarUrl || defaultProfileAvatar,
-                clanAbbreviation: apiUser.profile?.clan?.abbreviation || 'None',
-                ladder: apiUser.profile?.ladder || null,
+                avatarUrl:
+                    apiProfileView.avatarUrl || getArenaDefaultAvatarUrl(resolvedArenaMode),
+                clanAbbreviation: apiProfileView.clan?.abbreviation || 'None',
+                ladder: apiProfileView.ladder || null,
+                arenaMode: resolvedArenaMode,
             });
             applyCustomBackgrounds(apiUser);
         }
@@ -1225,36 +1855,178 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    const hydrateOpponentIdentity = async (username) => {
+    const closeOpponentStatsPanel = () => {
+        const panel = document.getElementById('opponent-stats-panel');
+        if (panel) {
+            panel.remove();
+        }
+    };
+
+    const renderOpponentProfileInfo = (profileView = null) => {
+        const username = currentOpponentUsername || profileView?.username || '';
+        const profile = profileView?.profile || {};
+        const ladder = normalizeLadderPresentation(
+            getArenaLadder(profile, currentMatchArena) || profile?.ladder || {}
+        );
+        const clanAbbreviation = profile?.clan?.abbreviation || 'None';
+        const avatarUrl = resolvePlayerAvatarUrl(
+            profile?.avatarUrl || '',
+            currentMatchArena || getProtectionTerminologyArena()
+        );
+        skillInfo.selectedViewMode = 'opponent-profile';
+        skillInfo.selectedActorSlot = null;
+        skillInfo.selectedSkillIdx = null;
+        if (skillInfo.imgEl) {
+            skillInfo.imgEl.src = avatarUrl;
+            skillInfo.imgEl.alt = currentOpponentDisplayName || username || 'Opponent';
+        }
+        if (skillInfo.nameEl) {
+            skillInfo.nameEl.textContent = currentOpponentDisplayName || username || 'Opponent';
+        }
+        if (skillInfo.roleEl) {
+            skillInfo.roleEl.textContent = `Clan: ${clanAbbreviation}`;
+            skillInfo.roleEl.style.display = '';
+        }
+        if (skillInfo.descEl) {
+            skillInfo.descEl.textContent = [
+                `Wins: ${ladder.wins}`,
+                `Losses: ${ladder.losses}`,
+                `Streak: ${formatSignedNumber(ladder.streak)}`,
+                `Highest Streak: ${formatSignedNumber(ladder.highestStreak)}`,
+            ].join('\n');
+        }
+        if (skillInfo.cooldownEl) {
+            skillInfo.cooldownEl.textContent = '';
+        }
+        if (skillInfo.classesEl) {
+            skillInfo.classesEl.textContent = `Opponent | Clan: ${clanAbbreviation}`;
+        }
+        if (skillInfo.classPickerWrapEl && skillInfo.classPickerEl) {
+            skillInfo.classPickerWrapEl.style.display = 'none';
+            skillInfo.classPickerEl.innerHTML = '';
+        }
+        if (skillInfo.energyEl) {
+            skillInfo.energyEl.innerHTML = '';
+            const label = document.createElement('span');
+            label.textContent = 'Stats:';
+            skillInfo.energyEl.appendChild(label);
+        }
+        if (skillInfo.browserIconsEl) {
+            skillInfo.browserIconsEl.innerHTML = '';
+            skillInfo.browserIconsEl.classList.remove('skill-browser-icons-wrap');
+        }
+    };
+
+    const openOpponentStatsPanel = async () => {
+        const username = currentOpponentUsername || '';
+        if (!username) return;
+        closeOpponentStatsPanel();
+        renderOpponentProfileInfo(currentOpponentProfileView);
+
+        const cachedProfile =
+            currentOpponentProfileView && currentOpponentProfileView.username === username
+                ? currentOpponentProfileView
+                : null;
+        const fetchedProfile =
+            cachedProfile || (isGameBotUsername(username) ? null : await fetchPublicProfile(username));
+        if (fetchedProfile && fetchedProfile.username) {
+            currentOpponentProfileView = fetchedProfile;
+        }
+        renderOpponentProfileInfo(fetchedProfile || currentOpponentProfileView);
+    };
+
+    const hydrateOpponentIdentity = async (username, fallbackProfile = null, fallbackDisplayName = '') => {
+        const resolvedArenaMode = currentMatchArena || getProtectionTerminologyArena();
         if (!username) {
+            currentOpponentProfileView = null;
             applyOpponentIdentity({
-                avatarUrl: defaultProfileAvatar,
-                ladder: null,
+                username: '',
+                name: fallbackDisplayName || null,
+                avatarUrl: getArenaDefaultAvatarUrl(resolvedArenaMode),
+                ladder: fallbackProfile?.ladder || null,
             });
             return;
         }
         if (isGameBotUsername(username)) {
+            currentOpponentProfileView = fallbackProfile ? { username, profile: fallbackProfile } : null;
             applyOpponentIdentity({
-                name: 'Game Bot',
-                avatarUrl: defaultProfileAvatar,
-                ladder: null,
+                username,
+                name: fallbackDisplayName || username,
+                avatarUrl: fallbackProfile?.avatarUrl || getArenaDefaultAvatarUrl(resolvedArenaMode),
+                ladder: fallbackProfile?.ladder || null,
             });
             return;
         }
         const user = await fetchPublicProfile(username);
+        currentOpponentProfileView = user || (fallbackProfile ? { username, profile: fallbackProfile } : null);
+        const fetchedLadder = getArenaLadder(user?.profile, currentMatchArena);
+        const fallbackLadder = getArenaLadder(fallbackProfile, currentMatchArena);
         applyOpponentIdentity({
-            name: user?.username || username,
-            avatarUrl: user?.profile?.avatarUrl || defaultProfileAvatar,
-            ladder: user?.profile?.ladder || null,
+            username,
+            name: user?.username || fallbackDisplayName || username,
+            avatarUrl:
+                user?.profile?.avatarUrl ||
+                fallbackProfile?.avatarUrl ||
+                getArenaDefaultAvatarUrl(resolvedArenaMode),
+            ladder: fetchedLadder || fallbackLadder || null,
         });
     };
 
     const pageSearchParams = new URLSearchParams(window.location.search);
     const matchIdFromUrl = pageSearchParams.get('matchId');
     const selectionMissionIdFromUrl = pageSearchParams.get('missionId');
+    const arenaModeFromUrl = pageSearchParams.get('arena');
+    const MATCH_ARENA_CACHE_KEY = 'comicMatchArenaById';
+    const MATCH_AUTO_RECOVERY_PREFIX = 'comicMatchAutoRecovery:';
+    const normalizeArenaModeValue = (value = '') => {
+        const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
+        return normalized === 'pokemon' ? 'pokemon' : normalized === 'comic' ? 'comic' : '';
+    };
+    let activeArenaMode =
+        normalizeArenaModeValue(arenaModeFromUrl) ||
+        defaultArenaModeFromPage ||
+        (localStorage.getItem('comicArenaMode') === 'pokemon' ? 'pokemon' : 'comic');
+    document.body.classList.toggle('arena-mode-pokemon', activeArenaMode === 'pokemon');
+    document.body.classList.toggle('arena-mode-comic', activeArenaMode !== 'pokemon');
+    const readCachedMatchArenaMap = () => {
+        try {
+            const raw = sessionStorage.getItem(MATCH_ARENA_CACHE_KEY);
+            if (!raw) return {};
+            const parsed = JSON.parse(raw);
+            return parsed && typeof parsed === 'object' ? parsed : {};
+        } catch (error) {
+            return {};
+        }
+    };
+    const writeCachedMatchArena = (matchId, arena) => {
+        const normalizedArena = normalizeArenaModeValue(arena);
+        const normalizedMatchId = typeof matchId === 'string' ? matchId.trim() : '';
+        if (!normalizedMatchId || !normalizedArena) return;
+        try {
+            const next = readCachedMatchArenaMap();
+            next[normalizedMatchId] = normalizedArena;
+            sessionStorage.setItem(MATCH_ARENA_CACHE_KEY, JSON.stringify(next));
+        } catch (error) {
+            // Ignore storage failures.
+        }
+    };
+    const readCachedMatchArena = (matchId) => {
+        const normalizedMatchId = typeof matchId === 'string' ? matchId.trim() : '';
+        if (!normalizedMatchId) return '';
+        const cached = readCachedMatchArenaMap()[normalizedMatchId];
+        return normalizeArenaModeValue(cached);
+    };
+    const getAutoRecoveryKey = (matchId) =>
+        `${MATCH_AUTO_RECOVERY_PREFIX}${typeof matchId === 'string' ? matchId.trim() : ''}`;
+    const buildIngameMatchUrl = (matchId, arena) =>
+        `ingame.html?matchId=${encodeURIComponent(matchId)}&arena=${encodeURIComponent(arena)}`;
 
-    if (!slotList) {
-        const rosterData = typeof characters !== 'undefined' ? characters : window.characters;
+    if (isIngamePage) {
+        const rosterData = Array.isArray(window.characters)
+            ? window.characters
+            : typeof characters !== 'undefined' && Array.isArray(characters)
+                ? characters
+                : [];
         let matchSocket = null;
         let matchSocketReconnectTimer = null;
         let matchSocketReconnectDelay = 1000;
@@ -1265,7 +2037,48 @@ document.addEventListener('DOMContentLoaded', async () => {
         let currentTurnUsername = null;
         let currentOpponentUsername = null;
         let currentOpponentDisplayName = null;
+        let currentOpponentProfileView = null;
         let currentMatchMode = 'quick';
+        let currentMatchBackgroundUrl = '';
+        let currentMatchArena =
+            normalizeArenaModeValue(arenaModeFromUrl) ||
+            readCachedMatchArena(matchIdFromUrl) ||
+            (localStorage.getItem('comicArenaMode') === 'pokemon' ? 'pokemon' : 'comic');
+        activeArenaMode = currentMatchArena;
+        setProtectionTerminologyArena(currentMatchArena);
+        if (matchIdFromUrl) {
+            writeCachedMatchArena(matchIdFromUrl, currentMatchArena);
+        }
+        setIngameArenaUiAssets(currentMatchArena);
+        const clearMatchAutoRecoveryAttempt = (matchId = matchIdFromUrl) => {
+            const normalizedMatchId = typeof matchId === 'string' ? matchId.trim() : '';
+            if (!normalizedMatchId) return;
+            try {
+                sessionStorage.removeItem(getAutoRecoveryKey(normalizedMatchId));
+            } catch (error) {
+                // Ignore storage failures.
+            }
+        };
+        const attemptMatchAutoRecovery = (reason = 'unknown') => {
+            const normalizedMatchId = typeof matchIdFromUrl === 'string' ? matchIdFromUrl.trim() : '';
+            if (!normalizedMatchId) return false;
+            const recoveryKey = getAutoRecoveryKey(normalizedMatchId);
+            try {
+                if (sessionStorage.getItem(recoveryKey)) {
+                    return false;
+                }
+                sessionStorage.setItem(recoveryKey, reason || '1');
+            } catch (error) {
+                // Ignore storage failures and still attempt reload.
+            }
+            const arena =
+                readCachedMatchArena(normalizedMatchId) ||
+                normalizeArenaModeValue(arenaModeFromUrl) ||
+                currentMatchArena ||
+                'comic';
+            window.location.replace(buildIngameMatchUrl(normalizedMatchId, arena));
+            return true;
+        };
         const matchChatEl = document.querySelector('.match-chat');
         const matchChatToggle = document.querySelector('.match-chat-toggle');
         const matchChatUnreadEl = document.querySelector('.match-chat-unread');
@@ -1282,7 +2095,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         let matchChatUnreadCount = 0;
         let matchChatOpponentMuted = localStorage.getItem('comicMatchChatOpponentMuted') === 'true';
         let currentPlayerTeam = [];
-        let profileIngameBackgroundUrl = '';
         const startFirstSound = new Audio('assets/audio/sounds/start-first.mp3');
         const secondPlayerStartSound = new Audio('assets/audio/sounds/yahoe.mp3');
         const nextRoundSound = new Audio('assets/audio/sounds/next-round.mp3');
@@ -1316,6 +2128,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const exchangeOkButton = exchangeModalEl?.querySelector('.ok-buttonexchange');
         const exchangeCancelButton = exchangeModalEl?.querySelector('.cancel-buttonexchange');
         const exchangeChooseCountEl = exchangeModalEl?.querySelector('.chakrachoosered');
+        const exchangeStatusEl = exchangeModalEl?.querySelector('.exchange_chakra_status');
         const readyTextEl = document.querySelector('.ready-text');
         const readySectionEl = document.querySelector('.ready-section');
         const battleIntroOverlayEl = document.querySelector('.battle-intro-overlay');
@@ -1332,12 +2145,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         const BATTLE_INTRO_DURATION_MS = 3000;
         let hasPlayedBattleIntro = false;
         const endTurnModalEl = document.querySelector('.ChakraChooseEndTurn');
+        const endTurnStatusEl = endTurnModalEl?.querySelector('.end-turn-status');
         const skillOrderEl = endTurnModalEl?.querySelector('.skillorder');
         const endTurnOkButton = document.querySelector('.ok-buttonendturn');
         const endTurnCancelButton = document.querySelector('.cancel-buttonendturn');
         const surrenderConfirmEl = document.querySelector('.surrender-confirm');
         const surrenderConfirmOkButton = document.querySelector('.surrender-confirm-ok');
         const surrenderConfirmCancelButton = document.querySelector('.surrender-confirm-cancel');
+        const surrenderConfirmPreviewImage = surrenderConfirmEl?.querySelector('.surrender-confirm-preview-image');
         const battleEndOverlayEl = document.querySelector('.battle-end-overlay');
         const battleEndPortraitEl = battleEndOverlayEl?.querySelector('.battle-end-portrait');
         const battleEndTitleEl = battleEndOverlayEl?.querySelector('.battle-end-title');
@@ -1354,7 +2169,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const timerCountdown = document.querySelector('.timer-countdown');
         const TURN_DURATION_MS = 60_000;
         const TIMER_MAX_WIDTH = 191;
-        const EXCHANGE_CHAKRA_COST = 4;
+        const EXCHANGE_CHAKRA_COST = 5;
         const READY_TEXT_PLAYER = 'PRESS WHEN READY';
         const READY_TEXT_OPPONENT = "OPPONENT'S TURN...";
         let lastTurnOwner = null;
@@ -1362,6 +2177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let currentTurnDurationMs = TURN_DURATION_MS;
         let turnTimerInterval = null;
         let autoEndRequested = false;
+        let expiredOpponentTurnRecoveryAtMs = 0;
         let isEndingTurn = false;
         let pendingTurnState = null;
         let playerPoolState = {
@@ -1384,14 +2200,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         let activeTurnStartChoiceKey = '';
         let activeChoicePopupMode = '';
         let queuedSkillKeySet = new Set();
+        const queuedSkillCancelClickState = new Map();
+        let queuedSkillTapReorderActorSlot = null;
+        let queuedSkillTapReorderTimeoutId = null;
         const optimisticQueuedByActorSlot = new Map();
         const optimisticCancelledActorSlots = new Set();
         const inFlightSkillRequestByActorSlot = new Set();
+        const inFlightSkillRequestPromisesByActorSlot = new Map();
         const targetOptionsCache = new Map();
         let targetOptionsRequestVersion = 0;
+        let inFlightTargetOptionsRequestKey = '';
+        let queuedSkillDeferredVisualsFrame = null;
+        let lastQueueOrderLabelSignature = '';
         let draggingQueueActorSlot = null;
+        let activeQueuedSkillPointerDrag = null;
+        let lastQueuedSkillPointerDragEndedAt = 0;
         let latestBoardState = null;
         let globalStatusTooltipEl = null;
+        let lastTargetingActivatedAt = 0;
         let statusRevealHeld = false;
         let statusRevealPinned = false;
         let battleEndShown = false;
@@ -1402,6 +2228,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         let lastTargetHighlightSignature = '';
         const preloadedIngameImageUrls = new Set();
         const perfEntries = [];
+        let activeMatchIssueBannerTimeout = null;
+        let activeMatchIssueBannerToken = 0;
+        let activeMatchRecoveryPromise = null;
+        let queuedReorderRequestVersion = 0;
+        let endTurnModalRefreshVersion = 0;
         let ingamePerfDebug =
             new URLSearchParams(window.location.search).get('perf') === '1' ||
             localStorage.getItem('comicArenaPerfDebug') === 'true';
@@ -1448,6 +2279,182 @@ document.addEventListener('DOMContentLoaded', async () => {
         const playGeneratedIngameSound = (name) => {
             soundManager.playGeneratedEffect(name);
         };
+        const matchIssueBannerEl = document.createElement('div');
+        matchIssueBannerEl.className = 'match-issue-banner';
+        Object.assign(matchIssueBannerEl.style, {
+            position: 'fixed',
+            top: '14px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: '9999',
+            minWidth: '320px',
+            maxWidth: 'min(92vw, 760px)',
+            padding: '12px 14px',
+            borderRadius: '14px',
+            border: '2px solid rgba(255,255,255,0.28)',
+            background: 'rgba(20,24,36,0.94)',
+            color: '#f4f7fb',
+            boxShadow: '0 16px 40px rgba(0,0,0,0.38)',
+            display: 'none',
+            alignItems: 'center',
+            gap: '12px',
+            fontFamily: '"Libre Franklin", sans-serif',
+            fontSize: '14px',
+            lineHeight: '1.35',
+        });
+        const matchIssueBannerMessageEl = document.createElement('div');
+        Object.assign(matchIssueBannerMessageEl.style, {
+            flex: '1 1 auto',
+            minWidth: '0',
+            whiteSpace: 'pre-wrap',
+        });
+        const matchIssueBannerActionsEl = document.createElement('div');
+        Object.assign(matchIssueBannerActionsEl.style, {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            flexShrink: '0',
+        });
+        const createMatchIssueBannerButton = (label) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = label;
+            Object.assign(button.style, {
+                border: '1px solid rgba(255,255,255,0.25)',
+                background: 'rgba(255,255,255,0.08)',
+                color: '#f7fbff',
+                borderRadius: '999px',
+                padding: '7px 12px',
+                font: 'inherit',
+                cursor: 'pointer',
+            });
+            return button;
+        };
+        const matchIssueBannerRetryButton = createMatchIssueBannerButton('Retry');
+        const matchIssueBannerDismissButton = createMatchIssueBannerButton('Dismiss');
+        matchIssueBannerActionsEl.appendChild(matchIssueBannerRetryButton);
+        matchIssueBannerActionsEl.appendChild(matchIssueBannerDismissButton);
+        matchIssueBannerEl.appendChild(matchIssueBannerMessageEl);
+        matchIssueBannerEl.appendChild(matchIssueBannerActionsEl);
+        document.body.appendChild(matchIssueBannerEl);
+        const clearMatchIssueBanner = () => {
+            activeMatchIssueBannerToken += 1;
+            if (activeMatchIssueBannerTimeout) {
+                window.clearTimeout(activeMatchIssueBannerTimeout);
+                activeMatchIssueBannerTimeout = null;
+            }
+            matchIssueBannerEl.style.display = 'none';
+            matchIssueBannerMessageEl.textContent = '';
+        };
+        let recoverCurrentMatchState = async ({ reason = 'manual', message = 'Retrying match sync...' } = {}) => {
+            void reason;
+            void message;
+            return false;
+        };
+        const setMatchIssueBanner = ({
+            message = '',
+            tone = 'error',
+            retryLabel = 'Retry',
+            onRetry = null,
+            dismissible = true,
+            autoHideMs = 0,
+        } = {}) => {
+            const token = ++activeMatchIssueBannerToken;
+            if (activeMatchIssueBannerTimeout) {
+                window.clearTimeout(activeMatchIssueBannerTimeout);
+                activeMatchIssueBannerTimeout = null;
+            }
+            if (!message) {
+                clearMatchIssueBanner();
+                return;
+            }
+            const palette =
+                tone === 'success'
+                    ? { background: 'rgba(14,65,42,0.94)', border: 'rgba(104,235,162,0.55)', color: '#eafff3' }
+                    : tone === 'info'
+                    ? { background: 'rgba(16,43,72,0.94)', border: 'rgba(114,183,255,0.5)', color: '#edf7ff' }
+                    : { background: 'rgba(76,17,17,0.96)', border: 'rgba(255,120,120,0.55)', color: '#fff1f1' };
+            matchIssueBannerEl.style.display = 'flex';
+            matchIssueBannerEl.style.background = palette.background;
+            matchIssueBannerEl.style.borderColor = palette.border;
+            matchIssueBannerEl.style.color = palette.color;
+            matchIssueBannerMessageEl.textContent = message;
+            matchIssueBannerRetryButton.textContent = retryLabel;
+            matchIssueBannerRetryButton.style.display = typeof onRetry === 'function' ? '' : 'none';
+            matchIssueBannerRetryButton.onclick =
+                typeof onRetry === 'function'
+                    ? () => {
+                          Promise.resolve(onRetry()).catch((error) => {
+                              console.warn('Failed to run match issue retry action.', error);
+                          });
+                      }
+                    : null;
+            matchIssueBannerDismissButton.style.display = dismissible ? '' : 'none';
+            matchIssueBannerDismissButton.onclick = dismissible ? () => clearMatchIssueBanner() : null;
+            if (autoHideMs > 0) {
+                activeMatchIssueBannerTimeout = window.setTimeout(() => {
+                    if (token !== activeMatchIssueBannerToken) return;
+                    clearMatchIssueBanner();
+                }, autoHideMs);
+            }
+        };
+        const announceMatchIssue = (message, options = {}) => {
+            setMatchIssueBanner({
+                message,
+                tone: options.tone || 'error',
+                retryLabel: options.retryLabel || 'Retry',
+                onRetry:
+                    options.onRetry ||
+                    (() =>
+                        recoverCurrentMatchState({
+                            reason: options.reason || 'manual-retry',
+                            message: options.recoveryMessage || 'Retrying match sync...',
+                        })),
+                dismissible: options.dismissible !== false,
+                autoHideMs: options.autoHideMs || 0,
+            });
+        };
+        const fetchMatchPayload = async ({
+            matchId = matchIdFromUrl,
+            retries = 0,
+            retryDelayMs = 400,
+            arenaOverride = currentMatchArena,
+        } = {}) => {
+            const normalizedMatchId = typeof matchId === 'string' ? matchId.trim() : '';
+            if (!normalizedMatchId) {
+                throw new Error('Match ID is missing.');
+            }
+            let lastLoadError = null;
+            for (let attempt = 0; attempt <= retries; attempt += 1) {
+                try {
+                    const response = await fetch(
+                        `${API_BASE_URL}/api/match/${encodeURIComponent(normalizedMatchId)}`,
+                        {
+                            credentials: 'include',
+                            cache: 'no-store',
+                        }
+                    );
+                    const payload = await response.json().catch(() => ({}));
+                    if (response.status === 401 || response.status === 403) {
+                        redirectToSelectionLogin(arenaOverride, {
+                            clearUser: false,
+                            replace: true,
+                        });
+                        return null;
+                    }
+                    if (response.ok && payload?.ok) {
+                        return payload;
+                    }
+                    lastLoadError = new Error(payload?.error || `Match request failed (${response.status}).`);
+                } catch (error) {
+                    lastLoadError = error;
+                }
+                if (attempt < retries) {
+                    await wait(retryDelayMs * (attempt + 1));
+                }
+            }
+            throw lastLoadError || new Error('Match data was unavailable.');
+        };
 
         const getFullscreenElement = () =>
             document.fullscreenElement ||
@@ -1460,7 +2467,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             const active = Boolean(getFullscreenElement());
             fullscreenToggleButton.classList.toggle('active', active);
             fullscreenToggleButton.setAttribute('aria-pressed', active ? 'true' : 'false');
-            fullscreenToggleButton.textContent = active ? 'Exit Full' : 'Full';
+            fullscreenToggleButton.textContent = active
+                ? 'Exit Full'
+                : readFullscreenIntent()
+                    ? 'Resume Full'
+                    : 'Full';
         };
 
         const requestGameFullscreen = async () => {
@@ -1487,7 +2498,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 try {
                     if (getFullscreenElement()) {
                         await exitGameFullscreen();
+                        writeFullscreenIntent(false);
                     } else {
+                        writeFullscreenIntent(true);
                         await requestGameFullscreen();
                     }
                 } catch (error) {
@@ -1500,6 +2513,50 @@ document.addEventListener('DOMContentLoaded', async () => {
             document.addEventListener('webkitfullscreenchange', syncFullscreenButton);
             document.addEventListener('MSFullscreenChange', syncFullscreenButton);
             syncFullscreenButton();
+
+            let fullscreenResumeArmed = false;
+            const disarmFullscreenResume = () => {
+                if (!fullscreenResumeArmed) return;
+                fullscreenResumeArmed = false;
+                document.removeEventListener('pointerdown', resumeFullscreenFromGesture, true);
+                document.removeEventListener('keydown', resumeFullscreenFromGesture, true);
+            };
+            const tryResumeGameFullscreen = async () => {
+                if (!readFullscreenIntent() || getFullscreenElement()) {
+                    disarmFullscreenResume();
+                    syncFullscreenButton();
+                    return;
+                }
+                try {
+                    await requestGameFullscreen();
+                    disarmFullscreenResume();
+                } catch (error) {
+                    // Browsers normally require a new user gesture after page navigation.
+                } finally {
+                    syncFullscreenButton();
+                }
+            };
+            function resumeFullscreenFromGesture(event) {
+                if (event?.target?.closest?.('.ingame-fullscreen-toggle')) return;
+                if (event?.type === 'keydown' && event.key === 'Escape') {
+                    writeFullscreenIntent(false);
+                    disarmFullscreenResume();
+                    syncFullscreenButton();
+                    return;
+                }
+                void tryResumeGameFullscreen();
+            }
+            const armFullscreenResume = () => {
+                if (fullscreenResumeArmed || !readFullscreenIntent() || getFullscreenElement()) return;
+                fullscreenResumeArmed = true;
+                document.addEventListener('pointerdown', resumeFullscreenFromGesture, true);
+                document.addEventListener('keydown', resumeFullscreenFromGesture, true);
+            };
+
+            if (readFullscreenIntent() && !getFullscreenElement()) {
+                armFullscreenResume();
+                void tryResumeGameFullscreen();
+            }
         }
         const chakraCountEls = chakraDisplay
             ? {
@@ -1519,11 +2576,46 @@ document.addEventListener('DOMContentLoaded', async () => {
             blue: 'ninjutsu',
             genjutsu: 'genjutsu',
             white: 'genjutsu',
+            yellow: 'genjutsu',
         };
         const resolveChakraType = (value) => {
             const normalized =
                 typeof value === 'string' ? value.trim().toLowerCase() : '';
             return chakraLabelToTypeMap[normalized] || null;
+        };
+        const getEnergyDisplayLabel = (type) => {
+            const normalized = resolveChakraType(type) || (typeof type === 'string' ? type.trim().toLowerCase() : '');
+            const labels = {
+                taijutsu: 'Green',
+                bloodline: 'Red',
+                ninjutsu: 'Blue',
+                genjutsu: currentMatchArena === 'pokemon' ? 'Yellow' : 'White',
+                random: 'Random',
+            };
+            return labels[normalized] || '';
+        };
+        const syncEnergyNameLabels = () => {
+            [
+                ['.chakra-box.blue', 'ninjutsu'],
+                ['.chakra-box.red', 'bloodline'],
+                ['.chakra-box.white', 'genjutsu'],
+            ].forEach(([selector, type]) => {
+                const label = getEnergyDisplayLabel(type).toUpperCase();
+                document.querySelectorAll(selector).forEach((box) => {
+                const row = box.closest('.chakra-row, .exchange_chakra_row, .chakra-item');
+                const nameEl = row?.querySelector('.chakra-name');
+                if (nameEl) {
+                        nameEl.textContent = label;
+                    }
+                });
+            });
+            exchangeChoiceButtons.forEach((button) => {
+                const type = getExchangeTypeFromButton(button);
+                const label = getEnergyDisplayLabel(type);
+                if (label) {
+                    button.setAttribute('aria-label', label);
+                }
+            });
         };
         const getRowChakraType = (row) => {
             if (!(row instanceof Element)) return null;
@@ -1570,6 +2662,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             classPickerEl: document.querySelector('.ingame-class-picker-field'),
             descEl: document.querySelector('.ingameskilldescription'),
             browserIconsEl: document.querySelector('.skill-browser-icons'),
+            selectedViewMode: 'character',
+            selectedActorSlot: null,
+            selectedSkillIdx: null,
         };
         const chakraTypes = ['taijutsu', 'ninjutsu', 'bloodline', 'genjutsu'];
         const emptyPool = () => ({
@@ -1739,6 +2834,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             return units[actorSlot] || null;
         };
 
+        const getUnitByUsernameSlot = (username, slot) => {
+            if (!username || !Number.isInteger(slot) || slot < 0) return null;
+            const units = latestBoardState?.[username];
+            if (!Array.isArray(units)) return null;
+            return units[slot] || null;
+        };
+
         const isUnitBanished = (unit) => {
             const statuses = Array.isArray(unit?.state?.statuses) ? unit.state.statuses : [];
             return statuses.some((status) => {
@@ -1752,9 +2854,48 @@ document.addEventListener('DOMContentLoaded', async () => {
             return unit?.alive === false || isUnitBanished(unit) || (Number.isFinite(hp) && hp <= 0);
         };
 
-        await hydratePlayerIdentity();
-        profileIngameBackgroundUrl = document.querySelector('.backgroundingame')?.style.backgroundImage || '';
-
+        void hydratePlayerIdentity({
+            redirectOnUnauthorized: true,
+            arenaOverride: currentMatchArena,
+        }).catch((error) => {
+            console.warn('Failed to hydrate ingame player identity.', error);
+        });
+        const cacheArenaSkinCatalogForIngame = (arena, payload = {}) => {
+            const normalizedArena = arena === 'pokemon' ? 'pokemon' : 'comic';
+            arenaSkinCatalogCache[normalizedArena] = Array.isArray(payload?.skins)
+                ? payload.skins.map((entry = {}) => ({
+                      ...entry,
+                      skinId: normalizeSkinId(entry.skinId),
+                      characterId: normalizeSkinCharacterId(entry.characterId),
+                      skillImageOverridesBySkillId:
+                          entry.skillImageOverridesBySkillId && typeof entry.skillImageOverridesBySkillId === 'object'
+                              ? entry.skillImageOverridesBySkillId
+                              : {},
+                      skillOverridesBySkillId:
+                          entry.skillOverridesBySkillId && typeof entry.skillOverridesBySkillId === 'object'
+                              ? entry.skillOverridesBySkillId
+                              : {},
+                      statusFacePictureOverridesByStatusId:
+                          entry.statusFacePictureOverridesByStatusId &&
+                          typeof entry.statusFacePictureOverridesByStatusId === 'object'
+                              ? entry.statusFacePictureOverridesByStatusId
+                              : {},
+                  }))
+                : [];
+        };
+        const fetchArenaSkinsForIngame = async (arena = currentMatchArena) => {
+            const normalizedArena = arena === 'pokemon' ? 'pokemon' : 'comic';
+            const response = await fetch(`${API_BASE_URL}/api/skins?arena=${encodeURIComponent(normalizedArena)}`, {
+                credentials: 'include',
+                cache: 'no-store',
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || 'Unable to load skins.');
+            }
+            cacheArenaSkinCatalogForIngame(normalizedArena, payload);
+            return payload;
+        };
         const getSkillReplacementMapFromUnit = (unit) => {
             const map = {};
             const statuses = Array.isArray(unit?.state?.statuses) ? unit.state.statuses : [];
@@ -1812,7 +2953,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         const getEffectiveSkillForActorSlot = (actorSlot, baseSkillIdx) => {
             const meta = playerSkillMetaByKey.get(`${actorSlot}:${baseSkillIdx}`);
             const unit = getActorUnitForSlot(currentPlayerUsername, actorSlot);
-            const character = getEffectiveCharacterForUnit(unit);
+            const character = buildCharacterWithEquippedSkin(
+                getEffectiveCharacterForUnit(unit),
+                profileCache?.profile || null,
+                currentMatchArena
+            );
             const baseSkill =
                 (Array.isArray(character?.skills) ? character.skills[baseSkillIdx] : null) ||
                 meta?.baseSkill ||
@@ -1892,6 +3037,30 @@ document.addEventListener('DOMContentLoaded', async () => {
                     nonMentalRandomIncrease: 0,
                 }
             );
+        };
+
+        const getStackBasedRandomReduction = (actorSlot, skill = null) => {
+            const skillId = typeof skill?.id === 'string' ? skill.id : '';
+            if (!skillId || !Number.isInteger(actorSlot) || actorSlot < 0) return 0;
+            const actorUnit = latestBoardState?.[currentPlayerUsername]?.[actorSlot];
+            const statuses = Array.isArray(actorUnit?.state?.statuses) ? actorUnit.state.statuses : [];
+            return statuses.reduce((sum, status) => {
+                if ((Number(status?.remainingTurns) || 0) <= 0) return sum;
+                const config = status?.metadata?.randomCostReductionPerStatusMetadata;
+                if (!config || typeof config !== 'object') return sum;
+                const skillIds = Array.isArray(config.skillIds)
+                    ? config.skillIds.filter((id) => typeof id === 'string' && id)
+                    : typeof config.skillId === 'string' && config.skillId
+                    ? [config.skillId]
+                    : [];
+                if (skillIds.length > 0 && !skillIds.includes(skillId)) return sum;
+                const metadataKey =
+                    typeof config.metadataKey === 'string' && config.metadataKey ? config.metadataKey : '';
+                const multiplier = Number(config.multiplier) || 0;
+                if (!metadataKey || multiplier === 0) return sum;
+                const value = Math.max(0, Number(status?.metadata?.[metadataKey]) || 0);
+                return sum + value * multiplier;
+            }, 0);
         };
 
         const normalizeSkillCostOverride = (override = {}) => {
@@ -1976,7 +3145,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return normalizedEnergy.map(() => 'random');
             }
             const reductions = getActorCostReductions(actorSlot);
-            let remainingRandomReduction = Math.max(0, reductions.random);
+            let remainingRandomReduction = Math.max(
+                0,
+                reductions.random + getStackBasedRandomReduction(actorSlot, skill)
+            );
             let remainingSpecificReductions = {
                 taijutsu: Math.max(0, reductions.taijutsu),
                 ninjutsu: Math.max(0, reductions.ninjutsu),
@@ -2060,20 +3232,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const getPendingReservationState = (excludedActorSlot = null) => {
-            const pending = normalizePendingTurn(pendingTurnState);
+            const confirmedPending = normalizePendingTurn(pendingTurnState);
             const remainingPool = normalizePool(playerPoolState);
-            const randomAssignments = normalizePool(pending.randomAssignments);
-            let totalQueuedRandom = 0;
-            let excludedQueuedRandom = 0;
+            let reservedRandomTotal = Math.max(0, Number(confirmedPending.unresolvedRandom) || 0);
 
-            Object.values(pending.queuedByActorSlot || {}).forEach((queued) => {
-                const queuedActorSlot = Number.parseInt(queued?.actorSlot, 10);
-                const queuedRequiredRandom = Math.max(0, Number(queued?.requiredRandom) || 0);
-                totalQueuedRandom += queuedRequiredRandom;
-                if (Number.isInteger(excludedActorSlot) && queuedActorSlot === excludedActorSlot) {
-                    excludedQueuedRandom += queuedRequiredRandom;
-                    return;
-                }
+            // Confirmed reservations are already removed from playerPoolState by the server.
+            // Apply only local optimistic changes that have not reached the server yet.
+            optimisticCancelledActorSlots.forEach((actorSlot) => {
+                const confirmedQueued = confirmedPending.queuedByActorSlot?.[String(actorSlot)] || null;
+                if (!confirmedQueued) return;
+                const reservedSpecific =
+                    confirmedQueued.reservedSpecific && typeof confirmedQueued.reservedSpecific === 'object'
+                        ? confirmedQueued.reservedSpecific
+                        : {};
+                chakraTypes.forEach((type) => {
+                    remainingPool[type] =
+                        (Number(remainingPool[type]) || 0) + (Number(reservedSpecific[type]) || 0);
+                });
+                reservedRandomTotal = Math.max(
+                    0,
+                    reservedRandomTotal - Math.max(0, Number(confirmedQueued.requiredRandom) || 0)
+                );
+            });
+
+            optimisticQueuedByActorSlot.forEach((queued, actorSlot) => {
+                if (confirmedPending.queuedByActorSlot?.[String(actorSlot)]) return;
+                if (Number.isInteger(excludedActorSlot) && Number(actorSlot) === excludedActorSlot) return;
                 const reservedSpecific =
                     queued?.reservedSpecific && typeof queued.reservedSpecific === 'object'
                         ? queued.reservedSpecific
@@ -2084,18 +3268,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                         (Number(remainingPool[type]) || 0) - (Number(reservedSpecific[type]) || 0)
                     );
                 });
+                reservedRandomTotal += Math.max(0, Number(queued?.requiredRandom) || 0);
             });
-
-            chakraTypes.forEach((type) => {
-                remainingPool[type] = Math.max(
-                    0,
-                    (Number(remainingPool[type]) || 0) - (Number(randomAssignments[type]) || 0)
-                );
-            });
-
-            const assignedRandomTotal = totalPool(randomAssignments);
-            const queuedRandomExcludingActor = Math.max(0, totalQueuedRandom - excludedQueuedRandom);
-            const reservedRandomTotal = Math.max(0, queuedRandomExcludingActor - assignedRandomTotal);
 
             return {
                 remainingPool,
@@ -2152,15 +3326,75 @@ document.addEventListener('DOMContentLoaded', async () => {
             return pending.queuedByActorSlot?.[String(actorSlot)] || null;
         };
 
+        const buildDisplayedChakraPool = () => {
+            const displayedPool = normalizePool(playerPoolState);
+            const confirmedPending = normalizePendingTurn(pendingTurnState);
+            optimisticCancelledActorSlots.forEach((actorSlot) => {
+                const confirmedQueued = confirmedPending.queuedByActorSlot?.[String(actorSlot)] || null;
+                const reservedSpecific =
+                    confirmedQueued?.reservedSpecific && typeof confirmedQueued.reservedSpecific === 'object'
+                        ? confirmedQueued.reservedSpecific
+                        : {};
+                chakraTypes.forEach((type) => {
+                    displayedPool[type] = (displayedPool[type] || 0) + (Number(reservedSpecific[type]) || 0);
+                });
+            });
+            optimisticQueuedByActorSlot.forEach((queued, actorSlot) => {
+                const confirmedQueued = confirmedPending.queuedByActorSlot?.[String(actorSlot)] || null;
+                if (confirmedQueued) return;
+                const reservedSpecific =
+                    queued?.reservedSpecific && typeof queued.reservedSpecific === 'object'
+                        ? queued.reservedSpecific
+                        : {};
+                chakraTypes.forEach((type) => {
+                    displayedPool[type] = Math.max(
+                        0,
+                        (displayedPool[type] || 0) - (Number(reservedSpecific[type]) || 0)
+                    );
+                });
+            });
+            return displayedPool;
+        };
+
+        const renderDisplayedChakra = () => {
+            if (!chakraDisplay) return;
+            const normalizedPool = buildDisplayedChakraPool();
+            Object.entries(chakraCountEls || {}).forEach(([type, el]) => {
+                if (!el) return;
+                if (type === 'total') {
+                    const totalAmount =
+                        normalizedPool.taijutsu +
+                        normalizedPool.ninjutsu +
+                        normalizedPool.bloodline +
+                        normalizedPool.genjutsu;
+                    el.textContent = `x ${totalAmount}`;
+                } else {
+                    const amount = normalizedPool[type] || 0;
+                    el.textContent = `x ${amount}`;
+                }
+            });
+            updateSkillAffordability();
+            if (exchangeModalEl && exchangeModalEl.style.visibility === 'visible') {
+                renderExchangeModal(normalizedPool);
+            }
+        };
+
+        const setEndTurnModalStatus = (message = '', tone = 'info') => {
+            if (!endTurnStatusEl) return;
+            endTurnStatusEl.textContent = message;
+            endTurnStatusEl.classList.toggle('is-info', tone === 'info');
+        };
+
         const updateEndTurnButtons = () => {
-            const pending = normalizePendingTurn(pendingTurnState);
+            const pending = getPendingTurnWithOptimisticQueues();
             const hasUnresolvedRandom = pending.unresolvedRandom > 0;
             if (endTurnCancelButton) {
                 endTurnCancelButton.style.opacity = '1';
             }
             if (endTurnOkButton) {
-                endTurnOkButton.disabled = hasUnresolvedRandom;
-                endTurnOkButton.style.opacity = hasUnresolvedRandom ? '0.4' : '1';
+                endTurnOkButton.disabled = isEndingTurn;
+                endTurnOkButton.style.opacity = isEndingTurn ? '0.4' : '1';
+                endTurnOkButton.textContent = hasUnresolvedRandom ? 'CHOOSE' : 'OK';
             }
         };
 
@@ -2179,6 +3413,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (type === 'damage' || type === 'health_steal_damage') return true;
             if (type === 'execute_below_hp') return true;
             if (type === 'destroy_destructible_defense') return true;
+            if (type === 'reduce_destructible_defense') return true;
             if (type === 'modify_cooldowns') {
                 const amount = Number(effect?.amount) || 0;
                 return amount > 0 || Boolean(effect?.metadata?.harmful);
@@ -2268,7 +3503,56 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         };
 
-        const getSkillUsageState = (actorUnit, skill) => {
+        const getCooldownRemainingForSkill = (actorUnit, skill) => {
+            const cooldowns = actorUnit?.state?.cooldowns || {};
+            const skillId = typeof skill?.id === 'string' ? skill.id : '';
+            if (!skillId) return 0;
+            return Math.max(0, Number(cooldowns[skillId]) || 0);
+        };
+
+        const isSkillBlockedByHelpfulHarmfulLock = (actorUnit, skill) => {
+            const statuses = Array.isArray(actorUnit?.state?.statuses) ? actorUnit.state.statuses : [];
+            const harmful = skillHasHarmfulEffects(skill);
+            if (statuses.some((status) => status?.metadata?.cannotUseHarmfulSkills) && harmful) {
+                return true;
+            }
+            if (statuses.some((status) => status?.metadata?.cannotUseHelpfulSkills) && !harmful) {
+                return true;
+            }
+            return false;
+        };
+
+        const isSkillBlockedByHelpfulSelfInvulnerability = (actorUnit, skill) => {
+            if (!actorUnit || skillHasHarmfulEffects(skill)) return false;
+            const target = typeof skill?.target === 'string' ? skill.target.trim().toLowerCase() : '';
+            if (target !== 'self') return false;
+            const effects = Array.isArray(skill?.effects) ? skill.effects : [];
+            if (
+                effects.length > 0 &&
+                effects.every(
+                    (effect) =>
+                        Boolean(effect?.ignoreHelpfulInvulnerability) ||
+                        Boolean(effect?.metadata?.ignoreHelpfulInvulnerability)
+                )
+            ) {
+                return false;
+            }
+            const statuses = Array.isArray(actorUnit?.state?.statuses) ? actorUnit.state.statuses : [];
+            return statuses.some((status) => status?.metadata?.invulnerableToHelpfulSkills);
+        };
+
+        const getActorSkillMetaEntries = (actorSlot) =>
+            Array.from(playerSkillMetaByKey.values()).filter(
+                (entry) => Number(entry?.actorSlot) === Number(actorSlot)
+            );
+
+        const doesActorMeetSkillConditionClient = (
+            actorUnit,
+            skill,
+            actorSlot = null,
+            skillIdx = null,
+            visitedSkillKeys = new Set()
+        ) => {
             const maxUses = Math.max(0, Number(skill?.maxUses) || 0);
             const skillId = typeof skill?.id === 'string' ? skill.id : '';
             const skillUses =
@@ -2278,41 +3562,151 @@ document.addEventListener('DOMContentLoaded', async () => {
             const uses = skillId ? Math.max(0, Number(skillUses[skillId]) || 0) : 0;
             const isLimited = maxUses > 0;
             const isMaxed = isLimited && uses >= maxUses;
-            return {
-                isLimited,
-                uses,
-                maxUses,
-                isMaxed,
-                tooltipText: isLimited ? `Rex has used this skill ${uses} time${uses === 1 ? '' : 's'}.` : '',
-            };
-        };
-
-        const isSkillBlockedByActorCondition = (actorUnit, skill) => {
-            const usageState = getSkillUsageState(actorUnit, skill);
-            if (usageState.isMaxed) return true;
+            if (isMaxed) return false;
             const condition = skill?.actorCondition;
-            if (!condition || typeof condition !== 'object') return false;
+            if (!condition || typeof condition !== 'object') return true;
             const statuses = Array.isArray(actorUnit?.state?.statuses) ? actorUnit.state.statuses : [];
             const hasStatusId = (statusId) =>
                 statuses.some(
                     (status) =>
                         status?.id === statusId && Math.max(0, Number(status?.remainingTurns) || 0) > 0
                 );
-            if (condition?.statusId && !hasStatusId(condition.statusId)) return true;
+            if (condition?.statusId && !hasStatusId(condition.statusId)) return false;
             if (
                 Array.isArray(condition?.statusIdsAny) &&
                 condition.statusIdsAny.length > 0 &&
                 !condition.statusIdsAny.some((statusId) => hasStatusId(statusId))
             ) {
-                return true;
+                return false;
             }
-            if (condition?.missingStatusId && hasStatusId(condition.missingStatusId)) return true;
+            if (condition?.missingStatusId && hasStatusId(condition.missingStatusId)) return false;
             const currentHp = Math.max(0, Number(actorUnit?.hp) || 0);
             const hpAtMost = Number(condition?.sourceCurrentHpAtMost);
-            if (Number.isFinite(hpAtMost) && currentHp > hpAtMost) return true;
+            if (Number.isFinite(hpAtMost) && currentHp > hpAtMost) return false;
             const hpAtLeast = Number(condition?.sourceCurrentHpAtLeast);
-            if (Number.isFinite(hpAtLeast) && currentHp < hpAtLeast) return true;
-            return false;
+            if (Number.isFinite(hpAtLeast) && currentHp < hpAtLeast) return false;
+            if (Boolean(condition?.allOtherSkillsOnCooldown) && Number.isInteger(actorSlot)) {
+                const currentSkillKey = `${actorSlot}:${skillId || Number(skillIdx)}`;
+                if (visitedSkillKeys.has(currentSkillKey)) return true;
+                const nextVisited = new Set(visitedSkillKeys);
+                nextVisited.add(currentSkillKey);
+                const otherSkills = getActorSkillMetaEntries(actorSlot).filter(
+                    (entry) =>
+                        Number(entry?.skillIdx) !== Number(skillIdx) &&
+                        !Boolean(entry?.baseSkill?.hiddenFromSelectionViewer)
+                );
+                for (const entry of otherSkills) {
+                    const otherSkill =
+                        getEffectiveSkillForActorSlot(actorSlot, entry.skillIdx) ||
+                        entry?.skill ||
+                        entry?.baseSkill;
+                    if (!otherSkill) continue;
+                    if (
+                        !doesActorMeetSkillConditionClient(
+                            actorUnit,
+                            otherSkill,
+                            actorSlot,
+                            entry.skillIdx,
+                            nextVisited
+                        )
+                    ) {
+                        continue;
+                    }
+                    if (getCooldownRemainingForSkill(actorUnit, otherSkill) <= 0) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        };
+
+        const getSkillUsageState = (actorUnit, skill, actorSlot = null, skillIdx = null) => {
+            const maxUses = Math.max(0, Number(skill?.maxUses) || 0);
+            const skillId = typeof skill?.id === 'string' ? skill.id : '';
+            const skillUses =
+                actorUnit?.state?.skillUses && typeof actorUnit.state.skillUses === 'object'
+                    ? actorUnit.state.skillUses
+                    : {};
+            const uses = skillId ? Math.max(0, Number(skillUses[skillId]) || 0) : 0;
+            const isLimited = maxUses > 0;
+            const isMaxed = isLimited && uses >= maxUses;
+            const blockedByActorCondition = !doesActorMeetSkillConditionClient(
+                actorUnit,
+                skill,
+                actorSlot,
+                skillIdx
+            );
+            const blockedByHelpfulHarmfulLock = isSkillBlockedByHelpfulHarmfulLock(actorUnit, skill);
+            const blockedByHelpfulSelfInvulnerability = isSkillBlockedByHelpfulSelfInvulnerability(actorUnit, skill);
+            const isBlocked =
+                isMaxed || blockedByActorCondition || blockedByHelpfulHarmfulLock || blockedByHelpfulSelfInvulnerability;
+            let tooltipText = isLimited ? `Rex has used this skill ${uses} time${uses === 1 ? '' : 's'}.` : '';
+            if (blockedByActorCondition) {
+                tooltipText = 'This skill cannot be used right now.';
+            } else if (blockedByHelpfulHarmfulLock) {
+                tooltipText = skillHasHarmfulEffects(skill)
+                    ? 'This character cannot use harmful skills right now.'
+                    : 'This character cannot use helpful skills right now.';
+            } else if (blockedByHelpfulSelfInvulnerability) {
+                tooltipText = 'This character is invulnerable to helpful skills right now.';
+            }
+            return {
+                isLimited,
+                uses,
+                maxUses,
+                isMaxed,
+                isBlocked,
+                tooltipText,
+            };
+        };
+
+        const isSkillUnavailableForSelection = (actorUnit, skill, actorSlot = null, skillIdx = null) => {
+            if (!actorUnit || !skill) return true;
+            const usageState = getSkillUsageState(actorUnit, skill, actorSlot, skillIdx);
+            return (
+                isUnitDeadLike(actorUnit) ||
+                getCooldownRemainingForSkill(actorUnit, skill) > 0 ||
+                usageState.isBlocked ||
+                isSkillBlockedByClassLock(actorUnit, skill) ||
+                isSkillBlockedByIndexLock(actorUnit, skillIdx) ||
+                (isActorEnemyTargetingStunned(actorUnit) && skillIsEnemyTargeting(skill))
+            );
+        };
+
+        const isSkillBlockedByAffordability = (skill, actorSlot = null) =>
+            !canAffordSkillWithPendingReservations(skill?.energy, actorSlot, skill);
+
+        const isPlayersInteractiveTurn = () =>
+            Boolean(
+                !battleEndShown &&
+                    !isEndingTurn &&
+                    currentPlayerUsername &&
+                    currentTurnUsername &&
+                    usernamesMatch(currentPlayerUsername, currentTurnUsername) &&
+                    !normalizePendingTurn(pendingTurnState).turnStartChoice
+            );
+
+        const isActorSkillSelectableNow = (actorSlot, skillIdx, skill = null) => {
+            if (!Number.isInteger(actorSlot) || !Number.isInteger(skillIdx) || !isPlayersInteractiveTurn()) {
+                return false;
+            }
+            if (getQueuedSkillForActorSlot(actorSlot) || inFlightSkillRequestByActorSlot.has(actorSlot)) {
+                return false;
+            }
+            const actorUnit = getActorUnitForSlot(currentPlayerUsername, actorSlot);
+            const effectiveSkill = skill || getEffectiveSkillForActorSlot(actorSlot, skillIdx);
+            return (
+                !isSkillUnavailableForSelection(actorUnit, effectiveSkill, actorSlot, skillIdx) &&
+                !isSkillBlockedByAffordability(effectiveSkill, actorSlot)
+            );
+        };
+
+        const clearActiveTargetSelectionState = () => {
+            targetOptionsRequestVersion += 1;
+            inFlightTargetOptionsRequestKey = '';
+            clearTargetHighlights();
+            activeTargetOptions = null;
+            activeCastingSkill = null;
         };
 
         const updateSkillAffordability = () => {
@@ -2321,13 +3715,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             const playerUnits = currentPlayerUsername && latestBoardState
                 ? latestBoardState[currentPlayerUsername]
                 : null;
-            const getCooldownRemainingForMeta = (meta, actorUnit) => {
-                const cooldowns = actorUnit?.state?.cooldowns || {};
-                const effectiveSkill = getEffectiveSkillForActorSlot(meta.actorSlot, meta.skillIdx) || meta?.skill;
-                const skillId = effectiveSkill?.id;
-                if (!skillId) return 0;
-                return Math.max(0, Number(cooldowns[skillId]) || 0);
-            };
             const isActorStunned = (actorUnit) => {
                 const statuses = Array.isArray(actorUnit?.state?.statuses) ? actorUnit.state.statuses : [];
                 return statuses.some((status) => status?.metadata?.cannotUseSkills);
@@ -2335,57 +3722,76 @@ document.addEventListener('DOMContentLoaded', async () => {
             playerSkillMetaByKey.forEach((meta, key) => {
                 const imgEl = meta?.imgEl;
                 if (!imgEl) return;
+                imgEl.style.pointerEvents = '';
+                imgEl.removeAttribute('aria-disabled');
                 const actorUnit = Array.isArray(playerUnits) ? playerUnits[meta.actorSlot] : null;
                 const effectiveSkill = getEffectiveSkillForActorSlot(meta.actorSlot, meta.skillIdx) || meta?.skill;
-                const usageState = getSkillUsageState(actorUnit, effectiveSkill);
+                const usageState = getSkillUsageState(actorUnit, effectiveSkill, meta.actorSlot, meta.skillIdx);
                 imgEl.title = usageState.tooltipText || '';
                 const actorDead = isUnitDeadLike(actorUnit);
                 if (actorDead) {
                     imgEl.style.opacity = '0.4';
+                    imgEl.style.cursor = 'not-allowed';
                     return;
                 }
-                const cooldownRemaining = getCooldownRemainingForMeta(meta, actorUnit);
-                if (cooldownRemaining > 0 || isActorStunned(actorUnit)) {
+                if (isActorStunned(actorUnit)) {
                     imgEl.style.opacity = '0.4';
+                    imgEl.style.cursor = 'not-allowed';
                     return;
                 }
-                if (usageState.isMaxed) {
+                if (isSkillUnavailableForSelection(actorUnit, effectiveSkill, meta.actorSlot, meta.skillIdx)) {
                     imgEl.style.opacity = '0.4';
-                    return;
-                }
-                if (isActorEnemyTargetingStunned(actorUnit) && skillIsEnemyTargeting(effectiveSkill)) {
-                    imgEl.style.opacity = '0.4';
-                    return;
-                }
-                if (isSkillBlockedByClassLock(actorUnit, effectiveSkill)) {
-                    imgEl.style.opacity = '0.4';
-                    return;
-                }
-                if (isSkillBlockedByIndexLock(actorUnit, meta.skillIdx)) {
-                    imgEl.style.opacity = '0.4';
-                    return;
-                }
-                if (isSkillBlockedByActorCondition(actorUnit, effectiveSkill)) {
-                    imgEl.style.opacity = '0.4';
+                    imgEl.style.cursor = 'not-allowed';
                     return;
                 }
                 if (!isPlayersTurn) {
                     imgEl.style.opacity = '0.4';
+                    imgEl.style.cursor = 'not-allowed';
                     return;
                 }
                 const queued = getQueuedSkillForActorSlot(meta.actorSlot);
                 if (queued && queued.skillIndex === meta.skillIdx) {
                     imgEl.style.opacity = '1';
+                    imgEl.style.cursor = 'pointer';
                     return;
                 }
-                imgEl.style.opacity = canAffordSkillWithPendingReservations(
+                const canAfford = canAffordSkillWithPendingReservations(
                     effectiveSkill?.energy,
                     meta.actorSlot,
                     effectiveSkill
-                )
-                    ? '1'
-                    : '0.4';
+                );
+                imgEl.style.opacity = canAfford ? '1' : '0.4';
+                imgEl.style.cursor = canAfford ? 'pointer' : 'not-allowed';
+                if (!canAfford) {
+                    imgEl.style.pointerEvents = 'none';
+                    imgEl.setAttribute('aria-disabled', 'true');
+                }
             });
+            if (
+                activeCastingSkill &&
+                Number.isInteger(activeCastingSkill.actorSlot) &&
+                Number.isInteger(activeCastingSkill.skillIdx)
+            ) {
+                const actorUnit = Array.isArray(playerUnits) ? playerUnits[activeCastingSkill.actorSlot] : null;
+                const activeSkill =
+                    getEffectiveSkillForActorSlot(activeCastingSkill.actorSlot, activeCastingSkill.skillIdx) || null;
+                const queued = getQueuedSkillForActorSlot(activeCastingSkill.actorSlot);
+                const shouldClearTargeting =
+                    !isPlayersTurn ||
+                    Boolean(normalizePendingTurn(pendingTurnState).turnStartChoice) ||
+                    !actorUnit ||
+                    !activeSkill ||
+                    isSkillUnavailableForSelection(
+                        actorUnit,
+                        activeSkill,
+                        activeCastingSkill.actorSlot,
+                        activeCastingSkill.skillIdx
+                    ) ||
+                    Boolean(queued);
+                if (shouldClearTargeting) {
+                    clearActiveTargetSelectionState();
+                }
+            }
         };
 
         const getPrimaryEnergyClass = (skill = null) => {
@@ -2500,17 +3906,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 queuedActorSlots.add(String(queued.actorSlot));
                 const meta = playerSkillMetaByKey.get(key);
                 if (!meta?.imgEl) return;
-
-                if (!uiSettings.skillQueueTrail) {
-                    const skillScroll = meta.imgEl.closest('.skillscrollingame');
-                    const queueEl = skillScroll?.querySelector('.skillqueue');
-                    if (queueEl) {
-                        queueEl.src = meta.imgEl.src;
-                    }
+                const skillScroll = meta.imgEl.closest('.skillscrollingame');
+                const queueEl = skillScroll?.querySelector('.skillqueue');
+                if (queueEl) {
+                    queueEl.src = meta.imgEl.src;
                 }
 
                 meta.imgEl.classList.add('selected-target');
-                if (!queuedSkillKeySet.has(key) || !meta.imgEl.style.transform) {
+                if (!queuedSkillKeySet.has(key)) {
                     pulseSkillCast(meta.imgEl, meta.skill || meta.baseSkill);
                     animateSkillToQueue(meta.imgEl);
                 }
@@ -2535,13 +3938,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             queuedSkillKeySet = nextQueuedKeys;
             renderSkillOrderQueue(newlyQueuedKeys);
             renderQueueOrderLabels();
-            updateSkillAffordability();
-            renderQueuedTargetTooltips();
-            renderDynamicSkillIcons();
+            renderDisplayedChakra();
+            scheduleQueuedSkillDeferredVisuals();
         };
 
         const getOrderedQueuedEntries = () => {
-            const pending = normalizePendingTurn(pendingTurnState);
+            const pending = getPendingTurnWithOptimisticQueues();
             const bySlot = pending.queuedByActorSlot || {};
             const ordered = [];
             const used = new Set();
@@ -2584,6 +3986,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         const waitForMs = (durationMs) =>
             new Promise((resolve) => window.setTimeout(resolve, durationMs));
 
+        const waitForPendingSkillQueues = async () => {
+            const pendingRequests = Array.from(inFlightSkillRequestPromisesByActorSlot.values());
+            if (!pendingRequests.length) return;
+            await Promise.allSettled(pendingRequests);
+            if (inFlightSkillRequestPromisesByActorSlot.size > 0) {
+                await waitForPendingSkillQueues();
+            }
+        };
+
         const clearTransientPortraitAnimationState = () => {
             document
                 .querySelectorAll('.character-face.skill-caster-surge, .character-face.damage-impact, .character-face.heal-impact, .character-face.evade-dodge')
@@ -2611,9 +4022,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     skillIdx: entry.skillIndex,
                     selection: entry.targetSelection,
                 });
-                await waitForMs(980);
+                await waitForMs(420);
             }
-            await waitForMs(260);
+            await waitForMs(120);
             clearTransientPortraitAnimationState();
             isPlayingResolutionSequence = false;
         };
@@ -2627,6 +4038,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const reorderQueuedSkills = async (actorSlots = []) => {
             if (!matchIdFromUrl) return;
+            const requestVersion = ++queuedReorderRequestVersion;
             try {
                 const response = await fetch(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/reorder`,
@@ -2641,12 +4053,285 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!response.ok || !data?.ok) {
                     throw new Error(data?.error || 'Unable to reorder queued skills.');
                 }
+                if (requestVersion !== queuedReorderRequestVersion) {
+                    syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
+                    return;
+                }
+                const actionRejected =
+                    typeof data?.actionRejected === 'string' ? data.actionRejected.trim().toLowerCase() : '';
+                if (data?.staleAction && actionRejected) {
+                    applyIncomingMatchState(data);
+                    syncTurnActionStateFromPayload(data);
+                    announceMatchIssue('The queued skill order changed on the server, so the turn was resynced.', {
+                        tone: 'info',
+                        reason: 'reorder-queued-skills-resynced',
+                    });
+                    return;
+                }
+                targetOptionsCache.clear();
                 pendingTurnState = normalizePendingTurn(data.pendingTurn);
                 applyQueuedSkillVisuals();
                 syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
             } catch (error) {
                 console.warn('Failed to reorder queued skills.', error);
+                announceMatchIssue(
+                    `Queued skill order fell out of sync. ${error?.message || 'Refreshing your turn...'}`,
+                    {
+                        tone: 'info',
+                        reason: 'reorder-queued-skills',
+                        recoveryMessage: 'Refreshing your queued skill order...',
+                    }
+                );
+                recoverCurrentMatchState({
+                    reason: 'reorder-queued-skills',
+                    message: 'Refreshing your queued skill order...',
+                }).catch(() => {});
             }
+        };
+
+        const cancelQueuedSkillForActor = (actorSlot) => {
+            if (!matchIdFromUrl || !Number.isInteger(actorSlot)) return;
+            if (inFlightSkillRequestByActorSlot.has(actorSlot)) return;
+            clearSkillInteractionCache();
+            clearActiveTargetSelectionState();
+            inFlightSkillRequestByActorSlot.add(actorSlot);
+            optimisticQueuedByActorSlot.delete(actorSlot);
+            optimisticCancelledActorSlots.add(actorSlot);
+            applyQueuedSkillVisuals();
+            fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/cancel`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify({ actorSlot }),
+            })
+                .then(async (response) => {
+                    const data = await response.json();
+                    if (!response.ok || !data?.ok) {
+                        throw new Error(data?.error || 'Unable to cancel skill.');
+                    }
+                    optimisticCancelledActorSlots.delete(actorSlot);
+                    targetOptionsCache.clear();
+                    const actionRejected =
+                        typeof data?.actionRejected === 'string' ? data.actionRejected.trim().toLowerCase() : '';
+                    if (data?.staleAction && actionRejected) {
+                        applyIncomingMatchState(data);
+                        syncTurnActionStateFromPayload(data);
+                        syncEndTurnModalIfVisible();
+                        if (actionRejected === 'not-your-turn') {
+                            announceMatchIssue('That turn has already moved on. Resyncing to the live match state...', {
+                                tone: 'info',
+                                reason: 'cancel-skill-turn-moved',
+                            });
+                            return;
+                        }
+                        announceMatchIssue('The queued turn changed on the server, so it was resynced.', {
+                            tone: 'info',
+                            reason: 'cancel-skill-resynced',
+                        });
+                        return;
+                    }
+                    renderChakra(getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || emptyPool());
+                    pendingTurnState = normalizePendingTurn(data.pendingTurn);
+                    applyQueuedSkillVisuals();
+                    syncEndTurnModalIfVisible();
+                    syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
+                })
+                .catch((error) => {
+                    optimisticCancelledActorSlots.delete(actorSlot);
+                    applyQueuedSkillVisuals();
+                    syncEndTurnModalIfVisible();
+                    console.warn('Failed to cancel skill.', error);
+                    announceMatchIssue(
+                        `Could not cancel that skill cleanly. ${error?.message || 'Refreshing your turn...'}`,
+                        {
+                            tone: 'info',
+                            reason: 'cancel-skill',
+                            recoveryMessage: 'Refreshing your queued turn...',
+                        }
+                    );
+                    recoverCurrentMatchState({
+                        reason: 'cancel-skill',
+                        message: 'Refreshing your queued turn...',
+                    }).catch(() => {});
+                })
+                .finally(() => {
+                    inFlightSkillRequestByActorSlot.delete(actorSlot);
+                });
+        };
+
+        const handleQueuedSkillCancelGesture = (actorSlot, sourceEl = null) => {
+            if (!Number.isInteger(actorSlot)) return false;
+            const key = String(actorSlot);
+            const now = Date.now();
+            const previous = queuedSkillCancelClickState.get(key) || 0;
+            queuedSkillCancelClickState.set(key, now);
+            if (sourceEl) {
+                sourceEl.classList.add('queued-cancel-armed');
+                window.setTimeout(() => sourceEl.classList.remove('queued-cancel-armed'), 420);
+            }
+            if (now - previous > 420) {
+                return false;
+            }
+            queuedSkillCancelClickState.delete(key);
+            cancelQueuedSkillForActor(actorSlot);
+            return true;
+        };
+
+        const clearQueuedSkillTapReorderState = () => {
+            if (queuedSkillTapReorderTimeoutId) {
+                window.clearTimeout(queuedSkillTapReorderTimeoutId);
+                queuedSkillTapReorderTimeoutId = null;
+            }
+            queuedSkillTapReorderActorSlot = null;
+            if (skillOrderEl) {
+                skillOrderEl
+                    .querySelectorAll('.skillpreview.queued-reorder-armed')
+                    .forEach((preview) => preview.classList.remove('queued-reorder-armed'));
+            }
+        };
+
+        const armQueuedSkillTapReorder = (actorSlot, sourceEl = null) => {
+            clearQueuedSkillTapReorderState();
+            queuedSkillTapReorderActorSlot = actorSlot;
+            if (sourceEl) {
+                sourceEl.classList.add('queued-reorder-armed');
+            }
+            queuedSkillTapReorderTimeoutId = window.setTimeout(() => {
+                clearQueuedSkillTapReorderState();
+            }, 1800);
+        };
+
+        const handleQueuedSkillTapReorder = (actorSlot, sourceEl = null) => {
+            if (!Number.isInteger(actorSlot)) return false;
+            if (!Number.isInteger(queuedSkillTapReorderActorSlot)) {
+                armQueuedSkillTapReorder(actorSlot, sourceEl);
+                return false;
+            }
+            const fromActorSlot = queuedSkillTapReorderActorSlot;
+            clearQueuedSkillTapReorderState();
+            if (fromActorSlot === actorSlot) {
+                armQueuedSkillTapReorder(actorSlot, sourceEl);
+                return false;
+            }
+            return reorderQueuedSkillsLocally(fromActorSlot, actorSlot);
+        };
+
+        const reorderQueuedSkillsLocally = (dragActorSlot, targetActorSlot) => {
+            if (!Number.isInteger(dragActorSlot) || !Number.isInteger(targetActorSlot)) return false;
+            if (dragActorSlot === targetActorSlot) return false;
+            const currentOrder = getOrderedQueuedEntries().map((entry) =>
+                Number.parseInt(entry.actorSlot, 10)
+            );
+            const fromIdx = currentOrder.indexOf(dragActorSlot);
+            const toIdx = currentOrder.indexOf(targetActorSlot);
+            if (fromIdx < 0 || toIdx < 0) return false;
+            const nextOrder = currentOrder.slice();
+            const [moved] = nextOrder.splice(fromIdx, 1);
+            nextOrder.splice(toIdx, 0, moved);
+            pendingTurnState = {
+                ...normalizePendingTurn(pendingTurnState),
+                queueOrder: nextOrder,
+            };
+            applyQueuedSkillVisuals();
+            reorderQueuedSkills(nextOrder).catch((error) =>
+                console.warn('Queued reorder failed.', error)
+            );
+            return true;
+        };
+
+        const cleanupQueuedSkillPointerDrag = (dragState) => {
+            if (!dragState) return;
+            dragState.sourceElement.removeEventListener('pointermove', dragState.handlePointerMove);
+            dragState.sourceElement.removeEventListener('pointerup', dragState.handlePointerUp);
+            dragState.sourceElement.removeEventListener('pointercancel', dragState.handlePointerCancel);
+            dragState.sourceElement.classList.remove('dragging');
+            if (dragState.dragImage?.parentNode) {
+                dragState.dragImage.parentNode.removeChild(dragState.dragImage);
+            }
+            try {
+                dragState.sourceElement.releasePointerCapture?.(dragState.pointerId);
+            } catch (error) {
+                // Ignore capture cleanup races.
+            }
+            activeQueuedSkillPointerDrag = null;
+        };
+
+        const startQueuedSkillPointerDrag = (event, preview, actorSlot) => {
+            if (
+                !preview ||
+                !Number.isInteger(actorSlot) ||
+                event.button !== 0 ||
+                activeQueuedSkillPointerDrag
+            ) {
+                return;
+            }
+            const rect = preview.getBoundingClientRect();
+            const dragState = {
+                actorSlot,
+                active: false,
+                dragImage: null,
+                offsetX: event.clientX - rect.left,
+                offsetY: event.clientY - rect.top,
+                pointerId: event.pointerId,
+                sourceElement: preview,
+                startX: event.clientX,
+                startY: event.clientY,
+            };
+            activeQueuedSkillPointerDrag = dragState;
+            preview.setPointerCapture?.(event.pointerId);
+
+            const updateDragImagePosition = (clientX, clientY) => {
+                if (!dragState.dragImage) return;
+                dragState.dragImage.style.left = `${clientX - dragState.offsetX}px`;
+                dragState.dragImage.style.top = `${clientY - dragState.offsetY}px`;
+            };
+
+            dragState.handlePointerMove = (moveEvent) => {
+                if (moveEvent.pointerId !== dragState.pointerId) return;
+                const distance = Math.hypot(
+                    moveEvent.clientX - dragState.startX,
+                    moveEvent.clientY - dragState.startY
+                );
+                if (!dragState.active && distance >= 6) {
+                    dragState.active = true;
+                    const dragImage = preview.cloneNode(true);
+                    dragImage.classList.add('selection-drag-image');
+                    dragImage.style.width = `${rect.width}px`;
+                    dragImage.style.height = `${rect.height}px`;
+                    dragImage.style.pointerEvents = 'none';
+                    document.body.appendChild(dragImage);
+                    dragState.dragImage = dragImage;
+                    preview.classList.add('dragging');
+                }
+                if (!dragState.active) return;
+                moveEvent.preventDefault();
+                updateDragImagePosition(moveEvent.clientX, moveEvent.clientY);
+            };
+
+            dragState.handlePointerUp = (upEvent) => {
+                if (upEvent.pointerId !== dragState.pointerId) return;
+                if (dragState.active) {
+                    upEvent.preventDefault();
+                    const dropTarget = document
+                        .elementFromPoint(upEvent.clientX, upEvent.clientY)
+                        ?.closest?.('.skillpreview');
+                    const targetActorSlot = Number.parseInt(
+                        dropTarget?.dataset?.actorSlot || '',
+                        10
+                    );
+                    reorderQueuedSkillsLocally(actorSlot, targetActorSlot);
+                    lastQueuedSkillPointerDragEndedAt = Date.now();
+                }
+                cleanupQueuedSkillPointerDrag(dragState);
+            };
+
+            dragState.handlePointerCancel = () => {
+                cleanupQueuedSkillPointerDrag(dragState);
+            };
+
+            preview.addEventListener('pointermove', dragState.handlePointerMove);
+            preview.addEventListener('pointerup', dragState.handlePointerUp);
+            preview.addEventListener('pointercancel', dragState.handlePointerCancel);
         };
 
         const renderSkillOrderQueue = (newlyQueuedKeys = new Set()) => {
@@ -2665,10 +4350,32 @@ document.addEventListener('DOMContentLoaded', async () => {
                 preview.draggable = true;
                 preview.dataset.actorSlot = String(actorSlot);
                 preview.dataset.skillIndex = String(skillIdx);
+                preview.title = 'Tap once, then tap another queued skill to reorder. Double-click to unqueue.';
                 if (newlyQueuedKeys.has(`${actorSlot}:${skillIdx}`)) {
                     preview.classList.add('skillpreview-added');
                     window.setTimeout(() => preview.classList.remove('skillpreview-added'), 700);
                 }
+                preview.addEventListener('pointerdown', (event) => {
+                    if (event?.button !== undefined && event.button !== 0) return;
+                    event.stopPropagation();
+                    startQueuedSkillPointerDrag(event, preview, actorSlot);
+                });
+                preview.addEventListener('click', (event) => {
+                    if (Date.now() - lastQueuedSkillPointerDragEndedAt < 250) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        return;
+                    }
+                    event.preventDefault();
+                    event.stopPropagation();
+                    handleQueuedSkillTapReorder(actorSlot, preview);
+                });
+                preview.addEventListener('dblclick', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    clearQueuedSkillTapReorderState();
+                    handleQueuedSkillCancelGesture(actorSlot, preview);
+                });
                 preview.addEventListener('dragstart', () => {
                     draggingQueueActorSlot = actorSlot;
                     preview.classList.add('dragging');
@@ -2684,19 +4391,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     event.preventDefault();
                     if (!Number.isInteger(draggingQueueActorSlot)) return;
                     const targetSlot = Number.parseInt(preview.dataset.actorSlot, 10);
-                    if (!Number.isInteger(targetSlot) || targetSlot === draggingQueueActorSlot) return;
-                    const currentOrder = getOrderedQueuedEntries().map((entry) =>
-                        Number.parseInt(entry.actorSlot, 10)
-                    );
-                    const fromIdx = currentOrder.indexOf(draggingQueueActorSlot);
-                    const toIdx = currentOrder.indexOf(targetSlot);
-                    if (fromIdx < 0 || toIdx < 0) return;
-                    const nextOrder = currentOrder.slice();
-                    const [moved] = nextOrder.splice(fromIdx, 1);
-                    nextOrder.splice(toIdx, 0, moved);
-                    reorderQueuedSkills(nextOrder).catch((error) =>
-                        console.warn('Queued reorder failed.', error)
-                    );
+                    reorderQueuedSkillsLocally(draggingQueueActorSlot, targetSlot);
                 });
                 skillOrderEl.appendChild(preview);
             });
@@ -2704,6 +4399,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const clearTargetHighlights = () => {
             lastTargetHighlightSignature = '';
+            clearQueuedSkillTapReorderState();
             document.querySelectorAll('.target-overlay, .target-lock-marker, .blind-potential-skill-icon').forEach((el) => el.remove());
             [...playerCards, ...enemyCards].forEach((card) => {
                 card?.classList.remove('targetable', 'target-invalid', 'blind-random-target');
@@ -2736,6 +4432,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         const showExplosionFx = (card) => {
             if (!card) return;
             showTemporaryCardFx(card, 'explosion-enhanced', '', 800);
+        };
+
+        const showPixelImpactFx = (card, variant = 'damage') => {
+            if (!card) return;
+            showTemporaryCardFx(card, `pixel-impact-fx ${variant}`, '', 760);
+        };
+
+        const showPixelPortalFx = (card, variant = 'blue') => {
+            if (!card) return;
+            showTemporaryCardFx(card, `pixel-portal-fx ${variant}`, '', 950);
+        };
+
+        const showPixelStatusFx = (card, variant = 'neutral') => {
+            if (!card) return;
+            showTemporaryCardFx(card, `pixel-status-fx ${variant}`, '', 1250);
         };
 
         const getTargetForCardFromOptions = (card, options = activeTargetOptions) => {
@@ -2883,57 +4594,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const animateSkillToQueue = (skillEl) => {
-            if (!uiSettings.skillCastAnimations || !skillEl) return;
+            if (!skillEl) return;
             const skillScroll = skillEl.closest('.skillscrollingame');
             if (!skillScroll) return;
             const queueEl = skillScroll.querySelector('.skillqueue');
             if (!queueEl) return;
-
-            if (uiSettings.skillQueueTrail) {
-                // Restore sliding trail logic
-                const prevTransition = skillEl.style.transition;
-                skillEl.style.transition = 'none';
-                skillEl.style.transform = '';
-                
-                const skillRect = skillEl.getBoundingClientRect();
-                const queueRect = queueEl.getBoundingClientRect();
-                const dx = queueRect.left - skillRect.left;
-                const dy = queueRect.top - skillRect.top;
-
-                skillEl.classList.remove('skill-queue-trail');
-                void skillEl.offsetWidth;
-                
-                skillEl.style.transition = prevTransition;
-                skillEl.classList.add('skill-queue-trail');
-                
-                requestAnimationFrame(() => {
-                    skillEl.style.transform = `translate(${dx}px, ${dy}px)`;
-                });
-
-                window.setTimeout(() => {
-                    if (skillEl) {
-                        skillEl.classList.remove('skill-queue-trail');
-                        skillEl.style.transform = '';
-                    }
-                }, 760);
-            } else {
-                // New Fade out/in logic
-                skillEl.classList.add('skill-queue-fade-out');
-                
-                queueEl.src = skillEl.src;
-                queueEl.classList.remove('skill-queue-fade-in');
-                void queueEl.offsetWidth;
-                queueEl.classList.add('skill-queue-fade-in');
-
-                window.setTimeout(() => {
-                    if (skillEl) {
-                        skillEl.classList.remove('skill-queue-fade-out');
-                    }
-                    if (queueEl) {
-                        queueEl.classList.remove('skill-queue-fade-in');
-                    }
-                }, 650);
+            queueEl.src = skillEl.src;
+            if (!uiSettings.skillCastAnimations || document.body.classList.contains('ui-disable-skill-cast-animations')) {
+                return;
             }
+            const skillRect = skillEl.getBoundingClientRect();
+            const queueRect = queueEl.getBoundingClientRect();
+            const flight = document.createElement('img');
+            flight.className = 'skill-queue-flight';
+            flight.src = skillEl.src;
+            flight.alt = skillEl.alt || 'Queued skill';
+            flight.style.left = `${skillRect.left}px`;
+            flight.style.top = `${skillRect.top}px`;
+            flight.style.width = `${skillRect.width}px`;
+            flight.style.height = `${skillRect.height}px`;
+            document.body.appendChild(flight);
+            const dx = (queueRect.left + (queueRect.width - skillRect.width) / 2) - skillRect.left;
+            const dy = (queueRect.top + (queueRect.height - skillRect.height) / 2) - skillRect.top;
+            requestAnimationFrame(() => {
+                flight.style.transform = `translate(${dx}px, ${dy}px) scale(0.72)`;
+                flight.style.opacity = '0.2';
+            });
+            window.setTimeout(() => flight.remove(), 340);
         };
 
         const normalizeTargetSelectionList = (selection) => {
@@ -2981,6 +4668,40 @@ document.addEventListener('DOMContentLoaded', async () => {
                 'venom-pulling-tendrils',
                 'venom-venom-web-wrap',
                 'negan-the-iron',
+                'bulbasaur-solar-beam',
+                'ivysaur-solar-beam',
+                'pikachu-thunder',
+                'charmander-flamethrower',
+                'charmander-charmeleon-flamethrower',
+                'squirtle-water-gun',
+                'wartortle-hydro-pump',
+                'bulbasaur-leech-seed',
+                'ivysaur-leech-seed',
+                'zubat-supersonic',
+                'golbat-supersonic',
+                'abra-future-sight',
+                'kadabra-future-sight',
+                'scyther-x-cutter',
+                'chansey-pokemon-center-healing',
+                'blissey-pokemon-center-healing',
+                'koffing-smog',
+                'koffing-weezing-smog',
+                'koffing-haze',
+                'koffing-weezing-haze',
+                'koffing-smokescreen',
+                'koffing-weezing-smokescreen',
+                'koffing-self-destruct',
+                'koffing-weezing-self-destruct',
+                'darth-vader-saber-strike-down',
+                'obi-wan-kenobi-soresu-style-cut',
+                'boba-fett-bounty-hunter-blaster',
+                'boba-fett-bounty-hunter-blaster-upgraded',
+                'boba-fett-wrist-flamethrower',
+                'boba-fett-wrist-flamethrower-upgraded',
+                'boba-fett-missile-backpack',
+                'boba-fett-missile-backpack-upgraded',
+                'boba-fett-looted-lightsaber',
+                'boba-fett-looted-lightsaber-upgraded',
             ].includes(skillId) || skillId.startsWith('storm-lightning-strike') || skillId.startsWith('storm-wind-funnel');
         };
 
@@ -3081,8 +4802,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                     1200
                 );
             }
+            if (skillId.startsWith('angstrom-levy')) {
+                getTargetCardsFromSelection(selection).forEach((targetCard) => showPixelPortalFx(targetCard, 'blue'));
+            }
             showDirectionalSkillFx({ actorCard, actorSlot, skill: effectiveSkill, selection });
             showStormSkillPortraitFx(effectiveSkill, selection);
+        };
+
+        const COMBAT_FX_LINGER_MIN_MS = 2600;
+
+        const getCombatFxDurationMs = (duration = 0) =>
+            Math.max(COMBAT_FX_LINGER_MIN_MS, Number(duration) || 0);
+
+        const scheduleCombatFxRemoval = (node, duration = COMBAT_FX_LINGER_MIN_MS) => {
+            window.setTimeout(() => node?.remove(), getCombatFxDurationMs(duration));
         };
 
         const showTemporaryCardFx = (card, className, html = '', duration = 1600) => {
@@ -3090,11 +4823,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             const primaryClassName = String(className).trim().split(/\s+/)[0];
             const existing = primaryClassName ? card.querySelector(`.${primaryClassName}`) : null;
             if (existing) existing.remove();
+            const activeTransientFx = Array.from(card.querySelectorAll('[data-transient-card-fx="true"]'));
+            if (activeTransientFx.length >= 6) {
+                activeTransientFx.slice(0, activeTransientFx.length - 5).forEach((node) => node.remove());
+            }
             const effect = document.createElement('div');
             effect.className = className;
-            effect.innerHTML = html;
+            effect.classList.add('combat-fx-linger');
+            effect.dataset.transientCardFx = 'true';
+            const lifetimeMs = getCombatFxDurationMs(duration);
+            effect.style.setProperty('--combat-fx-linger-duration', `${lifetimeMs}ms`);
+            effect.innerHTML = `${html}<span class="combat-fx-linger-halo"></span>`;
             card.appendChild(effect);
-            window.setTimeout(() => effect.remove(), duration);
+            scheduleCombatFxRemoval(effect, lifetimeMs);
         };
 
         const showCombatBeam = ({ sourceCard, targetCard, color = 'red', empowered = false, frost = false }) => {
@@ -3125,7 +4866,688 @@ document.addEventListener('DOMContentLoaded', async () => {
                 beam.innerHTML = '<span></span><span></span><span></span><span></span>';
             }
             document.body.appendChild(beam);
-            window.setTimeout(() => beam.remove(), frost ? 1150 : empowered ? 1050 : 820);
+            scheduleCombatFxRemoval(beam, frost ? 1150 : empowered ? 1050 : 820);
+        };
+
+        const showPokemonTravelBeam = ({
+            sourceCard,
+            targetCard,
+            className = 'pokemon-travel-beam',
+            duration = 1200,
+            xRatio = 0.52,
+            yRatio = 0.44,
+            targetXRatio = 0.5,
+            targetYRatio = 0.48,
+            html = '<span class="beam-core"></span><span class="beam-glow"></span>',
+        }) => {
+            const sourceFace = sourceCard?.querySelector?.('.character-face') || sourceCard;
+            const targetFace = targetCard?.querySelector?.('.character-face') || targetCard;
+            const sourceRect = sourceFace?.getBoundingClientRect?.();
+            const targetRect = targetFace?.getBoundingClientRect?.();
+            if (!sourceRect || !targetRect) return;
+            const sourceX = sourceRect.left + sourceRect.width * xRatio;
+            const sourceY = sourceRect.top + sourceRect.height * yRatio;
+            const targetX = targetRect.left + targetRect.width * targetXRatio;
+            const targetY = targetRect.top + targetRect.height * targetYRatio;
+            const dx = targetX - sourceX;
+            const dy = targetY - sourceY;
+            const length = Math.max(28, Math.sqrt(dx * dx + dy * dy));
+            const angle = Math.atan2(dy, dx) * 180 / Math.PI;
+            const beam = document.createElement('div');
+            beam.className = className;
+            beam.style.left = `${sourceX}px`;
+            beam.style.top = `${sourceY}px`;
+            beam.style.width = `${length}px`;
+            beam.style.transform = `rotate(${angle}deg)`;
+            beam.innerHTML = html;
+            document.body.appendChild(beam);
+            scheduleCombatFxRemoval(beam, duration);
+        };
+
+        const showPokemonSolarBeamFx = ({ actorCard, targetCards = [] }) => {
+            if (!actorCard || !targetCards.length) return;
+            showTemporaryCardFx(
+                actorCard,
+                'pokemon-solar-beam-charge-fx',
+                '<span class="solar-charge-core"></span><span class="solar-charge-ring ring-a"></span><span class="solar-charge-ring ring-b"></span><span class="solar-charge-spark spark-a"></span><span class="solar-charge-spark spark-b"></span><span class="solar-charge-spark spark-c"></span>',
+                1700
+            );
+            window.setTimeout(() => {
+                targetCards.forEach((targetCard) => {
+                    showPokemonTravelBeam({
+                        sourceCard: actorCard,
+                        targetCard,
+                        className: 'pokemon-solar-beam-travel',
+                        duration: 1350,
+                        html: '<span class="beam-core"></span><span class="beam-glow"></span><span class="beam-spark"></span>',
+                    });
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-solar-beam-impact-fx',
+                        '<span class="impact-flash"></span><span class="impact-ring ring-a"></span><span class="impact-ring ring-b"></span>',
+                        1600
+                    );
+                });
+                playGeneratedIngameSound('solar-flare');
+            }, 320);
+        };
+
+        const showPokemonThunderFx = (targetCards = []) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-thunder-impact-fx',
+                        '<span class="thunder-column"></span><span class="thunder-bolt bolt-a"></span><span class="thunder-bolt bolt-b"></span><span class="thunder-ring"></span>',
+                        1500
+                    );
+                }, index * 90);
+            });
+            playGeneratedIngameSound('lightning');
+        };
+
+        const showPokemonFlamethrowerFx = ({ actorCard, targetCards = [] }) => {
+            targetCards.forEach((targetCard) => {
+                showPokemonTravelBeam({
+                    sourceCard: actorCard,
+                    targetCard,
+                    className: 'pokemon-flamethrower-stream',
+                    duration: 1200,
+                    yRatio: 0.5,
+                    targetYRatio: 0.5,
+                    html: '<span class="flame-core"></span><span class="flame-plume plume-a"></span><span class="flame-plume plume-b"></span><span class="flame-plume plume-c"></span>',
+                });
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-flamethrower-impact-fx',
+                    '<span class="impact-fire fire-a"></span><span class="impact-fire fire-b"></span><span class="impact-fire fire-c"></span>',
+                    1400
+                );
+            });
+            playGeneratedIngameSound('fire-ignite');
+        };
+
+        const showPokemonWaterGunFx = ({ actorCard, targetCards = [] }) => {
+            targetCards.forEach((targetCard) => {
+                showPokemonTravelBeam({
+                    sourceCard: actorCard,
+                    targetCard,
+                    className: 'pokemon-water-gun-stream',
+                    duration: 1150,
+                    yRatio: 0.52,
+                    targetYRatio: 0.5,
+                    html: '<span class="water-core"></span><span class="water-splash splash-a"></span><span class="water-splash splash-b"></span>',
+                });
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-water-gun-impact-fx',
+                    '<span class="water-impact-ring"></span><span class="water-impact-drop drop-a"></span><span class="water-impact-drop drop-b"></span><span class="water-impact-drop drop-c"></span>',
+                    1300
+                );
+            });
+            playGeneratedIngameSound('tidal-wave');
+        };
+
+        const showPokemonLeechSeedFx = ({ actorCard, targetCards = [] }) => {
+            targetCards.forEach((targetCard) => {
+                showPokemonTravelBeam({
+                    sourceCard: actorCard,
+                    targetCard,
+                    className: 'pokemon-leech-seed-vine',
+                    duration: 1450,
+                    yRatio: 0.58,
+                    targetYRatio: 0.55,
+                    html: '<span class="vine-core"></span><span class="vine-leaf leaf-a"></span><span class="vine-leaf leaf-b"></span><span class="seed-pod"></span>',
+                });
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-leech-seed-impact-fx',
+                    '<span class="seed-bloom"></span><span class="seed-vine vine-a"></span><span class="seed-vine vine-b"></span>',
+                    1800
+                );
+            });
+            playGeneratedIngameSound('status-harmful');
+        };
+
+        const showPokemonSupersonicFx = (targetCards = []) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-supersonic-fx',
+                    '<span class="sound-ring ring-a"></span><span class="sound-ring ring-b"></span><span class="sound-ring ring-c"></span>',
+                    1500
+                );
+            });
+            playGeneratedIngameSound('wind');
+        };
+
+        const showPokemonFutureSightFx = (targetCards = []) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-future-sight-fx',
+                    '<span class="future-reticle"></span><span class="future-eye"></span><span class="future-rune rune-a"></span><span class="future-rune rune-b"></span>',
+                    1700
+                );
+            });
+            playGeneratedIngameSound('status-harmful');
+        };
+
+        const showPokemonXCutterFx = (targetCards = []) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-x-cutter-fx',
+                    '<span class="x-slash slash-a"></span><span class="x-slash slash-b"></span><span class="x-spark spark-a"></span><span class="x-spark spark-b"></span>',
+                    1400
+                );
+            });
+            playGeneratedIngameSound('slash');
+        };
+
+        const showPokemonCenterHealingFx = (targetCards = []) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-center-healing-fx',
+                        '<span class="heal-wave wave-a"></span><span class="heal-wave wave-b"></span><span class="heal-plus plus-a">+</span><span class="heal-plus plus-b">+</span><span class="heal-heart"></span>',
+                        1600
+                    );
+                }, index * 70);
+            });
+            playGeneratedIngameSound('status-helpful');
+        };
+
+        const showPokemonSmogFx = (targetCards = []) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-smog-fx',
+                    '<span class="smog-cloud cloud-a"></span><span class="smog-cloud cloud-b"></span><span class="smog-cloud cloud-c"></span><span class="smog-cloud cloud-d"></span>',
+                    1700
+                );
+            });
+            playGeneratedIngameSound('status-harmful');
+        };
+
+        const countActivePokemonSmogStacks = (unit) => {
+            const statuses = Array.isArray(unit?.state?.statuses) ? unit.state.statuses : [];
+            return statuses.filter((status) => {
+                const remaining = Number(status?.remainingTurns) || 0;
+                return (
+                    remaining > 0 &&
+                    (status?.id === 'koffing_smog_cloud' || status?.id === 'weezing_smog_cloud')
+                );
+            }).length;
+        };
+
+        const buildKoffingTeamFogHtml = (density = 1) => {
+            const clampedDensity = Math.max(1, Math.min(6, Number(density) || 1));
+            const cloudClasses = [
+                'cloud-a',
+                'cloud-b',
+                'cloud-c',
+                'cloud-d',
+                'cloud-e',
+                'cloud-f',
+                'cloud-g',
+                'cloud-h',
+            ];
+            const clouds = cloudClasses
+                .slice(0, Math.min(clampedDensity + 3, cloudClasses.length))
+                .map((className) => `<span class="team-fog-cloud ${className}"></span>`)
+                .join('');
+            return `${clouds}<span class="team-fog-veil veil-a"></span><span class="team-fog-veil veil-b"></span>`;
+        };
+
+        const showKoffingTeamFogFx = (selection, variant = 'smog') => {
+            const targets = normalizeTargetSelectionList(selection);
+            targets.forEach((target, index) => {
+                const slot = Number.parseInt(target?.slot, 10);
+                const targetCard = getCardByUsernameSlot(target?.username || '', slot);
+                if (!targetCard) return;
+                let density = 2;
+                if (variant === 'smog') {
+                    const unit = getUnitByUsernameSlot(target?.username || '', slot);
+                    density = countActivePokemonSmogStacks(unit);
+                }
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        `pokemon-koffing-team-fog-fx ${variant}`,
+                        buildKoffingTeamFogHtml(density),
+                        variant === 'smog' ? 2100 : 1800
+                    );
+                    const effect = targetCard.querySelector('.pokemon-koffing-team-fog-fx:last-child');
+                    if (effect) {
+                        effect.style.setProperty('--fog-density', String(Math.max(1, Math.min(6, density))));
+                    }
+                }, index * 55);
+            });
+            playGeneratedIngameSound(variant === 'smog' ? 'status-harmful' : 'status-helpful');
+        };
+
+        const showKoffingScreenExplosionFx = (sourceCard, weezing = false) => {
+            const sourceFace = sourceCard?.querySelector?.('.character-face') || sourceCard;
+            const rect = sourceFace?.getBoundingClientRect?.();
+            if (!rect) return;
+            const existing = document.querySelector('.pokemon-koffing-screen-explosion-fx');
+            existing?.remove();
+            const overlay = document.createElement('div');
+            overlay.className = 'pokemon-koffing-screen-explosion-fx';
+            if (weezing) overlay.classList.add('weezing');
+            overlay.style.setProperty('--explosion-x', `${rect.left + rect.width / 2}px`);
+            overlay.style.setProperty('--explosion-y', `${rect.top + rect.height / 2}px`);
+            overlay.innerHTML =
+                '<span class="blast-flash"></span><span class="blast-ring ring-a"></span><span class="blast-ring ring-b"></span><span class="blast-cloud cloud-a"></span><span class="blast-cloud cloud-b"></span><span class="blast-cloud cloud-c"></span><span class="blast-sprite"></span>';
+            document.body.appendChild(overlay);
+            playGeneratedIngameSound('explosion');
+            scheduleCombatFxRemoval(overlay, weezing ? 1900 : 1650);
+        };
+
+        const showEkansPoisonFangFx = (targetCards = [], biteCount = 2) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-ekans-poison-fang-fx',
+                    Array.from({ length: Math.max(1, Math.min(4, biteCount)) }, (_, index) =>
+                        `<span class="fang-bite bite-${index + 1}"><span class="fang-top"></span><span class="fang-bottom"></span></span>`
+                    ).join(''),
+                    1700 + Math.max(0, biteCount - 2) * 180
+                );
+            });
+            playGeneratedIngameSound('bite-crunch');
+        };
+
+        const showEkansCrunchFx = (targetCards = [], biteCount = 1) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-ekans-crunch-fx',
+                    Array.from({ length: Math.max(1, Math.min(3, biteCount)) }, (_, index) =>
+                        `<span class="crunch-bite bite-${index + 1}"><span class="crunch-top"></span><span class="crunch-bottom"></span></span>`
+                    ).join(''),
+                    1650 + Math.max(0, biteCount - 1) * 220
+                );
+            });
+            playGeneratedIngameSound('bite-crunch');
+        };
+
+        const showEkansToxicFx = ({ actorCard, targetCards = [], doubled = false }) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    if (actorCard) {
+                        showPokemonTravelBeam({
+                            sourceCard: actorCard,
+                            targetCard,
+                            className: `pokemon-ekans-toxic-stream${doubled ? ' doubled' : ''}`,
+                            duration: 1250,
+                            yRatio: 0.46,
+                            targetYRatio: 0.46,
+                            html:
+                                '<span class="goo-core"></span><span class="goo-blob blob-a"></span><span class="goo-blob blob-b"></span>' +
+                                (doubled ? '<span class="goo-blob blob-c"></span><span class="goo-blob blob-d"></span>' : ''),
+                        });
+                    }
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-ekans-toxic-impact-fx',
+                        '<span class="toxic-bubble bubble-a"></span><span class="toxic-bubble bubble-b"></span><span class="toxic-bubble bubble-c"></span><span class="toxic-splash splash-a"></span><span class="toxic-splash splash-b"></span>',
+                        doubled ? 2000 : 1750
+                    );
+                }, index * 70);
+            });
+            playGeneratedIngameSound('status-harmful');
+        };
+
+        const showEkansShedSkinFx = (targetCards = []) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-ekans-shed-skin-fx',
+                    '<span class="shed-layer layer-a"></span><span class="shed-layer layer-b"></span><span class="shed-heal heal-a">+</span><span class="shed-heal heal-b">+</span><span class="shed-heal heal-c">+</span>',
+                    2100
+                );
+            });
+            playGeneratedIngameSound('status-helpful');
+        };
+
+        const getMachopBulkUpPower = (unit = null) => {
+            const statuses = Array.isArray(unit?.state?.statuses) ? unit.state.statuses : [];
+            const bulkStatus = statuses.find((status) => status?.id === 'machop_bulk_up_bonus');
+            const raw = Number(bulkStatus?.metadata?.machopBulkUpBonus) || 0;
+            return Math.max(0, raw);
+        };
+
+        const getMachopBulkUpIntensity = (unit = null) => {
+            const power = getMachopBulkUpPower(unit);
+            if (power <= 0) return 0;
+            return Math.max(1, Math.min(8, Math.round(power / 10)));
+        };
+
+        const showMachopBrickBreakFx = (targetCards = [], intensity = 1, machoke = false) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    `pokemon-machop-brick-break-fx${machoke ? ' machoke' : ''}`,
+                    '<span class="karate-hand"></span><span class="karate-impact impact-a"></span><span class="karate-impact impact-b"></span>',
+                    1500
+                );
+                const effect = targetCard.querySelector('.pokemon-machop-brick-break-fx:last-child');
+                if (effect) effect.style.setProperty('--machop-power', String(Math.max(1, intensity)));
+            });
+            playGeneratedIngameSound('damage');
+        };
+
+        const showMachopCounterFx = (targetCards = [], intensity = 1, machoke = false) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    `pokemon-machop-counter-fx${machoke ? ' machoke' : ''}`,
+                    '<span class="counter-hand"></span><span class="counter-pressure pressure-a"></span><span class="counter-pressure pressure-b"></span>',
+                    1600
+                );
+                const effect = targetCard.querySelector('.pokemon-machop-counter-fx:last-child');
+                if (effect) effect.style.setProperty('--machop-power', String(Math.max(1, intensity)));
+            });
+            playGeneratedIngameSound('damage');
+        };
+
+        const showMachopBulkUpCastFx = (actorCard, intensity = 1) => {
+            if (!actorCard) return;
+            showTemporaryCardFx(
+                actorCard,
+                'pokemon-machop-bulk-up-cast-fx',
+                '<span class="bulk-cast-ring ring-a"></span><span class="bulk-cast-ring ring-b"></span><span class="bulk-cast-burst burst-a"></span><span class="bulk-cast-burst burst-b"></span>',
+                1650
+            );
+            const effect = actorCard.querySelector('.pokemon-machop-bulk-up-cast-fx:last-child');
+            if (effect) effect.style.setProperty('--machop-power', String(Math.max(1, intensity)));
+            playGeneratedIngameSound('status-helpful');
+        };
+
+        const showMachopTauntFx = (targetCards = []) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-machop-taunt-fx',
+                    '<span class="taunt-hand"></span><span class="taunt-finger"></span><span class="taunt-callout">COME AT ME</span>',
+                    1750
+                );
+            });
+            playGeneratedIngameSound('status-harmful');
+        };
+
+        const showPokemonPsybeamFx = ({ actorCard, targetCards = [] }) => {
+            targetCards.forEach((targetCard) => {
+                showPokemonTravelBeam({
+                    sourceCard: actorCard,
+                    targetCard,
+                    className: 'pokemon-psybeam-stream',
+                    duration: 1250,
+                    yRatio: 0.46,
+                    targetYRatio: 0.46,
+                    html: '<span class="beam-core"></span><span class="beam-wave wave-a"></span><span class="beam-wave wave-b"></span><span class="beam-spark spark-a"></span><span class="beam-spark spark-b"></span>',
+                });
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-psybeam-impact-fx',
+                    '<span class="psy-ring ring-a"></span><span class="psy-ring ring-b"></span><span class="psy-star star-a"></span><span class="psy-star star-b"></span>',
+                    1450
+                );
+            });
+            playGeneratedIngameSound('status-harmful');
+        };
+
+        const showPokemonPowderFx = ({ actorCard, targetCards = [], variant = 'sleep' }) => {
+            targetCards.forEach((targetCard) => {
+                showPokemonTravelBeam({
+                    sourceCard: actorCard,
+                    targetCard,
+                    className: `pokemon-powder-stream ${variant}`,
+                    duration: 1200,
+                    yRatio: 0.42,
+                    targetYRatio: 0.42,
+                    html: '<span class="powder-flow flow-a"></span><span class="powder-flow flow-b"></span><span class="powder-dot dot-a"></span><span class="powder-dot dot-b"></span><span class="powder-dot dot-c"></span>',
+                });
+                showTemporaryCardFx(
+                    targetCard,
+                    `pokemon-powder-impact-fx ${variant}`,
+                    '<span class="powder-burst burst-a"></span><span class="powder-burst burst-b"></span><span class="powder-spore spore-a"></span><span class="powder-spore spore-b"></span><span class="powder-spore spore-c"></span>',
+                    1600
+                );
+            });
+            playGeneratedIngameSound(variant === 'sleep' ? 'status-harmful' : 'wind');
+        };
+
+        const showPokemonWhirlwindFx = (targetCards = []) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-whirlwind-fx',
+                        '<span class="wind-ring ring-a"></span><span class="wind-ring ring-b"></span><span class="wind-streak streak-a"></span><span class="wind-streak streak-b"></span><span class="wind-feather feather-a"></span><span class="wind-feather feather-b"></span>',
+                        1500
+                    );
+                }, index * 60);
+            });
+            playGeneratedIngameSound('wind');
+        };
+
+        const showPokemonTrainerBallFx = ({ actorCard, targetCards = [], variant = 'pokeball' }) => {
+            const ballClassName = `pokemon-trainer-ball-projectile ${variant}`;
+            targetCards.forEach((targetCard, index) => {
+                const sourceFace = actorCard?.querySelector?.('.character-face') || actorCard;
+                const targetFace = targetCard?.querySelector?.('.character-face') || targetCard;
+                const sourceRect = sourceFace?.getBoundingClientRect?.();
+                const targetRect = targetFace?.getBoundingClientRect?.();
+                if (!sourceRect || !targetRect) return;
+                const sourceX = sourceRect.left + sourceRect.width * 0.52;
+                const sourceY = sourceRect.top + sourceRect.height * 0.45;
+                const targetX = targetRect.left + targetRect.width * 0.5;
+                const targetY = targetRect.top + targetRect.height * 0.42;
+                const projectile = document.createElement('div');
+                projectile.className = ballClassName;
+                projectile.style.left = `${sourceX - 20}px`;
+                projectile.style.top = `${sourceY - 20}px`;
+                projectile.style.setProperty('--cast-dx', `${targetX - sourceX}px`);
+                projectile.style.setProperty('--cast-dy', `${targetY - sourceY}px`);
+                projectile.style.animationDelay = `${index * 90}ms`;
+                projectile.innerHTML =
+                    '<span class="ball-trail"></span><span class="ball-shell"></span><span class="ball-band"></span><span class="ball-core"></span><span class="ball-glint"></span>';
+                document.body.appendChild(projectile);
+                scheduleCombatFxRemoval(projectile, 1250 + index * 90);
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        `pokemon-trainer-ball-impact-fx ${variant}`,
+                        '<span class="capture-ring ring-a"></span><span class="capture-ring ring-b"></span><span class="capture-flash"></span><span class="capture-star star-a"></span><span class="capture-star star-b"></span>',
+                        1450
+                    );
+                }, 300 + index * 90);
+            });
+            playGeneratedIngameSound('quick-shot');
+        };
+
+        const showPokemonXStatsFx = (targetCards = []) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-x-stats-fx',
+                        '<span class="x-stat-badge">X</span><span class="x-stat-arrow arrow-up"></span><span class="x-stat-arrow arrow-down"></span><span class="x-stat-grid"></span>',
+                        1550
+                    );
+                }, index * 70);
+            });
+            playGeneratedIngameSound('status-helpful');
+        };
+
+        const showPokemonRareCandyFx = (targetCards = []) => {
+            targetCards.forEach((targetCard) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-rare-candy-fx',
+                    '<span class="candy-core"></span><span class="candy-shine shine-a"></span><span class="candy-shine shine-b"></span><span class="candy-spark spark-a"></span><span class="candy-spark spark-b"></span><span class="candy-spark spark-c"></span>',
+                    1700
+                );
+            });
+            playGeneratedIngameSound('status-helpful');
+        };
+
+        const showPokemonPsychicFx = ({ actorCard, targetCards = [] }) => {
+            targetCards.forEach((targetCard) => {
+                showPokemonTravelBeam({
+                    sourceCard: actorCard,
+                    targetCard,
+                    className: 'pokemon-psychic-stream',
+                    duration: 1220,
+                    yRatio: 0.46,
+                    targetYRatio: 0.48,
+                    html: '<span class="beam-core"></span><span class="beam-ripple ripple-a"></span><span class="beam-ripple ripple-b"></span><span class="beam-shard shard-a"></span><span class="beam-shard shard-b"></span>',
+                });
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-psychic-impact-fx',
+                    '<span class="psychic-ring ring-a"></span><span class="psychic-ring ring-b"></span><span class="psychic-star star-a"></span><span class="psychic-star star-b"></span><span class="psychic-glyph"></span>',
+                    1550
+                );
+            });
+            playGeneratedIngameSound('status-harmful');
+        };
+
+        const showPokemonCalmMindFx = (targetCards = []) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-calm-mind-fx',
+                        '<span class="calm-aura aura-a"></span><span class="calm-aura aura-b"></span><span class="calm-rune rune-a"></span><span class="calm-rune rune-b"></span><span class="calm-orb orb-a"></span><span class="calm-orb orb-b"></span>',
+                        1650
+                    );
+                }, index * 70);
+            });
+            playGeneratedIngameSound('status-helpful');
+        };
+
+        const showPokemonTeleportFx = (targetCards = []) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-teleport-fx',
+                        '<span class="teleport-ring ring-a"></span><span class="teleport-ring ring-b"></span><span class="teleport-column"></span><span class="teleport-spark spark-a"></span><span class="teleport-spark spark-b"></span>',
+                        1500
+                    );
+                }, index * 60);
+            });
+            playGeneratedIngameSound('wind');
+        };
+
+        const showPokemonLeechLifeFx = ({ actorCard, targetCards = [] }) => {
+            targetCards.forEach((targetCard) => {
+                showPokemonTravelBeam({
+                    sourceCard: targetCard,
+                    targetCard: actorCard,
+                    className: 'pokemon-leech-life-stream',
+                    duration: 1320,
+                    yRatio: 0.48,
+                    targetYRatio: 0.46,
+                    html: '<span class="drain-core"></span><span class="drain-wave wave-a"></span><span class="drain-wave wave-b"></span><span class="drain-orb orb-a"></span><span class="drain-orb orb-b"></span>',
+                });
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-leech-life-impact-fx',
+                    '<span class="fang-mark fang-a"></span><span class="fang-mark fang-b"></span><span class="bite-burst burst-a"></span><span class="bite-burst burst-b"></span>',
+                    1450
+                );
+            });
+            playGeneratedIngameSound('status-harmful');
+        };
+
+        const showPokemonBiteFx = (targetCards = []) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-bite-fx',
+                        '<span class="bite-arc arc-a"></span><span class="bite-arc arc-b"></span><span class="bite-spark spark-a"></span><span class="bite-spark spark-b"></span>',
+                        1350
+                    );
+                }, index * 50);
+            });
+            playGeneratedIngameSound('slash');
+        };
+
+        const showPokemonMetalClawFx = (targetCards = []) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-metal-claw-fx',
+                        '<span class="metal-slash slash-a"></span><span class="metal-slash slash-b"></span><span class="metal-slash slash-c"></span><span class="metal-spark spark-a"></span><span class="metal-spark spark-b"></span>',
+                        1400
+                    );
+                }, index * 55);
+            });
+            playGeneratedIngameSound('slash');
+        };
+
+        const showPokemonBubbleFx = ({ actorCard, targetCards = [] }) => {
+            targetCards.forEach((targetCard) => {
+                showPokemonTravelBeam({
+                    sourceCard: actorCard,
+                    targetCard,
+                    className: 'pokemon-bubble-stream',
+                    duration: 1080,
+                    yRatio: 0.5,
+                    targetYRatio: 0.48,
+                    html: '<span class="bubble-burst bubble-a"></span><span class="bubble-burst bubble-b"></span><span class="bubble-burst bubble-c"></span><span class="bubble-burst bubble-d"></span>',
+                });
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-bubble-impact-fx',
+                    '<span class="bubble-ring ring-a"></span><span class="bubble-ring ring-b"></span><span class="bubble-pop pop-a"></span><span class="bubble-pop pop-b"></span><span class="bubble-pop pop-c"></span>',
+                    1450
+                );
+            });
+            playGeneratedIngameSound('tidal-wave');
+        };
+
+        const showPokemonCrabhammerFx = ({ actorCard, targetCards = [] }) => {
+            targetCards.forEach((targetCard) => {
+                showPokemonTravelBeam({
+                    sourceCard: actorCard,
+                    targetCard,
+                    className: 'pokemon-crabhammer-swing',
+                    duration: 950,
+                    yRatio: 0.45,
+                    targetYRatio: 0.44,
+                    html: '<span class="hammer-arc arc-a"></span><span class="hammer-arc arc-b"></span><span class="hammer-head"></span>',
+                });
+                showTemporaryCardFx(
+                    targetCard,
+                    'pokemon-crabhammer-impact-fx',
+                    '<span class="hammer-burst burst-a"></span><span class="hammer-burst burst-b"></span><span class="hammer-burst burst-c"></span><span class="hammer-star star-a"></span><span class="hammer-star star-b"></span>',
+                    1450
+                );
+            });
+            playGeneratedIngameSound('damage');
+        };
+
+        const showPokemonHardenFx = (targetCards = []) => {
+            targetCards.forEach((targetCard, index) => {
+                window.setTimeout(() => {
+                    showTemporaryCardFx(
+                        targetCard,
+                        'pokemon-harden-fx',
+                        '<span class="harden-shell shell-a"></span><span class="harden-shell shell-b"></span><span class="harden-shard shard-a"></span><span class="harden-shard shard-b"></span><span class="harden-shard shard-c"></span>',
+                        1650
+                    );
+                }, index * 45);
+            });
+            playGeneratedIngameSound('status-helpful');
         };
 
         const getTargetCardsFromSelection = (selection) =>
@@ -3147,7 +5569,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             flare.innerHTML = '<span></span><span></span><span></span><span></span>';
             document.body.appendChild(flare);
             playGeneratedIngameSound('solar-flare');
-            window.setTimeout(() => flare.remove(), 1800);
+            scheduleCombatFxRemoval(flare, 1800);
         };
 
         const showBulletImpactFx = (targetCard, variant = 'small') => {
@@ -3179,7 +5601,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 showMuzzleFlashFx(actorCard);
                 showBulletImpactFx(targetCard, 'sniper');
             }, 620);
-            window.setTimeout(() => scope.remove(), 1700);
+            scheduleCombatFxRemoval(scope, 1700);
         };
 
         const showNeganLucilleFx = (targetCards = []) => {
@@ -3254,7 +5676,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 spear.style.animationDelay = `${index * 90}ms`;
                 spear.innerHTML = '<span class="spear-shaft"></span><span class="spear-tip"></span>';
                 document.body.appendChild(spear);
-                window.setTimeout(() => spear.remove(), 920 + index * 90);
+                scheduleCombatFxRemoval(spear, 920 + index * 90);
             });
             playGeneratedIngameSound('damage');
         };
@@ -3316,7 +5738,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             tendril.style.transform = `rotate(${angle}deg)`;
             tendril.innerHTML = '<span class="tendril-core"></span><span class="tendril-vein one"></span><span class="tendril-vein two"></span><span class="tendril-drip one"></span><span class="tendril-drip two"></span>';
             document.body.appendChild(tendril);
-            window.setTimeout(() => tendril.remove(), duration);
+            scheduleCombatFxRemoval(tendril, duration);
         };
 
         const showFlashLightningRushFx = (targetCards = []) => {
@@ -3348,7 +5770,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     1700
                 );
             }, 760);
-            window.setTimeout(() => run.remove(), 1700);
+            scheduleCombatFxRemoval(run, 1700);
             playGeneratedIngameSound('lightning');
         };
 
@@ -3371,7 +5793,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             overlay.innerHTML = '<span class="speed-steal-warning">-20 SEC</span><span class="speed-steal-subtext">MOVE NOW</span>';
             document.body.appendChild(overlay);
             playGeneratedIngameSound('speed-steal-alarm');
-            window.setTimeout(() => overlay.remove(), duration);
+            scheduleCombatFxRemoval(overlay, duration);
         };
 
         const normalizeScorpionVenom = (value = '') => {
@@ -3429,7 +5851,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     '<span></span><span></span><span></span>',
                     1350
                 );
-                window.setTimeout(() => beam.remove(), 1150);
+                scheduleCombatFxRemoval(beam, 1150);
             });
             playGeneratedIngameSound('laser-red');
         };
@@ -3463,7 +5885,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             tendril.style.transform = `rotate(${angle}deg)`;
             tendril.innerHTML = '<span class="venom-tendril-core"></span><span class="venom-tendril-vein a"></span><span class="venom-tendril-vein b"></span><span class="venom-tendril-drip a"></span><span class="venom-tendril-drip b"></span>';
             document.body.appendChild(tendril);
-            window.setTimeout(() => tendril.remove(), duration);
+            scheduleCombatFxRemoval(tendril, duration);
         };
 
         const showVenomPullingTendrilsFx = ({ actorCard, targetCards = [] }) => {
@@ -3499,7 +5921,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 showTemporaryCardFx(
                     targetCard,
                     'negan-iron-slam-fx',
-                    '<img src="https://i.imgur.com/jHlzlE9.png" alt=""><span class="negan-iron-slam-glow"></span><span class="negan-iron-slam-smoke a"></span><span class="negan-iron-slam-smoke b"></span>',
+                    '<img src="/assets/images/external-mirror/i.imgur.com/e45f6ac5a39c4c9719e3.png" alt=""><span class="negan-iron-slam-glow"></span><span class="negan-iron-slam-smoke a"></span><span class="negan-iron-slam-smoke b"></span>',
                     1900
                 );
             });
@@ -3522,7 +5944,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             tendril.style.transform = `rotate(${angle}deg)`;
             tendril.innerHTML = '<span class="parasite-tendril-core"></span><span class="parasite-tendril-pulse"></span>';
             document.body.appendChild(tendril);
-            window.setTimeout(() => tendril.remove(), duration);
+            scheduleCombatFxRemoval(tendril, duration);
         };
 
         const showParasiteLifeLeechFx = ({ actorCard, selection, targetCards = [] }) => {
@@ -3558,7 +5980,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const flash = document.createElement('div');
             flash.className = 'parasite-metabolic-screen-flash';
             document.body.appendChild(flash);
-            window.setTimeout(() => flash.remove(), 780);
+            scheduleCombatFxRemoval(flash, 780);
             targetCards.forEach((targetCard) => {
                 showTemporaryCardFx(
                     targetCard,
@@ -3603,7 +6025,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             overlay.className = 'parasite-overload-screen-fx';
             overlay.innerHTML = '<span class="parasite-overload-wave"></span><span class="parasite-overload-text">PREDATORY OVERLOAD</span>';
             document.body.appendChild(overlay);
-            window.setTimeout(() => overlay.remove(), 2300);
+            scheduleCombatFxRemoval(overlay, 2300);
             playGeneratedIngameSound('status-harmful');
         };
 
@@ -3620,7 +6042,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 '<span class="aquaman-tidal-wave-spray"></span>';
             document.body.appendChild(wave);
             playGeneratedIngameSound('tidal-wave');
-            window.setTimeout(() => wave.remove(), 2600);
+            scheduleCombatFxRemoval(wave, 2600);
         };
 
         const getCastDeltas = (sourceCard, targetCard) => {
@@ -3650,7 +6072,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     flameMove.style.setProperty('--cast-dy', `${dy}px`);
                     flameMove.innerHTML = '<div class="ghost-rider-hellfire-breath"></div>';
                     document.body.appendChild(flameMove);
-                    window.setTimeout(() => flameMove.remove(), 1200);
+                    scheduleCombatFxRemoval(flameMove, 1200);
                 });
                 playGeneratedIngameSound('fire-ignite');
             }, 400);
@@ -3675,6 +6097,44 @@ document.addEventListener('DOMContentLoaded', async () => {
                 showTemporaryCardFx(targetCard, 'ghost-rider-infernal-ride-impact', '', 1100);
             });
             playGeneratedIngameSound('fire-ignite');
+        };
+
+        const showLightsaberPortraitSlashFx = (targetCards = [], variant = 'blue-horizontal') => {
+            const isRed = variant.includes('red');
+            const isVertical = variant.includes('vertical');
+            targetCards.forEach((targetCard, index) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    `lightsaber-portrait-slash-fx ${isRed ? 'red' : 'blue'} ${isVertical ? 'vertical' : 'horizontal'}`,
+                    '<span class="lightsaber-core"></span><span class="lightsaber-glow"></span>',
+                    900 + index * 80
+                );
+            });
+            playGeneratedIngameSound('slash');
+        };
+
+        const showSidiousLightningFx = (targetCards = [], variant = 'blue') => {
+            targetCards.forEach((targetCard, index) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    `sidious-lightning-fx ${variant}`,
+                    '<span class="sidious-lightning-bolt one"></span><span class="sidious-lightning-bolt two"></span><span class="sidious-lightning-bolt three"></span><span class="sidious-lightning-flash"></span>',
+                    1050 + index * 90
+                );
+            });
+            playGeneratedIngameSound('lightning');
+        };
+
+        const showBobaWaterBountyFx = (targetCards = [], variant = 'bounty') => {
+            targetCards.forEach((targetCard, index) => {
+                showTemporaryCardFx(
+                    targetCard,
+                    `boba-water-bounty-fx ${variant}`,
+                    '<span class="boba-water-ring"></span><span class="boba-water-splash one"></span><span class="boba-water-splash two"></span><span class="boba-water-splash three"></span>',
+                    1250 + index * 90
+                );
+            });
+            playGeneratedIngameSound(variant === 'bounty' ? 'target-lock' : 'damage');
         };
 
         const showDirectionalSkillFx = ({ actorCard, actorSlot, skill, selection }) => {
@@ -3723,6 +6183,59 @@ document.addEventListener('DOMContentLoaded', async () => {
             const isGhostRiderPenanceStare = skillId === 'ghost-rider-penance-stare';
             const isGhostRiderSoulConsumption = skillId === 'ghost-rider-soul-consumption';
             const isGhostRiderInfernalRide = skillId === 'ghost-rider-infernal-ride';
+            const isPokemonSolarBeam = ['bulbasaur-solar-beam', 'ivysaur-solar-beam'].includes(skillId);
+            const isPokemonThunder = skillId === 'pikachu-thunder';
+            const isPokemonFlamethrower = ['charmander-flamethrower', 'charmander-charmeleon-flamethrower'].includes(skillId);
+            const isPokemonWaterGun = ['squirtle-water-gun', 'wartortle-hydro-pump'].includes(skillId);
+            const isPokemonLeechSeed = ['bulbasaur-leech-seed', 'ivysaur-leech-seed'].includes(skillId);
+            const isPokemonSupersonic = ['zubat-supersonic', 'golbat-supersonic'].includes(skillId);
+            const isPokemonFutureSight = ['abra-future-sight', 'kadabra-future-sight'].includes(skillId);
+            const isPokemonXCutter = skillId === 'scyther-x-cutter';
+            const isPokemonCenterHealing = ['chansey-pokemon-center-healing', 'blissey-pokemon-center-healing'].includes(skillId);
+            const isPokemonSmog = ['koffing-smog', 'koffing-weezing-smog'].includes(skillId);
+            const isPokemonHaze = ['koffing-haze', 'koffing-weezing-haze'].includes(skillId);
+            const isPokemonSmokescreen = ['koffing-smokescreen', 'koffing-weezing-smokescreen'].includes(skillId);
+            const isPokemonSelfDestruct = ['koffing-self-destruct', 'koffing-weezing-self-destruct'].includes(skillId);
+            const isEkansPoisonFang = ['ekans-poison-fang', 'arbok-poison-fang'].includes(skillId);
+            const isEkansToxic = ['ekans-toxic', 'arbok-toxic'].includes(skillId);
+            const isEkansShedSkin = ['ekans-shed-skin', 'arbok-shed-skin'].includes(skillId);
+            const isEkansCrunch = ['ekans-crunch', 'arbok-crunch'].includes(skillId);
+            const isMachopBrickBreak = ['machop-brick-break', 'machoke-brick-break'].includes(skillId);
+            const isMachopCounter = ['machop-counter', 'machoke-counter'].includes(skillId);
+            const isMachopBulkUp = ['machop-bulk-up', 'machoke-bulk-up'].includes(skillId);
+            const isMachopTaunt = ['machop-taunt', 'machoke-taunt'].includes(skillId);
+            const isPokemonPsybeam = skillId === 'butterfree-psybeam';
+            const isPokemonStunSpore = skillId === 'butterfree-stun-spore';
+            const isPokemonWhirlwind = skillId === 'butterfree-whirlwind';
+            const isPokemonSleepPowder = skillId === 'butterfree-sleep-powder';
+            const isPokemonTrainerPokeball = skillId === 'pokemon-trainer-pokeball';
+            const isPokemonTrainerGreatBall = skillId === 'pokemon-trainer-great-ball';
+            const isPokemonTrainerUltraBall = skillId === 'pokemon-trainer-ultra-ball';
+            const isPokemonTrainerMasterBall = skillId === 'pokemon-trainer-master-ball';
+            const isPokemonTrainerXStats = skillId === 'pokemon-trainer-x-stats';
+            const isPokemonTrainerRareCandy = skillId === 'pokemon-trainer-rare-candy';
+            const isPokemonPsychic = ['abra-psychic', 'kadabra-psychic'].includes(skillId);
+            const isPokemonCalmMind = ['abra-calm-mind', 'kadabra-calm-mind'].includes(skillId);
+            const isPokemonTeleport = ['abra-teleport', 'kadabra-teleport'].includes(skillId);
+            const isPokemonLeechLife = ['zubat-leech-life', 'golbat-leech-life'].includes(skillId);
+            const isPokemonBite = ['zubat-bite', 'golbat-bite'].includes(skillId);
+            const isPokemonMetalClaw = ['krabby-metal-claw', 'kingler-metal-claw'].includes(skillId);
+            const isPokemonBubble = ['krabby-leer', 'kingler-leer'].includes(skillId);
+            const isPokemonCrabhammer = ['krabby-crabhammer', 'kingler-crabhammer'].includes(skillId);
+            const isPokemonHarden = ['krabby-harden', 'kingler-harden'].includes(skillId);
+            const isVaderSaberStrikeDown = skillId === 'darth-vader-saber-strike-down';
+            const isObiWanSoresuStyleCut = skillId === 'obi-wan-kenobi-soresu-style-cut';
+            const isSidiousForceLightning = skillId === 'darth-sidious-force-lightning';
+            const isSidiousCrimsonForceLightning = skillId === 'darth-sidious-crimson-force-lightning';
+            const isBobaBountyBlaster = skillId === 'boba-fett-bounty-hunter-blaster' || skillId === 'boba-fett-bounty-hunter-blaster-upgraded';
+            const isBobaWaterSkill =
+                isBobaBountyBlaster ||
+                skillId === 'boba-fett-wrist-flamethrower' ||
+                skillId === 'boba-fett-wrist-flamethrower-upgraded' ||
+                skillId === 'boba-fett-missile-backpack' ||
+                skillId === 'boba-fett-missile-backpack-upgraded' ||
+                skillId === 'boba-fett-looted-lightsaber' ||
+                skillId === 'boba-fett-looted-lightsaber-upgraded';
             const isGenericLaser = !isRedLaser && !isYellowLaser && skillId.includes('laser');
             const isJokerExplosion = ['the-joker-bang', 'the-joker-remote-bomb'].includes(skillId);
             const isGoblinExplosion = ['the-green-goblin-pumpkin-bomb', 'the-green-goblin-carpet-bombing'].includes(skillId);
@@ -3763,6 +6276,51 @@ document.addEventListener('DOMContentLoaded', async () => {
                 !isGhostRiderPenanceStare &&
                 !isGhostRiderSoulConsumption &&
                 !isGhostRiderInfernalRide &&
+                !isPokemonSolarBeam &&
+                !isPokemonThunder &&
+                !isPokemonFlamethrower &&
+                !isPokemonWaterGun &&
+                !isPokemonLeechSeed &&
+                !isPokemonSupersonic &&
+                !isPokemonFutureSight &&
+                !isPokemonXCutter &&
+                !isPokemonCenterHealing &&
+                !isPokemonSmog &&
+                !isPokemonHaze &&
+                !isPokemonSmokescreen &&
+                !isPokemonSelfDestruct &&
+                !isEkansPoisonFang &&
+                !isEkansToxic &&
+                !isEkansShedSkin &&
+                !isEkansCrunch &&
+                !isMachopBrickBreak &&
+                !isMachopCounter &&
+                !isMachopBulkUp &&
+                !isMachopTaunt &&
+                !isPokemonPsybeam &&
+                !isPokemonStunSpore &&
+                !isPokemonWhirlwind &&
+                !isPokemonSleepPowder &&
+                !isPokemonTrainerPokeball &&
+                !isPokemonTrainerGreatBall &&
+                !isPokemonTrainerUltraBall &&
+                !isPokemonTrainerMasterBall &&
+                !isPokemonTrainerXStats &&
+                !isPokemonTrainerRareCandy &&
+                !isPokemonPsychic &&
+                !isPokemonCalmMind &&
+                !isPokemonTeleport &&
+                !isPokemonLeechLife &&
+                !isPokemonBite &&
+                !isPokemonMetalClaw &&
+                !isPokemonBubble &&
+                !isPokemonCrabhammer &&
+                !isPokemonHarden &&
+                !isVaderSaberStrikeDown &&
+                !isObiWanSoresuStyleCut &&
+                !isSidiousForceLightning &&
+                !isSidiousCrimsonForceLightning &&
+                !isBobaWaterSkill &&
                 !isJokerExplosion &&
                 !isGoblinExplosion &&
                 !isRexExplosion &&
@@ -3771,6 +6329,30 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
             const targetCards = getTargetCardsFromSelection(selection);
+            const castActorSlot = Number.isInteger(activeCastingSkill?.actorSlot) ? activeCastingSkill.actorSlot : null;
+            const actorUnit = Number.isInteger(castActorSlot)
+                ? getActorUnitForSlot(currentPlayerUsername, castActorSlot)
+                : null;
+            if (isVaderSaberStrikeDown) {
+                showLightsaberPortraitSlashFx(targetCards, 'red-vertical');
+                return;
+            }
+            if (isObiWanSoresuStyleCut) {
+                showLightsaberPortraitSlashFx(targetCards, 'blue-horizontal');
+                return;
+            }
+            if (isSidiousForceLightning) {
+                showSidiousLightningFx(targetCards, 'blue');
+                return;
+            }
+            if (isSidiousCrimsonForceLightning) {
+                showSidiousLightningFx(targetCards, 'red');
+                return;
+            }
+            if (isBobaWaterSkill) {
+                showBobaWaterBountyFx(targetCards, isBobaBountyBlaster ? 'bounty' : 'splash');
+                return;
+            }
             if (isGhostRiderHellfireChains) {
                 showGhostRiderHellfireChainsFx({ actorCard, selection });
                 return;
@@ -3788,6 +6370,175 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (isGhostRiderInfernalRide) {
                 showGhostRiderInfernalRideFx({ actorCard, selection });
+                return;
+            }
+            if (isPokemonSolarBeam) {
+                showPokemonSolarBeamFx({ actorCard, targetCards });
+                return;
+            }
+            if (isPokemonThunder) {
+                showPokemonThunderFx(targetCards);
+                return;
+            }
+            if (isPokemonFlamethrower) {
+                showPokemonFlamethrowerFx({ actorCard, targetCards });
+                return;
+            }
+            if (isPokemonWaterGun) {
+                showPokemonWaterGunFx({ actorCard, targetCards });
+                return;
+            }
+            if (isPokemonLeechSeed) {
+                showPokemonLeechSeedFx({ actorCard, targetCards });
+                return;
+            }
+            if (isPokemonSupersonic) {
+                showPokemonSupersonicFx(targetCards);
+                return;
+            }
+            if (isPokemonFutureSight) {
+                showPokemonFutureSightFx(targetCards);
+                return;
+            }
+            if (isPokemonXCutter) {
+                showPokemonXCutterFx(targetCards);
+                return;
+            }
+            if (isPokemonCenterHealing) {
+                showPokemonCenterHealingFx(targetCards);
+                return;
+            }
+            if (isPokemonSmog) {
+                showKoffingTeamFogFx(selection, 'smog');
+                return;
+            }
+            if (isPokemonHaze) {
+                showKoffingTeamFogFx(selection, 'haze');
+                return;
+            }
+            if (isPokemonSmokescreen) {
+                showKoffingTeamFogFx(selection, 'smokescreen');
+                return;
+            }
+            if (isPokemonSelfDestruct) {
+                showKoffingScreenExplosionFx(actorCard, skillId === 'koffing-weezing-self-destruct');
+                targetCards.forEach((targetCard) => showExplosionFx(targetCard));
+                return;
+            }
+            if (isEkansPoisonFang) {
+                showEkansPoisonFangFx(targetCards, skillId === 'arbok-poison-fang' ? 3 : 2);
+                return;
+            }
+            if (isEkansToxic) {
+                showEkansToxicFx({ actorCard, targetCards, doubled: skillId === 'arbok-toxic' });
+                return;
+            }
+            if (isEkansShedSkin) {
+                showEkansShedSkinFx(actorCard ? [actorCard] : targetCards);
+                return;
+            }
+            if (isEkansCrunch) {
+                showEkansCrunchFx(targetCards, skillId === 'arbok-crunch' ? 2 : 1);
+                return;
+            }
+            if (isMachopBrickBreak) {
+                showMachopBrickBreakFx(
+                    targetCards,
+                    getMachopBulkUpIntensity(actorUnit),
+                    skillId === 'machoke-brick-break'
+                );
+                return;
+            }
+            if (isMachopCounter) {
+                showMachopCounterFx(
+                    targetCards,
+                    getMachopBulkUpIntensity(actorUnit),
+                    skillId === 'machoke-counter'
+                );
+                return;
+            }
+            if (isMachopBulkUp) {
+                showMachopBulkUpCastFx(actorCard, getMachopBulkUpIntensity(actorUnit) + 1);
+                return;
+            }
+            if (isMachopTaunt) {
+                showMachopTauntFx(targetCards);
+                return;
+            }
+            if (isPokemonPsybeam) {
+                showPokemonPsybeamFx({ actorCard, targetCards });
+                return;
+            }
+            if (isPokemonStunSpore) {
+                showPokemonPowderFx({ actorCard, targetCards, variant: 'stun' });
+                return;
+            }
+            if (isPokemonWhirlwind) {
+                showPokemonWhirlwindFx(targetCards);
+                return;
+            }
+            if (isPokemonSleepPowder) {
+                showPokemonPowderFx({ actorCard, targetCards, variant: 'sleep' });
+                return;
+            }
+            if (isPokemonTrainerPokeball) {
+                showPokemonTrainerBallFx({ actorCard, targetCards, variant: 'pokeball' });
+                return;
+            }
+            if (isPokemonTrainerGreatBall) {
+                showPokemonTrainerBallFx({ actorCard, targetCards, variant: 'great-ball' });
+                return;
+            }
+            if (isPokemonTrainerUltraBall) {
+                showPokemonTrainerBallFx({ actorCard, targetCards, variant: 'ultra-ball' });
+                return;
+            }
+            if (isPokemonTrainerMasterBall) {
+                showPokemonTrainerBallFx({ actorCard, targetCards, variant: 'master-ball' });
+                return;
+            }
+            if (isPokemonTrainerXStats) {
+                showPokemonXStatsFx(targetCards);
+                return;
+            }
+            if (isPokemonTrainerRareCandy) {
+                showPokemonRareCandyFx(targetCards);
+                return;
+            }
+            if (isPokemonPsychic) {
+                showPokemonPsychicFx({ actorCard, targetCards });
+                return;
+            }
+            if (isPokemonCalmMind) {
+                showPokemonCalmMindFx(targetCards.length ? targetCards : actorCard ? [actorCard] : []);
+                return;
+            }
+            if (isPokemonTeleport) {
+                showPokemonTeleportFx(targetCards);
+                return;
+            }
+            if (isPokemonLeechLife) {
+                showPokemonLeechLifeFx({ actorCard, targetCards });
+                return;
+            }
+            if (isPokemonBite) {
+                showPokemonBiteFx(targetCards);
+                return;
+            }
+            if (isPokemonMetalClaw) {
+                showPokemonMetalClawFx(targetCards);
+                return;
+            }
+            if (isPokemonBubble) {
+                showPokemonBubbleFx({ actorCard, targetCards });
+                return;
+            }
+            if (isPokemonCrabhammer) {
+                showPokemonCrabhammerFx({ actorCard, targetCards });
+                return;
+            }
+            if (isPokemonHarden) {
+                showPokemonHardenFx(actorCard ? [actorCard] : targetCards);
                 return;
             }
             if (isJokerExplosion || isGoblinExplosion || isRexExplosion) {
@@ -4044,16 +6795,33 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (timerCountdown) {
                 timerCountdown.textContent = String(Math.ceil(remaining / 1000));
             }
+            const isPlayersTurn =
+                currentPlayerUsername &&
+                currentTurnUsername &&
+                usernamesMatch(currentTurnUsername, currentPlayerUsername);
             if (
                 remaining <= 0 &&
-                currentPlayerUsername &&
-                usernamesMatch(currentTurnUsername, currentPlayerUsername) &&
+                isPlayersTurn &&
                 normalizePendingTurn(pendingTurnState).unresolvedRandom === 0 &&
                 !normalizePendingTurn(pendingTurnState).turnStartChoice &&
                 !autoEndRequested
             ) {
                 autoEndRequested = true;
                 endTurnDueToTimeout();
+                return;
+            }
+            if (
+                remaining <= 0 &&
+                currentTurnUsername &&
+                !isPlayersTurn &&
+                !activeMatchRecoveryPromise &&
+                Date.now() - expiredOpponentTurnRecoveryAtMs >= 2500
+            ) {
+                expiredOpponentTurnRecoveryAtMs = Date.now();
+                recoverCurrentMatchState({
+                    reason: 'opponent-turn-timeout',
+                    message: 'Refreshing the match after the opponent timer expired...',
+                }).catch(() => {});
             }
         };
 
@@ -4064,6 +6832,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const endTurnDueToTimeout = async () => {
             if (!matchIdFromUrl) return;
+            clearActiveTargetSelectionState();
             const resolutionAnimationEntries = getQueuedResolutionAnimationEntries();
             try {
                 const response = await fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/end`, {
@@ -4076,6 +6845,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             } catch (error) {
                 console.warn('Failed to auto-end turn on timeout.', error);
+                announceMatchIssue('Turn timeout sync failed. Trying to reload the live match state...', {
+                    tone: 'info',
+                    reason: 'auto-end-timeout',
+                    recoveryMessage: 'Reloading match after timeout...',
+                });
+                recoverCurrentMatchState({
+                    reason: 'auto-end-timeout',
+                    message: 'Reloading match after timeout...',
+                }).catch(() => {});
             }
         };
 
@@ -4086,6 +6864,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (turnChanged) {
                 lastTurnOwner = turnOwner;
                 autoEndRequested = false;
+                expiredOpponentTurnRecoveryAtMs = 0;
             }
             currentTurnDurationMs = resolvedDurationMs;
             if (parsedExpiry) {
@@ -4121,7 +6900,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 setSkillInteractivity(true);
                 startTimerLoop();
                 updateTimerBar();
-                clearTargetHighlights();
+                clearActiveTargetSelectionState();
                 updateSkillAffordability();
                 return;
             }
@@ -4158,9 +6937,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     img.style.transform = '';
                 });
                 queuedSkillKeySet.clear();
-                clearTargetHighlights();
-                activeTargetOptions = null;
-                activeCastingSkill = null;
+                clearActiveTargetSelectionState();
                 closeEndTurnModal();
                 if (activeChoicePopupMode === 'turn-start') {
                     closeClassChoicePopup();
@@ -4182,29 +6959,112 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!chakraDisplay) return;
             const normalizedPool = normalizePool(pool);
             playerPoolState = normalizedPool;
-            Object.entries(chakraCountEls || {}).forEach(([type, el]) => {
-                if (!el) return;
-                if (type === 'total') {
-                    const totalAmount =
-                        normalizedPool.taijutsu +
-                        normalizedPool.ninjutsu +
-                        normalizedPool.bloodline +
-                        normalizedPool.genjutsu;
-                    el.textContent = `x ${totalAmount}`;
-                } else {
-                    const amount = normalizedPool[type] || 0;
-                    el.textContent = `x ${amount}`;
-                }
-            });
-            updateSkillAffordability();
-            if (exchangeModalEl && exchangeModalEl.style.visibility === 'visible') {
-                renderExchangeModal(normalizedPool);
-            }
+            renderDisplayedChakra();
+        };
+
+        let lastAppliedMatchVisualSignature = '';
+
+        const buildChakraSignature = (pool = {}) => {
+            const normalizedPool = normalizePool(pool);
+            return [
+                normalizedPool.taijutsu,
+                normalizedPool.ninjutsu,
+                normalizedPool.bloodline,
+                normalizedPool.genjutsu,
+            ].join('|');
+        };
+
+        const buildUnitHealthSignature = (unit = null) => {
+            if (!unit || typeof unit !== 'object') return 'x';
+            const hp = Number.isFinite(Number(unit.hp)) ? Math.max(0, Number(unit.hp)) : '';
+            const maxHp = Number.isFinite(Number(unit.maxHp)) ? Math.max(0, Number(unit.maxHp)) : '';
+            const alive = unit.alive === false ? 0 : 1;
+            const defense = getDestructibleDefenseValue(unit);
+            const barrier = getBarrierValue(unit);
+            return [unit.rosterIndex ?? '', alive, hp, maxHp, defense, barrier].join(':');
+        };
+
+        const buildUnitStatusSignature = (unit = null) => {
+            const statuses = getActiveStatuses(unit);
+            return statuses
+                .map((status) =>
+                    [
+                        status?.id || '',
+                        Number(status?.remainingTurns) || 0,
+                        Number(status?.stacks) || 0,
+                        status?.metadata?.sourceSkillId || '',
+                    ].join(':')
+                )
+                .join('|');
+        };
+
+        const buildUnitCooldownSignature = (unit = null) => {
+            const cooldowns = unit?.state?.cooldowns && typeof unit.state.cooldowns === 'object' ? unit.state.cooldowns : {};
+            return Object.keys(cooldowns)
+                .sort()
+                .map((key) => `${key}:${Math.max(0, Number(cooldowns[key]) || 0)}`)
+                .join('|');
+        };
+
+        const buildPendingTurnSignature = (pending = null) => {
+            const normalizedPending = normalizePendingTurn(pending);
+            const queuedEntries = Object.values(normalizedPending.queuedByActorSlot || {})
+                .map((queued) =>
+                    [
+                        Number.parseInt(queued?.actorSlot, 10),
+                        Number.parseInt(queued?.skillIndex, 10),
+                        queued?.classChoice || '',
+                        queued?.absorptionChoice || '',
+                        JSON.stringify(queued?.targetSelection || []),
+                    ].join(':')
+                )
+                .sort();
+            const turnStartChoice = normalizedPending.turnStartChoice
+                ? [
+                      normalizedPending.turnStartChoice?.sourceStatusId || '',
+                      normalizedPending.turnStartChoice?.usesUsed || 0,
+                      normalizedPending.turnStartChoice?.promptText || '',
+                      JSON.stringify(normalizedPending.turnStartChoice?.options || []),
+                  ].join(':')
+                : '';
+            return [
+                normalizedPending.unresolvedRandom || 0,
+                JSON.stringify(normalizedPending.randomAssignments || {}),
+                JSON.stringify(normalizedPending.queueOrder || []),
+                queuedEntries.join('|'),
+                turnStartChoice,
+            ].join('||');
+        };
+
+        const buildMatchVisualSignature = (data, overrides = {}) => {
+            const board = data?.board && typeof data.board === 'object' ? data.board : null;
+            const playerUsername = overrides.playerUsername || currentPlayerUsername;
+            const opponentUsername = overrides.opponentUsername || data?.opponent?.username || currentOpponentUsername;
+            const arena = overrides.arena || currentMatchArena;
+            const mode = overrides.mode || currentMatchMode;
+            const playerUnits = playerUsername && board ? board[playerUsername] : null;
+            const opponentUnits = opponentUsername && board ? board[opponentUsername] : null;
+            const pool = data?.chakraPools?.[playerUsername] || playerPoolState || emptyPool();
+            return [
+                arena,
+                mode,
+                playerUsername || '',
+                opponentUsername || '',
+                data?.currentTurn || '',
+                buildChakraSignature(pool),
+                Array.isArray(playerUnits) ? playerUnits.map(buildUnitHealthSignature).join('|') : '',
+                Array.isArray(opponentUnits) ? opponentUnits.map(buildUnitHealthSignature).join('|') : '',
+                Array.isArray(playerUnits) ? playerUnits.map(buildUnitStatusSignature).join('|') : '',
+                Array.isArray(opponentUnits) ? opponentUnits.map(buildUnitStatusSignature).join('|') : '',
+                Array.isArray(playerUnits) ? playerUnits.map(buildUnitCooldownSignature).join('|') : '',
+                Array.isArray(opponentUnits) ? opponentUnits.map(buildUnitCooldownSignature).join('|') : '',
+                buildPendingTurnSignature(data?.pendingTurn),
+            ].join('##');
         };
 
         const renderEndTurnModal = (pool = {}, pending = null) => {
             const normalizedPool = normalizePool(pool);
-            const normalizedPending = normalizePendingTurn(pending);
+            const normalizedPending = pending ? normalizePendingTurn(pending) : getPendingTurnWithOptimisticQueues();
             Object.entries(normalizedPool).forEach(([type, amount]) => {
                 const leftEl = endTurnLeftAmountEls[type];
                 if (leftEl) {
@@ -4220,19 +7080,49 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (endTurnChooseCountEl) {
                 endTurnChooseCountEl.textContent = String(normalizedPending.unresolvedRandom || 0);
             }
+            if ((normalizedPending.unresolvedRandom || 0) > 0) {
+                setEndTurnModalStatus(
+                    `Choose ${normalizedPending.unresolvedRandom} random energy with the + and - buttons before ending your turn.`,
+                    'info'
+                );
+            } else {
+                setEndTurnModalStatus('');
+            }
             updateEndTurnButtons();
+        };
+
+        const syncEndTurnModalIfVisible = () => {
+            if (!endTurnModalEl || endTurnModalEl.style.visibility !== 'visible') return;
+            renderEndTurnModal(playerPoolState, getPendingTurnWithOptimisticQueues());
+        };
+
+        const syncTurnActionStateFromPayload = (data) => {
+            if (!data || typeof data !== 'object') return;
+            renderChakra(getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || emptyPool());
+            pendingTurnState = normalizePendingTurn(data.pendingTurn);
+            applyQueuedSkillVisuals();
+            syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
         };
 
         const openEndTurnModal = () => {
             if (!endTurnModalEl || !matchIdFromUrl) return;
+            const refreshVersion = ++endTurnModalRefreshVersion;
             // Show immediately from the last known client state; refresh in the background below.
             endTurnModalEl.style.visibility = 'visible';
-            renderEndTurnModal(playerPoolState, pendingTurnState);
+            renderEndTurnModal(playerPoolState, getPendingTurnWithOptimisticQueues());
             const requestMutationVersion = randomChakraMutationVersion;
             fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}`, {
                 credentials: 'include',
             })
                 .then(async (res) => {
+                    if (res.status === 401 || res.status === 403) {
+                        redirectToSelectionLogin(currentMatchArena, {
+                            clearUser: false,
+                            preferSelection: true,
+                            replace: true,
+                        });
+                        throw new Error('Unauthorized');
+                    }
                     if (!res.ok) {
                         throw new Error('Unable to load match state.');
                     }
@@ -4246,10 +7136,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (requestMutationVersion !== randomChakraMutationVersion) {
                         return;
                     }
-                    const playerPool = data.chakraPools?.[currentPlayerUsername] || {};
+                    if (refreshVersion !== endTurnModalRefreshVersion || endTurnModalEl?.style.visibility !== 'visible') {
+                        return;
+                    }
+                    const playerPool = getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || {};
                     pendingTurnState = normalizePendingTurn(data.pendingTurn);
                     if (endTurnModalEl?.style.visibility === 'visible') {
-                        renderEndTurnModal(playerPool, pendingTurnState);
+                        renderEndTurnModal(playerPool, getPendingTurnWithOptimisticQueues());
                     }
                 })
                 .catch((error) => {
@@ -4259,7 +7152,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const closeEndTurnModal = () => {
             if (!endTurnModalEl) return;
+            endTurnModalRefreshVersion += 1;
             endTurnModalEl.style.visibility = 'hidden';
+            setEndTurnModalStatus('');
         };
 
         const getExchangeTypeFromButton = (button) => {
@@ -4275,12 +7170,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                 button.classList.toggle('selected', type === selectedExchangeType);
             });
         };
+        syncEnergyNameLabels();
 
         const getExchangeAssignedTotal = () =>
             chakraTypes.reduce(
                 (sum, type) => sum + Math.max(0, Number(exchangeSpendAssignments?.[type]) || 0),
                 0
             );
+
+        const setExchangeStatus = (message = '') => {
+            if (!exchangeStatusEl) return;
+            exchangeStatusEl.textContent = message;
+        };
 
         const adjustExchangeSpend = (chakraType, delta) => {
             if (!chakraTypes.includes(chakraType)) return;
@@ -4335,6 +7236,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!usernamesMatch(currentPlayerUsername, currentTurnUsername)) return;
             closeEndTurnModal();
             exchangeSpendAssignments = emptyPool();
+            setExchangeStatus('');
             renderExchangeModal(playerPoolState);
             exchangeModalEl.style.visibility = 'visible';
         };
@@ -4342,12 +7244,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         const closeExchangeModal = () => {
             if (!exchangeModalEl) return;
             exchangeSpendAssignments = emptyPool();
+            setExchangeStatus('');
             renderExchangeModal(playerPoolState);
             exchangeModalEl.style.visibility = 'hidden';
         };
 
         const openSurrenderConfirm = () => {
             if (!surrenderConfirmEl) return;
+            if (surrenderConfirmPreviewImage) {
+                surrenderConfirmPreviewImage.src =
+                    currentMatchArena === 'pokemon' ? POKEMON_SURRENDER_PREVIEW_URL : COMIC_SURRENDER_PREVIEW_URL;
+            }
             surrenderConfirmEl.style.visibility = 'visible';
         };
 
@@ -4359,6 +7266,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const stopMatchRealtime = () => {
             clearMatchSocketReconnect();
             closeMatchSocket();
+            soundManager.stopMusic();
             if (turnTimerInterval) {
                 clearInterval(turnTimerInterval);
                 turnTimerInterval = null;
@@ -4373,7 +7281,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             }, 0);
         };
 
-        const showBattleEndOverlay = ({ didWin, opponentUsername, expDelta = null, clanExpDelta = null }) => {
+        const showBattleEndOverlay = ({
+            didWin,
+            opponentUsername,
+            expDelta = null,
+            clanExpDelta = null,
+            unlockPointDelta = null,
+        }) => {
             if (!battleEndOverlayEl || battleEndShown) return;
             const opponent = (opponentUsername || currentOpponentUsername || 'UNKNOWN').trim();
             const isLadderMatch = currentMatchMode === 'ladder';
@@ -4384,8 +7298,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 normalizedClanExpDelta > 0
                     ? `<br>YOUR CLAN GAINED ${normalizedClanExpDelta.toLocaleString()} EXP`
                     : '';
+            const normalizedUnlockPointDelta = Math.max(0, Number(unlockPointDelta) || 0);
+            const unlockPointLine =
+                isLadderMatch && normalizedUnlockPointDelta > 0
+                    ? `<br>YOU EARNED ${normalizedUnlockPointDelta.toLocaleString()} UNLOCK POINTS`
+                    : '';
             if (battleEndPortraitEl) {
-                battleEndPortraitEl.src = didWin ? 'assets/images/win.png' : 'assets/images/lose.png';
+                const isPokemonArena = currentMatchArena === 'pokemon';
+                battleEndPortraitEl.src = didWin
+                    ? isPokemonArena
+                        ? POKEMON_WIN_PORTRAIT_URL
+                        : COMIC_WIN_PORTRAIT_URL
+                    : isPokemonArena
+                        ? POKEMON_LOSE_PORTRAIT_URL
+                        : COMIC_LOSE_PORTRAIT_URL;
                 battleEndPortraitEl.alt = didWin ? 'Victory portrait' : 'Defeated portrait';
             }
             if (battleEndTitleEl) {
@@ -4394,27 +7320,26 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (battleEndMessageEl) {
                 battleEndMessageEl.innerHTML = didWin
                     ? isLadderMatch
-                        ? `YOU WON A LADDER BATTLE AGAINST ${opponent}.<br>YOU GAINED ${expMagnitude} EXP${clanExpLine}`
+                        ? `YOU WON A LADDER BATTLE AGAINST ${opponent}.<br>YOU GAINED ${expMagnitude} EXP${clanExpLine}${unlockPointLine}`
                         : currentMatchMode === 'private'
                             ? `YOU WIN!<br>YOU WON A PRIVATE GAME AGAINST ${opponent}`
                         : `CONGRATULATIONS!<br>YOU HAVE WON A QUICK BATTLE AGAINST ${opponent}.`
                     : isLadderMatch
-                        ? `YOU LOST A LADDER BATTLE AGAINST ${opponent}.<br>YOU LOST ${expMagnitude} EXP`
+                        ? `YOU LOST A LADDER BATTLE AGAINST ${opponent}.<br>YOU LOST ${expMagnitude} EXP${unlockPointLine}`
                         : currentMatchMode === 'private'
                             ? `TOO BAD!<br>YOU LOST A PRIVATE GAME AGAINST ${opponent}`
                         : `TOO BAD!<br>YOU HAVE LOST A QUICK BATTLE AGAINST ${opponent}.`;
             }
             battleEndOverlayEl.classList.add('visible');
             battleEndShown = true;
+            writeDismissedEndedMatch(matchIdFromUrl, currentMatchArena);
             playIngameSound(didWin ? winSound : lostSound);
             soundManager.syncAmbientEffects([]);
             stopMatchRealtime();
             closeEndTurnModal();
             closeExchangeModal();
             closeSurrenderConfirm();
-            clearTargetHighlights();
-            activeTargetOptions = null;
-            activeCastingSkill = null;
+            clearActiveTargetSelectionState();
         };
 
         const MAX_HP = 100;
@@ -4471,7 +7396,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 isAffliction ? 'affliction' : '',
             ].filter(Boolean).join(' ');
             card.appendChild(burst);
-            window.setTimeout(() => burst.remove(), 1050);
+            scheduleCombatFxRemoval(burst, 1050);
+            showPixelImpactFx(card, isDamage ? (isAffliction ? 'poison' : 'damage') : 'heal');
         };
 
         const animateDefenseImpact = (card, delta) => {
@@ -4479,18 +7405,55 @@ document.addEventListener('DOMContentLoaded', async () => {
             const burst = document.createElement('div');
             burst.className = `combat-impact-burst shield ${delta < 0 ? 'break' : 'gain'}`;
             card.appendChild(burst);
-            window.setTimeout(() => burst.remove(), 1100);
+            scheduleCombatFxRemoval(burst, 1100);
+            showPixelImpactFx(card, delta < 0 ? 'shield-break' : 'shield');
+            playGeneratedIngameSound('shield-hit');
+        };
+
+        const animateBarrierImpact = (card, delta) => {
+            if (!card || !delta) return;
+            const burst = document.createElement('div');
+            burst.className = `combat-impact-burst forcefield ${delta < 0 ? 'break' : 'gain'}`;
+            card.appendChild(burst);
+            scheduleCombatFxRemoval(burst, 1100);
+            showPixelImpactFx(card, delta < 0 ? 'shield-break' : 'shield');
             playGeneratedIngameSound('shield-hit');
         };
 
         const escapeCssUrl = (value = '') => String(value).replaceAll('\\', '\\\\').replaceAll("'", "\\'");
 
+        const LASER_DEATH_KILLER_IDS = new Set(['homelander', 'superman', 'billy-butcher']);
+        const PREDATOR_DEATH_KILLER_IDS = new Set(['predator-stalker', 'predator']);
+        const GHOST_RIDER_DEATH_KILLER_IDS = new Set(['ghost-rider', 'ghost rider']);
+        const COMIC_EXPLOSION_DEATH_KILLER_IDS = new Set(['the-joker', 'the-green-goblin', 'rex-splode']);
+
+        const getSpecialDeathAnimationType = (killerId) => {
+            const normalizedKillerId = String(killerId || '').trim().toLowerCase();
+            if (!normalizedKillerId) return '';
+            if (normalizedKillerId === 'darth-vader') return 'saber-red';
+            if (normalizedKillerId === 'obi-wan-kenobi') return 'saber-blue';
+            if (normalizedKillerId === 'grand-master-yoda') return 'saber-yoda';
+            if (normalizedKillerId === 'general-grievous') return 'saber-grievous';
+            if (normalizedKillerId === 'wolverine') return 'eviscerated';
+            if (normalizedKillerId === 'boba-fett') return 'claimed';
+            if (normalizedKillerId === 'carnage') return 'devoured';
+            if (normalizedKillerId === 'batman') return 'vanished';
+            if (normalizedKillerId === 'venom') return 'consumed';
+            if (normalizedKillerId === 'negan') return 'lucilled';
+            if (normalizedKillerId === 'the-flash-barry-allen') return 'speed-blitz';
+            if (COMIC_EXPLOSION_DEATH_KILLER_IDS.has(normalizedKillerId)) return 'comic-boom';
+            if (PREDATOR_DEATH_KILLER_IDS.has(normalizedKillerId)) return 'predator';
+            if (LASER_DEATH_KILLER_IDS.has(normalizedKillerId)) return 'laser';
+            if (GHOST_RIDER_DEATH_KILLER_IDS.has(normalizedKillerId)) return 'ghost-rider';
+            return '';
+        };
+
         const clearTransientDeathFx = (card) => {
             if (!card) return;
             card.querySelectorAll(
-                '.character-death-shatter, .ghost-rider-death-fire, .predator-hunted-overlay, .lasered-overlay'
+                '.character-death-shatter, .ghost-rider-death-fire, .predator-hunted-overlay, .lasered-overlay, .sabered-overlay, .special-kill-overlay'
             ).forEach((node) => node.remove());
-            card.classList.remove('predator-hunted-active', 'lasered-active');
+            card.classList.remove('death-crack', 'predator-hunted-active', 'lasered-active', 'sabered-active', 'special-kill-active');
         };
 
         const scheduleTransientDeathFxCleanup = (card, overlay, delayMs) => {
@@ -4502,10 +7465,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!card?.querySelector?.('.lasered-overlay')) {
                     card?.classList.remove('lasered-active');
                 }
+                if (!card?.querySelector?.('.sabered-overlay')) {
+                    card?.classList.remove('sabered-active');
+                }
+                if (!card?.querySelector?.('.special-kill-overlay')) {
+                    card?.classList.remove('special-kill-active');
+                }
             }, delayMs);
         };
 
-        const showCharacterDeathAnimation = (card) => {
+        const restartDeathCrackAnimation = (card) => {
+            if (!card) return;
+            card.classList.remove('death-crack');
+            void card.offsetWidth;
+            card.classList.add('death-crack');
+            window.setTimeout(() => card.classList.remove('death-crack'), 700);
+        };
+
+        const showCharacterDeathAnimation = (card, options = {}) => {
             if (!card) return;
             const face = card.querySelector('.character-face');
             const portraitSrc = face?.dataset?.aliveSrc || face?.src || '';
@@ -4519,14 +7496,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                 `<div class="death-slice death-slice-left" style="background-image:url('${safeSrc}')"></div>` +
                 `<div class="death-slice death-slice-right" style="background-image:url('${safeSrc}')"></div>` +
                 `<div class="death-shards">` +
-                    Array.from({ length: 9 }, (_, index) =>
+                    Array.from({ length: 18 }, (_, index) =>
                         `<span style="background-image:url('${safeSrc}');--piece:${index};"></span>`
                     ).join('') +
                 `</div>` +
                 `<div class="death-kill-label">${label}</div>`;
             card.appendChild(overlay);
-            playGeneratedIngameSound('death');
+            if (options?.playSound !== false) {
+                playGeneratedIngameSound('death');
+            }
             scheduleTransientDeathFxCleanup(card, overlay, 2500);
+        };
+
+        const scheduleCharacterDeathFinale = (card, delayMs = 1050) => {
+            if (!card) return;
+            window.setTimeout(() => {
+                if (!card?.isConnected) return;
+                showCharacterDeathAnimation(card, { playSound: false });
+                restartDeathCrackAnimation(card);
+            }, Math.max(0, Number(delayMs) || 0));
         };
 
         const showGhostRiderDeathAnimation = (card) => {
@@ -4538,11 +7526,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             const safeSrc = escapeCssUrl(portraitSrc);
             const overlay = document.createElement('div');
             overlay.className = 'ghost-rider-death-fire';
-            const label = card.closest('.enemy-characters') ? 'PURIFIED' : 'BURNING';
+            const label = card.closest('.enemy-characters') ? 'JUDGED' : 'JUDGED';
             overlay.innerHTML =
                 `<div class="ghost-rider-death-portrait-wrap">` +
                     `<div class="ghost-rider-death-portrait" style="background-image:url('${safeSrc}')"></div>` +
                     `<div class="ghost-rider-death-slice-x"></div>` +
+                    `<div class="ghost-rider-judged-eyes"><span></span><span></span></div>` +
                 `</div>` +
                 `<div class="ghost-rider-death-fire-fx"></div>` +
                 `<div class="ghost-rider-death-ash"><span></span><span></span><span></span><span></span><span></span></div>` +
@@ -4552,14 +7541,186 @@ document.addEventListener('DOMContentLoaded', async () => {
             scheduleTransientDeathFxCleanup(card, overlay, 4500);
         };
 
+        const triggerSaberedAnimation = (card, variant = 'blue') => {
+            if (!card) return;
+            const face = card.querySelector('.character-face');
+            const portraitSrc = face?.dataset?.aliveSrc || face?.src || '';
+            if (!portraitSrc) return;
+            clearTransientDeathFx(card);
+            const safeSrc = escapeCssUrl(portraitSrc);
+            const isRed = variant === 'red';
+            const splitClass = isRed ? 'vertical' : 'horizontal';
+            card.classList.add('sabered-active');
+            const overlay = document.createElement('div');
+            overlay.className = `sabered-overlay ${isRed ? 'red' : 'blue'} ${splitClass}`;
+            const halves = isRed
+                ? `<div class="sabered-half left" style="background-image:url('${safeSrc}')"></div><div class="sabered-half right" style="background-image:url('${safeSrc}')"></div>`
+                : `<div class="sabered-half top" style="background-image:url('${safeSrc}')"></div><div class="sabered-half bottom" style="background-image:url('${safeSrc}')"></div>`;
+            overlay.innerHTML =
+                halves +
+                `<div class="sabered-slash-line"></div>` +
+                `<div class="death-kill-label sabered-label">Sabered</div>`;
+            card.appendChild(overlay);
+            playGeneratedIngameSound('slash');
+            scheduleTransientDeathFxCleanup(card, overlay, 3200);
+        };
+
+        const triggerPortraitKillOverlay = (card, type, label, html, duration = 3200, sound = 'death') => {
+            if (!card || !type) return false;
+            const face = card.querySelector('.character-face');
+            const portraitSrc = face?.dataset?.aliveSrc || face?.src || '';
+            if (!portraitSrc) return false;
+            clearTransientDeathFx(card);
+            const safeSrc = escapeCssUrl(portraitSrc);
+            card.classList.add('special-kill-active');
+            const overlay = document.createElement('div');
+            overlay.className = `special-kill-overlay ${type}`;
+            overlay.innerHTML =
+                `<div class="special-kill-portrait" style="background-image:url('${safeSrc}')"></div>` +
+                html +
+                `<div class="death-kill-label special-kill-label">${label}</div>`;
+            card.appendChild(overlay);
+            if (sound) playGeneratedIngameSound(sound);
+            scheduleTransientDeathFxCleanup(card, overlay, duration);
+            return true;
+        };
+
+        const triggerCrunchKillAnimation = (card) =>
+            triggerPortraitKillOverlay(
+                card,
+                'crunch-kill',
+                'CRUNCH',
+                Array.from({ length: 24 }, (_, index) => `<span class="crunch-piece piece-${index + 1}"></span>`).join(''),
+                3200,
+                'bite-crunch'
+            );
+
+        const triggerAdvancedSaberedAnimation = (card, variant = 'yoda') => {
+            const isGrievous = variant === 'grievous';
+            const slashes = isGrievous
+                ? '<div class="advanced-saber-slashes grievous"><span class="blue"></span><span class="green"></span><span class="yellow"></span><span class="purple"></span></div>'
+                : '<div class="advanced-saber-slashes yoda"><span class="green"></span></div>';
+            const shards = Array.from({ length: 12 }, (_, index) => `<span style="--piece:${index};"></span>`).join('');
+            return triggerPortraitKillOverlay(
+                card,
+                `advanced-sabered-kill ${variant}`,
+                'sabered',
+                `${slashes}<div class="advanced-sabered-shards">${shards}</div>`,
+                isGrievous ? 3800 : 3500,
+                'slash'
+            );
+        };
+
+        const triggerEvisceratedAnimation = (card) =>
+            triggerPortraitKillOverlay(
+                card,
+                'eviscerated-kill',
+                'Eviscerated',
+                '<div class="eviscerated-gashes"><span></span><span></span><span></span></div><div class="eviscerated-sparks"><span></span><span></span><span></span><span></span></div>',
+                3300,
+                'slash'
+            );
+
+        const triggerClaimedAnimation = (card) =>
+            triggerPortraitKillOverlay(
+                card,
+                'claimed-kill',
+                'Claimed',
+                '<div class="claimed-poster-stamp">WANTED</div><div class="claimed-reticle"><span></span><span></span><span></span></div><div class="claimed-credit-flash"></div>',
+                3400,
+                'target-lock'
+            );
+
+        const triggerDevouredAnimation = (card) =>
+            triggerPortraitKillOverlay(
+                card,
+                'devoured-kill',
+                'Devoured',
+                '<div class="devoured-tendrils"><span></span><span></span><span></span><span></span></div><div class="devoured-splatter"></div>',
+                3400,
+                'bite-crunch'
+            );
+
+        const triggerVanishedAnimation = (card) =>
+            triggerPortraitKillOverlay(
+                card,
+                'vanished-kill',
+                'Vanished',
+                '<div class="vanished-smoke"><span></span><span></span><span></span></div><div class="vanished-bat"></div>',
+                3200,
+                'cloak'
+            );
+
+        const triggerConsumedAnimation = (card) =>
+            triggerPortraitKillOverlay(
+                card,
+                'consumed-kill',
+                'Consumed',
+                '<div class="consumed-jaws top"></div><div class="consumed-jaws bottom"></div><div class="consumed-slime"></div>',
+                3400,
+                'bite-crunch'
+            );
+
+        const triggerSpeedBlitzAnimation = (card) =>
+            triggerPortraitKillOverlay(
+                card,
+                'speed-blitz-kill',
+                'Speed Blitz',
+                '<div class="speed-blitz-afterimages"><span></span><span></span></div><div class="speed-blitz-lightning"></div>',
+                3000,
+                'lightning'
+            );
+
+        const triggerComicBoomAnimation = (card) =>
+            triggerPortraitKillOverlay(
+                card,
+                'comic-boom-kill',
+                'BOOM',
+                '<div class="comic-boom-burst"></div><div class="comic-boom-cracks"><span></span><span></span><span></span></div>',
+                3100,
+                'explosion'
+            );
+
+        const triggerLucilledAnimation = (card) =>
+            triggerPortraitKillOverlay(
+                card,
+                'lucilled-kill',
+                "Lucille'd",
+                '<div class="lucilled-bat"><span></span></div><div class="lucilled-impact"></div><div class="lucilled-cracks"><span></span><span></span><span></span></div>',
+                3300,
+                'damage'
+            );
+
         const getActiveStatuses = (unit) => {
             const statuses = Array.isArray(unit?.state?.statuses) ? unit.state.statuses : [];
             return statuses.filter((status) => (Number(status?.remainingTurns) || 0) > 0);
         };
 
+        const syncBobaWantedMarker = (card, statuses = []) => {
+            if (!card) return;
+            const hasWanted = statuses.some((status) => status?.id === 'boba_fett_wanted_dead_or_alive');
+            let marker = card.querySelector('.boba-wanted-marker');
+            if (!hasWanted) {
+                marker?.remove();
+                return;
+            }
+            if (!marker) {
+                marker = document.createElement('div');
+                marker.className = 'boba-wanted-marker';
+                marker.innerHTML = '<span class="boba-wanted-title">WANTED</span><span class="boba-wanted-subtitle">Dead or Alive</span><span class="boba-wanted-scan"></span>';
+                card.appendChild(marker);
+            }
+        };
+
         const getDestructibleDefenseValue = (unit) =>
             getActiveStatuses(unit).reduce((sum, status) => {
                 const points = Number(status?.metadata?.destructibleDefensePoints);
+                return Number.isFinite(points) && points > 0 ? sum + points : sum;
+            }, 0);
+
+        const getBarrierValue = (unit) =>
+            getActiveStatuses(unit).reduce((sum, status) => {
+                const points = Number(status?.metadata?.barrierPoints);
                 return Number.isFinite(points) && points > 0 ? sum + points : sum;
             }, 0);
 
@@ -4589,7 +7750,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const evadeChance = dead ? 0 : getEvadeChanceValue(unit);
             card.classList.toggle('has-evade-percent', evadeChance > 0);
             badge.textContent = `${evadeChance}%`;
-            badge.title = `${evadeChance}% evasion`;
+            badge.title = evadeChance > 0 ? `${evadeChance}% evasion active` : '';
         };
 
         const findEvadeNotificationStatus = (unit) =>
@@ -4650,7 +7811,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const slash = document.createElement('div');
             slash.className = 'evade-slash-overlay';
             card.appendChild(slash);
-            window.setTimeout(() => slash.remove(), 1000);
+            scheduleCombatFxRemoval(slash, 1000);
 
             const evader = Number.isInteger(unit?.rosterIndex) ? rosterData?.[unit.rosterIndex] : null;
             const evaderName = evader?.name || 'Character';
@@ -4769,6 +7930,70 @@ document.addEventListener('DOMContentLoaded', async () => {
             card?.querySelectorAll?.(`.${className}`).forEach((node) => node.remove());
         };
 
+        const renderQueuedTargetCardMarkers = () => {
+            const allCards = [...(Array.isArray(playerCards) ? playerCards : []), ...(Array.isArray(enemyCards) ? enemyCards : [])];
+            allCards.forEach((card) => {
+                removeCharacterFxElement(card, 'queued-target-marker-host');
+                const wrap = card?.querySelector('.skilltooltips');
+                wrap?.querySelectorAll('.skilltooltipimage.dynamic-queued-target-icon').forEach((node) => node.remove());
+            });
+
+            const pending = getPendingTurnWithOptimisticQueues();
+            const queuedByTargetKey = new Map();
+            Object.values(pending.queuedByActorSlot || {}).forEach((queued) => {
+                const actorSlot = Number.parseInt(queued?.actorSlot, 10);
+                const skillIdx = Number.parseInt(queued?.skillIndex, 10);
+                const effectiveSkill = getEffectiveSkillForActorSlot(actorSlot, skillIdx);
+                const iconSrc = effectiveSkill?.skillimage || '';
+                const selection = Array.isArray(queued?.targetSelection)
+                    ? queued.targetSelection
+                    : queued?.targetSelection
+                        ? [queued.targetSelection]
+                        : [];
+                selection.forEach((target) => {
+                    const username = target?.username;
+                    const slot = Number.parseInt(target?.slot, 10);
+                    if (!username || !Number.isInteger(slot) || slot < 0) return;
+                    const unit = latestBoardState?.[username]?.[slot];
+                    if (unit && isUnitDeadLike(unit)) return;
+                    const card = getCardByUsernameSlot(username, slot) || (
+                        username === currentPlayerUsername
+                            ? (Array.isArray(playerCards) ? playerCards[slot] : null)
+                            : (Array.isArray(enemyCards) ? enemyCards[slot] : null)
+                    );
+                    if (!card) return;
+                    const key = `${username}:${slot}`;
+                    if (!queuedByTargetKey.has(key)) {
+                        queuedByTargetKey.set(key, { card, entries: [] });
+                    }
+                    queuedByTargetKey.get(key).entries.push({
+                        iconSrc,
+                        skillName: effectiveSkill?.name || 'Queued Skill',
+                    });
+                });
+            });
+
+            queuedByTargetKey.forEach(({ card, entries }) => {
+                const host = ensureCharacterFxElement(card, 'queued-target-marker-host', '<div class="queued-target-marker-stack"></div>');
+                const stack = host?.querySelector('.queued-target-marker-stack');
+                if (!host || !stack) return;
+                stack.innerHTML = '';
+                entries.slice(0, 3).forEach((entry) => {
+                    const marker = document.createElement('div');
+                    marker.className = 'queued-target-card-icon';
+                    marker.title = `Queued on this target: ${entry.skillName}`;
+                    marker.innerHTML = `<img src="${entry.iconSrc}" alt="${entry.skillName}">`;
+                    stack.appendChild(marker);
+                });
+                if (entries.length > 3) {
+                    const overflow = document.createElement('div');
+                    overflow.className = 'queued-target-card-overflow';
+                    overflow.textContent = `+${entries.length - 3}`;
+                    stack.appendChild(overflow);
+                }
+            });
+        };
+
         const getAquamanSeaSharkStacks = (unit) =>
             getActiveStatuses(unit).reduce((sum, status) => {
                 if (status?.id !== 'aquaman_sea_sharks') return sum;
@@ -4827,9 +8052,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     splash.className = 'aquaman-sea-shark-splash';
                     splash.innerHTML = '<span></span><span></span><span></span>';
                     card.appendChild(splash);
-                    window.setTimeout(() => splash.remove(), 900);
+                    scheduleCombatFxRemoval(splash, 900);
                 }, 620 + index * 120);
-                window.setTimeout(() => shark.remove(), 980 + index * 120);
+                scheduleCombatFxRemoval(shark, 980 + index * 120);
             }
         };
 
@@ -4843,12 +8068,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             card.classList.add('lasered-active');
             const overlay = document.createElement('div');
             overlay.className = 'lasered-overlay';
-            const laserClass = killerId === 'billy-butcher' ? 'yellow' : 'red';
+            const laserClass =
+                killerId === 'billy-butcher'
+                    ? 'yellow'
+                    : killerId === 'superman'
+                    ? 'blue'
+                    : 'red';
+            const laserLabel =
+                killerId === 'billy-butcher'
+                    ? 'BUTCHERED'
+                    : killerId === 'superman'
+                    ? 'SCORCHED'
+                    : 'LASERED';
             overlay.innerHTML =
                 `<div class="lasered-half top" style="background-image:url('${safeSrc}')"></div>` +
                 `<div class="lasered-half bottom" style="background-image:url('${safeSrc}')"></div>` +
                 `<div class="laser-beams"><span class="laser-beam one ${laserClass}"></span><span class="laser-beam two ${laserClass}"></span></div>` +
-                `<div class="lasered-callout">LASERED</div>`;
+                `<div class="lasered-callout">${laserLabel}</div>`;
             card.appendChild(overlay);
             scheduleTransientDeathFxCleanup(card, overlay, 3000);
         };
@@ -4866,6 +8102,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             overlay.innerHTML =
                 `<div class="predator-hunted-half top" style="background-image:url('${safeSrc}')"></div>` +
                 `<div class="predator-hunted-half bottom" style="background-image:url('${safeSrc}')"></div>` +
+                `<div class="predator-thermal-scan"><span></span><span></span><span></span></div>` +
                 `<div class="predator-gauntlet-blades"><span></span><span></span><span></span></div>` +
                 `<div class="predator-hunted-callout">HUNTED</div>`;
             card.appendChild(overlay);
@@ -4873,6 +8110,93 @@ document.addEventListener('DOMContentLoaded', async () => {
                 playIngameSound(predatorCloakSound);
             }
             scheduleTransientDeathFxCleanup(card, overlay, 3000);
+        };
+
+        const triggerSpecialDeathAnimation = (card, killerId) => {
+            const animationType = getSpecialDeathAnimationType(killerId);
+            if (animationType === 'saber-red') {
+                triggerSaberedAnimation(card, 'red');
+                scheduleCharacterDeathFinale(card, 920);
+                return true;
+            }
+            if (animationType === 'saber-blue') {
+                triggerSaberedAnimation(card, 'blue');
+                scheduleCharacterDeathFinale(card, 920);
+                return true;
+            }
+            if (animationType === 'saber-yoda') {
+                const triggered = triggerAdvancedSaberedAnimation(card, 'yoda');
+                if (triggered) scheduleCharacterDeathFinale(card, 980);
+                return triggered;
+            }
+            if (animationType === 'saber-grievous') {
+                const triggered = triggerAdvancedSaberedAnimation(card, 'grievous');
+                if (triggered) scheduleCharacterDeathFinale(card, 1120);
+                return triggered;
+            }
+            if (animationType === 'eviscerated') {
+                const triggered = triggerEvisceratedAnimation(card);
+                if (triggered) scheduleCharacterDeathFinale(card, 1050);
+                return triggered;
+            }
+            if (animationType === 'claimed') {
+                const triggered = triggerClaimedAnimation(card);
+                if (triggered) scheduleCharacterDeathFinale(card, 1050);
+                return triggered;
+            }
+            if (animationType === 'devoured') {
+                const triggered = triggerDevouredAnimation(card);
+                if (triggered) scheduleCharacterDeathFinale(card, 1050);
+                return triggered;
+            }
+            if (animationType === 'vanished') {
+                const triggered = triggerVanishedAnimation(card);
+                if (triggered) scheduleCharacterDeathFinale(card, 920);
+                return triggered;
+            }
+            if (animationType === 'consumed') {
+                const triggered = triggerConsumedAnimation(card);
+                if (triggered) scheduleCharacterDeathFinale(card, 1050);
+                return triggered;
+            }
+            if (animationType === 'lucilled') {
+                const triggered = triggerLucilledAnimation(card);
+                if (triggered) scheduleCharacterDeathFinale(card, 1050);
+                return triggered;
+            }
+            if (animationType === 'speed-blitz') {
+                const triggered = triggerSpeedBlitzAnimation(card);
+                if (triggered) scheduleCharacterDeathFinale(card, 900);
+                return triggered;
+            }
+            if (animationType === 'comic-boom') {
+                const triggered = triggerComicBoomAnimation(card);
+                if (triggered) scheduleCharacterDeathFinale(card, 1000);
+                return triggered;
+            }
+            if (animationType === 'predator') {
+                triggerPredatorHuntedAnimation(card);
+                scheduleCharacterDeathFinale(card, 1050);
+                return true;
+            }
+            if (animationType === 'laser') {
+                triggerLaseredAnimation(card, String(killerId || '').trim().toLowerCase());
+                scheduleCharacterDeathFinale(card, 920);
+                return true;
+            }
+            if (animationType === 'ghost-rider') {
+                showGhostRiderDeathAnimation(card);
+                scheduleCharacterDeathFinale(card, 1250);
+                return true;
+            }
+            return false;
+        };
+
+        const wasEkansCrunchKill = (previousUnit, nextUnit) => {
+            const killerId = String(nextUnit?.state?.killedByCharacterId || '').trim().toLowerCase();
+            if (killerId !== 'ekans' && killerId !== 'arbok') return false;
+            const statuses = Array.isArray(previousUnit?.state?.statuses) ? previousUnit.state.statuses : [];
+            return statuses.some((status) => status?.id === 'ekans_crunch_mark');
         };
 
         const syncCharacterSpecificFx = (card, unit) => {
@@ -4923,9 +8247,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 (Number.isFinite(hpForFx) && hpForFx <= 0 && !isBanishedForFx);
             if (isDeadForFx) {
                 fxClasses.forEach((className) => card.classList.remove(className));
-                ['joker-detonator-light', 'space-marine-channel-bar', 'rex-charge-counter', 'aquaman-sea-shark-ring', 'predator-bleeder-spears', 'xenomorph-facehugger-overlay', 'venom-ally-symbiosis-marker', 'negan-iron-overlay', 'negan-iron-scar-overlay', 'parasite-host-mutation-marker', 'parasite-overload-marker', 'parasite-absorption-marker', 'seraphina-med-plus-overlay', 'seraphina-buckshot-pattern', 'seraphina-road-flare', 'taunt-callout', 'flash-phase-speed-lines', 'scorpion-venom-drop', 'scorpion-poison-drops'].forEach((className) =>
+                ['joker-detonator-light', 'space-marine-channel-bar', 'rex-charge-counter', 'aquaman-sea-shark-ring', 'predator-bleeder-spears', 'xenomorph-facehugger-overlay', 'venom-ally-symbiosis-marker', 'negan-iron-overlay', 'negan-iron-scar-overlay', 'parasite-host-mutation-marker', 'parasite-overload-marker', 'parasite-absorption-marker', 'seraphina-med-plus-overlay', 'seraphina-buckshot-pattern', 'seraphina-road-flare', 'taunt-callout', 'flash-phase-speed-lines', 'scorpion-venom-drop', 'scorpion-poison-drops', 'pokemon-evolution-aura', 'pokemon-ekans-toxic-status', 'pokemon-machop-bulk-up-status'].forEach((className) =>
                     removeCharacterFxElement(card, className)
                 );
+                card.classList.remove('has-pokemon-evolution-aura');
                 return;
             }
             const character = Number.isInteger(unit?.rosterIndex) ? rosterData?.[unit.rosterIndex] : null;
@@ -4941,6 +8266,34 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ensureCharacterFxElement(card, 'taunt-callout', '<span>TAUNTED</span>');
             } else {
                 removeCharacterFxElement(card, 'taunt-callout');
+            }
+            syncPokemonEvolutionAura(card, statuses);
+
+            const toxicStatuses = statuses.filter((status) =>
+                status?.id === 'ekans_badly_poison' || status?.id === 'ekans_badly_poison_2'
+            );
+            if (toxicStatuses.length > 0) {
+                const toxicEl = ensureCharacterFxElement(
+                    card,
+                    'pokemon-ekans-toxic-status',
+                    '<span class="bubble bubble-a"></span><span class="bubble bubble-b"></span><span class="bubble bubble-c"></span><span class="bubble bubble-d"></span><span class="toxic-goo goo-a"></span><span class="toxic-goo goo-b"></span>'
+                );
+                toxicEl?.style.setProperty('--toxic-stack-count', String(Math.min(2, toxicStatuses.length)));
+            } else {
+                removeCharacterFxElement(card, 'pokemon-ekans-toxic-status');
+            }
+
+            const machopBulkStatus = statuses.find((status) => status?.id === 'machop_bulk_up_bonus');
+            const machopBulkIntensity = getMachopBulkUpIntensity({ state: { statuses } });
+            if (machopBulkStatus && machopBulkIntensity > 0) {
+                const bulkEl = ensureCharacterFxElement(
+                    card,
+                    'pokemon-machop-bulk-up-status',
+                    '<span class="bulk-ring ring-a"></span><span class="bulk-ring ring-b"></span><span class="bulk-ring ring-c"></span><span class="bulk-spark spark-a"></span><span class="bulk-spark spark-b"></span><span class="bulk-spark spark-c"></span>'
+                );
+                bulkEl?.style.setProperty('--bulk-intensity', String(machopBulkIntensity));
+            } else {
+                removeCharacterFxElement(card, 'pokemon-machop-bulk-up-status');
             }
 
             const isBatmanSmoke = hasStatus((status) => status?.id === 'batman_smoke_bomb_blind');
@@ -5013,7 +8366,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ensureCharacterFxElement(
                     card,
                     'venom-ally-symbiosis-marker',
-                    '<img src="https://i.imgur.com/ESFy9nw.png" alt="">'
+                    '<img src="/assets/images/external-mirror/i.imgur.com/654380b8e7e0c45980f7.png" alt="">'
                 );
             } else {
                 removeCharacterFxElement(card, 'venom-ally-symbiosis-marker');
@@ -5033,7 +8386,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ensureCharacterFxElement(
                     card,
                     'negan-iron-overlay',
-                    '<img src="https://i.imgur.com/jHlzlE9.png" alt=""><span class="negan-iron-glow"></span><span class="negan-iron-steam a"></span><span class="negan-iron-steam b"></span><span class="negan-iron-smoke a"></span><span class="negan-iron-smoke b"></span><span class="negan-iron-scorch"></span>'
+                    '<img src="/assets/images/external-mirror/i.imgur.com/e45f6ac5a39c4c9719e3.png" alt=""><span class="negan-iron-glow"></span><span class="negan-iron-steam a"></span><span class="negan-iron-steam b"></span><span class="negan-iron-smoke a"></span><span class="negan-iron-smoke b"></span><span class="negan-iron-scorch"></span>'
                 );
             } else {
                 removeCharacterFxElement(card, 'negan-iron-overlay');
@@ -5288,46 +8641,168 @@ document.addEventListener('DOMContentLoaded', async () => {
             clearTransientDeathFx(card);
             const healthBar = card.querySelector('.health-bar');
             const healthText = card.querySelector('.health-text');
-            if (!healthBar || !healthText) return;
+            const healthContainer = card.querySelector('.health-bar-container');
+            if (!healthBar || !healthText || !healthContainer) return;
             renderHulkRageMeter(card, unit);
             renderRickRevolverCylinder(card, unit);
             renderEvadePercentBadge(card, unit);
             syncCharacterSpecificFx(card, unit);
             const rawHp = isUnitBanished(unit) ? 0 : Number(unit?.hp);
-            const hp = Math.max(0, Math.min(MAX_HP, Number.isFinite(rawHp) ? Math.ceil(rawHp) : MAX_HP));
-            const ratio = hp / MAX_HP;
+            const unitMaxHp = Number.isFinite(Number(unit?.maxHp)) ? Math.max(1, Math.ceil(Number(unit.maxHp))) : MAX_HP;
+            const hpCapRaw = Number.isFinite(Number(unit?.hpCap)) ? Math.ceil(Number(unit.hpCap)) : unitMaxHp;
+            const displayMaxHp = Math.max(1, unitMaxHp, hpCapRaw);
+            const hp = Math.max(0, Math.min(displayMaxHp, Number.isFinite(rawHp) ? Math.ceil(rawHp) : displayMaxHp));
+            const hpCap = Math.max(0, Math.min(displayMaxHp, hpCapRaw));
+            const cachedHp = Number(card.dataset.renderedHp);
+            const cachedHpCap = Number(card.dataset.renderedHpCap);
+            const cachedDisplayMaxHp = Number(card.dataset.renderedDisplayMaxHp);
+            const cachedDead = card.dataset.renderedDead === 'true';
+            const cachedFaceSrc = card.dataset.renderedFaceSrc || '';
+            const ratio = hp / displayMaxHp;
             const width = Math.max(0, Math.round(HEALTH_BAR_MAX_WIDTH * ratio));
-            healthBar.style.width = `${width}px`;
-            healthBar.classList.remove('hp-mid', 'hp-low');
-            if (hp <= 30) {
-                healthBar.classList.add('hp-low');
-            } else if (hp <= 60) {
-                healthBar.classList.add('hp-mid');
+            if (cachedHp !== hp || cachedHpCap !== hpCap || cachedDisplayMaxHp !== displayMaxHp) {
+                healthBar.style.width = `${width}px`;
+                card.dataset.renderedHp = String(hp);
+                card.dataset.renderedHpCap = String(hpCap);
+                card.dataset.renderedDisplayMaxHp = String(displayMaxHp);
             }
-            healthText.textContent = `${hp}/${MAX_HP}`;
+            const nextHealthText = hpCap < displayMaxHp ? `${hp}/${hpCap}` : `${hp}/${displayMaxHp}`;
+            if (healthText.textContent !== nextHealthText) {
+                healthText.textContent = nextHealthText;
+            }
+            const shieldValue = getDestructibleDefenseValue(unit);
+            const barrierValue = getBarrierValue(unit);
+            const ensureProtectionBar = (className) => {
+                let bar = healthContainer.querySelector(`.${className}`);
+                if (bar) return bar;
+                bar = document.createElement('span');
+                bar.className = `health-protection-bar ${className}`;
+                healthContainer.insertBefore(bar, healthContainer.firstChild || null);
+                return bar;
+            };
+            const shieldBar = ensureProtectionBar('health-shield-bar');
+            const forcefieldBar = ensureProtectionBar('health-forcefield-bar');
+            shieldBar.style.width = '0px';
+            shieldBar.hidden = true;
+            shieldBar.title = '';
+            forcefieldBar.style.width = '0px';
+            forcefieldBar.hidden = true;
+            forcefieldBar.title = '';
+            healthContainer.title =
+                shieldValue > 0 || barrierValue > 0
+                    ? [
+                          shieldValue > 0 ? `Shield ${shieldValue}` : '',
+                          barrierValue > 0
+                              ? `${getProtectionDisplayLabel('forcefield')
+                                    .charAt(0)}${getProtectionDisplayLabel('forcefield')
+                                    .slice(1)
+                                    .toLowerCase()} ${barrierValue}`
+                              : '',
+                      ]
+                          .filter(Boolean)
+                          .join(' | ')
+                    : '';
+            card.classList.remove('has-shield-bar', 'has-forcefield-bar');
+            const hpBand = hp <= 30 ? 'low' : hp <= 60 ? 'mid' : 'high';
+            if (card.dataset.renderedHpBand !== hpBand) {
+                healthBar.classList.remove('hp-mid', 'hp-low');
+                if (hpBand === 'low') {
+                    healthBar.classList.add('hp-low');
+                } else if (hpBand === 'mid') {
+                    healthBar.classList.add('hp-mid');
+                }
+                card.dataset.renderedHpBand = hpBand;
+            }
+            let capMarker = healthContainer.querySelector('.health-cap-marker');
+            if (hpCap > 0 && hpCap < displayMaxHp) {
+                if (!capMarker) {
+                    capMarker = document.createElement('span');
+                    capMarker.className = 'health-cap-marker';
+                    healthContainer.appendChild(capMarker);
+                }
+                capMarker.style.left = `${Math.max(0, Math.round((HEALTH_BAR_MAX_WIDTH * hpCap) / displayMaxHp) - 2)}px`;
+                capMarker.title = `Healing capped at ${hpCap} HP for the rest of the match`;
+                const capIcon = ensureCharacterFxElement(card, 'health-cap-icon', '<span>CAP</span>');
+                if (capIcon) {
+                    capIcon.title = `Healing capped at ${hpCap} HP for the rest of the match`;
+                }
+                card.classList.add('has-health-cap');
+            } else {
+                capMarker?.remove();
+                removeCharacterFxElement(card, 'health-cap-icon');
+                card.classList.remove('has-health-cap');
+            }
             const face = card.querySelector('.character-face');
             const dead = isUnitDeadLike(unit) || hp <= 0;
-            card.classList.toggle('low-hp-danger', !dead && hp > 0 && hp <= 25);
-            card.classList.toggle('character-defeated', dead);
-            card.dataset.lastDamageDebug = unit?.state?.lastDamageDebugText || '';
+            if (cachedDead !== dead) {
+                card.classList.toggle('character-defeated', dead);
+                card.dataset.renderedDead = dead ? 'true' : 'false';
+            }
+            const lowHpDanger = !dead && hp > 0 && hp <= 25;
+            if (card.dataset.renderedLowHpDanger !== String(lowHpDanger)) {
+                card.classList.toggle('low-hp-danger', lowHpDanger);
+                card.dataset.renderedLowHpDanger = String(lowHpDanger);
+            }
+            const lastDamageDebug = unit?.state?.lastDamageDebugText || '';
+            if (card.dataset.lastDamageDebug !== lastDamageDebug) {
+                card.dataset.lastDamageDebug = lastDamageDebug;
+            }
             if (face) {
                 const aliveSrc = face.dataset.aliveSrc || face.src;
                 if (!face.dataset.aliveSrc) {
                     face.dataset.aliveSrc = aliveSrc;
                 }
+                let nextFaceSrc = aliveSrc;
                 if (dead) {
-                    face.src = 'assets/images/deadcharacter.png';
-                    return;
-                }
-                const statuses = getActiveStatuses(unit);
-                const faceOverride = statuses
-                    .find(
-                        (status) =>
+                    nextFaceSrc = 'assets/images/deadcharacter.png';
+                } else {
+                    const statuses = getActiveStatuses(unit);
+                    const faceOverride = statuses
+                        .map((status) =>
                             typeof status?.metadata?.facePictureOverride === 'string' &&
                             status.metadata.facePictureOverride.trim()
-                    )
-                    ?.metadata?.facePictureOverride;
-                face.src = faceOverride || face.dataset.aliveSrc;
+                                ? status.metadata.facePictureOverride.trim()
+                                : ''
+                        )
+                        .filter(Boolean)
+                        .pop();
+                    const character =
+                        Number.isInteger(unit?.rosterIndex) && Array.isArray(rosterData)
+                            ? rosterData[unit.rosterIndex]
+                            : null;
+                    const characterId = normalizeSkinCharacterId(character?.characterId || character?.id || '');
+                    const renderArena = currentMatchArena || activeArenaMode || 'comic';
+                    const equippedSkinByCharacterId = getArenaSkinState(
+                        profileCache?.profile,
+                        renderArena
+                    ).equippedSkinByCharacterId;
+                    const equippedSkinId = equippedSkinByCharacterId[characterId];
+                    const skinEntry = Array.isArray(arenaSkinCatalogCache?.[renderArena])
+                        ? arenaSkinCatalogCache[renderArena].find(
+                              (entry = {}) => normalizeSkinId(entry.skinId) === equippedSkinId
+                          )
+                        : null;
+                    const statusFacePictureOverridesByStatusId =
+                        skinEntry?.statusFacePictureOverridesByStatusId &&
+                        typeof skinEntry.statusFacePictureOverridesByStatusId === 'object'
+                            ? skinEntry.statusFacePictureOverridesByStatusId
+                            : {};
+                    const skinFaceOverride = usernamesMatch(card.dataset.username || '', currentPlayerUsername || '')
+                        ? statuses
+                              .map((status) =>
+                                  typeof status?.id === 'string'
+                                      ? statusFacePictureOverridesByStatusId[status.id] || ''
+                                      : ''
+                              )
+                              .filter(Boolean)
+                              .pop()
+                        : '';
+                    nextFaceSrc = skinFaceOverride || faceOverride || face.dataset.aliveSrc;
+                }
+                if (cachedFaceSrc !== nextFaceSrc) {
+                    face.src = nextFaceSrc;
+                    card.dataset.renderedFaceSrc = nextFaceSrc;
+                }
             }
         };
 
@@ -5397,6 +8872,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!previousUnit) return 0;
                 return getDestructibleDefenseValue(nextUnit) - getDestructibleDefenseValue(previousUnit);
             };
+            const getBarrierDelta = (username, slot, nextUnit) => {
+                if (!showHpAnimations || !username || !Number.isInteger(slot)) return 0;
+                const previousUnit = Array.isArray(previousBoard[username]) ? previousBoard[username][slot] : null;
+                if (!previousUnit) return 0;
+                return getBarrierValue(nextUnit) - getBarrierValue(previousUnit);
+            };
             const gainedEvadeNotification = (username, slot, nextUnit) => {
                 if (!showHpAnimations || !username || !Number.isInteger(slot) || !nextUnit) return false;
                 const previousUnit = Array.isArray(previousBoard[username]) ? previousBoard[username][slot] : null;
@@ -5425,6 +8906,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 playerCards.forEach((card, slot) => {
                     const delta = getHpDelta(currentPlayerUsername, slot, playerUnits[slot]);
                     const defenseDelta = getDefenseDelta(currentPlayerUsername, slot, playerUnits[slot]);
+                    const barrierDelta = getBarrierDelta(currentPlayerUsername, slot, playerUnits[slot]);
                     const died = unitDiedBetweenStates(previousBoard?.[currentPlayerUsername]?.[slot], playerUnits[slot]);
                     const evaded = gainedEvadeNotification(currentPlayerUsername, slot, playerUnits[slot]);
                     const seaSharkDelta = getSeaSharkStackDelta(currentPlayerUsername, slot, playerUnits[slot]);
@@ -5434,7 +8916,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         showTemporaryCardFx(
                             card,
                             'negan-iron-rip-away-fx',
-                            '<img src="https://i.imgur.com/jHlzlE9.png" alt=""><span class="negan-iron-rip-burn a"></span><span class="negan-iron-rip-burn b"></span><span class="negan-iron-rip-smoke"></span>',
+                            '<img src="/assets/images/external-mirror/i.imgur.com/e45f6ac5a39c4c9719e3.png" alt=""><span class="negan-iron-rip-burn a"></span><span class="negan-iron-rip-burn b"></span><span class="negan-iron-rip-smoke"></span>',
                             1700
                         );
                     }
@@ -5442,19 +8924,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                         renderAquamanSeaSharkFx(card, getAquamanSeaSharkStacks(playerUnits[slot]), seaSharkDelta);
                     }
                     if (died) {
+                        const previousUnit = previousBoard?.[currentPlayerUsername]?.[slot];
                         const killerId = playerUnits[slot]?.state?.killedByCharacterId;
-                        if (killerId === 'predator-stalker') {
-                            triggerPredatorHuntedAnimation(card);
-                        } else if (killerId === 'homelander' || killerId === 'superman' || killerId === 'billy-butcher') {
-                            triggerLaseredAnimation(card, killerId);
-                        } else if (killerId === 'ghost-rider') {
-                            showGhostRiderDeathAnimation(card);
-                        } else {
+                        if (wasEkansCrunchKill(previousUnit, playerUnits[slot])) {
+                            triggerCrunchKillAnimation(card);
+                            scheduleCharacterDeathFinale(card, 980);
+                        } else if (!triggerSpecialDeathAnimation(card, killerId)) {
                             showCharacterDeathAnimation(card);
                         }
-                        card.classList.remove('death-crack');
-                        void card.offsetWidth;
-                        card.classList.add('death-crack');
+                        restartDeathCrackAnimation(card);
                     }
                     if (delta) {
                         showFloatingHpDelta(card, delta);
@@ -5463,10 +8941,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (defenseDelta) {
                         showFloatingCombatText(
                             card,
-                            `${defenseDelta > 0 ? '+' : ''}${defenseDelta} DEF`,
+                            `${defenseDelta > 0 ? '+' : ''}${defenseDelta} ${getProtectionDisplayLabel('shield')}`,
                             `shield ${defenseDelta < 0 ? 'break' : 'gain'}`
                         );
                         animateDefenseImpact(card, defenseDelta);
+                    }
+                    if (barrierDelta) {
+                        showFloatingCombatText(
+                            card,
+                            `${barrierDelta > 0 ? '+' : ''}${barrierDelta} ${getProtectionDisplayLabel('forcefield')}`,
+                            `forcefield ${barrierDelta < 0 ? 'break' : 'gain'}`
+                        );
+                        animateBarrierImpact(card, barrierDelta);
                     }
                     if (evaded) {
                         showEvadeFeedback(card, playerUnits[slot]);
@@ -5477,6 +8963,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 enemyCards.forEach((card, slot) => {
                     const delta = getHpDelta(opponentUsername, slot, opponentUnits[slot]);
                     const defenseDelta = getDefenseDelta(opponentUsername, slot, opponentUnits[slot]);
+                    const barrierDelta = getBarrierDelta(opponentUsername, slot, opponentUnits[slot]);
                     const died = unitDiedBetweenStates(previousBoard?.[opponentUsername]?.[slot], opponentUnits[slot]);
                     const evaded = gainedEvadeNotification(opponentUsername, slot, opponentUnits[slot]);
                     const seaSharkDelta = getSeaSharkStackDelta(opponentUsername, slot, opponentUnits[slot]);
@@ -5486,7 +8973,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         showTemporaryCardFx(
                             card,
                             'negan-iron-rip-away-fx',
-                            '<img src="https://i.imgur.com/jHlzlE9.png" alt=""><span class="negan-iron-rip-burn a"></span><span class="negan-iron-rip-burn b"></span><span class="negan-iron-rip-smoke"></span>',
+                            '<img src="/assets/images/external-mirror/i.imgur.com/e45f6ac5a39c4c9719e3.png" alt=""><span class="negan-iron-rip-burn a"></span><span class="negan-iron-rip-burn b"></span><span class="negan-iron-rip-smoke"></span>',
                             1700
                         );
                     }
@@ -5494,19 +8981,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                         renderAquamanSeaSharkFx(card, getAquamanSeaSharkStacks(opponentUnits[slot]), seaSharkDelta);
                     }
                     if (died) {
+                        const previousUnit = previousBoard?.[opponentUsername]?.[slot];
                         const killerId = opponentUnits[slot]?.state?.killedByCharacterId;
-                        if (killerId === 'predator-stalker') {
-                            triggerPredatorHuntedAnimation(card);
-                        } else if (killerId === 'homelander' || killerId === 'superman' || killerId === 'billy-butcher') {
-                            triggerLaseredAnimation(card, killerId);
-                        } else if (killerId === 'ghost-rider') {
-                            showGhostRiderDeathAnimation(card);
-                        } else {
+                        if (wasEkansCrunchKill(previousUnit, opponentUnits[slot])) {
+                            triggerCrunchKillAnimation(card);
+                            scheduleCharacterDeathFinale(card, 980);
+                        } else if (!triggerSpecialDeathAnimation(card, killerId)) {
                             showCharacterDeathAnimation(card);
                         }
-                        card.classList.remove('death-crack');
-                        void card.offsetWidth;
-                        card.classList.add('death-crack');
+                        restartDeathCrackAnimation(card);
                     }
                     if (delta) {
                         showFloatingHpDelta(card, delta);
@@ -5515,10 +8998,18 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (defenseDelta) {
                         showFloatingCombatText(
                             card,
-                            `${defenseDelta > 0 ? '+' : ''}${defenseDelta} DEF`,
+                            `${defenseDelta > 0 ? '+' : ''}${defenseDelta} ${getProtectionDisplayLabel('shield')}`,
                             `shield ${defenseDelta < 0 ? 'break' : 'gain'}`
                         );
                         animateDefenseImpact(card, defenseDelta);
+                    }
+                    if (barrierDelta) {
+                        showFloatingCombatText(
+                            card,
+                            `${barrierDelta > 0 ? '+' : ''}${barrierDelta} ${getProtectionDisplayLabel('forcefield')}`,
+                            `forcefield ${barrierDelta < 0 ? 'break' : 'gain'}`
+                        );
+                        animateBarrierImpact(card, barrierDelta);
                     }
                     if (evaded) {
                         showEvadeFeedback(card, opponentUnits[slot]);
@@ -5537,20 +9028,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             return null;
         };
 
-        const findTooltipTextByStatusId = (statusId) => {
-            if (!statusId || !Array.isArray(rosterData)) return null;
+        const findSkillByName = (skillName) => {
+            if (!skillName || !Array.isArray(rosterData)) return null;
             for (const character of rosterData) {
                 const skills = Array.isArray(character?.skills) ? character.skills : [];
-                for (const skill of skills) {
-                    const effects = Array.isArray(skill?.effects) ? skill.effects : [];
-                    const effect = effects.find(
-                        (entry) => entry?.type === 'apply_status' && entry?.statusId === statusId
-                    );
-                    const text = effect?.metadata?.tooltipText || getSkillDescriptionText(skill);
-                    if (typeof text === 'string' && text.trim()) {
-                        return text.trim();
-                    }
-                }
+                const match = skills.find((skill) => skill?.name === skillName);
+                if (match) return match;
+            }
+            return null;
+        };
+
+        const findSourceSkillForStatus = (status) => {
+            if (!status || typeof status !== 'object') return null;
+            if (status?.sourceSkillId) {
+                const sourceSkill = findSkillById(status.sourceSkillId);
+                if (sourceSkill) return sourceSkill;
+            }
+            if (typeof status?.metadata?.sourceSkillName === 'string' && status.metadata.sourceSkillName) {
+                return findSkillByName(status.metadata.sourceSkillName);
             }
             return null;
         };
@@ -5720,9 +9215,134 @@ document.addEventListener('DOMContentLoaded', async () => {
                     '<span class="goblin-bomb-fuse"></span>' +
                     '<span class="goblin-bomb-spark"></span>';
                 card.appendChild(lob);
-                window.setTimeout(() => lob.remove(), 900);
+                scheduleCombatFxRemoval(lob, 900);
                 window.setTimeout(() => marker.classList.remove('fresh'), 780);
             }
+        };
+
+        const POKEMON_EVOLUTION_AURA_CONFIGS = [
+            {
+                statusId: 'abra_kadabra_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-kadabra',
+                html:
+                    '<span class="psychic-ring ring-a"></span>' +
+                    '<span class="psychic-ring ring-b"></span>' +
+                    '<span class="psychic-orb orb-a"></span>' +
+                    '<span class="psychic-orb orb-b"></span>' +
+                    '<span class="psychic-orb orb-c"></span>',
+            },
+            {
+                statusId: 'bulbasaur_ivysaur_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-ivysaur',
+                html:
+                    '<span class="leaf leaf-a"></span><span class="leaf leaf-b"></span><span class="leaf leaf-c"></span>' +
+                    '<span class="leaf leaf-d"></span><span class="leaf leaf-e"></span><span class="leaf leaf-f"></span>',
+            },
+            {
+                statusId: 'chansey_blissey_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-blissey',
+                html:
+                    '<span class="heal-plus plus-a">+</span><span class="heal-plus plus-b">+</span><span class="heal-plus plus-c">+</span>' +
+                    '<span class="heal-plus plus-d">+</span><span class="heal-plus plus-e">+</span>' +
+                    '<span class="heal-bloom bloom-a"></span><span class="heal-bloom bloom-b"></span><span class="heal-bloom bloom-c"></span>',
+            },
+            {
+                statusId: 'charmander_charmeleon_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-charmeleon',
+                html:
+                    '<span class="flame flame-a"></span><span class="flame flame-b"></span><span class="flame flame-c"></span>' +
+                    '<span class="ember ember-a"></span><span class="ember ember-b"></span><span class="ember ember-c"></span>',
+            },
+            {
+                statusId: 'gastly_haunter_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-haunter',
+                html:
+                    '<span class="ghost ghost-a"></span><span class="ghost ghost-b"></span><span class="ghost ghost-c"></span>' +
+                    '<span class="ghost ghost-d"></span>',
+            },
+            {
+                statusId: 'koffing_weezing_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-weezing',
+                html:
+                    '<span class="gas gas-a"></span><span class="gas gas-b"></span><span class="gas gas-c"></span>' +
+                    '<span class="gas gas-d"></span><span class="gas gas-e"></span>',
+            },
+            {
+                statusId: 'pidgey_pidgeotto_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-pidgeotto',
+                html:
+                    '<span class="tornado tornado-tl"></span><span class="tornado tornado-tr"></span>' +
+                    '<span class="tornado tornado-bl"></span><span class="tornado tornado-br"></span>',
+            },
+            {
+                statusId: 'squirtle_wartortle_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-wartortle',
+                html:
+                    '<span class="bubble bubble-a"></span><span class="bubble bubble-b"></span><span class="bubble bubble-c"></span>' +
+                    '<span class="bubble bubble-d"></span><span class="bubble bubble-e"></span><span class="bubble bubble-f"></span>',
+            },
+            {
+                statusId: 'zubat_golbat_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-golbat',
+                html:
+                    '<span class="bat bat-a"></span><span class="bat bat-b"></span><span class="bat bat-c"></span>' +
+                    '<span class="bat bat-d"></span>',
+            },
+            {
+                statusId: 'krabby_kingler_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-kingler',
+                html:
+                    '<span class="kingler-claw claw-tl"><span class="claw-arm"></span><span class="claw-pincer pincer-a"></span><span class="claw-pincer pincer-b"></span></span>' +
+                    '<span class="kingler-claw claw-tr"><span class="claw-arm"></span><span class="claw-pincer pincer-a"></span><span class="claw-pincer pincer-b"></span></span>' +
+                    '<span class="kingler-claw claw-bl"><span class="claw-arm"></span><span class="claw-pincer pincer-a"></span><span class="claw-pincer pincer-b"></span></span>' +
+                    '<span class="kingler-claw claw-br"><span class="claw-arm"></span><span class="claw-pincer pincer-a"></span><span class="claw-pincer pincer-b"></span></span>' +
+                    '<span class="kingler-bubble bubble-a"></span><span class="kingler-bubble bubble-b"></span><span class="kingler-bubble bubble-c"></span>' +
+                    '<span class="kingler-bubble bubble-d"></span><span class="kingler-bubble bubble-e"></span>',
+            },
+            {
+                statusId: 'ekans_arbok_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-arbok',
+                html:
+                    '<span class="arbok-snake snake-left"></span><span class="arbok-snake snake-right"></span>' +
+                    '<span class="arbok-venom-drip drip-a"></span><span class="arbok-venom-drip drip-b"></span><span class="arbok-venom-drip drip-c"></span>' +
+                    '<span class="arbok-venom-drop drop-a"></span><span class="arbok-venom-drop drop-b"></span><span class="arbok-venom-drop drop-c"></span>',
+            },
+            {
+                statusId: 'machop_machoke_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-machoke',
+                html:
+                    '<span class="machoke-force force-a"></span><span class="machoke-force force-b"></span><span class="machoke-force force-c"></span>' +
+                    '<span class="machoke-pulse pulse-a"></span><span class="machoke-pulse pulse-b"></span><span class="machoke-pulse pulse-c"></span>',
+            },
+            {
+                statusId: 'magikarp_gyarados_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-gyarados',
+                html:
+                    '<span class="gyarados-wave wave-a"></span><span class="gyarados-wave wave-b"></span><span class="gyarados-wave wave-c"></span>' +
+                    '<span class="gyarados-foam foam-a"></span><span class="gyarados-foam foam-b"></span><span class="gyarados-foam foam-c"></span>',
+            },
+        ];
+
+        const syncPokemonEvolutionAura = (card, statuses = []) => {
+            if (!card) return;
+            let hasAura = false;
+            POKEMON_EVOLUTION_AURA_CONFIGS.forEach((config) => {
+                const selector = `.${config.className.split(' ').join('.')}`;
+                const aura = card.querySelector(selector);
+                const isActive = Array.isArray(statuses) && statuses.some((status) => status?.id === config.statusId);
+                if (isActive) {
+                    hasAura = true;
+                    if (!aura) {
+                        const auraEl = document.createElement('div');
+                        auraEl.className = config.className;
+                        auraEl.innerHTML = config.html;
+                        card.appendChild(auraEl);
+                    }
+                } else if (aura) {
+                    aura.remove();
+                }
+            });
+            card.classList.toggle('has-pokemon-evolution-aura', hasAura);
         };
 
         const showStatusApplyBurst = (card, group, statusSkill) => {
@@ -5737,6 +9357,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             const hasAndreaLock = statuses.some((status) => status?.id === 'andrea_locked_on_mark');
             const hasPredatorCloak = statuses.some((status) => status?.id === 'predator_stalker_cloaking_tech_active');
             const hasStormIce = statuses.some((status) => status?.id === 'storm_ice_barrier_countered');
+            const hasPoison = statuses.some((status) => {
+                const statusText = `${status?.id || ''} ${status?.sourceSkillId || ''} ${status?.metadata?.sourceSkillName || ''}`.toLowerCase();
+                return statusText.includes('poison') || statusText.includes('venom') || statusText.includes('toxin');
+            });
+            const hasAbsorb = statuses.some((status) => {
+                const statusText = `${status?.id || ''} ${status?.sourceSkillId || ''} ${status?.metadata?.sourceSkillName || ''}`.toLowerCase();
+                return statusText.includes('absorb') || statusText.includes('leech') || statusText.includes('drain');
+            });
             const isPassive =
                 /passive/i.test(statusSkill?.name || '') ||
                 /passive/i.test(group?.sourceSkillId || '');
@@ -5750,6 +9378,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                         Boolean(status?.metadata?.unpierceableDamageReductionPercent) ||
                         Boolean(status?.metadata?.unpierceableDamageReductionFlat))
             );
+            const resolveBurstLabel = () => {
+                const combinedText = statuses
+                    .map((status) =>
+                        `${status?.id || ''} ${status?.sourceSkillId || ''} ${status?.metadata?.sourceSkillName || ''} ${status?.metadata?.tooltipText || ''}`
+                    )
+                    .join(' ')
+                    .toLowerCase();
+                if (combinedText.includes('taunt')) return 'TAUNT';
+                if (combinedText.includes('paraly')) return 'PARALYZE';
+                if (combinedText.includes('delay')) return 'DELAY';
+                if (combinedText.includes('blind')) return 'BLIND';
+                if (combinedText.includes('stun')) return 'STUN';
+                if (combinedText.includes('evade')) return 'EVADE';
+                if (combinedText.includes('drain') || combinedText.includes('leech') || combinedText.includes('absorb')) return 'DRAIN';
+                if (combinedText.includes('banish') || combinedText.includes('portal')) return 'BANISH';
+                if (combinedText.includes('remove') || combinedText.includes('cleanse')) return 'REMOVE';
+                if (isBomb) return 'BOMB ACTIVE';
+                if (isPassive) return 'PASSIVE';
+                if (harmful) return 'DEBUFF';
+                if (helpful) return 'BUFF';
+                return 'STATUS';
+            };
             const burst = document.createElement('div');
             burst.className = [
                 'status-apply-burst',
@@ -5758,9 +9408,20 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (card.closest('.enemy-characters')) {
                 burst.classList.add('enemy-side');
             }
-            burst.textContent = isBomb ? 'BOMB ACTIVE' : isPassive ? 'PASSIVE' : harmful ? 'DEBUFF' : helpful ? 'BUFF' : 'STATUS';
+            burst.textContent = resolveBurstLabel();
             card.appendChild(burst);
-            window.setTimeout(() => burst.remove(), 1500);
+            scheduleCombatFxRemoval(burst, 1500);
+            if (hasAngstromPortal) {
+                showPixelPortalFx(card, 'green');
+            } else if (hasPoison) {
+                showPixelStatusFx(card, 'poison');
+            } else if (hasAbsorb) {
+                showPixelStatusFx(card, 'absorb');
+            } else if (helpful) {
+                showPixelStatusFx(card, 'defense');
+            } else if (harmful) {
+                showPixelStatusFx(card, 'harmful');
+            }
             if (isBomb) {
                 playGeneratedIngameSound('bomb-arm');
             } else if (hasSpiderWeb) {
@@ -6010,25 +9671,25 @@ document.addEventListener('DOMContentLoaded', async () => {
                 tooltipWrap?.querySelector('.skilltooltipimage');
             if (!tooltipWrap || !tooltipImgTemplate) return;
             const tentenWeaponStatusIconById = {
-                tenten_weapon_last_shuriken: 'https://i.imgur.com/ZcuORyu.png',
-                tenten_weapon_last_kunai: 'https://i.imgur.com/aibtrUO.png',
-                tenten_weapon_last_sword: 'https://i.imgur.com/RchMcXa.png',
-                tenten_weapon_last_hooked_sword: 'https://i.imgur.com/6j0UNBG.png',
-                tenten_weapon_last_scythe: 'https://i.imgur.com/NXDITvE.png',
-                tenten_weapon_last_mace: 'https://i.imgur.com/iRZ8SMk.png',
+                tenten_weapon_last_shuriken: '/assets/images/external-mirror/i.imgur.com/605263e83f834f43bba2.png',
+                tenten_weapon_last_kunai: '/assets/images/external-mirror/i.imgur.com/558bcd0fc9cebf608ad3.png',
+                tenten_weapon_last_sword: '/assets/images/external-mirror/i.imgur.com/ef949dfddd1a42df8f3c.png',
+                tenten_weapon_last_hooked_sword: '/assets/images/external-mirror/i.imgur.com/8832967b40afb1ce6a69.png',
+                tenten_weapon_last_scythe: '/assets/images/external-mirror/i.imgur.com/57ae60838de0a84fe316.png',
+                tenten_weapon_last_mace: '/assets/images/external-mirror/i.imgur.com/e720879596656a7a84c6.png',
             };
             const fallbackFace = card.querySelector('.character-face');
             const fallbackStatusIconSrc =
                 fallbackFace?.dataset?.aliveSrc || fallbackFace?.src || 'assets/images/skillqqueue.png';
             const rexAmmoStatusIconById = {
-                rex_splode_explosive_baton_usage: 'https://i.imgur.com/rSLzlpG.png',
-                rex_splode_explosive_baton_usage_tracker: 'https://i.imgur.com/rSLzlpG.png',
-                rex_splode_explosive_pocket_change_usage: 'https://i.imgur.com/rSLzlpG.png',
-                rex_splode_explosive_pocket_change_usage_tracker: 'https://i.imgur.com/rSLzlpG.png',
-                rex_splode_ammo_swap_tracker: 'https://i.imgur.com/rSLzlpG.png',
-                rex_splode_pocket_change_swap_tracker: 'https://i.imgur.com/rSLzlpG.png',
-                rex_splode_explosive_baton_spent: 'https://i.imgur.com/rSLzlpG.png',
-                rex_splode_explosive_pocket_change_spent: 'https://i.imgur.com/rSLzlpG.png',
+                rex_splode_explosive_baton_usage: '/assets/images/external-mirror/i.imgur.com/445ba3c98cb97a477497.png',
+                rex_splode_explosive_baton_usage_tracker: '/assets/images/external-mirror/i.imgur.com/445ba3c98cb97a477497.png',
+                rex_splode_explosive_pocket_change_usage: '/assets/images/external-mirror/i.imgur.com/445ba3c98cb97a477497.png',
+                rex_splode_explosive_pocket_change_usage_tracker: '/assets/images/external-mirror/i.imgur.com/445ba3c98cb97a477497.png',
+                rex_splode_ammo_swap_tracker: '/assets/images/external-mirror/i.imgur.com/445ba3c98cb97a477497.png',
+                rex_splode_pocket_change_swap_tracker: '/assets/images/external-mirror/i.imgur.com/445ba3c98cb97a477497.png',
+                rex_splode_explosive_baton_spent: '/assets/images/external-mirror/i.imgur.com/445ba3c98cb97a477497.png',
+                rex_splode_explosive_pocket_change_spent: '/assets/images/external-mirror/i.imgur.com/445ba3c98cb97a477497.png',
             };
             const resolveStatusIconSrc = (group, statusSkill) => {
                 const statusesInGroup = Array.isArray(group?.statuses) ? group.statuses : [];
@@ -6052,6 +9713,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ? unit.state.statuses.filter(
                     (status) =>
                         (Number(status?.remainingTurns) || 0) > 0 &&
+                        !Boolean(status?.metadata?.hidden) &&
                         !Boolean(status?.metadata?.hideTooltip) &&
                         !(isEnemySide && Boolean(status?.metadata?.hideTooltipFromEnemy)) &&
                         !(
@@ -6084,6 +9746,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 syncLanternPassiveAura(card, []);
                 syncGreenGoblinBombMarker(card, false);
                 syncGhostRiderPersistentFx(card, []);
+                syncBobaWantedMarker(card, []);
                 tooltipWrap
                     .querySelectorAll('.skilltooltipimage.dynamic-status-icon')
                     .forEach((node) => node.remove());
@@ -6107,6 +9770,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 syncLanternPassiveAura(card, []);
                 syncGreenGoblinBombMarker(card, false);
                 syncGhostRiderPersistentFx(card, []);
+                syncBobaWantedMarker(card, []);
                 tooltipWrap.style.visibility = 'hidden';
                 tooltipImgTemplate.removeAttribute('title');
                 tooltipWrap.classList.remove('has-status');
@@ -6120,6 +9784,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             tooltipWrap.classList.add('has-status');
             syncLanternPassiveAura(card, statuses);
             syncGhostRiderPersistentFx(card, statuses);
+            syncBobaWantedMarker(card, statuses);
             const groupedStatuses = [];
             const groupByKey = new Map();
             statuses.forEach((status, index) => {
@@ -6175,9 +9840,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const textRows = [];
                 groupStatuses.forEach((status) => {
                     const statusMetadata = status?.metadata || {};
+                    const fallbackSkill =
+                        statusSkill ||
+                        findSourceSkillForStatus(status);
+                    const fallbackSkillName =
+                        statusMetadata?.sourceSkillName ||
+                        fallbackSkill?.name ||
+                        '';
                     let text =
                         statusMetadata?.tooltipText ||
-                        findTooltipTextByStatusId(status?.id) ||
+                        (fallbackSkillName ? `${fallbackSkillName} is active.` : '') ||
                         status?.id ||
                         'Status effect';
                     const tooltipTemplate =
@@ -6229,6 +9901,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                             text = `This character deals ${groupedDamageDebuffTotal} less damage.`;
                         }
                     }
+                    text = normalizeProtectionTerminology(
+                        text,
+                        currentMatchArena || getProtectionTerminologyArena()
+                    );
                     const skillDamageBonuses =
                         status?.metadata?.skillDamageBonuses &&
                         typeof status.metadata.skillDamageBonuses === 'object'
@@ -6625,7 +10301,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 deferredResolutionMatchState = data;
                 return;
             }
-            clearTransientPortraitAnimationState();
             if (data.player?.username) {
                 currentPlayerUsername = data.player.username;
             }
@@ -6634,13 +10309,49 @@ document.addEventListener('DOMContentLoaded', async () => {
                     .map((slot) => Number.parseInt(slot, 10))
                     .filter((slot) => Number.isInteger(slot) && slot >= 0);
             }
+            if (typeof data.arena === 'string' && data.arena.trim()) {
+                currentMatchArena = data.arena.trim().toLowerCase() === 'pokemon' ? 'pokemon' : 'comic';
+                activeArenaMode = currentMatchArena;
+                setProtectionTerminologyArena(currentMatchArena);
+            }
+            writeCachedMatchArena(matchIdFromUrl || data.matchId, currentMatchArena);
+            if (typeof data.backgroundOverride === 'string' && data.backgroundOverride.trim()) {
+                currentMatchBackgroundUrl = data.backgroundOverride.trim();
+            }
+            setIngameArenaUiAssets(currentMatchArena);
+            syncEnergyNameLabels();
+            soundManager.ensureIngameBattleMusic(currentMatchArena);
+            if (data.player?.profile) {
+                profileCache = {
+                    ...(profileCache && typeof profileCache === 'object' ? profileCache : {}),
+                    username: data.player.username || currentPlayerUsername || profileCache?.username || '',
+                    profile: data.player.profile,
+                };
+                writeCachedUser(profileCache);
+                const playerProfileView = getArenaProfileView(data.player.profile, currentMatchArena);
+                applyPlayerIdentity({
+                    name: data.player.username || currentPlayerUsername,
+                    avatarUrl: playerProfileView.avatarUrl || getArenaDefaultAvatarUrl(currentMatchArena),
+                    clanAbbreviation: playerProfileView.clan?.abbreviation || 'None',
+                    ladder: playerProfileView.ladder || null,
+                });
+            } else if (profileCache?.profile) {
+                const playerProfileView = getArenaProfileView(profileCache.profile, currentMatchArena);
+                applyPlayerIdentity({
+                    name: profileCache.username || currentPlayerUsername,
+                    avatarUrl: playerProfileView.avatarUrl || getArenaDefaultAvatarUrl(currentMatchArena),
+                    clanAbbreviation: playerProfileView.clan?.abbreviation || 'None',
+                    ladder: playerProfileView.ladder || null,
+                });
+            }
             const backgroundEl = document.querySelector('.backgroundingame');
             if (backgroundEl) {
-                const overrideUrl =
-                    typeof data.backgroundOverride === 'string' ? data.backgroundOverride.trim() : '';
-                backgroundEl.style.backgroundImage = overrideUrl
-                    ? `url("${overrideUrl}")`
-                    : profileIngameBackgroundUrl;
+                const fallbackUrl =
+                    currentMatchBackgroundUrl ||
+                    (currentMatchArena === 'pokemon'
+                        ? POKEMON_INGAME_BACKGROUND_URL
+                        : COMIC_INGAME_BACKGROUND_URL);
+                setBackgroundImage(backgroundEl, fallbackUrl, currentMatchArena === 'pokemon');
             }
             if (typeof data.mode === 'string' && data.mode.trim()) {
                 currentMatchMode = data.mode.trim().toLowerCase();
@@ -6649,23 +10360,35 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const nextOpponentUsername = data.opponent.username;
                 const nextOpponentDisplayName =
                     data.opponent.displayName ||
-                    (isGameBotUsername(nextOpponentUsername) ? 'Game Bot' : nextOpponentUsername);
+                    nextOpponentUsername;
                 const opponentChanged = nextOpponentUsername !== currentOpponentUsername;
                 currentOpponentUsername = nextOpponentUsername;
                 currentOpponentDisplayName = nextOpponentDisplayName;
                 if (opponentChanged) {
-                    if (data.opponent.isBot) {
-                        applyOpponentIdentity({
-                            name: nextOpponentDisplayName,
-                            avatarUrl: defaultProfileAvatar,
-                            ladder: null,
-                        });
-                    } else {
-                        hydrateOpponentIdentity(nextOpponentUsername).catch(() => {});
-                    }
+                    hydrateOpponentIdentity(
+                        nextOpponentUsername,
+                        data.opponent.profile || null,
+                        nextOpponentDisplayName
+                    ).catch(() => {});
                 }
             }
-            const pool = data.chakraPools?.[currentPlayerUsername] || playerPoolState || emptyPool();
+            const nextVisualSignature = buildMatchVisualSignature(data, {
+                playerUsername: currentPlayerUsername,
+                opponentUsername: currentOpponentUsername,
+                arena: currentMatchArena,
+                mode: currentMatchMode,
+            });
+            if (nextVisualSignature === lastAppliedMatchVisualSignature) {
+                syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
+                return;
+            }
+            lastAppliedMatchVisualSignature = nextVisualSignature;
+            targetOptionsCache.clear();
+            clearTransientPortraitAnimationState();
+            const pool =
+                getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) ||
+                playerPoolState ||
+                emptyPool();
             const shouldAnimateNewTurnStatusIcons = Boolean(
                 data.currentTurn &&
                 data.currentTurn !== lastTurnOwner &&
@@ -6699,14 +10422,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                 showBattleEndOverlay({
                     didWin,
                     opponentUsername:
-                        (data.opponent?.isBot ? data.opponent.displayName : null) ||
-                        (opponentFromResult && isGameBotUsername(opponentFromResult) ? 'Game Bot' : opponentFromResult) ||
                         data.opponent?.displayName ||
+                        (opponentFromResult && !isGameBotUsername(opponentFromResult) ? opponentFromResult : '') ||
                         data.opponent?.username ||
                         currentOpponentDisplayName ||
                         currentOpponentUsername,
                     expDelta: data.ladderResult?.expDelta,
                     clanExpDelta: data.ladderResult?.clanExpDelta,
+                    unlockPointDelta: data.ladderResult?.unlockPointDelta,
                 });
                 return;
             }
@@ -6743,23 +10466,32 @@ document.addEventListener('DOMContentLoaded', async () => {
         const renderQueueOrderLabels = () => {
             const pending = normalizePendingTurn(pendingTurnState);
             const queueOrder = pending.queueOrder || [];
-            
-            // Clear old labels
-            document.querySelectorAll('.skill-queue-order-label').forEach(el => el.remove());
-            
+            const nextSignature = queueOrder
+                .map((actorSlot) => {
+                    const queued = pending.queuedByActorSlot?.[actorSlot];
+                    return queued ? `${actorSlot}:${queued.skillIndex}` : '';
+                })
+                .join('|');
+            const existingLabels = document.querySelectorAll('.skill-queue-order-label');
+            if (nextSignature === lastQueueOrderLabelSignature && existingLabels.length === queueOrder.length) {
+                return;
+            }
+            lastQueueOrderLabelSignature = nextSignature;
+            existingLabels.forEach((el) => el.remove());
+
             queueOrder.forEach((actorSlot, index) => {
                 const queued = pending.queuedByActorSlot[actorSlot];
                 if (!queued) return;
-                
+
                 const skillIdx = queued.skillIndex;
                 const key = `${actorSlot}:${skillIdx}`;
                 const meta = playerSkillMetaByKey.get(key);
-                
+
                 if (meta?.imgEl) {
                     const label = document.createElement('div');
                     label.className = 'skill-queue-order-label';
                     label.textContent = String(index + 1);
-                    
+
                     // Position it on the skill icon
                     const parent = meta.imgEl.parentElement;
                     if (parent) {
@@ -6773,93 +10505,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const renderQueuedTargetTooltips = () => {
-            const allCards = [...(Array.isArray(playerCards) ? playerCards : []), ...(Array.isArray(enemyCards) ? enemyCards : [])];
-            allCards.forEach((card) => {
-                const wrap = card?.querySelector('.skilltooltips');
-                if (!wrap) return;
-                wrap.querySelectorAll('.skilltooltipimage.dynamic-queued-target-icon').forEach((node) => node.remove());
-            });
+            renderQueuedTargetCardMarkers();
+        };
 
-            const pending = getPendingTurnWithOptimisticQueues();
-            const queuedByTargetKey = new Map();
-            Object.values(pending.queuedByActorSlot || {}).forEach((queued) => {
-                const actorSlot = Number.parseInt(queued?.actorSlot, 10);
-                const skillIdx = Number.parseInt(queued?.skillIndex, 10);
-                const effectiveSkill = getEffectiveSkillForActorSlot(actorSlot, skillIdx);
-                const iconSrc = effectiveSkill?.skillimage || '';
-                const selection = Array.isArray(queued?.targetSelection)
-                    ? queued.targetSelection
-                    : queued?.targetSelection
-                        ? [queued.targetSelection]
-                        : [];
-                selection.forEach((target) => {
-                    const username = target?.username;
-                    const slot = Number.parseInt(target?.slot, 10);
-                    if (!username || !Number.isInteger(slot) || slot < 0) return;
-                    const unit = latestBoardState?.[username]?.[slot];
-                    if (unit && isUnitDeadLike(unit)) return;
-                    const card = getCardByUsernameSlot(username, slot) || (
-                        username === currentPlayerUsername
-                            ? (Array.isArray(playerCards) ? playerCards[slot] : null)
-                            : (Array.isArray(enemyCards) ? enemyCards[slot] : null)
-                    );
-                    if (!card) return;
-                    const key = `${username}:${slot}`;
-                    if (!queuedByTargetKey.has(key)) {
-                        queuedByTargetKey.set(key, {
-                            card,
-                            entries: [],
-                        });
-                    }
-                    queuedByTargetKey.get(key).entries.push({
-                        iconSrc,
-                        skillName: effectiveSkill?.name || 'Queued Skill',
-                    });
-                });
-            });
-
-            queuedByTargetKey.forEach(({ card, entries }) => {
-                const tooltipWrap = card?.querySelector('.skilltooltips');
-                if (!tooltipWrap) return;
-                
-                let tooltipImgTemplate =
-                    tooltipWrap.querySelector('.skilltooltipimage.status-icon-template') ||
-                    tooltipWrap.querySelector('.skilltooltipimage');
-                
-                // If no template exists, create one
-                if (!tooltipImgTemplate) {
-                    tooltipImgTemplate = document.createElement('img');
-                    tooltipImgTemplate.className = 'skilltooltipimage status-icon-template';
-                    tooltipImgTemplate.style.display = 'none';
-                    tooltipWrap.appendChild(tooltipImgTemplate);
-                }
-
-                if (!tooltipImgTemplate.classList.contains('status-icon-template')) {
-                    tooltipImgTemplate.classList.add('status-icon-template');
-                }
-                
-                tooltipWrap.style.visibility = 'visible';
-                entries.forEach((entry) => {
-                    const iconEl = tooltipImgTemplate.cloneNode(true);
-                    iconEl.classList.remove('status-icon-template', 'dynamic-status-icon');
-                    iconEl.classList.add('dynamic-queued-target-icon');
-                    iconEl.style.display = 'block';
-                    if (entry.iconSrc) {
-                        iconEl.src = entry.iconSrc;
-                    }
-                    iconEl.title = `Targeted by: ${entry.skillName}`;
-                    tooltipWrap.appendChild(iconEl);
-                });
+        const scheduleQueuedSkillDeferredVisuals = () => {
+            if (queuedSkillDeferredVisualsFrame !== null) return;
+            queuedSkillDeferredVisualsFrame = window.requestAnimationFrame(() => {
+                queuedSkillDeferredVisualsFrame = null;
+                renderQueuedTargetTooltips();
+                renderDynamicSkillIcons();
             });
         };
 
         const renderSkillInfo = (character, skill, actorSlot = null, skillIdx = null) => {
             if (!skill || !character) return;
+            skillInfo.selectedViewMode = 'skill';
+            skillInfo.selectedActorSlot = Number.isInteger(actorSlot) ? actorSlot : null;
+            skillInfo.selectedSkillIdx = Number.isInteger(skillIdx) ? skillIdx : null;
             const actorUnit =
                 actorSlot !== null && currentPlayerUsername && latestBoardState?.[currentPlayerUsername]
                     ? latestBoardState[currentPlayerUsername][actorSlot]
                     : null;
-            const usageState = getSkillUsageState(actorUnit, skill);
+            const usageState = getSkillUsageState(actorUnit, skill, actorSlot, skillIdx);
             if (skillInfo.imgEl) {
                 skillInfo.imgEl.src = skill.skillimage || '';
                 skillInfo.imgEl.alt = skill.name || 'Skill';
@@ -6940,11 +10607,49 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const normalized = typeof type === 'string' ? type.trim().toLowerCase() : '';
                     const cls = energyClassMap[normalized];
                     box.className = ['chakra-box', cls].filter(Boolean).join(' ');
+                    box.title = getEnergyDisplayLabel(normalized);
                     if (!cls) {
                         box.style.backgroundColor = '#000';
                     }
                     skillInfo.energyEl.appendChild(box);
                 });
+            }
+        };
+
+        const refreshSelectedSkillInfo = () => {
+            if (skillInfo.selectedViewMode === 'skill') {
+                if (!Number.isInteger(skillInfo.selectedActorSlot) || !Number.isInteger(skillInfo.selectedSkillIdx)) {
+                    return;
+                }
+                const actorUnit = getActorUnitForSlot(currentPlayerUsername, skillInfo.selectedActorSlot);
+                const character = getEffectiveCharacterForUnit(actorUnit);
+                const skill = getEffectiveSkillForActorSlot(
+                    skillInfo.selectedActorSlot,
+                    skillInfo.selectedSkillIdx
+                );
+                if (!character || !skill) return;
+                renderSkillInfo(
+                    character,
+                    skill,
+                    skillInfo.selectedActorSlot,
+                    skillInfo.selectedSkillIdx
+                );
+                renderSkillBrowserForCharacter(
+                    character,
+                    skillInfo.selectedActorSlot,
+                    skillInfo.selectedSkillIdx
+                );
+                return;
+            }
+            if (skillInfo.selectedViewMode === 'character' && Number.isInteger(skillInfo.selectedActorSlot)) {
+                const actorUnit = getActorUnitForSlot(currentPlayerUsername, skillInfo.selectedActorSlot);
+                const character = getEffectiveCharacterForUnit(actorUnit);
+                if (!character) return;
+                renderCharacterInfo(character, skillInfo.selectedActorSlot);
+                return;
+            }
+            if (skillInfo.selectedViewMode === 'opponent-profile') {
+                renderOpponentProfileInfo(currentOpponentProfileView);
             }
         };
 
@@ -6960,6 +10665,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const renderCharacterInfo = (character, actorSlot = null) => {
             if (!character) return;
+            skillInfo.selectedViewMode = 'character';
+            skillInfo.selectedActorSlot = Number.isInteger(actorSlot) ? actorSlot : null;
+            skillInfo.selectedSkillIdx = null;
             const roleText = getCharacterRoleText(character);
             if (skillInfo.imgEl) {
                 skillInfo.imgEl.src = character.facePicture || character.url || '';
@@ -6997,8 +10705,45 @@ document.addEventListener('DOMContentLoaded', async () => {
         const renderSkillBrowserForCharacter = (character, actorSlot = null, selectedSkillIdx = null) => {
             if (!skillInfo.browserIconsEl) return;
             skillInfo.browserIconsEl.innerHTML = '';
-            const skills = Array.isArray(character?.skills) ? character.skills.slice(0, 6) : [];
-            skills.forEach((skill, index) => {
+            const actorUnit =
+                Number.isInteger(actorSlot) && currentPlayerUsername
+                    ? getActorUnitForSlot(currentPlayerUsername, actorSlot)
+                    : null;
+            const replacementMap = actorUnit ? getSkillReplacementMapFromUnit(actorUnit) : {};
+            const replacedSkillIds = new Set(Object.keys(replacementMap));
+            const visibleSkills = Array.isArray(character?.skills)
+                ? character.skills
+                      .map((skill, index) => ({ skill, index }))
+                      .filter(({ skill, index }) => {
+                          if (!skill || skill.hiddenFromSelectionViewer) return false;
+                          if (replacedSkillIds.has(skill.id || '')) return false;
+                          if (
+                              actorUnit &&
+                              !doesActorMeetSkillConditionClient(actorUnit, skill, actorSlot, index)
+                          ) {
+                              return false;
+                          }
+                          return true;
+                      })
+                : [];
+            const seenSkillBrowserEntries = new Set();
+            const skills = [];
+            for (let i = visibleSkills.length - 1; i >= 0; i -= 1) {
+                const entry = visibleSkills[i];
+                const skill = entry?.skill;
+                const dedupeKey =
+                    (typeof skill?.skillimage === 'string' && skill.skillimage.trim()) ||
+                    (typeof skill?.name === 'string' && skill.name.trim()) ||
+                    (typeof skill?.id === 'string' && skill.id.trim()) ||
+                    String(i);
+                if (seenSkillBrowserEntries.has(dedupeKey)) {
+                    continue;
+                }
+                seenSkillBrowserEntries.add(dedupeKey);
+                skills.unshift(entry);
+            }
+            skillInfo.browserIconsEl.classList.toggle('skill-browser-icons-wrap', skills.length > 6);
+            skills.forEach(({ skill, index }) => {
                 if (!skill || skill.hiddenFromSelectionViewer) return;
                 const button = document.createElement('button');
                 button.type = 'button';
@@ -7041,12 +10786,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const effectiveSkill = getEffectiveSkillForActorSlot(meta.actorSlot, meta.skillIdx) || meta?.baseSkill;
                 if (!effectiveSkill) return;
                 const actorUnit = latestBoardState?.[currentPlayerUsername]?.[meta.actorSlot];
-                const usageState = getSkillUsageState(actorUnit, effectiveSkill);
+                const usageState = getSkillUsageState(actorUnit, effectiveSkill, meta.actorSlot, meta.skillIdx);
                 meta.skill = effectiveSkill;
-                meta.imgEl.src = effectiveSkill.skillimage || '';
-                meta.imgEl.alt = effectiveSkill.name || `Skill ${meta.skillIdx + 1}`;
-                meta.imgEl.title = usageState.tooltipText || '';
+                const nextSrc = effectiveSkill.skillimage || '';
+                const nextAlt = effectiveSkill.name || `Skill ${meta.skillIdx + 1}`;
+                const nextTitle = usageState.tooltipText || '';
+                if (meta.imgEl.dataset.renderedSkillSrc !== nextSrc) {
+                    meta.imgEl.src = nextSrc;
+                    meta.imgEl.dataset.renderedSkillSrc = nextSrc;
+                }
+                if (meta.imgEl.alt !== nextAlt) {
+                    meta.imgEl.alt = nextAlt;
+                }
+                if (meta.imgEl.dataset.renderedSkillTitle !== nextTitle) {
+                    meta.imgEl.title = nextTitle;
+                    meta.imgEl.dataset.renderedSkillTitle = nextTitle;
+                }
             });
+            refreshSelectedSkillInfo();
         };
 
         const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -7085,7 +10842,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const getOpponentIntroAvatarUrl = async (opponent = {}) => {
-            if (!opponent?.username || opponent?.isBot || isGameBotUsername(opponent.username)) {
+            if (opponent?.profile?.avatarUrl) {
+                return opponent.profile.avatarUrl;
+            }
+            if (!opponent?.username || isGameBotUsername(opponent.username)) {
                 return defaultProfileAvatar;
             }
             const profile = await fetchPublicProfile(opponent.username);
@@ -7107,11 +10867,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const getCurrentPlayerIntroLadder = () => {
             const cachedUser = readCachedUser();
-            return profileCache?.profile?.ladder || cachedUser?.ladder || null;
+            return (
+                getArenaLadder(profileCache?.profile, currentMatchArena) ||
+                getArenaLadder(cachedUser?.profile, currentMatchArena) ||
+                cachedUser?.ladder ||
+                null
+            );
         };
 
         const hydrateOpponentIntroStats = async (opponent = {}) => {
-            if (opponent?.isBot || isGameBotUsername(opponent?.username)) {
+            if (opponent?.profile?.ladder) {
+                setBattleIntroLadderStats({
+                    recordEl: battleIntroTopRecordEl,
+                    streakEl: battleIntroTopStreakEl,
+                    ladder: opponent.profile.ladder,
+                });
+                return;
+            }
+            if (isGameBotUsername(opponent?.username)) {
                 setBattleIntroLadderStats({
                     recordEl: battleIntroTopRecordEl,
                     streakEl: battleIntroTopStreakEl,
@@ -7123,40 +10896,99 @@ document.addEventListener('DOMContentLoaded', async () => {
             setBattleIntroLadderStats({
                 recordEl: battleIntroTopRecordEl,
                 streakEl: battleIntroTopStreakEl,
-                ladder: profile?.profile?.ladder || null,
+                ladder:
+                    getArenaLadder(profile?.profile, currentMatchArena) ||
+                    getArenaLadder(opponent?.profile, currentMatchArena) ||
+                    null,
             });
         };
 
         const playBattleIntro = async (data) => {
             if (hasPlayedBattleIntro || !battleIntroOverlayEl) return;
             hasPlayedBattleIntro = true;
+            soundManager.ensureIngameBattleMusic(data?.arena || currentMatchArena);
             if (!uiSettings.battleIntro) {
                 battleIntroOverlayEl.classList.remove('visible');
                 battleIntroOverlayEl.setAttribute('aria-hidden', 'true');
                 return;
             }
+            const normalizeRosterIndex = (value) => {
+                if (Number.isInteger(value)) return value;
+                const parsed = Number.parseInt(value, 10);
+                return Number.isInteger(parsed) && parsed >= 0 ? parsed : null;
+            };
+            const resolveRosterIndex = (entry) => {
+                const directIndex = normalizeRosterIndex(entry);
+                if (directIndex !== null) return directIndex;
+                if (!entry || typeof entry !== 'object') return null;
+                const objectIndex = normalizeRosterIndex(entry.rosterIndex ?? entry.slot ?? entry.index);
+                if (objectIndex !== null) return objectIndex;
+                const characterId =
+                    typeof entry.characterId === 'string'
+                        ? entry.characterId.trim().toLowerCase()
+                        : typeof entry.id === 'string'
+                            ? entry.id.trim().toLowerCase()
+                            : '';
+                if (!characterId) return null;
+                return rosterData.findIndex((character) => {
+                    const candidateId =
+                        typeof character?.characterId === 'string'
+                            ? character.characterId.trim().toLowerCase()
+                            : typeof character?.id === 'string'
+                                ? character.id.trim().toLowerCase()
+                                : '';
+                    return candidateId === characterId;
+                });
+            };
+            const resolveTeamRosterIndices = (entries = []) =>
+                (Array.isArray(entries) ? entries : [])
+                    .map((entry) => resolveRosterIndex(entry))
+                    .filter((index) => Number.isInteger(index) && index >= 0);
             const playerName = data?.player?.username || readCachedUser()?.username || 'Player';
             const opponentName =
                 data?.opponent?.displayName ||
-                (isGameBotUsername(data?.opponent?.username) ? 'Game Bot' : data?.opponent?.username) ||
+                data?.opponent?.username ||
                 'Opponent';
 
             if (battleIntroTopNameEl) battleIntroTopNameEl.textContent = opponentName;
             if (battleIntroBottomNameEl) battleIntroBottomNameEl.textContent = playerName;
             if (battleIntroBottomAvatarEl) battleIntroBottomAvatarEl.src = getCurrentPlayerAvatarUrl();
-            if (battleIntroTopAvatarEl) battleIntroTopAvatarEl.src = defaultProfileAvatar;
+            if (battleIntroTopAvatarEl) battleIntroTopAvatarEl.src = data?.opponent?.profile?.avatarUrl || defaultProfileAvatar;
             setBattleIntroLadderStats({
                 recordEl: battleIntroBottomRecordEl,
                 streakEl: battleIntroBottomStreakEl,
-                ladder: getCurrentPlayerIntroLadder(),
+                ladder: getArenaLadder(data?.player?.profile, currentMatchArena) || getCurrentPlayerIntroLadder(),
             });
             setBattleIntroLadderStats({
                 recordEl: battleIntroTopRecordEl,
                 streakEl: battleIntroTopStreakEl,
-                ladder: null,
+                ladder: getArenaLadder(data?.opponent?.profile, currentMatchArena) || null,
             });
-            renderBattleIntroTeam(battleIntroTopTeamEl, data?.opponent?.team || [], 'top');
-            renderBattleIntroTeam(battleIntroBottomTeamEl, data?.player?.team || [], 'bottom');
+            renderBattleIntroTeam(
+                battleIntroTopTeamEl,
+                resolveTeamRosterIndices(data?.opponent?.team),
+                'top'
+            );
+            renderBattleIntroTeam(
+                battleIntroBottomTeamEl,
+                resolveTeamRosterIndices(data?.player?.team),
+                'bottom'
+            );
+
+            const introArena =
+                String(data?.arena || currentMatchArena || '').trim().toLowerCase() === 'pokemon'
+                    ? 'pokemon'
+                    : 'comic';
+            const introBackgroundUrl =
+                (typeof data?.backgroundOverride === 'string' && data.backgroundOverride.trim()) ||
+                currentMatchBackgroundUrl ||
+                (introArena === 'pokemon'
+                    ? POKEMON_INGAME_BACKGROUND_URL
+                    : COMIC_INGAME_BACKGROUND_URL);
+            battleIntroOverlayEl.style.setProperty(
+                '--battle-intro-background-image',
+                toBackgroundImageValue(introBackgroundUrl)
+            );
 
             getOpponentIntroAvatarUrl(data?.opponent || {})
                 .then((avatarUrl) => {
@@ -7191,7 +11023,120 @@ document.addEventListener('DOMContentLoaded', async () => {
                 hasPlayedMatchEntrySound = true;
             }
             applyMatchState(data);
+            clearMatchAutoRecoveryAttempt(data.matchId || matchIdFromUrl);
+            clearMatchIssueBanner();
             renderDynamicSkillIcons();
+            validateRenderedMatchState();
+        };
+
+        recoverCurrentMatchState = async ({ reason = 'manual', message = 'Retrying match sync...' } = {}) => {
+            if (!matchIdFromUrl) return false;
+            if (activeMatchRecoveryPromise) {
+                return activeMatchRecoveryPromise;
+            }
+            setMatchIssueBanner({
+                message,
+                tone: 'info',
+                dismissible: false,
+            });
+            activeMatchRecoveryPromise = (async () => {
+                try {
+                    const payload = await fetchMatchPayload({
+                        matchId: matchIdFromUrl,
+                        retries: 1,
+                        retryDelayMs: 500,
+                        arenaOverride: currentMatchArena,
+                    });
+                    if (!payload) return false;
+                    applyIncomingMatchState(payload);
+                    connectMatchSocket();
+                    setMatchIssueBanner({
+                        message: 'Match sync restored.',
+                        tone: 'success',
+                        dismissible: true,
+                        autoHideMs: 1800,
+                        onRetry: null,
+                    });
+                    return true;
+                } catch (error) {
+                    console.warn(`Failed to recover match state (${reason}).`, error);
+                    announceMatchIssue(
+                        `Unable to resync this match right now. ${error?.message || 'Please retry.'}`,
+                        {
+                            reason: `${reason}-retry`,
+                            recoveryMessage: 'Retrying match sync...',
+                        }
+                    );
+                    if (attemptMatchAutoRecovery(`recover-${reason}`)) {
+                        setMatchIssueBanner({
+                            message: 'Reloading the match to recover from a sync problem...',
+                            tone: 'info',
+                            dismissible: false,
+                            onRetry: null,
+                        });
+                    }
+                    return false;
+                } finally {
+                    activeMatchRecoveryPromise = null;
+                }
+            })();
+            return activeMatchRecoveryPromise;
+        };
+
+        const isRenderableRosterIndex = (rosterIndex) =>
+            Number.isInteger(rosterIndex) && rosterIndex >= 0 && Boolean(rosterData?.[rosterIndex]);
+
+        const assertRenderableTeam = (resolvedTeam = [], expectedCount = 0, label = 'team') => {
+            if (!Array.isArray(resolvedTeam) || resolvedTeam.length < expectedCount) {
+                throw new Error(`${label} data is incomplete.`);
+            }
+            for (let index = 0; index < expectedCount; index += 1) {
+                if (!isRenderableRosterIndex(resolvedTeam[index])) {
+                    throw new Error(`${label} slot ${index + 1} could not be resolved.`);
+                }
+            }
+        };
+
+        const hasHealthyRenderedCards = (cards = [], expectedCount = 0) =>
+            Array.isArray(cards) &&
+            cards.length >= expectedCount &&
+            cards.slice(0, expectedCount).every((card) => {
+                if (!card) return false;
+                const face = card.querySelector('.character-face');
+                return Boolean(face?.src);
+            });
+
+        const scheduleMatchRecoveryIfNeeded = ({ reason = 'render-validation', message = 'Refreshing match state...' } = {}) => {
+            if (battleEndShown || activeMatchRecoveryPromise) return;
+            announceMatchIssue(message, {
+                tone: 'info',
+                reason,
+                recoveryMessage: message,
+            });
+            recoverCurrentMatchState({ reason, message }).catch(() => {});
+        };
+
+        const validateRenderedMatchState = () => {
+            if (!currentPlayerUsername || !currentOpponentUsername || !latestBoardState) return true;
+            const playerUnits = Array.isArray(latestBoardState?.[currentPlayerUsername])
+                ? latestBoardState[currentPlayerUsername]
+                : [];
+            const enemyUnits = Array.isArray(latestBoardState?.[currentOpponentUsername])
+                ? latestBoardState[currentOpponentUsername]
+                : [];
+            if (
+                playerUnits.length < playerCards.length ||
+                enemyUnits.length < enemyCards.length ||
+                !hasHealthyRenderedCards(playerCards, playerCards.length) ||
+                !hasHealthyRenderedCards(enemyCards, enemyCards.length)
+            ) {
+                scheduleMatchRecoveryIfNeeded({
+                    reason: 'render-validation',
+                    message: 'The match screen fell out of sync. Refreshing the live state...',
+                });
+                return false;
+            }
+            return true;
         };
 
         const scheduleIncomingMatchState = (data) => {
@@ -7320,7 +11265,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const renderIngameMissions = (payload = {}) => {
             if (!ingameMissionsListEl) return;
-            const missions = Array.isArray(payload.missions) ? payload.missions : [];
+            const missions = Array.isArray(payload.missions)
+                ? payload.missions.filter((mission) => {
+                      const missionArena =
+                          typeof mission?.arena === 'string' ? mission.arena.trim().toLowerCase() : 'comic';
+                      return missionArena === currentMatchArena;
+                  })
+                : [];
             const progressByMissionId = payload.missionProgressByMissionId || {};
             const unlockedIds = new Set(
                 (Array.isArray(payload.unlockedCharacterIds) ? payload.unlockedCharacterIds : [])
@@ -7387,7 +11338,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!ingameMissionsListEl) return;
             setIngameMissionsStatus('Loading missions...');
             try {
-                const response = await fetch(`${API_BASE_URL}/api/missions`, {
+                const response = await fetch(`${API_BASE_URL}/api/missions?arena=${encodeURIComponent(currentMatchArena)}`, {
                     credentials: 'include',
                     cache: 'no-store',
                 });
@@ -7417,7 +11368,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         method: 'POST',
                         credentials: 'include',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ team: currentPlayerTeam }),
+                        body: JSON.stringify({ team: currentPlayerTeam, arena: currentMatchArena }),
                     }
                 );
                 const payload = await response.json().catch(() => ({}));
@@ -7425,7 +11376,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     throw new Error(payload.error || 'Unable to start mission fight.');
                 }
                 if (payload.matchId) {
-                    window.location.href = `ingame.html?matchId=${encodeURIComponent(payload.matchId)}`;
+                    redirectToMatch(payload.matchId, payload.arena || currentMatchArena);
                     return;
                 }
                 throw new Error('Mission fight did not return a match.');
@@ -7454,6 +11405,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             matchSocket = socket;
             socket.addEventListener('open', () => {
                 matchSocketReconnectDelay = 1000;
+                if (!activeMatchRecoveryPromise) {
+                    clearMatchIssueBanner();
+                }
             });
             socket.addEventListener('message', (event) => {
                 try {
@@ -7467,6 +11421,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 } catch (error) {
                     console.warn('Failed to process match socket message.', error);
+                    announceMatchIssue('Live match update failed to apply. Retrying sync...', {
+                        tone: 'info',
+                        reason: 'socket-message-parse',
+                        recoveryMessage: 'Retrying live match sync...',
+                    });
+                    recoverCurrentMatchState({
+                        reason: 'socket-message-parse',
+                        message: 'Retrying live match sync...',
+                    }).catch(() => {});
                 }
             });
             socket.addEventListener('close', () => {
@@ -7476,6 +11439,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (matchSocketManuallyClosed || battleEndShown || !matchIdFromUrl) {
                     return;
                 }
+                setMatchIssueBanner({
+                    message: 'Connection to the live match was interrupted. Reconnecting...',
+                    tone: 'info',
+                    dismissible: false,
+                });
                 clearMatchSocketReconnect();
                 matchSocketReconnectTimer = setTimeout(() => {
                     matchSocketReconnectTimer = null;
@@ -7577,10 +11545,23 @@ document.addEventListener('DOMContentLoaded', async () => {
                         rosterIndex: unit.rosterIndex,
                         alive: true,
                     }));
+            const mapDeadTargets = (username, units) =>
+                (Array.isArray(units) ? units : [])
+                    .map((unit, slot) => ({ unit, slot }))
+                    .filter(({ unit }) => unit && isUnitDeadLike(unit))
+                    .map(({ unit, slot }) => ({
+                        username,
+                        slot,
+                        rosterIndex: unit.rosterIndex,
+                        alive: false,
+                    }));
             const playerTargets = mapTargets(currentPlayerUsername, playerUnits);
             const enemyTargets = mapTargets(currentOpponentUsername, opponentUnits);
             const selfTargets = playerTargets.filter((target) => Number(target.slot) === Number(actorSlot));
             const allyTargets = playerTargets.filter((target) => Number(target.slot) !== Number(actorSlot));
+            const deadAllyTargets = mapDeadTargets(currentPlayerUsername, playerUnits).filter(
+                (target) => Number(target.slot) !== Number(actorSlot)
+            );
             switch (targetType) {
                 case 'single-enemy':
                     return { ok: true, targetType, mode: 'single', targets: enemyTargets, skillIndex: skillIdx };
@@ -7590,6 +11571,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return { ok: true, targetType, mode: 'self', targets: selfTargets, skillIndex: skillIdx };
                 case 'single-ally':
                     return { ok: true, targetType, mode: 'single', targets: allyTargets, skillIndex: skillIdx };
+                case 'single-ally-or-dead-ally':
+                    return {
+                        ok: true,
+                        targetType,
+                        mode: 'single',
+                        targets: [...allyTargets, ...deadAllyTargets],
+                        skillIndex: skillIdx,
+                    };
                 case 'self-or-single-ally':
                     return { ok: true, targetType, mode: 'single', targets: playerTargets, skillIndex: skillIdx };
                 case 'all-allies':
@@ -7605,14 +11594,25 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const fetchTargetOptions = async (actorSlot, skillIdx, skill = null) => {
             if (!matchIdFromUrl) return;
+            if (!isActorSkillSelectableNow(actorSlot, skillIdx, skill)) {
+                clearActiveTargetSelectionState();
+                return;
+            }
             const cacheKey = `${currentTurnUsername || ''}:${actorSlot}:${skillIdx}`;
             const cachedOptions = targetOptionsCache.get(cacheKey);
+            if (inFlightTargetOptionsRequestKey === cacheKey) return;
             const requestVersion = ++targetOptionsRequestVersion;
             const applyTargetOptions = (data) => {
                 if (requestVersion !== targetOptionsRequestVersion) return;
+                const effectiveSkill = skill || getEffectiveSkillForActorSlot(actorSlot, skillIdx);
+                if (!isActorSkillSelectableNow(actorSlot, skillIdx, effectiveSkill)) {
+                    clearActiveTargetSelectionState();
+                    return;
+                }
                 pendingTurnState = normalizePendingTurn(data.pendingTurn);
                 measureIngamePerf('target:queued-skills', () => applyQueuedSkillVisuals());
                 activeTargetOptions = data;
+                lastTargetingActivatedAt = Date.now();
                 const skillEl = playerSkillMetaByKey.get(`${actorSlot}:${skillIdx}`)?.imgEl || null;
                 const classChoiceOptions = getClassChoiceOptions(skill);
                 const key = getClassChoiceKey(actorSlot, skillIdx);
@@ -7635,18 +11635,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 return;
             }
             const immediateOptions = buildImmediateTargetOptions({ actorSlot, skillIdx, skill });
+            let hasOptimisticTargetOptions = false;
             if (immediateOptions?.targets?.length) {
+                hasOptimisticTargetOptions = true;
                 applyTargetOptions({
                     ...immediateOptions,
                     pendingTurn: pendingTurnState,
                     optimistic: true,
                 });
             } else {
-                clearTargetHighlights();
-                activeTargetOptions = null;
-                activeCastingSkill = null;
+                clearActiveTargetSelectionState();
             }
             try {
+                inFlightTargetOptionsRequestKey = cacheKey;
                 const res = await fetch(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/targets`,
                     {
@@ -7668,6 +11669,30 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!data?.ok) {
                     throw new Error(data?.error || 'Unable to fetch targets.');
                 }
+                const actionRejected =
+                    typeof data?.actionRejected === 'string' ? data.actionRejected.trim().toLowerCase() : '';
+                if (data?.staleAction && actionRejected) {
+                    applyIncomingMatchState(data);
+                    syncTurnActionStateFromPayload(data);
+                    if (actionRejected === 'not-your-turn') {
+                        announceMatchIssue('That turn has already moved on. Resyncing to the live match state...', {
+                            tone: 'info',
+                            reason: 'target-fetch-turn-moved',
+                        });
+                    } else if (actionRejected === 'pending-turn-start-choice') {
+                        announceMatchIssue('A turn-start choice still needs to be resolved before using that skill.', {
+                            tone: 'info',
+                            reason: 'target-fetch-turn-start-choice',
+                        });
+                    }
+                    clearActiveTargetSelectionState();
+                    return;
+                }
+                const effectiveSkill = skill || getEffectiveSkillForActorSlot(actorSlot, skillIdx);
+                if (!isActorSkillSelectableNow(actorSlot, skillIdx, effectiveSkill)) {
+                    clearActiveTargetSelectionState();
+                    return;
+                }
                 targetOptionsCache.set(cacheKey, data);
                 applyTargetOptions(data);
             } catch (error) {
@@ -7677,8 +11702,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const baseDescription = getSkillDescriptionText(skill) || skillInfo.descEl.textContent || '';
                     skillInfo.descEl.textContent = `${baseDescription}\n\nTargeting failed: ${error?.message || 'Unable to fetch targets.'}`;
                 }
-                activeTargetOptions = null;
-                activeCastingSkill = null;
+                if (hasOptimisticTargetOptions) {
+                    return;
+                }
+                clearActiveTargetSelectionState();
+            } finally {
+                if (inFlightTargetOptionsRequestKey === cacheKey) {
+                    inFlightTargetOptionsRequestKey = '';
+                }
             }
         };
 
@@ -7714,19 +11745,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             absorptionChoice = null,
         }) => {
             if (!matchIdFromUrl) return Promise.resolve();
-            if (inFlightSkillRequestByActorSlot.has(actorSlot)) return Promise.resolve();
+            if (inFlightSkillRequestByActorSlot.has(actorSlot)) {
+                return inFlightSkillRequestPromisesByActorSlot.get(actorSlot) || Promise.resolve();
+            }
+            clearQueuedSkillTapReorderState();
             clearSkillInteractionCache();
             inFlightSkillRequestByActorSlot.add(actorSlot);
             optimisticCancelledActorSlots.delete(actorSlot);
+            const effectiveSkill = getEffectiveSkillForActorSlot(actorSlot, skillIdx) || null;
+            const effectiveEnergy = getEffectiveEnergyList(effectiveSkill?.energy, actorSlot, effectiveSkill);
+            const optimisticCost = getEnergyCost(effectiveEnergy);
             optimisticQueuedByActorSlot.set(actorSlot, {
                 actorSlot,
                 skillIndex: skillIdx,
                 targetSelection: selection,
+                reservedSpecific: optimisticCost.specific,
+                requiredRandom: optimisticCost.random,
                 ...(classChoice ? { classChoice } : {}),
                 ...(absorptionChoice ? { absorptionChoice } : {}),
             });
             applyQueuedSkillVisuals();
-            return fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/queue`, {
+            const queueRequest = fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/queue`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -7743,25 +11782,80 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (!response.ok || !data?.ok) {
                         throw new Error(data?.error || 'Unable to queue skill.');
                     }
-                    playIngameSound(applySkillSound);
                     optimisticQueuedByActorSlot.delete(actorSlot);
-                    renderChakra(data.chakraPools?.[currentPlayerUsername] || emptyPool());
+                    targetOptionsCache.clear();
+                    const actionRejected =
+                        typeof data?.actionRejected === 'string' ? data.actionRejected.trim().toLowerCase() : '';
+                    if (data?.staleAction && actionRejected) {
+                        applyIncomingMatchState(data);
+                        syncTurnActionStateFromPayload(data);
+                        syncEndTurnModalIfVisible();
+                        if (actionRejected === 'duplicate-skill-queue') {
+                            return;
+                        }
+                        if (actionRejected === 'not-your-turn') {
+                            announceMatchIssue('That turn has already moved on. Resyncing to the live match state...', {
+                                tone: 'info',
+                                reason: 'queue-skill-turn-moved',
+                            });
+                            return;
+                        }
+                        if (actionRejected === 'pending-turn-start-choice') {
+                            announceMatchIssue('A turn-start choice still needs to be resolved before queueing that skill.', {
+                                tone: 'info',
+                                reason: 'queue-skill-turn-start-choice',
+                            });
+                            return;
+                        }
+                        announceMatchIssue('The match state changed while that skill was being queued, so the turn was resynced.', {
+                            tone: 'info',
+                            reason: 'queue-skill-resynced',
+                        });
+                        return;
+                    }
+                    playIngameSound(applySkillSound);
+                    renderChakra(getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || emptyPool());
                     pendingTurnState = normalizePendingTurn(data.pendingTurn);
                     applyQueuedSkillVisuals();
+                    syncEndTurnModalIfVisible();
                     syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
+                    if ((pendingTurnState?.unresolvedRandom || 0) > 0 && endTurnModalEl?.style.visibility !== 'visible') {
+                        announceMatchIssue(
+                            `This queued turn still needs ${pendingTurnState.unresolvedRandom} random energy chosen before it can end.`,
+                            {
+                                tone: 'info',
+                                dismissible: true,
+                                autoHideMs: 2200,
+                                reason: 'queued-random-energy-reminder',
+                            }
+                        );
+                    }
                 })
                 .catch((error) => {
                     optimisticQueuedByActorSlot.delete(actorSlot);
                     applyQueuedSkillVisuals();
+                    syncEndTurnModalIfVisible();
                     console.warn('Failed to queue skill.', error);
+                    announceMatchIssue(
+                        `Could not queue that skill. ${error?.message || 'The match state may be stale.'}`,
+                        {
+                            reason: 'queue-skill',
+                            recoveryMessage: 'Refreshing your queued turn...',
+                        }
+                    );
+                    recoverCurrentMatchState({
+                        reason: 'queue-skill',
+                        message: 'Refreshing your queued turn...',
+                    }).catch(() => {});
                 })
                 .finally(() => {
                     inFlightSkillRequestByActorSlot.delete(actorSlot);
+                    inFlightSkillRequestPromisesByActorSlot.delete(actorSlot);
                     closeClassChoicePopup();
-                    clearTargetHighlights();
-                    activeTargetOptions = null;
-                    activeCastingSkill = null;
+                    clearActiveTargetSelectionState();
                 });
+            inFlightSkillRequestPromisesByActorSlot.set(actorSlot, queueRequest);
+            return queueRequest;
         };
 
         const openClassChoicePopup = ({ actorSlot, skillIdx, selection, options = [] }) => {
@@ -7923,6 +12017,29 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!response.ok || !data?.ok) {
                     throw new Error(data?.error || 'Unable to resolve choice.');
                 }
+                const actionRejected =
+                    typeof data?.actionRejected === 'string' ? data.actionRejected.trim().toLowerCase() : '';
+                if (data?.staleAction && actionRejected) {
+                    applyIncomingMatchState(data);
+                    syncTurnActionStateFromPayload(data);
+                    if (actionRejected === 'not-your-turn') {
+                        announceMatchIssue('That turn has already moved on. Resyncing to the live match state...', {
+                            tone: 'info',
+                            reason: 'turn-start-choice-turn-moved',
+                        });
+                    } else if (actionRejected === 'no-pending-turn-start-choice') {
+                        announceMatchIssue('That choice is no longer pending, so the match was resynced.', {
+                            tone: 'info',
+                            reason: 'turn-start-choice-no-longer-pending',
+                        });
+                    } else {
+                        announceMatchIssue('The turn-start choice changed on the server, so the match was resynced.', {
+                            tone: 'info',
+                            reason: 'turn-start-choice-resynced',
+                        });
+                    }
+                    return;
+                }
                 pendingTurnState = normalizePendingTurn(data.pendingTurn);
                 applyMatchState({
                     ok: true,
@@ -7939,6 +12056,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 playIngameSound(applySkillSound);
             } catch (error) {
                 console.warn('Failed to resolve turn start choice.', error);
+                announceMatchIssue(
+                    `That choice could not be confirmed. ${error?.message || 'Refreshing the match state...'}`,
+                    {
+                        reason: 'turn-start-choice',
+                        recoveryMessage: 'Refreshing the match choice state...',
+                    }
+                );
+                recoverCurrentMatchState({
+                    reason: 'turn-start-choice',
+                    message: 'Refreshing the match choice state...',
+                }).catch(() => {});
             } finally {
                 activeChoicePopupMode = null;
                 activeTurnStartChoiceKey = '';
@@ -8064,9 +12192,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             classChoicePopupCancelButton.addEventListener('click', () => {
                 if (activeChoicePopupMode === 'turn-start') return;
                 closeClassChoicePopup();
-                clearTargetHighlights();
-                activeTargetOptions = null;
-                activeCastingSkill = null;
+                clearActiveTargetSelectionState();
             });
         }
         if (classChoicePopupEl) {
@@ -8074,24 +12200,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (event.target !== classChoicePopupEl) return;
                 if (activeChoicePopupMode === 'turn-start') return;
                 closeClassChoicePopup();
-                clearTargetHighlights();
-                activeTargetOptions = null;
-                activeCastingSkill = null;
+                clearActiveTargetSelectionState();
             });
         }
 
         const clearActiveSkillTargeting = () => {
             if (!activeTargetOptions && !activeCastingSkill) return;
             if (activeChoicePopupMode === 'turn-start-target') return;
-            targetOptionsRequestVersion += 1;
-            clearTargetHighlights();
-            activeTargetOptions = null;
-            activeCastingSkill = null;
+            clearActiveTargetSelectionState();
         };
 
-        document.addEventListener('pointerdown', (event) => {
+        document.addEventListener('click', (event) => {
             if (!activeTargetOptions && !activeCastingSkill) return;
-            if (event?.button !== undefined && event.button !== 0) return;
+            if (Date.now() - lastTargetingActivatedAt < 500) return;
             const target = event.target;
             if (!target?.closest) return;
             const shouldKeepTargeting = target.closest(
@@ -8106,10 +12227,41 @@ document.addEventListener('DOMContentLoaded', async () => {
                     '.surrender-confirm',
                     '.surrenderbutton',
                     '.ingame-sound-controller',
+                    '.skilltooltips',
+                    '.skilltooltipimage',
+                    '.status-tooltip-global',
                 ].join(',')
             );
             if (shouldKeepTargeting) return;
             if (activeChoicePopupMode === 'turn-start-target') return;
+            clearActiveSkillTargeting();
+        });
+
+        document.addEventListener('dblclick', (event) => {
+            if (!activeTargetOptions && !activeCastingSkill) return;
+            if (activeChoicePopupMode === 'turn-start-target') return;
+            const target = event.target;
+            if (!target?.closest) return;
+            const interactiveTarget = target.closest(
+                [
+                    'button',
+                    'a',
+                    'input',
+                    'select',
+                    'textarea',
+                    'label',
+                    '[role="button"]',
+                    '.character-card',
+                    '.skillimage',
+                    '.skillpreview',
+                    '.skill-browser-icon',
+                    '.exchange_symbol',
+                    '.ready-section',
+                    '.exchange-label',
+                    '.surrenderbutton',
+                ].join(',')
+            );
+            if (interactiveTarget) return;
             clearActiveSkillTargeting();
         });
 
@@ -8125,22 +12277,102 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const loadMatchForIngame = async () => {
             const matchId = matchIdFromUrl;
-            if (!matchId || !Array.isArray(rosterData)) return;
-            try {
-                const response = await fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchId)}`, {
-                    credentials: 'include',
+            if (!matchId) {
+                console.warn('Unable to initialize match: missing match ID.');
+                redirectToSelectionLogin(currentMatchArena, {
+                    clearUser: false,
+                    replace: true,
                 });
-                const data = await response.json();
-                if (!data?.ok) return;
+                return;
+            }
+            if (!Array.isArray(rosterData) || rosterData.length === 0) {
+                console.warn('Unable to initialize match: character roster unavailable.');
+                announceMatchIssue('This match could not initialize correctly.', {
+                    dismissible: false,
+                    onRetry: () => window.location.replace(buildIngameMatchUrl(matchId, currentMatchArena || 'comic')),
+                    retryLabel: 'Reload Match',
+                });
+                return;
+            }
+            try {
+                const data = await fetchMatchPayload({
+                    matchId,
+                    retries: 2,
+                    retryDelayMs: 400,
+                    arenaOverride: currentMatchArena,
+                });
+                if (!data) return;
+                if (normalizeArenaModeValue(data.arena || currentMatchArena) === 'pokemon') {
+                    await fetchArenaSkinsForIngame('pokemon').catch((error) => {
+                        console.warn('Unable to preload Pokemon skin catalog for ingame.', error);
+                    });
+                }
+
+                const normalizeRosterIndex = (value) => {
+                    if (Number.isInteger(value)) return value;
+                    const parsed = Number.parseInt(value, 10);
+                    return Number.isInteger(parsed) && parsed >= 0 ? parsed : null;
+                };
+                const resolveRosterIndex = (entry) => {
+                    const directIndex = normalizeRosterIndex(entry);
+                    if (directIndex !== null) return directIndex;
+                    if (!entry || typeof entry !== 'object') return null;
+                    const objectIndex = normalizeRosterIndex(entry.rosterIndex ?? entry.slot ?? entry.index);
+                    if (objectIndex !== null) return objectIndex;
+                    const characterId =
+                        typeof entry.characterId === 'string'
+                            ? entry.characterId.trim().toLowerCase()
+                            : typeof entry.id === 'string'
+                                ? entry.id.trim().toLowerCase()
+                                : '';
+                    if (!characterId) return null;
+                    return rosterData.findIndex((character) => {
+                        const candidateId =
+                            typeof character?.characterId === 'string'
+                                ? character.characterId.trim().toLowerCase()
+                                : typeof character?.id === 'string'
+                                    ? character.id.trim().toLowerCase()
+                                    : '';
+                        return candidateId === characterId;
+                    });
+                };
+                const resolveTeamRosterIndices = (entries = []) =>
+                    (Array.isArray(entries) ? entries : [])
+                        .map((entry) => resolveRosterIndex(entry))
+                        .filter((index) => Number.isInteger(index) && index >= 0);
 
                 const playerCardsLocal = Array.from(document.querySelectorAll('.player-characters .character-card'));
                 const enemyCardsLocal = Array.from(document.querySelectorAll('.enemy-characters .character-card'));
                 playerCardsLocal.forEach((card) => card && card.classList.remove('targetable'));
                 if (!playerCardsLocal.length || !enemyCardsLocal.length) return;
-                const team = data.player?.team || [];
-                const enemyTeam = data.opponent?.team || [];
-                if (!Array.isArray(team) || team.length !== playerCardsLocal.length) return;
-                if (!Array.isArray(enemyTeam) || enemyTeam.length !== enemyCardsLocal.length) return;
+                const team = resolveTeamRosterIndices(data.player?.team);
+                const enemyTeam = resolveTeamRosterIndices(data.opponent?.team);
+                const boardTeam = resolveTeamRosterIndices(data.board?.[data.player?.username]);
+                const boardEnemyTeam = resolveTeamRosterIndices(data.board?.[data.opponent?.username]);
+                const resolveRenderableTeam = (directTeam = [], fallbackTeam = [], expectedCount = 0) => {
+                    if (Array.isArray(directTeam) && directTeam.length >= expectedCount) {
+                        return directTeam;
+                    }
+                    if (Array.isArray(fallbackTeam) && fallbackTeam.length >= expectedCount) {
+                        return fallbackTeam;
+                    }
+                    return Array.isArray(directTeam) && directTeam.length > 0 ? directTeam : fallbackTeam;
+                };
+                const resolvedTeam = resolveRenderableTeam(team, boardTeam, playerCardsLocal.length);
+                const resolvedEnemyTeam = resolveRenderableTeam(
+                    enemyTeam,
+                    boardEnemyTeam,
+                    enemyCardsLocal.length
+                );
+                if (data.player?.username) currentPlayerUsername = data.player.username;
+                assertRenderableTeam(resolvedTeam, playerCardsLocal.length, 'Player team');
+                assertRenderableTeam(resolvedEnemyTeam, enemyCardsLocal.length, 'Opponent team');
+
+                // Start the intro before card setup so a later UI error cannot suppress it.
+                const battleIntroPromise = playBattleIntro(data).catch((error) => {
+                    console.warn('Unable to play battle intro.', error);
+                });
+                connectMatchSocket();
                 playerSkillMetaByKey.clear();
 
                 const playerNameEl = document.querySelector('.player-name.red');
@@ -8150,26 +12382,26 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const enemyNameEl = document.querySelector('.player-right .player-name.red');
                 if (enemyNameEl && data.opponent?.username) {
                     const nextOpponentUsername = data.opponent.username;
-                    const nextOpponentDisplayName = data.opponent.displayName || (isGameBotUsername(nextOpponentUsername) ? 'Game Bot' : nextOpponentUsername);
+                    const nextOpponentDisplayName = data.opponent.displayName || nextOpponentUsername;
                     enemyNameEl.textContent = nextOpponentDisplayName;
                     const opponentChanged = nextOpponentUsername !== currentOpponentUsername;
                     currentOpponentUsername = nextOpponentUsername;
                     currentOpponentDisplayName = nextOpponentDisplayName;
                     if (opponentChanged) {
-                        if (data.opponent.isBot) {
-                            applyOpponentIdentity({
-                                name: nextOpponentDisplayName,
-                                avatarUrl: defaultProfileAvatar,
-                                ladder: null,
-                            });
-                        } else {
-                            hydrateOpponentIdentity(nextOpponentUsername).catch(() => {});
-                        }
+                        hydrateOpponentIdentity(
+                            nextOpponentUsername,
+                            data.opponent.profile || null,
+                            nextOpponentDisplayName
+                        ).catch(() => {});
                     }
                 }
 
-                const populateCard = (card, rosterIndex, isPlayer, slotIndex) => {
-                    const character = rosterData[rosterIndex];
+                const populateCard = (card, rosterIndex, isPlayer, slotIndex, profile = null) => {
+                    const character = buildCharacterWithEquippedSkin(
+                        rosterData[rosterIndex],
+                        profile,
+                        currentMatchArena
+                    );
                     if (!character) return;
                     const showCharacterSkills = () => {
                         const username = isPlayer ? currentPlayerUsername : currentOpponentUsername;
@@ -8230,8 +12462,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     if (event?.button !== undefined && event.button !== 0) return;
                                     event.preventDefault();
                                     event.stopPropagation();
+                                    if (
+                                        activeTargetOptions &&
+                                        activeCastingSkill &&
+                                        activeCastingSkill.actorSlot === slotIndex &&
+                                        activeCastingSkill.skillIdx === skillIdx
+                                    ) {
+                                        clearActiveSkillTargeting();
+                                        updateSkillBrowserActiveIcon(null);
+                                        return;
+                                    }
                                     const effectiveSkill =
                                         getEffectiveSkillForActorSlot(slotIndex, skillIdx) || skill;
+                                    const actorUnit = latestBoardState?.[currentPlayerUsername]?.[slotIndex] || null;
                                     measureIngamePerf('click:skill-info', () =>
                                         renderSkillInfo(character, effectiveSkill, slotIndex, skillIdx)
                                     );
@@ -8239,59 +12482,33 @@ document.addEventListener('DOMContentLoaded', async () => {
                                         updateSkillBrowserActiveIcon(skillIdx)
                                     );
                                     if (!currentPlayerUsername || !usernamesMatch(currentPlayerUsername, currentTurnUsername)) {
+                                        clearActiveSkillTargeting();
                                         triggerBlockedSkillFeedback(imgEl);
                                         return;
                                     }
                                     if (normalizePendingTurn(pendingTurnState).turnStartChoice) {
+                                        clearActiveSkillTargeting();
                                         triggerBlockedSkillFeedback(imgEl);
                                         return;
                                     }
                                     const queued = getQueuedSkillForActorSlot(slotIndex);
                                     if (queued && queued.skillIndex === skillIdx) {
-                                        if (inFlightSkillRequestByActorSlot.has(slotIndex)) return;
-                                        clearSkillInteractionCache();
-                                        clearTargetHighlights();
-                                        activeTargetOptions = null;
-                                        activeCastingSkill = null;
-                                        inFlightSkillRequestByActorSlot.add(slotIndex);
-                                        optimisticQueuedByActorSlot.delete(slotIndex);
-                                        optimisticCancelledActorSlots.add(slotIndex);
-                                        applyQueuedSkillVisuals();
-                                        fetch(
-                                            `${API_BASE_URL}/api/match/${encodeURIComponent(
-                                                matchIdFromUrl
-                                            )}/skill/cancel`,
-                                            {
-                                                method: 'POST',
-                                                headers: { 'Content-Type': 'application/json' },
-                                                credentials: 'include',
-                                                body: JSON.stringify({ actorSlot: slotIndex }),
-                                            }
-                                        )
-                                            .then(async (response) => {
-                                                const data = await response.json();
-                                                if (!response.ok || !data?.ok) {
-                                                    throw new Error(data?.error || 'Unable to cancel skill.');
-                                                }
-                                                optimisticCancelledActorSlots.delete(slotIndex);
-                                                renderChakra(
-                                                    data.chakraPools?.[currentPlayerUsername] || emptyPool()
-                                                );
-                                                pendingTurnState = normalizePendingTurn(data.pendingTurn);
-                                                applyQueuedSkillVisuals();
-                                                syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
-                                            })
-                                            .catch((error) => {
-                                                optimisticCancelledActorSlots.delete(slotIndex);
-                                                applyQueuedSkillVisuals();
-                                                console.warn('Failed to cancel skill.', error);
-                                            })
-                                            .finally(() => {
-                                                inFlightSkillRequestByActorSlot.delete(slotIndex);
-                                            });
+                                        clearActiveSkillTargeting();
+                                        triggerBlockedSkillFeedback(imgEl);
                                         return;
                                     }
                                     if (queued) {
+                                        clearActiveSkillTargeting();
+                                        triggerBlockedSkillFeedback(imgEl);
+                                        return;
+                                    }
+                                    if (isSkillUnavailableForSelection(actorUnit, effectiveSkill, slotIndex, skillIdx)) {
+                                        clearActiveSkillTargeting();
+                                        triggerBlockedSkillFeedback(imgEl);
+                                        return;
+                                    }
+                                    if (isSkillBlockedByAffordability(effectiveSkill, slotIndex)) {
+                                        clearActiveSkillTargeting();
                                         triggerBlockedSkillFeedback(imgEl);
                                         return;
                                     }
@@ -8301,22 +12518,50 @@ document.addEventListener('DOMContentLoaded', async () => {
                                         clearTargetHighlights();
                                     });
                                 };
+                                const onSkillDoubleClick = (event) => {
+                                    if (event?.button !== undefined && event.button !== 0) return;
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                    const queued = getQueuedSkillForActorSlot(slotIndex);
+                                    if (!queued || queued.skillIndex !== skillIdx) {
+                                        return;
+                                    }
+                                    clearActiveSkillTargeting();
+                                    updateSkillBrowserActiveIcon(null);
+                                    cancelQueuedSkillForActor(slotIndex);
+                                };
                                 imgEl._skillClickHandler = onSkillClick;
+                                const existingSkillDoubleClickHandler = imgEl._skillDoubleClickHandler;
+                                if (typeof existingSkillDoubleClickHandler === 'function') {
+                                    imgEl.removeEventListener('dblclick', existingSkillDoubleClickHandler);
+                                }
+                                imgEl._skillDoubleClickHandler = onSkillDoubleClick;
                                 imgEl.addEventListener('pointerdown', onSkillClick);
+                                imgEl.addEventListener('dblclick', onSkillDoubleClick);
                             }
                         });
                     }
                 };
 
-                playerCardsLocal.forEach((card, idx) => populateCard(card, team[idx], true, idx));
-                enemyCardsLocal.forEach((card, idx) => populateCard(card, enemyTeam[idx], false, idx));
+                playerCardsLocal.forEach((card, idx) =>
+                    populateCard(
+                        card,
+                        resolvedTeam[idx],
+                        true,
+                        idx,
+                        data.player?.profile || profileCache?.profile || null
+                    )
+                );
+                enemyCardsLocal.forEach((card, idx) =>
+                    populateCard(card, resolvedEnemyTeam[idx], false, idx, data.opponent?.profile || null)
+                );
                 enemyCards = enemyCardsLocal;
                 playerCards = playerCardsLocal;
                 attachCardTargetHandlers(enemyCards, currentOpponentUsername || '');
                 attachCardTargetHandlers(playerCards, data.player?.username || '');
 
-                if (Array.isArray(team) && team.length > 0) {
-                    const firstChar = rosterData[team[0]];
+                if (Array.isArray(resolvedTeam) && resolvedTeam.length > 0) {
+                    const firstChar = rosterData[resolvedTeam[0]];
                     const firstSkill = firstChar?.skills?.[0];
                     if (firstSkill) {
                         renderSkillInfo(firstChar, firstSkill, 0, 0);
@@ -8324,14 +12569,23 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 }
 
-                if (data.player?.username) {
-                    currentPlayerUsername = data.player.username;
+                try {
+                    applyIncomingMatchState(data, { playEntrySound: true });
+                } catch (error) {
+                    console.warn('Unable to apply initial match state.', error);
                 }
-                applyIncomingMatchState(data, { playEntrySound: true });
-                connectMatchSocket();
-                await playBattleIntro(data);
+                await battleIntroPromise;
             } catch (error) {
                 console.warn('Failed to load match data.', error);
+                announceMatchIssue(
+                    `We couldn't load the live match cleanly. ${error?.message || ''}`.trim(),
+                    {
+                        dismissible: false,
+                        reason: 'load-match',
+                        recoveryMessage: 'Retrying match load...',
+                    }
+                );
+                attemptMatchAutoRecovery('load-match');
             }
         };
 
@@ -8349,17 +12603,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const handleEndTurnConfirm = async () => {
             if (isEndingTurn || !matchIdFromUrl) return;
-            const pending = normalizePendingTurn(pendingTurnState);
-            if (pending.unresolvedRandom > 0) {
-                updateEndTurnButtons();
-                return;
-            }
             isEndingTurn = true;
+            clearActiveTargetSelectionState();
             if (endTurnOkButton) {
                 endTurnOkButton.disabled = true;
             }
-            const resolutionAnimationEntries = getQueuedResolutionAnimationEntries();
             try {
+                await waitForPendingSkillQueues();
+                const pending = normalizePendingTurn(pendingTurnState);
+                if (pending.unresolvedRandom > 0) {
+                    setEndTurnModalStatus(
+                        `Choose ${pending.unresolvedRandom} random energy with the + and - buttons before ending your turn.`,
+                        'info'
+                    );
+                    updateEndTurnButtons();
+                    return;
+                }
+                const resolutionAnimationEntries = getQueuedResolutionAnimationEntries();
                 const response = await fetch(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/end`,
                     {
@@ -8368,15 +12628,90 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 );
                 const data = await response.json();
+                if (response.status === 401 || response.status === 403) {
+                    redirectToSelectionLogin(currentMatchArena, {
+                        clearUser: false,
+                        preferSelection: true,
+                        replace: true,
+                    });
+                    return;
+                }
+                const actionRejected =
+                    typeof data?.actionRejected === 'string' ? data.actionRejected.trim().toLowerCase() : '';
                 if (!response.ok || !data?.ok) {
                     const detailSuffix = data?.details ? ` Details: ${data.details}` : '';
                     throw new Error((data?.error || 'Failed to end turn.') + detailSuffix);
                 }
+                if (data?.staleAction && actionRejected) {
+                    applyIncomingMatchState(data);
+                    syncTurnActionStateFromPayload(data);
+                    if (actionRejected === 'unresolved-random') {
+                        setEndTurnModalStatus(
+                            `Choose ${normalizePendingTurn(data.pendingTurn).unresolvedRandom || 0} random energy with the + and - buttons before ending your turn.`,
+                            'info'
+                        );
+                        if (endTurnModalEl?.style.visibility === 'visible') {
+                            renderEndTurnModal(playerPoolState, pendingTurnState);
+                        }
+                        return;
+                    }
+                    if (actionRejected === 'pending-turn-start-choice') {
+                        closeEndTurnModal();
+                        announceMatchIssue('A turn-start choice still needs to be resolved before you can end your turn.', {
+                            tone: 'info',
+                            reason: 'turn-start-choice-required',
+                        });
+                        return;
+                    }
+                    if (actionRejected === 'not-your-turn') {
+                        closeEndTurnModal();
+                        const payloadPlayerUsername = data?.player?.username || currentPlayerUsername || '';
+                        const turnAlreadyAdvanced =
+                            data?.currentTurn &&
+                            payloadPlayerUsername &&
+                            !usernamesMatch(data.currentTurn, payloadPlayerUsername);
+                        if (turnAlreadyAdvanced) {
+                            clearMatchIssueBanner();
+                            return;
+                        }
+                        announceMatchIssue('That turn has already moved on. Resyncing to the live match state...', {
+                            tone: 'info',
+                            reason: 'turn-ended-elsewhere',
+                        });
+                        return;
+                    }
+                    closeEndTurnModal();
+                    announceMatchIssue('Your turn state changed on the server, so the match was resynced.', {
+                        tone: 'info',
+                        reason: 'turn-state-resynced',
+                    });
+                    return;
+                }
                 playIngameSound(nextRoundSound);
-                await applyMatchStateAfterResolutionSequence(data, resolutionAnimationEntries);
+                try {
+                    await applyMatchStateAfterResolutionSequence(data, resolutionAnimationEntries);
+                } catch (renderError) {
+                    console.warn('Failed to render post-turn match state.', renderError);
+                    recoverCurrentMatchState({
+                        reason: 'turn-end-render',
+                        message: 'Syncing the updated turn state...',
+                    }).catch(() => {});
+                    return;
+                }
                 closeEndTurnModal();
             } catch (error) {
                 console.warn('Failed to end turn.', error);
+                announceMatchIssue(
+                    `Your turn could not be confirmed. ${error?.message || 'Retrying match sync...'}`,
+                    {
+                        reason: 'end-turn',
+                        recoveryMessage: 'Retrying match sync after turn submit...',
+                    }
+                );
+                recoverCurrentMatchState({
+                    reason: 'end-turn',
+                    message: 'Retrying match sync after turn submit...',
+                }).catch(() => {});
             } finally {
                 isEndingTurn = false;
                 updateEndTurnButtons();
@@ -8453,6 +12788,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 );
                 const data = await response.json();
+                if (response.status === 401 || response.status === 403) {
+                    redirectToSelectionLogin(currentMatchArena, {
+                        clearUser: false,
+                        preferSelection: true,
+                        replace: true,
+                    });
+                    return;
+                }
                 if (!response.ok || !data?.ok) {
                     throw new Error(data?.error || 'Unable to adjust random chakra.');
                 }
@@ -8460,7 +12803,29 @@ document.addEventListener('DOMContentLoaded', async () => {
                     syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
                     return;
                 }
-                renderChakra(data.chakraPools?.[currentPlayerUsername] || emptyPool());
+                const actionRejected =
+                    typeof data?.actionRejected === 'string' ? data.actionRejected.trim().toLowerCase() : '';
+                if (data?.staleAction && actionRejected) {
+                    applyIncomingMatchState(data);
+                    syncTurnActionStateFromPayload(data);
+                    if (actionRejected === 'not-your-turn') {
+                        closeEndTurnModal();
+                        announceMatchIssue('That turn has already moved on. Resyncing to the live match state...', {
+                            tone: 'info',
+                            reason: 'random-adjust-turn-moved',
+                        });
+                        return;
+                    }
+                    if (actionRejected === 'unresolved-random' && endTurnModalEl?.style.visibility === 'visible') {
+                        renderEndTurnModal(playerPoolState, pendingTurnState);
+                    }
+                    announceMatchIssue('Your turn energy changed on the server, so it was resynced.', {
+                        tone: 'info',
+                        reason: 'random-adjust-resynced',
+                    });
+                    return;
+                }
+                renderChakra(getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || emptyPool());
                 pendingTurnState = normalizePendingTurn(data.pendingTurn);
                 applyQueuedSkillVisuals();
                 syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
@@ -8482,12 +12847,33 @@ document.addEventListener('DOMContentLoaded', async () => {
                     renderEndTurnModal(previousPoolState, previousPendingState);
                 }
                 console.warn('Failed to adjust random chakra.', error);
+                announceMatchIssue(
+                    `Energy selection fell out of sync. ${error?.message || 'Refreshing your turn...'}`,
+                    {
+                        tone: 'info',
+                        reason: 'random-adjust',
+                        recoveryMessage: 'Refreshing your turn energy...',
+                    }
+                );
+                recoverCurrentMatchState({
+                    reason: 'random-adjust',
+                    message: 'Refreshing your turn energy...',
+                }).catch(() => {});
             }
         };
 
         const handleExchangeConfirm = async () => {
             if (!matchIdFromUrl || battleEndShown) return;
             if (!currentPlayerUsername || !usernamesMatch(currentPlayerUsername, currentTurnUsername)) return;
+            if (getExchangeAssignedTotal() !== EXCHANGE_CHAKRA_COST) {
+                setExchangeStatus(`Choose exactly ${EXCHANGE_CHAKRA_COST} energy.`);
+                return;
+            }
+            if (exchangeOkButton) {
+                exchangeOkButton.disabled = true;
+                exchangeOkButton.style.opacity = '0.45';
+            }
+            setExchangeStatus('Exchanging energy...');
             try {
                 const response = await fetch(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/chakra/exchange`,
@@ -8502,10 +12888,46 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                 );
                 const data = await response.json();
+                if (response.status === 401 || response.status === 403) {
+                    redirectToSelectionLogin(currentMatchArena, {
+                        clearUser: false,
+                        preferSelection: true,
+                        replace: true,
+                    });
+                    return;
+                }
                 if (!response.ok || !data?.ok) {
                     throw new Error(data?.error || 'Unable to exchange chakra.');
                 }
-                renderChakra(data.chakraPools?.[currentPlayerUsername] || emptyPool());
+                const actionRejected =
+                    typeof data?.actionRejected === 'string' ? data.actionRejected.trim().toLowerCase() : '';
+                if (data?.staleAction && actionRejected) {
+                    applyIncomingMatchState(data);
+                    syncTurnActionStateFromPayload(data);
+                    if (actionRejected === 'not-your-turn') {
+                        closeExchangeModal();
+                        announceMatchIssue('That turn has already moved on. Resyncing to the live match state...', {
+                            tone: 'info',
+                            reason: 'chakra-exchange-turn-moved',
+                        });
+                        return;
+                    }
+                    if (actionRejected === 'pending-turn-start-choice') {
+                        closeExchangeModal();
+                        announceMatchIssue('A turn-start choice still needs to be resolved before exchanging energy.', {
+                            tone: 'info',
+                            reason: 'chakra-exchange-turn-start-choice',
+                        });
+                        return;
+                    }
+                    closeExchangeModal();
+                    announceMatchIssue('The turn energy changed on the server, so the match was resynced.', {
+                        tone: 'info',
+                        reason: 'chakra-exchange-resynced',
+                    });
+                    return;
+                }
+                renderChakra(getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || emptyPool());
                 pendingTurnState = normalizePendingTurn(data.pendingTurn);
                 applyQueuedSkillVisuals();
                 syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
@@ -8513,23 +12935,83 @@ document.addEventListener('DOMContentLoaded', async () => {
                 closeExchangeModal();
             } catch (error) {
                 console.warn('Failed to exchange chakra.', error);
+                setExchangeStatus(error.message || 'Unable to exchange energy.');
+                renderExchangeModal(playerPoolState);
+                announceMatchIssue(
+                    `Energy exchange failed. ${error?.message || 'Refreshing the match state...'}`,
+                    {
+                        reason: 'chakra-exchange',
+                        recoveryMessage: 'Refreshing the match after exchange failure...',
+                    }
+                );
+                recoverCurrentMatchState({
+                    reason: 'chakra-exchange',
+                    message: 'Refreshing the match after exchange failure...',
+                }).catch(() => {});
             }
         };
 
         if (readySectionEl) {
-            readySectionEl.addEventListener('click', () => {
+            let readySectionPointerActivationAt = 0;
+            const handleReadySectionPress = () => {
                 handleReadySectionClick().catch((error) =>
                     console.warn('Failed to open end turn dialog.', error)
                 );
+            };
+            readySectionEl.addEventListener('pointerup', (event) => {
+                if (event?.button !== undefined && event.button !== 0) return;
+                readySectionPointerActivationAt = Date.now();
+                event.preventDefault();
+                event.stopPropagation();
+                handleReadySectionPress();
+            });
+            readySectionEl.addEventListener('click', (event) => {
+                if (Date.now() - readySectionPointerActivationAt < 450) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+                handleReadySectionPress();
             });
         }
         if (endTurnOkButton) {
-            endTurnOkButton.addEventListener('click', () => {
+            let endTurnOkPointerActivationAt = 0;
+            const handleEndTurnOkPress = () => {
                 handleEndTurnConfirm().catch((error) => console.warn('Turn end confirm failed.', error));
+            };
+            endTurnOkButton.addEventListener('pointerup', (event) => {
+                if (event?.button !== undefined && event.button !== 0) return;
+                endTurnOkPointerActivationAt = Date.now();
+                event.preventDefault();
+                event.stopPropagation();
+                handleEndTurnOkPress();
+            });
+            endTurnOkButton.addEventListener('click', (event) => {
+                if (Date.now() - endTurnOkPointerActivationAt < 450) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+                handleEndTurnOkPress();
             });
         }
         if (endTurnCancelButton) {
-            endTurnCancelButton.addEventListener('click', handleEndTurnCancel);
+            let endTurnCancelPointerActivationAt = 0;
+            endTurnCancelButton.addEventListener('pointerup', (event) => {
+                if (event?.button !== undefined && event.button !== 0) return;
+                endTurnCancelPointerActivationAt = Date.now();
+                event.preventDefault();
+                event.stopPropagation();
+                handleEndTurnCancel();
+            });
+            endTurnCancelButton.addEventListener('click', (event) => {
+                if (Date.now() - endTurnCancelPointerActivationAt < 450) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+                handleEndTurnCancel();
+            });
         }
         if (exchangeLabel) {
             exchangeLabel.addEventListener('click', (event) => {
@@ -8630,7 +13112,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             } catch (error) {
                 console.warn('Failed to surrender.', error);
-                window.location.href = 'selection.html';
+                window.location.href = `selection.html?arena=${encodeURIComponent(currentMatchArena)}`;
             }
         };
 
@@ -8643,7 +13125,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         if (battleEndContinueButton) {
             battleEndContinueButton.addEventListener('click', () => {
-                window.location.href = 'selection.html';
+                redirectToArenaSelection(currentMatchArena, { replace: true });
             });
         }
 
@@ -8662,7 +13144,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    await hydratePlayerIdentity();
+    void hydratePlayerIdentity()
+        .then(() => {})
+        .catch((error) => {
+            console.warn('Failed to hydrate player identity.', error);
+        });
 
     const logoutButton = document.querySelector('.logout-button');
     const quickButton = document.querySelector('.quick-button');
@@ -8673,13 +13159,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const searchingMessage = document.querySelector('.searching');
     const searchingSpinner = document.querySelector('.sharingan');
     const cancelSearchingButton = document.querySelector('.cancel-button');
-    const battleBotWheelButton = document.getElementById('battle-bot-wheel-button');
-    const battleBotWheelStatus = document.getElementById('battle-bot-wheel-status');
-    const battleBotChoicePopup = document.getElementById('battle-bot-choice-popup');
-    const battleBotChoiceCloseButton = document.getElementById('battle-bot-choice-close');
-    const battleBotChoiceButtons = Array.from(
-        document.querySelectorAll('[data-battle-bot-choice]')
-    );
     const draftModeButton = document.getElementById('draft-mode-button');
     const draftBackdrop = document.querySelector('.draft-backdrop');
     const draftOpponentEl = document.querySelector('.draft-opponent');
@@ -8699,6 +13178,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const privateMatchError = document.querySelector('.private-match-error');
     const privateMatchOkButton = document.querySelector('.private-match-ok');
     const privateMatchCancelButton = document.querySelector('.private-match-cancel');
+    const arenaModeButtons = Array.from(document.querySelectorAll('.arena-mode-button'));
     const defaultCancelButtonLabel = cancelSearchingButton ? cancelSearchingButton.textContent : '';
     let activeSearchTargetUsername = '';
     const foundMatchSound = new Audio('assets/audio/sounds/found-match.mp3');
@@ -8708,15 +13188,66 @@ document.addEventListener('DOMContentLoaded', async () => {
     let isSearching = false;
     let pendingMatchRedirect = null;
     let draftModeEnabled = localStorage.getItem('comicDraftModeEnabled') === 'true';
+    setProtectionTerminologyArena(activeArenaMode);
+    if (arenaModeFromUrl === 'pokemon' || arenaModeFromUrl === 'comic') {
+        localStorage.setItem('comicArenaMode', activeArenaMode);
+    }
     let activeDraft = null;
     let activeDraftSelection = [];
     let activeDraftSelectionPhase = '';
     let activeDraftPoll = null;
     let activeDraftTimer = null;
-
     const setSelectionMissionsStatus = (message = '') => {
         if (!selectionMissionsStatusEl) return;
         selectionMissionsStatusEl.textContent = message;
+    };
+
+    const getArenaModeLabel = (arena = activeArenaMode) =>
+        arena === 'pokemon' ? 'Pokemon Arena' : 'Comic Arena';
+
+    const syncArenaModeBackground = () => {
+        document.body.classList.toggle('arena-mode-pokemon', activeArenaMode === 'pokemon');
+        document.body.classList.toggle('arena-mode-comic', activeArenaMode !== 'pokemon');
+        const selectionScroll = document.querySelector('.selectionscroll');
+        if (selectionScroll) {
+            selectionScroll.src =
+                activeArenaMode === 'pokemon' ? POKEMON_SELECTION_SCROLL_URL : COMIC_SELECTION_SCROLL_URL;
+        }
+        const selectionBackground = document.querySelector('.background');
+        if (!selectionBackground) return;
+        if (activeArenaMode === 'pokemon') {
+            selectionBackground.style.setProperty(
+                '--pokemon-selection-background',
+                toBackgroundImageValue(POKEMON_SELECTION_BACKGROUND_URL)
+            );
+            setBackgroundImage(selectionBackground, POKEMON_SELECTION_BACKGROUND_URL, true);
+            return;
+        }
+        selectionBackground.style.removeProperty('--pokemon-selection-background');
+        setBackgroundImage(selectionBackground, profileCache?.profile?.backgrounds?.selectionUrl || '');
+    };
+
+    const syncArenaModePlayerIdentity = () => {
+        if (!profileCache?.username || !profileCache?.profile) return;
+        const playerProfileView = getArenaProfileView(profileCache.profile, activeArenaMode);
+        applyPlayerIdentity({
+            name: profileCache.username,
+            avatarUrl: playerProfileView.avatarUrl || getArenaDefaultAvatarUrl(activeArenaMode),
+            clanAbbreviation: playerProfileView.clan?.abbreviation || 'None',
+            ladder: playerProfileView.ladder || null,
+            arenaMode: activeArenaMode,
+        });
+    };
+
+    const syncArenaModeButtons = () => {
+        arenaModeButtons.forEach((button) => {
+            const mode = button.dataset.arenaMode === 'pokemon' ? 'pokemon' : 'comic';
+            const active = mode === activeArenaMode;
+            button.classList.toggle('active', active);
+            button.setAttribute('aria-pressed', active ? 'true' : 'false');
+        });
+        syncArenaModeBackground();
+        syncArenaModePlayerIdentity();
     };
 
     const formatMissionGoalLines = (mission, progress = {}) => {
@@ -8750,6 +13281,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                         ? `Win ${target} in a row with ${characterName}: ${Math.min(count, target)}/${target}`
                         : '';
                 }
+                if (goalType === 'win_streak_same_team') {
+                    const target = Math.max(0, Number(goal.wins) || 0);
+                    const characterNames = Array.isArray(goal.character_names) && goal.character_names.length
+                        ? goal.character_names
+                        : Array.isArray(goal.character_ids)
+                            ? goal.character_ids
+                            : [];
+                    return target
+                        ? `Win ${target} in a row with ${characterNames.join(' and ') || 'the required team'}: ${Math.min(count, target)}/${target}`
+                        : '';
+                }
                 if (goalType === 'win_matches_same_team') {
                     const target = Math.max(0, Number(goal.wins) || 0);
                     const characterNames = Array.isArray(goal.character_names) && goal.character_names.length
@@ -8775,14 +13317,335 @@ document.addEventListener('DOMContentLoaded', async () => {
         const specialPve = mission?.special_pve || mission?.specialPve || {};
         if (specialPve.enabled) {
             const botName = specialPve.botName || 'Mission Bot';
-            const botCharacterName =
+            const rewardName =
                 mission?.reward_character_name ||
                 specialPve.botTeamCharacterName ||
-                specialPve.botTeamCharacterId ||
-                'mission enemy';
-            return `Defeat ${botName} using ${botCharacterName}. Requires level ${mission.level_requirement || 1}.`;
+                'the mission reward';
+            return `Defeat ${botName} to unlock ${rewardName}. Requires level ${mission.level_requirement || 1}.`;
         }
         return 'No tracked progress yet.';
+    };
+
+    const getMissionUnlockPointCost = (mission = {}, payload = {}) => {
+        const explicitCost = Number(mission.unlockPointCost ?? mission.unlock_point_cost);
+        if (Number.isFinite(explicitCost) && explicitCost > 0) {
+            return Math.floor(explicitCost);
+        }
+        const fallbackCost = Number(payload.unlockPointCost);
+        if (Number.isFinite(fallbackCost) && fallbackCost > 0) {
+            return Math.floor(fallbackCost);
+        }
+        return DEFAULT_UNLOCK_POINT_COST;
+    };
+
+    const getMissionRewardCharacterIds = (mission = {}) => [
+        String(mission.reward_character || '').trim().toLowerCase(),
+        ...(Array.isArray(mission.reward_character_ids)
+            ? mission.reward_character_ids.map((entry) => String(entry || '').trim().toLowerCase())
+            : []),
+    ].filter(Boolean);
+
+    const getMissionRewardCharacterLabel = (mission = {}, rewardCharacterId = '') => {
+        const normalizedRewardId = String(rewardCharacterId || '').trim().toLowerCase();
+        if (
+            normalizedRewardId &&
+            String(mission.reward_character || '').trim().toLowerCase() === normalizedRewardId &&
+            typeof mission.reward_character_name === 'string' &&
+            mission.reward_character_name.trim()
+        ) {
+            return mission.reward_character_name.trim();
+        }
+        const character = roster.find(
+            (entry) => String(entry?.characterId || '').trim().toLowerCase() === normalizedRewardId
+        );
+        return character?.name || normalizedRewardId || 'Character';
+    };
+
+    const refreshSelectionRosterPresentation = () => {
+        rebuildRosterWithEquippedSkins();
+        rebuildRosterDisplayIndices();
+        syncRosterFilterSelect();
+        renderRosterPage();
+        updateGameButtons();
+        applySavedTeam();
+    };
+
+    const applyUpdatedProfile = (profile = null) => {
+        if (!profile || !profileCache?.username) {
+            return;
+        }
+        profileCache = {
+            ...profileCache,
+            profile,
+        };
+        writeCachedUser(profileCache);
+        syncArenaModePlayerIdentity();
+        refreshSelectionRosterPresentation();
+    };
+
+    const applyMissionPurchaseProfile = (payload = {}) => {
+        if (!payload.profile) {
+            return;
+        }
+        applyUpdatedProfile(payload.profile);
+    };
+
+    const applyArenaSkinCatalogPayload = (payload = {}) => {
+        const arena = payload?.arena === 'pokemon' ? 'pokemon' : 'comic';
+        arenaSkinCatalogCache[arena] = Array.isArray(payload?.skins)
+            ? payload.skins.map((entry = {}) => ({
+                  ...entry,
+                  skinId: normalizeSkinId(entry.skinId),
+                  characterId: normalizeSkinCharacterId(entry.characterId),
+                  skillImageOverridesBySkillId:
+                      entry.skillImageOverridesBySkillId && typeof entry.skillImageOverridesBySkillId === 'object'
+                          ? entry.skillImageOverridesBySkillId
+                          : {},
+                  skillOverridesBySkillId:
+                      entry.skillOverridesBySkillId && typeof entry.skillOverridesBySkillId === 'object'
+                          ? entry.skillOverridesBySkillId
+                          : {},
+                  statusFacePictureOverridesByStatusId:
+                      entry.statusFacePictureOverridesByStatusId &&
+                      typeof entry.statusFacePictureOverridesByStatusId === 'object'
+                          ? entry.statusFacePictureOverridesByStatusId
+                          : {},
+              }))
+            : [];
+        if (arena === activeArenaMode) {
+            refreshSelectionRosterPresentation();
+        }
+    };
+
+    const fetchArenaSkins = async (arena = activeArenaMode) => {
+        const response = await fetch(`${API_BASE_URL}/api/skins?arena=${encodeURIComponent(arena)}`, {
+            credentials: 'include',
+            cache: 'no-store',
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(payload.error || 'Unable to load skins.');
+        }
+        applyArenaSkinCatalogPayload(payload);
+        return payload;
+    };
+
+    const stripUnlockPointsPaymentQueryParams = () => {
+        const url = new URL(window.location.href);
+        [
+            'unlockPointsPayment',
+            'token',
+            'PayerID',
+            'payerId',
+            'packageId',
+        ].forEach((key) => url.searchParams.delete(key));
+        window.history.replaceState({}, document.title, url.toString());
+    };
+
+    const startPayPalUnlockPointCheckout = async (packageId, button = null) => {
+        const normalizedPackageId = String(packageId || '').trim().toLowerCase();
+        if (!normalizedPackageId) return;
+        if (button) button.disabled = true;
+        setSelectionMissionsStatus('Redirecting to PayPal...');
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/unlock-points/paypal/create-order`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    arena: activeArenaMode,
+                    packageId: normalizedPackageId,
+                }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || 'Unable to start PayPal checkout.');
+            }
+            if (!payload.approveUrl) {
+                throw new Error('PayPal did not return an approval link.');
+            }
+            window.location.assign(payload.approveUrl);
+        } catch (error) {
+            if (button) button.disabled = false;
+            setSelectionMissionsStatus(error.message || 'Unable to start PayPal checkout.');
+        }
+    };
+
+    const captureReturnedPayPalUnlockPoints = async () => {
+        const currentSearchParams = new URLSearchParams(window.location.search);
+        const paymentState = currentSearchParams.get('unlockPointsPayment') || '';
+        const orderId = currentSearchParams.get('token') || '';
+        if (paymentState === 'paypal-cancelled') {
+            const message = 'PayPal checkout was cancelled.';
+            setSelectionMissionsStatus(message);
+            stripUnlockPointsPaymentQueryParams();
+            return message;
+        }
+        if (paymentState !== 'paypal' || !orderId) {
+            return '';
+        }
+        setSelectionMissionsStatus('Confirming PayPal payment...');
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/unlock-points/paypal/capture`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    arena: activeArenaMode,
+                    orderId,
+                }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || 'Unable to confirm PayPal payment.');
+            }
+            if (payload.profile) {
+                applyUpdatedProfile(payload.profile);
+            }
+            stripUnlockPointsPaymentQueryParams();
+            const message =
+                payload.alreadyGranted
+                    ? 'This PayPal payment was already credited.'
+                    : `${Number(payload.pointsGranted || 0).toLocaleString()} unlock points added.`;
+            setSelectionMissionsStatus(message);
+            return message;
+        } catch (error) {
+            const message = error.message || 'Unable to confirm PayPal payment.';
+            setSelectionMissionsStatus(message);
+            return message;
+        }
+    };
+
+    const buyMissionCharacterUnlock = async (characterId, button = null) => {
+        const normalizedCharacterId = String(characterId || '').trim().toLowerCase();
+        if (!normalizedCharacterId) return;
+        if (button) button.disabled = true;
+        setSelectionMissionsStatus('Buying character unlock...');
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/missions/unlock-points/purchase`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    arena: activeArenaMode,
+                    characterId: normalizedCharacterId,
+                }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || 'Unable to buy character unlock.');
+            }
+            applyMissionPurchaseProfile(payload);
+            setSelectionMissionsStatus('Character unlocked with ladder points.');
+            await loadMissionLockedCharacterIds();
+            await loadSelectionMissions();
+            rebuildRosterDisplayIndices();
+            syncRosterFilterSelect();
+            renderRosterPage();
+            updateGameButtons();
+            applySavedTeam();
+        } catch (error) {
+            if (button) button.disabled = false;
+            setSelectionMissionsStatus(error.message || 'Unable to buy character unlock.');
+        }
+    };
+
+    const getEeveeEvolutionOptions = () => [
+        { id: 'jolteon', name: 'Jolteon' },
+        { id: 'flareon', name: 'Flareon' },
+        { id: 'vaporeon', name: 'Vaporeon' },
+    ];
+
+    const chooseEeveeEvolution = async (evolutionCharacterId, button = null) => {
+        if (!evolutionCharacterId) return;
+        if (button) button.disabled = true;
+        setSelectionMissionsStatus('Saving Eevee evolution...');
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/profile/pokemon/eevee-evolution`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    evolutionCharacterId,
+                    confirmed: true,
+                }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || 'Unable to save Eevee evolution.');
+            }
+            if (payload.user?.profile) {
+                if (payload.user?.username) {
+                    profileCache = payload.user;
+                    writeCachedUser(payload.user);
+                    syncArenaModePlayerIdentity();
+                    refreshSelectionRosterPresentation();
+                } else {
+                    applyUpdatedProfile(payload.user.profile);
+                }
+            } else {
+                await fetchProfile();
+            }
+            await loadMissionLockedCharacterIds();
+            loadSelectedTeam();
+            updateGameButtons();
+            await loadSelectionMissions();
+            const chosenName =
+                getEeveeEvolutionOptions().find((option) => option.id === evolutionCharacterId)?.name ||
+                evolutionCharacterId;
+            setSelectionMissionsStatus(`${chosenName} unlocked. Eevee has been permanently removed.`);
+        } catch (error) {
+            if (button) button.disabled = false;
+            setSelectionMissionsStatus(error.message || 'Unable to save Eevee evolution.');
+        }
+    };
+
+    const renderEeveeEvolutionChoice = (card) => {
+        const selectedEvolutionId = getSelectedEeveeEvolutionId();
+        if (selectedEvolutionId) {
+            const selected = getEeveeEvolutionOptions().find((option) => option.id === selectedEvolutionId);
+            const note = document.createElement('p');
+            note.className = 'selection-mission-progress';
+            note.textContent = `${selected?.name || 'Evolution'} chosen. Eevee is permanently removed.`;
+            card.appendChild(note);
+            return;
+        }
+
+        const choices = document.createElement('div');
+        choices.className = 'selection-mission-eevee-choices';
+        getEeveeEvolutionOptions().forEach((option) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'selection-mission-action';
+            button.textContent = option.name;
+            button.addEventListener('click', () => {
+                choices.innerHTML = '';
+                const warning = document.createElement('p');
+                warning.className = 'selection-mission-progress';
+                warning.textContent =
+                    'Are you sure? This decision is permanent and cannot be reversed and Eevee is permanently removed';
+                const yesButton = document.createElement('button');
+                yesButton.type = 'button';
+                yesButton.className = 'selection-mission-action';
+                yesButton.textContent = 'Yes ';
+                yesButton.addEventListener('click', () => {
+                    chooseEeveeEvolution(option.id, yesButton);
+                });
+                const noButton = document.createElement('button');
+                noButton.type = 'button';
+                noButton.className = 'selection-mission-action';
+                noButton.textContent = 'no';
+                noButton.addEventListener('click', () => {
+                    choices.remove();
+                    renderEeveeEvolutionChoice(card);
+                });
+                choices.appendChild(warning);
+                choices.appendChild(yesButton);
+                choices.appendChild(noButton);
+            });
+            choices.appendChild(button);
+        });
+        card.appendChild(choices);
     };
 
     const startSelectionMissionPveFight = async (missionId, button = null) => {
@@ -8801,7 +13664,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     method: 'POST',
                     credentials: 'include',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ team }),
+                    body: JSON.stringify({ team, arena: activeArenaMode }),
                 }
             );
             const payload = await response.json().catch(() => ({}));
@@ -8809,7 +13672,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 throw new Error(payload.error || 'Unable to start mission fight.');
             }
             if (payload.matchId) {
-                window.location.href = `ingame.html?matchId=${encodeURIComponent(payload.matchId)}`;
+                redirectToMatch(payload.matchId, payload.arena || activeArenaMode);
                 return;
             }
             throw new Error('Mission fight did not return a match.');
@@ -8819,16 +13682,258 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    const unlockSelectionSkin = async (skinId, button = null) => {
+        const normalizedSkinId = normalizeSkinId(skinId);
+        if (!normalizedSkinId) return;
+        if (button) button.disabled = true;
+        setSelectionMissionsStatus('Unlocking skin...');
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/skins/unlock`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    arena: activeArenaMode,
+                    skinId: normalizedSkinId,
+                }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || 'Unable to unlock skin.');
+            }
+            if (payload.profile) {
+                applyUpdatedProfile(payload.profile);
+            }
+            applyArenaSkinCatalogPayload(payload);
+            await loadSelectionMissions();
+            setSelectionMissionsStatus('Skin unlocked with ladder points.');
+        } catch (error) {
+            if (button) button.disabled = false;
+            setSelectionMissionsStatus(error.message || 'Unable to unlock skin.');
+        }
+    };
+
+    const equipSelectionSkin = async (characterId, skinId, button = null) => {
+        const normalizedCharacterId = normalizeSkinCharacterId(characterId);
+        const normalizedSkinId = normalizeSkinId(skinId);
+        if (!normalizedCharacterId) return;
+        if (button) button.disabled = true;
+        setSelectionMissionsStatus(normalizedSkinId ? 'Equipping skin...' : 'Switching to default...');
+        try {
+            const response = await fetch(`${API_BASE_URL}/api/skins/equip`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    arena: activeArenaMode,
+                    characterId: normalizedCharacterId,
+                    skinId: normalizedSkinId,
+                }),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(payload.error || 'Unable to equip skin.');
+            }
+            if (payload.profile) {
+                applyUpdatedProfile(payload.profile);
+            }
+            applyArenaSkinCatalogPayload(payload);
+            await loadSelectionMissions();
+            setSelectionMissionsStatus(normalizedSkinId ? 'Skin equipped.' : 'Default look restored.');
+        } catch (error) {
+            if (button) button.disabled = false;
+            setSelectionMissionsStatus(error.message || 'Unable to equip skin.');
+        }
+    };
+
+    const renderSelectionSkins = (payload = {}) => {
+        if (!selectionMissionsListEl) return;
+        const skins = Array.isArray(payload?.skins) ? payload.skins : [];
+        const section = document.createElement('section');
+        section.className = 'selection-skins-section';
+        const heading = document.createElement('h3');
+        heading.className = 'selection-section-title';
+        heading.textContent = activeArenaMode === 'pokemon' ? 'Skin Shop' : 'Skins';
+        section.appendChild(heading);
+
+        if (!skins.length) {
+            const empty = document.createElement('div');
+            empty.className = 'selection-mission-card selection-skin-card';
+            empty.textContent =
+                activeArenaMode === 'pokemon'
+                    ? 'Skin slots are ready. Add the first Pokemon skin images and they will show up here for unlock points.'
+                    : 'No skins available in this arena.';
+            section.appendChild(empty);
+            selectionMissionsListEl.appendChild(section);
+            return;
+        }
+
+        const unlockedSkinIds = new Set(
+            getArenaSkinState(profileCache?.profile, activeArenaMode).unlockedSkinIds.map((entry) => normalizeSkinId(entry))
+        );
+        const equippedSkinByCharacterId = getArenaSkinState(
+            profileCache?.profile,
+            activeArenaMode
+        ).equippedSkinByCharacterId;
+
+        skins.forEach((skin = {}) => {
+            const skinId = normalizeSkinId(skin.skinId);
+            const characterId = normalizeSkinCharacterId(skin.characterId);
+            if (!skinId || !characterId) return;
+            const baseCharacter = baseRoster.find(
+                (entry) => normalizeSkinCharacterId(entry?.characterId || entry?.id) === characterId
+            );
+            const characterLabel = baseCharacter?.name || characterId || 'this Pokemon';
+            const isUnlocked = unlockedSkinIds.has(skinId);
+            const isEquipped = equippedSkinByCharacterId[characterId] === skinId;
+            const card = document.createElement('article');
+            card.className = 'selection-mission-card selection-skin-card';
+
+            const head = document.createElement('div');
+            head.className = 'selection-mission-head';
+            const image = document.createElement('img');
+            image.className = 'selection-mission-image';
+            image.src =
+                skin.previewFacePicture ||
+                baseCharacter?.facePicture ||
+                'assets/images/default-avatar.png';
+            image.alt = skin.name || 'Skin';
+            const titleWrap = document.createElement('div');
+            const title = document.createElement('h3');
+            title.className = 'selection-mission-title';
+            title.textContent = skin.name || 'Skin';
+            const reward = document.createElement('p');
+            reward.className = 'selection-mission-reward';
+            reward.textContent = skin.description || `Alternate look for ${characterLabel}.`;
+            titleWrap.appendChild(title);
+            titleWrap.appendChild(reward);
+            head.appendChild(image);
+            head.appendChild(titleWrap);
+            card.appendChild(head);
+
+            const progressText = document.createElement('p');
+            progressText.className = 'selection-mission-progress';
+            progressText.textContent = isEquipped
+                ? 'Equipped on your Pokemon.'
+                : isUnlocked
+                    ? 'Unlocked. You can equip this look at any time.'
+                    : `Costs ${Math.max(1, Number(skin.unlockPointCost) || DEFAULT_UNLOCK_POINT_COST).toLocaleString()} unlock points.`;
+            card.appendChild(progressText);
+
+            const actionRow = document.createElement('div');
+            actionRow.className = 'selection-mission-buy';
+            const actionLabel = document.createElement('span');
+            actionLabel.textContent = isUnlocked
+                ? `Applies to ${characterLabel}.`
+                : `Buy for ${Math.max(1, Number(skin.unlockPointCost) || DEFAULT_UNLOCK_POINT_COST).toLocaleString()} unlock points.`;
+            const actionButton = document.createElement('button');
+            actionButton.type = 'button';
+            actionButton.className = 'selection-mission-action selection-mission-buy-action';
+            if (!isUnlocked) {
+                const unlockPoints = Math.max(
+                    0,
+                    Number(getArenaLadder(profileCache?.profile, activeArenaMode)?.unlockPoints) || 0
+                );
+                const cost = Math.max(1, Number(skin.unlockPointCost) || DEFAULT_UNLOCK_POINT_COST);
+                actionButton.textContent = unlockPoints >= cost ? 'Buy Skin' : 'Need Points';
+                actionButton.disabled = unlockPoints < cost;
+                actionButton.addEventListener('click', () => {
+                    unlockSelectionSkin(skinId, actionButton);
+                });
+            } else if (isEquipped) {
+                actionButton.textContent = 'Use Default';
+                actionButton.addEventListener('click', () => {
+                    equipSelectionSkin(characterId, '', actionButton);
+                });
+            } else {
+                actionButton.textContent = 'Equip Skin';
+                actionButton.addEventListener('click', () => {
+                    equipSelectionSkin(characterId, skinId, actionButton);
+                });
+            }
+            actionRow.appendChild(actionLabel);
+            actionRow.appendChild(actionButton);
+            card.appendChild(actionRow);
+            section.appendChild(card);
+        });
+
+        selectionMissionsListEl.appendChild(section);
+    };
+
     const renderSelectionMissions = (payload = {}) => {
         if (!selectionMissionsListEl) return;
-        const missions = Array.isArray(payload.missions) ? payload.missions : [];
+        const missions = Array.isArray(payload.missions)
+            ? payload.missions.filter((mission) => {
+                  const missionArena =
+                      typeof mission?.arena === 'string' ? mission.arena.trim().toLowerCase() : 'comic';
+                  return missionArena === activeArenaMode;
+              })
+            : [];
         const progressByMissionId = payload.missionProgressByMissionId || {};
+        const unlockPoints = Math.max(0, Math.floor(Number(payload.unlockPoints) || 0));
+        const playerLevel = Math.max(1, Math.floor(Number(payload.playerLevel) || 1));
+        const unlockPointPriceMin = Math.max(
+            1,
+            Math.floor(Number(payload.unlockPointPriceMin) || DEFAULT_UNLOCK_POINT_COST)
+        );
+        const unlockPointPriceMax = Math.max(
+            unlockPointPriceMin,
+            Math.floor(Number(payload.unlockPointPriceMax) || 250)
+        );
+        const pointStore = payload.pointStore && typeof payload.pointStore === 'object' ? payload.pointStore : {};
+        const pointStorePackages = Array.isArray(pointStore.pointStorePackages) ? pointStore.pointStorePackages : [];
         const unlockedIds = new Set(
             (Array.isArray(payload.unlockedCharacterIds) ? payload.unlockedCharacterIds : [])
                 .map((entry) => String(entry || '').trim().toLowerCase())
                 .filter(Boolean)
         );
         selectionMissionsListEl.innerHTML = '';
+        const wallet = document.createElement('div');
+        wallet.className = 'selection-unlock-wallet';
+        const walletTotal = document.createElement('strong');
+        walletTotal.textContent = `${unlockPoints.toLocaleString()} unlock points`;
+        const walletHint = document.createElement('span');
+        walletHint.textContent =
+            unlockPointPriceMax >= 500 && activeArenaMode === 'pokemon'
+                ? `Earn points from ladder games. Most shop prices range from ${unlockPointPriceMin.toLocaleString()} to 250 points by character rank. Extra Eeveelutions cost 500 points after Eevee Evolution Path.`
+                : `Earn points from ladder games. Shop prices range from ${unlockPointPriceMin.toLocaleString()} to ${unlockPointPriceMax.toLocaleString()} points by character rank.`;
+        wallet.appendChild(walletTotal);
+        wallet.appendChild(walletHint);
+        selectionMissionsListEl.appendChild(wallet);
+        if (pointStorePackages.length) {
+            const storeCard = document.createElement('article');
+            storeCard.className = 'selection-mission-card';
+            const title = document.createElement('h3');
+            title.className = 'selection-mission-title';
+            title.textContent = 'Buy Points';
+            const subtitle = document.createElement('p');
+            subtitle.className = 'selection-mission-progress';
+            const arenaLabel = activeArenaMode === 'pokemon' ? 'Pokemon Arena' : 'Comic Arena';
+            subtitle.textContent = pointStore.paypalAvailable
+                ? `Securely buy ${arenaLabel} unlock points with PayPal.`
+                : 'PayPal checkout is not configured yet.';
+            storeCard.appendChild(title);
+            storeCard.appendChild(subtitle);
+            pointStorePackages.forEach((entry = {}) => {
+                const buyWrap = document.createElement('div');
+                buyWrap.className = 'selection-mission-buy';
+                const buyText = document.createElement('span');
+                const points = Math.max(1, Number(entry.points) || 0);
+                buyText.textContent = `${points.toLocaleString()} points for $${entry.amountUsd || '0.00'} ${entry.currency || 'USD'}.`;
+                const buyButton = document.createElement('button');
+                buyButton.type = 'button';
+                buyButton.className = 'selection-mission-action selection-mission-buy-action';
+                buyButton.textContent = pointStore.paypalAvailable ? 'Pay with PayPal' : 'Unavailable';
+                buyButton.disabled = !pointStore.paypalAvailable;
+                buyButton.addEventListener('click', () => {
+                    startPayPalUnlockPointCheckout(entry.packageId, buyButton);
+                });
+                buyWrap.appendChild(buyText);
+                buyWrap.appendChild(buyButton);
+                storeCard.appendChild(buyWrap);
+            });
+            selectionMissionsListEl.appendChild(storeCard);
+        }
         if (!missions.length) {
             const empty = document.createElement('div');
             empty.className = 'selection-mission-card';
@@ -8872,6 +13977,39 @@ document.addEventListener('DOMContentLoaded', async () => {
                 : getSelectionMissionProgressText(mission, progress);
             card.appendChild(progressText);
 
+            const isEeveeEvolutionMission =
+                mission.missionId === 'eevee-evolution-path' && activeArenaMode === 'pokemon';
+            const selectedEeveeEvolutionId = isEeveeEvolutionMission ? getSelectedEeveeEvolutionId() : '';
+            const canBuyEeveeEvolution =
+                !isEeveeEvolutionMission || (progress?.completedAt && selectedEeveeEvolutionId);
+            getMissionRewardCharacterIds(mission).forEach((rewardId) => {
+                if (!rewardId || unlockedIds.has(rewardId)) return;
+                if (isEeveeEvolutionMission && rewardId === selectedEeveeEvolutionId) return;
+                if (!canBuyEeveeEvolution) return;
+                const unlockPointCost = getMissionUnlockPointCost(mission, payload);
+                const requiredRank = Math.max(1, Math.floor(Number(mission.level_requirement ?? mission.rank) || 1));
+                const purchaseRankLocked = Boolean(mission.purchase_requires_rank) && playerLevel < requiredRank;
+                const buyWrap = document.createElement('div');
+                buyWrap.className = 'selection-mission-buy';
+                const buyText = document.createElement('span');
+                buyText.textContent = purchaseRankLocked
+                    ? `Reach rank ${requiredRank} to buy ${getMissionRewardCharacterLabel(mission, rewardId)} for ${unlockPointCost.toLocaleString()} points.`
+                    : `${getMissionRewardCharacterLabel(mission, rewardId)} costs ${unlockPointCost.toLocaleString()} unlock points.`;
+                const buyButton = document.createElement('button');
+                buyButton.type = 'button';
+                buyButton.className = 'selection-mission-action selection-mission-buy-action';
+                buyButton.textContent = purchaseRankLocked
+                    ? `Rank ${requiredRank} Required`
+                    : unlockPoints >= unlockPointCost ? 'Buy Unlock' : 'Need Points';
+                buyButton.disabled = purchaseRankLocked || unlockPoints < unlockPointCost;
+                buyButton.addEventListener('click', () => {
+                    buyMissionCharacterUnlock(rewardId, buyButton);
+                });
+                buyWrap.appendChild(buyText);
+                buyWrap.appendChild(buyButton);
+                card.appendChild(buyWrap);
+            });
+
             const specialPve = mission.special_pve || mission.specialPve || {};
             if (specialPve.enabled) {
                 const button = document.createElement('button');
@@ -8882,6 +14020,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                     startSelectionMissionPveFight(mission.missionId, button);
                 });
                 card.appendChild(button);
+            }
+            if (
+                mission.missionId === 'eevee-evolution-path' &&
+                progress?.completedAt &&
+                activeArenaMode === 'pokemon'
+            ) {
+                renderEeveeEvolutionChoice(card);
             }
             selectionMissionsListEl.appendChild(card);
         });
@@ -8899,33 +14044,23 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!selectionMissionsListEl) return;
         setSelectionMissionsStatus('Loading missions...');
         try {
-            const response = await fetch(`${API_BASE_URL}/api/missions`, {
-                credentials: 'include',
-                cache: 'no-store',
-            });
-            const payload = await response.json().catch(() => ({}));
-            if (!response.ok) {
+            const paymentStatusMessage = await captureReturnedPayPalUnlockPoints();
+            const [missionsResponse, skinsPayload] = await Promise.all([
+                fetch(`${API_BASE_URL}/api/missions?arena=${encodeURIComponent(activeArenaMode)}`, {
+                    credentials: 'include',
+                    cache: 'no-store',
+                }),
+                fetchArenaSkins(activeArenaMode),
+            ]);
+            const payload = await missionsResponse.json().catch(() => ({}));
+            if (!missionsResponse.ok) {
                 throw new Error(payload.error || 'Unable to load missions.');
             }
             renderSelectionMissions(payload);
-            setSelectionMissionsStatus('');
+            renderSelectionSkins(skinsPayload);
+            setSelectionMissionsStatus(paymentStatusMessage || '');
         } catch (error) {
             setSelectionMissionsStatus(error.message || 'Unable to load missions.');
-        }
-    };
-
-    const setBattleBotWheelStatus = (message = '', variant = 'info') => {
-        if (!battleBotWheelStatus) return;
-        battleBotWheelStatus.textContent = message;
-        battleBotWheelStatus.dataset.variant = variant;
-    };
-
-    const syncBattleBotWheel = () => {
-        const enabled = getBattleBotPreference();
-        if (battleBotWheelButton) {
-            battleBotWheelButton.classList.toggle('enabled', enabled);
-            battleBotWheelButton.classList.toggle('disabled', !enabled);
-            battleBotWheelButton.setAttribute('aria-expanded', 'false');
         }
     };
 
@@ -8934,35 +14069,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         draftModeButton.classList.toggle('enabled', draftModeEnabled);
         draftModeButton.classList.toggle('disabled', !draftModeEnabled);
         draftModeButton.setAttribute('aria-pressed', draftModeEnabled ? 'true' : 'false');
-    };
-
-    const setBattleBotChoicePopupVisible = (visible) => {
-        if (!battleBotChoicePopup) return;
-        battleBotChoicePopup.classList.toggle('visible', visible);
-        battleBotChoicePopup.setAttribute('aria-hidden', visible ? 'false' : 'true');
-        if (battleBotWheelButton) {
-            battleBotWheelButton.setAttribute('aria-expanded', visible ? 'true' : 'false');
-        }
-    };
-
-    const saveBattleBotPreference = async (enabled) => {
-        const response = await fetch(`${API_BASE_URL}/api/profile/matchmaking`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-                battleBotEnabled: Boolean(enabled),
-            }),
-        });
-        const data = await response.json().catch(() => null);
-        if (!response.ok || !data?.ok || !data?.user) {
-            throw new Error(data?.error || 'Unable to update battle bot preference.');
-        }
-        profileCache = data.user;
-        writeCachedUser(data.user);
-        syncBattleBotWheel();
     };
     const handleLogout = async () => {
         try {
@@ -8973,8 +14079,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (error) {
             console.warn('Logout request failed; proceeding to clear session locally.', error);
         } finally {
-            localStorage.removeItem('comicUser');
-            window.location.href = 'selection-login.html';
+            redirectToSelectionLogin(currentMatchArena);
         }
     };
 
@@ -8982,7 +14087,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         logoutButton.addEventListener('click', handleLogout);
     }
 
-    syncBattleBotWheel();
     syncDraftModeButton();
 
     if (draftModeButton) {
@@ -8993,15 +14097,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    if (battleBotWheelButton) {
-        battleBotWheelButton.addEventListener('click', () => {
-            setBattleBotChoicePopupVisible(true);
-        });
-    }
-
     if (selectionMissionsToggle && selectionMissionsEl) {
         selectionMissionsToggle.addEventListener('click', () => {
             const willOpen = selectionMissionsEl.classList.contains('collapsed');
+            if (willOpen) {
+                const optionsPanel = document.querySelector('.selection-ui-options-panel');
+                const optionsToggle = document.querySelector('.ui-options-toggle[aria-controls="selection-ui-options"]');
+                if (optionsPanel) {
+                    optionsPanel.hidden = true;
+                    optionsPanel.classList.remove('open');
+                    optionsPanel.closest('.roster-filter-panel')?.classList.remove('options-panel-open');
+                }
+                optionsToggle?.classList.remove('active');
+                optionsToggle?.setAttribute('aria-expanded', 'false');
+            }
             selectionMissionsEl.classList.toggle('collapsed', !willOpen);
             selectionMissionsToggle.classList.toggle('active', willOpen);
             selectionMissionsToggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
@@ -9009,40 +14118,17 @@ document.addEventListener('DOMContentLoaded', async () => {
                 loadSelectionMissions();
             }
         });
-        if (pageSearchParams.get('missions') === 'open' || selectionMissionIdFromUrl) {
+        if (
+            pageSearchParams.get('missions') === 'open' ||
+            selectionMissionIdFromUrl ||
+            pageSearchParams.get('unlockPointsPayment')
+        ) {
             selectionMissionsEl.classList.remove('collapsed');
             selectionMissionsToggle.classList.add('active');
             selectionMissionsToggle.setAttribute('aria-expanded', 'true');
             loadSelectionMissions();
         }
     }
-
-    if (battleBotChoiceCloseButton) {
-        battleBotChoiceCloseButton.addEventListener('click', () => {
-            setBattleBotChoicePopupVisible(false);
-        });
-    }
-
-    if (battleBotChoicePopup) {
-        battleBotChoicePopup.addEventListener('click', (event) => {
-            if (event.target !== battleBotChoicePopup) return;
-            setBattleBotChoicePopupVisible(false);
-        });
-    }
-
-    battleBotChoiceButtons.forEach((button) => {
-        button.addEventListener('click', async () => {
-            const enabled = button.dataset.battleBotChoice === 'enabled';
-            try {
-                await saveBattleBotPreference(enabled);
-            } catch (error) {
-                console.warn('Failed to update battle bot preference.', error);
-                setBattleBotWheelStatus('Unable to update Game Bot setting.', 'error');
-            } finally {
-                setBattleBotChoicePopupVisible(false);
-            }
-        });
-    });
 
     const clearPendingMatchRedirect = () => {
         if (!pendingMatchRedirect) return;
@@ -9059,7 +14145,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (state === 'found') {
             searchingMessage.textContent = 'Opponent found!';
             if (searchingSpinner) {
-                searchingSpinner.src = 'assets/images/found.png';
+                searchingSpinner.src =
+                    activeArenaMode === 'pokemon' ? POKEMON_FOUND_ICON_URL : COMIC_FOUND_ICON_URL;
                 searchingSpinner.style.visibility = 'visible';
                 searchingSpinner.style.animation = 'none';
             }
@@ -9082,9 +14169,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         searchingMessage.textContent =
             mode === 'private' && activeSearchTargetUsername
                 ? `Searching for ${activeSearchTargetUsername}`
-                : 'Searching for an opponent';
+                : `Searching ${getArenaModeLabel()} for an opponent`;
         if (searchingSpinner) {
-            searchingSpinner.src = 'assets/images/sharingan.png';
+            searchingSpinner.src = activeArenaMode === 'pokemon' ? POKEMON_SEARCHING_ICON_URL : 'assets/images/sharingan.png';
             searchingSpinner.style.visibility = 'visible';
             searchingSpinner.style.animation = '';
         }
@@ -9143,7 +14230,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    const scheduleMatchRedirect = (matchId, matchStartsAt) => {
+    const scheduleMatchRedirect = (matchId, matchStartsAt, arenaOverride = activeArenaMode) => {
         if (!matchId) return;
         clearPendingMatchRedirect();
         const startAtMs = matchStartsAt ? new Date(matchStartsAt).getTime() : Date.now();
@@ -9151,7 +14238,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         pendingMatchRedirect = window.setTimeout(() => {
             pendingMatchRedirect = null;
             closeSearching();
-            redirectToMatch(matchId);
+            redirectToMatch(matchId, arenaOverride);
         }, delayMs);
     };
 
@@ -9167,11 +14254,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             return true;
         }
         if (!data?.matchFound || !data?.matchId) return false;
+        if (isDismissedEndedMatch(data.matchId)) {
+            return false;
+        }
         const startAtMs = data.matchStartsAt ? new Date(data.matchStartsAt).getTime() : Date.now();
         const shouldHold = !data.matchReady && startAtMs > Date.now();
         if (!shouldHold) {
             closeSearching();
-            redirectToMatch(data.matchId);
+            redirectToMatch(data.matchId, data.arena || activeArenaMode);
             return true;
         }
         openSearching();
@@ -9181,21 +14271,32 @@ document.addEventListener('DOMContentLoaded', async () => {
             clearInterval(matchmakingPoll);
             matchmakingPoll = null;
         }
-        scheduleMatchRedirect(data.matchId, data.matchStartsAt);
+        scheduleMatchRedirect(data.matchId, data.matchStartsAt, data.arena || activeArenaMode);
         return true;
     };
 
     const resumeMatchIfActive = async () => {
         try {
-            const response = await fetch(`${API_BASE_URL}/api/match/status`, {
-                credentials: 'include',
-            });
+            const response = await fetch(
+                `${API_BASE_URL}/api/match/status?arena=${encodeURIComponent(activeArenaMode)}`,
+                {
+                    credentials: 'include',
+                    cache: 'no-store',
+                }
+            );
+            if (response.status === 401 || response.status === 403) {
+                redirectToSelectionLogin(activeArenaMode);
+                return;
+            }
             const data = await response.json();
             if (data?.draft && data.draftId) {
                 handleMatchFound(data);
                 return;
             }
             if (data?.matchFound && data.matchId) {
+                if (isDismissedEndedMatch(data.matchId)) {
+                    return;
+                }
                 handleMatchFound(data);
             }
         } catch (error) {
@@ -9203,17 +14304,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
-    const redirectToMatch = (matchId) => {
-        window.location.href = `ingame.html?matchId=${encodeURIComponent(matchId)}`;
+    const redirectToMatch = (matchId, arenaOverride = activeArenaMode) => {
+        const arena = getLoginRedirectArena(arenaOverride);
+        clearDismissedEndedMatch();
+        writeCachedMatchArena(matchId, arena);
+        window.location.href = buildIngameMatchUrl(matchId, arena);
     };
 
     const startPollingMatch = () => {
         if (matchmakingPoll) return;
         matchmakingPoll = setInterval(async () => {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/match/status`, {
-                    credentials: 'include',
-                });
+                const response = await fetch(
+                    `${API_BASE_URL}/api/match/status?arena=${encodeURIComponent(activeArenaMode)}`,
+                    {
+                        credentials: 'include',
+                        cache: 'no-store',
+                    }
+                );
+                if (response.status === 401 || response.status === 403) {
+                    redirectToSelectionLogin(activeArenaMode);
+                    return;
+                }
                 const data = await response.json();
                 if (data?.draft && data.draftId) {
                     handleMatchFound(data);
@@ -9242,11 +14354,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 body: JSON.stringify({
                     team: getTeamIndices(),
                     mode,
+                    arena: activeArenaMode,
                     targetUsername: options.targetUsername || '',
                     draftMode: draftModeEnabled,
                 }),
             });
             const data = await response.json();
+            if (response.status === 401 || response.status === 403) {
+                redirectToSelectionLogin(activeArenaMode);
+                return;
+            }
             if (!response.ok || !data?.ok) {
                 throw new Error(data?.error || 'Could not start matchmaking. Please try again.');
             }
@@ -9384,12 +14501,110 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    let roster = [];
+    let baseRoster = [];
     if (typeof characters !== 'undefined' && Array.isArray(characters)) {
-        roster = characters;
+        baseRoster = cloneRosterData(characters);
     } else if (Array.isArray(window.characters)) {
-        roster = window.characters;
+        baseRoster = cloneRosterData(window.characters);
+    } else if (Array.isArray(globalThis.characters)) {
+        baseRoster = cloneRosterData(globalThis.characters);
     }
+    let roster = cloneRosterData(baseRoster);
+
+    const rebuildRosterWithEquippedSkins = (arena = activeArenaMode) => {
+        const baseCharacters = cloneRosterData(baseRoster);
+        if (arena !== 'pokemon') {
+            roster = baseCharacters;
+            return;
+        }
+        const catalog = Array.isArray(arenaSkinCatalogCache[arena]) ? arenaSkinCatalogCache[arena] : [];
+        if (!catalog.length) {
+            roster = baseCharacters;
+            return;
+        }
+        const equippedSkinByCharacterId = getArenaSkinState(profileCache?.profile, arena).equippedSkinByCharacterId;
+        const catalogById = new Map(
+            catalog
+                .map((entry = {}) => [normalizeSkinId(entry.skinId), entry])
+                .filter(([skinId]) => !!skinId)
+        );
+        roster = baseCharacters.map((character = {}) => {
+            const characterId = normalizeSkinCharacterId(character.characterId || character.id);
+            const equippedSkinId = equippedSkinByCharacterId[characterId];
+            const skinEntry = equippedSkinId ? catalogById.get(equippedSkinId) : null;
+            if (!skinEntry?.patch || typeof skinEntry.patch !== 'object') {
+                return character;
+            }
+            const patchedCharacter = mergeSkinPatchValue(character, skinEntry.patch);
+            const skillImageOverridesBySkillId =
+                skinEntry.skillImageOverridesBySkillId && typeof skinEntry.skillImageOverridesBySkillId === 'object'
+                    ? skinEntry.skillImageOverridesBySkillId
+                    : {};
+            const skillOverridesBySkillId =
+                skinEntry.skillOverridesBySkillId && typeof skinEntry.skillOverridesBySkillId === 'object'
+                    ? skinEntry.skillOverridesBySkillId
+                    : {};
+            const statusFacePictureOverridesByStatusId =
+                skinEntry.statusFacePictureOverridesByStatusId &&
+                typeof skinEntry.statusFacePictureOverridesByStatusId === 'object'
+                    ? skinEntry.statusFacePictureOverridesByStatusId
+                    : {};
+            if (
+                !Array.isArray(patchedCharacter.skills) ||
+                (!Object.keys(skillImageOverridesBySkillId).length &&
+                    !Object.keys(skillOverridesBySkillId).length &&
+                    !Object.keys(statusFacePictureOverridesByStatusId).length)
+            ) {
+                return patchedCharacter;
+            }
+            patchedCharacter.skills = patchedCharacter.skills.map((skill = {}) => {
+                const structuredOverride = skillOverridesBySkillId[skill.id];
+                const override = skillImageOverridesBySkillId[skill.id];
+                const nextSkill = structuredOverride && typeof structuredOverride === 'object'
+                    ? mergeSkinPatchValue(skill, structuredOverride)
+                    : { ...skill };
+                if (override) {
+                    nextSkill.skillimage = override;
+                }
+                if (!Array.isArray(nextSkill.effects) || !Object.keys(statusFacePictureOverridesByStatusId).length) {
+                    return nextSkill;
+                }
+                nextSkill.effects = nextSkill.effects.map((effect = {}) => {
+                    const statusId =
+                        typeof effect?.statusId === 'string'
+                            ? effect.statusId
+                            : typeof effect?.applyStatusAtStack?.statusId === 'string'
+                                ? effect.applyStatusAtStack.statusId
+                                : '';
+                    const facePictureOverride = statusFacePictureOverridesByStatusId[statusId];
+                    if (!facePictureOverride) {
+                        return effect;
+                    }
+                    if (effect?.applyStatusAtStack && typeof effect.applyStatusAtStack === 'object') {
+                        return {
+                            ...effect,
+                            applyStatusAtStack: {
+                                ...effect.applyStatusAtStack,
+                                metadata: {
+                                    ...(effect.applyStatusAtStack.metadata || {}),
+                                    facePictureOverride,
+                                },
+                            },
+                        };
+                    }
+                    return {
+                        ...effect,
+                        metadata: {
+                            ...(effect.metadata || {}),
+                            facePictureOverride,
+                        },
+                    };
+                });
+                return nextSkill;
+            });
+            return patchedCharacter;
+        });
+    };
 
     const clearDraftIntervals = () => {
         if (activeDraftPoll) {
@@ -9425,7 +14640,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const chip = document.createElement('div');
             chip.className = 'draft-selected-chip';
             const image = document.createElement('img');
-            image.src = character?.facePicture || '';
+            setSelectionThumbnailWithFallback(image, character?.facePicture || '');
             image.alt = character?.name || 'Character';
             const label = document.createElement('span');
             label.textContent = character?.name || `Character ${rosterIndex + 1}`;
@@ -9453,7 +14668,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             button.classList.toggle('locked', locked);
             button.disabled = locked || (phase === 'pick' && banned) || activeDraft.myBanSubmitted && phase === 'ban' || activeDraft.myTeamSubmitted && phase === 'pick';
             const image = document.createElement('img');
-            image.src = character.facePicture || '';
+            setSelectionThumbnailWithFallback(image, character.facePicture || '');
             image.alt = character.name || `Character ${rosterIndex + 1}`;
             const label = document.createElement('span');
             label.textContent = character.name || `Character ${rosterIndex + 1}`;
@@ -9642,13 +14857,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         'sandman',
         'mysterio',
         'scorpion',
+        'ghost-rider',
+        'doctor-strange',
+        'doctor-doom',
         'the-hulk',
+        'wolverine',
         'superman',
         'batman',
         'aquaman',
         'the-flash-barry-allen',
         'wonder-woman',
         'green-lantern-hal-jordan',
+        'doctor-fate',
         'sinestro',
         'atrocitus',
         'saint-walker',
@@ -9675,17 +14895,70 @@ document.addEventListener('DOMContentLoaded', async () => {
         'xenomorph-drone',
         'predalien',
     ];
+    const preferredPokemonCharacterDisplayOrder = [
+        'pokemon-trainer',
+        'bulbasaur',
+        'charmander',
+        'squirtle',
+        'butterfree',
+        'beedrill',
+        'pidgey',
+        'ekans',
+        'pikachu',
+        'clefairy',
+        'jigglypuff',
+        'zubat',
+        'meowth',
+        'abra',
+        'machop',
+        'magnemite',
+        'gastly',
+        'onix',
+        'krabby',
+        'hitmonlee',
+        'hitmonchan',
+        'koffing',
+        'chansey',
+        'mr-mime',
+        'scyther',
+        'magikarp',
+        'eevee',
+        'vaporeon',
+        'jolteon',
+        'flareon',
+        'aerodactyl',
+        'articuno',
+        'zapdos',
+        'moltres',
+        'dragonite',
+        'mewtwo',
+        'mew',
+    ];
     const getCharacterDisplayId = (character) => character?.characterId || character?.id || '';
+    const getCharacterArenaMode = (character = {}) => {
+        const explicitArena = typeof character?.arena === 'string' ? character.arena.trim().toLowerCase() : '';
+        if (explicitArena === 'pokemon') return 'pokemon';
+        if (explicitArena === 'comic') return 'comic';
+        const universe = typeof character?.universe === 'string' ? character.universe.trim().toLowerCase() : '';
+        return universe === 'pokemon' ? 'pokemon' : 'comic';
+    };
+
     const getBaseRosterDisplayIndices = () => {
+        const displayOrder =
+            activeArenaMode === 'pokemon'
+                ? preferredPokemonCharacterDisplayOrder
+                : preferredCharacterDisplayOrder;
         const used = new Set();
-        const ordered = preferredCharacterDisplayOrder
+        const ordered = displayOrder
             .map((id) => roster.findIndex((character) => getCharacterDisplayId(character) === id))
             .filter((index) => {
                 if (!Number.isInteger(index) || index < 0 || used.has(index)) return false;
+                if (getCharacterArenaMode(roster[index]) !== activeArenaMode) return false;
                 used.add(index);
                 return true;
             });
         roster.forEach((character, index) => {
+            if (getCharacterArenaMode(character) !== activeArenaMode) return;
             if (!used.has(index)) ordered.push(index);
         });
         return ordered;
@@ -9737,7 +15010,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const pip = document.createElement('span');
             const colorClass = energyClassMap[normalized];
             pip.className = ['energy-pip', 'filled', colorClass].filter(Boolean).join(' ');
-            pip.title = type;
+            pip.title = labelEnergyFilterKey(normalized);
             energyBarEl.appendChild(pip);
         });
     };
@@ -9780,6 +15053,89 @@ document.addEventListener('DOMContentLoaded', async () => {
             current.slice(required).forEach((img) => img.remove());
         }
         skillImages = Array.from(skillImagesContainer.querySelectorAll('.skill-image'));
+    };
+
+    const preloadSelectionPreviewImage = (source) => {
+        const url = typeof source === 'string' ? source.trim() : '';
+        if (!url || selectionPreviewImageCache.has(url)) return;
+        selectionPreviewImageCache.add(url);
+        const thumbnail = getSelectionThumbnailSource(url);
+        const image = new Image();
+        image.decoding = 'async';
+        if (thumbnail && thumbnail !== url) {
+            image.onerror = () => {
+                image.onerror = null;
+                image.src = url;
+            };
+        }
+        image.src = thumbnail || url;
+    };
+
+    const getSelectionEvolutionStatusId = (character) => {
+        const tracker = (Array.isArray(character?.startStatuses) ? character.startStatuses : []).find(
+            (status) => typeof status?.metadata?.evolutionStatusId === 'string' && status.metadata.evolutionStatusId
+        );
+        return tracker?.metadata?.evolutionStatusId || '';
+    };
+
+    const getSelectionVisibleSkills = (character) => {
+        const baseSkills = (Array.isArray(character?.skills) ? character.skills : []).filter(
+            (skill) => skill && !Boolean(skill.hiddenFromSelectionViewer)
+        );
+        const evolutionStatusId = getSelectionEvolutionStatusId(character);
+        const evolvedSkills = baseSkills
+            .map((skill) => skill?.evolvesTo)
+            .filter((skill) => skill && !Boolean(skill.hiddenFromSelectionViewer))
+            .map((skill) => ({
+                ...skill,
+                actorCondition: skill.actorCondition || (evolutionStatusId ? { statusId: evolutionStatusId } : undefined),
+            }));
+        return [...baseSkills, ...evolvedSkills];
+    };
+
+    const preloadCharacterPreview = (character) => {
+        if (!character) return;
+        preloadSelectionPreviewImage(character.facePicture);
+        getSelectionVisibleSkills(character).forEach((skill) => preloadSelectionPreviewImage(skill.skillimage));
+    };
+
+    const loadSelectionPreviewImage = (image, source, alt, renderId) => {
+        if (!image) return;
+        const url = typeof source === 'string' ? source.trim() : '';
+        const thumbnail = getSelectionThumbnailSource(url);
+        image.onload = null;
+        image.onerror = null;
+        image.dataset.previewRenderId = String(renderId);
+        image.alt = alt;
+        image.classList.add('is-loading');
+        image.style.visibility = url ? 'visible' : 'hidden';
+        image.removeAttribute('src');
+        if (!url) {
+            image.classList.remove('is-loading');
+            return;
+        }
+
+        const finish = (failed = false) => {
+            if (image.dataset.previewRenderId !== String(renderId)) return;
+            image.classList.remove('is-loading');
+            image.classList.toggle('load-failed', failed);
+        };
+        image.onload = () => finish(false);
+        let usedOriginalFallback = false;
+        image.onerror = () => {
+            if (!usedOriginalFallback && thumbnail && thumbnail !== url) {
+                usedOriginalFallback = true;
+                image.src = url;
+                return;
+            }
+            finish(true);
+        };
+        image.decoding = 'async';
+        image.fetchPriority = 'high';
+        image.src = thumbnail || url;
+        if (image.complete && image.naturalWidth > 0) {
+            finish(false);
+        }
     };
 
     const renderSkill = (skill, activeIndex = 0) => {
@@ -9829,7 +15185,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         taijutsu: 'Green',
         bloodline: 'Red',
         ninjutsu: 'Blue',
-        genjutsu: 'White',
+        genjutsu: activeArenaMode === 'pokemon' ? 'Yellow' : 'White',
         random: 'Random',
         none: 'No Cost',
     };
@@ -9839,17 +15195,46 @@ document.addEventListener('DOMContentLoaded', async () => {
     const labelEnergyFilterSignature = (signature = '') =>
         signature === 'none' ? 'No Cost' : signature.split('+').map(labelEnergyFilterKey).join(' + ');
 
+    const normalizeSelectionRoleCategory = (category = '') => {
+        const value = String(category || '').trim().toLowerCase();
+        if (value === 'control' || value === 'strategic') return 'controller';
+        if (activeArenaMode === 'pokemon' && value === 'support') return 'utility-support';
+        if (activeArenaMode === 'pokemon' && value === 'damage') return 'hybrid';
+        return value;
+    };
+
     const getSelectionRoleCategory = (character) => {
-        const category = typeof character?.roleCategory === 'string' ? character.roleCategory.trim().toLowerCase() : '';
+        const category = normalizeSelectionRoleCategory(
+            typeof character?.roleCategory === 'string' ? character.roleCategory : ''
+        );
         if (category) return category;
         const role = getSelectionCharacterRole(character).toLowerCase();
+        if (role.includes('dot dps')) return 'dot-dps';
+        if (role.includes('aoe dps')) return 'aoe-dps';
+        if (role.includes('fast dps')) return 'fast-dps';
+        if (role.includes('spike dps')) return 'spike-dps';
         if (role.includes('tank') || role.includes('juggernaut')) return 'tank';
-        if (role.includes('support') || role.includes('heal') || role.includes('shield')) return 'support';
+        if (role.includes('damage support')) return 'damage-support';
+        if (role.includes('utility support')) return 'utility-support';
+        if (role.includes('heal support') || role.includes('healer')) return 'heal-support';
+        if (role.includes('shield support')) return 'shield-support';
+        if (role.includes('support')) return activeArenaMode === 'pokemon' ? 'utility-support' : 'support';
         if (role.includes('assassin') || role.includes('execution')) return 'assassin';
         if (role.includes('bruiser') || role.includes('brawler') || role.includes('beserker') || role.includes('berserker')) return 'bruiser';
         if (role.includes('hybrid')) return 'hybrid';
-        if (role.includes('disrupt') || role.includes('control') || role.includes('trickster') || role.includes('remover')) return 'strategic';
+        if (
+            role.includes('controller') ||
+            role.includes('control') ||
+            role.includes('trickster') ||
+            role.includes('remover')
+        ) {
+            return 'controller';
+        }
+        if (role.includes('disrupt')) return 'disruptor';
         if (role.includes('specialist') || role.includes('punisher')) return 'specialist';
+        if (activeArenaMode === 'pokemon' && (role.includes('dps') || role.includes('damage') || role.includes('carry') || role.includes('mage'))) {
+            return 'hybrid';
+        }
         if (role.includes('dps') || role.includes('damage') || role.includes('carry') || role.includes('mage')) return 'damage';
         return 'specialist';
     };
@@ -9912,9 +15297,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (currentCharacterIndex === null) return;
         const character = roster[currentCharacterIndex];
         if (!character || !Array.isArray(character.skills)) return;
-        const visibleSkills = character.skills.filter(
-            (skill) => skill && !Boolean(skill.hiddenFromSelectionViewer)
-        );
+        const visibleSkills = getSelectionVisibleSkills(character);
         const skill = visibleSkills[skillIndex];
         if (!skill) return;
         renderSkill(skill, skillIndex);
@@ -9922,6 +15305,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const renderCharacter = (character, index) => {
         if (!character) return;
+        const renderId = ++selectionPreviewRenderId;
         currentCharacterIndex = index;
         if (nameEl) {
             nameEl.textContent = character.name || 'Unknown shinobi';
@@ -9931,14 +15315,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             roleEl.style.visibility = 'visible';
         }
         if (portraitEl) {
-            portraitEl.src = character.facePicture || '';
-            portraitEl.alt = character.name ? `${character.name} portrait` : 'Character portrait';
+            loadSelectionPreviewImage(
+                portraitEl,
+                character.facePicture || (activeArenaMode === 'pokemon' ? POKEMON_FOUND_ICON_URL : ''),
+                character.name ? `${character.name} portrait` : 'Character portrait',
+                renderId
+            );
         }
         renderCharacterOverview(character);
         if (Array.isArray(character.skills)) {
-            const visibleSkills = character.skills.filter(
-                (skill) => skill && !Boolean(skill.hiddenFromSelectionViewer)
-            );
+            const visibleSkills = getSelectionVisibleSkills(character);
             ensureSkillImageSlots(visibleSkills.length);
             if (skillImagesContainer) {
                 skillImagesContainer.scrollLeft = 0;
@@ -9947,11 +15333,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const targetImg = skillImages[skillIdx];
                 if (!targetImg) return;
                 if (skill) {
-                    targetImg.src = skill.skillimage || '';
-                    targetImg.alt = skill.name || `Skill ${skillIdx + 1}`;
-                    targetImg.style.visibility = 'visible';
                     targetImg.onclick = () => handleSkillSelect(skillIdx);
+                    loadSelectionPreviewImage(
+                        targetImg,
+                        skill.skillimage || '',
+                        skill.name || `Skill ${skillIdx + 1}`,
+                        renderId
+                    );
                 } else {
+                    targetImg.onload = null;
+                    targetImg.onerror = null;
                     targetImg.src = '';
                     targetImg.alt = `Skill ${skillIdx + 1}`;
                     targetImg.style.visibility = 'hidden';
@@ -10013,6 +15404,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             btn.style.opacity = enabled ? '1' : '0.5';
             btn.style.pointerEvents = enabled ? 'auto' : 'none';
         });
+        if (selectionTeamStatusEl) {
+            selectionTeamStatusEl.textContent = enabled
+                ? ''
+                : `Choose ${selectedSlots.length} ${getArenaModeLabel()} characters to enable match start. (${filled}/${selectedSlots.length})`;
+        }
     };
 
     const getTeamIndices = () =>
@@ -10028,7 +15424,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({ team: indices }),
+                body: JSON.stringify({ team: indices, arena: activeArenaMode }),
             });
         } catch (error) {
             console.warn('Failed to save team selection.', error);
@@ -10043,6 +15439,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         slot.innerHTML = '';
         slot.classList.add('slot-empty');
         slot.draggable = false;
+        delete slot.dataset.characterInitial;
+        slot.removeAttribute('aria-label');
+        slot.removeAttribute('tabindex');
     };
 
     const buildRosterSlot = (index) => {
@@ -10056,25 +15455,36 @@ document.addEventListener('DOMContentLoaded', async () => {
             slot.classList.add('slot-empty');
             slot.classList.remove('slot-locked');
             slot.draggable = false;
+            delete slot.dataset.characterInitial;
+            slot.removeAttribute('aria-label');
+            slot.removeAttribute('tabindex');
             return;
         }
         slot.classList.remove('slot-empty');
         slot.classList.toggle('slot-locked', locked);
         slot.draggable = false;
+        slot.dataset.characterInitial = String(character.name || '?').trim().charAt(0).toUpperCase() || '?';
+        slot.setAttribute(
+            'aria-label',
+            locked
+                ? `${character.name || 'Character'} is locked`
+                : `Select ${character.name || `character ${index + 1}`}`
+        );
+        slot.tabIndex = locked ? -1 : 0;
         const image = document.createElement('img');
         image.className = 'slot-image';
         if (locked) {
             image.classList.add('slot-locked');
         }
-        image.src = character.facePicture;
+        setSelectionThumbnailWithFallback(image, character.facePicture);
         image.alt = character.name || `Character ${index + 1}`;
         image.draggable = false;
         image.title = locked ? `${character.name || 'Character'} is locked.` : character.name || `Character ${index + 1}`;
         slot.appendChild(image);
         if (!locked) {
             image.addEventListener('dragstart', (event) => handleSlotDragStart(event, index));
-            image.addEventListener('pointerdown', (event) =>
-                startSelectionPointerDrag(event, { type: 'roster', rosterIndex: index }, image)
+            slot.addEventListener('pointerdown', (event) =>
+                startSelectionPointerDrag(event, { type: 'roster', rosterIndex: index }, slot)
             );
         }
         image.addEventListener('dragend', handleSlotDragEnd);
@@ -10082,6 +15492,28 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const fillRosterSlot = (index) => {
         buildRosterSlot(index);
+    };
+
+    const renderEmptySelectedSlot = (slotElement, slotIndex) => {
+        if (!slotElement) return;
+        slotElement.innerHTML = '';
+        if (activeArenaMode === 'pokemon') {
+            const img = document.createElement('img');
+            img.src = POKEMON_FOUND_ICON_URL;
+            img.alt = `Empty Pokemon team slot ${slotIndex + 1}`;
+            img.className = 'selected-slot-placeholder-image';
+            img.draggable = false;
+            slotElement.appendChild(img);
+            return;
+        }
+        slotElement.textContent = String(slotIndex + 1);
+    };
+
+    const refreshEmptySelectedSlots = () => {
+        selectedSlots.forEach((slotElement, slotIndex) => {
+            if (selectedAssignments[slotIndex]) return;
+            renderEmptySelectedSlot(slotElement, slotIndex);
+        });
     };
 
     const setSelectedSlot = (slotIndex, assignment) => {
@@ -10094,12 +15526,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         slotElement.innerHTML = '';
         slotElement.classList.remove('drag-over');
         if (!assignment) {
-            slotElement.textContent = String(slotIndex + 1);
+            renderEmptySelectedSlot(slotElement, slotIndex);
             return;
         }
         const character = roster[assignment.characterIndex];
         const img = document.createElement('img');
-        img.src = character?.facePicture || '';
+        setSelectionThumbnailWithFallback(img, character?.facePicture || '');
         img.alt = character?.name || 'Selected character';
         img.className = 'selected-slot-image';
         img.draggable = false;
@@ -10190,13 +15622,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
 
     const queueSelectionPreview = (callback) => {
-        if (selectionClickTimer) {
-            clearTimeout(selectionClickTimer);
-        }
-        selectionClickTimer = window.setTimeout(() => {
-            selectionClickTimer = null;
-            callback();
-        }, 225);
+        cancelSelectionPreview();
+        callback();
     };
 
     const cancelSelectionPreview = () => {
@@ -10258,15 +15685,56 @@ document.addEventListener('DOMContentLoaded', async () => {
         return true;
     };
 
-    const finishSelectionPointerDrop = (payload, clientX, clientY) => {
+    const getSelectedSlotDropIndex = (clientX, clientY, dragState = null) => {
         const target = document.elementFromPoint(clientX, clientY);
         const selectedSlot = target?.closest?.('.selected-character-slot');
         const selectedSlotIndex = selectedSlot ? selectedSlots.indexOf(selectedSlot) : -1;
         if (selectedSlotIndex >= 0) {
+            return selectedSlotIndex;
+        }
+
+        if (!dragState?.rect) return -1;
+        const dragLeft = clientX - dragState.offsetX;
+        const dragTop = clientY - dragState.offsetY;
+        const dragRight = dragLeft + dragState.rect.width;
+        const dragBottom = dragTop + dragState.rect.height;
+        const snapPadding = 12;
+        let bestSlotIndex = -1;
+        let bestOverlap = 0;
+
+        selectedSlots.forEach((slot, slotIndex) => {
+            const rect = slot.getBoundingClientRect();
+            const overlapWidth = Math.max(
+                0,
+                Math.min(dragRight, rect.right + snapPadding) -
+                    Math.max(dragLeft, rect.left - snapPadding)
+            );
+            const overlapHeight = Math.max(
+                0,
+                Math.min(dragBottom, rect.bottom + snapPadding) -
+                    Math.max(dragTop, rect.top - snapPadding)
+            );
+            const overlap = overlapWidth * overlapHeight;
+            if (overlap > bestOverlap) {
+                bestOverlap = overlap;
+                bestSlotIndex = slotIndex;
+            }
+        });
+
+        return bestSlotIndex;
+    };
+
+    const finishSelectionPointerDrop = (payload, clientX, clientY, dragState = null) => {
+        const selectedSlotIndex = getSelectedSlotDropIndex(clientX, clientY, dragState);
+        if (selectedSlotIndex >= 0) {
             return moveDragPayloadToSelectedSlot(payload, selectedSlotIndex);
         }
+        const target = document.elementFromPoint(clientX, clientY);
         const rosterSlot = target?.closest?.('.slot-item');
         if (rosterSlot) {
+            return returnSelectedPayloadToRoster(payload);
+        }
+        if (payload?.type === 'selected') {
             return returnSelectedPayloadToRoster(payload);
         }
         return false;
@@ -10309,7 +15777,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const startSelectionPointerDrag = (event, payload, sourceElement) => {
         if (!sourceElement || !payload || event.button !== 0 || activeSelectionPointerDrag) return;
-        event.preventDefault();
         cancelSelectionPreview();
         const rect = sourceElement.getBoundingClientRect();
         const dragState = {
@@ -10351,11 +15818,24 @@ document.addEventListener('DOMContentLoaded', async () => {
                 } catch (error) {
                     // Ignore capture cleanup races.
                 }
+                if (
+                    upEvent.pointerType !== 'mouse' &&
+                    dragState.payload?.type === 'roster' &&
+                    Number.isInteger(dragState.payload.rosterIndex)
+                ) {
+                    suppressSelectionClickUntil = Date.now() + 350;
+                    addRosterCharacterToSelection(dragState.payload.rosterIndex);
+                }
                 return;
             }
             upEvent.preventDefault();
             suppressSelectionClickUntil = Date.now() + 350;
-            const dropped = finishSelectionPointerDrop(dragState.payload, upEvent.clientX, upEvent.clientY);
+            const dropped = finishSelectionPointerDrop(
+                dragState.payload,
+                upEvent.clientX,
+                upEvent.clientY,
+                dragState
+            );
             cleanupSelectionPointerDrag(dragState, !dropped);
         };
 
@@ -10372,18 +15852,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         sourceElement.addEventListener('pointercancel', handlePointerCancel);
     };
 
-    const rosterFilterOptions = {
-        role: [
+    const comicRoleFilterOptions = [
             ['all', 'All Roles'],
             ['tank', 'Tank'],
             ['damage', 'Damage'],
+            ['spike-dps', 'Spike DPS'],
             ['support', 'Support'],
-            ['strategic', 'Strategic'],
+            ['controller', 'Controller'],
             ['hybrid', 'Hybrid'],
             ['assassin', 'Assassin'],
             ['bruiser', 'Bruiser'],
             ['specialist', 'Specialist'],
-        ],
+        ];
+
+    const pokemonRoleFilterOptions = [
+            ['all', 'All Roles'],
+            ['tank', 'Tank'],
+            ['dot-dps', 'DOT DPS'],
+            ['aoe-dps', 'AOE DPS'],
+            ['fast-dps', 'Fast DPS'],
+            ['spike-dps', 'Spike DPS'],
+            ['damage-support', 'Damage Support'],
+            ['utility-support', 'Utility Support'],
+            ['heal-support', 'Heal Support'],
+            ['shield-support', 'Shield Support'],
+            ['controller', 'Controller'],
+            ['hybrid', 'Hybrid'],
+            ['disruptor', 'Disruptor'],
+            ['assassin', 'Assassin'],
+            ['bruiser', 'Bruiser'],
+            ['specialist', 'Specialist'],
+        ];
+
+    const rosterFilterOptions = {
         unlock: [
             ['all', 'All Unlocks'],
             ['starter', 'Starters'],
@@ -10396,6 +15897,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             ['marvel', 'Marvel'],
             ['dc', 'DC'],
             ['image', 'Image'],
+            ['the-boys', 'The Boys'],
+            ['aliens-vs-predator', 'Aliens vs Predator'],
+            ['star-wars', 'Star Wars'],
             ['other', 'Other'],
         ],
         'play-rate': [
@@ -10420,10 +15924,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         ];
     };
 
-    const getRosterFilterOptions = () =>
-        activeRosterFilterMode === 'energy'
-            ? buildEnergyFilterOptions()
-            : rosterFilterOptions[activeRosterFilterMode] || rosterFilterOptions.role;
+    const getRosterFilterOptions = () => {
+        if (activeRosterFilterMode === 'energy') {
+            return buildEnergyFilterOptions();
+        }
+        if (activeRosterFilterMode === 'role') {
+            return activeArenaMode === 'pokemon' ? pokemonRoleFilterOptions : comicRoleFilterOptions;
+        }
+        return rosterFilterOptions[activeRosterFilterMode] || (activeArenaMode === 'pokemon' ? pokemonRoleFilterOptions : comicRoleFilterOptions);
+    };
 
     const doesCharacterMatchRosterFilter = (character) => {
         if (activeRosterFilterValue === 'all') return true;
@@ -10470,7 +15979,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         );
         currentRosterPage = Math.min(currentRosterPage, totalPages - 1);
         if (rosterFilterStatus) {
-            rosterFilterStatus.textContent = `${rosterDisplayIndices.length} character${rosterDisplayIndices.length === 1 ? '' : 's'}`;
+            rosterFilterStatus.textContent = `${getArenaModeLabel()}: ${rosterDisplayIndices.length} character${rosterDisplayIndices.length === 1 ? '' : 's'}`;
         }
     };
 
@@ -10542,6 +16051,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             listItem.addEventListener('click', handleClick);
             listItem.addEventListener('dblclick', handleDoubleClick);
+            listItem.addEventListener('pointerenter', () => {
+                if (Number.isInteger(rosterIndex)) preloadCharacterPreview(roster[rosterIndex]);
+            });
+            listItem.addEventListener('pointerdown', () => {
+                if (Number.isInteger(rosterIndex)) preloadCharacterPreview(roster[rosterIndex]);
+            }, { passive: true });
             listItem.addEventListener('dragstart', (event) => {
                 if (Number.isInteger(rosterIndex)) handleSlotDragStart(event, rosterIndex);
             });
@@ -10555,6 +16070,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 listItem.classList.add('slot-empty');
                 listItem.draggable = false;
             }
+        }
+
+        const visibleCharacters = rosterDisplayIndices
+            .slice(pageStart, pageEnd)
+            .map((index) => roster[index])
+            .filter(Boolean);
+        const warmVisibleCharacterImages = () => {
+            visibleCharacters.forEach(preloadCharacterPreview);
+        };
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(warmVisibleCharacterImages, { timeout: 800 });
+        } else {
+            window.setTimeout(warmVisibleCharacterImages, 80);
         }
 
         updateRosterPageButtons();
@@ -10575,7 +16103,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     const applySavedTeam = () => {
-        const saved = profileCache?.savedTeamIndices;
+        const savedByArena = profileCache?.savedTeamIndicesByArena || {};
+        const saved =
+            Array.isArray(savedByArena?.[activeArenaMode])
+                ? savedByArena[activeArenaMode]
+                : activeArenaMode === 'comic'
+                    ? profileCache?.savedTeamIndices
+                    : [];
         if (!Array.isArray(saved) || saved.length !== selectedSlots.length) {
             updateGameButtons();
             renderRosterPage();
@@ -10584,6 +16118,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const used = new Set();
         saved.forEach((rosterIdx, slotIdx) => {
             if (!Number.isInteger(rosterIdx) || rosterIdx < 0 || rosterIdx >= roster.length) return;
+            if (getCharacterArenaMode(roster[rosterIdx]) !== activeArenaMode) return;
             if (isCharacterLocked(roster[rosterIdx])) return;
             if (used.has(rosterIdx)) return;
             const assignment = { characterIndex: rosterIdx, rosterIndex: rosterIdx };
@@ -10594,6 +16129,56 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateGameButtons();
         renderRosterPage();
     };
+
+    const clearSelectedTeamForArenaMode = () => {
+        selectedAssignments.forEach((assignment, slotIndex) => {
+            if (!assignment) return;
+            setSelectedSlot(slotIndex, null);
+        });
+    };
+
+    const setArenaMode = (arenaMode = 'comic') => {
+        const nextArenaMode = arenaMode === 'pokemon' ? 'pokemon' : 'comic';
+        if (nextArenaMode === activeArenaMode) {
+            syncArenaModeButtons();
+            return;
+        }
+        activeArenaMode = nextArenaMode;
+        setProtectionTerminologyArena(activeArenaMode);
+        localStorage.setItem('comicArenaMode', activeArenaMode);
+        syncArenaModeButtons();
+        clearSelectedTeamForArenaMode();
+        activeRosterFilterMode = 'role';
+        activeRosterFilterValue = 'all';
+        currentRosterPage = 0;
+        rosterFilterTabs.forEach((entry) =>
+            entry.classList.toggle('active', entry.dataset.rosterFilterMode === activeRosterFilterMode)
+        );
+        refreshEmptySelectedSlots();
+        loadMissionLockedCharacterIds()
+            .catch(() => {})
+            .finally(() => {
+                fetchArenaSkins(activeArenaMode)
+                    .catch(() => {})
+                    .finally(() => {
+                        applyRosterFilter();
+                        applySavedTeam();
+                        updateGameButtons();
+                        if (selectionMissionsEl && !selectionMissionsEl.classList.contains('collapsed')) {
+                            loadSelectionMissions();
+                        }
+                        maybePromptPokemonStarterChoice();
+                    });
+            });
+    };
+
+    arenaModeButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            setArenaMode(button.dataset.arenaMode);
+        });
+    });
+
+    syncArenaModeButtons();
 
     if (nextPageButton) {
         nextPageButton.addEventListener('click', () => {
@@ -10611,8 +16196,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    rosterFilterTabs.forEach((tab) => {
+    const closeSelectionAuxiliaryPanels = () => {
+        selectionMissionsEl?.classList.add('collapsed');
+        selectionMissionsToggle?.classList.remove('active');
+        selectionMissionsToggle?.setAttribute('aria-expanded', 'false');
+
+        const optionsPanel = document.querySelector('.selection-ui-options-panel');
+        const optionsToggle = document.querySelector('.ui-options-toggle[aria-controls="selection-ui-options"]');
+        if (optionsPanel) {
+            optionsPanel.hidden = true;
+            optionsPanel.classList.remove('open');
+            optionsPanel.closest('.roster-filter-panel')?.classList.remove('options-panel-open');
+        }
+        optionsToggle?.classList.remove('active');
+        optionsToggle?.setAttribute('aria-expanded', 'false');
+    };
+
+    rosterFilterTabs.filter((tab) => Boolean(tab.dataset.rosterFilterMode)).forEach((tab) => {
         tab.addEventListener('click', () => {
+            closeSelectionAuxiliaryPanels();
             const mode = tab.dataset.rosterFilterMode || 'role';
             activeRosterFilterMode = mode;
             activeRosterFilterValue = 'all';
@@ -10623,20 +16225,49 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (rosterFilterSelect) {
         rosterFilterSelect.addEventListener('change', () => {
+            closeSelectionAuxiliaryPanels();
             activeRosterFilterValue = rosterFilterSelect.value || 'all';
             applyRosterFilter();
         });
     }
 
-    await loadMissionLockedCharacterIds();
-    await loadCharacterPlayRates();
     rebuildRosterDisplayIndices();
     syncRosterFilterSelect();
+    refreshEmptySelectedSlots();
     renderRosterPage();
     updateGameButtons();
     persistTeamSelection();
     applySavedTeam();
     resumeMatchIfActive();
-    
     document.body.classList.remove('app-loading', 'app-loading-selection');
+
+    void hydratePlayerIdentity({
+        redirectOnUnauthorized: true,
+        arenaOverride: activeArenaMode,
+    })
+        .then(() => fetchArenaSkins(activeArenaMode))
+        .catch((error) => {
+            console.warn('Failed to hydrate selection player identity.', error);
+        });
+
+    void loadMissionLockedCharacterIds()
+        .catch((error) => {
+            console.warn('Failed to load mission lock data.', error);
+        })
+        .finally(() => {
+            rebuildRosterDisplayIndices();
+            syncRosterFilterSelect();
+            renderRosterPage();
+            updateGameButtons();
+            applySavedTeam();
+        });
+
+    void loadCharacterPlayRates()
+        .catch((error) => {
+            console.warn('Failed to load character play rates.', error);
+        })
+        .finally(() => {
+            rebuildRosterDisplayIndices();
+            renderRosterPage();
+        });
 });

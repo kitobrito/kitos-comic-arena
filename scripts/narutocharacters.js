@@ -3,13 +3,13 @@ const characters = [
         "id": "uzumaki-naruto",
         "characterId": "uzumaki-naruto",
         "name": "Uzumaki Naruto",
-        "facePicture": "https://i.imgur.com/JY8WbiV.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/fa5b26fe9d70a311333a.png",
         "characterdeescription": "Uzumaki Naruto is a high-pressure momentum fighter built around aggression, combo chains, and form-shifting power spikes. He excels at snowballing fights through burst damage, state changes, and multi-turn pressure, rewarding players who maintain tempo and punish openings with relentless offense.",
         "skills": [
             {
                 "id": "uzumaki-naruto-underground-ambush",
                 "name": "Underground Ambush",
-                "skillimage": "https://i.imgur.com/Zz5vK7k.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/00c9a74c36bffbab7cc0.png",
                 "skilldescription": "Naruto deals 25 damage to one enemy. This also deals 10 damage to the other enemies during 'Shadow Clones'",
                 "energy": [
                     "Taijutsu"
@@ -43,7 +43,7 @@ const characters = [
             {
                 "id": "uzumaki-naruto-kyuubi-chakra-surge",
                 "name": "Kyuubi Chakra Surge",
-                "skillimage": "https://i.imgur.com/7mtmZSp.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/13d8e92cb6f49469da16.png",
                 "skilldescription": "Naruto gains 1 random chakra and heals 20 HP then swaps this skill to 'Rasengan' until it is used. If 'Shadow Clones' is used next turn, it will last for 4 turns instead of 1 turn.",
                 "energy": [
                     "Random"
@@ -94,7 +94,7 @@ const characters = [
             {
                 "id": "uzumaki-naruto-shadow-clones",
                 "name": "Shadow Clones",
-                "skillimage": "https://i.imgur.com/SWb18ro.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/b012cb62888c7626d908.png",
                 "skilldescription": "For 2 turns, Naruto gains 50% damage reduction from the first enemy skill each turn. This swaps to 'Explosive Thousand Years of Death' the first turn then swaps to 'Uzumaki 2k Combo' the second turn. If 'Kyuubi Chakra Surge' is actve, the alternate skills will swap in the same order.",
                 "energy": [
                     "Random"
@@ -147,7 +147,7 @@ const characters = [
             {
                 "id": "uzumaki-naruto-summoning-gamabunta",
                 "name": "Summoning: Gamabunta",
-                "skillimage": "https://i.imgur.com/BaAUdwf.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/77c88043ca48b072da4c.png",
                 "skilldescription": "Removes one random harmful effect from Naruto. Casts 'Water Bullet' on a random enemy. For 2 turns, this skill swaps into 'Water Bullet'.",
                 "energy": [
                     "Bloodline",
@@ -205,7 +205,7 @@ const characters = [
             {
                 "id": "uzumaki-naruto-explosive-thousand-years-of-death",
                 "name": "Explosive Thousand Years of Death",
-                "skillimage": "https://i.imgur.com/OGbeSwO.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/d5140ad23c12bc3cbd08.png",
                 "skilldescription": "Deals 5 piercing damage to one enemy. After 1 turn, they are dealt 20 affliction damage and cannot reduce damage or become invulnerable for 2 turns.",
                 "energy": [
                     "Random"
@@ -261,7 +261,7 @@ const characters = [
             {
                 "id": "uzumaki-naruto-rasengan",
                 "name": "Rasengan",
-                "skillimage": "https://i.imgur.com/mBhZXdP.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/accfb40b8ce5a8d65265.png",
                 "skilldescription": "Naruto deals 15 damage to one enemy this turn and fully stuns them for 1 turn then deals 15 piercing damage next turn. Swaps to 'Kyuubi Chakra Surge'.",
                 "energy": [
                     "Ninjutsu"
@@ -323,7 +323,7 @@ const characters = [
             {
                 "id": "uzumaki-naruto-uzumaki-2k-barrage",
                 "name": "Uzumaki 2k Barrage",
-                "skillimage": "https://i.imgur.com/J8a7lIo.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/bed82a0a4cdd006d2915.png",
                 "skilldescription": "Deals 24 damage to one enemy for 2 turns.",
                 "energy": [
                     "Taijutsu",
@@ -361,7 +361,7 @@ const characters = [
             {
                 "id": "uzumaki-naruto-water-bullet",
                 "name": "Water Bullet",
-                "skillimage": "https://i.imgur.com/8UFKnoL.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/bb73eda3b7d64de8dc31.png",
                 "skilldescription": "Deals 35 damage to one enemy and reduces their damage by 15 for one turn.",
                 "energy": [
                     "Ninjutsu",
@@ -401,13 +401,13 @@ const characters = [
         "id": "haruno-sakura",
         "characterId": "haruno-sakura",
         "name": "Haruno Sakura",
-        "facePicture": "https://i.imgur.com/mOMqqq0.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/66302242035de5d617a1.png",
         "characterdeescription": "Sakura shifts between steady pressure and explosive control once her Inner state is active. She chips enemies down with persistent damage and punishes aggression through well-timed defensive traps, creating tempo swings that favor prolonged engagements. When fully ramped, she becomes a disruptive powerhouse—shrugging off stuns, reducing incoming damage, and unleashing decisive strikes that can dismantle fragile backlines.",
         "skills": [
             {
                 "id": "haruno-sakura-kunai-stab",
                 "name": "Kunai Stab",
-                "skillimage": "https://i.imgur.com/Jtl9MTB.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/71855eac3e5218e4b008.png",
                 "skilldescription": "Deals 15 damage to one enemy. The following 2 turns, the target bleeds for 5 affliction damage.",
                 "energy": [
                     "Taijutsu"
@@ -454,7 +454,7 @@ const characters = [
             {
                 "id": "haruno-sakura-log-fall-trap",
                 "name": "Log Fall Trap",
-                "skillimage": "https://i.imgur.com/fXRBwFN.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/60500e4fbb75a163a370.png",
                 "skilldescription": "Sakura targets herself or an ally until the next enemy harmful non-mental skill is used on them. When triggered, the attacker is dealt 15 damage and has their damage reduced by 15 for 2 turns. This is invisible and cannot be used on an already affected ally.",
                 "energy": [
                     "Random"
@@ -494,7 +494,7 @@ const characters = [
             {
                 "id": "haruno-sakura-inner-sakura",
                 "name": "Inner Sakura",
-                "skillimage": "https://i.imgur.com/cmXR9AK.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/4f9e2f43226cd4fead23.png",
                 "skilldescription": "For 4 turns, Sakura will gain 10 points of damage reduction. During this time, Sakura will ignore stun effects and 'Kunai Stab' will deal 10 additional damage. Swaps to 'Mental Rampage' while active.",
                 "energy": [
                     "Random"
@@ -527,7 +527,7 @@ const characters = [
             {
                 "id": "haruno-sakura-sakura-replacement-technique",
                 "name": "Sakura Replacement Technique",
-                "skillimage": "https://i.imgur.com/lli0iV2.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/a0c259caae78bb94785b.png",
                 "skilldescription": "This skill makes Haruno Sakura invulnerable for 1 turn.",
                 "energy": [
                     "Random"
@@ -555,7 +555,7 @@ const characters = [
             {
                 "id": "haruno-sakura-mental-rampage",
                 "name": "Mental Rampage",
-                "skillimage": "https://i.imgur.com/NXk2FSj.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/77cd9aa0b5b17e84f903.png",
                 "skilldescription": "Deals 25 damage to one enemy and stuns their chakra and mental skills for 1 turn.",
                 "hiddenFromSelectionViewer": true,
                 "energy": [
@@ -597,13 +597,13 @@ const characters = [
         "id": "uchiha-sasuke",
         "characterId": "uchiha-sasuke",
         "name": "Uchiha Sasuke",
-        "facePicture": "https://i.imgur.com/JruPrgE.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/a590027705d553993d9e.png",
         "characterdeescription": "Uchiha Sasuke is a high-skill, evasive duelist who thrives on prediction and punishment. Rather than overwhelming enemies with raw durability, Sasuke avoids attacks through precise timing, gradually increasing his damage each time he successfully evades. His kit rewards patience and awareness, allowing him to turn enemy aggression into permanent offensive power..",
         "skills": [
             {
                 "id": "uchiha-sasuke-mimicked-taijutsu",
                 "name": "Mimicked Taijutsu",
-                "skillimage": "https://i.imgur.com/KCCpAPy.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/de3450c16b9621e2dc62.png",
                 "skilldescription": "Sasuke deals 30 damage to one enemy. Sasuke has a 10% chance to Evade enemy non-mental skills for 1 turn. (stacks with 'Sharingan' & 'Uchiha Reflexes').",
                 "energy": [
                     "Taijutsu",
@@ -639,7 +639,7 @@ const characters = [
             {
                 "id": "uchiha-sasuke-triple-windmill-attack",
                 "name": "Triple Windmill Attack",
-                "skillimage": "https://i.imgur.com/904CWZw.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/683a5949b03d78bdbe1a.png",
                 "skilldescription": "One enemy has their harmful skills stunned and may not reduce damage or become invulnerable for 1 turn. Swaps to 'Dragon Flame Jutsu' for 1 turn. This may not be used on an already affected enemy.",
                 "energy": [
                     "Random"
@@ -705,7 +705,7 @@ const characters = [
             {
                 "id": "uchiha-sasuke-sharingan",
                 "name": "Sharingan",
-                "skillimage": "https://i.imgur.com/NhDRPOE.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/4e5f0bc6546366803d3f.png",
                 "skilldescription": "For 4 turns, Sasuke gains a 15% chance to Evade all enemy non-mental skills and this swaps to 'Chidori'. Every time he Evades a physical skill, 'Mimicked Taijutsu' permanently deals 5 additional damage & every time he Evades a chakra skill, 'Chidori' deals 5 additional damage permanently (stacks).",
                 "energy": [
                     "none"
@@ -760,7 +760,7 @@ const characters = [
             {
                 "id": "uchiha-sasuke-uchiha-reflexes",
                 "name": "Uchiha Reflexes",
-                "skillimage": "https://i.imgur.com/FJDxgOR.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/73fc0890975c2ae3ff85.png",
                 "skilldescription": "This skill makes Uchiha Sasuke have a 25% chance to Evade enemy non-mental skills for 2 turns (stacks with 'Mimicked Taijutsu' and 'Sharingan'). If a skill is successfully evaded, Sasuke becomes invulnerable to all other enemy skills that turn.",
                 "energy": [
                     "Random"
@@ -798,7 +798,7 @@ const characters = [
             {
                 "id": "uchiha-sasuke-dragon-flame-jutsu",
                 "name": "Dragon Flame Jutsu",
-                "skillimage": "https://i.imgur.com/kjIOA8y.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/859036dbb2a380deb98f.png",
                 "skilldescription": "Deals 15 affliction damage to the enemy affected by 'Triple Windmill Attack' for 2 turns. 'Triple Windmill Attack' has its duration extended by 1 turn.",
                 "energy": [
                     "Ninjutsu",
@@ -863,7 +863,7 @@ const characters = [
             {
                 "id": "uchiha-sasuke-chidori",
                 "name": "Chidori",
-                "skillimage": "https://i.imgur.com/y2WbP01.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/6c119202504452b45b29.png",
                 "skilldescription": "Sasuke deals 45 piercing damage to one enemy. If the target's health drops to 10 HP or below, they are executed.",
                 "energy": [
                     "Ninjutsu",
@@ -899,13 +899,13 @@ const characters = [
         "id": "inuzuka-kiba",
         "characterId": "inuzuka-kiba",
         "name": "Inuzuka Kiba",
-        "facePicture": "https://i.imgur.com/xPWcUtA.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/be759e27a3148903f0f2.png",
         "characterdeescription": "Kiba is a fast-paced, pressure-oriented damage dealer who excels at isolating a single target and mauling them over multiple turns. His kit rewards smart setup and timing rather than raw burst spam. Once Kiba marks an enemy, they become his prey—unable to hide behind damage reduction or invulnerability, and steadily torn apart by repeated strikes.",
         "skills": [
             {
                 "id": "inuzuka-kiba-fang-over-fang",
                 "name": "Fang over Fang",
-                "skillimage": "https://i.imgur.com/tODxqPs.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/34b7e71fda2bb0bcb74a.png",
                 "skilldescription": "Deals 10 damage to one enemy and 5 damage to one random enemy for 2 turns. Kiba gains 10 points of destructible defense for 1 turn.",
                 "energy": [
                     "Taijutsu"
@@ -966,7 +966,7 @@ const characters = [
             {
                 "id": "inuzuka-kiba-dynamic-marking",
                 "name": "Dynamic Marking",
-                "skillimage": "https://i.imgur.com/i3T37zV.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/0e58fb227744b2bc1486.png",
                 "skilldescription": "One enemy becomes unable to reduce damage or become invulnerable for 2 turns. During this time, they take 10 additional damage from Kiba's skills.",
                 "energy": [
                     "none"
@@ -1011,7 +1011,7 @@ const characters = [
             {
                 "id": "inuzuka-kiba-twin-headed-wolf",
                 "name": "Twin-Headed Wolf",
-                "skillimage": "https://i.imgur.com/UIlaRmo.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/b481bfdc37ce55e3d122.png",
                 "skilldescription": "Kiba gains 15 points of damage reduction and deals 15 piercing damage to a random enemy for 3 turns each turn. If an enemy is affected by 'Dynamic Marking' this will target them instead. This swaps to 'Fang wolf Fang' while active.",
                 "energy": [
                     "Bloodline",
@@ -1063,7 +1063,7 @@ const characters = [
             {
                 "id": "inuzuka-kiba-man-beast-clone",
                 "name": "Man-Beast Clone",
-                "skillimage": "https://i.imgur.com/Y5XIKMo.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/e020fe6e0da2cd080f4d.png",
                 "skilldescription": "For 4 turns, Kiba ignores enemy stun effects then makes 'Fang over Fang' have no cooldown and deal 5 additional damage.",
                 "energy": [
                     "Random"
@@ -1095,7 +1095,7 @@ const characters = [
             {
                 "id": "inuzuka-kiba-fang-wolf-fang",
                 "name": "Fang wolf Fang",
-                "skillimage": "https://i.imgur.com/dhx6Qvr.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/17529694b901021202a7.png",
                 "skilldescription": "Deals 25 damage to one enemy for 2 turns. Kiba becomes invulnerable for 1 turn.",
                 "energy": [
                     "Taijutsu",
@@ -1147,7 +1147,7 @@ const characters = [
                 "name": "Fang over Fang",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/tODxqPs.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/34b7e71fda2bb0bcb74a.png",
                 "skilldescription": "Deals 15 damage to one enemy and 10 damage to one random enemy for 2 turns. Kiba gains 10 points of destructible defense for 1 turn.",
                 "energy": [
                     "Taijutsu"
@@ -1211,13 +1211,13 @@ const characters = [
         "id": "aburame-shino",
         "characterId": "aburame-shino",
         "name": "Aburame Shino",
-        "facePicture": "https://i.imgur.com/iAjJn2w.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/a04782946acf6a28251c.png",
         "characterdeescription": "Aburame Shino is a calculated, methodical controller who dominates combat through inevitability rather than burst. He excels at locking down a single target, bypassing defenses, and dismantling enemies over time with relentless affliction pressure. Once Shino marks a target, escape becomes impossible—his bugs track, drain, and weaken until the enemy collapses.",
         "skills": [
             {
                 "id": "aburame-shino-female-bug",
                 "name": "Female Bug",
-                "skillimage": "https://i.imgur.com/6KPrkAg.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/03a7e4b84307bac42af3.png",
                 "skilldescription": "Shino directs one of his female bugs to attach itself to one enemy until they die. While affected, Shino's skills are improved on them, ignore their invulnerability, and cannot be evaded. This cannot be evaded and will remove itself from the previous target if used on another.",
                 "energy": [
                     "none"
@@ -1252,7 +1252,7 @@ const characters = [
             {
                 "id": "aburame-shino-infestation",
                 "name": "Infestation",
-                "skillimage": "https://i.imgur.com/4q7jf6A.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/145d96f17562901135ea.png",
                 "skilldescription": "Shino calls millions of bugs to swarm an enemy, dealing 5 affliction damage and lowering their non-affliction damage by 5 permanently (stacks). If they are affected by 'Female Bug', the damage and lowering effect are doubled.",
                 "energy": [
                     "Random"
@@ -1319,7 +1319,7 @@ const characters = [
             {
                 "id": "aburame-shino-chakra-leach",
                 "name": "Chakra Leach",
-                "skillimage": "https://i.imgur.com/ZzFx99m.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/0712c457aea9d0102454.png",
                 "skilldescription": "Shino directs his chakra draining bugs to one enemy, dealing 15 affliction damage for 2 turns and stealing 1 non-bloodline chakra from their chakra pool the following turn. If the target is affected by 'Female Bug', this instead deals 30 affliction damage and steals 1 non-bloodline chakra instantly.",
                 "energy": [
                     "Bloodline"
@@ -1405,7 +1405,7 @@ const characters = [
             {
                 "id": "aburame-shino-bug-clone",
                 "name": "Bug Clone",
-                "skillimage": "https://i.imgur.com/8M9NPsd.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/bcea1028d72187a1e615.png",
                 "skilldescription": "This skill makes Aburame Shino invulnerable for 1 turn.",
                 "energy": [
                     "Random"
@@ -1437,13 +1437,13 @@ const characters = [
         "id": "hyuuga-hinata",
         "characterId": "hyuuga-hinata",
         "name": "Hyuuga Hinata",
-        "facePicture": "https://i.imgur.com/0Sa9tPk.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/3522ee03833376e4e011.png",
         "characterdeescription": "Hyūga Hinata is a defensive pressure specialist who excels at chakra denial, sustained damage, and team protection. When Byakugan is active, Hinata shifts from a cautious support into a battlefield controller, punishing enemies for using skills while reinforcing her allies with layered defenses and healing.",
         "skills": [
             {
                 "id": "hyuuga-hinata-byakugan",
                 "name": "Byakugan",
-                "skillimage": "https://i.imgur.com/ifMreas.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/731855ef2412b90f3860.png",
                 "skilldescription": "Hinata activates her Byakugan, making her skills unable to be Evaded, improving her skills, and gaining 10 points of damage reduction for 3 turns.",
                 "energy": [
                     "none"
@@ -1466,7 +1466,7 @@ const characters = [
                         "metadata": {
                             "cannotBeEvadedSkills": true,
                             "damageReductionFlat": 10,
-                            "facePictureOverride": "https://i.imgur.com/x4M9ysf.png",
+                            "facePictureOverride": "/assets/images/external-mirror/i.imgur.com/dd7783aa8a9be9723ec7.png",
                             "skillReplacements": {
                                 "hyuuga-hinata-hinata-gentle-fist": "hyuuga-hinata-hinata-gentle-fist-byakugan",
                                 "hyuuga-hinata-eight-trigrams-64-palms-protection": "hyuuga-hinata-eight-trigrams-64-palms-protection-byakugan",
@@ -1480,7 +1480,7 @@ const characters = [
             {
                 "id": "hyuuga-hinata-hinata-gentle-fist",
                 "name": "Hinata Gentle Fist",
-                "skillimage": "https://i.imgur.com/k0nWgv6.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/9ca19521c7cbb6325808.png",
                 "skilldescription": "Using the Hyuuga clan's style of taijutsu, Hinata deals 15 damage to one enemy and increasing the cost of their skills by 1 random chakra for 1 turn and then dealing 10 damage to them next turn. During 'Byakugan', this will increase their skill costs by 1 genjutsu chakra for 1 turn instead.",
                 "energy": [
                     "Genjutsu"
@@ -1530,7 +1530,7 @@ const characters = [
             {
                 "id": "hyuuga-hinata-eight-trigrams-64-palms-protection",
                 "name": "Eight Trigrams 64 Palms Protection",
-                "skillimage": "https://i.imgur.com/NHwkyNb.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/19a632277e68a1063e90.png",
                 "skilldescription": "Hinata deals 15 damage to all enemies for 2 turns. For 1 turn, Hinata and her allies have 15 destructible defense and any enemy that breaks the Destructible Defense will lose 1 random chakra. During 'Byakugan', this skill will deal 5 additional damage and become piercing damage.",
                 "energy": [
                     "Ninjutsu",
@@ -1582,7 +1582,7 @@ const characters = [
             {
                 "id": "hyuuga-hinata-hinata-medicine",
                 "name": "Hinata Medicine",
-                "skillimage": "https://i.imgur.com/68O6hme.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/4fe3b0e001d642b90a0c.png",
                 "skilldescription": "Heals one ally or herself 15% their current health every turn for 2 turns. This may not be used on an already affected target. During 'Byakugan' this will affect Hinata's whole team.",
                 "energy": [
                     "Random"
@@ -1616,7 +1616,7 @@ const characters = [
                 "name": "Hinata Gentle Fist",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/k0nWgv6.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/9ca19521c7cbb6325808.png",
                 "skilldescription": "Using the Hyuuga clan's style of taijutsu, Hinata deals 15 damage to one enemy and increasing the cost of their skills by 1 genjutsu chakra for 1 turn and then dealing 10 damage to them next turn.",
                 "energy": [
                     "Genjutsu"
@@ -1668,7 +1668,7 @@ const characters = [
                 "name": "Eight Trigrams 64 Palms Protection",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/NHwkyNb.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/19a632277e68a1063e90.png",
                 "skilldescription": "Hinata deals 20 piercing damage to all enemies for 2 turns. For 1 turn, Hinata and her allies have 15 destructible defense. Any enemy that breaks the Destructible Defense will lose 1 random chakra.",
                 "energy": [
                     "Ninjutsu",
@@ -1726,7 +1726,7 @@ const characters = [
                 "name": "Hinata Medicine",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/68O6hme.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/4fe3b0e001d642b90a0c.png",
                 "skilldescription": "Heals Hinata's whole team for 15% of current health every turn for 2 turns.",
                 "energy": [
                     "Random"
@@ -1758,13 +1758,13 @@ const characters = [
         "id": "nara-shikamaru",
         "characterId": "nara-shikamaru",
         "name": "Nara Shikamaru",
-        "facePicture": "https://i.imgur.com/kLCdz5O.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/0f0cc0726649c8e572a5.png",
         "characterdeescription": "Shikamaru Nara is a tactical prodigy of Konohagakure who weaponizes shadows as extensions of his will. He excels at battlefield control, dismantling enemy formations through patience and precision rather than brute force.",
         "skills": [
             {
                 "id": "nara-shikamaru-shadow-possession",
                 "name": "Shadow Possession",
-                "skillimage": "https://i.imgur.com/RqlOKy1.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/68bd5f91cef11640bd2d.png",
                 "skilldescription": "The following turn, Shikamaru deals 20 damage to one enemy and stuns their non-mental skills for 1 turn. If Shikamaru has a new enemy harmful skill used on him before it activates, this will be canceled. This skill is invisible.",
                 "energy": [
                     "Genjutsu"
@@ -1871,7 +1871,7 @@ const characters = [
             {
                 "id": "nara-shikamaru-shadow-extending-balloon",
                 "name": "Shadow Extending Balloon",
-                "skillimage": "https://i.imgur.com/ySLkFoO.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/ae979e62b5efeb969e91.png",
                 "skilldescription": "Shikamaru makes 'Shadow Possession' cost 1 random chakra for 1 turn. For 4 turns, a new random enemy will be marked by this skill every turn. While marked, 'Shadow Possession' will activate instantly on the target. This skill ignores invulnerability.",
                 "energy": [
                     "none"
@@ -1926,7 +1926,7 @@ const characters = [
             {
                 "id": "nara-shikamaru-shadow-neck-bind",
                 "name": "Shadow-Neck Bind",
-                "skillimage": "https://i.imgur.com/S5vGQsi.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/f9dd80b87f8505484afd.png",
                 "skilldescription": "Shikamaru chokes one enemy, dealing 25 affliction damage to them and making them unable to reduce damage or become invulnerable for 2 turns. If they are affected by 'Shadow Possession', this will re-apply its stun.",
                 "energy": [
                     "Genjutsu",
@@ -1986,7 +1986,7 @@ const characters = [
             {
                 "id": "nara-shikamaru-light-bomb",
                 "name": "Light Bomb",
-                "skillimage": "https://i.imgur.com/YX5Iv26.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/20a38d9ad138400d7e97.png",
                 "skilldescription": "Next turn, all enemy harmful skills will be Blinded and target randomly for 1 turn. During this time, 'Shadow Possession' and 'Shadow-Neck Bind' will target all enemies.",
                 "energy": [
                     "Random",
@@ -2032,7 +2032,7 @@ const characters = [
                 "name": "Shadow Possession",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/RqlOKy1.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/68bd5f91cef11640bd2d.png",
                 "skilldescription": "The following turn, Shikamaru deals 20 damage to one enemy and stuns their non-mental skills for 1 turn. If Shikamaru has a new enemy harmful skill used on him before it activates, this will be canceled. This skill is invisible.",
                 "energy": [
                     "Random"
@@ -2141,7 +2141,7 @@ const characters = [
                 "name": "Shadow Possession",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/RqlOKy1.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/68bd5f91cef11640bd2d.png",
                 "skilldescription": "The following turn, Shikamaru deals 20 damage to all enemies and stuns their non-mental skills for 1 turn. If Shikamaru has a new enemy harmful skill used on him before it activates, this will be canceled. This skill is invisible.",
                 "energy": [
                     "Genjutsu"
@@ -2250,7 +2250,7 @@ const characters = [
                 "name": "Shadow Possession",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/RqlOKy1.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/68bd5f91cef11640bd2d.png",
                 "skilldescription": "The following turn, Shikamaru deals 20 damage to all enemies and stuns their non-mental skills for 1 turn. If Shikamaru has a new enemy harmful skill used on him before it activates, this will be canceled. This skill is invisible.",
                 "energy": [
                     "Random"
@@ -2359,7 +2359,7 @@ const characters = [
                 "name": "Shadow-Neck Bind",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/S5vGQsi.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/f9dd80b87f8505484afd.png",
                 "skilldescription": "Shikamaru chokes all enemies, dealing 25 affliction damage to them and making them unable to reduce damage or become invulnerable for 2 turns. If they are affected by 'Shadow Possession', this will re-apply its stun.",
                 "energy": [
                     "Genjutsu",
@@ -2422,14 +2422,14 @@ const characters = [
         "id": "akimichi-chouji",
         "characterId": "akimichi-chouji",
         "name": "Akimichi Chouji",
-        "facePicture": "https://i.imgur.com/Qmwl4FM.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/b2776d763f509bafa08f.png",
         "characterdeescription": "A loyal member of the Ino–Shika–Cho formation, Chouji turns devotion into overwhelming force. By converting his own vitality into power, he evolves throughout battle, shifting from defensive anchor to unstoppable juggernaut. The longer he stands, the harder he hits.",
         "skills": [
             {
                 "id": "akimichi-chouji-sumo-toss",
                 "name": "Sumo Toss",
                 "cannotBeCountered": true,
-                "skillimage": "https://i.imgur.com/W9gcvQ1.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/61df691b4a389cb91641.png",
                 "skilldescription": "Chouji grapples and throws one enemy dealing 25 damage to them that cannot be countered. This deals piercing damage if 'Spiked Meat Tank' is active.",
                 "energy": [
                     "Taijutsu"
@@ -2470,7 +2470,7 @@ const characters = [
             {
                 "id": "akimichi-chouji-meat-tank",
                 "name": "Meat Tank",
-                "skillimage": "https://i.imgur.com/kfUBep4.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/d4e734a40a2ad7a8e8a2.png",
                 "skilldescription": "Chouji transforms into a meat tank dealing 15 damage to one enemy for 2 turns. Chouji ignores enemy stun effects and gains 10 points of damage reduction for 2 turns.",
                 "energy": [
                     "Bloodline"
@@ -2519,7 +2519,7 @@ const characters = [
             {
                 "id": "akimichi-chouji-spinach-pill",
                 "name": "Spinach Pill",
-                "skillimage": "https://i.imgur.com/VuPJeKk.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/53a3ca1b84e4fba4d07d.png",
                 "skilldescription": "Chouji eats a pill, loses 15 health. 'Meat Tank' swaps to 'Spiked Meat Tank' and this swaps to 'Curry Pill' permanently. For 1 turn, Chouji's skill will have no cost.",
                 "energy": [
                     "none"
@@ -2571,7 +2571,7 @@ const characters = [
             {
                 "id": "akimichi-chouji-body-block",
                 "name": "Body Block",
-                "skillimage": "https://i.imgur.com/PKFvfvZ.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/0efa072806b2e564070d.png",
                 "skilldescription": "Chouji makes himself or an ally invulnerable for 1 turn.",
                 "energy": [
                     "Bloodline"
@@ -2600,7 +2600,7 @@ const characters = [
                 "id": "akimichi-chouji-spiked-meat-tank",
                 "name": "Spiked Meat Tank",
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/e94I4P6.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/98c23e37fc2faee6db48.png",
                 "skilldescription": "Chouji deals 10 normal and 10 piercing damage to one enemy for 2 turns. Chouji ignores enemy stun effects, gains 10 damage reduction, and deals 10 piercing damage to any enemy that uses a new non-mental skill on him during this time*.",
                 "energy": [
                     "Bloodline"
@@ -2679,7 +2679,7 @@ const characters = [
                 "cannotBeCountered": true,
                 "useBaseSkillCooldown": true,
                 "ignoreInvulnerability": true,
-                "skillimage": "https://i.imgur.com/CN8PWyT.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/e17711f478b049cde8f4.png",
                 "skilldescription": "Chouji doubles the size of his arm and strikes one enemy dealing 35 damage that cannot be countered and ignores invulnerability. This deals piercing damage if 'Spiked Meat Tank' is active.",
                 "energy": [
                     "Taijutsu"
@@ -2721,7 +2721,7 @@ const characters = [
                 "id": "akimichi-chouji-curry-pill",
                 "name": "Curry Pill",
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/TnRxxJO.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/18db2dfaa2e3289fa21a.png",
                 "skilldescription": "Chouji eats a pill, loses 25 health. 'Sumo Toss' becomes 'Partial Multi-Size' and this becomes 'Super Multi-Size' permanently. For 1 turn, Chouji's next skill will have no cost.",
                 "energy": [
                     "none"
@@ -2774,7 +2774,7 @@ const characters = [
                 "id": "akimichi-chouji-super-multi-size",
                 "name": "Super Multi-Size",
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/ibzuFzU.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/5a96fd47a0e2b9171e8e.png",
                 "skilldescription": "Chouji gains 45 destructible defense for 2 turns. When this skill ends, Chouji deals damage to the enemy team equal to the remaining destructible defense from this skill and fully stuns them for 1 turn. This skill is cancelled if the DD is completely destroyed.",
                 "energy": [
                     "Taijutsu",
@@ -2823,13 +2823,13 @@ const characters = [
         "id": "akimichi-chouji-butterfly-mode",
         "characterId": "akimichi-chouji-butterfly-mode",
         "name": "Akimichi Chouji (Butterfly Mode)",
-        "facePicture": "https://i.imgur.com/Yp0EunK.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/927b58dcc70ec17e5436.png",
         "characterdeescription": "Butterfly Mode Chouji functions as a late-game execution threat who converts missing health into explosive damage. He excels at breaking through defensive teams, punishing high-defense compositions, and locking down priority targets. While difficult to control due to stun immunity and damage reduction, his self-draining mechanics force careful timing. Best deployed when enemy defenses are established and targets are vulnerable to burst.",
         "skills": [
             {
                 "id": "akimichi-chouji-butterfly-mode-chili-pepper-pill",
                 "name": "Chili Pepper Pill",
-                "skillimage": "https://i.imgur.com/KTK6Tcd.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/841b42c9d918e701937b.png",
                 "skilldescription": "Chouji begins losing 5 HP and capping his health every turn*. During this time, he gains 15 points of unpierceable damage reduction, may use his other skills, and ignores enemy stun effects. Swaps to 'Devastating Knockout. This cannot be removed or ignored.",
                 "energy": [
                     "Random"
@@ -2867,7 +2867,7 @@ const characters = [
                 "name": "Butterfly Bullet Bombing",
                 "cannotBeCountered": true,
                 "cannotBeReflected": true,
-                "skillimage": "https://i.imgur.com/x2kXa6R.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/3e9fccb9c76202d5c898.png",
                 "skilldescription": "Chouji destroys all of one enemy's destructible defense then deals 35 damage to them (+10 for every 30 HP he is missing). This skill cannot be countered or reflected. Requires 'Chili Pepper Pill' active to be used.",
                 "energy": [
                     "Taijutsu",
@@ -2912,7 +2912,7 @@ const characters = [
             {
                 "id": "akimichi-chouji-butterfly-mode-chakra-wings",
                 "name": "Chakra Wings",
-                "skillimage": "https://i.imgur.com/YlQxtCw.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/eb47dd54f4f863b32ea2.png",
                 "skilldescription": "Chouji reduces the cost of his skills by 1 taijutsu chakra and loses 10 HP every turn for 3 turns. If Chouji kills an enemy during this time, his health cannot fall below 1 HP for 1 turn. Requires 'Chili Pepper Pill' to be active to be used.",
                 "energy": [
                     "Ninjutsu",
@@ -2951,7 +2951,7 @@ const characters = [
             {
                 "id": "akimichi-chouji-butterfly-mode-effortless-block",
                 "name": "Effortless Block",
-                "skillimage": "https://i.imgur.com/CzT8mhU.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/e3b6ce1401666f4eae75.png",
                 "skilldescription": "This skill makes Akimichi Chouji invulnerable for 1 turn. Requires 'Chili Pepper Pill'.",
                 "energy": [
                     "Random"
@@ -2986,7 +2986,7 @@ const characters = [
             {
                 "id": "akimichi-chouji-butterfly-mode-devastating-knockout",
                 "name": "Devastating Knockout",
-                "skillimage": "https://i.imgur.com/f1iAKd5.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/2e2fc958480ac999037d.png",
                 "skilldescription": "Deals 30 piercing damage to one enemy and fully stuns them for 1 turn. This deals 10 additional damage if Chouji has 25 HP or less.",
                 "energy": [
                     "Taijutsu",
@@ -3054,13 +3054,13 @@ const characters = [
         "id": "yamanaka-ino",
         "characterId": "yamanaka-ino",
         "name": "Yamanaka Ino",
-        "facePicture": "https://i.imgur.com/3EgUlLf.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/1a72627540935bd1f597.png",
         "characterdeescription": "Yamanaka Ino is the heir to the Yamanaka clan’s mind techniques, a kunoichi who turns emotion into a weapon sharper than steel. She dismantles opponents through redirection, silence, and layered psychological pressure, forcing enemies to betray their own strategies.",
         "skills": [
             {
                 "id": "yamanaka-ino-mind-body-disturbance",
                 "name": "Mind Body Disturbance",
-                "skillimage": "https://i.imgur.com/PVjnd83.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/f5e3a84dabf29bc47fc8.png",
                 "skilldescription": "Target one enemy, a random skill of theirs becomes unusable next turn and they take 20 piercing damage that ignores invulnerability. If used on the same target twice in a row, it instead silences all their skills for 1 turn.",
                 "energy": [
                     "Ninjutsu"
@@ -3108,7 +3108,7 @@ const characters = [
             {
                 "id": "yamanaka-ino-change-of-heart",
                 "name": "Change of Heart",
-                "skillimage": "https://i.imgur.com/HPuwelK.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/a6d3552f0e3e415fdc3e.png",
                 "skilldescription": "Target enemy for 1 turn: Reflect their next harmful non-mental skill to a random ally on their team. If they are the last alive enemy, they re-direct it to themselves instead. This skill is invisible.",
                 "energy": [
                     "Random"
@@ -3152,7 +3152,7 @@ const characters = [
             {
                 "id": "yamanaka-ino-chakra-hair-strand-trap",
                 "name": "Chakra Hair Strand Trap",
-                "skillimage": "https://i.imgur.com/FcB0U4w.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/f0c27c6a914589281a3d.png",
                 "skilldescription": "Paralyzes one enemy's cooldowns for 2 turns and deals 10 piercing damage to them if they use a new non-mental skill next turn. This skill is invisible. 'Mind Body Disturbance' deals 10 additional damage and 'Change of Heart' lasts 1 additional turn on an affected enemy.",
                 "energy": [
                     "none"
@@ -3215,7 +3215,7 @@ const characters = [
             {
                 "id": "yamanaka-ino-mental-guard",
                 "name": "Mental Guard",
-                "skillimage": "https://i.imgur.com/PMkrEtQ.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/ff1bf956411695601cd0.png",
                 "skilldescription": "Ino ignores all mental skills for 2 turns and reflects the first mental skill used on her team back to the enemy that used it. This skill is invisible.",
                 "energy": [
                     "Random"
@@ -3279,13 +3279,13 @@ const characters = [
         "id": "rock-lee",
         "characterId": "rock-lee",
         "name": "Rock Lee",
-        "facePicture": "https://i.imgur.com/e11I0eR.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/95b13c38018ddb3e3e06.png",
         "characterdeescription": "Rock Lee is a relentless close-range fighter who overwhelms enemies with speed, precision, and unbreakable discipline. Specializing in fast combos, pressure control, and survivability through pure taijutsu, Lee rewards aggressive play and skillful timing, turning momentum into constant advantage on the battlefield.",
         "skills": [
             {
                 "id": "rock-lee-high-speed-taijutsu",
                 "name": "High Speed Taijutsu",
-                "skillimage": "https://i.imgur.com/dq0vpYR.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/61c629e7f5f7a1da0d71.png",
                 "skilldescription": "Lee attacks one enemy with amazing speed, dealing 15 damage to them. For 1 turn, 'Strong Front Kick' will deal 20 damage then mark its target and Lee will have a 15% chance to Evade enemy non-mental skills.",
                 "energy": [
                     "Random"
@@ -3323,7 +3323,7 @@ const characters = [
             {
                 "id": "rock-lee-blowing-kisses",
                 "name": "Blowing Kisses",
-                "skillimage": "https://i.imgur.com/ZH5Jfzy.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/fc24bf2b536600d59e41.png",
                 "skilldescription": "Targets an enemy for 1 turn. If they use a new skill, Lee heals 10 HP and they take 10 additional damage from him permanently, stacking up to 3 times. This skill is invisible (but its stacks aren't).",
                 "energy": [
                     "none"
@@ -3371,7 +3371,7 @@ const characters = [
             {
                 "id": "rock-lee-strong-front-kick",
                 "name": "Strong Front Kick",
-                "skillimage": "https://i.imgur.com/d8vV5rn.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/68f968feff0e46a3d36a.png",
                 "skilldescription": "Lee marks an enemy and gains 10 destructible defense for 1 turn. When the mark ends, the target takes 30 damage. Next turn, 'High Speed Taijutsu' deals 10 additional damage and grants 10% additional Evasion.",
                 "energy": [
                     "Taijutsu"
@@ -3439,7 +3439,7 @@ const characters = [
             {
                 "id": "rock-lee-taijutsu-guard",
                 "name": "Taijutsu Guard",
-                "skillimage": "https://i.imgur.com/B2ovfhp.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/435dd1a7a5f58434dc35.png",
                 "skilldescription": "Rock Lee targets himself or an ally for 1 turn. If an enemy uses a new harmful skill on them, they will be countered. If successful, the countered enemy will have 'High Speed Taijutsu' cast on them. This skill is invisible.",
                 "energy": [
                     "Random"
@@ -3497,7 +3497,7 @@ const characters = [
                 "id": "rock-lee-strong-front-kick-empowered",
                 "name": "Strong Front Kick",
                 "hiddenFromSelectionViewer": true,
-                "skillimage": "https://i.imgur.com/d8vV5rn.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/68f968feff0e46a3d36a.png",
                 "skilldescription": "Lee deals 20 damage to one enemy, marks them, and gains 10 destructible defense for 1 turn. When the mark ends, the target takes 30 damage. Next turn, High Speed Taijutsu deals 10 additional damage and grants 10% additional Evasion.",
                 "energy": [
                     "Taijutsu"
@@ -3560,7 +3560,7 @@ const characters = [
                 "id": "rock-lee-high-speed-taijutsu-empowered",
                 "name": "High Speed Taijutsu",
                 "hiddenFromSelectionViewer": true,
-                "skillimage": "https://i.imgur.com/dq0vpYR.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/61c629e7f5f7a1da0d71.png",
                 "skilldescription": "Lee attacks one enemy with amazing speed, dealing 25 damage to them. For 1 turn, 'Strong Front Kick' will deal 20 damage then mark its target and Lee will have a 25% chance to Evade enemy non-mental skills.",
                 "energy": [
                     "Random"
@@ -3601,13 +3601,13 @@ const characters = [
         "id": "fourth-gate-lee",
         "characterId": "fourth-gate-lee",
         "name": "Fourth Gate Lee",
-        "facePicture": "https://i.imgur.com/MF5nhCT.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/2a12fb0493e886591dbe.png",
         "characterdeescription": "Fourth Gate Lee is an explosive combo striker who chains aerial control into devastating self-sacrificial burst. He launches enemies with Skybound Kick to unlock powerful follow-ups, then amplifies his damage permanently through Fifth Gate Opening at the cost of his own life. If pushed to the brink, he converts the health he’s lost into an unavoidable Hidden Lotus finisher capable of ending fights outright.",
         "skills": [
             {
                 "id": "fourth-gate-lee-skybound-kick",
                 "name": "Skybound Kick",
-                "skillimage": "https://i.imgur.com/xOCgX48.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/20a2c7dbbec8f9de78f5.png",
                 "skilldescription": "Lee send an enemy flying, dealing 25 damage to them and makes them unable to reduce damage or become invulnerable for 2 turns. Lee loses 5 HP. This swaps to 'Mid-Air Taijutsu' and 'Primary Lotus' may be used on the target next turn.",
                 "energy": [
                     "Taijutsu",
@@ -3661,7 +3661,7 @@ const characters = [
             {
                 "id": "fourth-gate-lee-primary-lotus",
                 "name": "Primary Lotus",
-                "skillimage": "https://i.imgur.com/56Zsseg.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/6619ea41d5b5b687755a.png",
                 "skilldescription": "Lee slams an enemy down with a great force, dealing 30 damage to them and stunning their non-mental skills for 1 turn. Lee loses 10 HP and deals 10 less damage for 1 turn. This may only be used on an enemy affected by 'Skybound Kick'.",
                 "energy": [
                     "Random",
@@ -3715,7 +3715,7 @@ const characters = [
             {
                 "id": "fourth-gate-lee-fifth-gate-opening",
                 "name": "Fifth Gate Opening",
-                "skillimage": "https://i.imgur.com/r2ir9ql.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/ea7496907554179fc7b0.png",
                 "skilldescription": "Lee opens five of his chakra gates. Permanently, his skills deal 10 additional damage, cost 1 less random chakra, and Lee will lose 5 more health from their use. During this time, Lee has a 30% chance to Evade their non-mental skills, losing 10 health whenever he does*, Lee will also receive 75% less healing, and this skill swaps to 'Hidden Lotus'.",
                 "energy": [
                     "Taijutsu"
@@ -3775,7 +3775,7 @@ const characters = [
             {
                 "id": "fourth-gate-lee-fury-of-the-gates",
                 "name": "Fury of the Gates",
-                "skillimage": "https://i.imgur.com/IYkY5NS.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/16542a3b7552d521a5dc.png",
                 "skilldescription": "For 2 turns, Lee's health cannot drop below 1 HP and Lee will gain 1 taijutsu chakra each turn.",
                 "energy": [
                     "Random"
@@ -3810,7 +3810,7 @@ const characters = [
             {
                 "id": "fourth-gate-lee-mid-air-taijutsu",
                 "name": "Mid-Air Taijutsu",
-                "skillimage": "https://i.imgur.com/UF8AlyX.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/01ab3eccb9437e2367f2.png",
                 "skilldescription": "Lee deals 20 damage to the target of 'Skybound Kick' , extending it's effect an additonal turn, and becoming invulnerable to Melee skills for 1 turn. Lee loses 5 HP.",
                 "energy": [
                     "Taijutsu",
@@ -3861,7 +3861,7 @@ const characters = [
             {
                 "id": "fourth-gate-lee-hidden-lotus",
                 "name": "Hidden Lotus",
-                "skillimage": "https://i.imgur.com/wshl0ok.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/02b066cc1afc36ccd640.png",
                 "skilldescription": "Lee uses his strongest ability, expending all his chakra and dealing damage equal the amount of health Lee has lost to one enemy then losing 10 HP*. The following turn, Lee will deal damage to the target equal to his current health.",
                 "energy": [
                     "Taijutsu",
@@ -3916,13 +3916,13 @@ const characters = [
         "id": "neji-hyuuga",
         "characterId": "neji-hyuuga",
         "name": "Neji Hyuuga",
-        "facePicture": "https://i.imgur.com/d7giIVA.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/0bacc53ce99cefab7c8a.png",
         "characterdeescription": "Neji Hyuga is a scaling damage dealer and control specialist who excels at pressuring enemies over longer fights. His abilities allow him to steadily increase his damage output while disrupting enemy defenses and chakra generation.",
         "skills": [
             {
                 "id": "neji-hyuuga-eight-trigrams-sixty-four-palms",
                 "name": "Eight Trigrams Sixty-Four Palms",
-                "skillimage": "https://i.imgur.com/yEuoyJS.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/667ec8f3d962d153e6f9.png",
                 "skilldescription": "Neji deals 2 piercing damage to one enemy. This skill will double in damage every time it is cast (2/4/8/16/32). This has a 25% chance to remove 1 random chakra. After being used at max damage, this swaps to 'Eight Trigrams One Hundred Twenty-Eight Palms'.",
                 "energy": [
                     "Random"
@@ -4032,7 +4032,7 @@ const characters = [
             {
                 "id": "neji-hyuuga-eight-trigram-heavenly-spin",
                 "name": "Eight Trigram Heavenly Spin",
-                "skillimage": "https://i.imgur.com/x0Ax3cw.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/941e0918043c6c008678.png",
                 "skilldescription": "Neji targets himself or an ally for 1 turn. The target is granted 20 destructible defense and any enemy that uses a new harmful skill on them is dealt 15 damage. This skill is invisible.",
                 "energy": [
                     "Bloodline"
@@ -4065,7 +4065,7 @@ const characters = [
             {
                 "id": "neji-hyuuga-eight-trigrams-symbol",
                 "name": "Eight Trigrams Symbol",
-                "skillimage": "https://i.imgur.com/VARxv1C.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/a49a65b76fbdd28a851b.png",
                 "skilldescription": "For 3 turns, one enemy becomes unable to become invulnerable. 'Eight Trigrams Sixty-Four Palms' will double-cast on an affected enemy. This skill is invisible.",
                 "energy": [
                     "Bloodline"
@@ -4097,7 +4097,7 @@ const characters = [
             {
                 "id": "neji-hyuuga-byakugan-awareness",
                 "name": "Byakugan Awareness",
-                "skillimage": "https://i.imgur.com/KjnmmdI.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/cf81864aacc525071ee1.png",
                 "skilldescription": "Neji removes all enemy invisible skills from all characters, removes all enemy skills from himself, and gains 1 bloodline chakra.",
                 "energy": [
                     "Random"
@@ -4136,7 +4136,7 @@ const characters = [
             {
                 "id": "neji-hyuuga-eight-trigram-one-hundred-twenty-eight-palms",
                 "name": "Eight Trigram One Hundred Twenty-Eight Palms",
-                "skillimage": "https://i.imgur.com/bBIVq6h.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/f1911746b3555f7ebc6e.png",
                 "skilldescription": "Deals 32 piercing damage to one enemy for 2 turns. If this successfully deals damage on both turns, the target becomes unable to generate chakra for 2 turns. After this skill is used twice, it swaps to 'Eight Trigrams Sixty-Four Palms'.",
                 "energy": [
                     "Genjutsu",
@@ -4238,7 +4238,7 @@ const characters = [
                 "name": "Eight Trigrams Sixty-Four Palms",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/yEuoyJS.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/667ec8f3d962d153e6f9.png",
                 "skilldescription": "Neji deals 4 piercing damage to one enemy. This has a 25% chance to remove 1 random chakra.",
                 "energy": [
                     "Random"
@@ -4352,7 +4352,7 @@ const characters = [
                 "name": "Eight Trigrams Sixty-Four Palms",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/yEuoyJS.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/667ec8f3d962d153e6f9.png",
                 "skilldescription": "Neji deals 8 piercing damage to one enemy. This has a 25% chance to remove 1 random chakra.",
                 "energy": [
                     "Random"
@@ -4468,7 +4468,7 @@ const characters = [
                 "name": "Eight Trigrams Sixty-Four Palms",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/yEuoyJS.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/667ec8f3d962d153e6f9.png",
                 "skilldescription": "Neji deals 16 piercing damage to one enemy. This has a 25% chance to remove 1 random chakra.",
                 "energy": [
                     "Random"
@@ -4587,7 +4587,7 @@ const characters = [
                 "name": "Eight Trigrams Sixty-Four Palms",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/yEuoyJS.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/667ec8f3d962d153e6f9.png",
                 "skilldescription": "Neji deals 32 piercing damage to one enemy. This has a 25% chance to remove 1 random chakra. After use, this swaps to Eight Trigram One Hundred Twenty-Eight Palms.",
                 "energy": [
                     "Random"
@@ -4683,7 +4683,7 @@ const characters = [
                 "name": "Eight Trigram One Hundred Twenty-Eight Palms",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/bBIVq6h.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/f1911746b3555f7ebc6e.png",
                 "skilldescription": "Deals 32 piercing damage to one enemy for 2 turns. If this successfully deals damage on both turns, the target becomes unable to generate chakra for 2 turns. After this skill is used twice, it swaps to 'Eight Trigrams Sixty-Four Palms'.",
                 "energy": [
                     "Genjutsu",
@@ -4764,13 +4764,13 @@ const characters = [
         "id": "tenten",
         "characterId": "tenten",
         "name": "Tenten",
-        "facePicture": "https://i.imgur.com/b9LpKL2.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/e1017c161a9bf1e73e0c.png",
         "characterdeescription": "Tenten functions as a scaling ranged damage dealer who builds Weapon stacks over time and converts them into explosive burst damage. She excels in prolonged fights where she can continuously pressure multiple enemies and capitalize on accumulated stacks.",
         "skills": [
             {
                 "id": "tenten-tenten-toss",
                 "name": "Tenten Toss",
-                "skillimage": "https://i.imgur.com/rJdrABR.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/8f7278c655d9eabe77a1.png",
                 "skilldescription": "Throws 1 random 'Ninja Weapons' at each enemy. Each enemy hit gains 1 Weapon stack (for 'Rigged Weapons').",
                 "energy": [
                     "Random"
@@ -5140,7 +5140,7 @@ const characters = [
             {
                 "id": "tenten-rigged-weapons",
                 "name": "Rigged Weapons",
-                "skillimage": "https://i.imgur.com/3bgTaua.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/3bf34e4005d3ca8cf108.png",
                 "skilldescription": "Target: All enemies with 'Ninja Weapons' stacks. Tenten repeats the Ninja Weapon thrown at each enemy once per stack, consuming all stacks. Each repeated hit deals the damage and applies the effects of the Ninja Weapon used in the previous turn.",
                 "energy": [
                     "Random",
@@ -5465,7 +5465,7 @@ const characters = [
             {
                 "id": "tenten-twin-rising-dragons",
                 "name": "Twin Rising Dragons",
-                "skillimage": "https://i.imgur.com/mlelii2.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/a1f7ce06ad9c474c2635.png",
                 "skilldescription": "Target: All enemies. Tenten automatically casts 'Tenten Toss' on all enemies each turn for 2 turns, applying Weapon stacks and Ninja Weapon effects each turn. Special Effect: Tenten gains 1 turn of invulnerability at the start of the skill.",
                 "energy": [
                     "Ninjutsu",
@@ -5508,7 +5508,7 @@ const characters = [
             {
                 "id": "tenten-weapon-scroll-summoning",
                 "name": "Weapon Scroll Summoning",
-                "skillimage": "https://i.imgur.com/r5nA6Ol.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/0956ee64dfa436dce2a9.png",
                 "skilldescription": "Tenten grants an ally 5 additional non-affliction damage and 5 points of damage reduction for the rest of the game (stacks).",
                 "energy": [
                     "Random"
@@ -5544,7 +5544,7 @@ const characters = [
             {
                 "id": "tenten-ninja-weapons",
                 "name": "Ninja Weapons",
-                "skillimage": "https://i.imgur.com/vmWLfr7.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/6ec7819f0b593c37e474.png",
                 "skilldescription": "Weapon Types: - (30% chance) Shuriken: 4 damage, 75% chance to throw a second Shuriken, 25% chance to throw a third shuriken- (25% chance) Kunai: 5 damage, 50% chance to throw a second Kunai - (15% chance) Sword: 7 damage, 40% chance to crit for 10 bonus damage- (15% chance) Hooked Sword: 6 damage + 2 affliction damage per turn for 5 turns - (10% chance) Scythe: 13 piercing damage, 40% chance to crit for 10 additional damage- (5% chance) Mace: 18 damage, 50% chance to stun non-mental skills for 1 turn.",
                 "energy": [],
                 "target": "",
@@ -5561,13 +5561,13 @@ const characters = [
         "id": "gaara-of-the-desert",
         "characterId": "gaara-of-the-desert",
         "name": "Gaara of the Desert",
-        "facePicture": "https://i.imgur.com/67r49Zy.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/709815144356f24e954e.png",
         "characterdeescription": "Gaara dominates the battlefield with overwhelming defensive power and crushing sand techniques. His sand armor and autonomous defense make him extremely difficult to defeat, allowing him to absorb pressure while disrupting enemies with control effects and chakra disruption. By trapping opponents with Sand Coffin, Gaara can set up a devastating Sand Burial capable of eliminating even heavily protected targets.",
         "skills": [
             {
                 "id": "gaara-of-the-desert-sand-assault",
                 "name": "Sand Assault",
-                "skillimage": "https://i.imgur.com/VeZUqFC.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/9cef4bb0f1d86c898563.png",
                 "skilldescription": "Gaara deals 15 damage to one enemy. This skill deals 15 additional damage if 'Sand Armor' is active.",
                 "energy": [
                     "Bloodline"
@@ -5602,7 +5602,7 @@ const characters = [
             {
                 "id": "gaara-of-the-desert-sand-coffin",
                 "name": "Sand Coffin",
-                "skillimage": "https://i.imgur.com/bWUkVPw.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/f4fd6dcd55485732a930.png",
                 "skilldescription": "Gaara surrounds one enemy with a pile of sand, stunning their non-mental skills for 1 turn. This swaps to 'Sand Burial' next turn. This skill will fully stun the enemy if 'Sand Armor' is active.",
                 "energy": [
                     "Ninjutsu"
@@ -5675,7 +5675,7 @@ const characters = [
             {
                 "id": "gaara-of-the-desert-sand-armor",
                 "name": "Sand Armor",
-                "skillimage": "https://i.imgur.com/pVNYopc.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/681be87a4d3a030c6bb8.png",
                 "skilldescription": "Gaara gains 50 points of permanent destructible defense. When 30 destructible defense is destroyed: After 2 turns, if this skill's destructible defense is still active, it will renew itself back to 50 destructible defense. (Only triggers once per skill use). This skill is permanent until the destructible defense is destroyed and does not stack.",
                 "energy": [
                     "Random"
@@ -5713,7 +5713,7 @@ const characters = [
             {
                 "id": "gaara-of-the-desert-autonomous-sand-defense",
                 "name": "Autonomous Sand Defense",
-                "skillimage": "https://i.imgur.com/hWcM4In.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/083c0368437b226d4540.png",
                 "skilldescription": "This skill makes Gaara invulnerable for 1 turn.",
                 "energy": [
                     "Random"
@@ -5742,7 +5742,7 @@ const characters = [
             {
                 "id": "gaara-of-the-desert-sand-burial",
                 "name": "Sand Burial",
-                "skillimage": "https://i.imgur.com/ByZQsEb.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/44faa29b35bd18f80eda.png",
                 "skilldescription": "Target the enemy affected by Sand Coffin last turn. After 1 turn, Gaara will instantly kill this enemy. This skill cannot be evaded.",
                 "energy": [
                     "Bloodline",
@@ -5791,13 +5791,13 @@ const characters = [
         "id": "temari",
         "characterId": "temari",
         "name": "Temari",
-        "facePicture": "https://i.imgur.com/fuIdIm6.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/a266b918faa287e3a06d.png",
         "characterdeescription": "Temari dominates the battlefield through relentless wind pressure and precise control. Excelling from the backline, she weakens enemy formations over time while enabling her allies to strike harder from range. Her wind techniques stack continuous damage across the enemy team, forcing opponents into unfavorable engagements or slow defeat.",
         "skills": [
             {
                 "id": "temari-cutting-whirlwind",
                 "name": "Cutting Whirlwind",
-                "skillimage": "https://i.imgur.com/YEiS2mm.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/9a95eb1c23d42cb4af2e.png",
                 "skilldescription": "Temari creates a razor sharp wind, dealing 10 piercing damage to one enemy and 5 piercing to all other enemies for 3 turns. This skill stacks.",
                 "energy": [
                     "Genjutsu"
@@ -5854,7 +5854,7 @@ const characters = [
             {
                 "id": "temari-slashing-cyclone",
                 "name": "Slashing Cyclone",
-                "skillimage": "https://i.imgur.com/OBJd1AV.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/9a85d557723bcbb4535f.png",
                 "skilldescription": "One enemy has their non-mental skills stunned, becomes invulnerable to helpful skills, and takes 10 piercing damage each turn for 2 turns. Temari's other newly active skills deal 5 additional damage to the affected enemy.",
                 "energy": [
                     "Genjutsu",
@@ -5898,7 +5898,7 @@ const characters = [
             {
                 "id": "temari-summoning-quick-beheading-dance",
                 "name": "Summoning Quick Beheading Dance",
-                "skillimage": "https://i.imgur.com/AsbfOOH.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/a904f0389126b6b80040.png",
                 "skilldescription": "Temari summons the wind weasel Kamatari in the battlefield, increasing all ranged damage her team deals by 5 and dealing 20 piercing damage that ignores invulnerability to a random enemy each turn for 3 turns.",
                 "energy": [
                     "Ninjutsu",
@@ -5951,7 +5951,7 @@ const characters = [
             {
                 "id": "temari-wind-gust-barricade",
                 "name": "Wind Gust Barricade",
-                "skillimage": "https://i.imgur.com/dhANE0M.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/1611953ecebf40ad9898.png",
                 "skilldescription": "Temari and her allies become invulnerable to enemy Ranged skills for 1 turn. One enemy is dealt 10 piercing damage.",
                 "energy": [
                     "Random"
@@ -5994,13 +5994,13 @@ const characters = [
         "id": "kankuro",
         "characterId": "kankuro",
         "name": "Kankuro",
-        "facePicture": "https://i.imgur.com/7ddXchn.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/27dceac8ee319e6330ba.png",
         "characterdeescription": "Kankuro is a tactical control fighter who pressures enemies through traps, poison, and puppet manipulation. By deploying Crow, he can steadily weaken opponents with stacking poison and sustained damage, making him effective in longer battles. Alternatively, Black Ant allows Kankuro to capture a target and set up a devastating execution with Iron Maiden.",
         "skills": [
             {
                 "id": "kankuro-puppet-mastery-crow",
                 "name": "Puppet Mastery: Crow",
-                "skillimage": "https://i.imgur.com/ttuEAPF.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/1b20c7b371d3afb09d6d.png",
                 "skilldescription": "Kankuro uses his puppeteering expertise to control Crow, granting him 10 points of destructible defense and swapping this skill to 'Hidden Poisoned Blade' for 1 turn.",
                 "energy": [
                     "none"
@@ -6033,7 +6033,7 @@ const characters = [
             {
                 "id": "kankuro-puppet-mastery-black-ant",
                 "name": "Puppet Mastery: Black Ant",
-                "skillimage": "https://i.imgur.com/XCkdacb.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/23c39513cedb6f61dd76.png",
                 "skilldescription": "Kankuro brings his newest puppet the Black Ant into position on the battlefield, granting him 15 points of destructible defense and swapping this skill to 'Black Ant Capture' for 1 turn.",
                 "energy": [
                     "Random"
@@ -6066,7 +6066,7 @@ const characters = [
             {
                 "id": "kankuro-poison-bomb",
                 "name": "Poison Bomb",
-                "skillimage": "https://i.imgur.com/vJFqLIY.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/df1a6fcbd404e81364f4.png",
                 "skilldescription": "One of Kankuro's puppets creates a cloud of smoke, dealing 9 affliction damage to all enemies for 3 turns. Requires 'Puppet Mastery: Crow' or 'Puppet Mastery: Black Ant' to be active.",
                 "energy": [
                     "Random",
@@ -6105,7 +6105,7 @@ const characters = [
             {
                 "id": "kankuro-puppet-replacement-technique",
                 "name": "Puppet Replacement Technique",
-                "skillimage": "https://i.imgur.com/QSFFxQi.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/18c72dfb8996a6a0446c.png",
                 "skilldescription": "Kankuro removes all enemy skills from himself and sets his health back to what it was last turn. 'Puppet Mastery: Crow'/'Puppet Mastery: Black Ant' have their effect refreshed if they are active.",
                 "energy": [
                     "Random",
@@ -6172,7 +6172,7 @@ const characters = [
             {
                 "id": "kankuro-hidden-poisoned-blade",
                 "name": "Hidden Poisoned Blade",
-                "skillimage": "https://i.imgur.com/vhy3qI1.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/23149259c9acce0ca959.png",
                 "skilldescription": "Deals 15 piercing damage to one enemy and 3 affliction damage permanently (stacks). 'Puppet Mastery: Crow' has it's effect refreshed.",
                 "energy": [
                     "Random"
@@ -6237,7 +6237,7 @@ const characters = [
             {
                 "id": "kankuro-black-ant-capture",
                 "name": "Black Ant Capture",
-                "skillimage": "https://i.imgur.com/pF10cCb.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/f1b4ec3505fa43d9efe4.png",
                 "skilldescription": "Kankuro stuns one enemy's non-mental skills and makes them invulnerable to all skills for 2 turns. 'Puppet Mastery: Black Ant' has it's effect refreshed. This swaps 'Poison Bomb' to 'Black Secret Technique: Iron Maiden' while active.",
                 "energy": [
                     "Random",
@@ -6302,7 +6302,7 @@ const characters = [
             {
                 "id": "kankuro-black-secret-technique-iron-maiden",
                 "name": "Black Secret Technique: Iron Maiden",
-                "skillimage": "https://i.imgur.com/sZq6ZMW.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/f213cdd2760baeb66e74.png",
                 "skilldescription": "Kankuro targets the enemy affected by 'Black Ant Capture', dealing 50 piercing damage. This skill ignores invulnerability.",
                 "energy": [
                     "Random",
@@ -6343,13 +6343,13 @@ const characters = [
         "id": "tsuchi-kin",
         "characterId": "tsuchi-kin",
         "name": "Tsuchi Kin",
-        "facePicture": "https://i.imgur.com/C0l9iG3.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/d6799e1ef4745bc16ada.png",
         "characterdeescription": "Tsuchi Kin is a kunoichi of the Hidden Sound who weaponizes resonance and deception through the ringing of her bells. She excels at destabilizing opponents, unraveling their rhythm before striking with precision. Every bell she casts is a trap layered within another, turning confidence into hesitation and timing into ruin.",
         "skills": [
             {
                 "id": "tsuchi-kin-illusion-bell-needles",
                 "name": "Illusion Bell Needles",
-                "skillimage": "https://i.imgur.com/Th7ihHd.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/a9e1aef531f79c1d6403.png",
                 "skilldescription": "One enemy takes 25 damage. If used after 'Needle and Bell Trap', the target has all their skills silenced for 1 turn. If used after 'Unnerving Bells', the target has all their skills delayed for 1 turn. If used after 'Sound Hallucinations', the target has all their skills Blinded for 1 turn.",
                 "energy": [
                     "Genjutsu"
@@ -6443,7 +6443,7 @@ const characters = [
             {
                 "id": "tsuchi-kin-needle-and-bell-trap",
                 "name": "Needle and Bell Trap",
-                "skillimage": "https://i.imgur.com/K9UXPqY.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/f8c0e1e9fea17e010603.png",
                 "skilldescription": "One enemy cannot reduce damage or become invulnerable for 2 turns and has their skills stunned for 1 turn. 'Illusion Bell Needles' deals 5 damage next turn.",
                 "energy": [
                     "Random"
@@ -6502,7 +6502,7 @@ const characters = [
             {
                 "id": "tsuchi-kin-unnerving-bells",
                 "name": "Unnerving Bells",
-                "skillimage": "https://i.imgur.com/GBQ17xZ.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/cec159e379bfacc2227b.png",
                 "skilldescription": "One enemy loses 1 random chakra and has their cooldowns paralyzed for 2 turns. 'Illusion Bell Needles' deals 5 additional damage next turn.",
                 "energy": [
                     "Random"
@@ -6554,7 +6554,7 @@ const characters = [
             {
                 "id": "tsuchi-kin-sound-hallucinations",
                 "name": "Sound Hallucinations",
-                "skillimage": "https://i.imgur.com/dOZNxe8.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/cfde60155e210f0b4e77.png",
                 "skilldescription": "Kin gains 50% Evasion for 1 turn and increases the cooldowns of one enemy by 2 for 2 turns. 'Illusion Bell Needles' deals 5 additional damage next turn.",
                 "energy": [
                     "Random"
@@ -6614,13 +6614,13 @@ const characters = [
         "id": "zaku-abumi",
         "characterId": "zaku-abumi",
         "name": "Zaku Abumi",
-        "facePicture": "https://i.imgur.com/Gncmcer.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/40fba9ba9434a686eb4d.png",
         "characterdeescription": "Zaku Abumi is a Sound Village shinobi whose surgically modified arms unleash devastating supersonic air blasts. He specializes in disrupting opponents by targeting and suppressing specific skill classes, forcing enemies into predictable and weakened states. Rather than relying on brute force alone, Zaku manipulates battlefield tempo through calculated interference..",
         "skills": [
             {
                 "id": "zaku-abumi-air-cutter",
                 "name": "Air Cutter",
-                "skillimage": "https://i.imgur.com/rx3wYD7.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/3448bf89876551833280.png",
                 "skilldescription": "Using his surgically altered arms Zaku fires a blast of supersonic air at one enemy dealing 20 piercing damage. Choose Physical, Chakra, or Mental. The target will have that class stunned for 1 turn. A random Secondary enemy takes 10  damage and is affected by the same class stun choice for 1 turn.",
                 "energy": [
                     "Bloodline"
@@ -6683,7 +6683,7 @@ const characters = [
             {
                 "id": "zaku-abumi-wall-of-air",
                 "name": "Wall of Air",
-                "skillimage": "https://i.imgur.com/5B2fWY0.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/8902e378bcf0b25c8078.png",
                 "skilldescription": "Choose Physical, Chakra, or Mental. One enemy deals 15 less damage with that class and takes 15 damage if they use a skill of the same class for 1 turn.",
                 "energy": [
                     "Random"
@@ -6722,7 +6722,7 @@ const characters = [
             {
                 "id": "zaku-abumi-extreme-air-cutter",
                 "name": "Extreme Air Cutter",
-                "skillimage": "https://i.imgur.com/ARkw2BG.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/57d7262877ced086c393.png",
                 "skilldescription": "Zaku boosts his air waves to a frightening level and deals 40 piercing damage to one enemy and 15 damage to the other enemies. Choose Physical, Chakra, or Mental. All enemies will have the selected class stunned for 1 turn.",
                 "energy": [
                     "Bloodline",
@@ -6772,7 +6772,7 @@ const characters = [
             {
                 "id": "zaku-abumi-air-deflection",
                 "name": "Air Deflection",
-                "skillimage": "https://i.imgur.com/PfLncBX.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/b5efa43b25e38939478a.png",
                 "skilldescription": "Choose Physical, Chakra, or Mental. Zaku removes 1 harmful skill from that class from him and his allies.",
                 "energy": [
                     "Random"
@@ -6806,13 +6806,13 @@ const characters = [
         "id": "dosu-kinuta",
         "characterId": "dosu-kinuta",
         "name": "Dosu Kinuta",
-        "facePicture": "https://i.imgur.com/zDqgb9F.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/3cb939ebba0d24dc3732.png",
         "characterdeescription": "Unlike reckless fighters, Dosu methodically tunes his opponents into collapse. By destabilizing their ability to defend or mitigate damage, he transforms every follow-up attack into a lethal crescendo. His vibrations linger, stacking pressure over time, while his drill techniques shatter both body and mind in a single, perfectly timed burst. When played patiently, Dosu becomes an executioner—silencing resistance, denying protection, and ending fights in a calculated final note.",
         "skills": [
             {
                 "id": "dosu-kinuta-melody-arm-tuning",
                 "name": "Melody Arm Tuning",
-                "skillimage": "https://i.imgur.com/rYQyV72.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/e8aac1b1e540da00c7ac.png",
                 "skilldescription": "Dosu fine-tunes his Melody Arm to produce debilitating sound vibrations on an enemy and deals 5 damage to them then improves his next skill on them for 2 turns. If this skill is improved, this will also make them unable to reduce damage or become invulnerable for 3 turns.",
                 "energy": [
                     "none"
@@ -6865,7 +6865,7 @@ const characters = [
             {
                 "id": "dosu-kinuta-vibrating-sound-drill",
                 "name": "Vibrating Sound Drill",
-                "skillimage": "https://i.imgur.com/xQGbfG6.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/f2f6e7df4e867f3421ed.png",
                 "skilldescription": "Dosu attacks with his drill, dealing 20 normal and 20 affliction damage to one enemy. If improved, the target has all their skills Silenced for 1 turn.",
                 "energy": [
                     "Taijutsu",
@@ -6918,7 +6918,7 @@ const characters = [
             {
                 "id": "dosu-kinuta-sound-manipulation",
                 "name": "Sound Manipulation",
-                "skillimage": "https://i.imgur.com/mHvsWFC.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/5d2ff17c0097f585437f.png",
                 "skilldescription": "Kinuta Dosu deals 15 damage to one enemy for 3 turns (stacks). If improved, their physical and mental damage is also lowered by 15 for 3 turns and this becomes piercing damage (stacks).",
                 "energy": [
                     "Genjutsu",
@@ -6992,7 +6992,7 @@ const characters = [
             {
                 "id": "dosu-kinuta-dosu-replacement-technique",
                 "name": "Dosu Replacement Technique",
-                "skillimage": "https://i.imgur.com/24Wm7L4.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/a5e4b069a829c1f305d0.png",
                 "skilldescription": "Dosu becomes invulnerable to enemy physical and mental skills and his next used skill will have its cooldown reduced by 1.",
                 "energy": [
                     "Random"
@@ -7037,13 +7037,13 @@ const characters = [
         "id": "KonohamaruSarutobi",
         "characterId": "KonohamaruSarutobi",
         "name": "Konohamaru Sarutobi",
-        "facePicture": "https://i.imgur.com/fRE42ie.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/74a77b6806008b2909e5.png",
         "characterdeescription": "Konohamaru Sarutobi is a tactical support fighter who controls the flow of battle through disruption and setup rather than raw damage. He excels at taunting enemies, protecting allies, and generating chakra through smart skill sequencing, making him a tempo-focused utility character built around control and synergy.",
         "skills": [
             {
                 "id": "UnsteadyShuriken",
                 "name": "Unsteady Shuriken",
-                "skillimage": "https://i.imgur.com/oHkRzpf.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/92d5603e6fa119d7748b.png",
                 "skilldescription": "Deals 20 damage to one enemy. The next use of this skill deals +5 bonus damage and removes the bonus effect (active until used). If the target is affected by 'Not-So-Sexy Jutsu', the taunt duration is extended by 1 turn.",
                 "energy": [
                     "Random"
@@ -7106,7 +7106,7 @@ const characters = [
             {
                 "id": "Not-So-SexyJutsu",
                 "name": "Not-So-Sexy Jutsu",
-                "skillimage": "https://i.imgur.com/cCNGzMj.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/4b558c3b3887eae86999.png",
                 "skilldescription": "Konohamaru heals 15 HP and Ignores enemy stuns for 1 turn. Applies 'Taunt' to one enemy for 1 turn.",
                 "energy": [
                     "Random"
@@ -7162,7 +7162,7 @@ const characters = [
             {
                 "id": "HideandSeek",
                 "name": "Hide and Seek",
-                "skillimage": "https://i.imgur.com/fEGHc3E.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/81b35270815fef608367.png",
                 "skilldescription": "Target one ally. They become invulnerable to enemy non-affliction skills for 1 turn. The next turn, 'Not-So-Sexy Jutsu' targets all allies and all enemies.",
                 "energy": [
                     "Random"
@@ -7213,7 +7213,7 @@ const characters = [
             {
                 "id": "ChakraBuilding",
                 "name": "Chakra Building",
-                "skillimage": "https://i.imgur.com/5VG0cE3.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/e90fefdf7c6c8f42797e.png",
                 "skilldescription": "Gain 1 chakra based on the last skill used: If 'Unsteady Shuriken': Gain 1 Taijutsu. If 'Not-So-Sexy Jutsu': Gain 1 Ninjutsu. If 'Hide and Seek': Gain 1 Genjutsu.",
                 "energy": [
                     "None"
@@ -7238,7 +7238,7 @@ const characters = [
             {
                 "id": "Not-So-SexyJutsuAll",
                 "name": "Not-So-Sexy Jutsu",
-                "skillimage": "https://i.imgur.com/cCNGzMj.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/4b558c3b3887eae86999.png",
                 "skilldescription": "Konohamaru heals 15 HP and Ignores enemy stuns for 1 turn. Applies 'Taunt' to all enemies for 1 turn.",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
@@ -7299,13 +7299,13 @@ const characters = [
         "id": "young-gaara",
         "characterId": "young-gaara",
         "name": "Young Gaara",
-        "facePicture": "https://i.imgur.com/oBENb9n.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/7bd714e0893a20d48a3a.png",
         "characterdeescription": "Young Gaara is a control-focused pressure fighter who weakens enemies through Sand Pressure stacks, disrupts their resources, and converts setup into precise execution damage. When Shukaku is unleashed, he shifts into a dominant battlefield presence, applying sustained pressure and area damage to overwhelm teams through tempo, attrition, and relentless momentum.",
         "skills": [
             {
                 "id": "young-gaara-amateur-desert-graveyard",
                 "name": "Amateur Desert Graveyard",
-                "skillimage": "https://i.imgur.com/t7E2DrU.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/2c34e947206f5a12a89b.png",
                 "skilldescription": "Gaara crushes one enemy with compressed sand, dealing 22 piercing damage. Consumes all Sand Pressure stacks on the target to deal +6 damage per stack. If at least 2 stacks are consumed, the target's non-mental skills are stunned for 1 turn.",
                 "energy": [
                     "Bloodline"
@@ -7359,7 +7359,7 @@ const characters = [
             {
                 "id": "young-gaara-amateur-desert-coffin",
                 "name": "Amateur Desert Coffin",
-                "skillimage": "https://i.imgur.com/uY202CN.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/54d8f7a9df329e705814.png",
                 "skilldescription": "Gaara binds one enemy with sand, dealing 10 piercing damage, increasing their non-mental skills by 1 random chakra for 1 turn, and applying 1 Sand Pressure stack.",
                 "energy": [
                     "Random"
@@ -7413,7 +7413,7 @@ const characters = [
             {
                 "id": "young-gaara-shukaku-unleashed",
                 "name": "Shukaku Unleashed",
-                "skillimage": "https://i.imgur.com/PriWN4R.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/e678647a5c046363d28e.png",
                 "skilldescription": "Gaara releases Shukaku, gaining 55 destructible defense and transforming his skill set for 4 turns. All harmful effects on Gaara are removed. If the destructible defense is destroyed, the transformation ends early.",
                 "energy": [
                     "Bloodline",
@@ -7440,7 +7440,7 @@ const characters = [
                         "duration": 4,
                         "scope": "self",
                         "metadata": {
-                            "facePictureOverride": "https://i.imgur.com/kxPTPh9.png",
+                            "facePictureOverride": "/assets/images/external-mirror/i.imgur.com/1c7ddbea1e06614d9bbd.png",
                             "skillReplacements": {
                                 "young-gaara-amateur-desert-graveyard": "young-gaara-drilling-air-bullet",
                                 "young-gaara-amateur-desert-coffin": "young-gaara-sand-buckshot",
@@ -7468,7 +7468,7 @@ const characters = [
             {
                 "id": "young-gaara-sand-pressure",
                 "name": "Sand Pressure",
-                "skillimage": "https://i.imgur.com/hOe6sjV.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/29f6a1f418400345caa5.png",
                 "skilldescription": "This skill makes Young Gaara ignore enemy damage for 1 turn and then gains 15 damage reduction and grant the enemy team a Sand Pressure stack. Passive: Sand Pressure stacks are 3 maximum per target. Stacks last 3 turns and refresh on re-application.",
                 "energy": [
                     "Random"
@@ -7535,7 +7535,7 @@ const characters = [
                 "id": "young-gaara-drilling-air-bullet",
                 "name": "Drilling Air Bullet",
                 "hiddenFromSelectionViewer": true,
-                "skillimage": "https://i.imgur.com/yZtNRim.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/d06a3df215db63522d8c.png",
                 "skilldescription": "Deals 28 piercing damage to one enemy. If the target has Sand Pressure, deal +8 damage.",
                 "energy": [
                     "Ninjutsu",
@@ -7579,7 +7579,7 @@ const characters = [
                 "id": "young-gaara-sand-buckshot",
                 "name": "Sand Buckshot",
                 "hiddenFromSelectionViewer": true,
-                "skillimage": "https://i.imgur.com/UHpmtIs.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/9a8d06421d8892781006.png",
                 "skilldescription": "Deals 16 piercing damage to all enemies. Applies 1 Sand Pressure stack to the primary target. Enemies hit have their non-mental skills increased in cost by +1 random chakra next turn.",
                 "energy": [
                     "Bloodline",
@@ -7636,7 +7636,7 @@ const characters = [
                 "id": "young-gaara-shukaku-tailed-beast-bomb",
                 "name": "Shukaku Tailed Beast Bomb",
                 "hiddenFromSelectionViewer": true,
-                "skillimage": "https://i.imgur.com/4G8DlFf.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/3079523f3122bc12d942.png",
                 "skilldescription": "Deals 40 damage to one enemy and 12 damage to all other enemies. Enemies with Sand Pressure take +5 bonus damage.",
                 "energy": [
                     "Bloodline",
@@ -7687,7 +7687,7 @@ const characters = [
                 "id": "young-gaara-one-tailed-defense",
                 "name": "One-Tailed Defense",
                 "hiddenFromSelectionViewer": true,
-                "skillimage": "https://i.imgur.com/vrlfWDI.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/20603c149cc9105fb335.png",
                 "skilldescription": "Shukaku gains 25 damage reduction for 2 turns. During this time, Shukaku's skills cost 1 less random chakra.",
                 "energy": [
                     "Random"
