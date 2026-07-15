@@ -88,9 +88,24 @@ test('the server mission catalog contains all nine unlock missions with the uplo
         assert.ok(mission, `Missing ${id} mission`);
         assert.equal(mission.arena, 'pokemon');
         assert.ok(mission.image.includes('/missionpics/'));
-        assert.ok(mission.goals.some((goal) => goal.type === 'win_matches_same_team'));
-        const streak = mission.goals.find((goal) => goal.type === 'win_streak');
-        assert.equal(streak.wins, ['articuno','moltres','zapdos','mew','mewtwo'].includes(id) ? 6 : 4);
+        const teamWins = mission.goals.find((goal) => goal.type === 'win_matches_same_team');
+        const streak = mission.goals.find((goal) => goal.type === 'win_streak_same_team');
+        const rank = Number(mission.rank);
+        const expectedStreak = rank <= 6 ? 3 : rank <= 12 ? 4 : rank <= 17 ? 5 : 6;
+        assert.ok(teamWins);
+        assert.ok(streak);
+        assert.deepEqual(streak.character_ids, teamWins.character_ids);
+        assert.deepEqual(streak.character_names, teamWins.character_names);
+        assert.equal(streak.wins, expectedStreak);
+        assert.ok(!mission.goals.some((goal) => goal.type === 'win_streak'));
+        assert.ok(mission.requirements.some((requirement) =>
+            requirement.includes(`Win ${expectedStreak} Quick or Ladder matches in a row`) &&
+            teamWins.character_ids.every((characterId) => requirement.includes(characterId))
+        ));
+        const expectedPointCost = ['articuno','moltres','zapdos','mew','mewtwo'].includes(id)
+            ? 600
+            : rank <= 6 ? 150 : rank <= 12 ? 250 : rank <= 17 ? 350 : 450;
+        assert.equal(resolveMissionUnlockPointCost(mission), expectedPointCost);
     });
     const expectedRanks = { articuno:20, moltres:21, zapdos:22, mew:23, mewtwo:25, dragonite:18 };
     Object.entries(expectedRanks).forEach(([id, rank]) => {
@@ -99,8 +114,30 @@ test('the server mission catalog contains all nine unlock missions with the uplo
     ['articuno','moltres','zapdos','mew','mewtwo'].forEach((id) => {
         const mission = missions.find((entry) => entry.reward_character === id);
         assert.equal(mission.purchase_requires_rank, true);
-        assert.equal(resolveMissionUnlockPointCost(mission), 500);
+        assert.equal(resolveMissionUnlockPointCost(mission), 600);
     });
+});
+
+test('mission character point costs follow the requested rank bands', () => {
+    assert.equal(resolveMissionUnlockPointCost({ rank: 1 }), 150);
+    assert.equal(resolveMissionUnlockPointCost({ rank: 6 }), 150);
+    assert.equal(resolveMissionUnlockPointCost({ rank: 7 }), 250);
+    assert.equal(resolveMissionUnlockPointCost({ rank: 12 }), 250);
+    assert.equal(resolveMissionUnlockPointCost({ rank: 13 }), 350);
+    assert.equal(resolveMissionUnlockPointCost({ rank: 17 }), 350);
+    assert.equal(resolveMissionUnlockPointCost({ rank: 18 }), 450);
+    assert.equal(resolveMissionUnlockPointCost({ rank: 40 }), 450);
+});
+
+test('Pokemon evolution auras stay inside portraits instead of covering health bars', () => {
+    const root = path.resolve(__dirname, '..');
+    const styleSource = fs.readFileSync(path.join(root, 'styles', 'style.css'), 'utf8');
+    const auraRule = styleSource.match(/\.pokemon-evolution-aura\s*\{([\s\S]*?)\}/)?.[1] || '';
+    assert.match(auraRule, /width:\s*75px/);
+    assert.match(auraRule, /height:\s*75px/);
+    assert.match(auraRule, /overflow:\s*hidden/);
+    const ingameSource = fs.readFileSync(path.join(root, 'ingame.html'), 'utf8');
+    assert.match(ingameSource, /styles\/style\.css\?v=evolution-aura-health-fix-v1/);
 });
 
 test('the Mongo mission merge persists every wave-two unlock without dropping existing missions', () => {
