@@ -9551,13 +9551,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         const ensureGlobalStatusTooltip = () => {
-            if (globalStatusTooltipEl) return globalStatusTooltipEl;
-            const tooltip = document.createElement('div');
-            tooltip.className = 'global-status-tooltip';
-            tooltip.style.display = 'none';
-            document.body.appendChild(tooltip);
-            globalStatusTooltipEl = tooltip;
-            return tooltip;
+            if (!globalStatusTooltipEl) {
+                const tooltip = document.createElement('div');
+                tooltip.className = 'global-status-tooltip';
+                tooltip.style.display = 'none';
+                globalStatusTooltipEl = tooltip;
+            }
+            // Fullscreen only paints descendants of the fullscreen element, so keep
+            // the shared hover tooltip inside that element while the arena is fullscreen.
+            const tooltipHost = getFullscreenElement() || document.body;
+            if (globalStatusTooltipEl.parentElement !== tooltipHost) {
+                tooltipHost.appendChild(globalStatusTooltipEl);
+            }
+            return globalStatusTooltipEl;
         };
 
         const clearStatusRevealPanels = () => {
@@ -9832,6 +9838,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const groupedTurnEndDamageTotal = groupStatuses.reduce((sum, status) => {
                     return sum + Math.max(0, Number(status?.metadata?.turnEndDamage) || 0);
                 }, 0);
+                const groupedTurnStartDamageTotal = groupStatuses.reduce((sum, status) => {
+                    return sum + Math.max(0, Number(status?.metadata?.turnStartDamage) || 0);
+                }, 0);
+                const groupedPeriodicDamageTotal = groupedTurnStartDamageTotal + groupedTurnEndDamageTotal;
                 const formatTurnsLabel = (remainingTurns) => {
                     const remaining = Math.max(0, Number(remainingTurns) || 0);
                     if (remaining >= 99) return 'Infinite';
@@ -9886,6 +9896,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                         });
                     }
                     const hasCustomTooltipText = Boolean(statusMetadata?.tooltipText || runtimeTooltipTemplate);
+                    if (groupedPeriodicDamageTotal > 0) {
+                        const damageType = statusMetadata?.afflictionDamage ? ' affliction' : '';
+                        const periodicDamageText = `This character takes ${groupedPeriodicDamageTotal}${damageType} damage each turn.`;
+                        // Keep authored context (for example, "from Smog") while correcting
+                        // stale numeric text and making generic "is active" tooltips useful.
+                        if (/takes\s+\d+(?:\s+(?:affliction|non-affliction))?\s+damage each turn/i.test(text)) {
+                            text = text.replace(
+                                /takes\s+\d+(?:\s+(?:affliction|non-affliction))?\s+damage each turn/i,
+                                `takes ${groupedPeriodicDamageTotal}${damageType} damage each turn`
+                            );
+                        } else if (!/damage each turn/i.test(text)) {
+                            text = hasCustomTooltipText ? `${text} ${periodicDamageText}` : periodicDamageText;
+                        }
+                    }
                     if (groupedNonAfflictionDebuffTotal > 0 && !hasCustomTooltipText) {
                         const ownDebuff = Math.max(
                             0,

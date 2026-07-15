@@ -2384,6 +2384,19 @@ body.arena-mode-pokemon .searchingscroll::after {
     overflow: hidden;
 }
 
+/* Fullscreen creates a new top-level painting context; keep status icons above
+   battle art so they remain visible and hoverable in that context. */
+.backgroundingame:fullscreen .skilltooltips,
+.backgroundingame:-webkit-full-screen .skilltooltips {
+    z-index: 12000;
+    overflow: visible;
+}
+
+.backgroundingame:fullscreen .character-card,
+.backgroundingame:-webkit-full-screen .character-card {
+    z-index: 100;
+}
+
 .battle-intro-overlay {
     position: absolute;
     inset: 0;
