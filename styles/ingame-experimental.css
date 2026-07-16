@@ -1,0 +1,625 @@
+/* Experimental battle skin. The classic battle remains the default. */
+html.battle-experimental {
+    min-width: 100%;
+    min-height: 100%;
+    background: #05090c;
+}
+
+html.battle-experimental body {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    display: block;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 50% 45%, rgba(111, 19, 34, 0.2), transparent 44%),
+        #05090c;
+}
+
+html.battle-experimental .backgroundingame {
+    --battle-accent: #b51f39;
+    --battle-accent-bright: #ef405d;
+    --battle-line: rgba(232, 239, 242, 0.68);
+    --battle-panel: rgba(8, 16, 20, 0.9);
+    --battle-panel-soft: rgba(14, 24, 29, 0.78);
+    border: 1px solid var(--battle-line);
+    box-shadow: 0 28px 85px rgba(0, 0, 0, 0.72), 0 0 0 5px rgba(0, 0, 0, 0.38);
+    overflow: hidden;
+    isolation: isolate;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scale(var(--experimental-battle-scale, 1));
+    transform-origin: center;
+}
+
+html.battle-experimental .backgroundingame::before,
+html.battle-experimental .backgroundingame::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+html.battle-experimental .backgroundingame::before {
+    z-index: 0;
+    background:
+        linear-gradient(90deg, rgba(3, 8, 11, 0.72), transparent 23%, transparent 77%, rgba(3, 8, 11, 0.72)),
+        linear-gradient(180deg, rgba(3, 7, 10, 0.74), transparent 23%, transparent 66%, rgba(3, 7, 10, 0.78));
+}
+
+html.battle-experimental .backgroundingame::after {
+    z-index: 0;
+    box-shadow: inset 0 0 70px 22px rgba(0, 0, 0, 0.48);
+}
+
+html.battle-experimental .ingame-stage {
+    z-index: 1;
+}
+
+/* Match header */
+html.battle-experimental .game-hud {
+    position: absolute;
+    z-index: 45;
+    top: 10px;
+    left: 88px;
+    width: 594px;
+    height: 66px;
+    box-sizing: border-box;
+    padding: 8px 12px;
+    border: 1px solid var(--battle-line);
+    border-top: 3px solid var(--battle-accent);
+    border-radius: 8px;
+    background:
+        linear-gradient(90deg, rgba(181, 31, 57, 0.15), transparent 32%, transparent 68%, rgba(181, 31, 57, 0.15)),
+        var(--battle-panel);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.48), inset 0 1px rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+}
+
+html.battle-experimental .player-left,
+html.battle-experimental .player-right {
+    position: absolute;
+    top: 7px;
+    left: 10px;
+    min-width: 178px;
+    max-width: 178px;
+    gap: 8px;
+}
+
+html.battle-experimental .player-right {
+    left: auto;
+    right: 10px;
+    flex-direction: row-reverse;
+    text-align: right;
+}
+
+html.battle-experimental .player-avatar-left,
+html.battle-experimental .player-avatar-right {
+    position: static;
+    width: 43px;
+    height: 43px;
+    flex: 0 0 43px;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+    border-radius: 4px;
+    background: #0c1418;
+    box-shadow: 0 0 0 2px rgba(181, 31, 57, 0.58);
+    cursor: pointer;
+    transition: border-color 120ms ease, box-shadow 120ms ease, transform 120ms ease;
+}
+
+html.battle-experimental .player-avatar-left:hover,
+html.battle-experimental .player-avatar-right:hover,
+html.battle-experimental .player-avatar-left:focus-visible,
+html.battle-experimental .player-avatar-right:focus-visible {
+    border-color: #fff;
+    outline: none;
+    box-shadow: 0 0 0 2px var(--battle-accent), 0 0 18px rgba(239, 64, 93, 0.72);
+    transform: translateY(-1px);
+}
+
+html.battle-experimental .player-info,
+html.battle-experimental .player-inforight {
+    min-width: 0;
+}
+
+html.battle-experimental .player-name {
+    position: static;
+    max-width: 125px;
+    overflow: hidden;
+    color: #fff !important;
+    font-size: 15px;
+    line-height: 1.05;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-shadow: 1px 2px #000;
+}
+
+html.battle-experimental .player-status {
+    position: static;
+    margin-top: 5px;
+    color: #c7d0d4;
+    font-family: 'Libre Franklin', Arial, sans-serif;
+    font-size: 8px;
+    letter-spacing: 0.08em;
+}
+
+html.battle-experimental .ready-section {
+    position: absolute;
+    top: 7px;
+    left: 196px;
+    width: 202px;
+    margin: 0;
+}
+
+html.battle-experimental .ready-text {
+    margin: 0 0 5px;
+    color: #fff;
+    font-size: 12px;
+    line-height: 1;
+    text-shadow: 1px 2px #000;
+}
+
+html.battle-experimental .timer-track {
+    width: 200px;
+    height: 8px;
+    margin: 0;
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.62);
+}
+
+html.battle-experimental .timer-bar {
+    width: 200px;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--battle-accent), var(--battle-accent-bright));
+    box-shadow: 0 0 12px rgba(239, 64, 93, 0.6);
+}
+
+html.battle-experimental .timer-countdown {
+    inset: -2px 0 0;
+    font-size: 10px;
+}
+
+html.battle-experimental .chakra-display {
+    gap: 8px;
+    margin: 5px 0 0;
+}
+
+html.battle-experimental .chakra-item {
+    gap: 3px;
+    padding: 2px 4px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.38);
+}
+
+html.battle-experimental .chakra-item .chakra-box {
+    border-color: rgba(255, 255, 255, 0.7);
+    border-radius: 2px;
+}
+
+html.battle-experimental .chakra-count,
+html.battle-experimental .chakra-icon {
+    color: #fff;
+    font-size: 9px;
+}
+
+html.battle-experimental .exchange-label {
+    display: none;
+}
+
+/* Combat lanes */
+html.battle-experimental .player-characters,
+html.battle-experimental .enemy-characters {
+    position: absolute;
+    z-index: 20;
+    top: 101px;
+    left: 16px;
+    gap: 14px;
+    padding: 10px 9px;
+    border: 1px solid rgba(225, 235, 239, 0.42);
+    border-left: 3px solid var(--battle-accent);
+    border-radius: 7px;
+    background: linear-gradient(90deg, rgba(8, 16, 20, 0.92), rgba(8, 16, 20, 0.58));
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.42), inset 0 1px rgba(255, 255, 255, 0.07);
+    backdrop-filter: blur(5px);
+}
+
+html.battle-experimental .enemy-characters {
+    left: auto;
+    right: 16px;
+    border-right: 3px solid var(--battle-accent);
+    border-left: 1px solid rgba(225, 235, 239, 0.42);
+    background: linear-gradient(270deg, rgba(8, 16, 20, 0.92), rgba(8, 16, 20, 0.58));
+}
+
+html.battle-experimental .character-card {
+    width: 75px;
+    height: 92px;
+    flex-basis: 92px;
+    filter: drop-shadow(0 5px 8px rgba(0, 0, 0, 0.42));
+}
+
+html.battle-experimental .character-face {
+    box-sizing: border-box;
+    border: 2px solid rgba(238, 244, 246, 0.78);
+    border-radius: 5px 5px 2px 2px;
+    background: #10191d;
+}
+
+html.battle-experimental .character-card.targetable .character-face {
+    border-color: #ffe33c;
+    box-shadow: 0 0 0 2px rgba(255, 227, 60, 0.42), 0 0 18px rgba(255, 227, 60, 0.55);
+}
+
+html.battle-experimental .health-bar-container {
+    top: 3px;
+    box-sizing: border-box;
+    height: 12px;
+    border-color: rgba(255, 255, 255, 0.72);
+    border-radius: 0 0 4px 4px;
+    background: rgba(0, 0, 0, 0.78);
+}
+
+html.battle-experimental .health-bar {
+    background: linear-gradient(90deg, #178f46, #54d66e);
+}
+
+html.battle-experimental .health-text {
+    color: #fff;
+    font-size: 9px;
+    text-shadow: 1px 1px #000;
+}
+
+html.battle-experimental .skillholder {
+    left: 72px;
+    top: 12px;
+}
+
+html.battle-experimental .ingamescrollbehind {
+    opacity: 0;
+}
+
+html.battle-experimental .skillscrollingame,
+html.battle-experimental body.arena-mode-pokemon .skillscrollingame {
+    top: 0;
+    left: 0;
+    width: 370px;
+    height: 71px;
+    box-sizing: border-box;
+    gap: 8px;
+    padding: 8px 10px 8px 30px;
+    border: 1px solid rgba(225, 235, 239, 0.5);
+    border-radius: 0 7px 7px 0;
+    background: linear-gradient(90deg, rgba(10, 18, 22, 0.94), rgba(12, 23, 28, 0.78));
+    box-shadow: 8px 8px 18px rgba(0, 0, 0, 0.32), inset 0 1px rgba(255, 255, 255, 0.07);
+    contain: layout paint;
+}
+
+html.battle-experimental .skillimage,
+html.battle-experimental body.arena-mode-pokemon .skillimage {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 53px;
+    height: 53px;
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    border-radius: 4px;
+}
+
+html.battle-experimental .skillqueue,
+html.battle-experimental body.arena-mode-pokemon .skillqueue {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 17px;
+    height: 53px;
+    object-fit: cover;
+    object-position: left;
+    opacity: 0.82;
+}
+
+/* Bottom command deck */
+html.battle-experimental .skillinformation {
+    z-index: 30;
+    top: 426px;
+    left: 230px;
+    width: 522px;
+    height: 126px;
+    box-sizing: border-box;
+    border: 1px solid var(--battle-line);
+    border-bottom: 4px solid var(--battle-accent);
+    border-radius: 8px;
+    background:
+        linear-gradient(120deg, rgba(181, 31, 57, 0.16), transparent 38%),
+        var(--battle-panel);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.52), inset 0 1px rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+}
+
+html.battle-experimental .skillviewimage {
+    top: 15px;
+    left: 16px;
+    width: 78px;
+    height: 78px;
+    box-sizing: border-box;
+    border: 2px solid rgba(255, 255, 255, 0.76);
+    border-radius: 5px;
+}
+
+html.battle-experimental .skill-browser-icons {
+    left: 16px;
+    top: 98px;
+}
+
+html.battle-experimental .skill-browser-icon {
+    border-color: rgba(255, 255, 255, 0.6);
+    border-radius: 3px;
+    background: #10191d;
+}
+
+html.battle-experimental .skill-browser-icon.active {
+    outline-color: var(--battle-accent-bright);
+}
+
+html.battle-experimental .ingameskillname {
+    left: 108px;
+    top: 8px;
+    margin: 0;
+    color: #fff;
+    font-size: 16px;
+    text-shadow: 1px 2px #000;
+}
+
+html.battle-experimental .ingamecharacterrole {
+    top: 10px;
+    right: 15px;
+    left: auto;
+    color: #e36b80;
+    font-size: 10px;
+}
+
+html.battle-experimental .ingameskilldescription {
+    left: 108px;
+    top: 30px;
+    width: 390px;
+    max-height: 56px;
+    margin: 0;
+    color: #dbe1e4;
+    font-family: 'Libre Franklin', Arial, sans-serif;
+    font-size: 10px;
+    line-height: 1.35;
+    text-transform: none;
+}
+
+html.battle-experimental .energytext,
+html.battle-experimental .ingameclasses,
+html.battle-experimental .ingamecooldown,
+html.battle-experimental .ingameclasspicker {
+    top: auto;
+    bottom: 10px;
+    color: #cbd4d8;
+    font-family: 'Libre Franklin', Arial, sans-serif;
+    font-size: 9px;
+}
+
+html.battle-experimental .energytext { left: 108px; right: auto; }
+html.battle-experimental .ingameclasses { left: 228px; margin: 0; }
+html.battle-experimental .ingamecooldown { right: 15px; margin: 0; }
+html.battle-experimental .ingameclasspicker { right: 15px; bottom: 32px; }
+
+html.battle-experimental .skillinformation.profile-information {
+    background:
+        radial-gradient(circle at 12% 42%, rgba(239, 64, 93, 0.18), transparent 27%),
+        linear-gradient(120deg, rgba(181, 31, 57, 0.18), transparent 42%),
+        var(--battle-panel);
+}
+
+html.battle-experimental .skillinformation.profile-information .skillviewimage {
+    border-color: #fff;
+    box-shadow: 0 0 0 2px var(--battle-accent), 0 0 18px rgba(239, 64, 93, 0.42);
+}
+
+html.battle-experimental .skillinformation.profile-information .ingameskilldescription {
+    top: 32px;
+    left: 108px;
+    width: 394px;
+    max-height: none;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    overflow: visible;
+}
+
+html.battle-experimental .battle-profile-stat {
+    min-width: 0;
+    padding: 5px 7px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.28);
+}
+
+html.battle-experimental .battle-profile-stat small,
+html.battle-experimental .battle-profile-stat strong {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+html.battle-experimental .battle-profile-stat small {
+    margin-bottom: 2px;
+    color: rgba(219, 225, 228, 0.58);
+    font-size: 7px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+html.battle-experimental .battle-profile-stat strong {
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+html.battle-experimental .skillinformation.profile-information .skill-browser-icons {
+    display: none;
+}
+
+html.battle-experimental .skillinformation.profile-information .energytext,
+html.battle-experimental .skillinformation.profile-information .ingameclasses,
+html.battle-experimental .skillinformation.profile-information .ingamecooldown,
+html.battle-experimental .skillinformation.profile-information .ingameclasspicker {
+    display: none !important;
+}
+
+html.battle-experimental .surrenderbutton {
+    top: 482px;
+    left: 17px;
+    width: 122px;
+    height: 38px;
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.58);
+    border-radius: 5px;
+    background: rgba(8, 16, 20, 0.86);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.42);
+    color: #d9e0e3;
+    cursor: pointer;
+}
+
+html.battle-experimental .surrenderbutton span {
+    display: grid;
+    place-items: center;
+    position: static;
+    width: 100%;
+    height: 100%;
+    font-size: 11px;
+}
+
+html.battle-experimental .surrenderbutton:hover {
+    border-color: var(--battle-accent-bright);
+    color: #fff;
+    background: rgba(119, 20, 38, 0.88);
+}
+
+/* Utility controls and modal surfaces */
+html.battle-experimental .ingame-sound-controller {
+    border-color: rgba(255, 255, 255, 0.46);
+    border-radius: 5px;
+    background: rgba(8, 16, 20, 0.86);
+    box-shadow: 0 7px 18px rgba(0, 0, 0, 0.42);
+    backdrop-filter: blur(7px);
+}
+
+html.battle-experimental .ingame-layout-toggle {
+    border-color: rgba(255, 255, 255, 0.64);
+    border-radius: 4px;
+    background: rgba(8, 16, 20, 0.9);
+    color: #fff;
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.42);
+}
+
+html.battle-experimental .ingame-layout-toggle:hover,
+html.battle-experimental .ingame-layout-toggle:focus-visible {
+    border-color: var(--battle-accent-bright);
+    background: var(--battle-accent);
+    outline-color: #fff;
+}
+
+html.battle-experimental .ChakraChooseEndTurn,
+html.battle-experimental .exchange_chakra,
+html.battle-experimental .surrender-confirm-window,
+html.battle-experimental .battle-end-panel,
+html.battle-experimental .class-choice-popup-panel {
+    border: 1px solid rgba(238, 243, 245, 0.72);
+    border-top: 4px solid var(--battle-accent);
+    border-radius: 8px;
+    background-color: rgba(8, 16, 20, 0.96);
+    background-image: none !important;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.72);
+    color: #eef2f3;
+}
+
+html.battle-experimental .class-choice-popup-panel {
+    position: static;
+}
+
+html.battle-experimental .chakra-title,
+html.battle-experimental .chakra-name,
+html.battle-experimental .chakra-amount,
+html.battle-experimental .exchange_chakra_title,
+html.battle-experimental .exchange_chakra_subtitle,
+html.battle-experimental .surrender-confirm-title {
+    color: #eef2f3;
+}
+
+html.battle-experimental .ok-buttonendturn,
+html.battle-experimental .cancel-buttonendturn,
+html.battle-experimental .ok-buttonexchange,
+html.battle-experimental .cancel-buttonexchange,
+html.battle-experimental .surrender-confirm-ok,
+html.battle-experimental .surrender-confirm-cancel,
+html.battle-experimental .class-choice-popup-options button,
+html.battle-experimental .class-choice-popup-cancel,
+html.battle-experimental .battle-end-continue {
+    border: 1px solid rgba(255, 255, 255, 0.64);
+    border-radius: 4px;
+    background: #152126;
+    color: #fff;
+}
+
+html.battle-experimental .ok-buttonendturn:hover,
+html.battle-experimental .ok-buttonexchange:hover,
+html.battle-experimental .surrender-confirm-ok:hover,
+html.battle-experimental .battle-end-continue:hover {
+    background: var(--battle-accent);
+}
+
+html.battle-experimental .backgroundingame:fullscreen,
+html.battle-experimental .backgroundingame:-webkit-full-screen {
+    left: 0;
+    top: 0;
+    transform: none;
+    border: 0;
+}
+
+@media (max-width: 780px), (max-height: 570px) {
+    html.battle-experimental body {
+        touch-action: manipulation;
+    }
+
+    html.battle-experimental .backgroundingame {
+        box-shadow: none;
+    }
+
+    html.battle-experimental .game-hud,
+    html.battle-experimental .player-characters,
+    html.battle-experimental .enemy-characters,
+    html.battle-experimental .skillinformation,
+    html.battle-experimental .ingame-sound-controller {
+        backdrop-filter: none;
+    }
+
+    html.battle-experimental .character-face,
+    html.battle-experimental .skillimage,
+    html.battle-experimental .player-avatar-left,
+    html.battle-experimental .player-avatar-right,
+    html.battle-experimental .surrenderbutton {
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: rgba(239, 64, 93, 0.32);
+    }
+
+    html.battle-experimental .ingame-sound-controller {
+        max-width: 250px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html.battle-experimental .backgroundingame {
+        scroll-behavior: auto;
+    }
+}

@@ -11,10 +11,16 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comic-Arena Selection</title>
+    <script>
+        if (new URLSearchParams(window.location.search).get('layout') === 'experimental') {
+            document.documentElement.classList.add('selection-experimental');
+        }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&family=Petra&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/style.css?v=selection-skill-scroll-v15">
+    <link rel="stylesheet" href="styles/selection-experimental.css?v=experimental-ui-release-v1">
 </head>
 <body class="app-loading app-loading-selection">
 <!-- Google Tag Manager (noscript) -->
@@ -29,6 +35,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
     <img class="selectionscroll" src="assets/images/selectionscroll.png" alt="selectionscroll">
     <div class="selectionpage">
+
+        <div class="experimental-toolbar" aria-label="Experimental selection controls">
+            <span class="experimental-toolbar-label">Experimental UI</span>
+            <button type="button" class="experimental-store-toggle" aria-expanded="false" aria-controls="selection-store">Store</button>
+            <button type="button" class="experimental-missions-toggle" aria-expanded="false" aria-controls="selection-store">Missions</button>
+            <button type="button" class="experimental-controls-toggle" aria-expanded="false" aria-controls="selection-roster-filters">Filters &amp; Options</button>
+            <a class="experimental-classic-link" href="selection.html">Classic UI</a>
+        </div>
 
         <div class="searching-backdrop hidden">
             <div class="searchingscroll">
@@ -81,7 +95,14 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <div id="character-name" class="character-name">Select a character</div>
                 <div id="character-role" class="character-role">Role: None</div>
             </div>
+            <img id="character-evolution-shadow" src="" alt="" class="character-evolution-shadow" aria-hidden="true">
             <img id="character-portrait" src="" alt="Character portrait" class="character-portrait">
+            <div id="character-form-toggle" class="character-form-toggle" role="group" aria-label="Character form" hidden>
+                <button type="button" class="character-form-button is-active" data-character-form="base" aria-pressed="true">Base</button>
+                <button type="button" class="character-form-button" data-character-form="evolution" aria-pressed="false">Evolution</button>
+                <button type="button" class="character-form-button" data-character-form="mega-x" aria-pressed="false" hidden>Mega X</button>
+                <button type="button" class="character-form-button" data-character-form="mega-y" aria-pressed="false" hidden>Mega Y</button>
+            </div>
         </div>
         <div class="skill-images">
             <img data-skill-index="0" src="" alt="Skill 1" class="skill-image">
@@ -118,7 +139,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>
 
 <img class="nextpage" src="assets/images/nextpage.png" alt="nextpage">
-<div class="roster-filter-panel" aria-label="Roster filters">
+<div class="roster-filter-panel" id="selection-roster-filters" aria-label="Roster filters">
     <div class="roster-filter-tabs">
         <button type="button" class="roster-filter-tab active" data-roster-filter-mode="role">Role</button>
         <button type="button" class="roster-filter-tab" data-roster-filter-mode="energy">Energy</button>
@@ -142,12 +163,35 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         <label><input type="checkbox" data-ui-setting="battleIntro"> Battle intro overlay</label>
     </section>
 </div>
-<section class="selection-missions collapsed" aria-label="Mission and skin progress">
+<section class="selection-missions collapsed" id="selection-store" aria-label="Character and skin store">
     <div class="selection-missions-panel">
+        <header class="selection-store-header">
+            <div class="selection-store-heading">
+                <span class="selection-store-eyebrow">Arena Market</span>
+                <strong class="selection-panel-title">Store</strong>
+            </div>
+            <nav class="selection-store-tabs" aria-label="Store sections">
+                <button type="button" class="selection-store-tab active" data-store-category-button="characters" aria-pressed="true">Characters</button>
+                <button type="button" class="selection-store-tab" data-store-category-button="points" aria-pressed="false">Buy Points</button>
+                <button type="button" class="selection-store-tab" data-store-category-button="skins" aria-pressed="false">Skins</button>
+            </nav>
+            <button type="button" class="selection-store-close" aria-label="Close store">Close</button>
+        </header>
         <div class="selection-missions-list" aria-live="polite"></div>
         <p class="selection-missions-status"></p>
     </div>
 </section>
+<div class="selection-unlock-confirm-backdrop hidden" aria-hidden="true">
+    <section class="selection-unlock-confirm" role="dialog" aria-modal="true" aria-labelledby="selection-unlock-confirm-title">
+        <span class="selection-unlock-confirm-icon" aria-hidden="true">🔒</span>
+        <h2 id="selection-unlock-confirm-title">Character Locked</h2>
+        <p class="selection-unlock-confirm-message"></p>
+        <div class="selection-unlock-confirm-actions">
+            <button type="button" class="selection-unlock-confirm-yes">Yes</button>
+            <button type="button" class="selection-unlock-confirm-no">No</button>
+        </div>
+    </section>
+</div>
 <ul class="slot-list"></ul>
 <img class="lastpage" src="assets/images/nextpage.png" alt="lastpage">
 
@@ -156,11 +200,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <img src="/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png" alt="Player Avatar" class="player-avatar">
     <div class="player-infoselection">
         <div class="player-nameselection">Tester</div>
-        <div class="player-stat">Academy Student</div>
-        <div class="player-stat">Alliance: None</div>
-        <div class="player-stat">LEVEL: 1 (0 XP)</div>
-        <div class="player-stat">LADDERRANK: 0</div>
-        <div class="player-stat">RATIO: 0 - 0 ( + 0)</div>
+        <div class="player-stat" data-player-stat="rank"><span>Rank</span><strong>Academy Student</strong></div>
+        <div class="player-stat" data-player-stat="experience"><span>EXP</span><strong>0 XP · Lv 1</strong></div>
+        <div class="player-stat" data-player-stat="record"><span>Record</span><strong>0 W · 0 L</strong></div>
+        <div class="player-stat" data-player-stat="streak"><span>Streak</span><strong>+0</strong></div>
+        <div class="player-stat" data-player-stat="clan"><span>Clan</span><strong>None</strong></div>
+        <div class="player-stat" data-player-stat="ladder"><span>Ladder</span><strong>Unranked</strong></div>
     </div>
 </div>
 
@@ -209,7 +254,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </div>
 <script src="characters.js?v=pokemon-balance-v3"></script>
 <script src="pokemon-wave-2-live.js?v=pokemon-balance-v3"></script>
-<script src="scripts/script.js?v=pokemon-balance-v3"></script>
+<script src="scripts/script.js?v=experimental-ui-release-v1"></script>
   <script src="./scripts/arena-navigation.js?v=pokemon-sidebar-v4" defer></script>
 </body>
 </html>

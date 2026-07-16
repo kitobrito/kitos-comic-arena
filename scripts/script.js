@@ -18,11 +18,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     const pageName = pagePath.split('/').pop() || 'index.html';
     const isSelectionPage = pageName === 'selection.html' || pageName === 'selection';
     const isIngamePage = pageName === 'ingame.html' || pageName === 'ingame';
+    let selectionExternalMirrorManifest = null;
+    const resolveSelectionImageSource = (source = '') => {
+        const original = typeof source === 'string' ? source.trim() : '';
+        const localPath = selectionExternalMirrorManifest?.[original]?.localPath;
+        if (!localPath || typeof localPath !== 'string') return original;
+        return `/${localPath.replace(/^\/+/, '')}`;
+    };
     const getSelectionThumbnailSource = (source = '') => {
         const original = typeof source === 'string' ? source.trim() : '';
-        if (!isSelectionPage || !original || /^(?:data:|https?:)/i.test(original)) return original;
-        const match = original.match(/^(\/?assets\/images\/)(.+)$/i);
-        if (!match || match[2].startsWith('selection-thumbnails/')) return original;
+        const resolved = resolveSelectionImageSource(original);
+        if (!isSelectionPage || !resolved || /^(?:data:|https?:)/i.test(resolved)) return resolved;
+        const match = resolved.match(/^(\/?assets\/images\/)(.+)$/i);
+        if (
+            !match ||
+            match[2].startsWith('selection-thumbnails/') ||
+            match[2].startsWith('selection-featured/')
+        ) {
+            return resolved;
+        }
         return `${match[1]}selection-thumbnails/${match[2]}.webp`;
     };
     const setSelectionThumbnailWithFallback = (image, source = '') => {
@@ -53,6 +67,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         image.decoding = 'async';
         image.src = thumbnail || original;
     };
+    if (isSelectionPage) {
+        try {
+            const mirrorResponse = await fetch('/assets/images/external-mirror/manifest.json', {
+                credentials: 'same-origin',
+            });
+            if (mirrorResponse.ok) {
+                const manifest = await mirrorResponse.json();
+                selectionExternalMirrorManifest = manifest && typeof manifest === 'object' ? manifest : null;
+            }
+        } catch (error) {
+            console.warn('Failed to load the local selection image mirror manifest.', error);
+        }
+    }
     const pageArenaMode =
         document.body && document.body.dataset && typeof document.body.dataset.pageArena === 'string'
             ? document.body.dataset.pageArena.trim().toLowerCase()
@@ -202,9 +229,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (open && panel.classList.contains('selection-ui-options-panel')) {
                 const missionsPanel = document.querySelector('.selection-missions');
                 const missionsToggle = document.querySelector('.selection-missions-toggle');
+                const storeToggle = document.querySelector('.experimental-store-toggle');
+                const experimentalMissionsToggle = document.querySelector('.experimental-missions-toggle');
                 missionsPanel?.classList.add('collapsed');
                 missionsToggle?.classList.remove('active');
                 missionsToggle?.setAttribute('aria-expanded', 'false');
+                storeToggle?.classList.remove('active');
+                storeToggle?.setAttribute('aria-expanded', 'false');
+                experimentalMissionsToggle?.classList.remove('active');
+                experimentalMissionsToggle?.setAttribute('aria-expanded', 'false');
+                document.body.classList.remove('experimental-store-open');
+                document.body.classList.remove('experimental-missions-open');
             }
             panel.hidden = !open;
             panel.classList.toggle('open', open);
@@ -846,7 +881,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 },
             }));
             const selectionReturnArena = pageSearchParams.get('arena') || activeArenaMode || 'comic';
-            window.location.href = `selection.html?arena=${encodeURIComponent(selectionReturnArena)}`;
+            const selectionReturnLayout = pageSearchParams.get('layout');
+            const layoutQuery = selectionReturnLayout === 'experimental' ? '&layout=experimental' : '';
+            window.location.href = `selection.html?arena=${encodeURIComponent(selectionReturnArena)}${layoutQuery}`;
         } catch (error) {
             console.error('Login failed:', error);
             setLoginStatus(error.message || 'Login failed. Please try again.', 'error');
@@ -1049,9 +1086,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const rosterFilterTabs = Array.from(document.querySelectorAll('.roster-filter-tab'));
     const rosterFilterSelect = document.getElementById('roster-filter-select');
     const rosterFilterStatus = document.getElementById('roster-filter-status');
+    const experimentalControlsToggle = document.querySelector('.experimental-controls-toggle');
+    const experimentalClassicLink = document.querySelector('.experimental-classic-link');
     const nameEl = document.getElementById('character-name');
     const roleEl = document.getElementById('character-role');
     const portraitEl = document.getElementById('character-portrait');
+    const evolutionShadowEl = document.getElementById('character-evolution-shadow');
+    const characterFormToggleEl = document.getElementById('character-form-toggle');
+    const characterFormButtons = Array.from(document.querySelectorAll('[data-character-form]'));
     const skillNameEl = document.getElementById('skill-name');
     const skillDescEl = document.getElementById('skill-description');
     const energyBarEl = document.getElementById('energy-bar');
@@ -1072,11 +1114,159 @@ document.addEventListener('DOMContentLoaded', async () => {
     const DEFAULT_UNLOCK_POINT_COST = 80;
     let profileCache = null;
     let missionLockedCharacterIds = new Set();
+    let missionUnlockCostByCharacterId = new Map();
     let selectionClickTimer = null;
     let selectionPreviewRenderId = 0;
+    let currentSelectionRenderForm = 'base';
     const selectionPreviewImageCache = new Set();
     let activeSelectionPointerDrag = null;
     let suppressSelectionClickUntil = 0;
+    const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
+        abra: 'ABRA.png.webp',
+        aerodactyl: 'AERODACTYL.png.webp',
+        articuno: 'ARTICUNO.png.webp',
+        beedrill: '015BeedrillRB.webp.webp',
+        bulbasaur: 'BULBASAUR.png.webp',
+        butterfree: 'Butterfree.png.webp',
+        chansey: 'CHANSEY.png.webp',
+        charmander: 'Charmander.png.webp',
+        clefairy: 'CLEFAIRY.png.webp',
+        dragonite: 'Dragonite.png.webp',
+        eevee: 'EEVEE.png.webp',
+        ekans: '0023-ekans (1).webp.webp',
+        flareon: 'Flareon.webp.webp',
+        gastly: 'Gastly.webp.webp',
+        hitmonchan: 'Hitmonchan.webp.webp',
+        hitmonlee: '106_hitmonlee__rb__by_hilsonity_dhf06vd-fullview.png.webp',
+        jigglypuff: 'JIGGLYPUFF.png.webp',
+        jolteon: 'JOLTEON.png.webp',
+        koffing: 'Koffing.webp.webp',
+        krabby: 'KRABBY.png.webp',
+        machop: 'MACHOP.png.webp',
+        magikarp: 'MAGIKARP.png.webp',
+        magnemite: 'Magnemite.webp.webp',
+        meowth: 'Meowth.png.webp',
+        mew: 'Pokémon_Mew_art.png.webp',
+        mewtwo: 'Mewtwo_Render.webp.webp',
+        moltres: 'MOLTRES.png.webp',
+        'mr-mime': 'MRMIME.png.webp',
+        onix: 'ONIX.png.webp',
+        pidgey: 'Pidgey.webp.webp',
+        pikachu: 'PIKACHU.png.webp',
+        'pokemon-trainer': 'POKEMONTRAINER.png.webp',
+        scyther: 'SCYTHER.png.webp',
+        squirtle: 'Pokémon_Squirtle_art.png.webp',
+        vaporeon: 'VAPOREON.png.webp',
+        zapdos: 'ZAPDOS.png.webp',
+        zubat: 'ZUBAT.png.webp',
+    });
+    const POKEMON_SELECTION_EVOLUTION_RENDER_BY_ID = Object.freeze({
+        abra: { name: 'Kadabra', filename: 'kadabra.png.webp' },
+        beedrill: { name: 'Mega Beedrill', filename: 'megabeedrill.png.webp' },
+        bulbasaur: { name: 'Ivysaur', filename: 'ivysaur.png.webp' },
+        chansey: { name: 'Blissey', filename: 'blissey.png.webp' },
+        charmander: { name: 'Charmeleon', filename: 'charmeleon.png.webp' },
+        clefairy: { name: 'Clefable', filename: 'clefable.png.webp' },
+        ekans: { name: 'Arbok', filename: 'Arbok_Pokemon.webp.webp' },
+        gastly: { name: 'Haunter', filename: 'haunter.png.webp' },
+        jigglypuff: { name: 'Wigglytuff', filename: 'wigglytuff.webp.webp' },
+        koffing: { name: 'Weezing', filename: 'weezing.png.webp' },
+        krabby: { name: 'Kingler', filename: 'Kingler_Pokemon.webp.webp' },
+        machop: { name: 'Machoke', filename: 'Machoke.webp.webp' },
+        magikarp: { name: 'Gyarados', filename: 'gyarados.png.webp' },
+        magnemite: { name: 'Magneton', filename: 'magneton.png.webp' },
+        meowth: { name: 'Persian', filename: 'persian.png.webp' },
+        pidgey: { name: 'Pidgeotto', filename: 'pidgeotto.png.webp' },
+        squirtle: { name: 'Wartortle', filename: 'Wartortle.webp.webp' },
+        zubat: { name: 'Golbat', filename: 'Golbat_Render_01.webp.webp' },
+    });
+    const POKEMON_SELECTION_SKIN_RENDER_FORMS_BY_ID = Object.freeze({
+        'pikachu-raichu': [
+            { id: 'base', label: 'Raichu', name: 'Raichu', filename: 'raichu.png.webp' },
+        ],
+        'butterfree-pink': [
+            { id: 'base', label: 'Pink', name: 'Pink Butterfree', filename: 'pinkbutterfree.png.webp' },
+        ],
+        'onix-crystal': [
+            { id: 'base', label: 'Crystal', name: 'Crystal Onix', filename: 'crystalonix.png.webp' },
+        ],
+        'onix-bismuth': [
+            { id: 'base', label: 'Bismuth', name: 'Bismuth Onix', filename: 'blsmuthonix.png.webp' },
+        ],
+        'onix-golden': [
+            { id: 'base', label: 'Golden', name: 'Golden Onix', filename: 'goldonix.png.webp' },
+        ],
+        'onix-magma': [
+            { id: 'base', label: 'Magma', name: 'Magma Onix', filename: 'magmaonix.jpg.webp' },
+        ],
+        'onix-cosmic': [
+            { id: 'base', label: 'Cosmic', name: 'Cosmic Onix', filename: 'cosmiconix.png.webp' },
+        ],
+        'magikarp-golden-gyarados-red': [
+            { id: 'base', label: 'Magikarp', name: 'Golden Magikarp', filename: 'goldmagikarp.png.webp' },
+            { id: 'evolution', label: 'Gyarados', name: 'Red Gyarados', filename: 'redgyarados.png.webp' },
+        ],
+        'charmander-charizard-legendary': [
+            { id: 'base', label: 'Charizard', name: 'Charizard', filename: 'charizard.png.webp' },
+            { id: 'mega-x', label: 'Mega X', name: 'Mega Charizard X', filename: 'megacharizardx.png.webp' },
+            { id: 'mega-y', label: 'Mega Y', name: 'Mega Charizard Y', filename: 'megacharizardy.png.webp' },
+        ],
+    });
+    const getSelectionRenderSource = (filename = '') =>
+        filename
+            ? encodeURI(`/assets/images/selection-featured/PokemonArena/BIB/${filename}`)
+            : '';
+    const getSelectionCharacterId = (character) =>
+        String(character?.characterId || character?.id || '').trim().toLowerCase();
+    const getSelectionEquippedSkinId = (character) => {
+        if (activeArenaMode !== 'pokemon') return '';
+        const characterId = getSelectionCharacterId(character);
+        return getArenaSkinState(
+            profileCache?.profile,
+            activeArenaMode
+        ).equippedSkinByCharacterId[characterId] || '';
+    };
+    const getSelectionCharacterRenderForms = (character) => {
+        if (!document.documentElement.classList.contains('selection-experimental')) return [];
+        const equippedSkinId = getSelectionEquippedSkinId(character);
+        const skinForms = POKEMON_SELECTION_SKIN_RENDER_FORMS_BY_ID[equippedSkinId];
+        if (Array.isArray(skinForms) && skinForms.length) {
+            return skinForms;
+        }
+        const characterId = getSelectionCharacterId(character);
+        const baseFilename = POKEMON_SELECTION_FEATURED_RENDER_BY_ID[characterId];
+        const evolution = POKEMON_SELECTION_EVOLUTION_RENDER_BY_ID[characterId];
+        return [
+            baseFilename
+                ? { id: 'base', label: 'Base', name: character?.name, filename: baseFilename }
+                : null,
+            evolution
+                ? { id: 'evolution', label: 'Evolution', ...evolution }
+                : null,
+        ].filter(Boolean);
+    };
+    const getSelectionFeaturedRenderSource = (character) => {
+        const baseForm = getSelectionCharacterRenderForms(character).find((form) => form.id === 'base');
+        return getSelectionRenderSource(baseForm?.filename);
+    };
+    const getSelectionEvolutionRender = (character) => {
+        return getSelectionCharacterRenderForms(character).find((form) => form.id === 'evolution') || null;
+    };
+    const getSelectionEvolutionRenderSource = (character) => {
+        const evolution = getSelectionEvolutionRender(character);
+        return getSelectionRenderSource(evolution?.filename);
+    };
+
+    if (document.documentElement.classList.contains('selection-experimental')) {
+        experimentalControlsToggle?.addEventListener('click', () => {
+            const isOpen = document.body.classList.toggle('experimental-controls-open');
+            experimentalControlsToggle.setAttribute('aria-expanded', String(isOpen));
+        });
+        experimentalClassicLink?.addEventListener('click', () => {
+            const arena = document.body.classList.contains('arena-mode-pokemon') ? 'pokemon' : 'comic';
+            experimentalClassicLink.href = `selection.html?arena=${encodeURIComponent(arena)}`;
+        });
+    }
 
     document.addEventListener(
         'click',
@@ -1106,6 +1296,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             wins: Number.isFinite(Number(source.wins)) ? Math.max(0, Number(source.wins)) : 0,
             losses: Number.isFinite(Number(source.losses)) ? Math.max(0, Number(source.losses)) : 0,
             streak: Number.isFinite(Number(source.streak)) ? Number(source.streak) : 0,
+            highestStreak: Number.isFinite(Number(source.highestStreak))
+                ? Math.max(0, Number(source.highestStreak))
+                : 0,
             unlockPoints: Number.isFinite(Number(source.unlockPoints))
                 ? Math.max(0, Math.floor(Number(source.unlockPoints)))
                 : 0,
@@ -1416,7 +1609,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (clearUser) {
             clearCachedUser();
         }
-        const targetUrl = `selection.html?arena=${encodeURIComponent(getLoginRedirectArena(arenaOverride))}`;
+        const layoutQuery = new URLSearchParams(window.location.search).get('layout') === 'experimental'
+            ? '&layout=experimental'
+            : '';
+        const targetUrl = `selection.html?arena=${encodeURIComponent(getLoginRedirectArena(arenaOverride))}${layoutQuery}`;
         if (replace) {
             window.location.replace(targetUrl);
             return;
@@ -1434,9 +1630,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (clearUser) {
             clearCachedUser();
         }
+        const layoutQuery = new URLSearchParams(window.location.search).get('layout') === 'experimental'
+            ? '&layout=experimental'
+            : '';
         const targetUrl = `selection-login.html?arena=${encodeURIComponent(
             getLoginRedirectArena(arenaOverride)
-        )}`;
+        )}${layoutQuery}`;
         if (replace) {
             window.location.replace(targetUrl);
             return;
@@ -1534,6 +1733,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             const data = await response.json();
             const lockedIds = new Set();
+            const unlockCosts = new Map();
             (Array.isArray(data?.missions) ? data.missions : []).forEach((mission) => {
                 const rewardCharacterId =
                     typeof mission?.reward_character === 'string'
@@ -1541,16 +1741,48 @@ document.addEventListener('DOMContentLoaded', async () => {
                         : '';
                 if (rewardCharacterId) {
                     lockedIds.add(rewardCharacterId);
+                    unlockCosts.set(
+                        rewardCharacterId,
+                        Math.max(
+                            1,
+                            Math.floor(
+                                Number(
+                                    mission.unlockPointCost ??
+                                    mission.unlock_point_cost ??
+                                    data.unlockPointCost ??
+                                    DEFAULT_UNLOCK_POINT_COST
+                                ) || DEFAULT_UNLOCK_POINT_COST
+                            )
+                        )
+                    );
                 }
                 (Array.isArray(mission?.reward_character_ids) ? mission.reward_character_ids : [])
                     .map((entry) => (typeof entry === 'string' ? entry.trim().toLowerCase() : ''))
                     .filter(Boolean)
-                    .forEach((entry) => lockedIds.add(entry));
+                    .forEach((entry) => {
+                        lockedIds.add(entry);
+                        unlockCosts.set(
+                            entry,
+                            Math.max(
+                                1,
+                                Math.floor(
+                                    Number(
+                                        mission.unlockPointCost ??
+                                        mission.unlock_point_cost ??
+                                        data.unlockPointCost ??
+                                        DEFAULT_UNLOCK_POINT_COST
+                                    ) || DEFAULT_UNLOCK_POINT_COST
+                                )
+                            )
+                        );
+                    });
             });
             missionLockedCharacterIds = lockedIds;
+            missionUnlockCostByCharacterId = unlockCosts;
         } catch (error) {
             console.warn('Failed to load mission lock data.', error);
             missionLockedCharacterIds = new Set();
+            missionUnlockCostByCharacterId = new Map();
         }
     };
 
@@ -1634,6 +1866,34 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!element) {
                 return;
             }
+            const valueElement = element.querySelector('strong') || element;
+            const statKey = element.dataset.playerStat || '';
+            if (statKey === 'rank') {
+                valueElement.textContent = ladder.rank;
+                return;
+            }
+            if (statKey === 'experience') {
+                valueElement.textContent = `${ladder.experiencePoints.toLocaleString()} XP · Lv ${ladder.level}`;
+                return;
+            }
+            if (statKey === 'record') {
+                valueElement.textContent = `${ladder.wins} W · ${ladder.losses} L`;
+                return;
+            }
+            if (statKey === 'streak') {
+                valueElement.textContent = formatSignedNumber(ladder.streak);
+                element.classList.toggle('positive', ladder.streak > 0);
+                element.classList.toggle('negative', ladder.streak < 0);
+                return;
+            }
+            if (statKey === 'clan') {
+                valueElement.textContent = clanAbbreviation;
+                return;
+            }
+            if (statKey === 'ladder') {
+                valueElement.textContent = ladder.ladderRank ? `#${ladder.ladderRank}` : 'Unranked';
+                return;
+            }
             const currentText =
                 typeof element.textContent === 'string' ? element.textContent.trim().toUpperCase() : '';
             if (currentText.startsWith('ALLIANCE:')) {
@@ -1656,6 +1916,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         if (playerStatusEl) {
             playerStatusEl.textContent = ladder.rank;
+        }
+        const playerAvatar = document.querySelector('.player-avatar-left');
+        if (playerAvatar && isIngamePage) {
+            playerAvatar.style.cursor = 'pointer';
+            playerAvatar.title = 'Click to view your battle profile';
+            playerAvatar.setAttribute('role', 'button');
+            playerAvatar.setAttribute('tabindex', '0');
+            playerAvatar.onclick = () => openPlayerStatsPanel();
+            playerAvatar.onkeydown = (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    openPlayerStatsPanel();
+                }
+            };
         }
         applyRankHatPresentation(playerHatEls, ladder);
     };
@@ -1855,51 +2129,76 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    let currentPlayerUsername = null;
+    let currentTurnUsername = null;
+    let currentOpponentUsername = null;
+    let currentOpponentDisplayName = null;
+    let currentOpponentProfileView = null;
+    let currentPlayerProfileView = null;
+    let currentMatchArena = null;
+    let skillInfo = null;
+
     const closeOpponentStatsPanel = () => {
-        const panel = document.getElementById('opponent-stats-panel');
-        if (panel) {
-            panel.remove();
-        }
+        document.querySelector('.skillinformation')?.classList.remove('profile-information');
     };
 
-    const renderOpponentProfileInfo = (profileView = null) => {
-        const username = currentOpponentUsername || profileView?.username || '';
-        const profile = profileView?.profile || {};
+    const renderBattleProfileInfo = (profileView = null, options = {}) => {
+        if (!skillInfo) return;
+        const side = options.side === 'player' ? 'player' : 'opponent';
+        const fallbackUsername = side === 'player' ? currentPlayerUsername : currentOpponentUsername;
+        const username = options.username || fallbackUsername || profileView?.username || '';
+        const profile = profileView?.profile || profileView || {};
+        const arenaProfile = getArenaProfileView(profile, currentMatchArena || activeArenaMode);
         const ladder = normalizeLadderPresentation(
-            getArenaLadder(profile, currentMatchArena) || profile?.ladder || {}
+            arenaProfile?.ladder || getArenaLadder(profile, currentMatchArena || activeArenaMode) || {}
         );
-        const clanAbbreviation = profile?.clan?.abbreviation || 'None';
+        const clanAbbreviation = arenaProfile?.clan?.abbreviation || profile?.clan?.abbreviation || 'None';
         const avatarUrl = resolvePlayerAvatarUrl(
-            profile?.avatarUrl || '',
+            arenaProfile?.avatarUrl || profile?.avatarUrl || '',
             currentMatchArena || getProtectionTerminologyArena()
         );
-        skillInfo.selectedViewMode = 'opponent-profile';
+        skillInfo.selectedViewMode = `${side}-profile`;
         skillInfo.selectedActorSlot = null;
         skillInfo.selectedSkillIdx = null;
+        document.querySelector('.skillinformation')?.classList.add('profile-information');
         if (skillInfo.imgEl) {
             skillInfo.imgEl.src = avatarUrl;
-            skillInfo.imgEl.alt = currentOpponentDisplayName || username || 'Opponent';
+            skillInfo.imgEl.alt = options.displayName || username || (side === 'player' ? 'Player' : 'Opponent');
         }
         if (skillInfo.nameEl) {
-            skillInfo.nameEl.textContent = currentOpponentDisplayName || username || 'Opponent';
+            skillInfo.nameEl.textContent =
+                options.displayName || username || (side === 'player' ? 'Your Profile' : 'Opponent');
         }
         if (skillInfo.roleEl) {
             skillInfo.roleEl.textContent = `Clan: ${clanAbbreviation}`;
             skillInfo.roleEl.style.display = '';
         }
         if (skillInfo.descEl) {
-            skillInfo.descEl.textContent = [
-                `Wins: ${ladder.wins}`,
-                `Losses: ${ladder.losses}`,
-                `Streak: ${formatSignedNumber(ladder.streak)}`,
-                `Highest Streak: ${formatSignedNumber(ladder.highestStreak)}`,
-            ].join('\n');
+            skillInfo.descEl.innerHTML = '';
+            [
+                ['Rank', ladder.rank],
+                ['EXP', `${ladder.experiencePoints.toLocaleString()} XP · Lv ${ladder.level}`],
+                ['Wins', ladder.wins.toLocaleString()],
+                ['Losses', ladder.losses.toLocaleString()],
+                ['Current streak', formatSignedNumber(ladder.streak)],
+                ['Clan', clanAbbreviation],
+            ].forEach(([labelText, valueText]) => {
+                const item = document.createElement('span');
+                item.className = 'battle-profile-stat';
+                const label = document.createElement('small');
+                label.textContent = labelText;
+                const value = document.createElement('strong');
+                value.textContent = valueText;
+                item.append(label, value);
+                skillInfo.descEl.appendChild(item);
+            });
         }
         if (skillInfo.cooldownEl) {
             skillInfo.cooldownEl.textContent = '';
         }
         if (skillInfo.classesEl) {
-            skillInfo.classesEl.textContent = `Opponent | Clan: ${clanAbbreviation}`;
+            const ladderPosition = ladder.ladderRank ? ` · Ladder #${ladder.ladderRank}` : ' · Unranked';
+            skillInfo.classesEl.textContent = `${side === 'player' ? 'Your profile' : 'Opponent profile'}${ladderPosition}`;
         }
         if (skillInfo.classPickerWrapEl && skillInfo.classPickerEl) {
             skillInfo.classPickerWrapEl.style.display = 'none';
@@ -1908,13 +2207,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (skillInfo.energyEl) {
             skillInfo.energyEl.innerHTML = '';
             const label = document.createElement('span');
-            label.textContent = 'Stats:';
+            label.textContent = 'Battle profile';
             skillInfo.energyEl.appendChild(label);
         }
         if (skillInfo.browserIconsEl) {
             skillInfo.browserIconsEl.innerHTML = '';
             skillInfo.browserIconsEl.classList.remove('skill-browser-icons-wrap');
         }
+    };
+
+    const renderOpponentProfileInfo = (profileView = null) => {
+        renderBattleProfileInfo(profileView, {
+            side: 'opponent',
+            username: currentOpponentUsername || profileView?.username || '',
+            displayName: currentOpponentDisplayName || profileView?.username || '',
+        });
+    };
+
+    const renderPlayerProfileInfo = (profileView = null) => {
+        renderBattleProfileInfo(profileView, {
+            side: 'player',
+            username: currentPlayerUsername || profileView?.username || profileCache?.username || '',
+            displayName: currentPlayerUsername || profileView?.username || profileCache?.username || '',
+        });
+    };
+
+    const openPlayerStatsPanel = () => {
+        const cachedUser = readCachedUser();
+        renderPlayerProfileInfo(currentPlayerProfileView || profileCache || cachedUser);
     };
 
     const openOpponentStatsPanel = async () => {
@@ -2018,10 +2338,57 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
     const getAutoRecoveryKey = (matchId) =>
         `${MATCH_AUTO_RECOVERY_PREFIX}${typeof matchId === 'string' ? matchId.trim() : ''}`;
-    const buildIngameMatchUrl = (matchId, arena) =>
-        `ingame.html?matchId=${encodeURIComponent(matchId)}&arena=${encodeURIComponent(arena)}`;
+    const buildIngameMatchUrl = (matchId, arena) => {
+        const layoutQuery = pageSearchParams.get('layout') === 'experimental'
+            ? '&layout=experimental'
+            : '';
+        return `ingame.html?matchId=${encodeURIComponent(matchId)}&arena=${encodeURIComponent(arena)}${layoutQuery}`;
+    };
 
     if (isIngamePage) {
+        const ingameLayoutToggle = document.querySelector('.ingame-layout-toggle');
+        const isExperimentalBattle = document.documentElement.classList.contains('battle-experimental');
+        if (ingameLayoutToggle) {
+            ingameLayoutToggle.textContent = isExperimentalBattle ? 'Classic UI' : 'New UI';
+            ingameLayoutToggle.title = isExperimentalBattle
+                ? 'Switch to the classic battle interface'
+                : 'Switch to the experimental battle interface';
+            ingameLayoutToggle.setAttribute('aria-label', ingameLayoutToggle.title);
+            ingameLayoutToggle.addEventListener('click', () => {
+                const nextUrl = new URL(window.location.href);
+                if (isExperimentalBattle) {
+                    nextUrl.searchParams.delete('layout');
+                } else {
+                    nextUrl.searchParams.set('layout', 'experimental');
+                }
+                window.location.assign(nextUrl.toString());
+            });
+        }
+        const experimentalBattleRoot = document.documentElement.classList.contains('battle-experimental')
+            ? document.querySelector('.backgroundingame')
+            : null;
+        const syncExperimentalBattleScale = () => {
+            if (!experimentalBattleRoot) return;
+            const viewportWidth = Math.min(
+                window.innerWidth,
+                window.visualViewport?.width || window.innerWidth
+            );
+            const viewportHeight = Math.min(
+                window.innerHeight,
+                window.visualViewport?.height || window.innerHeight
+            );
+            const scale = Math.min(
+                1,
+                Math.max(0.3, (viewportWidth - 12) / 770),
+                Math.max(0.3, (viewportHeight - 12) / 560)
+            );
+            experimentalBattleRoot.style.setProperty('--experimental-battle-scale', scale.toFixed(4));
+        };
+        if (experimentalBattleRoot) {
+            syncExperimentalBattleScale();
+            window.addEventListener('resize', syncExperimentalBattleScale, { passive: true });
+            window.visualViewport?.addEventListener('resize', syncExperimentalBattleScale, { passive: true });
+        }
         const rosterData = Array.isArray(window.characters)
             ? window.characters
             : typeof characters !== 'undefined' && Array.isArray(characters)
@@ -2033,14 +2400,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         let matchSocketManuallyClosed = false;
         let pendingSocketMatchState = null;
         let pendingSocketMatchStateFrame = null;
-        let currentPlayerUsername = null;
-        let currentTurnUsername = null;
-        let currentOpponentUsername = null;
-        let currentOpponentDisplayName = null;
-        let currentOpponentProfileView = null;
         let currentMatchMode = 'quick';
         let currentMatchBackgroundUrl = '';
-        let currentMatchArena =
+        currentMatchArena =
             normalizeArenaModeValue(arenaModeFromUrl) ||
             readCachedMatchArena(matchIdFromUrl) ||
             (localStorage.getItem('comicArenaMode') === 'pokemon' ? 'pokemon' : 'comic');
@@ -2651,7 +3013,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             return result;
         })();
-        const skillInfo = {
+        skillInfo = {
             imgEl: document.querySelector('.skillviewimage'),
             nameEl: document.querySelector('.ingameskillname'),
             roleEl: document.querySelector('.ingamecharacterrole'),
@@ -10346,6 +10708,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             syncEnergyNameLabels();
             soundManager.ensureIngameBattleMusic(currentMatchArena);
             if (data.player?.profile) {
+                currentPlayerProfileView = {
+                    username: data.player.username || currentPlayerUsername || profileCache?.username || '',
+                    profile: data.player.profile,
+                };
                 profileCache = {
                     ...(profileCache && typeof profileCache === 'object' ? profileCache : {}),
                     username: data.player.username || currentPlayerUsername || profileCache?.username || '',
@@ -10360,6 +10726,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ladder: playerProfileView.ladder || null,
                 });
             } else if (profileCache?.profile) {
+                currentPlayerProfileView = profileCache;
                 const playerProfileView = getArenaProfileView(profileCache.profile, currentMatchArena);
                 applyPlayerIdentity({
                     name: profileCache.username || currentPlayerUsername,
@@ -10543,6 +10910,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const renderSkillInfo = (character, skill, actorSlot = null, skillIdx = null) => {
             if (!skill || !character) return;
+            document.querySelector('.skillinformation')?.classList.remove('profile-information');
             skillInfo.selectedViewMode = 'skill';
             skillInfo.selectedActorSlot = Number.isInteger(actorSlot) ? actorSlot : null;
             skillInfo.selectedSkillIdx = Number.isInteger(skillIdx) ? skillIdx : null;
@@ -10674,6 +11042,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (skillInfo.selectedViewMode === 'opponent-profile') {
                 renderOpponentProfileInfo(currentOpponentProfileView);
+                return;
+            }
+            if (skillInfo.selectedViewMode === 'player-profile') {
+                renderPlayerProfileInfo(currentPlayerProfileView || profileCache || readCachedUser());
             }
         };
 
@@ -10689,6 +11061,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const renderCharacterInfo = (character, actorSlot = null) => {
             if (!character) return;
+            document.querySelector('.skillinformation')?.classList.remove('profile-information');
             skillInfo.selectedViewMode = 'character';
             skillInfo.selectedActorSlot = Number.isInteger(actorSlot) ? actorSlot : null;
             skillInfo.selectedSkillIdx = null;
@@ -13136,7 +13509,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             } catch (error) {
                 console.warn('Failed to surrender.', error);
-                window.location.href = `selection.html?arena=${encodeURIComponent(currentMatchArena)}`;
+                redirectToArenaSelection(currentMatchArena, { replace: true });
             }
         };
 
@@ -13197,6 +13570,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const selectionMissionsToggle = document.querySelector('.selection-missions-toggle');
     const selectionMissionsListEl = document.querySelector('.selection-missions-list');
     const selectionMissionsStatusEl = document.querySelector('.selection-missions-status');
+    const experimentalStoreToggle = document.querySelector('.experimental-store-toggle');
+    const experimentalMissionsToggle = document.querySelector('.experimental-missions-toggle');
+    const selectionStoreCloseButton = document.querySelector('.selection-store-close');
+    const selectionPanelTitle = document.querySelector('.selection-panel-title');
+    const selectionStoreCategoryButtons = Array.from(
+        document.querySelectorAll('[data-store-category-button]')
+    );
+    const selectionUnlockConfirmBackdrop = document.querySelector('.selection-unlock-confirm-backdrop');
+    const selectionUnlockConfirmMessage = document.querySelector('.selection-unlock-confirm-message');
+    const selectionUnlockConfirmYes = document.querySelector('.selection-unlock-confirm-yes');
+    const selectionUnlockConfirmNo = document.querySelector('.selection-unlock-confirm-no');
     const privateMatchBackdrop = document.querySelector('.private-match-backdrop');
     const privateMatchInput = document.querySelector('.private-match-input');
     const privateMatchError = document.querySelector('.private-match-error');
@@ -13210,6 +13594,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const skillViewerCloseSound = new Audio('assets/audio/sounds/scroll_close.mp3');
     let matchmakingPoll = null;
     let isSearching = false;
+    let activeMatchmakingMode = '';
     let pendingMatchRedirect = null;
     let draftModeEnabled = localStorage.getItem('comicDraftModeEnabled') === 'true';
     setProtectionTerminologyArena(activeArenaMode);
@@ -13221,9 +13606,32 @@ document.addEventListener('DOMContentLoaded', async () => {
     let activeDraftSelectionPhase = '';
     let activeDraftPoll = null;
     let activeDraftTimer = null;
+    let activeSelectionStoreCategory = 'characters';
+    let activeSelectionPanelMode = 'store';
+    let pendingLockedCharacterId = '';
     const setSelectionMissionsStatus = (message = '') => {
         if (!selectionMissionsStatusEl) return;
         selectionMissionsStatusEl.textContent = message;
+    };
+
+    const syncSelectionStoreCategory = () => {
+        if (!document.documentElement.classList.contains('selection-experimental')) return;
+        selectionStoreCategoryButtons.forEach((button) => {
+            const isActive = button.dataset.storeCategoryButton === activeSelectionStoreCategory;
+            button.classList.toggle('active', isActive);
+            button.setAttribute('aria-pressed', String(isActive));
+        });
+        selectionMissionsListEl?.querySelectorAll('[data-store-category]').forEach((section) => {
+            section.hidden = section.dataset.storeCategory !== activeSelectionStoreCategory;
+        });
+    };
+
+    const setSelectionStoreCategory = (category = 'characters') => {
+        const normalized = ['characters', 'points', 'skins', 'missions'].includes(category)
+            ? category
+            : 'characters';
+        activeSelectionStoreCategory = normalized;
+        syncSelectionStoreCategory();
     };
 
     const getArenaModeLabel = (arena = activeArenaMode) =>
@@ -13392,6 +13800,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderRosterPage();
         updateGameButtons();
         applySavedTeam();
+        if (currentCharacterIndex !== null && roster[currentCharacterIndex]) {
+            renderCharacter(roster[currentCharacterIndex], currentCharacterIndex);
+        }
     };
 
     const applyUpdatedProfile = (profile = null) => {
@@ -13479,6 +13890,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 body: JSON.stringify({
                     arena: activeArenaMode,
                     packageId: normalizedPackageId,
+                    layout: document.documentElement.classList.contains('selection-experimental')
+                        ? 'experimental'
+                        : '',
                 }),
             });
             const payload = await response.json().catch(() => ({}));
@@ -13542,7 +13956,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const buyMissionCharacterUnlock = async (characterId, button = null) => {
         const normalizedCharacterId = String(characterId || '').trim().toLowerCase();
-        if (!normalizedCharacterId) return;
+        if (!normalizedCharacterId) return false;
         if (button) button.disabled = true;
         setSelectionMissionsStatus('Buying character unlock...');
         try {
@@ -13568,11 +13982,53 @@ document.addEventListener('DOMContentLoaded', async () => {
             renderRosterPage();
             updateGameButtons();
             applySavedTeam();
+            return true;
         } catch (error) {
             if (button) button.disabled = false;
             setSelectionMissionsStatus(error.message || 'Unable to buy character unlock.');
+            return false;
         }
     };
+
+    const closeSelectionUnlockConfirm = () => {
+        pendingLockedCharacterId = '';
+        if (!selectionUnlockConfirmBackdrop) return;
+        selectionUnlockConfirmBackdrop.classList.add('hidden');
+        selectionUnlockConfirmBackdrop.setAttribute('aria-hidden', 'true');
+    };
+
+    const openSelectionUnlockConfirm = (character) => {
+        if (!document.documentElement.classList.contains('selection-experimental')) return;
+        const characterId = getSelectionCharacterId(character);
+        if (!characterId || !selectionUnlockConfirmBackdrop) return;
+        const cost = missionUnlockCostByCharacterId.get(characterId) || DEFAULT_UNLOCK_POINT_COST;
+        pendingLockedCharacterId = characterId;
+        if (selectionUnlockConfirmMessage) {
+            selectionUnlockConfirmMessage.textContent = `${character.name || 'This character'} is locked. Unlock them for ${cost.toLocaleString()} points?`;
+        }
+        selectionUnlockConfirmBackdrop.classList.remove('hidden');
+        selectionUnlockConfirmBackdrop.setAttribute('aria-hidden', 'false');
+        selectionUnlockConfirmNo?.focus();
+    };
+
+    selectionUnlockConfirmNo?.addEventListener('click', closeSelectionUnlockConfirm);
+    selectionUnlockConfirmBackdrop?.addEventListener('pointerdown', (event) => {
+        if (event.target === selectionUnlockConfirmBackdrop) {
+            closeSelectionUnlockConfirm();
+        }
+    });
+    selectionUnlockConfirmYes?.addEventListener('click', async () => {
+        const characterId = pendingLockedCharacterId;
+        if (!characterId) return;
+        const purchased = await buyMissionCharacterUnlock(characterId, selectionUnlockConfirmYes);
+        if (purchased) {
+            closeSelectionUnlockConfirm();
+            return;
+        }
+        if (selectionUnlockConfirmMessage && selectionMissionsStatusEl?.textContent) {
+            selectionUnlockConfirmMessage.textContent = selectionMissionsStatusEl.textContent;
+        }
+    });
 
     const getEeveeEvolutionOptions = () => [
         { id: 'jolteon', name: 'Jolteon' },
@@ -13770,11 +14226,103 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    const renderExperimentalCharacterStore = (payload = {}, missions = []) => {
+        if (
+            !selectionMissionsListEl ||
+            !document.documentElement.classList.contains('selection-experimental')
+        ) {
+            return;
+        }
+        const unlockPoints = Math.max(0, Math.floor(Number(payload.unlockPoints) || 0));
+        const playerLevel = Math.max(1, Math.floor(Number(payload.playerLevel) || 1));
+        const unlockedIds = new Set(
+            (Array.isArray(payload.unlockedCharacterIds) ? payload.unlockedCharacterIds : [])
+                .map((entry) => String(entry || '').trim().toLowerCase())
+                .filter(Boolean)
+        );
+        const missionByCharacterId = new Map();
+        missions.forEach((mission) => {
+            getMissionRewardCharacterIds(mission).forEach((characterId) => {
+                if (characterId && !missionByCharacterId.has(characterId)) {
+                    missionByCharacterId.set(characterId, mission);
+                }
+            });
+        });
+
+        const section = document.createElement('section');
+        section.className = 'selection-store-category selection-character-store';
+        section.dataset.storeCategory = 'characters';
+        const intro = document.createElement('div');
+        intro.className = 'selection-store-category-intro';
+        intro.innerHTML = '<strong>Character Collection</strong><span>Every fighter in this arena, with its unlock price and ownership status.</span>';
+        section.appendChild(intro);
+
+        const grid = document.createElement('div');
+        grid.className = 'selection-character-store-grid';
+        getBaseRosterDisplayIndices().forEach((rosterIndex) => {
+            const character = roster[rosterIndex];
+            const characterId = getSelectionCharacterId(character);
+            if (!character || !characterId) return;
+            const mission = missionByCharacterId.get(characterId) || null;
+            const isOwned = !mission || unlockedIds.has(characterId);
+            const unlockPointCost = mission ? getMissionUnlockPointCost(mission, payload) : 0;
+            const requiredRank = Math.max(
+                1,
+                Math.floor(Number(mission?.level_requirement ?? mission?.rank) || 1)
+            );
+            const purchaseRankLocked = Boolean(mission?.purchase_requires_rank) && playerLevel < requiredRank;
+
+            const card = document.createElement('article');
+            card.className = `selection-store-character-card${isOwned ? ' is-owned' : ' is-locked'}`;
+            card.dataset.storeCharacterId = characterId;
+            const image = document.createElement('img');
+            image.className = 'selection-store-character-image';
+            setSelectionThumbnailWithFallback(image, character.facePicture || 'assets/images/default-avatar.png');
+            image.alt = character.name || characterId;
+            const details = document.createElement('div');
+            details.className = 'selection-store-character-details';
+            const name = document.createElement('strong');
+            name.textContent = character.name || characterId;
+            const price = document.createElement('span');
+            price.className = 'selection-store-character-price';
+            price.textContent = isOwned
+                ? mission ? 'Owned' : 'Included · 0 points'
+                : `${unlockPointCost.toLocaleString()} points`;
+            details.appendChild(name);
+            details.appendChild(price);
+
+            const action = document.createElement('button');
+            action.type = 'button';
+            action.className = 'selection-store-character-action';
+            if (isOwned) {
+                action.textContent = 'Owned';
+                action.disabled = true;
+            } else if (purchaseRankLocked) {
+                action.textContent = `Rank ${requiredRank}`;
+                action.disabled = true;
+                action.title = `Reach rank ${requiredRank} to purchase this character.`;
+            } else {
+                action.textContent = unlockPoints >= unlockPointCost ? 'Purchase' : 'Need Points';
+                action.disabled = unlockPoints < unlockPointCost;
+                action.addEventListener('click', () => {
+                    buyMissionCharacterUnlock(characterId, action);
+                });
+            }
+            card.appendChild(image);
+            card.appendChild(details);
+            card.appendChild(action);
+            grid.appendChild(card);
+        });
+        section.appendChild(grid);
+        selectionMissionsListEl.appendChild(section);
+    };
+
     const renderSelectionSkins = (payload = {}) => {
         if (!selectionMissionsListEl) return;
         const skins = Array.isArray(payload?.skins) ? payload.skins : [];
         const section = document.createElement('section');
         section.className = 'selection-skins-section';
+        section.dataset.storeCategory = 'skins';
         const heading = document.createElement('h3');
         heading.className = 'selection-section-title';
         heading.textContent = activeArenaMode === 'pokemon' ? 'Skin Shop' : 'Skins';
@@ -13924,9 +14472,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         wallet.appendChild(walletTotal);
         wallet.appendChild(walletHint);
         selectionMissionsListEl.appendChild(wallet);
+        renderExperimentalCharacterStore(payload, missions);
         if (pointStorePackages.length) {
             const storeCard = document.createElement('article');
             storeCard.className = 'selection-mission-card';
+            storeCard.dataset.storeCategory = 'points';
             const title = document.createElement('h3');
             title.className = 'selection-mission-title';
             title.textContent = 'Buy Points';
@@ -13961,6 +14511,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!missions.length) {
             const empty = document.createElement('div');
             empty.className = 'selection-mission-card';
+            empty.dataset.storeCategory = 'missions';
             empty.textContent = 'No missions available.';
             selectionMissionsListEl.appendChild(empty);
             return;
@@ -13972,6 +14523,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const card = document.createElement('article');
             card.className = 'selection-mission-card';
             card.dataset.selectionMission = mission.missionId || '';
+            card.dataset.storeCategory = 'missions';
 
             const head = document.createElement('div');
             head.className = 'selection-mission-head';
@@ -13998,8 +14550,19 @@ document.addEventListener('DOMContentLoaded', async () => {
             progressText.className = 'selection-mission-progress';
             progressText.textContent = isUnlocked
                 ? 'Unlocked. PvE fights can be replayed.'
-                : getSelectionMissionProgressText(mission, progress);
+                : `Goals: ${getSelectionMissionProgressText(mission, progress)}`;
             card.appendChild(progressText);
+
+            const requirementsText = document.createElement('p');
+            requirementsText.className = 'selection-mission-requirements';
+            const missionLevelRequirement = Math.max(
+                1,
+                Math.floor(Number(mission.level_requirement ?? mission.rank) || 1)
+            );
+            requirementsText.textContent = missionLevelRequirement > 1
+                ? `Requirements: Reach level ${missionLevelRequirement}.`
+                : 'Requirements: Available at level 1.';
+            card.appendChild(requirementsText);
 
             const isEeveeEvolutionMission =
                 mission.missionId === 'eevee-evolution-path' && activeArenaMode === 'pokemon';
@@ -14082,6 +14645,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             renderSelectionMissions(payload);
             renderSelectionSkins(skinsPayload);
+            syncSelectionStoreCategory();
             setSelectionMissionsStatus(paymentStatusMessage || '');
         } catch (error) {
             setSelectionMissionsStatus(error.message || 'Unable to load missions.');
@@ -14121,10 +14685,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    if (selectionMissionsToggle && selectionMissionsEl) {
-        selectionMissionsToggle.addEventListener('click', () => {
-            const willOpen = selectionMissionsEl.classList.contains('collapsed');
+    if (selectionMissionsEl) {
+        const setSelectionPanelMode = (mode = 'store') => {
+            activeSelectionPanelMode = mode === 'missions' ? 'missions' : 'store';
+            const showingMissions = activeSelectionPanelMode === 'missions';
+            document.body.classList.toggle('experimental-missions-open', showingMissions);
+            if (selectionPanelTitle) selectionPanelTitle.textContent = showingMissions ? 'Missions' : 'Store';
+            if (showingMissions) {
+                setSelectionStoreCategory('missions');
+            } else if (activeSelectionStoreCategory === 'missions') {
+                setSelectionStoreCategory('characters');
+            }
+        };
+        const setSelectionStoreOpen = (willOpen, mode = activeSelectionPanelMode) => {
             if (willOpen) {
+                setSelectionPanelMode(mode);
                 const optionsPanel = document.querySelector('.selection-ui-options-panel');
                 const optionsToggle = document.querySelector('.ui-options-toggle[aria-controls="selection-ui-options"]');
                 if (optionsPanel) {
@@ -14134,23 +14709,58 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 optionsToggle?.classList.remove('active');
                 optionsToggle?.setAttribute('aria-expanded', 'false');
-            }
-            selectionMissionsEl.classList.toggle('collapsed', !willOpen);
-            selectionMissionsToggle.classList.toggle('active', willOpen);
-            selectionMissionsToggle.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-            if (willOpen) {
+                document.body.classList.remove('experimental-controls-open');
                 loadSelectionMissions();
             }
+            selectionMissionsEl.classList.toggle('collapsed', !willOpen);
+            document.body.classList.toggle('experimental-store-open', willOpen);
+            if (!willOpen) document.body.classList.remove('experimental-missions-open');
+            const storeActive = willOpen && activeSelectionPanelMode === 'store';
+            const missionsActive = willOpen && activeSelectionPanelMode === 'missions';
+            experimentalStoreToggle?.classList.toggle('active', storeActive);
+            experimentalStoreToggle?.setAttribute('aria-expanded', String(storeActive));
+            [selectionMissionsToggle, experimentalMissionsToggle].filter(Boolean).forEach((toggle) => {
+                toggle.classList.toggle('active', missionsActive);
+                toggle.setAttribute('aria-expanded', String(missionsActive));
+            });
+        };
+        const toggleSelectionPanel = (mode) => {
+            const isOpen = !selectionMissionsEl.classList.contains('collapsed');
+            setSelectionStoreOpen(!(isOpen && activeSelectionPanelMode === mode), mode);
+        };
+        experimentalStoreToggle?.addEventListener('click', () => toggleSelectionPanel('store'));
+        [selectionMissionsToggle, experimentalMissionsToggle].filter(Boolean).forEach((toggle) => {
+            toggle.addEventListener('click', () => toggleSelectionPanel('missions'));
+        });
+        selectionStoreCloseButton?.addEventListener('click', () => setSelectionStoreOpen(false));
+        document.addEventListener('pointerdown', (event) => {
+            if (
+                selectionMissionsEl.classList.contains('collapsed') ||
+                selectionMissionsEl.contains(event.target) ||
+                experimentalStoreToggle?.contains(event.target) ||
+                experimentalMissionsToggle?.contains(event.target)
+            ) {
+                return;
+            }
+            setSelectionStoreOpen(false);
+        });
+        selectionStoreCategoryButtons.forEach((button) => {
+            button.addEventListener('click', () => {
+                setSelectionPanelMode('store');
+                setSelectionStoreCategory(button.dataset.storeCategoryButton || 'characters');
+            });
         });
         if (
             pageSearchParams.get('missions') === 'open' ||
             selectionMissionIdFromUrl ||
             pageSearchParams.get('unlockPointsPayment')
         ) {
-            selectionMissionsEl.classList.remove('collapsed');
-            selectionMissionsToggle.classList.add('active');
-            selectionMissionsToggle.setAttribute('aria-expanded', 'true');
-            loadSelectionMissions();
+            if (pageSearchParams.get('unlockPointsPayment')) {
+                setSelectionStoreCategory('points');
+                setSelectionStoreOpen(true, 'store');
+            } else {
+                setSelectionStoreOpen(true, 'missions');
+            }
         }
     }
 
@@ -14269,6 +14879,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const handleMatchFound = (data = {}) => {
         if (data?.draft && data.draftId) {
             isSearching = false;
+            activeMatchmakingMode = '';
+            document.body.classList.remove('matchmaking-active');
             if (matchmakingPoll) {
                 clearInterval(matchmakingPoll);
                 matchmakingPoll = null;
@@ -14291,6 +14903,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         openSearching();
         setSearchingState('found');
         isSearching = false;
+        activeMatchmakingMode = '';
+        document.body.classList.remove('matchmaking-active');
         if (matchmakingPoll) {
             clearInterval(matchmakingPoll);
             matchmakingPoll = null;
@@ -14367,6 +14981,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     const joinMatchmaking = async (mode = 'quick', options = {}) => {
         if (isSearching) return;
         isSearching = true;
+        activeMatchmakingMode = mode;
+        document.body.classList.add('matchmaking-active');
+        [quickButton, ladderButton, privateButton].filter(Boolean).forEach((button) => {
+            button.classList.toggle(
+                'matchmaking-searching',
+                (mode === 'quick' && button === quickButton) ||
+                (mode === 'ladder' && button === ladderButton) ||
+                (mode === 'private' && button === privateButton)
+            );
+        });
+        if (
+            document.documentElement.classList.contains('selection-experimental') &&
+            keyboardSelectionZone === 'matches'
+        ) {
+            window.setTimeout(() => setMatchKeyboardHighlight(highlightedMatchButtonIndex), 0);
+        }
         activeSearchTargetUsername = mode === 'private' ? (options.targetUsername || '').trim() : '';
         setSearchingState('searching', mode);
         openSearching();
@@ -14399,6 +15029,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch (error) {
             console.error('Failed to join matchmaking:', error);
             isSearching = false;
+            activeMatchmakingMode = '';
+            document.body.classList.remove('matchmaking-active');
+            [quickButton, ladderButton, privateButton].filter(Boolean).forEach((button) => {
+                button.classList.remove('matchmaking-searching');
+            });
             activeSearchTargetUsername = '';
             closeSearching();
             alert(error?.message || 'Could not start matchmaking. Please try again.');
@@ -14407,7 +15042,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const cancelMatchmaking = async () => {
         isSearching = false;
+        activeMatchmakingMode = '';
         activeSearchTargetUsername = '';
+        document.body.classList.remove('matchmaking-active');
+        [quickButton, ladderButton, privateButton].filter(Boolean).forEach((button) => {
+            button.classList.remove('matchmaking-searching');
+        });
         if (matchmakingPoll) {
             clearInterval(matchmakingPoll);
             matchmakingPoll = null;
@@ -14426,6 +15066,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (quickButton) {
         quickButton.addEventListener('click', (event) => {
             event.preventDefault();
+            if (isSearching) {
+                if (activeMatchmakingMode === 'quick') cancelMatchmaking();
+                return;
+            }
             persistTeamSelection();
             joinMatchmaking('quick');
         });
@@ -14434,6 +15078,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (ladderButton) {
         ladderButton.addEventListener('click', (event) => {
             event.preventDefault();
+            if (isSearching) {
+                if (activeMatchmakingMode === 'ladder') cancelMatchmaking();
+                return;
+            }
             persistTeamSelection();
             joinMatchmaking('ladder');
         });
@@ -14442,6 +15090,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (privateButton) {
         privateButton.addEventListener('click', (event) => {
             event.preventDefault();
+            if (isSearching) {
+                if (activeMatchmakingMode === 'private') cancelMatchmaking();
+                return;
+            }
             openPrivateMatchDialog();
         });
     }
@@ -14988,11 +15640,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         return ordered;
     };
 
-    const CHARACTERS_PER_PAGE = 21;
+    const CHARACTERS_PER_PAGE = document.documentElement.classList.contains('selection-experimental') ? 30 : 21;
     let rosterDisplayIndices = getBaseRosterDisplayIndices();
     let totalPages = Math.max(1, Math.ceil(Math.max(rosterDisplayIndices.length, CHARACTERS_PER_PAGE) / CHARACTERS_PER_PAGE));
     let currentRosterPage = 0;
     let currentCharacterIndex = null;
+    let highlightedRosterIndex = null;
+    let keyboardSelectionZone = 'roster';
+    let highlightedTeamSlotIndex = 0;
+    let highlightedTeamRosterRow = 1;
+    let highlightedMatchButtonIndex = 2;
+    let highlightedPageDirection = 'next';
     let activeRosterFilterMode = 'role';
     let activeRosterFilterValue = 'all';
     let characterPlayRates = new Map();
@@ -15123,10 +15781,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         getSelectionVisibleSkills(character).forEach((skill) => preloadSelectionPreviewImage(skill.skillimage));
     };
 
-    const loadSelectionPreviewImage = (image, source, alt, renderId) => {
+    const loadSelectionPreviewImage = (image, source, alt, renderId, fallbackSource = '') => {
         if (!image) return;
         const url = typeof source === 'string' ? source.trim() : '';
         const thumbnail = getSelectionThumbnailSource(url);
+        const fallbackUrl = typeof fallbackSource === 'string' ? fallbackSource.trim() : '';
+        const fallbackThumbnail = getSelectionThumbnailSource(fallbackUrl);
         image.onload = null;
         image.onerror = null;
         image.dataset.previewRenderId = String(renderId);
@@ -15145,20 +15805,99 @@ document.addEventListener('DOMContentLoaded', async () => {
             image.classList.toggle('load-failed', failed);
         };
         image.onload = () => finish(false);
-        let usedOriginalFallback = false;
+        const candidates = Array.from(
+            new Set([thumbnail, url, fallbackThumbnail, fallbackUrl].filter(Boolean))
+        );
+        let candidateIndex = 0;
         image.onerror = () => {
-            if (!usedOriginalFallback && thumbnail && thumbnail !== url) {
-                usedOriginalFallback = true;
-                image.src = url;
+            candidateIndex += 1;
+            if (candidateIndex < candidates.length) {
+                image.src = candidates[candidateIndex];
                 return;
             }
             finish(true);
         };
         image.decoding = 'async';
         image.fetchPriority = 'high';
-        image.src = thumbnail || url;
+        image.src = candidates[0] || '';
         if (image.complete && image.naturalWidth > 0) {
             finish(false);
+        }
+    };
+
+    const isSelectionEvolutionSkill = (skill) => {
+        const statusId = String(skill?.actorCondition?.statusId || '').trim().toLowerCase();
+        return statusId.includes('evolution');
+    };
+
+    const getSelectionSkillRenderForm = (character, skill) => {
+        const forms = getSelectionCharacterRenderForms(character);
+        const skillId = String(skill?.id || '').trim().toLowerCase();
+        if (forms.some((form) => form.id === 'mega-x') && skillId.includes('charizard-x-')) {
+            return 'mega-x';
+        }
+        if (forms.some((form) => form.id === 'mega-y') && skillId.includes('charizard-y-')) {
+            return 'mega-y';
+        }
+        if (forms.some((form) => form.id === 'evolution') && isSelectionEvolutionSkill(skill)) {
+            return 'evolution';
+        }
+        return 'base';
+    };
+
+    const renderSelectionCharacterForm = (character, requestedForm = 'base') => {
+        if (!character) return;
+        const availableForms = getSelectionCharacterRenderForms(character);
+        const activeForm =
+            availableForms.find((entry) => entry.id === requestedForm) ||
+            availableForms.find((entry) => entry.id === 'base') ||
+            null;
+        const alternateForm = availableForms.find((entry) => entry.id !== activeForm?.id) || null;
+        const form = activeForm?.id || 'base';
+        const activeSource = getSelectionRenderSource(activeForm?.filename);
+        const alternateSource = getSelectionRenderSource(alternateForm?.filename);
+        const activeName = activeForm?.name || character.name;
+        const canSwitchForms = availableForms.length > 1;
+        const renderId = ++selectionPreviewRenderId;
+
+        currentSelectionRenderForm = form;
+        if (nameEl) nameEl.textContent = activeName || character.name || 'Unknown shinobi';
+        if (characterFormToggleEl) characterFormToggleEl.hidden = !canSwitchForms;
+        characterFormButtons.forEach((button) => {
+            const buttonForm = availableForms.find((entry) => entry.id === button.dataset.characterForm);
+            button.hidden = !buttonForm;
+            if (buttonForm) {
+                button.textContent = buttonForm.label || buttonForm.name || button.dataset.characterForm;
+                button.setAttribute('aria-label', `Show ${buttonForm.name || buttonForm.label} render`);
+            }
+            const isActive = button.dataset.characterForm === form;
+            button.classList.toggle('is-active', isActive);
+            button.setAttribute('aria-pressed', String(isActive));
+        });
+
+        if (portraitEl) {
+            portraitEl.classList.toggle('uses-featured-render', Boolean(activeSource));
+            portraitEl.classList.toggle('showing-evolution', form === 'evolution');
+            portraitEl.classList.remove('form-swapping');
+            void portraitEl.offsetWidth;
+            portraitEl.classList.add('form-swapping');
+            loadSelectionPreviewImage(
+                portraitEl,
+                activeSource || character.facePicture || (activeArenaMode === 'pokemon' ? POKEMON_FOUND_ICON_URL : ''),
+                activeName ? `${activeName} portrait` : 'Character portrait',
+                renderId,
+                activeSource ? character.facePicture : ''
+            );
+        }
+        if (evolutionShadowEl) {
+            evolutionShadowEl.classList.toggle('is-visible', Boolean(alternateSource));
+            evolutionShadowEl.classList.toggle('showing-base-shadow', form !== 'base');
+            loadSelectionPreviewImage(
+                evolutionShadowEl,
+                alternateSource,
+                '',
+                renderId
+            );
         }
     };
 
@@ -15294,8 +16033,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const renderCharacterOverview = (character) => {
         if (skillNameEl) {
-            skillNameEl.textContent = '';
-            skillNameEl.style.visibility = 'hidden';
+            const usesExperimentalLayout = document.documentElement.classList.contains('selection-experimental');
+            skillNameEl.textContent = usesExperimentalLayout ? 'Character Overview' : '';
+            skillNameEl.style.visibility = usesExperimentalLayout ? 'visible' : 'hidden';
         }
         if (skillDescEl) {
             skillDescEl.textContent = getCharacterDescriptionText(character);
@@ -15324,28 +16064,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         const visibleSkills = getSelectionVisibleSkills(character);
         const skill = visibleSkills[skillIndex];
         if (!skill) return;
+        if (getSelectionCharacterRenderForms(character).length > 1) {
+            renderSelectionCharacterForm(
+                character,
+                getSelectionSkillRenderForm(character, skill)
+            );
+        }
         renderSkill(skill, skillIndex);
     };
 
     const renderCharacter = (character, index) => {
         if (!character) return;
-        const renderId = ++selectionPreviewRenderId;
         currentCharacterIndex = index;
-        if (nameEl) {
-            nameEl.textContent = character.name || 'Unknown shinobi';
-        }
         if (roleEl) {
             roleEl.textContent = `Role: ${getSelectionCharacterRole(character)}`;
             roleEl.style.visibility = 'visible';
         }
-        if (portraitEl) {
-            loadSelectionPreviewImage(
-                portraitEl,
-                character.facePicture || (activeArenaMode === 'pokemon' ? POKEMON_FOUND_ICON_URL : ''),
-                character.name ? `${character.name} portrait` : 'Character portrait',
-                renderId
-            );
-        }
+        renderSelectionCharacterForm(character, 'base');
+        const renderId = selectionPreviewRenderId;
         renderCharacterOverview(character);
         if (Array.isArray(character.skills)) {
             const visibleSkills = getSelectionVisibleSkills(character);
@@ -15375,6 +16111,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
     };
+
+    characterFormButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+            if (currentCharacterIndex === null) return;
+            const character = roster[currentCharacterIndex];
+            if (!character) return;
+            renderSelectionCharacterForm(character, button.dataset.characterForm || 'base');
+        });
+    });
 
     const handleCharacterSelect = (index, { openViewer = true } = {}) => {
         const character = roster[index];
@@ -15466,6 +16211,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         delete slot.dataset.characterInitial;
         slot.removeAttribute('aria-label');
         slot.removeAttribute('tabindex');
+        slot.removeAttribute('aria-selected');
+        slot.classList.remove('keyboard-highlighted');
     };
 
     const buildRosterSlot = (index) => {
@@ -15505,6 +16252,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         image.draggable = false;
         image.title = locked ? `${character.name || 'Character'} is locked.` : character.name || `Character ${index + 1}`;
         slot.appendChild(image);
+        if (locked) {
+            const lockBadge = document.createElement('span');
+            lockBadge.className = 'selection-roster-lock';
+            lockBadge.textContent = '🔒';
+            lockBadge.setAttribute('aria-hidden', 'true');
+            slot.appendChild(lockBadge);
+        }
         if (!locked) {
             image.addEventListener('dragstart', (event) => handleSlotDragStart(event, index));
             slot.addEventListener('pointerdown', (event) =>
@@ -15784,13 +16538,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateSelectionDragImagePosition(dragState, event.clientX, event.clientY);
     };
 
-    const cleanupSelectionPointerDrag = (dragState, restoreSource) => {
+    const cleanupSelectionPointerDrag = (dragState) => {
         if (dragState.dragImage?.parentNode) {
             dragState.dragImage.parentNode.removeChild(dragState.dragImage);
         }
-        if (restoreSource) {
-            dragState.sourceElement.classList.remove('drag-hidden');
-        }
+        // Successful roster moves clear the old slot before cleanup. In every
+        // other case, always restoring this class prevents a cancelled or
+        // missed pointer drop from leaving the original portrait invisible.
+        dragState.sourceElement.classList.remove('drag-hidden');
         try {
             dragState.sourceElement.releasePointerCapture?.(dragState.pointerId);
         } catch (error) {
@@ -15854,13 +16609,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             upEvent.preventDefault();
             suppressSelectionClickUntil = Date.now() + 350;
-            const dropped = finishSelectionPointerDrop(
+            finishSelectionPointerDrop(
                 dragState.payload,
                 upEvent.clientX,
                 upEvent.clientY,
                 dragState
             );
-            cleanupSelectionPointerDrag(dragState, !dropped);
+            cleanupSelectionPointerDrag(dragState);
         };
 
         const handlePointerCancel = (cancelEvent) => {
@@ -15868,7 +16623,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             sourceElement.removeEventListener('pointermove', handlePointerMove);
             sourceElement.removeEventListener('pointerup', handlePointerUp);
             sourceElement.removeEventListener('pointercancel', handlePointerCancel);
-            cleanupSelectionPointerDrag(dragState, true);
+            cleanupSelectionPointerDrag(dragState);
         };
 
         sourceElement.addEventListener('pointermove', handlePointerMove);
@@ -16043,6 +16798,146 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     };
 
+    const getKeyboardRosterEntriesForCurrentPage = () => {
+        const pageStart = currentRosterPage * CHARACTERS_PER_PAGE;
+        return rosterDisplayIndices.slice(pageStart, pageStart + CHARACTERS_PER_PAGE)
+            .map((rosterIndex, localIndex) => {
+                const isRightBank = localIndex >= 15;
+                const bankIndex = isRightBank ? localIndex - 15 : localIndex;
+                return {
+                    rosterIndex,
+                    row: Math.floor(bankIndex / 5),
+                    column: (isRightBank ? 5 : 0) + (bankIndex % 5),
+                };
+            })
+            .filter((entry) => {
+                const slot = rosterSlotElements[entry.rosterIndex];
+                return slot && !slot.classList.contains('slot-empty');
+            });
+    };
+
+    const setRosterKeyboardHighlight = (rosterIndex, { preview = true, focus = true } = {}) => {
+        if (!Number.isInteger(rosterIndex) || !roster[rosterIndex]) return;
+        highlightedRosterIndex = rosterIndex;
+        keyboardSelectionZone = 'roster';
+        selectedSlots.forEach((slot) => slot.classList.remove('keyboard-highlighted'));
+        [ladderButton, quickButton, privateButton].filter(Boolean).forEach((button) => {
+            button.classList.remove('keyboard-highlighted');
+        });
+        [lastPageButton, nextPageButton].filter(Boolean).forEach((button) => {
+            button.classList.remove('keyboard-highlighted');
+        });
+        rosterSlotElements.forEach((slot, index) => {
+            if (!slot) return;
+            const isHighlighted = index === rosterIndex;
+            slot.classList.toggle('keyboard-highlighted', isHighlighted);
+            slot.setAttribute('aria-selected', String(isHighlighted));
+            slot.tabIndex = isHighlighted ? 0 : -1;
+        });
+        const highlightedSlot = rosterSlotElements[rosterIndex];
+        if (focus) highlightedSlot?.focus({ preventScroll: true });
+        if (preview) handleCharacterSelect(rosterIndex, { openViewer: true });
+    };
+
+    const setTeamKeyboardHighlight = (
+        slotIndex = 0,
+        { focus = true, rosterRow = null } = {}
+    ) => {
+        highlightedTeamSlotIndex = Math.max(0, Math.min(selectedSlots.length - 1, slotIndex));
+        if (Number.isInteger(rosterRow)) {
+            highlightedTeamRosterRow = Math.max(1, Math.min(2, rosterRow));
+        }
+        keyboardSelectionZone = 'team';
+        rosterSlotElements.forEach((slot) => slot?.classList.remove('keyboard-highlighted'));
+        [ladderButton, quickButton, privateButton].filter(Boolean).forEach((button) => {
+            button.classList.remove('keyboard-highlighted');
+        });
+        [lastPageButton, nextPageButton].filter(Boolean).forEach((button) => {
+            button.classList.remove('keyboard-highlighted');
+        });
+        selectedSlots.forEach((slot, index) => {
+            const isHighlighted = index === highlightedTeamSlotIndex;
+            slot.classList.toggle('keyboard-highlighted', isHighlighted);
+            slot.tabIndex = isHighlighted ? 0 : -1;
+        });
+        if (focus) selectedSlots[highlightedTeamSlotIndex]?.focus({ preventScroll: true });
+    };
+
+    const getKeyboardMatchButtons = () => [ladderButton, quickButton, privateButton].filter(Boolean);
+
+    const setMatchKeyboardHighlight = (buttonIndex = 2, { focus = true } = {}) => {
+        const buttons = getKeyboardMatchButtons();
+        if (!buttons.length) return;
+        highlightedMatchButtonIndex = Math.max(0, Math.min(buttons.length - 1, buttonIndex));
+        keyboardSelectionZone = 'matches';
+        rosterSlotElements.forEach((slot) => slot?.classList.remove('keyboard-highlighted'));
+        selectedSlots.forEach((slot) => slot.classList.remove('keyboard-highlighted'));
+        [lastPageButton, nextPageButton].filter(Boolean).forEach((button) => {
+            button.classList.remove('keyboard-highlighted');
+        });
+        buttons.forEach((button, index) => {
+            button.classList.toggle('keyboard-highlighted', index === highlightedMatchButtonIndex);
+        });
+        if (focus) buttons[highlightedMatchButtonIndex]?.focus({ preventScroll: true });
+    };
+
+    const setPageKeyboardHighlight = (direction = 'next', { focus = true } = {}) => {
+        highlightedPageDirection = direction === 'previous' ? 'previous' : 'next';
+        keyboardSelectionZone = 'pagination';
+        rosterSlotElements.forEach((slot) => slot?.classList.remove('keyboard-highlighted'));
+        selectedSlots.forEach((slot) => slot.classList.remove('keyboard-highlighted'));
+        getKeyboardMatchButtons().forEach((button) => button.classList.remove('keyboard-highlighted'));
+        const highlightedButton = highlightedPageDirection === 'previous'
+            ? lastPageButton
+            : nextPageButton;
+        [lastPageButton, nextPageButton].filter(Boolean).forEach((button) => {
+            const isHighlighted = button === highlightedButton;
+            button.classList.toggle('keyboard-highlighted', isHighlighted);
+            button.tabIndex = isHighlighted ? 0 : -1;
+        });
+        if (focus) highlightedButton?.focus({ preventScroll: true });
+    };
+
+    const restoreRosterKeyboardHighlight = () => {
+        const entries = getKeyboardRosterEntriesForCurrentPage();
+        if (!entries.length) return;
+        const retained = entries.find((entry) => entry.rosterIndex === highlightedRosterIndex);
+        setRosterKeyboardHighlight((retained || entries[0]).rosterIndex);
+    };
+
+    const focusRosterBankRow = (bank = 'right', row = 0, preferredColumn = null) => {
+        const isRightBank = bank === 'right';
+        const candidates = getKeyboardRosterEntriesForCurrentPage().filter((entry) => (
+            entry.row === row && (isRightBank ? entry.column >= 5 : entry.column <= 4)
+        ));
+        if (!candidates.length) return false;
+        const fallbackColumn = isRightBank ? 5 : 4;
+        const targetColumn = Number.isInteger(preferredColumn) ? preferredColumn : fallbackColumn;
+        candidates.sort((left, right) => (
+            Math.abs(left.column - targetColumn) - Math.abs(right.column - targetColumn)
+        ));
+        setRosterKeyboardHighlight(candidates[0].rosterIndex);
+        return true;
+    };
+
+    const activateHighlightedRosterCharacter = () => {
+        if (!Number.isInteger(highlightedRosterIndex)) return;
+        const character = roster[highlightedRosterIndex];
+        if (!character) return;
+        if (isCharacterLocked(character)) {
+            openSelectionUnlockConfirm(character);
+            return;
+        }
+        const previousIndex = highlightedRosterIndex;
+        const previousDisplayPosition = rosterDisplayIndices.indexOf(previousIndex);
+        addRosterCharacterToSelection(previousIndex);
+        const remainingEntries = getKeyboardRosterEntriesForCurrentPage();
+        const nextEntry = remainingEntries.find(
+            (entry) => rosterDisplayIndices.indexOf(entry.rosterIndex) > previousDisplayPosition
+        ) || remainingEntries[0];
+        if (nextEntry) setRosterKeyboardHighlight(nextEntry.rosterIndex);
+    };
+
     const renderRosterPage = () => {
         slotList.innerHTML = '';
         rosterSlotElements.length = 0;
@@ -16063,14 +16958,34 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (listItem.classList.contains('slot-empty')) return;
                 queueSelectionPreview(() => {
                     if (listItem.classList.contains('slot-empty')) return;
-                    if (Number.isInteger(rosterIndex)) handleCharacterSelect(rosterIndex);
+                    if (!Number.isInteger(rosterIndex)) return;
+                    if (document.documentElement.classList.contains('selection-experimental')) {
+                        setRosterKeyboardHighlight(rosterIndex, { preview: true, focus: false });
+                    } else {
+                        handleCharacterSelect(rosterIndex);
+                    }
+                    const character = roster[rosterIndex];
+                    if (
+                        document.documentElement.classList.contains('selection-experimental') &&
+                        isCharacterLocked(character)
+                    ) {
+                        openSelectionUnlockConfirm(character);
+                    }
                 });
             };
 
             const handleDoubleClick = () => {
                 cancelSelectionPreview();
                 if (listItem.classList.contains('slot-empty')) return;
-                if (Number.isInteger(rosterIndex)) addRosterCharacterToSelection(rosterIndex);
+                if (!Number.isInteger(rosterIndex)) return;
+                if (document.documentElement.classList.contains('selection-experimental')) {
+                    setRosterKeyboardHighlight(rosterIndex, { preview: true, focus: false });
+                }
+                if (isCharacterLocked(roster[rosterIndex])) {
+                    openSelectionUnlockConfirm(roster[rosterIndex]);
+                    return;
+                }
+                addRosterCharacterToSelection(rosterIndex);
             };
 
             listItem.addEventListener('click', handleClick);
@@ -16110,10 +17025,191 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         updateRosterPageButtons();
+        if (document.documentElement.classList.contains('selection-experimental')) {
+            const pageEntries = getKeyboardRosterEntriesForCurrentPage();
+            if (keyboardSelectionZone === 'team') {
+                setTeamKeyboardHighlight(highlightedTeamSlotIndex, { focus: false });
+            } else if (keyboardSelectionZone === 'matches') {
+                setMatchKeyboardHighlight(highlightedMatchButtonIndex, { focus: false });
+            } else if (keyboardSelectionZone === 'pagination') {
+                setPageKeyboardHighlight(highlightedPageDirection, { focus: false });
+            } else {
+                const retainedHighlight = pageEntries.some(
+                    (entry) => entry.rosterIndex === highlightedRosterIndex
+                );
+                if (pageEntries.length) {
+                    setRosterKeyboardHighlight(
+                        retainedHighlight ? highlightedRosterIndex : pageEntries[0].rosterIndex,
+                        { preview: false, focus: false }
+                    );
+                }
+            }
+        }
     };
+
+    document.addEventListener('keydown', (event) => {
+        if (!document.documentElement.classList.contains('selection-experimental')) return;
+        const modalOpen = selectionUnlockConfirmBackdrop &&
+            !selectionUnlockConfirmBackdrop.classList.contains('hidden');
+        if (event.key === 'Escape' && modalOpen) {
+            event.preventDefault();
+            closeSelectionUnlockConfirm();
+            return;
+        }
+        if (modalOpen || document.body.classList.contains('experimental-store-open')) return;
+        const target = event.target;
+        const isKeyboardNavigationTarget = target instanceof HTMLElement && Boolean(
+            target.closest('.keyboard-highlighted')
+        );
+        if (
+            target instanceof HTMLElement &&
+            !isKeyboardNavigationTarget &&
+            (target.matches('input, select, textarea, button, a') || target.isContentEditable)
+        ) {
+            return;
+        }
+        const movementKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            if (keyboardSelectionZone === 'team') {
+                if (selectedAssignments[highlightedTeamSlotIndex]) {
+                    handleSelectedSlotDoubleClick(highlightedTeamSlotIndex);
+                    setTeamKeyboardHighlight(highlightedTeamSlotIndex);
+                }
+            } else if (keyboardSelectionZone === 'matches') {
+                const matchButton = getKeyboardMatchButtons()[highlightedMatchButtonIndex];
+                if (matchButton && !matchButton.disabled) matchButton.click();
+            } else if (keyboardSelectionZone === 'pagination') {
+                const canChangePage = highlightedPageDirection === 'previous'
+                    ? currentRosterPage > 0
+                    : currentRosterPage < totalPages - 1;
+                const pageButton = highlightedPageDirection === 'previous'
+                    ? lastPageButton
+                    : nextPageButton;
+                if (canChangePage) pageButton?.click();
+            } else {
+                activateHighlightedRosterCharacter();
+            }
+            return;
+        }
+        if (!movementKeys.includes(event.key)) return;
+        event.preventDefault();
+
+        if (keyboardSelectionZone === 'pagination') {
+            if (
+                (highlightedPageDirection === 'previous' && event.key === 'ArrowRight') ||
+                (highlightedPageDirection === 'next' && event.key === 'ArrowLeft')
+            ) {
+                restoreRosterKeyboardHighlight();
+            }
+            return;
+        }
+
+        if (keyboardSelectionZone === 'team') {
+            if (event.key === 'ArrowLeft' && highlightedTeamSlotIndex > 0) {
+                setTeamKeyboardHighlight(highlightedTeamSlotIndex - 1);
+            } else if (event.key === 'ArrowRight' && highlightedTeamSlotIndex < selectedSlots.length - 1) {
+                setTeamKeyboardHighlight(highlightedTeamSlotIndex + 1);
+            } else if (event.key === 'ArrowUp') {
+                setMatchKeyboardHighlight(2);
+            } else if (event.key === 'ArrowDown') {
+                restoreRosterKeyboardHighlight();
+            } else if (event.key === 'ArrowLeft') {
+                focusRosterBankRow('left', highlightedTeamRosterRow, 4);
+            } else if (event.key === 'ArrowRight') {
+                focusRosterBankRow('right', highlightedTeamRosterRow, 5);
+            }
+            return;
+        }
+
+        if (keyboardSelectionZone === 'matches') {
+            if (event.key === 'ArrowDown' && highlightedMatchButtonIndex === 2) {
+                setTeamKeyboardHighlight(highlightedTeamSlotIndex, { rosterRow: 1 });
+            } else if (event.key === 'ArrowDown') {
+                setMatchKeyboardHighlight(2);
+            } else if (event.key === 'ArrowUp' && highlightedMatchButtonIndex === 2) {
+                setMatchKeyboardHighlight(0);
+            } else if (event.key === 'ArrowLeft') {
+                if (highlightedMatchButtonIndex === 1) {
+                    setMatchKeyboardHighlight(0);
+                } else {
+                    focusRosterBankRow('left', 0, 4);
+                }
+            } else if (event.key === 'ArrowRight') {
+                if (highlightedMatchButtonIndex === 0) {
+                    setMatchKeyboardHighlight(1);
+                } else {
+                    const targetColumn = highlightedMatchButtonIndex === 2 ? 7 : 5;
+                    focusRosterBankRow('right', 0, targetColumn);
+                }
+            }
+            return;
+        }
+
+        const entries = getKeyboardRosterEntriesForCurrentPage();
+        if (!entries.length) return;
+        const current = entries.find((entry) => entry.rosterIndex === highlightedRosterIndex) || entries[0];
+        const directionalEntries = entries.filter((entry) => {
+            const currentIsRightBank = current.column >= 5;
+            const entryIsRightBank = entry.column >= 5;
+            if (event.key === 'ArrowRight') {
+                return entry.row === current.row && entry.column > current.column &&
+                    entryIsRightBank === currentIsRightBank;
+            }
+            if (event.key === 'ArrowLeft') {
+                return entry.row === current.row && entry.column < current.column &&
+                    entryIsRightBank === currentIsRightBank;
+            }
+            if (event.key === 'ArrowDown') return entry.column === current.column && entry.row > current.row;
+            return entry.column === current.column && entry.row < current.row;
+        });
+        directionalEntries.sort((left, right) => {
+            const leftDistance = Math.abs(left.row - current.row) + Math.abs(left.column - current.column);
+            const rightDistance = Math.abs(right.row - current.row) + Math.abs(right.column - current.column);
+            return leftDistance - rightDistance;
+        });
+        const targetEntry = directionalEntries[0];
+        if (targetEntry) {
+            setRosterKeyboardHighlight(targetEntry.rosterIndex);
+            return;
+        }
+        if (event.key === 'ArrowRight' && current.column <= 4) {
+            if (current.row === 0) {
+                setMatchKeyboardHighlight(0);
+            } else {
+                setTeamKeyboardHighlight(0, { rosterRow: current.row });
+            }
+            return;
+        }
+        if (event.key === 'ArrowLeft' && current.column >= 5) {
+            if (current.row === 0) {
+                setMatchKeyboardHighlight(1);
+            } else {
+                setTeamKeyboardHighlight(selectedSlots.length - 1, { rosterRow: current.row });
+            }
+            return;
+        }
+        if (event.key === 'ArrowDown') {
+            const teamIndex = current.column <= 3 ? 0 : current.column >= 6 ? 2 : 1;
+            setTeamKeyboardHighlight(teamIndex, { rosterRow: current.row });
+            return;
+        }
+        if (event.key === 'ArrowUp') {
+            setMatchKeyboardHighlight(current.column <= 4 ? 0 : 1);
+            return;
+        }
+        if (event.key === 'ArrowRight' && currentRosterPage < totalPages - 1) {
+            setPageKeyboardHighlight('next');
+        } else if (event.key === 'ArrowLeft' && currentRosterPage > 0) {
+            setPageKeyboardHighlight('previous');
+        }
+    });
 
     selectedSlots.forEach((slot, slotIndex) => {
         slot.addEventListener('click', () => {
+            if (document.documentElement.classList.contains('selection-experimental')) {
+                setTeamKeyboardHighlight(slotIndex, { focus: false, rosterRow: 1 });
+            }
             queueSelectionPreview(() => handleSelectedSlotClick(slotIndex));
         });
         slot.addEventListener('dragover', (event) => handleSelectedSlotDragOver(event, slot));
@@ -16207,6 +17303,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (nextPageButton) {
         nextPageButton.addEventListener('click', () => {
             if (currentRosterPage >= totalPages - 1) return;
+            if (keyboardSelectionZone === 'pagination') {
+                keyboardSelectionZone = 'roster';
+                highlightedRosterIndex = null;
+            }
             currentRosterPage += 1;
             renderRosterPage();
         });
@@ -16215,6 +17315,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (lastPageButton) {
         lastPageButton.addEventListener('click', () => {
             if (currentRosterPage <= 0) return;
+            if (keyboardSelectionZone === 'pagination') {
+                keyboardSelectionZone = 'roster';
+                highlightedRosterIndex = null;
+            }
             currentRosterPage -= 1;
             renderRosterPage();
         });
@@ -16224,6 +17328,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         selectionMissionsEl?.classList.add('collapsed');
         selectionMissionsToggle?.classList.remove('active');
         selectionMissionsToggle?.setAttribute('aria-expanded', 'false');
+        experimentalStoreToggle?.classList.remove('active');
+        experimentalStoreToggle?.setAttribute('aria-expanded', 'false');
+        experimentalMissionsToggle?.classList.remove('active');
+        experimentalMissionsToggle?.setAttribute('aria-expanded', 'false');
+        document.body.classList.remove('experimental-store-open');
+        document.body.classList.remove('experimental-missions-open');
 
         const optionsPanel = document.querySelector('.selection-ui-options-panel');
         const optionsToggle = document.querySelector('.ui-options-toggle[aria-controls="selection-ui-options"]');

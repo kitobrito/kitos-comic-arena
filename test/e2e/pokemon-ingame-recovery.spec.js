@@ -43,7 +43,8 @@ const buildHealthyMatchPayload = ({ currentTurn = 'ash' } = {}) => ({
             avatarUrl: 'assets/images/PokemonArena/found-pokeball.png',
             arenas: {
                 pokemon: {
-                    ladder: { rank: 'Trainer', level: 8 },
+                    clan: { abbreviation: 'INDIGO' },
+                    ladder: { rank: 'Trainer', level: 8, experiencePoints: 2450, ladderRank: 42, wins: 18, losses: 7, streak: 4 },
                 },
             },
         },
@@ -56,7 +57,8 @@ const buildHealthyMatchPayload = ({ currentTurn = 'ash' } = {}) => ({
             avatarUrl: 'assets/images/PokemonArena/found-pokeball.png',
             arenas: {
                 pokemon: {
-                    ladder: { rank: 'Rival', level: 9 },
+                    clan: { abbreviation: 'ROCKET' },
+                    ladder: { rank: 'Rival', level: 9, experiencePoints: 3120, ladderRank: 31, wins: 21, losses: 9, streak: 2 },
                 },
             },
         },
@@ -181,6 +183,9 @@ const createHarnessServer = async () => {
         matchGets: 0,
         comicMatchGets: 0,
         turnEnds: 0,
+        pokemonSkillTargets: 0,
+        pokemonSkillQueues: 0,
+        pokemonRandomAdjusts: 0,
         comicTurnEnds: 0,
         comicSkillTargets: 0,
         comicSkillQueues: 0,
@@ -207,6 +212,12 @@ const createHarnessServer = async () => {
                             arenas: {
                                 pokemon: {
                                     ladder: { rank: 'Trainer', level: 8 },
+                                    skins: {
+                                        unlockedSkinIds: ['charmander-charizard-legendary'],
+                                        equippedSkinByCharacterId: {
+                                            charmander: 'charmander-charizard-legendary',
+                                        },
+                                    },
                                 },
                             },
                         },
@@ -238,6 +249,77 @@ const createHarnessServer = async () => {
             state.payload = buildHealthyMatchPayload({ currentTurn: 'gary' });
             res.writeHead(200, { 'Content-Type': 'application/json' });
             res.end(JSON.stringify(state.payload));
+            return;
+        }
+
+        if (pathname === '/api/match/match-e2e-1/skill/targets' && req.method === 'POST') {
+            state.pokemonSkillTargets += 1;
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                ok: true,
+                targetType: 'single-ally',
+                mode: 'single',
+                skillIndex: 2,
+                targets: [{
+                    username: 'ash',
+                    slot: 1,
+                    rosterIndex: characters.findIndex((entry) => entry.id === 'clefairy'),
+                    alive: true,
+                }],
+                pendingTurn: state.payload.pendingTurn,
+            }));
+            return;
+        }
+
+        if (pathname === '/api/match/match-e2e-1/skill/queue' && req.method === 'POST') {
+            state.pokemonSkillQueues += 1;
+            const pendingTurn = {
+                queuedByActorSlot: {
+                    '0': {
+                        actorSlot: 0,
+                        skillIndex: 2,
+                        targetSelection: { username: 'ash', slot: 1 },
+                    },
+                },
+                queueOrder: [0],
+                unresolvedRandom: 1,
+                randomAssignments: { taijutsu: 0, ninjutsu: 0, bloodline: 0, genjutsu: 0 },
+                turnStartChoice: null,
+            };
+            state.payload = { ...state.payload, pendingTurn };
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                ok: true,
+                chakraPools: state.payload.chakraPools,
+                pendingTurn,
+                currentTurn: state.payload.currentTurn,
+                turnExpiresAt: state.payload.turnExpiresAt,
+                turnDurationMs: state.payload.turnDurationMs,
+            }));
+            return;
+        }
+
+        if (pathname === '/api/match/match-e2e-1/turn/random/adjust' && req.method === 'POST') {
+            state.pokemonRandomAdjusts += 1;
+            const pendingTurn = {
+                ...state.payload.pendingTurn,
+                unresolvedRandom: 0,
+                randomAssignments: { taijutsu: 1, ninjutsu: 0, bloodline: 0, genjutsu: 0 },
+            };
+            const chakraPools = {
+                ...state.payload.chakraPools,
+                ash: { ...state.payload.chakraPools.ash, taijutsu: 0 },
+            };
+            state.payload = { ...state.payload, pendingTurn, chakraPools };
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(JSON.stringify({
+                ok: true,
+                chakraPools,
+                pendingTurn,
+                currentTurn: state.payload.currentTurn,
+                turnExpiresAt: state.payload.turnExpiresAt,
+                turnDurationMs: state.payload.turnDurationMs,
+            }));
             return;
         }
 
@@ -397,6 +479,9 @@ test.beforeEach(async () => {
     harness.state.matchGets = 0;
     harness.state.comicMatchGets = 0;
     harness.state.turnEnds = 0;
+    harness.state.pokemonSkillTargets = 0;
+    harness.state.pokemonSkillQueues = 0;
+    harness.state.pokemonRandomAdjusts = 0;
     harness.state.comicTurnEnds = 0;
     harness.state.comicSkillTargets = 0;
     harness.state.comicSkillQueues = 0;
@@ -409,6 +494,195 @@ test.beforeEach(async () => {
 const waitForBattleIntroToFinish = async (page) => {
     await expect(page.locator('.battle-intro-overlay')).toHaveAttribute('aria-hidden', 'true');
 };
+
+test('experimental selection player card stays readable and clear of mobile controls', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${harness.baseUrl}/selection.html?layout=experimental&arena=pokemon`);
+    await expect(page.locator('body')).not.toHaveClass(/app-loading-selection/);
+
+    const cardLayout = await page.evaluate(() => {
+        const card = document.querySelector('.player-card');
+        const controls = document.querySelector('.selection-mode-controls');
+        const name = document.querySelector('.player-nameselection');
+        const value = document.querySelector('.player-stat strong');
+        const cardStyle = getComputedStyle(card);
+        return {
+            card: card.getBoundingClientRect().toJSON(),
+            controls: controls.getBoundingClientRect().toJSON(),
+            background: cardStyle.backgroundColor,
+            backgroundImage: cardStyle.backgroundImage,
+            nameColor: getComputedStyle(name).color,
+            valueColor: getComputedStyle(value).color,
+            statCount: document.querySelectorAll('.player-stat[data-player-stat]').length,
+        };
+    });
+
+    expect(cardLayout.statCount).toBe(6);
+    expect(cardLayout.card.right).toBeLessThanOrEqual(390);
+    expect(cardLayout.card.bottom).toBeLessThanOrEqual(cardLayout.controls.top);
+    expect(cardLayout.backgroundImage).not.toBe('none');
+    expect(cardLayout.nameColor).toBe('rgb(255, 255, 255)');
+    expect(cardLayout.valueColor).toBe('rgb(255, 255, 255)');
+});
+
+test('equipped selection skins use showcase renders and expose both Charizard Mega forms', async ({ page }) => {
+    await page.goto(`${harness.baseUrl}/selection.html?layout=experimental&arena=pokemon`);
+    await expect(page.locator('body')).not.toHaveClass(/app-loading-selection/);
+
+    await page.getByLabel('Select Charmander').click();
+    await expect(page.locator('#character-name')).toHaveText('Charizard');
+    await expect(page.locator('#character-portrait')).toHaveAttribute('src', /charizard\.png\.webp$/);
+
+    const megaXButton = page.locator('[data-character-form="mega-x"]');
+    const megaYButton = page.locator('[data-character-form="mega-y"]');
+    await expect(megaXButton).toBeVisible();
+    await expect(megaYButton).toBeVisible();
+
+    await megaXButton.click();
+    await expect(page.locator('#character-name')).toHaveText('Mega Charizard X');
+    await expect(page.locator('#character-portrait')).toHaveAttribute('src', /megacharizardx\.png\.webp$/);
+
+    await megaYButton.click();
+    await expect(page.locator('#character-name')).toHaveText('Mega Charizard Y');
+    await expect(page.locator('#character-portrait')).toHaveAttribute('src', /megacharizardy\.png\.webp$/);
+});
+
+test('experimental battle skin keeps the HUD framed on desktop and mobile', async ({ page }) => {
+    await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-1&arena=pokemon&layout=experimental`);
+    await expect(page.locator('html')).toHaveClass(/battle-experimental/);
+    await expect(page.locator('body')).not.toHaveClass(/app-loading-ingame/);
+
+    const desktopLayout = await page.evaluate(() => {
+        const bounds = (selector) => document.querySelector(selector)?.getBoundingClientRect().toJSON();
+        return {
+            scale: Number.parseFloat(
+                getComputedStyle(document.querySelector('.backgroundingame'))
+                    .getPropertyValue('--experimental-battle-scale')
+            ),
+            hud: bounds('.game-hud'),
+            playerTeam: bounds('.player-characters'),
+            enemyTeam: bounds('.enemy-characters'),
+            skillPanel: bounds('.skillinformation'),
+        };
+    });
+    expect(desktopLayout.scale).toBe(1);
+    expect(desktopLayout.hud.y).toBeGreaterThanOrEqual(0);
+    expect(desktopLayout.skillPanel.y + desktopLayout.skillPanel.height).toBeLessThanOrEqual(900);
+    expect(desktopLayout.playerTeam.x).toBeLessThan(desktopLayout.enemyTeam.x);
+
+    const desktopOverlap = await page.evaluate(() => {
+        const panel = document.querySelector('.skillinformation').getBoundingClientRect();
+        const playerSkills = Array.from(
+            document.querySelectorAll('.player-characters .skillscrollingame')
+        ).map((element) => element.getBoundingClientRect());
+        const enemyCards = Array.from(
+            document.querySelectorAll('.enemy-characters .character-card')
+        ).map((element) => element.getBoundingClientRect());
+        return {
+            latestPlayerSkillBottom: Math.max(...playerSkills.map((rect) => rect.bottom)),
+            latestEnemyCardBottom: Math.max(...enemyCards.map((rect) => rect.bottom)),
+            panelTop: panel.top,
+        };
+    });
+    expect(desktopOverlap.latestPlayerSkillBottom).toBeLessThan(desktopOverlap.panelTop);
+    expect(desktopOverlap.latestEnemyCardBottom).toBeLessThan(desktopOverlap.panelTop);
+
+    await page.locator('.player-avatar-left').click();
+    await expect(page.locator('.skillinformation')).toHaveClass(/profile-information/);
+    await expect(page.locator('.ingameskillname')).toHaveText('ash', { ignoreCase: true });
+    await expect(page.locator('.ingameskilldescription')).toContainText('2,450 XP · Lv 8');
+    await expect(page.locator('.ingameskilldescription')).toContainText('INDIGO');
+
+    await page.locator('.player-avatar-right').click();
+    await expect(page.locator('.ingameskillname')).toHaveText('Gary');
+    await expect(page.locator('.ingameskilldescription')).toContainText('21');
+    await expect(page.locator('.ingameskilldescription')).toContainText('ROCKET');
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.reload();
+    await expect(page.locator('body')).not.toHaveClass(/app-loading-ingame/);
+    const mobileBounds = await page.locator('.backgroundingame').boundingBox();
+    expect(mobileBounds.x).toBeGreaterThanOrEqual(0);
+    expect(mobileBounds.y).toBeGreaterThanOrEqual(0);
+    expect(mobileBounds.x + mobileBounds.width).toBeLessThanOrEqual(390);
+    expect(mobileBounds.y + mobileBounds.height).toBeLessThanOrEqual(844);
+
+    await page.setViewportSize({ width: 844, height: 390 });
+    await page.reload();
+    await expect(page.locator('body')).not.toHaveClass(/app-loading-ingame/);
+    const landscapeBounds = await page.locator('.backgroundingame').boundingBox();
+    expect(landscapeBounds.x).toBeGreaterThanOrEqual(0);
+    expect(landscapeBounds.y).toBeGreaterThanOrEqual(0);
+    expect(landscapeBounds.x + landscapeBounds.width).toBeLessThanOrEqual(844);
+    expect(landscapeBounds.y + landscapeBounds.height).toBeLessThanOrEqual(390);
+});
+
+test('battle UI toggle preserves the live match while switching classic and experimental layouts', async ({ page }) => {
+    await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-1&arena=pokemon&layout=experimental`);
+    await expect(page.locator('html')).toHaveClass(/battle-experimental/);
+    await expect(page.locator('.ingame-layout-toggle')).toHaveText('Classic UI');
+
+    await page.locator('.ingame-layout-toggle').click();
+    await expect(page).toHaveURL(/matchId=match-e2e-1/);
+    await expect(page).toHaveURL(/arena=pokemon/);
+    await expect(page).not.toHaveURL(/layout=experimental/);
+    await expect(page.locator('html')).not.toHaveClass(/battle-experimental/);
+    await expect(page.locator('.ingame-layout-toggle')).toHaveText('New UI');
+
+    await page.locator('.ingame-layout-toggle').click();
+    await expect(page).toHaveURL(/layout=experimental/);
+    await expect(page.locator('html')).toHaveClass(/battle-experimental/);
+});
+
+test('mobile experimental battle keeps skills tappable through queue, chakra selection, and turn end', async ({ page }) => {
+    const clefairyIndex = characters.findIndex((entry) => entry.id === 'clefairy');
+    harness.state.payload.player.team[1] = 'clefairy';
+    harness.state.payload.board.ash[1] = {
+        slot: 1,
+        rosterIndex: clefairyIndex,
+        alive: true,
+        hp: 100,
+        state: { statuses: [], cooldowns: {}, skillUses: {} },
+    };
+
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-1&arena=pokemon&layout=experimental`);
+    await expect(page.locator('body')).not.toHaveClass(/app-loading-ingame/);
+    await waitForBattleIntroToFinish(page);
+
+    const skillHitTargets = await page.evaluate(() =>
+        Array.from(document.querySelectorAll('.player-characters .skillimage'))
+            .filter((skill) => {
+                const rect = skill.getBoundingClientRect();
+                return rect.width > 0 && rect.height > 0 && getComputedStyle(skill).visibility !== 'hidden';
+            })
+            .map((skill) => {
+                const rect = skill.getBoundingClientRect();
+                const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+                return hit === skill || skill.contains(hit) || hit?.closest('.skillimage') === skill;
+            })
+    );
+    expect(skillHitTargets.length).toBeGreaterThanOrEqual(12);
+    expect(skillHitTargets.every(Boolean)).toBe(true);
+
+    const trainerCard = page.locator('.player-characters .character-card').first();
+    await trainerCard.locator('.skillimage').nth(2).click({ force: true });
+    await expect.poll(() => harness.state.pokemonSkillTargets).toBe(1);
+    await page.locator('.player-characters .character-card').nth(1).click({ force: true });
+    await expect.poll(() => harness.state.pokemonSkillQueues).toBe(1);
+
+    await page.locator('.ready-section').click({ force: true });
+    await expect(page.locator('.ChakraChooseEndTurn')).toBeVisible();
+    await expect(page.locator('.ChakraChooseEndTurn .chakrachoose')).toContainText('1');
+    await page.locator('.ChakraChooseEndTurn .chakra-column .chakra-row').first().locator('.plus-button').click();
+    await expect.poll(() => harness.state.pokemonRandomAdjusts).toBe(1);
+    await expect(page.locator('.ChakraChooseEndTurn .chakrachoose')).toContainText('0');
+
+    await page.locator('.ok-buttonendturn').click();
+    await expect.poll(() => harness.state.turnEnds).toBe(1);
+    await expect(page.locator('.ready-text')).toHaveText("OPPONENT'S TURN...");
+    await expect(page.locator('.match-issue-banner')).toBeHidden();
+});
 
 test('pokemon battle intro uses the current match background', async ({ page }) => {
     await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-1&arena=pokemon`, {
@@ -447,6 +721,38 @@ test('ingame resumes fullscreen intent and centers the game stage', async ({ pag
     });
     expect(Math.abs(placement.centerX - placement.viewportCenterX)).toBeLessThan(2);
     expect(Math.abs(placement.centerY - placement.viewportCenterY)).toBeLessThan(2);
+});
+
+test('periodic status icons show live damage tooltips in fullscreen', async ({ page }) => {
+    harness.state.payload.board.gary[0].state.statuses = [
+        {
+            id: 'beedrill_poison_sting',
+            remainingTurns: 99,
+            sourceSkillId: 'beedrill-poison-sting',
+            metadata: {
+                harmful: true,
+                turnStartDamage: 15,
+                afflictionDamage: true,
+                poisonStingStacks: 3,
+            },
+        },
+    ];
+    await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-1&arena=pokemon`);
+    await waitForBattleIntroToFinish(page);
+
+    const statusIcon = page
+        .locator('.enemy-characters .character-card')
+        .first()
+        .locator('.skilltooltips .skilltooltipimage')
+        .first();
+    await expect(statusIcon).toBeVisible();
+    await page.locator('.ingame-fullscreen-toggle').click();
+    await expect.poll(() => page.evaluate(() => Boolean(document.fullscreenElement))).toBe(true);
+
+    await statusIcon.hover();
+    const tooltip = page.locator('.backgroundingame > .global-status-tooltip');
+    await expect(tooltip).toBeVisible();
+    await expect(tooltip).toContainText('This character takes 15 affliction damage each turn.');
 });
 
 test('pokemon ingame stays in pokemon arena after turn confirm and refresh', async ({ page }) => {
@@ -492,7 +798,7 @@ test('comic ingame renders passive status icons and queues skill clicks', async 
 
     await expect(page.locator('body')).toHaveClass(/arena-mode-comic/);
     const passiveIcon = page.locator('.player-characters .character-card').nth(1).locator('.skilltooltips .skilltooltipimage').first();
-    await expect(passiveIcon).toHaveAttribute('src', /ImdCo6q/);
+    await expect(passiveIcon).toHaveAttribute('src', spiderSensesIconUrl);
     await waitForBattleIntroToFinish(page);
 
     await page.locator('.player-characters .character-card').first().locator('.skillimage').first().click({ force: true });
