@@ -487,6 +487,30 @@ body.skill-effects-muted .storm-hail-weather::before {
     width: 164px;
 }
 
+.ingame-layout-toggle {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    z-index: 7100;
+    min-width: 74px;
+    min-height: 28px;
+    padding: 4px 8px;
+    border: 1px solid #111;
+    background: #f8f3e4;
+    color: #111;
+    font: 700 10px 'Libre Franklin', Arial, sans-serif;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.ingame-layout-toggle:hover,
+.ingame-layout-toggle:focus-visible {
+    background: #111;
+    color: #f7de9d;
+    outline: 2px solid #f7de9d;
+    outline-offset: 1px;
+}
+
 .ingame-sound-volume {
     order: -1;
     flex: 0 0 100%;
