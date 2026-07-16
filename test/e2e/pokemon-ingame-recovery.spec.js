@@ -625,13 +625,20 @@ test('battle UI toggle preserves the live match while switching classic and expe
     await page.locator('.ingame-layout-toggle').click();
     await expect(page).toHaveURL(/matchId=match-e2e-1/);
     await expect(page).toHaveURL(/arena=pokemon/);
-    await expect(page).not.toHaveURL(/layout=experimental/);
+    await expect(page).toHaveURL(/layout=classic/);
     await expect(page.locator('html')).not.toHaveClass(/battle-experimental/);
     await expect(page.locator('.ingame-layout-toggle')).toHaveText('New UI');
 
     await page.locator('.ingame-layout-toggle').click();
     await expect(page).toHaveURL(/layout=experimental/);
     await expect(page.locator('html')).toHaveClass(/battle-experimental/);
+});
+
+test('battle URLs without a layout start in the new UI', async ({ page }) => {
+    await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-1&arena=pokemon`);
+    await expect(page.locator('html')).toHaveClass(/battle-experimental/);
+    await expect(page.locator('.ingame-layout-toggle')).toBeVisible();
+    await expect(page.locator('.ingame-layout-toggle')).toHaveText('Classic UI');
 });
 
 test('mobile experimental battle keeps skills tappable through queue, chakra selection, and turn end', async ({ page }) => {
@@ -776,7 +783,7 @@ test('pokemon ingame stays in pokemon arena after turn confirm and refresh', asy
   });
 
 test('comic ingame ends turn without reloading the match page', async ({ page }) => {
-    await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-comic-1&arena=comic`);
+    await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-comic-1&arena=comic&layout=classic`);
 
     await expect(page.locator('body')).toHaveClass(/arena-mode-comic/);
     await expect(page.locator('.player-name.red').first()).toHaveText(/ash/i);
@@ -794,7 +801,7 @@ test('comic ingame ends turn without reloading the match page', async ({ page })
 });
 
 test('comic ingame renders passive status icons and queues skill clicks', async ({ page }) => {
-    await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-comic-1&arena=comic`);
+    await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-comic-1&arena=comic&layout=classic`);
 
     await expect(page.locator('body')).toHaveClass(/arena-mode-comic/);
     const passiveIcon = page.locator('.player-characters .character-card').nth(1).locator('.skilltooltips .skilltooltipimage').first();
@@ -811,7 +818,7 @@ test('comic ingame renders passive status icons and queues skill clicks', async 
 
 test('comic stale not-your-turn end response is treated as already advanced', async ({ page }) => {
     harness.state.useComicStaleNotYourTurnOnEnd = true;
-    await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-comic-1&arena=comic`);
+    await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-comic-1&arena=comic&layout=classic`);
 
     await expect(page.locator('body')).toHaveClass(/arena-mode-comic/);
     await waitForBattleIntroToFinish(page);
