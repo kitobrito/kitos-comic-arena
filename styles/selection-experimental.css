@@ -1,7 +1,7 @@
 /*
  * Experimental full-screen character select.
- * Enabled only with selection.html?layout=experimental so the original scroll
- * layout and the user's existing overrides remain untouched.
+ * Enabled by default on selection.html. Use ?layout=classic for the original
+ * scroll layout; the user's existing overrides remain untouched.
  */
 
 html.selection-experimental,

@@ -12,6 +12,11 @@ const experimentalStyles = fs.readFileSync(
 );
 const server = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
 
+test('selection starts in the new UI unless classic is explicitly requested', () => {
+    assert.match(html, /get\('layout'\) !== 'classic'/);
+    assert.match(html, /class="experimental-classic-link" href="selection\.html\?layout=classic"/);
+});
+
 test('experimental selection exposes a three-section store in the roster area', () => {
     assert.match(html, /class="experimental-store-toggle"[^>]*>Store</);
     assert.match(html, /class="experimental-missions-toggle"[^>]*>Missions</);
@@ -51,9 +56,10 @@ test('character store lists the active roster and reuses the existing purchase e
     assert.match(script, /\/api\/skins\/unlock/);
 });
 
-test('point checkout returns customers to the experimental store layout', () => {
-    assert.match(script, /layout: document\.documentElement\.classList\.contains\('selection-experimental'\)/);
-    assert.match(server, /req\.body\?\.layout === 'experimental' \? '&layout=experimental' : ''/);
+test('point checkout preserves the selected interface layout', () => {
+    assert.match(script, /pageSearchParams\.get\('layout'\) === 'classic'/);
+    assert.match(script, /document\.documentElement\.classList\.contains\('selection-experimental'\)/);
+    assert.match(server, /\['classic', 'experimental'\]\.includes\(req\.body\?\.layout\)/);
 });
 
 test('store category filtering keeps characters, point packages, and skins separate', () => {

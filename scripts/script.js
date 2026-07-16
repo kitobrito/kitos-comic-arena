@@ -882,7 +882,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             }));
             const selectionReturnArena = pageSearchParams.get('arena') || activeArenaMode || 'comic';
             const selectionReturnLayout = pageSearchParams.get('layout');
-            const layoutQuery = selectionReturnLayout === 'experimental' ? '&layout=experimental' : '';
+            const layoutQuery = ['classic', 'experimental'].includes(selectionReturnLayout)
+                ? `&layout=${encodeURIComponent(selectionReturnLayout)}`
+                : '';
             window.location.href = `selection.html?arena=${encodeURIComponent(selectionReturnArena)}${layoutQuery}`;
         } catch (error) {
             console.error('Login failed:', error);
@@ -1264,7 +1266,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         experimentalClassicLink?.addEventListener('click', () => {
             const arena = document.body.classList.contains('arena-mode-pokemon') ? 'pokemon' : 'comic';
-            experimentalClassicLink.href = `selection.html?arena=${encodeURIComponent(arena)}`;
+            experimentalClassicLink.href = `selection.html?arena=${encodeURIComponent(arena)}&layout=classic`;
         });
     }
 
@@ -1609,8 +1611,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (clearUser) {
             clearCachedUser();
         }
-        const layoutQuery = new URLSearchParams(window.location.search).get('layout') === 'experimental'
-            ? '&layout=experimental'
+        const requestedLayout = new URLSearchParams(window.location.search).get('layout');
+        const layoutQuery = ['classic', 'experimental'].includes(requestedLayout)
+            ? `&layout=${encodeURIComponent(requestedLayout)}`
             : '';
         const targetUrl = `selection.html?arena=${encodeURIComponent(getLoginRedirectArena(arenaOverride))}${layoutQuery}`;
         if (replace) {
@@ -1630,8 +1633,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (clearUser) {
             clearCachedUser();
         }
-        const layoutQuery = new URLSearchParams(window.location.search).get('layout') === 'experimental'
-            ? '&layout=experimental'
+        const requestedLayout = new URLSearchParams(window.location.search).get('layout');
+        const layoutQuery = ['classic', 'experimental'].includes(requestedLayout)
+            ? `&layout=${encodeURIComponent(requestedLayout)}`
             : '';
         const targetUrl = `selection-login.html?arena=${encodeURIComponent(
             getLoginRedirectArena(arenaOverride)
@@ -2339,8 +2343,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const getAutoRecoveryKey = (matchId) =>
         `${MATCH_AUTO_RECOVERY_PREFIX}${typeof matchId === 'string' ? matchId.trim() : ''}`;
     const buildIngameMatchUrl = (matchId, arena) => {
-        const layoutQuery = pageSearchParams.get('layout') === 'experimental'
-            ? '&layout=experimental'
+        const requestedLayout = pageSearchParams.get('layout');
+        const layoutQuery = ['classic', 'experimental'].includes(requestedLayout)
+            ? `&layout=${encodeURIComponent(requestedLayout)}`
             : '';
         return `ingame.html?matchId=${encodeURIComponent(matchId)}&arena=${encodeURIComponent(arena)}${layoutQuery}`;
     };
@@ -13890,9 +13895,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 body: JSON.stringify({
                     arena: activeArenaMode,
                     packageId: normalizedPackageId,
-                    layout: document.documentElement.classList.contains('selection-experimental')
-                        ? 'experimental'
-                        : '',
+                    layout: pageSearchParams.get('layout') === 'classic'
+                        ? 'classic'
+                        : document.documentElement.classList.contains('selection-experimental')
+                            ? 'experimental'
+                            : '',
                 }),
             });
             const payload = await response.json().catch(() => ({}));
