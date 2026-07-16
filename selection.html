@@ -12,7 +12,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comic-Arena Selection</title>
     <script>
-        if (new URLSearchParams(window.location.search).get('layout') === 'experimental') {
+        try {
+            if (new URLSearchParams(window.location.search).get('layout') !== 'classic') {
+                document.documentElement.classList.add('selection-experimental');
+            }
+        } catch (error) {
             document.documentElement.classList.add('selection-experimental');
         }
     </script>
@@ -20,7 +24,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&family=Petra&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/style.css?v=selection-skill-scroll-v15">
-    <link rel="stylesheet" href="styles/selection-experimental.css?v=experimental-ui-release-v1">
+    <link rel="stylesheet" href="styles/selection-experimental.css?v=new-ui-default-v1">
 </head>
 <body class="app-loading app-loading-selection">
 <!-- Google Tag Manager (noscript) -->
@@ -41,7 +45,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <button type="button" class="experimental-store-toggle" aria-expanded="false" aria-controls="selection-store">Store</button>
             <button type="button" class="experimental-missions-toggle" aria-expanded="false" aria-controls="selection-store">Missions</button>
             <button type="button" class="experimental-controls-toggle" aria-expanded="false" aria-controls="selection-roster-filters">Filters &amp; Options</button>
-            <a class="experimental-classic-link" href="selection.html">Classic UI</a>
+            <a class="experimental-classic-link" href="selection.html?layout=classic">Classic UI</a>
         </div>
 
         <div class="searching-backdrop hidden">
@@ -254,7 +258,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </div>
 <script src="characters.js?v=pokemon-balance-v3"></script>
 <script src="pokemon-wave-2-live.js?v=pokemon-balance-v3"></script>
-<script src="scripts/script.js?v=experimental-ui-release-v1"></script>
+<script src="scripts/script.js?v=new-ui-default-v1"></script>
   <script src="./scripts/arena-navigation.js?v=pokemon-sidebar-v4" defer></script>
 </body>
 </html>

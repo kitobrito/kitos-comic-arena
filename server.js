@@ -13734,7 +13734,10 @@ app.post('/api/unlock-points/paypal/create-order', requireSession, async (req, r
             return res.status(500).json({ error: 'Unable to resolve the public app URL.' });
         }
         const username = req.authUser.username;
-        const layoutQuery = req.body?.layout === 'experimental' ? '&layout=experimental' : '';
+        const requestedLayout = ['classic', 'experimental'].includes(req.body?.layout)
+            ? req.body.layout
+            : '';
+        const layoutQuery = requestedLayout ? `&layout=${encodeURIComponent(requestedLayout)}` : '';
         const returnUrl = `${baseUrl}/selection.html?arena=${encodeURIComponent(arena)}${layoutQuery}&unlockPointsPayment=paypal`;
         const cancelUrl = `${baseUrl}/selection.html?arena=${encodeURIComponent(arena)}${layoutQuery}&unlockPointsPayment=paypal-cancelled`;
         const headers = await buildPayPalOrderHeaders();

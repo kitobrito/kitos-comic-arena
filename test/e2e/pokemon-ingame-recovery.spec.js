@@ -641,6 +641,17 @@ test('battle URLs without a layout start in the new UI', async ({ page }) => {
     await expect(page.locator('.ingame-layout-toggle')).toHaveText('Classic UI');
 });
 
+test('selection URLs without a layout start in the new UI and can opt into classic', async ({ page }) => {
+    await page.goto(`${harness.baseUrl}/selection.html?arena=pokemon`);
+    await expect(page.locator('html')).toHaveClass(/selection-experimental/);
+    await expect(page.locator('.experimental-classic-link')).toBeVisible();
+
+    await page.locator('.experimental-classic-link').click();
+    await expect(page).toHaveURL(/arena=pokemon/);
+    await expect(page).toHaveURL(/layout=classic/);
+    await expect(page.locator('html')).not.toHaveClass(/selection-experimental/);
+});
+
 test('mobile experimental battle keeps skills tappable through queue, chakra selection, and turn end', async ({ page }) => {
     const clefairyIndex = characters.findIndex((entry) => entry.id === 'clefairy');
     harness.state.payload.player.team[1] = 'clefairy';
