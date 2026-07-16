@@ -2357,7 +2357,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             ingameLayoutToggle.addEventListener('click', () => {
                 const nextUrl = new URL(window.location.href);
                 if (isExperimentalBattle) {
-                    nextUrl.searchParams.delete('layout');
+                    nextUrl.searchParams.set('layout', 'classic');
                 } else {
                     nextUrl.searchParams.set('layout', 'experimental');
                 }

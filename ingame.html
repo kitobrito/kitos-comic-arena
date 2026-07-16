@@ -13,18 +13,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <title>Comic-Arena Game</title>
     <script>
         try {
-            if (new URLSearchParams(window.location.search).get('layout') === 'experimental') {
+            // The new battle interface is the default. Players only enter the
+            // classic layout after deliberately selecting it in battle.
+            if (new URLSearchParams(window.location.search).get('layout') !== 'classic') {
                 document.documentElement.classList.add('battle-experimental');
             }
         } catch (error) {
-            // Keep the classic battle layout if the URL cannot be read.
+            document.documentElement.classList.add('battle-experimental');
         }
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&family=Petra&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles/style.css?v=experimental-ui-release-v1">
-    <link rel="stylesheet" href="styles/ingame-experimental.css?v=experimental-ui-release-v1">
+    <link rel="stylesheet" href="styles/style.css?v=experimental-ui-default-v1">
+    <link rel="stylesheet" href="styles/ingame-experimental.css?v=experimental-ui-default-v1">
 </head>
 <body class="app-loading app-loading-ingame ui-stable-ingame">
 <!-- Google Tag Manager (noscript) -->
@@ -505,7 +507,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </div>
 <script src="characters.js?v=pokemon-balance-v3"></script>
 <script src="pokemon-wave-2-live.js?v=pokemon-balance-v3"></script>
-<script src="scripts/script.js?v=experimental-ui-release-v1"></script>
+<script src="scripts/script.js?v=experimental-ui-default-v1"></script>
   <script src="./scripts/arena-navigation.js?v=hide-switch-ingame-v1" defer></script>
 </body>
 </html>
