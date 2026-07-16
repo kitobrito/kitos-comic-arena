@@ -11,10 +11,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Comic-Arena Game</title>
+    <script>
+        try {
+            if (new URLSearchParams(window.location.search).get('layout') === 'experimental') {
+                document.documentElement.classList.add('battle-experimental');
+            }
+        } catch (error) {
+            // Keep the classic battle layout if the URL cannot be read.
+        }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&family=Petra&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/style.css?v=evolution-aura-health-fix-v1">
+    <link rel="stylesheet" href="styles/ingame-experimental.css?v=experimental-ui-release-v1">
 </head>
 <body class="app-loading app-loading-ingame ui-stable-ingame">
 <!-- Google Tag Manager (noscript) -->
@@ -100,6 +110,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             </div>
         </section>
     </div>
+    <button type="button" class="ingame-layout-toggle" aria-label="Switch battle interface">New UI</button>
 
     <div class="ChakraChooseEndTurn" style="background-image: url('assets/images/searchingscroll.png');">
         <p class="chakrachoose">CHOOSE <span class="chakrachoosered">0</span> RANDOM ENERGY (S)</p>
@@ -494,7 +505,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 </div>
 <script src="characters.js?v=pokemon-balance-v3"></script>
 <script src="pokemon-wave-2-live.js?v=pokemon-balance-v3"></script>
-<script src="scripts/script.js?v=pokemon-balance-v3"></script>
+<script src="scripts/script.js?v=experimental-ui-release-v1"></script>
   <script src="./scripts/arena-navigation.js?v=hide-switch-ingame-v1" defer></script>
 </body>
 </html>

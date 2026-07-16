@@ -3,13 +3,13 @@ const characters = [
         "id": "iron-man",
         "characterId": "iron-man",
         "name": "Iron Man",
-        "facePicture": "/assets/images/external-mirror/i.imgur.com/81581ac5c8c1de4cd0ea.png",
+        "facePicture": "https://i.imgur.com/rt5r1bu.png",
         "characterdeescription": "Genius inventor Tony Stark forged a suit of advanced armor to escape captivity and reinvented himself as Iron Man. Armed with cutting-edge technology, unmatched intellect, and an arsenal of powerful weapons, he fights to protect the world from threats no ordinary hero could face. Beneath the armor lies a man determined to use his brilliance to make a difference.",
         "skills": [
             {
                 "id": "iron-man-repulsor-blast",
                 "name": "Repulsor Blast",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/b45d3d7f7c13e318761c.png",
+                "skillimage": "https://i.imgur.com/3ulWurz.png",
                 "skilldescription": "Deals 15 damage to one enemy per turn for 2 turns. If Overcharge is active, this instead deals 30 energy damage and stuns the target for 1 turn.",
                 "energy": [
                     "Random"
@@ -71,7 +71,7 @@ const characters = [
             {
                 "id": "iron-man-overcharge",
                 "name": "Overcharge",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/32545b4972c580385849.png",
+                "skillimage": "https://i.imgur.com/XxNKoKu.png",
                 "skilldescription": "For 1 turn, Iron Man's Repulsor Blast and Proton Cannon is improved and gains a new effect.",
                 "energy": [
                     "Ninjutsu"
@@ -99,7 +99,7 @@ const characters = [
             {
                 "id": "iron-man-armor-upgrade",
                 "name": "Armor Upgrade",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/4dcf6deba34cea9ee108.png",
+                "skillimage": "https://i.imgur.com/cUWpevS.png",
                 "skilldescription": "Iron Man may use this skill on himself or an ally. If used on himself, Repulsor Blast becomes Proton Cannon, this skill becomes Energy Burst, and Iron Man gains 10 points of unpierceable damage reduction. If used on an ally, they gain 2 bonus non-affliction damage and 10 permanent shield. This effect stacks on allies and is permanent.",
                 "energy": [
                     "Bloodline"
@@ -156,7 +156,7 @@ const characters = [
             {
                 "id": "iron-man-iron-suit-mobility",
                 "name": "Iron Suit Mobility",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/978f0e97fe13c9516b19.png",
+                "skillimage": "https://i.imgur.com/JC495sM.png",
                 "skilldescription": "Iron Man and any ally affected by Armor Upgrade become invulnerable for 1 turn.",
                 "energy": [
                     "Random"
@@ -202,7 +202,7 @@ const characters = [
                 "actorCondition": {
                     "statusId": "iron_man_armor_upgrade_self"
                 },
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/442674affcbd913cf1bc.png",
+                "skillimage": "https://i.imgur.com/5AoKo39.png",
                 "skilldescription": "Deals 18 damage to one enemy per turn for 2 turns. If Overcharge is active, this instead deals 38 affliction damage.",
                 "energy": [
                     "Random"
@@ -256,7 +256,7 @@ const characters = [
                 "actorCondition": {
                     "statusId": "iron_man_armor_upgrade_self"
                 },
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/dc2dc3d7aa0fc09c2c2b.png",
+                "skillimage": "https://i.imgur.com/r6cDktw.png",
                 "skilldescription": "Deals 22 damage to all enemies and stuns their energy skills for 1 turn.",
                 "energy": [
                     "Ninjutsu",
@@ -302,7 +302,7 @@ const characters = [
         "id": "spider-man",
         "characterId": "spider-man",
         "name": "Spider-Man",
-        "facePicture": "/assets/images/external-mirror/i.imgur.com/03b422ad677cfe45261e.jpg",
+        "facePicture": "https://i.imgur.com/10hGC1C.jpeg",
         "startStatuses": [
             {
                 "statusId": "spider_man_spider_senses_passive",
@@ -348,7 +348,7 @@ const characters = [
             {
                 "id": "spider-man-spider-strike",
                 "name": "Spider Strike",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/9ba48c4ed7f0d956a83f.png",
+                "skillimage": "https://i.imgur.com/FKv3P8m.png",
                 "skilldescription": "Deals 20 damage to one enemy. This deals 5 additional damage to an enemy affected by 'Web Shot' or 'Web Wrap' and becomes piercing if Spider-Man is under the effects of 'Web Slinging'. Increases 'Passive: Spider Senses' by 5%.",
                 "energy": [
                     "Taijutsu"
@@ -405,7 +405,7 @@ const characters = [
             {
                 "id": "spider-man-web-shot",
                 "name": "Web Shot",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/0267ee6afc6d51c9b24a.jpg",
+                "skillimage": "https://i.imgur.com/696d5RE.jpeg",
                 "skilldescription": "Stuns one enemy’s harmful skills for 1 turn. If the target is affected by 'Web Wrap', the cost of their skills is increased by 1 random energy until they use a new skill (does not stack). Increases 'Passive: Spider Senses' by 5%.",
                 "energy": [
                     "Genjutsu"
@@ -466,7 +466,7 @@ const characters = [
             {
                 "id": "spider-man-web-wrap",
                 "name": "Web Wrap",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/fa70bfc5bf398a9847f4.jpg",
+                "skillimage": "https://i.imgur.com/zIKyZk2.jpeg",
                 "skilldescription": "Increases the cost of one enemy’s skills by 2 White Energy until they use a new skill. This does not stack and may only affect one enemy at a time (will remove itself from a previous enemy if used on a new one). Increases 'Passive: Spider Senses' by 5%.",
                 "energy": [
                     "Genjutsu",
@@ -514,7 +514,7 @@ const characters = [
             {
                 "id": "spider-man-web-slinging",
                 "name": "Web Slinging",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/0d6915a4f70d3dc1d590.jpg",
+                "skillimage": "https://i.imgur.com/jKG2vsk.jpeg",
                 "skilldescription": "Spider-Man ignores enemy stun effects and deals 5 bonus damage with 'Spider Strike' for 2 turns. Increases 'Passive: Spider Senses' by 10%.",
                 "energy": [
                     "Random"
@@ -563,7 +563,7 @@ const characters = [
             {
                 "id": "spider-man-passive-spider-senses",
                 "name": "Passive: Spider Senses",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/7d93942e20ecddadf0ae.jpg",
+                "skillimage": "https://i.imgur.com/ImdCo6q.jpeg",
                 "skilldescription": "Spider-Man has 0% Evasion (this increases by up to 75% through his other skills). When a skill misses, 'Spider Strike' and 'Web Shot' have their costs changed to 1 random energy for 1 turn.",
                 "energy": [],
                 "target": "self",
@@ -1645,13 +1645,13 @@ const characters = [
         "id": "the-flash-barry-allen",
         "characterId": "the-flash-barry-allen",
         "name": "The Flash (Barry Allen)",
-        "facePicture": "/assets/images/external-mirror/i.imgur.com/e2ae16dd021894183e60.jpg",
+        "facePicture": "https://i.imgur.com/hYpELKX.jpeg",
         "characterdeescription": "Struck by a freak accident and connected to the mysterious Speed Force, The Flash became the fastest hero alive. Capable of moving at incredible speeds, thinking in fractions of a second, and bending the laws of physics, he races to protect the innocent from threats across time and space. Despite his extraordinary power, The Flash is driven by a simple desire: to help others and never stop moving forward.",
         "skills": [
             {
                 "id": "the-flash-barry-allen-infinite-mass-punch",
                 "name": "Infinite Mass Punch",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/99fc792b2dbb4d4a9381.jpg",
+                "skillimage": "https://i.imgur.com/tZfTTzm.jpeg",
                 "skilldescription": "Deals 45 damage to one enemy.",
                 "energy": [
                     "Taijutsu",
@@ -1678,7 +1678,7 @@ const characters = [
             {
                 "id": "the-flash-barry-allen-lightning-rush",
                 "name": "Lightning Rush",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/08f1e7353744bab941ce.jpg",
+                "skillimage": "https://i.imgur.com/Pwzbd89.jpeg",
                 "skilldescription": "The Flash strikes one enemy 4 times in quick succession, dealing 5 damage each time. Each hit has a 25% chance to apply 'Shock': dealing 3 piercing damage for 4 turns. The Flash gains 'Speed Up' for 1 turn.",
                 "energy": [
                     "Bloodline"
@@ -1808,7 +1808,7 @@ const characters = [
             {
                 "id": "the-flash-barry-allen-speed-steal",
                 "name": "Speed Steal",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/960a819c65c80dd24644.jpg",
+                "skillimage": "https://i.imgur.com/XF2SCm0.jpeg",
                 "skilldescription": "For 2 turns, the enemy player only has 40 seconds to complete their turn and you are given 20 additional seconds to complete yours. The Flash gains 'Speed Up' and this swaps to 'Flashpoint Surge' while active.",
                 "energy": [
                     "Random",
@@ -1857,7 +1857,7 @@ const characters = [
             {
                 "id": "the-flash-barry-allen-phase-shift",
                 "name": "Phase Shift",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/a0ef96c89fec755f4618.jpg",
+                "skillimage": "https://i.imgur.com/3m7tgys.jpeg",
                 "skilldescription": "The Flash removes all harmful skills and gains 100% evasion for 1 turn. If The Flash is 'Speed Up', this skill's active cooldown is 1 turn less.",
                 "energy": [],
                 "target": "self",
@@ -1889,7 +1889,7 @@ const characters = [
                 "id": "the-flash-barry-allen-flashpoint-surge",
                 "name": "Flashpoint Surge",
                 "useBaseSkillCooldown": true,
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/6d975a488a774391216c.jpg",
+                "skillimage": "https://i.imgur.com/2rQgv0G.jpeg",
                 "skilldescription": "The Flash resets his team's cooldowns and heals them 25 HP.",
                 "energy": [
                     "Bloodline",
@@ -1933,7 +1933,7 @@ const characters = [
                 "cannotBeCountered": true,
                 "cannotBeReflected": true,
                 "ignoreInvulnerability": true,
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/8da3e55c03706769cfd5.png",
+                "skillimage": "https://i.imgur.com/vwUOYsd.png",
                 "skilldescription": "Deals 55 piercing damage to one enemy that cannot be countered, reflected, and ignores invulnerability.",
                 "energy": [
                     "Taijutsu",
@@ -2226,13 +2226,13 @@ const characters = [
         "id": "aquaman",
         "characterId": "aquaman",
         "name": "Aquaman",
-        "facePicture": "/assets/images/external-mirror/i.imgur.com/e36e352c71fed68e0f6e.jpg",
+        "facePicture": "https://i.imgur.com/76Svd5q.jpeg",
         "characterdeescription": "Arthur Curry rules Atlantis with a king's burden and the fury of the deep. Armed with his trident and command over ocean life, Aquaman drags enemies into tides, teeth, and pressure they cannot escape.",
         "skills": [
             {
                 "id": "aquaman-trident-strike",
                 "name": "Trident Strike",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/b319bb0c3f94f47573a7.jpg",
+                "skillimage": "https://i.imgur.com/fvvaagh.jpeg",
                 "skilldescription": "Aquaman strikes one enemy with his trident, dealing 24 damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn. If the target is affected by Tidal Wave, they are given a stack of Sea Sharks.",
                 "description": "Aquaman strikes one enemy with his trident, dealing 24 damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn. If the target is affected by Tidal Wave, they are given a stack of Sea Sharks.",
                 "descriptionHtml": "Aquaman strikes one enemy with his trident, dealing 24 damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn.<br>If the target is affected by Tidal Wave, they are given a stack of Sea Sharks.",
@@ -2299,7 +2299,7 @@ const characters = [
             {
                 "id": "aquaman-drown",
                 "name": "Drown",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/e9623c7c6d8a5b614dc4.jpg",
+                "skillimage": "https://i.imgur.com/Quiv9Wj.jpeg",
                 "skilldescription": "Aquaman forces one enemy's head underwater, removing 1 random energy from them and dealing 20 affliction damage. If they are marked by 'Trident Strike' or affected by 'Tidal Wave', they are given a stack of 'Sea Sharks'.",
                 "description": "Aquaman forces one enemy's head underwater, removing 1 random energy from them and dealing 20 affliction damage. If they are marked by 'Trident Strike' or affected by 'Tidal Wave', they are given a stack of 'Sea Sharks'.",
                 "descriptionHtml": "Aquaman forces one enemy's head underwater, removing 1 random energy from them and dealing 20 affliction damage.<br>If they are marked by 'Trident Strike' or affected by 'Tidal Wave', they are given a stack of 'Sea Sharks'.",
@@ -2382,7 +2382,7 @@ const characters = [
             {
                 "id": "aquaman-tidal-wave",
                 "name": "Tidal Wave",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/748c206db61fa67ec236.jpg",
+                "skillimage": "https://i.imgur.com/CaFUaKo.jpeg",
                 "skilldescription": "For 2 turns, the enemy team cannot reduce damage or become invulnerable, their cooldowns are increased by 1, their skills cost 1 additional random energy, and they take 15 damage each turn. If Aquaman uses Trident Strike or Drown on an enemy affected by this skill, they are given a stack of Sea Sharks.",
                 "description": "For 2 turns, the enemy team cannot reduce damage or become invulnerable, their cooldowns are increased by 1, their skills cost 1 additional random energy, and they take 15 damage each turn. If Aquaman uses Trident Strike or Drown on an enemy affected by this skill, they are given a stack of Sea Sharks.",
                 "descriptionHtml": "For 2 turns, the enemy team cannot reduce damage or become invulnerable, their cooldowns are increased by 1, their skills cost 1 additional random energy, and they take 15 damage each turn.<br>If Aquaman uses Trident Strike or Drown on an enemy affected by this skill, they are given a stack of Sea Sharks.",
@@ -2433,7 +2433,7 @@ const characters = [
             {
                 "id": "aquaman-water-jet",
                 "name": "Water Jet",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/aac249f24ead37d69026.jpg",
+                "skillimage": "https://i.imgur.com/0NmOe89.jpeg",
                 "skilldescription": "This skill makes Aquaman invulnerable for 1 turn and grants all enemies a stack of 'Sea Sharks'.",
                 "energy": [
                     "Random"
@@ -2482,7 +2482,7 @@ const characters = [
                 "id": "aquaman-sea-sharks",
                 "name": "Sea Sharks",
                 "hiddenFromSelectionViewer": true,
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/36647684eb29f77f7def.jpg",
+                "skillimage": "https://i.imgur.com/38s3F0Z.jpeg",
                 "skilldescription": "Deals 3 piercing damage each turn for 4 turns (stacks).",
                 "energy": [],
                 "target": "",
@@ -3083,13 +3083,13 @@ const characters = [
         "id": "the-joker",
         "characterId": "the-joker",
         "name": "The Joker",
-        "facePicture": "/assets/images/external-mirror/i.imgur.com/9ded7a58361f7b55bddf.png",
+        "facePicture": "https://i.imgur.com/kbaUc1f.png",
         "characterdeescription": "The Joker turns Gotham's worst joke into a weapon no one can predict. With toxins, traps, bombs, and theatrical cruelty, he makes every enemy decision feel like part of a punchline only he understands.",
         "skills": [
             {
                 "id": "the-joker-hand-buzzer",
                 "name": "Hand Buzzer",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/4399ad121fe02c1bd066.png",
+                "skillimage": "https://i.imgur.com/t0AM8jf.png",
                 "skilldescription": "Deals 10 piercing damage to one enemy and stuns their harmful skills for 1 turn. Swaps to 'Acid Flower'.",
                 "energy": [
                     "Random"
@@ -3139,7 +3139,7 @@ const characters = [
             {
                 "id": "the-joker-crowbar",
                 "name": "Crowbar",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/4de98687f38474e02c67.png",
+                "skillimage": "https://i.imgur.com/EloJhie.png",
                 "skilldescription": "For 2 turns, destroy one enemy's shield each turn and deal 20 damage to them each turn.",
                 "energy": [
                     "Random",
@@ -3173,7 +3173,7 @@ const characters = [
             {
                 "id": "the-joker-joker-venom",
                 "name": "Joker Venom",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/9faca482228da398d5c5.png",
+                "skillimage": "https://i.imgur.com/MZgtCyw.png",
                 "skilldescription": "For 3 turns, one enemy has their maximum damage output capped to 15 and is dealt 15 affliction damage each turn.",
                 "energy": [
                     "Taijutsu",
@@ -3211,7 +3211,7 @@ const characters = [
             {
                 "id": "the-joker-bang",
                 "name": "BANG!",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/aa668c59e6d86ec75a43.png",
+                "skillimage": "https://i.imgur.com/O3C7ZSC.png",
                 "skilldescription": "This skill makes The Joker invulnerable for 1 turn. When this ends, one enemy is dealt 15 piercing damage.",
                 "energy": [
                     "Random"
@@ -3256,7 +3256,7 @@ const characters = [
                 "id": "the-joker-acid-flower",
                 "name": "Acid Flower",
                 "useBaseSkillCooldown": true,
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/05320b7610ea78989b7a.png",
+                "skillimage": "https://i.imgur.com/GIOcMgw.png",
                 "skilldescription": "Deals 8 affliction damage to one enemy permanently. For 1 turn, the target has their helpful skills stunned. Swaps to 'Chattering Teeth'.",
                 "energy": [
                     "Genjutsu"
@@ -3319,7 +3319,7 @@ const characters = [
                 "id": "the-joker-chattering-teeth",
                 "name": "Chattering Teeth",
                 "useBaseSkillCooldown": true,
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/1defce3f4cec7edb2e2c.png",
+                "skillimage": "https://i.imgur.com/vh7qbuR.png",
                 "skilldescription": "Marks the enemy team for 1 turn. If a marked enemy uses a new harmful skill, they take 5 damage and are silenced for 1 turn. Swaps to 'Remote Bomb'.",
                 "energy": [
                     "Random"
@@ -3376,7 +3376,7 @@ const characters = [
                 "id": "the-joker-remote-bomb",
                 "name": "Remote Bomb",
                 "useBaseSkillCooldown": true,
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/ae3de3e500f8a2bada10.png",
+                "skillimage": "https://i.imgur.com/gA4KqdI.png",
                 "skilldescription": "Marks one enemy for 1 turn. When this ends, they are dealt 20 affliction damage and have their active harmful skills cancelled. Swaps to 'Hand Buzzer'.",
                 "energy": [
                     "Random"
@@ -4846,13 +4846,13 @@ const characters = [
         "id": "walker",
         "characterId": "walker",
         "name": "Walker",
-        "facePicture": "/assets/images/external-mirror/i.imgur.com/0cdc4224ae7ef7a8d977.jpg",
+        "facePicture": "https://i.imgur.com/wTmLyGl.jpeg",
         "characterdeescription": "Once ordinary people, Walkers are the relentless undead remnants of a fallen world. Driven only by instinct and an endless hunger, they roam in massive hordes, overwhelming the living through sheer numbers. Slow alone but deadly in groups, they serve as a constant reminder that humanity's greatest enemy may be the apocalypse itself.",
         "skills": [
             {
                 "id": "walker-infected-horde",
                 "name": "Infected Horde",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/cf6bf456e352c461b5fc.png",
+                "skillimage": "https://i.imgur.com/e4sEkft.png",
                 "skilldescription": "For the rest of the game, Walker and his team gain 10 damage reduction and the enemy team takes 10 damage at the end of Walker's turns. Walker's next skill will become AOE. This effect stacks up to 3 times and ends when Walker dies.",
                 "energy": [
                     "Random",
@@ -4929,7 +4929,7 @@ const characters = [
             {
                 "id": "walker-surprise-chomp",
                 "name": "Surprise Chomp",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/9e4bcd381538e59036f6.png",
+                "skillimage": "https://i.imgur.com/WajPlhY.png",
                 "skilldescription": "Walker steals 15 HP from one enemy and grants them Infected Bite.",
                 "energy": [
                     "Bloodline"
@@ -4966,7 +4966,7 @@ const characters = [
                             "triggerOnApply": true,
                             "transformationChance": 0.01,
                             "transformationCharacterId": "walker",
-                            "transformationFacePicture": "/assets/images/external-mirror/i.imgur.com/0cdc4224ae7ef7a8d977.jpg",
+                            "transformationFacePicture": "https://i.imgur.com/wTmLyGl.jpeg",
                             "mergeNumericAddKeys": [
                                 "turnEndDamage"
                             ],
@@ -4987,7 +4987,7 @@ const characters = [
             {
                 "id": "walker-overpower",
                 "name": "Overpower",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/bd79c47bf018237ee43b.png",
+                "skillimage": "https://i.imgur.com/g0Tie8I.png",
                 "skilldescription": "Walker stuns one enemy's non-mental skills for 1 turn. The following turn, Surprise Chomp deals 10 additional damage to this target.",
                 "energy": [
                     "Random",
@@ -5036,7 +5036,7 @@ const characters = [
             {
                 "id": "walker-group-banquet",
                 "name": "Group Banquet",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/1aaa97e63747105147c3.png",
+                "skillimage": "https://i.imgur.com/J1mBmGk.png",
                 "skilldescription": "Walker heals 15 HP at the end of each of his turns for 2 turns.",
                 "energy": [
                     "Random",
@@ -5068,7 +5068,7 @@ const characters = [
             {
                 "id": "walker-passive-infected-bite",
                 "name": "Passive: Infected Bite",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/f6ccdd5d5af61a25dc05.png",
+                "skillimage": "https://i.imgur.com/zeUfS91.png",
                 "skilldescription": "This character takes 2 affliction damage every turn, receives 25% less healing or 50% less healing at 40 HP or below, and Walker's Surprise Chomp steals 5 additional HP from them. This effects damage stacks. Each turn there is a 1% chance this character turns into a Walker.",
                 "energy": [],
                 "target": "",
@@ -5085,7 +5085,7 @@ const characters = [
                 "name": "Overpower",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/bd79c47bf018237ee43b.png",
+                "skillimage": "https://i.imgur.com/g0Tie8I.png",
                 "skilldescription": "Walker stuns all enemies' non-mental skills for 1 turn. The following turn, Surprise Chomp deals 10 additional damage to one enemy.",
                 "energy": [
                     "Random",
@@ -5137,7 +5137,7 @@ const characters = [
                 "name": "Surprise Chomp",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/9e4bcd381538e59036f6.png",
+                "skillimage": "https://i.imgur.com/WajPlhY.png",
                 "skilldescription": "Walker steals 15 HP from all enemies and grants Infected Bite to one enemy.",
                 "energy": [
                     "Random"
@@ -5177,7 +5177,7 @@ const characters = [
                             "triggerOnApply": true,
                             "transformationChance": 0.01,
                             "transformationCharacterId": "walker",
-                            "transformationFacePicture": "/assets/images/external-mirror/i.imgur.com/0cdc4224ae7ef7a8d977.jpg",
+                            "transformationFacePicture": "https://i.imgur.com/wTmLyGl.jpeg",
                             "mergeNumericAddKeys": [
                                 "turnEndDamage"
                             ],
@@ -5200,7 +5200,7 @@ const characters = [
                 "name": "Group Banquet",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/1aaa97e63747105147c3.png",
+                "skillimage": "https://i.imgur.com/J1mBmGk.png",
                 "skilldescription": "Walker and his team heals 15 HP for 2 turns.",
                 "energy": [
                     "Random",
@@ -5240,13 +5240,13 @@ const characters = [
         "id": "hershel-greene",
         "characterId": "hershel-greene",
         "name": "Hershel Greene",
-        "facePicture": "/assets/images/external-mirror/i.imgur.com/0a9c36a504d933d18a86.jpg",
+        "facePicture": "https://i.imgur.com/6SJSKyY.jpeg",
         "characterdeescription": "A farmer and veterinarian from rural Georgia, Hershel Greene became a pillar of wisdom and compassion in a world overrun by the dead. Guided by faith, experience, and an unwavering belief in humanity, he offered hope when others surrendered to despair. Though not a warrior by nature, Hershel's courage, guidance, and selflessness made him one of the group's most valued survivors.",
         "skills": [
             {
                 "id": "hershel-greene-reluctant-bullet",
                 "name": "Reluctant Bullet",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/a0128cf85d40149454cc.png",
+                "skillimage": "https://i.imgur.com/N57Xbty.png",
                 "skilldescription": "Hershel deals 20 piercing damage to one enemy and reduces the healing they recieve by 50% for 1 turn.",
                 "energy": [
                     "Random"
@@ -5284,7 +5284,7 @@ const characters = [
             {
                 "id": "hershel-greene-tending-the-crops",
                 "name": "Tending the Crops",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/b24050462511b3ca6fce.png",
+                "skillimage": "https://i.imgur.com/5i9qL6M.png",
                 "skilldescription": "Hershel heals his entire team 15 HP and grants them 10 points of shield.",
                 "energy": [
                     "Taijutsu"
@@ -5320,7 +5320,7 @@ const characters = [
             {
                 "id": "hershel-greene-morphine-shot",
                 "name": "Morphine Shot",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/63d8d77e59a7f2ac7853.png",
+                "skillimage": "https://i.imgur.com/cT2uA4x.png",
                 "skilldescription": "Hershel targets himself or an ally. For 3 turns, they gain 60% unpierceable damage reduction that decays by 20% each turn. Swaps to 'Antibiotics' once used.",
                 "energy": [
                     "Genjutsu"
@@ -5379,7 +5379,7 @@ const characters = [
             {
                 "id": "hershel-greene-doctor-s-bag",
                 "name": "Doctor's Bag",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/994b1e32d0cc5b8817c6.png",
+                "skillimage": "https://i.imgur.com/neBRimV.png",
                 "skilldescription": "Hershel targets himself or an ally. For 2 turns, the next time the target dies, they will instead have their health set to 30 HP. If this triggers, for 1 turn, Doctor's Bag will be replaced by a new effect that costs 2 random energy. This skill can only be used twice per game.",
                 "description": "Hershel targets himself or an ally. For 2 turns, the next time the target dies, they will instead have their health set to 30 HP. If this triggers, for 1 turn, Doctor's Bag will be replaced by a new effect that costs 2 random energy. This skill can only be used twice per game.",
                 "descriptionHtml": "Hershel targets himself or an ally. For 2 turns, the next time the target dies, they will instead have their health set to 30 HP. If this triggers, for 1 turn, Doctor's Bag will be replaced by a new effect that costs 2 random energy. This skill can only be used twice per game.",
@@ -5420,7 +5420,7 @@ const characters = [
             {
                 "id": "hershel-greene-doctor-s-bag-transformed",
                 "name": "Doctor's Bag (Transformed)",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/994b1e32d0cc5b8817c6.png",
+                "skillimage": "https://i.imgur.com/neBRimV.png",
                 "skilldescription": "Hershel heals one member of his team 30 HP and removes all enemy skills from them. This skill does not count towards the use limit of Doctor's Bag.",
                 "description": "Hershel heals one member of his team 30 HP and removes all enemy skills from them. This skill does not count towards the use limit of Doctor's Bag.",
                 "descriptionHtml": "Hershel heals one member of his team 30 HP and removes all enemy skills from them. This skill does not count towards the use limit of Doctor's Bag.",
@@ -5451,7 +5451,7 @@ const characters = [
             {
                 "id": "hershel-greene-antibiotics",
                 "name": "Antibiotics",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/6750f95a9300b11355c4.png",
+                "skillimage": "https://i.imgur.com/fzgNljs.png",
                 "skilldescription": "Hershel targets himself or an ally. For 3 turns, the target has all enemy affliction skills removed from them and heals 15 HP each turn. Swaps to 'Morphine Shot' once used.",
                 "energy": [
                     "Genjutsu"
@@ -6874,7 +6874,7 @@ const characters = [
             {
                 "id": "billy-butcher-crowbar-maim",
                 "name": "Blood and Bone",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/c3a54a3b20f259769aec.png",
+                "skillimage": "https://i.imgur.com/ghyZueb.png",
                 "skilldescription": "One enemy becomes unable to reduce damage or become invulnerable for 2 turns and takes 20 damage. This deals 10 additional damage during 'V24'.",
                 "energy": [
                     "Random"
@@ -6919,7 +6919,7 @@ const characters = [
             {
                 "id": "billy-butcher-v24",
                 "name": "V24",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/b505cbf9b4668877360d.png",
+                "skillimage": "https://i.imgur.com/hFsL74M.png",
                 "skilldescription": "For 2 turns, Butcher gains 50% unpierceable damage reduction and swaps this to 'Yellow Death Lasers'. Afterwards, Butcher loses 15HP, has his health capped, then 'Cancerous Tentacles' deals 10 additional damage (Stacks).",
                 "energy": [
                     "Taijutsu"
@@ -6973,7 +6973,7 @@ const characters = [
             {
                 "id": "billy-butcher-cancerous-tentacles",
                 "name": "Cancerous Tentacles",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/b8dedb80ba7b09d074c9.png",
+                "skillimage": "https://i.imgur.com/MUVL2C6.png",
                 "skilldescription": "Deals 25 piercing damage to one enemy and stuns their harmful skills for 1 turn. Butcher loses 5HP.",
                 "energy": [
                     "Bloodline",
@@ -7018,7 +7018,7 @@ const characters = [
             {
                 "id": "billy-butcher-escape",
                 "name": "Butcher Escape",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/19b15c1c5dd5eaa103a2.png",
+                "skillimage": "https://i.imgur.com/heQWQJH.png",
                 "skilldescription": "This skill makes Butcher invulnerable for 1 turn.",
                 "energy": [
                     "Random"
@@ -7046,7 +7046,7 @@ const characters = [
             {
                 "id": "billy-butcher-yellow-death-lasers",
                 "name": "Yellow Death Lasers",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/8e2024be6f11cd0582a3.jpg",
+                "skillimage": "https://i.imgur.com/1MFzKut.jpeg",
                 "skilldescription": "Butcher deals 35 affliction damage to one enemy",
                 "energy": [
                     "Random",
@@ -10030,8 +10030,8 @@ const characters = [
         "characterId": "rage-infected",
         "name": "Rage Infected",
         "nameHtml": "Rage Infected",
-        "facePicture": "/assets/images/external-mirror/i.imgur.com/7b7af7f4631f8dd09646.png",
-        "url": "/assets/images/external-mirror/i.imgur.com/7b7af7f4631f8dd09646.png",
+        "facePicture": "https://i.imgur.com/k4lrBvO_d.png?maxwidth=520&shape=thumb&fidelity=high",
+        "url": "https://i.imgur.com/k4lrBvO_d.png?maxwidth=520&shape=thumb&fidelity=high",
         "unlockRequirement": "None",
         "unlockRequirementHtml": "None",
         "characterdeescription": "The Rage Virus leaves nothing but violence in the body it claims. Rage Infected enemies lash out with blind fury, spreading panic, pain, and reckless pressure until the fight collapses into chaos.",
@@ -10042,8 +10042,8 @@ const characters = [
                 "id": "rage-infected-blood-vomit",
                 "name": "Blood Vomit",
                 "nameHtml": "Blood Vomit",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/3851d5427b3afaeeec23.png",
-                "url": "/assets/images/external-mirror/i.imgur.com/3851d5427b3afaeeec23.png",
+                "skillimage": "https://i.imgur.com/5L1V6jg_d.png?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/5L1V6jg_d.png?maxwidth=520&shape=thumb&fidelity=high",
                 "skilldescription": "For 2 turns, one enemy takes 20 bleed damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
                 "description": "For 2 turns, one enemy takes 20 bleed damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
                 "descriptionHtml": "For 2 turns, one enemy takes 20 bleed damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams.<br>Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
@@ -10088,8 +10088,8 @@ const characters = [
                 "id": "rage-infected-eye-gouge",
                 "name": "Eye Gouge",
                 "nameHtml": "Eye Gouge",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/b6d8263c384a5d72b820.jpg",
-                "url": "/assets/images/external-mirror/i.imgur.com/b6d8263c384a5d72b820.jpg",
+                "skillimage": "https://i.imgur.com/3f7cgd3_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/3f7cgd3_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
                 "skilldescription": "Deals 25 bleed damage to one enemy and 5 bleed damage the following turn. For 1 turn, they are partially-blinded, causing their new harmful skills to randomly select their target from the opposing team only. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
                 "description": "Deals 25 bleed damage to one enemy and 5 bleed damage the following turn. For 1 turn, they are partially-blinded, causing their new harmful skills to randomly select their target from the opposing team only. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
                 "descriptionHtml": "Deals 25 bleed damage to one enemy and 5 bleed damage the following turn.<br>For 1 turn, they are partially-blinded, causing their new harmful skills to randomly select their target from the opposing team only.<br>Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
@@ -10144,8 +10144,8 @@ const characters = [
                 "id": "rage-infected-murderous-rage",
                 "name": "Murderous Rage",
                 "nameHtml": "Murderous Rage",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/af0665be4f894afaebfd.jpg",
-                "url": "/assets/images/external-mirror/i.imgur.com/af0665be4f894afaebfd.jpg",
+                "skillimage": "https://i.imgur.com/39yHcrF_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/39yHcrF_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
                 "skilldescription": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP. If that enemy uses a harmful skill while this is active, the protection is refreshed for 1 turn and Rage Infected permanently gains 5 additional damage against them. This skill cannot be used while active.",
                 "description": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP. If that enemy uses a harmful skill while this is active, the protection is refreshed for 1 turn and Rage Infected permanently gains 5 additional damage against them. This skill cannot be used while active.",
                 "descriptionHtml": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP.<br>If that enemy uses a harmful skill while this is active, the protection is refreshed for 1 turn and Rage Infected permanently gains 5 additional damage against them.<br>This skill cannot be used while active.",
@@ -10223,8 +10223,8 @@ const characters = [
                 "id": "rage-infected-relentless-pursuit",
                 "name": "Relentless Pursuit",
                 "nameHtml": "Relentless Pursuit",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/6dbe45fa3f64c90d16ff.jpg",
-                "url": "/assets/images/external-mirror/i.imgur.com/6dbe45fa3f64c90d16ff.jpg",
+                "skillimage": "https://i.imgur.com/osxi6DC_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "url": "https://i.imgur.com/osxi6DC_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
                 "skilldescription": "For 4 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 5 additional non-affliction damage from enemy skills.",
                 "description": "For 4 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 5 additional non-affliction damage from enemy skills.",
                 "descriptionHtml": "For 4 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 5 additional non-affliction damage from enemy skills.",
@@ -10262,7 +10262,7 @@ const characters = [
                 "actorCondition": {
                     "missingStatusId": "rage_infected_murderous_rage_guard"
                 },
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/af0665be4f894afaebfd.jpg",
+                "skillimage": "https://i.imgur.com/39yHcrF_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
                 "skilldescription": "Murderous Rage is active.",
                 "energy": [],
                 "target": "",
@@ -10284,8 +10284,8 @@ const characters = [
         "characterId": "space-marine-infantry",
         "name": "Pvt. Saunders",
         "nameHtml": "Space Marine Infantry",
-        "facePicture": "/assets/images/external-mirror/i.imgur.com/82335f2581e714fbaafc.png",
-        "url": "/assets/images/external-mirror/i.imgur.com/82335f2581e714fbaafc.png",
+        "facePicture": "https://i.imgur.com/Ch1wobl.png",
+        "url": "https://i.imgur.com/Ch1wobl.png",
         "unlockRequirement": "None",
         "unlockRequirementHtml": "None",
         "characterdeescription": "A frontline shock trooper equipped with brutal anti-infantry weaponry and battlefield support tools, the Space Marine Infantry overwhelms enemies through sustained pressure and explosive area damage. Whether suppressing targets with disciplined rifle fire, burning entire teams with incendiary attacks, or shielding allies with emergency extraction protocols, this soldier turns every engagement into a warzone.",
@@ -10296,8 +10296,8 @@ const characters = [
                 "id": "space-marine-infantry-m41a-pulse-rifle",
                 "name": "M41A Pulse Rifle",
                 "nameHtml": "M41A Pulse Rifle",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/b3366eeb45a8218ebbb6.png",
-                "url": "/assets/images/external-mirror/i.imgur.com/b3366eeb45a8218ebbb6.png",
+                "skillimage": "https://i.imgur.com/aqlogGB.png",
+                "url": "https://i.imgur.com/aqlogGB.png",
                 "skilldescription": "Deals 15 piercing damage to one enemy each turn for 3 turns. This skill is channeled and will end if Space Marine Infantry uses a new skill. While active, Grenade Launcher costs 1 random energy less.",
                 "description": "Deals 15 piercing damage to one enemy each turn for 3 turns. This skill is channeled and will end if Space Marine Infantry uses a new skill. While active, Grenade Launcher costs 1 random energy less.",
                 "descriptionHtml": "Deals 15 piercing damage to one enemy each turn for 3 turns.<br>This skill is channeled and will end if Space Marine Infantry uses a new skill.<br>While active, Grenade Launcher costs 1 random energy less.",
@@ -10353,8 +10353,8 @@ const characters = [
                 "id": "space-marine-infantry-grenade-launcher",
                 "name": "Grenade Launcher",
                 "nameHtml": "Grenade Launcher",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/a32122eb911537b24b9f.png",
-                "url": "/assets/images/external-mirror/i.imgur.com/a32122eb911537b24b9f.png",
+                "skillimage": "https://i.imgur.com/Auz9hYU.png",
+                "url": "https://i.imgur.com/Auz9hYU.png",
                 "skilldescription": "Deals 25 affliction damage to one enemy and reduces all their damage by 15 for 1 turn.",
                 "description": "Deals 25 affliction damage to one enemy and reduces all their damage by 15 for 1 turn.",
                 "descriptionHtml": "Deals 25 affliction damage to one enemy and reduces all their damage by 15 for 1 turn.",
@@ -10398,8 +10398,8 @@ const characters = [
                 "id": "space-marine-infantry-flamethrower",
                 "name": "Flamethrower",
                 "nameHtml": "Flamethrower",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/767f4bd26cd457777a0d.png",
-                "url": "/assets/images/external-mirror/i.imgur.com/767f4bd26cd457777a0d.png",
+                "skillimage": "https://i.imgur.com/Y435B8s.png",
+                "url": "https://i.imgur.com/Y435B8s.png",
                 "skilldescription": "Deals 12 affliction damage to one enemy, 6 affliction damage to all other enemies, and reduces all their damage by 5 each turn for 3 turns. This skill is channeled and will end if Space Marine Infantry uses a new skill.",
                 "description": "Deals 12 affliction damage to one enemy, 6 affliction damage to all other enemies, and reduces all their damage by 5 each turn for 3 turns. This skill is channeled and will end if Space Marine Infantry uses a new skill.",
                 "descriptionHtml": "Deals 12 affliction damage to one enemy, 6 affliction damage to all other enemies, and reduces all their damage by 5 each turn for 3 turns.<br>This skill is channeled and will end if Space Marine Infantry uses a new skill.",
@@ -10468,8 +10468,8 @@ const characters = [
                 "id": "space-marine-infantry-drop-ship",
                 "name": "Drop Ship",
                 "nameHtml": "Drop Ship",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/7bc684e621383d932c83.png",
-                "url": "/assets/images/external-mirror/i.imgur.com/7bc684e621383d932c83.png",
+                "skillimage": "https://i.imgur.com/euIXe6O.png",
+                "url": "https://i.imgur.com/euIXe6O.png",
                 "skilldescription": "For 1 turn, your entire team becomes invulnerable.",
                 "description": "For 1 turn, your entire team becomes invulnerable.",
                 "descriptionHtml": "For 1 turn, your entire team becomes invulnerable.",
@@ -11884,8 +11884,8 @@ const characters = [
         "characterId": "saint-walker",
         "name": "Saint Walker",
         "nameHtml": "Saint Walker",
-        "facePicture": "/assets/images/external-mirror/i.imgur.com/e1625ef074e91d9786b7.jpg",
-        "url": "/assets/images/external-mirror/i.imgur.com/e1625ef074e91d9786b7.jpg",
+        "facePicture": "https://i.imgur.com/unzClm5.jpeg",
+        "url": "https://i.imgur.com/unzClm5.jpeg",
         "unlockRequirement": "None",
         "unlockRequirementHtml": "None",
         "characterdeescription": "Chosen by the Blue Light of Hope, Saint Walker serves as one of the universe's greatest symbols of optimism. As a member of the Blue Lantern Corps, he inspires allies to persevere against impossible odds and strengthens those who fight for a better future. Wielding the power of hope itself, Saint Walker proves that even in the darkest moments, a brighter tomorrow is always within reach.",
@@ -11948,8 +11948,8 @@ const characters = [
                 "id": "saint-walker-fist-of-hope",
                 "name": "Fist of Hope",
                 "nameHtml": "Fist of Hope",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/a77149f03225809834a6.png",
-                "url": "/assets/images/external-mirror/i.imgur.com/a77149f03225809834a6.png",
+                "skillimage": "https://i.imgur.com/nGR4QYX.png",
+                "url": "https://i.imgur.com/nGR4QYX.png",
                 "skilldescription": "Deals 25 damage to one enemy and grants your team 5 points of shield.",
                 "description": "Deals 25 damage to one enemy and grants your team 5 points of shield.",
                 "descriptionHtml": "Deals 25 damage to one enemy and grants your team 5 points of shield.",
@@ -11991,8 +11991,8 @@ const characters = [
                 "id": "saint-walker-radiant-hope",
                 "name": "Radiant Hope",
                 "nameHtml": "Radiant Hope",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/1588ea73ccd4f435ece8.jpg",
-                "url": "/assets/images/external-mirror/i.imgur.com/1588ea73ccd4f435ece8.jpg",
+                "skillimage": "https://i.imgur.com/4th9J63.jpeg",
+                "url": "https://i.imgur.com/4th9J63.jpeg",
                 "skilldescription": "At the start of your next turn choose one option, then select its target: Grant one ally 20 permanent shield; grant one enemy 15 barrier and increase the cost of their skills while they have this barrier; or make one ally unable to die for 1 turn. This skill is invisible.",
                 "description": "At the start of your next turn choose one option, then select its target: Grant one ally 20 permanent shield; grant one enemy 15 barrier and increase the cost of their skills while they have this barrier; or make one ally unable to die for 1 turn. This skill is invisible.",
                 "descriptionHtml": "At the start of your next turn choose one option, then select its target:<br>Grant one ally 20 permanent shield.<br>Grant one enemy 15 barrier and increase the cost of their skills while they have this barrier.<br>Make one ally unable to die for 1 turn.<br>This skill is invisible.",
@@ -12077,8 +12077,8 @@ const characters = [
                 "id": "saint-walker-emotional-aura-attunement",
                 "name": "Emotional Aura Attunement",
                 "nameHtml": "Emotional Aura Attunement",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/bbdd37a820d2522ee058.jpg",
-                "url": "/assets/images/external-mirror/i.imgur.com/bbdd37a820d2522ee058.jpg",
+                "skillimage": "https://i.imgur.com/7ACcyxD.jpeg",
+                "url": "https://i.imgur.com/7ACcyxD.jpeg",
                 "skilldescription": "Saint Walker increases the amount of shield granted by 'Passive: Blue Lantern Ring' by 1 (stacks) and gains 1 blue energy. This swaps to 'Phoenix of Hope' for 2 turns.",
                 "description": "Saint Walker increases the amount of shield granted by 'Passive: Blue Lantern Ring' by 1 (stacks) and gains 1 blue energy. This swaps to 'Phoenix of Hope' for 2 turns.",
                 "descriptionHtml": "Saint Walker increases the amount of shield granted by 'Passive: Blue Lantern Ring' by 1 (stacks) and gains 1 blue energy.<br>This swaps to 'Phoenix of Hope' for 2 turns.",
@@ -12172,8 +12172,8 @@ const characters = [
                 "id": "saint-walker-hope-shield",
                 "name": "Hope Shield",
                 "nameHtml": "Hope Shield",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/28f004001fdfad1f0742.png",
-                "url": "/assets/images/external-mirror/i.imgur.com/28f004001fdfad1f0742.png",
+                "skillimage": "https://i.imgur.com/07QdV07.png",
+                "url": "https://i.imgur.com/07QdV07.png",
                 "skilldescription": "Saint Walker targets himself or an ally, granting them 50% unpierceable damage reduction and making them ignore affliction damage for 1 turn.",
                 "description": "Saint Walker targets himself or an ally, granting them 50% unpierceable damage reduction and making them ignore affliction damage for 1 turn.",
                 "descriptionHtml": "Saint Walker targets himself or an ally, granting them 50% unpierceable damage reduction and making them ignore affliction damage for 1 turn.",
@@ -12209,8 +12209,8 @@ const characters = [
                 "nameHtml": "Phoenix of Hope",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/3f1f7e91ba6f2979e525.jpg",
-                "url": "/assets/images/external-mirror/i.imgur.com/3f1f7e91ba6f2979e525.jpg",
+                "skillimage": "https://i.imgur.com/oH6BgBg.jpeg",
+                "url": "https://i.imgur.com/oH6BgBg.jpeg",
                 "skilldescription": "Saint Walker makes his whole team invulnerable for 1 turn and grants them 15 points of permanent shield.",
                 "description": "Saint Walker makes his whole team invulnerable for 1 turn and grants them 15 points of permanent shield.",
                 "descriptionHtml": "Saint Walker makes his whole team invulnerable for 1 turn and grants them 15 points of permanent shield.",
@@ -12257,8 +12257,8 @@ const characters = [
                 "id": "saint-walker-passive-blue-lantern-ring",
                 "name": "Passive: Blue Lantern Ring",
                 "nameHtml": "Passive: Blue Lantern Ring",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/715026d21c75b569172a.jpg",
-                "url": "/assets/images/external-mirror/i.imgur.com/715026d21c75b569172a.jpg",
+                "skillimage": "https://i.imgur.com/tOBn10V.jpeg",
+                "url": "https://i.imgur.com/tOBn10V.jpeg",
                 "skilldescription": "Saint Walker grants his entire team 1 permanent shield every turn. Also increases the damage of all 'Passive: Green Lantern Ring' by 1 each turn while he is alive.",
                 "description": "Saint Walker grants his entire team 1 permanent shield every turn. Also increases the damage of all 'Passive: Green Lantern Ring' by 1 each turn while he is alive.",
                 "descriptionHtml": "Saint Walker grants his entire team 1 permanent shield every turn.<br>Also increases the damage of all 'Passive: Green Lantern Ring' by 1 each turn while he is alive.",
@@ -19708,7 +19708,7 @@ const characters = [
                 "skilldescription": "Pikachu deals 35 piercing damage to one enemy then loses 15 health. For 1 turn, if the target uses a new skill it will have its cooldown increased by 2 turns. If the target is affected by Static, their cooldowns are increased for 4 turns instead.",
                 "energy": [
                     "Taijutsu",
-                    "Random"
+                    "Genjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -21052,6 +21052,32 @@ const characters = [
                     },
                     {
                         "type": "apply_status",
+                        "statusId": "pokemon_trainer_rare_candy_swap",
+                        "duration": 99,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "clefairy",
+                            "missingStatusId": "clefairy_clefable_evolution"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
+                            "facePictureOverride": "assets/images/PokemonArena/clefairy/clefablefp.webp",
+                            "removeStatusIdsOnApply": [
+                                "clefairy_evolution_tracker"
+                            ],
+                            "tooltipText": "Rare Candy is replaced by Revive.",
+                            "healOnApplyFlat": 10,
+                            "skillReplacements": {
+                                "pokemon-trainer-rare-candy": "pokemon-trainer-revive"
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
                         "statusId": "clefairy_clefable_evolution",
                         "duration": 999,
                         "scope": "target",
@@ -21329,7 +21355,7 @@ const characters = [
             {
                 "id": "pokemon-trainer-ultra-ball",
                 "name": "Ultra Ball",
-                "skillimage": "/assets/images/external-mirror/i.imgur.com/d1f55035ba2d68bb8572.jpg",
+                "skillimage": "https://i.imgur.com/6VVZEkQ.jpeg",
                 "skilldescription": "At the start of each turn, Pokemon Trainer's ball slot randomly becomes Pokeball 40%, Great Ball 30%, Ultra Ball 20%, or Master Ball 10%. Stuns one enemy and makes them invulnerable to all skills for 3 turns. If used when their health is at 40 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed.",
                 "energy": [
                     "Genjutsu",
@@ -21682,7 +21708,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Chansey/chanseypokemoncenterhealing.webp",
                 "skilldescription": "Heals Chansey's team for 10 HP and grants them 5 Shield each turn for 3 turns. During this skill, Softboil will always make its target unable to die.",
                 "energy": [
-                    "Bloodline"
+                    "Random"
                 ],
                 "target": "all-allies",
                 "damage": 0,
@@ -21948,7 +21974,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Chansey/blisseypokemoncenterhealing.png",
                 "skilldescription": "Heals Blissey's team for 15 HP and grants them 10 Shield each turn for 3 turns. During this skill, Softboil will always make its target unable to die.",
                 "energy": [
-                    "Bloodline",
+                    "Random",
                     "Random"
                 ],
                 "target": "all-allies",
@@ -25784,7 +25810,7 @@ const characters = [
                 "id": "flareon-heating-up",
                 "name": "Heating Up",
                 "skillimage": "assets/images/PokemonArena/eevee/flareon/heatingup.png",
-                "skilldescription": "Flareon gains 20 points of permanent destructible defense. While Flareon has this defense, she deals 5 affliction damage to the enemy team each turn. This does not stack.",
+                "skilldescription": "Flareon gains 20 points of permanent Shield. While Flareon has this Shield, she deals 5 affliction damage to the enemy team each turn. This does not stack.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -25806,7 +25832,7 @@ const characters = [
                             "infiniteDuration": true,
                             "destructibleDefensePoints": 20,
                             "statusIconUrl": "assets/images/PokemonArena/eevee/flareon/heatingup.png",
-                            "tooltipTextTemplate": "Flareon has {destructibleDefensePoints} destructible defense."
+                            "tooltipTextTemplate": "Flareon has {destructibleDefensePoints} Shield."
                         }
                     },
                     {
@@ -29144,7 +29170,7 @@ const characters = [
                     "statusId": "magnemite_magneton_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/mangemite/flashcannon.png",
-                "skilldescription": "Deals 45 damage to one enemy. The next piercing damage they take is increased by 10.",
+                "skilldescription": "Deals 40 damage to one enemy. The next piercing damage they take is increased by 10.",
                 "energy": [
                     "Random",
                     "Random",
@@ -29161,7 +29187,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 45,
+                        "amount": 40,
                         "scope": "target"
                     },
                     {
@@ -30167,12 +30193,1925 @@ const characters = [
         "roleCategory": "specialist",
         "description": "A tempo specialist that steals energy and extends Fury Swipes before evolving into the faster, more lethal Persian.",
         "descriptionHtml": "A tempo specialist that steals energy and extends Fury Swipes before evolving into the faster, more lethal Persian."
+    },
+    {
+        "id": "clefairy",
+        "characterId": "clefairy",
+        "name": "Clefairy",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Damage Support",
+        "roleCategory": "damage-support",
+        "facePicture": "assets/images/PokemonArena/clefairy/fp.webp",
+        "characterdeescription": "A restorative specialist that cleanses battlefield tricks, borrows skills with Metronome, and evolves after restoring 75 actual HP.",
+        "description": "A restorative specialist that cleanses battlefield tricks, borrows skills with Metronome, and evolves after restoring 75 actual HP.",
+        "descriptionHtml": "A restorative specialist that cleanses battlefield tricks, borrows skills with Metronome, and evolves after restoring 75 actual HP.",
+        "skills": [
+            {
+                "id": "clefairy-metronome",
+                "name": "Metronome",
+                "skillimage": "assets/images/PokemonArena/clefairy/metronome.png",
+                "skilldescription": "Casts a random copy-safe damaging skill on an enemy or a random copy-safe helpful skill on an ally.",
+                "description": "Casts a random copy-safe damaging skill on an enemy or a random copy-safe helpful skill on an ally.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "cooldown": 2,
+                "target": "single-character",
+                "damage": 0,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "metronome",
+                        "scope": "target"
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "clefable-metronome",
+                    "name": "Clefable Metronome",
+                    "skillimage": "assets/images/PokemonArena/clefairy/clefablemetronome.webp",
+                    "skilldescription": "Casts a random copy-safe damaging skill on an enemy or a random copy-safe helpful skill on an ally.",
+                    "description": "Casts a random copy-safe damaging skill on an enemy or a random copy-safe helpful skill on an ally.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 2,
+                    "target": "single-character",
+                    "damage": 0,
+                    "classes": [
+                        "Mental",
+                        "Ranged",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "metronome",
+                            "scope": "target"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "clefairy-double-slap",
+                "name": "Double Slap",
+                "skillimage": "assets/images/PokemonArena/clefairy/Double Slap.png",
+                "skilldescription": "Deals 15 damage now and 15 more at the beginning of Clefairy's next turn.",
+                "description": "Deals 15 damage now and 15 more at the beginning of Clefairy's next turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 2,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {}
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "clefairy_double_slap",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "turnEndTrigger": "source_turn",
+                            "turnEndDamage": 15,
+                            "harmful": true
+                        }
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "clefable-double-slap",
+                    "name": "Clefable Double Slap",
+                    "skillimage": "assets/images/PokemonArena/clefairy/clefabledoubleslap.webp",
+                    "skilldescription": "Deals 20 damage now and 20 more at the beginning of Clefable's next turn.",
+                    "description": "Deals 20 damage now and 20 more at the beginning of Clefable's next turn.",
+                    "energy": [
+                        "Random",
+                        "Random"
+                    ],
+                    "cooldown": 2,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Melee",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 20,
+                            "scope": "target",
+                            "metadata": {}
+                        },
+                        {
+                            "type": "apply_status",
+                            "statusId": "clefable_double_slap",
+                            "duration": 1,
+                            "scope": "target",
+                            "metadata": {
+                                "turnEndTrigger": "source_turn",
+                                "turnEndDamage": 20,
+                                "harmful": true
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "clefairy-disarming-voice",
+                "name": "Disarming Voice",
+                "skillimage": "assets/images/PokemonArena/clefairy/disarmingvoice.webp",
+                "skilldescription": "Removes allied accuracy reductions and enemy evasion, then deals 20 damage to all enemies.",
+                "description": "Removes allied accuracy reductions and enemy evasion, then deals 20 damage to all enemies.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "cooldown": 2,
+                "target": "all-enemy",
+                "damage": 0,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "cleanse_accuracy_and_evasion"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "all-enemy",
+                        "metadata": {}
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "clefable-disarming-voice",
+                    "name": "Clefable Disarming Voice",
+                    "skillimage": "assets/images/PokemonArena/clefairy/clefabledisarmingvoice.webp",
+                    "skilldescription": "Removes and prevents allied accuracy reductions and enemy evasion for 2 turns, then deals 20 damage to all enemies.",
+                    "description": "Removes and prevents allied accuracy reductions and enemy evasion for 2 turns, then deals 20 damage to all enemies.",
+                    "energy": [
+                        "Random",
+                        "Random",
+                        "Random"
+                    ],
+                    "cooldown": 2,
+                    "target": "all-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Ranged",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "cleanse_accuracy_and_evasion"
+                        },
+                        {
+                            "type": "damage",
+                            "amount": 20,
+                            "scope": "all-enemy",
+                            "metadata": {}
+                        },
+                        {
+                            "type": "apply_status",
+                            "statusId": "clefable_disarming_voice_field",
+                            "duration": 2,
+                            "scope": "self",
+                            "metadata": {
+                                "preventTeamAccuracyReduction": true,
+                                "preventEnemyEvasion": true
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "clefairy-moonlight",
+                "name": "Moonlight",
+                "skillimage": "assets/images/PokemonArena/clefairy/moonlight.webp",
+                "skilldescription": "Heals an ally for 60% of current HP, then 40%, 20%, and 0% on consecutive uses. Cleanses Affliction effects.",
+                "description": "Heals an ally for 60% of current HP, then 40%, 20%, and 0% on consecutive uses. Cleanses Affliction effects.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "cooldown": 0,
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "moonlight"
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "clefable-moonlight",
+                    "name": "Clefable Moonlight",
+                    "skillimage": "assets/images/PokemonArena/clefairy/clefablemoonlight.webp",
+                    "skilldescription": "Heals an ally for 60% of current HP, then 40%, 20%, and 0% on consecutive uses. Cleanses Affliction effects.",
+                    "description": "Heals an ally for 60% of current HP, then 40%, 20%, and 0% on consecutive uses. Cleanses Affliction effects.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 0,
+                    "target": "self-or-single-ally",
+                    "damage": 0,
+                    "classes": [
+                        "Mental",
+                        "Ranged",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "moonlight"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "clefairy-evolution-clefable",
+                "name": "Evolution: Clefable",
+                "skillimage": "assets/images/PokemonArena/clefairy/evolutionclefable.webp",
+                "skilldescription": "After Clefairy restores 75 actual HP, it evolves into Clefable with improved skills.",
+                "description": "After Clefairy restores 75 actual HP, it evolves into Clefable with improved skills.",
+                "energy": [],
+                "cooldown": 0,
+                "target": "",
+                "damage": 0,
+                "classes": [
+                    "Passive",
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": []
+            }
+        ],
+        "startStatuses": [
+            {
+                "statusId": "clefairy_evolution_tracker",
+                "sourceSkillId": "clefairy-evolution-clefable",
+                "duration": 999,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "unremovable": true,
+                    "healingProgress": 0,
+                    "evolutionThreshold": 75,
+                    "evolutionStatusId": "clefairy_clefable_evolution",
+                    "evolvedFacePicture": "assets/images/PokemonArena/clefairy/clefablefp.webp"
+                }
+            }
+        ]
+    },
+    {
+        "id": "jigglypuff",
+        "characterId": "jigglypuff",
+        "name": "Jigglypuff",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Utility Support",
+        "roleCategory": "utility-support",
+        "facePicture": "assets/images/PokemonArena/jigglypuff/fp.webp",
+        "characterdeescription": "A countdown controller that accelerates Perish Song and evolves into Wigglytuff after completing its execution.",
+        "description": "A countdown controller that accelerates Perish Song and evolves into Wigglytuff after completing its execution.",
+        "descriptionHtml": "A countdown controller that accelerates Perish Song and evolves into Wigglytuff after completing its execution.",
+        "skills": [
+            {
+                "id": "jigglypuff-perish-song",
+                "name": "Perish Song",
+                "skillimage": "assets/images/PokemonArena/jigglypuff/parishsong.webp",
+                "skilldescription": "Marks one enemy for 5 turns. When it expires, they are instantly defeated. Ends if Jigglypuff dies.",
+                "description": "Marks one enemy for 5 turns. When it expires, they are instantly defeated. Ends if Jigglypuff dies.",
+                "energy": [
+                    "Random",
+                    "Random",
+                    "Random"
+                ],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "jigglypuff_perish_song",
+                        "duration": 5,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "visible": true,
+                            "unremovable": true,
+                            "endIfSourceDies": true,
+                            "instantKillOnExpire": true,
+                            "uniqueEnemyMarkFromSource": true
+                        }
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "wigglytuff-perish-song",
+                    "name": "Wigglytuff Perish Song",
+                    "skillimage": "assets/images/PokemonArena/jigglypuff/wigglytuffparishsong.webp",
+                    "skilldescription": "Marks one enemy for 4 turns. When it expires, they are instantly defeated. Ends if Wigglytuff dies.",
+                    "description": "Marks one enemy for 4 turns. When it expires, they are instantly defeated. Ends if Wigglytuff dies.",
+                    "energy": [
+                        "Random",
+                        "Random",
+                        "Random"
+                    ],
+                    "cooldown": 0,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Mental",
+                        "Ranged",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "statusId": "jigglypuff_perish_song",
+                            "duration": 4,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "visible": true,
+                                "unremovable": true,
+                                "endIfSourceDies": true,
+                                "instantKillOnExpire": true,
+                                "uniqueEnemyMarkFromSource": true
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "jigglypuff-sing",
+                "name": "Sing",
+                "skillimage": "assets/images/PokemonArena/jigglypuff/sing.webp",
+                "skilldescription": "Stuns all enemy harmful skills for 1 turn and advances Perish Song once.",
+                "description": "Stuns all enemy harmful skills for 1 turn and advances Perish Song once.",
+                "energy": [
+                    "Ninjutsu",
+                    "Random"
+                ],
+                "cooldown": 3,
+                "target": "all-enemy",
+                "damage": 0,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "jigglypuff_sing",
+                        "duration": 1,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "cannotUseHarmfulSkills": true,
+                            "harmful": true
+                        }
+                    },
+                    {
+                        "type": "accelerate_perish",
+                        "scope": "all-enemy"
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "wigglytuff-sing",
+                    "name": "Wigglytuff Sing",
+                    "skillimage": "assets/images/PokemonArena/jigglypuff/wigglytuffsing.webp",
+                    "skilldescription": "Stuns all enemy harmful skills for 2 turns and advances Perish Song once.",
+                    "description": "Stuns all enemy harmful skills for 2 turns and advances Perish Song once.",
+                    "energy": [
+                        "Ninjutsu",
+                        "Ninjutsu",
+                        "Random"
+                    ],
+                    "cooldown": 3,
+                    "target": "all-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Mental",
+                        "Ranged",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "statusId": "jigglypuff_sing",
+                            "duration": 2,
+                            "scope": "all-enemy",
+                            "metadata": {
+                                "cannotUseHarmfulSkills": true,
+                                "harmful": true
+                            }
+                        },
+                        {
+                            "type": "accelerate_perish",
+                            "scope": "all-enemy"
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "jigglypuff-wish",
+                "name": "Wish",
+                "skillimage": "assets/images/PokemonArena/jigglypuff/wish.webp",
+                "skilldescription": "Next turn, Jigglypuff or one ally heals 25 HP. Before it heals, a Perish Song target using a harmful skill on them advances its countdown once.",
+                "description": "Next turn, Jigglypuff or one ally heals 25 HP. Before it heals, a Perish Song target using a harmful skill on them advances its countdown once.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 2,
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "classes": [
+                    "Mental",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "jigglypuff_wish",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "turnStartHeal": 25,
+                            "onOwnerTargetedBySkillTrigger": true,
+                            "onOwnerTargetedByEnemyOnly": true,
+                            "onOwnerTargetedByRequireNewSkill": true,
+                            "wishAdvancePerishOnHarmful": true
+                        }
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "wigglytuff-wish",
+                    "name": "Wigglytuff Wish",
+                    "skillimage": "assets/images/PokemonArena/jigglypuff/wigglytuffwish.webp",
+                    "skilldescription": "Next turn, Wigglytuff's whole team heals 25 HP. Before it heals, a Perish Song target using a harmful skill on them advances its countdown once.",
+                    "description": "Next turn, Wigglytuff's whole team heals 25 HP. Before it heals, a Perish Song target using a harmful skill on them advances its countdown once.",
+                    "energy": [
+                        "Random",
+                        "Random"
+                    ],
+                    "cooldown": 2,
+                    "target": "all-allies",
+                    "damage": 0,
+                    "classes": [
+                        "Mental",
+                        "Instant",
+                        "Invisible"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "statusId": "jigglypuff_wish",
+                            "duration": 1,
+                            "scope": "all-allies",
+                            "metadata": {
+                                "turnStartHeal": 25,
+                                "onOwnerTargetedBySkillTrigger": true,
+                                "onOwnerTargetedByEnemyOnly": true,
+                                "onOwnerTargetedByRequireNewSkill": true,
+                                "wishAdvancePerishOnHarmful": true
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "jigglypuff-humiliate",
+                "name": "Humiliate",
+                "skillimage": "assets/images/PokemonArena/jigglypuff/humilate.webp",
+                "skilldescription": "If the target uses a new harmful skill this turn, gain 1 Random chakra and advance Perish Song once.",
+                "description": "If the target uses a new harmful skill this turn, gain 1 Random chakra and advance Perish Song once.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 2,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant",
+                    "Invisible"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "jigglypuff_humiliate",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "triggerOnOwnerUseSkill": true,
+                            "onOwnerUseSkillHarmfulOnly": true,
+                            "perishAcceleration": true,
+                            "gainRandomChakraForSource": true
+                        }
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "wigglytuff-humiliate",
+                    "name": "Wigglytuff Humiliate",
+                    "skillimage": "assets/images/PokemonArena/jigglypuff/wigglytuffhumilate.webp",
+                    "skilldescription": "If the target uses any new skill this turn, gain 1 Random chakra and advance Perish Song once.",
+                    "description": "If the target uses any new skill this turn, gain 1 Random chakra and advance Perish Song once.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 2,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Physical",
+                        "Melee",
+                        "Instant",
+                        "Invisible"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "statusId": "jigglypuff_humiliate",
+                            "duration": 1,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "triggerOnOwnerUseSkill": true,
+                                "perishAcceleration": true,
+                                "gainRandomChakraForSource": true
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "jigglypuff-evolution-wigglytuff",
+                "name": "Evolution: Wigglytuff",
+                "skillimage": "assets/images/PokemonArena/jigglypuff/evolutionwigglytuff.webp",
+                "skilldescription": "When Perish Song defeats an enemy, Jigglypuff evolves into Wigglytuff and heals 10 HP.",
+                "description": "When Perish Song defeats an enemy, Jigglypuff evolves into Wigglytuff and heals 10 HP.",
+                "energy": [],
+                "cooldown": 0,
+                "target": "",
+                "damage": 0,
+                "classes": [
+                    "Passive",
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": []
+            }
+        ],
+        "startStatuses": [
+            {
+                "statusId": "jigglypuff_evolution_tracker",
+                "sourceSkillId": "jigglypuff-evolution-wigglytuff",
+                "duration": 999,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "unremovable": true,
+                    "evolutionStatusId": "jigglypuff_wigglytuff_evolution",
+                    "evolvedFacePicture": "assets/images/PokemonArena/jigglypuff/wigglytufffp.webp"
+                }
+            }
+        ]
+    },
+    {
+        "id": "beedrill",
+        "characterId": "beedrill",
+        "name": "Beedrill",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Assassin",
+        "roleCategory": "assassin",
+        "facePicture": "assets/images/PokemonArena/beedrill/FP.png",
+        "characterdeescription": "A stacking affliction assassin that evolves into Mega Beedrill after using Envenom twice.",
+        "description": "A stacking affliction assassin that evolves into Mega Beedrill after using Envenom twice.",
+        "descriptionHtml": "A stacking affliction assassin that evolves into Mega Beedrill after using Envenom twice.",
+        "skills": [
+            {
+                "id": "beedrill-poison-sting",
+                "name": "Poison Sting",
+                "skillimage": "assets/images/PokemonArena/beedrill/poisonsting.webp",
+                "skilldescription": "Immediately deals 5 stacking affliction damage, then permanently repeats the current stacked damage each turn.",
+                "description": "Immediately deals 5 stacking affliction damage, then permanently repeats the current stacked damage each turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Affliction",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "beedrill_poison_sting",
+                        "duration": 999,
+                        "scope": "target",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "harmful": true,
+                            "turnStartDamage": 5,
+                            "afflictionDamage": true,
+                            "mergeNumericAddKeys": [
+                                "turnStartDamage"
+                            ],
+                            "poisonStingStacks": 1,
+                            "stackMetadataKey": "poisonStingStacks",
+                            "stackDelta": 1
+                        }
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "mega-beedrill-poison-sting",
+                    "name": "Mega Poison Sting",
+                    "skillimage": "assets/images/PokemonArena/beedrill/poisonsting.webp",
+                    "skilldescription": "Deals 10 affliction damage, immediately adds the current Poison Sting damage, then permanently repeats that stacked damage each turn.",
+                    "description": "Deals 10 affliction damage, immediately adds the current Poison Sting damage, then permanently repeats that stacked damage each turn.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 0,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Affliction",
+                        "Melee",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 10,
+                            "scope": "target",
+                            "metadata": {
+                                "afflictionDamage": true
+                            }
+                        },
+                        {
+                            "type": "apply_status",
+                            "statusId": "beedrill_poison_sting",
+                            "duration": 999,
+                            "scope": "target",
+                            "metadata": {
+                                "infiniteDuration": true,
+                                "harmful": true,
+                                "turnStartDamage": 5,
+                                "afflictionDamage": true,
+                                "mergeNumericAddKeys": [
+                                    "turnStartDamage"
+                                ],
+                                "poisonStingStacks": 1,
+                                "stackMetadataKey": "poisonStingStacks",
+                                "stackDelta": 1
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "beedrill-twinneedle",
+                "name": "Twinneedle",
+                "skillimage": "assets/images/PokemonArena/beedrill/twinneedle.webp",
+                "skilldescription": "Deals 15 damage twice and has a 25% chance to blind harmful skills for 1 turn.",
+                "description": "Deals 15 damage twice and has a 25% chance to blind harmful skills for 1 turn.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "cooldown": 1,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {}
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {}
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "beedrill_twinneedle_blind",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "harmfulBlind": true
+                        },
+                        "chance": 25
+                    }
+                ]
+            },
+            {
+                "id": "beedrill-envenom",
+                "name": "Envenom",
+                "skillimage": "assets/images/PokemonArena/beedrill/envenom.webp",
+                "skilldescription": "Enemies affected by Poison Sting take 10 affliction damage plus 5 per Poison Sting stack and are blinded for 1 turn.",
+                "description": "Enemies affected by Poison Sting take 10 affliction damage plus 5 per Poison Sting stack and are blinded for 1 turn.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "cooldown": 2,
+                "target": "all-enemy",
+                "damage": 0,
+                "classes": [
+                    "Affliction",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "poison_sting_burst",
+                        "baseAmount": 10,
+                        "amountPerStack": 5,
+                        "scope": "all-enemy"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "beedrill_envenom_blind",
+                        "duration": 1,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "harmfulBlind": true
+                        },
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "beedrill_poison_sting"
+                        }
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "mega-beedrill-fell-stinger",
+                    "name": "Fell Stinger",
+                    "skillimage": "assets/images/PokemonArena/beedrill/fellstinger.webp",
+                    "skilldescription": "Deals 20 affliction damage plus 10 per Poison Sting stack. If the target survives, they are permanently blinded.",
+                    "description": "Deals 20 affliction damage plus 10 per Poison Sting stack. If the target survives, they are permanently blinded.",
+                    "energy": [
+                        "Ninjutsu"
+                    ],
+                    "cooldown": 3,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": [
+                        "Affliction",
+                        "Melee",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "poison_sting_burst",
+                            "baseAmount": 20,
+                            "amountPerStack": 10,
+                            "scope": "target"
+                        },
+                        {
+                            "type": "apply_status",
+                            "statusId": "mega_beedrill_permanent_blind",
+                            "duration": 999,
+                            "scope": "target",
+                            "metadata": {
+                                "infiniteDuration": true,
+                                "harmful": true,
+                                "harmfulBlind": true
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "beedrill-hive-swarm",
+                "name": "Hive Swarm",
+                "skillimage": "assets/images/PokemonArena/beedrill/hiveswarm.webp",
+                "skilldescription": "For 3 turns, ignores the next 3 enemy damage effects and enemy stuns. Replaced by Hive Sting.",
+                "description": "For 3 turns, ignores the next 3 enemy damage effects and enemy stuns. Replaced by Hive Sting.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 6,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Strategic",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "beedrill_hive_swarm",
+                        "duration": 3,
+                        "scope": "self",
+                        "metadata": {
+                            "ignoreNextEnemyDamageEffects": 3,
+                            "ignoreEnemyStuns": true,
+                            "skillReplacements": {
+                                "beedrill-hive-swarm": "beedrill-hive-sting"
+                            }
+                        }
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "beedrill-hive-swarm-mega",
+                    "name": "Mega Hive Swarm",
+                    "skillimage": "assets/images/PokemonArena/beedrill/hiveswarm.webp",
+                    "skilldescription": "For 3 turns, ignores the next 3 enemy damage effects and enemy stuns. Replaced by Hive Sting.",
+                    "description": "For 3 turns, ignores the next 3 enemy damage effects and enemy stuns. Replaced by Hive Sting.",
+                    "energy": [
+                        "Random"
+                    ],
+                    "cooldown": 6,
+                    "target": "self",
+                    "damage": 0,
+                    "classes": [
+                        "Strategic",
+                        "Instant"
+                    ],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "statusId": "beedrill_hive_swarm",
+                            "duration": 3,
+                            "scope": "self",
+                            "metadata": {
+                                "ignoreNextEnemyDamageEffects": 3,
+                                "ignoreEnemyStuns": true,
+                                "skillReplacements": {
+                                    "beedrill-hive-swarm-mega": "beedrill-hive-sting"
+                                }
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "beedrill-hive-sting",
+                "name": "Hive Sting",
+                "skillimage": "assets/images/PokemonArena/beedrill/hivesting.webp",
+                "skilldescription": "Casts Poison Sting on the entire enemy team.",
+                "description": "Casts Poison Sting on the entire enemy team.",
+                "energy": [
+                    "Random",
+                    "Random"
+                ],
+                "cooldown": 0,
+                "target": "all-enemy",
+                "damage": 0,
+                "classes": [
+                    "Affliction",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "beedrill_poison_sting",
+                        "duration": 999,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "harmful": true,
+                            "turnStartDamage": 5,
+                            "afflictionDamage": true,
+                            "mergeNumericAddKeys": [
+                                "turnStartDamage"
+                            ],
+                            "poisonStingStacks": 1,
+                            "stackMetadataKey": "poisonStingStacks",
+                            "stackDelta": 1
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "beedrill-evolution-mega",
+                "name": "Evolution: Mega Beedrill",
+                "skillimage": "assets/images/PokemonArena/beedrill/passive.webp",
+                "skilldescription": "After Envenom is used twice, Beedrill evolves, heals 25 HP, gains permanent 10 unpierceable reduction, and Envenom becomes Fell Stinger.",
+                "description": "After Envenom is used twice, Beedrill evolves, heals 25 HP, gains permanent 10 unpierceable reduction, and Envenom becomes Fell Stinger.",
+                "energy": [],
+                "cooldown": 0,
+                "target": "",
+                "damage": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
+                "effects": []
+            }
+        ],
+        "startStatuses": [
+            {
+                "statusId": "beedrill_evolution_tracker",
+                "sourceSkillId": "beedrill-evolution-mega",
+                "duration": 999,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "unremovable": true,
+                    "envenomUses": 0,
+                    "evolutionStatusId": "beedrill_mega_evolution",
+                    "evolvedFacePicture": "assets/images/PokemonArena/beedrill/megafp.webp"
+                }
+            }
+        ]
+    },
+    {
+        "id": "articuno",
+        "characterId": "articuno",
+        "name": "Articuno",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "AOE DPS",
+        "roleCategory": "aoe-dps",
+        "facePicture": "assets/images/PokemonArena/articuno/fp.png",
+        "characterdeescription": "A legendary ice mage that chains cooldown paralysis and stuns into an escalating Sheer Cold.",
+        "description": "A legendary ice mage that chains cooldown paralysis and stuns into an escalating Sheer Cold.",
+        "descriptionHtml": "A legendary ice mage that chains cooldown paralysis and stuns into an escalating Sheer Cold.",
+        "skills": [
+            {
+                "id": "articuno-blizzard",
+                "name": "Blizzard",
+                "skillimage": "assets/images/PokemonArena/articuno/blizzard.png",
+                "skilldescription": "Deals 15 damage to all enemies and paralyzes their cooldowns for 1 turn.",
+                "description": "Deals 15 damage to all enemies and paralyzes their cooldowns for 1 turn.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "cooldown": 1,
+                "target": "all-enemy",
+                "damage": 0,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "all-enemy",
+                        "metadata": {}
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "articuno_blizzard",
+                        "duration": 1,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "paralyzeCooldowns": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "articuno-ice-beam",
+                "name": "Ice Beam",
+                "skillimage": "assets/images/PokemonArena/articuno/icebeam.png",
+                "skilldescription": "Deals 15 affliction damage and has a 50% chance to stun non-Mental skills for 1 turn.",
+                "description": "Deals 15 affliction damage and has a 50% chance to stun non-Mental skills for 1 turn.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Affliction",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "articuno_ice_beam_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseNonMentalSkills": true
+                        },
+                        "chance": 50
+                    }
+                ]
+            },
+            {
+                "id": "articuno-sheer-cold",
+                "name": "Sheer Cold",
+                "skillimage": "assets/images/PokemonArena/articuno/sheercold.png",
+                "skilldescription": "Casts Blizzard then Ice Beam on the enemy team and permanently gains 5 damage each use.",
+                "description": "Casts Blizzard then Ice Beam on the enemy team and permanently gains 5 damage each use.",
+                "energy": [
+                    "Ninjutsu",
+                    "Ninjutsu",
+                    "Random"
+                ],
+                "cooldown": 2,
+                "target": "all-enemy",
+                "damage": 0,
+                "classes": [
+                    "Energy",
+                    "Affliction",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "articuno_sheer_cold",
+                        "scope": "all-enemy"
+                    }
+                ]
+            },
+            {
+                "id": "articuno-fast-agility",
+                "name": "Fast Agility",
+                "skillimage": "assets/images/PokemonArena/articuno/agility.png",
+                "skilldescription": "Articuno becomes invulnerable for 1 turn.",
+                "description": "Articuno becomes invulnerable for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 4,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "articuno_fast_agility",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true
+                        }
+                    }
+                ]
+            }
+        ],
+        "startStatuses": [
+            {
+                "statusId": "articuno_sheer_cold_tracker",
+                "sourceSkillId": "articuno-sheer-cold",
+                "duration": 999,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "unremovable": true,
+                    "bonusDamage": 0
+                }
+            }
+        ]
+    },
+    {
+        "id": "moltres",
+        "characterId": "moltres",
+        "name": "Moltres",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "AOE DPS",
+        "roleCategory": "aoe-dps",
+        "facePicture": "assets/images/PokemonArena/moltres/FP.png",
+        "characterdeescription": "A legendary fire attacker that builds Heat and spends it on a team-wide Overheat that weakens with every use.",
+        "description": "A legendary fire attacker that builds Heat and spends it on a team-wide Overheat that weakens with every use.",
+        "descriptionHtml": "A legendary fire attacker that builds Heat and spends it on a team-wide Overheat that weakens with every use.",
+        "skills": [
+            {
+                "id": "moltres-fire-spin",
+                "name": "Fire Spin",
+                "skillimage": "assets/images/PokemonArena/moltres/firespin.png",
+                "skilldescription": "For 2 turns, enemies using a new harmful skill on Moltres' team take 10 affliction damage. Gains 1 Heat.",
+                "description": "For 2 turns, enemies using a new harmful skill on Moltres' team take 10 affliction damage. Gains 1 Heat.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "cooldown": 3,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Affliction",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "moltres_fire_spin",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "teamTrapEnemyHarmfulDamage": 10,
+                            "afflictionDamage": true
+                        }
+                    },
+                    {
+                        "type": "gain_heat",
+                        "amount": 1
+                    }
+                ]
+            },
+            {
+                "id": "moltres-sunny-day",
+                "name": "Sunny Day",
+                "skillimage": "assets/images/PokemonArena/moltres/sunnyday.png",
+                "skilldescription": "For 2 turns, enemies take 3 additional affliction damage. Moltres gains 1 Heat.",
+                "description": "For 2 turns, enemies take 3 additional affliction damage. Moltres gains 1 Heat.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "cooldown": 4,
+                "target": "all-enemy",
+                "damage": 0,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant",
+                    "Bypassing"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "moltres_sunny_day_enemy",
+                        "duration": 2,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "additionalAfflictionDamageTaken": 3
+                        }
+                    },
+                    {
+                        "type": "gain_heat",
+                        "amount": 1
+                    }
+                ]
+            },
+            {
+                "id": "moltres-heat-wave",
+                "name": "Heat Wave",
+                "skillimage": "assets/images/PokemonArena/moltres/heatwave.png",
+                "skilldescription": "Deals 20 affliction damage to one enemy and 10 to all others. Gains 1 Heat.",
+                "description": "Deals 20 affliction damage to one enemy and 10 to all others. Gains 1 Heat.",
+                "energy": [
+                    "Bloodline",
+                    "Random"
+                ],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Affliction",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 10,
+                        "scope": "other-enemies",
+                        "metadata": {
+                            "afflictionDamage": true
+                        }
+                    },
+                    {
+                        "type": "gain_heat",
+                        "amount": 1
+                    }
+                ]
+            },
+            {
+                "id": "moltres-overheat",
+                "name": "Overheat",
+                "skillimage": "assets/images/PokemonArena/moltres/overheat.png",
+                "skilldescription": "Consumes all Heat to deal 15 affliction damage per Heat to all enemies. Damage per Heat permanently falls by 5 after every use, to 0. After the first use its Random cost is removed; after the second use it costs only 1 Red.",
+                "description": "Consumes all Heat to deal 15 affliction damage per Heat to all enemies. Damage per Heat permanently falls by 5 after every use, to 0. After the first use its Random cost is removed; after the second use it costs only 1 Red.",
+                "energy": [
+                    "Bloodline",
+                    "Bloodline",
+                    "Random"
+                ],
+                "cooldown": 0,
+                "target": "all-enemy",
+                "damage": 0,
+                "classes": [
+                    "Affliction",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "moltres_overheat",
+                        "scope": "all-enemy"
+                    }
+                ]
+            },
+            {
+                "id": "moltres-heat",
+                "name": "Passive: Heat",
+                "skillimage": "assets/images/PokemonArena/moltres/warmingup.png",
+                "skilldescription": "Moltres stores up to 3 Heat from its skills. Overheat consumes every stored Heat.",
+                "description": "Moltres stores up to 3 Heat from its skills. Overheat consumes every stored Heat.",
+                "energy": [],
+                "cooldown": 0,
+                "target": "",
+                "damage": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
+                "effects": []
+            }
+        ],
+        "startStatuses": [
+            {
+                "statusId": "moltres_heat",
+                "sourceSkillId": "moltres-overheat",
+                "duration": 999,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "unremovable": true,
+                    "heat": 0,
+                    "overheatPenalty": 0,
+                    "overheatUses": 0
+                }
+            }
+        ]
+    },
+    {
+        "id": "zapdos",
+        "characterId": "zapdos",
+        "name": "Zapdos",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Controller",
+        "roleCategory": "controller",
+        "facePicture": "assets/images/PokemonArena/zapdos/fp.png",
+        "characterdeescription": "A legendary electric controller that punishes harmful skills and detonates Thunderbolt into Zap Cannon.",
+        "description": "A legendary electric controller that punishes harmful skills and detonates Thunderbolt into Zap Cannon.",
+        "descriptionHtml": "A legendary electric controller that punishes harmful skills and detonates Thunderbolt into Zap Cannon.",
+        "skills": [
+            {
+                "id": "zapdos-charge",
+                "name": "Charge",
+                "skillimage": "assets/images/PokemonArena/zapdos/charge.webp",
+                "skilldescription": "Channels for 2 turns. Zapdos skills cost 1 less Yellow energy each turn; using another skill ends Charge.",
+                "description": "Channels for 2 turns. Zapdos skills cost 1 less Yellow energy each turn; using another skill ends Charge.",
+                "energy": [],
+                "cooldown": 1,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Energy",
+                    "Channeled"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "zapdos_charge",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "genjutsuCostReduction": 1,
+                            "increaseGenjutsuReductionEachTurn": 1,
+                            "onOwnerUseSkillTrigger": true,
+                            "persistOnOwnerUseSkillTrigger": false,
+                            "removeStatusIdsOnOwnerUseSkill": [
+                                "zapdos_charge"
+                            ]
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "zapdos-thunderbolt",
+                "name": "Thunderbolt",
+                "skillimage": "assets/images/PokemonArena/zapdos/thunderbolt.webp",
+                "skilldescription": "For 3 turns, harmful enemy skills trigger 5 piercing damage and +1 cooldown for 1 turn. Recast detonates for 15 piercing team damage and paralyzes cooldowns for 1 turn.",
+                "description": "For 3 turns, harmful enemy skills trigger 5 piercing damage and +1 cooldown for 1 turn. Recast detonates for 15 piercing team damage and paralyzes cooldowns for 1 turn.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "cooldown": 0,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant",
+                    "Bypassing"
+                ],
+                "effects": [
+                    {
+                        "type": "zapdos_thunderbolt"
+                    }
+                ]
+            },
+            {
+                "id": "zapdos-zap-cannon",
+                "name": "Zap Cannon",
+                "skillimage": "assets/images/PokemonArena/zapdos/zapcanon.png",
+                "skilldescription": "Marks an enemy for 3 turns. Thunderbolt triggers shorten it and add 10 damage. On expiry, deals 30 plus bonus piercing damage and stuns for 1 turn.",
+                "description": "Marks an enemy for 3 turns. Thunderbolt triggers shorten it and add 10 damage. On expiry, deals 30 plus bonus piercing damage and stuns for 1 turn.",
+                "energy": [
+                    "Genjutsu",
+                    "Genjutsu",
+                    "Random"
+                ],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant",
+                    "Uncounterable",
+                    "Unreflectable"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "zapdos_zap_cannon",
+                        "duration": 3,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "zapCannonBonus": 0,
+                            "onExpireDamage": 30,
+                            "onExpirePiercing": true,
+                            "onExpireStun": 1,
+                            "endIfSourceDies": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "zapdos-flight",
+                "name": "Flight",
+                "skillimage": "assets/images/PokemonArena/zapdos/flight.webp",
+                "skilldescription": "For 2 turns, Zapdos is invulnerable to non-affliction enemy skills and Thunderbolt triggers deal 7 instead of 5.",
+                "description": "For 2 turns, Zapdos is invulnerable to non-affliction enemy skills and Thunderbolt triggers deal 7 instead of 5.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 4,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "zapdos_flight",
+                        "duration": 2,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerableToNonAffliction": true,
+                            "zapdosThunderboltDamage": 7
+                        }
+                    }
+                ]
+            }
+        ],
+        "startStatuses": []
+    },
+    {
+        "id": "mew",
+        "characterId": "mew",
+        "name": "Mew",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Shield Support",
+        "roleCategory": "shield-support",
+        "facePicture": "assets/images/PokemonArena/mew/fp.png",
+        "characterdeescription": "A mythical support that builds permanent barriers and converts accumulated shields into maximum HP.",
+        "description": "A mythical support that builds permanent barriers and converts accumulated shields into maximum HP.",
+        "descriptionHtml": "A mythical support that builds permanent barriers and converts accumulated shields into maximum HP.",
+        "skills": [
+            {
+                "id": "mew-psychic-barrier",
+                "name": "Psychic Barrier",
+                "skillimage": "assets/images/PokemonArena/mew/psychicbarrier.png",
+                "skilldescription": "Gives an enemy 15 permanent stacking Barrier. While any remains, their skills cost 1 additional Random.",
+                "description": "Gives an enemy 15 permanent stacking Barrier. While any remains, their skills cost 1 additional Random.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "cooldown": 1,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "grant_barrier",
+                        "amount": 15,
+                        "scope": "target",
+                        "statusId": "mew_psychic_barrier",
+                        "costIncrease": 1
+                    }
+                ]
+            },
+            {
+                "id": "mew-psychic",
+                "name": "Psychic",
+                "skillimage": "assets/images/PokemonArena/mew/psychic.png",
+                "skilldescription": "Deals 30 damage. If Psychic Barrier remains, the target's harmful skills deal 0 damage for 1 turn.",
+                "description": "Deals 30 damage. If Psychic Barrier remains, the target's harmful skills deal 0 damage for 1 turn.",
+                "energy": [
+                    "Ninjutsu",
+                    "Random"
+                ],
+                "cooldown": 1,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target",
+                        "metadata": {}
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "mew_psychic_suppression",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "damageDebuffFlat": 999
+                        },
+                        "condition": {
+                            "scope": "target",
+                            "statusId": "mew_psychic_barrier"
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "mew-pink-bubble",
+                "name": "Pink Bubble",
+                "skillimage": "assets/images/PokemonArena/mew/pinkbarrier.png",
+                "skilldescription": "Gives an ally 15 permanent stacking Shield. While any remains, their skills cost 1 less Random.",
+                "description": "Gives an ally 15 permanent stacking Shield. While any remains, their skills cost 1 less Random.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "cooldown": 1,
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "classes": [
+                    "Mental",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "grant_shield",
+                        "amount": 15,
+                        "scope": "target",
+                        "statusId": "mew_pink_bubble",
+                        "costReduction": 1
+                    }
+                ]
+            },
+            {
+                "id": "mew-life-dew",
+                "name": "Life Dew",
+                "skillimage": "assets/images/PokemonArena/mew/lifedew.png",
+                "skilldescription": "Mew and one ally consume all Pink Bubble Shield, gain that much maximum HP, then heal 25% of updated maximum HP.",
+                "description": "Mew and one ally consume all Pink Bubble Shield, gain that much maximum HP, then heal 25% of updated maximum HP.",
+                "energy": [
+                    "Bloodline",
+                    "Random"
+                ],
+                "cooldown": 2,
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "classes": [
+                    "Mental",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "mew_life_dew",
+                        "scope": "target",
+                        "includeSelf": true
+                    }
+                ]
+            }
+        ],
+        "startStatuses": []
+    },
+    {
+        "id": "mewtwo",
+        "characterId": "mewtwo",
+        "name": "Mewtwo",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Specialist",
+        "roleCategory": "specialist",
+        "facePicture": "assets/images/PokemonArena/mewtwo/fp.png",
+        "characterdeescription": "A deliberately direct bruiser with one efficient move for disruption, delay, sustain, and effect theft.",
+        "description": "A deliberately direct bruiser with one efficient move for disruption, delay, sustain, and effect theft.",
+        "descriptionHtml": "A deliberately direct bruiser with one efficient move for disruption, delay, sustain, and effect theft.",
+        "skills": [
+            {
+                "id": "mewtwo-psychic",
+                "name": "Psychic",
+                "skillimage": "assets/images/PokemonArena/mewtwo/psychic.png",
+                "skilldescription": "Deals 20 damage and steals one copy-safe helpful active effect from the enemy for up to 2 turns.",
+                "description": "Deals 20 damage and steals one copy-safe helpful active effect from the enemy for up to 2 turns.",
+                "energy": [
+                    "Ninjutsu"
+                ],
+                "cooldown": 1,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Mental",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {}
+                    },
+                    {
+                        "type": "steal_helpful_status",
+                        "scope": "target",
+                        "maxDuration": 2
+                    }
+                ]
+            },
+            {
+                "id": "mewtwo-shadow-ball",
+                "name": "Shadow Ball",
+                "skillimage": "assets/images/PokemonArena/mewtwo/shadowball.png",
+                "skilldescription": "Deals 20 damage and delays the target's skills for 1 turn.",
+                "description": "Deals 20 damage and delays the target's skills for 1 turn.",
+                "energy": [
+                    "Bloodline"
+                ],
+                "cooldown": 1,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Energy",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {}
+                    },
+                    {
+                        "type": "modify_cooldowns",
+                        "scope": "target",
+                        "amount": 1,
+                        "includeAllCharacterSkills": true
+                    }
+                ]
+            },
+            {
+                "id": "mewtwo-drain-punch",
+                "name": "Drain Punch",
+                "skillimage": "assets/images/PokemonArena/mewtwo/drainpunch.png",
+                "skilldescription": "Steals 20 HP from one enemy.",
+                "description": "Steals 20 HP from one enemy.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "health_steal_damage",
+                        "amount": 20,
+                        "scope": "target"
+                    }
+                ]
+            },
+            {
+                "id": "mewtwo-recover",
+                "name": "Recover",
+                "skillimage": "assets/images/PokemonArena/mewtwo/recover.png",
+                "skilldescription": "Heals Mewtwo for 20 HP. Consecutive uses heal 2 less HP each time, stacking down to 0; using another skill resets it.",
+                "description": "Heals Mewtwo for 20 HP. Consecutive uses heal 2 less HP each time, stacking down to 0; using another skill resets it.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "cooldown": 0,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Energy",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "mewtwo_recover",
+                        "scope": "self"
+                    }
+                ]
+            }
+        ],
+        "startStatuses": []
+    },
+    {
+        "id": "dragonite",
+        "characterId": "dragonite",
+        "name": "Dragonite",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Tank",
+        "roleCategory": "tank",
+        "facePicture": "assets/images/PokemonArena/dragonite/fp.png",
+        "characterdeescription": "A durable controller that taunts enemies and refreshes Pressure whenever it uses a skill.",
+        "description": "A durable controller that taunts enemies and refreshes Pressure whenever it uses a skill.",
+        "descriptionHtml": "A durable controller that taunts enemies and refreshes Pressure whenever it uses a skill.",
+        "skills": [
+            {
+                "id": "dragonite-dragon-claw",
+                "name": "Dragon Claw",
+                "skillimage": "assets/images/PokemonArena/dragonite/dragonclaw.png",
+                "skilldescription": "Deals 30 piercing damage, steals 1 random energy, and taunts the target for 1 turn.",
+                "description": "Deals 30 piercing damage, steals 1 random energy, and taunts the target for 1 turn.",
+                "energy": [
+                    "Taijutsu",
+                    "Ninjutsu"
+                ],
+                "cooldown": 2,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Physical",
+                    "Melee",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "drain_chakra",
+                        "scope": "target",
+                        "chakraType": "random",
+                        "amount": 1
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "dragonite_taunt",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "taunt": true,
+                            "refreshIfIgnoredOnce": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "dragonite-hyper-beam",
+                "name": "Hyper Beam",
+                "skillimage": "assets/images/PokemonArena/dragonite/hyperbeam.png",
+                "skilldescription": "Deals 35 affliction damage, stuns helpful skills, and taunts the target for 1 turn.",
+                "description": "Deals 35 affliction damage, stuns helpful skills, and taunts the target for 1 turn.",
+                "energy": [
+                    "Ninjutsu",
+                    "Genjutsu"
+                ],
+                "cooldown": 2,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Affliction",
+                    "Ranged",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target",
+                        "metadata": {
+                            "afflictionDamage": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "dragonite_hyper_beam_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "cannotUseHelpfulSkills": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "dragonite_taunt",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "taunt": true,
+                            "refreshIfIgnoredOnce": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "dragonite-draco-meteor",
+                "name": "Draco Meteor",
+                "skillimage": "assets/images/PokemonArena/dragonite/draco meteor.png",
+                "skilldescription": "Deals 15 damage to all enemies for 2 turns and taunts each target for 1 turn on cast.",
+                "description": "Deals 15 damage to all enemies for 2 turns and taunts each target for 1 turn on cast.",
+                "energy": [
+                    "Ninjutsu",
+                    "Bloodline",
+                    "Random"
+                ],
+                "cooldown": 3,
+                "target": "all-enemy",
+                "damage": 0,
+                "classes": [
+                    "Physical",
+                    "Ranged",
+                    "Action"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "dragonite_draco_meteor",
+                        "duration": 2,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "turnStartDamage": 15
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "dragonite_taunt",
+                        "duration": 1,
+                        "scope": "all-enemy",
+                        "metadata": {
+                            "harmful": true,
+                            "taunt": true,
+                            "refreshIfIgnoredOnce": true
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "dragonite-dragon-boost",
+                "name": "Dragon Boost",
+                "skillimage": "assets/images/PokemonArena/dragonite/skill 4.png",
+                "skilldescription": "Dragonite gains 1 Blue energy.",
+                "description": "Dragonite gains 1 Blue energy.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 3,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Energy",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "gain_chakra",
+                        "chakraType": "ninjutsu",
+                        "amount": 1,
+                        "scope": "self"
+                    }
+                ]
+            },
+            {
+                "id": "dragonite-pressure",
+                "name": "Passive: Pressure",
+                "skillimage": "assets/images/PokemonArena/dragonite/passive.png",
+                "skilldescription": "After Dragonite uses a new skill, it gains a stacking 10 unpierceable damage reduction for 2 turns. If an enemy does not attack while taunted by Dragonite, that taunt refreshes once.",
+                "description": "After Dragonite uses a new skill, it gains a stacking 10 unpierceable damage reduction for 2 turns. If an enemy does not attack while taunted by Dragonite, that taunt refreshes once.",
+                "energy": [],
+                "cooldown": 0,
+                "target": "",
+                "damage": 0,
+                "classes": [
+                    "Passive",
+                    "Instant"
+                ],
+                "effects": []
+            }
+        ],
+        "startStatuses": [
+            {
+                "statusId": "dragonite_pressure_passive",
+                "sourceSkillId": "dragonite-pressure",
+                "duration": 999,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "unremovable": true,
+                    "onOwnerUseSkillTrigger": true,
+                    "persistOnOwnerUseSkillTrigger": true,
+                    "onOwnerUseSkillApplyStatusToOwner": {
+                        "statusId": "dragonite_pressure_reduction",
+                        "duration": 2,
+                        "metadata": {
+                            "unpierceableDamageReductionFlat": 10,
+                            "allowDuplicateStatusInstances": true
+                        }
+                    }
+                }
+            }
+        ]
     }
 ];
-
-if (typeof module !== 'undefined' && module.exports) {
-    characters.push(...require('./pokemon-wave-2-live'));
-}
 
 if (typeof window !== 'undefined') {
     window.characters = characters;

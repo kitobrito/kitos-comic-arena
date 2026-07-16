@@ -8,5 +8,8 @@ module.exports = {
         headless: true,
         viewport: { width: 1440, height: 900 },
         ignoreHTTPSErrors: true,
+        launchOptions: process.env.PLAYWRIGHT_CHROME_EXECUTABLE
+            ? { executablePath: process.env.PLAYWRIGHT_CHROME_EXECUTABLE }
+            : undefined,
     },
 };

@@ -306,6 +306,59 @@ test('Rare Candy can evolve Clefairy, Jigglypuff, and Meowth', () => {
     }
 });
 
+test('Rare Candy applies Clefairy evolution, defense, evolved skills, and Trainer Revive swap', () => {
+    const trainerIndex = characters.findIndex((character) => character.id === 'pokemon-trainer');
+    const clefairyIndex = characters.findIndex((character) => character.id === 'clefairy');
+    const rareCandyIndex = characters[trainerIndex].skills.findIndex(
+        (skill) => skill.id === 'pokemon-trainer-rare-candy'
+    );
+    const players = [
+        { username: 'Ash', team: [trainerIndex, clefairyIndex] },
+        { username: 'Gary', team: [0] },
+    ];
+    const board = buildInitialBoard(players, characters);
+    const match = {
+        players,
+        board,
+        chakraPools: {
+            Ash: { taijutsu: 0, ninjutsu: 1, genjutsu: 1, bloodline: 0 },
+            Gary: { taijutsu: 0, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+        },
+        pendingTurns: {
+            Ash: {
+                queueOrder: ['0'],
+                queuedByActorSlot: {
+                    0: {
+                        skillIndex: rareCandyIndex,
+                        targetSelection: [{ username: 'Ash', slot: 1 }],
+                    },
+                },
+            },
+        },
+        pendingActions: [],
+        pendingQueuedEffects: [],
+        economy: { turnCounts: { Ash: 1, Gary: 1 } },
+    };
+
+    resolvePendingTurnSkills({ match, actingUsername: 'Ash', characters });
+
+    const clefairyStatuses = board.Ash[1].state.statuses;
+    assert.ok(clefairyStatuses.some((status) => status.id === 'clefairy_clefable_evolution'));
+    assert.ok(clefairyStatuses.some((status) => status.id === 'clefairy_clefable_rare_candy_defense'));
+    assert.ok(!clefairyStatuses.some((status) => status.id === 'clefairy_evolution_tracker'));
+    const evolvedMetronome = resolveEffectiveSkill({
+        characters,
+        rosterIndex: clefairyIndex,
+        skillIndex: 0,
+        actorState: board.Ash[1].state,
+    });
+    assert.equal(evolvedMetronome.id, 'clefable-metronome');
+    const trainerSwap = board.Ash[0].state.statuses.find(
+        (status) => status.id === 'pokemon_trainer_rare_candy_swap'
+    );
+    assert.equal(trainerSwap?.metadata?.skillReplacements?.['pokemon-trainer-rare-candy'], 'pokemon-trainer-revive');
+});
+
 test('permanent stacking damage starts on cast and uses the current stack total', () => {
     const beedrillIndex = characters.findIndex((character) => character.id === 'beedrill');
     const poisonStingIndex = characters[beedrillIndex].skills.findIndex(

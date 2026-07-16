@@ -6,6 +6,11 @@ const test = require('node:test');
 const root = path.resolve(__dirname, '..');
 const script = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');
 const styles = fs.readFileSync(path.join(root, 'styles', 'style.css'), 'utf8');
+const experimentalStyles = fs.readFileSync(
+    path.join(root, 'styles', 'selection-experimental.css'),
+    'utf8'
+);
+const selectionHtml = fs.readFileSync(path.join(root, 'selection.html'), 'utf8');
 
 test('mobile roster taps add characters through the slot instead of depending on the image', () => {
     assert.match(script, /slot\.addEventListener\('pointerdown'/);
@@ -41,6 +46,16 @@ test('selection identity uses the ladder profile for the active arena', () => {
     assert.doesNotMatch(hydrateIdentityBlock, /ladder: apiUser\.profile\?\.ladder/);
 });
 
+test('experimental player card shows rank, experience, record, streak, clan, and ladder position', () => {
+    for (const stat of ['rank', 'experience', 'record', 'streak', 'clan', 'ladder']) {
+        assert.match(selectionHtml, new RegExp(`data-player-stat="${stat}"`));
+    }
+    assert.match(script, /valueElement\.textContent = `\$\{ladder\.wins\} W · \$\{ladder\.losses\} L`/);
+    assert.match(script, /valueElement\.textContent = formatSignedNumber\(ladder\.streak\)/);
+    assert.match(experimentalStyles, /html\.selection-experimental \.player-stat\s*\{[^}]*display:\s*flex/s);
+    assert.doesNotMatch(experimentalStyles, /html\.selection-experimental \.player-stat\s*\{[^}]*display:\s*none/s);
+});
+
 test('selection drags snap near team slots and otherwise return selected characters to roster', () => {
     assert.match(script, /const snapPadding = 12/);
     assert.match(script, /getSelectedSlotDropIndex\(clientX, clientY, dragState\)/);
@@ -52,6 +67,10 @@ test('selection drags snap near team slots and otherwise return selected charact
         script,
         /finishSelectionPointerDrop\(\s*dragState\.payload,\s*upEvent\.clientX,\s*upEvent\.clientY,\s*dragState/s
     );
+    assert.match(
+        script,
+        /const cleanupSelectionPointerDrag = \(dragState\)[\s\S]*?sourceElement\.classList\.remove\('drag-hidden'\)/
+    );
 });
 
 test('the skill scroll stays above a full team so the third portrait cannot intercept it', () => {
@@ -60,4 +79,13 @@ test('the skill scroll stays above a full team so the third portrait cannot inte
 
     assert.match(viewerRule, /z-index:\s*4/);
     assert.match(selectedListRule, /z-index:\s*3/);
+});
+
+test('experimental selection has dedicated portrait and landscape phone layouts', () => {
+    assert.match(experimentalStyles, /@media \(max-width: 700px\)/);
+    assert.match(experimentalStyles, /grid-template-columns: repeat\(5, minmax\(0, 1fr\)\)/);
+    assert.match(experimentalStyles, /grid-template-rows: repeat\(6, 1fr\)/);
+    assert.match(experimentalStyles, /@media \(max-width: 950px\) and \(orientation: landscape\)/);
+    assert.match(experimentalStyles, /minmax\(200px, 2\.6fr\)/);
+    assert.match(experimentalStyles, /body\.custom-game-cursor \*/);
 });
