@@ -4353,13 +4353,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         const waitForMs = (durationMs) =>
             new Promise((resolve) => window.setTimeout(resolve, durationMs));
 
-        const waitForPendingSkillQueues = async () => {
-            const pendingRequests = Array.from(inFlightSkillRequestPromisesByActorSlot.values());
-            if (!pendingRequests.length) return;
-            await Promise.allSettled(pendingRequests);
-            if (inFlightSkillRequestPromisesByActorSlot.size > 0) {
-                await waitForPendingSkillQueues();
+        const waitForPendingSkillQueues = async (timeoutMs = 8000) => {
+            const deadline = Date.now() + Math.max(1000, Number(timeoutMs) || 8000);
+            while (inFlightSkillRequestPromisesByActorSlot.size > 0) {
+                const pendingRequests = Array.from(inFlightSkillRequestPromisesByActorSlot.values());
+                const remainingMs = deadline - Date.now();
+                if (remainingMs <= 0) return false;
+                const settledBeforeTimeout = await new Promise((resolve) => {
+                    let finished = false;
+                    const timeoutId = window.setTimeout(() => {
+                        if (finished) return;
+                        finished = true;
+                        resolve(false);
+                    }, remainingMs);
+                    Promise.allSettled(pendingRequests).then(() => {
+                        if (finished) return;
+                        finished = true;
+                        window.clearTimeout(timeoutId);
+                        resolve(true);
+                    });
+                });
+                if (!settledBeforeTimeout) return false;
             }
+            return true;
         };
 
         const clearTransientPortraitAnimationState = () => {
@@ -13011,7 +13027,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 endTurnOkButton.disabled = true;
             }
             try {
-                await waitForPendingSkillQueues();
+                const queuesSettled = await waitForPendingSkillQueues();
+                if (!queuesSettled) {
+                    setEndTurnModalStatus('Attack queue is resyncing. Review your attacks, then press OK again.', 'info');
+                    const recovered = await recoverCurrentMatchState({
+                        reason: 'end-turn-queue-timeout',
+                        message: 'Resyncing attacks before confirming your turn...',
+                    });
+                    setEndTurnModalStatus(
+                        recovered
+                            ? 'Attack queue restored. Review your attacks, then press OK again.'
+                            : 'Attack queue is still reconnecting. Please press OK again.',
+                        'info'
+                    );
+                    return;
+                }
                 const pending = normalizePendingTurn(pendingTurnState);
                 if (pending.unresolvedRandom > 0) {
                     setEndTurnModalStatus(
@@ -13354,64 +13384,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
 
         if (readySectionEl) {
-            let readySectionPointerActivationAt = 0;
-            const handleReadySectionPress = () => {
+            readySectionEl.addEventListener('click', () => {
                 handleReadySectionClick().catch((error) =>
                     console.warn('Failed to open end turn dialog.', error)
                 );
-            };
-            readySectionEl.addEventListener('pointerup', (event) => {
-                if (event?.button !== undefined && event.button !== 0) return;
-                readySectionPointerActivationAt = Date.now();
-                event.preventDefault();
-                event.stopPropagation();
-                handleReadySectionPress();
-            });
-            readySectionEl.addEventListener('click', (event) => {
-                if (Date.now() - readySectionPointerActivationAt < 450) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    return;
-                }
-                handleReadySectionPress();
             });
         }
         if (endTurnOkButton) {
-            let endTurnOkPointerActivationAt = 0;
-            const handleEndTurnOkPress = () => {
+            endTurnOkButton.addEventListener('click', () => {
                 handleEndTurnConfirm().catch((error) => console.warn('Turn end confirm failed.', error));
-            };
-            endTurnOkButton.addEventListener('pointerup', (event) => {
-                if (event?.button !== undefined && event.button !== 0) return;
-                endTurnOkPointerActivationAt = Date.now();
-                event.preventDefault();
-                event.stopPropagation();
-                handleEndTurnOkPress();
-            });
-            endTurnOkButton.addEventListener('click', (event) => {
-                if (Date.now() - endTurnOkPointerActivationAt < 450) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    return;
-                }
-                handleEndTurnOkPress();
             });
         }
         if (endTurnCancelButton) {
-            let endTurnCancelPointerActivationAt = 0;
-            endTurnCancelButton.addEventListener('pointerup', (event) => {
-                if (event?.button !== undefined && event.button !== 0) return;
-                endTurnCancelPointerActivationAt = Date.now();
-                event.preventDefault();
-                event.stopPropagation();
-                handleEndTurnCancel();
-            });
-            endTurnCancelButton.addEventListener('click', (event) => {
-                if (Date.now() - endTurnCancelPointerActivationAt < 450) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    return;
-                }
+            endTurnCancelButton.addEventListener('click', () => {
                 handleEndTurnCancel();
             });
         }
