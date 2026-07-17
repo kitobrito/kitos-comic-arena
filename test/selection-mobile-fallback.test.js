@@ -22,6 +22,16 @@ test('mobile roster taps add characters through the slot instead of depending on
     );
 });
 
+test('mobile portrait swipes remain native vertical page scrolling', () => {
+    assert.match(script, /const isTouchFirstMobileSelection =\s*event\.pointerType !== 'mouse'/);
+    assert.match(script, /if \(isTouchFirstMobileSelection\) return/);
+    assert.match(script, /window\.matchMedia\('\(max-width: 700px\) and \(pointer: coarse\)'\)\.matches/);
+    assert.match(experimentalStyles, /\.slot-list > \.slot-item:nth-child\(n\)[^}]*touch-action:\s*pan-y pinch-zoom/s);
+    assert.match(experimentalStyles, /background-attachment:\s*scroll/);
+    assert.match(selectionHtml, /selection-experimental\.css\?v=mobile-scroll-v1/);
+    assert.match(selectionHtml, /scripts\/script\.js\?v=mobile-scroll-v1/);
+});
+
 test('failed roster portraits leave a visible and tappable character fallback', () => {
     assert.match(script, /slot\.dataset\.characterInitial/);
     assert.match(script, /image\.classList\.add\('load-failed'\)/);

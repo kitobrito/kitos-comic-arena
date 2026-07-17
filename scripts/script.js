@@ -16548,6 +16548,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const startSelectionPointerDrag = (event, payload, sourceElement) => {
         if (!sourceElement || !payload || event.button !== 0 || activeSelectionPointerDrag) return;
+        const isTouchFirstMobileSelection =
+            event.pointerType !== 'mouse' &&
+            document.documentElement.classList.contains('selection-experimental') &&
+            window.matchMedia('(max-width: 700px)').matches;
+        // On phones, a swipe that begins over a portrait must remain a page
+        // scroll. Characters are selected with the normal tap/click handler.
+        if (isTouchFirstMobileSelection) return;
         cancelSelectionPreview();
         const rect = sourceElement.getBoundingClientRect();
         const dragState = {
@@ -16957,11 +16964,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                         handleCharacterSelect(rosterIndex);
                     }
                     const character = roster[rosterIndex];
+                    const isTouchFirstMobileSelection =
+                        document.documentElement.classList.contains('selection-experimental') &&
+                        window.matchMedia('(max-width: 700px) and (pointer: coarse)').matches;
                     if (
                         document.documentElement.classList.contains('selection-experimental') &&
                         isCharacterLocked(character)
                     ) {
                         openSelectionUnlockConfirm(character);
+                    } else if (isTouchFirstMobileSelection) {
+                        addRosterCharacterToSelection(rosterIndex);
                     }
                 });
             };
