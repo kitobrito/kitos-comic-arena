@@ -7314,6 +7314,30 @@ body.arena-mode-pokemon .chakra-box.white {
     visibility: hidden;
 }
 
+.end-turn-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 5998;
+    visibility: hidden;
+    pointer-events: none;
+    background: rgba(4, 8, 11, 0.34);
+}
+
+body.end-turn-modal-open .end-turn-modal-backdrop {
+    visibility: visible;
+    pointer-events: auto;
+}
+
+body.end-turn-modal-open .ChakraChooseEndTurn {
+    z-index: 5999;
+    pointer-events: auto;
+}
+
+body.end-turn-modal-open .status-reveal-panel,
+body.end-turn-modal-open .global-status-tooltip {
+    display: none !important;
+}
+
 .exchange_chakra {
     z-index: 5999;
     position: absolute;
