@@ -1722,6 +1722,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
         overscroll-behavior-y: auto;
         touch-action: pan-y pinch-zoom;
         -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
     }
 
     html.selection-experimental body.custom-game-cursor,
@@ -1738,6 +1739,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
         background-position: center top;
         background-attachment: scroll;
         touch-action: pan-y pinch-zoom;
+        will-change: scroll-position;
     }
 
     html.selection-experimental .selectionpage {
@@ -1746,6 +1748,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
         animation: none !important;
         transform: none !important;
         touch-action: pan-y pinch-zoom;
+        scroll-behavior: smooth;
     }
 
     html.selection-experimental .experimental-toolbar {
@@ -1981,7 +1984,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
         border-radius: 10px;
         background: rgba(5, 11, 14, 0.66);
         box-shadow: 0 14px 28px rgba(0, 0, 0, 0.36);
-        touch-action: pan-y pinch-zoom;
+        touch-action: manipulation;
     }
 
     html.selection-experimental .slot-list::before,
@@ -2097,6 +2100,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
         overscroll-behavior-y: contain;
         touch-action: pan-y;
         -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
         grid-template-columns: 1fr;
         z-index: 9700;
     }
@@ -2124,6 +2128,8 @@ html.selection-experimental body.matchmaking-active .sound-controller {
     html.selection-experimental .skill-images {
         touch-action: pan-y;
         -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+        overscroll-behavior-y: contain;
     }
 
     html.selection-experimental .selection-store-header {

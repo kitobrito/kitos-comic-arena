@@ -1123,6 +1123,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const selectionPreviewImageCache = new Set();
     let activeSelectionPointerDrag = null;
     let suppressSelectionClickUntil = 0;
+    let mobileRosterTapIndex = null;
+    let mobileRosterTapAt = 0;
     const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         abra: 'ABRA.png.webp',
         aerodactyl: 'AERODACTYL.png.webp',
@@ -16973,13 +16975,28 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ) {
                         openSelectionUnlockConfirm(character);
                     } else if (isTouchFirstMobileSelection) {
-                        addRosterCharacterToSelection(rosterIndex);
+                        const now = Date.now();
+                        const isConfirmedDoubleTap =
+                            mobileRosterTapIndex === rosterIndex && now - mobileRosterTapAt <= 650;
+                        mobileRosterTapIndex = isConfirmedDoubleTap ? null : rosterIndex;
+                        mobileRosterTapAt = isConfirmedDoubleTap ? 0 : now;
+                        if (isConfirmedDoubleTap) {
+                            addRosterCharacterToSelection(rosterIndex);
+                        } else if (selectionTeamStatusEl) {
+                            selectionTeamStatusEl.textContent = `Double-tap ${character?.name || 'this character'} to add them.`;
+                        }
                     }
                 });
             };
 
             const handleDoubleClick = () => {
                 cancelSelectionPreview();
+                if (
+                    document.documentElement.classList.contains('selection-experimental') &&
+                    window.matchMedia('(max-width: 700px) and (pointer: coarse)').matches
+                ) {
+                    return;
+                }
                 if (listItem.classList.contains('slot-empty')) return;
                 if (!Number.isInteger(rosterIndex)) return;
                 if (document.documentElement.classList.contains('selection-experimental')) {
