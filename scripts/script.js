@@ -3780,6 +3780,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 target === 'single-enemy' ||
                 target === 'other-enemies' ||
                 target === 'all-enemy' ||
+                target === 'random-enemy' ||
                 target === 'single-character'
             );
         };
@@ -12029,6 +12030,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 case 'single-enemy':
                     return { ok: true, targetType, mode: 'single', targets: enemyTargets, skillIndex: skillIdx };
                 case 'all-enemy':
+                case 'random-enemy':
                     return { ok: true, targetType, mode: 'all', targets: enemyTargets, skillIndex: skillIdx };
                 case 'self':
                     return { ok: true, targetType, mode: 'self', targets: selfTargets, skillIndex: skillIdx };

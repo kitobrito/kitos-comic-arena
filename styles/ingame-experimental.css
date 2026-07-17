@@ -87,6 +87,7 @@ html.battle-experimental .player-right {
     min-width: 178px;
     max-width: 178px;
     gap: 8px;
+    overflow: hidden;
 }
 
 html.battle-experimental .player-right {
@@ -122,12 +123,18 @@ html.battle-experimental .player-avatar-right:focus-visible {
 
 html.battle-experimental .player-info,
 html.battle-experimental .player-inforight {
+    flex: 1 1 auto;
+    width: 0;
+    max-width: 127px;
     min-width: 0;
+    overflow: hidden;
 }
 
 html.battle-experimental .player-name {
     position: static;
-    max-width: 125px;
+    display: block;
+    width: 100%;
+    max-width: 100%;
     overflow: hidden;
     color: #fff !important;
     font-size: 15px;
@@ -415,8 +422,8 @@ html.battle-experimental .ingameclasspicker {
     font-size: 9px;
 }
 
-html.battle-experimental .energytext { left: 108px; right: auto; }
-html.battle-experimental .ingameclasses { left: 228px; margin: 0; }
+html.battle-experimental .energytext { left: 170px; right: auto; max-width: 120px; }
+html.battle-experimental .ingameclasses { left: 300px; max-width: 135px; margin: 0; }
 html.battle-experimental .ingamecooldown { right: 15px; margin: 0; }
 html.battle-experimental .ingameclasspicker { right: 15px; bottom: 32px; }
 

@@ -21519,6 +21519,10 @@ const characters = [
                         "statusId": "pokemon_trainer_capture_form",
                         "duration": 999,
                         "scope": "self",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "enemy"
+                        },
                         "metadata": {
                             "infiniteDuration": true,
                             "unremovable": true,
@@ -23493,6 +23497,7 @@ const characters = [
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
+                            "turnDurationAnchor": "source_turn",
                             "skillFailChancePercent": 45,
                             "skillFailDamageAmount": 15,
                             "randomCostIncrease": 1,
@@ -23768,6 +23773,7 @@ const characters = [
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
+                            "turnDurationAnchor": "source_turn",
                             "skillFailChancePercent": 45,
                             "skillFailDamageAmount": 15,
                             "randomCostIncrease": 1,

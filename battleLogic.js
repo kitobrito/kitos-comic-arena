@@ -912,7 +912,8 @@ const computeTargetOptions = ({ match, actingUsername, actorSlot, skillIndex, ch
             });
             break;
         }
-        case 'all-enemy': {
+        case 'all-enemy':
+        case 'random-enemy': {
             result.mode = 'all';
             result.targets = mapTargets(opponentUsername, opponentBoard, {
                 enemyTargeting: true,
