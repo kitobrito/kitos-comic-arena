@@ -1719,7 +1719,9 @@ html.selection-experimental body.matchmaking-active .sound-controller {
         min-height: 100%;
         overflow-x: hidden;
         overflow-y: auto;
-        overscroll-behavior-y: contain;
+        overscroll-behavior-y: auto;
+        touch-action: pan-y pinch-zoom;
+        -webkit-overflow-scrolling: touch;
     }
 
     html.selection-experimental body.custom-game-cursor,
@@ -1734,7 +1736,8 @@ html.selection-experimental body.matchmaking-active .sound-controller {
         min-height: 1485px;
         overflow: hidden;
         background-position: center top;
-        background-attachment: fixed;
+        background-attachment: scroll;
+        touch-action: pan-y pinch-zoom;
     }
 
     html.selection-experimental .selectionpage {
@@ -1742,6 +1745,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
         height: 1485px;
         animation: none !important;
         transform: none !important;
+        touch-action: pan-y pinch-zoom;
     }
 
     html.selection-experimental .experimental-toolbar {
@@ -1977,6 +1981,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
         border-radius: 10px;
         background: rgba(5, 11, 14, 0.66);
         box-shadow: 0 14px 28px rgba(0, 0, 0, 0.36);
+        touch-action: pan-y pinch-zoom;
     }
 
     html.selection-experimental .slot-list::before,
@@ -1992,7 +1997,7 @@ html.selection-experimental body.matchmaking-active .sound-controller {
         transform: none;
         border-width: 1px;
         border-radius: 4px;
-        touch-action: manipulation;
+        touch-action: pan-y pinch-zoom;
     }
 
     html.selection-experimental .slot-image {
@@ -2089,6 +2094,9 @@ html.selection-experimental body.matchmaking-active .sound-controller {
         width: auto;
         max-height: calc(100dvh - 66px);
         overflow-y: auto;
+        overscroll-behavior-y: contain;
+        touch-action: pan-y;
+        -webkit-overflow-scrolling: touch;
         grid-template-columns: 1fr;
         z-index: 9700;
     }
@@ -2110,6 +2118,12 @@ html.selection-experimental body.matchmaking-active .sound-controller {
         width: auto;
         height: auto;
         z-index: 9800;
+    }
+
+    html.selection-experimental .selection-missions-list,
+    html.selection-experimental .skill-images {
+        touch-action: pan-y;
+        -webkit-overflow-scrolling: touch;
     }
 
     html.selection-experimental .selection-store-header {
