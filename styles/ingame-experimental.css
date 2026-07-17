@@ -268,6 +268,14 @@ html.battle-experimental .health-bar {
     background: linear-gradient(90deg, #178f46, #54d66e);
 }
 
+html.battle-experimental .health-bar.hp-mid {
+    background: linear-gradient(90deg, #b79209, #f1d424);
+}
+
+html.battle-experimental .health-bar.hp-low {
+    background: linear-gradient(90deg, #a91422, #e53030);
+}
+
 html.battle-experimental .health-text {
     color: #fff;
     font-size: 9px;

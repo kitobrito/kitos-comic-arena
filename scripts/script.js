@@ -2558,6 +2558,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         };
         let randomChakraRequestQueue = Promise.resolve();
         let randomChakraMutationVersion = 0;
+        let randomChakraRequestsInFlight = 0;
         let activeCastingSkill = null;
         const classChoiceBySkillKey = new Map();
         let pendingQueuePayload = null;
@@ -3758,13 +3759,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         const updateEndTurnButtons = () => {
             const pending = getPendingTurnWithOptimisticQueues();
             const hasUnresolvedRandom = pending.unresolvedRandom > 0;
+            const isSyncingRandomEnergy = randomChakraRequestsInFlight > 0;
             if (endTurnCancelButton) {
                 endTurnCancelButton.style.opacity = '1';
             }
             if (endTurnOkButton) {
-                endTurnOkButton.disabled = isEndingTurn;
-                endTurnOkButton.style.opacity = isEndingTurn ? '0.4' : '1';
-                endTurnOkButton.textContent = hasUnresolvedRandom ? 'CHOOSE' : 'OK';
+                endTurnOkButton.disabled = isEndingTurn || isSyncingRandomEnergy;
+                endTurnOkButton.style.opacity = endTurnOkButton.disabled ? '0.4' : '1';
+                endTurnOkButton.textContent = isSyncingRandomEnergy
+                    ? 'SYNCING'
+                    : hasUnresolvedRandom
+                        ? 'CHOOSE'
+                        : 'OK';
             }
         };
 
@@ -4379,6 +4385,23 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (!settledBeforeTimeout) return false;
             }
             return true;
+        };
+
+        const waitForRandomChakraAdjustments = async (timeoutMs = 8000) => {
+            if (randomChakraRequestsInFlight <= 0) return true;
+            const activeQueue = randomChakraRequestQueue;
+            let timeoutId = null;
+            const result = await Promise.race([
+                activeQueue.then(
+                    () => 'settled',
+                    () => 'failed'
+                ),
+                new Promise((resolve) => {
+                    timeoutId = window.setTimeout(() => resolve('timeout'), timeoutMs);
+                }),
+            ]);
+            if (timeoutId) window.clearTimeout(timeoutId);
+            return result === 'settled';
         };
 
         const clearTransientPortraitAnimationState = () => {
@@ -9095,7 +9118,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                           .join(' | ')
                     : '';
             card.classList.remove('has-shield-bar', 'has-forcefield-bar');
-            const hpBand = hp <= 30 ? 'low' : hp <= 60 ? 'mid' : 'high';
+            const hpBand = ratio <= 0.3 ? 'low' : ratio <= 0.6 ? 'mid' : 'high';
             if (card.dataset.renderedHpBand !== hpBand) {
                 healthBar.classList.remove('hp-mid', 'hp-low');
                 if (hpBand === 'low') {
@@ -10535,6 +10558,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.addEventListener('blur', () => {
             hideStatusReveal({ clearHeld: true });
         });
+
+        document.addEventListener(
+            'pointerdown',
+            (event) => {
+                if (!statusRevealHeld && !statusRevealPinned) return;
+                const target = event.target;
+                if (target instanceof Element && target.closest('.ingame-status-reveal-toggle, .status-reveal-panel')) {
+                    return;
+                }
+                hideStatusReveal({ clearPinned: true, clearHeld: true });
+            },
+            true
+        );
 
         const parseUnitKey = (value = '') => {
             if (typeof value !== 'string' || !value.includes(':')) return null;
@@ -13036,6 +13072,23 @@ document.addEventListener('DOMContentLoaded', async () => {
                 endTurnOkButton.disabled = true;
             }
             try {
+                if (randomChakraRequestsInFlight > 0) {
+                    setEndTurnModalStatus('Syncing your random energy selection...', 'info');
+                    const energySettled = await waitForRandomChakraAdjustments();
+                    if (!energySettled) {
+                        const recovered = await recoverCurrentMatchState({
+                            reason: 'end-turn-energy-sync',
+                            message: 'Resyncing random energy before confirming your turn...',
+                        });
+                        setEndTurnModalStatus(
+                            recovered
+                                ? 'Energy restored. Review the selection, then press OK again.'
+                                : 'Energy is still reconnecting. Please try OK again.',
+                            'info'
+                        );
+                        return;
+                    }
+                }
                 const queuesSettled = await waitForPendingSkillQueues();
                 if (!queuesSettled) {
                     setEndTurnModalStatus('Attack queue is resyncing. Review your attacks, then press OK again.', 'info');
@@ -13219,6 +13272,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             const previousPendingState = clonePendingTurnState(pendingTurnState);
             const appliedLocally = applyRandomChakraAdjustmentLocally(chakraType, delta);
             if (!appliedLocally) return;
+            randomChakraRequestsInFlight += 1;
+            updateEndTurnButtons();
             const requestMutationVersion = ++randomChakraMutationVersion;
             randomChakraRequestQueue = randomChakraRequestQueue
                 .catch(() => {})
@@ -13304,6 +13359,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     reason: 'random-adjust',
                     message: 'Refreshing your turn energy...',
                 }).catch(() => {});
+            } finally {
+                randomChakraRequestsInFlight = Math.max(0, randomChakraRequestsInFlight - 1);
+                updateEndTurnButtons();
             }
         };
 

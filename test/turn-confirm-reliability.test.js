@@ -22,7 +22,8 @@ test('turn confirmation cannot remain disabled forever on a stalled skill queue'
 
 test('battle page cache-busts the shared script for the confirmation hotfix', () => {
     assert.match(ingame, /styles\/style\.css\?v=turn-confirm-hotfix-v2/);
-    assert.match(ingame, /scripts\/script\.js\?v=turn-confirm-hotfix-v2/);
+    assert.match(ingame, /styles\/ingame-experimental\.css\?v=turn-state-sync-v1/);
+    assert.match(ingame, /scripts\/script\.js\?v=turn-state-sync-v1/);
 });
 
 test('end-turn dialog blocks the battle below it and clears competing overlays', () => {
@@ -32,4 +33,27 @@ test('end-turn dialog blocks the battle below it and clears competing overlays',
     assert.match(script, /hideStatusReveal\(\{ clearPinned: true, clearHeld: true \}\)/);
     assert.match(script, /endTurnOkButton\.addEventListener\('click', \(event\) => \{\s*event\.preventDefault\(\);\s*event\.stopPropagation\(\);/s);
     assert.match(script, /Could not confirm this turn:/);
+});
+
+test('turn confirmation waits for random energy requests to reach the server', () => {
+    assert.match(script, /let randomChakraRequestsInFlight = 0/);
+    assert.match(script, /waitForRandomChakraAdjustments = async \(timeoutMs = 8000\)/);
+    assert.match(script, /endTurnOkButton\.disabled = isEndingTurn \|\| isSyncingRandomEnergy/);
+    assert.match(script, /Syncing your random energy selection/);
+    assert.match(script, /reason: 'end-turn-energy-sync'/);
+});
+
+test('health bands use health percentage and the experimental skin preserves their colors', () => {
+    const experimentalStyles = fs.readFileSync(
+        path.join(root, 'styles', 'ingame-experimental.css'),
+        'utf8'
+    );
+    assert.match(script, /const hpBand = ratio <= 0\.3 \? 'low' : ratio <= 0\.6 \? 'mid' : 'high'/);
+    assert.match(experimentalStyles, /html\.battle-experimental \.health-bar\.hp-mid/);
+    assert.match(experimentalStyles, /html\.battle-experimental \.health-bar\.hp-low/);
+});
+
+test('status reveal panels dismiss when the player interacts elsewhere', () => {
+    assert.match(script, /if \(!statusRevealHeld && !statusRevealPinned\) return/);
+    assert.match(script, /hideStatusReveal\(\{ clearPinned: true, clearHeld: true \}\)/);
 });
