@@ -2514,6 +2514,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const BATTLE_INTRO_DURATION_MS = 3000;
         let hasPlayedBattleIntro = false;
         const endTurnModalEl = document.querySelector('.ChakraChooseEndTurn');
+        const endTurnModalBackdropEl = document.querySelector('.end-turn-modal-backdrop');
         const endTurnStatusEl = endTurnModalEl?.querySelector('.end-turn-status');
         const skillOrderEl = endTurnModalEl?.querySelector('.skillorder');
         const endTurnOkButton = document.querySelector('.ok-buttonendturn');
@@ -7492,6 +7493,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         const openEndTurnModal = () => {
             if (!endTurnModalEl || !matchIdFromUrl) return;
             const refreshVersion = ++endTurnModalRefreshVersion;
+            clearActiveTargetSelectionState();
+            hideStatusReveal({ clearPinned: true, clearHeld: true });
+            document.body.classList.add('end-turn-modal-open');
+            endTurnModalBackdropEl?.setAttribute('aria-hidden', 'false');
             // Show immediately from the last known client state; refresh in the background below.
             endTurnModalEl.style.visibility = 'visible';
             renderEndTurnModal(playerPoolState, getPendingTurnWithOptimisticQueues());
@@ -7539,6 +7544,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!endTurnModalEl) return;
             endTurnModalRefreshVersion += 1;
             endTurnModalEl.style.visibility = 'hidden';
+            document.body.classList.remove('end-turn-modal-open');
+            endTurnModalBackdropEl?.setAttribute('aria-hidden', 'true');
             setEndTurnModalStatus('');
         };
 
@@ -13135,6 +13142,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 closeEndTurnModal();
             } catch (error) {
                 console.warn('Failed to end turn.', error);
+                setEndTurnModalStatus(
+                    `Could not confirm this turn: ${error?.message || 'Refreshing the match state...'}`,
+                    'error'
+                );
                 announceMatchIssue(
                     `Your turn could not be confirmed. ${error?.message || 'Retrying match sync...'}`,
                     {
@@ -13393,12 +13404,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
         if (endTurnOkButton) {
-            endTurnOkButton.addEventListener('click', () => {
+            endTurnOkButton.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
                 handleEndTurnConfirm().catch((error) => console.warn('Turn end confirm failed.', error));
             });
         }
         if (endTurnCancelButton) {
-            endTurnCancelButton.addEventListener('click', () => {
+            endTurnCancelButton.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
                 handleEndTurnCancel();
             });
         }
