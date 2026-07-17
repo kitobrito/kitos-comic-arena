@@ -26,10 +26,18 @@ test('mobile portrait swipes remain native vertical page scrolling', () => {
     assert.match(script, /const isTouchFirstMobileSelection =\s*event\.pointerType !== 'mouse'/);
     assert.match(script, /if \(isTouchFirstMobileSelection\) return/);
     assert.match(script, /window\.matchMedia\('\(max-width: 700px\) and \(pointer: coarse\)'\)\.matches/);
-    assert.match(experimentalStyles, /\.slot-list > \.slot-item:nth-child\(n\)[^}]*touch-action:\s*pan-y pinch-zoom/s);
+    assert.match(experimentalStyles, /\.slot-list[^}]*touch-action:\s*pan-y pinch-zoom/s);
     assert.match(experimentalStyles, /background-attachment:\s*scroll/);
-    assert.match(selectionHtml, /selection-experimental\.css\?v=mobile-scroll-v1/);
-    assert.match(selectionHtml, /scripts\/script\.js\?v=mobile-scroll-v1/);
+    assert.match(experimentalStyles, /-webkit-overflow-scrolling:\s*touch/);
+    assert.match(experimentalStyles, /scroll-behavior:\s*smooth/);
+    assert.match(selectionHtml, /selection-experimental\.css\?v=mobile-scroll-v2/);
+    assert.match(selectionHtml, /scripts\/script\.js\?v=mobile-scroll-v2/);
+});
+
+test('mobile character selection requires two taps on the same portrait', () => {
+    assert.match(script, /mobileRosterTapIndex === rosterIndex && now - mobileRosterTapAt <= 650/);
+    assert.match(script, /Double-tap \$\{character\?\.name \|\| 'this character'\} to add them\./);
+    assert.match(script, /if \(isConfirmedDoubleTap\) \{\s*addRosterCharacterToSelection\(rosterIndex\);/s);
 });
 
 test('failed roster portraits leave a visible and tappable character fallback', () => {
