@@ -1216,6 +1216,142 @@ test('Dragon Rage deals damage on the same Gyarados turn it is applied', () => {
     assert.equal(match.board.enemy[0].state.statuses[0].remainingTurns, 2);
 });
 
+test('Magnemite Thunder Wave expires after one affected enemy turn', () => {
+    const magnemiteIndex = characters.findIndex((character) => character?.id === 'magnemite');
+    const thunderWaveIndex = characters[magnemiteIndex].skills.findIndex(
+        (skill) => skill?.id === 'magnemite-thunder-wave'
+    );
+    assert.notEqual(magnemiteIndex, -1);
+    assert.notEqual(thunderWaveIndex, -1);
+
+    const match = {
+        players: [{ username: 'ash' }, { username: 'gary' }],
+        board: {
+            ash: [{
+                alive: true,
+                hp: 100,
+                maxHp: 100,
+                rosterIndex: magnemiteIndex,
+                state: { statuses: [], cooldowns: {}, skillUses: {}, snapshots: {} },
+            }],
+            gary: [{
+                alive: true,
+                hp: 100,
+                maxHp: 100,
+                rosterIndex: 0,
+                state: { statuses: [], cooldowns: {}, skillUses: {}, snapshots: {} },
+            }],
+        },
+        chakraPools: {
+            ash: { taijutsu: 0, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+            gary: { taijutsu: 0, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+        },
+        pendingTurns: {
+            ash: {
+                queueOrder: ['0'],
+                queuedByActorSlot: {
+                    '0': {
+                        skillIndex: thunderWaveIndex,
+                        targetSelection: [{ username: 'gary', slot: 0 }],
+                    },
+                },
+            },
+        },
+        pendingActions: [],
+        pendingQueuedEffects: [],
+        economy: { turnCounts: { ash: 1, gary: 1 } },
+    };
+
+    resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+
+    const getThunderWaveStun = () => match.board.gary[0].state.statuses.find(
+        (status) => status.id === 'magnemite_thunder_wave_stun'
+    );
+    assert.equal(getThunderWaveStun()?.metadata?.turnDurationAnchor, 'source_turn');
+
+    tickStatusesForTurnEnd({ match, endingUsername: 'ash' });
+    tickStatusesForTurnEnd({ match, endingUsername: 'gary' });
+    assert.ok(getThunderWaveStun(), 'Thunder Wave should cover the first enemy turn');
+
+    tickStatusesForTurnEnd({ match, endingUsername: 'ash' });
+    assert.equal(getThunderWaveStun(), undefined);
+});
+
+test('Koffing Poison Gas can proc from its random-only damage hook', () => {
+    const koffingIndex = characters.findIndex((character) => character?.id === 'koffing');
+    const selfDestructIndex = characters[koffingIndex].skills.findIndex(
+        (skill) => skill?.id === 'koffing-self-destruct'
+    );
+    assert.notEqual(koffingIndex, -1);
+    assert.notEqual(selfDestructIndex, -1);
+
+    const poisonGas = characters[koffingIndex].startStatuses.find(
+        (status) => status?.statusId === 'koffing_poison_gas_base'
+    );
+    const match = {
+        players: [{ username: 'ash' }, { username: 'gary' }],
+        board: {
+            ash: [{
+                alive: true,
+                hp: 100,
+                maxHp: 100,
+                rosterIndex: koffingIndex,
+                state: {
+                    statuses: [{
+                        id: poisonGas.statusId,
+                        remainingTurns: poisonGas.duration,
+                        sourceSkillId: poisonGas.sourceSkillId,
+                        metadata: structuredClone(poisonGas.metadata),
+                    }],
+                    cooldowns: {},
+                    skillUses: {},
+                    snapshots: {},
+                },
+            }],
+            gary: [{
+                alive: true,
+                hp: 100,
+                maxHp: 100,
+                rosterIndex: 0,
+                state: { statuses: [], cooldowns: {}, skillUses: {}, snapshots: {} },
+            }],
+        },
+        chakraPools: {
+            ash: { taijutsu: 0, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+            gary: { taijutsu: 0, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+        },
+        pendingTurns: {
+            ash: {
+                queueOrder: ['0'],
+                queuedByActorSlot: {
+                    '0': {
+                        skillIndex: selfDestructIndex,
+                        targetSelection: [{ username: 'gary', slot: 0 }],
+                    },
+                },
+            },
+        },
+        pendingActions: [],
+        pendingQueuedEffects: [],
+        economy: { turnCounts: { ash: 1, gary: 1 } },
+    };
+
+    const originalRandom = Math.random;
+    Math.random = () => 0;
+    try {
+        resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+    } finally {
+        Math.random = originalRandom;
+    }
+
+    assert.equal(match.board.gary[0].hp, 80);
+    assert.ok(
+        match.board.gary[0].state.statuses.some(
+            (status) => status.id === 'koffing_poison_gas_harmful_blind'
+        )
+    );
+});
+
 test('Splash can advance Magikarp into Gyarados immediately at 6 stacks', () => {
     const state = {
         statuses: [

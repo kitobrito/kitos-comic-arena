@@ -10875,7 +10875,14 @@ const applyOnTeamMemberSuccessfulDamageBonuses = ({
             if (!isStatusActiveForMetadata(status, teamUnit)) return;
             const metadata = status?.metadata || {};
             const applyStatusToTarget = metadata.onTeamMemberSuccessfulDamageApplyStatusToTarget;
-            if (!applyStatusToTarget?.statusId) return;
+            const applyRandomStatusToTarget =
+                metadata.onTeamMemberSuccessfulDamageApplyRandomStatusToTarget;
+            if (
+                !applyStatusToTarget?.statusId &&
+                !applyRandomStatusToTarget?.statusOptions?.length
+            ) {
+                return;
+            }
             if (
                 Boolean(metadata.onTeamMemberSuccessfulDamageOwnerOnly) &&
                 Number(teamSlot) !== Number(sourceSlot)
@@ -10894,7 +10901,7 @@ const applyOnTeamMemberSuccessfulDamageBonuses = ({
                 return;
             }
             if (
-                applyStatusToTarget.condition &&
+                applyStatusToTarget?.condition &&
                 !doesEffectConditionMatch({
                     condition: applyStatusToTarget.condition,
                     actorState: teamState,
@@ -10907,25 +10914,26 @@ const applyOnTeamMemberSuccessfulDamageBonuses = ({
             ) {
                 return;
             }
-            applyStatus({
-                targetState,
-                statusId: applyStatusToTarget.statusId,
-                duration: applyStatusToTarget.duration,
-                sourceSkillId: resolveTriggeredEffectSourceSkillId({
-                    status,
-                    config: applyStatusToTarget,
-                    fallbackSkillId: sourceSkillId,
-                }),
-                sourceUsername: status?.sourceUsername || actingUsername || null,
-                sourceSlot: Number.isInteger(status?.sourceSlot)
-                    ? status.sourceSlot
-                    : Number.isInteger(teamSlot)
-                    ? teamSlot
-                    : null,
-                metadata: applyStatusToTarget.metadata || {},
-                fresh: false,
-            });
-            const applyRandomStatusToTarget = metadata.onTeamMemberSuccessfulDamageApplyRandomStatusToTarget;
+            if (applyStatusToTarget?.statusId) {
+                applyStatus({
+                    targetState,
+                    statusId: applyStatusToTarget.statusId,
+                    duration: applyStatusToTarget.duration,
+                    sourceSkillId: resolveTriggeredEffectSourceSkillId({
+                        status,
+                        config: applyStatusToTarget,
+                        fallbackSkillId: sourceSkillId,
+                    }),
+                    sourceUsername: status?.sourceUsername || actingUsername || null,
+                    sourceSlot: Number.isInteger(status?.sourceSlot)
+                        ? status.sourceSlot
+                        : Number.isInteger(teamSlot)
+                        ? teamSlot
+                        : null,
+                    metadata: applyStatusToTarget.metadata || {},
+                    fresh: false,
+                });
+            }
             if (applyRandomStatusToTarget?.statusOptions?.length) {
                 const chancePercent = Number(applyRandomStatusToTarget.chancePercent);
                 if (
@@ -10960,7 +10968,7 @@ const applyOnTeamMemberSuccessfulDamageBonuses = ({
                     }
                 }
             }
-            const bonusDamage = Math.max(0, Number(applyStatusToTarget.damageToTarget) || 0);
+            const bonusDamage = Math.max(0, Number(applyStatusToTarget?.damageToTarget) || 0);
             if (bonusDamage > 0) {
                 applyDamageToUnit(targetUnit, bonusDamage, {
                     match,
