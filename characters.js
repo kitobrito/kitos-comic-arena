@@ -28867,6 +28867,7 @@ const characters = [
                             "harmful": true,
                             "cannotUseNonMentalSkills": true,
                             "freezeCooldowns": true,
+                            "turnDurationAnchor": "source_turn",
                             "statusIconUrl": "assets/images/PokemonArena/mangemite/magnemitethunderwave.webp",
                             "tooltipText": "This character's non-mental skills are stunned and their cooldowns are paralyzed."
                         }
@@ -29151,6 +29152,7 @@ const characters = [
                             "harmful": true,
                             "cannotUseNonMentalSkills": true,
                             "freezeCooldowns": true,
+                            "turnDurationAnchor": "source_turn",
                             "statusIconUrl": "assets/images/PokemonArena/mangemite/magnetonthunderwave.webp",
                             "tooltipText": "This character's non-mental skills are stunned and their cooldowns are paralyzed."
                         }
