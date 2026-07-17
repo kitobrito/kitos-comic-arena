@@ -336,13 +336,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         let currentMusic = null;
         let musicTracks = [];
         let currentTrackIndex = -1;
+        let shuffledTrackIndices = [];
+        let shuffledTrackPosition = 0;
         let synthContext = null;
         let noiseBuffer = null;
         const ambientIntervals = new Map();
         const comicIngameMusicTracks = ['assets/audio/track2.mp3', 'assets/audio/track3.mp3'];
-        const wildPokemonBattleMusicTrack =
-            'assets/images/PokemonArena/Wild Pokémon Battle (Movie 7) - Pokémon (Anime) Music Extended.mp3';
-        const pokemonIngameMusicTracks = [wildPokemonBattleMusicTrack];
+        const pokemonIngameMusicTracks = [
+            'assets/images/PokemonArena/music/ChampionRed Battle - Pokémon GoldSilverCrystal Soundtrack.mp3',
+            'assets/images/PokemonArena/music/Gym Leader Battle (Johto) - Pokémon GoldSilverCrystal Soundtrack.mp3',
+            'assets/images/PokemonArena/music/Gym Leader Battle (Kanto) - Pokémon GoldSilverCrystal Soundtrack.mp3',
+            'assets/images/PokemonArena/music/Rival Battle - Pokémon GoldSilverCrystal Soundtrack (1).mp3',
+            'assets/images/PokemonArena/music/Rival Battle - Pokémon GoldSilverCrystal Soundtrack.mp3',
+            'assets/images/PokemonArena/music/Suicune Battle - Pokémon GoldSilverCrystal Soundtrack.mp3',
+            'assets/images/PokemonArena/music/Team Rocket Battle - Pokémon GoldSilverCrystal Soundtrack.mp3',
+            'assets/images/PokemonArena/music/Trainer Battle (Johto) - Pokémon GoldSilverCrystal Soundtrack.mp3',
+            'assets/images/PokemonArena/music/Trainer Battle (Kanto) - Pokémon GoldSilverCrystal Soundtrack.mp3',
+            'assets/images/PokemonArena/music/Wild Pokémon Battle (Day) - Pokémon GoldSilverCrystal Soundtrack.mp3',
+            'assets/images/PokemonArena/music/Wild Pokémon Battle (Movie 7) - Pokémon (Anime) Music Extended.mp3',
+            'assets/images/PokemonArena/music/Wild Pokémon Battle (Night) - Pokémon GoldSilverCrystal Soundtrack.mp3',
+        ];
 
         const getSynthContext = () => {
             const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
@@ -641,17 +654,34 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         };
 
+        const buildShuffledTrackIndices = (trackCount, previousIndex = -1) => {
+            const indices = Array.from({ length: trackCount }, (_, index) => index);
+            for (let index = indices.length - 1; index > 0; index -= 1) {
+                const swapIndex = Math.floor(Math.random() * (index + 1));
+                [indices[index], indices[swapIndex]] = [indices[swapIndex], indices[index]];
+            }
+            if (indices.length > 1 && indices[0] === previousIndex) {
+                const swapIndex = 1 + Math.floor(Math.random() * (indices.length - 1));
+                [indices[0], indices[swapIndex]] = [indices[swapIndex], indices[0]];
+            }
+            return indices;
+        };
+
         const playNextTrack = () => {
             if (musicTracks.length === 0) return;
-            
+
             if (musicTracks.length === 1) {
                 currentTrackIndex = 0;
             } else {
-                if (currentTrackIndex === -1) {
-                    currentTrackIndex = Math.floor(Math.random() * musicTracks.length);
-                } else {
-                    currentTrackIndex = (currentTrackIndex + 1) % musicTracks.length;
+                if (shuffledTrackPosition >= shuffledTrackIndices.length) {
+                    shuffledTrackIndices = buildShuffledTrackIndices(
+                        musicTracks.length,
+                        currentTrackIndex
+                    );
+                    shuffledTrackPosition = 0;
                 }
+                currentTrackIndex = shuffledTrackIndices[shuffledTrackPosition];
+                shuffledTrackPosition += 1;
             }
 
             if (currentMusic) {
@@ -771,6 +801,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 musicTracks = nextTracks;
                 currentTrackIndex = -1;
+                shuffledTrackIndices = [];
+                shuffledTrackPosition = 0;
                 playNextTrack();
             },
             stopMusic() {
@@ -780,6 +812,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
                 musicTracks = [];
                 currentTrackIndex = -1;
+                shuffledTrackIndices = [];
+                shuffledTrackPosition = 0;
             },
             ensureIngameBattleMusic(arena = 'comic') {
                 const normalizedArena =
