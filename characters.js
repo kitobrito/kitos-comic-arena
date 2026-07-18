@@ -23199,6 +23199,7 @@ const characters = [
             {
                 "id": "koffing-weezing-self-destruct",
                 "name": "Self-Destruct",
+                "useBaseSkillCooldown": true,
                 "actorCondition": {
                     "statusId": "koffing_weezing_evolution"
                 },
@@ -29178,7 +29179,7 @@ const characters = [
                     "statusId": "magnemite_magneton_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/mangemite/flashcannon.png",
-                "skilldescription": "Deals 40 damage to one enemy. The next piercing damage they take is increased by 10.",
+                "skilldescription": "Deals 40 damage to one enemy. The next Spark or Flash Cannon Magneton uses against them deals 10 additional piercing damage.",
                 "energy": [
                     "Random",
                     "Random",

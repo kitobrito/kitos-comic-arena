@@ -3914,9 +3914,17 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         };
 
-        const getCooldownRemainingForSkill = (actorUnit, skill) => {
-            const cooldowns = actorUnit?.state?.cooldowns || {};
+        const getCooldownSkillIdForActor = (actorUnit, skill, skillIdx = null) => {
             const skillId = typeof skill?.id === 'string' ? skill.id : '';
+            if (!skill?.useBaseSkillCooldown || !Number.isInteger(skillIdx)) return skillId;
+            const rosterIndex = Number.parseInt(actorUnit?.rosterIndex, 10);
+            const baseSkill = Number.isInteger(rosterIndex) ? rosterData?.[rosterIndex]?.skills?.[skillIdx] : null;
+            return baseSkill?.id || skillId;
+        };
+
+        const getCooldownRemainingForSkill = (actorUnit, skill, skillIdx = null) => {
+            const cooldowns = actorUnit?.state?.cooldowns || {};
+            const skillId = getCooldownSkillIdForActor(actorUnit, skill, skillIdx);
             if (!skillId) return 0;
             return Math.max(0, Number(cooldowns[skillId]) || 0);
         };
@@ -4023,7 +4031,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ) {
                         continue;
                     }
-                    if (getCooldownRemainingForSkill(actorUnit, otherSkill) <= 0) {
+                    if (getCooldownRemainingForSkill(actorUnit, otherSkill, entry.skillIdx) <= 0) {
                         return false;
                     }
                 }
@@ -4076,7 +4084,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const usageState = getSkillUsageState(actorUnit, skill, actorSlot, skillIdx);
             return (
                 isUnitDeadLike(actorUnit) ||
-                getCooldownRemainingForSkill(actorUnit, skill) > 0 ||
+                getCooldownRemainingForSkill(actorUnit, skill, skillIdx) > 0 ||
                 usageState.isBlocked ||
                 isSkillBlockedByClassLock(actorUnit, skill) ||
                 isSkillBlockedByIndexLock(actorUnit, skillIdx) ||
@@ -4268,7 +4276,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const actorUnit = Array.isArray(playerUnits) ? playerUnits[meta.actorSlot] : null;
                 const cooldowns = actorUnit?.state?.cooldowns || {};
                 const effectiveSkill = getEffectiveSkillForActorSlot(meta.actorSlot, meta.skillIdx) || meta?.skill;
-                const skillId = effectiveSkill?.id || '';
+                const skillId = getCooldownSkillIdForActor(actorUnit, effectiveSkill, meta.skillIdx);
                 const cooldownRemaining = skillId ? Math.max(0, Number(cooldowns[skillId]) || 0) : 0;
                 const cooldownKey = `${meta.actorSlot}:${meta.skillIdx}`;
                 const previousCooldown = cooldownValueBySkillKey.get(cooldownKey);
@@ -13314,15 +13322,23 @@ document.addEventListener('DOMContentLoaded', async () => {
             randomChakraRequestQueue = randomChakraRequestQueue
                 .catch(() => {})
                 .then(async () => {
-                const response = await fetch(
-                    `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/random/adjust`,
-                    {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        credentials: 'include',
-                        body: JSON.stringify({ chakraType, delta }),
-                    }
-                );
+                const controller = new AbortController();
+                const timeoutId = window.setTimeout(() => controller.abort(), 12000);
+                let response;
+                try {
+                    response = await fetch(
+                        `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/random/adjust`,
+                        {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            credentials: 'include',
+                            body: JSON.stringify({ chakraType, delta }),
+                            signal: controller.signal,
+                        }
+                    );
+                } finally {
+                    window.clearTimeout(timeoutId);
+                }
                 const data = await response.json();
                 if (response.status === 401 || response.status === 403) {
                     redirectToSelectionLogin(currentMatchArena, {

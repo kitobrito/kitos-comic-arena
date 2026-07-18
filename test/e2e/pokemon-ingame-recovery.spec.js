@@ -639,6 +639,20 @@ test('battle URLs without a layout start in the new UI', async ({ page }) => {
     await expect(page.locator('html')).toHaveClass(/battle-experimental/);
     await expect(page.locator('.ingame-layout-toggle')).toBeVisible();
     await expect(page.locator('.ingame-layout-toggle')).toHaveText('Classic UI');
+    await expect(page.locator('.exchange-label')).toBeVisible();
+
+    const firstCardGeometry = await page.locator('.player-characters .character-card').first().evaluate((card) => {
+        const face = card.querySelector('.character-face')?.getBoundingClientRect();
+        const skillStrip = card.querySelector('.skillscrollingame')?.getBoundingClientRect();
+        const selectedMove = card.querySelector('.skillqueue')?.getBoundingClientRect();
+        return {
+            faceRight: face?.right || 0,
+            skillStripLeft: skillStrip?.left || 0,
+            selectedMoveLeft: selectedMove?.left || 0,
+        };
+    });
+    expect(firstCardGeometry.skillStripLeft).toBeGreaterThan(firstCardGeometry.faceRight);
+    expect(firstCardGeometry.selectedMoveLeft).toBeGreaterThan(firstCardGeometry.faceRight);
 });
 
 test('selection URLs without a layout start in the new UI and can opt into classic', async ({ page }) => {

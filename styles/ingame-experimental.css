@@ -88,6 +88,7 @@ html.battle-experimental .player-right {
     max-width: 178px;
     gap: 8px;
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 html.battle-experimental .player-right {
@@ -191,8 +192,11 @@ html.battle-experimental .timer-countdown {
 }
 
 html.battle-experimental .chakra-display {
-    gap: 8px;
+    justify-content: flex-start;
+    gap: 4px;
     margin: 5px 0 0;
+    padding-right: 62px;
+    box-sizing: border-box;
 }
 
 html.battle-experimental .chakra-item {
@@ -215,7 +219,29 @@ html.battle-experimental .chakra-icon {
 }
 
 html.battle-experimental .exchange-label {
-    display: none;
+    display: block;
+    position: absolute;
+    top: 33px;
+    right: 0;
+    left: auto;
+    min-width: 56px;
+    padding: 4px 5px;
+    box-sizing: border-box;
+    border: 1px solid rgba(255, 255, 255, 0.38);
+    border-radius: 4px;
+    background: linear-gradient(180deg, rgba(239, 64, 93, 0.94), rgba(151, 23, 46, 0.94));
+    color: #fff;
+    font-size: 8px;
+    line-height: 1;
+    text-align: center;
+    cursor: pointer;
+    box-shadow: 0 2px 7px rgba(0, 0, 0, 0.42);
+}
+
+html.battle-experimental .exchange-label:hover,
+html.battle-experimental .exchange-label:focus-visible {
+    filter: brightness(1.16);
+    outline: 1px solid rgba(255, 255, 255, 0.8);
 }
 
 /* Combat lanes */
@@ -290,7 +316,7 @@ html.battle-experimental .health-text {
 }
 
 html.battle-experimental .skillholder {
-    left: 72px;
+    left: 82px;
     top: 12px;
 }
 
@@ -302,7 +328,7 @@ html.battle-experimental .skillscrollingame,
 html.battle-experimental body.arena-mode-pokemon .skillscrollingame {
     top: 0;
     left: 0;
-    width: 370px;
+    width: 360px;
     height: 71px;
     box-sizing: border-box;
     gap: 8px;

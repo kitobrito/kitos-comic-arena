@@ -35,5 +35,5 @@ test('the browser immediately recognizes Hidden Power as enemy targeting', () =>
     const ingame = fs.readFileSync(path.join(__dirname, '..', 'ingame.html'), 'utf8');
     assert.match(script, /case 'all-enemy':\s*case 'random-enemy':/);
     assert.match(script, /target === 'random-enemy'/);
-    assert.match(ingame, /scripts\/script\.js\?v=eevee-hidden-power-v1/);
+    assert.match(ingame, /scripts\/script\.js\?v=pokemon-ui-sync-fixes-v1/);
 });
