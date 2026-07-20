@@ -4,6 +4,7 @@ const characters = require('../characters.js');
 
 const {
     normalizeArenaMode,
+    applyRequiredCanonicalSkillCorrections,
     makeEmptyPendingTurn,
     sanitizeSavedTeamIndicesForArena,
     buildSanitizedSavedTeamIndicesByArena,
@@ -16,6 +17,30 @@ const {
     isRepeatLadderSurrenderer,
     resolveExpiredTurnStartChoiceIfNeeded,
 } = require('../server.js');
+
+test('required gameplay fixes survive stored character overrides without removing extra fields', () => {
+    const canonical = [{
+        characterId: 'magnemite',
+        skills: [{ id: 'magneton-flash-cannon', skilldescription: 'Corrected text', cooldown: 1 }],
+    }];
+    const merged = [{
+        characterId: 'magnemite',
+        customOverride: true,
+        skills: [{
+            id: 'magneton-flash-cannon',
+            skilldescription: 'Stale text',
+            cooldown: 7,
+            customSkillOverride: true,
+        }],
+    }];
+
+    const [corrected] = applyRequiredCanonicalSkillCorrections(merged, canonical);
+
+    assert.equal(corrected.customOverride, true);
+    assert.equal(corrected.skills[0].customSkillOverride, true);
+    assert.equal(corrected.skills[0].cooldown, 7);
+    assert.equal(corrected.skills[0].skilldescription, 'Corrected text');
+});
 
 const firstComicRosterIndex = characters.findIndex(
     (character) => normalizeArenaMode(character?.arena || character?.universe) === 'comic'
