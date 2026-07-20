@@ -6871,6 +6871,45 @@ const mergeCharacterOverrideRecord = (baseCharacter, overrideCharacter) => {
     return mergeCharacterOverrideValue(baseCharacter, overrideCharacter);
 };
 
+const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonicalCharacters = []) => {
+    const requiredFieldsByCharacterAndSkill = {
+        magnemite: {
+            'magneton-flash-cannon': ['skilldescription'],
+        },
+        koffing: {
+            'koffing-weezing-self-destruct': ['useBaseSkillCooldown'],
+        },
+    };
+    const canonicalById = new Map(
+        (Array.isArray(canonicalCharacters) ? canonicalCharacters : []).map((character) => [
+            getCharacterRecordId(character),
+            character,
+        ])
+    );
+    return (Array.isArray(mergedCharacters) ? mergedCharacters : []).map((character) => {
+        const characterId = getCharacterRecordId(character);
+        const requiredSkillFields = requiredFieldsByCharacterAndSkill[characterId];
+        const canonicalCharacter = canonicalById.get(characterId);
+        if (!requiredSkillFields || !canonicalCharacter) return character;
+        const canonicalSkillById = new Map(
+            (Array.isArray(canonicalCharacter.skills) ? canonicalCharacter.skills : []).map((skill) => [skill?.id, skill])
+        );
+        return {
+            ...character,
+            skills: (Array.isArray(character.skills) ? character.skills : []).map((skill) => {
+                const fields = requiredSkillFields[skill?.id];
+                const canonicalSkill = canonicalSkillById.get(skill?.id);
+                if (!Array.isArray(fields) || !canonicalSkill) return skill;
+                const correctedSkill = { ...skill };
+                fields.forEach((field) => {
+                    if (canonicalSkill[field] !== undefined) correctedSkill[field] = canonicalSkill[field];
+                });
+                return correctedSkill;
+            }),
+        };
+    });
+};
+
 const applyCharacterOverrides = (baseCharacters = []) => {
     const nextCharacters = (Array.isArray(baseCharacters) ? baseCharacters : []).slice();
     characterOverrideCache.forEach((overrideCharacter, characterId) => {
@@ -6889,7 +6928,9 @@ const applyCharacterOverrides = (baseCharacters = []) => {
             overrideCharacter
         );
     });
-    return applyCanonicalCharacterAssetPaths(nextCharacters);
+    return applyCanonicalCharacterAssetPaths(
+        applyRequiredCanonicalSkillCorrections(nextCharacters, baseCharacters)
+    );
 };
 
 const rebuildCharacterCatalog = (nextCharacters) => {
@@ -16357,6 +16398,7 @@ if (require.main === module) {
 } else {
     module.exports = {
         normalizeArenaMode,
+        applyRequiredCanonicalSkillCorrections,
         createEmptyChakraPool,
         makeEmptyPendingTurn,
         assertTeamCanBeUsed,
