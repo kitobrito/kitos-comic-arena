@@ -6210,14 +6210,6 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 };
                 if (!entry.unit || entry.unit.alive === false || isUnitBanished(entry.unit)) return null;
 
-                const targetState = ensureUnitStateShape(entry.unit);
-                if (hasStatusMetadataFlag(targetState, 'fullBlind')) {
-                    const blindPick = pickRandomEntry(allAliveUnits);
-                    if (blindPick?.unit && blindPick.unit.alive !== false) {
-                        entry = blindPick;
-                    }
-                }
-
                 if (shouldRetargetToRandomAny) {
                     const blindPick = pickRandomEntry(allAliveUnits);
                     if (blindPick?.unit && blindPick.unit.alive !== false) {
@@ -9615,7 +9607,10 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
 
     (match.players || []).forEach((player) => {
         const units = match.board?.[player.username] || [];
-        player.aliveCount = units.reduce((sum, unit) => sum + (unit?.alive === false ? 0 : 1), 0);
+        player.aliveCount = units.reduce(
+            (sum, unit) => sum + (!unit || unit.alive === false || isUnitBanished(unit) ? 0 : 1),
+            0
+        );
     });
 };
 
@@ -11759,4 +11754,5 @@ module.exports = {
     selectTurnStartChoiceTarget,
     queueTurnStartChoicePrompts,
     processTurnStartStatusEffects,
+    isUnitBanished,
 };

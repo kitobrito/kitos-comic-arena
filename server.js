@@ -6879,6 +6879,10 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
         koffing: {
             'koffing-weezing-self-destruct': ['useBaseSkillCooldown'],
         },
+        abra: {
+            'abra-teleport': ['target'],
+            'kadabra-teleport': ['target'],
+        },
     };
     const canonicalById = new Map(
         (Array.isArray(canonicalCharacters) ? canonicalCharacters : []).map((character) => [
@@ -6904,6 +6908,57 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
                 fields.forEach((field) => {
                     if (canonicalSkill[field] !== undefined) correctedSkill[field] = canonicalSkill[field];
                 });
+                if (
+                    characterId === 'abra' &&
+                    (skill?.id === 'abra-teleport' || skill?.id === 'kadabra-teleport') &&
+                    Array.isArray(canonicalSkill.effects)
+                ) {
+                    const mergedEffects = Array.isArray(skill.effects) ? skill.effects : [];
+                    const canonicalFamilies = canonicalSkill.effects.map((effect) => ({
+                        type: effect?.type || '',
+                        statusId: effect?.statusId || '',
+                    }));
+                    const findCompatibleEffect = (canonicalEffect) =>
+                        mergedEffects.find(
+                            (effect) =>
+                                effect?.type === canonicalEffect?.type &&
+                                (effect?.statusId || '') === (canonicalEffect?.statusId || '')
+                        ) ||
+                        mergedEffects.find(
+                            (effect) =>
+                                canonicalEffect?.statusId && effect?.statusId === canonicalEffect.statusId
+                        ) ||
+                        mergedEffects.find((effect) => effect?.type === canonicalEffect?.type) ||
+                        {};
+                    const requiredShapeFields = ['type', 'statusId', 'duration', 'scope', 'sourceRelation'];
+                    correctedSkill.effects = canonicalSkill.effects.map((canonicalEffect) => {
+                        const compatibleEffect = findCompatibleEffect(canonicalEffect);
+                        const correctedEffect = {
+                            ...canonicalEffect,
+                            ...compatibleEffect,
+                            metadata: {
+                                ...(canonicalEffect?.metadata || {}),
+                                ...(compatibleEffect?.metadata || {}),
+                            },
+                        };
+                        requiredShapeFields.forEach((field) => {
+                            if (canonicalEffect[field] !== undefined) {
+                                correctedEffect[field] = canonicalEffect[field];
+                            } else {
+                                delete correctedEffect[field];
+                            }
+                        });
+                        return correctedEffect;
+                    });
+                    mergedEffects.forEach((effect) => {
+                        const belongsToTeleportStructure = canonicalFamilies.some(
+                            (family) =>
+                                (family.statusId && effect?.statusId === family.statusId) ||
+                                effect?.type === family.type
+                        );
+                        if (!belongsToTeleportStructure) correctedSkill.effects.push(effect);
+                    });
+                }
                 return correctedSkill;
             }),
         };
@@ -9906,6 +9961,12 @@ const getAliveCountForUser = (match, username) => {
     return 0;
 };
 
+const countActiveBattleUnits = (units) =>
+    (Array.isArray(units) ? units : []).reduce((count, unit) => {
+        if (!unit || unit.alive === false || battleLogic.isUnitBanished(unit)) return count;
+        return count + 1;
+    }, 0);
+
 const getTeamStatusFlagCount = (match, username, flagName) => {
     if (!match || !username || !flagName) return 0;
     const units = Array.isArray(match.board?.[username]) ? match.board[username] : [];
@@ -10164,7 +10225,7 @@ const countBattleBotHarmfulStatusesForTarget = (match, target) =>
 
 const countBattleBotLivingUnits = (match, username) => {
     const team = Array.isArray(match?.board?.[username]) ? match.board[username] : [];
-    return team.filter((unit) => unit && unit.alive !== false).length;
+    return countActiveBattleUnits(team);
 };
 
 const countBattleBotUnitsMatching = (match, username, predicate) => {
@@ -11250,7 +11311,7 @@ const ensureBoardState = async (match) => {
             if (!state || !Array.isArray(state.statuses) || typeof state.cooldowns !== 'object') {
                 changed = true;
             }
-            if (unit.alive !== false) {
+            if (unit.alive !== false && !battleLogic.isUnitBanished(unit)) {
                 aliveCount += 1;
             }
         });
@@ -11351,7 +11412,7 @@ const finalizeTurn = async (match, username, options = {}) => {
             if ((Number(unit.hp) || 0) <= 0) {
                 unit.alive = false;
             }
-            return sum + (unit.alive === false ? 0 : 1);
+            return sum + (unit.alive === false || battleLogic.isUnitBanished(unit) ? 0 : 1);
         }, 0);
     });
     match.lastTurnDamageByUsername = buildLastTurnDamageByUsername({
@@ -16432,5 +16493,6 @@ if (require.main === module) {
         buildHumanMatchStatsFilter,
         inferMatchArenaFromTeams,
         normalizeNewsArena,
+        countActiveBattleUnits,
     };
 }

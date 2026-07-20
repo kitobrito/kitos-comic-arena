@@ -12314,10 +12314,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                             });
                             return;
                         }
-                        announceMatchIssue('The match state changed while that skill was being queued, so the turn was resynced.', {
-                            tone: 'info',
-                            reason: 'queue-skill-resynced',
-                        });
+                        // Routine queue reconciliation is already reflected by the optimistic
+                        // skill preview. Keep it silent so selecting a skill does not feel like
+                        // a connection failure; actionable rejection cases above still alert.
                         return;
                     }
                     playIngameSound(applySkillSound);
@@ -12326,17 +12325,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                     applyQueuedSkillVisuals();
                     syncEndTurnModalIfVisible();
                     syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
-                    if ((pendingTurnState?.unresolvedRandom || 0) > 0 && endTurnModalEl?.style.visibility !== 'visible') {
-                        announceMatchIssue(
-                            `This queued turn still needs ${pendingTurnState.unresolvedRandom} random energy chosen before it can end.`,
-                            {
-                                tone: 'info',
-                                dismissible: true,
-                                autoHideMs: 2200,
-                                reason: 'queued-random-energy-reminder',
-                            }
-                        );
-                    }
+                    // Random energy is chosen in the end-turn panel. The queued skill and
+                    // chakra display already provide in-place feedback, so no popup is needed.
                 })
                 .catch((error) => {
                     optimisticQueuedByActorSlot.delete(actorSlot);
