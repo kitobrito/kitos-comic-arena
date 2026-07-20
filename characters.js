@@ -24536,7 +24536,7 @@ const characters = [
                     "Random",
                     "Random"
                 ],
-                "target": "self-or-single-ally",
+                "target": "single-ally",
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
@@ -24548,7 +24548,19 @@ const characters = [
                         "type": "apply_status",
                         "statusId": "abra_teleport_cover",
                         "duration": 1,
-                        "scope": "self-or-single-ally",
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/abra/teleport.webp",
+                            "tooltipText": "This character is invulnerable."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "abra_teleport_cover",
+                        "duration": 1,
+                        "scope": "target",
                         "metadata": {
                             "invulnerable": true,
                             "turnDurationAnchor": "source_turn",
@@ -24722,7 +24734,7 @@ const characters = [
                     "Random",
                     "Random"
                 ],
-                "target": "self-or-single-ally",
+                "target": "single-ally",
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
@@ -24734,7 +24746,19 @@ const characters = [
                         "type": "apply_status",
                         "statusId": "abra_teleport_cover",
                         "duration": 1,
-                        "scope": "self-or-single-ally",
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/abra/Kadabrateleport.webp",
+                            "tooltipText": "This character is invulnerable."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "abra_teleport_cover",
+                        "duration": 1,
+                        "scope": "target",
                         "metadata": {
                             "invulnerable": true,
                             "turnDurationAnchor": "source_turn",
@@ -24744,7 +24768,16 @@ const characters = [
                     },
                     {
                         "type": "cleanse_statuses",
-                        "scope": "self-or-single-ally",
+                        "scope": "self",
+                        "sourceRelation": "enemy",
+                        "metadata": {
+                            "statusIconUrl": "assets/images/PokemonArena/abra/Kadabrateleport.webp",
+                            "tooltipText": "Enemy skills currently affecting this character are removed."
+                        }
+                    },
+                    {
+                        "type": "cleanse_statuses",
+                        "scope": "target",
                         "sourceRelation": "enemy",
                         "metadata": {
                             "statusIconUrl": "assets/images/PokemonArena/abra/Kadabrateleport.webp",
@@ -25851,6 +25884,7 @@ const characters = [
                             "infiniteDuration": true,
                             "turnEndDamage": 5,
                             "damageType": "affliction",
+                            "endIfSourceDies": true,
                             "statusIconUrl": "assets/images/PokemonArena/eevee/flareon/heatingup.png",
                             "tooltipText": "This character takes 5 affliction damage each turn from Heating Up."
                         }
@@ -25888,6 +25922,7 @@ const characters = [
                             "invulnerableToHelpfulSkills": true,
                             "turnEndDamage": 15,
                             "damageType": "affliction",
+                            "endIfSourceDies": true,
                             "statusIconUrl": "assets/images/PokemonArena/eevee/flareon/firespin.png",
                             "tooltipText": "This character is invulnerable to helpful skills and takes 10 affliction damage each turn."
                         }
@@ -25931,6 +25966,7 @@ const characters = [
                             "infiniteDuration": true,
                             "turnEndDamage": 10,
                             "damageType": "affliction",
+                            "endIfSourceDies": true,
                             "statusIconUrl": "assets/images/PokemonArena/eevee/flareon/fireblast.png",
                             "tooltipText": "This character takes 10 affliction damage each turn."
                         }
@@ -25944,6 +25980,7 @@ const characters = [
                             "infiniteDuration": true,
                             "turnEndDamage": 5,
                             "damageType": "affliction",
+                            "endIfSourceDies": true,
                             "statusIconUrl": "assets/images/PokemonArena/eevee/flareon/fireblast.png",
                             "tooltipText": "This character takes 5 affliction damage each turn while Fire Blast's main target is alive."
                         }

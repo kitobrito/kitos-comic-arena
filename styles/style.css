@@ -2793,6 +2793,9 @@ body.arena-mode-pokemon .chakra-box.white {
 }
 .chakra-box.black {
     background-color: #000;
+    border: 1px solid #fff;
+    box-sizing: border-box;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.75);
 }
 
 .chakra-icon {
@@ -7286,6 +7289,9 @@ body.arena-mode-pokemon .chakra-box.white {
     cursor: pointer;
     user-select: none;
     padding: 0px 5px;
+    -webkit-text-stroke: 1px #fff;
+    paint-order: stroke fill;
+    text-shadow: 0 0 2px #fff;
 }
 
 .minus-button {
@@ -7457,6 +7463,9 @@ body.end-turn-modal-open .global-status-tooltip {
     margin-left: 6px;
     position: relative;
     top: -1px;
+    -webkit-text-stroke: 1px #fff;
+    paint-order: stroke fill;
+    text-shadow: 0 0 2px #fff;
 }
 
 .ok-buttonexchange {

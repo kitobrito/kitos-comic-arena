@@ -137,7 +137,7 @@ test('Pokemon evolution auras stay inside portraits instead of covering health b
     assert.match(auraRule, /height:\s*75px/);
     assert.match(auraRule, /overflow:\s*hidden/);
     const ingameSource = fs.readFileSync(path.join(root, 'ingame.html'), 'utf8');
-    assert.match(ingameSource, /styles\/style\.css\?v=turn-confirm-hotfix-v2/);
+    assert.match(ingameSource, /styles\/style\.css\?v=pokemon-battle-polish-v1/);
 });
 
 test('the Mongo mission merge persists every wave-two unlock without dropping existing missions', () => {
