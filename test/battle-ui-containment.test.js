@@ -16,5 +16,5 @@ test('battle usernames are contained inside their header panels', () => {
 test('skill costs begin after the move browser instead of underneath it', () => {
     assert.match(styles, /\.energytext \{ left: 170px;/);
     assert.match(styles, /\.ingameclasses \{ left: 300px;/);
-    assert.match(ingame, /styles\/ingame-experimental\.css\?v=pokemon-gameplay-fixes-v1/);
+    assert.match(ingame, /styles\/ingame-experimental\.css\?v=pokemon-gameplay-fixes-v2/);
 });

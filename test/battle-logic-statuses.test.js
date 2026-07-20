@@ -1352,6 +1352,75 @@ test('Koffing Poison Gas can proc from its random-only damage hook', () => {
     );
 });
 
+test('Weezing Self-Destruct inherits Koffing Self-Destruct cooldown after evolution', () => {
+    const koffingIndex = characters.findIndex((character) => character?.id === 'koffing');
+    const selfDestructIndex = characters[koffingIndex].skills.findIndex(
+        (skill) => skill?.id === 'koffing-self-destruct'
+    );
+    const evolvedSelfDestruct = characters[koffingIndex].skills.find(
+        (skill) => skill?.id === 'koffing-weezing-self-destruct'
+    );
+    assert.equal(evolvedSelfDestruct?.useBaseSkillCooldown, true);
+
+    const match = {
+        players: [{ username: 'ash' }, { username: 'gary' }],
+        board: {
+            ash: [{
+                alive: true,
+                hp: 100,
+                maxHp: 100,
+                rosterIndex: koffingIndex,
+                state: {
+                    statuses: [{
+                        id: 'koffing_weezing_evolution',
+                        remainingTurns: 99,
+                        sourceSkillId: 'koffing-passive-evolution-weezing',
+                        metadata: {
+                            infiniteDuration: true,
+                            skillReplacements: {
+                                'koffing-self-destruct': 'koffing-weezing-self-destruct',
+                            },
+                        },
+                    }],
+                    cooldowns: { 'koffing-self-destruct': 4 },
+                    skillUses: {},
+                    snapshots: {},
+                },
+            }],
+            gary: [{
+                alive: true,
+                hp: 100,
+                maxHp: 100,
+                rosterIndex: 0,
+                state: { statuses: [], cooldowns: {}, skillUses: {}, snapshots: {} },
+            }],
+        },
+        chakraPools: {
+            ash: { taijutsu: 0, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+            gary: { taijutsu: 0, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+        },
+        pendingTurns: {
+            ash: {
+                queueOrder: ['0'],
+                queuedByActorSlot: {
+                    '0': {
+                        skillIndex: selfDestructIndex,
+                        targetSelection: [{ username: 'gary', slot: 0 }],
+                    },
+                },
+            },
+        },
+        pendingActions: [],
+        pendingQueuedEffects: [],
+        economy: { turnCounts: { ash: 1, gary: 1 } },
+    };
+
+    resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+
+    assert.equal(match.board.gary[0].hp, 100);
+    assert.equal(match.board.ash[0].hp, 100);
+});
+
 test('Splash can advance Magikarp into Gyarados immediately at 6 stacks', () => {
     const state = {
         statuses: [

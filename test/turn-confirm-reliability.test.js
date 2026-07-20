@@ -22,8 +22,8 @@ test('turn confirmation cannot remain disabled forever on a stalled skill queue'
 
 test('battle page cache-busts the shared script for the confirmation hotfix', () => {
     assert.match(ingame, /styles\/style\.css\?v=turn-confirm-hotfix-v2/);
-    assert.match(ingame, /styles\/ingame-experimental\.css\?v=pokemon-gameplay-fixes-v1/);
-    assert.match(ingame, /scripts\/script\.js\?v=eevee-hidden-power-v1/);
+    assert.match(ingame, /styles\/ingame-experimental\.css\?v=pokemon-gameplay-fixes-v2/);
+    assert.match(ingame, /scripts\/script\.js\?v=pokemon-ui-sync-fixes-v1/);
 });
 
 test('end-turn dialog blocks the battle below it and clears competing overlays', () => {
@@ -41,6 +41,24 @@ test('turn confirmation waits for random energy requests to reach the server', (
     assert.match(script, /endTurnOkButton\.disabled = isEndingTurn \|\| isSyncingRandomEnergy/);
     assert.match(script, /Syncing your random energy selection/);
     assert.match(script, /reason: 'end-turn-energy-sync'/);
+    assert.match(script, /window\.setTimeout\(\(\) => controller\.abort\(\), 12000\)/);
+    assert.match(script, /signal: controller\.signal/);
+});
+
+test('experimental battle UI keeps energy exchange and skill buttons clear of portraits', () => {
+    const experimentalStyles = fs.readFileSync(
+        path.join(root, 'styles', 'ingame-experimental.css'),
+        'utf8'
+    );
+    assert.match(experimentalStyles, /html\.battle-experimental \.exchange-label \{[\s\S]*?display: block;/);
+    assert.match(experimentalStyles, /html\.battle-experimental \.skillholder \{\s*left: 82px;/);
+    assert.match(experimentalStyles, /width: 360px;/);
+});
+
+test('replacement skills can display and enforce their base slot cooldown', () => {
+    assert.match(script, /const getCooldownSkillIdForActor = \(actorUnit, skill, skillIdx = null\)/);
+    assert.match(script, /getCooldownRemainingForSkill\(actorUnit, skill, skillIdx\)/);
+    assert.match(script, /getCooldownSkillIdForActor\(actorUnit, effectiveSkill, meta\.skillIdx\)/);
 });
 
 test('health bands use health percentage and the experimental skin preserves their colors', () => {
