@@ -32410,5 +32410,6 @@ if (typeof window !== 'undefined') {
 }
 
 if (typeof module !== 'undefined') {
-    module.exports = characters;
+    const { applyPokemonTypeSystem } = require('./pokemonTypeSystem');
+    module.exports = applyPokemonTypeSystem(characters, { strict: true });
 }

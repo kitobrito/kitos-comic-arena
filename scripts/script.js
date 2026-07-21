@@ -1554,6 +1554,35 @@ document.addEventListener('DOMContentLoaded', async () => {
             return !!normalized;
         });
 
+    const normalizeVisiblePokemonTypes = (types = []) =>
+        Array.from(
+            new Set(
+                (Array.isArray(types) ? types : [])
+                    .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
+                    .filter(Boolean)
+            )
+        ).slice(0, 2);
+
+    const getVisiblePokemonTypes = (character, unit = null) => {
+        const activeOverride = (Array.isArray(unit?.state?.statuses) ? unit.state.statuses : [])
+            .filter((status) => (Number(status?.remainingTurns) || 0) > 0)
+            .map((status) => normalizeVisiblePokemonTypes(status?.metadata?.pokemonTypeOverride))
+            .filter((types) => types.length)
+            .pop();
+        return activeOverride || normalizeVisiblePokemonTypes(character?.pokemonTypes);
+    };
+
+    const formatPokemonTypes = (character, unit = null) =>
+        getVisiblePokemonTypes(character, unit).join(' / ') || 'None';
+
+    const getSelectionPokemonTypesForForm = (character, form = 'base') => {
+        const characterId = String(character?.characterId || character?.id || '').trim().toLowerCase();
+        if (characterId === 'charmander' && form === 'mega-x') return ['Fire', 'Dragon'];
+        if (characterId === 'charmander' && form === 'mega-y') return ['Fire', 'Flying'];
+        if (characterId === 'magikarp' && form === 'evolution') return ['Water', 'Flying'];
+        return normalizeVisiblePokemonTypes(character?.pokemonTypes);
+    };
+
     const shouldUseWideRankHatOffset = (rankHatUrl = '') => {
         const normalized = typeof rankHatUrl === 'string' ? rankHatUrl.trim().toLowerCase() : '';
         return (
@@ -9243,6 +9272,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (card.dataset.lastDamageDebug !== lastDamageDebug) {
                 card.dataset.lastDamageDebug = lastDamageDebug;
             }
+            const typeEvent = unit?.state?.pokemonTypeEffectivenessEvent;
+            const typeEventMarker = typeEvent?.sequence ? String(typeEvent.sequence) : '';
+            if (typeEventMarker && card.dataset.pokemonTypeEffectivenessSequence !== typeEventMarker) {
+                card.dataset.pokemonTypeEffectivenessSequence = typeEventMarker;
+                const modifier = Number(typeEvent?.modifier) || 0;
+                const signedModifier = `${modifier > 0 ? '+' : ''}${modifier}`;
+                showFloatingCombatText(
+                    card,
+                    `${String(typeEvent?.label || '').toUpperCase()} ${signedModifier}`.trim(),
+                    modifier > 0 ? 'type-effective' : 'type-resisted'
+                );
+            }
             if (face) {
                 const aliveSrc = face.dataset.aliveSrc || face.src;
                 if (!face.dataset.aliveSrc) {
@@ -11184,7 +11225,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const actorUnit = getActorUnitForSlot(currentPlayerUsername, skillInfo.selectedActorSlot);
                 const character = getEffectiveCharacterForUnit(actorUnit);
                 if (!character) return;
-                renderCharacterInfo(character, skillInfo.selectedActorSlot);
+                renderCharacterInfo(character, skillInfo.selectedActorSlot, actorUnit);
                 return;
             }
             if (skillInfo.selectedViewMode === 'opponent-profile') {
@@ -11206,13 +11247,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             return typeof role === 'string' && role.trim() ? role.trim() : 'None';
         };
 
-        const renderCharacterInfo = (character, actorSlot = null) => {
+        const renderCharacterInfo = (character, actorSlot = null, unit = null) => {
             if (!character) return;
             document.querySelector('.skillinformation')?.classList.remove('profile-information');
             skillInfo.selectedViewMode = 'character';
             skillInfo.selectedActorSlot = Number.isInteger(actorSlot) ? actorSlot : null;
             skillInfo.selectedSkillIdx = null;
             const roleText = getCharacterRoleText(character);
+            const pokemonTypeText = formatPokemonTypes(character, unit);
+            const typeLine = currentMatchArena === 'pokemon' ? `\nType: ${pokemonTypeText}` : '';
             if (skillInfo.imgEl) {
                 skillInfo.imgEl.src = character.facePicture || character.url || '';
                 skillInfo.imgEl.alt = character.name || 'Character';
@@ -11221,17 +11264,21 @@ document.addEventListener('DOMContentLoaded', async () => {
                 skillInfo.nameEl.textContent = character.name || 'Character';
             }
             if (skillInfo.roleEl) {
-                skillInfo.roleEl.textContent = `Role: ${roleText}`;
+                skillInfo.roleEl.textContent = currentMatchArena === 'pokemon'
+                    ? `Role: ${roleText} | Type: ${pokemonTypeText}`
+                    : `Role: ${roleText}`;
                 skillInfo.roleEl.style.display = '';
             }
             if (skillInfo.descEl) {
-                skillInfo.descEl.textContent = `Role: ${roleText}\n\n${getCharacterDescriptionText(character)}`;
+                skillInfo.descEl.textContent = `Role: ${roleText}${typeLine}\n\n${getCharacterDescriptionText(character)}`;
             }
             if (skillInfo.cooldownEl) {
                 skillInfo.cooldownEl.textContent = '';
             }
             if (skillInfo.classesEl) {
-                skillInfo.classesEl.textContent = `Character | Role: ${roleText}`;
+                skillInfo.classesEl.textContent = currentMatchArena === 'pokemon'
+                    ? `Character | Role: ${roleText} | Type: ${pokemonTypeText}`
+                    : `Character | Role: ${roleText}`;
             }
             if (skillInfo.classPickerWrapEl && skillInfo.classPickerEl) {
                 skillInfo.classPickerWrapEl.style.display = 'none';
@@ -12976,7 +13023,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         const username = isPlayer ? currentPlayerUsername : currentOpponentUsername;
                         const unit = latestBoardState?.[username]?.[slotIndex];
                         const effectiveCharacter = getEffectiveCharacterForUnit(unit) || character;
-                        renderCharacterInfo(effectiveCharacter, isPlayer ? slotIndex : null);
+                        renderCharacterInfo(effectiveCharacter, isPlayer ? slotIndex : null, unit);
                     };
                     card._showCharacterInfoFromPortrait = showCharacterSkills;
                     const face = card.querySelector('.character-face');
@@ -16041,6 +16088,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             null;
         const alternateForm = availableForms.find((entry) => entry.id !== activeForm?.id) || null;
         const form = activeForm?.id || 'base';
+        const pokemonTypes = getSelectionPokemonTypesForForm(character, form);
         const activeSource = getSelectionRenderSource(activeForm?.filename);
         const alternateSource = getSelectionRenderSource(alternateForm?.filename);
         const activeName = activeForm?.name || character.name;
@@ -16049,6 +16097,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         currentSelectionRenderForm = form;
         if (nameEl) nameEl.textContent = activeName || character.name || 'Unknown shinobi';
+        if (roleEl) {
+            const roleText = getSelectionCharacterRole(character);
+            roleEl.textContent = activeArenaMode === 'pokemon'
+                ? `Role: ${roleText} | Type: ${pokemonTypes.join(' / ') || 'None'}`
+                : `Role: ${roleText}`;
+            roleEl.style.visibility = 'visible';
+        }
         if (characterFormToggleEl) characterFormToggleEl.hidden = !canSwitchForms;
         characterFormButtons.forEach((button) => {
             const buttonForm = availableForms.find((entry) => entry.id === button.dataset.characterForm);

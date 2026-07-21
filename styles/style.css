@@ -10839,6 +10839,26 @@ body.end-turn-modal-open .global-status-tooltip {
     letter-spacing: 1px;
 }
 
+.hp-delta-popup.type-effective,
+.hp-delta-popup.type-resisted {
+    left: 4px;
+    top: -12px;
+    min-width: 150px;
+    font-size: 15px;
+    line-height: 1.15;
+    letter-spacing: 0.4px;
+}
+
+.hp-delta-popup.type-effective {
+    color: #ffd84a;
+    text-shadow: 1px 1px 0 #3c2600, -1px -1px 0 #3c2600, 0 0 8px rgba(255, 216, 74, 0.85);
+}
+
+.hp-delta-popup.type-resisted {
+    color: #a9d7ff;
+    text-shadow: 1px 1px 0 #08243c, -1px -1px 0 #08243c, 0 0 8px rgba(92, 175, 255, 0.8);
+}
+
 .combat-impact-burst {
     position: absolute;
     left: -4px;
