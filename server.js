@@ -37,10 +37,12 @@ const { MongoClient, ObjectId } = require('mongodb');
 const bcrypt = require('bcryptjs');
 const { WebSocketServer, WebSocket } = require('ws');
 const battleLogic = require('./battleLogic');
+const { applyPokemonTypeSystem } = require('./pokemonTypeSystem');
 const { syncPokemonOnixRelease } = require('./sync_pokemon_onix_news');
 const { syncPokemonMeowthRelease } = require('./sync_pokemon_meowth_release');
 const { syncPokemonWave2Release } = require('./sync_pokemon_wave_2_release');
 const { syncPokemonGen2StarterRelease } = require('./sync_pokemon_gen2_starter_release');
+const { syncPokemonTypeClassNews } = require('./sync_pokemon_type_class_news');
 let charactersData = require('./characters');
 
 const app = express();
@@ -7335,8 +7337,11 @@ const applyCharacterOverrides = (baseCharacters = []) => {
             overrideCharacter
         );
     });
-    return applyCanonicalCharacterAssetPaths(
-        applyRequiredCanonicalSkillCorrections(nextCharacters, baseCharacters)
+    return applyPokemonTypeSystem(
+        applyCanonicalCharacterAssetPaths(
+            applyRequiredCanonicalSkillCorrections(nextCharacters, baseCharacters)
+        ),
+        { strict: true }
     );
 };
 
@@ -11968,6 +11973,8 @@ async function initDb() {
     if (gen2StarterReleaseSync.migrated) {
         console.log('Published the Generation 2 starter launch and community-character announcement.');
     }
+    await syncPokemonTypeClassNews(db);
+    console.log('Synced the Pokemon Arena Type-Class Overhaul news post.');
     await backfillUserProfiles();
     console.log('Connected to MongoDB.');
 }

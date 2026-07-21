@@ -1,4 +1,10 @@
-const defaultCharacters = require('./characters.js');
+const {
+    applyPokemonTypeSystem,
+    getActivePokemonTypes,
+    getPokemonMoveType,
+    getPokemonTypeEffectiveness,
+} = require('./pokemonTypeSystem');
+const defaultCharacters = applyPokemonTypeSystem(require('./characters.js'), { strict: true });
 
 const DEFAULT_HP = 100;
 const chakraTypes = ['taijutsu', 'ninjutsu', 'bloodline', 'genjutsu'];
@@ -9576,12 +9582,51 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         const unpierceableBudgetByRecipient = new Map();
         const standardMitigationBudgetByRecipient = new Map();
         const percentMitigationStateByRecipient = new Map();
+        const pokemonTypeEffectivenessAppliedRecipients = new Set();
         pendingDamage.forEach((entry) => {
             if (!entry?.recipient?.unit || entry.recipient.unit.alive === false) return;
             const mitigationBudgetKey = `${entry.recipient.username || ''}:${
                 Number.isInteger(entry.recipient.slot) ? entry.recipient.slot : ''
             }`;
-                    const dealt = applyDamageToUnit(entry.recipient.unit, entry.amount, {
+            const recipientKey = `${entry.recipient.username || ''}:${entry.recipient.slot ?? ''}`;
+            let adjustedAmount = Math.max(0, Number(entry.amount) || 0);
+            const targetState = ensureUnitStateShape(entry.recipient.unit);
+            const targetCharacter = resolveEffectiveCharacter({
+                characters,
+                rosterIndex: entry.recipient.unit.rosterIndex,
+                actorState: targetState,
+            });
+            const isPokemonMatchup =
+                String(actorCharacter?.arena || actorCharacter?.universe || '').trim().toLowerCase() === 'pokemon' &&
+                String(targetCharacter?.arena || targetCharacter?.universe || '').trim().toLowerCase() === 'pokemon';
+            if (
+                isPokemonMatchup &&
+                entry.recipient.username !== actingUsername &&
+                !entry.fixedDamage &&
+                !pokemonTypeEffectivenessAppliedRecipients.has(recipientKey)
+            ) {
+                const moveType = getPokemonMoveType(skill?.classes || []);
+                const defendingTypes = getActivePokemonTypes({
+                    character: targetCharacter,
+                    unit: entry.recipient.unit,
+                });
+                const effectiveness = getPokemonTypeEffectiveness(moveType, defendingTypes);
+                pokemonTypeEffectivenessAppliedRecipients.add(recipientKey);
+                if (effectiveness.modifier !== 0) {
+                    adjustedAmount = effectiveness.modifier < 0
+                        ? Math.max(5, adjustedAmount + effectiveness.modifier)
+                        : adjustedAmount + effectiveness.modifier;
+                    match._pokemonTypeEffectivenessSequence =
+                        Math.max(0, Number(match._pokemonTypeEffectivenessSequence) || 0) + 1;
+                    targetState.pokemonTypeEffectivenessEvent = {
+                        label: effectiveness.label,
+                        modifier: effectiveness.modifier,
+                        sourceSkillId: entry.sourceSkillId || skill.id || null,
+                        sequence: match._pokemonTypeEffectivenessSequence,
+                    };
+                }
+            }
+            const dealt = applyDamageToUnit(entry.recipient.unit, adjustedAmount, {
                         match,
                         sourceUsername: actingUsername,
                         sourceSlot: actorSlot,
@@ -12046,4 +12091,7 @@ module.exports = {
     queueTurnStartChoicePrompts,
     processTurnStartStatusEffects,
     isUnitBanished,
+    getActivePokemonTypes,
+    getPokemonMoveType,
+    getPokemonTypeEffectiveness,
 };
