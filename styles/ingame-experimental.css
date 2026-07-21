@@ -332,7 +332,8 @@ html.battle-experimental body.arena-mode-pokemon .skillscrollingame {
     height: 71px;
     box-sizing: border-box;
     gap: 8px;
-    padding: 8px 10px 8px 30px;
+    /* Reserve a full move-sized slot for the queued-skill/question-mark image. */
+    padding: 8px 10px 8px 69px;
     border: 1px solid rgba(225, 235, 239, 0.5);
     border-radius: 0 7px 7px 0;
     background: linear-gradient(90deg, rgba(10, 18, 22, 0.94), rgba(12, 23, 28, 0.78));
@@ -357,10 +358,10 @@ html.battle-experimental body.arena-mode-pokemon .skillqueue {
     position: absolute;
     top: 8px;
     left: 8px;
-    width: 17px;
+    width: 53px;
     height: 53px;
-    object-fit: cover;
-    object-position: left;
+    object-fit: contain;
+    object-position: center;
     opacity: 0.82;
 }
 
