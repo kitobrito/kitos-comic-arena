@@ -178,6 +178,88 @@ const POKEMON_SKILL_TYPES = Object.freeze(
     )
 );
 
+const POKEMON_STATUS_TOOLTIPS = Object.freeze({
+    charmander_evolution_tracker: { tooltipTextTemplate: 'Charmander has {charmanderEvolutionProgress}/2 evolution progress. At 2, Charmander evolves into Charmeleon.' },
+    bulbasaur_sun_spent: { tooltipText: 'Solar Beam consumed all of this Pokemon\'s Sun stacks.' },
+    ekans_badly_poison: { tooltipText: 'After this character uses a skill, Badly Poison permanently doubles its damage.' },
+    ekans_badly_poison_2: { tooltipText: 'After this character uses a skill, Badly Poison permanently doubles its damage.' },
+    clefairy_evolution_tracker: { tooltipTextTemplate: 'Clefairy has restored {healingProgress}/75 HP toward evolving into Clefable.' },
+    clefairy_double_slap: { tooltipTextTemplate: 'This character takes {turnEndDamage} damage at the beginning of Clefairy\'s next turn.' },
+    clefable_double_slap: { tooltipTextTemplate: 'This character takes {turnEndDamage} damage at the beginning of Clefable\'s next turn.' },
+    clefable_disarming_voice_field: { tooltipText: 'Allied accuracy cannot be reduced and enemy evasion cannot be increased.' },
+    jigglypuff_evolution_tracker: { tooltipText: 'Jigglypuff evolves into Wigglytuff after Perish Song defeats an enemy.' },
+    jigglypuff_perish_song: { tooltipText: 'When this countdown expires, this character is instantly defeated. The mark ends if its source is defeated.' },
+    jigglypuff_sing: { tooltipText: 'This character cannot use harmful skills.' },
+    jigglypuff_wish: { tooltipTextTemplate: 'At the start of the next turn, this character heals {turnStartHeal} HP. A marked Perish Song target using a harmful skill on them advances its countdown.' },
+    'jigglypuff-humiliate:jigglypuff_humiliate': { tooltipText: 'If this character uses a new harmful skill, Jigglypuff gains 1 Random energy and advances Perish Song once.' },
+    'wigglytuff-humiliate:jigglypuff_humiliate': { tooltipText: 'If this character uses any new skill, Wigglytuff gains 1 Random energy and advances Perish Song once.' },
+    beedrill_evolution_tracker: { tooltipTextTemplate: 'Beedrill has used Envenom {envenomUses}/2 times. At 2 uses, Beedrill evolves into Mega Beedrill.' },
+    beedrill_poison_sting: { tooltipTextTemplate: 'This character takes {turnStartDamage} affliction damage each turn from permanent Poison Sting stacks.' },
+    beedrill_twinneedle_blind: { tooltipText: 'This character\'s harmful skills have a chance to miss.' },
+    beedrill_envenom_blind: { tooltipText: 'This character\'s harmful skills have a chance to miss.' },
+    mega_beedrill_permanent_blind: { tooltipText: 'This character is permanently blinded; its skills have a chance to miss.' },
+    beedrill_hive_swarm: { tooltipText: 'Beedrill ignores the next 3 enemy damage effects and enemy stuns. Hive Swarm is replaced by Hive Sting.' },
+    articuno_sheer_cold_tracker: { tooltipTextTemplate: 'Sheer Cold has {bonusDamage} permanent bonus damage.' },
+    articuno_blizzard: { tooltipText: 'This character\'s skill cooldowns are paralyzed and cannot decrease.' },
+    articuno_ice_beam_stun: { tooltipText: 'This character cannot use non-Mental skills.' },
+    articuno_fast_agility: { tooltipText: 'Articuno is invulnerable to enemy skills.' },
+    moltres_fire_spin: { tooltipTextTemplate: 'Using a new harmful skill on Moltres\' team deals {teamTrapEnemyHarmfulDamage} affliction damage to this character.' },
+    moltres_sunny_day_enemy: { tooltipTextTemplate: 'This character takes {additionalAfflictionDamageTaken} additional affliction damage from all sources.' },
+    moltres_heat: { tooltipTextTemplate: 'Moltres has {heat}/3 Heat. Overheat has been used {overheatUses} time(s), reducing each Heat stack by {overheatPenalty} damage.' },
+    zapdos_charge: { tooltipTextTemplate: 'Zapdos skills cost {genjutsuCostReduction} less Yellow energy. The reduction increases each turn; using another skill ends Charge.' },
+    zapdos_zap_cannon: { tooltipTextTemplate: 'When this countdown expires, this character takes {onExpireDamage} plus {zapCannonBonus} bonus piercing damage and is stunned. Thunderbolt triggers shorten the countdown and add damage.' },
+    zapdos_flight: { tooltipTextTemplate: 'Zapdos is invulnerable to non-affliction enemy skills, and Thunderbolt triggers deal {zapdosThunderboltDamage} damage.' },
+    mew_psychic_suppression: { tooltipText: 'This character\'s harmful skills deal 0 damage while Psychic Barrier remains active.' },
+    dragonite_pressure_passive: { tooltipText: 'Whenever Dragonite uses a skill, it gains 10 unpierceable damage reduction for 2 turns. Each activation stacks separately.' },
+    dragonite_pressure_reduction: { tooltipTextTemplate: 'Dragonite has {unpierceableDamageReductionFlat} unpierceable damage reduction from this Pressure stack.' },
+    dragonite_taunt: { tooltipText: 'This character is taunted and can only target Dragonite. Ignoring the taunt once refreshes it.' },
+    dragonite_hyper_beam_stun: { tooltipText: 'This character cannot use helpful skills.' },
+    dragonite_draco_meteor: { tooltipTextTemplate: 'This character takes {turnStartDamage} damage at the start of each turn.' },
+    cyndaquil_warming_up: { tooltipText: 'Each new skill Cyndaquil uses permanently adds 5 damage to Aerial Flamethrower and Warming Up.' },
+    cyndaquil_smokescreen: { tooltipText: 'This character is fully blinded; all of its skills miss.' },
+    cyndaquil_skyward_leap: { tooltipText: 'The next enemy skill used on Cyndaquil misses. Taking damage ends this effect.' },
+    cyndaquil_skyward_bonus: { tooltipText: 'Aerial Tackle and Aerial Flamethrower deal 10 additional damage.' },
+    chikorita_sweet_scent_tracker: { tooltipTextTemplate: 'Sweet Scent rotates the weakened skill class each turn. Solar Beam currently has {solarBeamStacks} bonus stack(s).' },
+    chikorita_light_screen: { tooltipTextTemplate: 'This character has {destructibleDefensePoints} destructible defense. A new enemy skill used on them weakens Sweet Scent\'s current class and adds 1 Solar Beam stack.' },
+    chikorita_vine_defense: { tooltipText: 'Chikorita is invulnerable to enemy skills.' },
+    totodile_water_rings_tracker: { tooltipTextTemplate: 'Totodile has {waterRings} Water Ring(s) and heals 5 HP per ring each turn. Aqua Tail has {aquaTailPermanentPenalty} permanent damage penalty.' },
+    totodile_superpower_invulnerable: { tooltipText: 'Totodile is invulnerable to enemy skills. Its next Aqua Tail gains 10 damage, then permanently loses 5 damage.' },
+});
+
+const applyPokemonStatusTooltips = (value, sourceSkillId = '', errors = []) => {
+    if (!value || typeof value !== 'object') return;
+    if (Array.isArray(value)) {
+        value.forEach((entry) => applyPokemonStatusTooltips(entry, sourceSkillId, errors));
+        return;
+    }
+    const statusId = typeof value.statusId === 'string' ? value.statusId : '';
+    const metadata = value.metadata && typeof value.metadata === 'object' ? value.metadata : null;
+    const isStatusConfig = Boolean(statusId && metadata && (value.type === 'apply_status' || 'duration' in value));
+    if (isStatusConfig) {
+        const authored =
+            POKEMON_STATUS_TOOLTIPS[`${sourceSkillId}:${statusId}`] ||
+            POKEMON_STATUS_TOOLTIPS[statusId] ||
+            null;
+        if (!metadata.tooltipText && !metadata.tooltipTextTemplate && authored) {
+            Object.assign(metadata, authored);
+        }
+        const hiddenFromEveryone =
+            Boolean(metadata.hidden || metadata.hideTooltip) ||
+            Boolean(metadata.hideTooltipFromEnemy && (metadata.hideTooltipFromOwner || metadata.hideTooltipFromUnitOwner));
+        if (
+            Number(value.duration) !== 0 &&
+            !hiddenFromEveryone &&
+            !metadata.tooltipText &&
+            !metadata.tooltipTextTemplate
+        ) {
+            errors.push(`Missing Pokemon status tooltip for ${sourceSkillId || '(start status)'}:${statusId}`);
+        }
+    }
+    Object.entries(value).forEach(([key, entry]) => {
+        if (key !== 'evolvesTo') applyPokemonStatusTooltips(entry, sourceSkillId, errors);
+    });
+};
+
 const TYPE_EFFECTIVENESS = Object.freeze({
     normal: { strong: [], resisted: ['rock', 'steel'], immune: ['ghost'] },
     fire: { strong: ['grass', 'ice', 'bug', 'steel'], resisted: ['fire', 'water', 'rock', 'dragon'], immune: [] },
@@ -252,9 +334,11 @@ const applyPokemonTypeSystem = (characters = [], { strict = false } = {}) => {
                 return normalized && normalized !== 'melee' && normalized !== 'ranged' && !POKEMON_TYPE_SET.has(normalized);
             });
             skill.classes = [moveType, ...retainedClasses].filter(Boolean);
+            applyPokemonStatusTooltips(skill.effects, skillId, errors);
             if (skill?.evolvesTo && typeof skill.evolvesTo === 'object') applySkillType(skill.evolvesTo);
         };
         (Array.isArray(character.skills) ? character.skills : []).forEach(applySkillType);
+        applyPokemonStatusTooltips(character.startStatuses, '', errors);
         applyTypeOverridesToStatusConfigs(character);
     });
     if (strict && errors.length) throw new Error(errors.join('\n'));
@@ -296,6 +380,7 @@ module.exports = {
     POKEMON_TYPES,
     POKEMON_CHARACTER_TYPES,
     POKEMON_SKILL_TYPES,
+    POKEMON_STATUS_TOOLTIPS,
     TYPE_EFFECTIVENESS,
     applyPokemonTypeSystem,
     getActivePokemonTypes,

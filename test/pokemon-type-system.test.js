@@ -238,6 +238,13 @@ test('type-class news explains every player-facing rule and syncs idempotently',
     assert.match(text, /Persistent status ticks, delayed damage, recoil/i);
     assert.match(text, /Charizard X.*Fire\/Dragon/i);
     assert.match(text, /Pokemon Trainer.*adopts/i);
+    assert.match(text, /BUG FIXES & UI IMPROVEMENTS/);
+    assert.match(text, /Status icons.*explain what they actually do/i);
+    assert.match(text, /double-click its portrait.*tap it once on a phone/i);
+    assert.match(text, /red for Fire.*olive green for Bug/i);
+    assert.match(text, /post-game result screen.*easier to read/i);
+    assert.match(text, /match refresh issue.*exact live status effect/i);
+    assert.ok(newsPost.changes.filter((change) => change.changeType === 'fix').length >= 4);
 
     const stored = new Map();
     const db = {
