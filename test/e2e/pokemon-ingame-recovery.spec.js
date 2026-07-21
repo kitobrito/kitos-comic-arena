@@ -399,6 +399,15 @@ const createHarnessServer = async () => {
             return;
         }
 
+        if (pathname === '/characters.js') {
+            res.writeHead(200, {
+                'Content-Type': 'application/javascript; charset=utf-8',
+                'Cache-Control': 'no-store',
+            });
+            res.end(`const characters = ${JSON.stringify(characters)};\nwindow.characters = characters;`);
+            return;
+        }
+
         const relativePath = pathname === '/' ? '/ingame.html' : pathname;
         const filePath = path.join(repoRoot, decodeURIComponent(relativePath));
         if (!filePath.startsWith(repoRoot)) {
@@ -545,6 +554,57 @@ test('equipped selection skins use showcase renders and expose both Charizard Me
     await megaYButton.click();
     await expect(page.locator('#character-name')).toHaveText('Mega Charizard Y');
     await expect(page.locator('#character-portrait')).toHaveAttribute('src', /megacharizardy\.png\.webp$/);
+});
+
+test('Pokemon type badges render in selection and desktop keeps double-click team removal', async ({ page }) => {
+    await page.goto(`${harness.baseUrl}/selection.html?layout=experimental&arena=pokemon`);
+    await expect(page.locator('body')).not.toHaveClass(/app-loading-selection/);
+
+    const charmanderSlot = page.getByLabel('Select Charmander');
+    await charmanderSlot.click();
+    await expect(page.locator('#character-role .pokemon-type-fire')).toHaveText('Fire');
+    await page.locator('.skill-images img[alt="Ember"]').click();
+    await expect(page.locator('#skill-classes .pokemon-type-fire')).toHaveText('Fire');
+
+    await charmanderSlot.dblclick();
+    const selectedCharmander = page.locator('.selected-character-slot .selected-slot-image[alt="Charmander"]');
+    await expect(selectedCharmander).toBeVisible();
+    await selectedCharmander.dblclick();
+    await expect(selectedCharmander).toHaveCount(0);
+    await expect(page.getByLabel('Select Charmander')).toBeVisible();
+});
+
+test('a mobile tap reliably removes a selected Pokemon from the team', async ({ browser }) => {
+    const context = await browser.newContext({
+        viewport: { width: 390, height: 844 },
+        hasTouch: true,
+        isMobile: true,
+    });
+    const page = await context.newPage();
+    try {
+        await page.goto(`${harness.baseUrl}/selection.html?layout=experimental&arena=pokemon`);
+        await expect(page.locator('body')).not.toHaveClass(/app-loading-selection/);
+        const charmanderSlot = page.getByLabel('Select Charmander');
+        await charmanderSlot.tap();
+        await charmanderSlot.tap();
+        const selectedCharmander = page.locator('.selected-character-slot .selected-slot-image[alt="Charmander"]');
+        await expect(selectedCharmander).toBeVisible();
+        await selectedCharmander.tap();
+        await expect(selectedCharmander).toHaveCount(0);
+        await expect(page.getByLabel('Select Charmander')).toBeVisible();
+    } finally {
+        await context.close();
+    }
+});
+
+test('experimental post-game copy remains readable against the dark result panel', async ({ page }) => {
+    await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-1&arena=pokemon&layout=experimental`);
+    await waitForBattleIntroToFinish(page);
+    await page.locator('.battle-end-overlay').evaluate((overlay) => overlay.classList.add('visible'));
+
+    await expect(page.locator('.battle-end-message')).toHaveCSS('color', 'rgb(244, 247, 248)');
+    await expect(page.locator('.battle-end-title')).toHaveCSS('color', 'rgb(255, 113, 137)');
+    await expect(page.locator('.battle-end-panel')).toHaveCSS('background-color', 'rgba(8, 16, 20, 0.96)');
 });
 
 test('experimental battle skin keeps the HUD framed on desktop and mobile', async ({ page }) => {

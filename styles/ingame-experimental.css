@@ -667,6 +667,17 @@ html.battle-experimental .battle-end-continue:hover {
     background: var(--battle-accent);
 }
 
+html.battle-experimental .battle-end-copy,
+html.battle-experimental .battle-end-message {
+    color: #f4f7f8;
+    text-shadow: 0 2px 3px #000;
+}
+
+html.battle-experimental .battle-end-title {
+    color: #ff7189;
+    text-shadow: 0 2px 4px #000;
+}
+
 html.battle-experimental .backgroundingame:fullscreen,
 html.battle-experimental .backgroundingame:-webkit-full-screen {
     left: 0;

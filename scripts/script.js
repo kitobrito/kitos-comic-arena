@@ -1563,6 +1563,46 @@ document.addEventListener('DOMContentLoaded', async () => {
             )
         ).slice(0, 2);
 
+    const pokemonTypeNames = new Set([
+        'normal', 'fire', 'water', 'electric', 'grass', 'ice', 'fighting', 'poison', 'ground',
+        'flying', 'psychic', 'bug', 'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy',
+    ]);
+
+    const appendPokemonTypeBadges = (container, types = [], prefix = '') => {
+        if (!container) return;
+        container.innerHTML = '';
+        if (prefix) container.appendChild(document.createTextNode(prefix));
+        normalizeVisiblePokemonTypes(types).forEach((type, index) => {
+            if (index > 0) container.appendChild(document.createTextNode(' / '));
+            const normalized = type.toLowerCase();
+            const badge = document.createElement('span');
+            badge.className = `pokemon-type-badge pokemon-type-${normalized}`;
+            badge.textContent = type;
+            container.appendChild(badge);
+        });
+    };
+
+    const renderPokemonSkillClasses = (
+        container,
+        classes = [],
+        prefix = 'Classes: ',
+        usePokemonTypeBadges = false
+    ) => {
+        if (!container) return;
+        container.innerHTML = '';
+        container.appendChild(document.createTextNode(prefix));
+        getVisibleSkillClasses(classes).forEach((className, index) => {
+            if (index > 0) container.appendChild(document.createTextNode(', '));
+            const normalized = className.toLowerCase();
+            const classEl = document.createElement('span');
+            classEl.className = usePokemonTypeBadges && pokemonTypeNames.has(normalized)
+                ? `pokemon-type-badge pokemon-type-${normalized}`
+                : 'skill-class-text';
+            classEl.textContent = className;
+            container.appendChild(classEl);
+        });
+    };
+
     const getVisiblePokemonTypes = (character, unit = null) => {
         const activeOverride = (Array.isArray(unit?.state?.statuses) ? unit.state.statuses : [])
             .filter((status) => (Number(status?.remainingTurns) || 0) > 0)
@@ -10394,6 +10434,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                         statusMetadata?.sourceSkillName ||
                         fallbackSkill?.name ||
                         '';
+                    const fallbackPokemonStatusDescription =
+                        currentMatchArena === 'pokemon'
+                            ? fallbackSkill?.skilldescription || fallbackSkill?.description || ''
+                            : '';
                     let text =
                         statusMetadata?.tooltipText ||
                         (fallbackSkillName ? `${fallbackSkillName} is active.` : '') ||
@@ -10502,6 +10546,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                                 }
                             }
                         }
+                    }
+                    if (
+                        !hasCustomTooltipText &&
+                        fallbackPokemonStatusDescription &&
+                        text === `${fallbackSkillName} is active.`
+                    ) {
+                        text = fallbackPokemonStatusDescription;
                     }
                     const remaining = Math.max(0, Number(status?.remainingTurns) || 0);
                     const key = `${text}::${remaining}`;
@@ -11125,8 +11176,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 skillInfo.cooldownEl.textContent = `Cooldown: ${skill.cooldown ?? '-'}`;
             }
             if (skillInfo.classesEl) {
-                const classes = getVisibleSkillClasses(skill.classes).join(', ');
-                skillInfo.classesEl.textContent = `Classes: ${classes}`;
+                renderPokemonSkillClasses(
+                    skillInfo.classesEl,
+                    skill.classes,
+                    'Classes: ',
+                    currentMatchArena === 'pokemon'
+                );
             }
             if (skillInfo.classPickerWrapEl && skillInfo.classPickerEl) {
                 const options = getClassChoiceOptions(skill);
@@ -11264,9 +11319,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 skillInfo.nameEl.textContent = character.name || 'Character';
             }
             if (skillInfo.roleEl) {
-                skillInfo.roleEl.textContent = currentMatchArena === 'pokemon'
-                    ? `Role: ${roleText} | Type: ${pokemonTypeText}`
-                    : `Role: ${roleText}`;
+                if (currentMatchArena === 'pokemon') {
+                    appendPokemonTypeBadges(
+                        skillInfo.roleEl,
+                        getVisiblePokemonTypes(character, unit),
+                        `Role: ${roleText} | Type: `
+                    );
+                } else {
+                    skillInfo.roleEl.textContent = `Role: ${roleText}`;
+                }
                 skillInfo.roleEl.style.display = '';
             }
             if (skillInfo.descEl) {
@@ -11276,9 +11337,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 skillInfo.cooldownEl.textContent = '';
             }
             if (skillInfo.classesEl) {
-                skillInfo.classesEl.textContent = currentMatchArena === 'pokemon'
-                    ? `Character | Role: ${roleText} | Type: ${pokemonTypeText}`
-                    : `Character | Role: ${roleText}`;
+                if (currentMatchArena === 'pokemon') {
+                    appendPokemonTypeBadges(
+                        skillInfo.classesEl,
+                        getVisiblePokemonTypes(character, unit),
+                        `Character | Role: ${roleText} | Type: `
+                    );
+                } else {
+                    skillInfo.classesEl.textContent = `Character | Role: ${roleText}`;
+                }
             }
             if (skillInfo.classPickerWrapEl && skillInfo.classPickerEl) {
                 skillInfo.classPickerWrapEl.style.display = 'none';
@@ -15933,17 +16000,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const renderClasses = (classes = []) => {
         if (!classesEl) return;
-        classesEl.innerHTML = '';
-        const label = document.createElement('span');
-        label.className = 'classes-label';
-        label.textContent = 'CLASSES:';
-        classesEl.appendChild(label);
-        getVisibleSkillClasses(classes).forEach((cls) => {
-            const span = document.createElement('span');
-            span.className = 'class-type';
-            span.textContent = cls;
-            classesEl.appendChild(span);
-        });
+        renderPokemonSkillClasses(classesEl, classes, 'CLASSES: ', activeArenaMode === 'pokemon');
     };
 
     const setActiveSkillImage = (activeIndex) => {
@@ -16099,9 +16156,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (nameEl) nameEl.textContent = activeName || character.name || 'Unknown shinobi';
         if (roleEl) {
             const roleText = getSelectionCharacterRole(character);
-            roleEl.textContent = activeArenaMode === 'pokemon'
-                ? `Role: ${roleText} | Type: ${pokemonTypes.join(' / ') || 'None'}`
-                : `Role: ${roleText}`;
+            if (activeArenaMode === 'pokemon') {
+                appendPokemonTypeBadges(roleEl, pokemonTypes, `Role: ${roleText} | Type: `);
+            } else {
+                roleEl.textContent = `Role: ${roleText}`;
+            }
             roleEl.style.visibility = 'visible';
         }
         if (characterFormToggleEl) characterFormToggleEl.hidden = !canSwitchForms;
@@ -16638,6 +16697,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const handleSelectedSlotClick = (slotIndex) => {
         const assignment = selectedAssignments[slotIndex];
         if (!assignment) return;
+        const isMobileTeamTap =
+            document.documentElement.classList.contains('selection-experimental') &&
+            window.matchMedia('(max-width: 700px) and (pointer: coarse)').matches;
+        if (isMobileTeamTap) {
+            handleSelectedSlotDoubleClick(slotIndex);
+            return;
+        }
         handleCharacterSelect(assignment.characterIndex, { openViewer: true });
     };
 
