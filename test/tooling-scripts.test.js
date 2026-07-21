@@ -16,6 +16,7 @@ const {
     scoreBattleBotDamageCoordination,
     buildHumanMatchStatsFilter,
     inferMatchArenaFromTeams,
+    buildCharacterWinrateEntries,
     normalizeNewsArena,
     isTeamRosterInArena,
     buildPairedMatchDocument,
@@ -153,6 +154,45 @@ test('legacy match arena inference requires every team slot to agree', () => {
     const pokemonIndex = characters.findIndex((character) => getCharacterArena(character) === 'pokemon');
     assert.equal(inferMatchArenaFromTeams({ players: [{ team: [pokemonIndex, pokemonIndex] }] }), 'pokemon');
     assert.equal(inferMatchArenaFromTeams({ players: [{ team: [comicIndex, pokemonIndex] }] }), null);
+});
+
+test('character winrates count ranked bot matches and keep arena rosters separate', () => {
+    const comicTeam = getRosterIndicesForArena('comic');
+    const pokemonTeam = getRosterIndicesForArena('pokemon');
+    const matches = [
+        {
+            arena: 'comic',
+            mode: 'ladder',
+            status: 'ended',
+            winner: 'ComicWinner',
+            endedAt: new Date('2026-07-21T00:00:00Z'),
+            players: [
+                { username: 'comicwinner', team: comicTeam },
+                { username: '__game_bot__:comic', isBot: true, team: comicTeam.slice().reverse() },
+            ],
+            botMatch: { enabled: true },
+        },
+        {
+            arena: 'pokemon',
+            mode: 'ladder',
+            status: 'ended',
+            winner: '__game_bot__:pokemon',
+            endedAt: new Date('2026-07-21T00:00:00Z'),
+            players: [
+                { username: 'Player', team: pokemonTeam },
+                { username: '__game_bot__:pokemon', isBot: true, team: pokemonTeam.slice().reverse() },
+            ],
+            botMatch: { enabled: true },
+        },
+    ];
+    const comic = buildCharacterWinrateEntries({ matches, arena: 'comic' });
+    const pokemon = buildCharacterWinrateEntries({ matches, arena: 'pokemon' });
+    assert.ok(comic.every((entry) => entry.arena === 'comic'));
+    assert.ok(pokemon.every((entry) => entry.arena === 'pokemon'));
+    assert.equal(comic.find((entry) => entry.characterIndex === comicTeam[0]).totalMatchesPlayed, 2);
+    assert.equal(comic.find((entry) => entry.characterIndex === comicTeam[0]).totalGamesWon, 1);
+    assert.equal(pokemon.find((entry) => entry.characterIndex === pokemonTeam[0]).totalMatchesPlayed, 2);
+    assert.equal(pokemon.find((entry) => entry.characterIndex === pokemonTeam[0]).totalGamesWon, 1);
 });
 
 test('usernamesEqual ignores case and surrounding whitespace', () => {

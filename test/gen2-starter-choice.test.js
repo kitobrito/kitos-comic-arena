@@ -132,6 +132,10 @@ test('all Gen 2 evolution face, skill, and selection render assets are wired loc
         assert.match(selectionSource, new RegExp(filename.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
     });
     assert.match(serverSource, /bayleafs5\.png/);
+    assert.match(serverSource, /'cyndaquil-aerial-flamethrower': 'assets\/images\/PokemonArena\/Cyndaquil\/quilavas3\.png'/);
+    assert.match(serverSource, /'cyndaquil-cynda-smokescreen': 'assets\/images\/PokemonArena\/Cyndaquil\/quilavas2\.png'/);
+    assert.match(serverSource, /'cyndaquil-aerial-flamethrower': 'assets\/images\/PokemonArena\/Cyndaquil\/typhlosions3\.png'/);
+    assert.match(serverSource, /'cyndaquil-cynda-smokescreen': 'assets\/images\/PokemonArena\/Cyndaquil\/typhlosions2\.png'/);
 });
 
 test('Totodile Water Gun damages enemies and builds a Water Ring', () => {
@@ -213,9 +217,11 @@ test('Gen 2 starter descriptions and the manual use the current combat terminolo
     const cyndaquil = characters.find((entry) => entry.id === 'cyndaquil');
     const totodile = characters.find((entry) => entry.id === 'totodile');
     const flamethrower = cyndaquil.skills.find((skill) => skill.id === 'cyndaquil-aerial-flamethrower');
+    const warmingUp = cyndaquil.skills.find((skill) => skill.id === 'cyndaquil-warming-up');
     const scaryFace = totodile.skills.find((skill) => skill.id === 'totodile-scary-face');
     const manual = fs.readFileSync(path.join(__dirname, '..', 'manual.html'), 'utf8');
     assert.deepEqual(flamethrower.energy, ['Bloodline']);
+    assert.match(warmingUp.skilldescription, /deals 0 affliction damage to them/i);
     assert.match(scaryFace.skilldescription, /Guard Breaks one enemy/);
     assert.match(manual, /<strong>Guard Break<\/strong><span>Prevents a character from reducing damage or becoming invulnerable\.<\/span>/);
 });
