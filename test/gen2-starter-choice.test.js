@@ -107,6 +107,12 @@ test('each Gen 2 starter has gated 16-win and 36-win ranked evolution missions',
     });
 });
 
+test('Gen 2 evolution missions show zeroed ranked progress before the first win', () => {
+    const script = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'script.js'), 'utf8');
+    assert.match(script, /goalType === 'win_ladder_matches'/);
+    assert.match(script, /`\$\{Math\.min\(count, target\)\}\/\$\{target\} ranked wins`/);
+});
+
 test('all Gen 2 evolution face, skill, and selection render assets are wired locally', () => {
     const root = path.resolve(__dirname, '..');
     const serverSource = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
@@ -136,11 +142,29 @@ test('Totodile Water Gun damages enemies and builds a Water Ring', () => {
         targets: [],
     });
     resolvePendingTurnSkills({ match, actingUsername: 'Starter', characters });
-    assert.equal(match.board.Opponent[0].hp, 90);
+    assert.equal(match.board.Opponent[0].hp, 85);
     const tracker = match.board.Starter[0].state.statuses.find(
         (status) => status.id === 'totodile_water_rings_tracker'
     );
     assert.equal(tracker.metadata.waterRings, 1);
+    const waterGun = characters.find((entry) => entry.id === 'totodile').skills.find(
+        (skill) => skill.id === 'totodile-aerial-water-gun'
+    );
+    assert.equal(waterGun.cooldown, 1);
+});
+
+test('Chikorita Light Screen grants 25 destructible defense', () => {
+    const { match } = makeMatch({
+        actorId: 'chikorita',
+        opponentId: 'pikachu',
+        skillId: 'chikorita-light-screen',
+        targets: [{ username: 'Starter', slot: 0 }],
+    });
+    resolvePendingTurnSkills({ match, actingUsername: 'Starter', characters });
+    const lightScreen = match.board.Starter[0].state.statuses.find(
+        (status) => status.id === 'chikorita_light_screen'
+    );
+    assert.equal(lightScreen?.metadata?.destructibleDefensePoints, 25);
 });
 
 test('Chikorita Solar Beam consumes Light Screen stacks for bonus damage', () => {
@@ -155,7 +179,61 @@ test('Chikorita Solar Beam consumes Light Screen stacks for bonus damage', () =>
     );
     tracker.metadata.solarBeamStacks = 2;
     resolvePendingTurnSkills({ match, actingUsername: 'Starter', characters });
-    assert.equal(match.board.Opponent[0].hp, 50);
+    assert.equal(match.board.Opponent[0].hp, 55);
     assert.equal(tracker.metadata.solarBeamStacks, 0);
     assert.ok(match.board.Opponent[0].state.statuses.some((status) => status.id === 'chikorita_solar_beam_stun'));
+});
+
+test('Totodile Superpower empowers Aqua Tail by 10 then applies a permanent 5 damage penalty', () => {
+    const setup = makeMatch({
+        actorId: 'totodile',
+        opponentId: 'pikachu',
+        skillId: 'totodile-superpower',
+        targets: [{ username: 'Starter', slot: 0 }],
+    });
+    const { match, actorIndex } = setup;
+    resolvePendingTurnSkills({ match, actingUsername: 'Starter', characters });
+    const aquaTailIndex = characters[actorIndex].skills.findIndex((skill) => skill.id === 'totodile-aqua-tail');
+    match.pendingTurns.Starter = {
+        queueOrder: ['0'],
+        queuedByActorSlot: {
+            0: { skillIndex: aquaTailIndex, targetSelection: [{ username: 'Opponent', slot: 0 }] },
+        },
+    };
+    resolvePendingTurnSkills({ match, actingUsername: 'Starter', characters });
+    assert.equal(match.board.Opponent[0].hp, 45);
+    const tracker = match.board.Starter[0].state.statuses.find(
+        (status) => status.id === 'totodile_water_rings_tracker'
+    );
+    assert.equal(tracker.metadata.aquaTailEmpowered, false);
+    assert.equal(tracker.metadata.aquaTailPermanentPenalty, 5);
+});
+
+test('Gen 2 starter descriptions and the manual use the current combat terminology', () => {
+    const cyndaquil = characters.find((entry) => entry.id === 'cyndaquil');
+    const totodile = characters.find((entry) => entry.id === 'totodile');
+    const flamethrower = cyndaquil.skills.find((skill) => skill.id === 'cyndaquil-aerial-flamethrower');
+    const scaryFace = totodile.skills.find((skill) => skill.id === 'totodile-scary-face');
+    const manual = fs.readFileSync(path.join(__dirname, '..', 'manual.html'), 'utf8');
+    assert.deepEqual(flamethrower.energy, ['Bloodline']);
+    assert.match(scaryFace.skilldescription, /Guard Breaks one enemy/);
+    assert.match(manual, /<strong>Guard Break<\/strong><span>Prevents a character from reducing damage or becoming invulnerable\.<\/span>/);
+});
+
+test('Cyndaquil Aerial Tackle cancels channeled skills sourced by its target', () => {
+    const { match } = makeMatch({
+        actorId: 'cyndaquil',
+        opponentId: 'pikachu',
+        skillId: 'cyndaquil-aerial-tackle',
+        targets: [{ username: 'Opponent', slot: 0 }],
+    });
+    match.board.Starter[0].state.statuses.push({
+        id: 'opponent_channel',
+        sourceUsername: 'Opponent',
+        sourceSlot: 0,
+        remainingTurns: 3,
+        metadata: { harmful: true, ongoingClass: 'channeled' },
+    });
+    resolvePendingTurnSkills({ match, actingUsername: 'Starter', characters });
+    assert.ok(!match.board.Starter[0].state.statuses.some((status) => status.id === 'opponent_channel'));
 });

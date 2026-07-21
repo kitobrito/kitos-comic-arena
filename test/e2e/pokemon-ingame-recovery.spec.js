@@ -649,10 +649,15 @@ test('battle URLs without a layout start in the new UI', async ({ page }) => {
             faceRight: face?.right || 0,
             skillStripLeft: skillStrip?.left || 0,
             selectedMoveLeft: selectedMove?.left || 0,
+            selectedMoveWidth: selectedMove?.width || 0,
+            selectedMoveRight: selectedMove?.right || 0,
+            firstSkillLeft: card.querySelector('.skillimage')?.getBoundingClientRect().left || 0,
         };
     });
     expect(firstCardGeometry.skillStripLeft).toBeGreaterThan(firstCardGeometry.faceRight);
     expect(firstCardGeometry.selectedMoveLeft).toBeGreaterThan(firstCardGeometry.faceRight);
+    expect(firstCardGeometry.selectedMoveWidth).toBeGreaterThanOrEqual(50);
+    expect(firstCardGeometry.selectedMoveRight).toBeLessThanOrEqual(firstCardGeometry.firstSkillLeft);
 });
 
 test('selection URLs without a layout start in the new UI and can opt into classic', async ({ page }) => {

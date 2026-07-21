@@ -6971,7 +6971,12 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                                     metadata.fullyBlind || metadata.harmfulBlind || metadata.paralyzeCooldowns ||
                                     metadata.taunt || (Array.isArray(metadata.cannotUseSkillClasses) && metadata.cannotUseSkillClasses.length)
                                 );
-                                return !isControl || Boolean(metadata.unremovable);
+                                const ongoingClass =
+                                    typeof metadata.ongoingClass === 'string'
+                                        ? metadata.ongoingClass.trim().toLowerCase()
+                                        : '';
+                                const isChanneled = ongoingClass === 'channeled';
+                                return (!isControl && !isChanneled) || Boolean(metadata.unremovable);
                             });
                         });
                     });
@@ -7044,7 +7049,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 const activeClass = classes[Math.max(0, Number(tracker?.metadata?.sweetScentClassIndex) || 0) % classes.length];
                 resolveRecipients(effect).forEach((recipient) => {
                     if (!recipient?.unit || recipient.unit.alive === false) return;
-                    queueDamage(recipient, 40 + stacks * 5, effect);
+                    queueDamage(recipient, 35 + stacks * 5, effect);
                     applyStatus({
                         targetState: ensureUnitStateShape(recipient.unit),
                         targetUnit: recipient.unit,
@@ -7067,7 +7072,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 }
                 resolveRecipients(effect).forEach((recipient) => {
                     if (!recipient?.unit || recipient.unit.alive === false) return;
-                    queueDamage(recipient, 10, effect);
+                    queueDamage(recipient, 15, effect);
                     const targetState = ensureUnitStateShape(recipient.unit);
                     const scaryFace = targetState.statuses.some(
                         (status) => status?.id === 'totodile_scary_face' && (Number(status?.remainingTurns) || 0) > 0
@@ -7090,7 +7095,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 const empowered = Boolean(tracker?.metadata?.aquaTailEmpowered);
                 resolveRecipients(effect).forEach((recipient) => {
                     if (!recipient?.unit || recipient.unit.alive === false) return;
-                    queueDamage(recipient, Math.max(0, 45 + (empowered ? 15 : 0) - penalty), {
+                    queueDamage(recipient, Math.max(0, 45 + (empowered ? 10 : 0) - penalty), {
                         ...effect,
                         metadata: { ...(effect?.metadata || {}), ignoreDamageReduction: true },
                     });
@@ -7112,7 +7117,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     tracker.metadata.waterRings = 0;
                     if (empowered) {
                         tracker.metadata.aquaTailEmpowered = false;
-                        tracker.metadata.aquaTailPermanentPenalty = penalty + 10;
+                        tracker.metadata.aquaTailPermanentPenalty = penalty + 5;
                     }
                 }
                 return;

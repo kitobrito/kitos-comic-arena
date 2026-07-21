@@ -7586,12 +7586,27 @@ document.addEventListener('DOMContentLoaded', async () => {
             endTurnModalBackdropEl?.setAttribute('aria-hidden', 'false');
             // Show immediately from the last known client state; refresh in the background below.
             endTurnModalEl.style.visibility = 'visible';
-            renderEndTurnModal(playerPoolState, getPendingTurnWithOptimisticQueues());
+            renderEndTurnModal(buildDisplayedChakraPool(), getPendingTurnWithOptimisticQueues());
             const requestMutationVersion = randomChakraMutationVersion;
-            fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}`, {
-                credentials: 'include',
-            })
+            // Queue acknowledgements already carry the authoritative pool. Let any request
+            // started by the player's last click settle before doing the safety refresh so
+            // the dialog never flashes an older pool while that request is still in flight.
+            Promise.all([waitForPendingSkillQueues(), waitForRandomChakraAdjustments()])
+                .then(([queuesSettled, energySettled]) => {
+                    if (!queuesSettled || !energySettled) return null;
+                    if (
+                        refreshVersion !== endTurnModalRefreshVersion ||
+                        endTurnModalEl?.style.visibility !== 'visible'
+                    ) {
+                        return null;
+                    }
+                    renderEndTurnModal(buildDisplayedChakraPool(), getPendingTurnWithOptimisticQueues());
+                    return fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}`, {
+                        credentials: 'include',
+                    });
+                })
                 .then(async (res) => {
+                    if (!res) return;
                     if (res.status === 401 || res.status === 403) {
                         redirectToSelectionLogin(currentMatchArena, {
                             clearUser: false,
@@ -7617,9 +7632,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                         return;
                     }
                     const playerPool = getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || {};
+                    playerPoolState = normalizePool(playerPool);
                     pendingTurnState = normalizePendingTurn(data.pendingTurn);
                     if (endTurnModalEl?.style.visibility === 'visible') {
-                        renderEndTurnModal(playerPool, getPendingTurnWithOptimisticQueues());
+                        renderDisplayedChakra();
+                        renderEndTurnModal(buildDisplayedChakraPool(), getPendingTurnWithOptimisticQueues());
                     }
                 })
                 .catch((error) => {
@@ -12130,6 +12147,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             const cachedOptions = targetOptionsCache.get(cacheKey);
             if (inFlightTargetOptionsRequestKey === cacheKey) return;
             const requestVersion = ++targetOptionsRequestVersion;
+            const buildTargetOptionsSignature = (options = {}) =>
+                [
+                    options?.targetType || '',
+                    options?.mode || '',
+                    ...(Array.isArray(options?.targets)
+                        ? options.targets.map((target) =>
+                              [target?.username || '', Number(target?.slot), target?.alive === false ? 0 : 1].join(':')
+                          )
+                        : []),
+                ].join('|');
             const applyTargetOptions = (data) => {
                 if (requestVersion !== targetOptionsRequestVersion) return;
                 const effectiveSkill = skill || getEffectiveSkillForActorSlot(actorSlot, skillIdx);
@@ -12137,8 +12164,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     clearActiveTargetSelectionState();
                     return;
                 }
-                pendingTurnState = normalizePendingTurn(data.pendingTurn);
-                measureIngamePerf('target:queued-skills', () => applyQueuedSkillVisuals());
+                const nextPending = normalizePendingTurn(data.pendingTurn);
+                if (buildPendingTurnSignature(nextPending) !== buildPendingTurnSignature(pendingTurnState)) {
+                    pendingTurnState = nextPending;
+                    measureIngamePerf('target:queued-skills', () => applyQueuedSkillVisuals());
+                }
                 activeTargetOptions = data;
                 lastTargetingActivatedAt = Date.now();
                 const skillEl = playerSkillMetaByKey.get(`${actorSlot}:${skillIdx}`)?.imgEl || null;
@@ -12222,7 +12252,23 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return;
                 }
                 targetOptionsCache.set(cacheKey, data);
-                applyTargetOptions(data);
+                if (
+                    hasOptimisticTargetOptions &&
+                    activeCastingSkill?.actorSlot === actorSlot &&
+                    activeCastingSkill?.skillIdx === skillIdx &&
+                    buildTargetOptionsSignature(activeTargetOptions) === buildTargetOptionsSignature(data)
+                ) {
+                    // The instant local highlights were confirmed unchanged. Keep the
+                    // existing DOM in place instead of rebuilding every target marker.
+                    activeTargetOptions = data;
+                    const nextPending = normalizePendingTurn(data.pendingTurn);
+                    if (buildPendingTurnSignature(nextPending) !== buildPendingTurnSignature(pendingTurnState)) {
+                        pendingTurnState = nextPending;
+                        applyQueuedSkillVisuals();
+                    }
+                } else {
+                    applyTargetOptions(data);
+                }
             } catch (error) {
                 if (requestVersion !== targetOptionsRequestVersion) return;
                 console.warn('Target fetch failed.', error);
@@ -12310,7 +12356,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                     if (!response.ok || !data?.ok) {
                         throw new Error(data?.error || 'Unable to queue skill.');
                     }
-                    optimisticQueuedByActorSlot.delete(actorSlot);
                     targetOptionsCache.clear();
                     const actionRejected =
                         typeof data?.actionRejected === 'string' ? data.actionRejected.trim().toLowerCase() : '';
@@ -12341,8 +12386,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                         return;
                     }
                     playIngameSound(applySkillSound);
-                    renderChakra(getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || emptyPool());
+                    // Install the confirmed pool and queue as one state change. This avoids
+                    // the brief affordability repaint that occurred between optimistic and
+                    // authoritative state after selecting a target.
+                    playerPoolState = normalizePool(
+                        getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || emptyPool()
+                    );
                     pendingTurnState = normalizePendingTurn(data.pendingTurn);
+                    optimisticQueuedByActorSlot.delete(actorSlot);
                     applyQueuedSkillVisuals();
                     syncEndTurnModalIfVisible();
                     syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
@@ -13833,6 +13884,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return target
                         ? `Win ${target} with ${characterName}: ${Math.min(count, target)}/${target}`
                         : '';
+                }
+                if (goalType === 'win_ladder_matches' || goalType === 'ladder_wins' || goalType === 'ranked_wins') {
+                    const target = Math.max(0, Number(goal.wins) || 0);
+                    return target ? `${Math.min(count, target)}/${target} ranked wins` : '';
                 }
                 if (goalType === 'win_streak') {
                     const target = Math.max(0, Number(goal.wins) || 0);

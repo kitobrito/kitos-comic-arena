@@ -166,5 +166,5 @@ test('battle polish outlines black energy and signs without routine queue-sync p
     assert.match(styles, /\.exchange_symbol\s*\{[\s\S]*?-webkit-text-stroke:\s*1px #fff;/);
     assert.doesNotMatch(script, /queued-random-energy-reminder/);
     assert.doesNotMatch(script, /match state changed while that skill was being queued/);
-    assert.match(ingame, /scripts\/script\.js\?v=pokemon-battle-polish-v1/);
+    assert.match(ingame, /scripts\/script\.js\?v=pokemon-battle-polish-v2/);
 });
