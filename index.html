@@ -2507,6 +2507,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     }
   </style>
   <link rel="stylesheet" href="styles/portal-theme.css?v=na-portal-v2" />
+  <link rel="stylesheet" href="styles/gen2-starter-choice.css?v=gen2-starter-choice-v1" />
 </head>
 <body class="home-classic-page">
 <!-- Google Tag Manager (noscript) -->
@@ -2615,6 +2616,10 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <button class="account-action" type="button" id="reset-account-button">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14" /><path d="M8 7V5h8v2" /><path d="M9 11v5" /><path d="M15 11v5" /><path d="M7 7l1 12h8l1-12" /></svg>
               <span>Reset Account</span>
+            </button>
+            <button class="account-action gen2-starter-reopen" type="button" id="gen2-starter-reopen" hidden>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" /><path d="M4 12h16" /><circle cx="12" cy="12" r="2.5" /></svg>
+              <span>Choose Gen 2 Starter</span>
             </button>
             <section class="group" id="admin-panel-section" hidden>
               <h2 class="group-title">Admin Panel</h2>
@@ -3145,7 +3150,37 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </section>
     </aside>
   </div>
-  <script src="./scripts/index.js?v=pokemon-wave-2-launch-v1" defer></script>
+  <div class="gen2-starter-overlay" id="gen2-starter-overlay" hidden>
+    <div class="gen2-starter-presentation-fx" id="gen2-starter-presentation-fx" aria-hidden="true"></div>
+    <section class="gen2-starter-dialog" role="dialog" aria-modal="true" aria-labelledby="gen2-starter-title">
+      <button class="gen2-starter-close" id="gen2-starter-close" type="button" aria-label="Choose a starter later">×</button>
+      <div class="gen2-starter-view" id="gen2-starter-case-view">
+        <h2 class="gen2-starter-heading" id="gen2-starter-title">Choose Your Gen 2 Starter</h2>
+        <p class="gen2-starter-copy">Your first choice is free. The other two will remain available for 500 Pokémon unlock points each.</p>
+        <div class="gen2-case-stage" aria-label="Starter ball case">
+          <img class="gen2-case-art" src="assets/images/PokemonArena/chooseyourstarter/Gen2 starters/3ballselection.png" alt="Open Pokemon Arena starter case">
+          <button class="gen2-ball-button" type="button" data-starter-id="cyndaquil" aria-label="Choose Cyndaquil"><img src="assets/images/PokemonArena/chooseyourstarter/Gen2 starters/cyndaball.png" alt=""></button>
+          <button class="gen2-ball-button" type="button" data-starter-id="totodile" aria-label="Choose Totodile"><img src="assets/images/PokemonArena/chooseyourstarter/Gen2 starters/totodileball.jpg" alt=""></button>
+          <button class="gen2-ball-button" type="button" data-starter-id="chikorita" aria-label="Choose Chikorita"><img src="assets/images/PokemonArena/chooseyourstarter/Gen2 starters/chikaritaball.jpg" alt=""></button>
+        </div>
+        <p class="gen2-starter-status" id="gen2-starter-status" aria-live="polite">Hover over a ball, then press it to reveal the Pokémon.</p>
+      </div>
+      <div class="gen2-starter-view" id="gen2-starter-confirm-view" hidden>
+        <div class="gen2-reveal-stage">
+          <img class="gen2-reveal-background" id="gen2-reveal-background" alt="">
+          <img class="gen2-reveal-render" id="gen2-reveal-render" alt="">
+          <h2 class="gen2-reveal-name" id="gen2-reveal-name"></h2>
+        </div>
+        <p class="gen2-confirm-copy" id="gen2-confirm-copy">Are you sure?</p>
+        <div class="gen2-confirm-actions">
+          <button class="gen2-confirm-button is-yes" id="gen2-starter-yes" type="button">Yes, choose this starter</button>
+          <button class="gen2-confirm-button" id="gen2-starter-no" type="button">No, show the case</button>
+        </div>
+        <p class="gen2-starter-status" id="gen2-confirm-status" aria-live="polite"></p>
+      </div>
+    </section>
+  </div>
+  <script src="./scripts/index.js?v=gen2-starter-choice-v1" defer></script>
   <script src="./scripts/arena-navigation.js?v=pokemon-sidebar-v4" defer></script>
 </body>
 </html>

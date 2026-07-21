@@ -40,6 +40,7 @@ const battleLogic = require('./battleLogic');
 const { syncPokemonOnixRelease } = require('./sync_pokemon_onix_news');
 const { syncPokemonMeowthRelease } = require('./sync_pokemon_meowth_release');
 const { syncPokemonWave2Release } = require('./sync_pokemon_wave_2_release');
+const { syncPokemonGen2StarterRelease } = require('./sync_pokemon_gen2_starter_release');
 let charactersData = require('./characters');
 
 const app = express();
@@ -91,6 +92,8 @@ const LEGACY_DEFAULT_PROFILE_AVATAR = 'https://i.postimg.cc/zG3W1w6K/itachi.png'
 const MISSION_CATALOG_STATE_KEY = 'missions';
 const BOT_TEAMS_STATE_KEY = 'bot_teams';
 const POKEMON_STARTER_SELECTION_VERSION = 3;
+const POKEMON_GEN2_STARTER_SELECTION_VERSION = 1;
+const POKEMON_GEN2_STARTER_UNLOCK_POINT_COST = 500;
 const LADDER_UNLOCK_POINTS_WIN = 10;
 const LADDER_UNLOCK_POINTS_LOSS = 3;
 const MISSION_UNLOCK_POINT_PRICE_MIN = 150;
@@ -2591,6 +2594,8 @@ const createDefaultMissionState = () => {
         purchasedUnlocks: [],
         starterCharacterId: null,
         starterSelectionVersion: 0,
+        gen2StarterCharacterId: null,
+        gen2StarterSelectionVersion: 0,
         eeveeEvolutionCharacterId: null,
     };
 };
@@ -2863,8 +2868,115 @@ const POKEMON_SKIN_CATALOG = [
     },
 ];
 
+const POKEMON_GEN2_EVOLUTION_SKIN_CATALOG = [
+    {
+        skinId: 'cyndaquil-quilava-evolution',
+        characterId: 'cyndaquil',
+        name: 'Quilava',
+        description: 'Cyndaquil permanently evolves into Quilava after 16 ranked wins.',
+        missionRewardOnly: true,
+        unlockPointCost: 0,
+        previewFacePicture: 'assets/images/PokemonArena/Cyndaquil/quilavafp.png',
+        patch: { name: 'Quilava', facePicture: 'assets/images/PokemonArena/Cyndaquil/quilavafp.png' },
+        skillImageOverridesBySkillId: {
+            'cyndaquil-aerial-tackle': 'assets/images/PokemonArena/Cyndaquil/quilavas1.png',
+            'cyndaquil-aerial-flamethrower': 'assets/images/PokemonArena/Cyndaquil/quilavas2.png',
+            'cyndaquil-cynda-smokescreen': 'assets/images/PokemonArena/Cyndaquil/quilavas3.png',
+            'cyndaquil-skyward-leap': 'assets/images/PokemonArena/Cyndaquil/quilavas4.png',
+            'cyndaquil-warming-up': 'assets/images/PokemonArena/Cyndaquil/quilavas5.png',
+        },
+    },
+    {
+        skinId: 'cyndaquil-typhlosion-evolution',
+        characterId: 'cyndaquil',
+        name: 'Typhlosion',
+        description: 'Quilava permanently evolves into Typhlosion after 36 more ranked wins.',
+        missionRewardOnly: true,
+        unlockPointCost: 0,
+        previewFacePicture: 'assets/images/PokemonArena/Cyndaquil/typlosionfp.png',
+        patch: { name: 'Typhlosion', facePicture: 'assets/images/PokemonArena/Cyndaquil/typlosionfp.png' },
+        skillImageOverridesBySkillId: {
+            'cyndaquil-aerial-tackle': 'assets/images/PokemonArena/Cyndaquil/typlosions1.png',
+            'cyndaquil-aerial-flamethrower': 'assets/images/PokemonArena/Cyndaquil/typhlosions2.png',
+            'cyndaquil-cynda-smokescreen': 'assets/images/PokemonArena/Cyndaquil/typhlosions3.png',
+            'cyndaquil-skyward-leap': 'assets/images/PokemonArena/Cyndaquil/typlosions4.png',
+            'cyndaquil-warming-up': 'assets/images/PokemonArena/Cyndaquil/typhlosions5.png',
+        },
+    },
+    {
+        skinId: 'chikorita-bayleaf-evolution',
+        characterId: 'chikorita',
+        name: 'Bayleaf',
+        description: 'Chikorita permanently evolves into Bayleaf after 16 ranked wins.',
+        missionRewardOnly: true,
+        unlockPointCost: 0,
+        previewFacePicture: 'assets/images/PokemonArena/Cyndaquil/Chikorita/bayleaffp.png',
+        patch: { name: 'Bayleaf', facePicture: 'assets/images/PokemonArena/Cyndaquil/Chikorita/bayleaffp.png' },
+        skillImageOverridesBySkillId: {
+            'chikorita-aerial-razor-leaf': 'assets/images/PokemonArena/Cyndaquil/Chikorita/bayleafs1.png',
+            'chikorita-light-screen': 'assets/images/PokemonArena/Cyndaquil/Chikorita/bayleafs2.png',
+            'chikorita-chikorita-solar-beam': 'assets/images/PokemonArena/Cyndaquil/Chikorita/bayleafs3.png',
+            'chikorita-vine-defense': 'assets/images/PokemonArena/Cyndaquil/Chikorita/bayleafs4.png',
+            'chikorita-sweet-scent': 'assets/images/PokemonArena/Cyndaquil/Chikorita/bayleafs5.png',
+        },
+    },
+    {
+        skinId: 'chikorita-meganium-evolution',
+        characterId: 'chikorita',
+        name: 'Meganium',
+        description: 'Bayleaf permanently evolves into Meganium after 36 more ranked wins.',
+        missionRewardOnly: true,
+        unlockPointCost: 0,
+        previewFacePicture: 'assets/images/PokemonArena/Cyndaquil/Chikorita/meganiumfp.png',
+        patch: { name: 'Meganium', facePicture: 'assets/images/PokemonArena/Cyndaquil/Chikorita/meganiumfp.png' },
+        skillImageOverridesBySkillId: {
+            'chikorita-aerial-razor-leaf': 'assets/images/PokemonArena/Cyndaquil/Chikorita/meganiums1.png',
+            'chikorita-light-screen': 'assets/images/PokemonArena/Cyndaquil/Chikorita/meganiums2.png',
+            'chikorita-chikorita-solar-beam': 'assets/images/PokemonArena/Cyndaquil/Chikorita/meganiums3.png',
+            'chikorita-vine-defense': 'assets/images/PokemonArena/Cyndaquil/Chikorita/meganiums4.png',
+            'chikorita-sweet-scent': 'assets/images/PokemonArena/Cyndaquil/Chikorita/meganiums5.png',
+        },
+    },
+    {
+        skinId: 'totodile-croconaw-evolution',
+        characterId: 'totodile',
+        name: 'Croconaw',
+        description: 'Totodile permanently evolves into Croconaw after 16 ranked wins.',
+        missionRewardOnly: true,
+        unlockPointCost: 0,
+        previewFacePicture: 'assets/images/PokemonArena/Cyndaquil/Totodile/croconawfp.png',
+        patch: { name: 'Croconaw', facePicture: 'assets/images/PokemonArena/Cyndaquil/Totodile/croconawfp.png' },
+        skillImageOverridesBySkillId: {
+            'totodile-aerial-water-gun': 'assets/images/PokemonArena/Cyndaquil/Totodile/croconaws1.png',
+            'totodile-scary-face': 'assets/images/PokemonArena/Cyndaquil/Totodile/croconaws2.png',
+            'totodile-aqua-tail': 'assets/images/PokemonArena/Cyndaquil/Totodile/croconaws3.png',
+            'totodile-superpower': 'assets/images/PokemonArena/Cyndaquil/Totodile/croconaws4.png',
+            'totodile-water-rings': 'assets/images/PokemonArena/Cyndaquil/Totodile/croconaws5.png',
+        },
+    },
+    {
+        skinId: 'totodile-feraligatr-evolution',
+        characterId: 'totodile',
+        name: 'Feraligatr',
+        description: 'Croconaw permanently evolves into Feraligatr after 36 more ranked wins.',
+        missionRewardOnly: true,
+        unlockPointCost: 0,
+        previewFacePicture: 'assets/images/PokemonArena/Cyndaquil/Totodile/feraligatrfp.png',
+        patch: { name: 'Feraligatr', facePicture: 'assets/images/PokemonArena/Cyndaquil/Totodile/feraligatrfp.png' },
+        skillImageOverridesBySkillId: {
+            'totodile-aerial-water-gun': 'assets/images/PokemonArena/Cyndaquil/Totodile/feraligatrs1.png',
+            'totodile-scary-face': 'assets/images/PokemonArena/Cyndaquil/Totodile/feraligatrs2.png',
+            'totodile-aqua-tail': 'assets/images/PokemonArena/Cyndaquil/Totodile/feraligatrs3.png',
+            'totodile-superpower': 'assets/images/PokemonArena/Cyndaquil/Totodile/feraligatrs4.png',
+            'totodile-water-rings': 'assets/images/PokemonArena/Cyndaquil/Totodile/feraligatrs5.png',
+        },
+    },
+];
+
 const getArenaSkinCatalog = (arena = DEFAULT_ARENA_MODE) =>
-    normalizeArenaMode(arena) === 'pokemon' ? POKEMON_SKIN_CATALOG : [];
+    normalizeArenaMode(arena) === 'pokemon'
+        ? [...POKEMON_SKIN_CATALOG, ...POKEMON_GEN2_EVOLUTION_SKIN_CATALOG]
+        : [];
 
 const getArenaSkinCatalogById = (arena = DEFAULT_ARENA_MODE) => {
     const catalog = new Map();
@@ -2878,10 +2990,12 @@ const getArenaSkinCatalogById = (arena = DEFAULT_ARENA_MODE) => {
             ...entry,
             skinId,
             characterId,
-            unlockPointCost: Math.max(
-                1,
-                Math.floor(Number(entry.unlockPointCost ?? entry.unlock_point_cost ?? 100) || 100)
-            ),
+            unlockPointCost: entry.missionRewardOnly
+                ? 0
+                : Math.max(
+                      1,
+                      Math.floor(Number(entry.unlockPointCost ?? entry.unlock_point_cost ?? 100) || 100)
+                  ),
         });
     });
     return catalog;
@@ -2935,7 +3049,10 @@ const serializeSkinCatalogEntryForClient = (entry = {}) => ({
     characterId: entry.characterId,
     name: typeof entry.name === 'string' ? entry.name.trim() : '',
     description: typeof entry.description === 'string' ? entry.description.trim() : '',
-    unlockPointCost: Math.max(1, Math.floor(Number(entry.unlockPointCost) || 100)),
+    missionRewardOnly: Boolean(entry.missionRewardOnly),
+    unlockPointCost: entry.missionRewardOnly
+        ? 0
+        : Math.max(1, Math.floor(Number(entry.unlockPointCost) || 100)),
     previewFacePicture:
         typeof entry.previewFacePicture === 'string' && entry.previewFacePicture.trim()
             ? entry.previewFacePicture.trim()
@@ -3196,6 +3313,25 @@ const normalizeMissionState = (missions = {}) => {
               )
           )
         : 0;
+    const gen2StarterCharacterId = normalizeCharacterId(
+        source.gen2StarterCharacterId ??
+            source.gen2_starter_character_id ??
+            source.gen2StarterSelection?.characterId
+    );
+    const gen2StarterSelectionVersion = Number.isFinite(Number(
+        source.gen2StarterSelectionVersion ??
+            source.gen2_starter_selection_version ??
+            source.gen2StarterSelection?.version
+    ))
+        ? Math.max(
+              0,
+              Number(
+                  source.gen2StarterSelectionVersion ??
+                      source.gen2_starter_selection_version ??
+                      source.gen2StarterSelection?.version
+              )
+          )
+        : 0;
     const eeveeEvolutionCharacterId = normalizeCharacterId(
         source.eeveeEvolutionCharacterId ??
             source.eevee_evolution_character_id ??
@@ -3213,6 +3349,9 @@ const normalizeMissionState = (missions = {}) => {
     }
     if (starterCharacterId && getPokemonStarterCharacterIds().has(starterCharacterId)) {
         unlockedCharacterIds.add(starterCharacterId);
+    }
+    if (gen2StarterCharacterId && getPokemonGen2StarterCharacterIds().has(gen2StarterCharacterId)) {
+        unlockedCharacterIds.add(gen2StarterCharacterId);
     }
     Object.keys(progressByMissionId).forEach((missionId) => {
         const progressEntry = progressByMissionId[missionId];
@@ -3233,6 +3372,11 @@ const normalizeMissionState = (missions = {}) => {
             ? starterCharacterId
             : null,
         starterSelectionVersion,
+        gen2StarterCharacterId:
+            gen2StarterCharacterId && getPokemonGen2StarterCharacterIds().has(gen2StarterCharacterId)
+                ? gen2StarterCharacterId
+                : null,
+        gen2StarterSelectionVersion,
         eeveeEvolutionCharacterId: validEeveeEvolutionCharacterId,
     };
 };
@@ -3351,7 +3495,23 @@ const normalizeMissionGoalEntry = (entry = {}, index = 0) => {
 
     if (normalizedType === 'win_ladder_matches') {
         const wins = Math.max(0, Number(source.wins ?? source.count ?? source.target ?? source.goal ?? 0) || 0);
-        return wins ? { type: 'win_ladder_matches', wins } : null;
+        const characterId = normalizeCharacterId(
+            source.character_id ?? source.characterId ?? source.character ?? source.target_character
+        );
+        return wins
+            ? {
+                  type: 'win_ladder_matches',
+                  wins,
+                  ...(characterId
+                      ? {
+                            character_id: characterId,
+                            character_name:
+                                String(source.character_name ?? source.characterName ?? '').trim() ||
+                                getCharacterDisplayNameById(characterId),
+                        }
+                      : {}),
+              }
+            : null;
     }
 
     if (normalizedType === 'win_matches' || normalizedType === 'win_streak') {
@@ -3705,6 +3865,13 @@ const normalizeMissionCatalogEntry = (mission = {}, index = 0) => {
                     ? source.rewardCharacterName.trim()
                     : getCharacterDisplayNameById(rewardCharacterId),
         reward_character_ids: rewardCharacterIds,
+        starter_character_id: normalizeCharacterId(
+            source.starter_character_id ?? source.starterCharacterId ?? ''
+        ),
+        prerequisite_mission_id: slugifyMissionId(
+            source.prerequisite_mission_id ?? source.prerequisiteMissionId ?? ''
+        ),
+        reward_skin_id: normalizeSkinId(source.reward_skin_id ?? source.rewardSkinId ?? ''),
         reward: typeof source.reward === 'string' ? source.reward.trim() : '',
         unlock_point_cost: Math.max(
             0,
@@ -4616,6 +4783,107 @@ const POKEMON_STARTER_MISSION_ENTRIES = [
     },
 ];
 
+const POKEMON_GEN2_STARTER_MISSION_ENTRY = {
+    missionId: 'gen2-starter-choice',
+    title: 'Choose a Johto Starter',
+    level_requirement: 1,
+    rank: '1',
+    reward_character: '',
+    reward_character_name: 'Johto Starters',
+    reward_character_ids: ['cyndaquil', 'chikorita', 'totodile'],
+    reward: 'Choose one Johto starter for free. The other two remain available for 500 unlock points each.',
+    unlock_point_cost: POKEMON_GEN2_STARTER_UNLOCK_POINT_COST,
+    arena: 'pokemon',
+    mode_restriction: { allowed_modes: ['quick', 'ladder'] },
+    image: 'assets/images/PokemonArena/chooseyourstarter/Gen2 starters/3ballselection.png',
+    imageAlt: 'Cyndaquil, Totodile, and Chikorita starter balls in the Pokemon Arena case',
+    characterName: 'Johto Starters',
+    portrait: 'assets/images/PokemonArena/BIB/cyndaquil.png',
+    portraitAlt: 'Johto starter selection',
+    requirements: ['Choose one Johto starter from the homepage.'],
+    goals: [],
+    special_pve: { enabled: false },
+    sortOrder: 4,
+};
+
+const POKEMON_GEN2_EVOLUTION_MISSION_ENTRIES = [
+    {
+        starterId: 'cyndaquil',
+        starterName: 'Cyndaquil',
+        secondName: 'Quilava',
+        finalName: 'Typhlosion',
+        secondSkinId: 'cyndaquil-quilava-evolution',
+        finalSkinId: 'cyndaquil-typhlosion-evolution',
+        secondImage: 'assets/images/PokemonArena/Cyndaquil/quilavafp.png',
+        finalImage: 'assets/images/PokemonArena/Cyndaquil/typlosionfp.png',
+    },
+    {
+        starterId: 'chikorita',
+        starterName: 'Chikorita',
+        secondName: 'Bayleaf',
+        finalName: 'Meganium',
+        secondSkinId: 'chikorita-bayleaf-evolution',
+        finalSkinId: 'chikorita-meganium-evolution',
+        secondImage: 'assets/images/PokemonArena/Cyndaquil/Chikorita/bayleaffp.png',
+        finalImage: 'assets/images/PokemonArena/Cyndaquil/Chikorita/meganiumfp.png',
+    },
+    {
+        starterId: 'totodile',
+        starterName: 'Totodile',
+        secondName: 'Croconaw',
+        finalName: 'Feraligatr',
+        secondSkinId: 'totodile-croconaw-evolution',
+        finalSkinId: 'totodile-feraligatr-evolution',
+        secondImage: 'assets/images/PokemonArena/Cyndaquil/Totodile/croconawfp.png',
+        finalImage: 'assets/images/PokemonArena/Cyndaquil/Totodile/feraligatrfp.png',
+    },
+].flatMap((entry, starterIndex) => {
+    const secondMissionId = `${entry.starterId}-evolve-${normalizeCharacterId(entry.secondName)}`;
+    return [
+        {
+            missionId: secondMissionId,
+            title: `Evolve ${entry.starterName} into ${entry.secondName}`,
+            level_requirement: 1,
+            rank: '1',
+            starter_character_id: entry.starterId,
+            reward_skin_id: entry.secondSkinId,
+            reward: `${entry.starterName} permanently becomes ${entry.secondName}.`,
+            arena: 'pokemon',
+            mode_restriction: { allowed_modes: ['ladder'] },
+            image: entry.secondImage,
+            imageAlt: `${entry.secondName} evolution artwork`,
+            characterName: entry.secondName,
+            portrait: entry.secondImage,
+            portraitAlt: `${entry.secondName} portrait`,
+            requirements: [`Choose ${entry.starterName} as your Johto starter.`, `Win 16 ranked matches with ${entry.starterName} on your team.`],
+            goals: [{ type: 'win_ladder_matches', character_id: entry.starterId, character_name: entry.starterName, wins: 16 }],
+            special_pve: { enabled: false },
+            sortOrder: 5 + starterIndex * 2,
+        },
+        {
+            missionId: `${entry.starterId}-evolve-${normalizeCharacterId(entry.finalName)}`,
+            title: `Evolve ${entry.secondName} into ${entry.finalName}`,
+            level_requirement: 1,
+            rank: '1',
+            starter_character_id: entry.starterId,
+            prerequisite_mission_id: secondMissionId,
+            reward_skin_id: entry.finalSkinId,
+            reward: `${entry.secondName} permanently becomes ${entry.finalName}.`,
+            arena: 'pokemon',
+            mode_restriction: { allowed_modes: ['ladder'] },
+            image: entry.finalImage,
+            imageAlt: `${entry.finalName} evolution artwork`,
+            characterName: entry.finalName,
+            portrait: entry.finalImage,
+            portraitAlt: `${entry.finalName} portrait`,
+            requirements: [`First evolve ${entry.starterName} into ${entry.secondName}.`, `Then win 36 additional ranked matches with ${entry.secondName} on your team.`],
+            goals: [{ type: 'win_ladder_matches', character_id: entry.starterId, character_name: entry.secondName, wins: 36 }],
+            special_pve: { enabled: false },
+            sortOrder: 6 + starterIndex * 2,
+        },
+    ];
+});
+
 const shouldNormalizeComicMissionDifficulty = (mission = {}) => {
     const normalizedArena = normalizeArenaMode(mission?.arena || '');
     if (normalizedArena === 'pokemon') {
@@ -4921,6 +5189,13 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
 
     POKEMON_STARTER_MISSION_ENTRIES.forEach((entry) => {
         upsertRequiredMission(entry, (mission) => normalizeCharacterId(mission?.reward_character) === normalizeCharacterId(entry.reward_character));
+    });
+    upsertRequiredMission(
+        POKEMON_GEN2_STARTER_MISSION_ENTRY,
+        (mission) => mission?.missionId === POKEMON_GEN2_STARTER_MISSION_ENTRY.missionId
+    );
+    POKEMON_GEN2_EVOLUTION_MISSION_ENTRIES.forEach((entry) => {
+        upsertRequiredMission(entry, (mission) => mission?.missionId === entry.missionId);
     });
     upsertRequiredMission(POKEMON_EEVEE_EVOLUTION_MISSION_ENTRY, (mission) => mission?.missionId === 'eevee-evolution-path');
     upsertRequiredMission(POKEMON_SCYTHER_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'scyther');
@@ -5990,6 +6265,12 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
             const progressByMissionId = {
                 ...(missionState.progressByMissionId || {}),
             };
+            const completedMissionIdsAtMatchStart = new Set(
+                Object.entries(progressByMissionId)
+                    .filter(([, progress]) => Boolean(progress?.completedAt))
+                    .map(([missionId]) => missionId)
+            );
+            const skinState = normalizeArenaSkinState(arenaState.skins, arena);
             const unlockedIds = new Set(missionState.unlockedCharacterIds || []);
             const userLevel = Number(arenaState?.ladder?.level) || 1;
             const didWin = Boolean(winnerUsername) && usernamesEqual(winnerUsername, username);
@@ -6003,6 +6284,20 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
 
                 const levelRequirement = Math.max(0, Number(mission.level_requirement) || 0);
                 const meetsLevelRequirement = levelRequirement <= 0 || userLevel >= levelRequirement;
+                const requiredStarterId = normalizeCharacterId(mission.starter_character_id);
+                if (
+                    requiredStarterId &&
+                    normalizeCharacterId(missionState.gen2StarterCharacterId) !== requiredStarterId
+                ) {
+                    continue;
+                }
+                const prerequisiteMissionId = slugifyMissionId(mission.prerequisite_mission_id || '');
+                if (
+                    prerequisiteMissionId &&
+                    !completedMissionIdsAtMatchStart.has(prerequisiteMissionId)
+                ) {
+                    continue;
+                }
 
                 const rewardCharacterId = normalizeCharacterId(mission.reward_character);
                 const specialPve = mission.special_pve || {};
@@ -6113,7 +6408,7 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
                     };
 
                     if (goalType === 'win_ladder_matches') {
-                        if (match.mode === 'ladder' && didWin) {
+                        if (match.mode === 'ladder' && didWin && hasGoalCharacter) {
                             nextGoalProgress.count = Math.min(
                                 targetCount,
                                 Math.max(0, Number(existingGoalProgress.count) || 0) + 1
@@ -6187,6 +6482,14 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
                     if (rewardCharacterId) {
                         unlockedIds.add(rewardCharacterId);
                     }
+                    const rewardSkinId = normalizeSkinId(mission.reward_skin_id || '');
+                    const rewardSkin = getArenaSkinCatalogById(arena).get(rewardSkinId);
+                    if (rewardSkinId && rewardSkin) {
+                        skinState.unlockedSkinIds = Array.from(
+                            new Set([...skinState.unlockedSkinIds, rewardSkinId])
+                        );
+                        skinState.equippedSkinByCharacterId[rewardSkin.characterId] = rewardSkinId;
+                    }
                 }
 
                 const progressChanged =
@@ -6219,6 +6522,7 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
                 progress: progressByMissionId,
                 unlockedCharacterIds: Array.from(unlockedIds),
             };
+            arenaState.skins = normalizeArenaSkinState(skinState, arena);
             arenaState.ladder.unlockPoints = arenaState.missions.unlockPoints;
 
             const normalizedProfile = normalizeUserProfile({
@@ -9082,6 +9386,7 @@ const assertMatchTeamsBelongToArena = (players = [], arena = DEFAULT_ARENA_MODE)
 };
 
 const getPokemonStarterCharacterIds = () => new Set(['pikachu', 'charmander', 'bulbasaur', 'squirtle']);
+const getPokemonGen2StarterCharacterIds = () => new Set(['cyndaquil', 'chikorita', 'totodile']);
 const getPokemonEeveeEvolutionCharacterIds = () => new Set(['jolteon', 'flareon', 'vaporeon']);
 
 const buildBattleBotTeam = async (arena = DEFAULT_ARENA_MODE) => {
@@ -11611,6 +11916,10 @@ async function initDb() {
     if (wave2ReleaseSync?.migrated) {
         console.log('Published the nine-character Pokemon Arena launch, latest releases, and news post.');
     }
+    const gen2StarterReleaseSync = await syncPokemonGen2StarterRelease(db);
+    if (gen2StarterReleaseSync.migrated) {
+        console.log('Published the Generation 2 starter launch and community-character announcement.');
+    }
     await backfillUserProfiles();
     console.log('Connected to MongoDB.');
 }
@@ -11858,6 +12167,11 @@ const matchmakingSettingsSchema = Joi.object({
 
 const pokemonStarterSelectionSchema = Joi.object({
     starterCharacterId: Joi.string().trim().required(),
+});
+
+const pokemonGen2StarterSelectionSchema = Joi.object({
+    starterCharacterId: Joi.string().trim().required(),
+    confirmed: Joi.boolean().valid(true).required(),
 });
 
 const pokemonEeveeEvolutionSelectionSchema = Joi.object({
@@ -13516,7 +13830,7 @@ app.get('/api/missions', async (req, res) => {
     try {
         res.set('Cache-Control', 'no-store');
         const arena = normalizeArenaMode(req.query?.arena);
-        const missions = addUnlockPointCostsToMissions((await getStoredMissionCatalog()).filter(
+        let missions = addUnlockPointCostsToMissions((await getStoredMissionCatalog()).filter(
             (mission) => normalizeArenaMode(mission?.arena) === arena
         ));
         let missionState = createDefaultMissionState();
@@ -13527,6 +13841,12 @@ app.get('/api/missions', async (req, res) => {
             if (authUser) {
                 normalizedProfile = normalizeUserProfile(authUser);
                 missionState = normalizeMissionState(getProfileArenaState(normalizedProfile, arena).missions);
+                if (arena === 'pokemon' && missionState.gen2StarterCharacterId) {
+                    missions = missions.filter((mission) => {
+                        const requiredStarterId = normalizeCharacterId(mission.starter_character_id);
+                        return !requiredStarterId || requiredStarterId === missionState.gen2StarterCharacterId;
+                    });
+                }
             }
         } catch (sessionError) {
             console.warn('Mission session lookup failed:', sessionError);
@@ -13711,6 +14031,9 @@ app.post('/api/skins/unlock', requireSession, async (req, res) => {
         if (!catalogEntry) {
             return res.status(404).json({ error: 'Skin not found.' });
         }
+        if (catalogEntry.missionRewardOnly) {
+            return res.status(403).json({ error: 'This evolution is unlocked through ranked missions.' });
+        }
 
         const profile = normalizeUserProfile(user);
         const arenaState = getProfileArenaState(profile, arena);
@@ -13778,6 +14101,12 @@ app.post('/api/skins/equip', requireSession, async (req, res) => {
         const profile = normalizeUserProfile(user);
         const arenaState = getProfileArenaState(profile, arena);
         const skinState = normalizeArenaSkinState(arenaState.skins, arena);
+        const currentSkinId = skinState.equippedSkinByCharacterId[characterId] || '';
+        const currentSkin = getArenaSkinCatalogById(arena).get(currentSkinId);
+        const requestedSkin = skinId ? getArenaSkinCatalogById(arena).get(skinId) : null;
+        if (currentSkin?.missionRewardOnly || requestedSkin?.missionRewardOnly) {
+            return res.status(403).json({ error: 'Starter evolutions are permanent mission rewards.' });
+        }
         if (!skinId) {
             delete skinState.equippedSkinByCharacterId[characterId];
         } else {
@@ -15152,6 +15481,91 @@ app.post('/api/profile/pokemon/starter', requireSession, async (req, res) => {
     } catch (error) {
         console.error('Pokemon starter selection error:', error);
         return res.status(500).json({ error: 'Unable to save starter selection.' });
+    }
+});
+
+app.post('/api/profile/pokemon/gen2-starter', requireSession, async (req, res) => {
+    try {
+        const { error: validationError, value } = pokemonGen2StarterSelectionSchema.validate(req.body || {});
+        if (validationError) {
+            return res.status(400).json({ error: 'A confirmed Gen 2 starter choice is required.' });
+        }
+
+        const starterCharacterId = normalizeCharacterId(value.starterCharacterId);
+        if (!getPokemonGen2StarterCharacterIds().has(starterCharacterId)) {
+            return res.status(400).json({ error: 'Invalid Gen 2 starter character.' });
+        }
+
+        const user = await usersCollection.findOne({ username: req.authUser.username });
+        if (!user) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        const profile = normalizeUserProfile(user);
+        const arenaState = getProfileArenaState(profile, 'pokemon');
+        const missionState = normalizeMissionState(arenaState.missions);
+        const existingStarterId = normalizeCharacterId(missionState.gen2StarterCharacterId);
+        if (existingStarterId) {
+            return res.status(409).json({
+                error: 'You have already chosen a Gen 2 starter.',
+                starterCharacterId: existingStarterId,
+            });
+        }
+
+        missionState.gen2StarterCharacterId = starterCharacterId;
+        missionState.gen2StarterSelectionVersion = POKEMON_GEN2_STARTER_SELECTION_VERSION;
+        const unlockedIds = new Set(
+            Array.isArray(missionState.unlockedCharacterIds) ? missionState.unlockedCharacterIds : []
+        );
+        unlockedIds.add(starterCharacterId);
+        missionState.unlockedCharacterIds = Array.from(unlockedIds);
+
+        const now = new Date();
+        const existingProgress = normalizeMissionProgressEntry(
+            missionState.progressByMissionId?.[POKEMON_GEN2_STARTER_MISSION_ENTRY.missionId] || {}
+        );
+        missionState.progressByMissionId[POKEMON_GEN2_STARTER_MISSION_ENTRY.missionId] =
+            normalizeMissionProgressEntry({
+                ...existingProgress,
+                completedAt: existingProgress.completedAt || now,
+                unlockedAt: existingProgress.unlockedAt || now,
+            });
+
+        const updatedArenaState = setProfileArenaState(profile, 'pokemon', {
+            ...arenaState,
+            missions: normalizeMissionState(missionState),
+        });
+        const normalizedProfile = normalizeUserProfile({
+            ...user,
+            profile: updatedArenaState,
+        });
+
+        const updateResult = await usersCollection.updateOne(
+            {
+                _id: user._id,
+                $or: [
+                    { 'profile.arenas.pokemon.missions.gen2StarterCharacterId': { $exists: false } },
+                    { 'profile.arenas.pokemon.missions.gen2StarterCharacterId': null },
+                    { 'profile.arenas.pokemon.missions.gen2StarterCharacterId': '' },
+                ],
+            },
+            { $set: { profile: normalizedProfile } }
+        );
+        if (updateResult.matchedCount !== 1) {
+            return res.status(409).json({ error: 'You have already chosen a Gen 2 starter.' });
+        }
+
+        return res.json({
+            ok: true,
+            starterCharacterId,
+            user: serializeUserForClient({
+                ...user,
+                profile: normalizedProfile,
+            }),
+        });
+    } catch (error) {
+        console.error('Pokemon Gen 2 starter selection error:', error);
+        return res.status(500).json({ error: 'Unable to save Gen 2 starter selection.' });
     }
 });
 
