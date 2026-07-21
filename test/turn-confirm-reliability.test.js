@@ -22,7 +22,7 @@ test('turn confirmation cannot remain disabled forever on a stalled skill queue'
 
 test('battle page cache-busts the shared script for the confirmation hotfix', () => {
     assert.match(ingame, /styles\/style\.css\?v=pokemon-battle-polish-v1/);
-    assert.match(ingame, /styles\/ingame-experimental\.css\?v=pokemon-gameplay-fixes-v3/);
+    assert.match(ingame, /styles\/ingame-experimental\.css\?v=pokemon-gameplay-fixes-v4/);
     assert.match(ingame, /scripts\/script\.js\?v=pokemon-battle-polish-v2/);
 });
 

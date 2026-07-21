@@ -2880,8 +2880,8 @@ const POKEMON_GEN2_EVOLUTION_SKIN_CATALOG = [
         patch: { name: 'Quilava', facePicture: 'assets/images/PokemonArena/Cyndaquil/quilavafp.png' },
         skillImageOverridesBySkillId: {
             'cyndaquil-aerial-tackle': 'assets/images/PokemonArena/Cyndaquil/quilavas1.png',
-            'cyndaquil-aerial-flamethrower': 'assets/images/PokemonArena/Cyndaquil/quilavas2.png',
-            'cyndaquil-cynda-smokescreen': 'assets/images/PokemonArena/Cyndaquil/quilavas3.png',
+            'cyndaquil-aerial-flamethrower': 'assets/images/PokemonArena/Cyndaquil/quilavas3.png',
+            'cyndaquil-cynda-smokescreen': 'assets/images/PokemonArena/Cyndaquil/quilavas2.png',
             'cyndaquil-skyward-leap': 'assets/images/PokemonArena/Cyndaquil/quilavas4.png',
             'cyndaquil-warming-up': 'assets/images/PokemonArena/Cyndaquil/quilavas5.png',
         },
@@ -2897,8 +2897,8 @@ const POKEMON_GEN2_EVOLUTION_SKIN_CATALOG = [
         patch: { name: 'Typhlosion', facePicture: 'assets/images/PokemonArena/Cyndaquil/typlosionfp.png' },
         skillImageOverridesBySkillId: {
             'cyndaquil-aerial-tackle': 'assets/images/PokemonArena/Cyndaquil/typlosions1.png',
-            'cyndaquil-aerial-flamethrower': 'assets/images/PokemonArena/Cyndaquil/typhlosions2.png',
-            'cyndaquil-cynda-smokescreen': 'assets/images/PokemonArena/Cyndaquil/typhlosions3.png',
+            'cyndaquil-aerial-flamethrower': 'assets/images/PokemonArena/Cyndaquil/typhlosions3.png',
+            'cyndaquil-cynda-smokescreen': 'assets/images/PokemonArena/Cyndaquil/typhlosions2.png',
             'cyndaquil-skyward-leap': 'assets/images/PokemonArena/Cyndaquil/typlosions4.png',
             'cyndaquil-warming-up': 'assets/images/PokemonArena/Cyndaquil/typhlosions5.png',
         },
@@ -6032,6 +6032,54 @@ const inferMatchArenaFromTeams = (match = {}) => {
     );
     arenas.delete(null);
     return arenas.size === 1 ? Array.from(arenas)[0] : null;
+};
+
+const getStoredMatchArena = (match = {}) => {
+    const storedArena = typeof match?.arena === 'string' ? match.arena.trim().toLowerCase() : '';
+    return ARENA_MODES.has(storedArena) ? storedArena : inferMatchArenaFromTeams(match);
+};
+
+const isTrackedMatchForArena = (match = {}, arena = DEFAULT_ARENA_MODE, mode = 'ladder') => {
+    if (match?.status !== 'ended' || match?.mode !== mode) return false;
+    return getStoredMatchArena(match) === normalizeArenaMode(arena);
+};
+
+const buildCharacterWinrateEntries = ({ matches = [], arena = DEFAULT_ARENA_MODE, mode = 'ladder', resetAt = null } = {}) => {
+    const normalizedArena = normalizeArenaMode(arena);
+    const resetTimestamp = resetAt ? new Date(resetAt).getTime() : Number.NaN;
+    const characters = (Array.isArray(charactersData) ? charactersData : [])
+        .map((character = {}, index) => ({
+            characterIndex: index,
+            characterId: typeof character.characterId === 'string' ? character.characterId : '',
+            name: typeof character.name === 'string' ? character.name : `Character ${index + 1}`,
+            facePicture: typeof character.facePicture === 'string' ? character.facePicture : '',
+            totalGamesWon: 0,
+            totalMatchesPlayed: 0,
+            arena: normalizeArenaMode(character.arena || character.universe),
+        }))
+        .filter((character) => character.arena === normalizedArena);
+    const charactersByIndex = new Map(characters.map((character) => [character.characterIndex, character]));
+
+    (Array.isArray(matches) ? matches : []).forEach((match = {}) => {
+        if (!isTrackedMatchForArena(match, normalizedArena, mode)) return;
+        if (Number.isFinite(resetTimestamp)) {
+            const endedTimestamp = new Date(match.endedAt || 0).getTime();
+            if (!Number.isFinite(endedTimestamp) || endedTimestamp < resetTimestamp) return;
+        }
+        const winnerUsername = typeof match.winner === 'string' ? match.winner : '';
+        (Array.isArray(match.players) ? match.players : []).forEach((player = {}) => {
+            const didWin = winnerUsername && usernamesEqual(player.username, winnerUsername);
+            (Array.isArray(player.team) ? player.team : []).forEach((characterIndex) => {
+                const index = Number.parseInt(characterIndex, 10);
+                const characterStats = charactersByIndex.get(index);
+                if (!Number.isInteger(index) || !characterStats) return;
+                characterStats.totalMatchesPlayed += 1;
+                if (didWin) characterStats.totalGamesWon += 1;
+            });
+        });
+    });
+
+    return characters;
 };
 
 const backfillMatchArenaMetadata = async () => {
@@ -13687,25 +13735,19 @@ app.get('/api/admin/winrates', requireSession, async (req, res) => {
         const mode = ['quick', 'ladder'].includes(String(req.query?.mode || '').toLowerCase())
             ? String(req.query.mode).toLowerCase()
             : 'ladder';
-        const winratesState = await appStateCollection.findOne({ key: 'winrates' });
+        const winratesState = await appStateCollection.findOne({ key: `winrates:${arena}` });
+        const legacyWinratesState = winratesState
+            ? null
+            : await appStateCollection.findOne({ key: 'winrates' });
+        const effectiveWinratesState = winratesState || legacyWinratesState;
         const resetAt =
-            winratesState && winratesState.resetAt
-                ? new Date(winratesState.resetAt)
+            effectiveWinratesState && effectiveWinratesState.resetAt
+                ? new Date(effectiveWinratesState.resetAt)
                 : null;
-        const characters = charactersData.map((character = {}, index) => ({
-            characterIndex: index,
-            characterId: typeof character.characterId === 'string' ? character.characterId : '',
-            name: typeof character.name === 'string' ? character.name : `Character ${index + 1}`,
-            facePicture: typeof character.facePicture === 'string' ? character.facePicture : '',
-            totalGamesWon: 0,
-            totalMatchesPlayed: 0,
-            arena: normalizeArenaMode(character.arena || character.universe),
-        })).filter((character) => character.arena === arena);
-        const charactersByIndex = new Map(characters.map((character) => [character.characterIndex, character]));
-
         const ladderMatches = await matchesCollection.find(
             {
-                ...buildHumanMatchStatsFilter({ arena, mode }),
+                status: 'ended',
+                mode,
                 ...(resetAt && !Number.isNaN(resetAt.getTime())
                     ? {
                         endedAt: { $gte: resetAt },
@@ -13714,36 +13756,16 @@ app.get('/api/admin/winrates', requireSession, async (req, res) => {
             },
             {
                 projection: {
+                    arena: 1,
+                    mode: 1,
+                    status: 1,
                     winner: 1,
                     players: 1,
+                    endedAt: 1,
                 },
             }
         ).toArray();
-
-        ladderMatches.forEach((match = {}) => {
-            const winnerUsername = typeof match.winner === 'string' ? match.winner.trim() : '';
-            const players = Array.isArray(match.players) ? match.players : [];
-
-            players.forEach((player = {}) => {
-                const team = Array.isArray(player.team) ? player.team : [];
-                const didWin =
-                    winnerUsername &&
-                    typeof player.username === 'string' &&
-                    player.username.trim() === winnerUsername;
-
-                team.forEach((characterIndex) => {
-                    const index = Number(characterIndex);
-                    const characterStats = charactersByIndex.get(index);
-                    if (!Number.isInteger(index) || !characterStats) {
-                        return;
-                    }
-                    characterStats.totalMatchesPlayed += 1;
-                    if (didWin) {
-                        characterStats.totalGamesWon += 1;
-                    }
-                });
-            });
-        });
+        const characters = buildCharacterWinrateEntries({ matches: ladderMatches, arena, mode, resetAt });
 
         return res.json({
             ok: true,
@@ -13763,12 +13785,14 @@ app.post('/api/admin/winrates/reset', requireSession, async (req, res) => {
     }
 
     try {
+        const arena = normalizeArenaMode(req.query?.arena);
         const resetAt = new Date();
         await appStateCollection.updateOne(
-            { key: 'winrates' },
+            { key: `winrates:${arena}` },
             {
                 $set: {
-                    key: 'winrates',
+                    key: `winrates:${arena}`,
+                    arena,
                     resetAt,
                     updatedBy: req.authUser.username,
                 },
@@ -13778,6 +13802,7 @@ app.post('/api/admin/winrates/reset', requireSession, async (req, res) => {
 
         return res.json({
             ok: true,
+            arena,
             resetAt,
         });
     } catch (error) {
@@ -16906,6 +16931,7 @@ if (require.main === module) {
         scoreBattleBotDamageCoordination,
         buildHumanMatchStatsFilter,
         inferMatchArenaFromTeams,
+        buildCharacterWinrateEntries,
         normalizeNewsArena,
         countActiveBattleUnits,
     };

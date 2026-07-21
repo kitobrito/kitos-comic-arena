@@ -557,6 +557,52 @@ html.battle-experimental .ingame-sound-controller {
     backdrop-filter: blur(7px);
 }
 
+html.battle-experimental .match-chat {
+    top: 482px;
+    right: auto;
+    bottom: auto;
+    left: 147px;
+    z-index: 7200;
+    width: 75px;
+}
+
+html.battle-experimental .match-chat-toggle {
+    min-height: 38px;
+    justify-content: center;
+    gap: 5px;
+    border-color: rgba(255, 255, 255, 0.7);
+    border-radius: 5px;
+    background: linear-gradient(180deg, var(--battle-accent-bright), var(--battle-accent));
+    color: #fff;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.48), 0 0 12px rgba(239, 64, 93, 0.25);
+    font-size: 11px;
+}
+
+html.battle-experimental .match-chat-toggle:hover,
+html.battle-experimental .match-chat-toggle:focus-visible {
+    filter: brightness(1.14);
+    outline: 2px solid #fff;
+    outline-offset: 1px;
+}
+
+html.battle-experimental .match-chat-panel {
+    position: absolute;
+    top: auto;
+    right: auto;
+    bottom: 46px;
+    left: 0;
+    width: 300px;
+    box-sizing: border-box;
+    border-color: rgba(255, 255, 255, 0.72);
+    border-radius: 7px;
+    background: rgba(8, 16, 20, 0.97);
+    color: #eef2f3;
+}
+
+html.battle-experimental .match-chat-message {
+    color: #111;
+}
+
 html.battle-experimental .ingame-layout-toggle {
     border-color: rgba(255, 255, 255, 0.64);
     border-radius: 4px;

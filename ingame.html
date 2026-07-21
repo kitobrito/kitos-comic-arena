@@ -26,7 +26,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;700&family=Petra&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles/style.css?v=pokemon-battle-polish-v1">
-    <link rel="stylesheet" href="styles/ingame-experimental.css?v=pokemon-gameplay-fixes-v3">
+    <link rel="stylesheet" href="styles/ingame-experimental.css?v=pokemon-gameplay-fixes-v4">
 </head>
 <body class="app-loading app-loading-ingame ui-stable-ingame">
 <!-- Google Tag Manager (noscript) -->
@@ -84,7 +84,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <label><input type="checkbox" data-ui-setting="shiftStatusReveal"> Shift reveals statuses</label>
             <label><input type="checkbox" data-ui-setting="skillQueueTrail"> Skill queue trail</label>
         </section>
-        <section class="match-chat collapsed" aria-label="Match chat">
+    </div>
+    <section class="match-chat collapsed" aria-label="Match chat">
             <button type="button" class="match-chat-toggle" aria-expanded="false">
                 <span>Chat</span>
                 <span class="match-chat-unread" aria-hidden="true">0</span>
@@ -110,8 +111,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 </form>
                 <p class="match-chat-status"></p>
             </div>
-        </section>
-    </div>
+    </section>
     <button type="button" class="ingame-layout-toggle" aria-label="Switch battle interface">New UI</button>
 
     <div class="end-turn-modal-backdrop" aria-hidden="true"></div>

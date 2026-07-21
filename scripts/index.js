@@ -1604,9 +1604,14 @@
       return;
     }
 
-    setWinratesStatus("Loading character winrates...");
+    var winratesArenaName = activeHomeArena === "pokemon" ? "Pokemon Arena" : "Comic Arena";
+    var winratesPageTitle = document.getElementById("winrates-page-title");
+    var winratesBoardTitle = document.getElementById("winrates-board-title");
+    if (winratesPageTitle) winratesPageTitle.textContent = winratesArenaName + " Character Winrates";
+    if (winratesBoardTitle) winratesBoardTitle.textContent = winratesArenaName + " Battle Board";
+    setWinratesStatus("Loading " + winratesArenaName + " character winrates...");
     try {
-      var response = await fetch("/api/admin/winrates", {
+      var response = await fetch("/api/admin/winrates?arena=" + encodeURIComponent(activeHomeArena), {
         credentials: "same-origin"
       });
       var data = await response.json().catch(function () {
@@ -2263,7 +2268,7 @@
     resetWinratesButton.disabled = true;
     setWinratesStatus("Resetting winrates...");
     try {
-      var response = await fetch("/api/admin/winrates/reset", {
+      var response = await fetch("/api/admin/winrates/reset?arena=" + encodeURIComponent(activeHomeArena), {
         method: "POST",
         credentials: "same-origin"
       });

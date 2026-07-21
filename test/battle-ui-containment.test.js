@@ -16,5 +16,11 @@ test('battle usernames are contained inside their header panels', () => {
 test('skill costs begin after the move browser instead of underneath it', () => {
     assert.match(styles, /\.energytext \{ left: 170px;/);
     assert.match(styles, /\.ingameclasses \{ left: 300px;/);
-    assert.match(ingame, /styles\/ingame-experimental\.css\?v=pokemon-gameplay-fixes-v3/);
+    assert.match(ingame, /styles\/ingame-experimental\.css\?v=pokemon-gameplay-fixes-v4/);
+});
+
+test('experimental battle chat is a visible standalone control beside surrender', () => {
+    assert.match(ingame, /<\/div>\s*<section class="match-chat collapsed" aria-label="Match chat">/);
+    assert.match(styles, /html\.battle-experimental \.match-chat \{[\s\S]*?top: 482px;[\s\S]*?left: 147px;[\s\S]*?width: 75px;/);
+    assert.match(styles, /html\.battle-experimental \.match-chat-panel \{[\s\S]*?bottom: 46px;[\s\S]*?width: 300px;/);
 });
