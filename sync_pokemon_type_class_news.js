@@ -7,7 +7,7 @@ const newsCollectionName = process.env.MONGODB_NEWS_POSTS_COLLECTION || 'news_po
 const typeArt = 'assets/images/PokemonArena/found-pokeball.png';
 
 const paragraphs = [
-    'Pokemon Arena now has a complete Type-Class system. All 40 Pokemon Arena characters have their modern Pokemon type or dual typing, and all 264 Pokemon skills now begin with one move-type class such as Fire, Water, Electric, Psychic, or Fairy. The old Melee and Ranged classes have been removed from Pokemon Arena skills, while combat classes such as Physical, Mental, Energy, Affliction, Instant, Channeled, Strategic, and Passive continue to work normally.',
+    'Pokemon Arena now has a complete Type-Class system. All 40 Pokemon Arena characters have their modern Pokemon type or dual typing, and all 264 roster skill entries plus their 11 nested evolved variants now begin with one move-type class such as Fire, Water, Electric, Psychic, or Fairy. The old Melee and Ranged classes have been removed from Pokemon Arena skills, while combat classes such as Physical, Mental, Energy, Affliction, Instant, Channeled, Strategic, and Passive continue to work normally.',
     'Type matchups intentionally have a small, predictable effect on damage. A super-effective skill deals 5 additional damage, while a doubly super-effective skill deals 10 additional damage. A not-very-effective skill deals 5 less damage, while a doubly resisted skill deals 10 less damage. Pokemon Arena does not use a same-type attack bonus, so matching a move to its user does not add any extra STAB damage.',
     'The full modern 18-type chart is used, but hard immunities have been redesigned as double resistance. Normal against Ghost, Electric against Ground, Fighting against Ghost, Poison against Steel, Ground against Flying, Psychic against Dark, Ghost against Normal, and Dragon against Fairy receive the -10 former-immunity penalty instead of being automatically blocked. A dual type combines both sides of the matchup and caps the result between -10 and +10; for example, Ground against Electric/Flying is -5 because Electric weakness offsets half of Flying resistance.',
     'Effectiveness is applied once per affected target when a skill is activated, even if that skill contains several immediate damage packets. Area skills calculate the adjustment separately for every enemy. The modifier applies to immediate normal, piercing, and affliction damage before the defender processes shields and damage reduction. If resistance would reduce a positive hit below 5 damage, it remains at 5 so the new system never recreates a practical damage immunity.',
@@ -23,7 +23,7 @@ const newsPost = {
     paragraphs,
     changes: [
         {
-            text: 'All 40 Pokemon Arena characters now have modern canonical defending types, and all 264 Pokemon skills have one explicit move-type class.',
+            text: 'All 40 Pokemon Arena characters now have modern canonical defending types, and all 264 roster skill entries plus their 11 nested evolved variants have one explicit move-type class.',
             changeType: 'update',
             characterName: 'Pokemon Types',
             facePicture: typeArt,

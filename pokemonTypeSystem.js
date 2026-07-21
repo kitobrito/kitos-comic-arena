@@ -73,7 +73,9 @@ const skillsByType = {
         'clefairy-double-slap', 'jigglypuff-perish-song', 'jigglypuff-sing', 'jigglypuff-wish',
         'jigglypuff-humiliate', 'jigglypuff-evolution-wigglytuff', 'mewtwo-recover',
         'dragonite-hyper-beam', 'cyndaquil-aerial-tackle', 'cyndaquil-cynda-smokescreen',
-        'chikorita-sweet-scent', 'totodile-scary-face',
+        'chikorita-sweet-scent', 'totodile-scary-face', 'clefable-metronome',
+        'clefable-double-slap', 'wigglytuff-perish-song', 'wigglytuff-sing',
+        'wigglytuff-wish', 'wigglytuff-humiliate',
     ],
     Fire: [
         'charmander-ember', 'charmander-flamethrower', 'charmander-passive-evolution-charmeleon',
@@ -123,6 +125,7 @@ const skillsByType = {
         'zubat-passive-evolution-golbat', 'ekans-poison-fang', 'ekans-toxic', 'ekans-shed-skin',
         'ekans-passive-evolution-arbok', 'arbok-poison-fang', 'arbok-toxic', 'arbok-shed-skin',
         'vaporeon-acid-armor', 'beedrill-poison-sting', 'beedrill-envenom',
+        'mega-beedrill-poison-sting',
     ],
     Ground: ['pidgey-sand-attack', 'pidgeotto-sand-attack', 'eevee-dig', 'vaporeon-sand-attack'],
     Flying: [
@@ -139,7 +142,8 @@ const skillsByType = {
     Bug: [
         'zubat-leech-life', 'golbat-leech-life', 'scyther-fury-cutter', 'scyther-x-cutter',
         'jolteon-pin-missile', 'beedrill-twinneedle', 'beedrill-hive-swarm',
-        'beedrill-hive-sting', 'beedrill-evolution-mega',
+        'beedrill-hive-sting', 'beedrill-evolution-mega', 'mega-beedrill-fell-stinger',
+        'beedrill-hive-swarm-mega',
     ],
     Rock: [
         'aerodactyl-rock-slide', 'aerodactyl-stone-edge', 'aerodactyl-passive-tough-head',
@@ -164,7 +168,7 @@ const skillsByType = {
     ],
     Fairy: [
         'mr-mime-dazzling-gleam', 'clefairy-disarming-voice', 'clefairy-moonlight',
-        'clefairy-evolution-clefable',
+        'clefairy-evolution-clefable', 'clefable-disarming-voice', 'clefable-moonlight',
     ],
 };
 
@@ -239,7 +243,7 @@ const applyPokemonTypeSystem = (characters = [], { strict = false } = {}) => {
         const types = normalizePokemonTypes(POKEMON_CHARACTER_TYPES[characterId]);
         if (!types.length) errors.push(`Missing Pokemon typing for character: ${characterId || '(unknown)'}`);
         character.pokemonTypes = types;
-        (Array.isArray(character.skills) ? character.skills : []).forEach((skill) => {
+        const applySkillType = (skill) => {
             const skillId = String(skill?.id || '').trim();
             const moveType = normalizePokemonType(POKEMON_SKILL_TYPES[skillId]);
             if (!moveType) errors.push(`Missing Pokemon move type for skill: ${skillId || '(unknown)'}`);
@@ -248,7 +252,9 @@ const applyPokemonTypeSystem = (characters = [], { strict = false } = {}) => {
                 return normalized && normalized !== 'melee' && normalized !== 'ranged' && !POKEMON_TYPE_SET.has(normalized);
             });
             skill.classes = [moveType, ...retainedClasses].filter(Boolean);
-        });
+            if (skill?.evolvesTo && typeof skill.evolvesTo === 'object') applySkillType(skill.evolvesTo);
+        };
+        (Array.isArray(character.skills) ? character.skills : []).forEach(applySkillType);
         applyTypeOverridesToStatusConfigs(character);
     });
     if (strict && errors.length) throw new Error(errors.join('\n'));
