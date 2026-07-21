@@ -57,17 +57,19 @@ test('all Pokemon characters and skills have explicit valid typing with no Melee
     const pokemonTypeSet = new Set(POKEMON_TYPES);
     assert.equal(pokemon.length, 40);
     assert.equal(pokemon.flatMap((character) => character.skills || []).length, 264);
-    assert.equal(Object.keys(POKEMON_SKILL_TYPES).length, 264);
+    assert.equal(Object.keys(POKEMON_SKILL_TYPES).length, 275);
     pokemon.forEach((character) => {
         assert.ok(character.pokemonTypes.length >= 1 && character.pokemonTypes.length <= 2, character.id);
         character.pokemonTypes.forEach((type) => assert.ok(pokemonTypeSet.has(type), `${character.id}:${type}`));
-        (character.skills || []).forEach((skill) => {
+        const assertTypedSkill = (skill) => {
             const typedClasses = (skill.classes || []).filter((entry) => pokemonTypeSet.has(entry));
             assert.equal(typedClasses.length, 1, skill.id);
             assert.equal(skill.classes[0], typedClasses[0], skill.id);
             assert.ok(!(skill.classes || []).some((entry) => /^(melee|ranged)$/i.test(entry)), skill.id);
             assert.equal(getPokemonMoveType(skill.classes), POKEMON_SKILL_TYPES[skill.id], skill.id);
-        });
+            if (skill.evolvesTo) assertTypedSkill(skill.evolvesTo);
+        };
+        (character.skills || []).forEach(assertTypedSkill);
     });
     const comicCharacter = roster.find((character) => (character.arena || character.universe) !== 'pokemon');
     assert.equal(comicCharacter.pokemonTypes, undefined);
@@ -226,7 +228,7 @@ test('Comic Arena damage is unchanged even when a class name matches a Pokemon t
 test('type-class news explains every player-facing rule and syncs idempotently', async () => {
     const text = newsPost.paragraphs.join(' ');
     assert.match(text, /40 Pokemon/i);
-    assert.match(text, /264 Pokemon skills/i);
+    assert.match(text, /264 roster skill entries plus their 11 nested evolved variants/i);
     assert.match(text, /Melee and Ranged.*removed/i);
     assert.match(text, /super-effective skill deals 5/i);
     assert.match(text, /doubly super-effective skill deals 10/i);
