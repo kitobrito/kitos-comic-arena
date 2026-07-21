@@ -30,6 +30,21 @@
   var clanPanelButton = document.getElementById("clan-panel-button");
   var changeBackgroundsButton = document.getElementById("change-backgrounds-button");
   var resetAccountButton = document.getElementById("reset-account-button");
+  var gen2StarterReopenButton = document.getElementById("gen2-starter-reopen");
+  var gen2StarterOverlay = document.getElementById("gen2-starter-overlay");
+  var gen2StarterPresentationFx = document.getElementById("gen2-starter-presentation-fx");
+  var gen2StarterCloseButton = document.getElementById("gen2-starter-close");
+  var gen2StarterCaseView = document.getElementById("gen2-starter-case-view");
+  var gen2StarterConfirmView = document.getElementById("gen2-starter-confirm-view");
+  var gen2StarterBallButtons = document.querySelectorAll(".gen2-ball-button[data-starter-id]");
+  var gen2StarterYesButton = document.getElementById("gen2-starter-yes");
+  var gen2StarterNoButton = document.getElementById("gen2-starter-no");
+  var gen2RevealBackground = document.getElementById("gen2-reveal-background");
+  var gen2RevealRender = document.getElementById("gen2-reveal-render");
+  var gen2RevealName = document.getElementById("gen2-reveal-name");
+  var gen2ConfirmCopy = document.getElementById("gen2-confirm-copy");
+  var gen2ConfirmStatus = document.getElementById("gen2-confirm-status");
+  var selectedGen2StarterId = "";
   var adminPanelSection = document.getElementById("admin-panel-section");
   var releaseGroups = {
     comic: {
@@ -3875,6 +3890,142 @@
     }
   }
 
+  var gen2StarterUiById = {
+    cyndaquil: {
+      name: "Cyndaquil",
+      selection: "assets/images/PokemonArena/chooseyourstarter/Gen2 starters/cyndaquilselection.jpg",
+      render: "assets/images/PokemonArena/BIB/cyndaquil.png"
+    },
+    chikorita: {
+      name: "Chikorita",
+      selection: "assets/images/PokemonArena/chooseyourstarter/Gen2 starters/chikoritaselection.jpg",
+      render: "assets/images/PokemonArena/BIB/chikorita.png"
+    },
+    totodile: {
+      name: "Totodile",
+      selection: "assets/images/PokemonArena/chooseyourstarter/Gen2 starters/totodileselection.jpg",
+      render: "assets/images/PokemonArena/BIB/totodile.png"
+    }
+  };
+
+  function getGen2StarterChoice(user) {
+    var missions = user && user.profile && user.profile.arenas && user.profile.arenas.pokemon
+      ? user.profile.arenas.pokemon.missions
+      : null;
+    var choice = missions && missions.gen2StarterCharacterId
+      ? String(missions.gen2StarterCharacterId).trim().toLowerCase()
+      : "";
+    return gen2StarterUiById[choice] ? choice : "";
+  }
+
+  function syncGen2StarterChoiceUi(user) {
+    var needsChoice = Boolean(user && user.username && !getGen2StarterChoice(user));
+    if (gen2StarterReopenButton) {
+      gen2StarterReopenButton.hidden = !needsChoice;
+    }
+    if (!needsChoice && gen2StarterOverlay) {
+      gen2StarterOverlay.hidden = true;
+      document.body.classList.remove("gen2-starter-open");
+    }
+  }
+
+  function showGen2StarterCase() {
+    selectedGen2StarterId = "";
+    if (gen2ConfirmStatus) gen2ConfirmStatus.textContent = "";
+    if (gen2StarterCaseView) gen2StarterCaseView.hidden = false;
+    if (gen2StarterConfirmView) gen2StarterConfirmView.hidden = true;
+    var firstBall = gen2StarterBallButtons && gen2StarterBallButtons[0];
+    if (firstBall && typeof firstBall.focus === "function") firstBall.focus();
+  }
+
+  function openGen2StarterChoice() {
+    if (!gen2StarterOverlay || getGen2StarterChoice(currentSessionUser)) return;
+    showGen2StarterCase();
+    gen2StarterOverlay.hidden = false;
+    gen2StarterOverlay.classList.remove("is-presenting");
+    void gen2StarterOverlay.offsetWidth;
+    gen2StarterOverlay.classList.add("is-presenting");
+    if (gen2StarterPresentationFx) {
+      gen2StarterPresentationFx.textContent = "";
+      for (var confettiIndex = 0; confettiIndex < 42; confettiIndex += 1) {
+        var confettiPiece = document.createElement("i");
+        confettiPiece.style.setProperty("--confetti-x", String(4 + Math.random() * 92) + "%");
+        confettiPiece.style.setProperty("--confetti-delay", String(Math.random() * 0.45) + "s");
+        confettiPiece.style.setProperty("--confetti-fall", String(68 + Math.random() * 36) + "vh");
+        confettiPiece.style.setProperty("--confetti-drift", String(-90 + Math.random() * 180) + "px");
+        confettiPiece.style.setProperty("--confetti-spin", String(360 + Math.random() * 900) + "deg");
+        confettiPiece.style.setProperty("--confetti-color", ["#ff3b30", "#ffcc00", "#34c759", "#0a84ff", "#bf5af2", "#ffffff"][confettiIndex % 6]);
+        gen2StarterPresentationFx.appendChild(confettiPiece);
+      }
+      window.setTimeout(function () {
+        if (gen2StarterPresentationFx) gen2StarterPresentationFx.textContent = "";
+      }, 2600);
+    }
+    document.body.classList.add("gen2-starter-open");
+  }
+
+  function closeGen2StarterChoice() {
+    if (!gen2StarterOverlay) return;
+    gen2StarterOverlay.hidden = true;
+    gen2StarterOverlay.classList.remove("is-presenting");
+    if (gen2StarterPresentationFx) gen2StarterPresentationFx.textContent = "";
+    document.body.classList.remove("gen2-starter-open");
+    if (gen2StarterReopenButton && !gen2StarterReopenButton.hidden) {
+      gen2StarterReopenButton.focus();
+    }
+  }
+
+  function revealGen2Starter(starterId) {
+    var starter = gen2StarterUiById[starterId];
+    if (!starter) return;
+    selectedGen2StarterId = starterId;
+    if (gen2RevealBackground) {
+      gen2RevealBackground.src = starter.selection;
+      gen2RevealBackground.alt = starter.name + " selection scene";
+    }
+    if (gen2RevealRender) {
+      gen2RevealRender.src = starter.render;
+      gen2RevealRender.alt = starter.name;
+    }
+    if (gen2RevealName) gen2RevealName.textContent = starter.name;
+    if (gen2ConfirmCopy) {
+      gen2ConfirmCopy.textContent = "Are you sure you want " + starter.name + " as your free Gen 2 starter?";
+    }
+    if (gen2ConfirmStatus) gen2ConfirmStatus.textContent = "";
+    if (gen2StarterCaseView) gen2StarterCaseView.hidden = true;
+    if (gen2StarterConfirmView) gen2StarterConfirmView.hidden = false;
+    if (gen2StarterYesButton) gen2StarterYesButton.focus();
+  }
+
+  async function confirmGen2StarterChoice() {
+    var starter = gen2StarterUiById[selectedGen2StarterId];
+    if (!starter || !gen2StarterYesButton || !gen2StarterNoButton) return;
+    gen2StarterYesButton.disabled = true;
+    gen2StarterNoButton.disabled = true;
+    if (gen2ConfirmStatus) gen2ConfirmStatus.textContent = "Saving " + starter.name + " to your account...";
+    try {
+      var response = await fetch("/api/profile/pokemon/gen2-starter", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "same-origin",
+        body: JSON.stringify({ starterCharacterId: selectedGen2StarterId, confirmed: true })
+      });
+      var data = await response.json().catch(function () { return {}; });
+      if (!response.ok) throw new Error(data.error || "Unable to save your starter choice.");
+      var updatedUser = data && data.user && data.user.username ? data.user : currentSessionUser;
+      setCurrentSessionUser(updatedUser);
+      cacheSessionUser(updatedUser);
+      populateProfile(updatedUser);
+      if (gen2ConfirmStatus) gen2ConfirmStatus.textContent = starter.name + " is now unlocked!";
+      window.setTimeout(closeGen2StarterChoice, 450);
+    } catch (error) {
+      if (gen2ConfirmStatus) gen2ConfirmStatus.textContent = error.message || "Unable to save your starter choice.";
+    } finally {
+      gen2StarterYesButton.disabled = false;
+      gen2StarterNoButton.disabled = false;
+    }
+  }
+
   function setStatus(message, state) {
     if (!authStatus) {
       return;
@@ -3946,11 +4097,45 @@
 
   function setCurrentSessionUser(user) {
     currentSessionUser = user && user.username ? user : null;
+    syncGen2StarterChoiceUi(currentSessionUser);
+    if (currentSessionUser && !getGen2StarterChoice(currentSessionUser) && gen2StarterOverlay) {
+      window.setTimeout(openGen2StarterChoice, 0);
+    }
     updateClanPanelNotification(currentSessionUser);
     if (currentSessionUser) {
       reportCurrentActivity();
     }
   }
+
+  if (gen2StarterReopenButton) {
+    gen2StarterReopenButton.addEventListener("click", openGen2StarterChoice);
+  }
+  if (gen2StarterCloseButton) {
+    gen2StarterCloseButton.addEventListener("click", closeGen2StarterChoice);
+  }
+  if (gen2StarterNoButton) {
+    gen2StarterNoButton.addEventListener("click", showGen2StarterCase);
+  }
+  if (gen2StarterYesButton) {
+    gen2StarterYesButton.addEventListener("click", confirmGen2StarterChoice);
+  }
+  if (gen2StarterBallButtons && gen2StarterBallButtons.length) {
+    gen2StarterBallButtons.forEach(function (button) {
+      button.addEventListener("click", function () {
+        var starterId = String(button.getAttribute("data-starter-id") || "").trim().toLowerCase();
+        button.classList.add("is-pressing");
+        window.setTimeout(function () {
+          button.classList.remove("is-pressing");
+          revealGen2Starter(starterId);
+        }, 190);
+      });
+    });
+  }
+  document.addEventListener("keydown", function (event) {
+    if (event.key === "Escape" && gen2StarterOverlay && !gen2StarterOverlay.hidden) {
+      closeGen2StarterChoice();
+    }
+  });
 
   function updateMode() {
     if (!authForm || !authDescription || !authSubmit || !authToggle || !passwordInput || !confirmPasswordInput || !emailInput) {
@@ -5357,6 +5542,30 @@
     var isAdminOnlyPage = /(winrates|playeraccounts|newspost|charactereditor|editmission)\.html$/i.test(window.location.pathname || "");
     if (isAdminOnlyPage && !(user && String(user.role || "").trim().toLowerCase() === "admin")) {
       window.location.replace("index.html");
+      return;
+    }
+
+    var localStarterPreview = /^(localhost|127\.0\.0\.1)$/i.test(window.location.hostname || "") &&
+      new URLSearchParams(window.location.search || "").get("preview") === "gen2-starter";
+    if (localStarterPreview && !user) {
+      var previewUser = {
+        username: "Local Preview",
+        profile: {
+          arenas: {
+            pokemon: {
+              missions: {
+                gen2StarterCharacterId: null,
+                gen2StarterSelectionVersion: 0,
+                unlockedCharacterIds: [],
+                unlockPoints: 500
+              }
+            }
+          }
+        }
+      };
+      setCurrentSessionUser(previewUser);
+      showAccountView(previewUser.username);
+      populateProfile(previewUser);
       return;
     }
 

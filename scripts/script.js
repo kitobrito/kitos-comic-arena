@@ -1168,7 +1168,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         butterfree: 'Butterfree.png.webp',
         chansey: 'CHANSEY.png.webp',
         charmander: 'Charmander.png.webp',
+        chikorita: 'chikorita.png.webp',
         clefairy: 'CLEFAIRY.png.webp',
+        cyndaquil: 'cyndaquil.png.webp',
         dragonite: 'Dragonite.png.webp',
         eevee: 'EEVEE.png.webp',
         ekans: '0023-ekans (1).webp.webp',
@@ -1194,6 +1196,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         'pokemon-trainer': 'POKEMONTRAINER.png.webp',
         scyther: 'SCYTHER.png.webp',
         squirtle: 'Pokémon_Squirtle_art.png.webp',
+        totodile: 'totodile.png.webp',
         vaporeon: 'VAPOREON.png.webp',
         zapdos: 'ZAPDOS.png.webp',
         zubat: 'ZUBAT.png.webp',
@@ -1219,6 +1222,24 @@ document.addEventListener('DOMContentLoaded', async () => {
         zubat: { name: 'Golbat', filename: 'Golbat_Render_01.webp.webp' },
     });
     const POKEMON_SELECTION_SKIN_RENDER_FORMS_BY_ID = Object.freeze({
+        'cyndaquil-quilava-evolution': [
+            { id: 'base', label: 'Evolution', name: 'Quilava', filename: 'quilava.png.webp' },
+        ],
+        'cyndaquil-typhlosion-evolution': [
+            { id: 'base', label: 'Final Form', name: 'Typhlosion', filename: 'typhlosion.png.webp' },
+        ],
+        'chikorita-bayleaf-evolution': [
+            { id: 'base', label: 'Evolution', name: 'Bayleaf', filename: 'bayleaf.png.webp' },
+        ],
+        'chikorita-meganium-evolution': [
+            { id: 'base', label: 'Final Form', name: 'Meganium', filename: 'meganium.png.webp' },
+        ],
+        'totodile-croconaw-evolution': [
+            { id: 'base', label: 'Evolution', name: 'Croconaw', filename: 'croconaw.webp.webp' },
+        ],
+        'totodile-feraligatr-evolution': [
+            { id: 'base', label: 'Final Form', name: 'Feraligatr', filename: 'ferliagatr.png.webp' },
+        ],
         'pikachu-raichu': [
             { id: 'base', label: 'Raichu', name: 'Raichu', filename: 'raichu.png.webp' },
         ],
@@ -14428,7 +14449,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const renderSelectionSkins = (payload = {}) => {
         if (!selectionMissionsListEl) return;
-        const skins = Array.isArray(payload?.skins) ? payload.skins : [];
+        const skins = Array.isArray(payload?.skins)
+            ? payload.skins.filter((skin = {}) => !skin.missionRewardOnly)
+            : [];
         const section = document.createElement('section');
         section.className = 'selection-skins-section';
         section.dataset.storeCategory = 'skins';

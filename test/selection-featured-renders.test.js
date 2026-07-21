@@ -92,18 +92,24 @@ test('evolution and Mega renders can be toggled and skills select the matching f
 
 test('every supplied equipped-skin showcase render is mapped and optimized', () => {
     const expectedFilenames = [
+        'bayleaf.png.webp',
         'blsmuthonix.png.webp',
         'charizard.png.webp',
         'cosmiconix.png.webp',
+        'croconaw.webp.webp',
         'crystalonix.png.webp',
+        'ferliagatr.png.webp',
         'goldmagikarp.png.webp',
         'goldonix.png.webp',
         'magmaonix.jpg.webp',
         'megacharizardx.png.webp',
         'megacharizardy.png.webp',
+        'meganium.png.webp',
         'pinkbutterfree.png.webp',
+        'quilava.png.webp',
         'raichu.png.webp',
         'redgyarados.png.webp',
+        'typhlosion.png.webp',
     ].sort();
     const selectionSource = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');
     const mapBody = selectionSource.match(

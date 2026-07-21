@@ -32156,6 +32156,252 @@ const characters = [
                 }
             }
         ]
+    },
+    {
+        "id": "cyndaquil",
+        "characterId": "cyndaquil",
+        "name": "Cyndaquil",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Specialist",
+        "roleCategory": "specialist",
+        "facePicture": "assets/images/PokemonArena/Cyndaquil/FP.webp",
+        "description": "Cyndaquil protects itself by flaring up the flames on its back, building momentum whenever it uses a new skill.",
+        "characterdeescription": "Cyndaquil protects itself by flaring up the flames on its back, building momentum whenever it uses a new skill.",
+        "skills": [
+            {
+                "id": "cyndaquil-aerial-tackle",
+                "name": "Aerial Tackle",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/S1.webp",
+                "skilldescription": "Deals 20 damage to one enemy and cancels any control skills they have active.",
+                "description": "Deals 20 damage to one enemy and cancels any control skills they have active.",
+                "energy": ["Random"],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Physical", "Melee", "Instant"],
+                "effects": [
+                    { "type": "damage", "amount": 20, "scope": "target", "metadata": { "harmful": true } },
+                    { "type": "remove_source_control_statuses", "scope": "target" }
+                ]
+            },
+            {
+                "id": "cyndaquil-aerial-flamethrower",
+                "name": "Aerial Flamethrower",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/S2.webp",
+                "skilldescription": "Deals 5 affliction damage to all enemies. Enemies affected by Cynda-Smokescreen take 5 additional affliction damage next turn.",
+                "description": "Deals 5 affliction damage to all enemies. Enemies affected by Cynda-Smokescreen take 5 additional affliction damage next turn.",
+                "energy": [],
+                "cooldown": 1,
+                "target": "all-enemy",
+                "damage": 0,
+                "classes": ["Affliction", "Ranged", "Instant"],
+                "effects": [{ "type": "cyndaquil_flamethrower", "scope": "all-enemy" }]
+            },
+            {
+                "id": "cyndaquil-cynda-smokescreen",
+                "name": "Cynda-Smokescreen",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/S3.webp",
+                "skilldescription": "Fully blinds the enemy team for 1 turn. Aerial Flamethrower lasts 1 additional turn on affected enemies.",
+                "description": "Fully blinds the enemy team for 1 turn. Aerial Flamethrower lasts 1 additional turn on affected enemies.",
+                "energy": ["Random", "Random"],
+                "cooldown": 3,
+                "target": "all-enemy",
+                "damage": 0,
+                "classes": ["Strategic", "Ranged", "Instant"],
+                "effects": [{ "type": "apply_status", "statusId": "cyndaquil_smokescreen", "duration": 1, "scope": "all-enemy", "metadata": { "harmful": true, "fullyBlind": true } }]
+            },
+            {
+                "id": "cyndaquil-skyward-leap",
+                "name": "Skyward Leap",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/S4.webp",
+                "skilldescription": "The next enemy skill used on Cyndaquil misses. After it misses, Aerial Tackle and Aerial Flamethrower deal 10 additional damage for 1 turn. Taking damage ends this effect.",
+                "description": "The next enemy skill used on Cyndaquil misses. After it misses, Aerial Tackle and Aerial Flamethrower deal 10 additional damage for 1 turn. Taking damage ends this effect.",
+                "energy": [],
+                "cooldown": 2,
+                "target": "self",
+                "damage": 0,
+                "classes": ["Strategic", "Instant"],
+                "effects": [{ "type": "apply_status", "statusId": "cyndaquil_skyward_leap", "duration": 2, "scope": "self", "metadata": { "evadeChancePercent": 100, "consumeOnEvade": true, "onEvadeApplyStatus": { "statusId": "cyndaquil_skyward_bonus", "duration": 1, "metadata": { "skillDamageBonuses": { "cyndaquil-aerial-tackle": 10, "cyndaquil-aerial-flamethrower": 10 } } } } }]
+            },
+            {
+                "id": "cyndaquil-warming-up",
+                "name": "Passive: Warming-Up",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/S5.webp",
+                "skilldescription": "Whenever Cyndaquil uses a new skill, this passive and Aerial Flamethrower permanently gain 5 damage (stacks).",
+                "description": "Whenever Cyndaquil uses a new skill, this passive and Aerial Flamethrower permanently gain 5 damage (stacks).",
+                "energy": [],
+                "cooldown": 0,
+                "target": "",
+                "damage": 0,
+                "classes": ["Passive", "Affliction", "Instant"],
+                "effects": []
+            }
+        ],
+        "startStatuses": [{ "statusId": "cyndaquil_warming_up", "sourceSkillId": "cyndaquil-warming-up", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "cyndaquilWarmingUp": true, "onOwnerUseSkillTrigger": true, "persistOnOwnerUseSkillTrigger": true, "skillDamageBonuses": { "cyndaquil-aerial-flamethrower": 0, "cyndaquil-warming-up": 0 } } }]
+    },
+    {
+        "id": "chikorita",
+        "characterId": "chikorita",
+        "name": "Chikorita",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Support",
+        "roleCategory": "support",
+        "facePicture": "assets/images/PokemonArena/Cyndaquil/Chikorita/FP.webp",
+        "description": "Chikorita protects allies and cycles Sweet Scent through Physical, Energy, Mental, and Affliction suppression.",
+        "characterdeescription": "Chikorita protects allies and cycles Sweet Scent through Physical, Energy, Mental, and Affliction suppression.",
+        "skills": [
+            {
+                "id": "chikorita-aerial-razor-leaf",
+                "name": "Aerial Razor Leaf",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/s1.webp",
+                "skilldescription": "Deals 20 piercing damage to one enemy and 15 damage to the others, then permanently lowers their damage for Sweet Scent's current class by 10 and 5 respectively.",
+                "description": "Deals 20 piercing damage to one enemy and 15 damage to the others, then permanently lowers their damage for Sweet Scent's current class by 10 and 5 respectively.",
+                "energy": ["Taijutsu"],
+                "cooldown": 1,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Physical", "Ranged", "Instant"],
+                "effects": [{ "type": "chikorita_razor_leaf", "scope": "target" }]
+            },
+            {
+                "id": "chikorita-light-screen",
+                "name": "Light Screen",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/s2.webp",
+                "skilldescription": "Grants Chikorita or an ally 40 destructible defense for 1 turn. Enemies using a new skill on them lose 5 damage for Sweet Scent's current class and add 1 Solar Beam stack.",
+                "description": "Grants Chikorita or an ally 40 destructible defense for 1 turn. Enemies using a new skill on them lose 5 damage for Sweet Scent's current class and add 1 Solar Beam stack.",
+                "energy": ["Random"],
+                "cooldown": 2,
+                "target": "self-or-single-ally",
+                "damage": 0,
+                "classes": ["Strategic", "Instant", "Invisible"],
+                "effects": [{ "type": "apply_status", "statusId": "chikorita_light_screen", "duration": 1, "scope": "target", "metadata": { "destructibleDefensePoints": 40, "chikoritaLightScreen": true, "onOwnerTargetedBySkillTrigger": true, "onOwnerTargetedByEnemyOnly": true, "onOwnerTargetedByRequireNewSkill": true } }]
+            },
+            {
+                "id": "chikorita-chikorita-solar-beam",
+                "name": "Chikorita Solar Beam",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/s3.webp",
+                "skilldescription": "Deals 40 damage plus 5 per Light Screen stack, consumes all stacks, and stuns the target's skills in Sweet Scent's current class for 3 turns.",
+                "description": "Deals 40 damage plus 5 per Light Screen stack, consumes all stacks, and stuns the target's skills in Sweet Scent's current class for 3 turns.",
+                "energy": ["Taijutsu", "Taijutsu"],
+                "cooldown": 3,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Energy", "Ranged", "Instant"],
+                "effects": [{ "type": "chikorita_solar_beam", "scope": "target" }]
+            },
+            {
+                "id": "chikorita-vine-defense",
+                "name": "Vine Defense",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/s4.webp",
+                "skilldescription": "Chikorita becomes invulnerable for 1 turn.",
+                "description": "Chikorita becomes invulnerable for 1 turn.",
+                "energy": ["Random"],
+                "cooldown": 4,
+                "target": "self",
+                "damage": 0,
+                "classes": ["Strategic", "Instant"],
+                "effects": [{ "type": "apply_status", "statusId": "chikorita_vine_defense", "duration": 1, "scope": "self", "metadata": { "invulnerable": true } }]
+            },
+            {
+                "id": "chikorita-sweet-scent",
+                "name": "Passive: Sweet Scent",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/s5.webp",
+                "skilldescription": "Lowers all enemy damage by 10 for one class each turn in this order: Physical, Energy, Mental, Affliction, then repeats.",
+                "description": "Lowers all enemy damage by 10 for one class each turn in this order: Physical, Energy, Mental, Affliction, then repeats.",
+                "energy": [],
+                "cooldown": 0,
+                "target": "",
+                "damage": 0,
+                "classes": ["Passive", "Strategic", "Instant"],
+                "effects": []
+            }
+        ],
+        "startStatuses": [{ "statusId": "chikorita_sweet_scent_tracker", "sourceSkillId": "chikorita-sweet-scent", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "sweetScentClassIndex": 0, "solarBeamStacks": 0 } }]
+    },
+    {
+        "id": "totodile",
+        "characterId": "totodile",
+        "name": "Totodile",
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "role": "Specialist",
+        "roleCategory": "specialist",
+        "facePicture": "assets/images/PokemonArena/Cyndaquil/Totodile/FP.webp",
+        "description": "Totodile delays enemy skills, builds Water Rings, and converts them into a devastating Aqua Tail stun.",
+        "characterdeescription": "Totodile delays enemy skills, builds Water Rings, and converts them into a devastating Aqua Tail stun.",
+        "skills": [
+            {
+                "id": "totodile-aerial-water-gun",
+                "name": "Aerial Water Gun",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/S1.webp",
+                "skilldescription": "Deals 10 damage to all enemies, delays harmful skills for 1 turn, and gains 1 Water Ring. Scary Face targets are delayed for 1 additional turn.",
+                "description": "Deals 10 damage to all enemies, delays harmful skills for 1 turn, and gains 1 Water Ring. Scary Face targets are delayed for 1 additional turn.",
+                "energy": ["Ninjutsu"],
+                "cooldown": 0,
+                "target": "all-enemy",
+                "damage": 0,
+                "classes": ["Energy", "Ranged", "Instant"],
+                "effects": [{ "type": "totodile_water_gun", "scope": "all-enemy" }]
+            },
+            {
+                "id": "totodile-scary-face",
+                "name": "Scary Face",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/S2.webp",
+                "skilldescription": "One enemy cannot reduce damage or become invulnerable and takes 10 additional damage from Physical and Energy skills for 2 turns.",
+                "description": "One enemy cannot reduce damage or become invulnerable and takes 10 additional damage from Physical and Energy skills for 2 turns.",
+                "energy": ["Random"],
+                "cooldown": 2,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Strategic", "Ranged", "Instant"],
+                "effects": [{ "type": "apply_status", "statusId": "totodile_scary_face", "duration": 2, "scope": "target", "metadata": { "harmful": true, "cannotReduceDamage": true, "additionalDamageTakenBySkillClass": { "physical": 10, "energy": 10 } } }]
+            },
+            {
+                "id": "totodile-aqua-tail",
+                "name": "Aqua Tail",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/S3.webp",
+                "skilldescription": "Deals 45 piercing damage to one enemy. Consumes all Water Rings to fully stun the target for 1 turn per ring.",
+                "description": "Deals 45 piercing damage to one enemy. Consumes all Water Rings to fully stun the target for 1 turn per ring.",
+                "energy": ["Ninjutsu", "Ninjutsu"],
+                "cooldown": 1,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Physical", "Melee", "Instant"],
+                "effects": [{ "type": "totodile_aqua_tail", "scope": "target" }]
+            },
+            {
+                "id": "totodile-superpower",
+                "name": "Superpower",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/S4.webp",
+                "skilldescription": "Totodile becomes invulnerable for 1 turn. Its next Aqua Tail gains 15 damage, then Aqua Tail permanently loses 10 damage (stacks).",
+                "description": "Totodile becomes invulnerable for 1 turn. Its next Aqua Tail gains 15 damage, then Aqua Tail permanently loses 10 damage (stacks).",
+                "energy": ["Random"],
+                "cooldown": 4,
+                "target": "self",
+                "damage": 0,
+                "classes": ["Strategic", "Instant"],
+                "effects": [
+                    { "type": "apply_status", "statusId": "totodile_superpower_invulnerable", "duration": 1, "scope": "self", "metadata": { "invulnerable": true } },
+                    { "type": "totodile_superpower", "scope": "self" }
+                ]
+            },
+            {
+                "id": "totodile-water-rings",
+                "name": "Passive: Water Rings",
+                "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/S5.webp",
+                "skilldescription": "Heals 5 HP each turn per Water Ring. Loses 1 ring whenever affected by a new non-Strategic skill.",
+                "description": "Heals 5 HP each turn per Water Ring. Loses 1 ring whenever affected by a new non-Strategic skill.",
+                "energy": [],
+                "cooldown": 0,
+                "target": "",
+                "damage": 0,
+                "classes": ["Passive", "Strategic", "Instant"],
+                "effects": []
+            }
+        ],
+        "startStatuses": [{ "statusId": "totodile_water_rings_tracker", "sourceSkillId": "totodile-water-rings", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "waterRings": 0, "aquaTailPermanentPenalty": 0, "aquaTailEmpowered": false, "onOwnerTargetedBySkillTrigger": true, "onOwnerTargetedByRequireNewSkill": true } }]
     }
 ];
 

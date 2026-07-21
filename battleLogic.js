@@ -2886,6 +2886,7 @@ const applyOnEvadeBonuses = ({
     skillClasses,
 }) => {
     const statuses = Array.isArray(targetState?.statuses) ? targetState.statuses : [];
+    const consumedStatusIds = new Set();
     statuses.forEach((status) => {
         const remaining = Number(status?.remainingTurns) || 0;
         if (remaining <= 0) return;
@@ -2922,7 +2923,15 @@ const applyOnEvadeBonuses = ({
                 fresh: false,
             });
         }
+        if (status?.id && Boolean(metadata.consumeOnEvade)) {
+            consumedStatusIds.add(status.id);
+        }
     });
+    if (consumedStatusIds.size > 0) {
+        targetState.statuses = (Array.isArray(targetState.statuses) ? targetState.statuses : []).filter(
+            (status) => !consumedStatusIds.has(status?.id)
+        );
+    }
 };
 
 const applyOnSkillEvadedBonuses = ({
@@ -3486,6 +3495,18 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
     const damageForReflection = ignoreEnemyNonMentalDamage ? Math.max(0, Number(rawAmount) || 0) : 0;
     const cannotReduceDamage = hasStatusMetadataFlag(targetState, 'cannotReduceDamage');
     let incoming = Math.max(0, Number(rawAmount) || 0);
+    const additionalDamageTakenBySkillClass = (Array.isArray(targetState.statuses) ? targetState.statuses : [])
+        .filter((status) => (Number(status?.remainingTurns) || 0) > 0)
+        .reduce((sum, status) => {
+            const bonuses = status?.metadata?.additionalDamageTakenBySkillClass;
+            if (!bonuses || typeof bonuses !== 'object') return sum;
+            return sum + Object.entries(bonuses).reduce(
+                (classSum, [className, amount]) =>
+                    hasSkillClass(skillClasses, className) ? classSum + Math.max(0, Number(amount) || 0) : classSum,
+                0
+            );
+        }, 0);
+    incoming += additionalDamageTakenBySkillClass;
     if (ignoreEnemyPhysicalDamage) {
         incoming = 0;
     }
@@ -4127,6 +4148,11 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
             sourceSlot: context?.sourceSlot ?? null,
             afflictionDamage: Boolean(context?.afflictionDamage),
         });
+    }
+    if (dealt > 0) {
+        targetState.statuses = (Array.isArray(targetState.statuses) ? targetState.statuses : []).filter(
+            (status) => status?.id !== 'cyndaquil_skyward_leap' && status?.id !== 'cyndaquil_skyward_bonus'
+        );
     }
     return dealt;
 };
@@ -4996,6 +5022,49 @@ const selectTurnStartChoiceTarget = ({ match, actingUsername, choice = {}, manua
 
 const processTurnStartStatusEffects = ({ match, startingUsername }) => {
     if (!match || !startingUsername) return;
+    const sweetScentClasses = ['physical', 'energy', 'mental', 'affliction'];
+    const turnSequence = Object.values(match?.economy?.turnCounts || {}).reduce(
+        (sum, value) => sum + Math.max(0, Number(value) || 0),
+        0
+    );
+    Object.entries(match.board || {}).forEach(([ownerUsername, ownerUnits]) => {
+        (Array.isArray(ownerUnits) ? ownerUnits : []).forEach((ownerUnit, ownerSlot) => {
+            if (!ownerUnit || ownerUnit.alive === false || isUnitBanished(ownerUnit)) return;
+            const character = Number.isInteger(ownerUnit.rosterIndex)
+                ? defaultCharacters[ownerUnit.rosterIndex]
+                : null;
+            if ((character?.characterId || character?.id) !== 'chikorita') return;
+            const ownerState = ensureUnitStateShape(ownerUnit);
+            const tracker = ownerState.statuses.find(
+                (status) => status?.id === 'chikorita_sweet_scent_tracker' && (Number(status?.remainingTurns) || 0) > 0
+            );
+            if (!tracker?.metadata) return;
+            const classIndex = turnSequence % sweetScentClasses.length;
+            const activeClass = sweetScentClasses[classIndex];
+            tracker.metadata.sweetScentClassIndex = classIndex;
+            Object.entries(match.board || {}).forEach(([enemyUsername, enemyUnits]) => {
+                if (enemyUsername === ownerUsername) return;
+                (Array.isArray(enemyUnits) ? enemyUnits : []).forEach((enemyUnit) => {
+                    if (!enemyUnit || enemyUnit.alive === false || isUnitBanished(enemyUnit)) return;
+                    applyStatus({
+                        targetState: ensureUnitStateShape(enemyUnit),
+                        targetUnit: enemyUnit,
+                        statusId: `chikorita_sweet_scent_aura_${ownerUsername}_${ownerSlot}`,
+                        duration: 2,
+                        sourceSkillId: 'chikorita-sweet-scent',
+                        sourceUsername: ownerUsername,
+                        sourceSlot: ownerSlot,
+                        metadata: {
+                            harmful: true,
+                            damageDebuffBySkillClass: { [activeClass]: 10 },
+                            tooltipText: `Sweet Scent lowers ${activeClass} damage by 10.`,
+                        },
+                        fresh: false,
+                    });
+                });
+            });
+        });
+    });
     const units = Array.isArray(match.board?.[startingUsername]) ? match.board[startingUsername] : [];
     const turnCount = Math.max(0, Number(match?.economy?.turnCounts?.[startingUsername]) || 0);
     units.forEach((unit, unitSlot) => {
@@ -5005,6 +5074,10 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
         const turnStartStatusesToRemove = new Set();
         statuses.forEach((status) => {
             if (!isStatusActiveForMetadata(status, unit)) return;
+            if (status?.id === 'totodile_water_rings_tracker') {
+                const waterRings = Math.max(0, Number(status?.metadata?.waterRings) || 0);
+                if (waterRings > 0) applyHealToUnit(unit, waterRings * 5);
+            }
             const turnStartHeal = Math.max(0, Number(status?.metadata?.turnStartHeal) || 0);
             if (turnStartHeal > 0) {
                 applyHealToUnit(unit, turnStartHeal);
@@ -5394,6 +5467,41 @@ const triggerOnOwnerTargetedBySkillBonuses = ({
         ].join('|');
         if (targetState.snapshots._ownerTargetedBySkillTriggerKey === triggerKey) return;
         targetState.snapshots._ownerTargetedBySkillTriggerKey = triggerKey;
+        if (metadata.chikoritaLightScreen && sourceState && status?.sourceUsername && Number.isInteger(status?.sourceSlot)) {
+            const chikoritaUnit = match.board?.[status.sourceUsername]?.[Number(status.sourceSlot)] || null;
+            const chikoritaState = chikoritaUnit ? ensureUnitStateShape(chikoritaUnit) : null;
+            const tracker = chikoritaState?.statuses?.find(
+                (entry) => entry?.id === 'chikorita_sweet_scent_tracker' && (Number(entry?.remainingTurns) || 0) > 0
+            );
+            const classes = ['physical', 'energy', 'mental', 'affliction'];
+            const activeClass = classes[Math.max(0, Number(tracker?.metadata?.sweetScentClassIndex) || 0) % classes.length];
+            applyStatus({
+                targetState: sourceState,
+                targetUnit: sourceUnit,
+                statusId: `chikorita_light_screen_debuff_${status.sourceUsername}_${status.sourceSlot}_${sourceTurnCount}_${skill.id}`,
+                duration: 999,
+                sourceSkillId: 'chikorita-light-screen',
+                sourceUsername: status.sourceUsername,
+                sourceSlot: status.sourceSlot,
+                metadata: {
+                    harmful: true,
+                    infiniteDuration: true,
+                    allowDuplicateStatusInstances: true,
+                    damageDebuffBySkillClass: { [activeClass]: 5 },
+                },
+                fresh: false,
+            });
+            if (tracker?.metadata) {
+                tracker.metadata.solarBeamStacks = Math.max(0, Number(tracker.metadata.solarBeamStacks) || 0) + 1;
+            }
+        }
+        if (
+            status?.id === 'totodile_water_rings_tracker' &&
+            !hasSkillClass(skillClasses, 'strategic') &&
+            status?.metadata
+        ) {
+            status.metadata.waterRings = Math.max(0, Number(status.metadata.waterRings) || 0) - 1;
+        }
         if (
             Boolean(metadata?.wishAdvancePerishOnHarmful) &&
             skillHasHarmfulEffects(skill) &&
@@ -5785,6 +5893,17 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                               ),
                 });
                 if (status?.id) ownerUseSkillTriggeredStatusIds.add(status.id);
+            }
+            if (Boolean(status?.metadata?.cyndaquilWarmingUp) && !hasSkillClass(skill?.classes || [], 'passive')) {
+                const bonuses = status.metadata.skillDamageBonuses && typeof status.metadata.skillDamageBonuses === 'object'
+                    ? status.metadata.skillDamageBonuses
+                    : {};
+                status.metadata.skillDamageBonuses = {
+                    ...bonuses,
+                    'cyndaquil-aerial-flamethrower':
+                        Math.max(0, Number(bonuses['cyndaquil-aerial-flamethrower']) || 0) + 5,
+                    'cyndaquil-warming-up': Math.max(0, Number(bonuses['cyndaquil-warming-up']) || 0) + 5,
+                };
             }
             if (!Boolean(status?.metadata?.onOwnerUseSkillTrigger)) return;
             if (
@@ -6834,6 +6953,173 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             }
             const activationChance = Number(effect?.activationChancePercent);
             if (!rollPerRecipient && Number.isFinite(activationChance) && !rollPercentSuccess(activationChance)) {
+                return;
+            }
+            if (effectType === 'remove_source_control_statuses') {
+                resolveRecipients(effect).forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    Object.values(match.board || {}).forEach((team = []) => {
+                        (Array.isArray(team) ? team : []).forEach((unit) => {
+                            if (!unit) return;
+                            const state = ensureUnitStateShape(unit);
+                            state.statuses = (Array.isArray(state.statuses) ? state.statuses : []).filter((status) => {
+                                if (status?.sourceUsername !== recipient.username || Number(status?.sourceSlot) !== Number(recipient.slot)) return true;
+                                const metadata = status?.metadata || {};
+                                const isControl = Boolean(
+                                    metadata.cannotUseSkills || metadata.cannotUseHarmfulSkills ||
+                                    metadata.cannotUseHelpfulSkills || metadata.cannotUseNonMentalSkills ||
+                                    metadata.fullyBlind || metadata.harmfulBlind || metadata.paralyzeCooldowns ||
+                                    metadata.taunt || (Array.isArray(metadata.cannotUseSkillClasses) && metadata.cannotUseSkillClasses.length)
+                                );
+                                return !isControl || Boolean(metadata.unremovable);
+                            });
+                        });
+                    });
+                });
+                return;
+            }
+            if (effectType === 'cyndaquil_flamethrower') {
+                resolveRecipients(effect).forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    queueDamage(recipient, 5, {
+                        ...effect,
+                        metadata: { ...(effect?.metadata || {}), afflictionDamage: true },
+                    });
+                    if (targetState.statuses.some((status) => status?.id === 'cyndaquil_smokescreen' && (Number(status?.remainingTurns) || 0) > 0)) {
+                        applyStatus({
+                            targetState,
+                            targetUnit: recipient.unit,
+                            statusId: 'cyndaquil_flamethrower_afterburn',
+                            duration: 1,
+                            sourceSkillId: skill.id,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            metadata: { harmful: true, afflictionDamage: true, turnStartDamage: 5 },
+                            fresh: false,
+                        });
+                    }
+                });
+                return;
+            }
+            if (effectType === 'chikorita_razor_leaf') {
+                const classes = ['physical', 'energy', 'mental', 'affliction'];
+                const tracker = actorState.statuses.find((status) => status?.id === 'chikorita_sweet_scent_tracker');
+                const activeClass = classes[Math.max(0, Number(tracker?.metadata?.sweetScentClassIndex) || 0) % classes.length];
+                const selected = resolveRecipients(effect);
+                const selectedKeys = new Set(selected.map((entry) => `${entry.username}:${entry.slot}`));
+                const recipients = [...selected, ...getAliveEnemyRecipients({ match, username: actingUsername }).filter(
+                    (entry) => !selectedKeys.has(`${entry.username}:${entry.slot}`)
+                )];
+                recipients.forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const isPrimary = selectedKeys.has(`${recipient.username}:${recipient.slot}`);
+                    queueDamage(recipient, isPrimary ? 20 : 15, {
+                        ...effect,
+                        metadata: { ...(effect?.metadata || {}), ignoreDamageReduction: isPrimary },
+                    });
+                    applyStatus({
+                        targetState: ensureUnitStateShape(recipient.unit),
+                        targetUnit: recipient.unit,
+                        statusId: `chikorita_razor_leaf_debuff_${actingUsername}_${actorSlot}_${Date.now()}_${recipient.slot}`,
+                        duration: 999,
+                        sourceSkillId: skill.id,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: {
+                            harmful: true,
+                            infiniteDuration: true,
+                            allowDuplicateStatusInstances: true,
+                            damageDebuffBySkillClass: { [activeClass]: isPrimary ? 10 : 5 },
+                        },
+                        fresh: false,
+                    });
+                });
+                return;
+            }
+            if (effectType === 'chikorita_solar_beam') {
+                const classes = ['physical', 'energy', 'mental', 'affliction'];
+                const tracker = actorState.statuses.find((status) => status?.id === 'chikorita_sweet_scent_tracker');
+                const stacks = Math.max(0, Number(tracker?.metadata?.solarBeamStacks) || 0);
+                const activeClass = classes[Math.max(0, Number(tracker?.metadata?.sweetScentClassIndex) || 0) % classes.length];
+                resolveRecipients(effect).forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    queueDamage(recipient, 40 + stacks * 5, effect);
+                    applyStatus({
+                        targetState: ensureUnitStateShape(recipient.unit),
+                        targetUnit: recipient.unit,
+                        statusId: 'chikorita_solar_beam_stun',
+                        duration: 3,
+                        sourceSkillId: skill.id,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: { harmful: true, cannotUseSkillClasses: [activeClass] },
+                        fresh: false,
+                    });
+                });
+                if (tracker?.metadata) tracker.metadata.solarBeamStacks = 0;
+                return;
+            }
+            if (effectType === 'totodile_water_gun') {
+                const tracker = actorState.statuses.find((status) => status?.id === 'totodile_water_rings_tracker');
+                if (tracker?.metadata) {
+                    tracker.metadata.waterRings = Math.max(0, Number(tracker.metadata.waterRings) || 0) + 1;
+                }
+                resolveRecipients(effect).forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    queueDamage(recipient, 10, effect);
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    const scaryFace = targetState.statuses.some(
+                        (status) => status?.id === 'totodile_scary_face' && (Number(status?.remainingTurns) || 0) > 0
+                    );
+                    const delay = scaryFace ? 2 : 1;
+                    const character = Number.isInteger(recipient.unit.rosterIndex)
+                        ? characters?.[recipient.unit.rosterIndex]
+                        : null;
+                    (Array.isArray(character?.skills) ? character.skills : []).forEach((targetSkill) => {
+                        if (!targetSkill?.id || !skillHasHarmfulEffects(targetSkill)) return;
+                        targetState.cooldowns[targetSkill.id] = Math.max(0, Number(targetState.cooldowns[targetSkill.id]) || 0) + delay;
+                    });
+                });
+                return;
+            }
+            if (effectType === 'totodile_aqua_tail') {
+                const tracker = actorState.statuses.find((status) => status?.id === 'totodile_water_rings_tracker');
+                const rings = Math.max(0, Number(tracker?.metadata?.waterRings) || 0);
+                const penalty = Math.max(0, Number(tracker?.metadata?.aquaTailPermanentPenalty) || 0);
+                const empowered = Boolean(tracker?.metadata?.aquaTailEmpowered);
+                resolveRecipients(effect).forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    queueDamage(recipient, Math.max(0, 45 + (empowered ? 15 : 0) - penalty), {
+                        ...effect,
+                        metadata: { ...(effect?.metadata || {}), ignoreDamageReduction: true },
+                    });
+                    if (rings > 0) {
+                        applyStatus({
+                            targetState: ensureUnitStateShape(recipient.unit),
+                            targetUnit: recipient.unit,
+                            statusId: 'totodile_aqua_tail_stun',
+                            duration: rings,
+                            sourceSkillId: skill.id,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            metadata: { harmful: true, cannotUseSkills: true },
+                            fresh: false,
+                        });
+                    }
+                });
+                if (tracker?.metadata) {
+                    tracker.metadata.waterRings = 0;
+                    if (empowered) {
+                        tracker.metadata.aquaTailEmpowered = false;
+                        tracker.metadata.aquaTailPermanentPenalty = penalty + 10;
+                    }
+                }
+                return;
+            }
+            if (effectType === 'totodile_superpower') {
+                const tracker = actorState.statuses.find((status) => status?.id === 'totodile_water_rings_tracker');
+                if (tracker?.metadata) tracker.metadata.aquaTailEmpowered = true;
                 return;
             }
             if (effectType === 'accelerate_perish') {
