@@ -9140,6 +9140,21 @@ const respondWithRevisionConflict = (res, match, username) =>
         actionRejected: 'revision-conflict',
     });
 
+const isMatchRevisionConflict = (error) => error instanceof MatchRevisionConflictError;
+
+const respondWithLatestRevisionConflict = async (res, matchId, username) => {
+    const latestMatch = await matchesCollection.findOne({ matchId });
+    if (!latestMatch) {
+        return res.status(404).json({ error: 'Match not found.' });
+    }
+    const hydrated = await ensureMatchVersionData(latestMatch);
+    const playerEntry = findMatchPlayerByUsername(hydrated, username);
+    if (!playerEntry) {
+        return res.status(403).json({ error: 'Not part of this match.' });
+    }
+    return respondWithRevisionConflict(res, hydrated, playerEntry.username);
+};
+
 const hydrateMatchForBroadcast = async (matchOrMatchId) => {
     const match =
         typeof matchOrMatchId === 'string'
@@ -13151,9 +13166,10 @@ app.post('/api/match/:matchId/surrender', requireSession, async (req, res) => {
         currentTurn: null,
         turnExpiresAt: null,
     };
-    await persistMatchState(
-        endedMatch,
-        {
+    try {
+        await persistMatchState(
+            endedMatch,
+            {
                 mode: endedMatch.mode,
                 status: 'ended',
                 winner: winnerUsername,
@@ -13162,9 +13178,15 @@ app.post('/api/match/:matchId/surrender', requireSession, async (req, res) => {
                 endedAt,
                 currentTurn: null,
                 turnExpiresAt: null,
-        },
-        { incrementTurn: true }
-    );
+            },
+            { incrementTurn: true }
+        );
+    } catch (error) {
+        if (isMatchRevisionConflict(error)) {
+            return respondWithLatestRevisionConflict(res, matchId, username);
+        }
+        throw error;
+    }
     quickMatches.delete(matchId);
     (match.players || []).forEach((player) => userToMatch.delete(player.username));
     queueMatchStateBroadcast(endedMatch);
@@ -13177,6 +13199,9 @@ app.post('/api/match/:matchId/surrender', requireSession, async (req, res) => {
             queueMatchStateBroadcast(endedMatch);
         }
     } catch (error) {
+        if (isMatchRevisionConflict(error)) {
+            return respondWithLatestRevisionConflict(res, matchId, username);
+        }
         console.error('Surrender reward processing error:', error);
     }
     return res.json({
@@ -13276,6 +13301,9 @@ app.post('/api/match/:matchId/turn/end', requireSession, async (req, res) => {
 
         return res.json(buildMatchPayloadForUser(updated, username));
     } catch (error) {
+        if (isMatchRevisionConflict(error)) {
+            return respondWithLatestRevisionConflict(res, req.params.matchId, req.authUser.username);
+        }
         console.error('Failed to end turn:', error);
         return res.status(500).json({
             error: 'Failed to end turn.',
@@ -13399,6 +13427,9 @@ app.post('/api/match/:matchId/skill/queue', requireSession, async (req, res) => 
             turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
         });
     } catch (error) {
+        if (isMatchRevisionConflict(error)) {
+            return respondWithLatestRevisionConflict(res, matchId, username);
+        }
         console.warn('[match-skill-queue] failed', {
             matchId,
             username,
@@ -13483,6 +13514,9 @@ app.post('/api/match/:matchId/turn/start-choice', requireSession, async (req, re
         scheduleBattleBotTurn(hydrated);
         return res.json(buildMatchPayloadForUser(hydrated, username));
     } catch (error) {
+        if (isMatchRevisionConflict(error)) {
+            return respondWithLatestRevisionConflict(res, req.params.matchId, req.authUser.username);
+        }
         console.error('Failed to resolve turn start choice:', error);
         return res.status(500).json({
             error: 'Failed to resolve turn start choice.',
@@ -13533,10 +13567,17 @@ app.post('/api/match/:matchId/skill/cancel', requireSession, async (req, res) =>
     }
     const changed = cancelQueuedSkillForActorSlot({ match: hydrated, username, actorSlot });
     if (changed) {
-        await persistMatchState(hydrated, {
-            chakraPools: hydrated.chakraPools,
-            pendingTurns: hydrated.pendingTurns,
-        });
+        try {
+            await persistMatchState(hydrated, {
+                chakraPools: hydrated.chakraPools,
+                pendingTurns: hydrated.pendingTurns,
+            });
+        } catch (error) {
+            if (isMatchRevisionConflict(error)) {
+                return respondWithLatestRevisionConflict(res, matchId, username);
+            }
+            throw error;
+        }
         queueMatchStateBroadcast(hydrated);
     }
     const safePayload = buildMatchPayloadForUser(hydrated, username);
@@ -13590,9 +13631,16 @@ app.post('/api/match/:matchId/skill/reorder', requireSession, async (req, res) =
         });
     }
     reorderQueuedSkills({ match: hydrated, username, actorSlots });
-    await persistMatchState(hydrated, {
-        pendingTurns: hydrated.pendingTurns,
-    });
+    try {
+        await persistMatchState(hydrated, {
+            pendingTurns: hydrated.pendingTurns,
+        });
+    } catch (error) {
+        if (isMatchRevisionConflict(error)) {
+            return respondWithLatestRevisionConflict(res, matchId, username);
+        }
+        throw error;
+    }
     await broadcastMatchState(hydrated);
     return res.json({
         ok: true,
@@ -13665,6 +13713,9 @@ app.post('/api/match/:matchId/turn/random/adjust', requireSession, async (req, r
             turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
         });
     } catch (error) {
+        if (isMatchRevisionConflict(error)) {
+            return respondWithLatestRevisionConflict(res, matchId, username);
+        }
         return res.status(400).json({ error: error.message || 'Unable to adjust random chakra.' });
     }
 });
@@ -13737,6 +13788,9 @@ app.post('/api/match/:matchId/chakra/exchange', requireSession, async (req, res)
             turnDurationMs: getTurnDurationMsForUser(hydrated, hydrated?.currentTurn),
         });
     } catch (error) {
+        if (isMatchRevisionConflict(error)) {
+            return respondWithLatestRevisionConflict(res, matchId, username);
+        }
         return res.status(400).json({ error: error.message || 'Unable to exchange chakra.' });
     }
 });

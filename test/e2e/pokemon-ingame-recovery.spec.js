@@ -29,9 +29,12 @@ const buildTurnTimestamps = () => ({
     turnDurationMs: 60000,
 });
 
-const buildHealthyMatchPayload = ({ currentTurn = 'ash' } = {}) => ({
+const buildHealthyMatchPayload = ({ currentTurn = 'ash', stateRevision = 1, turnNumber = 0 } = {}) => ({
     ok: true,
     matchId: 'match-e2e-1',
+    stateRevision,
+    turnNumber,
+    serverTime: new Date().toISOString(),
     mode: 'quick',
     arena: 'pokemon',
     status: 'active',
@@ -103,9 +106,12 @@ const buildBrokenInitialPayload = () => {
     return payload;
 };
 
-const buildComicMatchPayload = ({ currentTurn = 'ash' } = {}) => ({
+const buildComicMatchPayload = ({ currentTurn = 'ash', stateRevision = 1, turnNumber = 0 } = {}) => ({
     ok: true,
     matchId: 'match-e2e-comic-1',
+    stateRevision,
+    turnNumber,
+    serverTime: new Date().toISOString(),
     mode: 'quick',
     arena: 'comic',
     status: 'active',
@@ -446,6 +452,7 @@ const createHarnessServer = async () => {
     });
 
     const wss = new WebSocketServer({ noServer: true });
+    const socketClients = new Set();
     server.on('upgrade', (req, socket, head) => {
         const requestUrl = new URL(req.url, 'http://127.0.0.1');
         if (requestUrl.pathname !== '/ws') {
@@ -457,6 +464,8 @@ const createHarnessServer = async () => {
         });
     });
     wss.on('connection', (ws) => {
+        socketClients.add(ws);
+        ws.on('close', () => socketClients.delete(ws));
         ws.on('message', () => {});
     });
 
@@ -467,7 +476,16 @@ const createHarnessServer = async () => {
     return {
         baseUrl,
         state,
+        broadcastMatchState: (payload) => {
+            socketClients.forEach((ws) => {
+                if (ws.readyState === 1) {
+                    ws.send(JSON.stringify({ type: 'match_state', payload }));
+                }
+            });
+        },
         close: async () => {
+            socketClients.forEach((ws) => ws.terminate());
+            socketClients.clear();
             await new Promise((resolve) => wss.close(resolve));
             await new Promise((resolve) => server.close(resolve));
         },
@@ -871,6 +889,31 @@ test('pokemon ingame stays in pokemon arena after turn confirm and refresh', asy
     await expect(page).toHaveURL(/arena=pokemon/);
     await expect(page.locator('.player-characters .character-face').first()).toHaveAttribute('src', /PokemonArena\/pokemontrainer\/FP\.jpg/);
   });
+
+test('pokemon ingame ignores an older websocket snapshot after a newer revision', async ({ page }) => {
+    await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-1&arena=pokemon`);
+    await waitForBattleIntroToFinish(page);
+
+    const newer = {
+        ...harness.state.payload,
+        stateRevision: 9,
+        turnNumber: 4,
+        currentTurn: 'gary',
+        ...buildTurnTimestamps(),
+    };
+    harness.broadcastMatchState(newer);
+    await expect(page.locator('.ready-text')).toHaveText("OPPONENT'S TURN...");
+
+    harness.broadcastMatchState({
+        ...harness.state.payload,
+        stateRevision: 8,
+        turnNumber: 3,
+        currentTurn: 'ash',
+        ...buildTurnTimestamps(),
+    });
+    await page.waitForTimeout(250);
+    await expect(page.locator('.ready-text')).toHaveText("OPPONENT'S TURN...");
+});
 
 test('comic ingame ends turn without reloading the match page', async ({ page }) => {
     await page.goto(`${harness.baseUrl}/ingame.html?matchId=match-e2e-comic-1&arena=comic&layout=classic`);
