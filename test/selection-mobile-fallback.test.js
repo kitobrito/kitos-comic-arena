@@ -30,14 +30,32 @@ test('mobile portrait swipes remain native vertical page scrolling', () => {
     assert.match(experimentalStyles, /background-attachment:\s*scroll/);
     assert.match(experimentalStyles, /-webkit-overflow-scrolling:\s*touch/);
     assert.match(experimentalStyles, /scroll-behavior:\s*smooth/);
-    assert.match(selectionHtml, /selection-experimental\.css\?v=mobile-scroll-v2/);
-    assert.match(selectionHtml, /scripts\/script\.js\?v=mobile-scroll-v2/);
+    assert.match(selectionHtml, /selection-experimental\.css\?v=mobile-scroll-v3/);
+    assert.match(selectionHtml, /scripts\/script\.js\?v=mobile-scroll-v3/);
 });
 
-test('mobile character selection requires two taps on the same portrait', () => {
-    assert.match(script, /mobileRosterTapIndex === rosterIndex && now - mobileRosterTapAt <= 650/);
-    assert.match(script, /Double-tap \$\{character\?\.name \|\| 'this character'\} to add them\./);
-    assert.match(script, /if \(isConfirmedDoubleTap\) \{\s*addRosterCharacterToSelection\(rosterIndex\);/s);
+test('classic mobile selection centers skill icons without the desktop offset', () => {
+    assert.match(
+        styles,
+        /@media \(max-width: 700px\) \{\s*\.skill-images \{[^}]*width:\s*min\(332px, calc\(100vw - 42px\)\);[^}]*margin-left:\s*0;[^}]*justify-content:\s*center;/s
+    );
+    assert.match(selectionHtml, /styles\/style\.css\?v=selection-skill-scroll-v16/);
+});
+
+test('mobile character selection waits for a second tap without a timing race', () => {
+    assert.match(script, /const isConfirmedSecondTap = mobileRosterTapIndex === rosterIndex;/);
+    assert.match(script, /Tap \$\{character\?\.name \|\| 'this character'\} again to add them\./);
+    assert.match(script, /if \(isConfirmedSecondTap\) \{\s*addRosterCharacterToSelection\(rosterIndex\);/s);
+    assert.doesNotMatch(script, /mobileRosterTapAt|now - mobileRosterTapAt/);
+});
+
+test('every mobile character face passes drag gestures to the page scroller', () => {
+    assert.match(experimentalStyles, /html\.selection-experimental \{\s*overflow-y:\s*scroll;/s);
+    assert.match(experimentalStyles, /html\.selection-experimental body \{[^}]*min-height:\s*1485px;[^}]*overflow:\s*visible;/s);
+    assert.match(
+        experimentalStyles,
+        /\.slot-item,[\s\S]*?\.selected-slot-image,[\s\S]*?\.character-portrait,[\s\S]*?touch-action:\s*manipulation !important;/
+    );
 });
 
 test('failed roster portraits leave a visible and tappable character fallback', () => {

@@ -155,6 +155,90 @@ test('stored Abra overrides keep custom fields while canonical two-target Telepo
     teleport.effects.forEach((effect) => assert.equal(effect.metadata.customStatusOverride, true));
 });
 
+test('Zubat and Golbat Leech Life steal their increased base HP amounts', () => {
+    const zubatIndex = characters.findIndex((character) => character.id === 'zubat');
+    const leechLifeIndex = characters[zubatIndex].skills.findIndex(
+        (skill) => skill.id === 'zubat-leech-life'
+    );
+    const roster = [characters[zubatIndex], {
+        id: 'neutral-pokemon-target',
+        arena: 'pokemon',
+        universe: 'pokemon',
+        pokemonTypes: ['Normal'],
+        skills: [],
+    }];
+    const players = [{ username: 'Ash', team: [0] }, { username: 'Gary', team: [1] }];
+
+    const useLeechLife = (evolved) => {
+        const match = makeMatch(players, roster);
+        match.board.Ash[0].hp = 40;
+        if (evolved) {
+            match.board.Ash[0].state.statuses.push({
+                id: 'zubat_golbat_evolution',
+                remainingTurns: 99,
+                sourceSkillId: 'zubat-passive-evolution-golbat',
+                metadata: {
+                    infiniteDuration: true,
+                    skillReplacements: { 'zubat-leech-life': 'golbat-leech-life' },
+                },
+            });
+        }
+        match.pendingTurns.Ash = {
+            queueOrder: ['0'],
+            queuedByActorSlot: {
+                0: { skillIndex: leechLifeIndex, targetSelection: [{ username: 'Gary', slot: 0 }] },
+            },
+        };
+
+        resolvePendingTurnSkills({ match, actingUsername: 'Ash', characters: roster });
+        return match;
+    };
+
+    const zubatMatch = useLeechLife(false);
+    assert.equal(zubatMatch.board.Gary[0].hp, 75);
+    assert.equal(zubatMatch.board.Ash[0].hp, 65);
+
+    const golbatMatch = useLeechLife(true);
+    assert.equal(golbatMatch.board.Gary[0].hp, 70);
+    assert.equal(golbatMatch.board.Ash[0].hp, 70);
+});
+
+test('stored Zubat overrides keep custom effects while canonical Leech Life base steals survive', () => {
+    const canonicalZubat = characters.find((character) => character.id === 'zubat');
+    const staleZubat = {
+        characterId: 'zubat',
+        customCharacterOverride: true,
+        skills: ['zubat-leech-life', 'golbat-leech-life'].map((id) => ({
+            id,
+            skilldescription: 'Stale description',
+            customSkillOverride: true,
+            effects: [{
+                type: 'health_steal_damage',
+                amount: 1,
+                scope: 'target',
+                metadata: { customEffectOverride: true },
+            }, {
+                type: 'custom_override_effect',
+                amount: 99,
+            }],
+        })),
+    };
+
+    const [corrected] = applyRequiredCanonicalSkillCorrections([staleZubat], [canonicalZubat]);
+
+    assert.equal(corrected.customCharacterOverride, true);
+    assert.deepEqual(
+        corrected.skills.map((skill) => skill.effects[0].amount),
+        [25, 30]
+    );
+    corrected.skills.forEach((skill) => {
+        assert.equal(skill.customSkillOverride, true);
+        assert.equal(skill.effects[0].metadata.customEffectOverride, true);
+        assert.equal(skill.effects[1].type, 'custom_override_effect');
+        assert.notEqual(skill.skilldescription, 'Stale description');
+    });
+});
+
 test('battle polish outlines black energy and signs without routine queue-sync popups', () => {
     const root = path.resolve(__dirname, '..');
     const styles = fs.readFileSync(path.join(root, 'styles', 'style.css'), 'utf8');
