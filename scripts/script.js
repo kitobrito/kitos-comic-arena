@@ -1158,7 +1158,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     let activeSelectionPointerDrag = null;
     let suppressSelectionClickUntil = 0;
     let mobileRosterTapIndex = null;
-    let mobileRosterTapAt = 0;
     const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         abra: 'ABRA.png.webp',
         aerodactyl: 'AERODACTYL.png.webp',
@@ -2531,6 +2530,68 @@ document.addEventListener('DOMContentLoaded', async () => {
         let matchSocketManuallyClosed = false;
         let pendingSocketMatchState = null;
         let pendingSocketMatchStateFrame = null;
+        let lastAppliedMatchRevision = -1;
+        let lastAppliedTurnNumber = 0;
+        let matchCommandRequestChain = Promise.resolve();
+        const getPayloadRevision = (payload) => {
+            const revision = Number(payload?.stateRevision);
+            return Number.isInteger(revision) && revision >= 0 ? revision : null;
+        };
+        const isOlderMatchPayload = (payload) => {
+            const revision = getPayloadRevision(payload);
+            return revision !== null && revision < lastAppliedMatchRevision;
+        };
+        const recordMatchPayloadVersion = (payload) => {
+            const revision = getPayloadRevision(payload);
+            if (revision !== null) lastAppliedMatchRevision = Math.max(lastAppliedMatchRevision, revision);
+            const turnNumber = Number(payload?.turnNumber);
+            if (Number.isInteger(turnNumber) && turnNumber >= 0) {
+                lastAppliedTurnNumber = Math.max(lastAppliedTurnNumber, turnNumber);
+            }
+        };
+        const addMatchCommandRevision = (options = {}) => {
+            const nextOptions = { ...options };
+            const headers = new Headers(options.headers || {});
+            headers.set('Content-Type', 'application/json');
+            nextOptions.headers = headers;
+            let body = {};
+            if (typeof options.body === 'string' && options.body) {
+                try {
+                    body = JSON.parse(options.body) || {};
+                } catch (error) {
+                    body = {};
+                }
+            }
+            nextOptions.body = JSON.stringify({
+                ...body,
+                ...(lastAppliedMatchRevision >= 0
+                    ? { expectedRevision: lastAppliedMatchRevision }
+                    : {}),
+            });
+            return nextOptions;
+        };
+        const fetchMatchCommand = (url, options = {}) => {
+            const run = () => fetch(url, addMatchCommandRevision(options));
+            const request = matchCommandRequestChain
+                .catch(() => {})
+                .then(run)
+                .then((response) => {
+                    const revisionHeader = response.headers.get('X-Match-State-Revision');
+                    const turnNumberHeader = response.headers.get('X-Match-Turn-Number');
+                    const revision = revisionHeader === null ? null : Number(revisionHeader);
+                    const turnNumber = turnNumberHeader === null ? null : Number(turnNumberHeader);
+                    recordMatchPayloadVersion({
+                        ...(Number.isInteger(revision) && revision >= 0 ? { stateRevision: revision } : {}),
+                        ...(Number.isInteger(turnNumber) && turnNumber >= 0 ? { turnNumber } : {}),
+                    });
+                    return response;
+                });
+            matchCommandRequestChain = request.then(
+                () => undefined,
+                () => undefined
+            );
+            return request;
+        };
         let currentMatchMode = 'quick';
         let currentMatchBackgroundUrl = '';
         currentMatchArena =
@@ -4582,7 +4643,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!matchIdFromUrl) return;
             const requestVersion = ++queuedReorderRequestVersion;
             try {
-                const response = await fetch(
+                const response = await fetchMatchCommand(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/reorder`,
                     {
                         method: 'POST',
@@ -4640,7 +4701,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             optimisticQueuedByActorSlot.delete(actorSlot);
             optimisticCancelledActorSlots.add(actorSlot);
             applyQueuedSkillVisuals();
-            fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/cancel`, {
+            fetchMatchCommand(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/cancel`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -7377,7 +7438,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             clearActiveTargetSelectionState();
             const resolutionAnimationEntries = getQueuedResolutionAnimationEntries();
             try {
-                const response = await fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/end`, {
+                const response = await fetchMatchCommand(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/end`, {
                     method: 'POST',
                     credentials: 'include',
                 });
@@ -10922,10 +10983,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         const applyMatchState = (data, options = {}) => {
             if (!data || typeof data !== 'object') return;
             if (battleEndShown) return;
+            if (isOlderMatchPayload(data)) return;
             if (isPlayingResolutionSequence && !options.allowDuringResolutionSequence) {
-                deferredResolutionMatchState = data;
+                if (!deferredResolutionMatchState || !isOlderMatchPayload(data)) {
+                    const deferredRevision = getPayloadRevision(deferredResolutionMatchState);
+                    const incomingRevision = getPayloadRevision(data);
+                    if (
+                        deferredRevision === null ||
+                        incomingRevision === null ||
+                        incomingRevision >= deferredRevision
+                    ) {
+                        deferredResolutionMatchState = data;
+                    }
+                }
                 return;
             }
+            recordMatchPayloadVersion(data);
             if (data.player?.username) {
                 currentPlayerUsername = data.player.username;
             }
@@ -11799,7 +11872,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const scheduleIncomingMatchState = (data) => {
             if (!data || typeof data !== 'object') return;
-            pendingSocketMatchState = data;
+            if (isOlderMatchPayload(data)) return;
+            const pendingRevision = getPayloadRevision(pendingSocketMatchState);
+            const incomingRevision = getPayloadRevision(data);
+            if (
+                !pendingSocketMatchState ||
+                pendingRevision === null ||
+                incomingRevision === null ||
+                incomingRevision >= pendingRevision
+            ) {
+                pendingSocketMatchState = data;
+            }
             if (pendingSocketMatchStateFrame !== null) return;
             pendingSocketMatchStateFrame = window.requestAnimationFrame(() => {
                 const nextState = pendingSocketMatchState;
@@ -12453,7 +12536,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ...(absorptionChoice ? { absorptionChoice } : {}),
             });
             applyQueuedSkillVisuals();
-            const queueRequest = fetch(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/queue`, {
+            const queueRequest = fetchMatchCommand(`${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/skill/queue`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -12681,7 +12764,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ? targetSelection
                     : null;
             try {
-                const response = await fetch(
+                const response = await fetchMatchCommand(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/start-choice`,
                     {
                         method: 'POST',
@@ -13334,7 +13417,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return;
                 }
                 const resolutionAnimationEntries = getQueuedResolutionAnimationEntries();
-                const response = await fetch(
+                const response = await fetchMatchCommand(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/end`,
                     {
                         method: 'POST',
@@ -13502,7 +13585,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 const timeoutId = window.setTimeout(() => controller.abort(), 12000);
                 let response;
                 try {
-                    response = await fetch(
+                    response = await fetchMatchCommand(
                         `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/random/adjust`,
                         {
                             method: 'POST',
@@ -13606,7 +13689,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             setExchangeStatus('Exchanging energy...');
             try {
-                const response = await fetch(
+                const response = await fetchMatchCommand(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/chakra/exchange`,
                     {
                         method: 'POST',
@@ -13789,7 +13872,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 opponentUsername: currentOpponentDisplayName || currentOpponentUsername,
             });
             try {
-                const response = await fetch(
+                const response = await fetchMatchCommand(
                     `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/surrender`,
                     {
                         method: 'POST',
@@ -15955,6 +16038,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     let activeRosterFilterMode = 'role';
     let activeRosterFilterValue = 'all';
     let characterPlayRates = new Map();
+    // This shared bundle also powers the login and battle pages. Stop before
+    // selection-only setup when the roster does not exist on the current page.
+    if (!slotList) return;
     slotList.innerHTML = '';
 
     const renderEnergy = (energyList = []) => {
@@ -16576,6 +16662,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const renderEmptySelectedSlot = (slotElement, slotIndex) => {
         if (!slotElement) return;
         slotElement.innerHTML = '';
+        slotElement.removeAttribute('title');
+        slotElement.setAttribute('aria-label', `Empty team slot ${slotIndex + 1}`);
         if (activeArenaMode === 'pokemon') {
             const img = document.createElement('img');
             img.src = POKEMON_FOUND_ICON_URL;
@@ -16609,6 +16697,16 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         const character = roster[assignment.characterIndex];
+        const isMobileTeamTap =
+            document.documentElement.classList.contains('selection-experimental') &&
+            window.matchMedia('(max-width: 700px) and (pointer: coarse)').matches;
+        slotElement.title = isMobileTeamTap
+            ? `Tap ${character?.name || 'this character'} to remove them from your team.`
+            : `Double-click ${character?.name || 'this character'} to remove them from your team.`;
+        slotElement.setAttribute(
+            'aria-label',
+            `${character?.name || 'Selected character'}; ${isMobileTeamTap ? 'tap' : 'double-click'} to remove`
+        );
         const img = document.createElement('img');
         setSelectionThumbnailWithFallback(img, character?.facePicture || '');
         img.alt = character?.name || 'Selected character';
@@ -16623,35 +16721,33 @@ document.addEventListener('DOMContentLoaded', async () => {
         );
         slotElement.appendChild(img);
         handleCharacterSelect(assignment.characterIndex, { openViewer: false });
-        updateGameButtons();
-        persistTeamSelection();
     };
 
     const moveDragPayloadToSelectedSlot = (payload, targetSlotIndex) => {
-        let incoming = null;
         if (payload.type === 'selected' && payload.selectedIndex === targetSlotIndex) {
             return false;
         }
 
         if (payload.type === 'roster' && Number.isInteger(payload.rosterIndex) && roster[payload.rosterIndex]) {
-            incoming = { characterIndex: payload.rosterIndex, rosterIndex: payload.rosterIndex };
+            const incoming = { characterIndex: payload.rosterIndex, rosterIndex: payload.rosterIndex };
+            const displaced = selectedAssignments[targetSlotIndex];
             clearRosterSlot(payload.rosterIndex);
+            setSelectedSlot(targetSlotIndex, incoming);
+            if (displaced && Number.isInteger(displaced.rosterIndex)) {
+                fillRosterSlot(displaced.rosterIndex);
+            }
         } else if (
             payload.type === 'selected' &&
             Number.isInteger(payload.selectedIndex) &&
             selectedAssignments[payload.selectedIndex]
         ) {
-            incoming = selectedAssignments[payload.selectedIndex];
-            setSelectedSlot(payload.selectedIndex, null);
-        }
-
-        if (!incoming) return false;
-
-        const displaced = selectedAssignments[targetSlotIndex];
-        setSelectedSlot(targetSlotIndex, incoming);
-
-        if (displaced && Number.isInteger(displaced.rosterIndex)) {
-            fillRosterSlot(displaced.rosterIndex);
+            const sourceSlotIndex = payload.selectedIndex;
+            const incoming = selectedAssignments[sourceSlotIndex];
+            const displaced = selectedAssignments[targetSlotIndex];
+            setSelectedSlot(sourceSlotIndex, displaced || null);
+            setSelectedSlot(targetSlotIndex, incoming);
+        } else {
+            return false;
         }
         updateGameButtons();
         persistTeamSelection();
@@ -16705,6 +16801,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             return;
         }
         handleCharacterSelect(assignment.characterIndex, { openViewer: true });
+        if (selectionTeamStatusEl) {
+            const character = roster[assignment.characterIndex];
+            selectionTeamStatusEl.textContent = `Double-click ${character?.name || 'this character'} in Your Team to remove them.`;
+        }
     };
 
     const queueSelectionPreview = (callback) => {
@@ -17289,16 +17389,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                     ) {
                         openSelectionUnlockConfirm(character);
                     } else if (isTouchFirstMobileSelection) {
-                        const now = Date.now();
-                        const isConfirmedDoubleTap =
-                            mobileRosterTapIndex === rosterIndex && now - mobileRosterTapAt <= 650;
-                        mobileRosterTapIndex = isConfirmedDoubleTap ? null : rosterIndex;
-                        mobileRosterTapAt = isConfirmedDoubleTap ? 0 : now;
-                        if (isConfirmedDoubleTap) {
+                        const isConfirmedSecondTap = mobileRosterTapIndex === rosterIndex;
+                        mobileRosterTapIndex = isConfirmedSecondTap ? null : rosterIndex;
+                        if (isConfirmedSecondTap) {
                             addRosterCharacterToSelection(rosterIndex);
                         } else if (selectionTeamStatusEl) {
-                            selectionTeamStatusEl.textContent = `Double-tap ${character?.name || 'this character'} to add them.`;
+                            selectionTeamStatusEl.textContent = `Tap ${character?.name || 'this character'} again to add them.`;
                         }
+                    } else if (selectionTeamStatusEl) {
+                        selectionTeamStatusEl.textContent = `Double-click ${character?.name || 'this character'} to add them to Your Team.`;
                     }
                 });
             };

@@ -23348,7 +23348,7 @@ const characters = [
                 "id": "zubat-leech-life",
                 "name": "Leech Life",
                 "skillimage": "assets/images/PokemonArena/zubat/leechlife.webp",
-                "skilldescription": "Steals 15 HP from one enemy. If that enemy is affected by Supersonic, this steals 5 additional HP. If Bite improved this skill, it steals 5 additional HP. For 1 turn, if that enemy uses a new skill, Zubat steals 5 additional HP from them.",
+                "skilldescription": "Steals 25 HP from one enemy. If that enemy is affected by Supersonic, this steals 5 additional HP. If Bite improved this skill, it steals 5 additional HP. For 1 turn, if that enemy uses a new skill, Zubat steals 5 additional HP from them.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -23363,7 +23363,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "health_steal_damage",
-                        "amount": 15,
+                        "amount": 25,
                         "scope": "target",
                         "metadata": {
                             "onSuccessfulDamageApplyStatusToOwner": {
@@ -23619,7 +23619,7 @@ const characters = [
                     "statusId": "zubat_golbat_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/zubat/golbatleechlife.webp",
-                "skilldescription": "Steals 20 HP from one enemy. If that enemy is affected by Supersonic, this steals 10 additional HP. If Bite improved this skill, it steals 10 additional HP. For 1 turn, if that enemy uses a new skill, Golbat steals 20 additional HP from them.",
+                "skilldescription": "Steals 30 HP from one enemy. If that enemy is affected by Supersonic, this steals 10 additional HP. If Bite improved this skill, it steals 10 additional HP. For 1 turn, if that enemy uses a new skill, Golbat steals 20 additional HP from them.",
                 "energy": [
                     "Bloodline",
                     "Random"
@@ -23635,7 +23635,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "health_steal_damage",
-                        "amount": 20,
+                        "amount": 30,
                         "scope": "target",
                         "metadata": {
                             "onSuccessfulDamageApplyStatusToOwner": {

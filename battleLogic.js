@@ -6,6 +6,21 @@ const {
 } = require('./pokemonTypeSystem');
 const defaultCharacters = applyPokemonTypeSystem(require('./characters.js'), { strict: true });
 
+const defaultBattleRandom = () => Math.random();
+const defaultBattleNow = () => Date.now();
+let battleRandomProvider = defaultBattleRandom;
+let battleNowProvider = defaultBattleNow;
+const battleRandom = () => battleRandomProvider();
+const battleNow = () => battleNowProvider();
+const configureBattleRuntime = ({ random = defaultBattleRandom, now = defaultBattleNow } = {}) => {
+    if (typeof random !== 'function' || typeof now !== 'function') {
+        throw new TypeError('Battle runtime providers must be functions.');
+    }
+    battleRandomProvider = random;
+    battleNowProvider = now;
+};
+const resetBattleRuntime = () => configureBattleRuntime();
+
 const DEFAULT_HP = 100;
 const chakraTypes = ['taijutsu', 'ninjutsu', 'bloodline', 'genjutsu'];
 const PARASITE_ASSET_BASE = 'assets/images/';
@@ -139,7 +154,7 @@ const buildInitialBoard = (players = [], characters = defaultCharacters) => {
                                                               entry !== currentValue
                                                       );
                                                       const chosenValue =
-                                                          pool[Math.floor(Math.random() * pool.length)] ??
+                                                          pool[Math.floor(battleRandom() * pool.length)] ??
                                                           currentValue ??
                                                           options[0];
                                                       created[metadataKey] = chosenValue;
@@ -1166,7 +1181,7 @@ const hasStatusMetadataFlag = (actorState, flagName) =>
 
 const pickRandomEntry = (entries = []) => {
     if (!Array.isArray(entries) || !entries.length) return null;
-    return entries[Math.floor(Math.random() * entries.length)] || null;
+    return entries[Math.floor(battleRandom() * entries.length)] || null;
 };
 
 const parseTrackedUnitKey = (rawValue) => {
@@ -1551,7 +1566,7 @@ const chooseRandomOption = (options = [], excludeValue = undefined) => {
         ? options.filter((entry) => entry !== undefined && entry !== null && entry !== excludeValue)
         : [];
     if (!pool.length) return excludeValue;
-    return pool[Math.floor(Math.random() * pool.length)];
+    return pool[Math.floor(battleRandom() * pool.length)];
 };
 
 const resolveMetadataScaledFromSourceStatus = (metadata = {}, sourceStatus = {}) => {
@@ -2018,7 +2033,7 @@ const applyParasiteAbsorptionState = ({
         });
         return;
     }
-    const resolvedKey = selectedPool[variant] ? variant : selectedKeys[Math.floor(Math.random() * selectedKeys.length)];
+    const resolvedKey = selectedPool[variant] ? variant : selectedKeys[Math.floor(battleRandom() * selectedKeys.length)];
     applyEntry(selectedPool[resolvedKey]);
 };
 
@@ -2584,7 +2599,7 @@ const resolveSkillClassChoiceForCast = ({ skill, queued }) => {
     if (!options.length) return null;
     const queuedChoice = normalizeSkillClassName(queued?.classChoice);
     if (queuedChoice && options.includes(queuedChoice)) return queuedChoice;
-    return options[Math.floor(Math.random() * options.length)];
+    return options[Math.floor(battleRandom() * options.length)];
 };
 
 const materializeEffectWithSkillClassChoice = (effect, chosenSkillClass) => {
@@ -2845,7 +2860,7 @@ const hasSkillSpecificStatusFlag = (actorState, skillId, metadataKey) => {
 const rollPercentSuccess = (chancePercent) => {
     const chance = Math.max(0, Math.min(100, Number(chancePercent) || 0));
     if (chance <= 0) return false;
-    return Math.random() * 100 < chance;
+    return battleRandom() * 100 < chance;
 };
 
 const isPassiveSourceSkillId = (sourceSkillId) =>
@@ -3369,7 +3384,7 @@ const maybeTriggerReactiveDefenses = ({
         for (let i = 0; i < counterStealRandomChakraToSourceOwner; i += 1) {
             const available = chakraTypes.filter((type) => (Number(targetPool[type]) || 0) > 0);
             if (!available.length) break;
-            const picked = available[Math.floor(Math.random() * available.length)];
+            const picked = available[Math.floor(battleRandom() * available.length)];
             targetPool[picked] = Math.max(0, (Number(targetPool[picked]) || 0) - 1);
             sourcePool[picked] = (Number(sourcePool[picked]) || 0) + 1;
         }
@@ -4766,7 +4781,7 @@ const triggerSourceKillHooks = ({
                 const chakraType = String(gainChakraConfig.chakraType).trim().toLowerCase();
                 if (chakraType === 'random') {
                     for (let i = 0; i < chakraAmount; i += 1) {
-                        const pick = chakraTypes[Math.floor(Math.random() * chakraTypes.length)];
+                        const pick = chakraTypes[Math.floor(battleRandom() * chakraTypes.length)];
                         applyChakraGainToMatch({
                             match,
                             username: sourceUsername,
@@ -5168,7 +5183,7 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
                             }
                         });
                         const pool = weightedOptions.length > 0 ? weightedOptions : options;
-                        const picked = pool[Math.floor(Math.random() * pool.length)];
+                        const picked = pool[Math.floor(battleRandom() * pool.length)];
                         const blockedSkillIndices = Array.isArray(picked.blockedSkillIndices)
                             ? picked.blockedSkillIndices
                                   .map((entry) => Number.parseInt(entry, 10))
@@ -5602,7 +5617,7 @@ const removeRandomChakraFromMatch = ({ match, username, amount = 1 }) => {
     for (let i = 0; i < lossAmount; i += 1) {
         const available = chakraTypes.filter((type) => (Number(pool[type]) || 0) > 0);
         if (available.length) {
-            const pick = available[Math.floor(Math.random() * available.length)];
+            const pick = available[Math.floor(battleRandom() * available.length)];
             pool[pick] = Math.max(0, (Number(pool[pick]) || 0) - 1);
             removed += 1;
             continue;
@@ -5611,7 +5626,7 @@ const removeRandomChakraFromMatch = ({ match, username, amount = 1 }) => {
             ? chakraTypes.filter((type) => (Number(randomAssignments[type]) || 0) > 0)
             : [];
         if (!assigned.length) break;
-        const pick = assigned[Math.floor(Math.random() * assigned.length)];
+        const pick = assigned[Math.floor(battleRandom() * assigned.length)];
         randomAssignments[pick] = Math.max(0, (Number(randomAssignments[pick]) || 0) - 1);
         if (pending) {
             pending.unresolvedRandom = Math.max(0, (Number(pending.unresolvedRandom) || 0) + 1);
@@ -6162,7 +6177,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     applyChakraGainToMatch({
                         match,
                         username: status?.sourceUsername,
-                        chakraType: chakraTypes[Math.floor(Math.random() * chakraTypes.length)],
+                        chakraType: chakraTypes[Math.floor(battleRandom() * chakraTypes.length)],
                         amount: 1,
                     });
                 }
@@ -6505,7 +6520,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             Number(entry.slot) !== Number(actorSlot)
                     );
                     if (alternatives.length > 0) {
-                        return alternatives[Math.floor(Math.random() * alternatives.length)];
+                        return alternatives[Math.floor(battleRandom() * alternatives.length)];
                     }
                     return { username: actingUsername, slot: actorSlot, unit: actorUnit };
                 }
@@ -6535,7 +6550,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         Number(entry.slot) !== Number(actorSlot)
                 );
                 if (alternatives.length > 0) {
-                    const redirect = alternatives[Math.floor(Math.random() * alternatives.length)];
+                    const redirect = alternatives[Math.floor(battleRandom() * alternatives.length)];
                     reflectedRecipientByOriginalKey.set(originalKey, redirect);
                     return redirect;
                 }
@@ -6599,7 +6614,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             actingUsername,
                         });
                     }
-                    const groupedPick = opponentUnits[Math.floor(Math.random() * opponentUnits.length)];
+                    const groupedPick = opponentUnits[Math.floor(battleRandom() * opponentUnits.length)];
                     if (groupedPick) {
                         randomScopeGroupPicks.set(randomGroupKey, groupedPick);
                         return filterHelpfulImmuneRecipients({
@@ -6610,7 +6625,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     }
                     return [];
                 }
-                const pick = opponentUnits[Math.floor(Math.random() * opponentUnits.length)];
+                const pick = opponentUnits[Math.floor(battleRandom() * opponentUnits.length)];
                 return pick
                     ? filterHelpfulImmuneRecipients({
                           effect,
@@ -6653,7 +6668,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             actingUsername,
                         });
                     }
-                    const groupedPick = pool[Math.floor(Math.random() * pool.length)];
+                    const groupedPick = pool[Math.floor(battleRandom() * pool.length)];
                     if (groupedPick) {
                         randomScopeGroupPicks.set(randomGroupKey, groupedPick);
                         return filterHelpfulImmuneRecipients({
@@ -6664,7 +6679,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     }
                     return [];
                 }
-                const pick = pool[Math.floor(Math.random() * pool.length)];
+                const pick = pool[Math.floor(battleRandom() * pool.length)];
                 return pick
                     ? filterHelpfulImmuneRecipients({
                           effect,
@@ -7032,7 +7047,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     applyStatus({
                         targetState: ensureUnitStateShape(recipient.unit),
                         targetUnit: recipient.unit,
-                        statusId: `chikorita_razor_leaf_debuff_${actingUsername}_${actorSlot}_${Date.now()}_${recipient.slot}`,
+                        statusId: `chikorita_razor_leaf_debuff_${actingUsername}_${actorSlot}_${battleNow()}_${recipient.slot}`,
                         duration: 999,
                         sourceSkillId: skill.id,
                         sourceUsername: actingUsername,
@@ -7397,12 +7412,12 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     if (recipient.username !== actingUsername) {
                         const pool = characters.flatMap((entry) => entry.skills || []).flatMap((entry) => entry.effects || [])
                             .filter((entry) => entry?.type === 'damage' && Number(entry.amount) > 0 && entry.scope === 'target');
-                        const copied = pool[Math.floor(Math.random() * pool.length)] || { amount: 20 };
+                        const copied = pool[Math.floor(battleRandom() * pool.length)] || { amount: 20 };
                         queueDamage(recipient, Math.max(1, Number(copied.amount) || 20), copied);
                     } else {
                         const pool = characters.flatMap((entry) => entry.skills || []).flatMap((entry) => entry.effects || [])
                             .filter((entry) => entry?.type === 'heal' && Number(entry.amount) > 0);
-                        const copied = pool[Math.floor(Math.random() * pool.length)] || { amount: 20 };
+                        const copied = pool[Math.floor(battleRandom() * pool.length)] || { amount: 20 };
                         const before = Number(recipient.unit.hp) || 0;
                         applyHealToUnit(recipient.unit, Math.max(1, Number(copied.amount) || 20));
                         const healed = Math.max(0, (Number(recipient.unit.hp) || 0) - before);
@@ -8017,7 +8032,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                                     : null;
                             const activeIndices = getCharacterActiveSkillIndices(targetCharacter);
                             const chosenIndex = activeIndices.length
-                                ? activeIndices[Math.floor(Math.random() * activeIndices.length)]
+                                ? activeIndices[Math.floor(battleRandom() * activeIndices.length)]
                                 : null;
                             runtimeStatusId = lockStatusId;
                             const lockTooltipTemplate =
@@ -9342,7 +9357,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 if (rawType === 'random') {
                     chakraRecipients.forEach((recipient) => {
                         for (let i = 0; i < amount; i += 1) {
-                            const pick = chakraTypes[Math.floor(Math.random() * chakraTypes.length)];
+                            const pick = chakraTypes[Math.floor(battleRandom() * chakraTypes.length)];
                             grantChakra(recipient.username, pick);
                         }
                     });
@@ -9416,7 +9431,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                                   ? [requestedType]
                                   : [];
                         if (!available.length) break;
-                        const picked = available[Math.floor(Math.random() * available.length)];
+                        const picked = available[Math.floor(battleRandom() * available.length)];
                         targetPool[picked] = Math.max(0, (Number(targetPool[picked]) || 0) - 1);
                         sourcePool[picked] = (Number(sourcePool[picked]) || 0) + 1;
                         drainedTypes.push(picked);
@@ -9518,7 +9533,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             (type) => (Number(targetPool[type]) || 0) > 0
                         );
                         if (!available.length) break;
-                        const picked = available[Math.floor(Math.random() * available.length)];
+                        const picked = available[Math.floor(battleRandom() * available.length)];
                         targetPool[picked] = Math.max(0, (Number(targetPool[picked]) || 0) - 1);
                         sourcePool[picked] = (Number(sourcePool[picked]) || 0) + 1;
                     }
@@ -10459,7 +10474,7 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                     }
 
                     const transformationChance = Number(status?.metadata?.transformationChance) || 0;
-                    if (transformationChance > 0 && Math.random() < transformationChance) {
+                    if (transformationChance > 0 && battleRandom() < transformationChance) {
                         const transformationId = status?.metadata?.transformationCharacterId;
                         const transformationFace = status?.metadata?.transformationFacePicture;
                         if (transformationId) {
@@ -10541,7 +10556,7 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                                 }
                             }
                         }
-                        const picked = pool[Math.floor(Math.random() * pool.length)];
+                        const picked = pool[Math.floor(battleRandom() * pool.length)];
                         if (picked?.enemyUnit) {
                             if (status?.metadata && typeof status.metadata === 'object') {
                                 status.metadata._lastRandomEnemyKey = `${opponentUsername}:${picked.enemySlot}`;
@@ -10628,7 +10643,7 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                             (type) => (Number(ownerPool[type]) || 0) > 0
                         );
                         if (!available.length) break;
-                        const picked = available[Math.floor(Math.random() * available.length)];
+                        const picked = available[Math.floor(battleRandom() * available.length)];
                         ownerPool[picked] = Math.max(0, (Number(ownerPool[picked]) || 0) - 1);
                         sourcePool[picked] = (Number(sourcePool[picked]) || 0) + 1;
                     }
@@ -12066,6 +12081,8 @@ const reduceHulkRageForInactiveTurn = ({ match, endingUsername, pendingTurn }) =
 
 module.exports = {
     DEFAULT_HP,
+    configureBattleRuntime,
+    resetBattleRuntime,
     buildInitialBoard,
     doesEffectConditionMatch,
     getSkillTargetType,

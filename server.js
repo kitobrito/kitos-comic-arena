@@ -37,6 +37,15 @@ const { MongoClient, ObjectId } = require('mongodb');
 const bcrypt = require('bcryptjs');
 const { WebSocketServer, WebSocket } = require('ws');
 const battleLogic = require('./battleLogic');
+const {
+    MatchRevisionConflictError,
+    assertMatchInvariants,
+    createMatchCommandCoordinator,
+    getMatchStateRevision,
+    getMatchTurnNumber,
+    normalizeMatchVersionFields,
+    toNonNegativeInteger,
+} = require('./matchStability');
 const { applyPokemonTypeSystem } = require('./pokemonTypeSystem');
 const { syncPokemonOnixRelease } = require('./sync_pokemon_onix_news');
 const { syncPokemonMeowthRelease } = require('./sync_pokemon_meowth_release');
@@ -1995,6 +2004,7 @@ let pointPurchasesCollection;
 let characterOverrideCache = new Map();
 const matchSocketRooms = new Map();
 const wsConnections = new Set();
+const matchCommandCoordinator = createMatchCommandCoordinator();
 const MATCH_CHAT_MAX_LENGTH = 240;
 const MATCH_CHAT_MIN_INTERVAL_MS = 900;
 const wsServer = new WebSocketServer({ noServer: true });
@@ -7237,6 +7247,10 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
             'abra-teleport': ['target'],
             'kadabra-teleport': ['target'],
         },
+        zubat: {
+            'zubat-leech-life': ['skilldescription'],
+            'golbat-leech-life': ['skilldescription'],
+        },
     };
     const canonicalById = new Map(
         (Array.isArray(canonicalCharacters) ? canonicalCharacters : []).map((character) => [
@@ -7262,6 +7276,27 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
                 fields.forEach((field) => {
                     if (canonicalSkill[field] !== undefined) correctedSkill[field] = canonicalSkill[field];
                 });
+                if (
+                    characterId === 'zubat' &&
+                    (skill?.id === 'zubat-leech-life' || skill?.id === 'golbat-leech-life') &&
+                    Array.isArray(canonicalSkill.effects)
+                ) {
+                    const canonicalBaseSteal = canonicalSkill.effects.find(
+                        (effect) => effect?.type === 'health_steal_damage' && !effect?.condition
+                    );
+                    const mergedBaseStealIndex = Array.isArray(skill.effects)
+                        ? skill.effects.findIndex(
+                            (effect) => effect?.type === 'health_steal_damage' && !effect?.condition
+                        )
+                        : -1;
+                    if (canonicalBaseSteal && mergedBaseStealIndex >= 0) {
+                        correctedSkill.effects = skill.effects.slice();
+                        correctedSkill.effects[mergedBaseStealIndex] = {
+                            ...skill.effects[mergedBaseStealIndex],
+                            amount: canonicalBaseSteal.amount,
+                        };
+                    }
+                }
                 if (
                     characterId === 'abra' &&
                     (skill?.id === 'abra-teleport' || skill?.id === 'kadabra-teleport') &&
@@ -8958,6 +8993,12 @@ const getViewerScopedValueForUsername = (recordMap, viewerUsername) => {
     return matchedValue && typeof matchedValue === 'object' ? cloneSerializable(matchedValue) : null;
 };
 
+const buildMatchVersionPayload = (match) => ({
+    stateRevision: getMatchStateRevision(match),
+    turnNumber: getMatchTurnNumber(match),
+    serverTime: new Date().toISOString(),
+});
+
 const sanitizeChakraPoolsForViewer = (chakraPools, viewerUsername) => {
     const ownPool = getViewerScopedValueForUsername(chakraPools, viewerUsername);
     return ownPool ? { [viewerUsername]: ownPool } : null;
@@ -9008,6 +9049,7 @@ const buildMatchPayloadForUser = (match, username) => {
     return {
         ok: true,
         matchId: match.matchId || null,
+        ...buildMatchVersionPayload(match),
         mode: match.mode || 'quick',
         arena: normalizeArenaMode(match.arena),
         status: match.status || 'active',
@@ -9045,6 +9087,7 @@ const buildMatchActionStatePayload = (match, username, extra = {}) => {
         ok: true,
         staleAction: true,
         matchId: safePayload.matchId || match?.matchId || null,
+        ...buildMatchVersionPayload(match),
         mode: safePayload.mode || match?.mode || 'quick',
         arena: safePayload.arena || normalizeArenaMode(match?.arena),
         status: safePayload.status || match?.status || 'active',
@@ -9091,6 +9134,11 @@ const findMostRecentActiveMatchForUser = async (username, arena = '') => {
 
 const respondWithCurrentMatchState = (res, match, username, extra = {}) =>
     res.json(buildMatchActionStatePayload(match, username, extra));
+
+const respondWithRevisionConflict = (res, match, username) =>
+    respondWithCurrentMatchState(res, match, username, {
+        actionRejected: 'revision-conflict',
+    });
 
 const hydrateMatchForBroadcast = async (matchOrMatchId) => {
     const match =
@@ -9149,7 +9197,9 @@ const sweepExpiredMatches = async () => {
     for (const entry of expiredMatches) {
         const matchId = typeof entry?.matchId === 'string' ? entry.matchId : '';
         if (!matchId) continue;
-        await broadcastMatchState(matchId);
+        await matchCommandCoordinator.execute(matchId, 'turn-expiry-sweep', () =>
+            broadcastMatchState(matchId)
+        );
     }
 };
 
@@ -9234,7 +9284,12 @@ wsServer.on('connection', async (ws) => {
         return;
     }
     try {
-        const hydrated = await hydrateMatchForBroadcast(ws.matchId);
+        const hydrated = await matchCommandCoordinator.execute(
+            ws.matchId,
+            'websocket-initial-sync',
+            () => hydrateMatchForBroadcast(ws.matchId),
+            { log: false }
+        );
         if (!hydrated) {
             ws.close();
             return;
@@ -9792,6 +9847,8 @@ const buildMatch = (players, aliveLookup = {}, options = {}) => {
     const turnStartedAt = matchStartsAt;
     quickMatches.set(matchId, {
         players,
+        stateRevision: 0,
+        turnNumber: 0,
         createdAt: new Date(),
         arena,
         matchStartsAt,
@@ -9815,6 +9872,8 @@ const buildMatch = (players, aliveLookup = {}, options = {}) => {
     });
     return {
         matchId,
+        stateRevision: 0,
+        turnNumber: 0,
         matchStartsAt,
         turnOrder,
         currentTurn,
@@ -9939,6 +9998,8 @@ const buildPairedMatchDocument = ({ username, team, opponent, mode, arena, profi
     const board = battleLogic.buildInitialBoard(playerDocs);
     return {
         matchId,
+        stateRevision: 0,
+        turnNumber: 0,
         mode,
         arena: normalizedArena,
         status: 'active',
@@ -9987,6 +10048,8 @@ const buildBattleBotMatch = async ({ username, team, mode, arena, playerProfile 
     const board = battleLogic.buildInitialBoard(playerDocs);
     const matchDocument = {
         matchId: built.matchId,
+        stateRevision: getMatchStateRevision(built),
+        turnNumber: getMatchTurnNumber(built),
         mode,
         arena: normalizedArena,
         status: 'active',
@@ -10030,6 +10093,8 @@ const createMatchDocumentFromTeams = async ({ mode, arena, players, botMatch = n
     const board = battleLogic.buildInitialBoard(playerDocs);
     const matchDocument = {
         matchId: built.matchId,
+        stateRevision: getMatchStateRevision(built),
+        turnNumber: getMatchTurnNumber(built),
         mode,
         arena: normalizedArena,
         status: 'active',
@@ -10360,7 +10425,22 @@ const getTeamStatusMetadataSum = (match, username, metadataKey) => {
     return Math.max(0, total);
 };
 
+const ensureMatchVersionData = async (match) => {
+    if (!match) return match;
+    const hadRevision = Number.isInteger(match.stateRevision) && match.stateRevision >= 0;
+    const hadTurnNumber = Number.isInteger(match.turnNumber) && match.turnNumber >= 0;
+    normalizeMatchVersionFields(match);
+    if (!hadRevision || !hadTurnNumber) {
+        await matchesCollection.updateOne(
+            { matchId: match.matchId },
+            { $set: { stateRevision: match.stateRevision, turnNumber: match.turnNumber } }
+        );
+    }
+    return match;
+};
+
 const ensureMatchTurnData = async (match) => {
+    await ensureMatchVersionData(match);
     if (!match || match.currentTurn) {
         return match;
     }
@@ -10501,14 +10581,50 @@ const hasPendingTurnStartChoice = (pendingTurn) =>
             pendingTurn.turnStartChoice.options.length > 0
     );
 
-const persistMatchState = async (match, fields = {}) => {
-    await matchesCollection.updateOne({ matchId: match.matchId }, { $set: fields });
+const persistMatchState = async (match, fields = {}, { incrementTurn = false } = {}) => {
+    normalizeMatchVersionFields(match);
+    const expectedRevision = getMatchStateRevision(match);
+    const nextRevision = expectedRevision + 1;
+    const nextTurnNumber = getMatchTurnNumber(match) + (incrementTurn ? 1 : 0);
+    const nextFields = {
+        ...fields,
+        stateRevision: nextRevision,
+        turnNumber: nextTurnNumber,
+    };
+    const candidate = { ...match, ...nextFields };
+    assertMatchInvariants(candidate, {
+        chakraTypes,
+        isUnitBanished: battleLogic.isUnitBanished,
+    });
+    const revisionFilter =
+        expectedRevision === 0
+            ? {
+                  matchId: match.matchId,
+                  $or: [{ stateRevision: 0 }, { stateRevision: { $exists: false } }],
+              }
+            : { matchId: match.matchId, stateRevision: expectedRevision };
+    const result = await matchesCollection.updateOne(revisionFilter, { $set: nextFields });
+    if (result && result.matchedCount === 0) {
+        throw new MatchRevisionConflictError();
+    }
+    Object.assign(match, nextFields);
     if (quickMatches.has(match.matchId)) {
         quickMatches.set(match.matchId, {
             ...(quickMatches.get(match.matchId) || {}),
-            ...fields,
+            ...nextFields,
         });
     }
+    return match;
+};
+
+const parseExpectedMatchRevision = (body = {}) => {
+    if (body?.expectedRevision === undefined || body?.expectedRevision === null) return null;
+    return toNonNegativeInteger(body.expectedRevision, -1);
+};
+
+const hasExpectedRevisionConflict = (match, body = {}) => {
+    const expectedRevision = parseExpectedMatchRevision(body);
+    return expectedRevision !== null && expectedRevision !== getMatchStateRevision(match);
 };
 
 const getBattleBotPlayer = (match) =>
@@ -11165,7 +11281,7 @@ const getBattleBotMaxQueuedSkillsForMatch = (match = {}) => {
     return 1;
 };
 
-const runBattleBotTurn = async (matchId) => {
+const runBattleBotTurnUnlocked = async (matchId) => {
     if (!matchId || activeBattleBotTurns.has(matchId)) {
         return;
     }
@@ -11250,6 +11366,9 @@ const runBattleBotTurn = async (matchId) => {
         activeBattleBotTurns.delete(matchId);
     }
 };
+
+const runBattleBotTurn = (matchId) =>
+    matchCommandCoordinator.execute(matchId, 'battle-bot-turn', () => runBattleBotTurnUnlocked(matchId));
 
 function scheduleBattleBotTurn(match) {
     if (!match || match.status === 'ended' || !isBattleBotTurn(match)) {
@@ -11714,9 +11833,9 @@ const finalizeTurn = async (match, username, options = {}) => {
         match.turnStartedAt = null;
         match.turnExpiresAt = null;
         match.ladderResults = await applyMatchCompletionRewards(match, match.winner, match.endedAt);
-        await matchesCollection.updateOne(
-            { matchId: match.matchId },
-            { $set: {
+        await persistMatchState(
+            match,
+            {
                 status: match.status,
                 winner: match.winner,
                 surrenderedBy: match.surrenderedBy,
@@ -11727,7 +11846,8 @@ const finalizeTurn = async (match, username, options = {}) => {
                 turnExpiresAt: null,
                 expiredTurnCountsByUsername: match.expiredTurnCountsByUsername,
                 ladderResults: match.ladderResults || null,
-            } }
+            },
+            { incrementTurn: true }
         );
         quickMatches.delete(match.matchId);
         (match.players || []).forEach((player) => userToMatch.delete(player.username));
@@ -11797,10 +11917,9 @@ const finalizeTurn = async (match, username, options = {}) => {
             match.winner,
             match.endedAt
         );
-        await matchesCollection.updateOne(
-            { matchId: match.matchId },
+        await persistMatchState(
+            match,
             {
-                $set: {
                     mode: match.mode || 'quick',
                     status: match.status,
                     winner: match.winner,
@@ -11817,8 +11936,8 @@ const finalizeTurn = async (match, username, options = {}) => {
                     pendingTurns: match.pendingTurns,
                     lastTurnDamageByUsername: match.lastTurnDamageByUsername,
                     ladderResults: match.ladderResults || null,
-                },
-            }
+            },
+            { incrementTurn: true }
         );
         quickMatches.delete(match.matchId);
         (match.players || []).forEach((player) => userToMatch.delete(player.username));
@@ -11873,10 +11992,9 @@ const finalizeTurn = async (match, username, options = {}) => {
     match.turnExpiresAt = new Date(Date.now() + getTurnDurationMsForUser(match, nextTurn));
     match.pendingTurns[username] = makeEmptyPendingTurn();
 
-    await matchesCollection.updateOne(
-        { matchId: match.matchId },
+    await persistMatchState(
+        match,
         {
-            $set: {
                 currentTurn: match.currentTurn,
                 board: match.board,
                 players: match.players,
@@ -11887,25 +12005,9 @@ const finalizeTurn = async (match, username, options = {}) => {
                 expiredTurnCountsByUsername: match.expiredTurnCountsByUsername,
                 turnStartedAt: match.turnStartedAt,
                 turnExpiresAt: match.turnExpiresAt,
-            },
-        }
+        },
+        { incrementTurn: true }
     );
-
-    if (quickMatches.has(match.matchId)) {
-        quickMatches.set(match.matchId, {
-            ...(quickMatches.get(match.matchId) || {}),
-            currentTurn: match.currentTurn,
-            board: match.board,
-            players: match.players,
-            chakraPools: pools,
-            economy: econ,
-            pendingTurns: match.pendingTurns,
-            lastTurnDamageByUsername: match.lastTurnDamageByUsername,
-            expiredTurnCountsByUsername: match.expiredTurnCountsByUsername,
-            turnStartedAt: match.turnStartedAt,
-            turnExpiresAt: match.turnExpiresAt,
-        });
-    }
 
     return match;
 };
@@ -11981,6 +12083,47 @@ async function initDb() {
 
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
+});
+
+const RESERVED_MATCH_ROUTE_IDS = new Set(['status', 'join', 'cancel']);
+app.use('/api/match/:matchId', (req, res, next) => {
+    const matchId = String(req.params?.matchId || '').trim();
+    if (!matchId || RESERVED_MATCH_ROUTE_IDS.has(matchId)) {
+        next();
+        return;
+    }
+    const sendJson = res.json.bind(res);
+    res.json = (payload) => {
+        const revision = Number(payload?.stateRevision);
+        const turnNumber = Number(payload?.turnNumber);
+        if (Number.isInteger(revision) && revision >= 0) {
+            res.set('X-Match-State-Revision', String(revision));
+        }
+        if (Number.isInteger(turnNumber) && turnNumber >= 0) {
+            res.set('X-Match-Turn-Number', String(turnNumber));
+        }
+        return sendJson(payload);
+    };
+    const commandName = `${String(req.method || 'GET').toLowerCase()} ${req.path || '/'}`;
+    matchCommandCoordinator
+        .execute(
+            matchId,
+            commandName,
+            () =>
+                new Promise((resolve) => {
+                    let settled = false;
+                    const release = () => {
+                        if (settled) return;
+                        settled = true;
+                        resolve();
+                    };
+                    res.once('finish', release);
+                    res.once('close', release);
+                    next();
+                }),
+            { log: req.method !== 'GET' }
+        )
+        .catch(next);
 });
 
 app.get('/api/latest-releases', async (req, res) => {
@@ -12968,10 +13111,11 @@ app.get('/api/match/:matchId', requireSession, async (req, res) => {
 
 app.post('/api/match/:matchId/surrender', requireSession, async (req, res) => {
     const { matchId } = req.params;
-    const match = await matchesCollection.findOne({ matchId });
-    if (!match) {
+    const storedMatch = await matchesCollection.findOne({ matchId });
+    if (!storedMatch) {
         return res.status(404).json({ error: 'Match not found.' });
     }
+    const match = await ensureMatchVersionData(storedMatch);
     const username = req.authUser.username;
     const playerEntry = findMatchPlayerByUsername(match, username);
     if (!playerEntry) {
@@ -12980,6 +13124,7 @@ app.post('/api/match/:matchId/surrender', requireSession, async (req, res) => {
     if (match.status === 'ended') {
         return res.json({
             ok: true,
+            ...buildMatchVersionPayload(match),
             mode: match.mode || 'quick',
             status: 'ended',
             winner: match.winner || null,
@@ -12988,6 +13133,9 @@ app.post('/api/match/:matchId/surrender', requireSession, async (req, res) => {
             endedAt: match.endedAt || null,
             ladderResult: match.ladderResults?.[username] || null,
         });
+    }
+    if (hasExpectedRevisionConflict(match, req.body)) {
+        return respondWithRevisionConflict(res, match, playerEntry.username);
     }
     const opponentEntry = findMatchOpponentByUsername(match, username);
     const endedAt = new Date();
@@ -13003,10 +13151,9 @@ app.post('/api/match/:matchId/surrender', requireSession, async (req, res) => {
         currentTurn: null,
         turnExpiresAt: null,
     };
-    await matchesCollection.updateOne(
-        { matchId },
+    await persistMatchState(
+        endedMatch,
         {
-            $set: {
                 mode: endedMatch.mode,
                 status: 'ended',
                 winner: winnerUsername,
@@ -13015,8 +13162,8 @@ app.post('/api/match/:matchId/surrender', requireSession, async (req, res) => {
                 endedAt,
                 currentTurn: null,
                 turnExpiresAt: null,
-            },
-        }
+        },
+        { incrementTurn: true }
     );
     quickMatches.delete(matchId);
     (match.players || []).forEach((player) => userToMatch.delete(player.username));
@@ -13026,7 +13173,7 @@ app.post('/api/match/:matchId/surrender', requireSession, async (req, res) => {
         ladderResults = await applyMatchCompletionRewards(endedMatch, winnerUsername, endedAt);
         if (ladderResults) {
             endedMatch.ladderResults = ladderResults;
-            await matchesCollection.updateOne({ matchId }, { $set: { ladderResults } });
+            await persistMatchState(endedMatch, { ladderResults });
             queueMatchStateBroadcast(endedMatch);
         }
     } catch (error) {
@@ -13034,6 +13181,7 @@ app.post('/api/match/:matchId/surrender', requireSession, async (req, res) => {
     }
     return res.json({
         ok: true,
+        ...buildMatchVersionPayload(endedMatch),
         mode: endedMatch.mode,
         status: 'ended',
         surrenderedBy: username,
@@ -13072,6 +13220,9 @@ app.post('/api/match/:matchId/turn/end', requireSession, async (req, res) => {
             return res.status(403).json({ error: 'Not part of this match.' });
         }
         const username = playerEntry.username;
+        if (hasExpectedRevisionConflict(hydrated, req.body)) {
+            return respondWithRevisionConflict(res, hydrated, username);
+        }
         console.info('[match-turn-end] request', {
             matchId,
             username,
@@ -13166,6 +13317,9 @@ app.post('/api/match/:matchId/skill/queue', requireSession, async (req, res) => 
         return res.status(403).json({ error: 'Not part of this match.' });
     }
     const username = playerEntry.username;
+    if (hasExpectedRevisionConflict(hydrated, req.body)) {
+        return respondWithRevisionConflict(res, hydrated, username);
+    }
     if (!usernamesEqual(hydrated.currentTurn, username)) {
         return respondWithCurrentMatchState(res, hydrated, username, {
             actionRejected: 'not-your-turn',
@@ -13188,6 +13342,7 @@ app.post('/api/match/:matchId/skill/queue', requireSession, async (req, res) => 
         const safePayload = buildMatchPayloadForUser(hydrated, username);
         return res.json({
             ok: true,
+            ...buildMatchVersionPayload(hydrated),
             staleAction: true,
             actionRejected: 'duplicate-skill-queue',
             chakraPools: safePayload?.chakraPools || null,
@@ -13236,6 +13391,7 @@ app.post('/api/match/:matchId/skill/queue', requireSession, async (req, res) => 
         const safePayload = buildMatchPayloadForUser(hydrated, username);
         return res.json({
             ok: true,
+            ...buildMatchVersionPayload(hydrated),
             chakraPools: safePayload?.chakraPools || null,
             pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
             currentTurn: hydrated.currentTurn,
@@ -13286,6 +13442,9 @@ app.post('/api/match/:matchId/turn/start-choice', requireSession, async (req, re
             return res.status(403).json({ error: 'Not part of this match.' });
         }
         const username = playerEntry.username;
+        if (hasExpectedRevisionConflict(hydrated, req.body)) {
+            return respondWithRevisionConflict(res, hydrated, username);
+        }
         if (!usernamesEqual(hydrated.currentTurn, username)) {
             return respondWithCurrentMatchState(res, hydrated, username, {
                 actionRejected: 'not-your-turn',
@@ -13359,6 +13518,9 @@ app.post('/api/match/:matchId/skill/cancel', requireSession, async (req, res) =>
         return res.status(403).json({ error: 'Not part of this match.' });
     }
     const username = playerEntry.username;
+    if (hasExpectedRevisionConflict(hydrated, req.body)) {
+        return respondWithRevisionConflict(res, hydrated, username);
+    }
     if (!usernamesEqual(hydrated.currentTurn, username)) {
         return respondWithCurrentMatchState(res, hydrated, username, {
             actionRejected: 'not-your-turn',
@@ -13380,6 +13542,7 @@ app.post('/api/match/:matchId/skill/cancel', requireSession, async (req, res) =>
     const safePayload = buildMatchPayloadForUser(hydrated, username);
     return res.json({
         ok: true,
+        ...buildMatchVersionPayload(hydrated),
         chakraPools: safePayload?.chakraPools || null,
         pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
         currentTurn: hydrated.currentTurn,
@@ -13413,6 +13576,9 @@ app.post('/api/match/:matchId/skill/reorder', requireSession, async (req, res) =
         return res.status(403).json({ error: 'Not part of this match.' });
     }
     const username = playerEntry.username;
+    if (hasExpectedRevisionConflict(hydrated, req.body)) {
+        return respondWithRevisionConflict(res, hydrated, username);
+    }
     if (!usernamesEqual(hydrated.currentTurn, username)) {
         return respondWithCurrentMatchState(res, hydrated, username, {
             actionRejected: 'not-your-turn',
@@ -13430,6 +13596,7 @@ app.post('/api/match/:matchId/skill/reorder', requireSession, async (req, res) =
     await broadcastMatchState(hydrated);
     return res.json({
         ok: true,
+        ...buildMatchVersionPayload(hydrated),
         pendingTurn: getPendingTurn(hydrated, username),
         currentTurn: hydrated.currentTurn,
         turnExpiresAt: hydrated.turnExpiresAt,
@@ -13467,6 +13634,9 @@ app.post('/api/match/:matchId/turn/random/adjust', requireSession, async (req, r
         return res.status(403).json({ error: 'Not part of this match.' });
     }
     const username = playerEntry.username;
+    if (hasExpectedRevisionConflict(hydrated, req.body)) {
+        return respondWithRevisionConflict(res, hydrated, username);
+    }
     if (!usernamesEqual(hydrated.currentTurn, username)) {
         return respondWithCurrentMatchState(res, hydrated, username, {
             actionRejected: 'not-your-turn',
@@ -13487,6 +13657,7 @@ app.post('/api/match/:matchId/turn/random/adjust', requireSession, async (req, r
         const safePayload = buildMatchPayloadForUser(hydrated, username);
         return res.json({
             ok: true,
+            ...buildMatchVersionPayload(hydrated),
             chakraPools: safePayload?.chakraPools || null,
             pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
             currentTurn: hydrated.currentTurn,
@@ -13530,6 +13701,9 @@ app.post('/api/match/:matchId/chakra/exchange', requireSession, async (req, res)
         return res.status(403).json({ error: 'Not part of this match.' });
     }
     const username = playerEntry.username;
+    if (hasExpectedRevisionConflict(hydrated, req.body)) {
+        return respondWithRevisionConflict(res, hydrated, username);
+    }
     if (!usernamesEqual(hydrated.currentTurn, username)) {
         return respondWithCurrentMatchState(res, hydrated, username, {
             actionRejected: 'not-your-turn',
@@ -13555,6 +13729,7 @@ app.post('/api/match/:matchId/chakra/exchange', requireSession, async (req, res)
         const safePayload = buildMatchPayloadForUser(hydrated, username);
         return res.json({
             ok: true,
+            ...buildMatchVersionPayload(hydrated),
             chakraPools: safePayload?.chakraPools || null,
             pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
             currentTurn: hydrated.currentTurn,
