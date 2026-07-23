@@ -91,17 +91,18 @@ test('evolution and Mega renders can be toggled and skills select the matching f
 });
 
 test('every supplied equipped-skin showcase render is mapped and optimized', () => {
+    const selectionHtml = fs.readFileSync(path.join(root, 'selection.html'), 'utf8');
     const expectedFilenames = [
         'bayleaf.png.webp',
         'blsmuthonix.png.webp',
         'charizard.png.webp',
-        'cosmiconix.png.webp',
+        'cosmiconixfixed.png.webp',
         'croconaw.webp.webp',
-        'crystalonix.png.webp',
+        'crystalonix-removebg-preview.png.webp',
         'ferliagatr.png.webp',
         'goldmagikarp.png.webp',
         'goldonix.png.webp',
-        'magmaonix.jpg.webp',
+        'magmaonix-removebg-preview.png.webp',
         'megacharizardx.png.webp',
         'megacharizardy.png.webp',
         'meganium.png.webp',
@@ -112,6 +113,7 @@ test('every supplied equipped-skin showcase render is mapped and optimized', () 
         'typhlosion.png.webp',
     ].sort();
     const selectionSource = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');
+    assert.match(selectionHtml, /onix-renders-v2/);
     const mapBody = selectionSource.match(
         /POKEMON_SELECTION_SKIN_RENDER_FORMS_BY_ID = Object\.freeze\(\{([\s\S]*?)\}\);/
     )?.[1];
