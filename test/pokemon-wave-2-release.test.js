@@ -165,6 +165,65 @@ test('follow-up balance values and replacement artwork are applied', () => {
     const mewtwo = byId.get('mewtwo');
     assert.equal(mewtwo.skills.find((skill) => skill.id === 'mewtwo-psychic').cooldown, 1);
     assert.equal(mewtwo.skills.find((skill) => skill.id === 'mewtwo-recover').effects[0].type, 'mewtwo_recover');
+    assert.match(mewtwo.skills.find((skill) => skill.id === 'mewtwo-psychic').skilldescription, /next Drain Punch or Shadow Ball deals 5 additional damage/);
+    assert.match(mewtwo.skills.find((skill) => skill.id === 'mewtwo-drain-punch').skilldescription, /next Shadow Ball or Psychic steals 5 HP/);
+    assert.match(mewtwo.skills.find((skill) => skill.id === 'mewtwo-shadow-ball').skilldescription, /next Drain Punch or Psychic deals 5 affliction damage/);
+    assert.match(fs.readFileSync(path.resolve(__dirname, '..', 'ingame.html'), 'utf8'), /mewtwo-combos-v1/);
+    assert.match(fs.readFileSync(path.resolve(__dirname, '..', 'selection.html'), 'utf8'), /mewtwo-combos-v1/);
+});
+
+test('Mewtwo Psychic, Drain Punch, and Shadow Ball empower only their next combo move', () => {
+    const mewtwoIndex = characters.findIndex((character) => character.id === 'mewtwo');
+    const mewtwo = characters[mewtwoIndex];
+    const skillIndexById = new Map(mewtwo.skills.map((skill, index) => [skill.id, index]));
+    const players = [{ username: 'MewtwoUser', team: [mewtwoIndex] }, { username: 'Opponent', team: [0] }];
+    const board = buildInitialBoard(players, characters);
+    board.MewtwoUser[0].hp = 20;
+    board.Opponent[0].hp = 300;
+    board.Opponent[0].maxHp = 300;
+    const match = {
+        players,
+        board,
+        chakraPools: {
+            MewtwoUser: { taijutsu: 5, ninjutsu: 5, genjutsu: 5, bloodline: 5 },
+            Opponent: { taijutsu: 0, ninjutsu: 0, genjutsu: 0, bloodline: 0 },
+        },
+        pendingTurns: {},
+        pendingActions: [],
+        pendingQueuedEffects: [],
+        economy: { turnCounts: { MewtwoUser: 1, Opponent: 1 } },
+    };
+    const useSkill = (skillId) => {
+        board.MewtwoUser[0].state.cooldowns = {};
+        match.pendingTurns.MewtwoUser = {
+            queueOrder: ['0'],
+            queuedByActorSlot: {
+                0: {
+                    skillIndex: skillIndexById.get(skillId),
+                    targetSelection: [{ username: 'Opponent', slot: 0 }],
+                },
+            },
+        };
+        resolvePendingTurnSkills({ match, actingUsername: 'MewtwoUser', characters });
+    };
+
+    useSkill('mewtwo-psychic');
+    assert.equal(board.Opponent[0].hp, 280);
+    assert.equal(board.MewtwoUser[0].state.statuses.some((status) => status.id === 'mewtwo_psychic_followup' && status.remainingTurns === 1), true);
+
+    useSkill('mewtwo-drain-punch');
+    assert.equal(board.Opponent[0].hp, 255);
+    assert.equal(board.MewtwoUser[0].hp, 40);
+    assert.equal(board.MewtwoUser[0].state.statuses.some((status) => status.id === 'mewtwo_psychic_followup'), false);
+
+    useSkill('mewtwo-shadow-ball');
+    assert.equal(board.Opponent[0].hp, 230);
+    assert.equal(board.MewtwoUser[0].hp, 45);
+    assert.equal(board.MewtwoUser[0].state.statuses.some((status) => status.id === 'mewtwo_drain_punch_followup'), false);
+
+    useSkill('mewtwo-psychic');
+    assert.equal(board.Opponent[0].hp, 205);
+    assert.equal(board.MewtwoUser[0].state.statuses.some((status) => status.id === 'mewtwo_shadow_ball_followup'), false);
 });
 
 test('Mewtwo Recover loses 2 healing on each consecutive use', () => {

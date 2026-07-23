@@ -747,6 +747,13 @@ test('selection URLs without a layout start in the new UI and can opt into class
     await expect(page).toHaveURL(/arena=pokemon/);
     await expect(page).toHaveURL(/layout=classic/);
     await expect(page.locator('html')).not.toHaveClass(/selection-experimental/);
+    await expect(page.locator('.classic-new-ui-button')).toBeVisible();
+
+    await page.locator('.classic-new-ui-button').click();
+    await expect(page).toHaveURL(/arena=pokemon/);
+    await expect(page).toHaveURL(/layout=experimental/);
+    await expect(page.locator('html')).toHaveClass(/selection-experimental/);
+    await expect(page.locator('.experimental-classic-link')).toBeVisible();
 });
 
 test('mobile experimental battle keeps skills tappable through queue, chakra selection, and turn end', async ({ page }) => {

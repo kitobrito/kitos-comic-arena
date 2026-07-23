@@ -7251,6 +7251,11 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
             'zubat-leech-life': ['skilldescription'],
             'golbat-leech-life': ['skilldescription'],
         },
+        mewtwo: {
+            'mewtwo-psychic': ['skilldescription', 'description'],
+            'mewtwo-shadow-ball': ['skilldescription', 'description'],
+            'mewtwo-drain-punch': ['skilldescription', 'description'],
+        },
     };
     const canonicalById = new Map(
         (Array.isArray(canonicalCharacters) ? canonicalCharacters : []).map((character) => [
@@ -7347,6 +7352,28 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
                         );
                         if (!belongsToTeleportStructure) correctedSkill.effects.push(effect);
                     });
+                }
+                if (
+                    characterId === 'mewtwo' &&
+                    Array.isArray(canonicalSkill.effects)
+                ) {
+                    const comboStatusIds = new Set([
+                        'mewtwo_psychic_followup',
+                        'mewtwo_drain_punch_followup',
+                        'mewtwo_shadow_ball_followup',
+                    ]);
+                    const isComboEffect = (effect) =>
+                        comboStatusIds.has(effect?.statusId) ||
+                        comboStatusIds.has(effect?.condition?.statusId);
+                    const preservedOverrideEffects = (Array.isArray(correctedSkill.effects)
+                        ? correctedSkill.effects
+                        : []
+                    ).filter((effect) => !isComboEffect(effect));
+                    const canonicalComboEffects = canonicalSkill.effects.filter(isComboEffect);
+                    correctedSkill.effects = [
+                        ...preservedOverrideEffects,
+                        ...canonicalComboEffects,
+                    ];
                 }
                 return correctedSkill;
             }),

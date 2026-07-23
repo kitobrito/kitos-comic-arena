@@ -1124,6 +1124,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const rosterFilterStatus = document.getElementById('roster-filter-status');
     const experimentalControlsToggle = document.querySelector('.experimental-controls-toggle');
     const experimentalClassicLink = document.querySelector('.experimental-classic-link');
+    const classicNewUiButton = document.querySelector('.classic-new-ui-button');
     const nameEl = document.getElementById('character-name');
     const roleEl = document.getElementById('character-role');
     const portraitEl = document.getElementById('character-portrait');
@@ -1325,6 +1326,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             experimentalClassicLink.href = `selection.html?arena=${encodeURIComponent(arena)}&layout=classic`;
         });
     }
+
+    classicNewUiButton?.addEventListener('click', () => {
+        const arena = document.body.classList.contains('arena-mode-pokemon') ? 'pokemon' : 'comic';
+        const nextUrl = new URL(window.location.href);
+        nextUrl.searchParams.set('arena', arena);
+        nextUrl.searchParams.set('layout', 'experimental');
+        window.location.assign(nextUrl.toString());
+    });
 
     document.addEventListener(
         'click',
@@ -2477,28 +2486,40 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (isIngamePage) {
         const ingameLayoutToggle = document.querySelector('.ingame-layout-toggle');
-        const isExperimentalBattle = document.documentElement.classList.contains('battle-experimental');
-        if (ingameLayoutToggle) {
+        const experimentalBattleRoot = document.querySelector('.backgroundingame');
+        const isExperimentalBattleLayout = () =>
+            document.documentElement.classList.contains('battle-experimental');
+        const syncIngameLayoutToggle = () => {
+            if (!ingameLayoutToggle) return;
+            const isExperimentalBattle = isExperimentalBattleLayout();
             ingameLayoutToggle.textContent = isExperimentalBattle ? 'Classic UI' : 'New UI';
             ingameLayoutToggle.title = isExperimentalBattle
                 ? 'Switch to the classic battle interface'
-                : 'Switch to the experimental battle interface';
+                : 'Switch to the new battle interface';
             ingameLayoutToggle.setAttribute('aria-label', ingameLayoutToggle.title);
+        };
+        if (ingameLayoutToggle) {
+            syncIngameLayoutToggle();
             ingameLayoutToggle.addEventListener('click', () => {
                 const nextUrl = new URL(window.location.href);
-                if (isExperimentalBattle) {
-                    nextUrl.searchParams.set('layout', 'classic');
-                } else {
-                    nextUrl.searchParams.set('layout', 'experimental');
-                }
-                window.location.assign(nextUrl.toString());
+                const useExperimentalBattle = !isExperimentalBattleLayout();
+                nextUrl.searchParams.set('layout', useExperimentalBattle ? 'experimental' : 'classic');
+                pageSearchParams.set('layout', useExperimentalBattle ? 'experimental' : 'classic');
+                document.documentElement.classList.toggle('battle-experimental', useExperimentalBattle);
+                window.history.replaceState(window.history.state, '', nextUrl.toString());
+                syncIngameLayoutToggle();
+                window.requestAnimationFrame(() => {
+                    syncExperimentalBattleScale();
+                    window.dispatchEvent(new Event('resize'));
+                });
             });
         }
-        const experimentalBattleRoot = document.documentElement.classList.contains('battle-experimental')
-            ? document.querySelector('.backgroundingame')
-            : null;
         const syncExperimentalBattleScale = () => {
             if (!experimentalBattleRoot) return;
+            if (!isExperimentalBattleLayout()) {
+                experimentalBattleRoot.style.removeProperty('--experimental-battle-scale');
+                return;
+            }
             const viewportWidth = Math.min(
                 window.innerWidth,
                 window.visualViewport?.width || window.innerWidth
@@ -2982,12 +3003,15 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             let lastLoadError = null;
             for (let attempt = 0; attempt <= retries; attempt += 1) {
+                const controller = new AbortController();
+                const timeoutId = window.setTimeout(() => controller.abort(), 12000);
                 try {
                     const response = await fetch(
                         `${API_BASE_URL}/api/match/${encodeURIComponent(normalizedMatchId)}`,
                         {
                             credentials: 'include',
                             cache: 'no-store',
+                            signal: controller.signal,
                         }
                     );
                     const payload = await response.json().catch(() => ({}));
@@ -3003,7 +3027,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                     lastLoadError = new Error(payload?.error || `Match request failed (${response.status}).`);
                 } catch (error) {
-                    lastLoadError = error;
+                    lastLoadError =
+                        error?.name === 'AbortError'
+                            ? new Error('Match sync timed out. Please retry.')
+                            : error;
+                } finally {
+                    window.clearTimeout(timeoutId);
                 }
                 if (attempt < retries) {
                     await wait(retryDelayMs * (attempt + 1));
@@ -7651,6 +7680,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             return [
                 arena,
                 mode,
+                data?.status || '',
+                data?.winner || '',
+                data?.endReason || '',
                 playerUsername || '',
                 opponentUsername || '',
                 data?.currentTurn || '',
@@ -11144,6 +11176,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 (playerAlive <= 0 || opponentAlive <= 0)
             ) {
                 if (currentMatchMode === 'ladder') {
+                    syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
+                    recoverCurrentMatchState({
+                        reason: 'ladder-terminal-board',
+                        message: 'Confirming the final ladder result...',
+                    }).catch(() => {});
                     return;
                 }
                 showBattleEndOverlay({
@@ -13228,6 +13265,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                                     if (event?.button !== undefined && event.button !== 0) return;
                                     event.preventDefault();
                                     event.stopPropagation();
+                                    hideStatusReveal({ clearPinned: true, clearHeld: true });
                                     if (
                                         activeTargetOptions &&
                                         activeCastingSkill &&

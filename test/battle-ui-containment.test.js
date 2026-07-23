@@ -11,6 +11,7 @@ test('battle usernames are contained inside their header panels', () => {
     assert.match(styles, /\.player-left,[\s\S]*?\.player-right \{[\s\S]*?overflow: hidden;/);
     assert.match(styles, /\.player-info,[\s\S]*?\.player-inforight \{[\s\S]*?max-width: 127px;[\s\S]*?overflow: hidden;/);
     assert.match(styles, /\.player-name \{[\s\S]*?width: 100%;[\s\S]*?text-overflow: ellipsis;/);
+    assert.match(styles, /\.player-info,[\s\S]*?\.player-inforight \{[\s\S]*?position: static;[\s\S]*?left: auto;/);
 });
 
 test('skill costs begin after the move browser instead of underneath it', () => {
@@ -21,6 +22,11 @@ test('skill costs begin after the move browser instead of underneath it', () => 
 
 test('experimental battle chat is a visible standalone control beside surrender', () => {
     assert.match(ingame, /<\/div>\s*<section class="match-chat collapsed" aria-label="Match chat">/);
-    assert.match(styles, /html\.battle-experimental \.match-chat \{[\s\S]*?top: 482px;[\s\S]*?left: 147px;[\s\S]*?width: 75px;/);
+    assert.match(styles, /html\.battle-experimental \.match-chat \{[\s\S]*?top: 494px;[\s\S]*?left: 147px;[\s\S]*?width: 75px;/);
     assert.match(styles, /html\.battle-experimental \.match-chat-panel \{[\s\S]*?bottom: 46px;[\s\S]*?width: 300px;/);
+});
+
+test('experimental battle keeps full skill rows visible and centers the end-turn energy dialog', () => {
+    assert.match(styles, /\.skillscrollingame\.not-turn,[\s\S]*?clip-path: none;/);
+    assert.match(styles, /\.ChakraChooseEndTurn \{[\s\S]*?top: 50%;[\s\S]*?left: 50%;[\s\S]*?translate\(-50%, -50%\)/);
 });
