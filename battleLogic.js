@@ -708,7 +708,10 @@ const doesTargetIgnoreHelpfulNonDamageEffects = (targetState) =>
 
 const filterHelpfulImmuneRecipients = ({ effect, recipients, actingUsername }) =>
     (Array.isArray(recipients) ? recipients : []).filter((recipient) => {
-        if (!recipient?.unit || recipient.unit.alive === false) return false;
+        if (!recipient?.unit) return false;
+        const allowsDefeatedRecipient =
+            typeof effect?.type === 'string' && effect.type.trim().toLowerCase() === 'revive';
+        if (recipient.unit.alive === false && !allowsDefeatedRecipient) return false;
         if (!doesEffectTargetHelpfulRecipient({ effect, recipient, actingUsername })) return true;
         if (doesEffectIgnoreHelpfulInvulnerability(effect)) return true;
         return !isUnitInvulnerableToHelpfulSkills(recipient.unit);
@@ -6341,6 +6344,17 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         const shouldRetargetToRandomAny = actorHasFullBlind && skillHasHarmfulEffects(skill);
         const shouldRetargetToRandomEnemy = actorHasHarmfulBlind && skillHasHarmfulEffects(skill);
         const shouldRetargetToRandomAlly = actorHasHelpfulBlind && !skillHasHarmfulEffects(skill);
+        const skillTargetType =
+            typeof skill?.target === 'string' ? skill.target.trim().toLowerCase() : '';
+        const allowsDefeatedTarget =
+            ['single-ally-or-dead-ally', 'dead-ally-first', 'dead-ally-lowest-slot'].includes(
+                skillTargetType
+            ) &&
+            (Array.isArray(skill?.effects) ? skill.effects : []).some(
+                (effect) =>
+                    typeof effect?.type === 'string' &&
+                    effect.type.trim().toLowerCase() === 'revive'
+            );
         const selectedTargets = selection
             .map((target) => {
                 let entry = {
@@ -6348,7 +6362,13 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     slot: target.slot,
                     unit: match.board?.[target.username]?.[target.slot] || null,
                 };
-                if (!entry.unit || entry.unit.alive === false || isUnitBanished(entry.unit)) return null;
+                if (
+                    !entry.unit ||
+                    (entry.unit.alive === false && !allowsDefeatedTarget) ||
+                    isUnitBanished(entry.unit)
+                ) {
+                    return null;
+                }
 
                 if (shouldRetargetToRandomAny) {
                     const blindPick = pickRandomEntry(allAliveUnits);
@@ -6371,7 +6391,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 return entry;
             })
             .filter((entry) => {
-                if (!entry?.unit || entry.unit.alive === false) return false;
+                if (!entry?.unit || (entry.unit.alive === false && !allowsDefeatedTarget)) return false;
                 const isEnemyTarget = entry.username !== actingUsername;
                 if (!isEnemyTarget) return true;
                 if (

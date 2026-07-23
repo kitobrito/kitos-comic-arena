@@ -100,6 +100,44 @@ test('Abra Teleport protects Abra and the selected ally', () => {
     assert.ok(match.board.Ash[1].state.statuses.some((status) => status.id === 'abra_teleport_cover'));
 });
 
+test("Blissey's Emergency Life Support revives its selected defeated ally with 50 HP", () => {
+    const chanseyIndex = characters.findIndex((character) => character.id === 'chansey');
+    const allyIndex = characters.findIndex((character) => character.id === 'pikachu');
+    const enemyIndex = characters.findIndex((character) => character.id === 'charmander');
+    const emergencyLifeSupportIndex = characters[chanseyIndex].skills.findIndex(
+        (skill) => skill.id === 'chansey-emergency-life-support'
+    );
+    const evolutionStatus = characters[chanseyIndex].startStatuses
+        .find((status) => status.statusId === 'chansey_evolution_tracker')
+        .metadata.applyStatusAtStack;
+    const players = [
+        { username: 'Ash', team: [chanseyIndex, allyIndex] },
+        { username: 'Gary', team: [enemyIndex] },
+    ];
+    const match = makeMatch(players);
+    match.board.Ash[0].state.statuses.push({
+        id: evolutionStatus.statusId,
+        remainingTurns: evolutionStatus.duration,
+        metadata: structuredClone(evolutionStatus.metadata),
+    });
+    match.board.Ash[1].alive = false;
+    match.board.Ash[1].hp = 0;
+    match.pendingTurns.Ash = {
+        queueOrder: ['0'],
+        queuedByActorSlot: {
+            0: {
+                skillIndex: emergencyLifeSupportIndex,
+                targetSelection: [{ username: 'Ash', slot: 1 }],
+            },
+        },
+    };
+
+    resolvePendingTurnSkills({ match, actingUsername: 'Ash', characters });
+
+    assert.equal(match.board.Ash[1].alive, true);
+    assert.equal(match.board.Ash[1].hp, 50);
+});
+
 test('Flareon ongoing effects end when Flareon is defeated', () => {
     const flareonIndex = characters.findIndex((character) => character.id === 'flareon');
     const enemyIndex = characters.findIndex((character) => character.id === 'pikachu');

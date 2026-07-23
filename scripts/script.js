@@ -1247,7 +1247,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             { id: 'base', label: 'Pink', name: 'Pink Butterfree', filename: 'pinkbutterfree.png.webp' },
         ],
         'onix-crystal': [
-            { id: 'base', label: 'Crystal', name: 'Crystal Onix', filename: 'crystalonix.png.webp' },
+            { id: 'base', label: 'Crystal', name: 'Crystal Onix', filename: 'crystalonix-removebg-preview.png.webp' },
         ],
         'onix-bismuth': [
             { id: 'base', label: 'Bismuth', name: 'Bismuth Onix', filename: 'blsmuthonix.png.webp' },
@@ -1256,10 +1256,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             { id: 'base', label: 'Golden', name: 'Golden Onix', filename: 'goldonix.png.webp' },
         ],
         'onix-magma': [
-            { id: 'base', label: 'Magma', name: 'Magma Onix', filename: 'magmaonix.jpg.webp' },
+            { id: 'base', label: 'Magma', name: 'Magma Onix', filename: 'magmaonix-removebg-preview.png.webp' },
         ],
         'onix-cosmic': [
-            { id: 'base', label: 'Cosmic', name: 'Cosmic Onix', filename: 'cosmiconix.png.webp' },
+            { id: 'base', label: 'Cosmic', name: 'Cosmic Onix', filename: 'cosmiconixfixed.png.webp' },
         ],
         'magikarp-golden-gyarados-red': [
             { id: 'base', label: 'Magikarp', name: 'Golden Magikarp', filename: 'goldmagikarp.png.webp' },
