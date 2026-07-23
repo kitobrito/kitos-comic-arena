@@ -15,6 +15,9 @@ const server = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
 test('selection starts in the new UI unless classic is explicitly requested', () => {
     assert.match(html, /get\('layout'\) !== 'classic'/);
     assert.match(html, /class="experimental-classic-link" href="selection\.html\?layout=classic"/);
+    assert.match(html, /class="classic-new-ui-button"[^>]*>New UI<\/button>/);
+    assert.match(script, /nextUrl\.searchParams\.set\('layout', 'experimental'\)/);
+    assert.match(script, /nextUrl\.searchParams\.set\('arena', arena\)/);
 });
 
 test('experimental selection exposes a three-section store in the roster area', () => {

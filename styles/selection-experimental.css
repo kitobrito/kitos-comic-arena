@@ -1725,6 +1725,15 @@ html.selection-experimental body.matchmaking-active .sound-controller {
         scroll-behavior: smooth;
     }
 
+    html.selection-experimental {
+        overflow-y: scroll;
+    }
+
+    html.selection-experimental body {
+        min-height: 1485px;
+        overflow: visible;
+    }
+
     html.selection-experimental body.custom-game-cursor,
     html.selection-experimental body.custom-game-cursor * {
         cursor: auto !important;
@@ -1739,7 +1748,6 @@ html.selection-experimental body.matchmaking-active .sound-controller {
         background-position: center top;
         background-attachment: scroll;
         touch-action: pan-y pinch-zoom;
-        will-change: scroll-position;
     }
 
     html.selection-experimental .selectionpage {
@@ -2029,6 +2037,16 @@ html.selection-experimental body.matchmaking-active .sound-controller {
         border-radius: 50%;
         background: rgba(5, 11, 14, 0.76);
         touch-action: manipulation;
+    }
+
+    html.selection-experimental .slot-item,
+    html.selection-experimental .slot-image,
+    html.selection-experimental .selected-character-slot,
+    html.selection-experimental .selected-slot-image,
+    html.selection-experimental .selected-slot-placeholder-image,
+    html.selection-experimental .character-portrait,
+    html.selection-experimental .character-evolution-shadow {
+        touch-action: manipulation !important;
     }
 
     html.selection-experimental .lastpage { left: 8px; }

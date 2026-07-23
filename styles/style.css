@@ -290,6 +290,36 @@ body.arena-mode-pokemon .background {
     padding: 5px 8px;
 }
 
+.classic-new-ui-button {
+    position: fixed;
+    top: 8px;
+    right: 8px;
+    z-index: 7100;
+    min-width: 82px;
+    min-height: 30px;
+    padding: 5px 10px;
+    border: 2px solid #1b120b;
+    border-radius: 3px;
+    background: #f1d79b;
+    color: #1b120b;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.72);
+    font: 700 11px 'Franklin', Arial, sans-serif;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.classic-new-ui-button:hover,
+.classic-new-ui-button:focus-visible {
+    background: #1b120b;
+    color: #f7de9d;
+    outline: 2px solid #f7de9d;
+    outline-offset: 1px;
+}
+
+html.selection-experimental .classic-new-ui-button {
+    display: none;
+}
+
 .mute-button, .ingame-mute-button, .effects-mute-button, .ingame-effects-mute-button, .skill-effects-toggle, .ingame-skill-effects-toggle {
     background: none;
     border: none;
@@ -576,6 +606,10 @@ body.skill-effects-muted .storm-hail-weather::before {
     width: 300px;
     font-family: 'Libre Franklin', Arial, sans-serif;
     color: #111;
+}
+
+html:not(.battle-experimental) .match-chat {
+    bottom: 14px;
 }
 
 .match-chat-toggle {
@@ -2013,6 +2047,15 @@ body.arena-mode-pokemon .skillviewer::after {
 
 .skill-images > * {
     transform: scaleY(-1);
+}
+
+@media (max-width: 700px) {
+    .skill-images {
+        width: min(332px, calc(100vw - 42px));
+        max-width: calc(100vw - 42px);
+        margin-left: 0;
+        justify-content: center;
+    }
 }
 
 .skill-images::-webkit-scrollbar {
@@ -14898,7 +14941,7 @@ body.arena-mode-pokemon :is(input, select, textarea) {
 body.arena-mode-pokemon .pokemon-ladder-incentive {
     display: grid;
     gap: 5px;
-    margin: 12px auto;
+    margin: 52px auto 12px;
     padding: 12px 16px;
     max-width: 620px;
     border: 3px solid #780f19;

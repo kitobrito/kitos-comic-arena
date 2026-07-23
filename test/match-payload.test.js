@@ -42,6 +42,48 @@ test('required gameplay fixes survive stored character overrides without removin
     assert.equal(corrected.skills[0].skilldescription, 'Corrected text');
 });
 
+test('Mewtwo combo corrections append to stored overrides instead of replacing them', () => {
+    const canonical = [{
+        characterId: 'mewtwo',
+        skills: [{
+            id: 'mewtwo-psychic',
+            skilldescription: 'Canonical combo text',
+            description: 'Canonical combo text',
+            effects: [
+                { type: 'damage', amount: 20, scope: 'target' },
+                {
+                    type: 'apply_status',
+                    statusId: 'mewtwo_psychic_followup',
+                    duration: 1,
+                    scope: 'self',
+                },
+            ],
+        }],
+    }];
+    const merged = [{
+        characterId: 'mewtwo',
+        skills: [{
+            id: 'mewtwo-psychic',
+            skilldescription: 'Stale combo text',
+            description: 'Stale combo text',
+            effects: [
+                { type: 'damage', amount: 23, scope: 'target', customDamageOverride: true },
+                { type: 'custom_mewtwo_effect', customEffectOverride: true },
+            ],
+        }],
+    }];
+
+    const [corrected] = applyRequiredCanonicalSkillCorrections(merged, canonical);
+    const [psychic] = corrected.skills;
+    assert.equal(psychic.skilldescription, 'Canonical combo text');
+    assert.equal(psychic.effects.some((effect) => effect.customDamageOverride), true);
+    assert.equal(psychic.effects.some((effect) => effect.customEffectOverride), true);
+    assert.equal(
+        psychic.effects.filter((effect) => effect.statusId === 'mewtwo_psychic_followup').length,
+        1
+    );
+});
+
 const firstComicRosterIndex = characters.findIndex(
     (character) => normalizeArenaMode(character?.arena || character?.universe) === 'comic'
 );

@@ -75,3 +75,21 @@ test('status reveal panels dismiss when the player interacts elsewhere', () => {
     assert.match(script, /if \(!statusRevealHeld && !statusRevealPinned\) return/);
     assert.match(script, /hideStatusReveal\(\{ clearPinned: true, clearHeld: true \}\)/);
 });
+
+test('terminal match state is part of visual deduplication and skill selection closes status panels', () => {
+    assert.match(script, /data\?\.status \|\| ''[\s\S]*?data\?\.winner \|\| ''[\s\S]*?data\?\.endReason \|\| ''/);
+    assert.match(script, /const onSkillClick = \(event\) => \{[\s\S]*?hideStatusReveal\(\{ clearPinned: true, clearHeld: true \}\)/);
+});
+
+test('battle layout switching happens in place without reloading the live match', () => {
+    assert.match(script, /history\.replaceState\(window\.history\.state, '', nextUrl\.toString\(\)\)/);
+    assert.match(script, /classList\.toggle\('battle-experimental', useExperimentalBattle\)/);
+    assert.doesNotMatch(script, /ingameLayoutToggle\.addEventListener\('click',[\s\S]{0,700}window\.location\.assign/);
+});
+
+test('match recovery is bounded and a lethal ladder board requests the terminal result', () => {
+    assert.match(script, /window\.setTimeout\(\(\) => controller\.abort\(\), 12000\)/);
+    assert.match(script, /signal: controller\.signal/);
+    assert.match(script, /reason: 'ladder-terminal-board'/);
+    assert.match(script, /Confirming the final ladder result/);
+});
