@@ -164,14 +164,9 @@ const buildCopiedCharacterMetadata = ({
                 Boolean(status?.metadata?.useEvolvedSkills)
         );
     const copyableStartStatuses =
-        applyDittoModifiers && !targetUsesEvolvedSkills
+        applyDittoModifiers
             ? (Array.isArray(targetCharacter?.startStatuses) ? targetCharacter.startStatuses : [])
-                  .filter(
-                      (status) =>
-                          status &&
-                          typeof status === 'object' &&
-                          Boolean(status?.metadata?.copyOnDittoTransform)
-                  )
+                  .filter((status) => status && typeof status === 'object')
                   .map((status) => ({
                       statusId: status.statusId || status.id || '',
                       duration: status.duration ?? status.remainingTurns ?? 0,
@@ -187,7 +182,6 @@ const buildCopiedCharacterMetadata = ({
         ? (Array.isArray(characters) ? characters : [])
               .flatMap((character) =>
                   (Array.isArray(character?.startStatuses) ? character.startStatuses : [])
-                      .filter((status) => Boolean(status?.metadata?.copyOnDittoTransform))
                       .map((status) => status?.statusId || status?.id || '')
               )
               .filter(Boolean)
@@ -221,7 +215,6 @@ const buildCopiedCharacterMetadata = ({
             ? {
                   DamageDebuff: 5,
                   overrideAllSkillsToAllRandom: true,
-                  overrideAllSkillsToAllRandomReduction: 1,
                   ...(copiedStartStatusIds.length
                       ? { removeStatusIdsOnApply: copiedStartStatusIds }
                       : {}),
@@ -371,7 +364,7 @@ const buildInitialBoard = (players = [], characters = defaultCharacters) => {
                 targetUnit,
                 applyDittoModifiers: true,
                 tooltipTextTemplate:
-                    "Ditto transformed into {characterName}. Its copied skills deal 5 less damage and cost one fewer Random energy.",
+                    "Ditto transformed into {characterName}. Its copied skills deal 5 less damage and cost only Random energy.",
             });
             const copiedStartStatuses = Array.isArray(copiedMetadata?._copiedStartStatuses)
                 ? copiedMetadata._copiedStartStatuses
