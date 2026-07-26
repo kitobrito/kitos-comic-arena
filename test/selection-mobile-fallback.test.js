@@ -68,7 +68,7 @@ test('failed roster portraits leave a visible and tappable character fallback', 
 
 test('selection identity uses the ladder profile for the active arena', () => {
     const hydrateIdentityBlock = script.match(
-        /const hydratePlayerIdentity = async[\s\S]*?\n    };\n\n    document\.addEventListener\('visibilitychange'/
+        /const hydratePlayerIdentity = async[\s\S]*?\r?\n    };\r?\n\r?\n    document\.addEventListener\('visibilitychange'/
     )?.[0] || '';
 
     assert.match(

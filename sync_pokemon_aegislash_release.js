@@ -15,7 +15,7 @@ const paragraphs = [
     'Aegislash has joined Pokemon Arena as the first release from the next wave of community characters. This design comes from my old Anime Arena game and was originally designed by fghop. Its Stance Change passive swaps between an attacking portrait and a defensive Shield Stance that refreshes destructible defense.',
     'I intend to add the other community characters to the game next. Thank you to everyone preserving, sharing, and improving the character designs that made the original community special.',
     'Pokemon Arena damage classes have been overhauled. Physical and Special are now the only primary damage classes, with Special replacing Energy and offensive Mental classifications. Affliction remains as a secondary class shown immediately after Physical or Special. Obsolete non-Mental stuns have been rebalanced into harmful, Physical, or Special stuns.',
-    'Chikorita Sweet Scent now alternates only between Physical and Special damage, reducing the active class by 5 each turn.',
+    'Chikorita Sweet Scent now cycles between Physical, Special, and Affliction damage, reducing the active class by 5 each turn. Affliction is reduced separately from the primary class attached to the skill.',
     'iPhone sound controls have been repaired. Music, sound-effect mute buttons, and the volume slider now use the shared Web Audio output controls on iOS while keeping the existing sound settings and desktop fallback behavior.',
 ];
 
@@ -51,7 +51,7 @@ const newsPost = {
             characterName: 'Chikorita',
             skillId: 'chikorita-sweet-scent',
             skillName: 'Passive: Sweet Scent',
-            text: 'Now alternates between Physical and Special, reducing the active damage class by 5 each turn.',
+            text: 'Now cycles between Physical, Special, and Affliction, reducing the active damage class by 5 each turn and treating Affliction separately from its primary class.',
         },
         {
             changeType: 'fix',

@@ -45,9 +45,9 @@ test('every current Pokemon has an optimized featured selection render', () => {
 
 test('every supplied Pokemon evolution render is mapped and optimized', () => {
     const expectedEvolutionIds = [
-        'abra', 'beedrill', 'bulbasaur', 'chansey', 'charmander', 'clefairy',
+        'abra', 'aegislash', 'beedrill', 'bulbasaur', 'chansey', 'charmander', 'clefairy',
         'ekans', 'gastly', 'jigglypuff', 'koffing', 'krabby', 'machop',
-        'magikarp', 'magnemite', 'meowth', 'pidgey', 'squirtle', 'zubat',
+        'magikarp', 'magnemite', 'meowth', 'pidgey', 'scraggy', 'squirtle', 'zubat',
     ].sort();
     const selectionSource = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');
     const mapBody = selectionSource.match(
@@ -84,6 +84,15 @@ test('evolution and Mega renders can be toggled and skills select the matching f
     );
     assert.match(selectionSource, /skillId\.includes\('charizard-x-'\)/);
     assert.match(selectionSource, /skillId\.includes\('charizard-y-'\)/);
+    assert.match(selectionSource, /characterId === 'aegislash' \? 'Shield Stance' : 'Base'/);
+    assert.match(
+        selectionSource,
+        /\['aegislash-slash', 'aegislash-sacred-sword'\]\.includes\(skillId\)/
+    );
+    assert.match(selectionSource, /label: 'Blade Stance'/);
+    assert.match(selectionHtml, /aegislash-renders-v1/);
+    assert.match(selectionHtml, /ditto-renders-v1/);
+    assert.match(selectionHtml, /scraggy-renders-v1/);
     assert.match(
         selectionSource,
         /renderSelectionCharacterForm\(character, button\.dataset\.characterForm \|\| 'base'\);/
@@ -110,6 +119,7 @@ test('every supplied equipped-skin showcase render is mapped and optimized', () 
         'quilava.png.webp',
         'raichu.png.webp',
         'redgyarados.png.webp',
+        'shinyditto.webp',
         'typhlosion.png.webp',
     ].sort();
     const selectionSource = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');

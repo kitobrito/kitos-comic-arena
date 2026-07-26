@@ -53,6 +53,7 @@ const { syncPokemonWave2Release } = require('./sync_pokemon_wave_2_release');
 const { syncPokemonGen2StarterRelease } = require('./sync_pokemon_gen2_starter_release');
 const { syncPokemonTypeClassNews } = require('./sync_pokemon_type_class_news');
 const { syncPokemonAegislashRelease } = require('./sync_pokemon_aegislash_release');
+const { syncPokemonDittoRelease } = require('./sync_pokemon_ditto_release');
 let charactersData = require('./characters');
 
 const app = express();
@@ -2627,6 +2628,17 @@ const normalizeSkinId = (value = '') =>
 
 const POKEMON_SKIN_CATALOG = [
     {
+        skinId: 'ditto-shiny',
+        characterId: 'ditto',
+        name: 'Shiny Ditto',
+        description: 'Ditto begins battle in its blue shiny appearance and still copies the exact skin of any Pokemon it transforms into.',
+        unlockPointCost: 500,
+        previewFacePicture: 'assets/images/PokemonArena/Ditto/Done/shinyFP.jpg',
+        patch: {
+            facePicture: 'assets/images/PokemonArena/Ditto/Done/shinyFP.jpg',
+        },
+    },
+    {
         skinId: 'pikachu-raichu',
         characterId: 'pikachu',
         name: 'Raichu',
@@ -4762,6 +4774,171 @@ const POKEMON_ONIX_MISSION_ENTRY = {
     sortOrder: 16,
 };
 
+const POKEMON_AEGISLASH_MISSION_ENTRY = {
+    missionId: 'aegislash-kings-shield-trial',
+    title: "Aegislash King's Shield Trial",
+    level_requirement: 13,
+    rank: '13',
+    reward_character: 'aegislash',
+    reward_character_name: 'Aegislash',
+    reward: 'Unlock Aegislash.',
+    unlock_point_cost: 300,
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/missionpics/aegislash.webp',
+    imageAlt: "Aegislash King's Shield mission artwork",
+    characterName: 'Aegislash',
+    portrait: 'assets/images/PokemonArena/aegislash/OfficialPictures/Facepicturewithpassiveactive.jpg',
+    portraitAlt: 'Aegislash Shield Stance portrait',
+    requirements: [
+        'Prove your command of Ghost and Steel tactics with Gastly and Magnemite.',
+        'Win 8 Quick or Ladder matches with Gastly and Magnemite on the same team.',
+        'Win 4 Quick or Ladder matches in a row with Gastly and Magnemite on the same team.',
+        'Bot and human opponents both count.',
+    ],
+    goals: [
+        {
+            type: 'win_matches_same_team',
+            character_ids: ['gastly', 'magnemite'],
+            character_names: ['Gastly', 'Magnemite'],
+            wins: 8,
+        },
+        {
+            type: 'win_streak_same_team',
+            character_ids: ['gastly', 'magnemite'],
+            character_names: ['Gastly', 'Magnemite'],
+            wins: 4,
+        },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 230,
+};
+
+const POKEMON_DITTO_MISSION_ENTRY = {
+    missionId: 'ditto-perfect-copy-trial',
+    title: 'Ditto Perfect Copy Trial',
+    level_requirement: 13,
+    rank: '13',
+    reward_character: 'ditto',
+    reward_character_name: 'Ditto',
+    reward: 'Unlock Ditto.',
+    unlock_point_cost: 300,
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/missionpics/ditto.avif',
+    imageAlt: 'Ditto Perfect Copy mission artwork',
+    characterName: 'Ditto',
+    portrait: 'assets/images/PokemonArena/Ditto/Done/FP.jpg',
+    portraitAlt: 'Ditto portrait',
+    requirements: [
+        'Master adaptability with Eevee and Pokemon Trainer.',
+        'Win 8 Quick or Ladder matches with Eevee and Pokemon Trainer on the same team.',
+        'Win 4 Quick or Ladder matches in a row with Eevee and Pokemon Trainer on the same team.',
+        'Bot and human opponents both count.',
+    ],
+    goals: [
+        {
+            type: 'win_matches_same_team',
+            character_ids: ['eevee', 'pokemon-trainer'],
+            character_names: ['Eevee', 'Pokemon Trainer'],
+            wins: 8,
+        },
+        {
+            type: 'win_streak_same_team',
+            character_ids: ['eevee', 'pokemon-trainer'],
+            character_names: ['Eevee', 'Pokemon Trainer'],
+            wins: 4,
+        },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 231,
+};
+
+const POKEMON_SCRAGGY_MISSION_ENTRY = {
+    missionId: 'scraggy-focus-energy-trial',
+    title: 'Scraggy Focus Energy Trial',
+    level_requirement: 13,
+    rank: '13',
+    reward_character: 'scraggy',
+    reward_character_name: 'Scraggy',
+    reward: 'Unlock Scraggy.',
+    unlock_point_cost: 300,
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/missionpics/scraggy.jpg',
+    imageAlt: 'Scraggy Focus Energy mission artwork',
+    characterName: 'Scraggy',
+    portrait: 'assets/images/PokemonArena/Scraggy/fp.png',
+    portraitAlt: 'Scraggy portrait',
+    requirements: [
+        'Train precision and poison pressure with Hitmonlee and Koffing.',
+        'Win 8 Quick or Ladder matches with Hitmonlee and Koffing on the same team.',
+        'Win 4 Quick or Ladder matches in a row with Hitmonlee and Koffing on the same team.',
+        'Bot and human opponents both count.',
+    ],
+    goals: [
+        {
+            type: 'win_matches_same_team',
+            character_ids: ['hitmonlee', 'koffing'],
+            character_names: ['Hitmonlee', 'Koffing'],
+            wins: 8,
+        },
+        {
+            type: 'win_streak_same_team',
+            character_ids: ['hitmonlee', 'koffing'],
+            character_names: ['Hitmonlee', 'Koffing'],
+            wins: 4,
+        },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 232,
+};
+
 const POKEMON_STARTER_MISSION_ENTRIES = [
     {
         missionId: 'pikachu-starter-path',
@@ -5223,6 +5400,9 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     upsertRequiredMission(POKEMON_MAGNEMITE_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'magnemite');
     upsertRequiredMission(POKEMON_AERODACTYL_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'aerodactyl');
     upsertRequiredMission(POKEMON_ONIX_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'onix');
+    upsertRequiredMission(POKEMON_AEGISLASH_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'aegislash');
+    upsertRequiredMission(POKEMON_DITTO_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'ditto');
+    upsertRequiredMission(POKEMON_SCRAGGY_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'scraggy');
     POKEMON_WAVE_2_MISSION_ENTRIES.forEach((entry) => {
         upsertRequiredMission(
             entry,
@@ -8861,6 +9041,8 @@ const CLIENT_SAFE_STATUS_METADATA_KEYS = new Set([
     'delayedDamage',
     'delayEnemyDamageUntilExpire',
     'effectiveCharacterId',
+    'effectiveSkinId',
+    'effectiveStatusIds',
     'evadeAgainstNonMental',
     'evadeChancePercent',
     'evadedSkillName',
@@ -8870,6 +9052,8 @@ const CLIENT_SAFE_STATUS_METADATA_KEYS = new Set([
     'genjutsuCostReduction',
     'hulkRage',
     'ignoreAfflictionDamage',
+    'missedSkillName',
+    'missedSourceName',
     'NonAfflictionDamageDebuff',
     'ninjutsuCostIncrease',
     'ninjutsuCostReduction',
@@ -8906,6 +9090,7 @@ const CLIENT_SAFE_STATUS_METADATA_KEYS = new Set([
     'turnStartChoiceMaxUses',
     'turnStartChoiceUsesUsed',
     'turnStartChoiceQueued',
+    'useEvolvedSkills',
 ]);
 
 const extractTooltipPlaceholderKeys = (template) => {
@@ -12123,6 +12308,10 @@ async function initDb() {
     const aegislashReleaseSync = await syncPokemonAegislashRelease(db);
     if (aegislashReleaseSync.migrated) {
         console.log('Published Aegislash, the Pokemon class overhaul, and iPhone audio news.');
+    }
+    const dittoReleaseSync = await syncPokemonDittoRelease(db);
+    if (dittoReleaseSync.migrated) {
+        console.log('Published the Ditto and Scraggy community-character batch.');
     }
     await backfillUserProfiles();
     console.log('Connected to MongoDB.');

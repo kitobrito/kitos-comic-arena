@@ -60,9 +60,9 @@ test('all Pokemon characters and skills have explicit valid typing with no Melee
     const roster = applyPokemonTypeSystem(structuredClone(characters), { strict: true });
     const pokemon = roster.filter((character) => (character.arena || character.universe) === 'pokemon');
     const pokemonTypeSet = new Set(POKEMON_TYPES);
-    assert.equal(pokemon.length, 41);
-    assert.equal(pokemon.flatMap((character) => character.skills || []).length, 269);
-    assert.equal(Object.keys(POKEMON_SKILL_TYPES).length, 280);
+    assert.equal(pokemon.length, 43);
+    assert.equal(pokemon.flatMap((character) => character.skills || []).length, 279);
+    assert.equal(Object.keys(POKEMON_SKILL_TYPES).length, 294);
     pokemon.forEach((character) => {
         assert.ok(character.pokemonTypes.length >= 1 && character.pokemonTypes.length <= 2, character.id);
         character.pokemonTypes.forEach((type) => assert.ok(pokemonTypeSet.has(type), `${character.id}:${type}`));
@@ -238,7 +238,7 @@ test('Comic Arena damage is unchanged even when a class name matches a Pokemon t
     assert.equal(match.board.Villain[0].state.pokemonTypeEffectivenessEvent, undefined);
 });
 
-test('Chikorita Sweet Scent alternates Physical and Special at 5 damage reduction', () => {
+test('Chikorita Sweet Scent cycles Physical, Special, and Affliction at 5 damage reduction', () => {
     const chikoritaIndex = characters.findIndex((character) => character?.id === 'chikorita');
     const targetIndex = characters.findIndex((character) => character?.id === 'aegislash');
     const match = makeMatch(characters, { Ash: [chikoritaIndex], Gary: [targetIndex] });
@@ -256,6 +256,13 @@ test('Chikorita Sweet Scent alternates Physical and Special at 5 damage reductio
         status.id.startsWith('chikorita_sweet_scent_aura_')
     );
     assert.deepEqual(aura.metadata.damageDebuffBySkillClass, { special: 5 });
+
+    match.economy.turnCounts.Ash = 3;
+    processTurnStartStatusEffects({ match, startingUsername: 'Ash' });
+    aura = match.board.Gary[0].state.statuses.find((status) =>
+        status.id.startsWith('chikorita_sweet_scent_aura_')
+    );
+    assert.deepEqual(aura.metadata.damageDebuffBySkillClass, { affliction: 5 });
 });
 
 test('type-class news explains every player-facing rule and syncs idempotently', async () => {

@@ -171,7 +171,7 @@ test('Chikorita Light Screen grants 25 destructible defense', () => {
     assert.equal(lightScreen?.metadata?.destructibleDefensePoints, 25);
 });
 
-test('Chikorita Light Screen weakens the active Physical or Special class by 5', () => {
+test('Chikorita Light Screen weakens the active Physical, Special, or Affliction class by 5', () => {
     const { match } = makeMatch({
         actorId: 'chikorita',
         opponentId: 'pikachu',
