@@ -236,7 +236,7 @@ const POKEMON_STATUS_TOOLTIPS = Object.freeze({
     chikorita_vine_defense: { tooltipText: 'Chikorita is invulnerable to enemy skills.' },
     totodile_water_rings_tracker: { tooltipTextTemplate: 'Totodile has {waterRings} Water Ring(s) and heals 5 HP per ring each turn. Aqua Tail has {aquaTailPermanentPenalty} permanent damage penalty.' },
     totodile_superpower_invulnerable: { tooltipText: 'Totodile is invulnerable to enemy skills. Its next Aqua Tail gains 10 damage, then permanently loses 5 damage.' },
-    ditto_transformation: { tooltipText: 'This character has transformed. Its copied skills deal 5 less damage and cost one fewer Random energy.' },
+    ditto_transformation: { tooltipText: 'This character has transformed. Its copied skills deal 5 less damage and cost only Random energy.' },
 });
 
 const applyPokemonStatusTooltips = (value, sourceSkillId = '', errors = []) => {

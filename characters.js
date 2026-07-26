@@ -32820,7 +32820,7 @@ const characters = [
                         "metadata": {
                             "copyEffectiveCharacterFromTarget": true,
                             "applyDittoCopyModifiers": true,
-                            "tooltipTextTemplate": "Ditto transformed into {characterName}. Its copied skills deal 5 less damage and cost one fewer Random energy."
+                            "tooltipTextTemplate": "Ditto transformed into {characterName}. Its copied skills deal 5 less damage and cost only Random energy."
                         }
                     }
                 ]
@@ -32848,7 +32848,7 @@ const characters = [
                         "metadata": {
                             "copyEffectiveCharacterFromTarget": true,
                             "applyDittoCopyModifiers": true,
-                            "tooltipTextTemplate": "Ditto transformed into {characterName}. Its copied skills deal 5 less damage and cost one fewer Random energy."
+                            "tooltipTextTemplate": "Ditto transformed into {characterName}. Its copied skills deal 5 less damage and cost only Random energy."
                         }
                     }
                 ]
@@ -32876,7 +32876,7 @@ const characters = [
                         "metadata": {
                             "copyEffectiveCharacterFromTarget": true,
                             "applyDittoCopyModifiers": true,
-                            "tooltipTextTemplate": "Ditto transformed into {characterName}. Its copied skills deal 5 less damage and cost one fewer Random energy."
+                            "tooltipTextTemplate": "Ditto transformed into {characterName}. Its copied skills deal 5 less damage and cost only Random energy."
                         }
                     }
                 ]
@@ -32904,7 +32904,7 @@ const characters = [
                         "metadata": {
                             "copyEffectiveCharacterFromTarget": true,
                             "applyDittoCopyModifiers": true,
-                            "tooltipTextTemplate": "Ditto transformed into {characterName}. Its copied skills deal 5 less damage and cost one fewer Random energy."
+                            "tooltipTextTemplate": "Ditto transformed into {characterName}. Its copied skills deal 5 less damage and cost only Random energy."
                         }
                     }
                 ]
@@ -32913,8 +32913,8 @@ const characters = [
                 "id": "ditto-passive-transform",
                 "name": "Passive: Transform",
                 "skillimage": "assets/images/PokemonArena/Ditto/Done/transform.jpg",
-                "skilldescription": "At the beginning of the game, Ditto transforms into the enemy directly opposite it. Copied skills deal 5 less damage, cost only Random energy, and cost one fewer Random. If the opposing character is another Ditto, Ditto keeps its four Transform skills.",
-                "description": "At the beginning of the game, Ditto transforms into the enemy directly opposite it. Copied skills deal 5 less damage, cost only Random energy, and cost one fewer Random. If the opposing character is another Ditto, Ditto keeps its four Transform skills.",
+                "skilldescription": "At the beginning of the game, Ditto transforms into the enemy directly opposite it. Copied skills deal 5 less damage and cost only Random energy. If the opposing character is another Ditto, Ditto keeps its four Transform skills.",
+                "description": "At the beginning of the game, Ditto transforms into the enemy directly opposite it. Copied skills deal 5 less damage and cost only Random energy. If the opposing character is another Ditto, Ditto keeps its four Transform skills.",
                 "energy": [],
                 "cooldown": 0,
                 "target": "",
