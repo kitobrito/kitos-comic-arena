@@ -339,6 +339,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         let shuffledTrackIndices = [];
         let shuffledTrackPosition = 0;
         let synthContext = null;
+        let musicOutputGain = null;
+        let effectsOutputGain = null;
+        const routedMediaElements = new WeakMap();
         let noiseBuffer = null;
         const ambientIntervals = new Map();
         const comicIngameMusicTracks = ['assets/audio/track2.mp3', 'assets/audio/track3.mp3'];
@@ -357,14 +360,46 @@ document.addEventListener('DOMContentLoaded', async () => {
             'assets/images/PokemonArena/music/Wild Pokémon Battle (Night) - Pokémon GoldSilverCrystal Soundtrack.mp3',
         ];
 
+        const syncOutputGains = () => {
+            if (musicOutputGain) {
+                musicOutputGain.gain.value = settings.musicMuted ? 0 : settings.volume;
+            }
+            if (effectsOutputGain) {
+                effectsOutputGain.gain.value = settings.effectsMuted ? 0 : settings.volume;
+            }
+        };
+
         const getSynthContext = () => {
             const AudioContextCtor = window.AudioContext || window.webkitAudioContext;
-            if (!AudioContextCtor || settings.effectsMuted || settings.volume <= 0) return null;
+            if (!AudioContextCtor) return null;
             synthContext = synthContext || new AudioContextCtor();
+            if (!musicOutputGain || !effectsOutputGain) {
+                musicOutputGain = synthContext.createGain();
+                effectsOutputGain = synthContext.createGain();
+                musicOutputGain.connect(synthContext.destination);
+                effectsOutputGain.connect(synthContext.destination);
+                syncOutputGains();
+            }
             if (synthContext.state === 'suspended') {
                 synthContext.resume().catch(() => {});
             }
             return synthContext;
+        };
+
+        const ensureWebAudioMediaRoute = (audio, channel = 'effects') => {
+            if (!audio) return false;
+            if (routedMediaElements.has(audio)) return true;
+            const context = getSynthContext();
+            if (!context || typeof context.createMediaElementSource !== 'function') return false;
+            try {
+                const source = context.createMediaElementSource(audio);
+                source.connect(channel === 'music' ? musicOutputGain : effectsOutputGain);
+                routedMediaElements.set(audio, source);
+                return true;
+            } catch (error) {
+                // Keep the native HTML audio path when Web Audio routing is unavailable.
+                return false;
+            }
         };
 
         const getNoiseBuffer = (context) => {
@@ -381,11 +416,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const makeGain = (context, now, amount = 0.18, attack = 0.01, releaseAt = 0.18) => {
             const gain = context.createGain();
-            const level = clampVolume(settings.volume) * amount;
+            const level = amount;
             gain.gain.setValueAtTime(0.0001, now);
             gain.gain.exponentialRampToValueAtTime(Math.max(0.0001, level), now + attack);
             gain.gain.exponentialRampToValueAtTime(0.0001, now + releaseAt);
-            gain.connect(context.destination);
+            gain.connect(effectsOutputGain || context.destination);
             return gain;
         };
 
@@ -649,8 +684,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                 .join('||');
 
         const updateMusicVolume = () => {
+            syncOutputGains();
             if (currentMusic) {
-                currentMusic.volume = settings.musicMuted ? 0 : settings.volume;
+                currentMusic.volume = routedMediaElements.has(currentMusic)
+                    ? 1
+                    : (settings.musicMuted ? 0 : settings.volume);
+                currentMusic.muted = settings.musicMuted;
             }
         };
 
@@ -690,7 +729,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             currentMusic = new Audio(musicTracks[currentTrackIndex]);
-            currentMusic.volume = settings.musicMuted ? 0 : settings.volume;
+            currentMusic.muted = settings.musicMuted;
+            const routedThroughWebAudio = ensureWebAudioMediaRoute(currentMusic, 'music');
+            currentMusic.volume = routedThroughWebAudio
+                ? 1
+                : (settings.musicMuted ? 0 : settings.volume);
             
             if (musicTracks.length === 1) {
                 currentMusic.loop = true;
@@ -702,6 +745,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (playback && typeof playback.catch === 'function') {
                 playback.catch(() => {
                     const resumeOnInteraction = () => {
+                        getSynthContext();
                         currentMusic.play().catch(() => {});
                         document.removeEventListener('click', resumeOnInteraction);
                     };
@@ -717,6 +761,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 ...settings,
                 volume: clampVolume((event.target?.value || 0) / 100),
             };
+            getSynthContext();
             updateMusicVolume();
             persist();
             syncUi();
@@ -728,6 +773,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const onMusicMuteClick = () => {
             settings.musicMuted = !settings.musicMuted;
+            getSynthContext();
             updateMusicVolume();
             persist();
             syncUi();
@@ -735,12 +781,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const onEffectsMuteClick = () => {
             settings.effectsMuted = !settings.effectsMuted;
+            getSynthContext();
+            syncOutputGains();
             if (settings.effectsMuted) {
                 syncAmbientEffects([]);
             }
             persist();
             syncUi();
-        }
+        };
 
         const onSkillEffectsToggleClick = () => {
             settings.skillEffectsMuted = !settings.skillEffectsMuted;
@@ -778,7 +826,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             play(audio) {
                 if (!audio || settings.volume <= 0 || settings.effectsMuted) return;
                 try {
-                    audio.volume = clampVolume(settings.volume);
+                    const routedThroughWebAudio = ensureWebAudioMediaRoute(audio, 'effects');
+                    audio.volume = routedThroughWebAudio ? 1 : clampVolume(settings.volume);
+                    audio.muted = settings.effectsMuted;
                     audio.currentTime = 0;
                     const playback = audio.play();
                     if (playback && typeof playback.catch === 'function') {
@@ -1159,7 +1209,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     let activeSelectionPointerDrag = null;
     let suppressSelectionClickUntil = 0;
     let mobileRosterTapIndex = null;
-    const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
+const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
+    aegislash: 'AEGISLASH.webp',
         abra: 'ABRA.png.webp',
         aerodactyl: 'AERODACTYL.png.webp',
         articuno: 'ARTICUNO.png.webp',

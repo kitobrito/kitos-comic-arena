@@ -10,7 +10,12 @@ const {
     getPokemonMoveType,
     getPokemonTypeEffectiveness,
 } = require('../pokemonTypeSystem');
-const { buildInitialBoard, resolvePendingTurnSkills, tickStatusesForTurnEnd } = require('../battleLogic');
+const {
+    buildInitialBoard,
+    processTurnStartStatusEffects,
+    resolvePendingTurnSkills,
+    tickStatusesForTurnEnd,
+} = require('../battleLogic');
 const { newsPost, syncPokemonTypeClassNews } = require('../sync_pokemon_type_class_news');
 
 const makeMatch = (roster, playerTeams) => {
@@ -55,9 +60,9 @@ test('all Pokemon characters and skills have explicit valid typing with no Melee
     const roster = applyPokemonTypeSystem(structuredClone(characters), { strict: true });
     const pokemon = roster.filter((character) => (character.arena || character.universe) === 'pokemon');
     const pokemonTypeSet = new Set(POKEMON_TYPES);
-    assert.equal(pokemon.length, 40);
-    assert.equal(pokemon.flatMap((character) => character.skills || []).length, 264);
-    assert.equal(Object.keys(POKEMON_SKILL_TYPES).length, 275);
+    assert.equal(pokemon.length, 41);
+    assert.equal(pokemon.flatMap((character) => character.skills || []).length, 269);
+    assert.equal(Object.keys(POKEMON_SKILL_TYPES).length, 280);
     pokemon.forEach((character) => {
         assert.ok(character.pokemonTypes.length >= 1 && character.pokemonTypes.length <= 2, character.id);
         character.pokemonTypes.forEach((type) => assert.ok(pokemonTypeSet.has(type), `${character.id}:${type}`));
@@ -66,6 +71,14 @@ test('all Pokemon characters and skills have explicit valid typing with no Melee
             assert.equal(typedClasses.length, 1, skill.id);
             assert.equal(skill.classes[0], typedClasses[0], skill.id);
             assert.ok(!(skill.classes || []).some((entry) => /^(melee|ranged)$/i.test(entry)), skill.id);
+            assert.ok(!(skill.classes || []).some((entry) => /^(energy|mental)$/i.test(entry)), skill.id);
+            const afflictionIndex = (skill.classes || []).indexOf('Affliction');
+            if (afflictionIndex >= 0) {
+                assert.ok(
+                    ['Physical', 'Special'].includes(skill.classes[afflictionIndex - 1]),
+                    `${skill.id}: Affliction must follow Physical or Special`
+                );
+            }
             assert.equal(getPokemonMoveType(skill.classes), POKEMON_SKILL_TYPES[skill.id], skill.id);
             if (skill.evolvesTo) assertTypedSkill(skill.evolvesTo);
         };
@@ -106,7 +119,7 @@ test('AOE effectiveness is calculated independently with a five-damage resistanc
         target: 'all-enemy',
         energy: [],
         cooldown: 0,
-        classes: ['Fire', 'Energy', 'Instant'],
+        classes: ['Fire', 'Special', 'Instant'],
         effects: [{ type: 'damage', amount: 10, scope: 'all-enemy' }],
     };
     const roster = [
@@ -223,6 +236,26 @@ test('Comic Arena damage is unchanged even when a class name matches a Pokemon t
 
     assert.equal(match.board.Villain[0].hp, 90);
     assert.equal(match.board.Villain[0].state.pokemonTypeEffectivenessEvent, undefined);
+});
+
+test('Chikorita Sweet Scent alternates Physical and Special at 5 damage reduction', () => {
+    const chikoritaIndex = characters.findIndex((character) => character?.id === 'chikorita');
+    const targetIndex = characters.findIndex((character) => character?.id === 'aegislash');
+    const match = makeMatch(characters, { Ash: [chikoritaIndex], Gary: [targetIndex] });
+    match.economy.turnCounts = { Ash: 1, Gary: 1 };
+
+    processTurnStartStatusEffects({ match, startingUsername: 'Ash' });
+    let aura = match.board.Gary[0].state.statuses.find((status) =>
+        status.id.startsWith('chikorita_sweet_scent_aura_')
+    );
+    assert.deepEqual(aura.metadata.damageDebuffBySkillClass, { physical: 5 });
+
+    match.economy.turnCounts.Ash = 2;
+    processTurnStartStatusEffects({ match, startingUsername: 'Ash' });
+    aura = match.board.Gary[0].state.statuses.find((status) =>
+        status.id.startsWith('chikorita_sweet_scent_aura_')
+    );
+    assert.deepEqual(aura.metadata.damageDebuffBySkillClass, { special: 5 });
 });
 
 test('type-class news explains every player-facing rule and syncs idempotently', async () => {

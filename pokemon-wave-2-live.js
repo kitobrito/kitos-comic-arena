@@ -15,9 +15,25 @@
     const img = (pokemon, file) => `assets/images/PokemonArena/${pokemon}/${file}`;
     const damage = (amount, scope = 'target', metadata = {}) => ({ type: 'damage', amount, scope, metadata });
     const status = (statusId, duration, scope, metadata = {}) => ({ type: 'apply_status', statusId, duration, scope, metadata });
+    const normalizeDamageClasses = (classes = []) => {
+        const hasPhysical = classes.some((entry) => String(entry).toLowerCase() === 'physical');
+        const hasSpecial = classes.some((entry) =>
+            ['special', 'energy', 'mental'].includes(String(entry).toLowerCase())
+        );
+        const hasAffliction = classes.some((entry) => String(entry).toLowerCase() === 'affliction');
+        const damageClass = hasPhysical ? 'Physical' : (hasSpecial || hasAffliction ? 'Special' : '');
+        const otherClasses = classes.filter(
+            (entry) => !['physical', 'special', 'energy', 'mental', 'affliction'].includes(String(entry).toLowerCase())
+        );
+        return Array.from(new Set([
+            ...(damageClass ? [damageClass] : []),
+            ...(hasAffliction ? ['Affliction'] : []),
+            ...otherClasses,
+        ]));
+    };
     const skill = (id, name, pokemon, file, description, energy, cooldown, target, classes, effects) => ({
         id, name, skillimage: img(pokemon, file), skilldescription: description, description,
-        energy, cooldown, target, damage: 0, classes, effects,
+        energy, cooldown, target, damage: 0, classes: normalizeDamageClasses(classes), effects,
     });
     const roleCategory = (role) => String(role || '')
         .trim()
@@ -85,7 +101,7 @@
 
         character('articuno','Articuno','AOE DPS','articuno','fp.png','A legendary ice mage that chains cooldown paralysis and stuns into an escalating Sheer Cold.',[
             skill('articuno-blizzard','Blizzard','articuno','blizzard.png','Deals 15 damage to all enemies and paralyzes their cooldowns for 1 turn.', ['Ninjutsu'],1,'all-enemy',['Energy','Ranged','Instant'],[damage(15,'all-enemy'),status('articuno_blizzard',1,'all-enemy',{harmful:true,paralyzeCooldowns:true})]),
-            skill('articuno-ice-beam','Ice Beam','articuno','icebeam.png','Deals 15 affliction damage and has a 50% chance to stun non-Mental skills for 1 turn.', ['Ninjutsu'],0,'single-enemy',['Affliction','Ranged','Instant'],[damage(15,'target',{afflictionDamage:true}),{...status('articuno_ice_beam_stun',1,'target',{harmful:true,cannotUseNonMentalSkills:true}),chance:50}]),
+            skill('articuno-ice-beam','Ice Beam','articuno','icebeam.png','Deals 15 affliction damage and has a 50% chance to stun Special skills for 1 turn.', ['Ninjutsu'],0,'single-enemy',['Special','Affliction','Ranged','Instant'],[damage(15,'target',{afflictionDamage:true}),{...status('articuno_ice_beam_stun',1,'target',{harmful:true,cannotUseSkillClasses:['Special']}),chance:50}]),
             skill('articuno-sheer-cold','Sheer Cold','articuno','sheercold.png','Casts Blizzard then Ice Beam on the enemy team and permanently gains 5 damage each use.', ['Ninjutsu','Ninjutsu','Random'],2,'all-enemy',['Energy','Affliction','Ranged','Instant'],[{type:'articuno_sheer_cold',scope:'all-enemy'}]),
             skill('articuno-fast-agility','Fast Agility','articuno','agility.png','Articuno becomes invulnerable for 1 turn.', ['Random'],4,'self',['Physical','Instant'],[status('articuno_fast_agility',1,'self',{invulnerable:true})])
         ], [{statusId:'articuno_sheer_cold_tracker',sourceSkillId:'articuno-sheer-cold',duration:999,metadata:{infiniteDuration:true,unremovable:true,bonusDamage:0}}]),

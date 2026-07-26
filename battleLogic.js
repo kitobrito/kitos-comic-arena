@@ -5046,7 +5046,7 @@ const selectTurnStartChoiceTarget = ({ match, actingUsername, choice = {}, manua
 
 const processTurnStartStatusEffects = ({ match, startingUsername }) => {
     if (!match || !startingUsername) return;
-    const sweetScentClasses = ['physical', 'energy', 'mental', 'affliction'];
+    const sweetScentClasses = ['physical', 'special'];
     const turnSequence = Object.values(match?.economy?.turnCounts || {}).reduce(
         (sum, value) => sum + Math.max(0, Number(value) || 0),
         0
@@ -5080,8 +5080,8 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
                         sourceSlot: ownerSlot,
                         metadata: {
                             harmful: true,
-                            damageDebuffBySkillClass: { [activeClass]: 10 },
-                            tooltipText: `Sweet Scent lowers ${activeClass} damage by 10.`,
+                            damageDebuffBySkillClass: { [activeClass]: 5 },
+                            tooltipText: `Sweet Scent lowers ${activeClass} damage by 5.`,
                         },
                         fresh: false,
                     });
@@ -5463,6 +5463,12 @@ const triggerOnOwnerTargetedBySkillBonuses = ({
         if (!Boolean(metadata?.onOwnerTargetedBySkillTrigger)) return;
         if (Boolean(metadata?.onOwnerTargetedByEnemyOnly) && targetUsername === actingUsername) return;
         if (Boolean(metadata?.onOwnerTargetedByNonMentalSkillOnly) && skillIsMental) return;
+        if (
+            Boolean(metadata?.onOwnerTargetedBySkillHarmfulOnly) &&
+            !skillHasHarmfulEffects(skill)
+        ) {
+            return;
+        }
         const classesAny = Array.isArray(metadata?.onOwnerTargetedBySkillClassesAny)
             ? metadata.onOwnerTargetedBySkillClassesAny
                   .map((entry) => normalizeSkillClassName(entry))
@@ -5475,6 +5481,15 @@ const triggerOnOwnerTargetedBySkillBonuses = ({
                   .filter(Boolean)
             : [];
         if (skillIdsAny.length > 0 && !skillIdsAny.includes(skill?.id || '')) return;
+        if (Boolean(metadata?.onOwnerTargetedBySkillOncePerSourceDuringStatus)) {
+            const sourceKey = `${actingUsername || ''}:${Number.isInteger(actorSlot) ? actorSlot : ''}`;
+            const triggeredSourceKeys = Array.isArray(metadata._ownerTargetedTriggeredSourceKeys)
+                ? metadata._ownerTargetedTriggeredSourceKeys
+                : [];
+            if (triggeredSourceKeys.includes(sourceKey)) return;
+            metadata._ownerTargetedTriggeredSourceKeys = [...triggeredSourceKeys, sourceKey];
+            status.metadata = metadata;
+        }
         if (Boolean(metadata?.onOwnerTargetedByRequireNewSkill) && sourceState) {
             const skillUseCount = getSkillUseCount(sourceState, skill?.id || '');
             if (skillUseCount > 1) return;
@@ -5552,6 +5567,24 @@ const triggerOnOwnerTargetedBySkillBonuses = ({
                 sourceUsername: status?.sourceUsername || actingUsername || null,
                 sourceSlot: Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null,
                 metadata: applyStatusToOwner.metadata || {},
+                fresh: false,
+            });
+        }
+        const applyStatusToSource = metadata?.onOwnerTargetedBySkillApplyStatusToSource;
+        if (sourceState && sourceUnit && applyStatusToSource?.statusId) {
+            applyStatus({
+                targetState: sourceState,
+                targetUnit: sourceUnit,
+                statusId: applyStatusToSource.statusId,
+                duration: applyStatusToSource.duration,
+                sourceSkillId: resolveTriggeredEffectSourceSkillId({
+                    status,
+                    config: applyStatusToSource,
+                    fallbackSkillId: skill?.id || null,
+                }),
+                sourceUsername: targetUsername,
+                sourceSlot: Number.isInteger(targetSlot) ? targetSlot : null,
+                metadata: applyStatusToSource.metadata || {},
                 fresh: false,
             });
         }
@@ -7049,7 +7082,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 return;
             }
             if (effectType === 'chikorita_razor_leaf') {
-                const classes = ['physical', 'energy', 'mental', 'affliction'];
+            const classes = ['physical', 'special'];
                 const tracker = actorState.statuses.find((status) => status?.id === 'chikorita_sweet_scent_tracker');
                 const activeClass = classes[Math.max(0, Number(tracker?.metadata?.sweetScentClassIndex) || 0) % classes.length];
                 const selected = resolveRecipients(effect);
@@ -7084,7 +7117,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 return;
             }
             if (effectType === 'chikorita_solar_beam') {
-                const classes = ['physical', 'energy', 'mental', 'affliction'];
+                const classes = ['physical', 'special'];
                 const tracker = actorState.statuses.find((status) => status?.id === 'chikorita_sweet_scent_tracker');
                 const stacks = Math.max(0, Number(tracker?.metadata?.solarBeamStacks) || 0);
                 const activeClass = classes[Math.max(0, Number(tracker?.metadata?.sweetScentClassIndex) || 0) % classes.length];
