@@ -20075,7 +20075,7 @@ const characters = [
                 "id": "butterfree-whirlwind",
                 "name": "Whirlwind",
                 "skillimage": "assets/images/PokemonArena/butterfree/whirlwind.webp",
-                "skilldescription": "For 1 turn, your team is invulnerable to non-mental skills.",
+                "skilldescription": "For 1 turn, your team is invulnerable to Physical and Special skills.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -20093,9 +20093,9 @@ const characters = [
                         "duration": 1,
                         "scope": "all-allies",
                         "metadata": {
-                            "invulnerableToNonMentalSkills": true,
+                            "invulnerableToSkillClasses": ["Physical", "Special"],
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character is invulnerable to non-mental skills."
+                            "tooltipText": "This character is invulnerable to Physical and Special skills."
                         }
                     }
                 ]
@@ -25555,7 +25555,7 @@ const characters = [
                 "id": "eevee-hidden-power",
                 "name": "Hidden Power",
                 "skillimage": "assets/images/PokemonArena/eevee/eevee/hiddenpower.png",
-                "skilldescription": "Deals 30 affliction damage to a random enemy, 20 piercing damage to a random enemy, and 10 energy damage to a random enemy.",
+                "skilldescription": "Deals 30 affliction damage to a random enemy, 20 piercing damage to a random enemy, and 10 Special damage to a random enemy.",
                 "energy": [
                     "Random",
                     "Random",
@@ -27016,7 +27016,7 @@ const characters = [
                     "statusId": "machop_machoke_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/machop/machokebrickbreak.png",
-                "skilldescription": "Destroys one enemy's Shield and deals 45 damage instead. If Bulk Up is active, Brick Break also stuns the target's non-mental skills for 1 turn.",
+                "skilldescription": "Destroys one enemy's Shield and deals 45 damage instead. If Bulk Up is active, Brick Break also stuns the target's Physical skills for 1 turn.",
                 "energy": [
                     "Ninjutsu",
                     "Random",
@@ -27059,8 +27059,8 @@ const characters = [
                         },
                         "metadata": {
                             "harmful": true,
-                            "cannotUseNonMentalSkills": true,
-                            "tooltipText": "This character's non-mental skills are stunned."
+                            "cannotUseSkillClasses": ["Physical"],
+                            "tooltipText": "This character's Physical skills are stunned."
                         }
                     },
                     {
@@ -28091,7 +28091,7 @@ const characters = [
                 "id": "hitmonchan-ice-punch",
                 "name": "Ice Punch",
                 "skillimage": "assets/images/PokemonArena/hitmonchan/icepunch.webp",
-                "skilldescription": "Deals 25 damage to one enemy and stuns their non-mental skills for 1 turn. The next Mega Punch deals 10 additional damage.",
+                "skilldescription": "Deals 25 damage to one enemy and stuns their Physical skills for 1 turn. The next Mega Punch deals 10 additional damage.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -28116,9 +28116,9 @@ const characters = [
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "cannotUseNonMentalSkills": true,
+                            "cannotUseSkillClasses": ["Physical"],
                             "statusIconUrl": "assets/images/PokemonArena/hitmonchan/icepunch.webp",
-                            "tooltipText": "This character's non-mental skills are stunned."
+                            "tooltipText": "This character's Physical skills are stunned."
                         }
                     },
                     {
@@ -28883,7 +28883,7 @@ const characters = [
                 "id": "magnemite-thunder-wave",
                 "name": "Thunder Wave",
                 "skillimage": "assets/images/PokemonArena/mangemite/magnemitethunderwave.webp",
-                "skilldescription": "Stuns one enemy's non-mental skills and paralyzes their cooldowns for 1 turn. During the next turn, Spark deals 15 additional damage to that enemy.",
+                "skilldescription": "Stuns one enemy's harmful skills and paralyzes their cooldowns for 1 turn. During the next turn, Spark deals 15 additional damage to that enemy.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -28903,11 +28903,11 @@ const characters = [
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "cannotUseNonMentalSkills": true,
+                            "cannotUseHarmfulSkills": true,
                             "freezeCooldowns": true,
                             "turnDurationAnchor": "source_turn",
                             "statusIconUrl": "assets/images/PokemonArena/mangemite/magnemitethunderwave.webp",
-                            "tooltipText": "This character's non-mental skills are stunned and their cooldowns are paralyzed."
+                            "tooltipText": "This character's harmful skills are stunned and their cooldowns are paralyzed."
                         }
                     },
                     {
@@ -29167,7 +29167,7 @@ const characters = [
                     "statusId": "magnemite_magneton_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/mangemite/magnetonthunderwave.webp",
-                "skilldescription": "Stuns the entire enemy team's non-mental skills and paralyzes their cooldowns for 1 turn. During the next turn, Spark deals 15 additional damage to the chosen target.",
+                "skilldescription": "Stuns the entire enemy team's harmful skills and paralyzes their cooldowns for 1 turn. During the next turn, Spark deals 15 additional damage to the chosen target.",
                 "energy": [
                     "Genjutsu",
                     "Genjutsu"
@@ -29188,11 +29188,11 @@ const characters = [
                         "scope": "all-enemy",
                         "metadata": {
                             "harmful": true,
-                            "cannotUseNonMentalSkills": true,
+                            "cannotUseHarmfulSkills": true,
                             "freezeCooldowns": true,
                             "turnDurationAnchor": "source_turn",
                             "statusIconUrl": "assets/images/PokemonArena/mangemite/magnetonthunderwave.webp",
-                            "tooltipText": "This character's non-mental skills are stunned and their cooldowns are paralyzed."
+                            "tooltipText": "This character's harmful skills are stunned and their cooldowns are paralyzed."
                         }
                     },
                     {
@@ -31256,8 +31256,8 @@ const characters = [
                 "id": "articuno-ice-beam",
                 "name": "Ice Beam",
                 "skillimage": "assets/images/PokemonArena/articuno/icebeam.png",
-                "skilldescription": "Deals 15 affliction damage and has a 50% chance to stun non-Mental skills for 1 turn.",
-                "description": "Deals 15 affliction damage and has a 50% chance to stun non-Mental skills for 1 turn.",
+                "skilldescription": "Deals 15 affliction damage and has a 50% chance to stun Special skills for 1 turn.",
+                "description": "Deals 15 affliction damage and has a 50% chance to stun Special skills for 1 turn.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -31285,7 +31285,7 @@ const characters = [
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "cannotUseNonMentalSkills": true
+                            "cannotUseSkillClasses": ["Special"]
                         },
                         "chance": 50
                     }
@@ -32345,8 +32345,8 @@ const characters = [
         "role": "Support",
         "roleCategory": "support",
         "facePicture": "assets/images/PokemonArena/Cyndaquil/Chikorita/FP.webp",
-        "description": "Chikorita protects allies and cycles Sweet Scent through Physical, Energy, Mental, and Affliction suppression.",
-        "characterdeescription": "Chikorita protects allies and cycles Sweet Scent through Physical, Energy, Mental, and Affliction suppression.",
+        "description": "Chikorita protects allies and alternates Sweet Scent between Physical and Special suppression.",
+        "characterdeescription": "Chikorita protects allies and alternates Sweet Scent between Physical and Special suppression.",
         "skills": [
             {
                 "id": "chikorita-aerial-razor-leaf",
@@ -32404,8 +32404,8 @@ const characters = [
                 "id": "chikorita-sweet-scent",
                 "name": "Passive: Sweet Scent",
                 "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/s5.webp",
-                "skilldescription": "Lowers all enemy damage by 10 for one class each turn in this order: Physical, Energy, Mental, Affliction, then repeats.",
-                "description": "Lowers all enemy damage by 10 for one class each turn in this order: Physical, Energy, Mental, Affliction, then repeats.",
+                "skilldescription": "Lowers all enemy damage by 5 for one class each turn, alternating between Physical and Special.",
+                "description": "Lowers all enemy damage by 5 for one class each turn, alternating between Physical and Special.",
                 "energy": [],
                 "cooldown": 0,
                 "target": "",
@@ -32445,14 +32445,14 @@ const characters = [
                 "id": "totodile-scary-face",
                 "name": "Scary Face",
                 "skillimage": "assets/images/PokemonArena/Cyndaquil/Totodile/S2.webp",
-                "skilldescription": "Guard Breaks one enemy and causes them to take 10 additional damage from Physical and Energy skills for 2 turns.",
-                "description": "Guard Breaks one enemy and causes them to take 10 additional damage from Physical and Energy skills for 2 turns.",
+                "skilldescription": "Guard Breaks one enemy and causes them to take 10 additional damage from Physical and Special skills for 2 turns.",
+                "description": "Guard Breaks one enemy and causes them to take 10 additional damage from Physical and Special skills for 2 turns.",
                 "energy": ["Random"],
                 "cooldown": 2,
                 "target": "single-enemy",
                 "damage": 0,
                 "classes": ["Strategic", "Ranged", "Instant"],
-                "effects": [{ "type": "apply_status", "statusId": "totodile_scary_face", "duration": 2, "scope": "target", "metadata": { "harmful": true, "cannotReduceDamage": true, "tooltipText": "This character is Guard Broken and takes 10 additional damage from Physical and Energy skills.", "additionalDamageTakenBySkillClass": { "physical": 10, "energy": 10 } } }]
+                "effects": [{ "type": "apply_status", "statusId": "totodile_scary_face", "duration": 2, "scope": "target", "metadata": { "harmful": true, "cannotReduceDamage": true, "tooltipText": "This character is Guard Broken and takes 10 additional damage from Physical and Special skills.", "additionalDamageTakenBySkillClass": { "physical": 10, "special": 10 } } }]
             },
             {
                 "id": "totodile-aqua-tail",
@@ -32498,8 +32498,303 @@ const characters = [
             }
         ],
         "startStatuses": [{ "statusId": "totodile_water_rings_tracker", "sourceSkillId": "totodile-water-rings", "duration": 999, "metadata": { "infiniteDuration": true, "unremovable": true, "waterRings": 0, "aquaTailPermanentPenalty": 0, "aquaTailEmpowered": false, "onOwnerTargetedBySkillTrigger": true, "onOwnerTargetedByRequireNewSkill": true } }]
+    },
+    {
+        "id": "aegislash",
+        "characterId": "aegislash",
+        "name": "Aegislash",
+        "facePicture": "assets/images/PokemonArena/aegislash/OfficialPictures/Facepicturewithpassiveactive.jpg",
+        "role": "Stance Bruiser",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "stance-bruiser",
+        "description": "A community-designed stance bruiser from the original Anime Arena. Aegislash alternates between Blade Stance pressure and a refreshing Shield Stance defense.",
+        "descriptionHtml": "A community-designed stance bruiser from the original Anime Arena. Aegislash alternates between Blade Stance pressure and a refreshing Shield Stance defense.",
+        "characterdeescription": "A community-designed stance bruiser from the original Anime Arena. Aegislash alternates between Blade Stance pressure and a refreshing Shield Stance defense.",
+        "skills": [
+            {
+                "id": "aegislash-slash",
+                "name": "Slash",
+                "skillimage": "assets/images/PokemonArena/aegislash/OfficialPictures/Slash.jpg",
+                "skilldescription": "Deals 20 piercing damage to one enemy. Aegislash enters Blade Stance.",
+                "description": "Deals 20 piercing damage to one enemy. Aegislash enters Blade Stance.",
+                "energy": ["Random"],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Normal", "Physical", "Instant"],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": { "ignoreDamageReduction": true }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "aegislash_blade_stance",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "facePictureOverride": "assets/images/PokemonArena/aegislash/OfficialPictures/facepicturewhenattacking.jpg",
+                            "removeStatusIdsOnApply": ["aegislash_shield_stance"],
+                            "statusIconUrl": "assets/images/PokemonArena/aegislash/OfficialPictures/Passive.jpg",
+                            "tooltipText": "Aegislash is in Blade Stance."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "aegislash-swords-dance",
+                "name": "Swords Dance",
+                "skillimage": "assets/images/PokemonArena/aegislash/OfficialPictures/SwordsDance.jpg",
+                "skilldescription": "Permanently increases Sacred Sword's damage by 10 and Slash's damage by 5. This effect stacks. Aegislash enters Shield Stance.",
+                "description": "Permanently increases Sacred Sword's damage by 10 and Slash's damage by 5. This effect stacks. Aegislash enters Shield Stance.",
+                "energy": ["Ninjutsu"],
+                "cooldown": 1,
+                "target": "self",
+                "damage": 0,
+                "classes": ["Normal", "Strategic", "Instant"],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "aegislash_swords_dance",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "skillDamageBonuses": {
+                                "aegislash-sacred-sword": 10,
+                                "aegislash-slash": 5
+                            },
+                            "sacredSwordBonus": 10,
+                            "slashBonus": 5,
+                            "mergeNumericAddKeys": ["sacredSwordBonus", "slashBonus"],
+                            "statusIconUrl": "assets/images/PokemonArena/aegislash/OfficialPictures/SwordsDance.jpg",
+                            "tooltipTextTemplate": "Sacred Sword deals {sacredSwordBonus} additional damage and Slash deals {slashBonus} additional damage."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "aegislash_shield_stance",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "destructibleDefensePoints": 10,
+                            "unpierceableDamageReductionFlat": 5,
+                            "facePictureOverride": "assets/images/PokemonArena/aegislash/OfficialPictures/Facepicturewithpassiveactive.jpg",
+                            "removeStatusIdsOnApply": ["aegislash_blade_stance"],
+                            "statusIconUrl": "assets/images/PokemonArena/aegislash/OfficialPictures/Passive.jpg",
+                            "tooltipText": "Aegislash is in Shield Stance with 10 destructible defense and 5 unpierceable damage reduction."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "aegislash-kings-shield",
+                "name": "King's Shield",
+                "skillimage": "assets/images/PokemonArena/aegislash/OfficialPictures/KingsShield.jpg",
+                "skilldescription": "For 1 turn, Aegislash ignores all enemy damage. The first time each enemy uses a harmful skill on Aegislash, that enemy permanently deals 5 less non-affliction damage. This stacks. Aegislash enters Shield Stance.",
+                "description": "For 1 turn, Aegislash ignores all enemy damage. The first time each enemy uses a harmful skill on Aegislash, that enemy permanently deals 5 less non-affliction damage. This stacks. Aegislash enters Shield Stance.",
+                "energy": ["Genjutsu"],
+                "cooldown": 2,
+                "target": "self",
+                "damage": 0,
+                "classes": ["Steel", "Strategic", "Instant", "Invincible"],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "aegislash_kings_shield",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "ignoreEnemyDamage": true,
+                            "onOwnerTargetedBySkillTrigger": true,
+                            "onOwnerTargetedByEnemyOnly": true,
+                            "onOwnerTargetedBySkillHarmfulOnly": true,
+                            "onOwnerTargetedBySkillOncePerSourceDuringStatus": true,
+                            "onOwnerTargetedBySkillApplyStatusToSource": {
+                                "statusId": "aegislash_kings_shield_damage_penalty",
+                                "duration": 999,
+                                "metadata": {
+                                    "harmful": true,
+                                    "infiniteDuration": true,
+                                    "unremovable": true,
+                                    "nonAfflictionDamageDebuffFlat": 5,
+                                    "mergeNumericAddKeys": ["nonAfflictionDamageDebuffFlat"],
+                                    "statusIconUrl": "assets/images/PokemonArena/aegislash/OfficialPictures/KingsShield.jpg",
+                                    "tooltipTextTemplate": "This character permanently deals {nonAfflictionDamageDebuffFlat} less non-affliction damage because of King's Shield."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/aegislash/OfficialPictures/KingsShield.jpg",
+                            "tooltipText": "Aegislash ignores enemy damage. The first harmful skill from each enemy permanently lowers that enemy's non-affliction damage by 5."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "aegislash_shield_stance",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "destructibleDefensePoints": 10,
+                            "unpierceableDamageReductionFlat": 5,
+                            "facePictureOverride": "assets/images/PokemonArena/aegislash/OfficialPictures/Facepicturewithpassiveactive.jpg",
+                            "removeStatusIdsOnApply": ["aegislash_blade_stance"],
+                            "statusIconUrl": "assets/images/PokemonArena/aegislash/OfficialPictures/Passive.jpg",
+                            "tooltipText": "Aegislash is in Shield Stance with 10 destructible defense and 5 unpierceable damage reduction."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "aegislash-sacred-sword",
+                "name": "Sacred Sword",
+                "skillimage": "assets/images/PokemonArena/aegislash/OfficialPictures/SacredSword.jpg",
+                "skilldescription": "Deals 30 piercing damage to one enemy. This damage cannot be reduced or evaded. Aegislash enters Blade Stance.",
+                "description": "Deals 30 piercing damage to one enemy. This damage cannot be reduced or evaded. Aegislash enters Blade Stance.",
+                "energy": ["Ninjutsu", "Genjutsu"],
+                "cooldown": 1,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Fighting", "Physical", "Instant", "Uncounterable", "Unreflectable"],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "cannotBeEvaded": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "aegislash_blade_stance",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "facePictureOverride": "assets/images/PokemonArena/aegislash/OfficialPictures/facepicturewhenattacking.jpg",
+                            "removeStatusIdsOnApply": ["aegislash_shield_stance"],
+                            "statusIconUrl": "assets/images/PokemonArena/aegislash/OfficialPictures/Passive.jpg",
+                            "tooltipText": "Aegislash is in Blade Stance."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "aegislash-stance-change",
+                "name": "Passive: Stance Change",
+                "skillimage": "assets/images/PokemonArena/aegislash/OfficialPictures/Passive.jpg",
+                "skilldescription": "Aegislash begins in Shield Stance. After using a non-damaging skill or not using a new skill, it enters Shield Stance for the following turn, refreshing 10 destructible defense and gaining 5 unpierceable damage reduction. Damaging skills put Aegislash in Blade Stance.",
+                "description": "Aegislash begins in Shield Stance. After using a non-damaging skill or not using a new skill, it enters Shield Stance for the following turn, refreshing 10 destructible defense and gaining 5 unpierceable damage reduction. Damaging skills put Aegislash in Blade Stance.",
+                "energy": [],
+                "cooldown": 0,
+                "target": "",
+                "damage": 0,
+                "classes": ["Normal", "Passive", "Strategic", "Instant"],
+                "effects": []
+            }
+        ],
+        "startStatuses": [
+            {
+                "statusId": "aegislash_stance_change_tracker",
+                "sourceSkillId": "aegislash-stance-change",
+                "duration": 999,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "unremovable": true,
+                    "turnEndApplyStatusToOwnerIfNoManualSkill": {
+                        "statusId": "aegislash_shield_stance",
+                        "sourceSkillId": "aegislash-stance-change",
+                        "duration": 999,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "destructibleDefensePoints": 10,
+                            "unpierceableDamageReductionFlat": 5,
+                            "facePictureOverride": "assets/images/PokemonArena/aegislash/OfficialPictures/Facepicturewithpassiveactive.jpg",
+                            "removeStatusIdsOnApply": ["aegislash_blade_stance"],
+                            "statusIconUrl": "assets/images/PokemonArena/aegislash/OfficialPictures/Passive.jpg",
+                            "tooltipText": "Aegislash is in Shield Stance with 10 destructible defense and 5 unpierceable damage reduction."
+                        }
+                    },
+                    "statusIconUrl": "assets/images/PokemonArena/aegislash/OfficialPictures/Passive.jpg",
+                    "tooltipText": "Stance Change returns Aegislash to Shield Stance after a non-damaging or inactive turn."
+                }
+            },
+            {
+                "statusId": "aegislash_shield_stance",
+                "sourceSkillId": "aegislash-stance-change",
+                "duration": 999,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "unremovable": true,
+                    "destructibleDefensePoints": 10,
+                    "unpierceableDamageReductionFlat": 5,
+                    "facePictureOverride": "assets/images/PokemonArena/aegislash/OfficialPictures/Facepicturewithpassiveactive.jpg",
+                    "removeStatusIdsOnApply": ["aegislash_blade_stance"],
+                    "statusIconUrl": "assets/images/PokemonArena/aegislash/OfficialPictures/Passive.jpg",
+                    "tooltipText": "Aegislash is in Shield Stance with 10 destructible defense and 5 unpierceable damage reduction."
+                }
+            }
+        ]
     }
 ];
+
+var pokemonArenaDamageClassTypes = new Set([
+    'normal', 'fire', 'water', 'electric', 'grass', 'ice', 'fighting', 'poison', 'ground',
+    'flying', 'psychic', 'bug', 'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy'
+]);
+
+var normalizePokemonArenaDamageClasses = function (skill) {
+    if (!skill || typeof skill !== 'object') return;
+    var classes = Array.isArray(skill.classes) ? skill.classes : [];
+    var typeClasses = classes.filter(function (entry) {
+        return pokemonArenaDamageClassTypes.has(String(entry || '').trim().toLowerCase());
+    });
+    var hasPhysical = classes.some(function (entry) {
+        return String(entry || '').trim().toLowerCase() === 'physical';
+    });
+    var hasSpecial = classes.some(function (entry) {
+        return ['special', 'energy', 'mental'].includes(String(entry || '').trim().toLowerCase());
+    });
+    var hasAffliction = classes.some(function (entry) {
+        return String(entry || '').trim().toLowerCase() === 'affliction';
+    });
+    var damageClass = hasPhysical ? 'Physical' : ((hasSpecial || hasAffliction) ? 'Special' : '');
+    var otherClasses = classes.filter(function (entry) {
+        var normalized = String(entry || '').trim().toLowerCase();
+        return (
+            !pokemonArenaDamageClassTypes.has(normalized) &&
+            !['physical', 'special', 'energy', 'mental', 'affliction'].includes(normalized)
+        );
+    });
+    skill.classes = Array.from(new Set(
+        typeClasses
+            .concat(damageClass ? [damageClass] : [])
+            .concat(hasAffliction ? ['Affliction'] : [])
+            .concat(otherClasses)
+    ));
+    if (skill.evolvesTo && typeof skill.evolvesTo === 'object') {
+        normalizePokemonArenaDamageClasses(skill.evolvesTo);
+    }
+};
+
+characters.forEach(function (character) {
+    if (String(character && (character.arena || character.universe) || '').trim().toLowerCase() !== 'pokemon') {
+        return;
+    }
+    (Array.isArray(character.skills) ? character.skills : []).forEach(normalizePokemonArenaDamageClasses);
+});
 
 if (typeof window !== 'undefined') {
     window.characters = characters;

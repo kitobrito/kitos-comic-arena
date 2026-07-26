@@ -46,6 +46,7 @@ const POKEMON_CHARACTER_TYPES = Object.freeze({
     cyndaquil: ['Fire'],
     chikorita: ['Grass'],
     totodile: ['Water'],
+    aegislash: ['Steel', 'Ghost'],
 });
 
 const skillsByType = {
@@ -76,6 +77,7 @@ const skillsByType = {
         'chikorita-sweet-scent', 'totodile-scary-face', 'clefable-metronome',
         'clefable-double-slap', 'wigglytuff-perish-song', 'wigglytuff-sing',
         'wigglytuff-wish', 'wigglytuff-humiliate',
+        'aegislash-slash', 'aegislash-swords-dance', 'aegislash-stance-change',
     ],
     Fire: [
         'charmander-ember', 'charmander-flamethrower', 'charmander-passive-evolution-charmeleon',
@@ -118,6 +120,7 @@ const skillsByType = {
         'machop-passive-evolution-machoke', 'machoke-brick-break', 'machoke-counter',
         'machoke-bulk-up', 'hitmonlee-double-kick', 'hitmonlee-high-jump-kick',
         'hitmonlee-low-kick', 'mewtwo-drain-punch', 'totodile-superpower',
+        'aegislash-sacred-sword',
     ],
     Poison: [
         'koffing-smog', 'koffing-passive-poison-gas', 'koffing-passive-evolution-weezing',
@@ -165,6 +168,7 @@ const skillsByType = {
     ],
     Steel: [
         'krabby-metal-claw', 'kingler-metal-claw', 'magneton-flash-cannon', 'onix-iron-tail',
+        'aegislash-kings-shield',
     ],
     Fairy: [
         'mr-mime-dazzling-gleam', 'clefairy-disarming-voice', 'clefairy-moonlight',
@@ -201,7 +205,7 @@ const POKEMON_STATUS_TOOLTIPS = Object.freeze({
     beedrill_hive_swarm: { tooltipText: 'Beedrill ignores the next 3 enemy damage effects and enemy stuns. Hive Swarm is replaced by Hive Sting.' },
     articuno_sheer_cold_tracker: { tooltipTextTemplate: 'Sheer Cold has {bonusDamage} permanent bonus damage.' },
     articuno_blizzard: { tooltipText: 'This character\'s skill cooldowns are paralyzed and cannot decrease.' },
-    articuno_ice_beam_stun: { tooltipText: 'This character cannot use non-Mental skills.' },
+    articuno_ice_beam_stun: { tooltipText: 'This character cannot use Special skills.' },
     articuno_fast_agility: { tooltipText: 'Articuno is invulnerable to enemy skills.' },
     moltres_fire_spin: { tooltipTextTemplate: 'Using a new harmful skill on Moltres\' team deals {teamTrapEnemyHarmfulDamage} affliction damage to this character.' },
     moltres_sunny_day_enemy: { tooltipTextTemplate: 'This character takes {additionalAfflictionDamageTaken} additional affliction damage from all sources.' },
@@ -219,7 +223,7 @@ const POKEMON_STATUS_TOOLTIPS = Object.freeze({
     cyndaquil_smokescreen: { tooltipText: 'This character is fully blinded; all of its skills miss.' },
     cyndaquil_skyward_leap: { tooltipText: 'The next enemy skill used on Cyndaquil misses. Taking damage ends this effect.' },
     cyndaquil_skyward_bonus: { tooltipText: 'Aerial Tackle and Aerial Flamethrower deal 10 additional damage.' },
-    chikorita_sweet_scent_tracker: { tooltipTextTemplate: 'Sweet Scent rotates the weakened skill class each turn. Solar Beam currently has {solarBeamStacks} bonus stack(s).' },
+    chikorita_sweet_scent_tracker: { tooltipTextTemplate: 'Sweet Scent alternates the weakened class between Physical and Special each turn. Solar Beam currently has {solarBeamStacks} bonus stack(s).' },
     chikorita_light_screen: { tooltipTextTemplate: 'This character has {destructibleDefensePoints} destructible defense. A new enemy skill used on them weakens Sweet Scent\'s current class and adds 1 Solar Beam stack.' },
     chikorita_vine_defense: { tooltipText: 'Chikorita is invulnerable to enemy skills.' },
     totodile_water_rings_tracker: { tooltipTextTemplate: 'Totodile has {waterRings} Water Ring(s) and heals 5 HP per ring each turn. Aqua Tail has {aquaTailPermanentPenalty} permanent damage penalty.' },
@@ -297,6 +301,32 @@ const normalizePokemonTypes = (values = []) =>
         new Set((Array.isArray(values) ? values : []).map(normalizePokemonType).filter(Boolean))
     ).slice(0, 2);
 
+const normalizePokemonDamageClasses = (skillId, classes = []) => {
+    const normalizedClasses = Array.isArray(classes)
+        ? classes.map((entry) => (typeof entry === 'string' ? entry.trim() : '')).filter(Boolean)
+        : [];
+    const typeClasses = normalizedClasses.filter((entry) => POKEMON_TYPE_SET.has(entry.toLowerCase()));
+    const hasPhysical = normalizedClasses.some((entry) => entry.toLowerCase() === 'physical');
+    const hasSpecial = normalizedClasses.some((entry) =>
+        ['special', 'energy', 'mental'].includes(entry.toLowerCase())
+    );
+    const hasAffliction = normalizedClasses.some((entry) => entry.toLowerCase() === 'affliction');
+    const damageClass = hasPhysical ? 'Physical' : (hasSpecial || hasAffliction ? 'Special' : '');
+    const otherClasses = normalizedClasses.filter((entry) => {
+        const normalized = entry.toLowerCase();
+        return (
+            !POKEMON_TYPE_SET.has(normalized) &&
+            !['physical', 'special', 'energy', 'mental', 'affliction'].includes(normalized)
+        );
+    });
+    return Array.from(new Set([
+        ...typeClasses,
+        ...(damageClass ? [damageClass] : []),
+        ...(hasAffliction ? ['Affliction'] : []),
+        ...otherClasses,
+    ]));
+};
+
 const getPokemonMoveType = (classes = []) =>
     (Array.isArray(classes) ? classes : [])
         .map(normalizePokemonType)
@@ -333,7 +363,10 @@ const applyPokemonTypeSystem = (characters = [], { strict = false } = {}) => {
                 const normalized = typeof entry === 'string' ? entry.trim().toLowerCase() : '';
                 return normalized && normalized !== 'melee' && normalized !== 'ranged' && !POKEMON_TYPE_SET.has(normalized);
             });
-            skill.classes = [moveType, ...retainedClasses].filter(Boolean);
+            skill.classes = normalizePokemonDamageClasses(
+                skillId,
+                [moveType, ...retainedClasses].filter(Boolean)
+            );
             applyPokemonStatusTooltips(skill.effects, skillId, errors);
             if (skill?.evolvesTo && typeof skill.evolvesTo === 'object') applySkillType(skill.evolvesTo);
         };
@@ -386,5 +419,6 @@ module.exports = {
     getActivePokemonTypes,
     getPokemonMoveType,
     getPokemonTypeEffectiveness,
+    normalizePokemonDamageClasses,
     normalizePokemonTypes,
 };

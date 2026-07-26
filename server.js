@@ -52,6 +52,7 @@ const { syncPokemonMeowthRelease } = require('./sync_pokemon_meowth_release');
 const { syncPokemonWave2Release } = require('./sync_pokemon_wave_2_release');
 const { syncPokemonGen2StarterRelease } = require('./sync_pokemon_gen2_starter_release');
 const { syncPokemonTypeClassNews } = require('./sync_pokemon_type_class_news');
+const { syncPokemonAegislashRelease } = require('./sync_pokemon_aegislash_release');
 let charactersData = require('./characters');
 
 const app = express();
@@ -12119,6 +12120,10 @@ async function initDb() {
     }
     await syncPokemonTypeClassNews(db);
     console.log('Synced the Pokemon Arena Type-Class Overhaul news post.');
+    const aegislashReleaseSync = await syncPokemonAegislashRelease(db);
+    if (aegislashReleaseSync.migrated) {
+        console.log('Published Aegislash, the Pokemon class overhaul, and iPhone audio news.');
+    }
     await backfillUserProfiles();
     console.log('Connected to MongoDB.');
 }
