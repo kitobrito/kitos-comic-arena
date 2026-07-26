@@ -82,15 +82,15 @@ test('Aegislash uses every supplied portrait and skill image', () => {
     assert.deepEqual(aegislash.pokemonTypes, ['Steel', 'Ghost']);
 });
 
-test('Stance Change starts shielded, damaging moves enter Blade Stance, and inactivity refreshes Shield Stance', () => {
+test('Stance Change starts shielded, damaging moves enter Blade Stance, and inactivity preserves it', () => {
     const { match, roster } = makeMatch();
     const unit = match.board.ash[0];
     const initialShield = unit.state.statuses.find((status) => status.id === 'aegislash_shield_stance');
     assert.equal(initialShield.metadata.destructibleDefensePoints, 10);
     assert.equal(initialShield.metadata.unpierceableDamageReductionFlat, 5);
 
-    const slashIndex = aegislash.skills.findIndex((skill) => skill.id === 'aegislash-slash');
-    queueSkill({ match, username: 'ash', skillIndex: slashIndex, targetUsername: 'gary' });
+    const cutIndex = aegislash.skills.findIndex((skill) => skill.id === 'aegislash-slash');
+    queueSkill({ match, username: 'ash', skillIndex: cutIndex, targetUsername: 'gary' });
     resolvePendingTurnSkills({ match, actingUsername: 'ash', characters: roster });
     assert.equal(match.board.gary[0].hp, 80);
     assert.equal(unit.state.statuses.some((status) => status.id === 'aegislash_shield_stance'), false);
@@ -102,12 +102,11 @@ test('Stance Change starts shielded, damaging moves enter Blade Stance, and inac
         endingUsername: 'ash',
         pendingTurn: { queuedByActorSlot: {} },
     });
-    const refreshedShield = unit.state.statuses.find((status) => status.id === 'aegislash_shield_stance');
-    assert.equal(refreshedShield.metadata.destructibleDefensePoints, 10);
-    assert.equal(unit.state.statuses.some((status) => status.id === 'aegislash_blade_stance'), false);
+    assert.equal(unit.state.statuses.some((status) => status.id === 'aegislash_shield_stance'), false);
+    assert.equal(unit.state.statuses.some((status) => status.id === 'aegislash_blade_stance'), true);
 });
 
-test('Swords Dance stacks Slash and Sacred Sword damage', () => {
+test('Swords Dance stacks Cut and Sacred Sword damage', () => {
     const { match, roster } = makeMatch();
     const swordsDanceIndex = aegislash.skills.findIndex((skill) => skill.id === 'aegislash-swords-dance');
     const slashIndex = aegislash.skills.findIndex((skill) => skill.id === 'aegislash-slash');
@@ -122,6 +121,22 @@ test('Swords Dance stacks Slash and Sacred Sword damage', () => {
     const dance = match.board.ash[0].state.statuses.find((status) => status.id === 'aegislash_swords_dance');
     assert.equal(dance.metadata.skillDamageBonuses['aegislash-slash'], 5);
     assert.equal(dance.metadata.skillDamageBonuses['aegislash-sacred-sword'], 10);
+});
+
+test("Aegislash uses Cut naming and King's Shield has no Invisible or Invincible class", () => {
+    const cut = aegislash.skills.find((skill) => skill.id === 'aegislash-slash');
+    const swordsDance = aegislash.skills.find((skill) => skill.id === 'aegislash-swords-dance');
+    const kingsShield = aegislash.skills.find((skill) => skill.id === 'aegislash-kings-shield');
+    const stanceChange = aegislash.skills.find((skill) => skill.id === 'aegislash-stance-change');
+    assert.equal(cut.name, 'Cut');
+    assert.match(swordsDance.skilldescription, /Cut's damage by 5/i);
+    assert.equal(kingsShield.classes.includes('Invincible'), false);
+    assert.equal(kingsShield.classes.includes('Invisible'), false);
+    assert.match(stanceChange.skilldescription, /does not change its stance/i);
+    const tracker = aegislash.startStatuses.find(
+        (status) => status.statusId === 'aegislash_stance_change_tracker'
+    );
+    assert.equal(tracker.metadata.turnEndApplyStatusToOwnerIfNoManualSkill, undefined);
 });
 
 test("King's Shield ignores damage and penalizes each attacking enemy only once per use", () => {

@@ -1640,6 +1640,8 @@ const doesEffectConditionMatch = ({
         if (targetRelation === 'enemy' && sameTeam) return false;
     }
     if (condition.statusId && !hasStatus(scopedState, condition.statusId)) return false;
+    if (condition.hasStunLikeEffect && !hasActiveStunLikeEffect(scopedState)) return false;
+    if (condition.missingStunLikeEffect && hasActiveStunLikeEffect(scopedState)) return false;
     if (
         Array.isArray(condition?.statusIdsAny) &&
         condition.statusIdsAny.length > 0 &&

@@ -15,11 +15,11 @@ const previousNewsTitle = 'Ditto Joins the Community Roster';
 const newsTitle = 'Ditto and Scraggy Join the Community Roster';
 
 const paragraphs = [
-    'The next Pokemon Arena community-character batch is here. Scraggy, designed by Cheshire, builds Focus Energy through patient turns, Leer, and successful Hi Jump Kicks before evolving into Scrafty with four improved active skills. Hi Jump Kick now clearly displays MISS when its 25% miss chance triggers.',
+    'The next Pokemon Arena community-character batch is here. Scraggy, designed by Cheshire, builds Focus Energy through patient turns, Leer, and successful Hi Jump Kicks before evolving into Scrafty with four improved active skills. Leer stuns Physical skills instead of the retired Melee class, and Hi Jump Kick now clearly displays MISS when its 25% miss chance triggers but cannot miss a stunned target.',
     'Ditto was designed by KiruKasai and automatically transforms into the opposing Pokemon directly across from it, copying that Pokemon and its equipped skin. Ditto can copy Scraggy and build Focus Energy to evolve into Scrafty, while Pokemon Trainer can immediately evolve an allied Scraggy with Rare Candy.',
     'When Ditto faces another Ditto, it keeps four Transform skills that can copy a living ally or enemy. Pokemon Trainer also copies base Ditto instead of the Pokemon Ditto already transformed into, then must use Transform herself to choose a new form.',
     'Complete the Scraggy Focus Energy Trial with Hitmonlee and Koffing or unlock Scraggy for 300 points. Ditto remains available through the Ditto Perfect Copy Trial with Eevee and Pokemon Trainer or for 300 points. Shiny Ditto costs 500 points and copies the target Pokemon\'s equipped appearance instead of inventing a shiny version of every transformation.',
-    'Aegislash, designed by fghop for the original Anime Arena community, remains part of this growing community-character wave. More preserved community designs are planned for future Pokemon Arena releases.',
+    'Aegislash, designed by fghop for the original Anime Arena community, remains part of this growing community-character wave. Slash has been renamed Cut, and inactivity no longer changes Aegislash\'s stance. More preserved community designs are planned for future Pokemon Arena releases.',
     'Poison Gas now triggers only when Koffing or Weezing itself deals damage, not when an ally attacks. Smog\'s immediate hit and every later damage tick now roll Poison Gas independently for each enemy damaged.',
     'Chikorita Sweet Scent now cycles through Physical, Special, and Affliction damage reduction. Affliction is reduced independently from the Physical or Special primary class attached to an Affliction skill.',
     'Pokemon Arena damage classes use Physical and Special, with Affliction retained as a secondary class after its Physical or Special class. The iPhone volume slider and mute controls have also been corrected for touch and mobile-audio playback.',
@@ -62,6 +62,13 @@ const newsPost = {
             characterName: 'Scraggy',
             skillName: 'Scraggy Focus Energy Trial',
             text: 'Win 8 matches and earn a 4-match streak with Hitmonlee and Koffing, or unlock Scraggy for 300 points.',
+        },
+        {
+            changeType: 'balance',
+            characterId: 'scraggy',
+            characterName: 'Scraggy',
+            skillName: 'Energy Costs and Class Corrections',
+            text: 'Scraggy costs are Headbutt: 1 Taijutsu; Leer: 1 Genjutsu; Hi Jump Kick: 1 Taijutsu and 1 Random; Focus Blast: 1 Taijutsu and 1 Genjutsu. Scrafty costs are Headbutt: 1 Taijutsu and 1 Random; Leer: 1 Random; Hi Jump Kick: 1 Taijutsu and 1 Random; Focus Blast: 1 Taijutsu and 1 Genjutsu. Leer now stuns Physical skills, Focus Blast grants Physical invulnerability, and Hi Jump Kick cannot miss stunned targets.',
         },
         {
             changeType: 'new',
