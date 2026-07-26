@@ -88,6 +88,179 @@ const ensureUnitStateShape = (unit) => {
     return unit.state;
 };
 
+const normalizeBattleCharacterId = (character = null) =>
+    String(character?.characterId || character?.id || '').trim().toLowerCase();
+
+const getPlayerForBattleUsername = (players = [], username = '') =>
+    (Array.isArray(players) ? players : []).find(
+        (player) =>
+            typeof player?.username === 'string' &&
+            player.username.trim().toLowerCase() === String(username || '').trim().toLowerCase()
+    ) || null;
+
+const getPlayerEquippedSkinId = (players = [], username = '', characterId = '') => {
+    const player = getPlayerForBattleUsername(players, username);
+    const profile = player?.profile && typeof player.profile === 'object' ? player.profile : {};
+    const pokemonArena =
+        profile?.arenas?.pokemon && typeof profile.arenas.pokemon === 'object'
+            ? profile.arenas.pokemon
+            : profile;
+    const skins = pokemonArena?.skins && typeof pokemonArena.skins === 'object' ? pokemonArena.skins : {};
+    const equipped =
+        skins?.equippedSkinByCharacterId && typeof skins.equippedSkinByCharacterId === 'object'
+            ? skins.equippedSkinByCharacterId
+            : {};
+    const normalizedCharacterId = String(characterId || '').trim().toLowerCase();
+    const entry = Object.entries(equipped).find(
+        ([key]) => String(key || '').trim().toLowerCase() === normalizedCharacterId
+    );
+    return typeof entry?.[1] === 'string' ? entry[1].trim().toLowerCase() : '';
+};
+
+const getActiveStatusMetadataValue = (actorState, metadataKey) =>
+    (Array.isArray(actorState?.statuses) ? actorState.statuses : [])
+        .filter((status) => (Number(status?.remainingTurns) || 0) > 0)
+        .map((status) => status?.metadata?.[metadataKey])
+        .filter((value) => value !== undefined && value !== null && value !== '')
+        .pop();
+
+const buildCopiedCharacterMetadata = ({
+    players = [],
+    characters = defaultCharacters,
+    targetUsername = '',
+    targetUnit = null,
+    copyBaseCharacter = false,
+    applyDittoModifiers = false,
+    tooltipTextTemplate = '',
+} = {}) => {
+    if (!targetUnit || !Number.isInteger(targetUnit.rosterIndex) || !Array.isArray(characters)) {
+        return {};
+    }
+    const targetState = ensureUnitStateShape(targetUnit);
+    const baseCharacter = characters[targetUnit.rosterIndex] || null;
+    const targetCharacter = copyBaseCharacter
+        ? baseCharacter
+        : resolveEffectiveCharacter({
+              characters,
+              rosterIndex: targetUnit.rosterIndex,
+              actorState: targetState,
+          });
+    const targetCharacterId = normalizeBattleCharacterId(targetCharacter);
+    const activeSkinId = copyBaseCharacter
+        ? ''
+        : String(getActiveStatusMetadataValue(targetState, 'effectiveSkinId') || '').trim().toLowerCase();
+    const effectiveSkinId =
+        activeSkinId ||
+        getPlayerEquippedSkinId(players, targetUsername, targetCharacterId);
+    const targetFaceOverride = copyBaseCharacter
+        ? ''
+        : String(getActiveStatusMetadataValue(targetState, 'facePictureOverride') || '').trim();
+    const targetReplacementMap = copyBaseCharacter ? {} : buildSkillReplacementMap(targetState);
+    const targetUsesEvolvedSkills =
+        !copyBaseCharacter &&
+        (Array.isArray(targetState.statuses) ? targetState.statuses : []).some(
+            (status) =>
+                (Number(status?.remainingTurns) || 0) > 0 &&
+                Boolean(status?.metadata?.useEvolvedSkills)
+        );
+    const copyableStartStatuses =
+        applyDittoModifiers && !targetUsesEvolvedSkills
+            ? (Array.isArray(targetCharacter?.startStatuses) ? targetCharacter.startStatuses : [])
+                  .filter(
+                      (status) =>
+                          status &&
+                          typeof status === 'object' &&
+                          Boolean(status?.metadata?.copyOnDittoTransform)
+                  )
+                  .map((status) => ({
+                      statusId: status.statusId || status.id || '',
+                      duration: status.duration ?? status.remainingTurns ?? 0,
+                      sourceSkillId: status.sourceSkillId || null,
+                      metadata:
+                          status.metadata && typeof status.metadata === 'object'
+                              ? { ...status.metadata }
+                              : {},
+                  }))
+                  .filter((status) => status.statusId)
+            : [];
+    const copiedStartStatusIds = applyDittoModifiers
+        ? (Array.isArray(characters) ? characters : [])
+              .flatMap((character) =>
+                  (Array.isArray(character?.startStatuses) ? character.startStatuses : [])
+                      .filter((status) => Boolean(status?.metadata?.copyOnDittoTransform))
+                      .map((status) => status?.statusId || status?.id || '')
+              )
+              .filter(Boolean)
+        : [];
+    const effectiveStatusIds = copyBaseCharacter
+        ? []
+        : (Array.isArray(targetState.statuses) ? targetState.statuses : [])
+              .filter((status) => (Number(status?.remainingTurns) || 0) > 0 && typeof status?.id === 'string')
+              .map((status) => status.id);
+    const tooltipText =
+        tooltipTextTemplate && typeof targetCharacter?.name === 'string'
+            ? tooltipTextTemplate.replace(/\{characterName\}/g, targetCharacter.name.trim())
+            : '';
+    return {
+        infiniteDuration: true,
+        unremovable: true,
+        replaceExistingStatusMetadata: true,
+        ...(targetCharacterId ? { effectiveCharacterId: targetCharacterId } : {}),
+        ...(effectiveSkinId ? { effectiveSkinId } : {}),
+        ...(effectiveStatusIds.length ? { effectiveStatusIds } : {}),
+        ...(targetFaceOverride
+            ? { facePictureOverride: targetFaceOverride }
+            : typeof targetCharacter?.facePicture === 'string' && targetCharacter.facePicture.trim()
+              ? { facePictureOverride: targetCharacter.facePicture.trim() }
+              : {}),
+        ...(Object.keys(targetReplacementMap).length
+            ? { skillReplacements: targetReplacementMap }
+            : {}),
+        ...(targetUsesEvolvedSkills ? { useEvolvedSkills: true } : {}),
+        ...(applyDittoModifiers
+            ? {
+                  DamageDebuff: 5,
+                  overrideAllSkillsToAllRandom: true,
+                  overrideAllSkillsToAllRandomReduction: 1,
+                  ...(copiedStartStatusIds.length
+                      ? { removeStatusIdsOnApply: copiedStartStatusIds }
+                      : {}),
+              }
+            : {}),
+        ...(copyableStartStatuses.length
+            ? { _copiedStartStatuses: copyableStartStatuses }
+            : {}),
+        ...(tooltipText ? { tooltipText } : {}),
+    };
+};
+
+const applyCopiedCharacterStartStatuses = ({
+    targetUnit,
+    entries = [],
+    sourceUsername = null,
+    sourceSlot = null,
+}) => {
+    if (!targetUnit || !Array.isArray(entries) || entries.length === 0) return;
+    const targetState = ensureUnitStateShape(targetUnit);
+    entries.forEach((entry) => {
+        if (!entry?.statusId) return;
+        applyStatus({
+            targetState,
+            targetUnit,
+            statusId: entry.statusId,
+            duration: entry.duration,
+            sourceSkillId: entry.sourceSkillId || null,
+            sourceUsername,
+            sourceSlot: Number.isInteger(sourceSlot) ? sourceSlot : null,
+            metadata:
+                entry.metadata && typeof entry.metadata === 'object'
+                    ? { ...entry.metadata }
+                    : {},
+            fresh: false,
+        });
+    });
+};
+
 const buildInitialBoard = (players = [], characters = defaultCharacters) => {
     const board = {};
     players.forEach((player) => {
@@ -173,6 +346,54 @@ const buildInitialBoard = (players = [], characters = defaultCharacters) => {
             };
         });
     });
+    players.forEach((player) => {
+        const username = player?.username;
+        const opponent = (Array.isArray(players) ? players : []).find(
+            (candidate) => candidate?.username && candidate.username !== username
+        );
+        if (!username || !opponent?.username) return;
+        const team = Array.isArray(player.team) ? player.team : [];
+        team.forEach((rosterIndex, slot) => {
+            const character = Array.isArray(characters) ? characters[rosterIndex] : null;
+            if (normalizeBattleCharacterId(character) !== 'ditto') return;
+            const targetUnit = board?.[opponent.username]?.[slot] || null;
+            const targetBaseCharacter =
+                targetUnit && Number.isInteger(targetUnit.rosterIndex) && Array.isArray(characters)
+                    ? characters[targetUnit.rosterIndex]
+                    : null;
+            if (!targetUnit || normalizeBattleCharacterId(targetBaseCharacter) === 'ditto') return;
+            const actorUnit = board?.[username]?.[slot];
+            if (!actorUnit) return;
+            const copiedMetadata = buildCopiedCharacterMetadata({
+                players,
+                characters,
+                targetUsername: opponent.username,
+                targetUnit,
+                applyDittoModifiers: true,
+                tooltipTextTemplate:
+                    "Ditto transformed into {characterName}. Its copied skills deal 5 less damage and cost one fewer Random energy.",
+            });
+            const copiedStartStatuses = Array.isArray(copiedMetadata?._copiedStartStatuses)
+                ? copiedMetadata._copiedStartStatuses
+                : [];
+            delete copiedMetadata._copiedStartStatuses;
+            actorUnit.state.statuses.push({
+                id: 'ditto_transformation',
+                remainingTurns: 999,
+                sourceSkillId: 'ditto-passive-transform',
+                sourceUsername: username,
+                sourceSlot: slot,
+                metadata: copiedMetadata,
+                fresh: false,
+            });
+            applyCopiedCharacterStartStatuses({
+                targetUnit: actorUnit,
+                entries: copiedStartStatuses,
+                sourceUsername: username,
+                sourceSlot: slot,
+            });
+        });
+    });
     return board;
 };
 
@@ -213,13 +434,15 @@ const buildSkillReplacementMap = (actorState) => {
 
 const getEffectiveCharacterOverrideId = (actorState) => {
     const statuses = Array.isArray(actorState?.statuses) ? actorState.statuses : [];
-    const overrideStatus = statuses.find(
-        (status) =>
-            (Number(status?.remainingTurns) || 0) > 0 &&
-            typeof status?.metadata?.effectiveCharacterId === 'string' &&
-            status.metadata.effectiveCharacterId.trim()
-    );
-    return overrideStatus?.metadata?.effectiveCharacterId?.trim() || '';
+    return statuses
+        .filter(
+            (status) =>
+                (Number(status?.remainingTurns) || 0) > 0 &&
+                typeof status?.metadata?.effectiveCharacterId === 'string' &&
+                status.metadata.effectiveCharacterId.trim()
+        )
+        .map((status) => status.metadata.effectiveCharacterId.trim())
+        .pop() || '';
 };
 
 const resolveEffectiveCharacter = ({ characters, rosterIndex, actorState = null }) => {
@@ -758,6 +981,18 @@ const doesActorSatisfySkillCondition = (actorUnit, actorState, skill, context = 
         return false;
     }
     if (condition?.missingStatusId && hasStatus(actorState, condition.missingStatusId)) return false;
+    if (condition.statusMetadataAtLeast && typeof condition.statusMetadataAtLeast === 'object') {
+        const statusId = condition.statusMetadataAtLeast.statusId;
+        const metadataKey = condition.statusMetadataAtLeast.metadataKey;
+        const minValue = Number(condition.statusMetadataAtLeast.value) || 0;
+        if (!statusId || !metadataKey) return false;
+        const status = Array.isArray(actorState?.statuses)
+            ? actorState.statuses.find(
+                  (entry) => entry?.id === statusId && (Number(entry?.remainingTurns) || 0) > 0
+              )
+            : null;
+        if (Math.max(0, Number(status?.metadata?.[metadataKey]) || 0) < minValue) return false;
+    }
     const currentHp = Math.max(0, Number(actorUnit?.hp) || 0);
     const hpAtMost = Number(condition?.sourceCurrentHpAtMost);
     if (Number.isFinite(hpAtMost) && currentHp > hpAtMost) return false;
@@ -1101,9 +1336,13 @@ const computeEffectiveEnergyCost = ({ skill, actorState }) => {
         const totalCost =
             chakraTypes.reduce((sum, type) => sum + Math.max(0, Number(base.reservedSpecific?.[type]) || 0), 0) +
             Math.max(0, Number(base.requiredRandom) || 0);
+        const reduction = Math.max(
+            0,
+            Number(allRandomOverride.overrideAllSkillsToAllRandomReduction) || 0
+        );
         return {
             reservedSpecific: createEmptyChakraCost(),
-            requiredRandom: totalCost,
+            requiredRandom: Math.max(0, totalCost - reduction),
         };
     }
     const totals = getStatusMetadataTotals(actorState || { statuses: [] });
@@ -1180,6 +1419,24 @@ const hasStatusMetadataFlag = (actorState, flagName) =>
     Array.isArray(actorState?.statuses) &&
     actorState.statuses.some((status) => {
         return isStatusActiveForMetadata(status) && Boolean(status?.metadata?.[flagName]);
+    });
+
+const hasActiveStunLikeEffect = (actorState) =>
+    Array.isArray(actorState?.statuses) &&
+    actorState.statuses.some((status) => {
+        if (!isStatusActiveForMetadata(status)) return false;
+        const metadata = status?.metadata || {};
+        return Boolean(
+            metadata.stunLikeEffect ||
+                metadata.cannotUseSkills ||
+                metadata.cannotUseHarmfulSkills ||
+                metadata.cannotUseHelpfulSkills ||
+                metadata.cannotUseNonMentalSkills ||
+                (Array.isArray(metadata.cannotUseSkillClasses) &&
+                    metadata.cannotUseSkillClasses.length > 0) ||
+                (Array.isArray(metadata.cannotUseSkillIndices) &&
+                    metadata.cannotUseSkillIndices.length > 0)
+        );
     });
 
 const pickRandomEntry = (entries = []) => {
@@ -1665,7 +1922,10 @@ const applyStatus = ({
         existing.sourceSkillId = sourceSkillId || existing.sourceSkillId;
         existing.sourceUsername = sourceUsername || existing.sourceUsername || null;
         existing.sourceSlot = Number.isInteger(sourceSlot) ? sourceSlot : existing.sourceSlot ?? null;
-        let nextMetadata = { ...(existing.metadata || {}), ...(metadata || {}) };
+        let nextMetadata = metadata?.replaceExistingStatusMetadata
+            ? { ...(metadata || {}) }
+            : { ...(existing.metadata || {}), ...(metadata || {}) };
+        delete nextMetadata.replaceExistingStatusMetadata;
         const mergeNumericAddKeys = Array.isArray(metadata?.mergeNumericAddKeys)
             ? metadata.mergeNumericAddKeys.filter((key) => typeof key === 'string' && key)
             : [];
@@ -1772,6 +2032,10 @@ const applyStatus = ({
                   ...(metadata || {}),
               }
             : metadata || {};
+    if (createdMetadata && typeof createdMetadata === 'object') {
+        createdMetadata = { ...createdMetadata };
+        delete createdMetadata.replaceExistingStatusMetadata;
+    }
     if (typeof metadata?.stackMetadataKey === 'string' && metadata.stackMetadataKey) {
         const stackKey = metadata.stackMetadataKey;
         const cap = Math.max(1, Number(metadata?.stackMax) || 1);
@@ -2301,6 +2565,9 @@ const resolveEffectDamageAmount = ({
         amount *=
             Math.max(0, Number(sourceTotals.nonAfflictionDamageMultiplier) || 1) *
             Math.max(0, Number(classScopedSourceTotals.nonAfflictionDamageMultiplier) || 1);
+    }
+    if (hasActiveStunLikeEffect(targetState)) {
+        amount += Math.max(0, Number(effect?.metadata?.bonusDamageWhenTargetStunned) || 0);
     }
     const applyStackBonus = (currentAmount) => {
         let nextAmount = currentAmount;
@@ -5046,7 +5313,7 @@ const selectTurnStartChoiceTarget = ({ match, actingUsername, choice = {}, manua
 
 const processTurnStartStatusEffects = ({ match, startingUsername }) => {
     if (!match || !startingUsername) return;
-    const sweetScentClasses = ['physical', 'special'];
+    const sweetScentClasses = ['physical', 'special', 'affliction'];
     const turnSequence = Object.values(match?.economy?.turnCounts || {}).reduce(
         (sum, value) => sum + Math.max(0, Number(value) || 0),
         0
@@ -5063,7 +5330,7 @@ const processTurnStartStatusEffects = ({ match, startingUsername }) => {
                 (status) => status?.id === 'chikorita_sweet_scent_tracker' && (Number(status?.remainingTurns) || 0) > 0
             );
             if (!tracker?.metadata) return;
-            const classIndex = turnSequence % sweetScentClasses.length;
+            const classIndex = Math.max(0, turnSequence - 2) % sweetScentClasses.length;
             const activeClass = sweetScentClasses[classIndex];
             tracker.metadata.sweetScentClassIndex = classIndex;
             Object.entries(match.board || {}).forEach(([enemyUsername, enemyUnits]) => {
@@ -5512,7 +5779,7 @@ const triggerOnOwnerTargetedBySkillBonuses = ({
             const tracker = chikoritaState?.statuses?.find(
                 (entry) => entry?.id === 'chikorita_sweet_scent_tracker' && (Number(entry?.remainingTurns) || 0) > 0
             );
-            const classes = ['physical', 'special'];
+            const classes = ['physical', 'special', 'affliction'];
             const activeClass = classes[Math.max(0, Number(tracker?.metadata?.sweetScentClassIndex) || 0) % classes.length];
             applyStatus({
                 targetState: sourceState,
@@ -6828,6 +7095,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 effectSkillClasses.slice().sort().join(','),
                 effect?.metadata?.onSuccessfulDamageApplyStatusToTarget?.statusId || '',
                 effect?.metadata?.onSuccessfulDamageApplyStatusToOwner?.statusId || '',
+                effect?.metadata?.onLandedDamageApplyStatusToOwner?.statusId || '',
             ].join('|');
             const existing = pendingDamage.get(key);
             if (existing) {
@@ -6851,6 +7119,8 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     effect?.metadata?.onSuccessfulDamageApplyStatusToTarget || null,
                 onSuccessfulDamageApplyStatusToOwner:
                     effect?.metadata?.onSuccessfulDamageApplyStatusToOwner || null,
+                onLandedDamageApplyStatusToOwner:
+                    effect?.metadata?.onLandedDamageApplyStatusToOwner || null,
                 onSuccessfulDamageApplyStatusesToOwner: Array.isArray(
                     effect?.metadata?.onSuccessfulDamageApplyStatusesToOwner
                 )
@@ -7082,7 +7352,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 return;
             }
             if (effectType === 'chikorita_razor_leaf') {
-            const classes = ['physical', 'special'];
+                const classes = ['physical', 'special', 'affliction'];
                 const tracker = actorState.statuses.find((status) => status?.id === 'chikorita_sweet_scent_tracker');
                 const activeClass = classes[Math.max(0, Number(tracker?.metadata?.sweetScentClassIndex) || 0) % classes.length];
                 const selected = resolveRecipients(effect);
@@ -7117,7 +7387,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 return;
             }
             if (effectType === 'chikorita_solar_beam') {
-                const classes = ['physical', 'special'];
+                const classes = ['physical', 'special', 'affliction'];
                 const tracker = actorState.statuses.find((status) => status?.id === 'chikorita_sweet_scent_tracker');
                 const stacks = Math.max(0, Number(tracker?.metadata?.solarBeamStacks) || 0);
                 const activeClass = classes[Math.max(0, Number(tracker?.metadata?.sweetScentClassIndex) || 0) % classes.length];
@@ -7921,6 +8191,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         effectType !== 'damage' &&
                         effectType !== 'health_steal_damage' &&
                         recipient.username !== actingUsername &&
+                        !Boolean(effect?.metadata?.bypassTargetNonDamageIgnores) &&
                         hasStatusMetadataFlag(targetState, 'ignoreEnemyNonDamageEffects')
                     ) {
                         return;
@@ -7929,6 +8200,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     let runtimeDuration = effect.duration;
                     let runtimeMetadata =
                         effect?.metadata && typeof effect.metadata === 'object' ? { ...effect.metadata } : {};
+                    let copiedStartStatuses = [];
                     if (runtimeMetadata?.useQueuedAbsorptionChoiceForParasitePositiveTrigger) {
                         const selectedPositiveState = resolveParasiteAbsorptionVariant({
                             kind: 'positive',
@@ -7958,55 +8230,37 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         targetState,
                     });
                     if (runtimeMetadata?.copyEffectiveCharacterFromTarget) {
-                        const targetCharacter =
+                        const targetBaseCharacter =
                             Number.isInteger(recipient?.unit?.rosterIndex) && Array.isArray(characters)
-                                ? resolveEffectiveCharacter({
-                                      characters,
-                                      rosterIndex: recipient.unit.rosterIndex,
-                                      actorState: targetState,
-                                  })
+                                ? characters[recipient.unit.rosterIndex]
                                 : null;
-                        const targetCharacterId =
-                            targetCharacter?.characterId || targetCharacter?.id || '';
-                        const targetReplacementMap = buildSkillReplacementMap(targetState);
-                        const targetFaceOverride = (Array.isArray(targetState?.statuses) ? targetState.statuses : [])
-                            .filter((status) => isStatusActiveForMetadata(status, recipient.unit))
-                            .map((status) =>
-                                typeof status?.metadata?.facePictureOverride === 'string'
-                                    ? status.metadata.facePictureOverride.trim()
-                                    : ''
-                            )
-                            .filter(Boolean)
-                            .pop();
+                        const copyBaseCharacter =
+                            typeof runtimeMetadata?.copyBaseCharacterFromTargetIfId === 'string' &&
+                            normalizeBattleCharacterId(targetBaseCharacter) ===
+                                runtimeMetadata.copyBaseCharacterFromTargetIfId.trim().toLowerCase();
+                        const copiedMetadata = buildCopiedCharacterMetadata({
+                            players: match?.players || [],
+                            characters,
+                            targetUsername: recipient.username,
+                            targetUnit: recipient.unit,
+                            copyBaseCharacter,
+                            applyDittoModifiers: Boolean(runtimeMetadata?.applyDittoCopyModifiers),
+                            tooltipTextTemplate:
+                                typeof runtimeMetadata?.tooltipTextTemplate === 'string'
+                                    ? runtimeMetadata.tooltipTextTemplate
+                                    : '',
+                        });
                         runtimeMetadata = {
                             ...(runtimeMetadata || {}),
-                            ...(targetCharacterId ? { effectiveCharacterId: targetCharacterId } : {}),
-                            ...(targetFaceOverride
-                                ? { facePictureOverride: targetFaceOverride }
-                                : typeof targetCharacter?.facePicture === 'string' && targetCharacter.facePicture.trim()
-                                  ? { facePictureOverride: targetCharacter.facePicture.trim() }
-                                  : {}),
-                            ...(Object.keys(targetReplacementMap).length > 0
-                                ? {
-                                      skillReplacements: {
-                                          ...(runtimeMetadata?.skillReplacements || {}),
-                                          ...targetReplacementMap,
-                                      },
-                                  }
-                                : {}),
+                            ...copiedMetadata,
                         };
-                        if (
-                            typeof runtimeMetadata?.tooltipTextTemplate === 'string' &&
-                            runtimeMetadata.tooltipTextTemplate &&
-                            typeof targetCharacter?.name === 'string' &&
-                            targetCharacter.name.trim()
-                        ) {
-                            runtimeMetadata.tooltipText = runtimeMetadata.tooltipTextTemplate.replace(
-                                /\{characterName\}/g,
-                                targetCharacter.name.trim()
-                            );
-                        }
+                        copiedStartStatuses = Array.isArray(runtimeMetadata?._copiedStartStatuses)
+                            ? runtimeMetadata._copiedStartStatuses
+                            : [];
+                        delete runtimeMetadata._copiedStartStatuses;
                         delete runtimeMetadata.copyEffectiveCharacterFromTarget;
+                        delete runtimeMetadata.copyBaseCharacterFromTargetIfId;
+                        delete runtimeMetadata.applyDittoCopyModifiers;
                         delete runtimeMetadata.tooltipTextTemplate;
                     }
                     const copyStatusMetadataToMetadataKeys = Array.isArray(
@@ -8390,6 +8644,12 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                                       !runtimeMetadata?.triggerOnApply),
                     });
                     if (appliedStatus) {
+                        applyCopiedCharacterStartStatuses({
+                            targetUnit: appliesToSelf ? actorUnit : recipient.unit,
+                            entries: copiedStartStatuses,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                        });
                         const appliedStatusEntry = (Array.isArray(destinationState?.statuses)
                             ? destinationState.statuses
                             : []
@@ -8424,9 +8684,10 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         immediateDamageEntries.forEach((entry) => {
                             if (entry.amount <= 0 || recipient.unit.alive === false) return;
                             const affliction = Boolean(appliedMetadata?.afflictionDamage);
-                            applyDamageToUnit(recipient.unit, entry.amount, {
+                            const periodicSourceSkillId = effect?.sourceSkillId || skill.id || null;
+                            const dealt = applyDamageToUnit(recipient.unit, entry.amount, {
                                 match,
-                                sourceSkillId: effect?.sourceSkillId || skill.id || null,
+                                sourceSkillId: periodicSourceSkillId,
                                 sourceUsername: actingUsername,
                                 sourceSlot: actorSlot,
                                 targetUsername: recipient.username,
@@ -8443,6 +8704,23 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                                 ignoreDestructibleDefense:
                                     affliction || Boolean(appliedMetadata?.ignoreTargetDestructibleDefense),
                             });
+                            if (
+                                dealt > 0 &&
+                                ['koffing-smog', 'koffing-weezing-smog'].includes(
+                                    periodicSourceSkillId
+                                )
+                            ) {
+                                applyOnTeamMemberSuccessfulDamageBonuses({
+                                    match,
+                                    actingUsername,
+                                    targetUnit: recipient.unit,
+                                    targetUsername: recipient.username,
+                                    targetSlot: recipient.slot,
+                                    sourceSkillId: periodicSourceSkillId,
+                                    sourceSkillClasses: skill.classes || [],
+                                    sourceSlot: actorSlot,
+                                });
+                            }
                         });
                         const onSuccessApplyStatusesToOwner = Array.isArray(
                             effect?.metadata?.onSuccessApplyStatusesToOwner
@@ -9653,6 +9931,23 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         const pokemonTypeEffectivenessAppliedRecipients = new Set();
         pendingDamage.forEach((entry) => {
             if (!entry?.recipient?.unit || entry.recipient.unit.alive === false) return;
+            const landedOwnerStatus = entry?.onLandedDamageApplyStatusToOwner;
+            if (
+                landedOwnerStatus?.statusId &&
+                entry.recipient.username !== actingUsername
+            ) {
+                applyStatus({
+                    targetState: actorState,
+                    targetUnit: actorUnit,
+                    statusId: landedOwnerStatus.statusId,
+                    duration: landedOwnerStatus.duration,
+                    sourceSkillId: skill.id || null,
+                    sourceUsername: actingUsername,
+                    sourceSlot: actorSlot,
+                    metadata: landedOwnerStatus.metadata || {},
+                    fresh: false,
+                });
+            }
             const mitigationBudgetKey = `${entry.recipient.username || ''}:${
                 Number.isInteger(entry.recipient.slot) ? entry.recipient.slot : ''
             }`;
@@ -10511,6 +10806,26 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                         percentMitigationStateMap: turnEndPercentMitigationStateByRecipient,
                         percentMitigationStateKey: mitigationBudgetKey,
                     });
+                    const periodicSourceSkillId = status?.sourceSkillId || null;
+                    if (
+                        dealt > 0 &&
+                        status?.sourceUsername &&
+                        Number.isInteger(status?.sourceSlot) &&
+                        ['koffing-smog', 'koffing-weezing-smog'].includes(
+                            periodicSourceSkillId
+                        )
+                    ) {
+                        applyOnTeamMemberSuccessfulDamageBonuses({
+                            match,
+                            actingUsername: status.sourceUsername,
+                            targetUnit: unit,
+                            targetUsername: username,
+                            targetSlot: unitSlot,
+                            sourceSkillId: periodicSourceSkillId,
+                            sourceSkillClasses: ['Poison', 'Special', 'Affliction', 'Ranged', 'Instant'],
+                            sourceSlot: status.sourceSlot,
+                        });
+                    }
                     const onSuccessTurnEndApplyStatusToSelf =
                         status?.metadata?.onSuccessfulTurnEndDamageApplyStatusToSelf;
                     if (dealt > 0 && onSuccessTurnEndApplyStatusToSelf?.statusId) {

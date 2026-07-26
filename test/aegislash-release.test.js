@@ -148,7 +148,7 @@ test('Aegislash release news credits fghop and covers community characters, clas
     assert.match(text, /other community characters.*next/i);
     assert.match(text, /Physical and Special.*only primary damage classes/i);
     assert.match(text, /Affliction.*secondary class/i);
-    assert.match(text, /Chikorita.*Physical and Special.*5 each turn/i);
+    assert.match(text, /Chikorita.*Physical, Special, and Affliction.*5 each turn/i);
     assert.match(text, /iPhone sound controls.*repaired/i);
 
     const documents = new Map();

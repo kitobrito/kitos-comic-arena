@@ -1210,7 +1210,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     let suppressSelectionClickUntil = 0;
     let mobileRosterTapIndex = null;
 const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
-    aegislash: 'AEGISLASH.webp',
+        aegislash: 'AEGISLASH.webp',
+        ditto: 'ditto.webp',
         abra: 'ABRA.png.webp',
         aerodactyl: 'AERODACTYL.png.webp',
         articuno: 'ARTICUNO.png.webp',
@@ -1245,6 +1246,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         pidgey: 'Pidgey.webp.webp',
         pikachu: 'PIKACHU.png.webp',
         'pokemon-trainer': 'POKEMONTRAINER.png.webp',
+        scraggy: 'scraggy.png.webp',
         scyther: 'SCYTHER.png.webp',
         squirtle: 'Pokémon_Squirtle_art.png.webp',
         totodile: 'totodile.png.webp',
@@ -1253,6 +1255,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         zubat: 'ZUBAT.png.webp',
     });
     const POKEMON_SELECTION_EVOLUTION_RENDER_BY_ID = Object.freeze({
+        aegislash: { name: 'Blade Stance', filename: 'aegislashnopassive.webp', label: 'Blade Stance' },
         abra: { name: 'Kadabra', filename: 'kadabra.png.webp' },
         beedrill: { name: 'Mega Beedrill', filename: 'megabeedrill.png.webp' },
         bulbasaur: { name: 'Ivysaur', filename: 'ivysaur.png.webp' },
@@ -1269,10 +1272,14 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         magnemite: { name: 'Magneton', filename: 'magneton.png.webp' },
         meowth: { name: 'Persian', filename: 'persian.png.webp' },
         pidgey: { name: 'Pidgeotto', filename: 'pidgeotto.png.webp' },
+        scraggy: { name: 'Scrafty', filename: 'scrafty.png.webp' },
         squirtle: { name: 'Wartortle', filename: 'Wartortle.webp.webp' },
         zubat: { name: 'Golbat', filename: 'Golbat_Render_01.webp.webp' },
     });
     const POKEMON_SELECTION_SKIN_RENDER_FORMS_BY_ID = Object.freeze({
+        'ditto-shiny': [
+            { id: 'base', label: 'Shiny', name: 'Shiny Ditto', filename: 'shinyditto.webp' },
+        ],
         'cyndaquil-quilava-evolution': [
             { id: 'base', label: 'Evolution', name: 'Quilava', filename: 'quilava.png.webp' },
         ],
@@ -1348,7 +1355,12 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const evolution = POKEMON_SELECTION_EVOLUTION_RENDER_BY_ID[characterId];
         return [
             baseFilename
-                ? { id: 'base', label: 'Base', name: character?.name, filename: baseFilename }
+                ? {
+                    id: 'base',
+                    label: characterId === 'aegislash' ? 'Shield Stance' : 'Base',
+                    name: character?.name,
+                    filename: baseFilename,
+                }
                 : null,
             evolution
                 ? { id: 'evolution', label: 'Evolution', ...evolution }
@@ -1504,7 +1516,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         };
     };
 
-    const buildCharacterWithEquippedSkin = (character = {}, profile = null, arena = activeArenaMode) => {
+    const buildCharacterWithSkinId = (character = {}, equippedSkinId = '', arena = activeArenaMode) => {
         if (!character || typeof character !== 'object' || arena !== 'pokemon') {
             return character;
         }
@@ -1512,11 +1524,8 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         if (!catalog.length) {
             return character;
         }
-        const equippedSkinByCharacterId = getArenaSkinState(profile, arena).equippedSkinByCharacterId;
-        const characterId = normalizeSkinCharacterId(character.characterId || character.id);
-        const equippedSkinId = equippedSkinByCharacterId[characterId];
         const skinEntry = equippedSkinId
-            ? catalog.find((entry = {}) => normalizeSkinId(entry.skinId) === equippedSkinId) || null
+            ? catalog.find((entry = {}) => normalizeSkinId(entry.skinId) === normalizeSkinId(equippedSkinId)) || null
             : null;
         if (!skinEntry?.patch || typeof skinEntry.patch !== 'object') {
             return character;
@@ -1589,6 +1598,15 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             return nextSkill;
         });
         return patchedCharacter;
+    };
+
+    const buildCharacterWithEquippedSkin = (character = {}, profile = null, arena = activeArenaMode) => {
+        if (!character || typeof character !== 'object' || arena !== 'pokemon') {
+            return character;
+        }
+        const equippedSkinByCharacterId = getArenaSkinState(profile, arena).equippedSkinByCharacterId;
+        const characterId = normalizeSkinCharacterId(character.characterId || character.id);
+        return buildCharacterWithSkinId(character, equippedSkinByCharacterId[characterId] || '', arena);
     };
 
     const normalizeMatchmakingPresentation = (matchmaking = null) => {
@@ -3563,13 +3581,28 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
 
         const getEffectiveCharacterOverrideIdFromUnit = (unit) => {
             const statuses = Array.isArray(unit?.state?.statuses) ? unit.state.statuses : [];
-            const overrideStatus = statuses.find(
-                (status) =>
-                    (Number(status?.remainingTurns) || 0) > 0 &&
-                    typeof status?.metadata?.effectiveCharacterId === 'string' &&
-                    status.metadata.effectiveCharacterId.trim()
-            );
-            return overrideStatus?.metadata?.effectiveCharacterId?.trim() || '';
+            return statuses
+                .filter(
+                    (status) =>
+                        (Number(status?.remainingTurns) || 0) > 0 &&
+                        typeof status?.metadata?.effectiveCharacterId === 'string' &&
+                        status.metadata.effectiveCharacterId.trim()
+                )
+                .map((status) => status.metadata.effectiveCharacterId.trim())
+                .pop() || '';
+        };
+
+        const getEffectiveSkinOverrideIdFromUnit = (unit) => {
+            const statuses = Array.isArray(unit?.state?.statuses) ? unit.state.statuses : [];
+            return statuses
+                .filter((status) => (Number(status?.remainingTurns) || 0) > 0)
+                .map((status) =>
+                    typeof status?.metadata?.effectiveSkinId === 'string'
+                        ? normalizeSkinId(status.metadata.effectiveSkinId)
+                        : ''
+                )
+                .filter(Boolean)
+                .pop() || '';
         };
 
         const getEffectiveCharacterForUnit = (unit) => {
@@ -3586,14 +3619,26 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             );
         };
 
+        const getEffectiveCharacterPresentationForUnit = (
+            unit,
+            profile = profileCache?.profile || null
+        ) => {
+            const character = getEffectiveCharacterForUnit(unit);
+            if (!character) return character;
+            if (getEffectiveCharacterOverrideIdFromUnit(unit)) {
+                return buildCharacterWithSkinId(
+                    character,
+                    getEffectiveSkinOverrideIdFromUnit(unit),
+                    currentMatchArena
+                );
+            }
+            return buildCharacterWithEquippedSkin(character, profile, currentMatchArena);
+        };
+
         const getEffectiveSkillForActorSlot = (actorSlot, baseSkillIdx) => {
             const meta = playerSkillMetaByKey.get(`${actorSlot}:${baseSkillIdx}`);
             const unit = getActorUnitForSlot(currentPlayerUsername, actorSlot);
-            const character = buildCharacterWithEquippedSkin(
-                getEffectiveCharacterForUnit(unit),
-                profileCache?.profile || null,
-                currentMatchArena
-            );
+            const character = getEffectiveCharacterPresentationForUnit(unit);
             const baseSkill =
                 (Array.isArray(character?.skills) ? character.skills[baseSkillIdx] : null) ||
                 meta?.baseSkill ||
@@ -3601,7 +3646,16 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 null;
             if (!baseSkill) return null;
             const replacementMap = getSkillReplacementMapFromUnit(unit);
-            let resolvedSkill = baseSkill;
+            const usesEvolvedSkills = (Array.isArray(unit?.state?.statuses)
+                ? unit.state.statuses
+                : []
+            ).some(
+                (status) =>
+                    Math.max(0, Number(status?.remainingTurns) || 0) > 0 &&
+                    Boolean(status?.metadata?.useEvolvedSkills)
+            );
+            let resolvedSkill =
+                usesEvolvedSkills && baseSkill?.evolvesTo ? baseSkill.evolvesTo : baseSkill;
             const visited = new Set();
             while (resolvedSkill?.id && replacementMap[resolvedSkill.id] && !visited.has(resolvedSkill.id)) {
                 visited.add(resolvedSkill.id);
@@ -3743,9 +3797,9 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             return null;
         };
 
-        const doesSkillOverrideToAllRandom = (actorSlot, skill = null) => {
+        const getSkillAllRandomOverride = (actorSlot, skill = null) => {
             const skillId = typeof skill?.id === 'string' ? skill.id : '';
-            if (!skillId || !Number.isInteger(actorSlot) || actorSlot < 0) return false;
+            if (!skillId || !Number.isInteger(actorSlot) || actorSlot < 0) return null;
             const actorUnit = latestBoardState?.[currentPlayerUsername]?.[actorSlot];
             const statuses = Array.isArray(actorUnit?.state?.statuses) ? actorUnit.state.statuses : [];
             for (const status of statuses) {
@@ -3760,9 +3814,9 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 if (restrictedSkillIds.length > 0 && !restrictedSkillIds.includes(skillId)) {
                     continue;
                 }
-                return true;
+                return metadata;
             }
-            return false;
+            return null;
         };
 
         const getEffectiveEnergyList = (energy = [], actorSlot = null, skill = null) => {
@@ -3777,8 +3831,15 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             if (overrideEnergy) {
                 return overrideEnergy;
             }
-            if (doesSkillOverrideToAllRandom(actorSlot, skill)) {
-                return normalizedEnergy.map(() => 'random');
+            const allRandomOverride = getSkillAllRandomOverride(actorSlot, skill);
+            if (allRandomOverride) {
+                const reduction = Math.max(
+                    0,
+                    Number(allRandomOverride.overrideAllSkillsToAllRandomReduction) || 0
+                );
+                return normalizedEnergy
+                    .map(() => 'random')
+                    .slice(0, Math.max(0, normalizedEnergy.length - reduction));
             }
             const reductions = getActorCostReductions(actorSlot);
             let remainingRandomReduction = Math.max(
@@ -4230,6 +4291,26 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 return false;
             }
             if (condition?.missingStatusId && hasStatusId(condition.missingStatusId)) return false;
+            if (
+                condition.statusMetadataAtLeast &&
+                typeof condition.statusMetadataAtLeast === 'object'
+            ) {
+                const statusId = condition.statusMetadataAtLeast.statusId;
+                const metadataKey = condition.statusMetadataAtLeast.metadataKey;
+                const minValue = Number(condition.statusMetadataAtLeast.value) || 0;
+                const status = statuses.find(
+                    (entry) =>
+                        entry?.id === statusId &&
+                        Math.max(0, Number(entry?.remainingTurns) || 0) > 0
+                );
+                if (
+                    !statusId ||
+                    !metadataKey ||
+                    Math.max(0, Number(status?.metadata?.[metadataKey]) || 0) < minValue
+                ) {
+                    return false;
+                }
+            }
             const currentHp = Math.max(0, Number(actorUnit?.hp) || 0);
             const hpAtMost = Number(condition?.sourceCurrentHpAtMost);
             if (Number.isFinite(hpAtMost) && currentHp > hpAtMost) return false;
@@ -8476,6 +8557,22 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             ].join(':');
         };
 
+        const findMissNotificationStatus = (unit) =>
+            getActiveStatuses(unit).find((status) => status?.id === 'skill_missed_notification') ||
+            null;
+
+        const getMissNotificationKey = (unit) => {
+            const status = findMissNotificationStatus(unit);
+            if (!status) return '';
+            return [
+                status?.sourceUsername || '',
+                status?.sourceSlot ?? '',
+                status?.sourceSkillId || '',
+                status?.metadata?.missedSkillName || '',
+                status?.metadata?.missedSourceName || '',
+            ].join(':');
+        };
+
         const showEvadePopup = (card) => {
             if (!card) return;
             const popup = document.createElement('div');
@@ -8528,6 +8625,28 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             const sourceName = status?.metadata?.evadedSourceName || 'Enemy';
             showCombatEventLog(`${evaderName} evaded ${sourceName}'s ${skillName}`);
             playEvadeCue();
+        };
+
+        const showMissFeedback = (card, unit) => {
+            if (!card || !unit) return;
+            const status = findMissNotificationStatus(unit);
+            const popup = document.createElement('div');
+            popup.className = 'hp-delta-popup miss';
+            if (card.closest('.enemy-characters')) {
+                popup.classList.add('enemy-side');
+            }
+            popup.textContent = 'MISS';
+            card.appendChild(popup);
+            window.setTimeout(() => popup.remove(), 1000);
+
+            const target =
+                Number.isInteger(unit?.rosterIndex) && Array.isArray(rosterData)
+                    ? rosterData[unit.rosterIndex]
+                    : null;
+            const targetName = target?.name || 'the target';
+            const sourceName = status?.metadata?.missedSourceName || 'The attacker';
+            const skillName = status?.metadata?.missedSkillName || 'a skill';
+            showCombatEventLog(`${sourceName}'s ${skillName} missed ${targetName}`);
         };
 
         const getHulkRageValue = (unit) => {
@@ -9487,17 +9606,22 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                         )
                         .filter(Boolean)
                         .pop();
-                    const character =
+                    const baseCharacter =
                         Number.isInteger(unit?.rosterIndex) && Array.isArray(rosterData)
                             ? rosterData[unit.rosterIndex]
                             : null;
-                    const characterId = normalizeSkinCharacterId(character?.characterId || character?.id || '');
+                    const characterId = normalizeSkinCharacterId(
+                        baseCharacter?.characterId || baseCharacter?.id || ''
+                    );
                     const renderArena = currentMatchArena || activeArenaMode || 'comic';
-                    const equippedSkinByCharacterId = getArenaSkinState(
-                        profileCache?.profile,
-                        renderArena
-                    ).equippedSkinByCharacterId;
-                    const equippedSkinId = equippedSkinByCharacterId[characterId];
+                    const effectiveCharacterOverrideId = getEffectiveCharacterOverrideIdFromUnit(unit);
+                    const effectiveSkinId = getEffectiveSkinOverrideIdFromUnit(unit);
+                    const equippedSkinId = effectiveCharacterOverrideId
+                        ? effectiveSkinId
+                        : getArenaSkinState(
+                              profileCache?.profile,
+                              renderArena
+                          ).equippedSkinByCharacterId[characterId];
                     const skinEntry = Array.isArray(arenaSkinCatalogCache?.[renderArena])
                         ? arenaSkinCatalogCache[renderArena].find(
                               (entry = {}) => normalizeSkinId(entry.skinId) === equippedSkinId
@@ -9508,17 +9632,38 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                         typeof skinEntry.statusFacePictureOverridesByStatusId === 'object'
                             ? skinEntry.statusFacePictureOverridesByStatusId
                             : {};
-                    const skinFaceOverride = usernamesMatch(card.dataset.username || '', currentPlayerUsername || '')
-                        ? statuses
-                              .map((status) =>
-                                  typeof status?.id === 'string'
-                                      ? statusFacePictureOverridesByStatusId[status.id] || ''
-                                      : ''
-                              )
-                              .filter(Boolean)
-                              .pop()
-                        : '';
-                    nextFaceSrc = skinFaceOverride || faceOverride || face.dataset.aliveSrc;
+                    const copiedEffectiveStatusIds = statuses
+                        .flatMap((status) =>
+                            Array.isArray(status?.metadata?.effectiveStatusIds)
+                                ? status.metadata.effectiveStatusIds
+                                : []
+                        )
+                        .filter((statusId) => typeof statusId === 'string');
+                    const skinStatusIds = effectiveCharacterOverrideId
+                        ? copiedEffectiveStatusIds
+                        : statuses.map((status) => status?.id).filter(Boolean);
+                    const skinFaceOverride = skinStatusIds
+                        .map((statusId) => statusFacePictureOverridesByStatusId[statusId] || '')
+                        .filter(Boolean)
+                        .pop();
+                    if (effectiveCharacterOverrideId) {
+                        const effectiveCharacter = getEffectiveCharacterForUnit(unit);
+                        const effectivePresentation = buildCharacterWithSkinId(
+                            effectiveCharacter,
+                            effectiveSkinId,
+                            renderArena
+                        );
+                        const fallbackFace = effectivePresentation?.facePicture || face.dataset.aliveSrc;
+                        const rawFace =
+                            typeof effectiveCharacter?.facePicture === 'string'
+                                ? effectiveCharacter.facePicture
+                                : '';
+                        const activeFormFace =
+                            faceOverride && faceOverride !== rawFace ? faceOverride : '';
+                        nextFaceSrc = skinFaceOverride || activeFormFace || fallbackFace;
+                    } else {
+                        nextFaceSrc = skinFaceOverride || faceOverride || face.dataset.aliveSrc;
+                    }
                 }
                 if (cachedFaceSrc !== nextFaceSrc) {
                     face.src = nextFaceSrc;
@@ -9607,6 +9752,13 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 const previousKey = getEvadeNotificationKey(previousUnit);
                 return nextKey !== previousKey;
             };
+            const gainedMissNotification = (username, slot, nextUnit) => {
+                if (!showHpAnimations || !username || !Number.isInteger(slot) || !nextUnit) return false;
+                const previousUnit = Array.isArray(previousBoard[username]) ? previousBoard[username][slot] : null;
+                const nextKey = getMissNotificationKey(nextUnit);
+                if (!nextKey) return false;
+                return nextKey !== getMissNotificationKey(previousUnit);
+            };
             const getSeaSharkStackDelta = (username, slot, nextUnit) => {
                 if (!showHpAnimations || !username || !Number.isInteger(slot) || !nextUnit) return 0;
                 const previousUnit = Array.isArray(previousBoard[username]) ? previousBoard[username][slot] : null;
@@ -9630,6 +9782,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     const barrierDelta = getBarrierDelta(currentPlayerUsername, slot, playerUnits[slot]);
                     const died = unitDiedBetweenStates(previousBoard?.[currentPlayerUsername]?.[slot], playerUnits[slot]);
                     const evaded = gainedEvadeNotification(currentPlayerUsername, slot, playerUnits[slot]);
+                    const missed = gainedMissNotification(currentPlayerUsername, slot, playerUnits[slot]);
                     const seaSharkDelta = getSeaSharkStackDelta(currentPlayerUsername, slot, playerUnits[slot]);
                     const ironRippedAway = didNeganIronRipAway(currentPlayerUsername, slot, playerUnits[slot]);
                     renderUnitHealth(card, playerUnits[slot]);
@@ -9678,6 +9831,9 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     if (evaded) {
                         showEvadeFeedback(card, playerUnits[slot]);
                     }
+                    if (missed) {
+                        showMissFeedback(card, playerUnits[slot]);
+                    }
                 });
             }
             if (Array.isArray(enemyCards) && Array.isArray(opponentUnits)) {
@@ -9687,6 +9843,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     const barrierDelta = getBarrierDelta(opponentUsername, slot, opponentUnits[slot]);
                     const died = unitDiedBetweenStates(previousBoard?.[opponentUsername]?.[slot], opponentUnits[slot]);
                     const evaded = gainedEvadeNotification(opponentUsername, slot, opponentUnits[slot]);
+                    const missed = gainedMissNotification(opponentUsername, slot, opponentUnits[slot]);
                     const seaSharkDelta = getSeaSharkStackDelta(opponentUsername, slot, opponentUnits[slot]);
                     const ironRippedAway = didNeganIronRipAway(opponentUsername, slot, opponentUnits[slot]);
                     renderUnitHealth(card, opponentUnits[slot]);
@@ -9734,6 +9891,9 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     }
                     if (evaded) {
                         showEvadeFeedback(card, opponentUnits[slot]);
+                    }
+                    if (missed) {
+                        showMissFeedback(card, opponentUnits[slot]);
                     }
                 });
             }
@@ -11418,7 +11578,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     return;
                 }
                 const actorUnit = getActorUnitForSlot(currentPlayerUsername, skillInfo.selectedActorSlot);
-                const character = getEffectiveCharacterForUnit(actorUnit);
+                const character = getEffectiveCharacterPresentationForUnit(actorUnit);
                 const skill = getEffectiveSkillForActorSlot(
                     skillInfo.selectedActorSlot,
                     skillInfo.selectedSkillIdx
@@ -13260,7 +13420,8 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     const showCharacterSkills = () => {
                         const username = isPlayer ? currentPlayerUsername : currentOpponentUsername;
                         const unit = latestBoardState?.[username]?.[slotIndex];
-                        const effectiveCharacter = getEffectiveCharacterForUnit(unit) || character;
+                        const effectiveCharacter =
+                            getEffectiveCharacterPresentationForUnit(unit, profile) || character;
                         renderCharacterInfo(effectiveCharacter, isPlayer ? slotIndex : null, unit);
                     };
                     card._showCharacterInfoFromPortrait = showCharacterSkills;
@@ -13330,8 +13491,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                                     const effectiveSkill =
                                         getEffectiveSkillForActorSlot(slotIndex, skillIdx) || skill;
                                     const actorUnit = latestBoardState?.[currentPlayerUsername]?.[slotIndex] || null;
+                                    const effectiveCharacter =
+                                        getEffectiveCharacterPresentationForUnit(actorUnit, profile) || character;
                                     measureIngamePerf('click:skill-info', () =>
-                                        renderSkillInfo(character, effectiveSkill, slotIndex, skillIdx)
+                                        renderSkillInfo(effectiveCharacter, effectiveSkill, slotIndex, skillIdx)
                                     );
                                     measureIngamePerf('click:active-skill-icon', () =>
                                         updateSkillBrowserActiveIcon(skillIdx)
@@ -16299,6 +16462,14 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     const getSelectionSkillRenderForm = (character, skill) => {
         const forms = getSelectionCharacterRenderForms(character);
         const skillId = String(skill?.id || '').trim().toLowerCase();
+        if (
+            getSelectionCharacterId(character) === 'aegislash' &&
+            forms.some((form) => form.id === 'evolution')
+        ) {
+            return ['aegislash-slash', 'aegislash-sacred-sword'].includes(skillId)
+                ? 'evolution'
+                : 'base';
+        }
         if (forms.some((form) => form.id === 'mega-x') && skillId.includes('charizard-x-')) {
             return 'mega-x';
         }

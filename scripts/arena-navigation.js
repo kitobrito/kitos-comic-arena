@@ -72,7 +72,7 @@
     document.querySelectorAll(".brand img, img.brand-mark").forEach(function (image) {
       var imageArena = getBrandArena(image);
       image.src = imageArena === "pokemon"
-        ? "assets/images/PokemonArena/found-pokeball.png"
+        ? "assets/images/PokemonArena/pokemonarenalogo.png"
         : "assets/images/sitelogo.png";
       image.alt = (imageArena === "pokemon" ? "Pokemon Arena" : "Comic Arena") + " logo";
     });

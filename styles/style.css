@@ -1464,6 +1464,19 @@ body.arena-mode-pokemon .selectionscroll {
     z-index: 1500;
 }
 
+.pokemon-arena-selection-logo {
+    display: none;
+    width: 150px;
+    max-height: 86px;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 5px 16px rgba(9, 29, 54, 0.42);
+}
+
+body.arena-mode-pokemon .pokemon-arena-selection-logo {
+    display: block;
+}
+
 .battle-bot-check-wrap,
 .draft-mode-check-wrap {
     display: flex;
@@ -2805,6 +2818,19 @@ body.arena-mode-pokemon .searchingscroll::after {
 
 .chakra-box.red {
     background-color: #e74c3c;
+}
+
+.pokemon-arena-battle-intro-logo {
+    display: none;
+    width: min(260px, 42vw);
+    max-height: 145px;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.45);
+}
+
+body.arena-mode-pokemon .pokemon-arena-battle-intro-logo {
+    display: block;
 }
 
 body.arena-mode-pokemon .chakra-box.red {
@@ -10880,6 +10906,14 @@ body.end-turn-modal-open .global-status-tooltip {
     min-width: 72px;
     font-size: 23px;
     letter-spacing: 1px;
+}
+
+.hp-delta-popup.miss {
+    color: #ffd65c;
+    min-width: 64px;
+    font-size: 23px;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 0 #251900, -1px -1px 0 #251900, 0 0 8px rgba(255, 214, 92, 0.8);
 }
 
 .hp-delta-popup.type-effective,

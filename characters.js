@@ -20234,6 +20234,7 @@ const characters = [
                             "infiniteDuration": true,
                             "unremovable": true,
                             "copyEffectiveCharacterFromTarget": true,
+                            "copyBaseCharacterFromTargetIfId": "ditto",
                             "tooltipTextTemplate": "Pokemon Trainer has caught {characterName} and now uses that Pokemon's skills."
                         }
                     },
@@ -21215,6 +21216,51 @@ const characters = [
                     },
                     {
                         "type": "apply_status",
+                        "statusId": "scraggy_scrafty_evolution",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "scraggy",
+                            "missingStatusId": "scraggy_scrafty_evolution"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
+                            "removeStatusIdsOnApply": [
+                                "scraggy_focus_energy_tracker"
+                            ],
+                            "facePictureOverride": "assets/images/PokemonArena/Scraggy/scraftyfp.png",
+                            "statusIconUrl": "assets/images/PokemonArena/Scraggy/focusenergy.png",
+                            "tooltipText": "Scraggy has evolved into Scrafty from Rare Candy.",
+                            "healOnApplyFlat": 10
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "scraggy_scrafty_rare_candy_defense",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "target",
+                            "targetRelation": "ally",
+                            "characterId": "scraggy",
+                            "missingStatusId": "scraggy_scrafty_rare_candy_defense"
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "destructibleDefensePoints": 25,
+                            "mergeNumericAddKeys": [
+                                "destructibleDefensePoints"
+                            ],
+                            "tooltipTextTemplate": "This character has {destructibleDefensePoints} destructible defense from Rare Candy."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
                         "statusId": "pokemon_trainer_rare_candy_swap",
                         "duration": 99,
                         "scope": "self",
@@ -21295,6 +21341,7 @@ const characters = [
                             "infiniteDuration": true,
                             "unremovable": true,
                             "copyEffectiveCharacterFromTarget": true,
+                            "copyBaseCharacterFromTargetIfId": "ditto",
                             "tooltipTextTemplate": "Pokemon Trainer has caught {characterName} and now uses that Pokemon's skills."
                         }
                     },
@@ -21419,6 +21466,7 @@ const characters = [
                             "infiniteDuration": true,
                             "unremovable": true,
                             "copyEffectiveCharacterFromTarget": true,
+                            "copyBaseCharacterFromTargetIfId": "ditto",
                             "tooltipTextTemplate": "Pokemon Trainer has caught {characterName} and now uses that Pokemon's skills."
                         }
                     },
@@ -21527,6 +21575,7 @@ const characters = [
                             "infiniteDuration": true,
                             "unremovable": true,
                             "copyEffectiveCharacterFromTarget": true,
+                            "copyBaseCharacterFromTargetIfId": "ditto",
                             "tooltipTextTemplate": "Pokemon Trainer has caught {characterName} and now uses that Pokemon's skills."
                         }
                     }
@@ -22662,6 +22711,7 @@ const characters = [
                     "hidden": true,
                     "hideTooltip": true,
                     "infiniteDuration": true,
+                    "onTeamMemberSuccessfulDamageOwnerOnly": true,
                     "onTeamMemberSuccessfulDamageApplyRandomStatusToTarget": {
                         "chancePercent": 30,
                         "statusOptions": [
@@ -22753,6 +22803,7 @@ const characters = [
                                 "koffing-self-destruct": "koffing-weezing-self-destruct",
                                 "koffing-smokescreen": "koffing-weezing-smokescreen"
                             },
+                            "onTeamMemberSuccessfulDamageOwnerOnly": true,
                             "onTeamMemberSuccessfulDamageApplyRandomStatusToTarget": {
                                 "chancePercent": 60,
                                 "statusOptions": [
@@ -23152,7 +23203,7 @@ const characters = [
                             "ignoreTargetDestructibleDefense": true,
                             "turnEndTrigger": "source_turn",
                             "turnDurationAnchor": "source_turn",
-                            "tooltipText": "This character takes 5 affliction damage each turn from Smog."
+                            "tooltipText": "This character takes 10 affliction damage each turn from Smog."
                         }
                     }
                 ]
@@ -32345,8 +32396,8 @@ const characters = [
         "role": "Support",
         "roleCategory": "support",
         "facePicture": "assets/images/PokemonArena/Cyndaquil/Chikorita/FP.webp",
-        "description": "Chikorita protects allies and alternates Sweet Scent between Physical and Special suppression.",
-        "characterdeescription": "Chikorita protects allies and alternates Sweet Scent between Physical and Special suppression.",
+        "description": "Chikorita protects allies and cycles Sweet Scent through separate Physical, Special, and Affliction suppression.",
+        "characterdeescription": "Chikorita protects allies and cycles Sweet Scent through separate Physical, Special, and Affliction suppression.",
         "skills": [
             {
                 "id": "chikorita-aerial-razor-leaf",
@@ -32404,8 +32455,8 @@ const characters = [
                 "id": "chikorita-sweet-scent",
                 "name": "Passive: Sweet Scent",
                 "skillimage": "assets/images/PokemonArena/Cyndaquil/Chikorita/s5.webp",
-                "skilldescription": "Lowers all enemy damage by 5 for one class each turn, alternating between Physical and Special.",
-                "description": "Lowers all enemy damage by 5 for one class each turn, alternating between Physical and Special.",
+                "skilldescription": "Lowers all enemy damage by 5 for one class each turn, cycling between Physical, Special, and Affliction. Affliction is reduced separately from its attached primary class.",
+                "description": "Lowers all enemy damage by 5 for one class each turn, cycling between Physical, Special, and Affliction. Affliction is reduced separately from its attached primary class.",
                 "energy": [],
                 "cooldown": 0,
                 "target": "",
@@ -32508,9 +32559,9 @@ const characters = [
         "universe": "pokemon",
         "arena": "pokemon",
         "roleCategory": "stance-bruiser",
-        "description": "A community-designed stance bruiser from the original Anime Arena. Aegislash alternates between Blade Stance pressure and a refreshing Shield Stance defense.",
-        "descriptionHtml": "A community-designed stance bruiser from the original Anime Arena. Aegislash alternates between Blade Stance pressure and a refreshing Shield Stance defense.",
-        "characterdeescription": "A community-designed stance bruiser from the original Anime Arena. Aegislash alternates between Blade Stance pressure and a refreshing Shield Stance defense.",
+        "description": "A community character from the original Anime Arena designed by fghop. Aegislash alternates between Blade Stance pressure and a refreshing Shield Stance defense.",
+        "descriptionHtml": "A community character from the original Anime Arena designed by fghop. Aegislash alternates between Blade Stance pressure and a refreshing Shield Stance defense.",
+        "characterdeescription": "A community character from the original Anime Arena designed by fghop. Aegislash alternates between Blade Stance pressure and a refreshing Shield Stance defense.",
         "skills": [
             {
                 "id": "aegislash-slash",
@@ -32556,7 +32607,7 @@ const characters = [
                 "cooldown": 1,
                 "target": "self",
                 "damage": 0,
-                "classes": ["Normal", "Strategic", "Instant"],
+                "classes": ["Normal", "Special", "Strategic", "Instant"],
                 "effects": [
                     {
                         "type": "apply_status",
@@ -32605,7 +32656,7 @@ const characters = [
                 "cooldown": 2,
                 "target": "self",
                 "damage": 0,
-                "classes": ["Steel", "Strategic", "Instant", "Invincible"],
+                "classes": ["Steel", "Special", "Strategic", "Instant", "Invincible"],
                 "effects": [
                     {
                         "type": "apply_status",
@@ -32700,7 +32751,7 @@ const characters = [
                 "cooldown": 0,
                 "target": "",
                 "damage": 0,
-                "classes": ["Normal", "Passive", "Strategic", "Instant"],
+                "classes": ["Normal", "Special", "Passive", "Strategic", "Instant"],
                 "effects": []
             }
         ],
@@ -32744,6 +32795,604 @@ const characters = [
                     "removeStatusIdsOnApply": ["aegislash_blade_stance"],
                     "statusIconUrl": "assets/images/PokemonArena/aegislash/OfficialPictures/Passive.jpg",
                     "tooltipText": "Aegislash is in Shield Stance with 10 destructible defense and 5 unpierceable damage reduction."
+                }
+            }
+        ]
+    },
+    {
+        "id": "ditto",
+        "characterId": "ditto",
+        "name": "Ditto",
+        "facePicture": "assets/images/PokemonArena/Ditto/Done/FP.jpg",
+        "role": "Copy Specialist",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "copy-specialist",
+        "description": "A mysterious pink Pokemon that can transform into nearly anything. This community character was designed by KiruKasai.",
+        "descriptionHtml": "A mysterious pink Pokemon that can transform into nearly anything. This community character was designed by KiruKasai.",
+        "characterdeescription": "A mysterious pink Pokemon that can transform into nearly anything. This community character was designed by KiruKasai.",
+        "skills": [
+            {
+                "id": "ditto-transform-1",
+                "name": "Transform",
+                "skillimage": "assets/images/PokemonArena/Ditto/Done/transform.jpg",
+                "skilldescription": "Ditto targets one other living ally or enemy and permanently transforms into them, triggering its passive.",
+                "description": "Ditto targets one other living ally or enemy and permanently transforms into them, triggering its passive.",
+                "energy": ["Random"],
+                "cooldown": 0,
+                "target": "single-enemy-or-ally",
+                "damage": 0,
+                "classes": ["Normal", "Special", "Strategic", "Instant"],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "ditto_transformation",
+                        "duration": 999,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "target"
+                        },
+                        "metadata": {
+                            "copyEffectiveCharacterFromTarget": true,
+                            "applyDittoCopyModifiers": true,
+                            "tooltipTextTemplate": "Ditto transformed into {characterName}. Its copied skills deal 5 less damage and cost one fewer Random energy."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "ditto-transform-2",
+                "name": "Transform",
+                "skillimage": "assets/images/PokemonArena/Ditto/Done/transform.jpg",
+                "skilldescription": "Ditto targets one other living ally or enemy and permanently transforms into them, triggering its passive.",
+                "description": "Ditto targets one other living ally or enemy and permanently transforms into them, triggering its passive.",
+                "energy": ["Random"],
+                "cooldown": 0,
+                "target": "single-enemy-or-ally",
+                "damage": 0,
+                "classes": ["Normal", "Special", "Strategic", "Instant"],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "ditto_transformation",
+                        "duration": 999,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "target"
+                        },
+                        "metadata": {
+                            "copyEffectiveCharacterFromTarget": true,
+                            "applyDittoCopyModifiers": true,
+                            "tooltipTextTemplate": "Ditto transformed into {characterName}. Its copied skills deal 5 less damage and cost one fewer Random energy."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "ditto-transform-3",
+                "name": "Transform",
+                "skillimage": "assets/images/PokemonArena/Ditto/Done/transform.jpg",
+                "skilldescription": "Ditto targets one other living ally or enemy and permanently transforms into them, triggering its passive.",
+                "description": "Ditto targets one other living ally or enemy and permanently transforms into them, triggering its passive.",
+                "energy": ["Random"],
+                "cooldown": 0,
+                "target": "single-enemy-or-ally",
+                "damage": 0,
+                "classes": ["Normal", "Special", "Strategic", "Instant"],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "ditto_transformation",
+                        "duration": 999,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "target"
+                        },
+                        "metadata": {
+                            "copyEffectiveCharacterFromTarget": true,
+                            "applyDittoCopyModifiers": true,
+                            "tooltipTextTemplate": "Ditto transformed into {characterName}. Its copied skills deal 5 less damage and cost one fewer Random energy."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "ditto-transform-4",
+                "name": "Transform",
+                "skillimage": "assets/images/PokemonArena/Ditto/Done/transform.jpg",
+                "skilldescription": "Ditto targets one other living ally or enemy and permanently transforms into them, triggering its passive.",
+                "description": "Ditto targets one other living ally or enemy and permanently transforms into them, triggering its passive.",
+                "energy": ["Random"],
+                "cooldown": 0,
+                "target": "single-enemy-or-ally",
+                "damage": 0,
+                "classes": ["Normal", "Special", "Strategic", "Instant"],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "ditto_transformation",
+                        "duration": 999,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "target"
+                        },
+                        "metadata": {
+                            "copyEffectiveCharacterFromTarget": true,
+                            "applyDittoCopyModifiers": true,
+                            "tooltipTextTemplate": "Ditto transformed into {characterName}. Its copied skills deal 5 less damage and cost one fewer Random energy."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "ditto-passive-transform",
+                "name": "Passive: Transform",
+                "skillimage": "assets/images/PokemonArena/Ditto/Done/transform.jpg",
+                "skilldescription": "At the beginning of the game, Ditto transforms into the enemy directly opposite it. Copied skills deal 5 less damage, cost only Random energy, and cost one fewer Random. If the opposing character is another Ditto, Ditto keeps its four Transform skills.",
+                "description": "At the beginning of the game, Ditto transforms into the enemy directly opposite it. Copied skills deal 5 less damage, cost only Random energy, and cost one fewer Random. If the opposing character is another Ditto, Ditto keeps its four Transform skills.",
+                "energy": [],
+                "cooldown": 0,
+                "target": "",
+                "damage": 0,
+                "classes": ["Normal", "Special", "Passive", "Strategic", "Instant"],
+                "effects": []
+            }
+        ],
+        "startStatuses": []
+    },
+    {
+        "id": "scraggy",
+        "characterId": "scraggy",
+        "name": "Scraggy",
+        "facePicture": "assets/images/PokemonArena/Scraggy/fp.png",
+        "role": "Control Bruiser",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "control-bruiser",
+        "description": "A stubborn Dark- and Fighting-type Pokemon that builds Focus Energy before evolving into Scrafty. This community character was designed by Cheshire.",
+        "descriptionHtml": "A stubborn Dark- and Fighting-type Pokemon that builds Focus Energy before evolving into Scrafty. This community character was designed by Cheshire.",
+        "characterdeescription": "A stubborn Dark- and Fighting-type Pokemon that builds Focus Energy before evolving into Scrafty. This community character was designed by Cheshire.",
+        "skills": [
+            {
+                "id": "scraggy-headbutt",
+                "name": "Headbutt",
+                "skillimage": "assets/images/PokemonArena/Scraggy/headbutt.png",
+                "skilldescription": "Deals 20 damage to one enemy, increased to 25 damage if they are stunned.",
+                "description": "Deals 20 damage to one enemy, increased to 25 damage if they are stunned.",
+                "energy": ["Ninjutsu"],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Normal", "Physical", "Melee", "Instant"],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "bonusDamageWhenTargetStunned": 5
+                        }
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "scrafty-headbutt",
+                    "name": "Headbutt",
+                    "skillimage": "assets/images/PokemonArena/Scraggy/scraftyheadbutt.png",
+                    "skilldescription": "Deals 30 damage to one enemy, increased to 40 damage if they are stunned.",
+                    "description": "Deals 30 damage to one enemy, increased to 40 damage if they are stunned.",
+                    "energy": ["Ninjutsu", "Taijutsu"],
+                    "cooldown": 0,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": ["Normal", "Physical", "Melee", "Instant"],
+                    "effects": [
+                        {
+                            "type": "damage",
+                            "amount": 30,
+                            "scope": "target",
+                            "metadata": {
+                                "bonusDamageWhenTargetStunned": 10
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "scraggy-leer",
+                "name": "Leer",
+                "skillimage": "assets/images/PokemonArena/Scraggy/leer.png",
+                "skilldescription": "Stuns one enemy's harmful skills for 1 turn and their Melee skills for 2 turns. Scraggy gains 1 Focus Energy.",
+                "description": "Stuns one enemy's harmful skills for 1 turn and their Melee skills for 2 turns. Scraggy gains 1 Focus Energy.",
+                "energy": ["Random"],
+                "cooldown": 2,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Normal", "Physical", "Melee", "Instant"],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "scraggy_leer_harmful_stun",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "stunLikeEffect": true,
+                            "cannotUseHarmfulSkills": true,
+                            "tooltipText": "This character's harmful skills are stunned."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "scraggy_leer_melee_stun",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "stunLikeEffect": true,
+                            "cannotUseSkillClasses": ["Melee"],
+                            "tooltipText": "This character's Melee skills are stunned."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "scraggy_focus_energy_tracker",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "stackMetadataKey": "scraggyFocusEnergyStacks",
+                            "stackDelta": 1,
+                            "stackMax": 3,
+                            "statusIconUrl": "assets/images/PokemonArena/Scraggy/focusenergy.png",
+                            "tooltipTextTemplate": "Scraggy has {scraggyFocusEnergyStacks}/3 Focus Energy stacks."
+                        }
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "scrafty-leer",
+                    "name": "Leer",
+                    "skillimage": "assets/images/PokemonArena/Scraggy/scraftyleer.png",
+                    "skilldescription": "Stuns one enemy's harmful skills for 1 turn and their Melee skills for 2 turns. Hi Jump Kick cannot miss enemies affected by Leer.",
+                    "description": "Stuns one enemy's harmful skills for 1 turn and their Melee skills for 2 turns. Hi Jump Kick cannot miss enemies affected by Leer.",
+                    "energy": ["Taijutsu"],
+                    "cooldown": 2,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": ["Normal", "Physical", "Melee", "Instant"],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "statusId": "scraggy_leer_harmful_stun",
+                            "duration": 1,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "stunLikeEffect": true,
+                                "cannotUseHarmfulSkills": true,
+                                "tooltipText": "This character's harmful skills are stunned."
+                            }
+                        },
+                        {
+                            "type": "apply_status",
+                            "statusId": "scraggy_leer_melee_stun",
+                            "duration": 2,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "stunLikeEffect": true,
+                                "cannotUseSkillClasses": ["Melee"],
+                                "tooltipText": "This character's Melee skills are stunned and Hi Jump Kick cannot miss them."
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "scraggy-hi-jump-kick",
+                "name": "Hi Jump Kick",
+                "skillimage": "assets/images/PokemonArena/Scraggy/hijumpkick.png",
+                "skilldescription": "Deals 35 damage to one enemy. This skill has a 25% chance to miss. If it misses, Scraggy loses 25 HP.",
+                "description": "Deals 35 damage to one enemy. This skill has a 25% chance to miss. If it misses, Scraggy loses 25 HP.",
+                "energy": ["Ninjutsu", "Taijutsu"],
+                "cooldown": 1,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Fighting", "Physical", "Melee", "Instant"],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "scraggy_hi_jump_kick_hit_confirmed",
+                        "duration": 1,
+                        "scope": "self",
+                        "chance": 75,
+                        "condition": {
+                            "scope": "target"
+                        },
+                        "metadata": {
+                            "hidden": true,
+                            "hideTooltipFromUnitOwner": true,
+                            "hideTooltipFromEnemy": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "scraggy_hi_jump_kick_hit_confirmed"
+                        },
+                        "metadata": {
+                            "onLandedDamageApplyStatusToOwner": {
+                                "statusId": "scraggy_focus_energy_tracker",
+                                "duration": 999,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "unremovable": true,
+                                    "stackMetadataKey": "scraggyFocusEnergyStacks",
+                                    "stackDelta": 1,
+                                    "stackMax": 3,
+                                    "statusIconUrl": "assets/images/PokemonArena/Scraggy/focusenergy.png",
+                                    "tooltipTextTemplate": "Scraggy has {scraggyFocusEnergyStacks}/3 Focus Energy stacks."
+                                }
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "skill_missed_notification",
+                        "duration": 1,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "missingStatusId": "scraggy_hi_jump_kick_hit_confirmed",
+                            "targetRelation": "enemy"
+                        },
+                        "metadata": {
+                            "hidden": true,
+                            "bypassTargetNonDamageIgnores": true,
+                            "missedSkillName": "Hi Jump Kick",
+                            "missedSourceName": "Scraggy"
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 25,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "missingStatusId": "scraggy_hi_jump_kick_hit_confirmed"
+                        },
+                        "metadata": {
+                            "fixedDamage": true,
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true,
+                            "ignoreDamageImmunity": true
+                        }
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "scrafty-hi-jump-kick",
+                    "name": "Hi Jump Kick",
+                    "skillimage": "assets/images/PokemonArena/Scraggy/scraftyhijumpkick.png",
+                    "skilldescription": "Deals 45 damage to one enemy. This skill has a 25% chance to miss. If it misses, Scrafty loses 35 HP. It cannot miss enemies affected by Leer.",
+                    "description": "Deals 45 damage to one enemy. This skill has a 25% chance to miss. If it misses, Scrafty loses 35 HP. It cannot miss enemies affected by Leer.",
+                    "energy": ["Ninjutsu", "Ninjutsu"],
+                    "cooldown": 1,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": ["Fighting", "Physical", "Melee", "Instant"],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "statusId": "scrafty_hi_jump_kick_hit_confirmed",
+                            "duration": 1,
+                            "scope": "self",
+                            "chance": 75,
+                            "condition": {
+                                "scope": "target",
+                                "missingStatusId": "scraggy_leer_melee_stun"
+                            },
+                            "metadata": {
+                                "hidden": true,
+                                "hideTooltipFromUnitOwner": true,
+                                "hideTooltipFromEnemy": true
+                            }
+                        },
+                        {
+                            "type": "apply_status",
+                            "statusId": "scrafty_hi_jump_kick_hit_confirmed",
+                            "duration": 1,
+                            "scope": "self",
+                            "condition": {
+                                "scope": "target",
+                                "statusId": "scraggy_leer_melee_stun"
+                            },
+                            "metadata": {
+                                "hidden": true,
+                                "hideTooltipFromUnitOwner": true,
+                                "hideTooltipFromEnemy": true
+                            }
+                        },
+                        {
+                            "type": "damage",
+                            "amount": 45,
+                            "scope": "target",
+                            "condition": {
+                                "scope": "self",
+                                "statusId": "scrafty_hi_jump_kick_hit_confirmed"
+                            }
+                        },
+                        {
+                            "type": "apply_status",
+                            "statusId": "skill_missed_notification",
+                            "duration": 1,
+                            "scope": "target",
+                            "condition": {
+                                "scope": "self",
+                                "missingStatusId": "scrafty_hi_jump_kick_hit_confirmed",
+                                "targetRelation": "enemy"
+                            },
+                            "metadata": {
+                                "hidden": true,
+                                "bypassTargetNonDamageIgnores": true,
+                                "missedSkillName": "Hi Jump Kick",
+                                "missedSourceName": "Scrafty"
+                            }
+                        },
+                        {
+                            "type": "damage",
+                            "amount": 35,
+                            "scope": "self",
+                            "condition": {
+                                "scope": "self",
+                                "missingStatusId": "scrafty_hi_jump_kick_hit_confirmed"
+                            },
+                            "metadata": {
+                                "fixedDamage": true,
+                                "ignoreDamageReduction": true,
+                                "ignoreDestructibleDefense": true,
+                                "ignoreDamageImmunity": true
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "scraggy-focus-blast",
+                "name": "Focus Blast",
+                "skillimage": "assets/images/PokemonArena/Scraggy/focusblast.png",
+                "skilldescription": "Deals 40 piercing damage to one enemy at the start of their following turn. This skill can only be used while Scraggy has at least 1 Focus Energy.",
+                "description": "Deals 40 piercing damage to one enemy at the start of their following turn. This skill can only be used while Scraggy has at least 1 Focus Energy.",
+                "energy": ["Ninjutsu", "Random"],
+                "cooldown": 1,
+                "target": "single-enemy",
+                "damage": 0,
+                "actorCondition": {
+                    "statusMetadataAtLeast": {
+                        "statusId": "scraggy_focus_energy_tracker",
+                        "metadataKey": "scraggyFocusEnergyStacks",
+                        "value": 1
+                    }
+                },
+                "classes": ["Fighting", "Special", "Ranged", "Control", "Instant"],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "scraggy_focus_blast_mark",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "turnStartDamage": 40,
+                            "skipFirstTurnStartTick": true,
+                            "ignoreTargetDamageReduction": true,
+                            "ignoreTargetDestructibleDefense": true,
+                            "statusIconUrl": "assets/images/PokemonArena/Scraggy/focusblast.png",
+                            "tooltipText": "This character takes 40 piercing damage at the start of their next turn."
+                        }
+                    }
+                ],
+                "evolvesTo": {
+                    "id": "scrafty-focus-blast",
+                    "name": "Focus Blast",
+                    "skillimage": "assets/images/PokemonArena/Scraggy/scraftyfocusblast.png",
+                    "skilldescription": "Scrafty becomes invulnerable to Melee skills for 1 turn and deals 40 piercing damage to one enemy at the start of their following turn.",
+                    "description": "Scrafty becomes invulnerable to Melee skills for 1 turn and deals 40 piercing damage to one enemy at the start of their following turn.",
+                    "energy": ["Ninjutsu", "Random"],
+                    "cooldown": 2,
+                    "target": "single-enemy",
+                    "damage": 0,
+                    "classes": ["Fighting", "Special", "Ranged", "Control", "Instant"],
+                    "effects": [
+                        {
+                            "type": "apply_status",
+                            "statusId": "scrafty_focus_blast_melee_invulnerability",
+                            "duration": 1,
+                            "scope": "self",
+                            "metadata": {
+                                "invulnerableToSkillClasses": ["Melee"],
+                                "tooltipText": "Scrafty is invulnerable to Melee skills."
+                            }
+                        },
+                        {
+                            "type": "apply_status",
+                            "statusId": "scrafty_focus_blast_mark",
+                            "duration": 1,
+                            "scope": "target",
+                            "metadata": {
+                                "harmful": true,
+                                "turnStartDamage": 40,
+                                "skipFirstTurnStartTick": true,
+                                "ignoreTargetDamageReduction": true,
+                                "ignoreTargetDestructibleDefense": true,
+                                "statusIconUrl": "assets/images/PokemonArena/Scraggy/scraftyfocusblast.png",
+                                "tooltipText": "This character takes 40 piercing damage at the start of their next turn."
+                            }
+                        }
+                    ]
+                }
+            },
+            {
+                "id": "scraggy-focus-energy",
+                "name": "Passive: Focus Energy",
+                "skillimage": "assets/images/PokemonArena/Scraggy/focusenergy.png",
+                "skilldescription": "Scraggy gains 1 Focus Energy when it ends a turn without using a new skill, uses Leer, or successfully lands Hi Jump Kick. At 3 stacks, Scraggy permanently evolves into Scrafty with improved skills.",
+                "description": "Scraggy gains 1 Focus Energy when it ends a turn without using a new skill, uses Leer, or successfully lands Hi Jump Kick. At 3 stacks, Scraggy permanently evolves into Scrafty with improved skills.",
+                "energy": [],
+                "cooldown": 0,
+                "target": "",
+                "damage": 0,
+                "classes": ["Normal", "Physical", "Passive", "Strategic", "Instant"],
+                "effects": []
+            }
+        ],
+        "startStatuses": [
+            {
+                "statusId": "scraggy_focus_energy_tracker",
+                "sourceSkillId": "scraggy-focus-energy",
+                "duration": 999,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "unremovable": true,
+                    "copyOnDittoTransform": true,
+                    "scraggyFocusEnergyStacks": 0,
+                    "stackMetadataKey": "scraggyFocusEnergyStacks",
+                    "stackMax": 3,
+                    "evolutionStatusId": "scraggy_scrafty_evolution",
+                    "turnEndApplyStatusToOwnerIfNoManualSkill": {
+                        "statusId": "scraggy_focus_energy_tracker",
+                        "sourceSkillId": "scraggy-focus-energy",
+                        "duration": 999,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "stackMetadataKey": "scraggyFocusEnergyStacks",
+                            "stackDelta": 1,
+                            "stackMax": 3,
+                            "statusIconUrl": "assets/images/PokemonArena/Scraggy/focusenergy.png",
+                            "tooltipTextTemplate": "Scraggy has {scraggyFocusEnergyStacks}/3 Focus Energy stacks."
+                        }
+                    },
+                    "applyStatusAtStack": {
+                        "metadataKey": "scraggyFocusEnergyStacks",
+                        "value": 3,
+                        "statusId": "scraggy_scrafty_evolution",
+                        "duration": 999,
+                        "sourceSkillId": "scraggy-focus-energy",
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "useEvolvedSkills": true,
+                            "removeStatusIdsOnApply": ["scraggy_focus_energy_tracker"],
+                            "facePictureOverride": "assets/images/PokemonArena/Scraggy/scraftyfp.png",
+                            "statusIconUrl": "assets/images/PokemonArena/Scraggy/focusenergy.png",
+                            "tooltipText": "Scraggy has evolved into Scrafty. Its four active skills are improved."
+                        }
+                    },
+                    "statusIconUrl": "assets/images/PokemonArena/Scraggy/focusenergy.png",
+                    "tooltipTextTemplate": "Scraggy has {scraggyFocusEnergyStacks}/3 Focus Energy stacks."
                 }
             }
         ]

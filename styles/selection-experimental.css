@@ -988,6 +988,12 @@ html.selection-experimental .selection-mode-controls {
     flex-direction: column;
 }
 
+html.selection-experimental .pokemon-arena-selection-logo {
+    width: min(100%, 280px);
+    max-height: 118px;
+    align-self: center;
+}
+
 html.selection-experimental .arena-mode-switch,
 html.selection-experimental .draft-mode-check {
     filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));

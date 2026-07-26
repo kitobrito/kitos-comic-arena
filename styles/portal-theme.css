@@ -1175,6 +1175,15 @@ body:is(.arena-mode-pokemon, .home-arena-pokemon, [data-page-arena="pokemon"]) {
   background: linear-gradient(145deg, #fff 0%, #fff1f2 64%, #d62d3a 100%) fixed !important;
 }
 
+body:is(.arena-mode-pokemon, .home-arena-pokemon, [data-page-arena="pokemon"]) .brand-mark,
+body.home-arena-pokemon .arena-badge-mark {
+  width: min(150px, 100%) !important;
+  height: auto !important;
+  max-height: 86px !important;
+  object-fit: contain !important;
+  border-radius: 8px;
+}
+
 body:is(.arena-mode-pokemon, .home-arena-pokemon, [data-page-arena="pokemon"])
   :is(.portal-topbar, .portal-subnav, .portal-stage, .portal-panel, .panel, .auth-shell, .news-feed-shell, .character-modal) {
   border-color: #a61926 !important;

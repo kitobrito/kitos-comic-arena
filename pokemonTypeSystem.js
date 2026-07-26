@@ -47,6 +47,8 @@ const POKEMON_CHARACTER_TYPES = Object.freeze({
     chikorita: ['Grass'],
     totodile: ['Water'],
     aegislash: ['Steel', 'Ghost'],
+    ditto: ['Normal'],
+    scraggy: ['Dark', 'Fighting'],
 });
 
 const skillsByType = {
@@ -78,6 +80,10 @@ const skillsByType = {
         'clefable-double-slap', 'wigglytuff-perish-song', 'wigglytuff-sing',
         'wigglytuff-wish', 'wigglytuff-humiliate',
         'aegislash-slash', 'aegislash-swords-dance', 'aegislash-stance-change',
+        'ditto-transform-1', 'ditto-transform-2', 'ditto-transform-3',
+        'ditto-transform-4', 'ditto-passive-transform',
+        'scraggy-headbutt', 'scrafty-headbutt', 'scraggy-leer', 'scrafty-leer',
+        'scraggy-focus-energy',
     ],
     Fire: [
         'charmander-ember', 'charmander-flamethrower', 'charmander-passive-evolution-charmeleon',
@@ -121,6 +127,8 @@ const skillsByType = {
         'machoke-bulk-up', 'hitmonlee-double-kick', 'hitmonlee-high-jump-kick',
         'hitmonlee-low-kick', 'mewtwo-drain-punch', 'totodile-superpower',
         'aegislash-sacred-sword',
+        'scraggy-hi-jump-kick', 'scrafty-hi-jump-kick',
+        'scraggy-focus-blast', 'scrafty-focus-blast',
     ],
     Poison: [
         'koffing-smog', 'koffing-passive-poison-gas', 'koffing-passive-evolution-weezing',
@@ -223,11 +231,12 @@ const POKEMON_STATUS_TOOLTIPS = Object.freeze({
     cyndaquil_smokescreen: { tooltipText: 'This character is fully blinded; all of its skills miss.' },
     cyndaquil_skyward_leap: { tooltipText: 'The next enemy skill used on Cyndaquil misses. Taking damage ends this effect.' },
     cyndaquil_skyward_bonus: { tooltipText: 'Aerial Tackle and Aerial Flamethrower deal 10 additional damage.' },
-    chikorita_sweet_scent_tracker: { tooltipTextTemplate: 'Sweet Scent alternates the weakened class between Physical and Special each turn. Solar Beam currently has {solarBeamStacks} bonus stack(s).' },
+    chikorita_sweet_scent_tracker: { tooltipTextTemplate: 'Sweet Scent cycles the weakened class between Physical, Special, and Affliction each turn. Solar Beam currently has {solarBeamStacks} bonus stack(s).' },
     chikorita_light_screen: { tooltipTextTemplate: 'This character has {destructibleDefensePoints} destructible defense. A new enemy skill used on them weakens Sweet Scent\'s current class and adds 1 Solar Beam stack.' },
     chikorita_vine_defense: { tooltipText: 'Chikorita is invulnerable to enemy skills.' },
     totodile_water_rings_tracker: { tooltipTextTemplate: 'Totodile has {waterRings} Water Ring(s) and heals 5 HP per ring each turn. Aqua Tail has {aquaTailPermanentPenalty} permanent damage penalty.' },
     totodile_superpower_invulnerable: { tooltipText: 'Totodile is invulnerable to enemy skills. Its next Aqua Tail gains 10 damage, then permanently loses 5 damage.' },
+    ditto_transformation: { tooltipText: 'This character has transformed. Its copied skills deal 5 less damage and cost one fewer Random energy.' },
 });
 
 const applyPokemonStatusTooltips = (value, sourceSkillId = '', errors = []) => {
