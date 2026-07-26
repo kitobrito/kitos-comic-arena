@@ -12,7 +12,7 @@ const releaseVersion = 'pokemon-aegislash-class-audio';
 const aegislash = characters.find((character) => character?.id === 'aegislash');
 
 const paragraphs = [
-    'Aegislash has joined Pokemon Arena as the first release from the next wave of community characters. This design comes from my old Anime Arena game and was originally designed by fghop. Its Stance Change passive swaps between an attacking portrait and a defensive Shield Stance that refreshes destructible defense.',
+    'Aegislash has joined Pokemon Arena as the first release from the next wave of community characters. This design comes from my old Anime Arena game and was originally designed by fghop. Its Stance Change passive swaps between an attacking portrait and a defensive Shield Stance that refreshes destructible defense only when Aegislash uses a skill; inactivity now preserves its stance. Slash has also been renamed Cut.',
     'I intend to add the other community characters to the game next. Thank you to everyone preserving, sharing, and improving the character designs that made the original community special.',
     'Pokemon Arena damage classes have been overhauled. Physical and Special are now the only primary damage classes, with Special replacing Energy and offensive Mental classifications. Affliction remains as a secondary class shown immediately after Physical or Special. Obsolete non-Mental stuns have been rebalanced into harmful, Physical, or Special stuns.',
     'Chikorita Sweet Scent now cycles between Physical, Special, and Affliction damage, reducing the active class by 5 each turn. Affliction is reduced separately from the primary class attached to the skill.',

@@ -32565,7 +32565,7 @@ const characters = [
         "skills": [
             {
                 "id": "aegislash-slash",
-                "name": "Slash",
+                "name": "Cut",
                 "skillimage": "assets/images/PokemonArena/aegislash/OfficialPictures/Slash.jpg",
                 "skilldescription": "Deals 20 piercing damage to one enemy. Aegislash enters Blade Stance.",
                 "description": "Deals 20 piercing damage to one enemy. Aegislash enters Blade Stance.",
@@ -32601,8 +32601,8 @@ const characters = [
                 "id": "aegislash-swords-dance",
                 "name": "Swords Dance",
                 "skillimage": "assets/images/PokemonArena/aegislash/OfficialPictures/SwordsDance.jpg",
-                "skilldescription": "Permanently increases Sacred Sword's damage by 10 and Slash's damage by 5. This effect stacks. Aegislash enters Shield Stance.",
-                "description": "Permanently increases Sacred Sword's damage by 10 and Slash's damage by 5. This effect stacks. Aegislash enters Shield Stance.",
+                "skilldescription": "Permanently increases Sacred Sword's damage by 10 and Cut's damage by 5. This effect stacks. Aegislash enters Shield Stance.",
+                "description": "Permanently increases Sacred Sword's damage by 10 and Cut's damage by 5. This effect stacks. Aegislash enters Shield Stance.",
                 "energy": ["Ninjutsu"],
                 "cooldown": 1,
                 "target": "self",
@@ -32625,7 +32625,7 @@ const characters = [
                             "slashBonus": 5,
                             "mergeNumericAddKeys": ["sacredSwordBonus", "slashBonus"],
                             "statusIconUrl": "assets/images/PokemonArena/aegislash/OfficialPictures/SwordsDance.jpg",
-                            "tooltipTextTemplate": "Sacred Sword deals {sacredSwordBonus} additional damage and Slash deals {slashBonus} additional damage."
+                            "tooltipTextTemplate": "Sacred Sword deals {sacredSwordBonus} additional damage and Cut deals {slashBonus} additional damage."
                         }
                     },
                     {
@@ -32656,7 +32656,7 @@ const characters = [
                 "cooldown": 2,
                 "target": "self",
                 "damage": 0,
-                "classes": ["Steel", "Special", "Strategic", "Instant", "Invincible"],
+                "classes": ["Steel", "Special", "Strategic", "Instant"],
                 "effects": [
                     {
                         "type": "apply_status",
@@ -32745,8 +32745,8 @@ const characters = [
                 "id": "aegislash-stance-change",
                 "name": "Passive: Stance Change",
                 "skillimage": "assets/images/PokemonArena/aegislash/OfficialPictures/Passive.jpg",
-                "skilldescription": "Aegislash begins in Shield Stance. After using a non-damaging skill or not using a new skill, it enters Shield Stance for the following turn, refreshing 10 destructible defense and gaining 5 unpierceable damage reduction. Damaging skills put Aegislash in Blade Stance.",
-                "description": "Aegislash begins in Shield Stance. After using a non-damaging skill or not using a new skill, it enters Shield Stance for the following turn, refreshing 10 destructible defense and gaining 5 unpierceable damage reduction. Damaging skills put Aegislash in Blade Stance.",
+                "skilldescription": "Aegislash begins in Shield Stance. Using a non-damaging skill enters Shield Stance, refreshing 10 destructible defense and granting 5 unpierceable damage reduction. Using a damaging skill enters Blade Stance. Ending a turn without using a new skill does not change its stance.",
+                "description": "Aegislash begins in Shield Stance. Using a non-damaging skill enters Shield Stance, refreshing 10 destructible defense and granting 5 unpierceable damage reduction. Using a damaging skill enters Blade Stance. Ending a turn without using a new skill does not change its stance.",
                 "energy": [],
                 "cooldown": 0,
                 "target": "",
@@ -32763,23 +32763,8 @@ const characters = [
                 "metadata": {
                     "infiniteDuration": true,
                     "unremovable": true,
-                    "turnEndApplyStatusToOwnerIfNoManualSkill": {
-                        "statusId": "aegislash_shield_stance",
-                        "sourceSkillId": "aegislash-stance-change",
-                        "duration": 999,
-                        "metadata": {
-                            "infiniteDuration": true,
-                            "unremovable": true,
-                            "destructibleDefensePoints": 10,
-                            "unpierceableDamageReductionFlat": 5,
-                            "facePictureOverride": "assets/images/PokemonArena/aegislash/OfficialPictures/Facepicturewithpassiveactive.jpg",
-                            "removeStatusIdsOnApply": ["aegislash_blade_stance"],
-                            "statusIconUrl": "assets/images/PokemonArena/aegislash/OfficialPictures/Passive.jpg",
-                            "tooltipText": "Aegislash is in Shield Stance with 10 destructible defense and 5 unpierceable damage reduction."
-                        }
-                    },
                     "statusIconUrl": "assets/images/PokemonArena/aegislash/OfficialPictures/Passive.jpg",
-                    "tooltipText": "Stance Change returns Aegislash to Shield Stance after a non-damaging or inactive turn."
+                    "tooltipText": "Stance Change switches Aegislash only when it uses a skill; inactivity preserves its current stance."
                 }
             },
             {
@@ -32959,7 +32944,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Scraggy/headbutt.png",
                 "skilldescription": "Deals 20 damage to one enemy, increased to 25 damage if they are stunned.",
                 "description": "Deals 20 damage to one enemy, increased to 25 damage if they are stunned.",
-                "energy": ["Ninjutsu"],
+                "energy": ["Taijutsu"],
                 "cooldown": 0,
                 "target": "single-enemy",
                 "damage": 0,
@@ -32980,7 +32965,7 @@ const characters = [
                     "skillimage": "assets/images/PokemonArena/Scraggy/scraftyheadbutt.png",
                     "skilldescription": "Deals 30 damage to one enemy, increased to 40 damage if they are stunned.",
                     "description": "Deals 30 damage to one enemy, increased to 40 damage if they are stunned.",
-                    "energy": ["Ninjutsu", "Taijutsu"],
+                    "energy": ["Taijutsu", "Random"],
                     "cooldown": 0,
                     "target": "single-enemy",
                     "damage": 0,
@@ -33001,9 +32986,9 @@ const characters = [
                 "id": "scraggy-leer",
                 "name": "Leer",
                 "skillimage": "assets/images/PokemonArena/Scraggy/leer.png",
-                "skilldescription": "Stuns one enemy's harmful skills for 1 turn and their Melee skills for 2 turns. Scraggy gains 1 Focus Energy.",
-                "description": "Stuns one enemy's harmful skills for 1 turn and their Melee skills for 2 turns. Scraggy gains 1 Focus Energy.",
-                "energy": ["Random"],
+                "skilldescription": "Stuns one enemy's harmful skills for 1 turn and their Physical skills for 2 turns. Scraggy gains 1 Focus Energy.",
+                "description": "Stuns one enemy's harmful skills for 1 turn and their Physical skills for 2 turns. Scraggy gains 1 Focus Energy.",
+                "energy": ["Genjutsu"],
                 "cooldown": 2,
                 "target": "single-enemy",
                 "damage": 0,
@@ -33029,8 +33014,8 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "stunLikeEffect": true,
-                            "cannotUseSkillClasses": ["Melee"],
-                            "tooltipText": "This character's Melee skills are stunned."
+                            "cannotUseSkillClasses": ["Physical"],
+                            "tooltipText": "This character's Physical skills are stunned."
                         }
                     },
                     {
@@ -33053,9 +33038,9 @@ const characters = [
                     "id": "scrafty-leer",
                     "name": "Leer",
                     "skillimage": "assets/images/PokemonArena/Scraggy/scraftyleer.png",
-                    "skilldescription": "Stuns one enemy's harmful skills for 1 turn and their Melee skills for 2 turns. Hi Jump Kick cannot miss enemies affected by Leer.",
-                    "description": "Stuns one enemy's harmful skills for 1 turn and their Melee skills for 2 turns. Hi Jump Kick cannot miss enemies affected by Leer.",
-                    "energy": ["Taijutsu"],
+                    "skilldescription": "Stuns one enemy's harmful skills for 1 turn and their Physical skills for 2 turns. Hi Jump Kick cannot miss enemies affected by Leer.",
+                    "description": "Stuns one enemy's harmful skills for 1 turn and their Physical skills for 2 turns. Hi Jump Kick cannot miss enemies affected by Leer.",
+                    "energy": ["Random"],
                     "cooldown": 2,
                     "target": "single-enemy",
                     "damage": 0,
@@ -33081,8 +33066,8 @@ const characters = [
                             "metadata": {
                                 "harmful": true,
                                 "stunLikeEffect": true,
-                                "cannotUseSkillClasses": ["Melee"],
-                                "tooltipText": "This character's Melee skills are stunned and Hi Jump Kick cannot miss them."
+                                "cannotUseSkillClasses": ["Physical"],
+                                "tooltipText": "This character's Physical skills are stunned and Hi Jump Kick cannot miss them."
                             }
                         }
                     ]
@@ -33092,9 +33077,9 @@ const characters = [
                 "id": "scraggy-hi-jump-kick",
                 "name": "Hi Jump Kick",
                 "skillimage": "assets/images/PokemonArena/Scraggy/hijumpkick.png",
-                "skilldescription": "Deals 35 damage to one enemy. This skill has a 25% chance to miss. If it misses, Scraggy loses 25 HP.",
-                "description": "Deals 35 damage to one enemy. This skill has a 25% chance to miss. If it misses, Scraggy loses 25 HP.",
-                "energy": ["Ninjutsu", "Taijutsu"],
+                "skilldescription": "Deals 35 damage to one enemy. This skill has a 25% chance to miss, but cannot miss a stunned enemy. If it misses, Scraggy loses 25 HP.",
+                "description": "Deals 35 damage to one enemy. This skill has a 25% chance to miss, but cannot miss a stunned enemy. If it misses, Scraggy loses 25 HP.",
+                "energy": ["Taijutsu", "Random"],
                 "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
@@ -33107,7 +33092,23 @@ const characters = [
                         "scope": "self",
                         "chance": 75,
                         "condition": {
-                            "scope": "target"
+                            "scope": "target",
+                            "missingStunLikeEffect": true
+                        },
+                        "metadata": {
+                            "hidden": true,
+                            "hideTooltipFromUnitOwner": true,
+                            "hideTooltipFromEnemy": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "scraggy_hi_jump_kick_hit_confirmed",
+                        "duration": 1,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "target",
+                            "hasStunLikeEffect": true
                         },
                         "metadata": {
                             "hidden": true,
@@ -33176,9 +33177,9 @@ const characters = [
                     "id": "scrafty-hi-jump-kick",
                     "name": "Hi Jump Kick",
                     "skillimage": "assets/images/PokemonArena/Scraggy/scraftyhijumpkick.png",
-                    "skilldescription": "Deals 45 damage to one enemy. This skill has a 25% chance to miss. If it misses, Scrafty loses 35 HP. It cannot miss enemies affected by Leer.",
-                    "description": "Deals 45 damage to one enemy. This skill has a 25% chance to miss. If it misses, Scrafty loses 35 HP. It cannot miss enemies affected by Leer.",
-                    "energy": ["Ninjutsu", "Ninjutsu"],
+                    "skilldescription": "Deals 45 damage to one enemy. This skill has a 25% chance to miss, but cannot miss a stunned enemy. If it misses, Scrafty loses 35 HP.",
+                    "description": "Deals 45 damage to one enemy. This skill has a 25% chance to miss, but cannot miss a stunned enemy. If it misses, Scrafty loses 35 HP.",
+                    "energy": ["Taijutsu", "Random"],
                     "cooldown": 1,
                     "target": "single-enemy",
                     "damage": 0,
@@ -33192,7 +33193,7 @@ const characters = [
                             "chance": 75,
                             "condition": {
                                 "scope": "target",
-                                "missingStatusId": "scraggy_leer_melee_stun"
+                                "missingStunLikeEffect": true
                             },
                             "metadata": {
                                 "hidden": true,
@@ -33207,7 +33208,7 @@ const characters = [
                             "scope": "self",
                             "condition": {
                                 "scope": "target",
-                                "statusId": "scraggy_leer_melee_stun"
+                                "hasStunLikeEffect": true
                             },
                             "metadata": {
                                 "hidden": true,
@@ -33265,7 +33266,7 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/Scraggy/focusblast.png",
                 "skilldescription": "Deals 40 piercing damage to one enemy at the start of their following turn. This skill can only be used while Scraggy has at least 1 Focus Energy.",
                 "description": "Deals 40 piercing damage to one enemy at the start of their following turn. This skill can only be used while Scraggy has at least 1 Focus Energy.",
-                "energy": ["Ninjutsu", "Random"],
+                "energy": ["Taijutsu", "Genjutsu"],
                 "cooldown": 1,
                 "target": "single-enemy",
                 "damage": 0,
@@ -33298,9 +33299,9 @@ const characters = [
                     "id": "scrafty-focus-blast",
                     "name": "Focus Blast",
                     "skillimage": "assets/images/PokemonArena/Scraggy/scraftyfocusblast.png",
-                    "skilldescription": "Scrafty becomes invulnerable to Melee skills for 1 turn and deals 40 piercing damage to one enemy at the start of their following turn.",
-                    "description": "Scrafty becomes invulnerable to Melee skills for 1 turn and deals 40 piercing damage to one enemy at the start of their following turn.",
-                    "energy": ["Ninjutsu", "Random"],
+                    "skilldescription": "Scrafty becomes invulnerable to Physical skills for 1 turn and deals 40 piercing damage to one enemy at the start of their following turn.",
+                    "description": "Scrafty becomes invulnerable to Physical skills for 1 turn and deals 40 piercing damage to one enemy at the start of their following turn.",
+                    "energy": ["Taijutsu", "Genjutsu"],
                     "cooldown": 2,
                     "target": "single-enemy",
                     "damage": 0,
@@ -33312,8 +33313,8 @@ const characters = [
                             "duration": 1,
                             "scope": "self",
                             "metadata": {
-                                "invulnerableToSkillClasses": ["Melee"],
-                                "tooltipText": "Scrafty is invulnerable to Melee skills."
+                                "invulnerableToSkillClasses": ["Physical"],
+                                "tooltipText": "Scrafty is invulnerable to Physical skills."
                             }
                         },
                         {

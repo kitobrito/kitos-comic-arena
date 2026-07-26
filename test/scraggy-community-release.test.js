@@ -78,6 +78,52 @@ test('Scraggy uses supplied assets, Cheshire credit, correct typing, and no Ya B
     });
 });
 
+test('Scraggy and Scrafty use their corrected costs and Physical class control', () => {
+    const scraggy = characters[scraggyIndex];
+    const expectedCosts = {
+        'scraggy-headbutt': {
+            base: ['Taijutsu'],
+            evolved: ['Taijutsu', 'Random'],
+        },
+        'scraggy-leer': {
+            base: ['Genjutsu'],
+            evolved: ['Random'],
+        },
+        'scraggy-hi-jump-kick': {
+            base: ['Taijutsu', 'Random'],
+            evolved: ['Taijutsu', 'Random'],
+        },
+        'scraggy-focus-blast': {
+            base: ['Taijutsu', 'Genjutsu'],
+            evolved: ['Taijutsu', 'Genjutsu'],
+        },
+    };
+    Object.entries(expectedCosts).forEach(([skillId, costs]) => {
+        const skill = scraggy.skills.find((entry) => entry.id === skillId);
+        assert.deepEqual(skill?.energy, costs.base, `${skillId} base cost`);
+        assert.deepEqual(skill?.evolvesTo?.energy, costs.evolved, `${skillId} evolved cost`);
+    });
+
+    const leer = scraggy.skills.find((skill) => skill.id === 'scraggy-leer');
+    const baseClassStun = leer.effects.find(
+        (effect) => effect.statusId === 'scraggy_leer_melee_stun'
+    );
+    const evolvedClassStun = leer.evolvesTo.effects.find(
+        (effect) => effect.statusId === 'scraggy_leer_melee_stun'
+    );
+    assert.deepEqual(baseClassStun.metadata.cannotUseSkillClasses, ['Physical']);
+    assert.deepEqual(evolvedClassStun.metadata.cannotUseSkillClasses, ['Physical']);
+    assert.match(leer.skilldescription, /Physical skills for 2 turns/i);
+    assert.match(leer.evolvesTo.skilldescription, /Physical skills for 2 turns/i);
+
+    const focusBlast = scraggy.skills.find((skill) => skill.id === 'scraggy-focus-blast');
+    const evolvedInvulnerability = focusBlast.evolvesTo.effects.find(
+        (effect) => effect.statusId === 'scrafty_focus_blast_melee_invulnerability'
+    );
+    assert.deepEqual(evolvedInvulnerability.metadata.invulnerableToSkillClasses, ['Physical']);
+    assert.match(focusBlast.evolvesTo.skilldescription, /invulnerable to Physical skills/i);
+});
+
 test('Hi Jump Kick miss leaves the enemy unharmed, damages Scraggy, and emits MISS metadata', () => {
     const match = makeMatch({ ash: [scraggyIndex], gary: [koffingIndex] });
     const originalRandom = Math.random;
@@ -120,6 +166,47 @@ test('a landed Hi Jump Kick grants one Focus Energy stack and damages the enemy'
         )?.metadata?.scraggyFocusEnergyStacks,
         1
     );
+});
+
+test('Hi Jump Kick cannot miss any stunned target', () => {
+    for (const { evolved, expectedEnemyHp } of [
+        { evolved: false, expectedEnemyHp: 70 },
+        { evolved: true, expectedEnemyHp: 60 },
+    ]) {
+        const match = makeMatch({ ash: [scraggyIndex], gary: [koffingIndex] });
+        if (evolved) {
+            match.board.ash[0].state.statuses.push({
+                id: 'scraggy_scrafty_evolution',
+                remainingTurns: 999,
+                metadata: { infiniteDuration: true, useEvolvedSkills: true },
+            });
+        }
+        match.board.gary[0].state.statuses.push({
+            id: 'test_stun',
+            remainingTurns: 1,
+            metadata: {
+                harmful: true,
+                stunLikeEffect: true,
+                cannotUseSkills: true,
+            },
+        });
+        const originalRandom = Math.random;
+        Math.random = () => 0.99;
+        try {
+            queueSkill(match, 'ash', 2, 'gary');
+            resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+        } finally {
+            Math.random = originalRandom;
+        }
+        assert.equal(match.board.gary[0].hp, expectedEnemyHp);
+        assert.equal(match.board.ash[0].hp, 100);
+        assert.equal(
+            match.board.gary[0].state.statuses.some(
+                (status) => status.id === 'skill_missed_notification'
+            ),
+            false
+        );
+    }
 });
 
 test('three inactive turns evolve Scraggy and a copied Ditto into Scrafty skills', () => {
