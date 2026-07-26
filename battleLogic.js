@@ -5512,7 +5512,7 @@ const triggerOnOwnerTargetedBySkillBonuses = ({
             const tracker = chikoritaState?.statuses?.find(
                 (entry) => entry?.id === 'chikorita_sweet_scent_tracker' && (Number(entry?.remainingTurns) || 0) > 0
             );
-            const classes = ['physical', 'energy', 'mental', 'affliction'];
+            const classes = ['physical', 'special'];
             const activeClass = classes[Math.max(0, Number(tracker?.metadata?.sweetScentClassIndex) || 0) % classes.length];
             applyStatus({
                 targetState: sourceState,
