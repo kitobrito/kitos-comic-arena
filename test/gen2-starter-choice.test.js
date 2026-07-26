@@ -171,6 +171,38 @@ test('Chikorita Light Screen grants 25 destructible defense', () => {
     assert.equal(lightScreen?.metadata?.destructibleDefensePoints, 25);
 });
 
+test('Chikorita Light Screen weakens the active Physical or Special class by 5', () => {
+    const { match } = makeMatch({
+        actorId: 'chikorita',
+        opponentId: 'pikachu',
+        skillId: 'chikorita-light-screen',
+        targets: [{ username: 'Starter', slot: 0 }],
+    });
+    resolvePendingTurnSkills({ match, actingUsername: 'Starter', characters });
+
+    const tracker = match.board.Starter[0].state.statuses.find(
+        (status) => status.id === 'chikorita_sweet_scent_tracker'
+    );
+    tracker.metadata.sweetScentClassIndex = 1;
+    match.pendingTurns.Opponent = {
+        queueOrder: ['0'],
+        queuedByActorSlot: {
+            0: {
+                skillIndex: characters.find((entry) => entry.id === 'pikachu').skills.findIndex(
+                    (skill) => skill.id === 'pikachu-thundershock'
+                ),
+                targetSelection: [{ username: 'Starter', slot: 0 }],
+            },
+        },
+    };
+
+    resolvePendingTurnSkills({ match, actingUsername: 'Opponent', characters });
+    const debuff = match.board.Opponent[0].state.statuses.find(
+        (status) => status.id.startsWith('chikorita_light_screen_debuff_')
+    );
+    assert.deepEqual(debuff?.metadata?.damageDebuffBySkillClass, { special: 5 });
+});
+
 test('Chikorita Solar Beam consumes Light Screen stacks for bonus damage', () => {
     const { match } = makeMatch({
         actorId: 'chikorita',
