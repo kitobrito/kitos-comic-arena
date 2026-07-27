@@ -289,7 +289,7 @@ test('Koffing Poison Gas is owner-only and Smog triggers on immediate and later 
     ));
 });
 
-test('Scraggy mission, release details, optimized renders, and Pokemon logo are present', () => {
+test('Scraggy release assets remain branded while the new UI hides its selection logo', () => {
     const mission = ensureRequiredMissionCatalogEntries([]).find(
         (entry) => entry.reward_character === 'scraggy'
     );
@@ -316,9 +316,18 @@ test('Scraggy mission, release details, optimized renders, and Pokemon logo are 
     assert.match(newsText, /battle animations/i);
 
     const selection = fs.readFileSync(path.join(root, 'selection.html'), 'utf8');
+    const experimentalSelectionCss = fs.readFileSync(
+        path.join(root, 'styles', 'selection-experimental.css'),
+        'utf8'
+    );
     const ingame = fs.readFileSync(path.join(root, 'ingame.html'), 'utf8');
     const navigation = fs.readFileSync(path.join(root, 'scripts', 'arena-navigation.js'), 'utf8');
     assert.match(selection, /pokemon-arena-selection-logo/);
+    assert.match(selection, /pokemon-selection-logo-hide-v1/);
+    assert.match(
+        experimentalSelectionCss,
+        /html\.selection-experimental \.pokemon-arena-selection-logo\s*\{\s*display:\s*none;?\s*\}/
+    );
     assert.match(selection, /scraggy-renders-v1/);
     assert.match(ingame, /pokemon-arena-battle-intro-logo/);
     assert.match(ingame, /scraggy-miss-v1/);

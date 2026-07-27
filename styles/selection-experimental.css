@@ -989,9 +989,7 @@ html.selection-experimental .selection-mode-controls {
 }
 
 html.selection-experimental .pokemon-arena-selection-logo {
-    width: min(100%, 280px);
-    max-height: 118px;
-    align-self: center;
+    display: none;
 }
 
 html.selection-experimental .arena-mode-switch,
