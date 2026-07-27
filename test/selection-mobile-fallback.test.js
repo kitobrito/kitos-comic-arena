@@ -51,7 +51,7 @@ test('mobile character selection waits for a second tap without a timing race', 
 
 test('every mobile character face passes drag gestures to the page scroller', () => {
     assert.match(experimentalStyles, /html\.selection-experimental \{\s*overflow-y:\s*scroll;/s);
-    assert.match(experimentalStyles, /html\.selection-experimental body \{[^}]*min-height:\s*1485px;[^}]*overflow:\s*visible;/s);
+    assert.match(experimentalStyles, /html\.selection-experimental body \{[^}]*min-height:\s*1513px;[^}]*overflow:\s*visible;/s);
     assert.match(
         experimentalStyles,
         /\.slot-item,[\s\S]*?\.selected-slot-image,[\s\S]*?\.character-portrait,[\s\S]*?touch-action:\s*manipulation !important;/
@@ -124,4 +124,21 @@ test('experimental selection has dedicated portrait and landscape phone layouts'
     assert.match(experimentalStyles, /@media \(max-width: 950px\) and \(orientation: landscape\)/);
     assert.match(experimentalStyles, /minmax\(200px, 2\.6fr\)/);
     assert.match(experimentalStyles, /body\.custom-game-cursor \*/);
+});
+
+test('portrait arena controls reserve their own row above the character panel', () => {
+    const portraitLayout = experimentalStyles.match(
+        /@media \(max-width: 700px\) \{[\s\S]*?\n\}/
+    )?.[0] || '';
+
+    assert.match(
+        portraitLayout,
+        /\.selection-mode-controls\s*\{[^}]*top:\s*164px;[^}]*min-height:\s*48px;/s
+    );
+    assert.match(
+        portraitLayout,
+        /\.skillviewer,[\s\S]*?\.skillviewer\.raveling\s*\{[^}]*top:\s*222px;[^}]*height:\s*330px;/s
+    );
+    assert.match(portraitLayout, /\.slot-list\s*\{[^}]*top:\s*564px;/s);
+    assert.match(selectionHtml, /mobile-arena-bar-layout-v1/);
 });
