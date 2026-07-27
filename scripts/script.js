@@ -114,6 +114,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         skillIconProjectiles: true,
         queuedTargetMarkers: true,
         lowHpPulse: true,
+        deathAnimations: true,
         battleIntro: true,
         customCursor: true,
         clickSounds: true,
@@ -210,6 +211,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.body.classList.toggle('ui-disable-skill-icon-projectiles', !uiSettings.skillIconProjectiles);
         document.body.classList.toggle('ui-disable-queued-target-markers', !uiSettings.queuedTargetMarkers);
         document.body.classList.toggle('ui-disable-low-hp-pulse', !uiSettings.lowHpPulse);
+        document.body.classList.toggle('ui-disable-death-animations', !uiSettings.deathAnimations);
         document.body.classList.toggle('ui-disable-custom-cursor', !uiSettings.customCursor);
         if (isIngamePage || isSelectionPage) {
             document.body.classList.toggle('custom-game-cursor', Boolean(uiSettings.customCursor));
@@ -8265,7 +8267,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         };
 
         const restartDeathCrackAnimation = (card) => {
-            if (!card) return;
+            if (!card || !uiSettings.deathAnimations) return;
             card.classList.remove('death-crack');
             void card.offsetWidth;
             card.classList.add('death-crack');
@@ -8273,7 +8275,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         };
 
         const showCharacterDeathAnimation = (card, options = {}) => {
-            if (!card) return;
+            if (!card || !uiSettings.deathAnimations) return;
             const face = card.querySelector('.character-face');
             const portraitSrc = face?.dataset?.aliveSrc || face?.src || '';
             if (!portraitSrc) return;
@@ -8299,9 +8301,9 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         };
 
         const scheduleCharacterDeathFinale = (card, delayMs = 1050) => {
-            if (!card) return;
+            if (!card || !uiSettings.deathAnimations) return;
             window.setTimeout(() => {
-                if (!card?.isConnected) return;
+                if (!card?.isConnected || !uiSettings.deathAnimations) return;
                 showCharacterDeathAnimation(card, { playSound: false });
                 restartDeathCrackAnimation(card);
             }, Math.max(0, Number(delayMs) || 0));
@@ -8941,6 +8943,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         };
 
         const triggerSpecialDeathAnimation = (card, killerId) => {
+            if (!uiSettings.deathAnimations) return false;
             const animationType = getSpecialDeathAnimationType(killerId);
             if (animationType === 'saber-red') {
                 triggerSaberedAnimation(card, 'red');
@@ -9800,13 +9803,17 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     if (died) {
                         const previousUnit = previousBoard?.[currentPlayerUsername]?.[slot];
                         const killerId = playerUnits[slot]?.state?.killedByCharacterId;
-                        if (wasEkansCrunchKill(previousUnit, playerUnits[slot])) {
-                            triggerCrunchKillAnimation(card);
-                            scheduleCharacterDeathFinale(card, 980);
-                        } else if (!triggerSpecialDeathAnimation(card, killerId)) {
-                            showCharacterDeathAnimation(card);
+                        if (uiSettings.deathAnimations) {
+                            if (wasEkansCrunchKill(previousUnit, playerUnits[slot])) {
+                                triggerCrunchKillAnimation(card);
+                                scheduleCharacterDeathFinale(card, 980);
+                            } else if (!triggerSpecialDeathAnimation(card, killerId)) {
+                                showCharacterDeathAnimation(card);
+                            }
+                            restartDeathCrackAnimation(card);
+                        } else {
+                            clearTransientDeathFx(card);
                         }
-                        restartDeathCrackAnimation(card);
                     }
                     if (delta) {
                         showFloatingHpDelta(card, delta);
@@ -9861,13 +9868,17 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     if (died) {
                         const previousUnit = previousBoard?.[opponentUsername]?.[slot];
                         const killerId = opponentUnits[slot]?.state?.killedByCharacterId;
-                        if (wasEkansCrunchKill(previousUnit, opponentUnits[slot])) {
-                            triggerCrunchKillAnimation(card);
-                            scheduleCharacterDeathFinale(card, 980);
-                        } else if (!triggerSpecialDeathAnimation(card, killerId)) {
-                            showCharacterDeathAnimation(card);
+                        if (uiSettings.deathAnimations) {
+                            if (wasEkansCrunchKill(previousUnit, opponentUnits[slot])) {
+                                triggerCrunchKillAnimation(card);
+                                scheduleCharacterDeathFinale(card, 980);
+                            } else if (!triggerSpecialDeathAnimation(card, killerId)) {
+                                showCharacterDeathAnimation(card);
+                            }
+                            restartDeathCrackAnimation(card);
+                        } else {
+                            clearTransientDeathFx(card);
                         }
-                        restartDeathCrackAnimation(card);
                     }
                     if (delta) {
                         showFloatingHpDelta(card, delta);

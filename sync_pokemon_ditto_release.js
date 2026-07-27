@@ -7,7 +7,7 @@ const dbName = process.env.MONGODB_DB || 'comic-arena';
 const newsCollectionName = process.env.MONGODB_NEWS_POSTS_COLLECTION || 'news_posts';
 const appStateCollectionName = process.env.MONGODB_APP_STATE_COLLECTION || 'app_state';
 const latestReleasesKey = 'latest_character_releases';
-const migrationKey = 'release_migration:pokemon-ditto-scraggy-community-batch';
+const migrationKey = 'release_migration:pokemon-community-latest-releases-v2';
 const releaseVersion = 'pokemon-ditto-scraggy-community-batch';
 const ditto = characters.find((character) => character?.id === 'ditto');
 const scraggy = characters.find((character) => character?.id === 'scraggy');
@@ -129,9 +129,9 @@ const buildLatestReleasesState = (existingState = null) => {
             []
     );
     const pokemon = [
-        { characterId: 'scraggy' },
-        { characterId: 'ditto' },
         { characterId: 'aegislash' },
+        { characterId: 'ditto' },
+        { characterId: 'scraggy' },
         ...previousPokemon.filter(
             (entry) => !['scraggy', 'ditto', 'aegislash'].includes(entry.characterId)
         ),

@@ -492,9 +492,17 @@ test('community batch news is idempotent, credits every designer, and orders lat
     assert.deepEqual(
         documents.get('app_state:latest_character_releases').releasesByArena.pokemon,
         [
-            { characterId: 'scraggy' },
-            { characterId: 'ditto' },
             { characterId: 'aegislash' },
+            { characterId: 'ditto' },
+            { characterId: 'scraggy' },
+        ]
+    );
+    assert.deepEqual(
+        documents.get('app_state:latest_character_releases').value.releasesByArena.pokemon,
+        [
+            { characterId: 'aegislash' },
+            { characterId: 'ditto' },
+            { characterId: 'scraggy' },
         ]
     );
 });

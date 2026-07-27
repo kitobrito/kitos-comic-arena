@@ -5,7 +5,9 @@ const test = require('node:test');
 
 const root = path.join(__dirname, '..');
 const styles = fs.readFileSync(path.join(root, 'styles', 'ingame-experimental.css'), 'utf8');
+const sharedStyles = fs.readFileSync(path.join(root, 'styles', 'style.css'), 'utf8');
 const ingame = fs.readFileSync(path.join(root, 'ingame.html'), 'utf8');
+const script = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');
 
 test('battle usernames are contained inside their header panels', () => {
     assert.match(styles, /\.player-left,[\s\S]*?\.player-right \{[\s\S]*?overflow: hidden;/);
@@ -29,4 +31,17 @@ test('experimental battle chat is a visible standalone control beside surrender'
 test('experimental battle keeps full skill rows visible and centers the end-turn energy dialog', () => {
     assert.match(styles, /\.skillscrollingame\.not-turn,[\s\S]*?clip-path: none;/);
     assert.match(styles, /\.ChakraChooseEndTurn \{[\s\S]*?top: 50%;[\s\S]*?left: 50%;[\s\S]*?translate\(-50%, -50%\)/);
+});
+
+test('experimental battle exposes an upward-opening options menu with a death animation toggle', () => {
+    assert.match(ingame, /data-ui-setting="deathAnimations"> Death animations/);
+    assert.match(
+        styles,
+        /\.ingame-ui-options-panel \{[\s\S]*?bottom: calc\(100% \+ 8px\);[\s\S]*?left: 0;/
+    );
+    assert.match(script, /deathAnimations: true/);
+    assert.match(script, /if \(!card \|\| !uiSettings\.deathAnimations\) return;/);
+    assert.match(sharedStyles, /body\.ui-disable-death-animations \.character-death-shatter/);
+    assert.match(ingame, /battle-options-death-toggle-v1/);
+    assert.match(ingame, /battle-death-toggle-v1/);
 });

@@ -300,6 +300,15 @@ const TYPE_OVERRIDES_BY_STATUS_ID = Object.freeze({
     magikarp_gyarados_evolution: ['Water', 'Flying'],
 });
 
+const POKEMON_SKIN_TYPE_OVERRIDES = Object.freeze({
+    'charmander-charizard-legendary': ['Fire', 'Flying'],
+});
+
+const getPokemonSkinTypeOverride = (skinId = '') =>
+    normalizePokemonTypes(
+        POKEMON_SKIN_TYPE_OVERRIDES[String(skinId || '').trim().toLowerCase()]
+    );
+
 const normalizePokemonType = (value) => {
     const normalized = typeof value === 'string' ? value.trim().toLowerCase() : '';
     return POKEMON_TYPES.find((type) => type.toLowerCase() === normalized) || '';
@@ -423,10 +432,12 @@ module.exports = {
     POKEMON_CHARACTER_TYPES,
     POKEMON_SKILL_TYPES,
     POKEMON_STATUS_TOOLTIPS,
+    POKEMON_SKIN_TYPE_OVERRIDES,
     TYPE_EFFECTIVENESS,
     applyPokemonTypeSystem,
     getActivePokemonTypes,
     getPokemonMoveType,
+    getPokemonSkinTypeOverride,
     getPokemonTypeEffectiveness,
     normalizePokemonDamageClasses,
     normalizePokemonTypes,
