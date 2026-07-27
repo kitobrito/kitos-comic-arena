@@ -91,13 +91,13 @@ const LATEST_CHARACTER_RELEASES_BY_ARENA = {
         { label: 'General Grievous', characterId: 'general-grievous' },
     ],
     pokemon: [
-        { label: 'Dragonite', characterId: 'dragonite' },
-        { label: 'Mewtwo', characterId: 'mewtwo' },
-        { label: 'Mew', characterId: 'mew' },
+        { label: 'Aegislash', characterId: 'aegislash' },
+        { label: 'Ditto', characterId: 'ditto' },
+        { label: 'Scraggy', characterId: 'scraggy' },
     ],
 };
 const LATEST_CHARACTER_RELEASES_STATE_KEY = 'latest_character_releases';
-const LATEST_CHARACTER_RELEASES_VERSION = 'pokemon-wave-2-nine-character-launch';
+const LATEST_CHARACTER_RELEASES_VERSION = 'pokemon-community-aegislash-ditto-scraggy-v2';
 const MAINTENANCE_MODE_STATE_KEY = 'maintenance_mode';
 const MAINTENANCE_MODE_CACHE_TTL_MS = 10 * 1000;
 const DEFAULT_PROFILE_AVATAR = '/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png';
@@ -2639,6 +2639,17 @@ const POKEMON_SKIN_CATALOG = [
         },
     },
     {
+        skinId: 'ditto-flubber',
+        characterId: 'ditto',
+        name: 'Flubber Ditto',
+        description: 'A green Flubber-inspired Ditto skin. After transforming, Ditto still uses the copied Pokemon’s exact equipped appearance.',
+        unlockPointCost: 500,
+        previewFacePicture: 'assets/images/PokemonArena/Ditto/Done/dittoflubberskin.png',
+        patch: {
+            facePicture: 'assets/images/PokemonArena/Ditto/Done/dittoflubberskin.png',
+        },
+    },
+    {
         skinId: 'pikachu-raichu',
         characterId: 'pikachu',
         name: 'Raichu',
@@ -2792,6 +2803,7 @@ const POKEMON_SKIN_CATALOG = [
         previewFacePicture: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardfp.jpg',
         patch: {
             facePicture: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardfp.jpg',
+            pokemonTypes: ['Fire', 'Flying'],
         },
         skillOverridesBySkillId: {
             'charmander-passive-evolution-charmeleon': {
@@ -8294,6 +8306,36 @@ const normalizeLatestCharacterReleases = (entries = [], arena = 'comic') => {
     });
 };
 
+const buildLatestReleasesPersistenceFields = (
+    releasesByArena = {},
+    updatedBy = 'admin'
+) => {
+    const toCharacterReferences = (entries = []) =>
+        (Array.isArray(entries) ? entries : []).map((entry) => ({
+            characterId: typeof entry?.characterId === 'string' ? entry.characterId : '',
+        }));
+    const comic = toCharacterReferences(releasesByArena.comic);
+    const pokemon = toCharacterReferences(releasesByArena.pokemon);
+    const mirroredReleasesByArena = { comic, pokemon };
+    return {
+        key: LATEST_CHARACTER_RELEASES_STATE_KEY,
+        version: LATEST_CHARACTER_RELEASES_VERSION,
+        releases: comic,
+        comicReleases: comic,
+        pokemonReleases: pokemon,
+        releasesByArena: mirroredReleasesByArena,
+        value: {
+            version: LATEST_CHARACTER_RELEASES_VERSION,
+            releases: comic,
+            comicReleases: comic,
+            pokemonReleases: pokemon,
+            releasesByArena: mirroredReleasesByArena,
+        },
+        updatedAt: new Date(),
+        updatedBy,
+    };
+};
+
 const getLatestCharacterReleases = async (arena = 'comic') => {
     if (!appStateCollection) {
         return normalizeLatestCharacterReleases(
@@ -12426,28 +12468,10 @@ app.put('/api/admin/latest-releases', requireSession, async (req, res) => {
     await appStateCollection.updateOne(
         { key: LATEST_CHARACTER_RELEASES_STATE_KEY },
         {
-            $set: {
-                key: LATEST_CHARACTER_RELEASES_STATE_KEY,
-                version: LATEST_CHARACTER_RELEASES_VERSION,
-                releases: nextReleasesByArena.comic.map((entry) => ({
-                    characterId: entry.characterId,
-                })),
-                comicReleases: nextReleasesByArena.comic.map((entry) => ({
-                    characterId: entry.characterId,
-                })),
-                pokemonReleases: nextReleasesByArena.pokemon.map((entry) => ({
-                    characterId: entry.characterId,
-                })),
-                releasesByArena: {
-                    comic: nextReleasesByArena.comic.map((entry) => ({
-                        characterId: entry.characterId,
-                    })),
-                    pokemon: nextReleasesByArena.pokemon.map((entry) => ({
-                        characterId: entry.characterId,
-                    })),
-                },
-                updatedAt: new Date(),
-            },
+            $set: buildLatestReleasesPersistenceFields(
+                nextReleasesByArena,
+                req.authUser.username
+            ),
         },
         { upsert: true }
     );
@@ -17389,6 +17413,7 @@ if (require.main === module) {
         buildHumanMatchStatsFilter,
         inferMatchArenaFromTeams,
         buildCharacterWinrateEntries,
+        buildLatestReleasesPersistenceFields,
         normalizeNewsArena,
         countActiveBattleUnits,
     };

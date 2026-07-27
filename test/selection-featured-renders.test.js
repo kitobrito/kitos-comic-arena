@@ -109,6 +109,7 @@ test('every supplied equipped-skin showcase render is mapped and optimized', () 
         'croconaw.webp.webp',
         'crystalonix-removebg-preview.png.webp',
         'ferliagatr.png.webp',
+        'flubberditto.webp',
         'goldmagikarp.png.webp',
         'goldonix.png.webp',
         'magmaonix-removebg-preview.png.webp',

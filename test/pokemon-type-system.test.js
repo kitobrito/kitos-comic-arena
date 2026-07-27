@@ -8,6 +8,7 @@ const {
     applyPokemonTypeSystem,
     getActivePokemonTypes,
     getPokemonMoveType,
+    getPokemonSkinTypeOverride,
     getPokemonTypeEffectiveness,
 } = require('../pokemonTypeSystem');
 const {
@@ -17,6 +18,7 @@ const {
     tickStatusesForTurnEnd,
 } = require('../battleLogic');
 const { newsPost, syncPokemonTypeClassNews } = require('../sync_pokemon_type_class_news');
+const { POKEMON_SKIN_CATALOG } = require('../server');
 
 const makeMatch = (roster, playerTeams) => {
     const players = Object.entries(playerTeams).map(([username, team]) => ({ username, team }));
@@ -181,6 +183,55 @@ test('active form overrides expose Charizard and Gyarados typing', () => {
     assert.deepEqual(getActivePokemonTypes({ character: fire, unit: unitWith(['Fire', 'Dragon']) }), ['Fire', 'Dragon']);
     assert.deepEqual(getActivePokemonTypes({ character: fire, unit: unitWith(['Fire', 'Flying']) }), ['Fire', 'Flying']);
     assert.deepEqual(getActivePokemonTypes({ character: water, unit: unitWith(['Water', 'Flying']) }), ['Water', 'Flying']);
+});
+
+test('the equipped Charizard skin is Fire and Flying until a Mega form overrides it', () => {
+    const charmander = makePokemon('charmander', ['Fire']);
+    const players = [
+        {
+            username: 'Ash',
+            team: [0],
+            profile: {
+                arenas: {
+                    pokemon: {
+                        skins: {
+                            equippedSkinByCharacterId: {
+                                charmander: 'charmander-charizard-legendary',
+                            },
+                        },
+                    },
+                },
+            },
+        },
+        { username: 'Gary', team: [] },
+    ];
+    const board = buildInitialBoard(players, [charmander]);
+    const unit = board.Ash[0];
+    const charizardSkin = POKEMON_SKIN_CATALOG.find(
+        (skin) => skin.skinId === 'charmander-charizard-legendary'
+    );
+
+    assert.deepEqual(charizardSkin.patch.pokemonTypes, ['Fire', 'Flying']);
+    assert.deepEqual(getPokemonSkinTypeOverride(charizardSkin.skinId), ['Fire', 'Flying']);
+    assert.deepEqual(getActivePokemonTypes({ character: charmander, unit }), ['Fire', 'Flying']);
+
+    unit.state.statuses.push({
+        id: 'charmander_charizard_x_evolution_branch',
+        remainingTurns: 99,
+        metadata: { pokemonTypeOverride: ['Fire', 'Dragon'] },
+    });
+    assert.deepEqual(getActivePokemonTypes({ character: charmander, unit }), ['Fire', 'Dragon']);
+
+    const ditto = makePokemon('ditto', ['Normal']);
+    const copyPlayers = [
+        players[0],
+        { username: 'Copycat', team: [1] },
+    ];
+    const copyBoard = buildInitialBoard(copyPlayers, [charmander, ditto]);
+    assert.deepEqual(
+        getActivePokemonTypes({ character: charmander, unit: copyBoard.Copycat[0] }),
+        ['Fire', 'Flying']
+    );
 });
 
 test('captured Pokemon Trainer adopts the effective captured character typing in combat', () => {

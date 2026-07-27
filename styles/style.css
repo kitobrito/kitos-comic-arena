@@ -3635,6 +3635,18 @@ body.ui-disable-skill-icon-projectiles .skill-cast-projectile {
     animation: none !important;
 }
 
+body.ui-disable-death-animations .character-card.death-crack .character-face,
+body.ui-disable-death-animations .character-card.death-crack::after,
+body.ui-disable-death-animations .character-death-shatter,
+body.ui-disable-death-animations .ghost-rider-death-fire,
+body.ui-disable-death-animations .predator-hunted-overlay,
+body.ui-disable-death-animations .lasered-overlay,
+body.ui-disable-death-animations .sabered-overlay,
+body.ui-disable-death-animations .special-kill-overlay {
+    display: none !important;
+    animation: none !important;
+}
+
 .character-card.character-defeated .character-face {
     filter: grayscale(1) brightness(0.58);
 }

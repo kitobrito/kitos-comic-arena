@@ -2,6 +2,7 @@ const {
     applyPokemonTypeSystem,
     getActivePokemonTypes,
     getPokemonMoveType,
+    getPokemonSkinTypeOverride,
     getPokemonTypeEffectiveness,
 } = require('./pokemonTypeSystem');
 const defaultCharacters = applyPokemonTypeSystem(require('./characters.js'), { strict: true });
@@ -156,6 +157,9 @@ const buildCopiedCharacterMetadata = ({
         ? ''
         : String(getActiveStatusMetadataValue(targetState, 'facePictureOverride') || '').trim();
     const targetReplacementMap = copyBaseCharacter ? {} : buildSkillReplacementMap(targetState);
+    const targetPokemonTypes = copyBaseCharacter
+        ? []
+        : getActivePokemonTypes({ character: targetCharacter, unit: targetUnit });
     const targetUsesEvolvedSkills =
         !copyBaseCharacter &&
         (Array.isArray(targetState.statuses) ? targetState.statuses : []).some(
@@ -201,6 +205,7 @@ const buildCopiedCharacterMetadata = ({
         replaceExistingStatusMetadata: true,
         ...(targetCharacterId ? { effectiveCharacterId: targetCharacterId } : {}),
         ...(effectiveSkinId ? { effectiveSkinId } : {}),
+        ...(targetPokemonTypes.length ? { pokemonTypeOverride: targetPokemonTypes } : {}),
         ...(effectiveStatusIds.length ? { effectiveStatusIds } : {}),
         ...(targetFaceOverride
             ? { facePictureOverride: targetFaceOverride }
@@ -261,78 +266,101 @@ const buildInitialBoard = (players = [], characters = defaultCharacters) => {
         board[player.username] = team.map((rosterIndex, slot) => {
             const character = Array.isArray(characters) ? characters[rosterIndex] : null;
             const startStatuses = Array.isArray(character?.startStatuses) ? character.startStatuses : [];
+            const equippedSkinId = getPlayerEquippedSkinId(
+                players,
+                player.username,
+                normalizeBattleCharacterId(character)
+            );
+            const skinTypeOverride = getPokemonSkinTypeOverride(equippedSkinId);
+            const statuses = startStatuses
+                .map((status) => {
+                    if (!status || typeof status !== 'object') return null;
+                    const statusId =
+                        typeof status.statusId === 'string' && status.statusId
+                            ? status.statusId
+                            : typeof status.id === 'string' && status.id
+                            ? status.id
+                            : '';
+                    if (!statusId) return null;
+                    const duration = Number.isFinite(status.duration)
+                        ? status.duration
+                        : Number(status.remainingTurns) || 0;
+                    return {
+                        id: statusId,
+                        remainingTurns: Math.max(0, Number(duration) || 0),
+                        sourceSkillId:
+                            typeof status.sourceSkillId === 'string' && status.sourceSkillId
+                                ? status.sourceSkillId
+                                : null,
+                        sourceUsername:
+                            typeof status.sourceUsername === 'string' && status.sourceUsername
+                                ? status.sourceUsername
+                                : null,
+                        sourceSlot: Number.isInteger(status.sourceSlot) ? status.sourceSlot : null,
+                        metadata:
+                            status.metadata && typeof status.metadata === 'object'
+                                ? (() => {
+                                      const created = { ...status.metadata };
+                                      const randomizeConfig =
+                                          created?.randomizeMetadataKeyFromOptions &&
+                                          typeof created.randomizeMetadataKeyFromOptions === 'object'
+                                              ? created.randomizeMetadataKeyFromOptions
+                                              : null;
+                                      if (randomizeConfig) {
+                                          const metadataKey =
+                                              typeof randomizeConfig.metadataKey === 'string' &&
+                                              randomizeConfig.metadataKey
+                                                  ? randomizeConfig.metadataKey
+                                                  : '';
+                                          const options = Array.isArray(randomizeConfig.options)
+                                              ? randomizeConfig.options
+                                              : Array.isArray(randomizeConfig.values)
+                                              ? randomizeConfig.values
+                                              : [];
+                                          if (metadataKey && options.length > 0) {
+                                              const currentValue = created?.[metadataKey];
+                                              const pool = options.filter(
+                                                  (entry) =>
+                                                      !Boolean(randomizeConfig.excludeCurrentValue) ||
+                                                      entry !== currentValue
+                                              );
+                                              const chosenValue =
+                                                  pool[Math.floor(battleRandom() * pool.length)] ??
+                                                  currentValue ??
+                                                  options[0];
+                                              created[metadataKey] = chosenValue;
+                                          }
+                                      }
+                                      return created;
+                                  })()
+                                : {},
+                        fresh: Boolean(status.fresh),
+                    };
+                })
+                .filter(Boolean);
+            if (skinTypeOverride.length) {
+                statuses.push({
+                    id: 'pokemon_skin_type_override',
+                    remainingTurns: 999,
+                    sourceSkillId: null,
+                    sourceUsername: player.username,
+                    sourceSlot: slot,
+                    metadata: {
+                        infiniteDuration: true,
+                        unremovable: true,
+                        pokemonTypeOverride: skinTypeOverride,
+                        hideTooltip: true,
+                    },
+                    fresh: false,
+                });
+            }
             return {
                 slot,
                 rosterIndex,
                 alive: true,
                 hp: DEFAULT_HP,
                 state: {
-                    statuses: startStatuses
-                        .map((status) => {
-                            if (!status || typeof status !== 'object') return null;
-                            const statusId =
-                                typeof status.statusId === 'string' && status.statusId
-                                    ? status.statusId
-                                    : typeof status.id === 'string' && status.id
-                                    ? status.id
-                                    : '';
-                            if (!statusId) return null;
-                            const duration = Number.isFinite(status.duration)
-                                ? status.duration
-                                : Number(status.remainingTurns) || 0;
-                            return {
-                                id: statusId,
-                                remainingTurns: Math.max(0, Number(duration) || 0),
-                                sourceSkillId:
-                                    typeof status.sourceSkillId === 'string' && status.sourceSkillId
-                                        ? status.sourceSkillId
-                                        : null,
-                                sourceUsername:
-                                    typeof status.sourceUsername === 'string' && status.sourceUsername
-                                        ? status.sourceUsername
-                                        : null,
-                                sourceSlot: Number.isInteger(status.sourceSlot) ? status.sourceSlot : null,
-                                metadata:
-                                    status.metadata && typeof status.metadata === 'object'
-                                        ? (() => {
-                                              const created = { ...status.metadata };
-                                              const randomizeConfig =
-                                                  created?.randomizeMetadataKeyFromOptions &&
-                                                  typeof created.randomizeMetadataKeyFromOptions === 'object'
-                                                      ? created.randomizeMetadataKeyFromOptions
-                                                      : null;
-                                              if (randomizeConfig) {
-                                                  const metadataKey =
-                                                      typeof randomizeConfig.metadataKey === 'string' &&
-                                                      randomizeConfig.metadataKey
-                                                          ? randomizeConfig.metadataKey
-                                                          : '';
-                                                  const options = Array.isArray(randomizeConfig.options)
-                                                      ? randomizeConfig.options
-                                                      : Array.isArray(randomizeConfig.values)
-                                                      ? randomizeConfig.values
-                                                      : [];
-                                                  if (metadataKey && options.length > 0) {
-                                                      const currentValue = created?.[metadataKey];
-                                                      const pool = options.filter(
-                                                          (entry) =>
-                                                              !Boolean(randomizeConfig.excludeCurrentValue) ||
-                                                              entry !== currentValue
-                                                      );
-                                                      const chosenValue =
-                                                          pool[Math.floor(battleRandom() * pool.length)] ??
-                                                          currentValue ??
-                                                          options[0];
-                                                      created[metadataKey] = chosenValue;
-                                                  }
-                                              }
-                                              return created;
-                                          })()
-                                        : {},
-                                fresh: Boolean(status.fresh),
-                            };
-                        })
-                        .filter(Boolean),
+                    statuses,
                     cooldowns: {},
                     skillUses: {},
                 },

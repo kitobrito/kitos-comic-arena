@@ -589,6 +589,24 @@ html.battle-experimental .ingame-sound-controller {
     backdrop-filter: blur(7px);
 }
 
+html.battle-experimental .ingame-ui-options-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+html.battle-experimental .ingame-ui-options-panel {
+    top: auto;
+    right: auto;
+    bottom: calc(100% + 8px);
+    left: 0;
+    max-height: 480px;
+    overflow-y: auto;
+    border-color: rgba(255, 255, 255, 0.72);
+    background: rgba(8, 16, 20, 0.98);
+    color: #eef2f3;
+}
+
 html.battle-experimental .match-chat {
     top: 494px;
     right: auto;
