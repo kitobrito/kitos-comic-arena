@@ -1282,6 +1282,9 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         'ditto-shiny': [
             { id: 'base', label: 'Shiny', name: 'Shiny Ditto', filename: 'shinyditto.webp' },
         ],
+        'ditto-flubber': [
+            { id: 'base', label: 'Flubber', name: 'Flubber Ditto', filename: 'flubberditto.webp' },
+        ],
         'cyndaquil-quilava-evolution': [
             { id: 'base', label: 'Evolution', name: 'Quilava', filename: 'quilava.png.webp' },
         ],

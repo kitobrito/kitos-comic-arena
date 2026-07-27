@@ -2639,6 +2639,17 @@ const POKEMON_SKIN_CATALOG = [
         },
     },
     {
+        skinId: 'ditto-flubber',
+        characterId: 'ditto',
+        name: 'Flubber Ditto',
+        description: 'A green Flubber-inspired Ditto skin. After transforming, Ditto still uses the copied Pokemon’s exact equipped appearance.',
+        unlockPointCost: 500,
+        previewFacePicture: 'assets/images/PokemonArena/Ditto/Done/dittoflubberskin.png',
+        patch: {
+            facePicture: 'assets/images/PokemonArena/Ditto/Done/dittoflubberskin.png',
+        },
+    },
+    {
         skinId: 'pikachu-raichu',
         characterId: 'pikachu',
         name: 'Raichu',

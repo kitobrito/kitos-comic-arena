@@ -395,7 +395,7 @@ test('Pokemon Trainer captures base Ditto, including its shiny skin, then must u
     );
 });
 
-test('Ditto mission, 300-point unlock, and 500-point shiny skin use the supplied assets', () => {
+test('Ditto mission and both 500-point skins use the supplied assets', () => {
     const mission = ensureRequiredMissionCatalogEntries([]).find(
         (entry) => entry.reward_character === 'ditto'
     );
@@ -429,6 +429,18 @@ test('Ditto mission, 300-point unlock, and 500-point shiny skin use the supplied
     assert.equal(shiny.unlockPointCost, 500);
     assert.equal(shiny.patch.facePicture, 'assets/images/PokemonArena/Ditto/Done/shinyFP.jpg');
     assert.ok(fs.existsSync(path.join(root, shiny.patch.facePicture)));
+    const flubber = POKEMON_SKIN_CATALOG.find((skin) => skin.skinId === 'ditto-flubber');
+    assert.ok(flubber);
+    assert.equal(flubber.unlockPointCost, 500);
+    assert.equal(
+        flubber.patch.facePicture,
+        'assets/images/PokemonArena/Ditto/Done/dittoflubberskin.png'
+    );
+    assert.ok(fs.existsSync(path.join(root, flubber.patch.facePicture)));
+    assert.ok(fs.existsSync(path.join(
+        root,
+        'assets/images/selection-thumbnails/PokemonArena/Ditto/Done/dittoflubberskin.png.webp'
+    )));
     assert.ok(fs.existsSync(path.join(
         root,
         'assets/images/selection-featured/PokemonArena/BIB/ditto.webp'
@@ -437,6 +449,18 @@ test('Ditto mission, 300-point unlock, and 500-point shiny skin use the supplied
         root,
         'assets/images/selection-featured/PokemonArena/BIB/shinyditto.webp'
     )));
+    assert.ok(fs.existsSync(path.join(
+        root,
+        'assets/images/PokemonArena/BIB/dittoflubberskin.png'
+    )));
+    assert.ok(fs.existsSync(path.join(
+        root,
+        'assets/images/selection-featured/PokemonArena/BIB/flubberditto.webp'
+    )));
+    const selectionSource = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');
+    const selectionHtml = fs.readFileSync(path.join(root, 'selection.html'), 'utf8');
+    assert.match(selectionSource, /'ditto-flubber': \[[\s\S]*?filename: 'flubberditto\.webp'/);
+    assert.match(selectionHtml, /flubber-ditto-v1/);
 });
 
 test('community batch news is idempotent, credits every designer, and orders latest releases', async () => {
