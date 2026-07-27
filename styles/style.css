@@ -2162,6 +2162,8 @@ body.arena-mode-pokemon .energy-pip.filled.energy-bloodline {
 
 .energy-pip.filled.energy-random {
     background-color: #000000;
+    border-color: #ffffff;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.72);
 }
 
 .energy-pip.filled.energy-genjutsu {

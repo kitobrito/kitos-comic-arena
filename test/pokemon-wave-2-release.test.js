@@ -336,11 +336,13 @@ test('Pokemon roster presentation is Trainer first and then National Pokedex ord
     const expected = [
         'pokemon-trainer','bulbasaur','charmander','squirtle','butterfree','beedrill','pidgey','ekans',
         'pikachu','clefairy','jigglypuff','zubat','meowth','abra','machop','magnemite','gastly','onix',
-        'krabby','hitmonlee','hitmonchan','koffing','chansey','mr-mime','scyther','magikarp','eevee',
-        'vaporeon','jolteon','flareon','aerodactyl','articuno','zapdos','moltres','dragonite','mewtwo','mew',
+        'krabby','hitmonlee','hitmonchan','koffing','chansey','mr-mime','scyther','magikarp','ditto',
+        'eevee','vaporeon','jolteon','flareon','aerodactyl','articuno','zapdos','moltres','dragonite',
+        'mewtwo','mew','chikorita','cyndaquil','totodile','scraggy','aegislash',
     ];
     const root = path.resolve(__dirname, '..');
     const selectionSource = fs.readFileSync(path.join(root, 'scripts', 'script.js'), 'utf8');
+    const selectionHtml = fs.readFileSync(path.join(root, 'selection.html'), 'utf8');
     const skillsPageSource = fs.readFileSync(path.join(root, 'pokemon-charactersandskills.html'), 'utf8');
     const selectionOrder = selectionSource.match(/const preferredPokemonCharacterDisplayOrder = \[([\s\S]*?)\];/)?.[1] || '';
     const skillsOrder = skillsPageSource.match(/var preferredCharacterDisplayOrder = \[([\s\S]*?)\];/)?.[1] || '';
@@ -348,6 +350,12 @@ test('Pokemon roster presentation is Trainer first and then National Pokedex ord
         const listedIds = [...source.matchAll(/["']([a-z0-9-]+)["']/g)].map((match) => match[1]);
         assert.deepEqual(listedIds, expected);
     }
+    const currentPokemonIds = characters
+        .filter((character) => String(character?.arena || character?.universe || '').toLowerCase() === 'pokemon')
+        .map((character) => character.id);
+    assert.deepEqual(new Set(expected), new Set(currentPokemonIds));
+    assert.equal(expected.length, currentPokemonIds.length);
+    assert.match(selectionHtml, /pokemon-roster-dex-v1/);
 });
 
 test('Rare Candy can evolve Clefairy, Jigglypuff, and Meowth', () => {

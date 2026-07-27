@@ -91,8 +91,12 @@ test('evolution and Mega renders can be toggled and skills select the matching f
     );
     assert.match(selectionSource, /label: 'Blade Stance'/);
     assert.match(selectionHtml, /aegislash-renders-v1/);
+    assert.match(selectionHtml, /aegislash-shield-render-v2/);
     assert.match(selectionHtml, /ditto-renders-v1/);
     assert.match(selectionHtml, /scraggy-renders-v1/);
+    assert.ok(fs.existsSync(path.join(
+        root, 'assets', 'images', 'PokemonArena', 'BIB', 'aegislashpassiveactive'
+    )));
     assert.match(
         selectionSource,
         /renderSelectionCharacterForm\(character, button\.dataset\.characterForm \|\| 'base'\);/

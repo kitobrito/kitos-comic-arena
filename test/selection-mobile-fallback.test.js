@@ -42,6 +42,14 @@ test('classic mobile selection centers skill icons without the desktop offset', 
     assert.match(selectionHtml, /styles\/style\.css\?v=selection-skill-scroll-v16/);
 });
 
+test('black Random energy costs have a visible white outline', () => {
+    assert.match(
+        styles,
+        /\.energy-pip\.filled\.energy-random\s*\{[^}]*background-color:\s*#000000;[^}]*border-color:\s*#ffffff;/s
+    );
+    assert.match(selectionHtml, /random-energy-border-v1/);
+});
+
 test('mobile character selection waits for a second tap without a timing race', () => {
     assert.match(script, /const isConfirmedSecondTap = mobileRosterTapIndex === rosterIndex;/);
     assert.match(script, /Tap \$\{character\?\.name \|\| 'this character'\} again to add them\./);

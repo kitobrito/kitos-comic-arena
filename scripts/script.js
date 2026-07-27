@@ -16248,6 +16248,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         'mr-mime',
         'scyther',
         'magikarp',
+        'ditto',
         'eevee',
         'vaporeon',
         'jolteon',
@@ -16259,6 +16260,11 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         'dragonite',
         'mewtwo',
         'mew',
+        'chikorita',
+        'cyndaquil',
+        'totodile',
+        'scraggy',
+        'aegislash',
     ];
     const getCharacterDisplayId = (character) => character?.characterId || character?.id || '';
     const getCharacterArenaMode = (character = {}) => {
