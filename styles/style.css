@@ -6137,7 +6137,18 @@ body.arena-mode-pokemon .skillimage {
     height: 40px;
     z-index: 9002;
     pointer-events: none;
-    animation: pokemon-trainer-ball-throw 820ms cubic-bezier(0.16, 0.82, 0.2, 1) both;
+    animation: pokemon-trainer-ball-throw var(--ball-throw-duration, 820ms) cubic-bezier(0.16, 0.82, 0.2, 1) both;
+}
+
+.pokemon-trainer-ball-projectile .ball-image {
+    position: absolute;
+    inset: 0;
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+    clip-path: circle(48% at 50% 50%);
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.72));
 }
 
 .pokemon-trainer-ball-projectile .ball-trail,
@@ -12556,7 +12567,8 @@ body.end-turn-modal-open .global-status-tooltip {
 @keyframes pokemon-trainer-ball-throw {
     0% { transform: translate(0, 0) scale(0.78) rotate(0deg); opacity: 0; }
     12% { opacity: 1; }
-    100% { transform: translate(var(--cast-dx), var(--cast-dy)) scale(1) rotate(520deg); opacity: 0; }
+    82% { opacity: 1; }
+    100% { transform: translate(var(--cast-dx), var(--cast-dy)) scale(1) rotate(520deg); opacity: 1; }
 }
 
 @keyframes pokemon-ball-capture-ring {
@@ -15001,3 +15013,859 @@ body.arena-mode-pokemon .pokemon-ladder-incentive {
 body.arena-mode-pokemon .pokemon-ladder-incentive strong { color: #a31724; font-size: 20px; }
 body.arena-mode-pokemon .pokemon-ladder-incentive span { font-weight: 700; }
 body.arena-mode-pokemon .pokemon-ladder-incentive a { color: #8b121e; font-weight: 900; }
+
+/* Community character animation pass: confirmed combat readability plus Aegislash, Ditto, and Scraggy. */
+.confirmed-combat-impact,
+.confirmed-status-flash,
+.community-ditto-transform-cast,
+.community-ditto-transform-confirmed,
+.community-aegislash-dance-cast,
+.community-aegislash-dance-confirmed,
+.community-aegislash-shield-cast,
+.community-aegislash-stance-change,
+.community-scraggy-focus-blast-cast,
+.community-scraggy-leer-cast,
+.community-scraggy-leer-impact,
+.community-scraggy-focus-mark,
+.community-scraggy-focus-pulse,
+.community-scraggy-evolution-burst,
+.community-scraggy-kick-recoil,
+.community-physical-anticipation {
+    position: absolute;
+    inset: 5px 4px 23px;
+    z-index: 18;
+    overflow: hidden;
+    border-radius: 8px;
+    pointer-events: none;
+}
+
+.confirmed-combat-travel {
+    position: fixed;
+    z-index: 16;
+    height: 8px;
+    transform-origin: 0 50%;
+    pointer-events: none;
+}
+.confirmed-combat-travel .travel-core {
+    position: absolute;
+    inset: 2px 0;
+    border-radius: 999px;
+    transform-origin: 0 50%;
+}
+.confirmed-combat-travel.physical .travel-core {
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.96) 40%, #ffcf63 72%, transparent);
+    box-shadow: 0 0 8px #ff9f43;
+    animation: confirmed-physical-travel 620ms ease-out both;
+}
+.confirmed-combat-travel.special .travel-core {
+    background: linear-gradient(90deg, transparent, #66e7ff 35%, #c27cff 72%, transparent);
+    box-shadow: 0 0 10px #58cfff, 0 0 16px rgba(172,99,255,.65);
+    animation: confirmed-special-travel 780ms ease-out both;
+}
+.confirmed-combat-travel .travel-speed,
+.confirmed-combat-travel .travel-orb {
+    position: absolute;
+    opacity: 0;
+}
+.confirmed-combat-travel .travel-speed {
+    width: 24px;
+    height: 2px;
+    background: #fff4c2;
+    box-shadow: 0 0 5px #ffb643;
+    animation: confirmed-speed-line 620ms ease-out both;
+}
+.confirmed-combat-travel .speed-a { top: -3px; animation-delay: 40ms; }
+.confirmed-combat-travel .speed-b { bottom: -3px; animation-delay: 110ms; }
+.confirmed-combat-travel .travel-orb {
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    margin-top: -5px;
+    border-radius: 50%;
+    background: #e8fbff;
+    box-shadow: 0 0 8px #5fe2ff, 0 0 13px #aa62ff;
+    animation: confirmed-special-orb 760ms ease-in-out both;
+}
+.confirmed-combat-travel .orb-b { animation-delay: 130ms; }
+
+.confirmed-combat-impact .confirmed-impact-core,
+.confirmed-combat-impact .confirmed-impact-ring,
+.confirmed-combat-impact .confirmed-impact-slash {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    opacity: 0;
+}
+.confirmed-combat-impact .confirmed-impact-core {
+    width: 24px;
+    height: 24px;
+    margin: -12px;
+    border-radius: 50%;
+    animation: confirmed-impact-core 700ms ease-out both;
+}
+.confirmed-combat-impact.physical .confirmed-impact-core {
+    background: radial-gradient(circle, #fff 0 16%, #ffd46b 20% 38%, #ef6a2c 50%, transparent 72%);
+}
+.confirmed-combat-impact.special .confirmed-impact-core {
+    background: radial-gradient(circle, #fff 0 14%, #72edff 20% 38%, #985aff 52%, transparent 74%);
+}
+.confirmed-combat-impact.affliction .confirmed-impact-core {
+    background: radial-gradient(circle, #faffb7 0 14%, #9cff4e 24% 38%, #8527a8 54%, transparent 74%);
+}
+.confirmed-combat-impact.heal .confirmed-impact-core {
+    background: radial-gradient(circle, #fff 0 16%, #92ffb3 24% 40%, #26bd7b 56%, transparent 76%);
+}
+.confirmed-combat-impact .confirmed-impact-ring {
+    width: 34px;
+    height: 34px;
+    margin: -17px;
+    border: 3px solid #ffd977;
+    border-radius: 50%;
+    animation: confirmed-impact-ring 760ms ease-out both;
+}
+.confirmed-combat-impact.special .confirmed-impact-ring { border-color: #73eaff; }
+.confirmed-combat-impact.affliction .confirmed-impact-ring { border-color: #a9ff61; }
+.confirmed-combat-impact.heal .confirmed-impact-ring { border-color: #79ffb3; }
+.confirmed-combat-impact .ring-b { animation-delay: 100ms; }
+.confirmed-combat-impact .confirmed-impact-slash {
+    display: none;
+    width: 62px;
+    height: 5px;
+    margin: -2px -31px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, #fff 22% 78%, transparent);
+    box-shadow: 0 0 8px #8eeeff;
+    animation: confirmed-slash 720ms ease-out both;
+}
+.confirmed-combat-impact.aegislash-cut .confirmed-impact-slash,
+.confirmed-combat-impact.aegislash-sacred-sword .confirmed-impact-slash {
+    display: block;
+}
+.confirmed-combat-impact.aegislash-cut .slash-a { transform: rotate(-38deg); }
+.confirmed-combat-impact.aegislash-cut .slash-b { transform: rotate(38deg); animation-delay: 90ms; }
+.confirmed-combat-impact.aegislash-sacred-sword .confirmed-impact-slash {
+    height: 7px;
+    background: linear-gradient(90deg, transparent, #fff7c7 18% 78%, #62efff 88%, transparent);
+    box-shadow: 0 0 10px #fff38c, 0 0 18px #62dfff;
+}
+.confirmed-combat-impact.aegislash-sacred-sword .slash-a { transform: rotate(-12deg); }
+.confirmed-combat-impact.aegislash-sacred-sword .slash-b { transform: rotate(-12deg) translateY(10px); animation-delay: 110ms; }
+.confirmed-combat-impact.scraggy-headbutt .confirmed-impact-core {
+    transform: scaleX(1.45);
+    box-shadow: -15px 0 12px rgba(255,172,71,.55);
+}
+.confirmed-combat-impact.scraggy-hi-jump-kick .confirmed-impact-ring {
+    border-radius: 44% 56% 48% 52%;
+    border-width: 5px 2px 2px 5px;
+    transform: rotate(-34deg);
+}
+.confirmed-combat-impact.scraggy-focus-blast .confirmed-impact-core {
+    width: 42px;
+    height: 42px;
+    margin: -21px;
+    background: radial-gradient(circle, #fff 0 10%, #88f4ff 18% 32%, #7e42e9 48%, rgba(43,14,117,.3) 68%, transparent 76%);
+}
+.confirmed-combat-impact .confirmed-impact-label {
+    display: none;
+    position: absolute;
+    left: 50%;
+    top: 8px;
+    transform: translateX(-50%);
+    padding: 2px 6px;
+    border: 1px solid rgba(255,255,255,.92);
+    background: rgba(52,23,98,.86);
+    color: #fff;
+    font-size: 8px;
+    font-weight: 900;
+    letter-spacing: .6px;
+    text-shadow: 0 1px 2px #000;
+    animation: confirmed-label 850ms ease-out both;
+}
+.confirmed-combat-impact.piercing .confirmed-impact-label { display: block; }
+
+.confirmed-status-flash .status-shell,
+.confirmed-status-flash .status-ring,
+.confirmed-status-flash .status-star {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+}
+.confirmed-status-flash.invulnerable .status-shell {
+    width: 58px;
+    height: 66px;
+    margin: -34px -29px;
+    clip-path: polygon(50% 0, 94% 19%, 86% 74%, 50% 100%, 14% 74%, 6% 19%);
+    border: 3px solid #f7f1a6;
+    background: linear-gradient(135deg, rgba(255,255,255,.32), rgba(80,191,255,.16));
+    box-shadow: 0 0 13px #fff5a3, inset 0 0 13px rgba(113,220,255,.7);
+    animation: confirmed-invulnerable-shell 900ms ease-out both;
+}
+.confirmed-status-flash .status-ring {
+    width: 42px;
+    height: 42px;
+    margin: -21px;
+    border: 2px solid #fff5a8;
+    border-radius: 50%;
+    animation: confirmed-impact-ring 820ms ease-out both;
+}
+.confirmed-status-flash .ring-b { animation-delay: 100ms; }
+.confirmed-status-flash.stun .status-ring { border-color: #ffe74e; }
+.confirmed-status-flash.stun .status-star {
+    width: 10px;
+    height: 10px;
+    margin: -5px;
+    clip-path: polygon(50% 0, 61% 35%, 100% 38%, 69% 59%, 79% 100%, 50% 74%, 21% 100%, 31% 59%, 0 38%, 39% 35%);
+    background: #fff067;
+    box-shadow: 0 0 6px #ffb72e;
+    animation: confirmed-stun-star 900ms ease-out both;
+}
+.confirmed-status-flash.stun .star-a { --star-x: -28px; --star-y: -20px; }
+.confirmed-status-flash.stun .star-b { --star-x: 27px; --star-y: -13px; animation-delay: 90ms; }
+.confirmed-status-flash.stun .star-c { --star-x: 3px; --star-y: 29px; animation-delay: 170ms; }
+
+.community-ditto-transform-cast,
+.community-ditto-transform-confirmed {
+    background: radial-gradient(circle at 50% 52%, rgba(242,184,255,.42), transparent 58%);
+}
+.community-ditto-transform-cast .morph-ring,
+.community-ditto-transform-confirmed .transform-wave {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 34px;
+    height: 34px;
+    margin: -17px;
+    border: 3px solid rgba(250,199,255,.9);
+    border-radius: 45% 55% 48% 52%;
+    animation: ditto-morph-wave 900ms ease-out both;
+}
+.community-ditto-transform-cast .ring-b,
+.community-ditto-transform-confirmed .wave-b { animation-delay: 130ms; }
+.community-ditto-transform-cast .morph-blob {
+    position: absolute;
+    width: 18px;
+    height: 14px;
+    border-radius: 52% 48% 60% 40%;
+    background: #efb4f8;
+    box-shadow: 0 0 9px #fbdeff;
+    animation: ditto-morph-blob 780ms ease-in-out both;
+}
+.community-ditto-transform-cast .blob-a { left: 18%; top: 34%; }
+.community-ditto-transform-cast .blob-b { right: 17%; bottom: 30%; animation-delay: 120ms; }
+.community-ditto-transform-cast .morph-shine,
+.community-ditto-transform-confirmed .transform-sheen {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, transparent 25%, rgba(255,255,255,.78) 48%, transparent 70%);
+    animation: ditto-transform-sheen 900ms ease-out both;
+}
+
+.community-aegislash-dance-cast .dance-blade,
+.community-aegislash-dance-confirmed .dance-blade {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 8px;
+    height: 76px;
+    margin: -38px -4px;
+    clip-path: polygon(50% 0, 100% 70%, 70% 82%, 70% 100%, 30% 100%, 30% 82%, 0 70%);
+    background: linear-gradient(90deg, #8ba6d7, #fff 48%, #7bdcf8);
+    box-shadow: 0 0 8px #65d7ff;
+    animation: aegislash-dance-blade 920ms ease-out both;
+}
+.community-aegislash-dance-cast .blade-a,
+.community-aegislash-dance-confirmed .blade-a { --blade-angle: -42deg; }
+.community-aegislash-dance-cast .blade-b,
+.community-aegislash-dance-confirmed .blade-b { --blade-angle: 42deg; animation-delay: 80ms; }
+.community-aegislash-dance-cast .dance-ring,
+.community-aegislash-dance-confirmed .dance-spark {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 54px;
+    height: 54px;
+    margin: -27px;
+    border: 2px solid #ffe67e;
+    border-radius: 50%;
+    animation: confirmed-impact-ring 850ms ease-out both;
+}
+.community-aegislash-dance-confirmed .spark-b { animation-delay: 130ms; }
+
+.community-aegislash-shield-cast .royal-shield {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 64px;
+    height: 72px;
+    margin: -38px -32px;
+    clip-path: polygon(50% 0, 94% 18%, 88% 72%, 50% 100%, 12% 72%, 6% 18%);
+    background: linear-gradient(135deg, rgba(255,244,139,.52), rgba(123,79,216,.48));
+    border: 3px solid #fff1a1;
+    box-shadow: 0 0 14px #ffd85c, inset 0 0 16px #8252de;
+    animation: aegislash-shield-rise 1000ms ease-out both;
+}
+.community-aegislash-shield-cast .shield-ring {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 42px;
+    height: 42px;
+    margin: -21px;
+    border: 2px solid #ffe970;
+    border-radius: 50%;
+    animation: confirmed-impact-ring 850ms ease-out both;
+}
+.community-aegislash-shield-cast .ring-b { animation-delay: 120ms; }
+.community-aegislash-stance-change .stance-flash {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(255,255,255,.92), rgba(255,224,102,.38) 28%, transparent 68%);
+    animation: aegislash-stance-flash 820ms ease-out both;
+}
+.community-aegislash-stance-change.blade .stance-flash {
+    background: radial-gradient(circle, rgba(255,255,255,.92), rgba(92,218,255,.4) 28%, transparent 68%);
+}
+.community-aegislash-stance-change .stance-line {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 72px;
+    height: 4px;
+    margin: -2px -36px;
+    background: linear-gradient(90deg, transparent, #fff5a6, transparent);
+    box-shadow: 0 0 7px #ffd85f;
+    animation: confirmed-slash 760ms ease-out both;
+}
+.community-aegislash-stance-change.blade .stance-line { box-shadow: 0 0 8px #62dcff; }
+.community-aegislash-stance-change .line-a { transform: rotate(-34deg); }
+.community-aegislash-stance-change .line-b { transform: rotate(34deg); animation-delay: 90ms; }
+
+.community-physical-anticipation .motion-line,
+.community-scraggy-kick-recoil .recoil-line {
+    position: absolute;
+    width: 60px;
+    height: 3px;
+    border-radius: 999px;
+    background: linear-gradient(90deg, transparent, #fff1a8);
+    box-shadow: 0 0 6px #ff994a;
+    animation: community-motion-line 700ms ease-out both;
+}
+.community-physical-anticipation .line-a { left: 5%; top: 30%; }
+.community-physical-anticipation .line-b { left: 12%; top: 50%; animation-delay: 70ms; }
+.community-physical-anticipation .line-c { left: 2%; top: 70%; animation-delay: 130ms; }
+.community-physical-anticipation.kick { animation: community-kick-lift 820ms ease-in-out both; }
+.community-scraggy-kick-recoil .recoil-burst {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 48px;
+    height: 48px;
+    margin: -24px;
+    background: radial-gradient(circle, #fff 0 8%, #ff765f 20%, transparent 68%);
+    animation: confirmed-impact-core 780ms ease-out both;
+}
+.community-scraggy-kick-recoil .line-a { left: 52%; top: 36%; transform: rotate(18deg); }
+.community-scraggy-kick-recoil .line-b { left: 46%; top: 60%; transform: rotate(-18deg); animation-delay: 90ms; }
+
+.community-scraggy-leer-cast .leer-eye {
+    position: absolute;
+    top: 38%;
+    width: 26px;
+    height: 12px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, #fff 0 12%, #ff334f 20% 48%, #45101a 56%);
+    box-shadow: 0 0 10px #ff253f;
+    animation: scraggy-leer-eye 720ms ease-out both;
+}
+.community-scraggy-leer-cast .eye-a { left: 22%; transform: rotate(10deg); }
+.community-scraggy-leer-cast .eye-b { right: 22%; transform: rotate(-10deg); }
+.community-scraggy-leer-cast .leer-glare {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(255,31,63,.42), transparent 65%);
+    animation: scraggy-leer-glare 760ms ease-out both;
+}
+.community-scraggy-leer-impact .leer-ring {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 34px;
+    height: 34px;
+    margin: -17px;
+    border: 3px solid #ff425d;
+    border-radius: 50%;
+    animation: confirmed-impact-ring 780ms ease-out both;
+}
+.community-scraggy-leer-impact .ring-b { animation-delay: 100ms; }
+.community-scraggy-leer-impact .leer-mark {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -58%);
+    color: #fff;
+    font-size: 30px;
+    font-weight: 1000;
+    text-shadow: 0 0 5px #ff183b, 0 2px 2px #240007;
+    animation: confirmed-label 800ms ease-out both;
+}
+
+.community-scraggy-focus-blast-cast .focus-orb,
+.community-scraggy-focus-mark .focus-mark-core {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 38px;
+    height: 38px;
+    margin: -19px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #fff 0 10%, #8af4ff 18% 30%, #7450de 46%, rgba(48,12,105,.35) 68%);
+    box-shadow: 0 0 11px #71eaff, 0 0 22px #8050e5;
+    animation: scraggy-focus-orb 950ms ease-in-out both;
+}
+.community-scraggy-focus-blast-cast .focus-ring,
+.community-scraggy-focus-mark .focus-mark-ring {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 52px;
+    height: 52px;
+    margin: -26px;
+    border: 2px solid #7eeaff;
+    border-radius: 50%;
+    animation: confirmed-impact-ring 900ms ease-out both;
+}
+.community-scraggy-focus-blast-cast .ring-b,
+.community-scraggy-focus-mark .ring-b { animation-delay: 130ms; }
+.community-scraggy-focus-blast-cast .focus-spark {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 5px;
+    height: 20px;
+    margin: -10px -2px;
+    background: #dffcff;
+    box-shadow: 0 0 6px #8defff;
+    animation: scraggy-focus-spark 900ms ease-out both;
+}
+.community-scraggy-focus-blast-cast .spark-a { --spark-angle: -55deg; }
+.community-scraggy-focus-blast-cast .spark-b { --spark-angle: 58deg; animation-delay: 100ms; }
+
+.community-scraggy-focus-meter {
+    position: absolute;
+    left: 50%;
+    top: 5px;
+    z-index: 12;
+    display: flex;
+    gap: 3px;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+.community-scraggy-focus-meter .focus-pip {
+    width: 8px;
+    height: 8px;
+    border: 1px solid rgba(255,255,255,.9);
+    border-radius: 50%;
+    background: rgba(20,20,27,.8);
+    box-shadow: 0 1px 2px #000;
+}
+.community-scraggy-focus-meter[style*="--focus-stacks: 1"] .pip-a,
+.community-scraggy-focus-meter[style*="--focus-stacks: 2"] .pip-a,
+.community-scraggy-focus-meter[style*="--focus-stacks: 2"] .pip-b,
+.community-scraggy-focus-meter[style*="--focus-stacks: 3"] .focus-pip {
+    background: #ffe45e;
+    box-shadow: 0 0 6px #ff9c35;
+    animation: scraggy-focus-pip 1.1s ease-in-out infinite;
+}
+.community-scraggy-focus-pulse .focus-pulse {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 42px;
+    height: 42px;
+    margin: -21px;
+    border: 3px solid #ffe85c;
+    border-radius: 50%;
+    animation: confirmed-impact-ring 760ms ease-out both;
+}
+.community-scraggy-focus-pulse .focus-star,
+.community-scraggy-evolution-burst .evolution-spark,
+.pokemon-evolution-aura-scrafty .scrafty-focus-spark {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    margin: -4px;
+    background: #fff06e;
+    clip-path: polygon(50% 0, 61% 35%, 100% 38%, 69% 59%, 79% 100%, 50% 74%, 21% 100%, 31% 59%, 0 38%, 39% 35%);
+    animation: confirmed-stun-star 800ms ease-out both;
+}
+.community-scraggy-focus-pulse .star-a,
+.community-scraggy-evolution-burst .spark-a,
+.pokemon-evolution-aura-scrafty .spark-a { --star-x: -26px; --star-y: -18px; }
+.community-scraggy-focus-pulse .star-b,
+.community-scraggy-evolution-burst .spark-b,
+.pokemon-evolution-aura-scrafty .spark-b { --star-x: 26px; --star-y: -9px; animation-delay: 100ms; }
+.community-scraggy-evolution-burst .spark-c,
+.pokemon-evolution-aura-scrafty .spark-c { --star-x: 2px; --star-y: 29px; animation-delay: 180ms; }
+.community-scraggy-evolution-burst .evolution-column {
+    position: absolute;
+    left: 22%;
+    right: 22%;
+    top: -15%;
+    bottom: -15%;
+    background: linear-gradient(90deg, transparent, rgba(255,246,145,.9), transparent);
+    filter: blur(2px);
+    animation: scraggy-evolution-column 1100ms ease-out both;
+}
+.community-scraggy-evolution-burst .evolution-ring,
+.pokemon-evolution-aura-scrafty .scrafty-focus-ring {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 42px;
+    height: 42px;
+    margin: -21px;
+    border: 3px solid #ffe45e;
+    border-radius: 50%;
+    animation: confirmed-impact-ring 900ms ease-out both;
+}
+.community-scraggy-evolution-burst .ring-b,
+.pokemon-evolution-aura-scrafty .ring-b { animation-delay: 130ms; }
+
+@keyframes confirmed-physical-travel {
+    0% { opacity: 0; transform: scaleX(.05); }
+    25% { opacity: 1; }
+    72% { opacity: 1; transform: scaleX(1); }
+    100% { opacity: 0; transform: scaleX(1.04); }
+}
+@keyframes confirmed-special-travel {
+    0% { opacity: 0; transform: scaleX(.04); filter: hue-rotate(-25deg); }
+    24% { opacity: 1; }
+    76% { opacity: 1; transform: scaleX(1); filter: hue-rotate(18deg); }
+    100% { opacity: 0; transform: scaleX(1.02); }
+}
+@keyframes confirmed-speed-line {
+    0% { left: 0; opacity: 0; }
+    28% { opacity: 1; }
+    100% { left: calc(100% - 24px); opacity: 0; }
+}
+@keyframes confirmed-special-orb {
+    0% { left: 0; opacity: 0; transform: scale(.4); }
+    24% { opacity: 1; }
+    100% { left: calc(100% - 10px); opacity: 0; transform: scale(1.25); }
+}
+@keyframes confirmed-impact-core {
+    0% { opacity: 0; transform: scale(.15); }
+    28% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.85); }
+}
+@keyframes confirmed-impact-ring {
+    0% { opacity: 0; transform: scale(.25); }
+    25% { opacity: 1; }
+    100% { opacity: 0; transform: scale(2); }
+}
+@keyframes confirmed-slash {
+    0% { opacity: 0; clip-path: inset(0 100% 0 0); }
+    24% { opacity: 1; }
+    68% { opacity: 1; clip-path: inset(0); }
+    100% { opacity: 0; clip-path: inset(0); }
+}
+@keyframes confirmed-label {
+    0% { opacity: 0; transform: translate(-50%, 5px) scale(.72); }
+    25%, 70% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -8px) scale(1.05); }
+}
+@keyframes confirmed-invulnerable-shell {
+    0% { opacity: 0; transform: scale(.45); }
+    25%, 72% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.12); }
+}
+@keyframes confirmed-stun-star {
+    0% { opacity: 0; transform: translate(0,0) rotate(0) scale(.4); }
+    28%, 72% { opacity: 1; transform: translate(var(--star-x),var(--star-y)) rotate(160deg) scale(1); }
+    100% { opacity: 0; transform: translate(var(--star-x),var(--star-y)) rotate(280deg) scale(.6); }
+}
+@keyframes ditto-morph-wave {
+    0% { opacity: 0; transform: scale(.35) rotate(0); }
+    25% { opacity: 1; }
+    100% { opacity: 0; transform: scale(2.25) rotate(55deg); }
+}
+@keyframes ditto-morph-blob {
+    0% { opacity: 0; transform: translateY(12px) scale(.5); }
+    30%, 70% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-16px) scale(.6); }
+}
+@keyframes ditto-transform-sheen {
+    0% { opacity: 0; transform: translateX(-70%); }
+    30% { opacity: 1; }
+    100% { opacity: 0; transform: translateX(75%); }
+}
+@keyframes aegislash-dance-blade {
+    0% { opacity: 0; transform: rotate(var(--blade-angle)) scale(.4); }
+    25%, 72% { opacity: 1; transform: rotate(var(--blade-angle)) scale(1); }
+    100% { opacity: 0; transform: rotate(calc(var(--blade-angle) + 85deg)) scale(1.08); }
+}
+@keyframes aegislash-shield-rise {
+    0% { opacity: 0; transform: translateY(18px) scale(.55); }
+    28%, 72% { opacity: 1; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-4px) scale(1.08); }
+}
+@keyframes aegislash-stance-flash {
+    0% { opacity: 0; transform: scale(.45); }
+    24%, 58% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.4); }
+}
+@keyframes community-motion-line {
+    0% { opacity: 0; transform: translateX(-35px) scaleX(.35); }
+    28% { opacity: 1; }
+    100% { opacity: 0; transform: translateX(70px) scaleX(1); }
+}
+@keyframes community-kick-lift {
+    0% { transform: translateY(10px); }
+    38% { transform: translateY(-10px); }
+    100% { transform: translateY(0); }
+}
+@keyframes scraggy-leer-eye {
+    0% { opacity: 0; filter: brightness(2); }
+    25%, 70% { opacity: 1; }
+    100% { opacity: 0; filter: brightness(1); }
+}
+@keyframes scraggy-leer-glare {
+    0%, 100% { opacity: 0; }
+    35%, 65% { opacity: 1; }
+}
+@keyframes scraggy-focus-orb {
+    0% { opacity: 0; transform: scale(.2) rotate(0); }
+    30%, 72% { opacity: 1; transform: scale(1) rotate(120deg); }
+    100% { opacity: 0; transform: scale(1.28) rotate(220deg); }
+}
+@keyframes scraggy-focus-spark {
+    0% { opacity: 0; transform: rotate(var(--spark-angle)) translateY(8px) scaleY(.3); }
+    30%, 65% { opacity: 1; }
+    100% { opacity: 0; transform: rotate(var(--spark-angle)) translateY(-35px) scaleY(1); }
+}
+@keyframes scraggy-focus-pip {
+    0%, 100% { transform: scale(.86); filter: brightness(.9); }
+    50% { transform: scale(1.16); filter: brightness(1.35); }
+}
+@keyframes scraggy-evolution-column {
+    0% { opacity: 0; transform: scaleX(.3); }
+    24%, 68% { opacity: 1; transform: scaleX(1); }
+    100% { opacity: 0; transform: scaleX(1.5); }
+}
+
+body.ui-disable-skill-cast-animations .confirmed-combat-travel,
+body.ui-disable-skill-cast-animations .confirmed-combat-impact,
+body.ui-disable-skill-cast-animations .confirmed-status-flash,
+body.ui-disable-skill-cast-animations [class*="community-"],
+body.ui-disable-skill-cast-animations .pokemon-evolution-aura-scrafty {
+    display: none !important;
+}
+
+@media (max-width: 680px) {
+    .confirmed-combat-impact,
+    .confirmed-status-flash,
+    [class*="community-"] {
+        inset: 4px 3px 20px;
+    }
+    .confirmed-combat-impact .confirmed-impact-label {
+        top: 5px;
+        font-size: 7px;
+    }
+    .confirmed-combat-travel {
+        height: 6px;
+        z-index: 11;
+    }
+    .community-scraggy-focus-meter {
+        inset: auto;
+        top: 3px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .confirmed-combat-travel,
+    .confirmed-combat-impact,
+    .confirmed-status-flash,
+    [class*="community-"],
+    .pokemon-evolution-aura-scrafty {
+        display: none !important;
+        animation: none !important;
+    }
+}
+/* Pokemon Trainer confirmed capture sequence. The JS timeline follows the
+   supplied audio's real playback clock so all three shake cues stay aligned. */
+.pokemon-trainer-capture-ball {
+    --capture-shake-x: 0px;
+    --capture-shake-rotation: 0deg;
+    --capture-fail-dx: 160px;
+    --capture-fail-dy: 110px;
+    --capture-fail-mid-dx: 74px;
+    --capture-fail-near-dx: 141px;
+    --capture-fail-near-dy: 86px;
+    position: fixed;
+    width: 50px;
+    height: 50px;
+    z-index: 9003;
+    pointer-events: none;
+    transform:
+        translate(-50%, -50%)
+        translateX(var(--capture-shake-x))
+        rotate(var(--capture-shake-rotation));
+    transform-origin: 50% 82%;
+    will-change: transform, opacity, filter;
+}
+
+.pokemon-trainer-capture-ball .capture-ball-image,
+.pokemon-trainer-capture-ball .capture-ball-whiteout,
+.pokemon-trainer-capture-ball .capture-breakout,
+.pokemon-trainer-capture-ball .capture-inward-star {
+    position: absolute;
+    pointer-events: none;
+}
+
+.pokemon-trainer-capture-ball .capture-ball-image {
+    inset: 0;
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 50%;
+    clip-path: circle(48% at 50% 50%);
+    filter:
+        drop-shadow(0 4px 4px rgba(0, 0, 0, 0.5))
+        drop-shadow(0 0 5px rgba(255, 255, 255, 0.48));
+}
+
+.pokemon-trainer-capture-ball .capture-ball-whiteout {
+    inset: 1px;
+    border-radius: 50%;
+    background: #fff;
+    opacity: 0;
+    mix-blend-mode: screen;
+    clip-path: circle(48% at 50% 50%);
+}
+
+.pokemon-trainer-capture-ball .capture-inward-star {
+    left: 50%;
+    top: 50%;
+    width: 9px;
+    height: 9px;
+    margin: -4.5px 0 0 -4.5px;
+    background: #fffbd2;
+    opacity: 0;
+    filter: drop-shadow(0 0 4px #fff);
+    clip-path: polygon(50% 0, 62% 35%, 100% 50%, 62% 64%, 50% 100%, 37% 64%, 0 50%, 37% 35%);
+}
+
+.pokemon-trainer-capture-ball.capture-success .capture-ball-whiteout {
+    animation: pokemon-capture-white-to-original 1.05s ease-out both;
+}
+
+.pokemon-trainer-capture-ball.capture-success .capture-inward-star {
+    animation: pokemon-capture-star-inward 620ms cubic-bezier(0.22, 0.72, 0.2, 1) both;
+}
+
+.pokemon-trainer-capture-ball.capture-success .star-a { --star-x: -48px; --star-y: -31px; }
+.pokemon-trainer-capture-ball.capture-success .star-b { --star-x: 46px; --star-y: -27px; animation-delay: 55ms; }
+.pokemon-trainer-capture-ball.capture-success .star-c { --star-x: -44px; --star-y: 34px; animation-delay: 105ms; }
+.pokemon-trainer-capture-ball.capture-success .star-d { --star-x: 48px; --star-y: 31px; animation-delay: 150ms; }
+
+.pokemon-trainer-capture-ball.capture-failed {
+    animation: pokemon-capture-failed-knock-away 900ms cubic-bezier(0.18, 0.7, 0.26, 1) both;
+}
+
+.pokemon-trainer-capture-ball.capture-failed .capture-breakout {
+    inset: -8px;
+    border: 3px solid rgba(255, 255, 255, 0.95);
+    border-radius: 50%;
+    animation: pokemon-capture-breakout-ring 520ms ease-out both;
+}
+
+@keyframes pokemon-capture-white-to-original {
+    0% { opacity: 0; filter: brightness(1); }
+    14% { opacity: 1; filter: brightness(2.4); }
+    42% { opacity: 0.96; filter: brightness(2.1); }
+    100% { opacity: 0; filter: brightness(1); }
+}
+
+@keyframes pokemon-capture-star-inward {
+    0% {
+        opacity: 0;
+        transform: translate(var(--star-x), var(--star-y)) scale(0.5) rotate(0deg);
+    }
+    18% { opacity: 1; }
+    78% { opacity: 1; }
+    100% {
+        opacity: 0;
+        transform: translate(0, 0) scale(0.18) rotate(180deg);
+    }
+}
+
+@keyframes pokemon-capture-failed-knock-away {
+    0% {
+        opacity: 1;
+        transform:
+            translate(-50%, -50%)
+            translateX(var(--capture-shake-x))
+            rotate(var(--capture-shake-rotation));
+    }
+    34% {
+        opacity: 1;
+        transform:
+            translate(-50%, -50%)
+            translate(var(--capture-fail-mid-dx), -62px)
+            rotate(310deg)
+            scale(0.94);
+    }
+    78% {
+        opacity: 0.68;
+        transform:
+            translate(-50%, -50%)
+            translate(var(--capture-fail-near-dx), var(--capture-fail-near-dy))
+            rotate(690deg)
+            scale(0.78);
+    }
+    100% {
+        opacity: 0;
+        transform:
+            translate(-50%, -50%)
+            translate(var(--capture-fail-dx), var(--capture-fail-dy))
+            rotate(850deg)
+            scale(0.52);
+        filter: blur(3px);
+    }
+}
+
+@keyframes pokemon-capture-breakout-ring {
+    0% { opacity: 0.98; transform: scale(0.28); }
+    100% { opacity: 0; transform: scale(1.8); }
+}
+
+body.ui-disable-skill-cast-animations .pokemon-trainer-capture-ball {
+    display: none !important;
+}
+
+@media (max-width: 680px) {
+    .pokemon-trainer-capture-ball {
+        width: 44px;
+        height: 44px;
+    }
+
+    .pokemon-trainer-capture-ball .capture-ball-image {
+        width: 44px;
+        height: 44px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pokemon-trainer-ball-projectile,
+    .pokemon-trainer-capture-ball {
+        animation-duration: 1ms !important;
+    }
+
+    .pokemon-trainer-capture-ball .capture-inward-star,
+    .pokemon-trainer-capture-ball .capture-ball-whiteout,
+    .pokemon-trainer-capture-ball .capture-breakout {
+        animation-duration: 1ms !important;
+    }
+}

@@ -9094,6 +9094,13 @@ const CLIENT_SAFE_STATUS_METADATA_KEYS = new Set([
     'genjutsuCostReduction',
     'hulkRage',
     'ignoreAfflictionDamage',
+    'ignoreEnemyDamage',
+    'invulnerable',
+    'invulnerableToHarmfulEffects',
+    'invulnerableToHelpfulSkills',
+    'invulnerableToNonAffliction',
+    'invulnerableToNonMentalSkills',
+    'invulnerableToSkillClasses',
     'missedSkillName',
     'missedSourceName',
     'NonAfflictionDamageDebuff',
@@ -9114,6 +9121,7 @@ const CLIENT_SAFE_STATUS_METADATA_KEYS = new Set([
     'sourceSkillName',
     'stackMetadataKey',
     'stackDerivedNumericKeys',
+    'scraggyFocusEnergyStacks',
     'statusIconUrl',
     'taijutsuCostIncrease',
     'taijutsuCostReduction',
@@ -9183,6 +9191,8 @@ const sanitizeStatusForViewer = ({ status, unitUsername, viewerUsername }) => {
         id: typeof status.id === 'string' ? status.id : '',
         remainingTurns: Math.max(0, Number(status.remainingTurns) || 0),
         sourceSkillId: typeof status.sourceSkillId === 'string' ? status.sourceSkillId : null,
+        sourceUsername: typeof status.sourceUsername === 'string' ? status.sourceUsername : null,
+        sourceSlot: Number.isInteger(status.sourceSlot) ? status.sourceSlot : null,
         metadata: sanitizeStatusMetadataForClient(status.metadata),
     };
 };
@@ -9196,6 +9206,32 @@ const sanitizeUnitStateForViewer = ({ unit, unitUsername, viewerUsername }) => {
     const state = { statuses };
     if (unit?.state?.killedByCharacterId) {
         state.killedByCharacterId = unit.state.killedByCharacterId;
+    }
+    if (unit?.state?.lastCombatEvent && typeof unit.state.lastCombatEvent === 'object') {
+        const event = unit.state.lastCombatEvent;
+        state.lastCombatEvent = {
+            sequence: Math.max(0, Number(event.sequence) || 0),
+            type: event.type === 'heal' ? 'heal' : 'damage',
+            amount: Math.max(0, Number(event.amount) || 0),
+            sourceUsername:
+                typeof event.sourceUsername === 'string' ? event.sourceUsername : null,
+            sourceSlot: Number.isInteger(event.sourceSlot) ? event.sourceSlot : null,
+            sourceCharacterId:
+                typeof event.sourceCharacterId === 'string' ? event.sourceCharacterId : null,
+            sourceSkillId:
+                typeof event.sourceSkillId === 'string' ? event.sourceSkillId : null,
+            skillClasses: Array.isArray(event.skillClasses)
+                ? event.skillClasses
+                      .map((entry) =>
+                          typeof entry === 'string' ? entry.trim().toLowerCase() : ''
+                      )
+                      .filter(Boolean)
+                : [],
+            affliction: Boolean(event.affliction),
+            piercing: Boolean(event.piercing),
+            fixed: Boolean(event.fixed),
+            reason: typeof event.reason === 'string' ? event.reason : null,
+        };
     }
     if (unitUsername === viewerUsername) {
         state.cooldowns =

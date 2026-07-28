@@ -510,6 +510,40 @@ const setLastDamageDebug = (targetState, amount, context = {}) => {
             ? ` (${context.damageDebugReason.trim()})`
             : '';
     targetState.lastDamageDebugText = `${numericAmount} from ${sourceLabel}${reasonLabel}`;
+    const sequence = Math.max(0, Number(targetState._combatAnimationSequence) || 0) + 1;
+    targetState._combatAnimationSequence = sequence;
+    targetState.lastCombatEvent = {
+        sequence,
+        type: 'damage',
+        amount: numericAmount,
+        sourceUsername:
+            typeof context?.sourceUsername === 'string' && context.sourceUsername
+                ? context.sourceUsername
+                : null,
+        sourceSlot: Number.isInteger(context?.sourceSlot) ? context.sourceSlot : null,
+        sourceCharacterId:
+            typeof context?.sourceCharacterId === 'string' && context.sourceCharacterId
+                ? context.sourceCharacterId
+                : null,
+        sourceSkillId:
+            typeof context?.sourceSkillId === 'string' && context.sourceSkillId
+                ? context.sourceSkillId
+                : null,
+        skillClasses: Array.isArray(context?.skillClasses)
+            ? context.skillClasses
+                  .map((entry) => (typeof entry === 'string' ? entry.trim().toLowerCase() : ''))
+                  .filter(Boolean)
+            : [],
+        affliction: Boolean(context?.afflictionDamage),
+        piercing:
+            !Boolean(context?.afflictionDamage) &&
+            (Boolean(context?.ignoreDamageReduction) || Boolean(context?.ignoreDestructibleDefense)),
+        fixed: Boolean(context?.fixedDamage),
+        reason:
+            typeof context?.damageDebugReason === 'string' && context.damageDebugReason
+                ? context.damageDebugReason
+                : null,
+    };
 };
 
 const resolveEffectiveSkill = ({ characters, rosterIndex, skillIndex, actorState }) => {
@@ -4493,6 +4527,29 @@ const applyHealToUnit = (unit, rawAmount, context = {}) => {
     const cap = Math.max(0, Number(unit?.hpCap) || DEFAULT_HP);
     unit.hp = Math.min(DEFAULT_HP, cap, before + heal);
     const healed = Math.max(0, unit.hp - before);
+    if (healed > 0) {
+        const sequence = Math.max(0, Number(targetState._combatAnimationSequence) || 0) + 1;
+        targetState._combatAnimationSequence = sequence;
+        targetState.lastCombatEvent = {
+            sequence,
+            type: 'heal',
+            amount: healed,
+            sourceUsername:
+                typeof context?.sourceUsername === 'string' && context.sourceUsername
+                    ? context.sourceUsername
+                    : null,
+            sourceSlot: Number.isInteger(context?.sourceSlot) ? context.sourceSlot : null,
+            sourceSkillId:
+                typeof context?.sourceSkillId === 'string' && context.sourceSkillId
+                    ? context.sourceSkillId
+                    : null,
+            skillClasses: Array.isArray(context?.skillClasses)
+                ? context.skillClasses
+                      .map((entry) => (typeof entry === 'string' ? entry.trim().toLowerCase() : ''))
+                      .filter(Boolean)
+                : [],
+        };
+    }
     const nextMetadata =
         context?.onSuccessfulHealApplyStatusToOwner?.metadata &&
         typeof context.onSuccessfulHealApplyStatusToOwner.metadata === 'object'
