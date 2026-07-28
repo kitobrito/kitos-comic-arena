@@ -584,6 +584,23 @@ document.addEventListener('DOMContentLoaded', async () => {
                         playTone({ frequency: 520, endFrequency: 940, duration: 0.22, type: 'sine', amount: 0.06 });
                         playTone({ frequency: 780, endFrequency: 1240, duration: 0.24, type: 'sine', amount: 0.045, delay: 0.09 });
                         break;
+                    case 'pokemon-evolution':
+                        playTone({ frequency: 110, endFrequency: 330, duration: 1.2, type: 'sine', amount: 0.075 });
+                        playTone({ frequency: 220, endFrequency: 880, duration: 1.05, type: 'triangle', amount: 0.055, delay: 0.2 });
+                        playNoise({ duration: 0.65, amount: 0.055, delay: 0.55, filterType: 'bandpass', frequency: 1700, q: 1.8 });
+                        playTone({ frequency: 659, duration: 0.24, type: 'sine', amount: 0.07, delay: 1.35 });
+                        playTone({ frequency: 784, duration: 0.24, type: 'sine', amount: 0.07, delay: 1.56 });
+                        playTone({ frequency: 988, duration: 0.5, type: 'triangle', amount: 0.085, delay: 1.78 });
+                        break;
+                    case 'pokemon-rare-candy-evolution':
+                        playTone({ frequency: 392, endFrequency: 1175, duration: 0.62, type: 'sine', amount: 0.06 });
+                        playTone({ frequency: 523, endFrequency: 1568, duration: 0.68, type: 'triangle', amount: 0.05, delay: 0.14 });
+                        playTone({ frequency: 659, endFrequency: 1976, duration: 0.72, type: 'sine', amount: 0.045, delay: 0.3 });
+                        playNoise({ duration: 0.55, amount: 0.045, delay: 0.62, filterType: 'highpass', frequency: 3100, q: 2.4 });
+                        playTone({ frequency: 784, duration: 0.2, type: 'sine', amount: 0.075, delay: 1.38 });
+                        playTone({ frequency: 988, duration: 0.2, type: 'sine', amount: 0.075, delay: 1.58 });
+                        playTone({ frequency: 1319, duration: 0.55, type: 'triangle', amount: 0.09, delay: 1.78 });
+                        break;
                     case 'shield-hit':
                         playTone({ frequency: 240, endFrequency: 520, duration: 0.16, type: 'square', amount: 0.07 });
                         playNoise({ duration: 0.16, amount: 0.07, filterType: 'bandpass', frequency: 1200, q: 2.2 });
@@ -8636,6 +8653,196 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             );
         };
 
+        const POKEMON_EVOLUTION_TYPE_COLORS = {
+            bug: '#a8d936',
+            dark: '#77645a',
+            dragon: '#7867ff',
+            electric: '#ffe45b',
+            fairy: '#ff9de2',
+            fighting: '#ff684e',
+            fire: '#ff633f',
+            flying: '#79bfff',
+            ghost: '#9676dc',
+            grass: '#68dd70',
+            ground: '#d9a75f',
+            ice: '#86f1ff',
+            normal: '#d7d4c5',
+            poison: '#cf70df',
+            psychic: '#ff66aa',
+            rock: '#cdb66c',
+            steel: '#aabbd4',
+            water: '#4e9dff',
+        };
+        const pokemonEvolutionCinematicQueue = [];
+        let pokemonEvolutionCinematicActive = false;
+
+        const isPokemonEvolutionStatus = (status) =>
+            /_evolution$/.test(String(status?.id || '')) &&
+            Boolean(
+                status?.metadata?.facePictureOverride ||
+                    status?.metadata?.useEvolvedSkills ||
+                    status?.metadata?.skillReplacements
+            );
+
+        const getPokemonEvolutionDisplayName = (status) => {
+            const tooltipText = String(status?.metadata?.tooltipText || '');
+            const tooltipMatch = tooltipText.match(/evolved into\s+([^.!]+)/i);
+            if (tooltipMatch?.[1]) return tooltipMatch[1].trim();
+            const statusParts = String(status?.id || '').replace(/_evolution$/, '').split('_');
+            return statusParts.length > 1
+                ? statusParts[statusParts.length - 1].replace(/\b\w/g, (letter) => letter.toUpperCase())
+                : 'Evolved Pokémon';
+        };
+
+        const getPokemonEvolutionPreviousFace = (previousUnit, card) => {
+            const previousFaceOverride = getActiveStatuses(previousUnit)
+                .map((status) =>
+                    typeof status?.metadata?.facePictureOverride === 'string'
+                        ? status.metadata.facePictureOverride.trim()
+                        : ''
+                )
+                .filter(Boolean)
+                .pop();
+            const face = card?.querySelector?.('.character-face');
+            return previousFaceOverride || face?.dataset?.aliveSrc || face?.src || '';
+        };
+
+        const getPokemonEvolutionPalette = (nextUnit, status) => {
+            const metadataTypes = Array.isArray(status?.metadata?.pokemonTypeOverride)
+                ? status.metadata.pokemonTypeOverride
+                : [];
+            const character = getEffectiveCharacterForUnit(nextUnit);
+            const characterTypes = Array.isArray(character?.pokemonTypes)
+                ? character.pokemonTypes
+                : Array.isArray(character?.types)
+                ? character.types
+                : [];
+            const types = (metadataTypes.length ? metadataTypes : characterTypes)
+                .map((type) => String(type || '').trim().toLowerCase())
+                .filter(Boolean);
+            return {
+                primary: POKEMON_EVOLUTION_TYPE_COLORS[types[0]] || '#59d9ff',
+                secondary: POKEMON_EVOLUTION_TYPE_COLORS[types[1]] || '#ffe88a',
+            };
+        };
+
+        const buildPokemonEvolutionParticles = (className, count) =>
+            Array.from({ length: count }, (_, index) => {
+                const particle = document.createElement('span');
+                particle.className = className;
+                particle.style.setProperty('--particle-index', String(index));
+                particle.style.setProperty('--particle-angle', `${(360 / count) * index}deg`);
+                particle.style.setProperty('--particle-delay', `${(index % 7) * 55}ms`);
+                return particle;
+            });
+
+        const runNextPokemonEvolutionCinematic = () => {
+            if (pokemonEvolutionCinematicActive || !pokemonEvolutionCinematicQueue.length) return;
+            pokemonEvolutionCinematicActive = true;
+            const {
+                card,
+                previousUnit,
+                nextUnit,
+                status,
+            } = pokemonEvolutionCinematicQueue.shift();
+            const face = card?.querySelector?.('.character-face');
+            const faceRect = face?.getBoundingClientRect?.() || card?.getBoundingClientRect?.();
+            if (!faceRect) {
+                pokemonEvolutionCinematicActive = false;
+                runNextPokemonEvolutionCinematic();
+                return;
+            }
+            document.querySelectorAll('.pokemon-evolution-cinematic').forEach((node) => node.remove());
+            const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+            const rareCandy = status?.sourceSkillId === 'pokemon-trainer-rare-candy';
+            const palette = getPokemonEvolutionPalette(nextUnit, status);
+            const oldFaceSrc = getPokemonEvolutionPreviousFace(previousUnit, card);
+            const evolvedFaceSrc =
+                face?.src ||
+                status?.metadata?.facePictureOverride ||
+                oldFaceSrc;
+            const baseCharacter = Number.isInteger(previousUnit?.rosterIndex)
+                ? rosterData?.[previousUnit.rosterIndex]
+                : null;
+            const oldName = String(baseCharacter?.name || 'Pokémon');
+            const evolvedName = getPokemonEvolutionDisplayName(status);
+            const centerX = Math.max(92, Math.min(window.innerWidth - 92, faceRect.left + faceRect.width / 2));
+            const centerY = Math.max(118, Math.min(window.innerHeight - 118, faceRect.top + faceRect.height / 2));
+            const cinematic = document.createElement('div');
+            cinematic.className = `pokemon-evolution-cinematic${rareCandy ? ' rare-candy' : ''}${reducedMotion ? ' reduced-motion' : ''}`;
+            cinematic.setAttribute('aria-hidden', 'true');
+            cinematic.style.setProperty('--evolution-x', `${centerX}px`);
+            cinematic.style.setProperty('--evolution-y', `${centerY}px`);
+            cinematic.style.setProperty('--evolution-primary', palette.primary);
+            cinematic.style.setProperty('--evolution-secondary', palette.secondary);
+
+            const backdrop = document.createElement('div');
+            backdrop.className = 'pokemon-evolution-backdrop';
+            const atmosphere = document.createElement('div');
+            atmosphere.className = 'pokemon-evolution-atmosphere';
+            const rays = document.createElement('div');
+            rays.className = 'pokemon-evolution-rays';
+            const stage = document.createElement('div');
+            stage.className = 'pokemon-evolution-stage';
+            const core = document.createElement('div');
+            core.className = 'pokemon-evolution-core';
+            const oldPortrait = document.createElement('img');
+            oldPortrait.className = 'pokemon-evolution-portrait old-form';
+            oldPortrait.src = oldFaceSrc;
+            oldPortrait.alt = '';
+            const newPortrait = document.createElement('img');
+            newPortrait.className = 'pokemon-evolution-portrait new-form';
+            newPortrait.src = evolvedFaceSrc;
+            newPortrait.alt = '';
+            const cocoon = document.createElement('span');
+            cocoon.className = 'pokemon-evolution-cocoon';
+            const ringA = document.createElement('span');
+            ringA.className = 'pokemon-evolution-orbit orbit-a';
+            const ringB = document.createElement('span');
+            ringB.className = 'pokemon-evolution-orbit orbit-b';
+            const ringC = document.createElement('span');
+            ringC.className = 'pokemon-evolution-orbit orbit-c';
+            const flash = document.createElement('span');
+            flash.className = 'pokemon-evolution-reveal-flash';
+            const crest = document.createElement('div');
+            crest.className = 'pokemon-evolution-crest';
+            const kicker = document.createElement('span');
+            kicker.className = 'pokemon-evolution-kicker';
+            kicker.textContent = rareCandy ? 'RARE CANDY AWAKENING' : `${oldName.toUpperCase()} IS EVOLVING`;
+            const title = document.createElement('strong');
+            title.className = 'pokemon-evolution-title';
+            title.textContent = evolvedName;
+            const subtitle = document.createElement('span');
+            subtitle.className = 'pokemon-evolution-subtitle';
+            subtitle.textContent = rareCandy ? 'PRISMATIC EVOLUTION COMPLETE' : 'EVOLUTION COMPLETE';
+            const candy = document.createElement('span');
+            candy.className = 'pokemon-evolution-candy';
+            candy.innerHTML = '<i></i><i></i><i></i>';
+
+            core.append(oldPortrait, newPortrait, cocoon, ringA, ringB, ringC, flash);
+            buildPokemonEvolutionParticles('pokemon-evolution-particle', 24).forEach((node) => core.appendChild(node));
+            buildPokemonEvolutionParticles('pokemon-evolution-star', 12).forEach((node) => core.appendChild(node));
+            crest.append(kicker, title, subtitle);
+            stage.append(core, candy, crest);
+            cinematic.append(backdrop, atmosphere, rays, stage);
+            document.body.appendChild(cinematic);
+            document.body.classList.add('pokemon-evolution-cinematic-active');
+            playGeneratedIngameSound(rareCandy ? 'pokemon-rare-candy-evolution' : 'pokemon-evolution');
+
+            const duration = reducedMotion ? 700 : 3400;
+            window.setTimeout(() => {
+                cinematic.remove();
+                document.body.classList.remove('pokemon-evolution-cinematic-active');
+                pokemonEvolutionCinematicActive = false;
+                runNextPokemonEvolutionCinematic();
+            }, duration);
+        };
+
+        const queuePokemonEvolutionCinematic = (card, previousUnit, nextUnit, status) => {
+            pokemonEvolutionCinematicQueue.push({ card, previousUnit, nextUnit, status });
+            runNextPokemonEvolutionCinematic();
+        };
+
         const showConfirmedStatusChangeFx = (card, previousUnit, nextUnit) => {
             if (!card || !previousUnit || !nextUnit) return;
             const changedStatuses = getChangedCombatStatuses(previousUnit, nextUnit);
@@ -8682,6 +8889,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             ) {
                 return;
             }
+            const evolutionStatus = changedStatuses.find(isPokemonEvolutionStatus);
+            if (evolutionStatus) {
+                queuePokemonEvolutionCinematic(card, previousUnit, nextUnit, evolutionStatus);
+            }
             changedStatuses.forEach((status) => {
                 const sourceSkillId = status?.sourceSkillId || '';
                 if (
@@ -8725,14 +8936,6 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                             850
                         );
                     }
-                }
-                if (status?.id === 'scraggy_scrafty_evolution') {
-                    showTemporaryCardFx(
-                        card,
-                        'community-scraggy-evolution-burst',
-                        '<span class="evolution-column"></span><span class="evolution-ring ring-a"></span><span class="evolution-ring ring-b"></span><span class="evolution-spark spark-a"></span><span class="evolution-spark spark-b"></span><span class="evolution-spark spark-c"></span>',
-                        1200
-                    );
                 }
                 if (sourceSkillId === 'scraggy-leer' || sourceSkillId === 'scrafty-leer') {
                     showTemporaryCardFx(

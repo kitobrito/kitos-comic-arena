@@ -13858,6 +13858,593 @@ body.end-turn-modal-open .global-status-tooltip {
     }
 }
 
+/* Universal Pokemon evolution cinematic. It is driven by confirmed evolution
+   statuses, so both battle clients reveal the new form from the same state. */
+.pokemon-evolution-cinematic {
+    --evolution-primary: #59d9ff;
+    --evolution-secondary: #ffe88a;
+    position: fixed;
+    inset: 0;
+    z-index: 2147483000;
+    overflow: hidden;
+    pointer-events: none;
+    isolation: isolate;
+    font-family: "Arial Black", Impact, system-ui, sans-serif;
+    animation: pokemon-evolution-cinematic-exit 3400ms linear both;
+}
+
+.pokemon-evolution-backdrop,
+.pokemon-evolution-atmosphere,
+.pokemon-evolution-rays {
+    position: absolute;
+    inset: 0;
+}
+
+.pokemon-evolution-backdrop {
+    background:
+        radial-gradient(circle at var(--evolution-x) var(--evolution-y),
+            color-mix(in srgb, var(--evolution-primary) 24%, transparent) 0 12%,
+            rgba(0, 7, 18, .7) 42%,
+            rgba(0, 2, 10, .9) 100%);
+    backdrop-filter: saturate(.75) brightness(.54) blur(1px);
+    animation: pokemon-evolution-backdrop-pulse 3400ms ease-in-out both;
+}
+
+.pokemon-evolution-atmosphere {
+    opacity: 0;
+    background:
+        radial-gradient(circle at var(--evolution-x) var(--evolution-y),
+            transparent 0 10%,
+            color-mix(in srgb, var(--evolution-primary) 32%, transparent) 10.5% 11%,
+            transparent 11.5% 17%,
+            color-mix(in srgb, var(--evolution-secondary) 25%, transparent) 17.5% 18%,
+            transparent 18.5%),
+        repeating-linear-gradient(
+            115deg,
+            transparent 0 28px,
+            color-mix(in srgb, var(--evolution-primary) 8%, transparent) 30px 31px,
+            transparent 33px 58px
+        );
+    mix-blend-mode: screen;
+    animation: pokemon-evolution-atmosphere-surge 3400ms ease-in-out both;
+}
+
+.pokemon-evolution-rays {
+    left: var(--evolution-x);
+    top: var(--evolution-y);
+    width: min(130vmax, 1100px);
+    height: min(130vmax, 1100px);
+    inset: auto;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    background: repeating-conic-gradient(
+        from 0deg,
+        color-mix(in srgb, var(--evolution-primary) 32%, transparent) 0deg 1.2deg,
+        transparent 1.7deg 10deg,
+        color-mix(in srgb, var(--evolution-secondary) 24%, transparent) 10.5deg 11.4deg,
+        transparent 12deg 20deg
+    );
+    mask-image: radial-gradient(circle, #000 0 8%, transparent 64%);
+    animation: pokemon-evolution-rays-spin 3400ms cubic-bezier(.2, .8, .2, 1) both;
+}
+
+.pokemon-evolution-stage {
+    position: absolute;
+    left: var(--evolution-x);
+    top: var(--evolution-y);
+    width: 220px;
+    height: 220px;
+    transform: translate(-50%, -50%);
+    perspective: 900px;
+}
+
+.pokemon-evolution-core {
+    position: absolute;
+    inset: 20px;
+    border-radius: 50%;
+    filter: drop-shadow(0 0 16px var(--evolution-primary));
+    animation: pokemon-evolution-core-lift 3400ms cubic-bezier(.2, .82, .2, 1) both;
+}
+
+.pokemon-evolution-core::before,
+.pokemon-evolution-core::after {
+    content: "";
+    position: absolute;
+    inset: -28px;
+    z-index: -2;
+    border: 2px solid color-mix(in srgb, var(--evolution-primary) 70%, white);
+    border-radius: 50%;
+    box-shadow:
+        0 0 12px var(--evolution-primary),
+        inset 0 0 18px var(--evolution-secondary);
+    animation: pokemon-evolution-shock-ring 3400ms ease-out both;
+}
+
+.pokemon-evolution-core::after {
+    inset: -48px;
+    border-style: dashed;
+    border-color: color-mix(in srgb, var(--evolution-secondary) 78%, white);
+    animation-delay: 90ms;
+    animation-direction: reverse;
+}
+
+.pokemon-evolution-portrait {
+    position: absolute;
+    inset: 8px;
+    width: calc(100% - 16px);
+    height: calc(100% - 16px);
+    border: 3px solid rgba(255, 255, 255, .94);
+    border-radius: 50%;
+    object-fit: cover;
+    background: #07111d;
+    box-shadow:
+        0 0 0 6px color-mix(in srgb, var(--evolution-primary) 52%, transparent),
+        0 0 38px 12px color-mix(in srgb, var(--evolution-primary) 60%, transparent);
+}
+
+.pokemon-evolution-portrait.old-form {
+    z-index: 2;
+    animation: pokemon-evolution-old-form 3400ms cubic-bezier(.6, 0, .3, 1) both;
+}
+
+.pokemon-evolution-portrait.new-form {
+    z-index: 3;
+    opacity: 0;
+    animation: pokemon-evolution-new-form 3400ms cubic-bezier(.18, .85, .2, 1) both;
+}
+
+.pokemon-evolution-cocoon {
+    position: absolute;
+    inset: -12px;
+    z-index: 5;
+    border-radius: 48% 52% 46% 54%;
+    opacity: 0;
+    background:
+        repeating-conic-gradient(
+            from 20deg,
+            transparent 0 12deg,
+            color-mix(in srgb, white 88%, var(--evolution-primary)) 13deg 17deg,
+            transparent 18deg 31deg
+        );
+    filter: blur(2px) drop-shadow(0 0 16px white);
+    mix-blend-mode: screen;
+    animation: pokemon-evolution-cocoon 3400ms ease-in-out both;
+}
+
+.pokemon-evolution-orbit {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 6;
+    width: 220px;
+    height: 62px;
+    border: 3px solid var(--evolution-primary);
+    border-left-color: transparent;
+    border-right-color: var(--evolution-secondary);
+    border-radius: 50%;
+    opacity: 0;
+    box-shadow: 0 0 10px white, 0 0 18px var(--evolution-primary);
+}
+
+.pokemon-evolution-orbit.orbit-a {
+    animation: pokemon-evolution-orbit-a 3400ms cubic-bezier(.24, .8, .22, 1) both;
+}
+
+.pokemon-evolution-orbit.orbit-b {
+    width: 190px;
+    transform: translate(-50%, -50%) rotateX(66deg) rotateZ(60deg);
+    animation: pokemon-evolution-orbit-b 3400ms cubic-bezier(.24, .8, .22, 1) both;
+}
+
+.pokemon-evolution-orbit.orbit-c {
+    width: 250px;
+    transform: translate(-50%, -50%) rotateX(72deg) rotateZ(-55deg);
+    animation: pokemon-evolution-orbit-c 3400ms cubic-bezier(.24, .8, .22, 1) both;
+}
+
+.pokemon-evolution-reveal-flash {
+    position: absolute;
+    inset: -70px;
+    z-index: 8;
+    border-radius: 50%;
+    opacity: 0;
+    background: white;
+    box-shadow: 0 0 90px 45px white;
+    animation: pokemon-evolution-reveal-flash 3400ms ease-out both;
+}
+
+.pokemon-evolution-particle,
+.pokemon-evolution-star {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 7;
+    width: 5px;
+    height: 24px;
+    margin: -12px 0 0 -2px;
+    border-radius: 999px;
+    opacity: 0;
+    background: linear-gradient(to top, transparent, white 72%, var(--evolution-secondary));
+    box-shadow: 0 0 9px 2px var(--evolution-primary);
+    transform-origin: 2px 12px;
+    animation: pokemon-evolution-particle-rise 3400ms ease-out var(--particle-delay) both;
+}
+
+.pokemon-evolution-star {
+    width: 12px;
+    height: 12px;
+    margin: -6px 0 0 -6px;
+    border-radius: 0;
+    clip-path: polygon(50% 0, 61% 38%, 100% 50%, 61% 62%, 50% 100%, 39% 62%, 0 50%, 39% 38%);
+    background: white;
+    box-shadow: none;
+    filter: drop-shadow(0 0 5px var(--evolution-secondary));
+    animation-name: pokemon-evolution-star-burst;
+}
+
+.pokemon-evolution-crest {
+    position: absolute;
+    left: 50%;
+    top: 206px;
+    z-index: 20;
+    width: min(430px, 92vw);
+    padding: 10px 22px 12px;
+    transform: translateX(-50%);
+    opacity: 0;
+    text-align: center;
+    color: white;
+    text-transform: uppercase;
+    text-shadow: 0 2px 0 #050914, 0 0 9px var(--evolution-primary);
+    background:
+        linear-gradient(90deg, transparent, rgba(3, 11, 27, .9) 14% 86%, transparent);
+    clip-path: polygon(6% 0, 94% 0, 100% 50%, 94% 100%, 6% 100%, 0 50%);
+    animation: pokemon-evolution-crest-reveal 3400ms cubic-bezier(.18, .88, .22, 1) both;
+}
+
+.pokemon-evolution-crest::before,
+.pokemon-evolution-crest::after {
+    content: "";
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--evolution-primary), white, var(--evolution-secondary), transparent);
+    box-shadow: 0 0 8px var(--evolution-primary);
+}
+
+.pokemon-evolution-crest::before { top: 0; }
+.pokemon-evolution-crest::after { bottom: 0; }
+
+.pokemon-evolution-kicker,
+.pokemon-evolution-subtitle {
+    display: block;
+    font-family: system-ui, sans-serif;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .23em;
+}
+
+.pokemon-evolution-title {
+    display: block;
+    margin: 1px 0;
+    font-size: clamp(25px, 5vw, 43px);
+    line-height: 1;
+    letter-spacing: .045em;
+    background: linear-gradient(180deg, white 0 35%, var(--evolution-secondary) 58%, var(--evolution-primary));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 2px 0 rgba(0, 0, 0, .7));
+}
+
+.pokemon-evolution-subtitle {
+    color: color-mix(in srgb, white 72%, var(--evolution-primary));
+    letter-spacing: .31em;
+}
+
+.pokemon-evolution-candy {
+    display: none;
+}
+
+.pokemon-evolution-cinematic.rare-candy .pokemon-evolution-backdrop {
+    background:
+        radial-gradient(circle at var(--evolution-x) var(--evolution-y),
+            rgba(255, 255, 255, .38) 0 8%,
+            rgba(118, 42, 177, .55) 25%,
+            rgba(8, 2, 30, .9) 72%),
+        conic-gradient(from 45deg, #ff5bd91f, #53e7ff24, #ffe46526, #a56dff24, #ff5bd91f);
+}
+
+.pokemon-evolution-cinematic.rare-candy .pokemon-evolution-core {
+    filter: drop-shadow(0 0 18px #ff73dc) drop-shadow(0 0 32px #67e7ff);
+}
+
+.pokemon-evolution-cinematic.rare-candy .pokemon-evolution-candy {
+    display: block;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 12;
+    width: 80px;
+    height: 80px;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    animation: pokemon-evolution-candy-crystal 3400ms ease-in-out both;
+}
+
+.pokemon-evolution-candy i {
+    position: absolute;
+    inset: 12px;
+    clip-path: polygon(50% 0, 91% 24%, 100% 72%, 50% 100%, 0 72%, 9% 24%);
+    background: linear-gradient(135deg, #fff 0 16%, #77efff 17% 42%, #ff6fd5 43% 70%, #ffe877 71%);
+    box-shadow: 0 0 18px #fff;
+}
+
+.pokemon-evolution-candy i:nth-child(2) {
+    transform: rotate(120deg) translateY(-52px) scale(.42);
+}
+
+.pokemon-evolution-candy i:nth-child(3) {
+    transform: rotate(-120deg) translateY(-52px) scale(.42);
+}
+
+body.ui-disable-skill-cast-animations .pokemon-evolution-cinematic {
+    display: none !important;
+    animation: none !important;
+}
+
+@keyframes pokemon-evolution-cinematic-exit {
+    0%, 94% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes pokemon-evolution-backdrop-pulse {
+    0% { opacity: 0; }
+    9%, 78% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes pokemon-evolution-atmosphere-surge {
+    0%, 8% { opacity: 0; transform: scale(1.12); }
+    22%, 70% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; transform: scale(1.08); }
+}
+
+@keyframes pokemon-evolution-rays-spin {
+    0% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(.45); }
+    18% { opacity: .54; }
+    58% { opacity: .82; transform: translate(-50%, -50%) rotate(105deg) scale(1); }
+    76% { opacity: .25; }
+    100% { opacity: 0; transform: translate(-50%, -50%) rotate(148deg) scale(1.15); }
+}
+
+@keyframes pokemon-evolution-core-lift {
+    0% { transform: scale(.42) translateY(14px); opacity: 0; }
+    12% { transform: scale(1) translateY(0); opacity: 1; }
+    45% { transform: scale(1.1) translateY(-5px); }
+    55% { transform: scale(.92) translateY(0); }
+    65% { transform: scale(1.18) translateY(-8px); }
+    82% { transform: scale(1.05) translateY(-6px); }
+    100% { transform: scale(.92) translateY(-2px); opacity: 0; }
+}
+
+@keyframes pokemon-evolution-shock-ring {
+    0%, 10% { opacity: 0; transform: scale(.45) rotate(0deg); }
+    20%, 50% { opacity: .88; }
+    66% { opacity: .25; transform: scale(1.4) rotate(180deg); }
+    74% { opacity: .95; transform: scale(.75) rotate(240deg); }
+    90%, 100% { opacity: 0; transform: scale(1.65) rotate(330deg); }
+}
+
+@keyframes pokemon-evolution-old-form {
+    0%, 12% { opacity: 0; transform: scale(.55); filter: brightness(1); }
+    20% { opacity: 1; transform: scale(1); }
+    37% { filter: brightness(1.4) saturate(1.25); }
+    48% { opacity: 1; transform: scale(1.08); filter: brightness(8) saturate(0); }
+    54%, 100% { opacity: 0; transform: scale(.84); filter: brightness(12) blur(5px); }
+}
+
+@keyframes pokemon-evolution-new-form {
+    0%, 50% { opacity: 0; transform: scale(.68); filter: brightness(9) saturate(0) blur(5px); }
+    56% { opacity: 1; transform: scale(.9); filter: brightness(4) saturate(.35) blur(1px); }
+    68%, 88% { opacity: 1; transform: scale(1); filter: brightness(1.06) saturate(1.2); }
+    100% { opacity: 0; transform: scale(1.08); filter: brightness(1.25); }
+}
+
+@keyframes pokemon-evolution-cocoon {
+    0%, 18% { opacity: 0; transform: scale(.45) rotate(0deg); }
+    27% { opacity: .72; }
+    48% { opacity: 1; transform: scale(1.2) rotate(150deg); }
+    57% { opacity: 0; transform: scale(.72) rotate(230deg); }
+    100% { opacity: 0; }
+}
+
+@keyframes pokemon-evolution-orbit-a {
+    0%, 12% { opacity: 0; transform: translate(-50%, -50%) rotateX(68deg) rotateZ(0deg) scale(.4); }
+    24%, 56% { opacity: .94; }
+    62% { opacity: 0; transform: translate(-50%, -50%) rotateX(68deg) rotateZ(550deg) scale(1.12); }
+    72% { opacity: .95; transform: translate(-50%, -50%) rotateX(68deg) rotateZ(620deg) scale(.72); }
+    92%, 100% { opacity: 0; transform: translate(-50%, -50%) rotateX(68deg) rotateZ(860deg) scale(1.28); }
+}
+
+@keyframes pokemon-evolution-orbit-b {
+    0%, 15% { opacity: 0; transform: translate(-50%, -50%) rotateX(66deg) rotateZ(60deg) scale(.35); }
+    27%, 55% { opacity: .85; }
+    63% { opacity: 0; transform: translate(-50%, -50%) rotateX(66deg) rotateZ(-500deg) scale(1.2); }
+    73% { opacity: .85; }
+    92%, 100% { opacity: 0; transform: translate(-50%, -50%) rotateX(66deg) rotateZ(-730deg) scale(1.3); }
+}
+
+@keyframes pokemon-evolution-orbit-c {
+    0%, 18% { opacity: 0; transform: translate(-50%, -50%) rotateX(72deg) rotateZ(-55deg) scale(.3); }
+    30%, 54% { opacity: .72; }
+    62% { opacity: 0; transform: translate(-50%, -50%) rotateX(72deg) rotateZ(450deg) scale(1.25); }
+    74% { opacity: .8; }
+    94%, 100% { opacity: 0; transform: translate(-50%, -50%) rotateX(72deg) rotateZ(720deg) scale(1.35); }
+}
+
+@keyframes pokemon-evolution-reveal-flash {
+    0%, 47% { opacity: 0; transform: scale(.15); }
+    53% { opacity: 1; transform: scale(.8); }
+    59% { opacity: .25; transform: scale(1.4); }
+    66%, 100% { opacity: 0; transform: scale(1.7); }
+}
+
+@keyframes pokemon-evolution-particle-rise {
+    0%, 12% {
+        opacity: 0;
+        transform: rotate(var(--particle-angle)) translateY(16px) scaleY(.2);
+    }
+    24%, 52% { opacity: .95; }
+    60% {
+        opacity: 0;
+        transform: rotate(calc(var(--particle-angle) + 120deg)) translateY(-145px) scaleY(1.6);
+    }
+    72% {
+        opacity: 1;
+        transform: rotate(var(--particle-angle)) translateY(-45px) scaleY(.8);
+    }
+    92%, 100% {
+        opacity: 0;
+        transform: rotate(calc(var(--particle-angle) + 35deg)) translateY(-185px) scaleY(.4);
+    }
+}
+
+@keyframes pokemon-evolution-star-burst {
+    0%, 47% {
+        opacity: 0;
+        transform: rotate(var(--particle-angle)) translateY(-22px) scale(.2);
+    }
+    58% { opacity: 1; }
+    74% {
+        opacity: .95;
+        transform: rotate(var(--particle-angle)) translateY(-150px) scale(1);
+    }
+    88%, 100% {
+        opacity: 0;
+        transform: rotate(var(--particle-angle)) translateY(-210px) scale(.25);
+    }
+}
+
+@keyframes pokemon-evolution-crest-reveal {
+    0%, 54% { opacity: 0; transform: translateX(-50%) translateY(20px) scaleX(.4); }
+    65% { opacity: 1; transform: translateX(-50%) translateY(0) scaleX(1.04); }
+    72%, 91% { opacity: 1; transform: translateX(-50%) scaleX(1); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-8px) scaleX(.96); }
+}
+
+@keyframes pokemon-evolution-candy-crystal {
+    0%, 8% { opacity: 0; transform: translate(-50%, -50%) scale(.18) rotate(-35deg); filter: brightness(1); }
+    18%, 38% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(8deg); }
+    47% { opacity: 1; transform: translate(-50%, -50%) scale(1.25) rotate(75deg); filter: brightness(4); }
+    55%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(2.4) rotate(140deg); filter: blur(6px) brightness(6); }
+}
+
+@media (max-width: 680px) {
+    .pokemon-evolution-stage {
+        width: 172px;
+        height: 172px;
+    }
+
+    .pokemon-evolution-core {
+        inset: 18px;
+    }
+
+    .pokemon-evolution-orbit {
+        width: 172px;
+        height: 48px;
+    }
+
+    .pokemon-evolution-orbit.orbit-b { width: 150px; }
+    .pokemon-evolution-orbit.orbit-c { width: 192px; }
+
+    .pokemon-evolution-crest {
+        top: 164px;
+        width: min(350px, 94vw);
+        padding: 8px 16px 10px;
+    }
+
+    .pokemon-evolution-title {
+        font-size: clamp(23px, 8.5vw, 34px);
+    }
+
+    .pokemon-evolution-kicker,
+    .pokemon-evolution-subtitle {
+        font-size: 8px;
+        letter-spacing: .16em;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pokemon-evolution-cinematic {
+        animation-duration: 700ms !important;
+    }
+
+    .pokemon-evolution-backdrop {
+        animation: pokemon-evolution-reduced-backdrop 700ms ease-out both !important;
+    }
+
+    .pokemon-evolution-stage {
+        animation: none !important;
+    }
+
+    .pokemon-evolution-core {
+        animation: pokemon-evolution-reduced-core 700ms ease-out both !important;
+    }
+
+    .pokemon-evolution-portrait.old-form {
+        animation: pokemon-evolution-reduced-old 700ms ease-out both !important;
+    }
+
+    .pokemon-evolution-portrait.new-form {
+        animation: pokemon-evolution-reduced-new 700ms ease-out both !important;
+    }
+
+    .pokemon-evolution-rays,
+    .pokemon-evolution-atmosphere,
+    .pokemon-evolution-orbit,
+    .pokemon-evolution-cocoon,
+    .pokemon-evolution-particle,
+    .pokemon-evolution-star,
+    .pokemon-evolution-candy,
+    .pokemon-evolution-reveal-flash {
+        display: none !important;
+        animation: none !important;
+    }
+
+    .pokemon-evolution-crest {
+        animation: pokemon-evolution-reduced-crest 700ms ease-out both !important;
+    }
+}
+
+@keyframes pokemon-evolution-reduced-backdrop {
+    0%, 100% { opacity: 0; }
+    20%, 78% { opacity: .84; }
+}
+
+@keyframes pokemon-evolution-reduced-core {
+    0% { opacity: 0; transform: scale(.92); }
+    25%, 80% { opacity: 1; transform: scale(1); }
+    100% { opacity: 0; }
+}
+
+@keyframes pokemon-evolution-reduced-old {
+    0%, 35% { opacity: 1; }
+    50%, 100% { opacity: 0; }
+}
+
+@keyframes pokemon-evolution-reduced-new {
+    0%, 38% { opacity: 0; }
+    55%, 88% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes pokemon-evolution-reduced-crest {
+    0%, 42% { opacity: 0; transform: translateX(-50%); }
+    55%, 85% { opacity: 1; transform: translateX(-50%); }
+    100% { opacity: 0; transform: translateX(-50%); }
+}
+
 @media (max-width: 768px) {
     .ghost-rider-chainsaw-slice .chainsaw-blade { width: 100px; height: 14px; }
 }
