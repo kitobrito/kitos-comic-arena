@@ -21278,7 +21278,7 @@ const characters = [
                 "id": "pokemon-trainer-great-ball",
                 "name": "Great Ball",
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/Great ball.png",
-                "skilldescription": "At the start of each turn, Pokemon Trainer's ball slot randomly becomes Pokeball 40%, Great Ball 30%, Ultra Ball 20%, or Master Ball 10%. Stuns one enemy and makes them invulnerable to all skills for 2 turns. If used when their health is at 25 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed.",
+                "skilldescription": "At the start of each turn, Pokemon Trainer's ball slot randomly becomes Pokeball 40%, Great Ball 30%, Ultra Ball 20%, or Master Ball 10%. Stuns one enemy and makes them invulnerable to all skills for 1 turn. If used when their health is at 25 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed.",
                 "energy": [
                     "Ninjutsu",
                     "Random"
@@ -21348,7 +21348,7 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "stunned",
-                        "duration": 2,
+                        "duration": 1,
                         "scope": "target",
                         "condition": {
                             "scope": "target",
@@ -21374,7 +21374,7 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "pokemon_trainer_great_ball_lock",
-                        "duration": 2,
+                        "duration": 1,
                         "scope": "target",
                         "condition": {
                             "scope": "target",
@@ -21403,7 +21403,7 @@ const characters = [
                 "id": "pokemon-trainer-ultra-ball",
                 "name": "Ultra Ball",
                 "skillimage": "https://i.imgur.com/6VVZEkQ.jpeg",
-                "skilldescription": "At the start of each turn, Pokemon Trainer's ball slot randomly becomes Pokeball 40%, Great Ball 30%, Ultra Ball 20%, or Master Ball 10%. Stuns one enemy and makes them invulnerable to all skills for 3 turns. If used when their health is at 40 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed.",
+                "skilldescription": "At the start of each turn, Pokemon Trainer's ball slot randomly becomes Pokeball 40%, Great Ball 30%, Ultra Ball 20%, or Master Ball 10%. Stuns one enemy and makes them invulnerable to all skills for 1 turn. If used when their health is at 40 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed.",
                 "energy": [
                     "Genjutsu",
                     "Genjutsu"
@@ -21473,7 +21473,7 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "stunned",
-                        "duration": 3,
+                        "duration": 1,
                         "scope": "target",
                         "condition": {
                             "scope": "target",
@@ -21499,7 +21499,7 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "pokemon_trainer_ultra_ball_lock",
-                        "duration": 3,
+                        "duration": 1,
                         "scope": "target",
                         "condition": {
                             "scope": "target",

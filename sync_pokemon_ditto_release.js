@@ -23,7 +23,11 @@ const paragraphs = [
     'Poison Gas now triggers only when Koffing or Weezing itself deals damage, not when an ally attacks. Smog\'s immediate hit and every later damage tick now roll Poison Gas independently for each enemy damaged.',
     'Chikorita Sweet Scent now cycles through Physical, Special, and Affliction damage reduction. Affliction is reduced independently from the Physical or Special primary class attached to an Affliction skill.',
     'Pokemon Arena damage classes use Physical and Special, with Affliction retained as a secondary class after its Physical or Special class. The iPhone volume slider and mute controls have also been corrected for touch and mobile-audio playback.',
-    'There will be one more community character release tomorrow. After that release, the following update will focus on adding and improving battle animations.',
+    'This update begins the Pokemon Arena battle-animation overhaul. Confirmed Physical attacks now land with directional punch impacts, Special attacks use colored travel effects, and piercing damage, Affliction, healing, stuns, shields, and invulnerability each have distinct readable feedback. Misses, counters, evades, and ignored damage do not incorrectly display successful-hit effects because animations are driven by confirmed battle results for both players.',
+    'Aegislash, Ditto, and Scraggy or Scrafty now have character-specific stance, transformation, Focus Energy, evolution, and attack effects. The animations are kept clear of health bars, status icons, and skill text on iPhone, and they respect the skill-animation, death-animation, SFX mute, and reduced-motion options.',
+    'Pokemon Trainer now throws the selected Pokeball, Great Ball, Ultra Ball, or Master Ball directly into the targeted Pokemon portrait. The supplied game audio controls three individually synchronized ball shakes. A successful catch flashes the ball white, pulls stars inward, then fades back to the ball\'s original color; a failed catch knocks the ball away from the portrait and fades it out elsewhere on the screen.',
+    'As a balance adjustment, every failed ball capture now stuns its target and makes that target invulnerable for only 1 turn. Pokeball, Great Ball, and Ultra Ball keep their existing catch thresholds, while Master Ball remains a guaranteed catch.',
+    'There will be one more community character release tomorrow. After that release, the following update will continue the focus on adding and improving battle animations.',
 ];
 
 const buildCharacterChanges = (character, groupKey) =>
@@ -97,6 +101,27 @@ const newsPost = {
             characterName: 'Pokemon Arena',
             skillName: 'iPhone Sound Controls',
             text: 'The volume slider and mute controls now respond correctly on iPhone and resume mobile audio as expected.',
+        },
+        {
+            changeType: 'new',
+            characterId: '',
+            characterName: 'Pokemon Arena',
+            skillName: 'Confirmed Battle Animation Overhaul',
+            text: 'Physical and Special attacks, piercing and Affliction damage, healing, stuns, shields, and invulnerability now have distinct confirmed-result effects that respect mobile layout, animation settings, and reduced motion.',
+        },
+        {
+            changeType: 'new',
+            characterId: 'pokemon-trainer',
+            characterName: 'Pokemon Trainer',
+            skillName: 'Audio-Synchronized Ball Captures',
+            text: 'Each supplied ball now strikes the selected Pokemon portrait and shakes three times in sync with its result audio. Successful captures flash white and pull stars inward; failed captures are knocked away and fade elsewhere on screen.',
+        },
+        {
+            changeType: 'balance',
+            characterId: 'pokemon-trainer',
+            characterName: 'Pokemon Trainer',
+            skillName: 'Ball Control Duration',
+            text: 'Every failed ball capture now stuns and makes its target invulnerable for only 1 turn. Existing catch thresholds and Master Ball\'s guaranteed catch are unchanged.',
         },
     ],
     author: 'kito',

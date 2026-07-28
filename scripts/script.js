@@ -2752,6 +2752,12 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const winSound = new Audio('assets/audio/sounds/win.mp3');
         const applySkillSound = new Audio('assets/audio/sounds/apply-skill.mp3');
         const deathSound = new Audio('assets/audio/sounds/death-sound.mp3');
+        const pokemonTrainerCaptureFailedSound = new Audio(
+            'assets/audio/sounds/pokemontrainer/capture-failed.mp3'
+        );
+        const pokemonTrainerCaptureSuccessSound = new Audio(
+            'assets/audio/sounds/pokemontrainer/capture-success.mp3'
+        );
         const neganAlreadyFuckedSound = new Audio('assets/audio/takingitlikeachamp.mp3');
         const neganYouGotNoGutsSound = new Audio('assets/audio/youdidhaveguts.wav');
         const neganDeathSound = new Audio('assets/audio/youbetterbejoking.wav');
@@ -5400,6 +5406,81 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
 
         const CAPTAIN_AMERICA_SHIELD_PROJECTILE_SRC = 'assets/images/captainamericashield.png';
 
+        const COMMUNITY_ANIMATION_SKILL_IDS = new Set([
+            'aegislash-slash',
+            'aegislash-swords-dance',
+            'aegislash-kings-shield',
+            'aegislash-sacred-sword',
+            'ditto-transform-1',
+            'ditto-transform-2',
+            'ditto-transform-3',
+            'ditto-transform-4',
+            'scraggy-headbutt',
+            'scrafty-headbutt',
+            'scraggy-leer',
+            'scrafty-leer',
+            'scraggy-hi-jump-kick',
+            'scrafty-hi-jump-kick',
+            'scraggy-focus-blast',
+            'scrafty-focus-blast',
+        ]);
+
+        const showCommunityCastAnticipationFx = ({ actorCard, skillId }) => {
+            if (!actorCard || !COMMUNITY_ANIMATION_SKILL_IDS.has(skillId)) return;
+            if (skillId.startsWith('ditto-transform-')) {
+                showTemporaryCardFx(
+                    actorCard,
+                    'community-ditto-transform-cast',
+                    '<span class="morph-ring ring-a"></span><span class="morph-ring ring-b"></span><span class="morph-blob blob-a"></span><span class="morph-blob blob-b"></span><span class="morph-shine"></span>',
+                    900
+                );
+                return;
+            }
+            if (skillId === 'aegislash-swords-dance') {
+                showTemporaryCardFx(
+                    actorCard,
+                    'community-aegislash-dance-cast',
+                    '<span class="dance-blade blade-a"></span><span class="dance-blade blade-b"></span><span class="dance-ring"></span>',
+                    1000
+                );
+                return;
+            }
+            if (skillId === 'aegislash-kings-shield') {
+                showTemporaryCardFx(
+                    actorCard,
+                    'community-aegislash-shield-cast',
+                    '<span class="royal-shield"></span><span class="shield-ring ring-a"></span><span class="shield-ring ring-b"></span>',
+                    1050
+                );
+                return;
+            }
+            if (skillId === 'scraggy-focus-blast' || skillId === 'scrafty-focus-blast') {
+                showTemporaryCardFx(
+                    actorCard,
+                    'community-scraggy-focus-blast-cast',
+                    '<span class="focus-orb"></span><span class="focus-ring ring-a"></span><span class="focus-ring ring-b"></span><span class="focus-spark spark-a"></span><span class="focus-spark spark-b"></span>',
+                    1050
+                );
+                return;
+            }
+            if (skillId === 'scraggy-leer' || skillId === 'scrafty-leer') {
+                showTemporaryCardFx(
+                    actorCard,
+                    'community-scraggy-leer-cast',
+                    '<span class="leer-eye eye-a"></span><span class="leer-eye eye-b"></span><span class="leer-glare"></span>',
+                    800
+                );
+                return;
+            }
+            const isKick = skillId === 'scraggy-hi-jump-kick' || skillId === 'scrafty-hi-jump-kick';
+            showTemporaryCardFx(
+                actorCard,
+                `community-physical-anticipation${isKick ? ' kick' : ''}`,
+                '<span class="motion-line line-a"></span><span class="motion-line line-b"></span><span class="motion-line line-c"></span>',
+                isKick ? 900 : 720
+            );
+        };
+
         const skillHasCustomCastFx = (skill) => {
             const skillId = skill?.id || '';
             if (!skillId) return false;
@@ -5471,7 +5552,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 'boba-fett-missile-backpack-upgraded',
                 'boba-fett-looted-lightsaber',
                 'boba-fett-looted-lightsaber-upgraded',
-            ].includes(skillId) || skillId.startsWith('storm-lightning-strike') || skillId.startsWith('storm-wind-funnel');
+            ].includes(skillId) ||
+                COMMUNITY_ANIMATION_SKILL_IDS.has(skillId) ||
+                skillId.startsWith('storm-lightning-strike') ||
+                skillId.startsWith('storm-wind-funnel');
         };
 
         const animateSkillCastTrail = ({ actorSlot, skillIdx, selection }) => {
@@ -5574,6 +5658,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             if (skillId.startsWith('angstrom-levy')) {
                 getTargetCardsFromSelection(selection).forEach((targetCard) => showPixelPortalFx(targetCard, 'blue'));
             }
+            showCommunityCastAnticipationFx({ actorCard, skillId });
             showDirectionalSkillFx({ actorCard, actorSlot, skill: effectiveSkill, selection });
             showStormSkillPortraitFx(effectiveSkill, selection);
         };
@@ -6104,39 +6189,240 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             playGeneratedIngameSound('wind');
         };
 
-        const showPokemonTrainerBallFx = ({ actorCard, targetCards = [], variant = 'pokeball' }) => {
-            const ballClassName = `pokemon-trainer-ball-projectile ${variant}`;
-            targetCards.forEach((targetCard, index) => {
-                const sourceFace = actorCard?.querySelector?.('.character-face') || actorCard;
-                const targetFace = targetCard?.querySelector?.('.character-face') || targetCard;
-                const sourceRect = sourceFace?.getBoundingClientRect?.();
-                const targetRect = targetFace?.getBoundingClientRect?.();
-                if (!sourceRect || !targetRect) return;
+        const POKEMON_TRAINER_BALL_IMAGES = Object.freeze({
+            pokeball: 'assets/images/PokemonArena/pokemontrainer/capture-animation/pokeball.webp',
+            'great-ball': 'assets/images/PokemonArena/pokemontrainer/capture-animation/great-ball.webp',
+            'ultra-ball': 'assets/images/PokemonArena/pokemontrainer/capture-animation/ultra-ball.webp',
+            'master-ball': 'assets/images/PokemonArena/pokemontrainer/capture-animation/master-ball.webp',
+        });
+        const POKEMON_TRAINER_BALL_VARIANTS_BY_SKILL = Object.freeze({
+            'pokemon-trainer-pokeball': 'pokeball',
+            'pokemon-trainer-great-ball': 'great-ball',
+            'pokemon-trainer-ultra-ball': 'ultra-ball',
+            'pokemon-trainer-master-ball': 'master-ball',
+        });
+        const pokemonTrainerBallLandings = new WeakMap();
+
+        const positionPokemonTrainerLandedBall = (entry) => {
+            const targetFace = entry?.targetCard?.querySelector?.('.character-face') || entry?.targetCard;
+            const targetRect = targetFace?.getBoundingClientRect?.();
+            if (!entry?.element || !targetRect) return;
+            entry.element.style.left = `${targetRect.left + targetRect.width * 0.5}px`;
+            entry.element.style.top = `${targetRect.top + targetRect.height * 0.46}px`;
+        };
+
+        const createPokemonTrainerLandedBall = (entry) => {
+            if (!entry?.targetCard) return null;
+            if (entry.element?.isConnected) return entry.element;
+            const imageSrc = POKEMON_TRAINER_BALL_IMAGES[entry.variant] || POKEMON_TRAINER_BALL_IMAGES.pokeball;
+            const element = document.createElement('div');
+            element.className = `pokemon-trainer-capture-ball ${entry.variant}`;
+            element.innerHTML = [
+                `<img class="capture-ball-image" src="${imageSrc}" alt="">`,
+                '<span class="capture-ball-whiteout"></span>',
+                '<span class="capture-inward-star star-a"></span>',
+                '<span class="capture-inward-star star-b"></span>',
+                '<span class="capture-inward-star star-c"></span>',
+                '<span class="capture-inward-star star-d"></span>',
+                '<span class="capture-breakout"></span>',
+            ].join('');
+            document.body.appendChild(element);
+            entry.element = element;
+            positionPokemonTrainerLandedBall(entry);
+            return element;
+        };
+
+        const runPokemonTrainerCaptureTimeline = (entry, success) => {
+            if (!entry || entry.completed) return;
+            entry.completed = true;
+            const audio = success
+                ? pokemonTrainerCaptureSuccessSound
+                : pokemonTrainerCaptureFailedSound;
+            const timing = success
+                ? {
+                    duration: 7.0124,
+                    shakeCues: [1.13, 2.59, 4.0],
+                    shakeDuration: 0.7,
+                    resultCue: 5.4,
+                }
+                : {
+                    duration: 6.6873,
+                    shakeCues: [1.94, 2.78, 3.7],
+                    shakeDuration: 0.42,
+                    resultCue: 4.4,
+                };
+            const sourceFace = entry.actorCard?.querySelector?.('.character-face') || entry.actorCard;
+            const targetFace = entry.targetCard?.querySelector?.('.character-face') || entry.targetCard;
+            const sourceRect = sourceFace?.getBoundingClientRect?.();
+            const targetRect = targetFace?.getBoundingClientRect?.();
+            if (!sourceRect || !targetRect) return;
+            let playbackStarted = false;
+            let visualStarted = false;
+            let landed = false;
+            let outcomeShown = false;
+            let fallbackStartedAt = 0;
+            let projectile = null;
+            let element = null;
+            const markOutcome = () => {
+                if (outcomeShown || !element) return;
+                outcomeShown = true;
+                if (!success) {
+                    const targetFace =
+                        entry.targetCard?.querySelector?.('.character-face') || entry.targetCard;
+                    const targetRect = targetFace?.getBoundingClientRect?.();
+                    const centerX = targetRect
+                        ? targetRect.left + targetRect.width / 2
+                        : window.innerWidth / 2;
+                    const centerY = targetRect
+                        ? targetRect.top + targetRect.height / 2
+                        : window.innerHeight / 2;
+                    const horizontalRoom =
+                        centerX < window.innerWidth / 2
+                            ? window.innerWidth - centerX
+                            : centerX;
+                    const verticalDirection =
+                        centerY > window.innerHeight * 0.68 ? -1 : 1;
+                    const failDx =
+                        (centerX < window.innerWidth / 2 ? 1 : -1) *
+                        Math.min(240, Math.max(105, horizontalRoom * 0.42));
+                    const failDy =
+                        verticalDirection *
+                        Math.min(155, Math.max(80, window.innerHeight * 0.16));
+                    element.style.setProperty('--capture-fail-dx', `${failDx.toFixed(1)}px`);
+                    element.style.setProperty('--capture-fail-dy', `${failDy.toFixed(1)}px`);
+                    element.style.setProperty(
+                        '--capture-fail-mid-dx',
+                        `${(failDx * 0.46).toFixed(1)}px`
+                    );
+                    element.style.setProperty(
+                        '--capture-fail-near-dx',
+                        `${(failDx * 0.88).toFixed(1)}px`
+                    );
+                    element.style.setProperty(
+                        '--capture-fail-near-dy',
+                        `${(failDy * 0.78).toFixed(1)}px`
+                    );
+                }
+                element.classList.add(success ? 'capture-success' : 'capture-failed');
+            };
+            const beginVisualTimeline = () => {
+                if (visualStarted) return;
+                visualStarted = true;
+                fallbackStartedAt = performance.now();
                 const sourceX = sourceRect.left + sourceRect.width * 0.52;
                 const sourceY = sourceRect.top + sourceRect.height * 0.45;
                 const targetX = targetRect.left + targetRect.width * 0.5;
-                const targetY = targetRect.top + targetRect.height * 0.42;
-                const projectile = document.createElement('div');
-                projectile.className = ballClassName;
+                const targetY = targetRect.top + targetRect.height * 0.46;
+                projectile = document.createElement('div');
+                projectile.className = `pokemon-trainer-ball-projectile confirmed-throw ${entry.variant}`;
                 projectile.style.left = `${sourceX - 20}px`;
                 projectile.style.top = `${sourceY - 20}px`;
                 projectile.style.setProperty('--cast-dx', `${targetX - sourceX}px`);
                 projectile.style.setProperty('--cast-dy', `${targetY - sourceY}px`);
-                projectile.style.animationDelay = `${index * 90}ms`;
+                projectile.style.setProperty('--ball-throw-duration', `${timing.shakeCues[0]}s`);
+                const imageSrc =
+                    POKEMON_TRAINER_BALL_IMAGES[entry.variant] ||
+                    POKEMON_TRAINER_BALL_IMAGES.pokeball;
                 projectile.innerHTML =
-                    '<span class="ball-trail"></span><span class="ball-shell"></span><span class="ball-band"></span><span class="ball-core"></span><span class="ball-glint"></span>';
+                    `<span class="ball-trail"></span><img class="ball-image" src="${imageSrc}" alt="">`;
                 document.body.appendChild(projectile);
-                scheduleCombatFxRemoval(projectile, 1250 + index * 90);
-                window.setTimeout(() => {
+                scheduleCombatFxRemoval(projectile, (timing.shakeCues[0] + 0.5) * 1000);
+                window.requestAnimationFrame(renderFrame);
+            };
+            const renderFrame = () => {
+                if (!visualStarted) return;
+                const audioDuration = Number(audio.duration);
+                const hasAudioClock =
+                    playbackStarted &&
+                    Number.isFinite(audioDuration) &&
+                    audioDuration > 0 &&
+                    Number.isFinite(audio.currentTime);
+                const elapsedSeconds = Math.min(
+                    timing.duration,
+                    Math.max(
+                        0,
+                        hasAudioClock
+                            ? audio.currentTime
+                            : (performance.now() - fallbackStartedAt) / 1000
+                    )
+                );
+                if (!landed && elapsedSeconds >= timing.shakeCues[0]) {
+                    landed = true;
+                    projectile?.remove();
+                    element = createPokemonTrainerLandedBall(entry);
+                    element?.classList.add('is-capture-resolving');
                     showTemporaryCardFx(
-                        targetCard,
-                        `pokemon-trainer-ball-impact-fx ${variant}`,
-                        '<span class="capture-ring ring-a"></span><span class="capture-ring ring-b"></span><span class="capture-flash"></span><span class="capture-star star-a"></span><span class="capture-star star-b"></span>',
-                        1450
+                        entry.targetCard,
+                        `pokemon-trainer-ball-impact-fx ${entry.variant}`,
+                        '<span class="capture-ring ring-a"></span><span class="capture-ring ring-b"></span><span class="capture-flash"></span>',
+                        900
                     );
-                }, 300 + index * 90);
+                }
+                if (element?.isConnected) {
+                    positionPokemonTrainerLandedBall(entry);
+                    let shakeX = 0;
+                    let shakeRotation = 0;
+                    timing.shakeCues.forEach((cue) => {
+                        const beatProgress = (elapsedSeconds - cue) / timing.shakeDuration;
+                        if (beatProgress < 0 || beatProgress > 1) return;
+                        const envelope = Math.sin(beatProgress * Math.PI);
+                        shakeX += Math.sin(beatProgress * Math.PI * 4) * 8 * envelope;
+                        shakeRotation += Math.sin(beatProgress * Math.PI * 4) * 12 * envelope;
+                    });
+                    element.style.setProperty('--capture-shake-x', `${shakeX.toFixed(2)}px`);
+                    element.style.setProperty('--capture-shake-rotation', `${shakeRotation.toFixed(2)}deg`);
+                    element.style.setProperty('--capture-audio-seconds', elapsedSeconds.toFixed(4));
+                    if (elapsedSeconds >= timing.resultCue) markOutcome();
+                }
+                const audioFinished = hasAudioClock && audio.ended;
+                if (elapsedSeconds < timing.duration && !audioFinished) {
+                    window.requestAnimationFrame(renderFrame);
+                    return;
+                }
+                markOutcome();
+                element?.classList.add('capture-finished');
+                window.setTimeout(() => element?.remove(), success ? 1150 : 900);
+            };
+            const onPlaying = () => {
+                playbackStarted = true;
+                beginVisualTimeline();
+            };
+            audio.addEventListener('playing', onPlaying, { once: true });
+            playIngameSound(audio);
+            window.setTimeout(beginVisualTimeline, 140);
+        };
+
+        const showPokemonTrainerCaptureOutcomeFx = (targetCard, variant, success, actorCard = null) => {
+            if (!targetCard) return;
+            let entry = pokemonTrainerBallLandings.get(targetCard);
+            if (!entry || entry.completed) {
+                entry = {
+                    actorCard,
+                    targetCard,
+                    variant,
+                    element: null,
+                    completed: false,
+                };
+                pokemonTrainerBallLandings.set(targetCard, entry);
+            }
+            if (!entry.actorCard && actorCard) entry.actorCard = actorCard;
+            entry.variant = variant;
+            runPokemonTrainerCaptureTimeline(entry, success);
+        };
+
+        const showPokemonTrainerBallFx = ({ actorCard, targetCards = [], variant = 'pokeball' }) => {
+            targetCards.forEach((targetCard) => {
+                const landingEntry = {
+                    actorCard,
+                    targetCard,
+                    variant,
+                    element: null,
+                    completed: false,
+                };
+                const previousEntry = pokemonTrainerBallLandings.get(targetCard);
+                if (previousEntry?.element?.isConnected) previousEntry.element.remove();
+                pokemonTrainerBallLandings.set(targetCard, landingEntry);
             });
-            playGeneratedIngameSound('quick-shot');
         };
 
         const showPokemonXStatsFx = (targetCards = []) => {
@@ -8215,6 +8501,274 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             playGeneratedIngameSound('shield-hit');
         };
 
+        const getCombatAnimationEventKey = (unit) => {
+            const event = unit?.state?.lastCombatEvent;
+            if (!event || typeof event !== 'object') return '';
+            return [
+                event.sequence ?? '',
+                event.type || '',
+                event.sourceUsername || '',
+                event.sourceSlot ?? '',
+                event.sourceSkillId || '',
+                event.amount ?? '',
+            ].join(':');
+        };
+
+        const getChangedCombatStatuses = (previousUnit, nextUnit) => {
+            const previousStatuses = getActiveStatuses(previousUnit);
+            const nextStatuses = getActiveStatuses(nextUnit);
+            const previousByKey = new Map(
+                previousStatuses.map((status) => [
+                    `${status?.id || ''}:${status?.sourceSkillId || ''}:${status?.sourceUsername || ''}:${status?.sourceSlot ?? ''}`,
+                    status,
+                ])
+            );
+            return nextStatuses.filter((status) => {
+                const key = `${status?.id || ''}:${status?.sourceSkillId || ''}:${status?.sourceUsername || ''}:${status?.sourceSlot ?? ''}`;
+                const previous = previousByKey.get(key);
+                if (!previous) return true;
+                if ((Number(status?.remainingTurns) || 0) > (Number(previous?.remainingTurns) || 0)) return true;
+                return JSON.stringify(status?.metadata || {}) !== JSON.stringify(previous?.metadata || {});
+            });
+        };
+
+        const showConfirmedTravelFx = ({ event, targetCard, kind }) => {
+            if (!event || !targetCard) return;
+            const sourceCard =
+                event.sourceUsername && Number.isInteger(event.sourceSlot)
+                    ? getCardByUsernameSlot(event.sourceUsername, event.sourceSlot)
+                    : null;
+            const sourceFace = sourceCard?.querySelector?.('.character-face') || sourceCard;
+            const targetFace = targetCard?.querySelector?.('.character-face') || targetCard;
+            const sourceRect = sourceFace?.getBoundingClientRect?.();
+            const targetRect = targetFace?.getBoundingClientRect?.();
+            if (!sourceRect || !targetRect || sourceCard === targetCard) return;
+            const sourceX = sourceRect.left + sourceRect.width / 2;
+            const sourceY = sourceRect.top + sourceRect.height / 2;
+            const targetX = targetRect.left + targetRect.width / 2;
+            const targetY = targetRect.top + targetRect.height / 2;
+            const dx = targetX - sourceX;
+            const dy = targetY - sourceY;
+            const travel = document.createElement('div');
+            travel.className = `confirmed-combat-travel ${kind}`;
+            travel.style.left = `${sourceX}px`;
+            travel.style.top = `${sourceY}px`;
+            travel.style.width = `${Math.max(24, Math.hypot(dx, dy))}px`;
+            travel.style.transform = `rotate(${Math.atan2(dy, dx) * 180 / Math.PI}deg)`;
+            travel.innerHTML =
+                kind === 'physical'
+                    ? '<span class="travel-core"></span><span class="travel-speed speed-a"></span><span class="travel-speed speed-b"></span>'
+                    : '<span class="travel-core"></span><span class="travel-orb orb-a"></span><span class="travel-orb orb-b"></span>';
+            document.body.appendChild(travel);
+            scheduleCombatFxRemoval(travel, kind === 'physical' ? 720 : 900);
+        };
+
+        const getCommunityConfirmedImpactClass = (skillId = '') => {
+            if (skillId === 'aegislash-slash') return 'aegislash-cut';
+            if (skillId === 'aegislash-sacred-sword') return 'aegislash-sacred-sword';
+            if (skillId === 'scraggy-headbutt' || skillId === 'scrafty-headbutt') return 'scraggy-headbutt';
+            if (skillId === 'scraggy-hi-jump-kick' || skillId === 'scrafty-hi-jump-kick') {
+                return 'scraggy-hi-jump-kick';
+            }
+            if (skillId === 'scraggy-focus-blast' || skillId === 'scrafty-focus-blast') {
+                return 'scraggy-focus-blast';
+            }
+            return '';
+        };
+
+        const showConfirmedCombatEventFx = (card, previousUnit, nextUnit) => {
+            if (!card || !previousUnit || !nextUnit) return;
+            const event = nextUnit?.state?.lastCombatEvent;
+            if (!event || getCombatAnimationEventKey(previousUnit) === getCombatAnimationEventKey(nextUnit)) return;
+            if (!uiSettings.skillCastAnimations || document.body.classList.contains('ui-disable-skill-cast-animations')) {
+                return;
+            }
+            const classes = Array.isArray(event.skillClasses)
+                ? event.skillClasses.map((entry) => String(entry || '').toLowerCase())
+                : [];
+            const kind =
+                event.type === 'heal'
+                    ? 'heal'
+                    : event.affliction || classes.includes('affliction')
+                    ? 'affliction'
+                    : classes.includes('special') || classes.includes('energy')
+                    ? 'special'
+                    : 'physical';
+            if (event.type !== 'heal') {
+                showConfirmedTravelFx({ event, targetCard: card, kind: kind === 'affliction' ? 'special' : kind });
+            }
+            const communityClass = getCommunityConfirmedImpactClass(event.sourceSkillId || '');
+            showTemporaryCardFx(
+                card,
+                [
+                    'confirmed-combat-impact',
+                    kind,
+                    event.piercing ? 'piercing' : '',
+                    communityClass,
+                ].filter(Boolean).join(' '),
+                '<span class="confirmed-impact-core"></span><span class="confirmed-impact-ring ring-a"></span><span class="confirmed-impact-ring ring-b"></span><span class="confirmed-impact-slash slash-a"></span><span class="confirmed-impact-slash slash-b"></span><span class="confirmed-impact-label">PIERCE</span>',
+                communityClass ? 1150 : 900
+            );
+        };
+
+        const statusGrantsInvulnerability = (status) => {
+            const metadata = status?.metadata || {};
+            return Boolean(
+                metadata.invulnerable ||
+                    metadata.ignoreEnemyDamage ||
+                    metadata.invulnerableToHarmfulEffects ||
+                    metadata.invulnerableToNonAffliction ||
+                    metadata.invulnerableToNonMentalSkills ||
+                    (Array.isArray(metadata.invulnerableToSkillClasses) &&
+                        metadata.invulnerableToSkillClasses.length)
+            );
+        };
+
+        const statusAppliesStun = (status) => {
+            const metadata = status?.metadata || {};
+            return Boolean(
+                status?.id === 'stunned' ||
+                    metadata.cannotUseSkills ||
+                    metadata.cannotUseHarmfulSkills ||
+                    metadata.cannotUseNonMentalSkills ||
+                    (Array.isArray(metadata.cannotUseSkillClasses) && metadata.cannotUseSkillClasses.length) ||
+                    (Array.isArray(metadata.cannotUseSkillIndices) && metadata.cannotUseSkillIndices.length)
+            );
+        };
+
+        const showConfirmedStatusChangeFx = (card, previousUnit, nextUnit) => {
+            if (!card || !previousUnit || !nextUnit) return;
+            const changedStatuses = getChangedCombatStatuses(previousUnit, nextUnit);
+            const captureStatus = changedStatuses.find((status) => {
+                const sourceSkillId = status?.sourceSkillId || '';
+                return Boolean(POKEMON_TRAINER_BALL_VARIANTS_BY_SKILL[sourceSkillId]) &&
+                    status?.id !== 'pokemon_trainer_capture_form';
+            });
+            if (captureStatus) {
+                const sourceSkillId = captureStatus.sourceSkillId || '';
+                const captureSucceeded = changedStatuses.some(
+                    (status) =>
+                        status?.sourceSkillId === sourceSkillId &&
+                        Boolean(status?.metadata?.banished)
+                );
+                const actorCard =
+                    captureStatus?.sourceUsername && Number.isInteger(captureStatus?.sourceSlot)
+                        ? getCardByUsernameSlot(
+                            captureStatus.sourceUsername,
+                            captureStatus.sourceSlot
+                        )
+                        : null;
+                if (
+                    uiSettings.skillCastAnimations &&
+                    !document.body.classList.contains('ui-disable-skill-cast-animations')
+                ) {
+                    showPokemonTrainerCaptureOutcomeFx(
+                        card,
+                        POKEMON_TRAINER_BALL_VARIANTS_BY_SKILL[sourceSkillId],
+                        captureSucceeded,
+                        actorCard
+                    );
+                } else {
+                    playIngameSound(
+                        captureSucceeded
+                            ? pokemonTrainerCaptureSuccessSound
+                            : pokemonTrainerCaptureFailedSound
+                    );
+                }
+            }
+            if (
+                !uiSettings.skillCastAnimations ||
+                document.body.classList.contains('ui-disable-skill-cast-animations')
+            ) {
+                return;
+            }
+            changedStatuses.forEach((status) => {
+                const sourceSkillId = status?.sourceSkillId || '';
+                if (
+                    sourceSkillId.startsWith('ditto-transform-') ||
+                    (
+                        status?.metadata?.effectiveCharacterId &&
+                        status?.metadata?.effectiveCharacterId !== 'ditto'
+                    )
+                ) {
+                    showTemporaryCardFx(
+                        card,
+                        'community-ditto-transform-confirmed',
+                        '<span class="transform-wave wave-a"></span><span class="transform-wave wave-b"></span><span class="transform-sheen"></span>',
+                        1100
+                    );
+                }
+                if (status?.id === 'aegislash_blade_stance' || status?.id === 'aegislash_shield_stance') {
+                    const stance = status.id === 'aegislash_blade_stance' ? 'blade' : 'shield';
+                    showTemporaryCardFx(
+                        card,
+                        `community-aegislash-stance-change ${stance}`,
+                        '<span class="stance-flash"></span><span class="stance-line line-a"></span><span class="stance-line line-b"></span>',
+                        900
+                    );
+                }
+                if (status?.id === 'aegislash_swords_dance') {
+                    showTemporaryCardFx(
+                        card,
+                        'community-aegislash-dance-confirmed',
+                        '<span class="dance-blade blade-a"></span><span class="dance-blade blade-b"></span><span class="dance-spark spark-a"></span><span class="dance-spark spark-b"></span>',
+                        1000
+                    );
+                }
+                if (status?.id === 'scraggy_focus_energy_tracker') {
+                    const stacks = Math.max(0, Number(status?.metadata?.scraggyFocusEnergyStacks) || 0);
+                    if (stacks > 0) {
+                        showTemporaryCardFx(
+                            card,
+                            'community-scraggy-focus-pulse',
+                            '<span class="focus-pulse"></span><span class="focus-star star-a"></span><span class="focus-star star-b"></span>',
+                            850
+                        );
+                    }
+                }
+                if (status?.id === 'scraggy_scrafty_evolution') {
+                    showTemporaryCardFx(
+                        card,
+                        'community-scraggy-evolution-burst',
+                        '<span class="evolution-column"></span><span class="evolution-ring ring-a"></span><span class="evolution-ring ring-b"></span><span class="evolution-spark spark-a"></span><span class="evolution-spark spark-b"></span><span class="evolution-spark spark-c"></span>',
+                        1200
+                    );
+                }
+                if (sourceSkillId === 'scraggy-leer' || sourceSkillId === 'scrafty-leer') {
+                    showTemporaryCardFx(
+                        card,
+                        'community-scraggy-leer-impact',
+                        '<span class="leer-ring ring-a"></span><span class="leer-ring ring-b"></span><span class="leer-mark">!</span>',
+                        900
+                    );
+                }
+                if (sourceSkillId === 'scraggy-focus-blast' || sourceSkillId === 'scrafty-focus-blast') {
+                    showTemporaryCardFx(
+                        card,
+                        'community-scraggy-focus-mark',
+                        '<span class="focus-mark-ring ring-a"></span><span class="focus-mark-ring ring-b"></span><span class="focus-mark-core"></span>',
+                        1000
+                    );
+                }
+                if (statusGrantsInvulnerability(status)) {
+                    showTemporaryCardFx(
+                        card,
+                        'confirmed-status-flash invulnerable',
+                        '<span class="status-shell"></span><span class="status-ring ring-a"></span><span class="status-ring ring-b"></span>',
+                        1000
+                    );
+                }
+                if (statusAppliesStun(status)) {
+                    showTemporaryCardFx(
+                        card,
+                        'confirmed-status-flash stun',
+                        '<span class="status-star star-a"></span><span class="status-star star-b"></span><span class="status-star star-c"></span><span class="status-ring"></span>',
+                        950
+                    );
+                }
+            });
+        };
+
         const escapeCssUrl = (value = '') => String(value).replaceAll('\\', '\\\\').replaceAll("'", "\\'");
 
         const LASER_DEATH_KILLER_IDS = new Set(['homelander', 'superman', 'billy-butcher']);
@@ -8652,6 +9206,20 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             const sourceName = status?.metadata?.missedSourceName || 'The attacker';
             const skillName = status?.metadata?.missedSkillName || 'a skill';
             showCombatEventLog(`${sourceName}'s ${skillName} missed ${targetName}`);
+            if (
+                (status?.sourceSkillId === 'scraggy-hi-jump-kick' ||
+                    status?.sourceSkillId === 'scrafty-hi-jump-kick') &&
+                status?.sourceUsername &&
+                Number.isInteger(status?.sourceSlot)
+            ) {
+                const sourceCard = getCardByUsernameSlot(status.sourceUsername, status.sourceSlot);
+                showTemporaryCardFx(
+                    sourceCard,
+                    'community-scraggy-kick-recoil',
+                    '<span class="recoil-burst"></span><span class="recoil-line line-a"></span><span class="recoil-line line-b"></span>',
+                    950
+                );
+            }
         };
 
         const getHulkRageValue = (unit) => {
@@ -9081,7 +9649,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 (Number.isFinite(hpForFx) && hpForFx <= 0 && !isBanishedForFx);
             if (isDeadForFx) {
                 fxClasses.forEach((className) => card.classList.remove(className));
-                ['joker-detonator-light', 'space-marine-channel-bar', 'rex-charge-counter', 'aquaman-sea-shark-ring', 'predator-bleeder-spears', 'xenomorph-facehugger-overlay', 'venom-ally-symbiosis-marker', 'negan-iron-overlay', 'negan-iron-scar-overlay', 'parasite-host-mutation-marker', 'parasite-overload-marker', 'parasite-absorption-marker', 'seraphina-med-plus-overlay', 'seraphina-buckshot-pattern', 'seraphina-road-flare', 'taunt-callout', 'flash-phase-speed-lines', 'scorpion-venom-drop', 'scorpion-poison-drops', 'pokemon-evolution-aura', 'pokemon-ekans-toxic-status', 'pokemon-machop-bulk-up-status'].forEach((className) =>
+                ['joker-detonator-light', 'space-marine-channel-bar', 'rex-charge-counter', 'aquaman-sea-shark-ring', 'predator-bleeder-spears', 'xenomorph-facehugger-overlay', 'venom-ally-symbiosis-marker', 'negan-iron-overlay', 'negan-iron-scar-overlay', 'parasite-host-mutation-marker', 'parasite-overload-marker', 'parasite-absorption-marker', 'seraphina-med-plus-overlay', 'seraphina-buckshot-pattern', 'seraphina-road-flare', 'taunt-callout', 'flash-phase-speed-lines', 'scorpion-venom-drop', 'scorpion-poison-drops', 'pokemon-evolution-aura', 'pokemon-ekans-toxic-status', 'pokemon-machop-bulk-up-status', 'community-scraggy-focus-meter'].forEach((className) =>
                     removeCharacterFxElement(card, className)
                 );
                 card.classList.remove('has-pokemon-evolution-aura');
@@ -9102,6 +9670,28 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 removeCharacterFxElement(card, 'taunt-callout');
             }
             syncPokemonEvolutionAura(card, statuses);
+
+            const focusEnergyStatus = statuses.find(
+                (status) => status?.id === 'scraggy_focus_energy_tracker'
+            );
+            const focusEnergyStacks = Math.max(
+                0,
+                Math.min(3, Number(focusEnergyStatus?.metadata?.scraggyFocusEnergyStacks) || 0)
+            );
+            const hasScraftyEvolution = statuses.some(
+                (status) => status?.id === 'scraggy_scrafty_evolution'
+            );
+            if (focusEnergyStacks > 0 && !hasScraftyEvolution) {
+                const meter = ensureCharacterFxElement(
+                    card,
+                    'community-scraggy-focus-meter',
+                    '<span class="focus-pip pip-a"></span><span class="focus-pip pip-b"></span><span class="focus-pip pip-c"></span>'
+                );
+                meter?.style.setProperty('--focus-stacks', String(focusEnergyStacks));
+                meter?.setAttribute('aria-label', `${focusEnergyStacks} Focus Energy`);
+            } else {
+                removeCharacterFxElement(card, 'community-scraggy-focus-meter');
+            }
 
             const toxicStatuses = statuses.filter((status) =>
                 status?.id === 'ekans_badly_poison' || status?.id === 'ekans_badly_poison_2'
@@ -9783,15 +10373,18 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
 
             if (Array.isArray(playerCards) && Array.isArray(playerUnits)) {
                 playerCards.forEach((card, slot) => {
+                    const previousUnit = previousBoard?.[currentPlayerUsername]?.[slot];
                     const delta = getHpDelta(currentPlayerUsername, slot, playerUnits[slot]);
                     const defenseDelta = getDefenseDelta(currentPlayerUsername, slot, playerUnits[slot]);
                     const barrierDelta = getBarrierDelta(currentPlayerUsername, slot, playerUnits[slot]);
-                    const died = unitDiedBetweenStates(previousBoard?.[currentPlayerUsername]?.[slot], playerUnits[slot]);
+                    const died = unitDiedBetweenStates(previousUnit, playerUnits[slot]);
                     const evaded = gainedEvadeNotification(currentPlayerUsername, slot, playerUnits[slot]);
                     const missed = gainedMissNotification(currentPlayerUsername, slot, playerUnits[slot]);
                     const seaSharkDelta = getSeaSharkStackDelta(currentPlayerUsername, slot, playerUnits[slot]);
                     const ironRippedAway = didNeganIronRipAway(currentPlayerUsername, slot, playerUnits[slot]);
                     renderUnitHealth(card, playerUnits[slot]);
+                    showConfirmedCombatEventFx(card, previousUnit, playerUnits[slot]);
+                    showConfirmedStatusChangeFx(card, previousUnit, playerUnits[slot]);
                     if (ironRippedAway) {
                         showTemporaryCardFx(
                             card,
@@ -9804,7 +10397,6 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                         renderAquamanSeaSharkFx(card, getAquamanSeaSharkStacks(playerUnits[slot]), seaSharkDelta);
                     }
                     if (died) {
-                        const previousUnit = previousBoard?.[currentPlayerUsername]?.[slot];
                         const killerId = playerUnits[slot]?.state?.killedByCharacterId;
                         if (uiSettings.deathAnimations) {
                             if (wasEkansCrunchKill(previousUnit, playerUnits[slot])) {
@@ -9848,15 +10440,18 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             }
             if (Array.isArray(enemyCards) && Array.isArray(opponentUnits)) {
                 enemyCards.forEach((card, slot) => {
+                    const previousUnit = previousBoard?.[opponentUsername]?.[slot];
                     const delta = getHpDelta(opponentUsername, slot, opponentUnits[slot]);
                     const defenseDelta = getDefenseDelta(opponentUsername, slot, opponentUnits[slot]);
                     const barrierDelta = getBarrierDelta(opponentUsername, slot, opponentUnits[slot]);
-                    const died = unitDiedBetweenStates(previousBoard?.[opponentUsername]?.[slot], opponentUnits[slot]);
+                    const died = unitDiedBetweenStates(previousUnit, opponentUnits[slot]);
                     const evaded = gainedEvadeNotification(opponentUsername, slot, opponentUnits[slot]);
                     const missed = gainedMissNotification(opponentUsername, slot, opponentUnits[slot]);
                     const seaSharkDelta = getSeaSharkStackDelta(opponentUsername, slot, opponentUnits[slot]);
                     const ironRippedAway = didNeganIronRipAway(opponentUsername, slot, opponentUnits[slot]);
                     renderUnitHealth(card, opponentUnits[slot]);
+                    showConfirmedCombatEventFx(card, previousUnit, opponentUnits[slot]);
+                    showConfirmedStatusChangeFx(card, previousUnit, opponentUnits[slot]);
                     if (ironRippedAway) {
                         showTemporaryCardFx(
                             card,
@@ -9869,7 +10464,6 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                         renderAquamanSeaSharkFx(card, getAquamanSeaSharkStacks(opponentUnits[slot]), seaSharkDelta);
                     }
                     if (died) {
-                        const previousUnit = previousBoard?.[opponentUsername]?.[slot];
                         const killerId = opponentUnits[slot]?.state?.killedByCharacterId;
                         if (uiSettings.deathAnimations) {
                             if (wasEkansCrunchKill(previousUnit, opponentUnits[slot])) {
@@ -9917,8 +10511,15 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             if (!skillId || !Array.isArray(rosterData)) return null;
             for (const character of rosterData) {
                 const skills = Array.isArray(character?.skills) ? character.skills : [];
-                const match = skills.find((skill) => skill?.id === skillId);
-                if (match) return match;
+                const pendingSkills = skills.slice();
+                while (pendingSkills.length) {
+                    const candidate = pendingSkills.shift();
+                    if (!candidate || typeof candidate !== 'object') continue;
+                    if (candidate.id === skillId) return candidate;
+                    if (candidate.evolvesTo && typeof candidate.evolvesTo === 'object') {
+                        pendingSkills.push(candidate.evolvesTo);
+                    }
+                }
             }
             return null;
         };
@@ -10215,6 +10816,13 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 html:
                     '<span class="gyarados-wave wave-a"></span><span class="gyarados-wave wave-b"></span><span class="gyarados-wave wave-c"></span>' +
                     '<span class="gyarados-foam foam-a"></span><span class="gyarados-foam foam-b"></span><span class="gyarados-foam foam-c"></span>',
+            },
+            {
+                statusId: 'scraggy_scrafty_evolution',
+                className: 'pokemon-evolution-aura pokemon-evolution-aura-scrafty',
+                html:
+                    '<span class="scrafty-focus-ring ring-a"></span><span class="scrafty-focus-ring ring-b"></span>' +
+                    '<span class="scrafty-focus-spark spark-a"></span><span class="scrafty-focus-spark spark-b"></span><span class="scrafty-focus-spark spark-c"></span>',
             },
         ];
 

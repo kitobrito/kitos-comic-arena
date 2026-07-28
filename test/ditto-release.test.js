@@ -649,7 +649,13 @@ test('community batch news is idempotent, credits every designer, and orders lat
     assert.match(text, /Shiny Ditto.*500 points/i);
     assert.match(text, /Physical, Special, and Affliction/i);
     assert.match(text, /one more community character release tomorrow/i);
-    assert.match(text, /focus on adding and improving battle animations/i);
+    assert.match(text, /continue the focus on adding and improving battle animations/i);
+    assert.match(text, /confirmed Physical attacks.*directional punch impacts/i);
+    assert.match(text, /Aegislash, Ditto, and Scraggy or Scrafty.*character-specific/i);
+    assert.match(text, /three individually synchronized ball shakes/i);
+    assert.match(text, /successful catch flashes the ball white.*stars inward/i);
+    assert.match(text, /failed catch knocks the ball away.*fades it out/i);
+    assert.match(text, /failed ball capture.*invulnerable for only 1 turn/i);
 
     const documents = new Map();
     const getFilterKey = (filter) => {
