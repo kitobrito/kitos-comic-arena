@@ -84,6 +84,50 @@ test('Mewtwo combo corrections append to stored overrides instead of replacing t
     );
 });
 
+test('Pokemon Trainer balance values survive stored character overrides', () => {
+    const canonicalTrainer = characters.find((character) => character.id === 'pokemon-trainer');
+    assert.ok(canonicalTrainer);
+    const staleTrainer = structuredClone(canonicalTrainer);
+    Object.assign(
+        staleTrainer.skills.find((skill) => skill.id === 'pokemon-trainer-potion'),
+        { energy: ['Random', 'Random'], cooldown: 3, maxUses: 99 }
+    );
+    Object.assign(
+        staleTrainer.skills.find((skill) => skill.id === 'pokemon-trainer-revive'),
+        {
+            target: 'single-ally',
+            effects: [{ type: 'heal', amount: 50, scope: 'target' }],
+        }
+    );
+    const staleBallCycle = staleTrainer.startStatuses.find(
+        (status) => status.statusId === 'pokemon_trainer_ball_cycle'
+    );
+    staleBallCycle.metadata.customStoredField = true;
+    staleBallCycle.metadata.turnStartApplyRandomSkillReplacementToOwner.options =
+        [4, 3, 2, 1].map((weight) => ({ weight }));
+    const [corrected] = applyRequiredCanonicalSkillCorrections(
+        [staleTrainer],
+        [canonicalTrainer]
+    );
+    const potion = corrected.skills.find((skill) => skill.id === 'pokemon-trainer-potion');
+    const revive = corrected.skills.find((skill) => skill.id === 'pokemon-trainer-revive');
+    const ballCycle = corrected.startStatuses.find(
+        (status) => status.statusId === 'pokemon_trainer_ball_cycle'
+    );
+    assert.deepEqual(potion.energy, ['Random']);
+    assert.equal(potion.cooldown, 1);
+    assert.equal(potion.maxUses, 2);
+    assert.equal(revive.target, 'dead-ally-first');
+    assert.deepEqual(revive.effects.map((effect) => effect.type), ['revive']);
+    assert.equal(ballCycle.metadata.customStoredField, true);
+    assert.deepEqual(
+        ballCycle.metadata.turnStartApplyRandomSkillReplacementToOwner.options.map(
+            (option) => option.weight
+        ),
+        [8, 6, 5, 1]
+    );
+});
+
 const firstComicRosterIndex = characters.findIndex(
     (character) => normalizeArenaMode(character?.arena || character?.universe) === 'comic'
 );
