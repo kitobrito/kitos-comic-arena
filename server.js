@@ -7453,6 +7453,11 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
             'mewtwo-shadow-ball': ['skilldescription', 'description'],
             'mewtwo-drain-punch': ['skilldescription', 'description'],
         },
+        'pokemon-trainer': {
+            'pokemon-trainer-potion': ['skilldescription', 'energy', 'cooldown', 'maxUses', 'effects'],
+            'pokemon-trainer-x-stats': ['skilldescription', 'effects'],
+            'pokemon-trainer-revive': ['skilldescription', 'target', 'effects'],
+        },
     };
     const canonicalById = new Map(
         (Array.isArray(canonicalCharacters) ? canonicalCharacters : []).map((character) => [
@@ -7468,7 +7473,7 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
         const canonicalSkillById = new Map(
             (Array.isArray(canonicalCharacter.skills) ? canonicalCharacter.skills : []).map((skill) => [skill?.id, skill])
         );
-        return {
+        const correctedCharacter = {
             ...character,
             skills: (Array.isArray(character.skills) ? character.skills : []).map((skill) => {
                 const fields = requiredSkillFields[skill?.id];
@@ -7588,6 +7593,30 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
                 return correctedSkill;
             }),
         };
+        if (characterId === 'pokemon-trainer') {
+            const canonicalBallCycle = (Array.isArray(canonicalCharacter.startStatuses)
+                ? canonicalCharacter.startStatuses
+                : []
+            ).find((status) => status?.statusId === 'pokemon_trainer_ball_cycle');
+            correctedCharacter.startStatuses = (Array.isArray(character.startStatuses)
+                ? character.startStatuses
+                : []
+            ).map((status) => {
+                if (status?.statusId !== 'pokemon_trainer_ball_cycle' || !canonicalBallCycle) {
+                    return status;
+                }
+                return {
+                    ...status,
+                    metadata: {
+                        ...(status.metadata || {}),
+                        tooltipText: canonicalBallCycle.metadata?.tooltipText,
+                        turnStartApplyRandomSkillReplacementToOwner:
+                            canonicalBallCycle.metadata?.turnStartApplyRandomSkillReplacementToOwner,
+                    },
+                };
+            });
+        }
+        return correctedCharacter;
     });
 };
 
