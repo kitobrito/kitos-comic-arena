@@ -21,6 +21,13 @@ const {
     newsPost,
     syncPokemonDittoRelease,
 } = require('../sync_pokemon_ditto_release');
+const {
+    DITTO_TRANSFORMATION_FACE_BY_CHARACTER_ID,
+    DITTO_TRANSFORMATION_FACE_BY_SKIN_ID,
+    DITTO_TRANSFORMATION_FACE_BY_SKIN_STATUS_ID,
+    DITTO_TRANSFORMATION_FACE_BY_STATUS_ID,
+    resolveDittoTransformationFacePicture,
+} = require('../pokemonDittoTransformationFaces');
 
 const root = path.resolve(__dirname, '..');
 const dittoIndex = characters.findIndex((character) => character?.id === 'ditto');
@@ -28,6 +35,7 @@ const trainerIndex = characters.findIndex((character) => character?.id === 'poke
 const eeveeIndex = characters.findIndex((character) => character?.id === 'eevee');
 const moltresIndex = characters.findIndex((character) => character?.id === 'moltres');
 const totodileIndex = characters.findIndex((character) => character?.id === 'totodile');
+const aegislashIndex = characters.findIndex((character) => character?.id === 'aegislash');
 
 const makeMatch = (players, roster = characters) => ({
     players,
@@ -77,6 +85,106 @@ test('Ditto uses the official supplied assets, Normal typing, and KiruKasai cred
         assert.ok(fs.existsSync(path.join(root, skill.skillimage)));
     });
     assert.ok(fs.existsSync(path.join(root, ditto.facePicture)));
+});
+
+test('every transformable Pokemon and supplied form has an optimized Ditto portrait', () => {
+    const transformableCharacterIds = characters
+        .filter(
+            (character) =>
+                String(character?.arena || character?.universe || '').toLowerCase() === 'pokemon' &&
+                character.id !== 'ditto'
+        )
+        .map((character) => character.id)
+        .sort();
+    assert.deepEqual(
+        Object.keys(DITTO_TRANSFORMATION_FACE_BY_CHARACTER_ID).sort(),
+        transformableCharacterIds
+    );
+
+    const mappedFaces = new Set([
+        ...Object.values(DITTO_TRANSFORMATION_FACE_BY_CHARACTER_ID),
+        ...Object.values(DITTO_TRANSFORMATION_FACE_BY_STATUS_ID),
+        ...Object.values(DITTO_TRANSFORMATION_FACE_BY_SKIN_ID),
+        ...Object.values(DITTO_TRANSFORMATION_FACE_BY_SKIN_STATUS_ID),
+    ]);
+    const optimizedDirectory = path.join(
+        root,
+        'assets',
+        'images',
+        'PokemonArena',
+        'Ditto',
+        'transformationfps',
+        'optimized'
+    );
+    const optimizedFaces = fs.readdirSync(optimizedDirectory)
+        .filter((filename) => filename.endsWith('.webp'))
+        .sort();
+    assert.equal(mappedFaces.size, 80);
+    assert.deepEqual(
+        [...mappedFaces].map((face) => path.basename(face)).sort(),
+        optimizedFaces
+    );
+    mappedFaces.forEach((face) => {
+        assert.ok(fs.existsSync(path.join(root, face)), `Missing optimized Ditto face: ${face}`);
+    });
+});
+
+test('Ditto portrait resolution prefers supplied forms and skins with safe fallbacks', () => {
+    assert.equal(
+        resolveDittoTransformationFacePicture({ characterId: 'moltres' }),
+        DITTO_TRANSFORMATION_FACE_BY_CHARACTER_ID.moltres
+    );
+    assert.equal(
+        resolveDittoTransformationFacePicture({
+            characterId: 'aegislash',
+            activeStatusIds: ['aegislash_shield_stance', 'aegislash_blade_stance'],
+        }),
+        DITTO_TRANSFORMATION_FACE_BY_STATUS_ID.aegislash_blade_stance
+    );
+    assert.equal(
+        resolveDittoTransformationFacePicture({
+            characterId: 'pikachu',
+            effectiveSkinId: 'pikachu-raichu',
+            targetFacePicture: characters.find((character) => character.id === 'pikachu').facePicture,
+            characterFacePicture: characters.find((character) => character.id === 'pikachu').facePicture,
+        }),
+        DITTO_TRANSFORMATION_FACE_BY_SKIN_ID['pikachu-raichu']
+    );
+    assert.equal(
+        resolveDittoTransformationFacePicture({
+            characterId: 'onix',
+            effectiveSkinId: 'onix-crystal',
+            targetFacePicture: characters.find((character) => character.id === 'onix').facePicture,
+            characterFacePicture: characters.find((character) => character.id === 'onix').facePicture,
+        }),
+        DITTO_TRANSFORMATION_FACE_BY_SKIN_ID['onix-crystal']
+    );
+    const redGyaradosFace = 'assets/images/PokemonArena/magikarp/skins/gold/redfp.jpeg';
+    assert.equal(
+        resolveDittoTransformationFacePicture({
+            characterId: 'magikarp',
+            effectiveSkinId: 'magikarp-golden-gyarados-red',
+            activeStatusIds: ['magikarp_gyarados_evolution'],
+            targetFacePicture: redGyaradosFace,
+            characterFacePicture: characters.find((character) => character.id === 'magikarp').facePicture,
+        }),
+        DITTO_TRANSFORMATION_FACE_BY_SKIN_STATUS_ID[
+            'magikarp-golden-gyarados-red:magikarp_gyarados_evolution'
+        ]
+    );
+    assert.equal(
+        resolveDittoTransformationFacePicture({
+            characterId: 'charmander',
+            effectiveSkinId: 'charmander-charizard-legendary',
+            activeStatusIds: ['charmander_charizard_x_evolution_branch'],
+            targetFacePicture:
+                'assets/images/PokemonArena/Charmander/skins/charizard/megacharizardxfp.webp',
+            characterFacePicture: characters.find((character) => character.id === 'charmander').facePicture,
+        }),
+        DITTO_TRANSFORMATION_FACE_BY_SKIN_STATUS_ID[
+            'charmander-charizard-legendary:charmander_charizard_x_evolution_branch'
+        ]
+    );
 });
 
 test('Ditto automatically copies the character opposite it without discounting its Random cost', () => {
@@ -163,6 +271,13 @@ test('Ditto copies Pokemon passive trackers and can build Moltres Heat', () => {
     ];
     const match = makeMatch(players);
     const ditto = match.board.DittoUser[0];
+    const transformation = ditto.state.statuses.find(
+        (status) => status.id === 'ditto_transformation'
+    );
+    assert.equal(
+        transformation?.metadata?.facePictureOverride,
+        DITTO_TRANSFORMATION_FACE_BY_CHARACTER_ID.moltres
+    );
     const heatTracker = ditto.state.statuses.find((status) => status.id === 'moltres_heat');
     const heatWaveIndex = characters[moltresIndex].skills.findIndex(
         (skill) => skill.id === 'moltres-heat-wave'
@@ -292,6 +407,61 @@ test('opposing Ditto remain Ditto and can manually Transform into a living ally 
     );
 });
 
+test('Ditto portraits follow copied Aegislash stances and survive reconnect serialization', () => {
+    const makeMirrorMatch = () =>
+        makeMatch([
+            { username: 'Pink', team: [dittoIndex, eeveeIndex] },
+            { username: 'Blue', team: [dittoIndex, aegislashIndex] },
+        ]);
+    const transformIntoAegislash = (match) => {
+        queueSkill({
+            match,
+            username: 'Pink',
+            skillIndex: 0,
+            targetUsername: 'Blue',
+            targetSlot: 1,
+        });
+        resolvePendingTurnSkills({ match, actingUsername: 'Pink', characters });
+        return match.board.Pink[0].state.statuses.find(
+            (status) => status.id === 'ditto_transformation'
+        );
+    };
+
+    const shieldMatch = makeMirrorMatch();
+    const shieldTransformation = transformIntoAegislash(shieldMatch);
+    assert.equal(
+        shieldTransformation.metadata.facePictureOverride,
+        DITTO_TRANSFORMATION_FACE_BY_STATUS_ID.aegislash_shield_stance
+    );
+    const recoveredBoard = JSON.parse(JSON.stringify(shieldMatch.board));
+    assert.equal(
+        recoveredBoard.Pink[0].state.statuses.find(
+            (status) => status.id === 'ditto_transformation'
+        ).metadata.facePictureOverride,
+        DITTO_TRANSFORMATION_FACE_BY_STATUS_ID.aegislash_shield_stance
+    );
+
+    const bladeMatch = makeMirrorMatch();
+    const bladeTargetState = bladeMatch.board.Blue[1].state;
+    bladeTargetState.statuses = bladeTargetState.statuses.filter(
+        (status) => status.id !== 'aegislash_shield_stance'
+    );
+    bladeTargetState.statuses.push({
+        id: 'aegislash_blade_stance',
+        remainingTurns: 999,
+        metadata: {
+            infiniteDuration: true,
+            facePictureOverride:
+                'assets/images/PokemonArena/aegislash/OfficialPictures/facepicturewhenattacking.jpg',
+        },
+    });
+    const bladeTransformation = transformIntoAegislash(bladeMatch);
+    assert.equal(
+        bladeTransformation.metadata.facePictureOverride,
+        DITTO_TRANSFORMATION_FACE_BY_STATUS_ID.aegislash_blade_stance
+    );
+});
+
 test('Ditto copies the target skin, while Shiny Ditto never leaks its own skin into a transformation', () => {
     const pikachuIndex = characters.findIndex((character) => character?.id === 'pikachu');
     const players = [
@@ -320,6 +490,10 @@ test('Ditto copies the target skin, while Shiny Ditto never leaks its own skin i
     );
     assert.equal(transformation.metadata.effectiveCharacterId, 'pikachu');
     assert.equal(transformation.metadata.effectiveSkinId, 'pikachu-raichu');
+    assert.equal(
+        transformation.metadata.facePictureOverride,
+        DITTO_TRANSFORMATION_FACE_BY_SKIN_ID['pikachu-raichu']
+    );
     assert.notEqual(transformation.metadata.effectiveSkinId, 'ditto-shiny');
 });
 
@@ -384,6 +558,10 @@ test('Pokemon Trainer captures base Ditto, including its shiny skin, then must u
     );
     assert.equal(transformation.metadata.effectiveCharacterId, 'eevee');
     assert.equal(transformation.metadata.DamageDebuff, 5);
+    assert.equal(
+        transformation.metadata.facePictureOverride,
+        DITTO_TRANSFORMATION_FACE_BY_CHARACTER_ID.eevee
+    );
     assert.equal(
         resolveEffectiveSkill({
             characters,
