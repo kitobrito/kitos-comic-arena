@@ -45,3 +45,30 @@ test('experimental battle exposes an upward-opening options menu with a death an
     assert.match(ingame, /battle-options-death-toggle-v1/);
     assert.match(ingame, /battle-death-toggle-v1/);
 });
+
+test('mobile experimental battle exposes an unscaled options dock and aligned cooldown badges', () => {
+    assert.match(script, /setupMobileIngameUiOptions/);
+    assert.match(script, /document\.body\.appendChild\(dock\)/);
+    assert.match(styles, /\.mobile-ingame-options-dock \{[\s\S]*?position: fixed;/);
+    assert.match(styles, /\.mobile-ingame-options-toggle \{[\s\S]*?bottom: max\(10px, env\(safe-area-inset-bottom\)\)/);
+    assert.match(styles, /\.skill-cooldown-badge \{[\s\S]*?font-size: 28px;[\s\S]*?text-align: center;/);
+    assert.match(script, /badge\.style\.left = `\$\{meta\.imgEl\.offsetLeft\}px`/);
+    assert.match(ingame, /mobile-battle-options-v2/);
+    assert.match(ingame, /cooldown-alignment-v1/);
+});
+
+test('mobile evolution cinematic is centered on the visual viewport', () => {
+    assert.match(script, /const viewportWidth = window\.visualViewport\?\.width \|\| window\.innerWidth/);
+    assert.match(script, /const centerOnVisibleViewport = viewportWidth <= 680/);
+    assert.match(sharedStyles, /@media \(max-width: 680px\) and \(max-height: 520px\)[\s\S]*?scale\(\.72\)/);
+    assert.match(ingame, /pokemon-evolution-cinematic-v2/);
+});
+
+test('unchanged queued skill previews survive random chakra adjustments', () => {
+    assert.match(script, /let renderedSkillOrderSignature = ''/);
+    assert.match(
+        script,
+        /newlyQueuedKeys\.size === 0 && renderSignature === renderedSkillOrderSignature/
+    );
+    assert.match(ingame, /chakra-queue-stability-v1/);
+});

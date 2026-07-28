@@ -4,7 +4,11 @@ const path = require('node:path');
 const test = require('node:test');
 
 const characters = require('../characters');
-const { buildInitialBoard, resolvePendingTurnSkills } = require('../battleLogic');
+const {
+    buildInitialBoard,
+    processTurnStartStatusEffects,
+    resolvePendingTurnSkills,
+} = require('../battleLogic');
 const { sanitizeBoardForViewer } = require('../server');
 
 const root = path.resolve(__dirname, '..');
@@ -182,7 +186,13 @@ test('Pokemon Trainer capture visuals use supplied balls and audio-clock shake c
         'hasAudioClock',
         'audio.currentTime',
         'captureSucceeded',
+        'getPokemonTrainerBallCardKey',
+        'soundManager.duckMusic',
     ].forEach((marker) => assert.ok(script.includes(marker), marker));
+    assert.doesNotMatch(
+        script,
+        /if \(!entry \|\| entry\.completed\) \{\s*entry = \{\s*actorCard/
+    );
 
     [
         '.pokemon-trainer-capture-ball.capture-success',
@@ -221,7 +231,21 @@ test('Pokemon Trainer capture visuals use supplied balls and audio-clock shake c
             fileName
         );
     });
-    assert.match(ingame, /pokemon-trainer-capture-audio-v1/);
+    assert.match(ingame, /pokemon-trainer-capture-audio-v3/);
+});
+
+test('Bulbasaur Leech Seed deals one fixed 10 damage tick to Mewtwo per turn count', () => {
+    const bulbasaurIndex = characters.findIndex((character) => character?.id === 'bulbasaur');
+    const mewtwoIndex = characters.findIndex((character) => character?.id === 'mewtwo');
+    const match = makeMatch({ ash: [bulbasaurIndex], gary: [mewtwoIndex] });
+    queueSkill(match, 'ash', 0, 'gary');
+    resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+
+    processTurnStartStatusEffects({ match, startingUsername: 'gary' });
+    assert.equal(match.board.gary[0].hp, 90);
+
+    processTurnStartStatusEffects({ match, startingUsername: 'gary' });
+    assert.equal(match.board.gary[0].hp, 90);
 });
 
 test('failed Great Ball and Ultra Ball captures only control their target for one turn', () => {

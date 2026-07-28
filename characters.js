@@ -19132,6 +19132,7 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "turnStartDamage": 10,
+                            "damageImmediatelyOnApply": false,
                             "turnStartHealSourceAmount": 10,
                             "fixedTurnStartDamage": true,
                             "ignoreTargetDamageReduction": true,
@@ -19371,6 +19372,7 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "turnStartDamage": 15,
+                            "damageImmediatelyOnApply": false,
                             "turnStartHealSourceAmount": 15,
                             "fixedTurnStartDamage": true,
                             "ignoreTargetDamageReduction": true,
@@ -24573,7 +24575,7 @@ const characters = [
                             "damageBonusFlat": 5,
                             "turnDurationAnchor": "source_turn",
                             "statusIconUrl": "assets/images/PokemonArena/abra/calmmind.webp",
-                            "tooltipText": "Abra has 15% damage reduction and deals 10 additional damage."
+                            "tooltipText": "Abra has 10% damage reduction and deals 5 additional damage."
                         }
                     }
                 ]

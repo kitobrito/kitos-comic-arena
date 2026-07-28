@@ -67,5 +67,5 @@ test('evolution respects animation settings, reduced motion, mobile layouts, and
         styleSource,
         /@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.pokemon-evolution-cinematic[\s\S]*?700ms/
     );
-    assert.match(ingameSource, /pokemon-evolution-cinematic-v1/);
+    assert.match(ingameSource, /pokemon-evolution-cinematic-v2/);
 });

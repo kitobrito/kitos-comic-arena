@@ -289,8 +289,30 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         applyUiSettings();
     };
+    const setupMobileIngameUiOptions = () => {
+        if (!isIngamePage || document.querySelector('.mobile-ingame-options-dock')) return;
+        const sourcePanel = document.getElementById('ingame-ui-options');
+        if (!sourcePanel) return;
+        const dock = document.createElement('div');
+        dock.className = 'mobile-ingame-options-dock';
+        const toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'mobile-ingame-options-toggle ui-options-toggle';
+        toggle.setAttribute('aria-expanded', 'false');
+        toggle.setAttribute('aria-controls', 'mobile-ingame-ui-options');
+        toggle.setAttribute('aria-label', 'Open battle options');
+        toggle.textContent = 'Options';
+        const panel = sourcePanel.cloneNode(true);
+        panel.id = 'mobile-ingame-ui-options';
+        panel.className = 'ui-options-panel mobile-ingame-ui-options-panel';
+        panel.hidden = true;
+        panel.setAttribute('aria-label', 'Mobile battle options');
+        dock.append(toggle, panel);
+        document.body.appendChild(dock);
+    };
     applyUiSettings();
     setupSelectionFullscreenToggle();
+    setupMobileIngameUiOptions();
 
     const shouldUseCustomCursor = (isIngamePage || isSelectionPage) && uiSettings.customCursor;
     const shouldUseGameClickSound = isIngamePage || isSelectionPage;
@@ -343,6 +365,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         let synthContext = null;
         let musicOutputGain = null;
         let effectsOutputGain = null;
+        let musicDuckTimeout = null;
+        let musicDucked = false;
         const routedMediaElements = new WeakMap();
         let noiseBuffer = null;
         const ambientIntervals = new Map();
@@ -364,7 +388,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const syncOutputGains = () => {
             if (musicOutputGain) {
-                musicOutputGain.gain.value = settings.musicMuted ? 0 : settings.volume;
+                musicOutputGain.gain.value = settings.musicMuted || musicDucked ? 0 : settings.volume;
             }
             if (effectsOutputGain) {
                 effectsOutputGain.gain.value = settings.effectsMuted ? 0 : settings.volume;
@@ -707,8 +731,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (currentMusic) {
                 currentMusic.volume = routedMediaElements.has(currentMusic)
                     ? 1
-                    : (settings.musicMuted ? 0 : settings.volume);
-                currentMusic.muted = settings.musicMuted;
+                    : (settings.musicMuted || musicDucked ? 0 : settings.volume);
+                currentMusic.muted = settings.musicMuted || musicDucked;
             }
         };
 
@@ -856,6 +880,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 } catch (error) {
                     // Ignore playback errors from the browser.
                 }
+            },
+            duckMusic(durationMs = 0) {
+                const duration = Math.max(0, Number(durationMs) || 0);
+                if (musicDuckTimeout) {
+                    window.clearTimeout(musicDuckTimeout);
+                    musicDuckTimeout = null;
+                }
+                musicDucked = true;
+                updateMusicVolume();
+                musicDuckTimeout = window.setTimeout(() => {
+                    musicDuckTimeout = null;
+                    musicDucked = false;
+                    updateMusicVolume();
+                }, duration);
             },
             startMusic(tracks) {
                 const nextTracks = Array.isArray(tracks) ? tracks.filter(Boolean) : [tracks].filter(Boolean);
@@ -2871,6 +2909,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const statusRenderSignatureByUnit = new Map();
         const statusTooltipHtmlCache = new Map();
         const cooldownValueBySkillKey = new Map();
+        let renderedSkillOrderSignature = '';
         let activeTurnStartChoiceKey = '';
         let activeChoicePopupMode = '';
         let queuedSkillKeySet = new Set();
@@ -4637,12 +4676,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     badge.style.display = 'none';
                 }
                 cooldownValueBySkillKey.set(cooldownKey, cooldownRemaining);
-                const rect = meta.imgEl.getBoundingClientRect();
-                const parentRect = meta.imgEl.parentElement.getBoundingClientRect();
-                badge.style.left = `${rect.left - parentRect.left}px`;
-                badge.style.top = `${rect.top - parentRect.top}px`;
-                badge.style.width = `${rect.width}px`;
-                badge.style.height = `${rect.height}px`;
+                badge.style.left = `${meta.imgEl.offsetLeft}px`;
+                badge.style.top = `${meta.imgEl.offsetTop}px`;
+                badge.style.width = `${meta.imgEl.offsetWidth}px`;
+                badge.style.height = `${meta.imgEl.offsetHeight}px`;
             });
         };
 
@@ -5129,6 +5166,19 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const renderSkillOrderQueue = (newlyQueuedKeys = new Set()) => {
             if (!skillOrderEl) return;
             const queuedEntries = getOrderedQueuedEntries();
+            const renderSignature = queuedEntries
+                .map((queued) => {
+                    const actorSlot = Number.parseInt(queued.actorSlot, 10);
+                    const skillIdx = Number.parseInt(queued.skillIndex, 10);
+                    const meta = playerSkillMetaByKey.get(`${actorSlot}:${skillIdx}`);
+                    const effectiveSkill = getEffectiveSkillForActorSlot(actorSlot, skillIdx) || meta?.skill;
+                    return `${actorSlot}:${skillIdx}:${effectiveSkill?.skillimage || ''}`;
+                })
+                .join('|');
+            if (newlyQueuedKeys.size === 0 && renderSignature === renderedSkillOrderSignature) {
+                return;
+            }
+            renderedSkillOrderSignature = renderSignature;
             skillOrderEl.innerHTML = '';
             queuedEntries.forEach((queued) => {
                 const actorSlot = Number.parseInt(queued.actorSlot, 10);
@@ -6218,7 +6268,12 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             'pokemon-trainer-ultra-ball': 'ultra-ball',
             'pokemon-trainer-master-ball': 'master-ball',
         });
-        const pokemonTrainerBallLandings = new WeakMap();
+        const pokemonTrainerBallLandings = new Map();
+        const getPokemonTrainerBallCardKey = (card) => {
+            const username = String(card?.dataset?.username || '').trim().toLowerCase();
+            const slot = Number.parseInt(card?.dataset?.slot || '', 10);
+            return username && Number.isInteger(slot) ? `${username}:${slot}` : '';
+        };
 
         const positionPokemonTrainerLandedBall = (entry) => {
             const targetFace = entry?.targetCard?.querySelector?.('.character-face') || entry?.targetCard;
@@ -6268,6 +6323,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     shakeDuration: 0.42,
                     resultCue: 4.4,
                 };
+            soundManager.duckMusic(Math.ceil(timing.duration * 1000) + 900);
             const sourceFace = entry.actorCard?.querySelector?.('.character-face') || entry.actorCard;
             const targetFace = entry.targetCard?.querySelector?.('.character-face') || entry.targetCard;
             const sourceRect = sourceFace?.getBoundingClientRect?.();
@@ -6410,35 +6466,40 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         };
 
         const showPokemonTrainerCaptureOutcomeFx = (targetCard, variant, success, actorCard = null) => {
-            if (!targetCard) return;
-            let entry = pokemonTrainerBallLandings.get(targetCard);
-            if (!entry || entry.completed) {
-                entry = {
-                    actorCard,
-                    targetCard,
-                    variant,
-                    element: null,
-                    completed: false,
-                };
-                pokemonTrainerBallLandings.set(targetCard, entry);
+            if (!targetCard) return false;
+            const targetKey = getPokemonTrainerBallCardKey(targetCard);
+            const actorKey = getPokemonTrainerBallCardKey(actorCard);
+            const entry = targetKey ? pokemonTrainerBallLandings.get(targetKey) : null;
+            if (
+                !entry ||
+                entry.completed ||
+                entry.variant !== variant ||
+                (actorKey && entry.actorKey && entry.actorKey !== actorKey)
+            ) {
+                return false;
             }
-            if (!entry.actorCard && actorCard) entry.actorCard = actorCard;
-            entry.variant = variant;
+            entry.targetCard = targetCard;
+            if (actorCard) entry.actorCard = actorCard;
             runPokemonTrainerCaptureTimeline(entry, success);
+            return true;
         };
 
         const showPokemonTrainerBallFx = ({ actorCard, targetCards = [], variant = 'pokeball' }) => {
             targetCards.forEach((targetCard) => {
+                const targetKey = getPokemonTrainerBallCardKey(targetCard);
+                if (!targetKey) return;
                 const landingEntry = {
                     actorCard,
+                    actorKey: getPokemonTrainerBallCardKey(actorCard),
                     targetCard,
+                    targetKey,
                     variant,
                     element: null,
                     completed: false,
                 };
-                const previousEntry = pokemonTrainerBallLandings.get(targetCard);
+                const previousEntry = pokemonTrainerBallLandings.get(targetKey);
                 if (previousEntry?.element?.isConnected) previousEntry.element.remove();
-                pokemonTrainerBallLandings.set(targetCard, landingEntry);
+                pokemonTrainerBallLandings.set(targetKey, landingEntry);
             });
         };
 
@@ -8766,8 +8827,17 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 : null;
             const oldName = String(baseCharacter?.name || 'Pokémon');
             const evolvedName = getPokemonEvolutionDisplayName(status);
-            const centerX = Math.max(92, Math.min(window.innerWidth - 92, faceRect.left + faceRect.width / 2));
-            const centerY = Math.max(118, Math.min(window.innerHeight - 118, faceRect.top + faceRect.height / 2));
+            const viewportWidth = window.visualViewport?.width || window.innerWidth;
+            const viewportHeight = window.visualViewport?.height || window.innerHeight;
+            const viewportLeft = window.visualViewport?.offsetLeft || 0;
+            const viewportTop = window.visualViewport?.offsetTop || 0;
+            const centerOnVisibleViewport = viewportWidth <= 680;
+            const centerX = centerOnVisibleViewport
+                ? viewportLeft + viewportWidth / 2
+                : Math.max(92, Math.min(window.innerWidth - 92, faceRect.left + faceRect.width / 2));
+            const centerY = centerOnVisibleViewport
+                ? viewportTop + viewportHeight / 2
+                : Math.max(118, Math.min(window.innerHeight - 118, faceRect.top + faceRect.height / 2));
             const cinematic = document.createElement('div');
             cinematic.className = `pokemon-evolution-cinematic${rareCandy ? ' rare-candy' : ''}${reducedMotion ? ' reduced-motion' : ''}`;
             cinematic.setAttribute('aria-hidden', 'true');
@@ -8865,23 +8935,12 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                             captureStatus.sourceSlot
                         )
                         : null;
-                if (
-                    uiSettings.skillCastAnimations &&
-                    !document.body.classList.contains('ui-disable-skill-cast-animations')
-                ) {
-                    showPokemonTrainerCaptureOutcomeFx(
-                        card,
-                        POKEMON_TRAINER_BALL_VARIANTS_BY_SKILL[sourceSkillId],
-                        captureSucceeded,
-                        actorCard
-                    );
-                } else {
-                    playIngameSound(
-                        captureSucceeded
-                            ? pokemonTrainerCaptureSuccessSound
-                            : pokemonTrainerCaptureFailedSound
-                    );
-                }
+                showPokemonTrainerCaptureOutcomeFx(
+                    card,
+                    POKEMON_TRAINER_BALL_VARIANTS_BY_SKILL[sourceSkillId],
+                    captureSucceeded,
+                    actorCard
+                );
             }
             if (
                 !uiSettings.skillCastAnimations ||
@@ -16268,6 +16327,8 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         if (searchingSpinner) {
             searchingSpinner.src = activeArenaMode === 'pokemon' ? POKEMON_SEARCHING_ICON_URL : 'assets/images/sharingan.png';
             searchingSpinner.style.visibility = 'visible';
+            searchingSpinner.style.animation = 'none';
+            void searchingSpinner.offsetWidth;
             searchingSpinner.style.animation = '';
         }
         if (cancelSearchingButton) {

@@ -18,6 +18,10 @@ html.battle-experimental body {
         #05090c;
 }
 
+.mobile-ingame-options-dock {
+    display: none;
+}
+
 html.battle-experimental .backgroundingame {
     --battle-accent: #b51f39;
     --battle-accent-bright: #ef405d;
@@ -551,6 +555,19 @@ html.battle-experimental .skillinformation.profile-information .ingameclasspicke
     display: none !important;
 }
 
+html.battle-experimental .skill-cooldown-badge {
+    margin: 0;
+    color: #fff;
+    font-family: 'Libre Franklin', Arial, sans-serif;
+    font-size: 28px;
+    font-weight: 900;
+    line-height: 1;
+    text-align: center;
+    text-shadow: 0 2px 2px #000, 0 0 5px #000;
+    background: rgba(0, 0, 0, 0.56);
+    border-radius: 3px;
+}
+
 html.battle-experimental .surrenderbutton {
     top: 494px;
     left: 17px;
@@ -789,6 +806,64 @@ html.battle-experimental .backgroundingame:-webkit-full-screen {
 
     html.battle-experimental .ingame-sound-controller {
         max-width: 250px;
+    }
+
+    html.battle-experimental .mobile-ingame-options-dock {
+        position: fixed;
+        inset: 0;
+        z-index: 2147482500;
+        display: block;
+        width: 0;
+        height: 0;
+        pointer-events: none;
+    }
+
+    html.battle-experimental .mobile-ingame-options-toggle {
+        position: fixed;
+        right: max(10px, env(safe-area-inset-right));
+        bottom: max(10px, env(safe-area-inset-bottom));
+        z-index: 2;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        min-width: 104px;
+        min-height: 42px;
+        padding: 8px 14px;
+        border: 2px solid rgba(255, 255, 255, 0.9);
+        border-radius: 999px;
+        background: linear-gradient(180deg, #2b3940, #10191e);
+        box-shadow: 0 5px 18px rgba(0, 0, 0, 0.68), inset 0 1px rgba(255, 255, 255, 0.16);
+        color: #fff;
+        font: 900 12px/1 'Libre Franklin', Arial, sans-serif;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        pointer-events: auto;
+        touch-action: manipulation;
+    }
+
+    html.battle-experimental .mobile-ingame-options-toggle.active {
+        border-color: #ff7189;
+        background: #7b1528;
+    }
+
+    html.battle-experimental .mobile-ingame-ui-options-panel {
+        position: fixed;
+        right: max(10px, env(safe-area-inset-right));
+        bottom: calc(max(10px, env(safe-area-inset-bottom)) + 52px);
+        left: auto;
+        top: auto;
+        z-index: 1;
+        width: min(280px, calc(100vw - 20px));
+        max-height: min(62dvh, 470px);
+        overflow-y: auto;
+        border-color: rgba(255, 255, 255, 0.78);
+        border-radius: 10px;
+        background: rgba(8, 16, 20, 0.98);
+        box-shadow: 0 12px 34px rgba(0, 0, 0, 0.72);
+        color: #eef2f3;
+        pointer-events: auto;
+        -webkit-overflow-scrolling: touch;
     }
 }
 

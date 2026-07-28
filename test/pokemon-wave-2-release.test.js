@@ -262,6 +262,23 @@ test('Mewtwo Recover loses 2 healing on each consecutive use', () => {
 test('Abra Calm Mind tracker survives its own trigger and Vaporeon uses player-facing wording', () => {
     const abra = characters.find((character) => character.id === 'abra');
     assert.equal(abra.startStatuses.find((status) => status.statusId === 'abra_calm_mind_tracker').metadata.preserveOnOwnerUseSkillTrigger, true);
+    const abraCalmMind = abra.skills.find((skill) => skill.id === 'abra-calm-mind');
+    const kadabraCalmMind = abra.skills.find((skill) => skill.id === 'kadabra-calm-mind');
+    assert.deepEqual(
+        {
+            reduction: abraCalmMind.effects[0].metadata.damageReductionPercent,
+            bonus: abraCalmMind.effects[0].metadata.damageBonusFlat,
+        },
+        { reduction: 10, bonus: 5 }
+    );
+    assert.deepEqual(
+        {
+            reduction: kadabraCalmMind.effects[0].metadata.damageReductionPercent,
+            bonus: kadabraCalmMind.effects[0].metadata.damageBonusFlat,
+        },
+        { reduction: 15, bonus: 10 }
+    );
+    assert.match(abraCalmMind.effects[0].metadata.tooltipText, /10%.*5 additional damage/);
     const vaporeon = characters.find((character) => character.id === 'vaporeon');
     const sandAttack = vaporeon.skills.find((skill) => skill.id === 'vaporeon-sand-attack');
     assert.doesNotMatch(JSON.stringify(sandAttack), /purple/i);

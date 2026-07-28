@@ -14375,6 +14375,12 @@ body.ui-disable-skill-cast-animations .pokemon-evolution-cinematic {
     }
 }
 
+@media (max-width: 680px) and (max-height: 520px) {
+    .pokemon-evolution-stage {
+        transform: translate(-50%, -50%) scale(.72);
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .pokemon-evolution-cinematic {
         animation-duration: 700ms !important;
