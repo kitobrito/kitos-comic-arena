@@ -13521,6 +13521,15 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                         targets: [...allyTargets, ...deadAllyTargets],
                         skillIndex: skillIdx,
                     };
+                case 'dead-ally-first':
+                case 'dead-ally-lowest-slot':
+                    return {
+                        ok: true,
+                        targetType,
+                        mode: 'single',
+                        targets: deadAllyTargets,
+                        skillIndex: skillIdx,
+                    };
                 case 'self-or-single-ally':
                     return { ok: true, targetType, mode: 'single', targets: playerTargets, skillIndex: skillIdx };
                 case 'all-allies':

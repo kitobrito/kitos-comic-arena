@@ -16,6 +16,11 @@ test('battle experience news covers the complete release', () => {
         'Leech Seed',
         'Poison Sting',
         'next 2 enemy damage effects',
+        'Ultra Ball 25%',
+        'Pidgey now evolves',
+        'Fury Cutter gains 2 stacks',
+        'Thunder Punch splashes',
+        'Machop and Machoke have been reworked',
     ].forEach((phrase) => assert.match(text, new RegExp(phrase)));
 });
 

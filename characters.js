@@ -20171,7 +20171,7 @@ const characters = [
                 "id": "pokemon-trainer-pokeball",
                 "name": "Pokeball",
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/Pokeball.jpeg",
-                "skilldescription": "At the start of each turn, Pokemon Trainer's ball slot randomly becomes Pokeball 40%, Great Ball 30%, Ultra Ball 20%, or Master Ball 10%. Stuns one enemy and makes them invulnerable to all skills for 1 turn. If used when their health is at 10 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed.",
+                "skilldescription": "At the start of each turn, Pokemon Trainer's ball slot randomly becomes Pokeball 40%, Great Ball 30%, Ultra Ball 25%, or Master Ball 5%. Stuns one enemy and makes them invulnerable to all skills for 1 turn. If used when their health is at 10 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -20295,14 +20295,14 @@ const characters = [
                 "id": "pokemon-trainer-potion",
                 "name": "Potion",
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/Potion.jpg",
-                "skilldescription": "Heals one ally or Pokemon Trainer for 30 HP.",
+                "skilldescription": "Heals one ally or Pokemon Trainer for 30 HP. Pokemon Trainer carries only 2 Potions per match.",
                 "energy": [
-                    "Random",
                     "Random"
                 ],
                 "target": "self-or-single-ally",
                 "damage": 0,
-                "cooldown": 3,
+                "cooldown": 1,
+                "maxUses": 2,
                 "classes": [
                     "Physical",
                     "Instant"
@@ -20319,7 +20319,7 @@ const characters = [
                 "id": "pokemon-trainer-x-stats",
                 "name": "X-Stats",
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/xstats.png",
-                "skilldescription": "Grants one ally +5 non-affliction damage and 5 damage reduction for the rest of the game. This effect stacks.",
+                "skilldescription": "Permanently increases one ally's Physical damage by 5 on the first use, then Special damage by 5 on the next use, alternating between Physical and Special with each use. Each bonus stacks.",
                 "energy": [
                     "Random"
                 ],
@@ -20333,18 +20333,56 @@ const characters = [
                 "effects": [
                     {
                         "type": "apply_status",
-                        "statusId": "pokemon_trainer_x_stats_buff",
+                        "statusId": "pokemon_trainer_x_stats_physical_buff",
                         "duration": 999,
                         "scope": "target",
+                        "condition": {
+                            "actorSkillUseCountModulo": {
+                                "skillId": "pokemon-trainer-x-stats",
+                                "divisor": 2,
+                                "remainder": 1
+                            }
+                        },
                         "metadata": {
                             "infiniteDuration": true,
-                            "nonAfflictionDamageBonusFlat": 5,
-                            "damageReductionFlat": 5,
+                            "damageBonusBySkillClass": {
+                                "Physical": 5
+                            },
+                            "physicalXStatsDamageBonus": 5,
                             "mergeNumericAddKeys": [
-                                "nonAfflictionDamageBonusFlat",
-                                "damageReductionFlat"
+                                "physicalXStatsDamageBonus"
                             ],
-                            "tooltipTextTemplate": "This character deals {nonAfflictionDamageBonusFlat} additional non-affliction damage and has {damageReductionFlat} damage reduction from X-Stats."
+                            "mergeObjectNumericAddKeys": [
+                                "damageBonusBySkillClass"
+                            ],
+                            "tooltipTextTemplate": "This character deals {physicalXStatsDamageBonus} additional Physical damage from X-Stats."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "pokemon_trainer_x_stats_special_buff",
+                        "duration": 999,
+                        "scope": "target",
+                        "condition": {
+                            "actorSkillUseCountModulo": {
+                                "skillId": "pokemon-trainer-x-stats",
+                                "divisor": 2,
+                                "remainder": 0
+                            }
+                        },
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "damageBonusBySkillClass": {
+                                "Special": 5
+                            },
+                            "specialXStatsDamageBonus": 5,
+                            "mergeNumericAddKeys": [
+                                "specialXStatsDamageBonus"
+                            ],
+                            "mergeObjectNumericAddKeys": [
+                                "damageBonusBySkillClass"
+                            ],
+                            "tooltipTextTemplate": "This character deals {specialXStatsDamageBonus} additional Special damage from X-Stats."
                         }
                     }
                 ]
@@ -21277,7 +21315,7 @@ const characters = [
                 "id": "pokemon-trainer-great-ball",
                 "name": "Great Ball",
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/Great ball.png",
-                "skilldescription": "At the start of each turn, Pokemon Trainer's ball slot randomly becomes Pokeball 40%, Great Ball 30%, Ultra Ball 20%, or Master Ball 10%. Stuns one enemy and makes them invulnerable to all skills for 1 turn. If used when their health is at 25 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed.",
+                "skilldescription": "At the start of each turn, Pokemon Trainer's ball slot randomly becomes Pokeball 40%, Great Ball 30%, Ultra Ball 25%, or Master Ball 5%. Stuns one enemy and makes them invulnerable to all skills for 1 turn. If used when their health is at 25 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed.",
                 "energy": [
                     "Ninjutsu",
                     "Random"
@@ -21402,7 +21440,7 @@ const characters = [
                 "id": "pokemon-trainer-ultra-ball",
                 "name": "Ultra Ball",
                 "skillimage": "https://i.imgur.com/6VVZEkQ.jpeg",
-                "skilldescription": "At the start of each turn, Pokemon Trainer's ball slot randomly becomes Pokeball 40%, Great Ball 30%, Ultra Ball 20%, or Master Ball 10%. Stuns one enemy and makes them invulnerable to all skills for 1 turn. If used when their health is at 40 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed.",
+                "skilldescription": "At the start of each turn, Pokemon Trainer's ball slot randomly becomes Pokeball 40%, Great Ball 30%, Ultra Ball 25%, or Master Ball 5%. Stuns one enemy and makes them invulnerable to all skills for 1 turn. If used when their health is at 40 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed.",
                 "energy": [
                     "Genjutsu",
                     "Genjutsu"
@@ -21530,7 +21568,7 @@ const characters = [
                 "cannotBeReflected": true,
                 "ignoreInvulnerability": true,
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/master ball.jpeg",
-                "skilldescription": "At the start of each turn, Pokemon Trainer's ball slot randomly becomes Pokeball 40%, Great Ball 30%, Ultra Ball 20%, or Master Ball 10%. Permanently banishes one enemy and swaps Pokemon Trainer's skills to theirs for the rest of the game. This cannot be ignored, countered, or reflected.",
+                "skilldescription": "At the start of each turn, Pokemon Trainer's ball slot randomly becomes Pokeball 40%, Great Ball 30%, Ultra Ball 25%, or Master Ball 5%. Permanently banishes one enemy and swaps Pokemon Trainer's skills to theirs for the rest of the game. This cannot be ignored, countered, or reflected.",
                 "energy": [
                     "Bloodline",
                     "Ninjutsu",
@@ -21584,13 +21622,13 @@ const characters = [
                 "id": "pokemon-trainer-revive",
                 "name": "Revive",
                 "skillimage": "assets/images/PokemonArena/pokemontrainer/Revive.jpg",
-                "skilldescription": "Revives one defeated ally with 30 HP. If used on a living ally instead, heals them for 50 HP.",
+                "skilldescription": "Revives one defeated ally with 30 HP. This skill cannot target living allies.",
                 "energy": [
                     "Random",
                     "Random",
                     "Random"
                 ],
-                "target": "single-ally-or-dead-ally",
+                "target": "dead-ally-first",
                 "damage": 0,
                 "cooldown": 4,
                 "classes": [
@@ -21601,20 +21639,7 @@ const characters = [
                     {
                         "type": "revive",
                         "amount": 30,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "sourceCurrentHpAtMost": 0
-                        }
-                    },
-                    {
-                        "type": "heal",
-                        "amount": 50,
-                        "scope": "target",
-                        "condition": {
-                            "scope": "target",
-                            "sourceCurrentHpAtLeast": 1
-                        }
+                        "scope": "target"
                     }
                 ]
             }
@@ -21634,29 +21659,29 @@ const characters = [
                     "infiniteDuration": true,
                     "unremovable": true,
                     "statusIconUrl": "assets/images/PokemonArena/pokemontrainer/Pokeball.jpeg",
-                    "tooltipText": "Pokemon Trainer's ball slot changes at the start of each turn: Pokeball 40%, Great Ball 30%, Ultra Ball 20%, Master Ball 10%.",
+                    "tooltipText": "Pokemon Trainer's ball slot changes at the start of each turn: Pokeball 40%, Great Ball 30%, Ultra Ball 25%, Master Ball 5%.",
                     "turnStartApplyRandomSkillReplacementToOwner": {
                         "statusId": "pokemon_trainer_ball_cycle_random",
                         "duration": 1,
-                        "tooltipText": "Pokemon Trainer's ball slot changes at the start of each turn: Pokeball 40%, Great Ball 30%, Ultra Ball 20%, Master Ball 10%.",
+                        "tooltipText": "Pokemon Trainer's ball slot changes at the start of each turn: Pokeball 40%, Great Ball 30%, Ultra Ball 25%, Master Ball 5%.",
                         "options": [
                             {
                                 "fromSkillId": "pokemon-trainer-pokeball",
                                 "toSkillId": "pokemon-trainer-pokeball",
                                 "skillIndex": 0,
-                                "weight": 4
+                                "weight": 8
                             },
                             {
                                 "fromSkillId": "pokemon-trainer-pokeball",
                                 "toSkillId": "pokemon-trainer-great-ball",
                                 "skillIndex": 0,
-                                "weight": 3
+                                "weight": 6
                             },
                             {
                                 "fromSkillId": "pokemon-trainer-pokeball",
                                 "toSkillId": "pokemon-trainer-ultra-ball",
                                 "skillIndex": 0,
-                                "weight": 2
+                                "weight": 5
                             },
                             {
                                 "fromSkillId": "pokemon-trainer-pokeball",
@@ -22219,10 +22244,10 @@ const characters = [
                     "pidgeyDamageDealt": 0,
                     "stackMetadataKey": "pidgeyDamageDealt",
                     "stackDeltaFromDamageDealt": true,
-                    "stackMax": 100,
+                    "stackMax": 50,
                     "applyStatusAtStack": {
                         "metadataKey": "pidgeyDamageDealt",
-                        "value": 100,
+                        "value": 50,
                         "statusId": "pidgey_pidgeotto_evolution",
                         "duration": 99,
                         "sourceSkillId": "pidgey-passive-evolution-pidgeotto",
@@ -22243,7 +22268,7 @@ const characters = [
                         }
                     },
                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/50 total damage. At 50 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                 }
             }
         ],
@@ -22281,9 +22306,9 @@ const characters = [
                                     "pidgeyDamageDealt": 0,
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 100,
+                                    "stackMax": 50,
                                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/50 total damage. At 50 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
                         }
@@ -22388,9 +22413,9 @@ const characters = [
                                     "pidgeyDamageDealt": 0,
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 100,
+                                    "stackMax": 50,
                                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/50 total damage. At 50 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
                         }
@@ -22458,7 +22483,7 @@ const characters = [
                 "id": "pidgey-passive-evolution-pidgeotto",
                 "name": "Evolution - Pidgeotto",
                 "skillimage": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                "skilldescription": "After Pidgey has dealt 100 total damage during battle, he evolves into Pidgeotto. Pidgeotto's skills are improved.",
+                "skilldescription": "After Pidgey has dealt 50 total damage during battle, he evolves into Pidgeotto. Pidgeotto's skills are improved.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -22503,9 +22528,9 @@ const characters = [
                                     "pidgeyDamageDealt": 0,
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 100,
+                                    "stackMax": 50,
                                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/50 total damage. At 50 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
                         }
@@ -22617,9 +22642,9 @@ const characters = [
                                     "pidgeyDamageDealt": 0,
                                     "stackMetadataKey": "pidgeyDamageDealt",
                                     "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 100,
+                                    "stackMax": 50,
                                     "statusIconUrl": "assets/images/PokemonArena/pidgey/evolutionpidgeotto.webp",
-                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/100 total damage. At 100 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
+                                    "tooltipTextTemplate": "Pidgey has dealt {pidgeyDamageDealt}/50 total damage. At 50 damage, Pidgey evolves into Pidgeotto and consumes the damage tracker."
                                 }
                             }
                         }
@@ -23074,7 +23099,6 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/koffing/koffingsmokescreen.webp",
                 "skilldescription": "Koffing's team gains 20% evasion for 2 turns.",
                 "energy": [
-                    "Random",
                     "Random"
                 ],
                 "target": "all-allies",
@@ -23319,7 +23343,6 @@ const characters = [
                 "skillimage": "assets/images/PokemonArena/koffing/weezingsmokescreen.webp",
                 "skilldescription": "Weezing's team gains 30% evasion for 3 turns.",
                 "energy": [
-                    "Random",
                     "Random",
                     "Random"
                 ],
@@ -23959,10 +23982,10 @@ const characters = [
                     "stackMetadataKey": "gastlyDamageTaken",
                     "stackDeltaFromDamageTaken": true,
                     "stackDelta": 0,
-                    "stackMax": 50,
+                    "stackMax": 35,
                     "applyStatusAtStack": {
                         "metadataKey": "gastlyDamageTaken",
-                        "value": 50,
+                        "value": 35,
                         "statusId": "gastly_haunter_evolution",
                         "duration": 99,
                         "metadata": {
@@ -23980,7 +24003,7 @@ const characters = [
                         }
                     },
                     "statusIconUrl": "assets/images/PokemonArena/gastley/evolutionhaunter.webp",
-                    "tooltipTextTemplate": "Gastly has lost {gastlyDamageTaken}/50 total HP and will evolve into Haunter at 50."
+                    "tooltipTextTemplate": "Gastly has lost {gastlyDamageTaken}/35 total HP and will evolve into Haunter at 35."
                 }
             }
         ],
@@ -24019,9 +24042,9 @@ const characters = [
                                     "gastlyDamageTaken": 0,
                                     "stackMetadataKey": "gastlyDamageTaken",
                                     "stackDeltaFromDamageDealt": true,
-                                    "stackMax": 50,
+                                    "stackMax": 35,
                                     "statusIconUrl": "assets/images/PokemonArena/gastley/evolutionhaunter.webp",
-                                    "tooltipTextTemplate": "Gastly has lost {gastlyDamageTaken}/50 total HP and will evolve into Haunter at 50."
+                                    "tooltipTextTemplate": "Gastly has lost {gastlyDamageTaken}/35 total HP and will evolve into Haunter at 35."
                                 }
                             }
                         }
@@ -24187,7 +24210,7 @@ const characters = [
                 "id": "gastly-passive-evolution-haunter",
                 "name": "Evolution - Haunter",
                 "skillimage": "assets/images/PokemonArena/gastley/evolutionhaunter.webp",
-                "skilldescription": "After Gastly has lost 50 total HP during the battle, it evolves into Haunter. Haunter's skills are improved.",
+                "skilldescription": "After Gastly has lost 35 total HP during the battle, it evolves into Haunter. Haunter's skills are improved.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -25311,7 +25334,7 @@ const characters = [
                 "id": "scyther-fury-cutter",
                 "name": "Fury Cutter",
                 "skillimage": "assets/images/PokemonArena/scyther/furycutter.webp",
-                "skilldescription": "Deals 15 damage to one enemy. This skill permanently gains 5 damage each time it is used. This effect stacks. During Swords Dance, Fury Cutter deals piercing damage.",
+                "skilldescription": "Deals 15 damage to one enemy. This skill permanently gains 5 damage each time it is used, or gains 2 stacks each time it is used during Swords Dance. During Swords Dance, Fury Cutter also deals piercing damage.",
                 "energy": [
                     "Taijutsu"
                 ],
@@ -25379,7 +25402,7 @@ const characters = [
                                     "infiniteDuration": true,
                                     "scytherFuryCutterStacks": 0,
                                     "stackMetadataKey": "scytherFuryCutterStacks",
-                                    "stackDelta": 1,
+                                    "stackDelta": 2,
                                     "stackMax": 99,
                                     "statusIconUrl": "assets/images/PokemonArena/scyther/furycutter.webp",
                                     "tooltipTextTemplate": "Fury Cutter has gained {scytherFuryCutterStacks} stack(s) and deals 5 more damage per stack."
@@ -25393,7 +25416,7 @@ const characters = [
                 "id": "scyther-swords-dance",
                 "name": "Swords Dance",
                 "skillimage": "assets/images/PokemonArena/scyther/swordsdance.webp",
-                "skilldescription": "For 3 turns, Scyther's damaging skills deal 10 additional damage. During this time, Fury Cutter deals piercing damage and X-Cutter gains an additional 25% chance to critically strike.",
+                "skilldescription": "For 3 turns, Scyther's damaging skills deal 10 additional damage. During this time, Fury Cutter deals piercing damage and gains 2 stacks per use, while X-Cutter gains 25% critical chance and double casts when it critically strikes an enemy at 50 HP or less.",
                 "energy": [
                     "Random"
                 ],
@@ -25423,7 +25446,7 @@ const characters = [
                 "id": "scyther-x-cutter",
                 "name": "X-Cutter",
                 "skillimage": "assets/images/PokemonArena/scyther/x-scissor.webp",
-                "skilldescription": "Deals 40 piercing damage to one enemy. This skill has a 25% chance to critically strike, dealing 15 additional damage. This skill has a 50% chance to critically strike against enemies at or below 50 HP. During Swords Dance, this skill gains an additional 25% chance to critically strike.",
+                "skilldescription": "Deals 40 piercing damage to one enemy. This skill has a 25% chance to critically strike for 15 additional piercing damage, increased to 50% against enemies at 50 HP or less and to 75% against them during Swords Dance. During Swords Dance, a critical strike against an enemy at 50 HP or less makes X-Cutter cast twice.",
                 "energy": [
                     "Taijutsu",
                     "Taijutsu"
@@ -25450,34 +25473,23 @@ const characters = [
                         "amount": 15,
                         "scope": "target",
                         "chance": 25,
+                        "rollPerRecipient": true,
                         "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "chance": 25,
-                        "condition": {
-                            "scope": "target",
-                            "sourceCurrentHpAtMost": 50
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
-                        }
-                    },
-                    {
-                        "type": "damage",
-                        "amount": 15,
-                        "scope": "target",
-                        "chance": 25,
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "scyther_swords_dance_active"
-                        },
-                        "metadata": {
-                            "ignoreDamageReduction": true
+                            "ignoreDamageReduction": true,
+                            "chanceBonusIfTargetCurrentHpAtMost": {
+                                "threshold": 50,
+                                "amount": 25
+                            },
+                            "chanceBonusIfActorStatus": {
+                                "statusId": "scyther_swords_dance_active",
+                                "amount": 25
+                            },
+                            "repeatCastOnSuccessfulChance": {
+                                "actorStatusId": "scyther_swords_dance_active",
+                                "targetCurrentHpAtMost": 50,
+                                "baseDamageAmount": 40,
+                                "includeTriggeringDamage": true
+                            }
                         }
                     }
                 ]
@@ -25486,13 +25498,13 @@ const characters = [
                 "id": "scyther-double-team",
                 "name": "Double Team",
                 "skillimage": "assets/images/PokemonArena/scyther/doubleteam.webp",
-                "skilldescription": "Scyther gains 100% evasion for 1 turn. If Scyther defeats an enemy while this effect is active, Double Team is extended by 1 turn.",
+                "skilldescription": "Scyther gains 100% evasion for 2 turns. If Scyther defeats an enemy while this effect is active, its full 2-turn duration refreshes.",
                 "energy": [
                     "Random"
                 ],
                 "target": "self",
                 "damage": 0,
-                "cooldown": 4,
+                "cooldown": 5,
                 "classes": [
                     "Physical",
                     "Instant"
@@ -25501,14 +25513,14 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "scyther_double_team_active",
-                        "duration": 1,
+                        "duration": 2,
                         "scope": "self",
                         "metadata": {
                             "evadeChancePercent": 100,
                             "turnDurationAnchor": "source_turn",
                             "onOwnerKillApplyStatusToSelf": {
                                 "statusId": "scyther_double_team_active",
-                                "duration": 1,
+                                "duration": 2,
                                 "metadata": {
                                     "evadeChancePercent": 100,
                                     "turnDurationAnchor": "source_turn",
@@ -26779,16 +26791,15 @@ const characters = [
         "characterId": "machop",
         "name": "Machop",
         "facePicture": "assets/images/PokemonArena/machop/machopfp.png",
-        "characterdeescription": "A simple Fighting-type bruiser that breaks armor, stacks up physical power, and evolves into Machoke the first time Counter successfully hurts an enemy.",
+        "characterdeescription": "A Fighting-type bruiser that breaks armor, redirects enemy attacks, and evolves into Machoke after using Bulk Up twice.",
         "skills": [
             {
                 "id": "machop-brick-break",
                 "name": "Brick Break",
                 "skillimage": "assets/images/PokemonArena/machop/machopbrickbreak.jpg",
-                "skilldescription": "Destroys one enemy's destructible defense and deals 35 damage.",
+                "skilldescription": "Destroys all of one enemy's destructible defense and deals 20 damage to them, increased by 10 if any destructible defense was destroyed. Bulk Up can further increase this damage.",
                 "energy": [
-                    "Ninjutsu",
-                    "Random"
+                    "Ninjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
@@ -26801,11 +26812,21 @@ const characters = [
                 "effects": [
                     {
                         "type": "destroy_destructible_defense",
-                        "scope": "target"
+                        "scope": "target",
+                        "metadata": {
+                            "onDestroyedApplyStatusToOwner": {
+                                "statusId": "machop_brick_break_destroyed_defense_bonus",
+                                "duration": 1,
+                                "metadata": {
+                                    "damageBonusFlat": 10,
+                                    "hidden": true
+                                }
+                            }
+                        }
                     },
                     {
                         "type": "damage",
-                        "amount": 35,
+                        "amount": 20,
                         "scope": "target",
                         "metadata": {
                             "bonusPerStatusMetadata": {
@@ -26821,15 +26842,12 @@ const characters = [
                         "statusId": "machop_bulk_up_spent",
                         "duration": 0,
                         "scope": "self",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "machop_bulk_up_bonus"
-                        },
                         "metadata": {
                             "removeStatusIdsOnApply": [
-                                "machop_bulk_up_bonus"
+                                "machop_bulk_up_bonus",
+                                "machop_brick_break_destroyed_defense_bonus"
                             ],
-                            "tooltipText": "Bulk Up has been consumed."
+                            "tooltipText": "Brick Break's stored bonuses have been consumed."
                         }
                     }
                 ]
@@ -26838,13 +26856,13 @@ const characters = [
                 "id": "machop-counter",
                 "name": "Counter",
                 "skillimage": "assets/images/PokemonArena/machop/machopcounter.png",
-                "skilldescription": "Marks one enemy for 1 turn. When the mark ends, all damage that enemy dealt to Machop during this time is dealt back to them. If Machop is still alive, Counter deals 5 additional damage.",
+                "skilldescription": "Targets one enemy for 1 turn. The first new damaging skill they use is countered, and they take Physical damage equal to the damage their skill would have dealt. This skill is Invisible.",
                 "energy": [
                     "Ninjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 2,
+                "cooldown": 3,
                 "classes": [
                     "Physical",
                     "Melee",
@@ -26855,10 +26873,13 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "machop_counter_mark",
-                        "duration": 1,
+                        "duration": 999,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
+                            "infiniteDuration": true,
+                            "counterOwnerNextNewDamagingSkill": true,
+                            "counterDamageMultiplier": 1,
                             "machopCounterDamage": 0,
                             "stackMetadataKey": "machopCounterDamage",
                             "stackDeltaFromDamageDealtToSourceOwner": true,
@@ -26957,7 +26978,7 @@ const characters = [
                                 }
                             ],
                             "statusIconUrl": "assets/images/PokemonArena/machop/machopcounter.png",
-                            "tooltipText": "Counter will return damage to this enemy when the mark ends."
+                            "tooltipText": "The next new damaging skill this character uses will be countered back at them."
                         }
                     },
                     {
@@ -26967,7 +26988,7 @@ const characters = [
                         "scope": "self",
                         "condition": {
                             "scope": "self",
-                            "statusId": "machop_bulk_up_bonus"
+                            "statusId": "machop_counter_never_consume_bulk"
                         },
                         "metadata": {
                             "removeStatusIdsOnApply": [
@@ -26982,7 +27003,7 @@ const characters = [
                 "id": "machop-bulk-up",
                 "name": "Bulk Up",
                 "skillimage": "assets/images/PokemonArena/machop/machopbulkup.png",
-                "skilldescription": "Grants Machop's next Brick Break or Counter 5 additional damage. This effect stacks. Machop also gains 10 permanent Shield.",
+                "skilldescription": "Machop gains 10 permanent destructible defense and his next Brick Break deals 10 additional damage. This effect stacks. After Machop uses Bulk Up twice, he evolves into Machoke.",
                 "energy": [
                     "Random"
                 ],
@@ -27001,16 +27022,51 @@ const characters = [
                         "scope": "self",
                         "metadata": {
                             "infiniteDuration": true,
-                            "machopBulkUpBonus": 5,
+                            "machopBulkUpBonus": 10,
                             "stackMetadataKey": "machopBulkUpBonus",
-                            "stackDelta": 5,
+                            "stackDelta": 10,
                             "stackMax": 99,
                             "destructibleDefensePoints": 10,
                             "mergeNumericAddKeys": [
                                 "destructibleDefensePoints"
                             ],
                             "statusIconUrl": "assets/images/PokemonArena/machop/machopbulkup.png",
-                            "tooltipTextTemplate": "Machop's next Brick Break or Counter deals {machopBulkUpBonus} additional damage, and Machop has {destructibleDefensePoints} permanent Shield from Bulk Up."
+                            "tooltipTextTemplate": "Machop's next Brick Break deals {machopBulkUpBonus} additional damage, and Machop has {destructibleDefensePoints} permanent destructible defense from Bulk Up."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "machop_bulk_up_evolution_tracker",
+                        "duration": 999,
+                        "scope": "self",
+                        "metadata": {
+                            "hidden": true,
+                            "infiniteDuration": true,
+                            "machopBulkUpUses": 1,
+                            "stackMetadataKey": "machopBulkUpUses",
+                            "stackDelta": 1,
+                            "stackMax": 2,
+                            "applyStatusAtStack": {
+                                "metadataKey": "machopBulkUpUses",
+                                "value": 2,
+                                "statusId": "machop_machoke_evolution",
+                                "duration": 999,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "removeStatusIdsOnApply": [
+                                        "machop_bulk_up_evolution_tracker"
+                                    ],
+                                    "facePictureOverride": "assets/images/PokemonArena/machop/machokefp.png",
+                                    "skillReplacements": {
+                                        "machop-brick-break": "machoke-brick-break",
+                                        "machop-counter": "machoke-counter",
+                                        "machop-bulk-up": "machoke-bulk-up",
+                                        "machop-taunt": "machoke-taunt"
+                                    },
+                                    "tooltipText": "Machop has evolved into Machoke. Machoke's skills are improved.",
+                                    "healOnApplyFlat": 10
+                                }
+                            }
                         }
                     }
                 ]
@@ -27019,7 +27075,7 @@ const characters = [
                 "id": "machop-taunt",
                 "name": "Taunt",
                 "skillimage": "assets/images/PokemonArena/machop/machoptaunt.png",
-                "skilldescription": "For 2 turns, one enemy may only use new harmful skills on Machop.",
+                "skilldescription": "For 3 turns, one enemy may only use new skills on Machop and deals 25% less Physical damage.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -27035,12 +27091,15 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "machop_taunt",
-                        "duration": 2,
+                        "duration": 3,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
                             "taunt": true,
-                            "tooltipText": "This character is taunted and can only target Machop."
+                            "damageMultiplierBySkillClass": {
+                                "Physical": 0.75
+                            },
+                            "tooltipText": "This character can only target Machop with new skills and deals 25% less Physical damage."
                         }
                     }
                 ]
@@ -27049,7 +27108,7 @@ const characters = [
                 "id": "machop-passive-evolution-machoke",
                 "name": "Evolution - Machoke",
                 "skillimage": "assets/images/PokemonArena/machop/evolutionmachoke.png",
-                "skilldescription": "After Counter successfully deals damage to an enemy once, Machop evolves into Machoke. Machoke's skills are improved.",
+                "skilldescription": "After Machop uses Bulk Up twice, he evolves into Machoke. Machoke's skills are improved.",
                 "energy": [],
                 "target": "",
                 "damage": 0,
@@ -27066,10 +27125,9 @@ const characters = [
                     "statusId": "machop_machoke_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/machop/machokebrickbreak.png",
-                "skilldescription": "Destroys one enemy's Shield and deals 45 damage instead. If Bulk Up is active, Brick Break also stuns the target's Physical skills for 1 turn.",
+                "skilldescription": "Destroys all of one enemy's destructible defense and deals 35 damage to them, increased by 10 if any destructible defense was destroyed. Bulk Up can further increase this damage.",
                 "energy": [
                     "Ninjutsu",
-                    "Random",
                     "Random"
                 ],
                 "target": "single-enemy",
@@ -27083,11 +27141,21 @@ const characters = [
                 "effects": [
                     {
                         "type": "destroy_destructible_defense",
-                        "scope": "target"
+                        "scope": "target",
+                        "metadata": {
+                            "onDestroyedApplyStatusToOwner": {
+                                "statusId": "machop_brick_break_destroyed_defense_bonus",
+                                "duration": 1,
+                                "metadata": {
+                                    "damageBonusFlat": 10,
+                                    "hidden": true
+                                }
+                            }
+                        }
                     },
                     {
                         "type": "damage",
-                        "amount": 45,
+                        "amount": 35,
                         "scope": "target",
                         "metadata": {
                             "bonusPerStatusMetadata": {
@@ -27100,12 +27168,12 @@ const characters = [
                     },
                     {
                         "type": "apply_status",
-                        "statusId": "machoke_brick_break_stun",
+                        "statusId": "machoke_brick_break_stun_disabled",
                         "duration": 1,
                         "scope": "target",
                         "condition": {
                             "scope": "self",
-                            "statusId": "machop_bulk_up_bonus"
+                            "statusId": "machoke_brick_break_stun_never"
                         },
                         "metadata": {
                             "harmful": true,
@@ -27118,15 +27186,12 @@ const characters = [
                         "statusId": "machop_bulk_up_spent",
                         "duration": 0,
                         "scope": "self",
-                        "condition": {
-                            "scope": "self",
-                            "statusId": "machop_bulk_up_bonus"
-                        },
                         "metadata": {
                             "removeStatusIdsOnApply": [
-                                "machop_bulk_up_bonus"
+                                "machop_bulk_up_bonus",
+                                "machop_brick_break_destroyed_defense_bonus"
                             ],
-                            "tooltipText": "Bulk Up has been consumed."
+                            "tooltipText": "Brick Break's stored bonuses have been consumed."
                         }
                     }
                 ]
@@ -27138,14 +27203,13 @@ const characters = [
                     "statusId": "machop_machoke_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/machop/machokecounter.png",
-                "skilldescription": "Marks one enemy for 1 turn. When the mark ends, all damage that enemy dealt to Machoke during this time is dealt back to them twice. If Machoke is still alive, Counter deals 10 additional damage instead.",
+                "skilldescription": "Targets one enemy for 1 turn. The first new damaging skill they use is countered, and they take twice the Physical damage their skill would have dealt. This skill is Invisible.",
                 "energy": [
-                    "Ninjutsu",
-                    "Random"
+                    "Ninjutsu"
                 ],
                 "target": "single-enemy",
                 "damage": 0,
-                "cooldown": 2,
+                "cooldown": 3,
                 "classes": [
                     "Physical",
                     "Melee",
@@ -27156,10 +27220,13 @@ const characters = [
                     {
                         "type": "apply_status",
                         "statusId": "machop_counter_mark",
-                        "duration": 1,
+                        "duration": 999,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
+                            "infiniteDuration": true,
+                            "counterOwnerNextNewDamagingSkill": true,
+                            "counterDamageMultiplier": 2,
                             "machopCounterDamage": 0,
                             "stackMetadataKey": "machopCounterDamage",
                             "stackDeltaFromDamageDealtToSourceOwner": true,
@@ -27210,7 +27277,7 @@ const characters = [
                                 }
                             ],
                             "statusIconUrl": "assets/images/PokemonArena/machop/machokecounter.png",
-                            "tooltipText": "Counter will return damage to this enemy when the mark ends."
+                            "tooltipText": "The next new damaging skill this character uses will be countered for twice its damage."
                         }
                     },
                     {
@@ -27220,7 +27287,7 @@ const characters = [
                         "scope": "self",
                         "condition": {
                             "scope": "self",
-                            "statusId": "machop_bulk_up_bonus"
+                            "statusId": "machoke_counter_never_consume_bulk"
                         },
                         "metadata": {
                             "removeStatusIdsOnApply": [
@@ -27238,14 +27305,13 @@ const characters = [
                     "statusId": "machop_machoke_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/machop/machokebulkup.png",
-                "skilldescription": "Grants Machoke's next Brick Break or Counter 10 additional damage instead. This effect stacks. Machoke also gains 20 permanent destructible defense instead.",
+                "skilldescription": "Machoke gains 15 permanent destructible defense and his next Brick Break deals 15 additional damage. This effect stacks.",
                 "energy": [
-                    "Random",
                     "Random"
                 ],
                 "target": "self",
                 "damage": 0,
-                "cooldown": 1,
+                "cooldown": 2,
                 "classes": [
                     "Physical",
                     "Instant"
@@ -27258,16 +27324,16 @@ const characters = [
                         "scope": "self",
                         "metadata": {
                             "infiniteDuration": true,
-                            "machopBulkUpBonus": 10,
+                            "machopBulkUpBonus": 15,
                             "stackMetadataKey": "machopBulkUpBonus",
-                            "stackDelta": 10,
+                            "stackDelta": 15,
                             "stackMax": 150,
-                            "destructibleDefensePoints": 20,
+                            "destructibleDefensePoints": 15,
                             "mergeNumericAddKeys": [
                                 "destructibleDefensePoints"
                             ],
                             "statusIconUrl": "assets/images/PokemonArena/machop/machokebulkup.png",
-                            "tooltipTextTemplate": "Machoke's next Brick Break or Counter deals {machopBulkUpBonus} additional damage, and Machoke has {destructibleDefensePoints} permanent destructible defense from Bulk Up."
+                            "tooltipTextTemplate": "Machoke's next Brick Break deals {machopBulkUpBonus} additional damage, and Machoke has {destructibleDefensePoints} permanent destructible defense from Bulk Up."
                         }
                     }
                 ]
@@ -27279,7 +27345,7 @@ const characters = [
                     "statusId": "machop_machoke_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/machop/machoketaunt.png",
-                "skilldescription": "For 3 turns, one enemy may only use new harmful skills on Machoke.",
+                "skilldescription": "For 3 turns, one enemy may only use new skills on Machoke and deals 25% less Physical damage.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -27300,7 +27366,10 @@ const characters = [
                         "metadata": {
                             "harmful": true,
                             "taunt": true,
-                            "tooltipText": "This character is taunted and can only target Machoke."
+                            "damageMultiplierBySkillClass": {
+                                "Physical": 0.75
+                            },
+                            "tooltipText": "This character can only target Machoke with new skills and deals 25% less Physical damage."
                         }
                     }
                 ]
@@ -27310,8 +27379,8 @@ const characters = [
         "universe": "pokemon",
         "arena": "pokemon",
         "roleCategory": "bruiser",
-        "description": "A straightforward Fighting-type bruiser that breaks armor, stores power through Bulk Up, and evolves into Machoke the first time Counter really lands.",
-        "descriptionHtml": "A straightforward Fighting-type bruiser that breaks armor, stores power through Bulk Up, and evolves into Machoke the first time Counter really lands.",
+        "description": "A Fighting-type bruiser that breaks armor, redirects enemy attacks, and evolves into Machoke after using Bulk Up twice.",
+        "descriptionHtml": "A Fighting-type bruiser that breaks armor, redirects enemy attacks, and evolves into Machoke after using Bulk Up twice.",
         "startStatuses": []
     },
     {
@@ -28044,7 +28113,7 @@ const characters = [
                 "id": "hitmonchan-thunder-punch",
                 "name": "Thunder Punch",
                 "skillimage": "assets/images/PokemonArena/hitmonchan/thunderpunch.webp",
-                "skilldescription": "Deals 25 piercing damage to one enemy and paralyzes their cooldowns for 1 turn. The next Mega Punch deals 10 additional damage.",
+                "skilldescription": "Deals 25 piercing damage to one enemy and 5 piercing damage to all other enemies, then paralyzes the primary target's cooldowns for 1 turn. The next Mega Punch deals 10 additional damage.",
                 "energy": [
                     "Genjutsu"
                 ],
@@ -28061,6 +28130,14 @@ const characters = [
                         "type": "damage",
                         "amount": 25,
                         "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 5,
+                        "scope": "other-enemies",
                         "metadata": {
                             "ignoreDamageReduction": true
                         }
@@ -28098,7 +28175,7 @@ const characters = [
                 "id": "hitmonchan-fire-punch",
                 "name": "Fire Punch",
                 "skillimage": "assets/images/PokemonArena/hitmonchan/firepunch.webp",
-                "skilldescription": "Deals 25 affliction damage to one enemy. The next Mega Punch deals 10 additional damage.",
+                "skilldescription": "Deals 25 affliction damage to one enemy and applies 5 affliction damage to them each turn for 2 turns. The next Mega Punch deals 10 additional damage.",
                 "energy": [
                     "Bloodline"
                 ],
@@ -28122,6 +28199,19 @@ const characters = [
                     },
                     {
                         "type": "apply_status",
+                        "statusId": "hitmonchan_fire_punch_burn",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "turnEndDamage": 5,
+                            "afflictionDamage": true,
+                            "statusIconUrl": "assets/images/PokemonArena/hitmonchan/firepunch.webp",
+                            "tooltipText": "This character takes 5 affliction damage each turn from Fire Punch."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
                         "statusId": "hitmonchan_mega_punch_bonus",
                         "duration": 999,
                         "scope": "self",
@@ -28141,7 +28231,7 @@ const characters = [
                 "id": "hitmonchan-ice-punch",
                 "name": "Ice Punch",
                 "skillimage": "assets/images/PokemonArena/hitmonchan/icepunch.webp",
-                "skilldescription": "Deals 25 damage to one enemy and stuns their Physical skills for 1 turn. The next Mega Punch deals 10 additional damage.",
+                "skilldescription": "Deals 25 damage to one enemy, stuns their Physical skills for 1 turn, and increases the cooldown of new skills they use during that turn by 2. The next Mega Punch deals 10 additional damage.",
                 "energy": [
                     "Ninjutsu"
                 ],
@@ -28173,6 +28263,18 @@ const characters = [
                     },
                     {
                         "type": "apply_status",
+                        "statusId": "hitmonchan_ice_punch_cooldown_increase",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "newSkillCooldownIncrease": 2,
+                            "statusIconUrl": "assets/images/PokemonArena/hitmonchan/icepunch.webp",
+                            "tooltipText": "This character's new skills have their cooldown increased by 2 turns."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
                         "statusId": "hitmonchan_mega_punch_bonus",
                         "duration": 999,
                         "scope": "self",
@@ -28192,7 +28294,7 @@ const characters = [
                 "id": "hitmonchan-mega-punch",
                 "name": "Mega Punch",
                 "skillimage": "assets/images/PokemonArena/hitmonchan/megapunch.webp",
-                "skilldescription": "Deals 10 damage to one enemy. This skill deals 10 additional damage for each Thunder Punch, Fire Punch, and Ice Punch used since the last time Mega Punch was activated. After Mega Punch is used, this bonus is removed.",
+                "skilldescription": "Deals 15 damage to one enemy. This skill deals 10 additional damage for each Thunder Punch, Fire Punch, and Ice Punch used since the last time Mega Punch was activated. After Mega Punch is used, this bonus is removed.",
                 "energy": [
                     "Random"
                 ],
@@ -28207,7 +28309,7 @@ const characters = [
                 "effects": [
                     {
                         "type": "damage",
-                        "amount": 10,
+                        "amount": 15,
                         "scope": "target",
                         "metadata": {
                             "bonusPerStatusMetadata": {
