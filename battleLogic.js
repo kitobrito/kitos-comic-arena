@@ -5,6 +5,7 @@ const {
     getPokemonSkinTypeOverride,
     getPokemonTypeEffectiveness,
 } = require('./pokemonTypeSystem');
+const { resolveDittoTransformationFacePicture } = require('./pokemonDittoTransformationFaces');
 const defaultCharacters = applyPokemonTypeSystem(require('./characters.js'), { strict: true });
 
 const defaultBattleRandom = () => Math.random();
@@ -199,6 +200,16 @@ const buildCopiedCharacterMetadata = ({
         tooltipTextTemplate && typeof targetCharacter?.name === 'string'
             ? tooltipTextTemplate.replace(/\{characterName\}/g, targetCharacter.name.trim())
             : '';
+    const copiedFacePicture = applyDittoModifiers
+        ? resolveDittoTransformationFacePicture({
+              characterId: targetCharacterId,
+              effectiveSkinId,
+              activeStatusIds: effectiveStatusIds,
+              targetFacePicture: targetFaceOverride,
+              characterFacePicture: targetCharacter?.facePicture,
+          })
+        : targetFaceOverride ||
+          (typeof targetCharacter?.facePicture === 'string' ? targetCharacter.facePicture.trim() : '');
     return {
         infiniteDuration: true,
         unremovable: true,
@@ -207,11 +218,7 @@ const buildCopiedCharacterMetadata = ({
         ...(effectiveSkinId ? { effectiveSkinId } : {}),
         ...(targetPokemonTypes.length ? { pokemonTypeOverride: targetPokemonTypes } : {}),
         ...(effectiveStatusIds.length ? { effectiveStatusIds } : {}),
-        ...(targetFaceOverride
-            ? { facePictureOverride: targetFaceOverride }
-            : typeof targetCharacter?.facePicture === 'string' && targetCharacter.facePicture.trim()
-              ? { facePictureOverride: targetCharacter.facePicture.trim() }
-              : {}),
+        ...(copiedFacePicture ? { facePictureOverride: copiedFacePicture } : {}),
         ...(Object.keys(targetReplacementMap).length
             ? { skillReplacements: targetReplacementMap }
             : {}),
