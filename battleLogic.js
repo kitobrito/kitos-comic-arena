@@ -1719,6 +1719,26 @@ const doesEffectConditionMatch = ({
         return false;
     }
     if (condition.missingStatusId && hasStatus(scopedState, condition.missingStatusId)) return false;
+    if (
+        condition.actorSkillUseCountModulo &&
+        typeof condition.actorSkillUseCountModulo === 'object'
+    ) {
+        const skillId =
+            typeof condition.actorSkillUseCountModulo.skillId === 'string'
+                ? condition.actorSkillUseCountModulo.skillId
+                : '';
+        const divisor = Math.max(
+            1,
+            Math.floor(Number(condition.actorSkillUseCountModulo.divisor) || 1)
+        );
+        const remainder = Math.max(
+            0,
+            Math.floor(Number(condition.actorSkillUseCountModulo.remainder) || 0)
+        ) % divisor;
+        if (!skillId || getSkillUseCount(actorState, skillId) % divisor !== remainder) {
+            return false;
+        }
+    }
 
     const resolveConditionalHpThresholdBonus = (bonusConfig) => {
         if (!bonusConfig || typeof bonusConfig !== 'object') return 0;
@@ -2619,6 +2639,7 @@ const resolveEffectDamageAmount = ({
     amount +=
         (Number(classScopedSourceTotals.damageBonusFlat) || 0) -
         (Number(classScopedSourceTotals.damageDebuffFlat) || 0);
+    amount *= Math.max(0, Number(classScopedSourceTotals.damageMultiplier) || 0);
     if (!afflictionDamage && !Boolean(effect?.metadata?.ignoreSourceNonAfflictionDamageBonus)) {
         amount +=
             (Number(sourceTotals.nonAfflictionDamageBonusFlat) || 0) -
@@ -2741,24 +2762,49 @@ const resolveEffectDamageAmount = ({
     return outgoingCap === null ? resolvedAmount : Math.min(resolvedAmount, outgoingCap);
 };
 
-const resolveEffectChancePercent = ({ effect, actorState, actorUnit = null, targetState = null }) => {
+const resolveEffectChancePercent = ({
+    effect,
+    actorState,
+    actorUnit = null,
+    targetState = null,
+    targetUnit = null,
+}) => {
     let chance = Number(effect?.chance);
     if (!Number.isFinite(chance)) return chance;
     const stackBonus = effect?.metadata?.chancePerStatusMetadata;
-    if (!stackBonus || typeof stackBonus !== 'object') return chance;
-    const statusId = typeof stackBonus.statusId === 'string' ? stackBonus.statusId : '';
-    const metadataKey = typeof stackBonus.metadataKey === 'string' ? stackBonus.metadataKey : '';
-    const multiplier = Number(stackBonus.multiplier) || 0;
-    if (!statusId || !metadataKey || multiplier === 0) return chance;
-    const scope = stackBonus.scope === 'target' ? 'target' : 'self';
-    const scopedState = scope === 'target' ? targetState : actorState;
-    const scopedStatus = Array.isArray(scopedState?.statuses)
-        ? scopedState.statuses.find(
-              (status) => status?.id === statusId && (Number(status?.remainingTurns) || 0) > 0
-          )
-        : null;
-    const value = Math.max(0, Number(scopedStatus?.metadata?.[metadataKey]) || 0);
-    chance += value * multiplier;
+    if (stackBonus && typeof stackBonus === 'object') {
+        const statusId = typeof stackBonus.statusId === 'string' ? stackBonus.statusId : '';
+        const metadataKey = typeof stackBonus.metadataKey === 'string' ? stackBonus.metadataKey : '';
+        const multiplier = Number(stackBonus.multiplier) || 0;
+        const scope = stackBonus.scope === 'target' ? 'target' : 'self';
+        const scopedState = scope === 'target' ? targetState : actorState;
+        const scopedStatus = Array.isArray(scopedState?.statuses)
+            ? scopedState.statuses.find(
+                  (status) => status?.id === statusId && (Number(status?.remainingTurns) || 0) > 0
+              )
+            : null;
+        const value = Math.max(0, Number(scopedStatus?.metadata?.[metadataKey]) || 0);
+        if (statusId && metadataKey && multiplier !== 0) {
+            chance += value * multiplier;
+        }
+    }
+    const actorStatusChanceBonus = effect?.metadata?.chanceBonusIfActorStatus;
+    if (
+        actorStatusChanceBonus &&
+        typeof actorStatusChanceBonus === 'object' &&
+        typeof actorStatusChanceBonus.statusId === 'string' &&
+        hasStatus(actorState, actorStatusChanceBonus.statusId)
+    ) {
+        chance += Number(actorStatusChanceBonus.amount) || 0;
+    }
+    const targetHpChanceBonus = effect?.metadata?.chanceBonusIfTargetCurrentHpAtMost;
+    if (targetHpChanceBonus && typeof targetHpChanceBonus === 'object') {
+        const currentHp = Math.max(0, Number(targetUnit?.hp) || 0);
+        const threshold = Math.max(0, Number(targetHpChanceBonus.threshold) || 0);
+        if (targetUnit && currentHp <= threshold) {
+            chance += Number(targetHpChanceBonus.amount) || 0;
+        }
+    }
     const missingHpChanceStep = Math.max(0, Number(effect?.metadata?.chanceFromSourceMissingHpStep) || 0);
     const missingHpChanceDivisor = Math.max(1, Number(effect?.metadata?.chanceFromSourceMissingHpDivisor) || 0);
     if (missingHpChanceStep > 0 && actorUnit) {
@@ -2876,6 +2922,7 @@ const getSourceClassScopedDamageModifiers = (actorState, skillClasses = []) => {
     const totals = {
         damageBonusFlat: 0,
         damageDebuffFlat: 0,
+        damageMultiplier: 1,
         nonAfflictionDamageBonusFlat: 0,
         nonAfflictionDamageDebuffFlat: 0,
         nonAfflictionDamageMultiplier: 1,
@@ -2900,6 +2947,15 @@ const getSourceClassScopedDamageModifiers = (actorState, skillClasses = []) => {
         Object.entries(classDebuffMap).forEach(([className, amount]) => {
             if (!hasSkillClass(skillClasses, className)) return;
             totals.damageDebuffFlat += Math.max(0, Number(amount) || 0);
+        });
+        const classMultiplierMap =
+            metadata?.damageMultiplierBySkillClass &&
+            typeof metadata.damageMultiplierBySkillClass === 'object'
+                ? metadata.damageMultiplierBySkillClass
+                : {};
+        Object.entries(classMultiplierMap).forEach(([className, multiplier]) => {
+            if (!hasSkillClass(skillClasses, className)) return;
+            totals.damageMultiplier *= Math.max(0, Number(multiplier) || 0);
         });
         const classNonAfflictionBonusMap =
             metadata?.nonAfflictionDamageBonusBySkillClass &&
@@ -7137,6 +7193,101 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             skillInterrupted = true;
             pendingDamage.clear();
         };
+        const ownerCounterStatus = (Array.isArray(actorState.statuses) ? actorState.statuses : []).find(
+            (status) =>
+                (Number(status?.remainingTurns) || 0) > 0 &&
+                Boolean(status?.metadata?.counterOwnerNextNewDamagingSkill)
+        );
+        const isNewDamagingSkill =
+            Boolean(skill?.id) &&
+            getSkillUseCount(actorState, skill.id) === 1 &&
+            effects.some(
+                (effect) =>
+                    ['damage', 'health_steal_damage'].includes(
+                        typeof effect?.type === 'string' ? effect.type.trim().toLowerCase() : ''
+                    ) && Math.max(0, Number(effect?.amount) || 0) > 0
+            );
+        if (!skillInterrupted && ownerCounterStatus && isNewDamagingSkill) {
+            const counterSourceUsername = ownerCounterStatus?.sourceUsername || null;
+            const counterSourceSlot = Number.isInteger(ownerCounterStatus?.sourceSlot)
+                ? ownerCounterStatus.sourceSlot
+                : null;
+            const counterSourceUnit =
+                counterSourceUsername && counterSourceSlot !== null
+                    ? match.board?.[counterSourceUsername]?.[counterSourceSlot] || null
+                    : null;
+            if (counterSourceUnit && counterSourceUnit.alive !== false) {
+                const intendedTarget = selectedTargets.find((entry) => entry?.unit) || {
+                    unit: counterSourceUnit,
+                    username: counterSourceUsername,
+                    slot: counterSourceSlot,
+                };
+                const intendedTargetState = ensureUnitStateShape(intendedTarget.unit);
+                const counteredDamage = effects.reduce((sum, effect) => {
+                    const effectType =
+                        typeof effect?.type === 'string' ? effect.type.trim().toLowerCase() : '';
+                    if (!['damage', 'health_steal_damage'].includes(effectType)) return sum;
+                    if (
+                        effect?.condition &&
+                        !doesEffectConditionMatch({
+                            condition: effect.condition,
+                            actorState,
+                            targetState: intendedTargetState,
+                            actorUnit,
+                            actorUsername: actingUsername,
+                            targetUnit: intendedTarget.unit,
+                            targetUsername: intendedTarget.username,
+                            match,
+                        })
+                    ) {
+                        return sum;
+                    }
+                    return (
+                        sum +
+                        resolveEffectDamageAmount({
+                            effect,
+                            actorState,
+                            actorUnit,
+                            targetState: intendedTargetState,
+                            targetUnit: intendedTarget.unit,
+                            skillClasses: skill.classes || [],
+                            match,
+                            actorUsername: actingUsername,
+                            actorSlot,
+                            targetUsername: intendedTarget.username,
+                        })
+                    );
+                }, 0);
+                const multiplier = Math.max(
+                    1,
+                    Number(ownerCounterStatus?.metadata?.counterDamageMultiplier) || 1
+                );
+                cancelEntireSkill();
+                actorState.statuses = actorState.statuses.filter(
+                    (status) => status !== ownerCounterStatus
+                );
+                applyDamageToUnit(actorUnit, counteredDamage * multiplier, {
+                    match,
+                    sourceUsername: counterSourceUsername,
+                    sourceSlot: counterSourceSlot,
+                    targetUsername: actingUsername,
+                    targetSlot: actorSlot,
+                    sourceSkillId: ownerCounterStatus?.sourceSkillId || null,
+                    skillClasses: ['Physical'],
+                    damageDebugLabel: 'Counter',
+                    damageDebugReason: 'countered new damaging skill',
+                });
+                applyOnSkillCounteredOrIgnoredBonuses({
+                    match,
+                    actorState,
+                    ownerUsername: actingUsername,
+                    ownerSlot: actorSlot,
+                    sourceUsername: counterSourceUsername,
+                    sourceSlot: counterSourceSlot,
+                    sourceSkillId: skill.id || null,
+                });
+            }
+        }
         const skillCannotBeEvaded =
             skillIsHarmful &&
             effects.length > 0 &&
@@ -7856,7 +8007,13 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         actorSlot,
                         skill,
                     });
-                    const recipientChance = resolveEffectChancePercent({ effect, actorState, actorUnit, targetState });
+                    const recipientChance = resolveEffectChancePercent({
+                        effect,
+                        actorState,
+                        actorUnit,
+                        targetState,
+                        targetUnit: recipient.unit,
+                    });
                     if (rollPerRecipient && Number.isFinite(recipientChance) && recipientChance >= 0 && recipientChance < 100) {
                         if (!rollPercentSuccess(recipientChance)) return;
                     }
@@ -7972,6 +8129,43 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                           })()
                         : totalAmount;
                     queueDamage(recipient, splitAmount, effect);
+                    const repeatCast = effect?.metadata?.repeatCastOnSuccessfulChance;
+                    if (
+                        repeatCast &&
+                        typeof repeatCast === 'object' &&
+                        (!repeatCast.actorStatusId || hasStatus(actorState, repeatCast.actorStatusId)) &&
+                        (repeatCast.targetCurrentHpAtMost === undefined ||
+                            Math.max(0, Number(recipient.unit?.hp) || 0) <=
+                                Math.max(0, Number(repeatCast.targetCurrentHpAtMost) || 0))
+                    ) {
+                        const repeatedBaseEffect = {
+                            type: 'damage',
+                            amount: Math.max(0, Number(repeatCast.baseDamageAmount) || 0),
+                            scope: effect.scope || 'target',
+                            metadata: {
+                                ...(effect.metadata || {}),
+                            },
+                        };
+                        delete repeatedBaseEffect.metadata.repeatCastOnSuccessfulChance;
+                        delete repeatedBaseEffect.metadata.chanceBonusIfActorStatus;
+                        delete repeatedBaseEffect.metadata.chanceBonusIfTargetCurrentHpAtMost;
+                        const repeatedBaseAmount = resolveEffectDamageAmount({
+                            effect: repeatedBaseEffect,
+                            actorState,
+                            actorUnit,
+                            targetState,
+                            targetUnit: recipient.unit,
+                            skillClasses: skill.classes || [],
+                            match,
+                            actorUsername: actingUsername,
+                            actorSlot,
+                            targetUsername: recipient.username,
+                        });
+                        const repeatedTotal =
+                            Math.max(0, repeatedBaseAmount + skillSpecificBonus + targetSourceBonus) +
+                            (repeatCast.includeTriggeringDamage !== false ? splitAmount : 0);
+                        queueDamage(recipient, repeatedTotal, repeatedBaseEffect);
+                    }
 
                     if (
                         actingCharacterId === 'ghost-rider' &&
@@ -9210,7 +9404,21 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     ) {
                         return;
                     }
-                    destroyAllDestructibleDefenseOnUnit(recipient.unit);
+                    const removedDefense = destroyAllDestructibleDefenseOnUnit(recipient.unit);
+                    const applyStatusToOwner = effect?.metadata?.onDestroyedApplyStatusToOwner;
+                    if (removedDefense > 0 && applyStatusToOwner?.statusId) {
+                        applyStatus({
+                            targetState: actorState,
+                            targetUnit: actorUnit,
+                            statusId: applyStatusToOwner.statusId,
+                            duration: applyStatusToOwner.duration,
+                            sourceSkillId: skill.id || null,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            metadata: applyStatusToOwner.metadata || {},
+                            fresh: false,
+                        });
+                    }
                 });
                 return;
             }
