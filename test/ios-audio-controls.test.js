@@ -9,7 +9,11 @@ const ingameSource = fs.readFileSync(path.join(root, 'ingame.html'), 'utf8');
 
 test('sound manager routes media through Web Audio gain controls for iPhone Safari', () => {
     assert.match(scriptSource, /const ensureWebAudioMediaRoute = \(audio, channel = 'effects'\)/);
-    assert.match(scriptSource, /musicOutputGain\.gain\.value = settings\.musicMuted \? 0 : settings\.volume/);
+    assert.match(
+        scriptSource,
+        /musicOutputGain\.gain\.value = settings\.musicMuted \|\| musicDucked \? 0 : settings\.volume/
+    );
+    assert.match(scriptSource, /duckMusic\(durationMs = 0\)/);
     assert.match(scriptSource, /effectsOutputGain\.gain\.value = settings\.effectsMuted \? 0 : settings\.volume/);
     assert.match(scriptSource, /ensureWebAudioMediaRoute\(currentMusic, 'music'\)/);
     assert.match(scriptSource, /ensureWebAudioMediaRoute\(audio, 'effects'\)/);

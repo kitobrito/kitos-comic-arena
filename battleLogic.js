@@ -8743,8 +8743,11 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         ).find((entry) => entry?.id === runtimeStatusId);
                         const appliedMetadata = appliedStatusEntry?.metadata || {};
                         const immediateTurnStartDamage =
-                            !Boolean(appliedMetadata?.skipFirstTurnStartTick) ||
-                            Boolean(appliedMetadata?.damageImmediatelyOnApply)
+                            appliedMetadata?.damageImmediatelyOnApply !== false &&
+                            (
+                                !Boolean(appliedMetadata?.skipFirstTurnStartTick) ||
+                                Boolean(appliedMetadata?.damageImmediatelyOnApply)
+                            )
                                 ? Math.max(0, Number(appliedMetadata?.turnStartDamage) || 0)
                                 : 0;
                         const immediateTurnEndDamage = Boolean(appliedMetadata?.triggerOnApply)

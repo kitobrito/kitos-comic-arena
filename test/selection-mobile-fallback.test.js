@@ -22,6 +22,13 @@ test('mobile roster taps add characters through the slot instead of depending on
     );
 });
 
+test('matchmaking spinner animation is restarted after cancel and a new search', () => {
+    assert.match(
+        script,
+        /searchingSpinner\.style\.animation = 'none';\s*void searchingSpinner\.offsetWidth;\s*searchingSpinner\.style\.animation = '';/
+    );
+});
+
 test('mobile portrait swipes remain native vertical page scrolling', () => {
     assert.match(script, /const isTouchFirstMobileSelection =\s*event\.pointerType !== 'mouse'/);
     assert.match(script, /if \(isTouchFirstMobileSelection\) return/);
