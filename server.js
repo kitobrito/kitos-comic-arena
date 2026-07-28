@@ -54,6 +54,7 @@ const { syncPokemonGen2StarterRelease } = require('./sync_pokemon_gen2_starter_r
 const { syncPokemonTypeClassNews } = require('./sync_pokemon_type_class_news');
 const { syncPokemonAegislashRelease } = require('./sync_pokemon_aegislash_release');
 const { syncPokemonDittoRelease } = require('./sync_pokemon_ditto_release');
+const { syncPokemonBattleExperienceNews } = require('./sync_pokemon_battle_experience_news');
 let charactersData = require('./characters');
 
 const app = express();
@@ -7440,6 +7441,9 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
             'abra-teleport': ['target'],
             'kadabra-teleport': ['target'],
         },
+        squirtle: {
+            'wartortle-shell-guard': ['target', 'skilldescription'],
+        },
         zubat: {
             'zubat-leech-life': ['skilldescription'],
             'golbat-leech-life': ['skilldescription'],
@@ -7495,11 +7499,16 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
                         };
                     }
                 }
-                if (
-                    characterId === 'abra' &&
-                    (skill?.id === 'abra-teleport' || skill?.id === 'kadabra-teleport') &&
-                    Array.isArray(canonicalSkill.effects)
-                ) {
+                const isCanonicalDualRecipientSkill =
+                    (
+                        characterId === 'abra' &&
+                        (skill?.id === 'abra-teleport' || skill?.id === 'kadabra-teleport')
+                    ) ||
+                    (
+                        characterId === 'squirtle' &&
+                        skill?.id === 'wartortle-shell-guard'
+                    );
+                if (isCanonicalDualRecipientSkill && Array.isArray(canonicalSkill.effects)) {
                     const mergedEffects = Array.isArray(skill.effects) ? skill.effects : [];
                     const canonicalFamilies = canonicalSkill.effects.map((effect) => ({
                         type: effect?.type || '',
@@ -7535,6 +7544,14 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
                                 delete correctedEffect[field];
                             }
                         });
+                        if (
+                            characterId === 'squirtle' &&
+                            skill?.id === 'wartortle-shell-guard'
+                        ) {
+                            delete correctedEffect.metadata.harmful;
+                            delete correctedEffect.metadata.onEnemySkillTargetedHarmfulOnly;
+                            delete correctedEffect.metadata.onEnemySkillTargetedApplyStatusToOwner;
+                        }
                         return correctedEffect;
                     });
                     mergedEffects.forEach((effect) => {
@@ -7693,9 +7710,16 @@ const saveCharacterOverride = async ({ character, previousCharacterId = '', upda
 };
 
 const saveCharactersDataFile = async (nextCharacters, options = {}) => {
-    const serialized = serializeCharactersDataFile(nextCharacters);
+    const canonicalCharacters = loadCharactersDataFromFile();
+    const correctedCharacters = applyPokemonTypeSystem(
+        applyCanonicalCharacterAssetPaths(
+            applyRequiredCanonicalSkillCorrections(nextCharacters, canonicalCharacters)
+        ),
+        { strict: true }
+    );
+    const serialized = serializeCharactersDataFile(correctedCharacters);
     await fs.promises.writeFile(CHARACTERS_FILE_PATH, serialized, 'utf8');
-    rebuildCharacterCatalog(nextCharacters);
+    rebuildCharacterCatalog(correctedCharacters);
     if (options.characterOverride) {
         await saveCharacterOverride({
             character: options.characterOverride,
@@ -11106,6 +11130,57 @@ const collectBattleBotAppliedStatusIds = (value, depth = 0, statusIds = new Set(
     return statusIds;
 };
 
+const collectBattleBotStackableStatusIds = (value, depth = 0, statusIds = new Set()) => {
+    if (!value || depth > 5) return statusIds;
+    if (Array.isArray(value)) {
+        value.forEach((entry) => collectBattleBotStackableStatusIds(entry, depth + 1, statusIds));
+        return statusIds;
+    }
+    if (typeof value !== 'object') return statusIds;
+    const type = typeof value.type === 'string' ? value.type.toLowerCase() : '';
+    const metadata = value.metadata && typeof value.metadata === 'object' ? value.metadata : {};
+    if (
+        type === 'apply_status' &&
+        typeof value.statusId === 'string' &&
+        value.statusId &&
+        (
+            metadata.stackMetadataKey ||
+            Number(metadata.stackDelta) > 0 ||
+            (Array.isArray(metadata.mergeNumericAddKeys) && metadata.mergeNumericAddKeys.length > 0)
+        )
+    ) {
+        statusIds.add(value.statusId);
+    }
+    Object.entries(value).forEach(([key, entry]) => {
+        if (key === 'condition') return;
+        collectBattleBotStackableStatusIds(entry, depth + 1, statusIds);
+    });
+    return statusIds;
+};
+
+const estimateBattleBotPersistentDamage = (skill) => {
+    const visit = (value, depth = 0) => {
+        if (!value || depth > 5) return 0;
+        if (Array.isArray(value)) {
+            return value.reduce((sum, entry) => sum + visit(entry, depth + 1), 0);
+        }
+        if (typeof value !== 'object') return 0;
+        const type = typeof value.type === 'string' ? value.type.toLowerCase() : '';
+        let total = 0;
+        if (type === 'apply_status') {
+            const metadata = value.metadata && typeof value.metadata === 'object' ? value.metadata : {};
+            total += Math.max(0, Number(metadata.turnStartDamage) || 0);
+            total += Math.max(0, Number(metadata.turnEndDamage) || 0);
+        }
+        Object.entries(value).forEach(([key, entry]) => {
+            if (key === 'condition' || key === 'metadata') return;
+            total += visit(entry, depth + 1);
+        });
+        return total;
+    };
+    return visit(skill?.effects || []);
+};
+
 const estimateBattleBotSkillDamage = (skill) => {
     const directDamage = Math.max(0, Number(skill?.damage) || 0);
     const effectDamage = collectBattleBotEffectAmount(
@@ -11180,10 +11255,13 @@ const scoreBattleBotTarget = ({ match, username, actorSlot, skill, target, damag
     const isControlSkill = isLikelyBattleBotControlSkill(skill);
     const harmfulStatusCount = countBattleBotHarmfulStatusesForTarget(match, target);
     const appliedStatusIds = Array.from(collectBattleBotAppliedStatusIds(skill?.effects || []));
+    const stackableStatusIds = collectBattleBotStackableStatusIds(skill?.effects || []);
     const activeStatuses = getBattleBotActiveStatusesForTarget(match, target);
     const duplicateStatusCount = appliedStatusIds.filter((statusId) =>
+        !stackableStatusIds.has(statusId) &&
         activeStatuses.some((status) => status?.id === statusId)
     ).length;
+    const persistentDamageEstimate = estimateBattleBotPersistentDamage(skill);
     let score = Math.random() * 4;
     if (sameTeam) {
         if (isReviveSkill) {
@@ -11207,6 +11285,14 @@ const scoreBattleBotTarget = ({ match, username, actorSlot, skill, target, damag
     const projectedHp = Math.max(0, hp - projectedDamage);
     score += Math.max(0, 100 - projectedHp) / 2;
     if (damageEstimate > 0) score += Math.min(60, damageEstimate);
+    if (persistentDamageEstimate > 0) {
+        score += Math.min(72, persistentDamageEstimate * 7);
+        if (Array.from(stackableStatusIds).some((statusId) =>
+            activeStatuses.some((status) => status?.id === statusId)
+        )) {
+            score += 20;
+        }
+    }
     score += scoreBattleBotDamageCoordination({ hp, projectedDamage, candidateDamage: damageEstimate });
     if (isControlSkill && hp > damageEstimate) score += 18;
     if (duplicateStatusCount > 0 && damageEstimate <= 0) score -= duplicateStatusCount * 18;
@@ -11254,6 +11340,7 @@ const scoreBattleBotSkillCandidate = ({
     const reviveSkill = isLikelyBattleBotReviveSkill(skill);
     const cleanseSkill = isLikelyBattleBotCleanseSkill(skill);
     const controlSkill = isLikelyBattleBotControlSkill(skill);
+    const persistentDamageEstimate = estimateBattleBotPersistentDamage(skill);
     const recentDamage = getBattleBotRecentDamage(match, username, actorSlot);
     const actorHp = Math.max(0, Number(actorUnit?.hp) || 0);
     const opponentUsername = findMatchOpponentByUsername(match, username)?.username || null;
@@ -11291,6 +11378,9 @@ const scoreBattleBotSkillCandidate = ({
     if (preferDefense && defensive) score += 110;
     if (preferDefense && skillIndex === 3) score += 70;
     if (!preferDefense && damageEstimate > 0) score += 20;
+    if (!preferDefense && persistentDamageEstimate > 0) {
+        score += Math.min(80, 25 + persistentDamageEstimate * 6);
+    }
     if (defensive && (recentDamage.slotDamage >= 30 || actorHp <= 45)) score += 25;
     if (/all-enemy/.test(targetType)) score += Math.max(15, damageEstimate) + Math.max(0, enemyAliveCount - 1) * 18;
     if (/self|ally|allies/.test(targetType)) score += healingEstimate > 0 ? healingEstimate : 12;
@@ -11990,7 +12080,7 @@ const adjustRandomAssignment = ({ match, username, chakraType, delta }) => {
     match.pendingTurns[username] = pending;
 };
 
-const exchangeChakra = ({ match, username, chakraType, cost = 4, spendAssignments = null }) => {
+const exchangeChakra = ({ match, username, chakraType, cost = 2, spendAssignments = null }) => {
     if (!chakraTypes.includes(chakraType)) {
         throw new Error('Invalid chakra type.');
     }
@@ -11998,9 +12088,10 @@ const exchangeChakra = ({ match, username, chakraType, cost = 4, spendAssignment
     if (!pool) {
         throw new Error('Chakra pool unavailable.');
     }
-    const exchangeCost = Math.max(1, Number(cost) || 4);
-    if (getTotalChakra(pool) < exchangeCost) {
-        throw new Error(`Need at least ${exchangeCost} chakra to exchange.`);
+    const exchangeCost = Math.max(1, Number(cost) || 2);
+    const hasExchangeableColor = chakraTypes.some((type) => (Number(pool[type]) || 0) >= exchangeCost);
+    if (!hasExchangeableColor) {
+        throw new Error(`Need ${exchangeCost} chakra of one color to exchange.`);
     }
 
     let normalizedAssignments = null;
@@ -12015,7 +12106,11 @@ const exchangeChakra = ({ match, username, chakraType, cost = 4, spendAssignment
             0
         );
         if (assignedTotal !== exchangeCost) {
-            throw new Error(`Assign exactly ${exchangeCost} chakra.`);
+            throw new Error(`Assign exactly ${exchangeCost} chakra of one color.`);
+        }
+        const assignedColors = chakraTypes.filter((type) => (normalizedAssignments[type] || 0) > 0);
+        if (assignedColors.length !== 1 || normalizedAssignments[assignedColors[0]] !== exchangeCost) {
+            throw new Error(`Choose ${exchangeCost} chakra of one color.`);
         }
         const exceeds = chakraTypes.some(
             (type) => (normalizedAssignments[type] || 0) > (Number(pool[type]) || 0)
@@ -12030,17 +12125,9 @@ const exchangeChakra = ({ match, username, chakraType, cost = 4, spendAssignment
             pool[type] = Math.max(0, (Number(pool[type]) || 0) - (normalizedAssignments[type] || 0));
         });
     } else {
-        let remaining = exchangeCost;
-        chakraTypes.forEach((type) => {
-            if (remaining <= 0) return;
-            const available = Math.max(0, Number(pool[type]) || 0);
-            const toSpend = Math.min(available, remaining);
-            pool[type] = available - toSpend;
-            remaining -= toSpend;
-        });
-        if (remaining > 0) {
-            throw new Error('Unable to exchange chakra.');
-        }
+        const spendType = chakraTypes.find((type) => (Number(pool[type]) || 0) >= exchangeCost);
+        if (!spendType) throw new Error('Unable to exchange chakra.');
+        pool[spendType] = Math.max(0, (Number(pool[spendType]) || 0) - exchangeCost);
     }
     pool[chakraType] = (Number(pool[chakraType]) || 0) + 1;
     match.chakraPools[username] = pool;
@@ -12391,6 +12478,8 @@ async function initDb() {
     if (dittoReleaseSync.migrated) {
         console.log('Published the Ditto and Scraggy community-character batch.');
     }
+    await syncPokemonBattleExperienceNews(db);
+    console.log('Synced the Pokemon Arena Battle Experience Update news post.');
     await backfillUserProfiles();
     console.log('Connected to MongoDB.');
 }
@@ -14051,7 +14140,7 @@ app.post('/api/match/:matchId/chakra/exchange', requireSession, async (req, res)
             match: hydrated,
             username,
             chakraType,
-            cost: 5,
+            cost: 2,
             spendAssignments,
         });
         await persistMatchState(hydrated, {
@@ -17446,6 +17535,8 @@ if (require.main === module) {
         getUserMatchForTests,
         POKEMON_SKIN_CATALOG,
         scoreBattleBotDamageCoordination,
+        estimateBattleBotPersistentDamage,
+        exchangeChakra,
         buildHumanMatchStatsFilter,
         inferMatchArenaFromTeams,
         buildCharacterWinrateEntries,

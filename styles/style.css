@@ -321,18 +321,22 @@ html.selection-experimental .classic-new-ui-button {
 }
 
 .mute-button, .ingame-mute-button, .effects-mute-button, .ingame-effects-mute-button, .skill-effects-toggle, .ingame-skill-effects-toggle {
-    background: none;
-    border: none;
+    background: rgba(20, 98, 58, 0.92);
+    border: 1px solid rgba(145, 255, 188, 0.9);
+    border-radius: 4px;
     cursor: pointer;
     padding: 0;
     margin-right: 8px;
-    width: 24px;
+    width: 58px;
     height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #c41e3a;
-    font-size: 18px;
+    color: #f3fff6;
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.3px;
+    text-shadow: 0 1px 2px #000;
     transition: transform 0.1s ease;
 }
 
@@ -349,7 +353,7 @@ html.selection-experimental .classic-new-ui-button {
 }
 
 .effects-mute-button::before, .ingame-effects-mute-button::before {
-    content: 'SFX';
+    content: 'SFX ON';
     font-size: 10px;
     font-weight: 800;
 }
@@ -361,6 +365,30 @@ html.selection-experimental .classic-new-ui-button {
 .skill-effects-toggle,
 .ingame-skill-effects-toggle {
     width: 54px;
+}
+
+.mute-button::before,
+.ingame-mute-button::before {
+    content: 'MUSIC ON';
+}
+
+.mute-button.muted::before,
+.ingame-mute-button.muted::before {
+    content: 'MUSIC OFF';
+}
+
+.effects-mute-button.muted::before,
+.ingame-effects-mute-button.muted::before {
+    content: 'SFX OFF';
+}
+
+.mute-button.muted,
+.ingame-mute-button.muted,
+.effects-mute-button.muted,
+.ingame-effects-mute-button.muted {
+    background: rgba(133, 23, 35, 0.96);
+    border-color: rgba(255, 159, 167, 0.95);
+    color: #fff;
 }
 
 .skill-effects-toggle::before,

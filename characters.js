@@ -18839,7 +18839,7 @@ const characters = [
                     "Random",
                     "Random"
                 ],
-                "target": "self-or-single-ally",
+                "target": "single-ally",
                 "damage": 0,
                 "cooldown": 2,
                 "classes": [
@@ -18852,25 +18852,22 @@ const characters = [
                         "type": "apply_status",
                         "statusId": "wartortle_shell_guard",
                         "duration": 1,
-                        "scope": "self-or-single-ally",
+                        "scope": "self",
                         "metadata": {
-                            "harmful": true,
                             "ignoreEnemyDamage": true,
                             "ignoreHarmfulNonDamageEffects": true,
-                            "onEnemySkillTargetedHarmfulOnly": true,
-                            "onEnemySkillTargetedApplyStatusToOwner": {
-                                "statusId": "squirtle_evolution_tracker",
-                                "duration": 99,
-                                "metadata": {
-                                    "infiniteDuration": true,
-                                    "squirtleEvolutionStacks": 1,
-                                    "stackMetadataKey": "squirtleEvolutionStacks",
-                                    "stackDelta": 1,
-                                    "stackMax": 3,
-                                    "statusIconUrl": "assets/images/PokemonArena/squirtle/evolutionwartortle.jpg",
-                                    "tooltipTextTemplate": "Squirtle has {squirtleEvolutionStacks} evolution stack(s). At 3 stacks, Squirtle evolves into Wartortle and consumes all evolution stacks."
-                                }
-                            },
+                            "statusIconUrl": "assets/images/PokemonArena/squirtle/shellguard.jpg",
+                            "tooltipText": "This character ignores enemy harmful skills for 1 turn."
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "wartortle_shell_guard",
+                        "duration": 1,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreEnemyDamage": true,
+                            "ignoreHarmfulNonDamageEffects": true,
                             "statusIconUrl": "assets/images/PokemonArena/squirtle/shellguard.jpg",
                             "tooltipText": "This character ignores enemy harmful skills for 1 turn."
                         }
@@ -31125,8 +31122,8 @@ const characters = [
                 "id": "beedrill-hive-swarm",
                 "name": "Hive Swarm",
                 "skillimage": "assets/images/PokemonArena/beedrill/hiveswarm.webp",
-                "skilldescription": "For 3 turns, ignores the next 3 enemy damage effects and enemy stuns. Replaced by Hive Sting.",
-                "description": "For 3 turns, ignores the next 3 enemy damage effects and enemy stuns. Replaced by Hive Sting.",
+                "skilldescription": "For 3 turns, ignores the next 2 enemy damage effects and enemy stuns. Replaced by Hive Sting.",
+                "description": "For 3 turns, ignores the next 2 enemy damage effects and enemy stuns. Replaced by Hive Sting.",
                 "energy": [
                     "Random"
                 ],
@@ -31144,7 +31141,7 @@ const characters = [
                         "duration": 3,
                         "scope": "self",
                         "metadata": {
-                            "ignoreNextEnemyDamageEffects": 3,
+                            "ignoreNextEnemyDamageEffects": 2,
                             "ignoreEnemyStuns": true,
                             "skillReplacements": {
                                 "beedrill-hive-swarm": "beedrill-hive-sting"
@@ -31156,8 +31153,8 @@ const characters = [
                     "id": "beedrill-hive-swarm-mega",
                     "name": "Mega Hive Swarm",
                     "skillimage": "assets/images/PokemonArena/beedrill/hiveswarm.webp",
-                    "skilldescription": "For 3 turns, ignores the next 3 enemy damage effects and enemy stuns. Replaced by Hive Sting.",
-                    "description": "For 3 turns, ignores the next 3 enemy damage effects and enemy stuns. Replaced by Hive Sting.",
+                    "skilldescription": "For 3 turns, ignores the next 2 enemy damage effects and enemy stuns. Replaced by Hive Sting.",
+                    "description": "For 3 turns, ignores the next 2 enemy damage effects and enemy stuns. Replaced by Hive Sting.",
                     "energy": [
                         "Random"
                     ],
@@ -31175,7 +31172,7 @@ const characters = [
                             "duration": 3,
                             "scope": "self",
                             "metadata": {
-                                "ignoreNextEnemyDamageEffects": 3,
+                                "ignoreNextEnemyDamageEffects": 2,
                                 "ignoreEnemyStuns": true,
                                 "skillReplacements": {
                                     "beedrill-hive-swarm-mega": "beedrill-hive-sting"

@@ -100,6 +100,72 @@ test('Abra Teleport protects Abra and the selected ally', () => {
     assert.ok(match.board.Ash[1].state.statuses.some((status) => status.id === 'abra_teleport_cover'));
 });
 
+test('Kadabra Teleport protects and cleanses Kadabra and the selected ally', () => {
+    const abraIndex = characters.findIndex((character) => character.id === 'abra');
+    const allyIndex = characters.findIndex((character) => character.id === 'pikachu');
+    const enemyIndex = characters.findIndex((character) => character.id === 'charmander');
+    const teleportIndex = characters[abraIndex].skills.findIndex((skill) => skill.id === 'abra-teleport');
+    const players = [{ username: 'Ash', team: [abraIndex, allyIndex] }, { username: 'Gary', team: [enemyIndex] }];
+    const match = makeMatch(players);
+    match.board.Ash[0].state.statuses.push({
+        id: 'abra_kadabra_evolution',
+        remainingTurns: 99,
+        metadata: {
+            infiniteDuration: true,
+            skillReplacements: { 'abra-teleport': 'kadabra-teleport' },
+        },
+    });
+    [0, 1].forEach((slot) => match.board.Ash[slot].state.statuses.push({
+        id: `enemy_effect_${slot}`,
+        remainingTurns: 2,
+        sourceUsername: 'Gary',
+        metadata: { harmful: true },
+    }));
+    match.pendingTurns.Ash = {
+        queueOrder: ['0'],
+        queuedByActorSlot: {
+            0: { skillIndex: teleportIndex, targetSelection: [{ username: 'Ash', slot: 1 }] },
+        },
+    };
+
+    resolvePendingTurnSkills({ match, actingUsername: 'Ash', characters });
+
+    [0, 1].forEach((slot) => {
+        assert.ok(match.board.Ash[slot].state.statuses.some((status) => status.id === 'abra_teleport_cover'));
+        assert.ok(!match.board.Ash[slot].state.statuses.some((status) => status.id === `enemy_effect_${slot}`));
+    });
+});
+
+test('Wartortle Shell Guard protects Wartortle and one ally without restoring evolution tracking', () => {
+    const squirtleIndex = characters.findIndex((character) => character.id === 'squirtle');
+    const allyIndex = characters.findIndex((character) => character.id === 'pikachu');
+    const enemyIndex = characters.findIndex((character) => character.id === 'charmander');
+    const withdrawIndex = characters[squirtleIndex].skills.findIndex((skill) => skill.id === 'squirtle-withdraw');
+    const players = [{ username: 'Ash', team: [squirtleIndex, allyIndex] }, { username: 'Gary', team: [enemyIndex] }];
+    const match = makeMatch(players);
+    match.board.Ash[0].state.statuses = [{
+        id: 'squirtle_wartortle_evolution',
+        remainingTurns: 99,
+        metadata: {
+            infiniteDuration: true,
+            skillReplacements: { 'squirtle-withdraw': 'wartortle-shell-guard' },
+        },
+    }];
+    match.pendingTurns.Ash = {
+        queueOrder: ['0'],
+        queuedByActorSlot: {
+            0: { skillIndex: withdrawIndex, targetSelection: [{ username: 'Ash', slot: 1 }] },
+        },
+    };
+
+    resolvePendingTurnSkills({ match, actingUsername: 'Ash', characters });
+
+    [0, 1].forEach((slot) => {
+        assert.ok(match.board.Ash[slot].state.statuses.some((status) => status.id === 'wartortle_shell_guard'));
+        assert.ok(!match.board.Ash[slot].state.statuses.some((status) => status.id === 'squirtle_evolution_tracker'));
+    });
+});
+
 test("Blissey's Emergency Life Support revives its selected defeated ally with 50 HP", () => {
     const chanseyIndex = characters.findIndex((character) => character.id === 'chansey');
     const allyIndex = characters.findIndex((character) => character.id === 'pikachu');
