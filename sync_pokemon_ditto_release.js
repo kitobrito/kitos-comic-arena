@@ -205,15 +205,15 @@ async function syncPokemonDittoRelease(db, options = {}) {
         { upsert: true }
     );
 
-    const completed = await appState.findOne({ key: migrationKey });
-    if (completed?.completed) return { migrated: false, newsSynced: true };
-
     const existingLatestReleases = await appState.findOne({ key: latestReleasesKey });
     await appState.updateOne(
         { key: latestReleasesKey },
         { $set: buildLatestReleasesState(existingLatestReleases) },
         { upsert: true }
     );
+    const completed = await appState.findOne({ key: migrationKey });
+    if (completed?.completed) return { migrated: false, newsSynced: true };
+
     await appState.updateOne(
         { key: migrationKey },
         {

@@ -691,6 +691,17 @@ test('community batch news is idempotent, credits every designer, and orders lat
     });
 
     assert.deepEqual(await syncPokemonDittoRelease(db), { migrated: true, newsSynced: true });
+    documents.set('app_state:latest_character_releases', {
+        key: 'latest_character_releases',
+        releasesByArena: {
+            comic: [{ characterId: 'the-hulk' }],
+            pokemon: [
+                { characterId: 'dragonite' },
+                { characterId: 'mewtwo' },
+                { characterId: 'mew' },
+            ],
+        },
+    });
     assert.deepEqual(await syncPokemonDittoRelease(db), { migrated: false, newsSynced: true });
     assert.deepEqual(
         buildLatestReleasesState(documents.get('app_state:latest_character_releases'))
