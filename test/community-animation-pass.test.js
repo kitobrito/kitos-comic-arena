@@ -231,7 +231,7 @@ test('Pokemon Trainer capture visuals use supplied balls and audio-clock shake c
             fileName
         );
     });
-    assert.match(ingame, /pokemon-trainer-capture-audio-v3/);
+    assert.match(ingame, /pokemon-trainer-capture-audio-v4/);
 });
 
 test('Bulbasaur Leech Seed deals one fixed 10 damage tick to Mewtwo per turn count', () => {

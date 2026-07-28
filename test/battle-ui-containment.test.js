@@ -70,5 +70,5 @@ test('unchanged queued skill previews survive random chakra adjustments', () => 
         script,
         /newlyQueuedKeys\.size === 0 && renderSignature === renderedSkillOrderSignature/
     );
-    assert.match(ingame, /chakra-queue-stability-v1/);
+    assert.match(ingame, /chakra-queue-stability-v2/);
 });

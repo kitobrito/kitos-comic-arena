@@ -683,9 +683,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (settings.musicMuted) {
                     btn.classList.add('muted');
                     btn.setAttribute('aria-label', 'Unmute music');
+                    btn.setAttribute('aria-pressed', 'true');
+                    btn.setAttribute('title', 'Music: Off');
                 } else {
                     btn.classList.remove('muted');
                     btn.setAttribute('aria-label', 'Mute music');
+                    btn.setAttribute('aria-pressed', 'false');
+                    btn.setAttribute('title', 'Music: On');
                 }
             });
             const allEffectsMuteButtons = document.querySelectorAll('.effects-mute-button, .ingame-effects-mute-button');
@@ -693,9 +697,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                 if (settings.effectsMuted) {
                     btn.classList.add('muted');
                     btn.setAttribute('aria-label', 'Unmute game sounds');
+                    btn.setAttribute('aria-pressed', 'true');
+                    btn.setAttribute('title', 'SFX: Off');
                 } else {
                     btn.classList.remove('muted');
                     btn.setAttribute('aria-label', 'Mute game sounds');
+                    btn.setAttribute('aria-pressed', 'false');
+                    btn.setAttribute('title', 'SFX: On');
                 }
             });
             const allSkillEffectsButtons = document.querySelectorAll('.skill-effects-toggle, .ingame-skill-effects-toggle');
@@ -772,6 +780,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
 
             currentMusic = new Audio(musicTracks[currentTrackIndex]);
+            currentMusic.preload = 'auto';
+            currentMusic.load();
             currentMusic.muted = settings.musicMuted;
             const routedThroughWebAudio = ensureWebAudioMediaRoute(currentMusic, 'music');
             currentMusic.volume = routedThroughWebAudio
@@ -894,6 +904,14 @@ document.addEventListener('DOMContentLoaded', async () => {
                     musicDucked = false;
                     updateMusicVolume();
                 }, duration);
+            },
+            endMusicDuck() {
+                if (musicDuckTimeout) {
+                    window.clearTimeout(musicDuckTimeout);
+                    musicDuckTimeout = null;
+                }
+                musicDucked = false;
+                updateMusicVolume();
             },
             startMusic(tracks) {
                 const nextTracks = Array.isArray(tracks) ? tracks.filter(Boolean) : [tracks].filter(Boolean);
@@ -2880,7 +2898,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const timerCountdown = document.querySelector('.timer-countdown');
         const TURN_DURATION_MS = 60_000;
         const TIMER_MAX_WIDTH = 191;
-        const EXCHANGE_CHAKRA_COST = 5;
+        const EXCHANGE_CHAKRA_COST = 2;
         const READY_TEXT_PLAYER = 'PRESS WHEN READY';
         const READY_TEXT_OPPONENT = "OPPONENT'S TURN...";
         let lastTurnOwner = null;
@@ -5250,8 +5268,8 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
 
         const getCardByUsernameSlot = (username, slot) => {
             if (!Number.isInteger(slot) || slot < 0) return null;
-            if (username === currentPlayerUsername) return playerCards[slot] || null;
-            if (username === currentOpponentUsername) return enemyCards[slot] || null;
+            if (usernamesMatch(username, currentPlayerUsername)) return playerCards[slot] || null;
+            if (usernamesMatch(username, currentOpponentUsername)) return enemyCards[slot] || null;
             return null;
         };
 
@@ -6269,10 +6287,15 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             'pokemon-trainer-master-ball': 'master-ball',
         });
         const pokemonTrainerBallLandings = new Map();
+        const getPokemonTrainerBallTargetKey = (username, slot) => {
+            const normalizedUsername = String(username || '').trim().toLowerCase();
+            const normalizedSlot = Number.parseInt(slot, 10);
+            return normalizedUsername && Number.isInteger(normalizedSlot)
+                ? `${normalizedUsername}:${normalizedSlot}`
+                : '';
+        };
         const getPokemonTrainerBallCardKey = (card) => {
-            const username = String(card?.dataset?.username || '').trim().toLowerCase();
-            const slot = Number.parseInt(card?.dataset?.slot || '', 10);
-            return username && Number.isInteger(slot) ? `${username}:${slot}` : '';
+            return getPokemonTrainerBallTargetKey(card?.dataset?.username, card?.dataset?.slot);
         };
 
         const positionPokemonTrainerLandedBall = (entry) => {
@@ -6484,14 +6507,32 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             return true;
         };
 
-        const showPokemonTrainerBallFx = ({ actorCard, targetCards = [], variant = 'pokeball' }) => {
+        const showPokemonTrainerBallFx = ({ actorCard, targetCards = [], selection = [], variant = 'pokeball' }) => {
+            const entriesByKey = new Map();
+            normalizeTargetSelectionList(selection).forEach((target) => {
+                const targetSlot = Number.parseInt(target?.slot, 10);
+                const targetKey = getPokemonTrainerBallTargetKey(target?.username, targetSlot);
+                if (!targetKey) return;
+                entriesByKey.set(targetKey, {
+                    targetKey,
+                    targetUsername: target?.username || '',
+                    targetSlot,
+                    targetCard: getCardByUsernameSlot(target?.username || '', targetSlot),
+                });
+            });
             targetCards.forEach((targetCard) => {
                 const targetKey = getPokemonTrainerBallCardKey(targetCard);
                 if (!targetKey) return;
+                const existing = entriesByKey.get(targetKey) || {};
+                entriesByKey.set(targetKey, { ...existing, targetKey, targetCard });
+            });
+            entriesByKey.forEach((targetEntry, targetKey) => {
                 const landingEntry = {
                     actorCard,
                     actorKey: getPokemonTrainerBallCardKey(actorCard),
-                    targetCard,
+                    targetCard: targetEntry.targetCard,
+                    targetUsername: targetEntry.targetUsername,
+                    targetSlot: targetEntry.targetSlot,
                     targetKey,
                     variant,
                     element: null,
@@ -7615,19 +7656,19 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 return;
             }
             if (isPokemonTrainerPokeball) {
-                showPokemonTrainerBallFx({ actorCard, targetCards, variant: 'pokeball' });
+                showPokemonTrainerBallFx({ actorCard, targetCards, selection, variant: 'pokeball' });
                 return;
             }
             if (isPokemonTrainerGreatBall) {
-                showPokemonTrainerBallFx({ actorCard, targetCards, variant: 'great-ball' });
+                showPokemonTrainerBallFx({ actorCard, targetCards, selection, variant: 'great-ball' });
                 return;
             }
             if (isPokemonTrainerUltraBall) {
-                showPokemonTrainerBallFx({ actorCard, targetCards, variant: 'ultra-ball' });
+                showPokemonTrainerBallFx({ actorCard, targetCards, selection, variant: 'ultra-ball' });
                 return;
             }
             if (isPokemonTrainerMasterBall) {
-                showPokemonTrainerBallFx({ actorCard, targetCards, variant: 'master-ball' });
+                showPokemonTrainerBallFx({ actorCard, targetCards, selection, variant: 'master-ball' });
                 return;
             }
             if (isPokemonTrainerXStats) {
@@ -8175,9 +8216,18 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             const opponentUsername = overrides.opponentUsername || data?.opponent?.username || currentOpponentUsername;
             const arena = overrides.arena || currentMatchArena;
             const mode = overrides.mode || currentMatchMode;
-            const playerUnits = playerUsername && board ? board[playerUsername] : null;
-            const opponentUnits = opponentUsername && board ? board[opponentUsername] : null;
-            const pool = data?.chakraPools?.[playerUsername] || playerPoolState || emptyPool();
+            const playerUnits =
+                playerUsername && board
+                    ? getScopedValueForCurrentUsername(board, playerUsername)
+                    : null;
+            const opponentUnits =
+                opponentUsername && board
+                    ? getScopedValueForCurrentUsername(board, opponentUsername)
+                    : null;
+            const pool =
+                getScopedValueForCurrentUsername(data?.chakraPools, playerUsername) ||
+                playerPoolState ||
+                emptyPool();
             return [
                 arena,
                 mode,
@@ -8344,9 +8394,17 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
 
         const adjustExchangeSpend = (chakraType, delta) => {
             if (!chakraTypes.includes(chakraType)) return;
-            const current = Math.max(0, Number(exchangeSpendAssignments[chakraType]) || 0);
-            const assignedTotal = getExchangeAssignedTotal();
+            let current = Math.max(0, Number(exchangeSpendAssignments[chakraType]) || 0);
+            let assignedTotal = getExchangeAssignedTotal();
             if (delta > 0) {
+                const assignedOtherColor = chakraTypes.some(
+                    (type) => type !== chakraType && (Number(exchangeSpendAssignments[type]) || 0) > 0
+                );
+                if (assignedOtherColor) {
+                    exchangeSpendAssignments = emptyPool();
+                    current = 0;
+                    assignedTotal = 0;
+                }
                 if (assignedTotal >= EXCHANGE_CHAKRA_COST) return;
                 const availableFromPool = Math.max(0, Number(playerPoolState[chakraType]) || 0);
                 if (current >= availableFromPool) return;
@@ -12209,6 +12267,13 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 mode: currentMatchMode,
             });
             if (nextVisualSignature === lastAppliedMatchVisualSignature) {
+                const unchangedVisualPool =
+                    getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) ||
+                    playerPoolState ||
+                    emptyPool();
+                renderChakra(unchangedVisualPool);
+                pendingTurnState = normalizePendingTurn(data.pendingTurn);
+                syncEndTurnModalIfVisible();
                 syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
                 return;
             }
@@ -12769,12 +12834,14 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const playBattleIntro = async (data) => {
             if (hasPlayedBattleIntro || !battleIntroOverlayEl) return;
             hasPlayedBattleIntro = true;
-            soundManager.ensureIngameBattleMusic(data?.arena || currentMatchArena);
             if (!uiSettings.battleIntro) {
+                soundManager.ensureIngameBattleMusic(data?.arena || currentMatchArena);
                 battleIntroOverlayEl.classList.remove('visible');
                 battleIntroOverlayEl.setAttribute('aria-hidden', 'true');
                 return;
             }
+            soundManager.duckMusic(BATTLE_INTRO_DURATION_MS + 250);
+            soundManager.ensureIngameBattleMusic(data?.arena || currentMatchArena);
             const normalizeRosterIndex = (value) => {
                 if (Number.isInteger(value)) return value;
                 const parsed = Number.parseInt(value, 10);
@@ -12867,6 +12934,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             await wait(BATTLE_INTRO_DURATION_MS);
             battleIntroOverlayEl.classList.remove('visible');
             battleIntroOverlayEl.setAttribute('aria-hidden', 'true');
+            soundManager.endMusicDuck();
         };
 
         const applyIncomingMatchState = (data, { playEntrySound = false } = {}) => {
@@ -14816,7 +14884,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             if (!matchIdFromUrl || battleEndShown) return;
             if (!currentPlayerUsername || !usernamesMatch(currentPlayerUsername, currentTurnUsername)) return;
             if (getExchangeAssignedTotal() !== EXCHANGE_CHAKRA_COST) {
-                setExchangeStatus(`Choose exactly ${EXCHANGE_CHAKRA_COST} energy.`);
+                setExchangeStatus(`Choose exactly ${EXCHANGE_CHAKRA_COST} of one energy color.`);
                 return;
             }
             if (exchangeOkButton) {

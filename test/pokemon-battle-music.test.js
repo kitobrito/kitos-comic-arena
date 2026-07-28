@@ -29,3 +29,10 @@ test('multi-track battle music uses a reshuffled deck without an immediate repea
     assert.match(scriptSource, /shuffledTrackIndices = buildShuffledTrackIndices\(/);
     assert.match(scriptSource, /currentMusic\.onended = playNextTrack/);
 });
+
+test('battle music preloads during the intro and unducks exactly when it ends', () => {
+    assert.match(scriptSource, /currentMusic\.preload = 'auto'/);
+    assert.match(scriptSource, /currentMusic\.load\(\)/);
+    assert.match(scriptSource, /soundManager\.duckMusic\(BATTLE_INTRO_DURATION_MS \+ 250\)/);
+    assert.match(scriptSource, /battleIntroOverlayEl\.setAttribute\('aria-hidden', 'true'\);\s*soundManager\.endMusicDuck\(\)/);
+});
