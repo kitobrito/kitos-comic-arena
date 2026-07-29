@@ -49,6 +49,7 @@ const POKEMON_CHARACTER_TYPES = Object.freeze({
     aegislash: ['Steel', 'Ghost'],
     ditto: ['Normal'],
     scraggy: ['Dark', 'Fighting'],
+    dragapult: ['Dragon', 'Ghost'],
 });
 
 const skillsByType = {
@@ -109,6 +110,7 @@ const skillsByType = {
         'magnemite-spark', 'magnemite-thunder-wave', 'magnemite-magnet-rise',
         'magnemite-passive-evolution-magneton', 'magneton-spark', 'magneton-thunder-wave',
         'magneton-magnet-rise', 'zapdos-charge', 'zapdos-thunderbolt', 'zapdos-zap-cannon',
+        'dragapult-ten-thousand-volt-thunderbolt',
     ],
     Grass: [
         'bulbasaur-leech-seed', 'bulbasaur-vine-whip', 'bulbasaur-razor-leaf',
@@ -168,6 +170,7 @@ const skillsByType = {
         'charmander-dragon-claw', 'charmander-charizard-x-dragon-claw',
         'charmander-charizard-y-dragon-claw', 'gyarados-dragon-rage', 'dragonite-dragon-claw',
         'dragonite-draco-meteor', 'dragonite-dragon-boost', 'dragonite-pressure',
+        'dragapult-dragon-darts', 'dragapult-dragon-tail', 'dragapult-dragon-rush',
     ],
     Dark: [
         'zubat-bite', 'zubat-draining-fangs', 'golbat-bite', 'golbat-draining-fangs',

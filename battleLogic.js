@@ -8917,6 +8917,109 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                             );
                         });
                     }
+                    const maxEnemyMarkStacksFromSource = Math.max(
+                        0,
+                        Math.floor(Number(runtimeMetadata?.maxEnemyMarkStacksFromSource) || 0)
+                    );
+                    if (maxEnemyMarkStacksFromSource > 0 && recipient.username !== actingUsername) {
+                        const stackMetadataKey =
+                            typeof runtimeMetadata?.stackMetadataKey === 'string'
+                                ? runtimeMetadata.stackMetadataKey
+                                : '';
+                        const existingMarks = (match.players || [])
+                            .filter((player) => player?.username && player.username !== actingUsername)
+                            .flatMap((player) => {
+                                const markedUsername = player.username;
+                                return (Array.isArray(match.board?.[markedUsername])
+                                    ? match.board[markedUsername]
+                                    : []
+                                ).flatMap((markedUnit, markedSlot) => {
+                                    if (!markedUnit) return [];
+                                    const markedState = ensureUnitStateShape(markedUnit);
+                                    return (Array.isArray(markedState.statuses) ? markedState.statuses : [])
+                                        .filter(
+                                            (entry) =>
+                                                entry?.id === runtimeStatusId &&
+                                                entry?.sourceUsername === actingUsername &&
+                                                Number(entry?.sourceSlot) === actorSlot
+                                        )
+                                        .flatMap((entry) => {
+                                            const stackCount = stackMetadataKey
+                                                ? Math.max(1, Number(entry?.metadata?.[stackMetadataKey]) || 1)
+                                                : 1;
+                                            const sequences = Array.isArray(entry?.metadata?._sourceMarkStackSequences)
+                                                ? entry.metadata._sourceMarkStackSequences
+                                                : [];
+                                            return Array.from({ length: stackCount }, (_, stackIndex) => ({
+                                                entry,
+                                                state: markedState,
+                                                username: markedUsername,
+                                                slot: markedSlot,
+                                                sequence: Number(sequences[stackIndex]) || 0,
+                                            }));
+                                        });
+                                });
+                            })
+                            .sort((left, right) => {
+                                if (left.sequence !== right.sequence) return left.sequence - right.sequence;
+                                if (left.username !== right.username) {
+                                    return String(left.username).localeCompare(String(right.username));
+                                }
+                                return Number(left.slot) - Number(right.slot);
+                            });
+                        const removeCount = Math.max(
+                            0,
+                            existingMarks.length - maxEnemyMarkStacksFromSource + 1
+                        );
+                        existingMarks.slice(0, removeCount).forEach((marked) => {
+                            const sequences = Array.isArray(marked.entry?.metadata?._sourceMarkStackSequences)
+                                ? marked.entry.metadata._sourceMarkStackSequences.slice()
+                                : [];
+                            const sequenceIndex = sequences.findIndex(
+                                (sequence) => Number(sequence) === marked.sequence
+                            );
+                            if (sequenceIndex >= 0) sequences.splice(sequenceIndex, 1);
+                            const previousStacks = stackMetadataKey
+                                ? Math.max(1, Number(marked.entry?.metadata?.[stackMetadataKey]) || 1)
+                                : 1;
+                            const nextStacks = Math.max(0, previousStacks - 1);
+                            if (nextStacks <= 0) {
+                                marked.state.statuses = marked.state.statuses.filter(
+                                    (entry) => entry !== marked.entry
+                                );
+                            } else {
+                                marked.entry.metadata = {
+                                    ...(marked.entry.metadata || {}),
+                                    [stackMetadataKey]: nextStacks,
+                                    _sourceMarkStackSequences: sequences,
+                                };
+                            }
+                            refreshDerivedStatusTooltips(marked.state);
+                        });
+                        match.statusApplicationSequence =
+                            Math.max(0, Number(match.statusApplicationSequence) || 0) + 1;
+                        const destinationMark = (Array.isArray(destinationState?.statuses)
+                            ? destinationState.statuses
+                            : []
+                        ).find(
+                            (entry) =>
+                                entry?.id === runtimeStatusId &&
+                                entry?.sourceUsername === actingUsername &&
+                                Number(entry?.sourceSlot) === actorSlot
+                        );
+                        const destinationSequences = Array.isArray(
+                            destinationMark?.metadata?._sourceMarkStackSequences
+                        )
+                            ? destinationMark.metadata._sourceMarkStackSequences.slice()
+                            : [];
+                        runtimeMetadata = {
+                            ...(runtimeMetadata || {}),
+                            _sourceMarkStackSequences: [
+                                ...destinationSequences,
+                                match.statusApplicationSequence,
+                            ],
+                        };
+                    }
                     const appliedStatus = applyStatus({
                         targetState: destinationState,
                         targetUnit: recipient.unit,
@@ -11102,6 +11205,13 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                                 : sourceNonAfflictionDamageBonusFlat - sourceNonAfflictionDamageDebuffFlat)
                     );
                 }
+                if (
+                    turnEndDamage > 0 &&
+                    Boolean(status?.metadata?.doubleTurnEndDamageIfTargetStunned) &&
+                    hasActiveStunLikeEffect(actorState)
+                ) {
+                    turnEndDamage *= 2;
+                }
                 const sourceOutgoingCap = sourceState ? getOutgoingDamageCap(sourceState, sourceUnit) : null;
                 if (sourceOutgoingCap !== null && !fixedTurnEndDamage) {
                     turnEndDamage = Math.min(turnEndDamage, sourceOutgoingCap);
@@ -12756,6 +12866,31 @@ const reduceHulkRageForInactiveTurn = ({ match, endingUsername, pendingTurn }) =
                 sourceSlot: slot,
                 metadata: applyStatusToOwner.metadata || {},
                 fresh: false,
+            });
+        });
+        inactiveTurnApplyStatuses.forEach((status) => {
+            if (!isStatusActiveForMetadata(status, unit)) return;
+            const effects = Array.isArray(status?.metadata?.turnEndEffectsToOwnerIfNoManualSkill)
+                ? status.metadata.turnEndEffectsToOwnerIfNoManualSkill.filter(
+                      (effect) => effect && typeof effect === 'object'
+                  )
+                : [];
+            if (!effects.length) return;
+            const turnCount = Math.max(0, Number(match?.economy?.turnCounts?.[endingUsername]) || 0);
+            const lastAppliedTurnCount = Number(status?.metadata?._lastTurnEndInactiveEffectsTurnCount);
+            if (Number.isFinite(lastAppliedTurnCount) && lastAppliedTurnCount === turnCount) return;
+            status.metadata = {
+                ...(status.metadata || {}),
+                _lastTurnEndInactiveEffectsTurnCount: turnCount,
+            };
+            applyTriggeredEffectsFromStatus({
+                effects,
+                match,
+                status,
+                targetUnit: unit,
+                targetState: actorState,
+                targetUsername: endingUsername,
+                targetSlot: slot,
             });
         });
         const rageStatus = (Array.isArray(actorState.statuses) ? actorState.statuses : []).find(

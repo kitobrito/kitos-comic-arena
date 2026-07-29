@@ -119,7 +119,7 @@ test('every transformable Pokemon and supplied form has an optimized Ditto portr
     const optimizedFaces = fs.readdirSync(optimizedDirectory)
         .filter((filename) => filename.endsWith('.webp'))
         .sort();
-    assert.equal(mappedFaces.size, 80);
+    assert.equal(mappedFaces.size, 81);
     assert.deepEqual(
         [...mappedFaces].map((face) => path.basename(face)).sort(),
         optimizedFaces

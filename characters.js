@@ -33555,6 +33555,212 @@ const characters = [
                 }
             }
         ]
+    },
+    {
+        "id": "dragapult",
+        "characterId": "dragapult",
+        "name": "Dragapult",
+        "facePicture": "assets/images/PokemonArena/Dragapult/FP.jpg",
+        "role": "Mark Controller",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "mark-controller",
+        "description": "A swift Dragon- and Ghost-type Pokemon that marks enemies with Dreepy before exploiting their openings. This community character was designed by Moses.",
+        "descriptionHtml": "A swift Dragon- and Ghost-type Pokemon that marks enemies with Dreepy before exploiting their openings. This community character was designed by Moses.",
+        "characterdeescription": "A swift Dragon- and Ghost-type Pokemon that marks enemies with Dreepy before exploiting their openings. This community character was designed by Moses.",
+        "skills": [
+            {
+                "id": "dragapult-dragon-darts",
+                "name": "Dragon Darts",
+                "skillimage": "assets/images/PokemonArena/Dragapult/DragonDarts.jpg",
+                "skilldescription": "Permanently marks one enemy with Dragon Darts. At the end of each turn, a marked enemy takes 10 damage per stack and takes 5 additional piercing damage per stack if they did not use a new skill. Both amounts are doubled while they are stunned. Dragapult can keep only 2 total stacks active; applying a third removes the oldest stack.",
+                "description": "Permanently marks one enemy with Dragon Darts. At the end of each turn, a marked enemy takes 10 damage per stack and takes 5 additional piercing damage per stack if they did not use a new skill. Both amounts are doubled while they are stunned. Dragapult can keep only 2 total stacks active; applying a third removes the oldest stack.",
+                "energy": ["Ninjutsu"],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Dragon", "Special", "Instant"],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "dragapult_dragon_darts",
+                        "duration": 999,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "infiniteDuration": true,
+                            "turnEndDamage": 10,
+                            "triggerOnApply": false,
+                            "doubleTurnEndDamageIfTargetStunned": true,
+                            "stackMetadataKey": "dragapultDragonDartsStacks",
+                            "stackDelta": 1,
+                            "stackMax": 2,
+                            "stackDerivedNumericKeys": {
+                                "turnEndDamage": 10
+                            },
+                            "maxEnemyMarkStacksFromSource": 2,
+                            "turnEndEffectsToOwnerIfNoManualSkill": [
+                                {
+                                    "type": "damage",
+                                    "amount": 0,
+                                    "condition": {
+                                        "scope": "target",
+                                        "missingStunLikeEffect": true
+                                    },
+                                    "metadata": {
+                                        "ignoreDamageReduction": true,
+                                        "ignoreDestructibleDefense": true,
+                                        "currentStatusMetadataBonus": {
+                                            "metadataKey": "dragapultDragonDartsStacks",
+                                            "multiplier": 5
+                                        },
+                                        "skillClasses": ["Dragon", "Special", "Instant"]
+                                    }
+                                },
+                                {
+                                    "type": "damage",
+                                    "amount": 0,
+                                    "condition": {
+                                        "scope": "target",
+                                        "hasStunLikeEffect": true
+                                    },
+                                    "metadata": {
+                                        "ignoreDamageReduction": true,
+                                        "ignoreDestructibleDefense": true,
+                                        "currentStatusMetadataBonus": {
+                                            "metadataKey": "dragapultDragonDartsStacks",
+                                            "multiplier": 10
+                                        },
+                                        "skillClasses": ["Dragon", "Special", "Instant"]
+                                    }
+                                }
+                            ],
+                            "statusIconUrl": "assets/images/PokemonArena/Dragapult/DragonDarts.jpg",
+                            "tooltipTextTemplate": "This character has {dragapultDragonDartsStacks} Dragon Darts stack(s). Each stack deals 10 damage each turn and 5 additional piercing damage after an inactive turn; both amounts double while stunned."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "dragapult-ten-thousand-volt-thunderbolt",
+                "name": "10,000 Volt Thunderbolt",
+                "skillimage": "assets/images/PokemonArena/Dragapult/Thunderbolt.jpg",
+                "skilldescription": "Deals 15 piercing damage to one enemy and stuns their Physical skills for 2 turns.",
+                "description": "Deals 15 piercing damage to one enemy and stuns their Physical skills for 2 turns.",
+                "energy": ["Genjutsu", "Genjutsu"],
+                "cooldown": 3,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Electric", "Special", "Instant"],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "ignoreDamageReduction": true,
+                            "ignoreDestructibleDefense": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "dragapult_thunderbolt_physical_stun",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "stunLikeEffect": true,
+                            "cannotUseSkillClasses": ["Physical"],
+                            "statusIconUrl": "assets/images/PokemonArena/Dragapult/Thunderbolt.jpg",
+                            "tooltipText": "This character's Physical skills are stunned."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "dragapult-dragon-tail",
+                "name": "Dragon Tail",
+                "skillimage": "assets/images/PokemonArena/Dragapult/DragonTail.jpg",
+                "skilldescription": "Deals 30 damage to one enemy and stuns their Special skills for 2 turns.",
+                "description": "Deals 30 damage to one enemy and stuns their Special skills for 2 turns.",
+                "energy": ["Taijutsu", "Taijutsu"],
+                "cooldown": 3,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Dragon", "Physical", "Instant"],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "dragapult_dragon_tail_special_stun",
+                        "duration": 2,
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "stunLikeEffect": true,
+                            "cannotUseSkillClasses": ["Special"],
+                            "statusIconUrl": "assets/images/PokemonArena/Dragapult/DragonTail.jpg",
+                            "tooltipText": "This character's Special skills are stunned."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "dragapult-dragon-rush",
+                "name": "Dragon Rush",
+                "skillimage": "assets/images/PokemonArena/Dragapult/DragonRush.jpg",
+                "skilldescription": "Dragapult becomes invulnerable for 1 turn and deals 30 damage to one enemy. The target is fully stunned for 1 turn per Dragon Darts stack on them.",
+                "description": "Dragapult becomes invulnerable for 1 turn and deals 30 damage to one enemy. The target is fully stunned for 1 turn per Dragon Darts stack on them.",
+                "energy": ["Bloodline", "Bloodline"],
+                "cooldown": 4,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": ["Dragon", "Physical", "Instant"],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "dragapult_dragon_rush_invulnerable",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "invulnerable": true,
+                            "statusIconUrl": "assets/images/PokemonArena/Dragapult/DragonRush.jpg",
+                            "tooltipText": "Dragapult is invulnerable."
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "dragapult_dragon_rush_stun",
+                        "duration": 0,
+                        "durationFromStatusMetadata": {
+                            "scope": "target",
+                            "statusId": "dragapult_dragon_darts",
+                            "metadataKey": "dragapultDragonDartsStacks",
+                            "multiplier": 1,
+                            "minimum": 0,
+                            "maximum": 2
+                        },
+                        "scope": "target",
+                        "metadata": {
+                            "harmful": true,
+                            "stunLikeEffect": true,
+                            "cannotUseSkills": true,
+                            "statusIconUrl": "assets/images/PokemonArena/Dragapult/DragonRush.jpg",
+                            "tooltipText": "This character is fully stunned by Dragon Rush."
+                        }
+                    }
+                ]
+            }
+        ]
     }
 ];
 

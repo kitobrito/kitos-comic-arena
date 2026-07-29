@@ -47,6 +47,7 @@ const DITTO_TRANSFORMATION_FACE_BY_CHARACTER_ID = Object.freeze({
     totodile: toDittoTransformationFacePath('totodile.webp'),
     scraggy: toDittoTransformationFacePath('scraggy.webp'),
     aegislash: toDittoTransformationFacePath('aegislashshield.webp'),
+    dragapult: toDittoTransformationFacePath('dragapult.webp'),
 });
 
 const DITTO_TRANSFORMATION_FACE_BY_STATUS_ID = Object.freeze({
