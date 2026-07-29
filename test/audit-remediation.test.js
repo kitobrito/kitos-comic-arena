@@ -12,6 +12,7 @@ const {
     getBattleBotActionDelayRange,
     isPrivateStaticSourcePath,
     persistMatchState,
+    rewriteMirroredExternalImageUrls,
     serializeMatchPlayerForViewer,
     setPersistenceCollectionsForTests,
 } = require('../server');
@@ -116,6 +117,23 @@ test('the live roster uses mirrored images and the rewrite tool discovers regene
     assert.doesNotMatch(charactersSource, /https?:\/\/i\.imgur\.com\//);
     assert.match(externalImageRewrite, /discover every/);
     assert.match(externalImageRewrite, /source\.includes\(externalUrl\)/);
+
+    const manifest = JSON.parse(
+        fs.readFileSync(
+            path.join(root, 'assets', 'images', 'external-mirror', 'manifest.json'),
+            'utf8'
+        )
+    );
+    const externalUrl = Object.keys(manifest).find((url) => url.includes('i.imgur.com'));
+    const rewritten = rewriteMirroredExternalImageUrls({
+        facePicture: externalUrl,
+        nested: [{ skillimage: externalUrl }],
+        description: 'unchanged',
+    });
+    const expectedLocalUrl = `/${manifest[externalUrl].localPath.replaceAll('\\', '/')}`;
+    assert.equal(rewritten.facePicture, expectedLocalUrl);
+    assert.equal(rewritten.nested[0].skillimage, expectedLocalUrl);
+    assert.equal(rewritten.description, 'unchanged');
 });
 
 test('match broadcasts are read-only and do not create empty socket rooms', () => {
