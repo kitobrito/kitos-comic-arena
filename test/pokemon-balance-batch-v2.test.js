@@ -51,6 +51,63 @@ const queueSkill = ({ match, username, actorSlot, skillIndex, targetSelection = 
     resolvePendingTurnSkills({ match, actingUsername: username, characters });
 };
 
+test('Ekans evolves into Arbok after Crunch confirms an execution', () => {
+    const ekans = byId('ekans');
+    const mewtwo = byId('mewtwo');
+    const match = createMatch({
+        leftTeam: [characters.indexOf(ekans)],
+        rightTeam: [characters.indexOf(mewtwo)],
+    });
+    match.board.Right[0].hp = 25;
+    const crunchIndex = ekans.skills.findIndex((entry) => entry.id === 'ekans-crunch');
+
+    queueSkill({
+        match,
+        username: 'Left',
+        actorSlot: 0,
+        skillIndex: crunchIndex,
+        targetSelection: [{ username: 'Right', slot: 0 }],
+    });
+
+    assert.equal(match.board.Right[0].alive, false);
+    const evolution = match.board.Left[0].state.statuses.find(
+        (status) => status.id === 'ekans_arbok_evolution'
+    );
+    assert.ok(evolution);
+    assert.equal(
+        evolution.metadata.skillReplacements['ekans-crunch'],
+        'arbok-crunch'
+    );
+});
+
+test('Ekans does not evolve when Crunch damage is prevented from killing', () => {
+    const ekans = byId('ekans');
+    const onix = byId('onix');
+    const match = createMatch({
+        leftTeam: [characters.indexOf(ekans)],
+        rightTeam: [characters.indexOf(onix)],
+    });
+    match.board.Right[0].hp = 25;
+    const crunchIndex = ekans.skills.findIndex((entry) => entry.id === 'ekans-crunch');
+
+    queueSkill({
+        match,
+        username: 'Left',
+        actorSlot: 0,
+        skillIndex: crunchIndex,
+        targetSelection: [{ username: 'Right', slot: 0 }],
+    });
+
+    assert.equal(match.board.Right[0].alive, true);
+    assert.equal(match.board.Right[0].hp, 1);
+    assert.equal(
+        match.board.Left[0].state.statuses.some(
+            (status) => status.id === 'ekans_arbok_evolution'
+        ),
+        false
+    );
+});
+
 test('Pokemon Trainer has the new odds, item limits, and defeated-only Revive', () => {
     const trainer = byId('pokemon-trainer');
     const potion = skill(trainer, 'pokemon-trainer-potion');

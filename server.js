@@ -13600,6 +13600,38 @@ app.post('/api/draft/:draftId/team', requireSession, async (req, res) => {
     }
 });
 
+app.get('/api/match/:matchId/version', requireSession, async (req, res) => {
+    const { matchId } = req.params;
+    const match = await matchesCollection.findOne(
+        { matchId },
+        {
+            projection: {
+                matchId: 1,
+                stateRevision: 1,
+                turnNumber: 1,
+                currentTurn: 1,
+                turnExpiresAt: 1,
+                status: 1,
+                players: 1,
+            },
+        }
+    );
+    if (!match) {
+        return res.status(404).json({ error: 'Match not found.' });
+    }
+    const playerEntry = findMatchPlayerByUsername(match, req.authUser.username);
+    if (!playerEntry) {
+        return res.status(403).json({ error: 'Not part of this match.' });
+    }
+    return res.json({
+        ok: true,
+        ...buildMatchVersionPayload(match),
+        currentTurn: match.currentTurn || null,
+        turnExpiresAt: match.turnExpiresAt || null,
+        status: match.status || 'active',
+    });
+});
+
 app.get('/api/match/:matchId', requireSession, async (req, res) => {
     const { matchId } = req.params;
     const match = await matchesCollection.findOne({ matchId });

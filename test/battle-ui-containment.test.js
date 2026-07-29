@@ -76,3 +76,15 @@ test('unchanged queued skill previews survive random chakra adjustments', () => 
     assert.match(ingame, /chakra-queue-stability-v3/);
     assert.match(ingame, /chakra-sync-batch-v1/);
 });
+
+test('battle sync applies socket snapshots immediately and polls revisions while waiting', () => {
+    assert.match(script, /window\.queueMicrotask\(applyPendingSocketState\)/);
+    assert.doesNotMatch(
+        script,
+        /pendingSocketMatchStateFrame = window\.requestAnimationFrame/
+    );
+    assert.match(script, /\/api\/match\/\$\{encodeURIComponent\(matchIdFromUrl\)\}\/version/);
+    assert.match(script, /remoteRevision <= lastAppliedMatchRevision/);
+    assert.match(script, /pollMatchVersionFallback\(\)\.catch/);
+    assert.match(ingame, /match-sync-watchdog-v1/);
+});

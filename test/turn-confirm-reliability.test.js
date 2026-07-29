@@ -41,7 +41,8 @@ test('turn confirmation waits for random energy requests to reach the server', (
     assert.match(script, /endTurnOkButton\.disabled = isEndingTurn \|\| isSyncingRandomEnergy/);
     assert.match(script, /Syncing your random energy selection/);
     assert.match(script, /reason: 'end-turn-energy-sync'/);
-    assert.match(script, /window\.setTimeout\(\(\) => controller\.abort\(\), 12000\)/);
+    assert.match(script, /timeoutMs = 12000/);
+    assert.match(script, /Math\.max\(1000, Number\(timeoutMs\) \|\| 12000\)/);
     assert.match(script, /signal: controller\.signal/);
 });
 
@@ -88,7 +89,8 @@ test('battle layout switching happens in place without reloading the live match'
 });
 
 test('match recovery is bounded and a lethal ladder board requests the terminal result', () => {
-    assert.match(script, /window\.setTimeout\(\(\) => controller\.abort\(\), 12000\)/);
+    assert.match(script, /timeoutMs = 12000/);
+    assert.match(script, /Math\.max\(1000, Number\(timeoutMs\) \|\| 12000\)/);
     assert.match(script, /signal: controller\.signal/);
     assert.match(script, /reason: 'ladder-terminal-board'/);
     assert.match(script, /Confirming the final ladder result/);
