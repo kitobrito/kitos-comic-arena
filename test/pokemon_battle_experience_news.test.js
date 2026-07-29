@@ -19,6 +19,7 @@ test('battle experience news covers the complete release', () => {
         'Ultra Ball 25%',
         'Pidgey now evolves',
         'Fury Cutter gains 2 stacks',
+        'gains 1 turn of duration',
         'Thunder Punch splashes',
         'Machop and Machoke have been reworked',
     ].forEach((phrase) => assert.match(text, new RegExp(phrase)));

@@ -4,7 +4,7 @@ require('dotenv').config();
 const uri = process.env.MONGODB_URI;
 const dbName = process.env.MONGODB_DB || 'comic-arena';
 const newsCollectionName = process.env.MONGODB_NEWS_POSTS_COLLECTION || 'news_posts';
-const releaseVersion = 'pokemon-battle-experience-update-v2';
+const releaseVersion = 'pokemon-battle-experience-update-v3';
 const newsTitle = 'Pokémon Arena Battle Experience Update';
 
 const paragraphs = [
@@ -18,7 +18,7 @@ const paragraphs = [
     'Battle bots now value permanent stacking damage and repeatable pressure correctly. Beedrill will make purposeful use of Poison Sting instead of treating its stacks as redundant. Hive Swarm and Mega Hive Swarm now ignore the next 2 enemy damage effects, reduced from 3.',
     'Pokemon Trainer has been rebalanced. The ball slot is now Pokeball 40%, Great Ball 30%, Ultra Ball 25%, and Master Ball 5%. X-Stats alternates between stacking Physical and Special damage bonuses. Potion costs 1 Random, has 1 cooldown, and is limited to 2 uses per match. Revive now targets defeated allies only.',
     'Evolution pacing has been accelerated for two Pokemon: Pidgey now evolves after dealing 50 total damage, and Gastly evolves after losing 35 total HP.',
-    'Koffing Smokescreen now costs 1 Random and Weezing Smokescreen costs 2 Random. Scyther Double Team lasts 2 turns, refreshes its full duration after a kill, and has 5 cooldown. During Swords Dance, Fury Cutter gains 2 stacks per use and X-Cutter can double cast after critically striking a target at 50 HP or less.',
+    'Koffing Smokescreen now costs 1 Random and Weezing Smokescreen costs 2 Random. Scyther Double Team lasts 2 turns, gains 1 turn of duration after a successful kill, and has 5 cooldown. During Swords Dance, Fury Cutter gains 2 stacks per use and X-Cutter can double cast after critically striking a target at 50 HP or less.',
     'Hitmonchan has stronger elemental punch utility. Thunder Punch splashes 5 piercing damage to other enemies, Fire Punch adds 5 affliction damage for 2 turns, Ice Punch increases new cooldowns by 2 for 1 turn, and Mega Punch now starts at 15 damage.',
     'Machop and Machoke have been reworked. Brick Break destroys destructible defense and gains bonus damage when it breaks any. Counter now stops a targeted enemy\'s first new damaging skill and returns its damage as Physical damage, doubled by Machoke. Bulk Up supplies destructible defense, stacks the next Brick Break, and evolves Machop after 2 uses. Taunt lasts 3 turns and reduces the target\'s Physical damage by 25%.',
 ];

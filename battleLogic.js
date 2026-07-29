@@ -2002,7 +2002,13 @@ const applyStatus = ({
         ? null
         : targetState.statuses.find((status) => status?.id === statusId);
     if (existing) {
-        existing.remainingTurns = Math.max(existing.remainingTurns || 0, normalizedDuration);
+        const addToExistingDuration = Math.max(
+            0,
+            Number(metadata?.addToExistingDuration) || 0
+        );
+        existing.remainingTurns = addToExistingDuration > 0
+            ? Math.max(0, Number(existing.remainingTurns) || 0) + addToExistingDuration
+            : Math.max(existing.remainingTurns || 0, normalizedDuration);
         existing.sourceSkillId = sourceSkillId || existing.sourceSkillId;
         existing.sourceUsername = sourceUsername || existing.sourceUsername || null;
         existing.sourceSlot = Number.isInteger(sourceSlot) ? sourceSlot : existing.sourceSlot ?? null;
@@ -2010,6 +2016,7 @@ const applyStatus = ({
             ? { ...(metadata || {}) }
             : { ...(existing.metadata || {}), ...(metadata || {}) };
         delete nextMetadata.replaceExistingStatusMetadata;
+        delete nextMetadata.addToExistingDuration;
         const mergeNumericAddKeys = Array.isArray(metadata?.mergeNumericAddKeys)
             ? metadata.mergeNumericAddKeys.filter((key) => typeof key === 'string' && key)
             : [];

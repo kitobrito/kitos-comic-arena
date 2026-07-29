@@ -139,7 +139,11 @@ test('evolution thresholds and Koffing, Scyther, Hitmonchan values are updated',
     const doubleTeam = skill(scyther, 'scyther-double-team');
     assert.equal(doubleTeam.cooldown, 5);
     assert.equal(doubleTeam.effects[0].duration, 2);
-    assert.equal(doubleTeam.effects[0].metadata.onOwnerKillApplyStatusToSelf.duration, 2);
+    assert.equal(doubleTeam.effects[0].metadata.onOwnerKillApplyStatusToSelf.duration, 1);
+    assert.equal(
+        doubleTeam.effects[0].metadata.onOwnerKillApplyStatusToSelf.metadata.addToExistingDuration,
+        1
+    );
 
     const hitmonchan = byId('hitmonchan');
     assert.ok(skill(hitmonchan, 'hitmonchan-thunder-punch').effects.some(
@@ -152,6 +156,27 @@ test('evolution thresholds and Koffing, Scyther, Hitmonchan values are updated',
         (effect) => effect.statusId === 'hitmonchan_ice_punch_cooldown_increase'
     ).metadata.newSkillCooldownIncrease, 2);
     assert.equal(skill(hitmonchan, 'hitmonchan-mega-punch').effects[0].amount, 15);
+});
+
+test('Double Team kill rewards add exactly one turn to the existing duration', () => {
+    const state = { statuses: [] };
+    applyStatus({
+        targetState: state,
+        statusId: 'scyther_double_team_active',
+        duration: 2,
+        metadata: { evadeChancePercent: 100 },
+    });
+    applyStatus({
+        targetState: state,
+        statusId: 'scyther_double_team_active',
+        duration: 1,
+        metadata: {
+            addToExistingDuration: 1,
+            evadeChancePercent: 100,
+        },
+    });
+    assert.equal(state.statuses[0].remainingTurns, 3);
+    assert.equal(state.statuses[0].metadata.addToExistingDuration, undefined);
 });
 
 test('Machop evolves on the second Bulk Up and Machoke has reworked skills', () => {
