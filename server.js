@@ -56,6 +56,7 @@ const { syncPokemonGen2StarterRelease } = require('./sync_pokemon_gen2_starter_r
 const { syncPokemonTypeClassNews } = require('./sync_pokemon_type_class_news');
 const { syncPokemonAegislashRelease } = require('./sync_pokemon_aegislash_release');
 const { syncPokemonDittoRelease } = require('./sync_pokemon_ditto_release');
+const { syncPokemonDragapultRelease } = require('./sync_pokemon_dragapult_release');
 const { syncPokemonBattleExperienceNews } = require('./sync_pokemon_battle_experience_news');
 let charactersData = require('./characters');
 
@@ -115,13 +116,13 @@ const LATEST_CHARACTER_RELEASES_BY_ARENA = {
         { label: 'General Grievous', characterId: 'general-grievous' },
     ],
     pokemon: [
-        { label: 'Aegislash', characterId: 'aegislash' },
-        { label: 'Ditto', characterId: 'ditto' },
+        { label: 'Dragapult', characterId: 'dragapult' },
         { label: 'Scraggy', characterId: 'scraggy' },
+        { label: 'Ditto', characterId: 'ditto' },
     ],
 };
 const LATEST_CHARACTER_RELEASES_STATE_KEY = 'latest_character_releases';
-const LATEST_CHARACTER_RELEASES_VERSION = 'pokemon-community-aegislash-ditto-scraggy-v2';
+const LATEST_CHARACTER_RELEASES_VERSION = 'pokemon-community-dragapult-v1';
 const MAINTENANCE_MODE_STATE_KEY = 'maintenance_mode';
 const MAINTENANCE_MODE_CACHE_TTL_MS = 10 * 1000;
 const DEFAULT_PROFILE_AVATAR = '/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png';
@@ -4989,6 +4990,61 @@ const POKEMON_SCRAGGY_MISSION_ENTRY = {
     sortOrder: 232,
 };
 
+const POKEMON_DRAGAPULT_MISSION_ENTRY = {
+    missionId: 'dragapult-dragon-darts-trial',
+    title: 'Dragapult Dragon Darts Trial',
+    level_requirement: 14,
+    rank: '14',
+    reward_character: 'dragapult',
+    reward_character_name: 'Dragapult',
+    reward: 'Unlock Dragapult.',
+    unlock_point_cost: 400,
+    arena: 'pokemon',
+    mode_restriction: {
+        allowed_modes: ['quick', 'ladder'],
+    },
+    win_streak: {
+        character_id: '',
+        character_name: '',
+        wins: 0,
+    },
+    image: 'assets/images/PokemonArena/missionpics/dragapult.jpg',
+    imageAlt: 'Dragapult Dragon Darts mission artwork',
+    characterName: 'Dragapult',
+    portrait: 'assets/images/PokemonArena/Dragapult/FP.jpg',
+    portraitAlt: 'Dragapult portrait',
+    requirements: [
+        'Master Dragon and Ghost pressure with Dragonite and Gastly.',
+        'Win 8 Quick or Ladder matches with Dragonite and Gastly on the same team.',
+        'Win 4 Quick or Ladder matches in a row with Dragonite and Gastly on the same team.',
+        'Bot and human opponents both count.',
+    ],
+    goals: [
+        {
+            type: 'win_matches_same_team',
+            character_ids: ['dragonite', 'gastly'],
+            character_names: ['Dragonite', 'Gastly'],
+            wins: 8,
+        },
+        {
+            type: 'win_streak_same_team',
+            character_ids: ['dragonite', 'gastly'],
+            character_names: ['Dragonite', 'Gastly'],
+            wins: 4,
+        },
+    ],
+    special_pve: {
+        enabled: false,
+        buttonLabel: 'Start Fight',
+        botName: 'Mission Bot',
+        botTeamCharacterId: '',
+        botTeamSize: 3,
+        backgroundImage: '',
+        playerTeamCharacterIds: [],
+    },
+    sortOrder: 233,
+};
+
 const POKEMON_STARTER_MISSION_ENTRIES = [
     {
         missionId: 'pikachu-starter-path',
@@ -5453,6 +5509,7 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     upsertRequiredMission(POKEMON_AEGISLASH_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'aegislash');
     upsertRequiredMission(POKEMON_DITTO_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'ditto');
     upsertRequiredMission(POKEMON_SCRAGGY_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'scraggy');
+    upsertRequiredMission(POKEMON_DRAGAPULT_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'dragapult');
     POKEMON_WAVE_2_MISSION_ENTRIES.forEach((entry) => {
         upsertRequiredMission(
             entry,
@@ -12919,6 +12976,10 @@ async function initDb() {
             },
             { upsert: true }
         );
+    }
+    const dragapultReleaseSync = await syncPokemonDragapultRelease(db);
+    if (dragapultReleaseSync.migrated) {
+        console.log('Published the Dragapult community-character release.');
     }
     console.log('Connected to MongoDB.');
 }

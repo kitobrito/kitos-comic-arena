@@ -1287,6 +1287,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         aegislash: 'AEGISLASH.webp',
         ditto: 'ditto.webp',
+        dragapult: 'dragapult.jpg.webp',
         abra: 'ABRA.png.webp',
         aerodactyl: 'AERODACTYL.png.webp',
         articuno: 'ARTICUNO.png.webp',
@@ -17511,6 +17512,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         'totodile',
         'scraggy',
         'aegislash',
+        'dragapult',
     ];
     const getCharacterDisplayId = (character) => character?.characterId || character?.id || '';
     const getCharacterArenaMode = (character = {}) => {
