@@ -11,7 +11,7 @@ const {
     createSeededRandom,
     normalizeMatchVersionFields,
 } = require('../matchStability');
-const { buildMatchPayloadForUser } = require('../server');
+const { adjustRandomAssignments, buildMatchPayloadForUser } = require('../server');
 
 const makeMatch = (arena = 'comic') => ({
     matchId: `stability-${arena}`,
@@ -156,4 +156,55 @@ test('battle client orders mutations and ignores older authoritative snapshots',
     assert.match(script, /revision < lastAppliedMatchRevision/);
     assert.match(script, /incomingRevision >= pendingRevision/);
     assert.match(script, /X-Match-State-Revision/);
+});
+
+test('random chakra adjustments can be committed as one atomic batch', () => {
+    const match = makeMatch('pokemon');
+    match.pendingTurns.Alpha.unresolvedRandom = 2;
+    adjustRandomAssignments({
+        match,
+        username: 'Alpha',
+        adjustments: [
+            { chakraType: 'taijutsu', delta: 1 },
+            { chakraType: 'ninjutsu', delta: 1 },
+        ],
+    });
+    assert.deepEqual(match.chakraPools.Alpha, {
+        taijutsu: 0,
+        ninjutsu: 0,
+        bloodline: 1,
+        genjutsu: 1,
+    });
+    assert.equal(match.pendingTurns.Alpha.unresolvedRandom, 0);
+    assert.deepEqual(match.pendingTurns.Alpha.randomAssignments, {
+        taijutsu: 1,
+        ninjutsu: 1,
+        bloodline: 0,
+        genjutsu: 0,
+    });
+});
+
+test('an invalid random chakra batch leaves the authoritative pool unchanged', () => {
+    const match = makeMatch('pokemon');
+    match.pendingTurns.Alpha.unresolvedRandom = 1;
+    const originalPool = structuredClone(match.chakraPools.Alpha);
+    const originalPending = structuredClone(match.pendingTurns.Alpha);
+    assert.throws(() => adjustRandomAssignments({
+        match,
+        username: 'Alpha',
+        adjustments: [
+            { chakraType: 'taijutsu', delta: 1 },
+            { chakraType: 'taijutsu', delta: 1 },
+        ],
+    }), /No unresolved random chakra/);
+    assert.deepEqual(match.chakraPools.Alpha, originalPool);
+    assert.deepEqual(match.pendingTurns.Alpha, originalPending);
+});
+
+test('battle client coalesces rapid random chakra changes before committing', () => {
+    const script = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'script.js'), 'utf8');
+    assert.match(script, /pendingRandomChakraAdjustments\.push\(\{ chakraType, delta \}\)/);
+    assert.match(script, /body: JSON\.stringify\(\{ adjustments \}\)/);
+    assert.match(script, /window\.setTimeout\(\s*flushRandomChakraAdjustmentBatch,\s*160/);
+    assert.match(script, /controller\.abort\(\), 7000/);
 });

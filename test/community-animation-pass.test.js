@@ -234,18 +234,57 @@ test('Pokemon Trainer capture visuals use supplied balls and audio-clock shake c
     assert.match(ingame, /pokemon-trainer-capture-audio-v4/);
 });
 
-test('Bulbasaur Leech Seed deals one fixed 10 damage tick to Mewtwo per turn count', () => {
+test('Bulbasaur Leech Seed steals 20 immediately and 5 on each of the next two target turns', () => {
     const bulbasaurIndex = characters.findIndex((character) => character?.id === 'bulbasaur');
     const mewtwoIndex = characters.findIndex((character) => character?.id === 'mewtwo');
     const match = makeMatch({ ash: [bulbasaurIndex], gary: [mewtwoIndex] });
+    match.board.ash[0].hp = 50;
     queueSkill(match, 'ash', 0, 'gary');
     resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+    assert.equal(match.board.gary[0].hp, 80);
+    assert.equal(match.board.ash[0].hp, 70);
 
     processTurnStartStatusEffects({ match, startingUsername: 'gary' });
-    assert.equal(match.board.gary[0].hp, 90);
+    assert.equal(match.board.gary[0].hp, 75);
+    assert.equal(match.board.ash[0].hp, 75);
 
     processTurnStartStatusEffects({ match, startingUsername: 'gary' });
-    assert.equal(match.board.gary[0].hp, 90);
+    assert.equal(match.board.gary[0].hp, 75);
+
+    match.economy.turnCounts.gary += 1;
+    processTurnStartStatusEffects({ match, startingUsername: 'gary' });
+    assert.equal(match.board.gary[0].hp, 70);
+    assert.equal(match.board.ash[0].hp, 80);
+});
+
+test('Ivysaur Leech Seed steals 25 immediately and 10 on each of the next two target turns', () => {
+    const bulbasaurIndex = characters.findIndex((character) => character?.id === 'bulbasaur');
+    const mewtwoIndex = characters.findIndex((character) => character?.id === 'mewtwo');
+    const match = makeMatch({ ash: [bulbasaurIndex], gary: [mewtwoIndex] });
+    match.board.ash[0].hp = 40;
+    match.board.ash[0].state.statuses.push({
+        id: 'bulbasaur_ivysaur_evolution',
+        remainingTurns: 99,
+        metadata: {
+            infiniteDuration: true,
+            skillReplacements: {
+                'bulbasaur-leech-seed': 'ivysaur-leech-seed',
+            },
+        },
+    });
+    queueSkill(match, 'ash', 0, 'gary');
+    resolvePendingTurnSkills({ match, actingUsername: 'ash', characters });
+    assert.equal(match.board.gary[0].hp, 75);
+    assert.equal(match.board.ash[0].hp, 65);
+
+    processTurnStartStatusEffects({ match, startingUsername: 'gary' });
+    assert.equal(match.board.gary[0].hp, 65);
+    assert.equal(match.board.ash[0].hp, 75);
+
+    match.economy.turnCounts.gary += 1;
+    processTurnStartStatusEffects({ match, startingUsername: 'gary' });
+    assert.equal(match.board.gary[0].hp, 55);
+    assert.equal(match.board.ash[0].hp, 85);
 });
 
 test('failed Great Ball and Ultra Ball captures only control their target for one turn', () => {

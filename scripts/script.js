@@ -2918,6 +2918,9 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         let randomChakraRequestQueue = Promise.resolve();
         let randomChakraMutationVersion = 0;
         let randomChakraRequestsInFlight = 0;
+        let pendingRandomChakraAdjustments = [];
+        let pendingRandomChakraWaiters = [];
+        let randomChakraBatchTimer = null;
         let activeCastingSkill = null;
         const classChoiceBySkillKey = new Map();
         let pendingQueuePayload = null;
@@ -4827,6 +4830,9 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
 
         const waitForRandomChakraAdjustments = async (timeoutMs = 8000) => {
             if (randomChakraRequestsInFlight <= 0) return true;
+            if (pendingRandomChakraAdjustments.length > 0) {
+                flushRandomChakraAdjustmentBatch();
+            }
             const activeQueue = randomChakraRequestQueue;
             let timeoutId = null;
             const result = await Promise.race([
@@ -5197,64 +5203,83 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 return;
             }
             renderedSkillOrderSignature = renderSignature;
-            skillOrderEl.innerHTML = '';
+            const existingPreviews = new Map(
+                [...skillOrderEl.querySelectorAll('.skillpreview')].map((preview) => [
+                    `${preview.dataset.actorSlot}:${preview.dataset.skillIndex}`,
+                    preview,
+                ])
+            );
             queuedEntries.forEach((queued) => {
                 const actorSlot = Number.parseInt(queued.actorSlot, 10);
                 const skillIdx = Number.parseInt(queued.skillIndex, 10);
+                const key = `${actorSlot}:${skillIdx}`;
                 const meta = playerSkillMetaByKey.get(`${actorSlot}:${skillIdx}`);
                 const effectiveSkill = getEffectiveSkillForActorSlot(actorSlot, skillIdx) || meta?.skill;
-                const preview = document.createElement('img');
-                preview.className = 'skillpreview';
+                let preview = existingPreviews.get(key) || null;
+                const isNewPreview = !preview;
+                if (preview) {
+                    existingPreviews.delete(key);
+                } else {
+                    preview = document.createElement('img');
+                    preview.className = 'skillpreview';
+                }
                 preview.alt = effectiveSkill?.name || `Queued Skill ${skillIdx + 1}`;
-                preview.src = effectiveSkill?.skillimage || '';
+                const skillImage = effectiveSkill?.skillimage || '';
+                if (preview.dataset.skillImage !== skillImage) {
+                    preview.src = skillImage;
+                    preview.dataset.skillImage = skillImage;
+                }
                 preview.draggable = true;
                 preview.dataset.actorSlot = String(actorSlot);
                 preview.dataset.skillIndex = String(skillIdx);
                 preview.title = 'Tap once, then tap another queued skill to reorder. Double-click to unqueue.';
-                if (newlyQueuedKeys.has(`${actorSlot}:${skillIdx}`)) {
+                if (isNewPreview && newlyQueuedKeys.has(key)) {
                     preview.classList.add('skillpreview-added');
                     window.setTimeout(() => preview.classList.remove('skillpreview-added'), 700);
                 }
-                preview.addEventListener('pointerdown', (event) => {
-                    if (event?.button !== undefined && event.button !== 0) return;
-                    event.stopPropagation();
-                    startQueuedSkillPointerDrag(event, preview, actorSlot);
-                });
-                preview.addEventListener('click', (event) => {
-                    if (Date.now() - lastQueuedSkillPointerDragEndedAt < 250) {
+                if (isNewPreview) {
+                    preview.addEventListener('pointerdown', (event) => {
+                        if (event?.button !== undefined && event.button !== 0) return;
+                        event.stopPropagation();
+                        startQueuedSkillPointerDrag(event, preview, actorSlot);
+                    });
+                    preview.addEventListener('click', (event) => {
+                        if (Date.now() - lastQueuedSkillPointerDragEndedAt < 250) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            return;
+                        }
                         event.preventDefault();
                         event.stopPropagation();
-                        return;
-                    }
-                    event.preventDefault();
-                    event.stopPropagation();
-                    handleQueuedSkillTapReorder(actorSlot, preview);
-                });
-                preview.addEventListener('dblclick', (event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    clearQueuedSkillTapReorderState();
-                    handleQueuedSkillCancelGesture(actorSlot, preview);
-                });
-                preview.addEventListener('dragstart', () => {
-                    draggingQueueActorSlot = actorSlot;
-                    preview.classList.add('dragging');
-                });
-                preview.addEventListener('dragend', () => {
-                    draggingQueueActorSlot = null;
-                    preview.classList.remove('dragging');
-                });
-                preview.addEventListener('dragover', (event) => {
-                    event.preventDefault();
-                });
-                preview.addEventListener('drop', (event) => {
-                    event.preventDefault();
-                    if (!Number.isInteger(draggingQueueActorSlot)) return;
-                    const targetSlot = Number.parseInt(preview.dataset.actorSlot, 10);
-                    reorderQueuedSkillsLocally(draggingQueueActorSlot, targetSlot);
-                });
+                        handleQueuedSkillTapReorder(actorSlot, preview);
+                    });
+                    preview.addEventListener('dblclick', (event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        clearQueuedSkillTapReorderState();
+                        handleQueuedSkillCancelGesture(actorSlot, preview);
+                    });
+                    preview.addEventListener('dragstart', () => {
+                        draggingQueueActorSlot = actorSlot;
+                        preview.classList.add('dragging');
+                    });
+                    preview.addEventListener('dragend', () => {
+                        draggingQueueActorSlot = null;
+                        preview.classList.remove('dragging');
+                    });
+                    preview.addEventListener('dragover', (event) => {
+                        event.preventDefault();
+                    });
+                    preview.addEventListener('drop', (event) => {
+                        event.preventDefault();
+                        if (!Number.isInteger(draggingQueueActorSlot)) return;
+                        const targetSlot = Number.parseInt(preview.dataset.actorSlot, 10);
+                        reorderQueuedSkillsLocally(draggingQueueActorSlot, targetSlot);
+                    });
+                }
                 skillOrderEl.appendChild(preview);
             });
+            existingPreviews.forEach((preview) => preview.remove());
         };
 
         const clearTargetHighlights = () => {
@@ -14782,111 +14807,132 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             return true;
         };
 
-        const adjustRandomChakra = async (chakraType, delta) => {
-            if (!matchIdFromUrl) return;
-            const previousPoolState = clonePoolState(playerPoolState);
-            const previousPendingState = clonePendingTurnState(pendingTurnState);
-            const appliedLocally = applyRandomChakraAdjustmentLocally(chakraType, delta);
-            if (!appliedLocally) return;
-            randomChakraRequestsInFlight += 1;
-            updateEndTurnButtons();
-            const requestMutationVersion = ++randomChakraMutationVersion;
+        const flushRandomChakraAdjustmentBatch = () => {
+            if (randomChakraBatchTimer) {
+                window.clearTimeout(randomChakraBatchTimer);
+                randomChakraBatchTimer = null;
+            }
+            if (pendingRandomChakraAdjustments.length === 0) return randomChakraRequestQueue;
+            const adjustments = pendingRandomChakraAdjustments.splice(0);
+            const waiters = pendingRandomChakraWaiters.splice(0);
+            const requestMutationVersion = randomChakraMutationVersion;
             randomChakraRequestQueue = randomChakraRequestQueue
                 .catch(() => {})
                 .then(async () => {
-                const controller = new AbortController();
-                const timeoutId = window.setTimeout(() => controller.abort(), 12000);
-                let response;
-                try {
-                    response = await fetchMatchCommand(
-                        `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/random/adjust`,
-                        {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            credentials: 'include',
-                            body: JSON.stringify({ chakraType, delta }),
-                            signal: controller.signal,
-                        }
-                    );
-                } finally {
-                    window.clearTimeout(timeoutId);
-                }
-                const data = await response.json();
-                if (response.status === 401 || response.status === 403) {
-                    redirectToSelectionLogin(currentMatchArena, {
-                        clearUser: false,
-                        preferSelection: true,
-                        replace: true,
-                    });
-                    return;
-                }
-                if (!response.ok || !data?.ok) {
-                    throw new Error(data?.error || 'Unable to adjust random chakra.');
-                }
-                if (requestMutationVersion !== randomChakraMutationVersion) {
-                    syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
-                    return;
-                }
-                const actionRejected =
-                    typeof data?.actionRejected === 'string' ? data.actionRejected.trim().toLowerCase() : '';
-                if (data?.staleAction && actionRejected) {
-                    applyIncomingMatchState(data);
-                    syncTurnActionStateFromPayload(data);
-                    if (actionRejected === 'not-your-turn') {
-                        closeEndTurnModal();
-                        announceMatchIssue('That turn has already moved on. Resyncing to the live match state...', {
-                            tone: 'info',
-                            reason: 'random-adjust-turn-moved',
+                    const controller = new AbortController();
+                    const timeoutId = window.setTimeout(() => controller.abort(), 7000);
+                    let response;
+                    try {
+                        response = await fetchMatchCommand(
+                            `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/turn/random/adjust`,
+                            {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                credentials: 'include',
+                                body: JSON.stringify({ adjustments }),
+                                signal: controller.signal,
+                            }
+                        );
+                    } finally {
+                        window.clearTimeout(timeoutId);
+                    }
+                    const data = await response.json();
+                    if (response.status === 401 || response.status === 403) {
+                        redirectToSelectionLogin(currentMatchArena, {
+                            clearUser: false,
+                            preferSelection: true,
+                            replace: true,
                         });
                         return;
                     }
-                    if (actionRejected === 'unresolved-random' && endTurnModalEl?.style.visibility === 'visible') {
+                    if (!response.ok || !data?.ok) {
+                        throw new Error(data?.error || 'Unable to adjust random chakra.');
+                    }
+                    if (requestMutationVersion !== randomChakraMutationVersion) {
+                        syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
+                        return;
+                    }
+                    const actionRejected =
+                        typeof data?.actionRejected === 'string' ? data.actionRejected.trim().toLowerCase() : '';
+                    if (data?.staleAction && actionRejected) {
+                        applyIncomingMatchState(data);
+                        syncTurnActionStateFromPayload(data);
+                        if (actionRejected === 'not-your-turn') {
+                            closeEndTurnModal();
+                            announceMatchIssue('That turn has already moved on. Resyncing to the live match state...', {
+                                tone: 'info',
+                                reason: 'random-adjust-turn-moved',
+                            });
+                            return;
+                        }
+                        if (actionRejected === 'unresolved-random' && endTurnModalEl?.style.visibility === 'visible') {
+                            renderEndTurnModal(playerPoolState, pendingTurnState);
+                        }
+                        announceMatchIssue('Your turn energy changed on the server, so it was resynced.', {
+                            tone: 'info',
+                            reason: 'random-adjust-resynced',
+                        });
+                        return;
+                    }
+                    renderChakra(getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || emptyPool());
+                    pendingTurnState = normalizePendingTurn(data.pendingTurn);
+                    applyQueuedSkillVisuals();
+                    syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
+                    if (endTurnModalEl && endTurnModalEl.style.visibility === 'visible') {
                         renderEndTurnModal(playerPoolState, pendingTurnState);
                     }
-                    announceMatchIssue('Your turn energy changed on the server, so it was resynced.', {
-                        tone: 'info',
-                        reason: 'random-adjust-resynced',
-                    });
-                    return;
-                }
-                renderChakra(getScopedValueForCurrentUsername(data.chakraPools, currentPlayerUsername) || emptyPool());
-                pendingTurnState = normalizePendingTurn(data.pendingTurn);
-                applyQueuedSkillVisuals();
-                syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
-                if (endTurnModalEl && endTurnModalEl.style.visibility === 'visible') {
-                    renderEndTurnModal(playerPoolState, pendingTurnState);
-                }
-            });
-            try {
-                await randomChakraRequestQueue;
-            } catch (error) {
-                if (requestMutationVersion !== randomChakraMutationVersion) {
-                    console.warn('Failed to adjust random chakra.', error);
-                    return;
-                }
-                renderChakra(previousPoolState);
-                pendingTurnState = previousPendingState;
-                applyQueuedSkillVisuals();
-                if (endTurnModalEl && endTurnModalEl.style.visibility === 'visible') {
-                    renderEndTurnModal(previousPoolState, previousPendingState);
-                }
-                console.warn('Failed to adjust random chakra.', error);
-                announceMatchIssue(
-                    `Energy selection fell out of sync. ${error?.message || 'Refreshing your turn...'}`,
-                    {
-                        tone: 'info',
-                        reason: 'random-adjust',
-                        recoveryMessage: 'Refreshing your turn energy...',
+                });
+            randomChakraRequestQueue
+                .then(() => waiters.forEach(({ resolve }) => resolve()))
+                .catch((error) => {
+                    waiters.forEach(({ reject }) => reject(error));
+                    if (requestMutationVersion !== randomChakraMutationVersion) {
+                        console.warn('An earlier random chakra batch failed.', error);
+                    } else {
+                        console.warn('Failed to adjust random chakra.', error);
+                        announceMatchIssue(
+                            `Energy selection fell out of sync. ${error?.message || 'Refreshing your turn...'}`,
+                            {
+                                tone: 'info',
+                                reason: 'random-adjust',
+                                recoveryMessage: 'Refreshing your turn energy...',
+                            }
+                        );
                     }
-                );
-                recoverCurrentMatchState({
-                    reason: 'random-adjust',
-                    message: 'Refreshing your turn energy...',
-                }).catch(() => {});
-            } finally {
-                randomChakraRequestsInFlight = Math.max(0, randomChakraRequestsInFlight - 1);
-                updateEndTurnButtons();
+                    recoverCurrentMatchState({
+                        reason: 'random-adjust',
+                        message: 'Refreshing your turn energy...',
+                    }).catch(() => {});
+                })
+                .finally(() => {
+                    randomChakraRequestsInFlight = Math.max(
+                        0,
+                        randomChakraRequestsInFlight - adjustments.length
+                    );
+                    updateEndTurnButtons();
+                });
+            return randomChakraRequestQueue;
+        };
+
+        const adjustRandomChakra = (chakraType, delta) => {
+            if (!matchIdFromUrl) return Promise.resolve();
+            const appliedLocally = applyRandomChakraAdjustmentLocally(chakraType, delta);
+            if (!appliedLocally) return Promise.resolve();
+            randomChakraRequestsInFlight += 1;
+            randomChakraMutationVersion += 1;
+            pendingRandomChakraAdjustments.push({ chakraType, delta });
+            updateEndTurnButtons();
+            const result = new Promise((resolve, reject) => {
+                pendingRandomChakraWaiters.push({ resolve, reject });
+            });
+            if (randomChakraBatchTimer) {
+                window.clearTimeout(randomChakraBatchTimer);
             }
+            randomChakraBatchTimer = window.setTimeout(
+                flushRandomChakraAdjustmentBatch,
+                160
+            );
+            return result;
         };
 
         const handleExchangeConfirm = async () => {

@@ -42,6 +42,36 @@ test('required gameplay fixes survive stored character overrides without removin
     assert.equal(corrected.skills[0].skilldescription, 'Corrected text');
 });
 
+test('Bulbasaur Leech Seed corrections survive stored overrides without removing extra fields', () => {
+    const canonicalBulbasaur = characters.find((character) => character.id === 'bulbasaur');
+    assert.ok(canonicalBulbasaur);
+    const staleBulbasaur = structuredClone(canonicalBulbasaur);
+    staleBulbasaur.customStoredField = 'preserved';
+    const staleLeechSeed = staleBulbasaur.skills.find(
+        (skill) => skill.id === 'bulbasaur-leech-seed'
+    );
+    staleLeechSeed.skilldescription = 'Old 10 health for 3 turns.';
+    staleLeechSeed.effects = [{
+        type: 'apply_status',
+        duration: 3,
+        metadata: { turnStartDamage: 10 },
+    }];
+    staleLeechSeed.customSkillField = 'preserved';
+
+    const [corrected] = applyRequiredCanonicalSkillCorrections(
+        [staleBulbasaur],
+        [canonicalBulbasaur]
+    );
+    const leechSeed = corrected.skills.find((skill) => skill.id === 'bulbasaur-leech-seed');
+    const immediate = leechSeed.effects.find((effect) => effect.type === 'health_steal_damage');
+    const ongoing = leechSeed.effects.find((effect) => effect.statusId === 'bulbasaur_leech_seed');
+    assert.equal(corrected.customStoredField, 'preserved');
+    assert.equal(leechSeed.customSkillField, 'preserved');
+    assert.equal(immediate.amount, 20);
+    assert.equal(ongoing.duration, 2);
+    assert.equal(ongoing.metadata.turnStartDamage, 5);
+});
+
 test('Mewtwo combo corrections append to stored overrides instead of replacing them', () => {
     const canonical = [{
         characterId: 'mewtwo',
