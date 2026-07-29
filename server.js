@@ -91,6 +91,13 @@ const POINT_PURCHASES_COLLECTION = process.env.MONGODB_POINT_PURCHASES_COLLECTIO
 const STARTUP_MIGRATION_STATE_KEY = 'startup_data_migration';
 const STARTUP_MIGRATION_VERSION = '2026-07-29-audit-remediation-v1';
 const CHARACTERS_FILE_PATH = path.join(__dirname, 'characters.js');
+const EXTERNAL_IMAGE_MIRROR_MANIFEST_PATH = path.join(
+    __dirname,
+    'assets',
+    'images',
+    'external-mirror',
+    'manifest.json'
+);
 const CHARACTER_OVERRIDES_STATE_KEY = 'character_overrides';
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRY = process.env.JWT_EXPIRY || '7d';
@@ -7391,6 +7398,41 @@ const serializeCharactersBrowserPayload = (nextCharacters) =>
     JSON.stringify(Array.isArray(nextCharacters) ? nextCharacters : []) +
     ';if(typeof window!=="undefined"){window.characters=characters;}';
 
+const mirroredExternalImageUrls = (() => {
+    try {
+        const manifest = JSON.parse(
+            fs.readFileSync(EXTERNAL_IMAGE_MIRROR_MANIFEST_PATH, 'utf8')
+        );
+        return new Map(
+            Object.entries(manifest).map(([externalUrl, entry]) => [
+                externalUrl,
+                `/${String(entry?.localPath || '').replaceAll('\\', '/')}`,
+            ])
+        );
+    } catch (error) {
+        console.warn('Unable to load the external image mirror manifest:', error.message);
+        return new Map();
+    }
+})();
+
+const rewriteMirroredExternalImageUrls = (value) => {
+    if (typeof value === 'string') {
+        return mirroredExternalImageUrls.get(value) || value;
+    }
+    if (Array.isArray(value)) {
+        return value.map((entry) => rewriteMirroredExternalImageUrls(entry));
+    }
+    if (!value || typeof value !== 'object') {
+        return value;
+    }
+    return Object.fromEntries(
+        Object.entries(value).map(([key, entry]) => [
+            key,
+            rewriteMirroredExternalImageUrls(entry),
+        ])
+    );
+};
+
 const getCharacterRecordId = (character = {}) =>
     typeof character?.characterId === 'string' && character.characterId.trim()
         ? character.characterId.trim()
@@ -7827,7 +7869,9 @@ const applyCharacterOverrides = (baseCharacters = []) => {
 };
 
 const rebuildCharacterCatalog = (nextCharacters) => {
-    charactersData = Array.isArray(nextCharacters) ? nextCharacters : [];
+    charactersData = rewriteMirroredExternalImageUrls(
+        Array.isArray(nextCharacters) ? nextCharacters : []
+    );
     characterCatalog = buildCharacterCatalog();
     cachedCharactersBrowserPayload = serializeCharactersBrowserPayload(charactersData);
     cachedCharactersBrowserEtag = `"${crypto
@@ -18064,5 +18108,6 @@ if (require.main === module) {
         normalizeNewsArena,
         countActiveBattleUnits,
         isPrivateStaticSourcePath,
+        rewriteMirroredExternalImageUrls,
     };
 }
