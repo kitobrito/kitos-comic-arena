@@ -25498,7 +25498,7 @@ const characters = [
                 "id": "scyther-double-team",
                 "name": "Double Team",
                 "skillimage": "assets/images/PokemonArena/scyther/doubleteam.webp",
-                "skilldescription": "Scyther gains 100% evasion for 2 turns. If Scyther defeats an enemy while this effect is active, its full 2-turn duration refreshes.",
+                "skilldescription": "Scyther gains 100% evasion for 2 turns. If Scyther defeats an enemy while this effect is active, its duration increases by 1 turn.",
                 "energy": [
                     "Random"
                 ],
@@ -25520,8 +25520,9 @@ const characters = [
                             "turnDurationAnchor": "source_turn",
                             "onOwnerKillApplyStatusToSelf": {
                                 "statusId": "scyther_double_team_active",
-                                "duration": 2,
+                                "duration": 1,
                                 "metadata": {
+                                    "addToExistingDuration": 1,
                                     "evadeChancePercent": 100,
                                     "turnDurationAnchor": "source_turn",
                                     "statusIconUrl": "assets/images/PokemonArena/scyther/doubleteam.webp",
