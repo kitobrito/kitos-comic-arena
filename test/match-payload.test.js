@@ -128,6 +128,136 @@ test('Pokemon Trainer balance values survive stored character overrides', () => 
     );
 });
 
+test('Machop rework survives stored character overrides without dropping extra fields', () => {
+    const canonicalMachop = characters.find((character) => character.id === 'machop');
+    assert.ok(canonicalMachop);
+    const staleMachop = structuredClone(canonicalMachop);
+    staleMachop.customStoredField = 'preserved';
+    staleMachop.characterdeescription =
+        'Old Machop evolves into Machoke after Counter successfully hurts an enemy.';
+    const staleBrick = staleMachop.skills.find((skill) => skill.id === 'machop-brick-break');
+    Object.assign(staleBrick, {
+        skilldescription: 'Old Brick Break deals 35 damage.',
+        energy: ['Ninjutsu', 'Random'],
+        customSkillField: 'preserved',
+        effects: [
+            { type: 'destroy_destructible_defense', scope: 'target' },
+            { type: 'damage', amount: 35, scope: 'target' },
+        ],
+    });
+    const staleEvolution = staleMachop.skills.find(
+        (skill) => skill.id === 'machop-passive-evolution-machoke'
+    );
+    staleEvolution.skilldescription = 'Old Counter evolution rule.';
+
+    const [corrected] = applyRequiredCanonicalSkillCorrections(
+        [staleMachop],
+        [canonicalMachop]
+    );
+    const brick = corrected.skills.find((skill) => skill.id === 'machop-brick-break');
+    const bulk = corrected.skills.find((skill) => skill.id === 'machop-bulk-up');
+    const evolution = corrected.skills.find(
+        (skill) => skill.id === 'machop-passive-evolution-machoke'
+    );
+    assert.equal(corrected.customStoredField, 'preserved');
+    assert.equal(brick.customSkillField, 'preserved');
+    assert.deepEqual(brick.energy, ['Ninjutsu']);
+    assert.equal(brick.effects.find((effect) => effect.type === 'damage').amount, 20);
+    assert.ok(brick.effects.find(
+        (effect) => effect.type === 'destroy_destructible_defense'
+    ).metadata.onDestroyedApplyStatusToOwner);
+    assert.ok(bulk.effects.some(
+        (effect) => effect.statusId === 'machop_bulk_up_evolution_tracker'
+    ));
+    assert.match(evolution.skilldescription, /Bulk Up twice/);
+    assert.match(corrected.characterdeescription, /Bulk Up twice/);
+});
+
+test('batch evolution, Smokescreen, and Scyther changes survive stored overrides', () => {
+    const staleCharacters = ['pidgey', 'gastly', 'koffing', 'scyther'].map((id) => {
+        const canonical = characters.find((character) => character.id === id);
+        assert.ok(canonical);
+        const stale = structuredClone(canonical);
+        stale.customStoredField = `${id}-preserved`;
+        return stale;
+    });
+    const stalePidgey = staleCharacters.find((character) => character.id === 'pidgey');
+    const pidgeyTracker = stalePidgey.startStatuses.find(
+        (status) => status.statusId === 'pidgey_evolution_tracker'
+    );
+    pidgeyTracker.metadata.stackMax = 100;
+    pidgeyTracker.metadata.applyStatusAtStack.value = 100;
+    pidgeyTracker.metadata.customTrackerField = true;
+    stalePidgey.skills.find(
+        (skill) => skill.id === 'pidgey-passive-evolution-pidgeotto'
+    ).skilldescription = 'Old 100 damage threshold.';
+
+    const staleGastly = staleCharacters.find((character) => character.id === 'gastly');
+    const gastlyTracker = staleGastly.startStatuses.find(
+        (status) => status.statusId === 'gastly_evolution_tracker'
+    );
+    gastlyTracker.metadata.stackMax = 50;
+    gastlyTracker.metadata.applyStatusAtStack.value = 50;
+    staleGastly.skills.find(
+        (skill) => skill.id === 'gastly-passive-evolution-haunter'
+    ).skilldescription = 'Old 50 HP threshold.';
+
+    const staleKoffing = staleCharacters.find((character) => character.id === 'koffing');
+    staleKoffing.skills.find(
+        (skill) => skill.id === 'koffing-smokescreen'
+    ).energy = ['Genjutsu'];
+    staleKoffing.skills.find(
+        (skill) => skill.id === 'koffing-weezing-smokescreen'
+    ).energy = ['Genjutsu', 'Random'];
+
+    const staleScyther = staleCharacters.find((character) => character.id === 'scyther');
+    const staleDoubleTeam = staleScyther.skills.find(
+        (skill) => skill.id === 'scyther-double-team'
+    );
+    staleDoubleTeam.cooldown = 4;
+    staleDoubleTeam.effects[0].duration = 1;
+    staleDoubleTeam.customSkillField = 'preserved';
+    staleScyther.skills.find(
+        (skill) => skill.id === 'scyther-fury-cutter'
+    ).effects = [];
+
+    const corrected = applyRequiredCanonicalSkillCorrections(
+        staleCharacters,
+        characters
+    );
+    const correctedPidgey = corrected.find((character) => character.id === 'pidgey');
+    const correctedPidgeyTracker = correctedPidgey.startStatuses.find(
+        (status) => status.statusId === 'pidgey_evolution_tracker'
+    );
+    assert.equal(correctedPidgeyTracker.metadata.stackMax, 50);
+    assert.equal(correctedPidgeyTracker.metadata.applyStatusAtStack.value, 50);
+    assert.equal(correctedPidgeyTracker.metadata.customTrackerField, true);
+
+    const correctedGastlyTracker = corrected.find(
+        (character) => character.id === 'gastly'
+    ).startStatuses.find((status) => status.statusId === 'gastly_evolution_tracker');
+    assert.equal(correctedGastlyTracker.metadata.stackMax, 35);
+    assert.equal(correctedGastlyTracker.metadata.applyStatusAtStack.value, 35);
+
+    const correctedKoffing = corrected.find((character) => character.id === 'koffing');
+    assert.deepEqual(correctedKoffing.skills.find(
+        (skill) => skill.id === 'koffing-smokescreen'
+    ).energy, ['Random']);
+    assert.deepEqual(correctedKoffing.skills.find(
+        (skill) => skill.id === 'koffing-weezing-smokescreen'
+    ).energy, ['Random', 'Random']);
+
+    const correctedDoubleTeam = corrected.find(
+        (character) => character.id === 'scyther'
+    ).skills.find((skill) => skill.id === 'scyther-double-team');
+    assert.equal(correctedDoubleTeam.customSkillField, 'preserved');
+    assert.equal(correctedDoubleTeam.cooldown, 5);
+    assert.equal(correctedDoubleTeam.effects[0].duration, 2);
+    assert.equal(corrected.every(
+        (character) => character.customStoredField === `${character.id}-preserved`
+    ), true);
+});
+
 const firstComicRosterIndex = characters.findIndex(
     (character) => normalizeArenaMode(character?.arena || character?.universe) === 'comic'
 );
