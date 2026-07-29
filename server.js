@@ -7435,6 +7435,8 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
             'magneton-flash-cannon': ['skilldescription'],
         },
         koffing: {
+            'koffing-smokescreen': ['energy'],
+            'koffing-weezing-smokescreen': ['energy'],
             'koffing-weezing-self-destruct': ['useBaseSkillCooldown'],
         },
         abra: {
@@ -7457,6 +7459,29 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
             'pokemon-trainer-potion': ['skilldescription', 'energy', 'cooldown', 'maxUses', 'effects'],
             'pokemon-trainer-x-stats': ['skilldescription', 'effects'],
             'pokemon-trainer-revive': ['skilldescription', 'target', 'effects'],
+        },
+        machop: {
+            'machop-brick-break': ['skilldescription', 'energy', 'target', 'cooldown', 'classes', 'effects'],
+            'machop-counter': ['skilldescription', 'energy', 'target', 'cooldown', 'classes', 'effects'],
+            'machop-bulk-up': ['skilldescription', 'energy', 'target', 'cooldown', 'classes', 'effects'],
+            'machop-taunt': ['skilldescription', 'energy', 'target', 'cooldown', 'classes', 'effects'],
+            'machop-passive-evolution-machoke': ['skilldescription', 'energy', 'target', 'cooldown', 'classes'],
+            'machoke-brick-break': ['skilldescription', 'energy', 'target', 'cooldown', 'classes', 'effects'],
+            'machoke-counter': ['skilldescription', 'energy', 'target', 'cooldown', 'classes', 'effects'],
+            'machoke-bulk-up': ['skilldescription', 'energy', 'target', 'cooldown', 'classes', 'effects'],
+            'machoke-taunt': ['skilldescription', 'energy', 'target', 'cooldown', 'classes', 'effects'],
+        },
+        pidgey: {
+            'pidgey-passive-evolution-pidgeotto': ['skilldescription'],
+        },
+        gastly: {
+            'gastly-passive-evolution-haunter': ['skilldescription'],
+        },
+        scyther: {
+            'scyther-fury-cutter': ['skilldescription', 'effects'],
+            'scyther-swords-dance': ['skilldescription', 'effects'],
+            'scyther-x-cutter': ['skilldescription', 'effects'],
+            'scyther-double-team': ['skilldescription', 'cooldown', 'effects'],
         },
     };
     const canonicalById = new Map(
@@ -7612,6 +7637,41 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
                         tooltipText: canonicalBallCycle.metadata?.tooltipText,
                         turnStartApplyRandomSkillReplacementToOwner:
                             canonicalBallCycle.metadata?.turnStartApplyRandomSkillReplacementToOwner,
+                    },
+                };
+            });
+        }
+        if (characterId === 'machop') {
+            ['characterdeescription', 'description', 'descriptionHtml', 'role', 'roleCategory'].forEach(
+                (field) => {
+                    if (canonicalCharacter[field] !== undefined) {
+                        correctedCharacter[field] = canonicalCharacter[field];
+                    }
+                }
+            );
+        }
+        const canonicalEvolutionTrackerStatusId = {
+            pidgey: 'pidgey_evolution_tracker',
+            gastly: 'gastly_evolution_tracker',
+        }[characterId];
+        if (canonicalEvolutionTrackerStatusId) {
+            const canonicalTracker = (Array.isArray(canonicalCharacter.startStatuses)
+                ? canonicalCharacter.startStatuses
+                : []
+            ).find((status) => status?.statusId === canonicalEvolutionTrackerStatusId);
+            const mergedStartStatuses = Array.isArray(character.startStatuses)
+                ? character.startStatuses
+                : [];
+            correctedCharacter.startStatuses = mergedStartStatuses.map((status) => {
+                if (status?.statusId !== canonicalEvolutionTrackerStatusId || !canonicalTracker) {
+                    return status;
+                }
+                return {
+                    ...status,
+                    ...canonicalTracker,
+                    metadata: {
+                        ...(status.metadata || {}),
+                        ...(canonicalTracker.metadata || {}),
                     },
                 };
             });
