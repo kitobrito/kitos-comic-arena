@@ -8,6 +8,29 @@ const mirrorRoot = path.join(root, 'assets', 'images', 'external-mirror');
 const manifest = JSON.parse(fs.readFileSync(path.join(mirrorRoot, 'manifest.json'), 'utf8'));
 const reportPath = path.join(mirrorRoot, 'rewrite-report.json');
 const dryRun = process.argv.includes('--dry-run');
+const textExtensions = new Set(['.js', '.html', '.css', '.json']);
+const ignoredDirectories = new Set([
+    '.git',
+    'node_modules',
+    'external-mirror',
+    'coverage',
+    'dist',
+    'build',
+    '.cache',
+]);
+
+const walkTextFiles = (directory, files = []) => {
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+        if (entry.isDirectory() && ignoredDirectories.has(entry.name)) continue;
+        const absolute = path.join(directory, entry.name);
+        if (entry.isDirectory()) {
+            walkTextFiles(absolute, files);
+        } else if (textExtensions.has(path.extname(entry.name).toLowerCase())) {
+            files.push(absolute);
+        }
+    }
+    return files;
+};
 
 const replacementsByFile = new Map();
 for (const [externalUrl, entry] of Object.entries(manifest)) {
@@ -15,6 +38,25 @@ for (const [externalUrl, entry] of Object.entries(manifest)) {
     for (const reference of entry.references || []) {
         if (!replacementsByFile.has(reference.file)) replacementsByFile.set(reference.file, new Map());
         replacementsByFile.get(reference.file).set(externalUrl, localUrl);
+    }
+}
+
+// Stored reference lists describe the files that originally contained each URL.
+// Generated roster files can reintroduce those URLs later, so also discover every
+// current occurrence before rewriting.
+const manifestReplacementEntries = Object.entries(manifest).map(([externalUrl, entry]) => [
+    externalUrl,
+    `/${entry.localPath.replaceAll('\\', '/')}`,
+]);
+for (const absoluteFile of walkTextFiles(root)) {
+    const relativeFile = path.relative(root, absoluteFile).replaceAll('\\', '/');
+    const source = fs.readFileSync(absoluteFile, 'utf8');
+    for (const [externalUrl, localUrl] of manifestReplacementEntries) {
+        if (!source.includes(externalUrl)) continue;
+        if (!replacementsByFile.has(relativeFile)) {
+            replacementsByFile.set(relativeFile, new Map());
+        }
+        replacementsByFile.get(relativeFile).set(externalUrl, localUrl);
     }
 }
 

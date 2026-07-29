@@ -3,13 +3,13 @@ const characters = [
         "id": "iron-man",
         "characterId": "iron-man",
         "name": "Iron Man",
-        "facePicture": "https://i.imgur.com/rt5r1bu.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/81581ac5c8c1de4cd0ea.png",
         "characterdeescription": "Genius inventor Tony Stark forged a suit of advanced armor to escape captivity and reinvented himself as Iron Man. Armed with cutting-edge technology, unmatched intellect, and an arsenal of powerful weapons, he fights to protect the world from threats no ordinary hero could face. Beneath the armor lies a man determined to use his brilliance to make a difference.",
         "skills": [
             {
                 "id": "iron-man-repulsor-blast",
                 "name": "Repulsor Blast",
-                "skillimage": "https://i.imgur.com/3ulWurz.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/b45d3d7f7c13e318761c.png",
                 "skilldescription": "Deals 15 damage to one enemy per turn for 2 turns. If Overcharge is active, this instead deals 30 energy damage and stuns the target for 1 turn.",
                 "energy": [
                     "Random"
@@ -71,7 +71,7 @@ const characters = [
             {
                 "id": "iron-man-overcharge",
                 "name": "Overcharge",
-                "skillimage": "https://i.imgur.com/XxNKoKu.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/32545b4972c580385849.png",
                 "skilldescription": "For 1 turn, Iron Man's Repulsor Blast and Proton Cannon is improved and gains a new effect.",
                 "energy": [
                     "Ninjutsu"
@@ -99,7 +99,7 @@ const characters = [
             {
                 "id": "iron-man-armor-upgrade",
                 "name": "Armor Upgrade",
-                "skillimage": "https://i.imgur.com/cUWpevS.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/4dcf6deba34cea9ee108.png",
                 "skilldescription": "Iron Man may use this skill on himself or an ally. If used on himself, Repulsor Blast becomes Proton Cannon, this skill becomes Energy Burst, and Iron Man gains 10 points of unpierceable damage reduction. If used on an ally, they gain 2 bonus non-affliction damage and 10 permanent shield. This effect stacks on allies and is permanent.",
                 "energy": [
                     "Bloodline"
@@ -156,7 +156,7 @@ const characters = [
             {
                 "id": "iron-man-iron-suit-mobility",
                 "name": "Iron Suit Mobility",
-                "skillimage": "https://i.imgur.com/JC495sM.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/978f0e97fe13c9516b19.png",
                 "skilldescription": "Iron Man and any ally affected by Armor Upgrade become invulnerable for 1 turn.",
                 "energy": [
                     "Random"
@@ -202,7 +202,7 @@ const characters = [
                 "actorCondition": {
                     "statusId": "iron_man_armor_upgrade_self"
                 },
-                "skillimage": "https://i.imgur.com/5AoKo39.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/442674affcbd913cf1bc.png",
                 "skilldescription": "Deals 18 damage to one enemy per turn for 2 turns. If Overcharge is active, this instead deals 38 affliction damage.",
                 "energy": [
                     "Random"
@@ -256,7 +256,7 @@ const characters = [
                 "actorCondition": {
                     "statusId": "iron_man_armor_upgrade_self"
                 },
-                "skillimage": "https://i.imgur.com/r6cDktw.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/dc2dc3d7aa0fc09c2c2b.png",
                 "skilldescription": "Deals 22 damage to all enemies and stuns their energy skills for 1 turn.",
                 "energy": [
                     "Ninjutsu",
@@ -302,7 +302,7 @@ const characters = [
         "id": "spider-man",
         "characterId": "spider-man",
         "name": "Spider-Man",
-        "facePicture": "https://i.imgur.com/10hGC1C.jpeg",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/03b422ad677cfe45261e.jpg",
         "startStatuses": [
             {
                 "statusId": "spider_man_spider_senses_passive",
@@ -348,7 +348,7 @@ const characters = [
             {
                 "id": "spider-man-spider-strike",
                 "name": "Spider Strike",
-                "skillimage": "https://i.imgur.com/FKv3P8m.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/9ba48c4ed7f0d956a83f.png",
                 "skilldescription": "Deals 20 damage to one enemy. This deals 5 additional damage to an enemy affected by 'Web Shot' or 'Web Wrap' and becomes piercing if Spider-Man is under the effects of 'Web Slinging'. Increases 'Passive: Spider Senses' by 5%.",
                 "energy": [
                     "Taijutsu"
@@ -405,7 +405,7 @@ const characters = [
             {
                 "id": "spider-man-web-shot",
                 "name": "Web Shot",
-                "skillimage": "https://i.imgur.com/696d5RE.jpeg",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/0267ee6afc6d51c9b24a.jpg",
                 "skilldescription": "Stuns one enemy’s harmful skills for 1 turn. If the target is affected by 'Web Wrap', the cost of their skills is increased by 1 random energy until they use a new skill (does not stack). Increases 'Passive: Spider Senses' by 5%.",
                 "energy": [
                     "Genjutsu"
@@ -466,7 +466,7 @@ const characters = [
             {
                 "id": "spider-man-web-wrap",
                 "name": "Web Wrap",
-                "skillimage": "https://i.imgur.com/zIKyZk2.jpeg",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/fa70bfc5bf398a9847f4.jpg",
                 "skilldescription": "Increases the cost of one enemy’s skills by 2 White Energy until they use a new skill. This does not stack and may only affect one enemy at a time (will remove itself from a previous enemy if used on a new one). Increases 'Passive: Spider Senses' by 5%.",
                 "energy": [
                     "Genjutsu",
@@ -514,7 +514,7 @@ const characters = [
             {
                 "id": "spider-man-web-slinging",
                 "name": "Web Slinging",
-                "skillimage": "https://i.imgur.com/jKG2vsk.jpeg",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/0d6915a4f70d3dc1d590.jpg",
                 "skilldescription": "Spider-Man ignores enemy stun effects and deals 5 bonus damage with 'Spider Strike' for 2 turns. Increases 'Passive: Spider Senses' by 10%.",
                 "energy": [
                     "Random"
@@ -563,7 +563,7 @@ const characters = [
             {
                 "id": "spider-man-passive-spider-senses",
                 "name": "Passive: Spider Senses",
-                "skillimage": "https://i.imgur.com/ImdCo6q.jpeg",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/7d93942e20ecddadf0ae.jpg",
                 "skilldescription": "Spider-Man has 0% Evasion (this increases by up to 75% through his other skills). When a skill misses, 'Spider Strike' and 'Web Shot' have their costs changed to 1 random energy for 1 turn.",
                 "energy": [],
                 "target": "self",
@@ -1645,13 +1645,13 @@ const characters = [
         "id": "the-flash-barry-allen",
         "characterId": "the-flash-barry-allen",
         "name": "The Flash (Barry Allen)",
-        "facePicture": "https://i.imgur.com/hYpELKX.jpeg",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/e2ae16dd021894183e60.jpg",
         "characterdeescription": "Struck by a freak accident and connected to the mysterious Speed Force, The Flash became the fastest hero alive. Capable of moving at incredible speeds, thinking in fractions of a second, and bending the laws of physics, he races to protect the innocent from threats across time and space. Despite his extraordinary power, The Flash is driven by a simple desire: to help others and never stop moving forward.",
         "skills": [
             {
                 "id": "the-flash-barry-allen-infinite-mass-punch",
                 "name": "Infinite Mass Punch",
-                "skillimage": "https://i.imgur.com/tZfTTzm.jpeg",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/99fc792b2dbb4d4a9381.jpg",
                 "skilldescription": "Deals 45 damage to one enemy.",
                 "energy": [
                     "Taijutsu",
@@ -1678,7 +1678,7 @@ const characters = [
             {
                 "id": "the-flash-barry-allen-lightning-rush",
                 "name": "Lightning Rush",
-                "skillimage": "https://i.imgur.com/Pwzbd89.jpeg",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/08f1e7353744bab941ce.jpg",
                 "skilldescription": "The Flash strikes one enemy 4 times in quick succession, dealing 5 damage each time. Each hit has a 25% chance to apply 'Shock': dealing 3 piercing damage for 4 turns. The Flash gains 'Speed Up' for 1 turn.",
                 "energy": [
                     "Bloodline"
@@ -1808,7 +1808,7 @@ const characters = [
             {
                 "id": "the-flash-barry-allen-speed-steal",
                 "name": "Speed Steal",
-                "skillimage": "https://i.imgur.com/XF2SCm0.jpeg",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/960a819c65c80dd24644.jpg",
                 "skilldescription": "For 2 turns, the enemy player only has 40 seconds to complete their turn and you are given 20 additional seconds to complete yours. The Flash gains 'Speed Up' and this swaps to 'Flashpoint Surge' while active.",
                 "energy": [
                     "Random",
@@ -1857,7 +1857,7 @@ const characters = [
             {
                 "id": "the-flash-barry-allen-phase-shift",
                 "name": "Phase Shift",
-                "skillimage": "https://i.imgur.com/3m7tgys.jpeg",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/a0ef96c89fec755f4618.jpg",
                 "skilldescription": "The Flash removes all harmful skills and gains 100% evasion for 1 turn. If The Flash is 'Speed Up', this skill's active cooldown is 1 turn less.",
                 "energy": [],
                 "target": "self",
@@ -1889,7 +1889,7 @@ const characters = [
                 "id": "the-flash-barry-allen-flashpoint-surge",
                 "name": "Flashpoint Surge",
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/2rQgv0G.jpeg",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/6d975a488a774391216c.jpg",
                 "skilldescription": "The Flash resets his team's cooldowns and heals them 25 HP.",
                 "energy": [
                     "Bloodline",
@@ -1933,7 +1933,7 @@ const characters = [
                 "cannotBeCountered": true,
                 "cannotBeReflected": true,
                 "ignoreInvulnerability": true,
-                "skillimage": "https://i.imgur.com/vwUOYsd.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/8da3e55c03706769cfd5.png",
                 "skilldescription": "Deals 55 piercing damage to one enemy that cannot be countered, reflected, and ignores invulnerability.",
                 "energy": [
                     "Taijutsu",
@@ -2226,13 +2226,13 @@ const characters = [
         "id": "aquaman",
         "characterId": "aquaman",
         "name": "Aquaman",
-        "facePicture": "https://i.imgur.com/76Svd5q.jpeg",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/e36e352c71fed68e0f6e.jpg",
         "characterdeescription": "Arthur Curry rules Atlantis with a king's burden and the fury of the deep. Armed with his trident and command over ocean life, Aquaman drags enemies into tides, teeth, and pressure they cannot escape.",
         "skills": [
             {
                 "id": "aquaman-trident-strike",
                 "name": "Trident Strike",
-                "skillimage": "https://i.imgur.com/fvvaagh.jpeg",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/b319bb0c3f94f47573a7.jpg",
                 "skilldescription": "Aquaman strikes one enemy with his trident, dealing 24 damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn. If the target is affected by Tidal Wave, they are given a stack of Sea Sharks.",
                 "description": "Aquaman strikes one enemy with his trident, dealing 24 damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn. If the target is affected by Tidal Wave, they are given a stack of Sea Sharks.",
                 "descriptionHtml": "Aquaman strikes one enemy with his trident, dealing 24 damage and making them take 5 bonus damage from all stacks of Sea Sharks for 1 turn.<br>If the target is affected by Tidal Wave, they are given a stack of Sea Sharks.",
@@ -2299,7 +2299,7 @@ const characters = [
             {
                 "id": "aquaman-drown",
                 "name": "Drown",
-                "skillimage": "https://i.imgur.com/Quiv9Wj.jpeg",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/e9623c7c6d8a5b614dc4.jpg",
                 "skilldescription": "Aquaman forces one enemy's head underwater, removing 1 random energy from them and dealing 20 affliction damage. If they are marked by 'Trident Strike' or affected by 'Tidal Wave', they are given a stack of 'Sea Sharks'.",
                 "description": "Aquaman forces one enemy's head underwater, removing 1 random energy from them and dealing 20 affliction damage. If they are marked by 'Trident Strike' or affected by 'Tidal Wave', they are given a stack of 'Sea Sharks'.",
                 "descriptionHtml": "Aquaman forces one enemy's head underwater, removing 1 random energy from them and dealing 20 affliction damage.<br>If they are marked by 'Trident Strike' or affected by 'Tidal Wave', they are given a stack of 'Sea Sharks'.",
@@ -2382,7 +2382,7 @@ const characters = [
             {
                 "id": "aquaman-tidal-wave",
                 "name": "Tidal Wave",
-                "skillimage": "https://i.imgur.com/CaFUaKo.jpeg",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/748c206db61fa67ec236.jpg",
                 "skilldescription": "For 2 turns, the enemy team cannot reduce damage or become invulnerable, their cooldowns are increased by 1, their skills cost 1 additional random energy, and they take 15 damage each turn. If Aquaman uses Trident Strike or Drown on an enemy affected by this skill, they are given a stack of Sea Sharks.",
                 "description": "For 2 turns, the enemy team cannot reduce damage or become invulnerable, their cooldowns are increased by 1, their skills cost 1 additional random energy, and they take 15 damage each turn. If Aquaman uses Trident Strike or Drown on an enemy affected by this skill, they are given a stack of Sea Sharks.",
                 "descriptionHtml": "For 2 turns, the enemy team cannot reduce damage or become invulnerable, their cooldowns are increased by 1, their skills cost 1 additional random energy, and they take 15 damage each turn.<br>If Aquaman uses Trident Strike or Drown on an enemy affected by this skill, they are given a stack of Sea Sharks.",
@@ -2433,7 +2433,7 @@ const characters = [
             {
                 "id": "aquaman-water-jet",
                 "name": "Water Jet",
-                "skillimage": "https://i.imgur.com/0NmOe89.jpeg",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/aac249f24ead37d69026.jpg",
                 "skilldescription": "This skill makes Aquaman invulnerable for 1 turn and grants all enemies a stack of 'Sea Sharks'.",
                 "energy": [
                     "Random"
@@ -2482,7 +2482,7 @@ const characters = [
                 "id": "aquaman-sea-sharks",
                 "name": "Sea Sharks",
                 "hiddenFromSelectionViewer": true,
-                "skillimage": "https://i.imgur.com/38s3F0Z.jpeg",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/36647684eb29f77f7def.jpg",
                 "skilldescription": "Deals 3 piercing damage each turn for 4 turns (stacks).",
                 "energy": [],
                 "target": "",
@@ -3083,13 +3083,13 @@ const characters = [
         "id": "the-joker",
         "characterId": "the-joker",
         "name": "The Joker",
-        "facePicture": "https://i.imgur.com/kbaUc1f.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/9ded7a58361f7b55bddf.png",
         "characterdeescription": "The Joker turns Gotham's worst joke into a weapon no one can predict. With toxins, traps, bombs, and theatrical cruelty, he makes every enemy decision feel like part of a punchline only he understands.",
         "skills": [
             {
                 "id": "the-joker-hand-buzzer",
                 "name": "Hand Buzzer",
-                "skillimage": "https://i.imgur.com/t0AM8jf.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/4399ad121fe02c1bd066.png",
                 "skilldescription": "Deals 10 piercing damage to one enemy and stuns their harmful skills for 1 turn. Swaps to 'Acid Flower'.",
                 "energy": [
                     "Random"
@@ -3139,7 +3139,7 @@ const characters = [
             {
                 "id": "the-joker-crowbar",
                 "name": "Crowbar",
-                "skillimage": "https://i.imgur.com/EloJhie.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/4de98687f38474e02c67.png",
                 "skilldescription": "For 2 turns, destroy one enemy's shield each turn and deal 20 damage to them each turn.",
                 "energy": [
                     "Random",
@@ -3173,7 +3173,7 @@ const characters = [
             {
                 "id": "the-joker-joker-venom",
                 "name": "Joker Venom",
-                "skillimage": "https://i.imgur.com/MZgtCyw.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/9faca482228da398d5c5.png",
                 "skilldescription": "For 3 turns, one enemy has their maximum damage output capped to 15 and is dealt 15 affliction damage each turn.",
                 "energy": [
                     "Taijutsu",
@@ -3211,7 +3211,7 @@ const characters = [
             {
                 "id": "the-joker-bang",
                 "name": "BANG!",
-                "skillimage": "https://i.imgur.com/O3C7ZSC.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/aa668c59e6d86ec75a43.png",
                 "skilldescription": "This skill makes The Joker invulnerable for 1 turn. When this ends, one enemy is dealt 15 piercing damage.",
                 "energy": [
                     "Random"
@@ -3256,7 +3256,7 @@ const characters = [
                 "id": "the-joker-acid-flower",
                 "name": "Acid Flower",
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/GIOcMgw.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/05320b7610ea78989b7a.png",
                 "skilldescription": "Deals 8 affliction damage to one enemy permanently. For 1 turn, the target has their helpful skills stunned. Swaps to 'Chattering Teeth'.",
                 "energy": [
                     "Genjutsu"
@@ -3319,7 +3319,7 @@ const characters = [
                 "id": "the-joker-chattering-teeth",
                 "name": "Chattering Teeth",
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/vh7qbuR.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/1defce3f4cec7edb2e2c.png",
                 "skilldescription": "Marks the enemy team for 1 turn. If a marked enemy uses a new harmful skill, they take 5 damage and are silenced for 1 turn. Swaps to 'Remote Bomb'.",
                 "energy": [
                     "Random"
@@ -3376,7 +3376,7 @@ const characters = [
                 "id": "the-joker-remote-bomb",
                 "name": "Remote Bomb",
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/gA4KqdI.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/ae3de3e500f8a2bada10.png",
                 "skilldescription": "Marks one enemy for 1 turn. When this ends, they are dealt 20 affliction damage and have their active harmful skills cancelled. Swaps to 'Hand Buzzer'.",
                 "energy": [
                     "Random"
@@ -4846,13 +4846,13 @@ const characters = [
         "id": "walker",
         "characterId": "walker",
         "name": "Walker",
-        "facePicture": "https://i.imgur.com/wTmLyGl.jpeg",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/0cdc4224ae7ef7a8d977.jpg",
         "characterdeescription": "Once ordinary people, Walkers are the relentless undead remnants of a fallen world. Driven only by instinct and an endless hunger, they roam in massive hordes, overwhelming the living through sheer numbers. Slow alone but deadly in groups, they serve as a constant reminder that humanity's greatest enemy may be the apocalypse itself.",
         "skills": [
             {
                 "id": "walker-infected-horde",
                 "name": "Infected Horde",
-                "skillimage": "https://i.imgur.com/e4sEkft.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/cf6bf456e352c461b5fc.png",
                 "skilldescription": "For the rest of the game, Walker and his team gain 10 damage reduction and the enemy team takes 10 damage at the end of Walker's turns. Walker's next skill will become AOE. This effect stacks up to 3 times and ends when Walker dies.",
                 "energy": [
                     "Random",
@@ -4929,7 +4929,7 @@ const characters = [
             {
                 "id": "walker-surprise-chomp",
                 "name": "Surprise Chomp",
-                "skillimage": "https://i.imgur.com/WajPlhY.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/9e4bcd381538e59036f6.png",
                 "skilldescription": "Walker steals 15 HP from one enemy and grants them Infected Bite.",
                 "energy": [
                     "Bloodline"
@@ -4966,7 +4966,7 @@ const characters = [
                             "triggerOnApply": true,
                             "transformationChance": 0.01,
                             "transformationCharacterId": "walker",
-                            "transformationFacePicture": "https://i.imgur.com/wTmLyGl.jpeg",
+                            "transformationFacePicture": "/assets/images/external-mirror/i.imgur.com/0cdc4224ae7ef7a8d977.jpg",
                             "mergeNumericAddKeys": [
                                 "turnEndDamage"
                             ],
@@ -4987,7 +4987,7 @@ const characters = [
             {
                 "id": "walker-overpower",
                 "name": "Overpower",
-                "skillimage": "https://i.imgur.com/g0Tie8I.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/bd79c47bf018237ee43b.png",
                 "skilldescription": "Walker stuns one enemy's non-mental skills for 1 turn. The following turn, Surprise Chomp deals 10 additional damage to this target.",
                 "energy": [
                     "Random",
@@ -5036,7 +5036,7 @@ const characters = [
             {
                 "id": "walker-group-banquet",
                 "name": "Group Banquet",
-                "skillimage": "https://i.imgur.com/J1mBmGk.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/1aaa97e63747105147c3.png",
                 "skilldescription": "Walker heals 15 HP at the end of each of his turns for 2 turns.",
                 "energy": [
                     "Random",
@@ -5068,7 +5068,7 @@ const characters = [
             {
                 "id": "walker-passive-infected-bite",
                 "name": "Passive: Infected Bite",
-                "skillimage": "https://i.imgur.com/zeUfS91.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/f6ccdd5d5af61a25dc05.png",
                 "skilldescription": "This character takes 2 affliction damage every turn, receives 25% less healing or 50% less healing at 40 HP or below, and Walker's Surprise Chomp steals 5 additional HP from them. This effects damage stacks. Each turn there is a 1% chance this character turns into a Walker.",
                 "energy": [],
                 "target": "",
@@ -5085,7 +5085,7 @@ const characters = [
                 "name": "Overpower",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/g0Tie8I.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/bd79c47bf018237ee43b.png",
                 "skilldescription": "Walker stuns all enemies' non-mental skills for 1 turn. The following turn, Surprise Chomp deals 10 additional damage to one enemy.",
                 "energy": [
                     "Random",
@@ -5137,7 +5137,7 @@ const characters = [
                 "name": "Surprise Chomp",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/WajPlhY.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/9e4bcd381538e59036f6.png",
                 "skilldescription": "Walker steals 15 HP from all enemies and grants Infected Bite to one enemy.",
                 "energy": [
                     "Random"
@@ -5177,7 +5177,7 @@ const characters = [
                             "triggerOnApply": true,
                             "transformationChance": 0.01,
                             "transformationCharacterId": "walker",
-                            "transformationFacePicture": "https://i.imgur.com/wTmLyGl.jpeg",
+                            "transformationFacePicture": "/assets/images/external-mirror/i.imgur.com/0cdc4224ae7ef7a8d977.jpg",
                             "mergeNumericAddKeys": [
                                 "turnEndDamage"
                             ],
@@ -5200,7 +5200,7 @@ const characters = [
                 "name": "Group Banquet",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/J1mBmGk.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/1aaa97e63747105147c3.png",
                 "skilldescription": "Walker and his team heals 15 HP for 2 turns.",
                 "energy": [
                     "Random",
@@ -5240,13 +5240,13 @@ const characters = [
         "id": "hershel-greene",
         "characterId": "hershel-greene",
         "name": "Hershel Greene",
-        "facePicture": "https://i.imgur.com/6SJSKyY.jpeg",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/0a9c36a504d933d18a86.jpg",
         "characterdeescription": "A farmer and veterinarian from rural Georgia, Hershel Greene became a pillar of wisdom and compassion in a world overrun by the dead. Guided by faith, experience, and an unwavering belief in humanity, he offered hope when others surrendered to despair. Though not a warrior by nature, Hershel's courage, guidance, and selflessness made him one of the group's most valued survivors.",
         "skills": [
             {
                 "id": "hershel-greene-reluctant-bullet",
                 "name": "Reluctant Bullet",
-                "skillimage": "https://i.imgur.com/N57Xbty.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/a0128cf85d40149454cc.png",
                 "skilldescription": "Hershel deals 20 piercing damage to one enemy and reduces the healing they recieve by 50% for 1 turn.",
                 "energy": [
                     "Random"
@@ -5284,7 +5284,7 @@ const characters = [
             {
                 "id": "hershel-greene-tending-the-crops",
                 "name": "Tending the Crops",
-                "skillimage": "https://i.imgur.com/5i9qL6M.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/b24050462511b3ca6fce.png",
                 "skilldescription": "Hershel heals his entire team 15 HP and grants them 10 points of shield.",
                 "energy": [
                     "Taijutsu"
@@ -5320,7 +5320,7 @@ const characters = [
             {
                 "id": "hershel-greene-morphine-shot",
                 "name": "Morphine Shot",
-                "skillimage": "https://i.imgur.com/cT2uA4x.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/63d8d77e59a7f2ac7853.png",
                 "skilldescription": "Hershel targets himself or an ally. For 3 turns, they gain 60% unpierceable damage reduction that decays by 20% each turn. Swaps to 'Antibiotics' once used.",
                 "energy": [
                     "Genjutsu"
@@ -5379,7 +5379,7 @@ const characters = [
             {
                 "id": "hershel-greene-doctor-s-bag",
                 "name": "Doctor's Bag",
-                "skillimage": "https://i.imgur.com/neBRimV.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/994b1e32d0cc5b8817c6.png",
                 "skilldescription": "Hershel targets himself or an ally. For 2 turns, the next time the target dies, they will instead have their health set to 30 HP. If this triggers, for 1 turn, Doctor's Bag will be replaced by a new effect that costs 2 random energy. This skill can only be used twice per game.",
                 "description": "Hershel targets himself or an ally. For 2 turns, the next time the target dies, they will instead have their health set to 30 HP. If this triggers, for 1 turn, Doctor's Bag will be replaced by a new effect that costs 2 random energy. This skill can only be used twice per game.",
                 "descriptionHtml": "Hershel targets himself or an ally. For 2 turns, the next time the target dies, they will instead have their health set to 30 HP. If this triggers, for 1 turn, Doctor's Bag will be replaced by a new effect that costs 2 random energy. This skill can only be used twice per game.",
@@ -5420,7 +5420,7 @@ const characters = [
             {
                 "id": "hershel-greene-doctor-s-bag-transformed",
                 "name": "Doctor's Bag (Transformed)",
-                "skillimage": "https://i.imgur.com/neBRimV.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/994b1e32d0cc5b8817c6.png",
                 "skilldescription": "Hershel heals one member of his team 30 HP and removes all enemy skills from them. This skill does not count towards the use limit of Doctor's Bag.",
                 "description": "Hershel heals one member of his team 30 HP and removes all enemy skills from them. This skill does not count towards the use limit of Doctor's Bag.",
                 "descriptionHtml": "Hershel heals one member of his team 30 HP and removes all enemy skills from them. This skill does not count towards the use limit of Doctor's Bag.",
@@ -5451,7 +5451,7 @@ const characters = [
             {
                 "id": "hershel-greene-antibiotics",
                 "name": "Antibiotics",
-                "skillimage": "https://i.imgur.com/fzgNljs.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/6750f95a9300b11355c4.png",
                 "skilldescription": "Hershel targets himself or an ally. For 3 turns, the target has all enemy affliction skills removed from them and heals 15 HP each turn. Swaps to 'Morphine Shot' once used.",
                 "energy": [
                     "Genjutsu"
@@ -6874,7 +6874,7 @@ const characters = [
             {
                 "id": "billy-butcher-crowbar-maim",
                 "name": "Blood and Bone",
-                "skillimage": "https://i.imgur.com/ghyZueb.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/c3a54a3b20f259769aec.png",
                 "skilldescription": "One enemy becomes unable to reduce damage or become invulnerable for 2 turns and takes 20 damage. This deals 10 additional damage during 'V24'.",
                 "energy": [
                     "Random"
@@ -6919,7 +6919,7 @@ const characters = [
             {
                 "id": "billy-butcher-v24",
                 "name": "V24",
-                "skillimage": "https://i.imgur.com/hFsL74M.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/b505cbf9b4668877360d.png",
                 "skilldescription": "For 2 turns, Butcher gains 50% unpierceable damage reduction and swaps this to 'Yellow Death Lasers'. Afterwards, Butcher loses 15HP, has his health capped, then 'Cancerous Tentacles' deals 10 additional damage (Stacks).",
                 "energy": [
                     "Taijutsu"
@@ -6973,7 +6973,7 @@ const characters = [
             {
                 "id": "billy-butcher-cancerous-tentacles",
                 "name": "Cancerous Tentacles",
-                "skillimage": "https://i.imgur.com/MUVL2C6.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/b8dedb80ba7b09d074c9.png",
                 "skilldescription": "Deals 25 piercing damage to one enemy and stuns their harmful skills for 1 turn. Butcher loses 5HP.",
                 "energy": [
                     "Bloodline",
@@ -7018,7 +7018,7 @@ const characters = [
             {
                 "id": "billy-butcher-escape",
                 "name": "Butcher Escape",
-                "skillimage": "https://i.imgur.com/heQWQJH.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/19b15c1c5dd5eaa103a2.png",
                 "skilldescription": "This skill makes Butcher invulnerable for 1 turn.",
                 "energy": [
                     "Random"
@@ -7046,7 +7046,7 @@ const characters = [
             {
                 "id": "billy-butcher-yellow-death-lasers",
                 "name": "Yellow Death Lasers",
-                "skillimage": "https://i.imgur.com/1MFzKut.jpeg",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/8e2024be6f11cd0582a3.jpg",
                 "skilldescription": "Butcher deals 35 affliction damage to one enemy",
                 "energy": [
                     "Random",
@@ -10030,8 +10030,8 @@ const characters = [
         "characterId": "rage-infected",
         "name": "Rage Infected",
         "nameHtml": "Rage Infected",
-        "facePicture": "https://i.imgur.com/k4lrBvO_d.png?maxwidth=520&shape=thumb&fidelity=high",
-        "url": "https://i.imgur.com/k4lrBvO_d.png?maxwidth=520&shape=thumb&fidelity=high",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/7b7af7f4631f8dd09646.png",
+        "url": "/assets/images/external-mirror/i.imgur.com/7b7af7f4631f8dd09646.png",
         "unlockRequirement": "None",
         "unlockRequirementHtml": "None",
         "characterdeescription": "The Rage Virus leaves nothing but violence in the body it claims. Rage Infected enemies lash out with blind fury, spreading panic, pain, and reckless pressure until the fight collapses into chaos.",
@@ -10042,8 +10042,8 @@ const characters = [
                 "id": "rage-infected-blood-vomit",
                 "name": "Blood Vomit",
                 "nameHtml": "Blood Vomit",
-                "skillimage": "https://i.imgur.com/5L1V6jg_d.png?maxwidth=520&shape=thumb&fidelity=high",
-                "url": "https://i.imgur.com/5L1V6jg_d.png?maxwidth=520&shape=thumb&fidelity=high",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/3851d5427b3afaeeec23.png",
+                "url": "/assets/images/external-mirror/i.imgur.com/3851d5427b3afaeeec23.png",
                 "skilldescription": "For 2 turns, one enemy takes 20 bleed damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
                 "description": "For 2 turns, one enemy takes 20 bleed damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
                 "descriptionHtml": "For 2 turns, one enemy takes 20 bleed damage, deals 10 additional non-affliction damage, and is fully blinded, causing their new harmful skills to randomly select their target from both teams.<br>Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
@@ -10088,8 +10088,8 @@ const characters = [
                 "id": "rage-infected-eye-gouge",
                 "name": "Eye Gouge",
                 "nameHtml": "Eye Gouge",
-                "skillimage": "https://i.imgur.com/3f7cgd3_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "url": "https://i.imgur.com/3f7cgd3_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/b6d8263c384a5d72b820.jpg",
+                "url": "/assets/images/external-mirror/i.imgur.com/b6d8263c384a5d72b820.jpg",
                 "skilldescription": "Deals 25 bleed damage to one enemy and 5 bleed damage the following turn. For 1 turn, they are partially-blinded, causing their new harmful skills to randomly select their target from the opposing team only. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
                 "description": "Deals 25 bleed damage to one enemy and 5 bleed damage the following turn. For 1 turn, they are partially-blinded, causing their new harmful skills to randomly select their target from the opposing team only. Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
                 "descriptionHtml": "Deals 25 bleed damage to one enemy and 5 bleed damage the following turn.<br>For 1 turn, they are partially-blinded, causing their new harmful skills to randomly select their target from the opposing team only.<br>Bleed cannot be ignored, increased, or reduced, and is removed by any healing effect.",
@@ -10144,8 +10144,8 @@ const characters = [
                 "id": "rage-infected-murderous-rage",
                 "name": "Murderous Rage",
                 "nameHtml": "Murderous Rage",
-                "skillimage": "https://i.imgur.com/39yHcrF_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "url": "https://i.imgur.com/39yHcrF_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/af0665be4f894afaebfd.jpg",
+                "url": "/assets/images/external-mirror/i.imgur.com/af0665be4f894afaebfd.jpg",
                 "skilldescription": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP. If that enemy uses a harmful skill while this is active, the protection is refreshed for 1 turn and Rage Infected permanently gains 5 additional damage against them. This skill cannot be used while active.",
                 "description": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP. If that enemy uses a harmful skill while this is active, the protection is refreshed for 1 turn and Rage Infected permanently gains 5 additional damage against them. This skill cannot be used while active.",
                 "descriptionHtml": "For 1 turn, one selected enemy cannot bring Rage Infected's health below 1 HP.<br>If that enemy uses a harmful skill while this is active, the protection is refreshed for 1 turn and Rage Infected permanently gains 5 additional damage against them.<br>This skill cannot be used while active.",
@@ -10223,8 +10223,8 @@ const characters = [
                 "id": "rage-infected-relentless-pursuit",
                 "name": "Relentless Pursuit",
                 "nameHtml": "Relentless Pursuit",
-                "skillimage": "https://i.imgur.com/osxi6DC_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
-                "url": "https://i.imgur.com/osxi6DC_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/6dbe45fa3f64c90d16ff.jpg",
+                "url": "/assets/images/external-mirror/i.imgur.com/6dbe45fa3f64c90d16ff.jpg",
                 "skilldescription": "For 4 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 5 additional non-affliction damage from enemy skills.",
                 "description": "For 4 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 5 additional non-affliction damage from enemy skills.",
                 "descriptionHtml": "For 4 turns, Rage Infected ignores enemy stun effects, reduces the cost of his skills by 1 random energy, but takes 5 additional non-affliction damage from enemy skills.",
@@ -10262,7 +10262,7 @@ const characters = [
                 "actorCondition": {
                     "missingStatusId": "rage_infected_murderous_rage_guard"
                 },
-                "skillimage": "https://i.imgur.com/39yHcrF_d.jpeg?maxwidth=520&shape=thumb&fidelity=high",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/af0665be4f894afaebfd.jpg",
                 "skilldescription": "Murderous Rage is active.",
                 "energy": [],
                 "target": "",
@@ -10284,8 +10284,8 @@ const characters = [
         "characterId": "space-marine-infantry",
         "name": "Pvt. Saunders",
         "nameHtml": "Space Marine Infantry",
-        "facePicture": "https://i.imgur.com/Ch1wobl.png",
-        "url": "https://i.imgur.com/Ch1wobl.png",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/82335f2581e714fbaafc.png",
+        "url": "/assets/images/external-mirror/i.imgur.com/82335f2581e714fbaafc.png",
         "unlockRequirement": "None",
         "unlockRequirementHtml": "None",
         "characterdeescription": "A frontline shock trooper equipped with brutal anti-infantry weaponry and battlefield support tools, the Space Marine Infantry overwhelms enemies through sustained pressure and explosive area damage. Whether suppressing targets with disciplined rifle fire, burning entire teams with incendiary attacks, or shielding allies with emergency extraction protocols, this soldier turns every engagement into a warzone.",
@@ -10296,8 +10296,8 @@ const characters = [
                 "id": "space-marine-infantry-m41a-pulse-rifle",
                 "name": "M41A Pulse Rifle",
                 "nameHtml": "M41A Pulse Rifle",
-                "skillimage": "https://i.imgur.com/aqlogGB.png",
-                "url": "https://i.imgur.com/aqlogGB.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/b3366eeb45a8218ebbb6.png",
+                "url": "/assets/images/external-mirror/i.imgur.com/b3366eeb45a8218ebbb6.png",
                 "skilldescription": "Deals 15 piercing damage to one enemy each turn for 3 turns. This skill is channeled and will end if Space Marine Infantry uses a new skill. While active, Grenade Launcher costs 1 random energy less.",
                 "description": "Deals 15 piercing damage to one enemy each turn for 3 turns. This skill is channeled and will end if Space Marine Infantry uses a new skill. While active, Grenade Launcher costs 1 random energy less.",
                 "descriptionHtml": "Deals 15 piercing damage to one enemy each turn for 3 turns.<br>This skill is channeled and will end if Space Marine Infantry uses a new skill.<br>While active, Grenade Launcher costs 1 random energy less.",
@@ -10353,8 +10353,8 @@ const characters = [
                 "id": "space-marine-infantry-grenade-launcher",
                 "name": "Grenade Launcher",
                 "nameHtml": "Grenade Launcher",
-                "skillimage": "https://i.imgur.com/Auz9hYU.png",
-                "url": "https://i.imgur.com/Auz9hYU.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/a32122eb911537b24b9f.png",
+                "url": "/assets/images/external-mirror/i.imgur.com/a32122eb911537b24b9f.png",
                 "skilldescription": "Deals 25 affliction damage to one enemy and reduces all their damage by 15 for 1 turn.",
                 "description": "Deals 25 affliction damage to one enemy and reduces all their damage by 15 for 1 turn.",
                 "descriptionHtml": "Deals 25 affliction damage to one enemy and reduces all their damage by 15 for 1 turn.",
@@ -10398,8 +10398,8 @@ const characters = [
                 "id": "space-marine-infantry-flamethrower",
                 "name": "Flamethrower",
                 "nameHtml": "Flamethrower",
-                "skillimage": "https://i.imgur.com/Y435B8s.png",
-                "url": "https://i.imgur.com/Y435B8s.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/767f4bd26cd457777a0d.png",
+                "url": "/assets/images/external-mirror/i.imgur.com/767f4bd26cd457777a0d.png",
                 "skilldescription": "Deals 12 affliction damage to one enemy, 6 affliction damage to all other enemies, and reduces all their damage by 5 each turn for 3 turns. This skill is channeled and will end if Space Marine Infantry uses a new skill.",
                 "description": "Deals 12 affliction damage to one enemy, 6 affliction damage to all other enemies, and reduces all their damage by 5 each turn for 3 turns. This skill is channeled and will end if Space Marine Infantry uses a new skill.",
                 "descriptionHtml": "Deals 12 affliction damage to one enemy, 6 affliction damage to all other enemies, and reduces all their damage by 5 each turn for 3 turns.<br>This skill is channeled and will end if Space Marine Infantry uses a new skill.",
@@ -10468,8 +10468,8 @@ const characters = [
                 "id": "space-marine-infantry-drop-ship",
                 "name": "Drop Ship",
                 "nameHtml": "Drop Ship",
-                "skillimage": "https://i.imgur.com/euIXe6O.png",
-                "url": "https://i.imgur.com/euIXe6O.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/7bc684e621383d932c83.png",
+                "url": "/assets/images/external-mirror/i.imgur.com/7bc684e621383d932c83.png",
                 "skilldescription": "For 1 turn, your entire team becomes invulnerable.",
                 "description": "For 1 turn, your entire team becomes invulnerable.",
                 "descriptionHtml": "For 1 turn, your entire team becomes invulnerable.",
@@ -11884,8 +11884,8 @@ const characters = [
         "characterId": "saint-walker",
         "name": "Saint Walker",
         "nameHtml": "Saint Walker",
-        "facePicture": "https://i.imgur.com/unzClm5.jpeg",
-        "url": "https://i.imgur.com/unzClm5.jpeg",
+        "facePicture": "/assets/images/external-mirror/i.imgur.com/e1625ef074e91d9786b7.jpg",
+        "url": "/assets/images/external-mirror/i.imgur.com/e1625ef074e91d9786b7.jpg",
         "unlockRequirement": "None",
         "unlockRequirementHtml": "None",
         "characterdeescription": "Chosen by the Blue Light of Hope, Saint Walker serves as one of the universe's greatest symbols of optimism. As a member of the Blue Lantern Corps, he inspires allies to persevere against impossible odds and strengthens those who fight for a better future. Wielding the power of hope itself, Saint Walker proves that even in the darkest moments, a brighter tomorrow is always within reach.",
@@ -11948,8 +11948,8 @@ const characters = [
                 "id": "saint-walker-fist-of-hope",
                 "name": "Fist of Hope",
                 "nameHtml": "Fist of Hope",
-                "skillimage": "https://i.imgur.com/nGR4QYX.png",
-                "url": "https://i.imgur.com/nGR4QYX.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/a77149f03225809834a6.png",
+                "url": "/assets/images/external-mirror/i.imgur.com/a77149f03225809834a6.png",
                 "skilldescription": "Deals 25 damage to one enemy and grants your team 5 points of shield.",
                 "description": "Deals 25 damage to one enemy and grants your team 5 points of shield.",
                 "descriptionHtml": "Deals 25 damage to one enemy and grants your team 5 points of shield.",
@@ -11991,8 +11991,8 @@ const characters = [
                 "id": "saint-walker-radiant-hope",
                 "name": "Radiant Hope",
                 "nameHtml": "Radiant Hope",
-                "skillimage": "https://i.imgur.com/4th9J63.jpeg",
-                "url": "https://i.imgur.com/4th9J63.jpeg",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/1588ea73ccd4f435ece8.jpg",
+                "url": "/assets/images/external-mirror/i.imgur.com/1588ea73ccd4f435ece8.jpg",
                 "skilldescription": "At the start of your next turn choose one option, then select its target: Grant one ally 20 permanent shield; grant one enemy 15 barrier and increase the cost of their skills while they have this barrier; or make one ally unable to die for 1 turn. This skill is invisible.",
                 "description": "At the start of your next turn choose one option, then select its target: Grant one ally 20 permanent shield; grant one enemy 15 barrier and increase the cost of their skills while they have this barrier; or make one ally unable to die for 1 turn. This skill is invisible.",
                 "descriptionHtml": "At the start of your next turn choose one option, then select its target:<br>Grant one ally 20 permanent shield.<br>Grant one enemy 15 barrier and increase the cost of their skills while they have this barrier.<br>Make one ally unable to die for 1 turn.<br>This skill is invisible.",
@@ -12077,8 +12077,8 @@ const characters = [
                 "id": "saint-walker-emotional-aura-attunement",
                 "name": "Emotional Aura Attunement",
                 "nameHtml": "Emotional Aura Attunement",
-                "skillimage": "https://i.imgur.com/7ACcyxD.jpeg",
-                "url": "https://i.imgur.com/7ACcyxD.jpeg",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/bbdd37a820d2522ee058.jpg",
+                "url": "/assets/images/external-mirror/i.imgur.com/bbdd37a820d2522ee058.jpg",
                 "skilldescription": "Saint Walker increases the amount of shield granted by 'Passive: Blue Lantern Ring' by 1 (stacks) and gains 1 blue energy. This swaps to 'Phoenix of Hope' for 2 turns.",
                 "description": "Saint Walker increases the amount of shield granted by 'Passive: Blue Lantern Ring' by 1 (stacks) and gains 1 blue energy. This swaps to 'Phoenix of Hope' for 2 turns.",
                 "descriptionHtml": "Saint Walker increases the amount of shield granted by 'Passive: Blue Lantern Ring' by 1 (stacks) and gains 1 blue energy.<br>This swaps to 'Phoenix of Hope' for 2 turns.",
@@ -12172,8 +12172,8 @@ const characters = [
                 "id": "saint-walker-hope-shield",
                 "name": "Hope Shield",
                 "nameHtml": "Hope Shield",
-                "skillimage": "https://i.imgur.com/07QdV07.png",
-                "url": "https://i.imgur.com/07QdV07.png",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/28f004001fdfad1f0742.png",
+                "url": "/assets/images/external-mirror/i.imgur.com/28f004001fdfad1f0742.png",
                 "skilldescription": "Saint Walker targets himself or an ally, granting them 50% unpierceable damage reduction and making them ignore affliction damage for 1 turn.",
                 "description": "Saint Walker targets himself or an ally, granting them 50% unpierceable damage reduction and making them ignore affliction damage for 1 turn.",
                 "descriptionHtml": "Saint Walker targets himself or an ally, granting them 50% unpierceable damage reduction and making them ignore affliction damage for 1 turn.",
@@ -12209,8 +12209,8 @@ const characters = [
                 "nameHtml": "Phoenix of Hope",
                 "hiddenFromSelectionViewer": true,
                 "useBaseSkillCooldown": true,
-                "skillimage": "https://i.imgur.com/oH6BgBg.jpeg",
-                "url": "https://i.imgur.com/oH6BgBg.jpeg",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/3f1f7e91ba6f2979e525.jpg",
+                "url": "/assets/images/external-mirror/i.imgur.com/3f1f7e91ba6f2979e525.jpg",
                 "skilldescription": "Saint Walker makes his whole team invulnerable for 1 turn and grants them 15 points of permanent shield.",
                 "description": "Saint Walker makes his whole team invulnerable for 1 turn and grants them 15 points of permanent shield.",
                 "descriptionHtml": "Saint Walker makes his whole team invulnerable for 1 turn and grants them 15 points of permanent shield.",
@@ -12257,8 +12257,8 @@ const characters = [
                 "id": "saint-walker-passive-blue-lantern-ring",
                 "name": "Passive: Blue Lantern Ring",
                 "nameHtml": "Passive: Blue Lantern Ring",
-                "skillimage": "https://i.imgur.com/tOBn10V.jpeg",
-                "url": "https://i.imgur.com/tOBn10V.jpeg",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/715026d21c75b569172a.jpg",
+                "url": "/assets/images/external-mirror/i.imgur.com/715026d21c75b569172a.jpg",
                 "skilldescription": "Saint Walker grants his entire team 1 permanent shield every turn. Also increases the damage of all 'Passive: Green Lantern Ring' by 1 each turn while he is alive.",
                 "description": "Saint Walker grants his entire team 1 permanent shield every turn. Also increases the damage of all 'Passive: Green Lantern Ring' by 1 each turn while he is alive.",
                 "descriptionHtml": "Saint Walker grants his entire team 1 permanent shield every turn.<br>Also increases the damage of all 'Passive: Green Lantern Ring' by 1 each turn while he is alive.",
@@ -21495,7 +21495,7 @@ const characters = [
             {
                 "id": "pokemon-trainer-ultra-ball",
                 "name": "Ultra Ball",
-                "skillimage": "https://i.imgur.com/6VVZEkQ.jpeg",
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/d1f55035ba2d68bb8572.jpg",
                 "skilldescription": "At the start of each turn, Pokemon Trainer's ball slot randomly becomes Pokeball 40%, Great Ball 30%, Ultra Ball 25%, or Master Ball 5%. Stuns one enemy and makes them invulnerable to all skills for 1 turn. If used when their health is at 40 HP or less, they are permanently banished and Pokemon Trainer replaces her skills with that Pokemon's skills for the rest of the game. This threshold is increased by 10 if the target is already stunned or has their cooldowns paralyzed.",
                 "energy": [
                     "Genjutsu",

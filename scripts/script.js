@@ -2700,9 +2700,18 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         let pendingSocketMatchStateFrame = null;
         let matchSyncFallbackInterval = null;
         let matchSyncFallbackInFlight = false;
+        let matchSocketHeartbeatInterval = null;
+        let matchSocketLastPongAt = 0;
+        let lastImmediateMatchSyncAt = 0;
+        let requestImmediateMatchSync = () => {};
         let lastAppliedMatchRevision = -1;
         let lastAppliedTurnNumber = 0;
+        let serverClockOffsetMs = 0;
+        let hasServerClockOffset = false;
         let matchCommandRequestChain = Promise.resolve();
+        const MATCH_COMMAND_TIMEOUT_MS = 8000;
+        const MATCH_SOCKET_HEARTBEAT_INTERVAL_MS = 4000;
+        const MATCH_SOCKET_STALE_AFTER_MS = 12000;
         const getPayloadRevision = (payload) => {
             const revision = Number(payload?.stateRevision);
             return Number.isInteger(revision) && revision >= 0 ? revision : null;
@@ -2711,12 +2720,31 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             const revision = getPayloadRevision(payload);
             return revision !== null && revision < lastAppliedMatchRevision;
         };
+        const updateServerClockOffset = (serverTimestamp, clientReferenceMs = Date.now()) => {
+            const serverMs =
+                typeof serverTimestamp === 'number'
+                    ? serverTimestamp
+                    : Date.parse(serverTimestamp || '');
+            if (!Number.isFinite(serverMs) || !Number.isFinite(clientReferenceMs)) return;
+            const sampleOffset = serverMs - clientReferenceMs;
+            if (!hasServerClockOffset) {
+                serverClockOffsetMs = sampleOffset;
+                hasServerClockOffset = true;
+                return;
+            }
+            serverClockOffsetMs = Math.round(serverClockOffsetMs * 0.75 + sampleOffset * 0.25);
+        };
+        const getEstimatedServerNow = () =>
+            Date.now() + (hasServerClockOffset ? serverClockOffsetMs : 0);
         const recordMatchPayloadVersion = (payload) => {
             const revision = getPayloadRevision(payload);
             if (revision !== null) lastAppliedMatchRevision = Math.max(lastAppliedMatchRevision, revision);
             const turnNumber = Number(payload?.turnNumber);
             if (Number.isInteger(turnNumber) && turnNumber >= 0) {
                 lastAppliedTurnNumber = Math.max(lastAppliedTurnNumber, turnNumber);
+            }
+            if (payload?.serverTime) {
+                updateServerClockOffset(payload.serverTime);
             }
         };
         const addMatchCommandRevision = (options = {}) => {
@@ -2741,7 +2769,49 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             return nextOptions;
         };
         const fetchMatchCommand = (url, options = {}) => {
-            const run = () => fetch(url, addMatchCommandRevision(options));
+            const run = async () => {
+                const requestOptions = addMatchCommandRevision(options);
+                const externalSignal = requestOptions.signal || null;
+                const timeoutMs = Math.max(
+                    1000,
+                    Number(requestOptions.matchCommandTimeoutMs) || MATCH_COMMAND_TIMEOUT_MS
+                );
+                delete requestOptions.matchCommandTimeoutMs;
+                const controller = new AbortController();
+                let relayExternalAbort = null;
+                if (externalSignal) {
+                    if (externalSignal.aborted) {
+                        controller.abort();
+                    } else {
+                        relayExternalAbort = () => controller.abort();
+                        externalSignal.addEventListener('abort', relayExternalAbort, { once: true });
+                    }
+                }
+                requestOptions.signal = controller.signal;
+                let timedOut = false;
+                const timeoutId = window.setTimeout(() => {
+                    timedOut = true;
+                    controller.abort();
+                }, timeoutMs);
+                try {
+                    return await fetch(url, requestOptions);
+                } catch (error) {
+                    if (timedOut && !externalSignal?.aborted) {
+                        const timeoutError = new Error(
+                            'The match server took too long to respond. Refreshing the live state...'
+                        );
+                        timeoutError.name = 'MatchCommandTimeoutError';
+                        requestImmediateMatchSync('command-timeout');
+                        throw timeoutError;
+                    }
+                    throw error;
+                } finally {
+                    window.clearTimeout(timeoutId);
+                    if (externalSignal && relayExternalAbort) {
+                        externalSignal.removeEventListener('abort', relayExternalAbort);
+                    }
+                }
+            };
             const request = matchCommandRequestChain
                 .catch(() => {})
                 .then(run)
@@ -2959,8 +3029,6 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         let battleEndShown = false;
         let lastSpeedStealPressureTurnKey = '';
         let selectedExchangeType = 'taijutsu';
-        let isPlayingResolutionSequence = false;
-        let deferredResolutionMatchState = null;
         let lastTargetHighlightSignature = '';
         const preloadedIngameImageUrls = new Set();
         const perfEntries = [];
@@ -3082,11 +3150,24 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             matchIssueBannerEl.style.display = 'none';
             matchIssueBannerMessageEl.textContent = '';
         };
-        let recoverCurrentMatchState = async ({ reason = 'manual', message = 'Retrying match sync...' } = {}) => {
+        let recoverCurrentMatchState = async ({
+            reason = 'manual',
+            message = 'Retrying match sync...',
+            silent = false,
+        } = {}) => {
             void reason;
             void message;
+            void silent;
             return false;
         };
+        const isSilentMatchRecoveryError = (error) =>
+            error?.name === 'MatchCommandTimeoutError' ||
+            error?.name === 'AbortError' ||
+            (error instanceof TypeError && /fetch|network|load/i.test(error?.message || ''));
+        const isSilentMatchReconciliationReason = (reason = '') =>
+            /(?:resynced|turn-moved|turn-ended-elsewhere|no-longer-pending)$/.test(
+                String(reason || '').trim().toLowerCase()
+            );
         const setMatchIssueBanner = ({
             message = '',
             tone = 'error',
@@ -3135,6 +3216,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             }
         };
         const announceMatchIssue = (message, options = {}) => {
+            if (options.silent || isSilentMatchReconciliationReason(options.reason)) return;
             setMatchIssueBanner({
                 message,
                 tone: options.tone || 'error',
@@ -4186,11 +4268,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             if (endTurnOkButton) {
                 endTurnOkButton.disabled = isEndingTurn || isSyncingRandomEnergy;
                 endTurnOkButton.style.opacity = endTurnOkButton.disabled ? '0.4' : '1';
-                endTurnOkButton.textContent = isSyncingRandomEnergy
-                    ? 'SYNCING'
-                    : hasUnresolvedRandom
-                        ? 'CHOOSE'
-                        : 'OK';
+                endTurnOkButton.textContent = hasUnresolvedRandom ? 'CHOOSE' : 'OK';
             }
         };
 
@@ -4873,26 +4951,29 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const playQueuedResolutionSequence = async (entries = []) => {
             const sequence = Array.isArray(entries) ? entries : [];
             if (!sequence.length) return;
-            isPlayingResolutionSequence = true;
-            deferredResolutionMatchState = null;
+            const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+            const sequenceDelayMs =
+                reducedMotion || (!uiSettings.skillCastAnimations && !uiSettings.skillIconProjectiles)
+                    ? 0
+                    : 180;
             for (const entry of sequence) {
                 animateSkillCastTrail({
                     actorSlot: entry.actorSlot,
                     skillIdx: entry.skillIndex,
                     selection: entry.targetSelection,
                 });
-                await waitForMs(420);
+                if (sequenceDelayMs > 0) {
+                    await waitForMs(sequenceDelayMs);
+                }
             }
-            await waitForMs(120);
             clearTransientPortraitAnimationState();
-            isPlayingResolutionSequence = false;
         };
 
         const applyMatchStateAfterResolutionSequence = async (data, entries = []) => {
-            await playQueuedResolutionSequence(entries);
-            const deferred = deferredResolutionMatchState;
-            deferredResolutionMatchState = null;
-            applyMatchState(deferred || data, { allowDuringResolutionSequence: true });
+            playQueuedResolutionSequence(entries).catch((error) => {
+                console.warn('Failed to play the queued resolution overlay.', error);
+            });
+            applyMatchState(data);
         };
 
         const reorderQueuedSkills = async (actorSlots = []) => {
@@ -4933,17 +5014,21 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 syncTurnState(data.currentTurn, data.turnExpiresAt, data.turnDurationMs);
             } catch (error) {
                 console.warn('Failed to reorder queued skills.', error);
-                announceMatchIssue(
-                    `Queued skill order fell out of sync. ${error?.message || 'Refreshing your turn...'}`,
-                    {
-                        tone: 'info',
-                        reason: 'reorder-queued-skills',
-                        recoveryMessage: 'Refreshing your queued skill order...',
-                    }
-                );
+                const silent = isSilentMatchRecoveryError(error);
+                if (!silent) {
+                    announceMatchIssue(
+                        `Queued skill order fell out of sync. ${error?.message || 'Refreshing your turn...'}`,
+                        {
+                            tone: 'info',
+                            reason: 'reorder-queued-skills',
+                            recoveryMessage: 'Refreshing your queued skill order...',
+                        }
+                    );
+                }
                 recoverCurrentMatchState({
                     reason: 'reorder-queued-skills',
                     message: 'Refreshing your queued skill order...',
+                    silent,
                 }).catch(() => {});
             }
         };
@@ -5000,17 +5085,21 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     applyQueuedSkillVisuals();
                     syncEndTurnModalIfVisible();
                     console.warn('Failed to cancel skill.', error);
-                    announceMatchIssue(
-                        `Could not cancel that skill cleanly. ${error?.message || 'Refreshing your turn...'}`,
-                        {
-                            tone: 'info',
-                            reason: 'cancel-skill',
-                            recoveryMessage: 'Refreshing your queued turn...',
-                        }
-                    );
+                    const silent = isSilentMatchRecoveryError(error);
+                    if (!silent) {
+                        announceMatchIssue(
+                            `Could not cancel that skill cleanly. ${error?.message || 'Refreshing your turn...'}`,
+                            {
+                                tone: 'info',
+                                reason: 'cancel-skill',
+                                recoveryMessage: 'Refreshing your queued turn...',
+                            }
+                        );
+                    }
                     recoverCurrentMatchState({
                         reason: 'cancel-skill',
                         message: 'Refreshing your queued turn...',
+                        silent,
                     }).catch(() => {});
                 })
                 .finally(() => {
@@ -7993,7 +8082,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 }
                 return;
             }
-            const remaining = Math.max(0, turnExpiresAtMs - Date.now());
+            const remaining = Math.max(0, turnExpiresAtMs - getEstimatedServerNow());
             const ratio = remaining / Math.max(1, currentTurnDurationMs || TURN_DURATION_MS);
             const widthPx = Math.max(0, Math.round(TIMER_MAX_WIDTH * ratio));
             timerBar.style.width = `${widthPx}px`;
@@ -8005,7 +8094,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 currentTurnUsername &&
                 usernamesMatch(currentTurnUsername, currentPlayerUsername);
             if (
-                remaining <= 0 &&
+                remaining <= 750 &&
                 isPlayersTurn &&
                 normalizePendingTurn(pendingTurnState).unresolvedRandom === 0 &&
                 !normalizePendingTurn(pendingTurnState).turnStartChoice &&
@@ -8026,6 +8115,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 recoverCurrentMatchState({
                     reason: 'opponent-turn-timeout',
                     message: 'Refreshing the match after the opponent timer expired...',
+                    silent: true,
                 }).catch(() => {});
             }
         };
@@ -8050,14 +8140,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 }
             } catch (error) {
                 console.warn('Failed to auto-end turn on timeout.', error);
-                announceMatchIssue('Turn timeout sync failed. Trying to reload the live match state...', {
-                    tone: 'info',
-                    reason: 'auto-end-timeout',
-                    recoveryMessage: 'Reloading match after timeout...',
-                });
                 recoverCurrentMatchState({
                     reason: 'auto-end-timeout',
                     message: 'Reloading match after timeout...',
+                    silent: true,
                 }).catch(() => {});
             }
         };
@@ -8075,7 +8161,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             if (parsedExpiry) {
                 turnExpiresAtMs = parsedExpiry;
             } else if (turnChanged) {
-                turnExpiresAtMs = Date.now() + currentTurnDurationMs;
+                turnExpiresAtMs = getEstimatedServerNow() + currentTurnDurationMs;
             }
             currentTurnUsername = turnOwner || null;
             const isPlayersTurn = currentPlayerUsername && currentTurnUsername
@@ -12196,24 +12282,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             ]);
         };
 
-        const applyMatchState = (data, options = {}) => {
+        const applyMatchState = (data) => {
             if (!data || typeof data !== 'object') return;
             if (battleEndShown) return;
             if (isOlderMatchPayload(data)) return;
-            if (isPlayingResolutionSequence && !options.allowDuringResolutionSequence) {
-                if (!deferredResolutionMatchState || !isOlderMatchPayload(data)) {
-                    const deferredRevision = getPayloadRevision(deferredResolutionMatchState);
-                    const incomingRevision = getPayloadRevision(data);
-                    if (
-                        deferredRevision === null ||
-                        incomingRevision === null ||
-                        incomingRevision >= deferredRevision
-                    ) {
-                        deferredResolutionMatchState = data;
-                    }
-                }
-                return;
-            }
             recordMatchPayloadVersion(data);
             if (data.player?.username) {
                 currentPlayerUsername = data.player.username;
@@ -12371,6 +12443,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     recoverCurrentMatchState({
                         reason: 'ladder-terminal-board',
                         message: 'Confirming the final ladder result...',
+                        silent: true,
                     }).catch(() => {});
                     return;
                 }
@@ -12991,16 +13064,22 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             validateRenderedMatchState();
         };
 
-        recoverCurrentMatchState = async ({ reason = 'manual', message = 'Retrying match sync...' } = {}) => {
+        recoverCurrentMatchState = async ({
+            reason = 'manual',
+            message = 'Retrying match sync...',
+            silent = false,
+        } = {}) => {
             if (!matchIdFromUrl) return false;
             if (activeMatchRecoveryPromise) {
                 return activeMatchRecoveryPromise;
             }
-            setMatchIssueBanner({
-                message,
-                tone: 'info',
-                dismissible: false,
-            });
+            if (!silent) {
+                setMatchIssueBanner({
+                    message,
+                    tone: 'info',
+                    dismissible: false,
+                });
+            }
             activeMatchRecoveryPromise = (async () => {
                 try {
                     const payload = await fetchMatchPayload({
@@ -13012,16 +13091,22 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     if (!payload) return false;
                     applyIncomingMatchState(payload);
                     connectMatchSocket();
-                    setMatchIssueBanner({
-                        message: 'Match sync restored.',
-                        tone: 'success',
-                        dismissible: true,
-                        autoHideMs: 1800,
-                        onRetry: null,
-                    });
+                    if (!silent) {
+                        setMatchIssueBanner({
+                            message: 'Match sync restored.',
+                            tone: 'success',
+                            dismissible: true,
+                            autoHideMs: 1800,
+                            onRetry: null,
+                        });
+                    }
                     return true;
                 } catch (error) {
                     console.warn(`Failed to recover match state (${reason}).`, error);
+                    if (silent) {
+                        connectMatchSocket();
+                        return false;
+                    }
                     announceMatchIssue(
                         `Unable to resync this match right now. ${error?.message || 'Please retry.'}`,
                         {
@@ -13070,12 +13155,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
 
         const scheduleMatchRecoveryIfNeeded = ({ reason = 'render-validation', message = 'Refreshing match state...' } = {}) => {
             if (battleEndShown || activeMatchRecoveryPromise) return;
-            announceMatchIssue(message, {
-                tone: 'info',
-                reason,
-                recoveryMessage: message,
-            });
-            recoverCurrentMatchState({ reason, message }).catch(() => {});
+            recoverCurrentMatchState({ reason, message, silent: true }).catch(() => {});
         };
 
         const validateRenderedMatchState = () => {
@@ -13129,14 +13209,16 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             }
         };
 
-        const pollMatchVersionFallback = async () => {
+        const pollMatchVersionFallback = async ({ force = false } = {}) => {
             if (
                 !matchIdFromUrl ||
                 battleEndShown ||
                 matchSyncFallbackInFlight ||
+                activeMatchRecoveryPromise ||
+                navigator.onLine === false ||
                 !currentPlayerUsername ||
                 !currentTurnUsername ||
-                usernamesMatch(currentPlayerUsername, currentTurnUsername)
+                (!force && usernamesMatch(currentPlayerUsername, currentTurnUsername))
             ) {
                 return;
             }
@@ -13187,6 +13269,45 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             if (!matchSyncFallbackInterval) return;
             window.clearInterval(matchSyncFallbackInterval);
             matchSyncFallbackInterval = null;
+        };
+
+        const stopMatchSocketHeartbeat = () => {
+            if (!matchSocketHeartbeatInterval) return;
+            window.clearInterval(matchSocketHeartbeatInterval);
+            matchSocketHeartbeatInterval = null;
+        };
+
+        const startMatchSocketHeartbeat = (socket) => {
+            stopMatchSocketHeartbeat();
+            matchSocketLastPongAt = Date.now();
+            matchSocketHeartbeatInterval = window.setInterval(() => {
+                if (matchSocket !== socket || socket.readyState !== WebSocket.OPEN) return;
+                const now = Date.now();
+                if (now - matchSocketLastPongAt > MATCH_SOCKET_STALE_AFTER_MS) {
+                    stopMatchSocketHeartbeat();
+                    try {
+                        socket.close();
+                    } catch (error) {
+                        // Ignore close failures; the revision check still recovers state.
+                    }
+                    requestImmediateMatchSync('socket-heartbeat-timeout');
+                    return;
+                }
+                try {
+                    socket.send(
+                        JSON.stringify({
+                            type: 'match_ping',
+                            payload: { clientAt: now },
+                        })
+                    );
+                } catch (error) {
+                    try {
+                        socket.close();
+                    } catch (closeError) {
+                        // Ignore close failures.
+                    }
+                }
+            }, MATCH_SOCKET_HEARTBEAT_INTERVAL_MS);
         };
 
         const clearMatchSocketReconnect = () => {
@@ -13444,13 +13565,20 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             matchSocket = socket;
             socket.addEventListener('open', () => {
                 matchSocketReconnectDelay = 1000;
-                if (!activeMatchRecoveryPromise) {
-                    clearMatchIssueBanner();
-                }
+                startMatchSocketHeartbeat(socket);
             });
             socket.addEventListener('message', (event) => {
                 try {
                     const message = JSON.parse(event.data);
+                    matchSocketLastPongAt = Date.now();
+                    if (message?.type === 'match_pong') {
+                        const clientAt = Number(message?.payload?.clientAt);
+                        const serverAt = Number(message?.payload?.serverAt);
+                        if (Number.isFinite(clientAt) && Number.isFinite(serverAt)) {
+                            updateServerClockOffset(serverAt, (clientAt + Date.now()) / 2);
+                        }
+                        return;
+                    }
                     if (message?.type === 'match_state' && message.payload) {
                         scheduleIncomingMatchState(message.payload);
                     } else if (message?.type === 'chat_message' && message.payload) {
@@ -13460,29 +13588,21 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     }
                 } catch (error) {
                     console.warn('Failed to process match socket message.', error);
-                    announceMatchIssue('Live match update failed to apply. Retrying sync...', {
-                        tone: 'info',
-                        reason: 'socket-message-parse',
-                        recoveryMessage: 'Retrying live match sync...',
-                    });
                     recoverCurrentMatchState({
                         reason: 'socket-message-parse',
                         message: 'Retrying live match sync...',
+                        silent: true,
                     }).catch(() => {});
                 }
             });
             socket.addEventListener('close', () => {
                 if (matchSocket === socket) {
                     matchSocket = null;
+                    stopMatchSocketHeartbeat();
                 }
                 if (matchSocketManuallyClosed || battleEndShown || !matchIdFromUrl) {
                     return;
                 }
-                setMatchIssueBanner({
-                    message: 'Connection to the live match was interrupted. Reconnecting...',
-                    tone: 'info',
-                    dismissible: false,
-                });
                 clearMatchSocketReconnect();
                 matchSocketReconnectTimer = setTimeout(() => {
                     matchSocketReconnectTimer = null;
@@ -13503,6 +13623,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             matchSocketManuallyClosed = true;
             clearMatchSocketReconnect();
             stopMatchSyncFallback();
+            stopMatchSocketHeartbeat();
             if (!matchSocket) return;
             try {
                 matchSocket.close();
@@ -13511,6 +13632,39 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             }
             matchSocket = null;
         };
+
+        requestImmediateMatchSync = (reason = 'connectivity-resume') => {
+            if (!matchIdFromUrl || battleEndShown || navigator.onLine === false) return;
+            const now = Date.now();
+            if (now - lastImmediateMatchSyncAt < 750) return;
+            lastImmediateMatchSyncAt = now;
+            if (
+                matchSocket &&
+                matchSocket.readyState === WebSocket.OPEN &&
+                now - matchSocketLastPongAt > MATCH_SOCKET_STALE_AFTER_MS
+            ) {
+                try {
+                    matchSocket.close();
+                } catch (error) {
+                    // Ignore close failures.
+                }
+            }
+            connectMatchSocket();
+            pollMatchVersionFallback({ force: true }).catch((error) => {
+                if (error?.name !== 'AbortError') {
+                    console.warn(`Immediate match sync failed (${reason}).`, error);
+                }
+            });
+        };
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                requestImmediateMatchSync('visibility-resume');
+            }
+        });
+        window.addEventListener('pageshow', () => requestImmediateMatchSync('page-resume'));
+        window.addEventListener('online', () => requestImmediateMatchSync('network-online'));
+        window.addEventListener('focus', () => requestImmediateMatchSync('window-focus'));
 
         if (matchChatToggle && matchChatEl) {
             matchChatToggle.addEventListener('click', () => {
@@ -13777,6 +13931,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             } catch (error) {
                 if (requestVersion !== targetOptionsRequestVersion) return;
                 console.warn('Target fetch failed.', error);
+                if (hasOptimisticTargetOptions && isSilentMatchRecoveryError(error)) {
+                    requestImmediateMatchSync('target-options-network-error');
+                    return;
+                }
                 if (skillInfo.descEl) {
                     const baseDescription = getSkillDescriptionText(skill) || skillInfo.descEl.textContent || '';
                     skillInfo.descEl.textContent = `${baseDescription}\n\nTargeting failed: ${error?.message || 'Unable to fetch targets.'}`;
@@ -13910,16 +14068,20 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     applyQueuedSkillVisuals();
                     syncEndTurnModalIfVisible();
                     console.warn('Failed to queue skill.', error);
-                    announceMatchIssue(
-                        `Could not queue that skill. ${error?.message || 'The match state may be stale.'}`,
-                        {
-                            reason: 'queue-skill',
-                            recoveryMessage: 'Refreshing your queued turn...',
-                        }
-                    );
+                    const silent = isSilentMatchRecoveryError(error);
+                    if (!silent) {
+                        announceMatchIssue(
+                            `Could not queue that skill. ${error?.message || 'The match state may be stale.'}`,
+                            {
+                                reason: 'queue-skill',
+                                recoveryMessage: 'Refreshing your queued turn...',
+                            }
+                        );
+                    }
                     recoverCurrentMatchState({
                         reason: 'queue-skill',
                         message: 'Refreshing your queued turn...',
+                        silent,
                     }).catch(() => {});
                 })
                 .finally(() => {
@@ -14130,16 +14292,20 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 playIngameSound(applySkillSound);
             } catch (error) {
                 console.warn('Failed to resolve turn start choice.', error);
-                announceMatchIssue(
-                    `That choice could not be confirmed. ${error?.message || 'Refreshing the match state...'}`,
-                    {
-                        reason: 'turn-start-choice',
-                        recoveryMessage: 'Refreshing the match choice state...',
-                    }
-                );
+                const silent = isSilentMatchRecoveryError(error);
+                if (!silent) {
+                    announceMatchIssue(
+                        `That choice could not be confirmed. ${error?.message || 'Refreshing the match state...'}`,
+                        {
+                            reason: 'turn-start-choice',
+                            recoveryMessage: 'Refreshing the match choice state...',
+                        }
+                    );
+                }
                 recoverCurrentMatchState({
                     reason: 'turn-start-choice',
                     message: 'Refreshing the match choice state...',
+                    silent,
                 }).catch(() => {});
             } finally {
                 activeChoicePopupMode = null;
@@ -14688,36 +14854,24 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             }
             try {
                 if (randomChakraRequestsInFlight > 0) {
-                    setEndTurnModalStatus('Syncing your random energy selection...', 'info');
                     const energySettled = await waitForRandomChakraAdjustments();
                     if (!energySettled) {
                         const recovered = await recoverCurrentMatchState({
                             reason: 'end-turn-energy-sync',
                             message: 'Resyncing random energy before confirming your turn...',
+                            silent: true,
                         });
-                        setEndTurnModalStatus(
-                            recovered
-                                ? 'Energy restored. Review the selection, then press OK again.'
-                                : 'Energy is still reconnecting. Please try OK again.',
-                            'info'
-                        );
-                        return;
+                        if (!recovered) return;
                     }
                 }
                 const queuesSettled = await waitForPendingSkillQueues();
                 if (!queuesSettled) {
-                    setEndTurnModalStatus('Attack queue is resyncing. Review your attacks, then press OK again.', 'info');
                     const recovered = await recoverCurrentMatchState({
                         reason: 'end-turn-queue-timeout',
                         message: 'Resyncing attacks before confirming your turn...',
+                        silent: true,
                     });
-                    setEndTurnModalStatus(
-                        recovered
-                            ? 'Attack queue restored. Review your attacks, then press OK again.'
-                            : 'Attack queue is still reconnecting. Please press OK again.',
-                        'info'
-                    );
-                    return;
+                    if (!recovered) return;
                 }
                 const pending = normalizePendingTurn(pendingTurnState);
                 if (pending.unresolvedRandom > 0) {
@@ -14804,12 +14958,24 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                     recoverCurrentMatchState({
                         reason: 'turn-end-render',
                         message: 'Syncing the updated turn state...',
+                        silent: true,
                     }).catch(() => {});
                     return;
                 }
                 closeEndTurnModal();
             } catch (error) {
                 console.warn('Failed to end turn.', error);
+                if (isSilentMatchRecoveryError(error)) {
+                    const recovered = await recoverCurrentMatchState({
+                        reason: 'end-turn',
+                        message: 'Retrying match sync after turn submit...',
+                        silent: true,
+                    });
+                    if (recovered && !usernamesMatch(currentPlayerUsername, currentTurnUsername)) {
+                        closeEndTurnModal();
+                    }
+                    return;
+                }
                 setEndTurnModalStatus(
                     `Could not confirm this turn: ${error?.message || 'Refreshing the match state...'}`,
                     'error'
@@ -14960,22 +15126,26 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 .then(() => waiters.forEach(({ resolve }) => resolve()))
                 .catch((error) => {
                     waiters.forEach(({ reject }) => reject(error));
+                    const silent = isSilentMatchRecoveryError(error);
                     if (requestMutationVersion !== randomChakraMutationVersion) {
                         console.warn('An earlier random chakra batch failed.', error);
                     } else {
                         console.warn('Failed to adjust random chakra.', error);
-                        announceMatchIssue(
-                            `Energy selection fell out of sync. ${error?.message || 'Refreshing your turn...'}`,
-                            {
-                                tone: 'info',
-                                reason: 'random-adjust',
-                                recoveryMessage: 'Refreshing your turn energy...',
-                            }
-                        );
+                        if (!silent) {
+                            announceMatchIssue(
+                                `Energy selection fell out of sync. ${error?.message || 'Refreshing your turn...'}`,
+                                {
+                                    tone: 'info',
+                                    reason: 'random-adjust',
+                                    recoveryMessage: 'Refreshing your turn energy...',
+                                }
+                            );
+                        }
                     }
                     recoverCurrentMatchState({
                         reason: 'random-adjust',
                         message: 'Refreshing your turn energy...',
+                        silent,
                     }).catch(() => {});
                 })
                 .finally(() => {
@@ -15082,19 +15252,26 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 closeExchangeModal();
             } catch (error) {
                 console.warn('Failed to exchange chakra.', error);
-                setExchangeStatus(error.message || 'Unable to exchange energy.');
-                renderExchangeModal(playerPoolState);
-                announceMatchIssue(
-                    `Energy exchange failed. ${error?.message || 'Refreshing the match state...'}`,
-                    {
-                        reason: 'chakra-exchange',
-                        recoveryMessage: 'Refreshing the match after exchange failure...',
-                    }
-                );
-                recoverCurrentMatchState({
+                const silent = isSilentMatchRecoveryError(error);
+                if (!silent) {
+                    setExchangeStatus(error.message || 'Unable to exchange energy.');
+                    renderExchangeModal(playerPoolState);
+                    announceMatchIssue(
+                        `Energy exchange failed. ${error?.message || 'Refreshing the match state...'}`,
+                        {
+                            reason: 'chakra-exchange',
+                            recoveryMessage: 'Refreshing the match after exchange failure...',
+                        }
+                    );
+                }
+                const recovered = await recoverCurrentMatchState({
                     reason: 'chakra-exchange',
                     message: 'Refreshing the match after exchange failure...',
-                }).catch(() => {});
+                    silent,
+                }).catch(() => false);
+                if (silent && recovered) {
+                    closeExchangeModal();
+                }
             }
         };
 

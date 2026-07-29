@@ -17,7 +17,8 @@ test('turn confirmation cannot remain disabled forever on a stalled skill queue'
     assert.match(script, /waitForPendingSkillQueues = async \(timeoutMs = 8000\)/);
     assert.match(script, /if \(!settledBeforeTimeout\) return false/);
     assert.match(script, /reason: 'end-turn-queue-timeout'/);
-    assert.match(script, /Attack queue restored\. Review your attacks, then press OK again\./);
+    assert.match(script, /reason: 'end-turn-queue-timeout',[\s\S]*?silent: true/);
+    assert.doesNotMatch(script, /Attack queue restored\. Review your attacks, then press OK again\./);
 });
 
 test('battle page cache-busts the shared script for the confirmation hotfix', () => {
@@ -39,8 +40,10 @@ test('turn confirmation waits for random energy requests to reach the server', (
     assert.match(script, /let randomChakraRequestsInFlight = 0/);
     assert.match(script, /waitForRandomChakraAdjustments = async \(timeoutMs = 8000\)/);
     assert.match(script, /endTurnOkButton\.disabled = isEndingTurn \|\| isSyncingRandomEnergy/);
-    assert.match(script, /Syncing your random energy selection/);
+    assert.doesNotMatch(script, /Syncing your random energy selection/);
+    assert.doesNotMatch(script, /endTurnOkButton\.textContent = isSyncingRandomEnergy/);
     assert.match(script, /reason: 'end-turn-energy-sync'/);
+    assert.match(script, /reason: 'end-turn-energy-sync',[\s\S]*?silent: true/);
     assert.match(script, /timeoutMs = 12000/);
     assert.match(script, /Math\.max\(1000, Number\(timeoutMs\) \|\| 12000\)/);
     assert.match(script, /signal: controller\.signal/);

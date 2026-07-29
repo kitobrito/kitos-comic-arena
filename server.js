@@ -1,4 +1,5 @@
 const fs = require('fs');
+const crypto = require('crypto');
 const https = require('https');
 const path = require('path');
 const { execFile } = require('child_process');
@@ -26,6 +27,7 @@ if (shouldLogStartupDiagnostics) {
 }
 
 const express = require('express');
+const compression = require('compression');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -34,8 +36,8 @@ const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const Joi = require('joi');
 const { MongoClient, ObjectId } = require('mongodb');
-const bcrypt = require('bcryptjs');
 const { WebSocketServer, WebSocket } = require('ws');
+const { hashPassword, comparePassword } = require('./passwordHashing');
 const battleLogic = require('./battleLogic');
 const {
     MatchRevisionConflictError,
@@ -58,22 +60,36 @@ const { syncPokemonBattleExperienceNews } = require('./sync_pokemon_battle_exper
 let charactersData = require('./characters');
 
 const app = express();
+app.set('trust proxy', 1);
+app.use(compression());
 
 const PORT = process.env.PORT || 4000;
 const TURN_DURATION_MS = 60 * 1000;
+const TURN_EXPIRY_GRACE_MS = 3 * 1000;
 const MATCH_INACTIVITY_TURN_LIMIT = 3;
 const MATCH_FOUND_HOLD_MS = 3 * 1000;
 const BATTLE_BOT_QUEUE_TIMEOUT_MS = 20 * 1000;
 const BATTLE_BOT_ACTION_DELAY_MIN_MS = 15 * 1000;
 const BATTLE_BOT_ACTION_DELAY_MAX_MS = 40 * 1000;
+const PVE_BOT_ACTION_DELAY_MIN_MS = 800;
+const PVE_BOT_ACTION_DELAY_MAX_MS = 2000;
 const BATTLE_BOTS_ENABLED = process.env.ENABLE_BATTLE_BOTS !== 'false';
 const DEFAULT_URI = process.env.MONGODB_URI;
+const MONGO_CLIENT_OPTIONS = Object.freeze({
+    maxPoolSize: 15,
+    minPoolSize: 1,
+    serverSelectionTimeoutMS: 8000,
+    socketTimeoutMS: 45000,
+    retryWrites: true,
+});
 const DATABASE_NAME = process.env.MONGODB_DB || 'comic-arena';
 const USERS_COLLECTION = process.env.MONGODB_USERS_COLLECTION || 'users';
 const MATCHES_COLLECTION = process.env.MONGODB_MATCHES_COLLECTION || 'matches';
 const APP_STATE_COLLECTION = process.env.MONGODB_APP_STATE_COLLECTION || 'app_state';
 const NEWS_POSTS_COLLECTION = process.env.MONGODB_NEWS_POSTS_COLLECTION || 'news_posts';
 const POINT_PURCHASES_COLLECTION = process.env.MONGODB_POINT_PURCHASES_COLLECTION || 'point_purchases';
+const STARTUP_MIGRATION_STATE_KEY = 'startup_data_migration';
+const STARTUP_MIGRATION_VERSION = '2026-07-29-audit-remediation-v1';
 const CHARACTERS_FILE_PATH = path.join(__dirname, 'characters.js');
 const CHARACTER_OVERRIDES_STATE_KEY = 'character_overrides';
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -2010,8 +2026,17 @@ const wsConnections = new Set();
 const matchCommandCoordinator = createMatchCommandCoordinator();
 const MATCH_CHAT_MAX_LENGTH = 240;
 const MATCH_CHAT_MIN_INTERVAL_MS = 900;
-const wsServer = new WebSocketServer({ noServer: true });
+const wsServer = new WebSocketServer({
+    noServer: true,
+    perMessageDeflate: {
+        threshold: 1024,
+        concurrencyLimit: 2,
+        serverNoContextTakeover: true,
+        clientNoContextTakeover: true,
+    },
+});
 let turnSweepTimer = null;
+let turnSweepInFlight = false;
 const activeBattleBotTurns = new Set();
 const scheduledBattleBotTurns = new Set();
 const GAME_BOT_USERNAME_PREFIX = '__game_bot__:';
@@ -2173,7 +2198,9 @@ const buildFakeBattlePlayerProfile = (account = {}) => {
     const wins = Math.max(0, Number(account.wins) || 0);
     const losses = Math.max(0, Number(account.losses) || 0);
     return {
+        battleSnapshotVersion: 1,
         avatarUrl: account.avatarUrl || DEFAULT_PROFILE_AVATAR,
+        clan: null,
         ladder: {
             level,
             rank: rankInfo.rank,
@@ -2187,6 +2214,9 @@ const buildFakeBattlePlayerProfile = (account = {}) => {
             highestLevel: level,
             famePoints: wins * 3,
             isHokage: false,
+        },
+        skins: {
+            equippedSkinByCharacterId: {},
         },
     };
 };
@@ -6898,7 +6928,7 @@ const recalculatePlayerLadderStandings = async (arena = DEFAULT_ARENA_MODE) => {
     const profileByUsername = new Map();
 
     normalizedUsers.forEach((entry, index) => {
-        const normalizedProfile = normalizeUserProfile(entry.user);
+        const normalizedProfile = entry.profile;
         const shouldBeHokage = hokageIndex >= 0 && index === hokageIndex;
         const arenaState = getProfileArenaState(normalizedProfile, normalizedArena);
         arenaState.ladder.ladderRank = index + 1;
@@ -6912,21 +6942,21 @@ const recalculatePlayerLadderStandings = async (arena = DEFAULT_ARENA_MODE) => {
         const profileChanged =
             JSON.stringify(entry.user.profile || null) !== JSON.stringify(finalProfile);
         if (profileChanged) {
-            updates.push(
-                usersCollection.updateOne(
-                    { _id: entry.user._id },
-                    {
+            updates.push({
+                updateOne: {
+                    filter: { _id: entry.user._id },
+                    update: {
                         $set: {
                             profile: finalProfile,
                         },
-                    }
-                )
-            );
+                    },
+                },
+            });
         }
     });
 
     if (updates.length > 0) {
-        await Promise.all(updates);
+        await usersCollection.bulkWrite(updates, { ordered: false });
     }
 
     return profileByUsername;
@@ -6997,6 +7027,8 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
         })
     );
     const preliminaryResults = new Map();
+    const profileUpdates = [];
+    const clanExperienceByName = new Map();
     const surrenderedByUsername =
         typeof match?.surrenderedBy === 'string' ? match.surrenderedBy.trim() : '';
     const endedBySurrender = match?.endReason === 'surrender' && Boolean(surrenderedByUsername);
@@ -7103,17 +7135,28 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
             ...user,
             profile: setProfileArenaState(profile, arena, arenaProfile),
         });
-        await usersCollection.updateOne(
-            { _id: user._id },
-            {
-                $set: {
-                    profile: normalizedProfile,
+        profileUpdates.push({
+            updateOne: {
+                filter: { _id: user._id },
+                update: {
+                    $set: {
+                        profile: normalizedProfile,
+                    },
                 },
-            }
-        );
+            },
+        });
 
         if (clanExpDelta > 0) {
-            await addClanExperience(profile.clan?.name || '', clanExpDelta);
+            const clanName = String(profile.clan?.name || '').trim();
+            const clanKey = clanName.toLowerCase();
+            if (clanKey) {
+                const currentClanGain = clanExperienceByName.get(clanKey) || {
+                    name: clanName,
+                    gain: 0,
+                };
+                currentClanGain.gain += clanExpDelta;
+                clanExperienceByName.set(clanKey, currentClanGain);
+            }
         }
 
         preliminaryResults.set(username, {
@@ -7127,6 +7170,13 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
             previousLevel: initialArenaProfiles.get(username)?.ladder?.level || 1,
             previousRank: initialArenaProfiles.get(username)?.ladder?.rank || 'Academy Student',
         });
+    }
+
+    if (profileUpdates.length > 0) {
+        await usersCollection.bulkWrite(profileUpdates, { ordered: false });
+    }
+    for (const clanGain of clanExperienceByName.values()) {
+        await addClanExperience(clanGain.name, clanGain.gain);
     }
 
     const refreshedProfiles = await recalculatePlayerLadderStandings(arena);
@@ -7157,6 +7207,28 @@ const applyMatchCompletionRewards = async (match, winnerUsername, endedAt) => {
     });
 
     return results;
+};
+
+const applyRewardsToPersistedMatch = async (match) => {
+    if (!match || match.status !== 'ended') {
+        throw new Error('Match rewards require a persisted ended match.');
+    }
+    if (match.rewardsAppliedAt) {
+        return match.ladderResults || null;
+    }
+    const ladderResults = await applyMatchCompletionRewards(
+        match,
+        match.winner || null,
+        match.endedAt || new Date()
+    );
+    const rewardsAppliedAt = new Date();
+    match.ladderResults = ladderResults || null;
+    match.rewardsAppliedAt = rewardsAppliedAt;
+    await persistMatchState(match, {
+        ladderResults: match.ladderResults,
+        rewardsAppliedAt,
+    });
+    return ladderResults;
 };
 
 const serializeUserForClient = (user = {}) => {
@@ -7193,6 +7265,43 @@ const serializeArenaProfileForClient = (profile = {}, arena = DEFAULT_ARENA_MODE
         missions: arenaState.missions,
         skins: arenaState.skins,
         ladder: arenaState.ladder,
+    };
+};
+
+const buildBattleProfileSnapshot = (profile = {}, arena = DEFAULT_ARENA_MODE) => {
+    if (profile?.battleSnapshotVersion === 1) {
+        return cloneSerializable(profile);
+    }
+    const serialized = serializeArenaProfileForClient(profile, arena);
+    const ladder =
+        serialized?.ladder && typeof serialized.ladder === 'object' ? serialized.ladder : {};
+    const clan = serialized?.clan && typeof serialized.clan === 'object' ? serialized.clan : null;
+    const equippedSkins =
+        serialized?.skins?.equippedSkinByCharacterId &&
+        typeof serialized.skins.equippedSkinByCharacterId === 'object'
+            ? serialized.skins.equippedSkinByCharacterId
+            : {};
+    return {
+        battleSnapshotVersion: 1,
+        avatarUrl: serialized?.avatarUrl || DEFAULT_PROFILE_AVATAR,
+        clan: clan
+            ? {
+                name: clan.name || '',
+                abbreviation: clan.abbreviation || '',
+                avatarUrl: clan.avatarUrl || '',
+                rankKey: clan.rankKey || '',
+                rankName: clan.rankName || '',
+            }
+            : null,
+        ladder: {
+            level: Number(ladder.level) || 1,
+            rank: ladder.rank || 'Academy Student',
+            ladderRank: Number(ladder.ladderRank) || null,
+            rankHatUrl: ladder.rankHatUrl || '',
+        },
+        skins: {
+            equippedSkinByCharacterId: cloneSerializable(equippedSkins),
+        },
     };
 };
 
@@ -7268,12 +7377,19 @@ const buildCharacterCatalog = () =>
         })),
     }));
 
-let characterCatalog = buildCharacterCatalog();
+let characterCatalog = [];
+let cachedCharactersBrowserPayload = '';
+let cachedCharactersBrowserEtag = '';
 
 const serializeCharactersDataFile = (nextCharacters) =>
     'const characters = ' +
     JSON.stringify(nextCharacters, null, 4) +
     ';\n\nif (typeof window !== \'undefined\') {\n    window.characters = characters;\n}\n\nif (typeof module !== \'undefined\') {\n    module.exports = characters;\n}\n';
+
+const serializeCharactersBrowserPayload = (nextCharacters) =>
+    'const characters=' +
+    JSON.stringify(Array.isArray(nextCharacters) ? nextCharacters : []) +
+    ';if(typeof window!=="undefined"){window.characters=characters;}';
 
 const getCharacterRecordId = (character = {}) =>
     typeof character?.characterId === 'string' && character.characterId.trim()
@@ -7713,7 +7829,14 @@ const applyCharacterOverrides = (baseCharacters = []) => {
 const rebuildCharacterCatalog = (nextCharacters) => {
     charactersData = Array.isArray(nextCharacters) ? nextCharacters : [];
     characterCatalog = buildCharacterCatalog();
+    cachedCharactersBrowserPayload = serializeCharactersBrowserPayload(charactersData);
+    cachedCharactersBrowserEtag = `"${crypto
+        .createHash('sha256')
+        .update(cachedCharactersBrowserPayload)
+        .digest('base64url')}"`;
 };
+
+rebuildCharacterCatalog(charactersData);
 
 const normalizeStoredCharacterOverrides = (entries = []) =>
     (Array.isArray(entries) ? entries : [])
@@ -8799,12 +8922,22 @@ app.use(
     })
 );
 app.get('/characters.js', (req, res) => {
-    res.set('Cache-Control', 'no-store');
+    res.set('Cache-Control', 'public, max-age=0, must-revalidate');
     res.type('application/javascript');
     try {
-        const fileCharacters = loadCharactersDataFromFile();
-        const mergedCharacters = applyCharacterOverrides(fileCharacters);
-        return res.send(serializeCharactersDataFile(mergedCharacters));
+        if (!cachedCharactersBrowserPayload) {
+            rebuildCharacterCatalog(applyCharacterOverrides(loadCharactersDataFromFile()));
+        }
+        if (cachedCharactersBrowserEtag) {
+            res.set('ETag', cachedCharactersBrowserEtag);
+        }
+        if (
+            cachedCharactersBrowserEtag &&
+            String(req.headers['if-none-match'] || '') === cachedCharactersBrowserEtag
+        ) {
+            return res.status(304).end();
+        }
+        return res.send(cachedCharactersBrowserPayload);
     } catch (error) {
         console.error('Failed to serve current characters.js payload:', error);
         return res
@@ -8819,6 +8952,55 @@ app.use(
         maxAge: '7d',
     })
 );
+const PUBLIC_ROOT_JAVASCRIPT_FILES = new Set([
+    '/characters.js',
+    '/pokemonDittoTransformationFaces.js',
+    '/pokemon-wave-2-live.js',
+]);
+const isPrivateStaticSourcePath = (requestPath = '') => {
+    const normalizedPath = String(requestPath || '')
+        .replace(/\\/g, '/')
+        .replace(/\/+/g, '/');
+    const lowerPath = normalizedPath.toLowerCase();
+    if (
+        lowerPath === '/package.json' ||
+        lowerPath === '/package-lock.json' ||
+        lowerPath === '/render.yaml' ||
+        lowerPath === '/playwright.config.js' ||
+        lowerPath === '/project_id.txt' ||
+        lowerPath === '/server_log.txt' ||
+        lowerPath === '/debug.log' ||
+        lowerPath.startsWith('/test/') ||
+        lowerPath.startsWith('/test-results/') ||
+        lowerPath.startsWith('/.git/') ||
+        lowerPath.startsWith('/.codex/')
+    ) {
+        return true;
+    }
+    const isRootFile = /^\/[^/]+$/.test(normalizedPath);
+    if (!isRootFile) return false;
+    if (/^\/sync_[^/]+\.js$/i.test(normalizedPath)) return true;
+    if (/^\/(?:server|battleLogic|matchStability|pokemonTypeSystem)\.js$/i.test(normalizedPath)) {
+        return true;
+    }
+    if (
+        /\.(?:md|log|ya?ml|py)$/i.test(normalizedPath) ||
+        /^\/\.(?:env|gitignore)/i.test(normalizedPath)
+    ) {
+        return true;
+    }
+    return (
+        /\.js$/i.test(normalizedPath) &&
+        !PUBLIC_ROOT_JAVASCRIPT_FILES.has(normalizedPath)
+    );
+};
+app.use((req, res, next) => {
+    if (!isPrivateStaticSourcePath(req.path)) {
+        next();
+        return;
+    }
+    res.status(404).type('text/plain').send('Not found.');
+});
 app.use(express.static(path.join(__dirname)));
 app.use(express.json());
 app.use(cookieParser());
@@ -9417,6 +9599,27 @@ const sanitizeLastChakraGainForViewer = (lastChakraGain, viewerUsername) => {
     return ownGain ? { [viewerUsername]: ownGain } : null;
 };
 
+const serializedMatchProfileCache = new WeakMap();
+const serializeMatchProfileForClient = (profile, arena) => {
+    if (!profile || typeof profile !== 'object') return null;
+    if (profile.battleSnapshotVersion === 1) {
+        return cloneSerializable(profile);
+    }
+    const normalizedArena = normalizeArenaMode(arena);
+    const cachedByArena = serializedMatchProfileCache.get(profile);
+    if (cachedByArena?.has(normalizedArena)) {
+        return cloneSerializable(cachedByArena.get(normalizedArena));
+    }
+    const serializedProfile = serializeArenaProfileForClient(profile, normalizedArena);
+    delete serializedProfile.arenas;
+    const nextCache = cachedByArena || new Map();
+    nextCache.set(normalizedArena, serializedProfile);
+    if (!cachedByArena) {
+        serializedMatchProfileCache.set(profile, nextCache);
+    }
+    return cloneSerializable(serializedProfile);
+};
+
 const serializeMatchPlayerForViewer = (
     player = {},
     arena = DEFAULT_ARENA_MODE,
@@ -9432,8 +9635,8 @@ const serializeMatchPlayerForViewer = (
         boardUnits,
         arena,
     });
-    if (safePlayer.profile && typeof safePlayer.profile === 'object') {
-        safePlayer.profile = serializeArenaProfileForClient(safePlayer.profile, arena);
+    if (player.profile && typeof player.profile === 'object') {
+        safePlayer.profile = serializeMatchProfileForClient(player.profile, arena);
     }
     if (safePlayer.isBot) {
         delete safePlayer.isBot;
@@ -9528,7 +9731,7 @@ const findMostRecentActiveMatchForUser = async (username, arena = '') => {
     return matchesCollection.findOne(
         {
             'players.username': username,
-            status: { $ne: 'ended' },
+            status: 'active',
             ...(normalizedArena ? { arena: normalizedArena } : {}),
         },
         {
@@ -9545,6 +9748,7 @@ const respondWithCurrentMatchState = (res, match, username, extra = {}) =>
 
 const respondWithRevisionConflict = (res, match, username) =>
     respondWithCurrentMatchState(res, match, username, {
+        staleAction: true,
         actionRejected: 'revision-conflict',
     });
 
@@ -9563,40 +9767,30 @@ const respondWithLatestRevisionConflict = async (res, matchId, username) => {
     return respondWithRevisionConflict(res, hydrated, playerEntry.username);
 };
 
-const hydrateMatchForBroadcast = async (matchOrMatchId) => {
+const broadcastMatchState = async (matchOrMatchId) => {
     const match =
         typeof matchOrMatchId === 'string'
             ? await matchesCollection.findOne({ matchId: matchOrMatchId })
             : matchOrMatchId;
-    if (!match) return null;
-    const hydratedTurn = await ensureMatchTurnData(match);
-    const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
-    const hydratedPending = await ensurePendingTurnState(hydratedEcon);
-    const hydratedBoard = await ensureBoardState(hydratedPending);
-    return autoAdvanceTurnIfExpired(hydratedBoard);
-};
-
-const broadcastMatchState = async (matchOrMatchId) => {
-    const hydrated = await hydrateMatchForBroadcast(matchOrMatchId);
-    if (!hydrated || !Array.isArray(hydrated.players) || hydrated.players.length === 0) {
+    if (!match || !Array.isArray(match.players) || match.players.length === 0) {
         return null;
     }
-    scheduleBattleBotTurn(hydrated);
-    const room = getMatchRoom(hydrated.matchId);
+    scheduleBattleBotTurn(match);
+    const room = matchSocketRooms.get(match.matchId);
     if (!room || room.size === 0) {
-        return hydrated;
+        return match;
     }
     room.forEach((ws) => {
         if (!ws || ws.readyState !== WebSocket.OPEN) {
             removeSocketFromRoom(ws);
             return;
         }
-        const payload = buildMatchPayloadForUser(hydrated, ws.username);
+        const payload = buildMatchPayloadForUser(match, ws.username);
         if (payload) {
             sendJsonToSocket(ws, { type: 'match_state', payload });
         }
     });
-    return hydrated;
+    return match;
 };
 
 const queueMatchStateBroadcast = (matchOrMatchId) => {
@@ -9605,24 +9799,47 @@ const queueMatchStateBroadcast = (matchOrMatchId) => {
     });
 };
 
+const hydrateAndAdvanceMatch = async (matchId) => {
+    const match = await matchesCollection.findOne({ matchId });
+    if (!match) return null;
+    const hydratedTurn = await ensureMatchTurnData(match);
+    const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
+    const hydratedPending = await ensurePendingTurnState(hydratedEcon);
+    const hydratedBoard = await ensureBoardState(hydratedPending);
+    return autoAdvanceTurnIfExpired(hydratedBoard);
+};
+
+const advanceExpiredMatchAndBroadcast = async (matchId) => {
+    const advanced = await hydrateAndAdvanceMatch(matchId);
+    if (!advanced) return null;
+    await broadcastMatchState(advanced);
+    return advanced;
+};
+
 const sweepExpiredMatches = async () => {
-    if (!matchesCollection) return;
-    const now = new Date();
-    const expiredMatches = await matchesCollection
-        .find(
-            {
-                status: { $ne: 'ended' },
-                turnExpiresAt: { $lte: now },
-            },
-            { projection: { matchId: 1 } }
-        )
-        .toArray();
-    for (const entry of expiredMatches) {
-        const matchId = typeof entry?.matchId === 'string' ? entry.matchId : '';
-        if (!matchId) continue;
-        await matchCommandCoordinator.execute(matchId, 'turn-expiry-sweep', () =>
-            broadcastMatchState(matchId)
-        );
+    if (!matchesCollection || turnSweepInFlight) return;
+    turnSweepInFlight = true;
+    try {
+        const now = new Date();
+        const expiredMatches = await matchesCollection
+            .find(
+                {
+                    status: 'active',
+                    turnExpiresAt: { $lte: now },
+                },
+                { projection: { matchId: 1 } }
+            )
+            .limit(50)
+            .toArray();
+        for (const entry of expiredMatches) {
+            const matchId = typeof entry?.matchId === 'string' ? entry.matchId : '';
+            if (!matchId) continue;
+            await matchCommandCoordinator.execute(matchId, 'turn-expiry-sweep', () =>
+                advanceExpiredMatchAndBroadcast(matchId)
+            );
+        }
+    } finally {
+        turnSweepInFlight = false;
     }
 };
 
@@ -9679,6 +9896,16 @@ const attachWebSocketSupport = (server) => {
                     } catch (error) {
                         return;
                     }
+                    if (message?.type === 'match_ping') {
+                        sendJsonToSocket(ws, {
+                            type: 'match_pong',
+                            payload: {
+                                clientAt: Number(message?.payload?.clientAt) || null,
+                                serverAt: Date.now(),
+                            },
+                        });
+                        return;
+                    }
                     if (message?.type === 'chat_message') {
                         broadcastMatchChatMessage(ws, message?.payload?.text).catch((error) => {
                             console.warn('Failed to broadcast match chat message:', error);
@@ -9710,7 +9937,7 @@ wsServer.on('connection', async (ws) => {
         const hydrated = await matchCommandCoordinator.execute(
             ws.matchId,
             'websocket-initial-sync',
-            () => hydrateMatchForBroadcast(ws.matchId),
+            () => hydrateAndAdvanceMatch(ws.matchId),
             { log: false }
         );
         if (!hydrated) {
@@ -10317,7 +10544,7 @@ const enqueuePlayer = (entry) => {
         arena: normalizeArenaMode(entry?.arena),
     };
     if (normalizedEntry.profile && typeof normalizedEntry.profile === 'object') {
-        normalizedEntry.profile = serializeArenaProfileForClient(
+        normalizedEntry.profile = buildBattleProfileSnapshot(
             normalizedEntry.profile,
             normalizedEntry.arena
         );
@@ -10406,7 +10633,7 @@ const buildPairedMatchDocument = ({ username, team, opponent, mode, arena, profi
             username,
             team,
             aliveCount: aliveLookup[username],
-            profile: serializeArenaProfileForClient(profile, normalizedArena),
+            profile: buildBattleProfileSnapshot(profile, normalizedArena),
         },
         {
             username: opponent.username,
@@ -10414,7 +10641,7 @@ const buildPairedMatchDocument = ({ username, team, opponent, mode, arena, profi
             aliveCount: aliveLookup[opponent.username],
             profile:
                 opponent.profile && typeof opponent.profile === 'object'
-                    ? serializeArenaProfileForClient(opponent.profile, normalizedArena)
+                    ? buildBattleProfileSnapshot(opponent.profile, normalizedArena)
                     : null,
         },
     ];
@@ -10463,7 +10690,7 @@ const buildBattleBotMatch = async ({ username, team, mode, arena, playerProfile 
             username,
             team,
             aliveCount: aliveLookup[username],
-            profile: serializeArenaProfileForClient(playerProfile, normalizedArena),
+            profile: buildBattleProfileSnapshot(playerProfile, normalizedArena),
         },
         botPlayer,
     ];
@@ -10854,32 +11081,31 @@ const ensureMatchVersionData = async (match) => {
     const hadTurnNumber = Number.isInteger(match.turnNumber) && match.turnNumber >= 0;
     normalizeMatchVersionFields(match);
     if (!hadRevision || !hadTurnNumber) {
-        await matchesCollection.updateOne(
-            { matchId: match.matchId },
-            { $set: { stateRevision: match.stateRevision, turnNumber: match.turnNumber } }
-        );
+        await persistMatchState(match, {}, { skipInvariants: true });
     }
     return match;
 };
 
 const ensureMatchTurnData = async (match) => {
     await ensureMatchVersionData(match);
-    if (!match || match.currentTurn) {
+    if (!match || match.status === 'ended' || match.currentTurn) {
         return match;
     }
     const usernames = (match.players || []).map((p) => p.username).filter(Boolean);
     const { turnOrder, currentTurn } = pickInitialTurn(usernames);
     const turnStartedAt = new Date();
     const turnExpiresAt = new Date(Date.now() + getTurnDurationMsForUser(match, currentTurn));
-    await matchesCollection.updateOne(
-        { matchId: match.matchId },
-        { $set: { currentTurn, turnOrder, turnStartedAt, turnExpiresAt } }
+    Object.assign(match, { currentTurn, turnOrder, turnStartedAt, turnExpiresAt });
+    await persistMatchState(
+        match,
+        { currentTurn, turnOrder, turnStartedAt, turnExpiresAt },
+        { skipInvariants: true }
     );
-    return { ...match, currentTurn, turnOrder, turnStartedAt, turnExpiresAt };
+    return match;
 };
 
 const ensureMatchEconomy = async (match) => {
-    if (!match) return match;
+    if (!match || match.status === 'ended') return match;
     let changed = false;
     const usernames = (match.players || []).map((p) => p.username).filter(Boolean);
 
@@ -10942,23 +11168,22 @@ const ensureMatchEconomy = async (match) => {
     }
 
     if (changed) {
-        await matchesCollection.updateOne(
-            { matchId: match.matchId },
+        await persistMatchState(
+            match,
             {
-                $set: {
-                    chakraPools: match.chakraPools,
-                    economy: match.economy,
-                    turnStartedAt: match.turnStartedAt,
-                    turnExpiresAt: match.turnExpiresAt,
-                },
-            }
+                chakraPools: match.chakraPools,
+                economy: match.economy,
+                turnStartedAt: match.turnStartedAt,
+                turnExpiresAt: match.turnExpiresAt,
+            },
+            { skipInvariants: true }
         );
     }
     return match;
 };
 
 const ensurePendingTurnState = async (match) => {
-    if (!match) return match;
+    if (!match || match.status === 'ended') return match;
     let changed = false;
     const usernames = (match.players || []).map((p) => p.username).filter(Boolean);
     if (!match.pendingTurns || typeof match.pendingTurns !== 'object') {
@@ -10979,13 +11204,12 @@ const ensurePendingTurnState = async (match) => {
         }
     });
     if (changed) {
-        await matchesCollection.updateOne(
-            { matchId: match.matchId },
+        await persistMatchState(
+            match,
             {
-                $set: {
-                    pendingTurns: match.pendingTurns,
-                },
-            }
+                pendingTurns: match.pendingTurns,
+            },
+            { skipInvariants: true }
         );
     }
     return match;
@@ -11004,7 +11228,11 @@ const hasPendingTurnStartChoice = (pendingTurn) =>
             pendingTurn.turnStartChoice.options.length > 0
     );
 
-const persistMatchState = async (match, fields = {}, { incrementTurn = false } = {}) => {
+const persistMatchState = async (
+    match,
+    fields = {},
+    { incrementTurn = false, skipInvariants = false } = {}
+) => {
     normalizeMatchVersionFields(match);
     const expectedRevision = getMatchStateRevision(match);
     const nextRevision = expectedRevision + 1;
@@ -11015,10 +11243,12 @@ const persistMatchState = async (match, fields = {}, { incrementTurn = false } =
         turnNumber: nextTurnNumber,
     };
     const candidate = { ...match, ...nextFields };
-    assertMatchInvariants(candidate, {
-        chakraTypes,
-        isUnitBanished: battleLogic.isUnitBanished,
-    });
+    if (!skipInvariants) {
+        assertMatchInvariants(candidate, {
+            chakraTypes,
+            isUnitBanished: battleLogic.isUnitBanished,
+        });
+    }
     const revisionFilter =
         expectedRevision === 0
             ? {
@@ -11859,6 +12089,15 @@ const runBattleBotTurnUnlocked = async (matchId) => {
 const runBattleBotTurn = (matchId) =>
     matchCommandCoordinator.execute(matchId, 'battle-bot-turn', () => runBattleBotTurnUnlocked(matchId));
 
+const getBattleBotActionDelayRange = (match = {}) => {
+    const isExplicitPveBattle =
+        match.mode === 'pve' &&
+        Boolean(match.specialPveMissionId || match.pveBattle?.missionId);
+    return isExplicitPveBattle
+        ? { minMs: PVE_BOT_ACTION_DELAY_MIN_MS, maxMs: PVE_BOT_ACTION_DELAY_MAX_MS }
+        : { minMs: BATTLE_BOT_ACTION_DELAY_MIN_MS, maxMs: BATTLE_BOT_ACTION_DELAY_MAX_MS };
+};
+
 function scheduleBattleBotTurn(match) {
     if (!match || match.status === 'ended' || !isBattleBotTurn(match)) {
         return;
@@ -11869,9 +12108,11 @@ function scheduleBattleBotTurn(match) {
     }
     const matchStartsAtMs = match.matchStartsAt ? new Date(match.matchStartsAt).getTime() : Date.now();
     const turnStartedAtMs = match.turnStartedAt ? new Date(match.turnStartedAt).getTime() : matchStartsAtMs;
+    const { minMs: actionDelayMinMs, maxMs: actionDelayMaxMs } =
+        getBattleBotActionDelayRange(match);
     const actionDelayMs =
-        BATTLE_BOT_ACTION_DELAY_MIN_MS +
-        Math.floor(Math.random() * (BATTLE_BOT_ACTION_DELAY_MAX_MS - BATTLE_BOT_ACTION_DELAY_MIN_MS + 1));
+        actionDelayMinMs +
+        Math.floor(Math.random() * (actionDelayMaxMs - actionDelayMinMs + 1));
     const turnExpiresAtMs = match.turnExpiresAt ? new Date(match.turnExpiresAt).getTime() : NaN;
     const earliestActionAtMs = Math.max(
         matchStartsAtMs,
@@ -12259,7 +12500,7 @@ const exchangeChakra = ({ match, username, chakraType, cost = 2, spendAssignment
 };
 
 const ensureBoardState = async (match) => {
-    if (!match) return match;
+    if (!match || match.status === 'ended') return match;
     let changed = false;
     const players = Array.isArray(match.players) ? match.players : [];
     if (!match.board) {
@@ -12316,9 +12557,10 @@ const ensureBoardState = async (match) => {
         }
     });
     if (changed) {
-        await matchesCollection.updateOne(
-            { matchId: match.matchId },
-            { $set: { board: match.board, players } }
+        await persistMatchState(
+            match,
+            { board: match.board, players },
+            { skipInvariants: true }
         );
     }
     return match;
@@ -12350,7 +12592,6 @@ const finalizeTurn = async (match, username, options = {}) => {
         match.currentTurn = null;
         match.turnStartedAt = null;
         match.turnExpiresAt = null;
-        match.ladderResults = await applyMatchCompletionRewards(match, match.winner, match.endedAt);
         await persistMatchState(
             match,
             {
@@ -12363,10 +12604,10 @@ const finalizeTurn = async (match, username, options = {}) => {
                 turnStartedAt: null,
                 turnExpiresAt: null,
                 expiredTurnCountsByUsername: match.expiredTurnCountsByUsername,
-                ladderResults: match.ladderResults || null,
             },
             { incrementTurn: true }
         );
+        await applyRewardsToPersistedMatch(match);
         quickMatches.delete(match.matchId);
         (match.players || []).forEach((player) => userToMatch.delete(player.username));
         return match;
@@ -12430,11 +12671,6 @@ const finalizeTurn = async (match, username, options = {}) => {
         match.currentTurn = null;
         match.turnStartedAt = null;
         match.turnExpiresAt = null;
-        match.ladderResults = await applyMatchCompletionRewards(
-            match,
-            match.winner,
-            match.endedAt
-        );
         await persistMatchState(
             match,
             {
@@ -12453,10 +12689,10 @@ const finalizeTurn = async (match, username, options = {}) => {
                     economy: match.economy,
                     pendingTurns: match.pendingTurns,
                     lastTurnDamageByUsername: match.lastTurnDamageByUsername,
-                    ladderResults: match.ladderResults || null,
             },
             { incrementTurn: true }
         );
+        await applyRewardsToPersistedMatch(match);
         quickMatches.delete(match.matchId);
         (match.players || []).forEach((player) => userToMatch.delete(player.username));
         return match;
@@ -12531,14 +12767,14 @@ const finalizeTurn = async (match, username, options = {}) => {
 };
 
 const autoAdvanceTurnIfExpired = async (match) => {
-    if (!match || !match.turnExpiresAt) return match;
+    if (!match || match.status === 'ended' || !match.turnExpiresAt) return match;
     await ensureBoardState(match);
     const expiry =
         match.turnExpiresAt instanceof Date
             ? match.turnExpiresAt.getTime()
             : new Date(match.turnExpiresAt).getTime();
     if (Number.isNaN(expiry)) return match;
-    if (Date.now() <= expiry) return match;
+    if (Date.now() <= expiry + TURN_EXPIRY_GRACE_MS) return match;
     resolveExpiredTurnStartChoiceIfNeeded({
         match,
         username: match.currentTurn,
@@ -12553,7 +12789,10 @@ async function initDb() {
     if (!JWT_SECRET) {
         throw new Error('JWT_SECRET is required. Set it in your environment before starting the server.');
     }
-    mongoClient = new MongoClient(DEFAULT_URI);
+    mongoClient = new MongoClient(DEFAULT_URI, MONGO_CLIENT_OPTIONS);
+    mongoClient.on('serverHeartbeatFailed', (event) => {
+        console.warn('MongoDB heartbeat failed:', event?.failure?.message || 'unknown topology error');
+    });
     await mongoClient.connect();
     const db = mongoClient.db(DATABASE_NAME);
     usersCollection = db.collection(USERS_COLLECTION);
@@ -12561,51 +12800,82 @@ async function initDb() {
     appStateCollection = db.collection(APP_STATE_COLLECTION);
     newsPostsCollection = db.collection(NEWS_POSTS_COLLECTION);
     pointPurchasesCollection = db.collection(POINT_PURCHASES_COLLECTION);
-    await usersCollection.createIndex({ username: 1 }, { unique: true });
-    await usersCollection.createIndex({ usernameLower: 1 });
-    await usersCollection.createIndex(
-        { email: 1 },
-        { unique: true, partialFilterExpression: { email: { $type: 'string' } } }
-    );
-    await matchesCollection.createIndex({ matchId: 1 }, { unique: true });
-    await appStateCollection.createIndex({ key: 1 }, { unique: true });
-    await newsPostsCollection.createIndex({ createdAt: -1 });
-    await pointPurchasesCollection.createIndex({ provider: 1, orderId: 1 }, { unique: true });
-    await pointPurchasesCollection.createIndex({ username: 1, createdAt: -1 });
+    await Promise.all([
+        usersCollection.createIndex({ username: 1 }, { unique: true }),
+        usersCollection.createIndex({ usernameLower: 1 }),
+        usersCollection.createIndex(
+            { email: 1 },
+            { unique: true, partialFilterExpression: { email: { $type: 'string' } } }
+        ),
+        matchesCollection.createIndex({ matchId: 1 }, { unique: true }),
+        matchesCollection.createIndex({ status: 1, turnExpiresAt: 1 }),
+        matchesCollection.createIndex({
+            'players.username': 1,
+            status: 1,
+            matchStartsAt: -1,
+        }),
+        matchesCollection.createIndex({ status: 1, mode: 1, arena: 1, endedAt: -1 }),
+        matchesCollection.createIndex({ arena: 1 }),
+        appStateCollection.createIndex({ key: 1 }, { unique: true }),
+        newsPostsCollection.createIndex({ createdAt: -1 }),
+        pointPurchasesCollection.createIndex({ provider: 1, orderId: 1 }, { unique: true }),
+        pointPurchasesCollection.createIndex({ username: 1, createdAt: -1 }),
+    ]);
     await hydrateCharactersDataFromStoredOverrides();
-    const matchArenaBackfill = await backfillMatchArenaMetadata();
-    if (matchArenaBackfill.updated > 0) {
-        console.log(`Backfilled arena metadata for ${matchArenaBackfill.updated} matches.`);
+    const startupMigrationState = await appStateCollection.findOne(
+        { key: STARTUP_MIGRATION_STATE_KEY },
+        { projection: { version: 1 } }
+    );
+    if (startupMigrationState?.version !== STARTUP_MIGRATION_VERSION) {
+        const matchArenaBackfill = await backfillMatchArenaMetadata();
+        if (matchArenaBackfill.updated > 0) {
+            console.log(`Backfilled arena metadata for ${matchArenaBackfill.updated} matches.`);
+        }
+        const onixReleaseSync = await syncPokemonOnixRelease(db);
+        if (onixReleaseSync.migrated) {
+            console.log('Applied the Pokemon Arena V.3.3.1 Onix release to MongoDB.');
+        }
+        const meowthReleaseSync = await syncPokemonMeowthRelease(db);
+        if (meowthReleaseSync.migrated) {
+            console.log('Published Meowth and the upcoming 12-character Pokemon Arena announcement.');
+        }
+        const wave2ReleaseSync = await syncPokemonWave2Release(db);
+        if (wave2ReleaseSync?.migrated) {
+            console.log(
+                'Published the nine-character Pokemon Arena launch, latest releases, and news post.'
+            );
+        }
+        const gen2StarterReleaseSync = await syncPokemonGen2StarterRelease(db);
+        if (gen2StarterReleaseSync.migrated) {
+            console.log(
+                'Published the Generation 2 starter launch and community-character announcement.'
+            );
+        }
+        await syncPokemonTypeClassNews(db);
+        console.log('Synced the Pokemon Arena Type-Class Overhaul news post.');
+        const aegislashReleaseSync = await syncPokemonAegislashRelease(db);
+        if (aegislashReleaseSync.migrated) {
+            console.log('Published Aegislash, the Pokemon class overhaul, and iPhone audio news.');
+        }
+        const dittoReleaseSync = await syncPokemonDittoRelease(db);
+        if (dittoReleaseSync.migrated) {
+            console.log('Published the Ditto and Scraggy community-character batch.');
+        }
+        await syncPokemonBattleExperienceNews(db);
+        console.log('Synced the Pokemon Arena Battle Experience Update news post.');
+        await backfillUserProfiles();
+        await appStateCollection.updateOne(
+            { key: STARTUP_MIGRATION_STATE_KEY },
+            {
+                $set: {
+                    key: STARTUP_MIGRATION_STATE_KEY,
+                    version: STARTUP_MIGRATION_VERSION,
+                    completedAt: new Date(),
+                },
+            },
+            { upsert: true }
+        );
     }
-    const onixReleaseSync = await syncPokemonOnixRelease(db);
-    if (onixReleaseSync.migrated) {
-        console.log('Applied the Pokemon Arena V.3.3.1 Onix release to MongoDB.');
-    }
-    const meowthReleaseSync = await syncPokemonMeowthRelease(db);
-    if (meowthReleaseSync.migrated) {
-        console.log('Published Meowth and the upcoming 12-character Pokemon Arena announcement.');
-    }
-    const wave2ReleaseSync = await syncPokemonWave2Release(db);
-    if (wave2ReleaseSync?.migrated) {
-        console.log('Published the nine-character Pokemon Arena launch, latest releases, and news post.');
-    }
-    const gen2StarterReleaseSync = await syncPokemonGen2StarterRelease(db);
-    if (gen2StarterReleaseSync.migrated) {
-        console.log('Published the Generation 2 starter launch and community-character announcement.');
-    }
-    await syncPokemonTypeClassNews(db);
-    console.log('Synced the Pokemon Arena Type-Class Overhaul news post.');
-    const aegislashReleaseSync = await syncPokemonAegislashRelease(db);
-    if (aegislashReleaseSync.migrated) {
-        console.log('Published Aegislash, the Pokemon class overhaul, and iPhone audio news.');
-    }
-    const dittoReleaseSync = await syncPokemonDittoRelease(db);
-    if (dittoReleaseSync.migrated) {
-        console.log('Published the Ditto and Scraggy community-character batch.');
-    }
-    await syncPokemonBattleExperienceNews(db);
-    console.log('Synced the Pokemon Arena Battle Experience Update news post.');
-    await backfillUserProfiles();
     console.log('Connected to MongoDB.');
 }
 
@@ -12939,7 +13209,7 @@ app.post('/api/login', loginLimiter, async (req, res) => {
             return res.status(401).json({ error: 'Wrong username or password.' });
         }
 
-        const isMatch = await bcrypt.compare(password, user.passwordHash || '');
+        const isMatch = await comparePassword(password, user.passwordHash || '');
         if (!isMatch) {
             return res.status(401).json({ error: 'Wrong username or password.' });
         }
@@ -13007,7 +13277,7 @@ app.post('/api/register', registerLimiter, async (req, res) => {
             return res.status(409).json({ error: 'Email is already in use.' });
         }
 
-        const passwordHash = await bcrypt.hash(password, 10);
+        const passwordHash = await hashPassword(password);
         const createdAt = new Date();
         const profile = buildDefaultUserProfile({ createdAt });
         const newUser = {
@@ -13136,10 +13406,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                 if (!existing || existing.status === 'ended') {
                     userToMatch.delete(username);
                 } else {
-                    const hydratedTurn = await ensureMatchTurnData(existing);
-                    const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
-                    const hydratedPending = await ensurePendingTurnState(hydratedEcon);
-                    const hydrated = await autoAdvanceTurnIfExpired(hydratedPending);
+                    const hydrated = await hydrateMatchForStatus(existing.matchId);
                     if (!hydrated || hydrated.status === 'ended') {
                         userToMatch.delete(username);
                     } else {
@@ -13181,15 +13448,12 @@ app.post('/api/match/join', requireSession, async (req, res) => {
         // If already stored in DB from earlier pairing, surface it
         const existingMatch = await matchesCollection.findOne({
             'players.username': username,
-            status: { $ne: 'ended' },
+            status: 'active',
             arena,
         });
         if (existingMatch) {
             try {
-                const hydratedTurn = await ensureMatchTurnData(existingMatch);
-                const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
-                const hydratedPending = await ensurePendingTurnState(hydratedEcon);
-                const hydrated = await autoAdvanceTurnIfExpired(hydratedPending);
+                const hydrated = await hydrateMatchForStatus(existingMatch.matchId);
                 if (!hydrated || hydrated.status === 'ended') {
                     return res.json({ ok: true, matchFound: false });
                 }
@@ -13261,7 +13525,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
                                 team,
                                 mode,
                                 arena,
-                                profile: serializeArenaProfileForClient(profile, arena),
+                                profile: buildBattleProfileSnapshot(profile, arena),
                                 draftMode: true,
                                 targetUsername,
                                 queuedAt: new Date(),
@@ -13360,7 +13624,7 @@ app.post('/api/match/join', requireSession, async (req, res) => {
             targetUsername,
             queuedAt: new Date(),
             allowBattleBot: true,
-            profile: serializeArenaProfileForClient(profile, arena),
+            profile: buildBattleProfileSnapshot(profile, arena),
             ladderLevel: Number(getProfileArenaState(profile, arena)?.ladder?.level) || 1,
         });
         return res.json({ ok: true, queued: true, mode, arena });
@@ -13369,6 +13633,14 @@ app.post('/api/match/join', requireSession, async (req, res) => {
         return res.status(500).json({ error: 'Internal server error.' });
     }
 });
+
+const hydrateMatchForStatus = (matchId) =>
+    matchCommandCoordinator.execute(
+        matchId,
+        'get /api/match/status',
+        () => hydrateAndAdvanceMatch(matchId),
+        { log: false }
+    );
 
 app.get('/api/match/status', requireSession, async (req, res) => {
     try {
@@ -13403,11 +13675,7 @@ app.get('/api/match/status', requireSession, async (req, res) => {
                 userToMatch.delete(username);
                 return res.json({ ok: true, matchFound: false });
             }
-            const hydratedTurn = await ensureMatchTurnData(match);
-            const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
-            const hydratedPending = await ensurePendingTurnState(hydratedEcon);
-            const hydratedBoard = await ensureBoardState(hydratedPending);
-            const hydrated = await autoAdvanceTurnIfExpired(hydratedBoard);
+            const hydrated = await hydrateMatchForStatus(match.matchId);
             if (!hydrated || hydrated.status === 'ended') {
                 userToMatch.delete(username);
                 return res.json({ ok: true, matchFound: false });
@@ -13474,11 +13742,7 @@ app.get('/api/match/status', requireSession, async (req, res) => {
                 pendingTurn: safePayload?.pendingTurn || makeEmptyPendingTurn(),
             });
         }
-        const hydratedTurn = await ensureMatchTurnData(match);
-        const hydratedEcon = await ensureMatchEconomy(hydratedTurn);
-        const hydratedPending = await ensurePendingTurnState(hydratedEcon);
-        const hydratedBoard = await ensureBoardState(hydratedPending);
-        const hydrated = await autoAdvanceTurnIfExpired(hydratedBoard);
+        const hydrated = await hydrateMatchForStatus(match.matchId);
         if (!hydrated || hydrated.status === 'ended') {
             return res.json({ ok: true, matchFound: false });
         }
@@ -13719,12 +13983,8 @@ app.post('/api/match/:matchId/surrender', requireSession, async (req, res) => {
     queueMatchStateBroadcast(endedMatch);
     let ladderResults = null;
     try {
-        ladderResults = await applyMatchCompletionRewards(endedMatch, winnerUsername, endedAt);
-        if (ladderResults) {
-            endedMatch.ladderResults = ladderResults;
-            await persistMatchState(endedMatch, { ladderResults });
-            queueMatchStateBroadcast(endedMatch);
-        }
+        ladderResults = await applyRewardsToPersistedMatch(endedMatch);
+        queueMatchStateBroadcast(endedMatch);
     } catch (error) {
         if (isMatchRevisionConflict(error)) {
             return respondWithLatestRevisionConflict(res, matchId, username);
@@ -14481,24 +14741,25 @@ app.post('/api/activity', requireSession, async (req, res) => {
     if (validationError) {
         return res.status(400).json({ error: 'Invalid activity payload.' });
     }
-    const user = await usersCollection.findOne({ username: req.authUser.username });
-    if (!user) {
-        return res.status(401).json({ error: 'Unauthorized.' });
-    }
-    const normalizedProfile = normalizeUserProfile(user);
-    normalizedProfile.activity.lastOnlineAt = new Date();
-    normalizedProfile.activity.currentPage = value.currentPage || '';
-    await usersCollection.updateOne(
-        { _id: user._id },
+    const activity = {
+        lastOnlineAt: new Date(),
+        currentPage: value.currentPage || '',
+    };
+    const result = await usersCollection.updateOne(
+        { username: req.authUser.username },
         {
             $set: {
-                profile: normalizedProfile,
+                'profile.activity.lastOnlineAt': activity.lastOnlineAt,
+                'profile.activity.currentPage': activity.currentPage,
             },
         }
     );
+    if (!result?.matchedCount) {
+        return res.status(401).json({ error: 'Unauthorized.' });
+    }
     return res.json({
         ok: true,
-        activity: normalizedProfile.activity,
+        activity,
     });
 });
 
@@ -14521,28 +14782,64 @@ app.get('/api/admin/winrates', requireSession, async (req, res) => {
             effectiveWinratesState && effectiveWinratesState.resetAt
                 ? new Date(effectiveWinratesState.resetAt)
                 : null;
-        const ladderMatches = await matchesCollection.find(
-            {
-                status: 'ended',
-                mode,
-                ...(resetAt && !Number.isNaN(resetAt.getTime())
-                    ? {
-                        endedAt: { $gte: resetAt },
-                    }
-                    : {}),
-            },
-            {
-                projection: {
-                    arena: 1,
-                    mode: 1,
-                    status: 1,
-                    winner: 1,
-                    players: 1,
-                    endedAt: 1,
+        const matchFilter = {
+            status: 'ended',
+            mode,
+            arena,
+            ...(resetAt && !Number.isNaN(resetAt.getTime())
+                ? {
+                    endedAt: { $gte: resetAt },
+                }
+                : {}),
+        };
+        const winrateAggregates = await matchesCollection
+            .aggregate([
+                { $match: matchFilter },
+                { $project: { winner: 1, 'players.username': 1, 'players.team': 1 } },
+                { $unwind: '$players' },
+                { $unwind: '$players.team' },
+                {
+                    $project: {
+                        characterIndex: {
+                            $convert: {
+                                input: '$players.team',
+                                to: 'int',
+                                onError: null,
+                                onNull: null,
+                            },
+                        },
+                        didWin: {
+                            $eq: [
+                                { $toLower: { $ifNull: ['$players.username', ''] } },
+                                { $toLower: { $ifNull: ['$winner', ''] } },
+                            ],
+                        },
+                    },
                 },
+                { $match: { characterIndex: { $ne: null } } },
+                {
+                    $group: {
+                        _id: '$characterIndex',
+                        totalMatchesPlayed: { $sum: 1 },
+                        totalGamesWon: { $sum: { $cond: ['$didWin', 1, 0] } },
+                    },
+                },
+            ])
+            .toArray();
+        const aggregateByCharacterIndex = new Map(
+            winrateAggregates.map((entry) => [Number(entry._id), entry])
+        );
+        const characters = buildCharacterWinrateEntries({ matches: [], arena, mode, resetAt }).map(
+            (entry) => {
+                const aggregate = aggregateByCharacterIndex.get(entry.characterIndex);
+                if (!aggregate) return entry;
+                return {
+                    ...entry,
+                    totalMatchesPlayed: Number(aggregate.totalMatchesPlayed) || 0,
+                    totalGamesWon: Number(aggregate.totalGamesWon) || 0,
+                };
             }
-        ).toArray();
-        const characters = buildCharacterWinrateEntries({ matches: ladderMatches, arena, mode, resetAt });
+        );
 
         return res.json({
             ok: true,
@@ -15182,7 +15479,7 @@ app.post('/api/missions/:missionId/pve/start', requireSession, async (req, res) 
                 {
                     username,
                     team,
-                    profile: serializeArenaProfileForClient(profile, arena),
+                    profile: buildBattleProfileSnapshot(profile, arena),
                 },
                 botPlayer,
             ],
@@ -15210,7 +15507,7 @@ app.post('/api/missions/:missionId/pve/start', requireSession, async (req, res) 
             arena,
         });
         scheduleBattleBotTurn(matchDocument);
-        const hydrated = await hydrateMatchForBroadcast(matchDocument.matchId);
+        const hydrated = await hydrateMatchForStatus(matchDocument.matchId);
         return res.json(buildMatchPayloadForUser(hydrated || matchDocument, username));
     } catch (error) {
         console.error('Mission PvE start error:', error);
@@ -17590,6 +17887,19 @@ app.get(['/editmission', '/editmission.html'], requireSession, async (req, res) 
     return res.sendFile(path.join(__dirname, 'editmission.html'));
 });
 
+app.use((error, req, res, next) => {
+    if (res.headersSent) {
+        next(error);
+        return;
+    }
+    console.error('Unhandled Express request error:', error);
+    if (String(req.path || '').startsWith('/api/')) {
+        res.status(500).json({ error: 'The server could not complete that request.' });
+        return;
+    }
+    res.status(500).type('text/plain').send('The server could not complete that request.');
+});
+
 const startServer = async () => {
     await initDb();
 
@@ -17621,7 +17931,11 @@ const startServer = async () => {
         }, 2000);
     }
 
-    process.on('SIGINT', async () => {
+    let shutdownStarted = false;
+    const shutdownServer = async (signal, exitCode = 0) => {
+        if (shutdownStarted) return;
+        shutdownStarted = true;
+        console.log(`Received ${signal}; shutting down cleanly.`);
         if (turnSweepTimer) {
             clearInterval(turnSweepTimer);
             turnSweepTimer = null;
@@ -17637,7 +17951,7 @@ const startServer = async () => {
         if (mongoClient) {
             await mongoClient.close();
         }
-        server.close(() => process.exit(0));
+        server.close(() => {});
         if (httpsServer) {
             httpsServer.close(() => {});
         }
@@ -17646,6 +17960,29 @@ const startServer = async () => {
         } catch (error) {
             // Ignore websocket server shutdown failures.
         }
+        process.exit(exitCode);
+    };
+    process.once('SIGINT', () => {
+        shutdownServer('SIGINT').catch((error) => {
+            console.error('SIGINT shutdown failed:', error);
+            process.exit(1);
+        });
+    });
+    process.once('SIGTERM', () => {
+        shutdownServer('SIGTERM').catch((error) => {
+            console.error('SIGTERM shutdown failed:', error);
+            process.exit(1);
+        });
+    });
+    process.on('unhandledRejection', (error) => {
+        console.error('Unhandled promise rejection:', error);
+    });
+    process.once('uncaughtException', (error) => {
+        console.error('Uncaught exception:', error);
+        shutdownServer('uncaughtException', 1).catch((shutdownError) => {
+            console.error('Fatal shutdown failed:', shutdownError);
+            process.exit(1);
+        });
     });
 };
 
@@ -17667,6 +18004,11 @@ const resetMatchmakingStateForTests = () => {
 
 const getUserMatchForTests = (username) => userToMatch.get(username) || null;
 
+const setPersistenceCollectionsForTests = ({ matches = null, users = null } = {}) => {
+    matchesCollection = matches;
+    usersCollection = users;
+};
+
 if (require.main === module) {
     startServer().catch((error) => {
         console.error('Failed to initialize the server:', error);
@@ -17674,6 +18016,7 @@ if (require.main === module) {
     });
 } else {
     module.exports = {
+        app,
         normalizeArenaMode,
         applyRequiredCanonicalSkillCorrections,
         adjustRandomAssignments,
@@ -17689,6 +18032,7 @@ if (require.main === module) {
         sanitizeSavedTeamIndicesForArena,
         buildSanitizedSavedTeamIndicesByArena,
         serializeUserForClient,
+        buildBattleProfileSnapshot,
         sanitizeBoardForViewer,
         serializeMatchPlayerForViewer,
         buildMatchPayloadForUser,
@@ -17705,6 +18049,10 @@ if (require.main === module) {
         setCachedBotTeamsForTests,
         resetMatchmakingStateForTests,
         getUserMatchForTests,
+        setPersistenceCollectionsForTests,
+        persistMatchState,
+        ensureMatchTurnData,
+        getBattleBotActionDelayRange,
         POKEMON_SKIN_CATALOG,
         scoreBattleBotDamageCoordination,
         estimateBattleBotPersistentDamage,
@@ -17715,5 +18063,6 @@ if (require.main === module) {
         buildLatestReleasesPersistenceFields,
         normalizeNewsArena,
         countActiveBattleUnits,
+        isPrivateStaticSourcePath,
     };
 }

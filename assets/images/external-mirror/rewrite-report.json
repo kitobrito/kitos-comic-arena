@@ -1,78 +1,79 @@
 {
-  "generatedAt": "2026-07-13T08:20:41.749Z",
+  "generatedAt": "2026-07-29T19:45:34.093Z",
   "dryRun": false,
   "manifestUrls": 480,
-  "changedFileCount": 17,
-  "totalReplacements": 669,
+  "changedFileCount": 2,
+  "totalReplacements": 101,
   "changedFiles": [
     {
       "file": "assets/images/PokemonArena/characters imported/characters.js",
       "replacements": 8
     },
     {
-      "file": "changeavatar.html",
-      "replacements": 1
-    },
-    {
       "file": "characters.js",
-      "replacements": 382
+      "replacements": 93
+    }
+  ],
+  "missingReferences": [
+    {
+      "file": "changeavatar.html",
+      "reason": "manifest URLs were not present"
     },
     {
       "file": "clan panel.html",
-      "replacements": 2
+      "reason": "manifest URLs were not present"
     },
     {
       "file": "clanprofile.html",
-      "replacements": 2
+      "reason": "manifest URLs were not present"
     },
     {
       "file": "index.html",
-      "replacements": 1
+      "reason": "manifest URLs were not present"
     },
     {
       "file": "ingame.html",
-      "replacements": 11
+      "reason": "manifest URLs were not present"
     },
     {
       "file": "missions.html",
-      "replacements": 2
+      "reason": "manifest URLs were not present"
     },
     {
       "file": "playeraccounts.html",
-      "replacements": 1
+      "reason": "manifest URLs were not present"
     },
     {
       "file": "profile.html",
-      "replacements": 2
+      "reason": "manifest URLs were not present"
     },
     {
       "file": "scripts/community.js",
-      "replacements": 1
+      "reason": "manifest URLs were not present"
     },
     {
       "file": "scripts/index.js",
-      "replacements": 1
+      "reason": "manifest URLs were not present"
     },
     {
       "file": "scripts/narutocharacters.js",
-      "replacements": 153
+      "reason": "manifest URLs were not present"
     },
     {
       "file": "scripts/script.js",
-      "replacements": 20
+      "reason": "manifest URLs were not present"
     },
     {
       "file": "selection.html",
-      "replacements": 1
+      "reason": "manifest URLs were not present"
     },
     {
       "file": "server.js",
-      "replacements": 78
+      "reason": "manifest URLs were not present"
     },
     {
       "file": "test/e2e/pokemon-ingame-recovery.spec.js",
-      "replacements": 3
+      "reason": "manifest URLs were not present"
     }
-  ],
-  "missingReferences": []
+  ]
 }
