@@ -740,7 +740,7 @@ var characters = [
         "name": "Farfetch'd",
         "universe": "pokemon",
         "role": "Hybrid",
-        "facePicture": "https://cdn.discordapp.com/attachments/1090088421223055470/1097996595850645685/43.png",
+        "facePicture": "/assets/images/external-mirror/cdn.discordapp.com/c1c21427bbb1fa264251.png",
         "description": "The stalk this Pokémon carries in its wings serves as a sword to cut down opponents. In a dire situation, the stalk can also serve as food.",
         "skills": [
             {
@@ -866,7 +866,7 @@ var characters = [
                         "turn": 1
                     }
                 ],
-                "skillimage": "https://cdn.discordapp.com/attachments/1090088421223055470/1097996596051984486/72.png"
+                "skillimage": "/assets/images/external-mirror/cdn.discordapp.com/479f029e23b1e4ec5d17.png"
             }
         ]
     },
@@ -876,7 +876,7 @@ var characters = [
         "name": "Onix",
         "universe": "pokemon",
         "role": "Tank",
-        "facePicture": "https://cdn.discordapp.com/attachments/971753063046066266/1098059485932691466/1_75x75.png",
+        "facePicture": "/assets/images/external-mirror/cdn.discordapp.com/ae7afae6d3dbd176865f.png",
         "description": "As it digs through the ground, it absorbs many hard objects. This is what makes its body so solid. It rapidly bores through the ground at 50 mph by squirming and twisting its massive, rugged body.",
         "skills": [
             {
@@ -933,7 +933,7 @@ var characters = [
                         "turn": "-1"
                     }
                 ],
-                "skillimage": "https://cdn.discordapp.com/attachments/971753063046066266/1098059487165816933/6_1_75x75.png"
+                "skillimage": "/assets/images/external-mirror/cdn.discordapp.com/df7c1eb3da560760741e.png"
             },
             {
                 "id": "onix-stealth-rock",
@@ -1460,7 +1460,7 @@ var characters = [
         "name": "Charizard",
         "universe": "pokemon",
         "role": "Bruiser",
-        "facePicture": "https://cdn.discordapp.com/attachments/971753063046066266/1100950170872590346/HtOd4J5.png",
+        "facePicture": "/assets/images/external-mirror/cdn.discordapp.com/e977808afbde2501db16.png",
         "description": "Charizard is a dual-type Fire/Flying Pokémon, its wings can carry this Pokémon close to an altitude of 4600 feet. It blows out fire at very high temperatures.",
         "skills": [
             {
@@ -1486,7 +1486,7 @@ var characters = [
                         }
                     }
                 ],
-                "skillimage": "https://i.imgur.com/uCFlVaq.png"
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/32e187a8dca28476cd7b.png"
             },
             {
                 "id": "charizard-charizards-flamethrower",
@@ -1519,7 +1519,7 @@ var characters = [
                         "turn": 1
                     }
                 ],
-                "skillimage": "https://i.imgur.com/PTWaIw3.png"
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/8901fe8f97a68feaa619.png"
             },
             {
                 "id": "charizard-seismic-toss",
@@ -1550,7 +1550,7 @@ var characters = [
                     "Instant"
                 ],
                 "effects": [],
-                "skillimage": "https://i.imgur.com/teqaVr8.png "
+                "skillimage": "/assets/images/external-mirror/i.imgur.com/7fdda278ba94b58fb3fb.png "
             },
             {
                 "id": "charizard-passive:-mega-charizard-x",

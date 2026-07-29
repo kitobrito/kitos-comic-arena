@@ -86,5 +86,41 @@ test('battle sync applies socket snapshots immediately and polls revisions while
     assert.match(script, /\/api\/match\/\$\{encodeURIComponent\(matchIdFromUrl\)\}\/version/);
     assert.match(script, /remoteRevision <= lastAppliedMatchRevision/);
     assert.match(script, /pollMatchVersionFallback\(\)\.catch/);
-    assert.match(ingame, /match-sync-watchdog-v1/);
+    assert.match(ingame, /match-sync-watchdog-v2/);
+});
+
+test('battle commands time out without permanently blocking the serialized request chain', () => {
+    assert.match(script, /const MATCH_COMMAND_TIMEOUT_MS = 8000/);
+    assert.match(script, /Number\(requestOptions\.matchCommandTimeoutMs\) \|\| MATCH_COMMAND_TIMEOUT_MS/);
+    assert.match(script, /timeoutError\.name = 'MatchCommandTimeoutError'/);
+    assert.match(script, /requestImmediateMatchSync\('command-timeout'\)/);
+    assert.match(script, /matchCommandRequestChain = request\.then\(\s*\(\) => undefined,\s*\(\) => undefined/s);
+});
+
+test('battle sockets heartbeat and immediately reconcile after mobile resume or reconnect', () => {
+    const server = fs.readFileSync(path.join(root, 'server.js'), 'utf8');
+    assert.match(script, /const MATCH_SOCKET_HEARTBEAT_INTERVAL_MS = 4000/);
+    assert.match(script, /const MATCH_SOCKET_STALE_AFTER_MS = 12000/);
+    assert.match(script, /type: 'match_ping'/);
+    assert.match(script, /message\?\.type === 'match_pong'/);
+    assert.match(script, /requestImmediateMatchSync\('socket-heartbeat-timeout'\)/);
+    assert.match(script, /pollMatchVersionFallback\(\{ force: true \}\)/);
+    assert.match(script, /requestImmediateMatchSync\('visibility-resume'\)/);
+    assert.match(script, /requestImmediateMatchSync\('page-resume'\)/);
+    assert.match(script, /requestImmediateMatchSync\('network-online'\)/);
+    assert.match(script, /requestImmediateMatchSync\('window-focus'\)/);
+    assert.match(server, /message\?\.type === 'match_ping'/);
+    assert.match(server, /type: 'match_pong'/);
+});
+
+test('automatic match recovery stays visually silent while genuine gameplay errors remain available', () => {
+    assert.match(script, /const isSilentMatchRecoveryError = \(error\)/);
+    assert.match(script, /if \(options\.silent \|\| isSilentMatchReconciliationReason\(options\.reason\)\) return/);
+    assert.match(script, /recoverCurrentMatchState\(\{ reason, message, silent: true \}\)/);
+    assert.match(script, /if \(!silent\) \{\s*setMatchIssueBanner\(/);
+    assert.match(script, /if \(silent\) \{\s*connectMatchSocket\(\);\s*return false;/);
+    assert.doesNotMatch(script, /Connection to the live match was interrupted\. Reconnecting/);
+    assert.doesNotMatch(script, /Live match update failed to apply\. Retrying sync/);
+    assert.match(script, /Could not queue that skill/);
+    assert.match(script, /if \(!silent\) \{\s*announceMatchIssue\(/);
 });
