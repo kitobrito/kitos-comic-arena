@@ -208,3 +208,27 @@ test('battle client coalesces rapid random chakra changes before committing', ()
     assert.match(script, /window\.setTimeout\(\s*flushRandomChakraAdjustmentBatch,\s*160/);
     assert.match(script, /controller\.abort\(\), 7000/);
 });
+
+test('global match middleware serializes live HTTP mutations and recovery reads', () => {
+    const server = fs.readFileSync(path.join(__dirname, '..', 'server.js'), 'utf8');
+    const middlewareIndex = server.indexOf("app.use('/api/match/:matchId'");
+    assert.notEqual(middlewareIndex, -1);
+    assert.match(
+        server.slice(middlewareIndex, middlewareIndex + 1800),
+        /matchCommandCoordinator\s*\.execute\(\s*matchId/
+    );
+    [
+        "app.get('/api/match/:matchId'",
+        "app.post('/api/match/:matchId/turn/end'",
+        "app.post('/api/match/:matchId/skill/queue'",
+        "app.post('/api/match/:matchId/skill/cancel'",
+        "app.post('/api/match/:matchId/skill/reorder'",
+        "app.post('/api/match/:matchId/turn/random/adjust'",
+        "app.post('/api/match/:matchId/chakra/exchange'",
+        "app.post('/api/match/:matchId/skill/targets'",
+    ].forEach((route) => {
+        const routeIndex = server.indexOf(route);
+        assert.notEqual(routeIndex, -1, route);
+        assert.ok(routeIndex > middlewareIndex, `${route} should run behind serialized middleware`);
+    });
+});

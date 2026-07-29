@@ -2698,6 +2698,8 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         let matchSocketManuallyClosed = false;
         let pendingSocketMatchState = null;
         let pendingSocketMatchStateFrame = null;
+        let matchSyncFallbackInterval = null;
+        let matchSyncFallbackInFlight = false;
         let lastAppliedMatchRevision = -1;
         let lastAppliedTurnNumber = 0;
         let matchCommandRequestChain = Promise.resolve();
@@ -3153,6 +3155,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             retries = 0,
             retryDelayMs = 400,
             arenaOverride = currentMatchArena,
+            timeoutMs = 12000,
         } = {}) => {
             const normalizedMatchId = typeof matchId === 'string' ? matchId.trim() : '';
             if (!normalizedMatchId) {
@@ -3161,7 +3164,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             let lastLoadError = null;
             for (let attempt = 0; attempt <= retries; attempt += 1) {
                 const controller = new AbortController();
-                const timeoutId = window.setTimeout(() => controller.abort(), 12000);
+                const timeoutId = window.setTimeout(
+                    () => controller.abort(),
+                    Math.max(1000, Number(timeoutMs) || 12000)
+                );
                 try {
                     const response = await fetch(
                         `${API_BASE_URL}/api/match/${encodeURIComponent(normalizedMatchId)}`,
@@ -13109,12 +13115,78 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 pendingSocketMatchState = data;
             }
             if (pendingSocketMatchStateFrame !== null) return;
-            pendingSocketMatchStateFrame = window.requestAnimationFrame(() => {
+            pendingSocketMatchStateFrame = true;
+            const applyPendingSocketState = () => {
                 const nextState = pendingSocketMatchState;
                 pendingSocketMatchState = null;
                 pendingSocketMatchStateFrame = null;
                 applyIncomingMatchState(nextState);
-            });
+            };
+            if (typeof window.queueMicrotask === 'function') {
+                window.queueMicrotask(applyPendingSocketState);
+            } else {
+                Promise.resolve().then(applyPendingSocketState);
+            }
+        };
+
+        const pollMatchVersionFallback = async () => {
+            if (
+                !matchIdFromUrl ||
+                battleEndShown ||
+                matchSyncFallbackInFlight ||
+                !currentPlayerUsername ||
+                !currentTurnUsername ||
+                usernamesMatch(currentPlayerUsername, currentTurnUsername)
+            ) {
+                return;
+            }
+            matchSyncFallbackInFlight = true;
+            const controller = new AbortController();
+            const timeoutId = window.setTimeout(() => controller.abort(), 3500);
+            try {
+                const response = await fetch(
+                    `${API_BASE_URL}/api/match/${encodeURIComponent(matchIdFromUrl)}/version`,
+                    {
+                        credentials: 'include',
+                        cache: 'no-store',
+                        signal: controller.signal,
+                    }
+                );
+                if (!response.ok) return;
+                const versionPayload = await response.json().catch(() => null);
+                const remoteRevision = getPayloadRevision(versionPayload);
+                if (remoteRevision === null || remoteRevision <= lastAppliedMatchRevision) return;
+                const payload = await fetchMatchPayload({
+                    matchId: matchIdFromUrl,
+                    retries: 0,
+                    arenaOverride: currentMatchArena,
+                    timeoutMs: 3500,
+                });
+                if (payload) {
+                    applyIncomingMatchState(payload);
+                }
+            } catch (error) {
+                if (error?.name !== 'AbortError') {
+                    console.warn('Fallback match version check failed.', error);
+                }
+            } finally {
+                window.clearTimeout(timeoutId);
+                matchSyncFallbackInFlight = false;
+            }
+        };
+
+        const startMatchSyncFallback = () => {
+            if (matchSyncFallbackInterval || !matchIdFromUrl) return;
+            matchSyncFallbackInterval = window.setInterval(
+                () => pollMatchVersionFallback().catch(() => {}),
+                1000
+            );
+        };
+
+        const stopMatchSyncFallback = () => {
+            if (!matchSyncFallbackInterval) return;
+            window.clearInterval(matchSyncFallbackInterval);
+            matchSyncFallbackInterval = null;
         };
 
         const clearMatchSocketReconnect = () => {
@@ -13356,6 +13428,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
 
         const connectMatchSocket = () => {
             if (!matchIdFromUrl || battleEndShown || typeof WebSocket === 'undefined') return;
+            startMatchSyncFallback();
             if (
                 matchSocket &&
                 (matchSocket.readyState === WebSocket.OPEN ||
@@ -13429,6 +13502,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const closeMatchSocket = () => {
             matchSocketManuallyClosed = true;
             clearMatchSocketReconnect();
+            stopMatchSyncFallback();
             if (!matchSocket) return;
             try {
                 matchSocket.close();

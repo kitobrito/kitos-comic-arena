@@ -7341,6 +7341,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 effect?.metadata?.onSuccessfulDamageApplyStatusToTarget?.statusId || '',
                 effect?.metadata?.onSuccessfulDamageApplyStatusToOwner?.statusId || '',
                 effect?.metadata?.onLandedDamageApplyStatusToOwner?.statusId || '',
+                effect?.metadata?.onOwnerKillApplyStatusToSelf?.statusId || '',
             ].join('|');
             const existing = pendingDamage.get(key);
             if (existing) {
@@ -7366,6 +7367,8 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     effect?.metadata?.onSuccessfulDamageApplyStatusToOwner || null,
                 onLandedDamageApplyStatusToOwner:
                     effect?.metadata?.onLandedDamageApplyStatusToOwner || null,
+                onKillApplyStatusToOwner:
+                    effect?.metadata?.onOwnerKillApplyStatusToSelf || null,
                 onSuccessfulDamageApplyStatusesToOwner: Array.isArray(
                     effect?.metadata?.onSuccessfulDamageApplyStatusesToOwner
                 )
@@ -10294,6 +10297,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     };
                 }
             }
+            const recipientWasAlive = entry.recipient.unit.alive !== false;
             const dealt = applyDamageToUnit(entry.recipient.unit, adjustedAmount, {
                         match,
                         sourceUsername: actingUsername,
@@ -10319,6 +10323,24 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     });
             if (dealt > 0 && entry.healthStealDamage) {
                 applyDirectHpGainToUnit(actorUnit, dealt);
+            }
+            const onKillApplyStatusToOwner = entry?.onKillApplyStatusToOwner;
+            if (
+                recipientWasAlive &&
+                entry.recipient.unit.alive === false &&
+                onKillApplyStatusToOwner?.statusId
+            ) {
+                applyStatus({
+                    targetState: actorState,
+                    targetUnit: actorUnit,
+                    statusId: onKillApplyStatusToOwner.statusId,
+                    duration: onKillApplyStatusToOwner.duration,
+                    sourceSkillId: skill.id || null,
+                    sourceUsername: actingUsername,
+                    sourceSlot: actorSlot,
+                    metadata: onKillApplyStatusToOwner.metadata || {},
+                    fresh: false,
+                });
             }
             const onSuccess = entry?.onSuccessfulDamageApplyStatusToTarget;
             if (dealt > 0 && onSuccess?.statusId) {
