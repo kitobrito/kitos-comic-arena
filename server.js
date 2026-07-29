@@ -7446,6 +7446,10 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
         squirtle: {
             'wartortle-shell-guard': ['target', 'skilldescription'],
         },
+        bulbasaur: {
+            'bulbasaur-leech-seed': ['skilldescription', 'effects'],
+            'ivysaur-leech-seed': ['skilldescription', 'effects'],
+        },
         zubat: {
             'zubat-leech-life': ['skilldescription'],
             'golbat-leech-life': ['skilldescription'],
@@ -12169,6 +12173,38 @@ const adjustRandomAssignment = ({ match, username, chakraType, delta }) => {
     match.pendingTurns[username] = pending;
 };
 
+const adjustRandomAssignments = ({ match, username, adjustments }) => {
+    if (!Array.isArray(adjustments) || adjustments.length === 0) {
+        throw new Error('At least one random chakra adjustment is required.');
+    }
+    if (adjustments.length > 24) {
+        throw new Error('Too many random chakra adjustments.');
+    }
+    const originalPool = cloneSerializable(match.chakraPools?.[username] || {});
+    const originalPending = cloneSerializable(
+        match.pendingTurns?.[username] || getPendingTurn(match, username)
+    );
+    try {
+        adjustments.forEach((adjustment) => {
+            const chakraType =
+                typeof adjustment?.chakraType === 'string'
+                    ? adjustment.chakraType.trim().toLowerCase()
+                    : '';
+            const deltaRaw = Number.parseInt(adjustment?.delta, 10);
+            adjustRandomAssignment({
+                match,
+                username,
+                chakraType,
+                delta: deltaRaw > 0 ? 1 : deltaRaw < 0 ? -1 : 0,
+            });
+        });
+    } catch (error) {
+        match.chakraPools[username] = originalPool;
+        match.pendingTurns[username] = originalPending;
+        throw error;
+    }
+};
+
 const exchangeChakra = ({ match, username, chakraType, cost = 2, spendAssignments = null }) => {
     if (!chakraTypes.includes(chakraType)) {
         throw new Error('Invalid chakra type.');
@@ -14116,7 +14152,21 @@ app.post('/api/match/:matchId/turn/random/adjust', requireSession, async (req, r
     const chakraType = typeof req.body?.chakraType === 'string' ? req.body.chakraType.trim().toLowerCase() : '';
     const deltaRaw = Number.parseInt(req.body?.delta, 10);
     const delta = deltaRaw > 0 ? 1 : deltaRaw < 0 ? -1 : 0;
-    if (!chakraTypes.includes(chakraType) || !delta) {
+    const adjustments = Array.isArray(req.body?.adjustments)
+        ? req.body.adjustments
+        : [{ chakraType, delta }];
+    if (
+        adjustments.length === 0 ||
+        adjustments.length > 24 ||
+        adjustments.some((adjustment) => {
+            const type =
+                typeof adjustment?.chakraType === 'string'
+                    ? adjustment.chakraType.trim().toLowerCase()
+                    : '';
+            const adjustmentDelta = Number.parseInt(adjustment?.delta, 10);
+            return !chakraTypes.includes(type) || (adjustmentDelta !== 1 && adjustmentDelta !== -1);
+        })
+    ) {
         return res.status(400).json({ error: 'chakraType and delta are required.' });
     }
     const match = await matchesCollection.findOne({ matchId });
@@ -14155,7 +14205,7 @@ app.post('/api/match/:matchId/turn/random/adjust', requireSession, async (req, r
         });
     }
     try {
-        adjustRandomAssignment({ match: hydrated, username, chakraType, delta });
+        adjustRandomAssignments({ match: hydrated, username, adjustments });
         await persistMatchState(hydrated, {
             chakraPools: hydrated.chakraPools,
             pendingTurns: hydrated.pendingTurns,
@@ -17594,6 +17644,7 @@ if (require.main === module) {
     module.exports = {
         normalizeArenaMode,
         applyRequiredCanonicalSkillCorrections,
+        adjustRandomAssignments,
         createEmptyChakraPool,
         makeEmptyPendingTurn,
         assertTeamCanBeUsed,

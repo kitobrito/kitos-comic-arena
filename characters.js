@@ -19108,7 +19108,7 @@ const characters = [
                 "id": "bulbasaur-leech-seed",
                 "name": "Leech Seed",
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/bulbasaurleechseed.jpg",
-                "skilldescription": "Bulbasaur plants a seed on one enemy for 3 turns. At the start of each turn, that enemy loses 10 health and Bulbasaur restores 10 health. Bulbasaur gains 1 Sun whenever Leech Seed deals damage.",
+                "skilldescription": "Bulbasaur steals 20 health from one enemy immediately, then steals 5 health at the start of that enemy's next 2 turns. Bulbasaur gains 1 Sun whenever Leech Seed deals damage.",
                 "energy": [
                     "Taijutsu"
                 ],
@@ -19122,15 +19122,43 @@ const characters = [
                 ],
                 "effects": [
                     {
+                        "type": "health_steal_damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "metadata": {
+                            "onSuccessfulDamageApplyStatusToOwner": {
+                                "statusId": "bulbasaur_sun_stacks",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "bulbasaurSunStacks": 1,
+                                    "stackMetadataKey": "bulbasaurSunStacks",
+                                    "stackDelta": 1,
+                                    "stackMax": 5,
+                                    "randomCostReductionPerStatusMetadata": {
+                                        "skillIds": [
+                                            "bulbasaur-solar-beam",
+                                            "ivysaur-solar-beam"
+                                        ],
+                                        "metadataKey": "bulbasaurSunStacks",
+                                        "multiplier": 1
+                                    },
+                                    "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
+                                    "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
+                                }
+                            }
+                        }
+                    },
+                    {
                         "type": "apply_status",
                         "statusId": "bulbasaur_leech_seed",
-                        "duration": 3,
+                        "duration": 2,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "turnStartDamage": 10,
+                            "turnStartDamage": 5,
                             "damageImmediatelyOnApply": false,
-                            "turnStartHealSourceAmount": 10,
+                            "turnStartHealSourceAmount": 5,
                             "fixedTurnStartDamage": true,
                             "ignoreTargetDamageReduction": true,
                             "ignoreTargetDestructibleDefense": true,
@@ -19179,7 +19207,7 @@ const characters = [
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/bulbasaurleechseed.jpg",
-                            "tooltipText": "This character loses 10 health at the start of each turn. Bulbasaur restores 10 health and gains 1 Sun whenever this deals damage."
+                            "tooltipText": "This character loses 5 health at the start of each of their next 2 turns. Bulbasaur restores 5 health and gains 1 Sun whenever this deals damage."
                         }
                     }
                 ]
@@ -19347,7 +19375,7 @@ const characters = [
                     "statusId": "bulbasaur_ivysaur_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Bulbasaur/ivysaurleechseed.png",
-                "skilldescription": "Ivysaur plants a seed on one enemy for 3 turns. At the start of each turn, that enemy loses 15 health and Ivysaur restores 15 health. Ivysaur gains 1 Sun whenever Leech Seed deals damage.",
+                "skilldescription": "Ivysaur steals 25 health from one enemy immediately, then steals 10 health at the start of that enemy's next 2 turns. Ivysaur gains 1 Sun whenever Leech Seed deals damage.",
                 "energy": [
                     "Taijutsu",
                     "Random"
@@ -19362,15 +19390,43 @@ const characters = [
                 ],
                 "effects": [
                     {
+                        "type": "health_steal_damage",
+                        "amount": 25,
+                        "scope": "target",
+                        "metadata": {
+                            "onSuccessfulDamageApplyStatusToOwner": {
+                                "statusId": "bulbasaur_sun_stacks",
+                                "duration": 99,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "bulbasaurSunStacks": 1,
+                                    "stackMetadataKey": "bulbasaurSunStacks",
+                                    "stackDelta": 1,
+                                    "stackMax": 5,
+                                    "randomCostReductionPerStatusMetadata": {
+                                        "skillIds": [
+                                            "bulbasaur-solar-beam",
+                                            "ivysaur-solar-beam"
+                                        ],
+                                        "metadataKey": "bulbasaurSunStacks",
+                                        "multiplier": 1
+                                    },
+                                    "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/passiveevolveivysaur.png",
+                                    "tooltipTextTemplate": "Bulbasaur has {bulbasaurSunStacks} Sun stack(s). Solar Beam costs {bulbasaurSunStacks} less random energy. At 5 Sun, Bulbasaur evolves into Ivysaur and consumes all Sun stacks."
+                                }
+                            }
+                        }
+                    },
+                    {
                         "type": "apply_status",
                         "statusId": "ivysaur_leech_seed",
-                        "duration": 3,
+                        "duration": 2,
                         "scope": "target",
                         "metadata": {
                             "harmful": true,
-                            "turnStartDamage": 15,
+                            "turnStartDamage": 10,
                             "damageImmediatelyOnApply": false,
-                            "turnStartHealSourceAmount": 15,
+                            "turnStartHealSourceAmount": 10,
                             "fixedTurnStartDamage": true,
                             "ignoreTargetDamageReduction": true,
                             "ignoreTargetDestructibleDefense": true,
@@ -19419,7 +19475,7 @@ const characters = [
                                 }
                             },
                             "statusIconUrl": "assets/images/PokemonArena/Bulbasaur/ivysaurleechseed.png",
-                            "tooltipText": "This character loses 15 health at the start of each turn. Ivysaur restores 15 health and gains 1 Sun whenever this deals damage."
+                            "tooltipText": "This character loses 10 health at the start of each of their next 2 turns. Ivysaur restores 10 health and gains 1 Sun whenever this deals damage."
                         }
                     }
                 ]
