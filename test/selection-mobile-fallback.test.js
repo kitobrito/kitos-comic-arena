@@ -29,6 +29,17 @@ test('matchmaking spinner animation is restarted after cancel and a new search',
     );
 });
 
+test('matchmaking silently rejoins when the server lost its in-memory queue entry', () => {
+    assert.match(script, /if \(data\?\.queued === false\) \{\s*recoverMissingMatchmakingQueue\(\)/);
+    assert.match(
+        script,
+        /if \(!isSearching \|\| !activeMatchmakingMode \|\| matchmakingRecoveryPromise\)/
+    );
+    assert.match(script, /recoveryGeneration !== matchmakingSearchGeneration/);
+    assert.match(script, /matchmakingSearchGeneration \+= 1;\s*isSearching = false/);
+    assert.match(selectionHtml, /matchmaking-recovery-v1/);
+});
+
 test('mobile portrait swipes remain native vertical page scrolling', () => {
     assert.match(script, /const isTouchFirstMobileSelection =\s*event\.pointerType !== 'mouse'/);
     assert.match(script, /if \(isTouchFirstMobileSelection\) return/);
