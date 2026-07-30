@@ -477,8 +477,11 @@ const resolveEffectiveCharacter = ({ characters, rosterIndex, actorState = null 
     const baseCharacter = Array.isArray(characters) ? characters[rosterIndex] : null;
     const overrideId = getEffectiveCharacterOverrideId(actorState);
     if (!overrideId || !Array.isArray(characters)) return baseCharacter;
+    const battleForms = characters.flatMap((character) =>
+        Array.isArray(character?.battleForms) ? character.battleForms : []
+    );
     return (
-        characters.find(
+        [...characters, ...battleForms].find(
             (character) =>
                 character?.id === overrideId ||
                 character?.characterId === overrideId
@@ -1030,7 +1033,12 @@ const doesUnitSatisfySkillTargetCondition = (unit, skill, context = {}) => {
 const doesActorSatisfySkillCondition = (actorUnit, actorState, skill, context = {}) => {
     const condition = skill?.actorCondition;
     const maxUses = Number(skill?.maxUses);
-    if (Number.isFinite(maxUses) && maxUses >= 0 && getSkillUseCount(actorState, skill?.id) >= maxUses) {
+    if (
+        !Boolean(context?.ignoreMaxUses) &&
+        Number.isFinite(maxUses) &&
+        maxUses >= 0 &&
+        getSkillUseCount(actorState, skill?.id) >= maxUses
+    ) {
         return false;
     }
     if (!condition || typeof condition !== 'object') return true;
@@ -2088,6 +2096,34 @@ const applyStatus = ({
             nextMetadata[key] = mergedObject;
         });
         existing.metadata = nextMetadata;
+        const randomizeOnRefreshConfig =
+            nextMetadata?.randomizeMetadataKeyFromOptions &&
+            typeof nextMetadata.randomizeMetadataKeyFromOptions === 'object'
+                ? nextMetadata.randomizeMetadataKeyFromOptions
+                : null;
+        if (randomizeOnRefreshConfig) {
+            const metadataKey =
+                typeof randomizeOnRefreshConfig.metadataKey === 'string' &&
+                randomizeOnRefreshConfig.metadataKey
+                    ? randomizeOnRefreshConfig.metadataKey
+                    : '';
+            const options = Array.isArray(randomizeOnRefreshConfig.options)
+                ? randomizeOnRefreshConfig.options
+                : Array.isArray(randomizeOnRefreshConfig.values)
+                ? randomizeOnRefreshConfig.values
+                : [];
+            if (metadataKey && options.length > 0) {
+                const currentValue = existing.metadata?.[metadataKey];
+                existing.metadata[metadataKey] = chooseRandomOption(
+                    options.filter(
+                        (entry) =>
+                            !Boolean(randomizeOnRefreshConfig.excludeCurrentValue) ||
+                            entry !== currentValue
+                    ),
+                    currentValue
+                );
+            }
+        }
         existing.fresh = Boolean(fresh);
         const applyStatusAtStack = nextMetadata?.applyStatusAtStack;
         if (applyStatusAtStack && typeof applyStatusAtStack === 'object') {
@@ -2627,6 +2663,18 @@ const resolveEffectDamageAmount = ({
     let amount = Number(effect?.amount) || 0;
     if (Boolean(effect?.metadata?.fixedDamage)) {
         return Math.max(0, amount);
+    }
+    if (
+        (Array.isArray(actorState?.statuses) ? actorState.statuses : []).some(
+            (status) =>
+                isStatusActiveForMetadata(status, actorUnit) &&
+                Math.max(0, Number(status?.metadata?.destructibleDefensePoints) || 0) > 0
+        )
+    ) {
+        amount += Math.max(
+            0,
+            Number(effect?.metadata?.bonusDamageIfActorHasDestructibleDefense) || 0
+        );
     }
     const effectiveSkillClasses = Array.isArray(skillClasses) ? [...skillClasses] : [];
     if (Boolean(effect?.metadata?.afflictionDamage) && !hasSkillClass(effectiveSkillClasses, 'affliction')) {
@@ -3653,6 +3701,14 @@ const maybeTriggerReactiveDefenses = ({
             damageDebugReason: 'counter',
             ignoreDamageReduction: Boolean(trapMetadata?.counterDamageIgnoresReduction),
             ignoreDestructibleDefense: Boolean(trapMetadata?.counterDamageIgnoresDestructibleDefense),
+            afflictionDamage: Array.isArray(trapMetadata?.counterDamageSkillClasses)
+                ? trapMetadata.counterDamageSkillClasses.some(
+                      (entry) => normalizeSkillClassName(entry) === 'affliction'
+                  )
+                : false,
+            skillClasses: Array.isArray(trapMetadata?.counterDamageSkillClasses)
+                ? trapMetadata.counterDamageSkillClasses
+                : [],
         });
     }
 
@@ -4330,17 +4386,25 @@ const applyDamageToUnit = (unit, rawAmount, context = {}) => {
                 (status) =>
                     status?.id &&
                     isStatusActiveForMetadata(status, sourceUnit) &&
-                    Boolean(status?.metadata?.stackDeltaFromDamageDealtToSourceOwner)
+                    (Boolean(status?.metadata?.stackDeltaFromDamageDealtToSourceOwner) ||
+                        Boolean(status?.metadata?.stackDeltaFromAnyDamageDealtByOwner))
             );
             damageDealtTrackerStatuses.forEach((status) => {
+                const tracksAnyDamageDealtByOwner = Boolean(
+                    status?.metadata?.stackDeltaFromAnyDamageDealtByOwner
+                );
                 const expectedUsername = status?.sourceUsername || null;
                 const expectedSlot = Number.isInteger(status?.sourceSlot) ? status.sourceSlot : null;
                 const actualUsername = context?.targetUsername || null;
                 const actualSlot = Number.isInteger(context?.targetSlot) ? context.targetSlot : null;
-                if (expectedUsername !== actualUsername) {
+                if (!tracksAnyDamageDealtByOwner && expectedUsername !== actualUsername) {
                     return;
                 }
-                if (expectedSlot !== null && expectedSlot !== actualSlot) {
+                if (
+                    !tracksAnyDamageDealtByOwner &&
+                    expectedSlot !== null &&
+                    expectedSlot !== actualSlot
+                ) {
                     return;
                 }
                 applyStatus({
@@ -6734,15 +6798,17 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
 
         const effects = Array.isArray(skill.effects) ? skill.effects : [];
         if (!effects.length) continue;
-        if (!doesActorSatisfySkillCondition(actorUnit, actorState, skill, { characters })) continue;
+        if (
+            !doesActorSatisfySkillCondition(actorUnit, actorState, skill, {
+                characters,
+                ignoreMaxUses: true,
+            })
+        ) continue;
         const skillCannotBeCountered =
             Boolean(skill?.cannotBeCountered) || hasSkillClass(skill?.classes || [], 'uncounterable');
-        const actingCharacterId =
-            (typeof characters?.[actorUnit?.rosterIndex]?.id === 'string' &&
-                characters[actorUnit.rosterIndex].id) ||
-            (typeof characters?.[actorUnit?.rosterIndex]?.characterId === 'string' &&
-                characters[actorUnit.rosterIndex].characterId) ||
-            null;
+        const actingCharacterId = normalizeBattleCharacterId(actorCharacter) || null;
+        actorState.snapshots = actorState.snapshots || {};
+        actorState.snapshots._lastUsedSkillIdThisTurn = skill.id || '';
         const castStartStatuses = (Array.isArray(actorState.statuses) ? actorState.statuses : [])
             .filter((status) => (status?.remainingTurns || 0) > 0)
             .map((status) => ({
@@ -6962,8 +7028,73 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
         }
         const randomScopeGroupPicks = new Map();
         const reflectedRecipientByOriginalKey = new Map();
+        const wonderGuardDecisionByRecipientKey = new Map();
+        const counteredRecipientKeys = new Set();
+        const skillCanTriggerWonderGuard =
+            effects.some((effect) => {
+                const type =
+                    typeof effect?.type === 'string' ? effect.type.trim().toLowerCase() : '';
+                return ['damage', 'health_steal_damage', 'healthloss', 'healthcaploss'].includes(type);
+            }) ||
+            (skillIsHarmful && hasSkillClass(skill?.classes || [], 'strategic'));
+        const shouldWonderGuardIgnoreRecipient = (recipient) => {
+            if (
+                !skillCanTriggerWonderGuard ||
+                !recipient?.unit ||
+                recipient.unit.alive === false ||
+                recipient.username === actingUsername
+            ) {
+                return false;
+            }
+            const recipientKey = `${recipient.username}:${recipient.slot}`;
+            if (wonderGuardDecisionByRecipientKey.has(recipientKey)) {
+                return wonderGuardDecisionByRecipientKey.get(recipientKey);
+            }
+            const targetState = ensureUnitStateShape(recipient.unit);
+            const guard = (Array.isArray(targetState.statuses) ? targetState.statuses : []).find(
+                (status) =>
+                    status?.id === 'shedinja_wonder_guard' &&
+                    (Number(status?.remainingTurns) || 0) > 0
+            );
+            if (!guard) {
+                wonderGuardDecisionByRecipientKey.set(recipientKey, false);
+                return false;
+            }
+            const metadata = guard.metadata || {};
+            const usesRemaining = Math.max(0, Number(metadata.wonderGuardUsesRemaining) || 0);
+            if (
+                usesRemaining <= 0 ||
+                metadata._wonderGuardLastActivationTurnMarker === turnMarker
+            ) {
+                wonderGuardDecisionByRecipientKey.set(recipientKey, false);
+                return false;
+            }
+            guard.metadata = {
+                ...metadata,
+                wonderGuardUsesRemaining: usesRemaining - 1,
+                _wonderGuardLastActivationTurnMarker: turnMarker,
+                tooltipText: renderTooltipTemplate(
+                    metadata.tooltipTextTemplate ||
+                        'Wonder Guard can ignore {wonderGuardUsesRemaining} more eligible skill(s), at most once per turn.',
+                    {
+                        ...metadata,
+                        wonderGuardUsesRemaining: usesRemaining - 1,
+                    }
+                ),
+            };
+            wonderGuardDecisionByRecipientKey.set(recipientKey, true);
+            return true;
+        };
         const reflectRecipients = (recipients = []) =>
-            (Array.isArray(recipients) ? recipients : []).map((recipient) => {
+            (Array.isArray(recipients) ? recipients : [])
+                .filter((recipient) => !shouldWonderGuardIgnoreRecipient(recipient))
+                .filter(
+                    (recipient) =>
+                        !counteredRecipientKeys.has(
+                            `${recipient?.username || ''}:${recipient?.slot ?? ''}`
+                        )
+                )
+                .map((recipient) => {
                 if (!recipient?.unit || recipient.unit.alive === false) return recipient;
                 if (recipient.username === actingUsername) return recipient;
                 if (shouldReflectTargetsByOwnerStatus) {
@@ -7040,7 +7171,9 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             if (scope === 'all-units') {
                 return filterHelpfulImmuneRecipients({
                     effect,
-                    recipients: [...actorAllies, ...opponentUnits],
+                    recipients: [...actorAllies, ...opponentUnits].filter(
+                        (recipient) => !shouldWonderGuardIgnoreRecipient(recipient)
+                    ),
                     actingUsername,
                 });
             }
@@ -7520,6 +7653,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                     sourceSkillId: skill.id || null,
                 })
             ) {
+                counteredRecipientKeys.add(`${recipient.username}:${recipient.slot}`);
                 continue;
             }
             if (!shouldCancelByEvade(recipient)) continue;
@@ -7545,6 +7679,198 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             }
             const activationChance = Number(effect?.activationChancePercent);
             if (!rollPerRecipient && Number.isFinite(activationChance) && !rollPercentSuccess(activationChance)) {
+                return;
+            }
+            if (effectType === 'nincada_evolve') {
+                const nincadaCharacter = (Array.isArray(characters) ? characters : []).find(
+                    (character) =>
+                        character?.id === 'nincada' ||
+                        character?.characterId === 'nincada'
+                );
+                const battleForms = Array.isArray(nincadaCharacter?.battleForms)
+                    ? nincadaCharacter.battleForms
+                    : [];
+                const ninjask = battleForms.find(
+                    (form) => form?.id === 'ninjask' || form?.characterId === 'ninjask'
+                );
+                const shedinja = battleForms.find(
+                    (form) => form?.id === 'shedinja' || form?.characterId === 'shedinja'
+                );
+                if (ninjask && Math.max(0, Number(actorUnit?.hp) || 0) >= 50) {
+                    const actorBaseCharacter =
+                        Number.isInteger(actorUnit?.rosterIndex) && Array.isArray(characters)
+                            ? characters[actorUnit.rosterIndex]
+                            : null;
+                    const actorIsDitto =
+                        normalizeBattleCharacterId(actorBaseCharacter) === 'ditto';
+                    const evolvedFacePicture = actorIsDitto
+                        ? resolveDittoTransformationFacePicture({
+                              characterId: 'ninjask',
+                              characterFacePicture: ninjask.facePicture,
+                          })
+                        : ninjask.facePicture;
+                    applyStatus({
+                        targetState: actorState,
+                        targetUnit: actorUnit,
+                        statusId: 'nincada_ninjask_evolution',
+                        duration: 999,
+                        sourceSkillId: skill.id || null,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: {
+                            infiniteDuration: true,
+                            unremovable: true,
+                            effectiveCharacterId: 'ninjask',
+                            facePictureOverride: evolvedFacePicture,
+                            pokemonTypeOverride: Array.isArray(ninjask.pokemonTypes)
+                                ? ninjask.pokemonTypes
+                                : ['Bug', 'Flying'],
+                            removeStatusIdsOnApply: ['nincada_evolution_tracker'],
+                            statusIconUrl: ninjask.facePicture,
+                            tooltipText: 'Nincada evolved into Ninjask.',
+                        },
+                        fresh: false,
+                    });
+                    applyCopiedCharacterStartStatuses({
+                        targetUnit: actorUnit,
+                        entries: ninjask.startStatuses,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                    });
+                }
+                if (shedinja) {
+                    const alliedUnits = Array.isArray(match.board?.[actingUsername])
+                        ? match.board[actingUsername]
+                        : [];
+                    const faintedAllyEntry = alliedUnits
+                        .map((unit, slot) => ({ unit, slot }))
+                        .find(
+                            (entry) =>
+                                entry.unit &&
+                                entry.unit !== actorUnit &&
+                                entry.unit.alive === false &&
+                                !isUnitBanished(entry.unit)
+                        );
+                    if (faintedAllyEntry?.unit) {
+                        const revivedUnit = faintedAllyEntry.unit;
+                        const revivedState = ensureUnitStateShape(revivedUnit);
+                        revivedState.statuses = [];
+                        revivedState.cooldowns = {};
+                        revivedState.skillUses = {};
+                        revivedUnit.hpCap = 1;
+                        revivedUnit.maxHp = 1;
+                        reviveUnitToHp(revivedUnit, 1);
+                        applyStatus({
+                            targetState: revivedState,
+                            targetUnit: revivedUnit,
+                            statusId: 'nincada_shedinja_evolution',
+                            duration: 999,
+                            sourceSkillId: skill.id || null,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            metadata: {
+                                infiniteDuration: true,
+                                unremovable: true,
+                                effectiveCharacterId: 'shedinja',
+                                facePictureOverride: shedinja.facePicture,
+                                pokemonTypeOverride: Array.isArray(shedinja.pokemonTypes)
+                                    ? shedinja.pokemonTypes
+                                    : ['Bug', 'Ghost'],
+                                statusIconUrl: shedinja.facePicture,
+                                tooltipText: 'A fainted ally evolved into Shedinja with 1 maximum HP.',
+                            },
+                            fresh: false,
+                        });
+                        applyCopiedCharacterStartStatuses({
+                            targetUnit: revivedUnit,
+                            entries: shedinja.startStatuses,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                        });
+                    }
+                }
+                return;
+            }
+            if (effectType === 'nincada_rare_candy_evolve') {
+                const nincadaCharacter = (Array.isArray(characters) ? characters : []).find(
+                    (character) => normalizeBattleCharacterId(character) === 'nincada'
+                );
+                const ninjask = (Array.isArray(nincadaCharacter?.battleForms)
+                    ? nincadaCharacter.battleForms
+                    : []
+                ).find((form) => normalizeBattleCharacterId(form) === 'ninjask');
+                if (!ninjask) return;
+                resolveRecipients(effect).forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    const effectiveTarget = resolveEffectiveCharacter({
+                        characters,
+                        rosterIndex: recipient.unit.rosterIndex,
+                        actorState: targetState,
+                    });
+                    if (normalizeBattleCharacterId(effectiveTarget) !== 'nincada') return;
+                    const baseTarget =
+                        Number.isInteger(recipient.unit.rosterIndex) && Array.isArray(characters)
+                            ? characters[recipient.unit.rosterIndex]
+                            : null;
+                    const targetIsDitto = normalizeBattleCharacterId(baseTarget) === 'ditto';
+                    const evolvedFacePicture = targetIsDitto
+                        ? resolveDittoTransformationFacePicture({
+                              characterId: 'ninjask',
+                              characterFacePicture: ninjask.facePicture,
+                          })
+                        : ninjask.facePicture;
+                    applyStatus({
+                        targetState,
+                        targetUnit: recipient.unit,
+                        statusId: 'nincada_ninjask_evolution',
+                        duration: 999,
+                        sourceSkillId: skill.id || null,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: {
+                            infiniteDuration: true,
+                            unremovable: true,
+                            effectiveCharacterId: 'ninjask',
+                            facePictureOverride: evolvedFacePicture,
+                            pokemonTypeOverride: Array.isArray(ninjask.pokemonTypes)
+                                ? ninjask.pokemonTypes
+                                : ['Bug', 'Flying'],
+                            removeStatusIdsOnApply: ['nincada_evolution_tracker'],
+                            statusIconUrl: ninjask.facePicture,
+                            tooltipText: targetIsDitto
+                                ? 'Ditto evolved its copied Nincada form into Ninjask from Rare Candy.'
+                                : 'Nincada evolved into Ninjask from Rare Candy.',
+                            healOnApplyFlat: 10,
+                        },
+                        fresh: false,
+                    });
+                    applyCopiedCharacterStartStatuses({
+                        targetUnit: recipient.unit,
+                        entries: ninjask.startStatuses,
+                        sourceUsername: recipient.username,
+                        sourceSlot: recipient.slot,
+                    });
+                    applyStatus({
+                        targetState,
+                        targetUnit: recipient.unit,
+                        statusId: 'nincada_ninjask_rare_candy_defense',
+                        duration: 999,
+                        sourceSkillId: skill.id || null,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: {
+                            infiniteDuration: true,
+                            unremovable: true,
+                            destructibleDefensePoints: 25,
+                            mergeNumericAddKeys: ['destructibleDefensePoints'],
+                            statusIconUrl: skill.skillimage,
+                            tooltipTextTemplate:
+                                'This character has {destructibleDefensePoints} destructible defense from Rare Candy.',
+                        },
+                        fresh: false,
+                    });
+                });
                 return;
             }
             if (effectType === 'remove_source_control_statuses') {
@@ -7860,6 +8186,27 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 resolveRecipients(effect).forEach((recipient) => {
                     if (!recipient?.unit || recipient.unit.alive === false) return;
                     const isBarrier = effectType === 'grant_barrier';
+                    const actorHasDestructibleDefense = (
+                        Array.isArray(actorState?.statuses) ? actorState.statuses : []
+                    ).some(
+                        (status) =>
+                            isStatusActiveForMetadata(status, actorUnit) &&
+                            Math.max(
+                                0,
+                                Number(status?.metadata?.destructibleDefensePoints) || 0
+                            ) > 0
+                    );
+                    const grantedAmount =
+                        Math.max(0, Number(effect?.amount) || 0) +
+                        (actorHasDestructibleDefense
+                            ? Math.max(
+                                  0,
+                                  Number(
+                                      effect?.metadata
+                                          ?.bonusAmountIfActorHasDestructibleDefense
+                                  ) || 0
+                              )
+                            : 0);
                     applyStatus({
                         targetState: ensureUnitStateShape(recipient.unit),
                         targetUnit: recipient.unit,
@@ -7869,11 +8216,22 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         sourceUsername: actingUsername,
                         sourceSlot: actorSlot,
                         metadata: {
+                            ...(effect?.metadata || {}),
                             infiniteDuration: true,
                             harmful: isBarrier,
                             ...(isBarrier
-                                ? { barrierPoints: Math.max(0, Number(effect?.amount) || 0), randomCostIncrease: 1, mergeNumericAddKeys: ['barrierPoints'] }
-                                : { destructibleDefensePoints: Math.max(0, Number(effect?.amount) || 0), randomCostReduction: 1, mergeNumericAddKeys: ['destructibleDefensePoints'] }),
+                                ? {
+                                      barrierPoints: grantedAmount,
+                                      randomCostIncrease: 1,
+                                      mergeNumericAddKeys: ['barrierPoints'],
+                                  }
+                                : {
+                                      destructibleDefensePoints: grantedAmount,
+                                      ...(!Boolean(effect?.metadata?.omitRandomCostReduction)
+                                          ? { randomCostReduction: 1 }
+                                          : {}),
+                                      mergeNumericAddKeys: ['destructibleDefensePoints'],
+                                  }),
                         },
                         fresh: false,
                     });
@@ -10868,6 +11226,16 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                 if (!shouldTrigger) return;
                 const turnEndApplyStatusToSelf = status?.metadata?.turnEndApplyStatusToSelf;
                 if (turnEndApplyStatusToSelf && typeof turnEndApplyStatusToSelf === 'object') {
+                    const skippedSkillId =
+                        typeof turnEndApplyStatusToSelf.skipIfOwnerUsedSkillIdThisTurn === 'string'
+                            ? turnEndApplyStatusToSelf.skipIfOwnerUsedSkillIdThisTurn
+                            : '';
+                    if (
+                        skippedSkillId &&
+                        actorState?.snapshots?._lastUsedSkillIdThisTurn === skippedSkillId
+                    ) {
+                        return;
+                    }
                     applyStatus({
                         targetState: actorState,
                         statusId: turnEndApplyStatusToSelf.statusId,
@@ -11856,6 +12224,7 @@ const tickStatusesForTurnEnd = ({ match, endingUsername }) => {
                 if (!unit) return;
                 const actorState = ensureUnitStateShape(unit);
                 actorState.snapshots.ownerTurnEndHp = Math.max(0, Number(unit?.hp) || 0);
+                actorState.snapshots._lastUsedSkillIdThisTurn = '';
             });
         }
     });

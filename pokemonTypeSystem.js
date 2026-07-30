@@ -50,6 +50,9 @@ const POKEMON_CHARACTER_TYPES = Object.freeze({
     ditto: ['Normal'],
     scraggy: ['Dark', 'Fighting'],
     dragapult: ['Dragon', 'Ghost'],
+    nincada: ['Bug', 'Ground'],
+    ninjask: ['Bug', 'Flying'],
+    shedinja: ['Bug', 'Ghost'],
 });
 
 const skillsByType = {
@@ -84,7 +87,8 @@ const skillsByType = {
         'ditto-transform-1', 'ditto-transform-2', 'ditto-transform-3',
         'ditto-transform-4', 'ditto-passive-transform',
         'scraggy-headbutt', 'scrafty-headbutt', 'scraggy-leer', 'scrafty-leer',
-        'scraggy-focus-energy',
+        'scraggy-focus-energy', 'nincada-hidden-power', 'ninjask-extreme-speed',
+        'ninjask-double-team',
     ],
     Fire: [
         'charmander-ember', 'charmander-flamethrower', 'charmander-passive-evolution-charmeleon',
@@ -117,7 +121,7 @@ const skillsByType = {
         'bulbasaur-solar-beam', 'bulbasaur-passive-evolution-ivysaur', 'ivysaur-leech-seed',
         'ivysaur-vine-whip', 'ivysaur-razor-leaf', 'ivysaur-solar-beam',
         'butterfree-stun-spore', 'butterfree-sleep-powder', 'chikorita-aerial-razor-leaf',
-        'chikorita-chikorita-solar-beam', 'chikorita-vine-defense',
+        'chikorita-chikorita-solar-beam', 'chikorita-vine-defense', 'shedinja-solar-beam',
     ],
     Ice: [
         'koffing-haze', 'koffing-weezing-haze', 'vaporeon-aurora-beam', 'gyarados-ice-fang',
@@ -140,7 +144,10 @@ const skillsByType = {
         'vaporeon-acid-armor', 'beedrill-poison-sting', 'beedrill-envenom',
         'mega-beedrill-poison-sting',
     ],
-    Ground: ['pidgey-sand-attack', 'pidgeotto-sand-attack', 'eevee-dig', 'vaporeon-sand-attack'],
+    Ground: [
+        'pidgey-sand-attack', 'pidgeotto-sand-attack', 'eevee-dig', 'vaporeon-sand-attack',
+        'nincada-evolve',
+    ],
     Flying: [
         'pidgey-gust', 'pidgey-peck', 'pidgeotto-gust', 'pidgeotto-peck', 'zapdos-flight',
     ],
@@ -156,7 +163,8 @@ const skillsByType = {
         'zubat-leech-life', 'golbat-leech-life', 'scyther-fury-cutter', 'scyther-x-cutter',
         'jolteon-pin-missile', 'beedrill-twinneedle', 'beedrill-hive-swarm',
         'beedrill-hive-sting', 'beedrill-evolution-mega', 'mega-beedrill-fell-stinger',
-        'beedrill-hive-swarm-mega',
+        'beedrill-hive-swarm-mega', 'nincada-struggle-bug', 'ninjask-skitter-smack',
+        'ninjask-speed-boost', 'shedinja-bug-buzz', 'shedinja-wonder-guard',
     ],
     Rock: [
         'aerodactyl-rock-slide', 'aerodactyl-stone-edge', 'aerodactyl-passive-tough-head',
@@ -165,6 +173,7 @@ const skillsByType = {
     Ghost: [
         'gastly-lick', 'gastly-curse', 'gastly-spite', 'gastly-passive-evolution-haunter',
         'haunter-lick', 'haunter-curse', 'haunter-spite', 'mewtwo-shadow-ball',
+        'ninjask-shadow-ball', 'shedinja-hex',
     ],
     Dragon: [
         'charmander-dragon-claw', 'charmander-charizard-x-dragon-claw',
@@ -175,11 +184,11 @@ const skillsByType = {
     Dark: [
         'zubat-bite', 'zubat-draining-fangs', 'golbat-bite', 'golbat-draining-fangs',
         'ekans-crunch', 'arbok-crunch', 'machop-taunt', 'machoke-taunt',
-        'meowth-night-slash', 'persian-night-slash',
+        'meowth-night-slash', 'persian-night-slash', 'shedinja-feint-attack',
     ],
     Steel: [
         'krabby-metal-claw', 'kingler-metal-claw', 'magneton-flash-cannon', 'onix-iron-tail',
-        'aegislash-kings-shield',
+        'aegislash-kings-shield', 'nincada-metal-claw',
     ],
     Fairy: [
         'mr-mime-dazzling-gleam', 'clefairy-disarming-voice', 'clefairy-moonlight',
@@ -371,7 +380,7 @@ const applyPokemonTypeSystem = (characters = [], { strict = false } = {}) => {
         (character) => String(character?.arena || character?.universe || '').trim().toLowerCase() === 'pokemon'
     );
     const errors = [];
-    pokemonCharacters.forEach((character) => {
+    const applyCharacterType = (character) => {
         const characterId = String(character?.characterId || character?.id || '').trim();
         const types = normalizePokemonTypes(POKEMON_CHARACTER_TYPES[characterId]);
         if (!types.length) errors.push(`Missing Pokemon typing for character: ${characterId || '(unknown)'}`);
@@ -394,6 +403,10 @@ const applyPokemonTypeSystem = (characters = [], { strict = false } = {}) => {
         (Array.isArray(character.skills) ? character.skills : []).forEach(applySkillType);
         applyPokemonStatusTooltips(character.startStatuses, '', errors);
         applyTypeOverridesToStatusConfigs(character);
+        (Array.isArray(character.battleForms) ? character.battleForms : []).forEach(applyCharacterType);
+    };
+    pokemonCharacters.forEach((character) => {
+        applyCharacterType(character);
     });
     if (strict && errors.length) throw new Error(errors.join('\n'));
     return characters;

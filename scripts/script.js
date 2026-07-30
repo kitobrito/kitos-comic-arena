@@ -1288,6 +1288,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         aegislash: 'AEGISLASH.webp',
         ditto: 'ditto.webp',
         dragapult: 'dragapult.jpg.webp',
+        nincada: 'nincada.png.webp',
         abra: 'ABRA.png.webp',
         aerodactyl: 'AERODACTYL.png.webp',
         articuno: 'ARTICUNO.png.webp',
@@ -3787,8 +3788,11 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             const baseCharacter = Number.isInteger(rosterIndex) ? rosterData?.[rosterIndex] : null;
             const overrideId = getEffectiveCharacterOverrideIdFromUnit(unit);
             if (!overrideId || !Array.isArray(rosterData)) return baseCharacter;
+            const battleForms = rosterData.flatMap((character) =>
+                Array.isArray(character?.battleForms) ? character.battleForms : []
+            );
             return (
-                rosterData.find(
+                [...rosterData, ...battleForms].find(
                     (character) =>
                         character?.id === overrideId ||
                         character?.characterId === overrideId
@@ -17510,6 +17514,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         'chikorita',
         'cyndaquil',
         'totodile',
+        'nincada',
         'scraggy',
         'aegislash',
         'dragapult',

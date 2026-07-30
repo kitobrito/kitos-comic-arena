@@ -21145,6 +21145,10 @@ const characters = [
                         }
                     },
                     {
+                        "type": "nincada_rare_candy_evolve",
+                        "scope": "target"
+                    },
+                    {
                         "type": "apply_status",
                         "statusId": "pokemon_trainer_rare_candy_swap",
                         "duration": 99,
@@ -33761,6 +33765,801 @@ const characters = [
                 ]
             }
         ]
+    },
+    {
+        "id": "nincada",
+        "characterId": "nincada",
+        "name": "Nincada",
+        "facePicture": "assets/images/PokemonArena/Nincada/Nincada-FP.jpg",
+        "role": "Evolution Specialist",
+        "universe": "pokemon",
+        "arena": "pokemon",
+        "roleCategory": "specialist",
+        "description": "A Bug- and Ground-type evolution specialist that can become Ninjask and turn a fainted ally into Shedinja. This community character was designed by 2ndstatus.",
+        "descriptionHtml": "A Bug- and Ground-type evolution specialist that can become Ninjask and turn a fainted ally into Shedinja. This community character was designed by 2ndstatus.",
+        "characterdeescription": "A Bug- and Ground-type evolution specialist that can become Ninjask and turn a fainted ally into Shedinja. This community character was designed by 2ndstatus.",
+        "skills": [
+            {
+                "id": "nincada-metal-claw",
+                "name": "Metal Claw",
+                "skillimage": "assets/images/PokemonArena/Nincada/Nincada-Metal-Claw.jpg",
+                "skilldescription": "Deals 15 Physical damage to one enemy and grants Nincada 15 destructible defense. If Nincada already has destructible defense, both amounts are increased by 10.",
+                "description": "Deals 15 Physical damage to one enemy and grants Nincada 15 destructible defense. If Nincada already has destructible defense, both amounts are increased by 10.",
+                "energy": [
+                    "Genjutsu"
+                ],
+                "cooldown": 0,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Steel",
+                    "Physical",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "metadata": {
+                            "bonusDamageIfActorHasDestructibleDefense": 10
+                        }
+                    },
+                    {
+                        "type": "grant_shield",
+                        "statusId": "nincada_metal_claw_defense",
+                        "amount": 15,
+                        "scope": "self",
+                        "metadata": {
+                            "bonusAmountIfActorHasDestructibleDefense": 10,
+                            "omitRandomCostReduction": true,
+                            "statusIconUrl": "assets/images/PokemonArena/Nincada/Nincada-Metal-Claw.jpg",
+                            "tooltipTextTemplate": "Nincada has {destructibleDefensePoints} destructible defense from Metal Claw."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "nincada-struggle-bug",
+                "name": "Struggle Bug",
+                "skillimage": "assets/images/PokemonArena/Nincada/Nincada-Struggle-Bug.jpg",
+                "skilldescription": "For 1 turn, the first enemy Physical skill used on Nincada is countered and its user takes 15 Physical affliction damage. After a successful counter, Nincada gains 25% evasion for 1 turn.",
+                "description": "For 1 turn, the first enemy Physical skill used on Nincada is countered and its user takes 15 Physical affliction damage. After a successful counter, Nincada gains 25% evasion for 1 turn.",
+                "energy": [
+                    "Taijutsu"
+                ],
+                "cooldown": 2,
+                "target": "self",
+                "damage": 0,
+                "classes": [
+                    "Bug",
+                    "Physical",
+                    "Affliction",
+                    "Strategic",
+                    "Action"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "nincada_struggle_bug_counter",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "triggerOnEnemyHarmfulSkill": true,
+                            "triggerOnEnemyHarmfulSkillClassesAny": [
+                                "Physical"
+                            ],
+                            "counterCancelsSkill": true,
+                            "counterDamage": 15,
+                            "counterDamageIgnoresReduction": true,
+                            "counterDamageIgnoresDestructibleDefense": true,
+                            "counterDamageSkillClasses": [
+                                "Bug",
+                                "Physical",
+                                "Affliction"
+                            ],
+                            "counterApplyStatusToSourceOwner": {
+                                "statusId": "nincada_struggle_bug_evasion",
+                                "duration": 1,
+                                "metadata": {
+                                    "evadeChancePercent": 25,
+                                    "statusIconUrl": "assets/images/PokemonArena/Nincada/Nincada-Struggle-Bug.jpg",
+                                    "tooltipText": "Nincada has 25% evasion after countering a Physical skill."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/Nincada/Nincada-Struggle-Bug.jpg",
+                            "tooltipText": "The first enemy Physical skill used on Nincada is countered."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "nincada-hidden-power",
+                "name": "Hidden Power",
+                "skillimage": "assets/images/PokemonArena/Nincada/Nincada-Hidden-Power.jpg",
+                "skilldescription": "Randomly deals 20, 30, or 40 Special damage to one enemy. If it deals 40, Metal Claw and Hidden Power are stunned for 1 turn.",
+                "description": "Randomly deals 20, 30, or 40 Special damage to one enemy. If it deals 40, Metal Claw and Hidden Power are stunned for 1 turn.",
+                "energy": [
+                    "Random"
+                ],
+                "cooldown": 1,
+                "target": "single-enemy",
+                "damage": 0,
+                "classes": [
+                    "Normal",
+                    "Special",
+                    "Instant"
+                ],
+                "effects": [
+                    {
+                        "type": "apply_status",
+                        "statusId": "nincada_hidden_power_roll",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "hidden": true,
+                            "hideTooltipFromUnitOwner": true,
+                            "hideTooltipFromEnemy": true,
+                            "replaceExistingStatusMetadata": true,
+                            "randomizeMetadataKeyFromOptions": {
+                                "metadataKey": "hiddenPowerDamage",
+                                "options": [
+                                    20,
+                                    30,
+                                    40
+                                ]
+                            }
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusMetadataEquals": {
+                                "statusId": "nincada_hidden_power_roll",
+                                "metadataKey": "hiddenPowerDamage",
+                                "value": 20
+                            }
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 30,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusMetadataEquals": {
+                                "statusId": "nincada_hidden_power_roll",
+                                "metadataKey": "hiddenPowerDamage",
+                                "value": 30
+                            }
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 40,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusMetadataEquals": {
+                                "statusId": "nincada_hidden_power_roll",
+                                "metadataKey": "hiddenPowerDamage",
+                                "value": 40
+                            }
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "nincada_hidden_power_recoil_stun",
+                        "duration": 1,
+                        "scope": "self",
+                        "condition": {
+                            "scope": "self",
+                            "statusMetadataEquals": {
+                                "statusId": "nincada_hidden_power_roll",
+                                "metadataKey": "hiddenPowerDamage",
+                                "value": 40
+                            }
+                        },
+                        "metadata": {
+                            "harmful": true,
+                            "stunLikeEffect": true,
+                            "cannotUseSkillIndices": [
+                                0,
+                                2
+                            ],
+                            "statusIconUrl": "assets/images/PokemonArena/Nincada/Nincada-Hidden-Power.jpg",
+                            "tooltipText": "Metal Claw and Hidden Power are stunned."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "nincada-evolve",
+                "name": "Evolve",
+                "skillimage": "assets/images/PokemonArena/Nincada/Nincada-Evolve.jpg",
+                "skilldescription": "After Nincada has dealt 50 total damage, this can be used once. At 50 HP or more, Nincada evolves into Ninjask. The lowest-slot fainted ally, if any, becomes Shedinja with exactly 1 maximum HP. This cannot be countered or reflected.",
+                "description": "After Nincada has dealt 50 total damage, this can be used once. At 50 HP or more, Nincada evolves into Ninjask. The lowest-slot fainted ally, if any, becomes Shedinja with exactly 1 maximum HP. This cannot be countered or reflected.",
+                "energy": [],
+                "cooldown": 0,
+                "target": "self",
+                "damage": 0,
+                "maxUses": 1,
+                "actorCondition": {
+                    "statusMetadataAtLeast": {
+                        "statusId": "nincada_evolution_tracker",
+                        "metadataKey": "nincadaDamageDealt",
+                        "value": 50
+                    }
+                },
+                "classes": [
+                    "Ground",
+                    "Strategic",
+                    "Evolution",
+                    "Instant",
+                    "Uncounterable",
+                    "Unreflectable"
+                ],
+                "cannotBeCountered": true,
+                "cannotBeReflected": true,
+                "effects": [
+                    {
+                        "type": "nincada_evolve"
+                    }
+                ]
+            }
+        ],
+        "startStatuses": [
+            {
+                "statusId": "nincada_evolution_tracker",
+                "sourceSkillId": "nincada-evolve",
+                "duration": 999,
+                "metadata": {
+                    "infiniteDuration": true,
+                    "unremovable": true,
+                    "copyOnDittoTransform": true,
+                    "stackDeltaFromAnyDamageDealtByOwner": true,
+                    "nincadaDamageDealt": 0,
+                    "stackMetadataKey": "nincadaDamageDealt",
+                    "stackMax": 999,
+                    "statusIconUrl": "assets/images/PokemonArena/Nincada/Nincada-Evolve.jpg",
+                    "tooltipTextTemplate": "Nincada has dealt {nincadaDamageDealt}/50 damage required to use Evolve."
+                }
+            }
+        ],
+        "battleForms": [
+            {
+                "id": "ninjask",
+                "characterId": "ninjask",
+                "name": "Ninjask",
+                "facePicture": "assets/images/PokemonArena/Nincada/Ninjask-FP.jpg",
+                "role": "Evasive Assassin",
+                "universe": "pokemon",
+                "arena": "pokemon",
+                "roleCategory": "assassin",
+                "description": "Nincada's swift Bug- and Flying-type evolution. This community form was designed by 2ndstatus.",
+                "descriptionHtml": "Nincada's swift Bug- and Flying-type evolution. This community form was designed by 2ndstatus.",
+                "skills": [
+                    {
+                        "id": "ninjask-skitter-smack",
+                        "name": "Skitter Smack",
+                        "skillimage": "assets/images/PokemonArena/Nincada/Ninjask-Skitter-Smack.jpg",
+                        "skilldescription": "Deals 25 piercing Physical damage to one enemy and ignores invulnerability. If Double Team was used during Ninjask's previous turn, this costs 1 Random instead.",
+                        "description": "Deals 25 piercing Physical damage to one enemy and ignores invulnerability. If Double Team was used during Ninjask's previous turn, this costs 1 Random instead.",
+                        "energy": [
+                            "Genjutsu"
+                        ],
+                        "cooldown": 0,
+                        "target": "single-enemy",
+                        "damage": 0,
+                        "classes": [
+                            "Bug",
+                            "Physical",
+                            "Instant",
+                            "Bypassing"
+                        ],
+                        "effects": [
+                            {
+                                "type": "damage",
+                                "amount": 25,
+                                "scope": "target",
+                                "metadata": {
+                                    "ignoreDamageImmunity": true,
+                                    "ignoreDamageReduction": true,
+                                    "ignoreDestructibleDefense": true
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "ninjask-shadow-ball",
+                        "name": "Shadow Ball",
+                        "skillimage": "assets/images/PokemonArena/Nincada/Ninjask-Shadow-Ball.jpg",
+                        "skilldescription": "Deals 35 Special damage to one enemy. If Double Team was used during Ninjask's previous turn, this deals 30 Special damage to the enemy team instead.",
+                        "description": "Deals 35 Special damage to one enemy. If Double Team was used during Ninjask's previous turn, this deals 30 Special damage to the enemy team instead.",
+                        "energy": [
+                            "Genjutsu",
+                            "Random"
+                        ],
+                        "cooldown": 2,
+                        "target": "single-enemy",
+                        "damage": 0,
+                        "classes": [
+                            "Ghost",
+                            "Special",
+                            "Instant"
+                        ],
+                        "effects": [
+                            {
+                                "type": "damage",
+                                "amount": 35,
+                                "scope": "target",
+                                "condition": {
+                                    "scope": "self",
+                                    "missingStatusId": "ninjask_double_team_active"
+                                }
+                            },
+                            {
+                                "type": "damage",
+                                "amount": 30,
+                                "scope": "all-enemy",
+                                "condition": {
+                                    "scope": "self",
+                                    "statusId": "ninjask_double_team_active"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "ninjask-extreme-speed",
+                        "name": "Extreme Speed",
+                        "skillimage": "assets/images/PokemonArena/Nincada/Ninjask-Extreme-Speed.jpg",
+                        "skilldescription": "Deals 20 Physical damage to one enemy and grants Ninjask 10% evasion for 1 turn. If Double Team was used during Ninjask's previous turn, the damage repeats the following turn and the evasion lasts 1 additional turn.",
+                        "description": "Deals 20 Physical damage to one enemy and grants Ninjask 10% evasion for 1 turn. If Double Team was used during Ninjask's previous turn, the damage repeats the following turn and the evasion lasts 1 additional turn.",
+                        "energy": [
+                            "Taijutsu",
+                            "Genjutsu"
+                        ],
+                        "cooldown": 1,
+                        "target": "single-enemy",
+                        "damage": 0,
+                        "classes": [
+                            "Normal",
+                            "Physical",
+                            "Continuous",
+                            "Instant"
+                        ],
+                        "effects": [
+                            {
+                                "type": "damage",
+                                "amount": 20,
+                                "scope": "target"
+                            },
+                            {
+                                "type": "apply_status",
+                                "statusId": "ninjask_extreme_speed_evasion",
+                                "duration": 1,
+                                "scope": "self",
+                                "condition": {
+                                    "scope": "self",
+                                    "missingStatusId": "ninjask_double_team_active"
+                                },
+                                "metadata": {
+                                    "evadeChancePercent": 10,
+                                    "statusIconUrl": "assets/images/PokemonArena/Nincada/Ninjask-Extreme-Speed.jpg",
+                                    "tooltipText": "Ninjask has 10% evasion from Extreme Speed."
+                                }
+                            },
+                            {
+                                "type": "apply_status",
+                                "statusId": "ninjask_extreme_speed_evasion",
+                                "duration": 2,
+                                "scope": "self",
+                                "condition": {
+                                    "scope": "self",
+                                    "statusId": "ninjask_double_team_active"
+                                },
+                                "metadata": {
+                                    "evadeChancePercent": 10,
+                                    "statusIconUrl": "assets/images/PokemonArena/Nincada/Ninjask-Extreme-Speed.jpg",
+                                    "tooltipText": "Ninjask has 10% evasion from an extended Extreme Speed."
+                                }
+                            },
+                            {
+                                "type": "apply_status",
+                                "statusId": "ninjask_extreme_speed_repeat",
+                                "duration": 1,
+                                "scope": "target",
+                                "condition": {
+                                    "scope": "self",
+                                    "statusId": "ninjask_double_team_active"
+                                },
+                                "metadata": {
+                                    "harmful": true,
+                                    "turnEndDamage": 20,
+                                    "triggerOnApply": false,
+                                    "statusIconUrl": "assets/images/PokemonArena/Nincada/Ninjask-Extreme-Speed.jpg",
+                                    "skillClasses": [
+                                        "Normal",
+                                        "Physical",
+                                        "Continuous"
+                                    ],
+                                    "tooltipText": "Extreme Speed deals 20 damage again at the end of this character's turn."
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "ninjask-double-team",
+                        "name": "Double Team",
+                        "skillimage": "assets/images/PokemonArena/Nincada/Ninjask-Double-Team.jpg",
+                        "skilldescription": "Ninjask gains 75% evasion for 1 turn. During Ninjask's following turn, its other skills receive their Double Team bonuses.",
+                        "description": "Ninjask gains 75% evasion for 1 turn. During Ninjask's following turn, its other skills receive their Double Team bonuses.",
+                        "energy": [
+                            "Random"
+                        ],
+                        "cooldown": 4,
+                        "target": "self",
+                        "damage": 0,
+                        "classes": [
+                            "Normal",
+                            "Strategic",
+                            "Instant"
+                        ],
+                        "effects": [
+                            {
+                                "type": "apply_status",
+                                "statusId": "ninjask_double_team_active",
+                                "duration": 1,
+                                "scope": "self",
+                                "metadata": {
+                                    "evadeChancePercent": 75,
+                                    "skillCostOverridesBySkillId": {
+                                        "ninjask-skitter-smack": {
+                                            "energy": [
+                                                "Random"
+                                            ]
+                                        }
+                                    },
+                                    "statusIconUrl": "assets/images/PokemonArena/Nincada/Ninjask-Double-Team.jpg",
+                                    "tooltipText": "Ninjask has 75% evasion and its next-turn skills receive Double Team bonuses."
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "ninjask-speed-boost",
+                        "name": "Ability: Speed Boost",
+                        "skillimage": "assets/images/PokemonArena/Nincada/Ninjask-Speed-Boost.jpg",
+                        "skilldescription": "At the end of each Ninjask turn, it permanently gains 5% evasion, stacking up to 5 times.",
+                        "description": "At the end of each Ninjask turn, it permanently gains 5% evasion, stacking up to 5 times.",
+                        "energy": [],
+                        "cooldown": 0,
+                        "target": "",
+                        "damage": 0,
+                        "classes": [
+                            "Bug",
+                            "Passive",
+                            "Instant"
+                        ],
+                        "effects": []
+                    }
+                ],
+                "startStatuses": [
+                    {
+                        "statusId": "ninjask_speed_boost_controller",
+                        "sourceSkillId": "ninjask-speed-boost",
+                        "duration": 999,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "turnEndApplyStatusToSelf": {
+                                "statusId": "ninjask_speed_boost_stacks",
+                                "duration": 999,
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "unremovable": true,
+                                    "ninjaskSpeedBoostStacks": 1,
+                                    "stackMetadataKey": "ninjaskSpeedBoostStacks",
+                                    "stackDelta": 1,
+                                    "stackMax": 5,
+                                    "stackDerivedNumericKeys": {
+                                        "evadeChancePercent": 5
+                                    },
+                                    "statusIconUrl": "assets/images/PokemonArena/Nincada/Ninjask-Speed-Boost.jpg",
+                                    "tooltipTextTemplate": "Ninjask has {ninjaskSpeedBoostStacks}/5 Speed Boost stacks and {evadeChancePercent}% permanent evasion."
+                                }
+                            },
+                            "statusIconUrl": "assets/images/PokemonArena/Nincada/Ninjask-Speed-Boost.jpg",
+                            "tooltipText": "Speed Boost grants Ninjask 5% permanent evasion at the end of each turn, up to 5 times."
+                        }
+                    }
+                ],
+                "pokemonTypes": [
+                    "Bug",
+                    "Flying"
+                ]
+            },
+            {
+                "id": "shedinja",
+                "characterId": "shedinja",
+                "name": "Shedinja",
+                "facePicture": "assets/images/PokemonArena/Nincada/Shedinja-FP.jpg",
+                "role": "Wonder Guard Specialist",
+                "universe": "pokemon",
+                "arena": "pokemon",
+                "roleCategory": "specialist",
+                "description": "A 1-HP Bug- and Ghost-type form created from a fainted ally by Nincada's Evolve. This community form was designed by 2ndstatus.",
+                "descriptionHtml": "A 1-HP Bug- and Ghost-type form created from a fainted ally by Nincada's Evolve. This community form was designed by 2ndstatus.",
+                "skills": [
+                    {
+                        "id": "shedinja-bug-buzz",
+                        "name": "Bug Buzz",
+                        "skillimage": "assets/images/PokemonArena/Nincada/Shedinja-Bug-Buzz.jpg",
+                        "skilldescription": "Deals 30 Physical damage to one enemy and silences their non-damage skill effects for 1 turn.",
+                        "description": "Deals 30 Physical damage to one enemy and silences their non-damage skill effects for 1 turn.",
+                        "energy": [
+                            "Taijutsu",
+                            "Random"
+                        ],
+                        "cooldown": 0,
+                        "target": "single-enemy",
+                        "damage": 0,
+                        "classes": [
+                            "Bug",
+                            "Physical",
+                            "Instant"
+                        ],
+                        "effects": [
+                            {
+                                "type": "damage",
+                                "amount": 30,
+                                "scope": "target"
+                            },
+                            {
+                                "type": "apply_status",
+                                "statusId": "shedinja_bug_buzz_silence",
+                                "duration": 1,
+                                "scope": "target",
+                                "metadata": {
+                                    "harmful": true,
+                                    "silenceNonDamageEffects": true,
+                                    "statusIconUrl": "assets/images/PokemonArena/Nincada/Shedinja-Bug-Buzz.jpg",
+                                    "tooltipText": "This character is silenced; only damage effects from its skills work."
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "shedinja-feint-attack",
+                        "name": "Feint Attack",
+                        "skillimage": "assets/images/PokemonArena/Nincada/Shedinja-Feint-Attack.jpg",
+                        "skilldescription": "Marks one enemy for 1 turn. If they use a harmful skill, they take 30 Physical damage and cannot reduce damage or become invulnerable for 1 turn. If they use a Strategic skill, Shedinja's skills cost 1 less Random for 1 turn.",
+                        "description": "Marks one enemy for 1 turn. If they use a harmful skill, they take 30 Physical damage and cannot reduce damage or become invulnerable for 1 turn. If they use a Strategic skill, Shedinja's skills cost 1 less Random for 1 turn.",
+                        "energy": [
+                            "Genjutsu"
+                        ],
+                        "cooldown": 2,
+                        "target": "single-enemy",
+                        "damage": 0,
+                        "classes": [
+                            "Dark",
+                            "Physical",
+                            "Strategic",
+                            "Action"
+                        ],
+                        "effects": [
+                            {
+                                "type": "apply_status",
+                                "statusId": "shedinja_feint_attack_harmful",
+                                "duration": 1,
+                                "scope": "target",
+                                "metadata": {
+                                    "harmful": true,
+                                    "onOwnerUseSkillTrigger": true,
+                                    "onOwnerUseSkillHarmfulOnly": true,
+                                    "onOwnerUseSkillEffectsToOwner": [
+                                        {
+                                            "type": "damage",
+                                            "amount": 30,
+                                            "metadata": {
+                                                "skillClasses": [
+                                                    "Dark",
+                                                    "Physical"
+                                                ]
+                                            }
+                                        },
+                                        {
+                                            "type": "apply_status",
+                                            "statusId": "shedinja_feint_attack_exposed",
+                                            "duration": 1,
+                                            "metadata": {
+                                                "harmful": true,
+                                                "cannotReduceDamage": true,
+                                                "cannotBecomeInvulnerable": true,
+                                                "statusIconUrl": "assets/images/PokemonArena/Nincada/Shedinja-Feint-Attack.jpg",
+                                                "tooltipText": "This character cannot reduce damage or become invulnerable."
+                                            }
+                                        }
+                                    ],
+                                    "statusIconUrl": "assets/images/PokemonArena/Nincada/Shedinja-Feint-Attack.jpg",
+                                    "tooltipText": "Using a harmful skill triggers Feint Attack."
+                                }
+                            },
+                            {
+                                "type": "apply_status",
+                                "statusId": "shedinja_feint_attack_strategic",
+                                "duration": 1,
+                                "scope": "target",
+                                "metadata": {
+                                    "harmful": true,
+                                    "onOwnerUseSkillTrigger": true,
+                                    "onOwnerUseSkillClassesAny": [
+                                        "Strategic"
+                                    ],
+                                    "onOwnerUseSkillApplyStatusToSourceOwner": {
+                                        "statusId": "shedinja_feint_attack_cost_reduction",
+                                        "duration": 1,
+                                        "metadata": {
+                                            "randomCostReduction": 1,
+                                            "statusIconUrl": "assets/images/PokemonArena/Nincada/Shedinja-Feint-Attack.jpg",
+                                            "tooltipText": "Shedinja's skills cost 1 less Random energy."
+                                        }
+                                    },
+                                    "statusIconUrl": "assets/images/PokemonArena/Nincada/Shedinja-Feint-Attack.jpg",
+                                    "tooltipText": "Using a Strategic skill reduces Shedinja's Random costs."
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "shedinja-solar-beam",
+                        "name": "Solar Beam",
+                        "skillimage": "assets/images/PokemonArena/Nincada/Shedinja-Solar-Beam.jpg",
+                        "skilldescription": "Deals 35 Special damage to the enemy team, increased by 5 for every Shedinja turn since Solar Beam was last used. Its accumulated bonus resets after use.",
+                        "description": "Deals 35 Special damage to the enemy team, increased by 5 for every Shedinja turn since Solar Beam was last used. Its accumulated bonus resets after use.",
+                        "energy": [
+                            "Taijutsu",
+                            "Genjutsu",
+                            "Random"
+                        ],
+                        "cooldown": 1,
+                        "target": "all-enemy",
+                        "damage": 0,
+                        "classes": [
+                            "Grass",
+                            "Special",
+                            "Instant"
+                        ],
+                        "effects": [
+                            {
+                                "type": "damage",
+                                "amount": 35,
+                                "scope": "all-enemy",
+                                "metadata": {
+                                    "bonusPerStatusMetadata": {
+                                        "scope": "self",
+                                        "statusId": "shedinja_solar_beam_charge",
+                                        "metadataKey": "shedinjaSolarBeamBonus",
+                                        "multiplier": 1,
+                                        "consumeStatus": true
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "shedinja-hex",
+                        "name": "Hex",
+                        "skillimage": "assets/images/PokemonArena/Nincada/Shedinja-Hex.jpg",
+                        "skilldescription": "Deals 5 Special damage to the enemy team. Each enemy permanently takes 5 additional damage from Special skills. This effect stacks.",
+                        "description": "Deals 5 Special damage to the enemy team. Each enemy permanently takes 5 additional damage from Special skills. This effect stacks.",
+                        "energy": [
+                            "Random"
+                        ],
+                        "cooldown": 0,
+                        "target": "all-enemy",
+                        "damage": 0,
+                        "classes": [
+                            "Ghost",
+                            "Special",
+                            "Instant"
+                        ],
+                        "effects": [
+                            {
+                                "type": "damage",
+                                "amount": 5,
+                                "scope": "all-enemy",
+                                "metadata": {
+                                    "onSuccessfulDamageApplyStatusToTarget": {
+                                        "statusId": "shedinja_hex_special_vulnerability",
+                                        "duration": 999,
+                                        "metadata": {
+                                            "harmful": true,
+                                            "infiniteDuration": true,
+                                            "additionalDamageTakenBySkillClass": {
+                                                "Special": 5
+                                            },
+                                            "mergeObjectNumericAddKeys": [
+                                                "additionalDamageTakenBySkillClass"
+                                            ],
+                                            "statusIconUrl": "assets/images/PokemonArena/Nincada/Shedinja-Hex.jpg",
+                                            "tooltipText": "This character takes additional damage from Special skills. This effect stacks."
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "id": "shedinja-wonder-guard",
+                        "name": "Ability: Wonder Guard",
+                        "skillimage": "assets/images/PokemonArena/Nincada/Shedinja-Wonder-Guard.jpg",
+                        "skilldescription": "Up to 3 times per match and no more than once per turn, Shedinja completely ignores one enemy damage-based skill or harmful Strategic skill. Wonder Guard cannot be removed or ignored.",
+                        "description": "Up to 3 times per match and no more than once per turn, Shedinja completely ignores one enemy damage-based skill or harmful Strategic skill. Wonder Guard cannot be removed or ignored.",
+                        "energy": [],
+                        "cooldown": 0,
+                        "target": "",
+                        "damage": 0,
+                        "classes": [
+                            "Bug",
+                            "Passive",
+                            "Instant"
+                        ],
+                        "effects": []
+                    }
+                ],
+                "startStatuses": [
+                    {
+                        "statusId": "shedinja_wonder_guard",
+                        "sourceSkillId": "shedinja-wonder-guard",
+                        "duration": 999,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "wonderGuardUsesRemaining": 3,
+                            "statusIconUrl": "assets/images/PokemonArena/Nincada/Shedinja-Wonder-Guard.jpg",
+                            "tooltipTextTemplate": "Wonder Guard can ignore {wonderGuardUsesRemaining} more eligible skill(s), at most once per turn."
+                        }
+                    },
+                    {
+                        "statusId": "shedinja_solar_beam_controller",
+                        "sourceSkillId": "shedinja-solar-beam",
+                        "duration": 999,
+                        "metadata": {
+                            "infiniteDuration": true,
+                            "unremovable": true,
+                            "tooltipText": "Solar Beam gains 5 bonus damage after each Shedinja turn in which it is not used.",
+                            "turnEndApplyStatusToSelf": {
+                                "statusId": "shedinja_solar_beam_charge",
+                                "duration": 999,
+                                "skipIfOwnerUsedSkillIdThisTurn": "shedinja-solar-beam",
+                                "metadata": {
+                                    "infiniteDuration": true,
+                                    "unremovable": true,
+                                    "shedinjaSolarBeamBonus": 5,
+                                    "stackMetadataKey": "shedinjaSolarBeamBonus",
+                                    "stackDelta": 5,
+                                    "stackMax": 999,
+                                    "statusIconUrl": "assets/images/PokemonArena/Nincada/Shedinja-Solar-Beam.jpg",
+                                    "tooltipTextTemplate": "Solar Beam has {shedinjaSolarBeamBonus} bonus damage."
+                                }
+                            }
+                        }
+                    }
+                ],
+                "pokemonTypes": [
+                    "Bug",
+                    "Ghost"
+                ]
+            }
+        ],
+        "pokemonTypes": [
+            "Bug",
+            "Ground"
+        ]
     }
 ];
 
@@ -33808,6 +34607,9 @@ characters.forEach(function (character) {
         return;
     }
     (Array.isArray(character.skills) ? character.skills : []).forEach(normalizePokemonArenaDamageClasses);
+    (Array.isArray(character.battleForms) ? character.battleForms : []).forEach(function (form) {
+        (Array.isArray(form.skills) ? form.skills : []).forEach(normalizePokemonArenaDamageClasses);
+    });
 });
 
 if (typeof window !== 'undefined') {
