@@ -57,6 +57,7 @@ const { syncPokemonTypeClassNews } = require('./sync_pokemon_type_class_news');
 const { syncPokemonAegislashRelease } = require('./sync_pokemon_aegislash_release');
 const { syncPokemonDittoRelease } = require('./sync_pokemon_ditto_release');
 const { syncPokemonDragapultRelease } = require('./sync_pokemon_dragapult_release');
+const { syncPokemonNincadaRelease } = require('./sync_pokemon_nincada_release');
 const { syncPokemonBattleExperienceNews } = require('./sync_pokemon_battle_experience_news');
 let charactersData = require('./characters');
 
@@ -116,13 +117,13 @@ const LATEST_CHARACTER_RELEASES_BY_ARENA = {
         { label: 'General Grievous', characterId: 'general-grievous' },
     ],
     pokemon: [
+        { label: 'Nincada', characterId: 'nincada' },
         { label: 'Dragapult', characterId: 'dragapult' },
         { label: 'Scraggy', characterId: 'scraggy' },
-        { label: 'Ditto', characterId: 'ditto' },
     ],
 };
 const LATEST_CHARACTER_RELEASES_STATE_KEY = 'latest_character_releases';
-const LATEST_CHARACTER_RELEASES_VERSION = 'pokemon-community-dragapult-v1';
+const LATEST_CHARACTER_RELEASES_VERSION = 'pokemon-community-nincada-v1';
 const MAINTENANCE_MODE_STATE_KEY = 'maintenance_mode';
 const MAINTENANCE_MODE_CACHE_TTL_MS = 10 * 1000;
 const DEFAULT_PROFILE_AVATAR = '/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png';
@@ -9510,6 +9511,7 @@ const CLIENT_SAFE_STATUS_METADATA_KEYS = new Set([
     'overrideAllSkillsToAllRandom',
     'overrideAllSkillsToAllRandomSkillIdsAny',
     'onOwnerUseSkillApplyStatusToEnemies',
+    'pokemonTypeOverride',
     'randomCostIncrease',
     'randomCostReduction',
     'skillCostOverridesByRemainingTurns',
@@ -12980,6 +12982,10 @@ async function initDb() {
     const dragapultReleaseSync = await syncPokemonDragapultRelease(db);
     if (dragapultReleaseSync.migrated) {
         console.log('Published the Dragapult community-character release.');
+    }
+    const nincadaReleaseSync = await syncPokemonNincadaRelease(db);
+    if (nincadaReleaseSync.migrated) {
+        console.log('Published the Nincada community-character release.');
     }
     console.log('Connected to MongoDB.');
 }

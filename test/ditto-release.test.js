@@ -94,7 +94,12 @@ test('every transformable Pokemon and supplied form has an optimized Ditto portr
                 String(character?.arena || character?.universe || '').toLowerCase() === 'pokemon' &&
                 character.id !== 'ditto'
         )
-        .map((character) => character.id)
+        .flatMap((character) => [
+            character.id,
+            ...(Array.isArray(character.battleForms)
+                ? character.battleForms.map((form) => form.id)
+                : []),
+        ])
         .sort();
     assert.deepEqual(
         Object.keys(DITTO_TRANSFORMATION_FACE_BY_CHARACTER_ID).sort(),
@@ -119,7 +124,7 @@ test('every transformable Pokemon and supplied form has an optimized Ditto portr
     const optimizedFaces = fs.readdirSync(optimizedDirectory)
         .filter((filename) => filename.endsWith('.webp'))
         .sort();
-    assert.equal(mappedFaces.size, 81);
+    assert.equal(mappedFaces.size, 84);
     assert.deepEqual(
         [...mappedFaces].map((face) => path.basename(face)).sort(),
         optimizedFaces

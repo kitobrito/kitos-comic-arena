@@ -62,10 +62,10 @@ test('all Pokemon characters and skills have explicit valid typing with no Melee
     const roster = applyPokemonTypeSystem(structuredClone(characters), { strict: true });
     const pokemon = roster.filter((character) => (character.arena || character.universe) === 'pokemon');
     const pokemonTypeSet = new Set(POKEMON_TYPES);
-    assert.equal(pokemon.length, 44);
-    assert.equal(pokemon.flatMap((character) => character.skills || []).length, 283);
-    assert.equal(Object.keys(POKEMON_SKILL_TYPES).length, 298);
-    pokemon.forEach((character) => {
+    assert.equal(pokemon.length, 45);
+    assert.equal(pokemon.flatMap((character) => character.skills || []).length, 287);
+    assert.equal(Object.keys(POKEMON_SKILL_TYPES).length, 312);
+    const assertTypedCharacter = (character) => {
         assert.ok(character.pokemonTypes.length >= 1 && character.pokemonTypes.length <= 2, character.id);
         character.pokemonTypes.forEach((type) => assert.ok(pokemonTypeSet.has(type), `${character.id}:${type}`));
         const assertTypedSkill = (skill) => {
@@ -85,7 +85,9 @@ test('all Pokemon characters and skills have explicit valid typing with no Melee
             if (skill.evolvesTo) assertTypedSkill(skill.evolvesTo);
         };
         (character.skills || []).forEach(assertTypedSkill);
-    });
+        (Array.isArray(character.battleForms) ? character.battleForms : []).forEach(assertTypedCharacter);
+    };
+    pokemon.forEach(assertTypedCharacter);
     const comicCharacter = roster.find((character) => (character.arena || character.universe) !== 'pokemon');
     assert.equal(comicCharacter.pokemonTypes, undefined);
 });

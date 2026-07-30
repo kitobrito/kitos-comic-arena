@@ -48,6 +48,9 @@ const DITTO_TRANSFORMATION_FACE_BY_CHARACTER_ID = Object.freeze({
     scraggy: toDittoTransformationFacePath('scraggy.webp'),
     aegislash: toDittoTransformationFacePath('aegislashshield.webp'),
     dragapult: toDittoTransformationFacePath('dragapult.webp'),
+    nincada: toDittoTransformationFacePath('nincada.webp'),
+    ninjask: toDittoTransformationFacePath('ninjask.webp'),
+    shedinja: toDittoTransformationFacePath('shedinja.webp'),
 });
 
 const DITTO_TRANSFORMATION_FACE_BY_STATUS_ID = Object.freeze({
@@ -72,6 +75,8 @@ const DITTO_TRANSFORMATION_FACE_BY_STATUS_ID = Object.freeze({
     scraggy_scrafty_evolution: toDittoTransformationFacePath('scrafty.webp'),
     aegislash_blade_stance: toDittoTransformationFacePath('aegislashsword.webp'),
     aegislash_shield_stance: toDittoTransformationFacePath('aegislashshield.webp'),
+    nincada_ninjask_evolution: toDittoTransformationFacePath('ninjask.webp'),
+    nincada_shedinja_evolution: toDittoTransformationFacePath('shedinja.webp'),
 });
 
 const DITTO_TRANSFORMATION_FACE_BY_SKIN_ID = Object.freeze({
