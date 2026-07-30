@@ -288,6 +288,57 @@ test('batch evolution, Smokescreen, and Scyther changes survive stored overrides
     ), true);
 });
 
+test('stored overrides cannot restore unused-skill cooldowns or Jolteon speedup metadata', () => {
+    const canonical = characters
+        .filter((character) => character.id === 'krabby' || character.id === 'jolteon')
+        .map((character) => structuredClone(character));
+    const merged = canonical.map((character) => structuredClone(character));
+    const staleKrabby = merged.find((character) => character.id === 'krabby');
+    const staleJolteon = merged.find((character) => character.id === 'jolteon');
+
+    ['krabby-leer', 'kingler-leer'].forEach((skillId) => {
+        const bubble = staleKrabby.skills.find((skill) => skill.id === skillId);
+        const cooldownEffect = bubble.effects.find((effect) => effect.type === 'modify_cooldowns');
+        bubble.skilldescription = 'Stale Bubble text';
+        bubble.customSkillOverride = true;
+        cooldownEffect.includeAllCharacterSkills = true;
+        cooldownEffect.metadata.includeAllCharacterSkills = true;
+    });
+    ['jolteon-pin-missile', 'jolteon-thunder-fang'].forEach((skillId) => {
+        const jolteonSkill = staleJolteon.skills.find((skill) => skill.id === skillId);
+        const cooldownEffect = jolteonSkill.effects.find((effect) =>
+            String(effect.statusId || '').includes('cooldown_increase')
+        );
+        jolteonSkill.skilldescription = 'Stale Jolteon text';
+        jolteonSkill.customSkillOverride = true;
+        cooldownEffect.metadata.ownerTurnEndExtraCooldownTicksAllSkills = 1;
+        delete cooldownEffect.metadata.newSkillCooldownIncrease;
+    });
+
+    const corrected = applyRequiredCanonicalSkillCorrections(merged, canonical);
+    const correctedKrabby = corrected.find((character) => character.id === 'krabby');
+    const correctedJolteon = corrected.find((character) => character.id === 'jolteon');
+
+    ['krabby-leer', 'kingler-leer'].forEach((skillId) => {
+        const bubble = correctedKrabby.skills.find((skill) => skill.id === skillId);
+        const cooldownEffect = bubble.effects.find((effect) => effect.type === 'modify_cooldowns');
+        assert.equal(bubble.customSkillOverride, true);
+        assert.match(bubble.skilldescription, /active cooldowns/);
+        assert.equal(cooldownEffect.includeAllCharacterSkills, undefined);
+        assert.equal(cooldownEffect.metadata.includeAllCharacterSkills, undefined);
+    });
+    ['jolteon-pin-missile', 'jolteon-thunder-fang'].forEach((skillId) => {
+        const jolteonSkill = correctedJolteon.skills.find((skill) => skill.id === skillId);
+        const cooldownEffect = jolteonSkill.effects.find((effect) =>
+            String(effect.statusId || '').includes('cooldown_increase')
+        );
+        assert.equal(jolteonSkill.customSkillOverride, true);
+        assert.match(jolteonSkill.skilldescription, /new skills/i);
+        assert.equal(cooldownEffect.metadata.newSkillCooldownIncrease, 1);
+        assert.equal(cooldownEffect.metadata.ownerTurnEndExtraCooldownTicksAllSkills, undefined);
+    });
+});
+
 const firstComicRosterIndex = characters.findIndex(
     (character) => normalizeArenaMode(character?.arena || character?.universe) === 'comic'
 );
