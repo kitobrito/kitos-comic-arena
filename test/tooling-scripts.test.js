@@ -23,6 +23,11 @@ const {
     setCachedBotTeamsForTests,
     resetMatchmakingStateForTests,
     getUserMatchForTests,
+    enqueuePlayer,
+    findQueuedEntry,
+    buildMatchmakingWaitingPayload,
+    maybeCreateBattleBotMatch,
+    setPersistenceCollectionsForTests,
 } = require('../server');
 
 test('news arena classification separates explicit and legacy Pokemon posts', () => {
@@ -298,6 +303,108 @@ test('buildPairedMatchDocument rejects cross-arena paired match teams before sav
             /does not belong to Comic Arena/i
         );
     } finally {
+        resetMatchmakingStateForTests();
+    }
+});
+
+test('failed bot match creation restores the player queue instead of leaving an endless search', async () => {
+    const team = getRosterIndicesForArena('pokemon');
+    resetMatchmakingStateForTests();
+    setCachedBotTeamsForTests([
+        {
+            teamId: 'pokemon-recovery',
+            name: 'Pokemon Recovery',
+            characterIds: getPlayableCharacterIdsForArena('pokemon'),
+        },
+    ]);
+    setPersistenceCollectionsForTests({
+        matches: {
+            async insertOne() {
+                throw new Error('simulated match write failure');
+            },
+        },
+    });
+    enqueuePlayer({
+        username: 'QueueRecovery',
+        team,
+        mode: 'quick',
+        arena: 'pokemon',
+        queuedAt: new Date(Date.now() - 60_000),
+        profile: {},
+    });
+
+    try {
+        await assert.rejects(
+            maybeCreateBattleBotMatch({
+                username: 'QueueRecovery',
+                mode: 'quick',
+                arena: 'pokemon',
+                userProfile: {},
+            }),
+            /simulated match write failure/
+        );
+        assert.ok(findQueuedEntry('queuerecovery', 'quick', 'pokemon'));
+        assert.equal(getUserMatchForTests('QueueRecovery'), null);
+        assert.equal(
+            buildMatchmakingWaitingPayload('QueueRecovery', 'pokemon').queued,
+            true
+        );
+    } finally {
+        setCachedBotTeamsForTests(null);
+        setPersistenceCollectionsForTests();
+        resetMatchmakingStateForTests();
+    }
+});
+
+test('concurrent bot status polls share one in-flight match creation', async () => {
+    const team = getRosterIndicesForArena('pokemon');
+    let insertCount = 0;
+    resetMatchmakingStateForTests();
+    setCachedBotTeamsForTests([
+        {
+            teamId: 'pokemon-single-flight',
+            name: 'Pokemon Single Flight',
+            characterIds: getPlayableCharacterIdsForArena('pokemon'),
+        },
+    ]);
+    setPersistenceCollectionsForTests({
+        matches: {
+            async insertOne() {
+                insertCount += 1;
+                await new Promise((resolve) => setTimeout(resolve, 10));
+            },
+        },
+    });
+    enqueuePlayer({
+        username: 'SingleFlight',
+        team,
+        mode: 'quick',
+        arena: 'pokemon',
+        queuedAt: new Date(Date.now() - 60_000),
+        profile: {},
+    });
+
+    try {
+        const [first, second] = await Promise.all([
+            maybeCreateBattleBotMatch({
+                username: 'SingleFlight',
+                mode: 'quick',
+                arena: 'pokemon',
+                userProfile: {},
+            }),
+            maybeCreateBattleBotMatch({
+                username: 'singleflight',
+                mode: 'quick',
+                arena: 'pokemon',
+                userProfile: {},
+            }),
+        ]);
+        assert.equal(insertCount, 1);
+        assert.equal(first.matchId, second.matchId);
+        assert.equal(findQueuedEntry('SingleFlight', 'quick', 'pokemon'), null);
+    } finally {
+        setCachedBotTeamsForTests(null);
+        setPersistenceCollectionsForTests();
         resetMatchmakingStateForTests();
     }
 });

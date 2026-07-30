@@ -15484,6 +15484,8 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     const skillViewerOpenSound = new Audio('assets/audio/sounds/scroll_open.mp3');
     const skillViewerCloseSound = new Audio('assets/audio/sounds/scroll_close.mp3');
     let matchmakingPoll = null;
+    let matchmakingRecoveryPromise = null;
+    let matchmakingSearchGeneration = 0;
     let isSearching = false;
     let activeMatchmakingMode = '';
     let pendingMatchRedirect = null;
@@ -16850,6 +16852,58 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         window.location.href = buildIngameMatchUrl(matchId, arena);
     };
 
+    const buildMatchmakingJoinPayload = (
+        mode = activeMatchmakingMode || 'quick',
+        targetUsername = activeSearchTargetUsername
+    ) => ({
+        team: getTeamIndices(),
+        mode,
+        arena: activeArenaMode,
+        targetUsername: targetUsername || '',
+        draftMode: draftModeEnabled,
+    });
+
+    const recoverMissingMatchmakingQueue = () => {
+        if (!isSearching || !activeMatchmakingMode || matchmakingRecoveryPromise) {
+            return matchmakingRecoveryPromise;
+        }
+        const recoveryGeneration = matchmakingSearchGeneration;
+        matchmakingRecoveryPromise = fetch(`${API_BASE_URL}/api/match/join`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(buildMatchmakingJoinPayload()),
+        })
+            .then(async (response) => {
+                const data = await response.json();
+                if (
+                    recoveryGeneration !== matchmakingSearchGeneration ||
+                    !isSearching
+                ) {
+                    return null;
+                }
+                if (response.status === 401 || response.status === 403) {
+                    redirectToSelectionLogin(activeArenaMode);
+                    return null;
+                }
+                if (!response.ok || !data?.ok) {
+                    throw new Error(data?.error || 'Unable to restore matchmaking.');
+                }
+                if (data?.draft || data?.matchFound) {
+                    handleMatchFound(data);
+                }
+                return data;
+            })
+            .catch((error) => {
+                console.warn('Failed to restore missing matchmaking queue.', error);
+                return null;
+            })
+            .finally(() => {
+                matchmakingRecoveryPromise = null;
+            });
+        return matchmakingRecoveryPromise;
+    };
+
     const startPollingMatch = () => {
         if (matchmakingPoll) return;
         matchmakingPoll = setInterval(async () => {
@@ -16872,6 +16926,10 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 }
                 if (data?.matchFound && data.matchId) {
                     handleMatchFound(data);
+                    return;
+                }
+                if (data?.queued === false) {
+                    recoverMissingMatchmakingQueue();
                 }
             } catch (error) {
                 console.warn('Match status check failed:', error);
@@ -16881,6 +16939,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
 
     const joinMatchmaking = async (mode = 'quick', options = {}) => {
         if (isSearching) return;
+        const searchGeneration = ++matchmakingSearchGeneration;
         isSearching = true;
         activeMatchmakingMode = mode;
         document.body.classList.add('matchmaking-active');
@@ -16906,15 +16965,17 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({
-                    team: getTeamIndices(),
-                    mode,
-                    arena: activeArenaMode,
-                    targetUsername: options.targetUsername || '',
-                    draftMode: draftModeEnabled,
-                }),
+                body: JSON.stringify(
+                    buildMatchmakingJoinPayload(mode, options.targetUsername || '')
+                ),
             });
             const data = await response.json();
+            if (
+                searchGeneration !== matchmakingSearchGeneration ||
+                !isSearching
+            ) {
+                return;
+            }
             if (response.status === 401 || response.status === 403) {
                 redirectToSelectionLogin(activeArenaMode);
                 return;
@@ -16928,6 +16989,9 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             }
             startPollingMatch();
         } catch (error) {
+            if (searchGeneration !== matchmakingSearchGeneration) {
+                return;
+            }
             console.error('Failed to join matchmaking:', error);
             isSearching = false;
             activeMatchmakingMode = '';
@@ -16942,6 +17006,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     };
 
     const cancelMatchmaking = async () => {
+        matchmakingSearchGeneration += 1;
         isSearching = false;
         activeMatchmakingMode = '';
         activeSearchTargetUsername = '';
@@ -16953,6 +17018,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             clearInterval(matchmakingPoll);
             matchmakingPoll = null;
         }
+        matchmakingRecoveryPromise = null;
         closeSearching();
         try {
             await fetch(`${API_BASE_URL}/api/match/cancel`, {
