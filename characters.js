@@ -24997,7 +24997,7 @@ const characters = [
                 "id": "krabby-leer",
                 "name": "Bubble",
                 "skillimage": "assets/images/PokemonArena/Krabby/krabbybubble.png",
-                "skilldescription": "Deals 20 damage to one enemy, increases their cooldowns by 1, and drenches them for 2 turns. A drenched enemy takes 10 additional physical damage and their skills cost 1 additional random energy.",
+                "skilldescription": "Deals 20 damage to one enemy, increases their active cooldowns by 1, and drenches them for 2 turns. A drenched enemy takes 10 additional physical damage and their skills cost 1 additional random energy.",
                 "energy": [
                     "Random"
                 ],
@@ -25019,7 +25019,6 @@ const characters = [
                         "type": "modify_cooldowns",
                         "operation": "add",
                         "amount": 1,
-                        "includeAllCharacterSkills": true,
                         "scope": "target",
                         "metadata": {
                             "harmful": true
@@ -25232,7 +25231,7 @@ const characters = [
                     "statusId": "krabby_kingler_evolution"
                 },
                 "skillimage": "assets/images/PokemonArena/Krabby/kinglerbubble.jpg",
-                "skilldescription": "Deals 25 damage to one enemy and 10 damage to all other enemies. The main target's cooldowns are increased by 2 and they are drenched for 2 turns. A drenched enemy takes 15 additional physical damage and their skills cost 1 additional random energy.",
+                "skilldescription": "Deals 25 damage to one enemy and 10 damage to all other enemies. The main target's active cooldowns are increased by 2 and they are drenched for 2 turns. A drenched enemy takes 15 additional physical damage and their skills cost 1 additional random energy.",
                 "energy": [
                     "Random"
                 ],
@@ -25259,7 +25258,6 @@ const characters = [
                         "type": "modify_cooldowns",
                         "operation": "add",
                         "amount": 2,
-                        "includeAllCharacterSkills": true,
                         "scope": "target",
                         "metadata": {
                             "harmful": true
@@ -25768,7 +25766,7 @@ const characters = [
                 "id": "jolteon-pin-missile",
                 "name": "Pin Missile",
                 "skillimage": "assets/images/PokemonArena/eevee/jolteon/pinmissile.png",
-                "skilldescription": "Jolteon deals 15 piercing damage to one enemy team and increases their cooldowns by 1 for 1 turn. For 1 turn, any enemy that uses a new skill on Jolteon takes 15 piercing damage.",
+                "skilldescription": "Jolteon deals 15 piercing damage to one enemy team. For 1 turn, new skills those enemies use have their cooldown increased by 1, and any enemy that uses a new skill on Jolteon takes 15 piercing damage.",
                 "energy": [
                     "Taijutsu"
                 ],
@@ -25795,11 +25793,12 @@ const characters = [
                         "duration": 1,
                         "scope": "all-enemy",
                         "metadata": {
+                            "harmful": true,
                             "onEnemySkillTargetedDamageToSourceAmount": 15,
                             "onEnemySkillTargetedDamageToSourceIgnoreDamageReduction": true,
                             "statusIconUrl": "assets/images/PokemonArena/eevee/jolteon/pinmissile.png",
-                            "tooltipText": "This character's cooldowns are increased by 1.",
-                            "ownerTurnEndExtraCooldownTicksAllSkills": 1
+                            "tooltipText": "New skills this character uses have their cooldown increased by 1.",
+                            "newSkillCooldownIncrease": 1
                         }
                     },
                     {
@@ -25866,7 +25865,7 @@ const characters = [
                 "id": "jolteon-thunder-fang",
                 "name": "Thunder Fang",
                 "skillimage": "assets/images/PokemonArena/eevee/jolteon/thunderfang.png",
-                "skilldescription": "Deals 35 piercing damage to one enemy and stuns their skills for 1 turn. For the rest of the game, the target's cooldowns are increased by +1.",
+                "skilldescription": "Deals 35 piercing damage to one enemy and stuns their skills for 1 turn. For the rest of the game, new skills the target uses have their cooldown increased by 1.",
                 "energy": [
                     "Taijutsu",
                     "Genjutsu"
@@ -25905,10 +25904,11 @@ const characters = [
                         "duration": 999,
                         "scope": "target",
                         "metadata": {
+                            "harmful": true,
                             "infiniteDuration": true,
-                            "ownerTurnEndExtraCooldownTicksAllSkills": 1,
+                            "newSkillCooldownIncrease": 1,
                             "statusIconUrl": "assets/images/PokemonArena/eevee/jolteon/thunderfang.png",
-                            "tooltipText": "This character's cooldowns are increased by 1."
+                            "tooltipText": "New skills this character uses have their cooldown increased by 1."
                         }
                     }
                 ]

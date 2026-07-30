@@ -7697,6 +7697,14 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
         gastly: {
             'gastly-passive-evolution-haunter': ['skilldescription'],
         },
+        krabby: {
+            'krabby-leer': ['skilldescription'],
+            'kingler-leer': ['skilldescription'],
+        },
+        jolteon: {
+            'jolteon-pin-missile': ['skilldescription'],
+            'jolteon-thunder-fang': ['skilldescription'],
+        },
         scyther: {
             'scyther-fury-cutter': ['skilldescription', 'effects'],
             'scyther-swords-dance': ['skilldescription', 'effects'],
@@ -7834,6 +7842,57 @@ const applyRequiredCanonicalSkillCorrections = (mergedCharacters = [], canonical
                         ...preservedOverrideEffects,
                         ...canonicalComboEffects,
                     ];
+                }
+                if (
+                    characterId === 'krabby' &&
+                    (skill?.id === 'krabby-leer' || skill?.id === 'kingler-leer')
+                ) {
+                    correctedSkill.effects = (Array.isArray(correctedSkill.effects)
+                        ? correctedSkill.effects
+                        : []
+                    ).map((effect) => {
+                        if (effect?.type !== 'modify_cooldowns') return effect;
+                        const correctedEffect = { ...effect };
+                        delete correctedEffect.includeAllCharacterSkills;
+                        if (
+                            correctedEffect.metadata &&
+                            typeof correctedEffect.metadata === 'object'
+                        ) {
+                            correctedEffect.metadata = { ...correctedEffect.metadata };
+                            delete correctedEffect.metadata.includeAllCharacterSkills;
+                        }
+                        return correctedEffect;
+                    });
+                }
+                if (
+                    characterId === 'jolteon' &&
+                    (skill?.id === 'jolteon-pin-missile' || skill?.id === 'jolteon-thunder-fang')
+                ) {
+                    const cooldownStatusId =
+                        skill.id === 'jolteon-pin-missile'
+                            ? 'jolteon_pin_missile_cooldown_increase'
+                            : 'jolteon_thunder_fang_cooldown_increase';
+                    const canonicalCooldownEffect = (Array.isArray(canonicalSkill.effects)
+                        ? canonicalSkill.effects
+                        : []
+                    ).find((effect) => effect?.statusId === cooldownStatusId);
+                    correctedSkill.effects = (Array.isArray(correctedSkill.effects)
+                        ? correctedSkill.effects
+                        : []
+                    ).map((effect) => {
+                        if (effect?.statusId !== cooldownStatusId) return effect;
+                        const metadata = {
+                            ...(effect?.metadata || {}),
+                            harmful: true,
+                            newSkillCooldownIncrease: 1,
+                            tooltipText: canonicalCooldownEffect?.metadata?.tooltipText,
+                        };
+                        delete metadata.ownerTurnEndExtraCooldownTicksAllSkills;
+                        return {
+                            ...effect,
+                            metadata,
+                        };
+                    });
                 }
                 return correctedSkill;
             }),

@@ -640,6 +640,16 @@ html:not(.battle-experimental) .match-chat {
     bottom: 14px;
 }
 
+html:not(.battle-experimental) .match-chat-panel {
+    position: absolute;
+    top: auto;
+    right: 0;
+    bottom: calc(100% + 96px);
+    width: 300px;
+    box-sizing: border-box;
+    margin-top: 0;
+}
+
 .match-chat-toggle {
     width: 100%;
     display: flex;
