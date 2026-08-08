@@ -53,6 +53,7 @@ const POKEMON_CHARACTER_TYPES = Object.freeze({
     nincada: ['Bug', 'Ground'],
     ninjask: ['Bug', 'Flying'],
     shedinja: ['Bug', 'Ghost'],
+    primeape: ['Fighting'],
 });
 
 const skillsByType = {
@@ -135,6 +136,7 @@ const skillsByType = {
         'aegislash-sacred-sword',
         'scraggy-hi-jump-kick', 'scrafty-hi-jump-kick',
         'scraggy-focus-blast', 'scrafty-focus-blast',
+        'primeape-rock-smash', 'primeape-close-combat', 'primeape-passive-anger-point',
     ],
     Poison: [
         'koffing-smog', 'koffing-passive-poison-gas', 'koffing-passive-evolution-weezing',
@@ -173,7 +175,7 @@ const skillsByType = {
     Ghost: [
         'gastly-lick', 'gastly-curse', 'gastly-spite', 'gastly-passive-evolution-haunter',
         'haunter-lick', 'haunter-curse', 'haunter-spite', 'mewtwo-shadow-ball',
-        'ninjask-shadow-ball', 'shedinja-hex',
+        'ninjask-shadow-ball', 'shedinja-hex', 'primeape-rage-fist',
     ],
     Dragon: [
         'charmander-dragon-claw', 'charmander-charizard-x-dragon-claw',
@@ -185,6 +187,7 @@ const skillsByType = {
         'zubat-bite', 'zubat-draining-fangs', 'golbat-bite', 'golbat-draining-fangs',
         'ekans-crunch', 'arbok-crunch', 'machop-taunt', 'machoke-taunt',
         'meowth-night-slash', 'persian-night-slash', 'shedinja-feint-attack',
+        'primeape-knock-off',
     ],
     Steel: [
         'krabby-metal-claw', 'kingler-metal-claw', 'magneton-flash-cannon', 'onix-iron-tail',

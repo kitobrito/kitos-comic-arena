@@ -1973,6 +1973,16 @@ const applyStatus = ({
     fresh = false,
 }) => {
     if (!targetState || !statusId) return false;
+    const incomingDestructibleDefense = Math.max(
+        0,
+        Number(metadata?.destructibleDefensePoints) || 0
+    );
+    if (
+        incomingDestructibleDefense > 0 &&
+        hasStatusMetadataFlag(targetState, 'preventDestructibleDefenseGain')
+    ) {
+        return false;
+    }
     const applyStackDerivedNumericKeys = (nextMetadata) => {
         if (!nextMetadata || typeof nextMetadata !== 'object') return nextMetadata;
         const stackKey =
@@ -7445,6 +7455,20 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             const ignoreDestructibleDefense = Boolean(effect?.metadata?.ignoreDestructibleDefense);
             const ignoreDamageImmunity = Boolean(effect?.metadata?.ignoreDamageImmunity);
             const ignoreAfflictionDamageImmunity = Boolean(effect?.metadata?.ignoreAfflictionDamageImmunity);
+            const describedAsCritical = /critical(?:ly)?(?: hit| strike)?/i.test(
+                `${skill?.skilldescription || ''} ${skill?.description || ''}`
+            );
+            const criticalHit =
+                Boolean(effect?.metadata?.criticalHit) ||
+                (
+                    effect?.metadata?.criticalHit !== false &&
+                    describedAsCritical &&
+                    !Boolean(effect?.metadata?.afflictionDamage) &&
+                    (
+                        (Number.isFinite(Number(effect?.chance)) && Number(effect.chance) > 0) ||
+                        (Boolean(effect?.condition) && Boolean(effect?.metadata?.ignoreDamageReduction))
+                    )
+                );
             const effectSkillClasses = Array.isArray(effect?.metadata?.skillClasses)
                 ? effect.metadata.skillClasses
                       .map((entry) => (typeof entry === 'string' ? entry.trim().toLowerCase() : ''))
@@ -7469,6 +7493,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 ignoreDestructibleDefense ? 1 : 0,
                 ignoreDamageImmunity || bypassingDamage ? 1 : 0,
                 ignoreAfflictionDamageImmunity ? 1 : 0,
+                criticalHit ? 1 : 0,
                 effect?.type === 'health_steal_damage' || Boolean(effect?.metadata?.healthStealDamage) ? 1 : 0,
                 effectSkillClasses.slice().sort().join(','),
                 effect?.metadata?.onSuccessfulDamageApplyStatusToTarget?.statusId || '',
@@ -7491,6 +7516,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 ignoreDestructibleDefense,
                 ignoreDamageImmunity: ignoreDamageImmunity || bypassingDamage,
                 ignoreAfflictionDamageImmunity,
+                criticalHit,
                 afflictionDamage: Boolean(effect?.metadata?.afflictionDamage),
                 skillClasses: effectSkillClasses,
                 sourceSkillId: skill?.id || null,
@@ -8180,6 +8206,128 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         fresh: false,
                     });
                 }
+                return;
+            }
+            if (effectType === 'primeape_rock_smash') {
+                const barrierPoints = (Array.isArray(actorState?.statuses) ? actorState.statuses : [])
+                    .reduce(
+                        (sum, status) =>
+                            sum + Math.max(0, Number(status?.metadata?.barrierPoints) || 0),
+                        0
+                    );
+                if (barrierPoints > 0) {
+                    const barrierResult = consumeOutgoingBarrierOnSource({
+                        match,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        amount: barrierPoints,
+                    });
+                    if (Math.max(0, Number(barrierResult?.consumed) || 0) > 0) {
+                        applyStatus({
+                            targetState: actorState,
+                            targetUnit: actorUnit,
+                            statusId: 'primeape_rock_smash_rage_fist_bonus',
+                            duration: 1,
+                            sourceSkillId: skill.id || null,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            metadata: {
+                                skillDamageBonuses: { 'primeape-rage-fist': 10 },
+                                turnDurationAnchor: 'source_turn',
+                                statusIconUrl: 'assets/images/PokemonArena/Primeape/Rock-Smash.jpg',
+                                tooltipText: 'Primeape\'s next-turn Rage Fist deals 10 additional damage.',
+                            },
+                            fresh: false,
+                        });
+                    }
+                }
+                resolveRecipients(effect).forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    if (
+                        doesTargetIgnoreSkillByClass({
+                            targetState,
+                            skillClasses: skill.classes || [],
+                            isEnemySkill: recipient.username !== actingUsername,
+                        })
+                    ) {
+                        return;
+                    }
+                    destroyAllDestructibleDefenseOnUnit(recipient.unit);
+                });
+                return;
+            }
+            if (effectType === 'primeape_knock_off') {
+                resolveRecipients(effect).forEach((recipient) => {
+                    if (!recipient?.unit || recipient.unit.alive === false) return;
+                    const targetState = ensureUnitStateShape(recipient.unit);
+                    if (
+                        doesTargetIgnoreSkillByClass({
+                            targetState,
+                            skillClasses: skill.classes || [],
+                            isEnemySkill: recipient.username !== actingUsername,
+                        }) ||
+                        hasStatusMetadataFlag(targetState, 'ignoreHarmfulNonDamageEffects')
+                    ) {
+                        return;
+                    }
+                    let removedHelpfulEffects = 0;
+                    targetState.statuses = (Array.isArray(targetState.statuses) ? targetState.statuses : [])
+                        .filter((status) => {
+                            if (!status || (Number(status?.remainingTurns) || 0) <= 0) return true;
+                            const statusMetadata = status.metadata || {};
+                            if (Boolean(statusMetadata.harmful)) return true;
+                            if (
+                                Boolean(statusMetadata.unremovable) ||
+                                Boolean(statusMetadata.infiniteDuration) ||
+                                Boolean(statusMetadata.passive)
+                            ) {
+                                return true;
+                            }
+                            removedHelpfulEffects += 1;
+                            return false;
+                        });
+                    applyStatus({
+                        targetState,
+                        targetUnit: recipient.unit,
+                        statusId: 'primeape_knock_off_shield_block',
+                        duration: 2,
+                        sourceSkillId: skill.id || null,
+                        sourceUsername: actingUsername,
+                        sourceSlot: actorSlot,
+                        metadata: {
+                            harmful: true,
+                            preventDestructibleDefenseGain: true,
+                            statusIconUrl: 'assets/images/PokemonArena/Primeape/Knock-Off.jpg',
+                            tooltipText: 'This character cannot gain Shield.',
+                        },
+                        fresh: false,
+                    });
+                    if (removedHelpfulEffects > 0) {
+                        applyStatus({
+                            targetState,
+                            targetUnit: recipient.unit,
+                            statusId: 'primeape_knock_off_exposure',
+                            duration: 2,
+                            sourceSkillId: skill.id || null,
+                            sourceUsername: actingUsername,
+                            sourceSlot: actorSlot,
+                            metadata: {
+                                harmful: true,
+                                bonusDamageFromSourceCharacterId: 'primeape',
+                                bonusDamageAppliesToSkillIds: [
+                                    'primeape-rock-smash',
+                                    'primeape-close-combat',
+                                ],
+                                bonusDamageFromSourceSkillsFlat: 10,
+                                statusIconUrl: 'assets/images/PokemonArena/Primeape/Knock-Off.jpg',
+                                tooltipText: 'Primeape\'s Rock Smash and Close Combat deal 10 additional damage to this character.',
+                            },
+                            fresh: false,
+                        });
+                    }
+                    refreshDerivedStatusTooltips(targetState);
+                });
                 return;
             }
             if (effectType === 'grant_barrier' || effectType === 'grant_shield') {
@@ -10722,6 +10870,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
             }`;
             const recipientKey = `${entry.recipient.username || ''}:${entry.recipient.slot ?? ''}`;
             let adjustedAmount = Math.max(0, Number(entry.amount) || 0);
+            let wasSuperEffective = false;
             const targetState = ensureUnitStateShape(entry.recipient.unit);
             const targetCharacter = resolveEffectiveCharacter({
                 characters,
@@ -10745,6 +10894,7 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                 const effectiveness = getPokemonTypeEffectiveness(moveType, defendingTypes);
                 pokemonTypeEffectivenessAppliedRecipients.add(recipientKey);
                 if (effectiveness.modifier !== 0) {
+                    wasSuperEffective = effectiveness.modifier > 0;
                     adjustedAmount = effectiveness.modifier < 0
                         ? Math.max(5, adjustedAmount + effectiveness.modifier)
                         : adjustedAmount + effectiveness.modifier;
@@ -10782,6 +10932,29 @@ const resolvePendingTurnSkills = ({ match, actingUsername, characters }) => {
                         percentMitigationStateMap: percentMitigationStateByRecipient,
                         percentMitigationStateKey: mitigationBudgetKey,
                     });
+            if (dealt > 0 && (wasSuperEffective || Boolean(entry.criticalHit))) {
+                const reactiveStatuses = (Array.isArray(targetState.statuses) ? targetState.statuses : [])
+                    .filter((status) => {
+                        if (!isStatusActiveForMetadata(status, entry.recipient.unit)) return false;
+                        return Boolean(status?.metadata?.onOwnerHitBySuperEffectiveOrCritical?.statusId);
+                    });
+                reactiveStatuses.forEach((status) => {
+                    const reaction = status.metadata.onOwnerHitBySuperEffectiveOrCritical;
+                    applyStatus({
+                        targetState,
+                        targetUnit: entry.recipient.unit,
+                        statusId: reaction.statusId,
+                        duration: reaction.duration,
+                        sourceSkillId: status?.sourceSkillId || null,
+                        sourceUsername: entry.recipient.username || null,
+                        sourceSlot: Number.isInteger(entry.recipient.slot)
+                            ? entry.recipient.slot
+                            : null,
+                        metadata: reaction.metadata || {},
+                        fresh: false,
+                    });
+                });
+            }
             if (dealt > 0 && entry.healthStealDamage) {
                 applyDirectHpGainToUnit(actorUnit, dealt);
             }

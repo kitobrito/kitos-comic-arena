@@ -58,6 +58,10 @@ const { syncPokemonAegislashRelease } = require('./sync_pokemon_aegislash_releas
 const { syncPokemonDittoRelease } = require('./sync_pokemon_ditto_release');
 const { syncPokemonDragapultRelease } = require('./sync_pokemon_dragapult_release');
 const { syncPokemonNincadaRelease } = require('./sync_pokemon_nincada_release');
+const {
+    EVENT_DURATION_MS: PRIMEAPE_EVENT_DURATION_MS,
+    syncPokemonPrimeapeRelease,
+} = require('./sync_pokemon_primeape_release');
 const { syncPokemonBattleExperienceNews } = require('./sync_pokemon_battle_experience_news');
 let charactersData = require('./characters');
 
@@ -117,13 +121,13 @@ const LATEST_CHARACTER_RELEASES_BY_ARENA = {
         { label: 'General Grievous', characterId: 'general-grievous' },
     ],
     pokemon: [
+        { label: 'Primeape', characterId: 'primeape' },
         { label: 'Nincada', characterId: 'nincada' },
         { label: 'Dragapult', characterId: 'dragapult' },
-        { label: 'Scraggy', characterId: 'scraggy' },
     ],
 };
 const LATEST_CHARACTER_RELEASES_STATE_KEY = 'latest_character_releases';
-const LATEST_CHARACTER_RELEASES_VERSION = 'pokemon-community-nincada-v1';
+const LATEST_CHARACTER_RELEASES_VERSION = 'pokemon-primeape-annihilape-v1';
 const MAINTENANCE_MODE_STATE_KEY = 'maintenance_mode';
 const MAINTENANCE_MODE_CACHE_TTL_MS = 10 * 1000;
 const DEFAULT_PROFILE_AVATAR = '/assets/images/external-mirror/i.postimg.cc/971bcdc8d3154d6d16a9.png';
@@ -138,6 +142,40 @@ const LADDER_UNLOCK_POINTS_LOSS = 3;
 const MISSION_UNLOCK_POINT_PRICE_MIN = 150;
 const MISSION_UNLOCK_POINT_PRICE_MAX = 600;
 const MISSION_EEVEE_EVOLUTION_UNLOCK_POINT_COST = 500;
+const makePrimeapeReleaseWindow = (source = {}, fallbackStart = new Date()) => {
+    const parsedStart = new Date(source?.startsAt || fallbackStart);
+    const startsAt = Number.isNaN(parsedStart.getTime()) ? new Date(fallbackStart) : parsedStart;
+    const parsedEnd = new Date(source?.endsAt || startsAt.getTime() + PRIMEAPE_EVENT_DURATION_MS);
+    const endsAt =
+        Number.isNaN(parsedEnd.getTime()) || parsedEnd.getTime() <= startsAt.getTime()
+            ? new Date(startsAt.getTime() + PRIMEAPE_EVENT_DURATION_MS)
+            : parsedEnd;
+    return { startsAt, endsAt };
+};
+let primeapeReleaseWindow = makePrimeapeReleaseWindow();
+const setPrimeapeReleaseWindow = (source = {}) => {
+    primeapeReleaseWindow = makePrimeapeReleaseWindow(source, primeapeReleaseWindow.startsAt);
+    return primeapeReleaseWindow;
+};
+const getPrimeapeReleaseWindow = () => ({
+    startsAt: new Date(primeapeReleaseWindow.startsAt),
+    endsAt: new Date(primeapeReleaseWindow.endsAt),
+});
+const isDateWithinWindow = (value, window = {}) => {
+    const timestamp = new Date(value || Date.now()).getTime();
+    const startsAt = new Date(window?.startsAt || 0).getTime();
+    const endsAt = new Date(window?.endsAt || 0).getTime();
+    if (!Number.isFinite(timestamp)) return false;
+    if (Number.isFinite(startsAt) && timestamp < startsAt) return false;
+    if (Number.isFinite(endsAt) && endsAt > 0 && timestamp >= endsAt) return false;
+    return true;
+};
+const isMissionActiveAt = (mission = {}, value = new Date()) => {
+    const startsAt = mission?.starts_at || mission?.startsAt || '';
+    const endsAt = mission?.ends_at || mission?.endsAt || '';
+    if (!startsAt && !endsAt) return true;
+    return isDateWithinWindow(value, { startsAt, endsAt });
+};
 const getMissionUnlockPointCostForRank = (missionRank) => {
     const rank = Math.max(1, Math.floor(Number(missionRank) || 1));
     if (rank <= 6) return 150;
@@ -3050,9 +3088,45 @@ const POKEMON_GEN2_EVOLUTION_SKIN_CATALOG = [
     },
 ];
 
+const getPokemonPrimeapeSkinCatalogEntry = () => {
+    const eventWindow = getPrimeapeReleaseWindow();
+    return {
+        skinId: 'primeape-annihilape-evolution',
+        characterId: 'primeape',
+        name: 'Annihilape',
+        description:
+            'Primeape evolves into Annihilape with a custom portrait, complete skill art, and new-UI render.',
+        unlockPointCost: 750,
+        purchaseAvailableAt: eventWindow.endsAt,
+        previewFacePicture:
+            'assets/images/PokemonArena/Primeape/skins/annihilape/Annihilape-FP.jpg',
+        patch: {
+            name: 'Annihilape',
+            facePicture:
+                'assets/images/PokemonArena/Primeape/skins/annihilape/Annihilape-FP.jpg',
+        },
+        skillImageOverridesBySkillId: {
+            'primeape-rock-smash':
+                'assets/images/PokemonArena/Primeape/skins/annihilape/Rock-Smash.jpg',
+            'primeape-knock-off':
+                'assets/images/PokemonArena/Primeape/skins/annihilape/Knock-Off.jpg',
+            'primeape-rage-fist':
+                'assets/images/PokemonArena/Primeape/skins/annihilape/Rage-Fist.jpg',
+            'primeape-close-combat':
+                'assets/images/PokemonArena/Primeape/skins/annihilape/Close-Combat.jpg',
+            'primeape-passive-anger-point':
+                'assets/images/PokemonArena/Primeape/skins/annihilape/Anger-Point.jpg',
+        },
+    };
+};
+
 const getArenaSkinCatalog = (arena = DEFAULT_ARENA_MODE) =>
     normalizeArenaMode(arena) === 'pokemon'
-        ? [...POKEMON_SKIN_CATALOG, ...POKEMON_GEN2_EVOLUTION_SKIN_CATALOG]
+        ? [
+              ...POKEMON_SKIN_CATALOG,
+              ...POKEMON_GEN2_EVOLUTION_SKIN_CATALOG,
+              getPokemonPrimeapeSkinCatalogEntry(),
+          ]
         : [];
 
 const getArenaSkinCatalogById = (arena = DEFAULT_ARENA_MODE) => {
@@ -3130,6 +3204,12 @@ const serializeSkinCatalogEntryForClient = (entry = {}) => ({
     unlockPointCost: entry.missionRewardOnly
         ? 0
         : Math.max(1, Math.floor(Number(entry.unlockPointCost) || 100)),
+    purchaseAvailableAt:
+        entry.purchaseAvailableAt && !Number.isNaN(new Date(entry.purchaseAvailableAt).getTime())
+            ? new Date(entry.purchaseAvailableAt).toISOString()
+            : null,
+    purchaseAvailable:
+        !entry.purchaseAvailableAt || Date.now() >= new Date(entry.purchaseAvailableAt).getTime(),
     previewFacePicture:
         typeof entry.previewFacePicture === 'string' && entry.previewFacePicture.trim()
             ? entry.previewFacePicture.trim()
@@ -3829,6 +3909,12 @@ const slugifyMissionId = (value) =>
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '');
 
+const normalizeOptionalDateIso = (value) => {
+    if (!value) return '';
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? '' : parsed.toISOString();
+};
+
 const normalizeMissionCatalogEntry = (mission = {}, index = 0) => {
     const source = mission && typeof mission === 'object' ? mission : {};
     const missionTitle =
@@ -3948,6 +4034,8 @@ const normalizeMissionCatalogEntry = (mission = {}, index = 0) => {
         prerequisite_mission_id: slugifyMissionId(
             source.prerequisite_mission_id ?? source.prerequisiteMissionId ?? ''
         ),
+        starts_at: normalizeOptionalDateIso(source.starts_at || source.startsAt),
+        ends_at: normalizeOptionalDateIso(source.ends_at || source.endsAt),
         reward_skin_id: normalizeSkinId(source.reward_skin_id ?? source.rewardSkinId ?? ''),
         reward: typeof source.reward === 'string' ? source.reward.trim() : '',
         unlock_point_cost: Math.max(
@@ -5181,6 +5269,42 @@ const POKEMON_GEN2_EVOLUTION_MISSION_ENTRIES = [
     ];
 });
 
+const getPokemonPrimeapeMissionEntry = () => {
+    const eventWindow = getPrimeapeReleaseWindow();
+    return {
+        missionId: 'primeape-annihilape-week',
+        title: 'Primeape Annihilape Evolution Week',
+        level_requirement: 1,
+        rank: '1',
+        reward_skin_id: 'primeape-annihilape-evolution',
+        reward: 'Unlock and equip the Annihilape evolution skin for Primeape.',
+        starts_at: eventWindow.startsAt.toISOString(),
+        ends_at: eventWindow.endsAt.toISOString(),
+        arena: 'pokemon',
+        mode_restriction: { allowed_modes: ['quick', 'ladder'] },
+        image: 'assets/images/PokemonArena/missionpics/primeape.jpg',
+        imageAlt: 'Primeape Annihilape evolution mission artwork',
+        characterName: 'Annihilape',
+        portrait: 'assets/images/PokemonArena/Primeape/skins/annihilape/Annihilape-FP.jpg',
+        portraitAlt: 'Annihilape portrait',
+        requirements: [
+            'Win 20 Quick or Ladder games with Primeape during the seven-day release event.',
+            'Wins against players and bots both count.',
+            'After the event, Annihilape costs 750 unlock points in the Skin Shop.',
+        ],
+        goals: [
+            {
+                type: 'win_matches',
+                character_id: 'primeape',
+                character_name: 'Primeape',
+                wins: 20,
+            },
+        ],
+        special_pve: { enabled: false },
+        sortOrder: 240,
+    };
+};
+
 const shouldNormalizeComicMissionDifficulty = (mission = {}) => {
     const normalizedArena = normalizeArenaMode(mission?.arena || '');
     if (normalizedArena === 'pokemon') {
@@ -5511,6 +5635,10 @@ const ensureRequiredMissionCatalogEntries = (missions = []) => {
     upsertRequiredMission(POKEMON_DITTO_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'ditto');
     upsertRequiredMission(POKEMON_SCRAGGY_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'scraggy');
     upsertRequiredMission(POKEMON_DRAGAPULT_MISSION_ENTRY, (mission) => normalizeCharacterId(mission?.reward_character) === 'dragapult');
+    upsertRequiredMission(
+        getPokemonPrimeapeMissionEntry(),
+        (mission) => mission?.missionId === 'primeape-annihilape-week'
+    );
     POKEMON_WAVE_2_MISSION_ENTRIES.forEach((entry) => {
         upsertRequiredMission(
             entry,
@@ -6628,6 +6756,9 @@ const applyMissionProgressForUsers = async (match, winnerUsername, endedAt) => {
 
             for (const mission of missionCatalog) {
                 if (!mission || !mission.missionId) {
+                    continue;
+                }
+                if (!isMissionActiveAt(mission, endedAt || new Date())) {
                     continue;
                 }
 
@@ -13098,6 +13229,11 @@ async function initDb() {
     if (nincadaReleaseSync.migrated) {
         console.log('Published the Nincada community-character release.');
     }
+    const primeapeReleaseSync = await syncPokemonPrimeapeRelease(db);
+    setPrimeapeReleaseWindow(primeapeReleaseSync.eventWindow);
+    if (primeapeReleaseSync.migrated) {
+        console.log('Published the Primeape and Annihilape seven-day release.');
+    }
     console.log('Connected to MongoDB.');
 }
 
@@ -15151,7 +15287,9 @@ app.get('/api/missions', async (req, res) => {
         res.set('Cache-Control', 'no-store');
         const arena = normalizeArenaMode(req.query?.arena);
         let missions = addUnlockPointCostsToMissions((await getStoredMissionCatalog()).filter(
-            (mission) => normalizeArenaMode(mission?.arena) === arena
+            (mission) =>
+                normalizeArenaMode(mission?.arena) === arena &&
+                isMissionActiveAt(mission, new Date())
         ));
         let missionState = createDefaultMissionState();
         let normalizedProfile = null;
@@ -15353,6 +15491,19 @@ app.post('/api/skins/unlock', requireSession, async (req, res) => {
         }
         if (catalogEntry.missionRewardOnly) {
             return res.status(403).json({ error: 'This evolution is unlocked through ranked missions.' });
+        }
+        const purchaseAvailableAt = catalogEntry.purchaseAvailableAt
+            ? new Date(catalogEntry.purchaseAvailableAt)
+            : null;
+        if (
+            purchaseAvailableAt &&
+            !Number.isNaN(purchaseAvailableAt.getTime()) &&
+            Date.now() < purchaseAvailableAt.getTime()
+        ) {
+            return res.status(403).json({
+                error: 'Complete the active Primeape mission to unlock this skin during the event.',
+                purchaseAvailableAt: purchaseAvailableAt.toISOString(),
+            });
         }
 
         const profile = normalizeUserProfile(user);
@@ -18280,6 +18431,12 @@ if (require.main === module) {
         ensureMatchTurnData,
         getBattleBotActionDelayRange,
         POKEMON_SKIN_CATALOG,
+        getPokemonPrimeapeSkinCatalogEntry,
+        getPokemonPrimeapeMissionEntry,
+        getPrimeapeReleaseWindow,
+        setPrimeapeReleaseWindow,
+        isMissionActiveAt,
+        buildArenaSkinsResponse,
         scoreBattleBotDamageCoordination,
         estimateBattleBotPersistentDamage,
         exchangeChakra,

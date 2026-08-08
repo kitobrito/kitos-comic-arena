@@ -106,6 +106,7 @@ test('evolution and Mega renders can be toggled and skills select the matching f
 test('every supplied equipped-skin showcase render is mapped and optimized', () => {
     const selectionHtml = fs.readFileSync(path.join(root, 'selection.html'), 'utf8');
     const expectedFilenames = [
+        'annihilape.jpg.webp',
         'bayleaf.png.webp',
         'blsmuthonix.png.webp',
         'charizard.png.webp',

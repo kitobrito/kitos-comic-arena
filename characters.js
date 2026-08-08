@@ -34560,6 +34560,184 @@ const characters = [
             "Bug",
             "Ground"
         ]
+    },
+    {
+        "id": "primeape",
+        "characterId": "primeape",
+        "name": "Primeape",
+        "facePicture": "assets/images/PokemonArena/Primeape/Primeape-FP.jpg",
+        "skills": [
+            {
+                "id": "primeape-rock-smash",
+                "name": "Rock Smash",
+                "skillimage": "assets/images/PokemonArena/Primeape/Rock-Smash.jpg",
+                "skilldescription": "Destroys all Barrier on Primeape and all Shield on one enemy, then deals 20 damage to them. If Primeape destroys Barrier from himself this way, Rage Fist deals 10 additional damage for 1 turn.",
+                "description": "Destroys all Barrier on Primeape and all Shield on one enemy, then deals 20 damage to them. If Primeape destroys Barrier from himself this way, Rage Fist deals 10 additional damage for 1 turn.",
+                "energy": ["Genjutsu"],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": ["Fighting", "Physical", "Instant"],
+                "effects": [
+                    {
+                        "type": "primeape_rock_smash",
+                        "scope": "target"
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 20,
+                        "scope": "target"
+                    }
+                ]
+            },
+            {
+                "id": "primeape-knock-off",
+                "name": "Knock Off",
+                "skillimage": "assets/images/PokemonArena/Primeape/Knock-Off.jpg",
+                "skilldescription": "Deals 15 damage to one enemy and removes all helpful effects from them. For 2 turns, that enemy cannot gain Shield. If Knock Off removes a helpful effect, Rock Smash and Close Combat deal 10 additional damage to that enemy for 2 turns.",
+                "description": "Deals 15 damage to one enemy and removes all helpful effects from them. For 2 turns, that enemy cannot gain Shield. If Knock Off removes a helpful effect, Rock Smash and Close Combat deal 10 additional damage to that enemy for 2 turns.",
+                "energy": ["Genjutsu"],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 2,
+                "classes": ["Dark", "Physical", "Instant"],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target"
+                    },
+                    {
+                        "type": "primeape_knock_off",
+                        "scope": "target"
+                    }
+                ]
+            },
+            {
+                "id": "primeape-rage-fist",
+                "name": "Rage Fist",
+                "skillimage": "assets/images/PokemonArena/Primeape/Rage-Fist.jpg",
+                "skilldescription": "Deals 15 damage to one enemy. This deals 5 additional damage for every 15 HP Primeape has lost. If Anger Point is active, Rage Fist becomes Piercing.",
+                "description": "Deals 15 damage to one enemy. This deals 5 additional damage for every 15 HP Primeape has lost. If Anger Point is active, Rage Fist becomes Piercing.",
+                "energy": ["Random"],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": ["Ghost", "Physical", "Instant"],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 15,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "statusId": "primeape_anger_point_passive"
+                        },
+                        "metadata": {
+                            "amountFromSourceMissingHpStep": 5,
+                            "amountFromSourceMissingHpDivisor": 15
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "primeape-close-combat",
+                "name": "Close Combat",
+                "skillimage": "assets/images/PokemonArena/Primeape/Close-Combat.jpg",
+                "skilldescription": "Deals 35 Piercing damage to one enemy. For 1 turn afterward, Primeape takes 10 additional damage from enemy skills. If Primeape is below 50 HP, Close Combat deals 10 additional damage.",
+                "description": "Deals 35 Piercing damage to one enemy. For 1 turn afterward, Primeape takes 10 additional damage from enemy skills. If Primeape is below 50 HP, Close Combat deals 10 additional damage.",
+                "energy": ["Genjutsu", "Random"],
+                "target": "single-enemy",
+                "damage": 0,
+                "cooldown": 1,
+                "classes": ["Fighting", "Physical", "Instant"],
+                "effects": [
+                    {
+                        "type": "damage",
+                        "amount": 35,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "sourceCurrentHpAtLeast": 50
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "damage",
+                        "amount": 45,
+                        "scope": "target",
+                        "condition": {
+                            "scope": "self",
+                            "sourceCurrentHpAtMost": 49
+                        },
+                        "metadata": {
+                            "ignoreDamageReduction": true
+                        }
+                    },
+                    {
+                        "type": "apply_status",
+                        "statusId": "primeape_close_combat_exposure",
+                        "duration": 1,
+                        "scope": "self",
+                        "metadata": {
+                            "harmful": true,
+                            "damageTakenBonusFlat": 10,
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/Primeape/Close-Combat.jpg",
+                            "tooltipText": "Primeape takes 10 additional damage from enemy skills."
+                        }
+                    }
+                ]
+            },
+            {
+                "id": "primeape-passive-anger-point",
+                "name": "Passive: Anger Point",
+                "skillimage": "assets/images/PokemonArena/Primeape/Anger-Point.jpg",
+                "skilldescription": "After Primeape is hit by a Super Effective skill or Critical Hit, Primeape deals 20 additional damage for 1 turn.",
+                "description": "After Primeape is hit by a Super Effective skill or Critical Hit, Primeape deals 20 additional damage for 1 turn.",
+                "energy": [],
+                "target": "self",
+                "damage": 0,
+                "cooldown": 0,
+                "classes": ["Passive", "Instant"],
+                "effects": []
+            }
+        ],
+        "startStatuses": [
+            {
+                "statusId": "primeape_anger_point_passive",
+                "sourceSkillId": "primeape-passive-anger-point",
+                "duration": 99,
+                "metadata": {
+                    "hidden": true,
+                    "passive": true,
+                    "unremovable": true,
+                    "infiniteDuration": true,
+                    "onOwnerHitBySuperEffectiveOrCritical": {
+                        "statusId": "primeape_anger_point_active",
+                        "duration": 1,
+                        "metadata": {
+                            "damageBonusFlat": 20,
+                            "ignoreDamageReductionForSkillIds": ["primeape-rage-fist"],
+                            "turnDurationAnchor": "source_turn",
+                            "statusIconUrl": "assets/images/PokemonArena/Primeape/Anger-Point.jpg",
+                            "tooltipText": "Anger Point is active. Primeape deals 20 additional damage, and Rage Fist is Piercing."
+                        }
+                    }
+                }
+            }
+        ],
+        "arena": "pokemon",
+        "universe": "pokemon",
+        "category": "Pokemon Arena",
+        "hidden": false,
+        "hiddenFromSelection": false,
+        "roleCategory": "bruiser",
+        "description": "A relentless Fighting-type bruiser that tears down defenses and turns pain, type weakness, and critical hits into explosive damage.",
+        "descriptionHtml": "A relentless Fighting-type bruiser that tears down defenses and turns pain, type weakness, and critical hits into explosive damage.",
+        "pokemonTypes": ["Fighting"]
     }
 ];
 

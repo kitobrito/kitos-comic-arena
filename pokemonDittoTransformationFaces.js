@@ -20,6 +20,7 @@ const DITTO_TRANSFORMATION_FACE_BY_CHARACTER_ID = Object.freeze({
     meowth: toDittoTransformationFacePath('meowth.webp'),
     abra: toDittoTransformationFacePath('abra.webp'),
     machop: toDittoTransformationFacePath('machop.webp'),
+    primeape: toDittoTransformationFacePath('primeape.webp'),
     magnemite: toDittoTransformationFacePath('magnemite.webp'),
     gastly: toDittoTransformationFacePath('gastley.webp'),
     onix: toDittoTransformationFacePath('onix.webp'),
@@ -95,6 +96,7 @@ const DITTO_TRANSFORMATION_FACE_BY_SKIN_ID = Object.freeze({
     'chikorita-meganium-evolution': toDittoTransformationFacePath('meganium.webp'),
     'totodile-croconaw-evolution': toDittoTransformationFacePath('croconaw.webp'),
     'totodile-feraligatr-evolution': toDittoTransformationFacePath('feraligatyr.webp'),
+    'primeape-annihilape-evolution': toDittoTransformationFacePath('annihilape.webp'),
 });
 
 const DITTO_TRANSFORMATION_FACE_BY_SKIN_STATUS_ID = Object.freeze({
