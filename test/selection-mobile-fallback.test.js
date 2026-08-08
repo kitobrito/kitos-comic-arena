@@ -40,6 +40,14 @@ test('matchmaking silently rejoins when the server lost its in-memory queue entr
     assert.match(selectionHtml, /matchmaking-recovery-v1/);
 });
 
+test('a dismissed finished match does not strand a new matchmaking search without polling', () => {
+    assert.match(
+        script,
+        /if \(data\?\.matchFound && data\.matchId && handleMatchFound\(data\)\) \{\s*return;\s*\}\s*startPollingMatch\(\);/
+    );
+    assert.match(selectionHtml, /matchmaking-dismissed-recovery-v1/);
+});
+
 test('mobile portrait swipes remain native vertical page scrolling', () => {
     assert.match(script, /const isTouchFirstMobileSelection =\s*event\.pointerType !== 'mouse'/);
     assert.match(script, /if \(isTouchFirstMobileSelection\) return/);

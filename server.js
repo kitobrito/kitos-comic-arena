@@ -12840,10 +12840,13 @@ const queueSkillForActorSlot = ({
     classChoice,
     absorptionChoice,
 }) => {
-    const pool = match.chakraPools?.[username];
-    if (!pool) {
+    const sourcePool = match.chakraPools?.[username];
+    if (!sourcePool) {
         throw new Error('Chakra pool unavailable.');
     }
+    // Queue validation is transactional: failed replacements must not consume
+    // chakra from the live match pool before the new request is accepted.
+    const pool = { ...sourcePool };
     const pending = getPendingTurn(match, username);
     const actorKey = String(actorSlot);
     const existing = pending.queuedByActorSlot[actorKey];
@@ -18682,6 +18685,7 @@ if (require.main === module) {
         ensureRequiredMissionCatalogEntries,
         resolveMissionUnlockPointCost,
         areQueuedSkillRequestsEquivalent,
+        queueSkillForActorSlot,
         resolveExpiredTurnStartChoiceIfNeeded,
         autoAdvanceTurnIfExpired,
         normalizeRecentLadderGames,

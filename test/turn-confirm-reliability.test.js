@@ -21,6 +21,15 @@ test('turn confirmation cannot remain disabled forever on a stalled skill queue'
     assert.doesNotMatch(script, /Attack queue restored\. Review your attacks, then press OK again\./);
 });
 
+test('skill affordability is rechecked when the target selection is committed', () => {
+    assert.match(
+        script,
+        /const queueSelectedSkill = \(\{[\s\S]*?const effectiveSkill = getEffectiveSkillForActorSlot\(actorSlot, skillIdx\) \|\| null;[\s\S]*?if \(!isActorSkillSelectableNow\(actorSlot, skillIdx, effectiveSkill\)\)/
+    );
+    assert.match(script, /That skill is no longer affordable with your remaining energy\./);
+    assert.match(ingame, /energy-commit-guard-v1/);
+});
+
 test('battle page cache-busts the shared script for the confirmation hotfix', () => {
     assert.match(ingame, /styles\/style\.css\?v=pokemon-battle-polish-v1/);
     assert.match(ingame, /styles\/ingame-experimental\.css\?v=pokemon-gameplay-fixes-v4/);

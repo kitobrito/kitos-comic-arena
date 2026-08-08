@@ -12,11 +12,60 @@ const {
     buildMatchPayloadForUser,
     buildMatchActionStatePayload,
     areQueuedSkillRequestsEquivalent,
+    queueSkillForActorSlot,
     normalizeRecentLadderGames,
     countCurrentLadderSurrenderStreakByUser,
     isRepeatLadderSurrenderer,
     resolveExpiredTurnStartChoiceIfNeeded,
 } = require('../server.js');
+
+test('a rejected queued-skill replacement does not mutate the live energy pool', () => {
+    const rosterIndex = characters.findIndex((character) =>
+        (character?.skills || []).some((skill) => (skill?.energy || []).length >= 2)
+    );
+    const skillIndex = characters[rosterIndex].skills.findIndex(
+        (skill) => (skill?.energy || []).length >= 2
+    );
+    const originalPool = { taijutsu: 0, ninjutsu: 0, bloodline: 0, genjutsu: 0 };
+    const match = {
+        players: [{ username: 'EnergyTester' }, { username: 'Opponent' }],
+        board: {
+            EnergyTester: [{ alive: true, rosterIndex, state: { statuses: [], skillCooldowns: {} } }],
+            Opponent: [],
+        },
+        chakraPools: { EnergyTester: { ...originalPool } },
+        pendingTurns: {
+            EnergyTester: {
+                queuedByActorSlot: {
+                    0: {
+                        actorSlot: 0,
+                        skillIndex: 0,
+                        targetSelection: [],
+                        reservedSpecific: { taijutsu: 1 },
+                        requiredRandom: 0,
+                    },
+                },
+                queueOrder: [0],
+                unresolvedRandom: 0,
+                randomAssignments: { ...originalPool },
+                turnStartChoice: null,
+            },
+        },
+    };
+
+    assert.throws(
+        () => queueSkillForActorSlot({
+            match,
+            username: 'EnergyTester',
+            actorSlot: 0,
+            skillIndex,
+            targetSelection: [],
+        }),
+        /Not enough chakra/
+    );
+    assert.deepEqual(match.chakraPools.EnergyTester, originalPool);
+    assert.equal(match.pendingTurns.EnergyTester.queuedByActorSlot[0].skillIndex, 0);
+});
 
 test('required gameplay fixes survive stored character overrides without removing extra fields', () => {
     const canonical = [{
