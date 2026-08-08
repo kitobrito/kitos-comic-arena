@@ -48,6 +48,19 @@ test('a dismissed finished match does not strand a new matchmaking search withou
     assert.match(selectionHtml, /matchmaking-dismissed-recovery-v1/);
 });
 
+test('small desktop windows use non-overlapping compact selection rails', () => {
+    assert.match(
+        experimentalStyles,
+        /@media \(min-width: 701px\) and \(max-width: 1120px\),\s*\(max-width: 950px\) and \(orientation: landscape\)/
+    );
+    assert.match(experimentalStyles, /--compact-left-rail: clamp\(136px, 24vw, 196px\)/);
+    assert.match(
+        experimentalStyles,
+        /left: calc\(var\(--compact-left-rail\) \+ 10px\);\s*right: calc\(var\(--compact-right-rail\) \+ 8px\);\s*width: auto;/
+    );
+    assert.match(selectionHtml, /compact-desktop-fit-v1/);
+});
+
 test('mobile portrait swipes remain native vertical page scrolling', () => {
     assert.match(script, /const isTouchFirstMobileSelection =\s*event\.pointerType !== 'mouse'/);
     assert.match(script, /if \(isTouchFirstMobileSelection\) return/);
@@ -155,7 +168,7 @@ test('experimental selection has dedicated portrait and landscape phone layouts'
     assert.match(experimentalStyles, /@media \(max-width: 700px\)/);
     assert.match(experimentalStyles, /grid-template-columns: repeat\(5, minmax\(0, 1fr\)\)/);
     assert.match(experimentalStyles, /grid-template-rows: repeat\(6, 1fr\)/);
-    assert.match(experimentalStyles, /@media \(max-width: 950px\) and \(orientation: landscape\)/);
+    assert.match(experimentalStyles, /\(max-width: 950px\) and \(orientation: landscape\)/);
     assert.match(experimentalStyles, /minmax\(200px, 2\.6fr\)/);
     assert.match(experimentalStyles, /body\.custom-game-cursor \*/);
 });
