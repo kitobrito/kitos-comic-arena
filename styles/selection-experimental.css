@@ -2218,8 +2218,9 @@ html.selection-experimental body.matchmaking-active .sound-controller {
     }
 }
 
-/* Phone landscape: preserve both roster banks with a compressed center lane. */
-@media (max-width: 950px) and (orientation: landscape),
+/* Compact landscape and small desktop windows: preserve both roster banks. */
+@media (min-width: 701px) and (max-width: 1120px),
+       (max-width: 950px) and (orientation: landscape),
        (max-width: 950px) and (max-height: 520px) {
     html.selection-experimental,
     html.selection-experimental body {
@@ -2563,6 +2564,52 @@ html.selection-experimental body.matchmaking-active .sound-controller {
         padding: 7px 12px;
         font-size: 10px;
         touch-action: manipulation;
+    }
+}
+
+/* Keep the minimized-PC layout readable without browser zoom or overlapping rails. */
+@media (min-width: 701px) and (max-width: 1120px),
+       (max-width: 950px) and (orientation: landscape),
+       (max-width: 950px) and (max-height: 520px) {
+    html.selection-experimental {
+        --compact-left-rail: clamp(136px, 24vw, 196px);
+        --compact-right-rail: 150px;
+    }
+
+    html.selection-experimental .player-card {
+        width: var(--compact-left-rail);
+        box-sizing: border-box;
+    }
+
+    html.selection-experimental .sound-controller {
+        width: var(--compact-left-rail);
+        box-sizing: border-box;
+    }
+
+    html.selection-experimental .experimental-toolbar {
+        width: var(--compact-right-rail);
+        box-sizing: border-box;
+    }
+
+    html.selection-experimental .selection-mode-controls {
+        width: var(--compact-right-rail);
+    }
+
+    html.selection-experimental .skillviewer,
+    html.selection-experimental .skillviewer.collapsed,
+    html.selection-experimental .skillviewer.raveling {
+        left: calc(var(--compact-left-rail) + 10px);
+        right: calc(var(--compact-right-rail) + 8px);
+        width: auto;
+        height: min(46dvh, 270px);
+    }
+
+    html.selection-experimental .slot-list {
+        height: min(33dvh, 190px);
+    }
+
+    html.selection-experimental .button-container {
+        bottom: 103px;
     }
 }
 
