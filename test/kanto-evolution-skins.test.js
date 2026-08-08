@@ -25,11 +25,12 @@ const assertAsset = (assetPath) => {
     assert.ok(fs.existsSync(path.join(root, assetPath)), `asset should exist: ${assetPath}`);
 };
 
-test('all Kanto Mega and Gigantamax evolution skins cost 750 points', () => {
+test('Kanto evolution skins use their configured point prices', () => {
     skinIds.forEach((skinId) => {
         const skin = getSkin(skinId);
         assert.ok(skin, `skin should exist: ${skinId}`);
-        assert.equal(skin.unlockPointCost, 750, `${skinId} should cost 750 points`);
+        const expectedCost = skinId === 'charmander-charizard-legendary' ? 1350 : 750;
+        assert.equal(skin.unlockPointCost, expectedCost, skinId + ' should cost ' + expectedCost + ' points');
     });
 });
 
@@ -43,7 +44,7 @@ test('new evolution skins begin with final-stage Pokemon art and switch art on e
         'bulbasaur-gigantamax-venusaur': {
             base: 'assets/images/PokemonArena/Bulbasaur/skins/venusaur/fp.png',
             statusId: 'bulbasaur_ivysaur_evolution',
-            evolved: 'assets/images/PokemonArena/Bulbasaur/skins/gigantamax/fp.png',
+            evolved: 'assets/images/PokemonArena/Bulbasaur/skins/gigantamax/fp-2026-08.jpg',
         },
         'squirtle-mega-blastoise': {
             base: 'assets/images/PokemonArena/squirtle/skins/blastoise/fp.png',
@@ -53,12 +54,12 @@ test('new evolution skins begin with final-stage Pokemon art and switch art on e
         'squirtle-gigantamax-blastoise': {
             base: 'assets/images/PokemonArena/squirtle/skins/blastoise/fp.png',
             statusId: 'squirtle_wartortle_evolution',
-            evolved: 'assets/images/PokemonArena/squirtle/skins/gigantamax/fp.png',
+            evolved: 'assets/images/PokemonArena/squirtle/skins/gigantamax/fp-2026-08.jpg',
         },
         'charmander-gigantamax-charizard': {
             base: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardfp.jpg',
             statusId: 'charmander_charmeleon_evolution',
-            evolved: 'assets/images/PokemonArena/Charmander/skins/gigantamax/fp.png',
+            evolved: 'assets/images/PokemonArena/Charmander/skins/gigantamax/fp-2026-08.jpg',
         },
     };
 
