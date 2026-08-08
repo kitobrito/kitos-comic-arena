@@ -14026,11 +14026,23 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             if (inFlightSkillRequestByActorSlot.has(actorSlot)) {
                 return inFlightSkillRequestPromisesByActorSlot.get(actorSlot) || Promise.resolve();
             }
+            const effectiveSkill = getEffectiveSkillForActorSlot(actorSlot, skillIdx) || null;
+            // Targeting can stay open while another actor's skill is queued. Recheck the
+            // live reservation state at commit time so a stale target click cannot
+            // optimistically lock in more energy than the player still owns.
+            if (!isActorSkillSelectableNow(actorSlot, skillIdx, effectiveSkill)) {
+                clearActiveTargetSelectionState();
+                applyQueuedSkillVisuals();
+                announceMatchIssue('That skill is no longer affordable with your remaining energy.', {
+                    tone: 'info',
+                    reason: 'queue-skill-energy-changed',
+                });
+                return Promise.resolve();
+            }
             clearQueuedSkillTapReorderState();
             clearSkillInteractionCache();
             inFlightSkillRequestByActorSlot.add(actorSlot);
             optimisticCancelledActorSlots.delete(actorSlot);
-            const effectiveSkill = getEffectiveSkillForActorSlot(actorSlot, skillIdx) || null;
             const effectiveEnergy = getEffectiveEnergyList(effectiveSkill?.energy, actorSlot, effectiveSkill);
             const optimisticCost = getEnergyCost(effectiveEnergy);
             optimisticQueuedByActorSlot.set(actorSlot, {
@@ -17035,8 +17047,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             if (!response.ok || !data?.ok) {
                 throw new Error(data?.error || 'Could not start matchmaking. Please try again.');
             }
-            if (data?.matchFound && data.matchId) {
-                handleMatchFound(data);
+            if (data?.matchFound && data.matchId && handleMatchFound(data)) {
                 return;
             }
             startPollingMatch();
