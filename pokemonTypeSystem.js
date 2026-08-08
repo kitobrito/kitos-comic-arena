@@ -317,6 +317,11 @@ const TYPE_OVERRIDES_BY_STATUS_ID = Object.freeze({
 
 const POKEMON_SKIN_TYPE_OVERRIDES = Object.freeze({
     'charmander-charizard-legendary': ['Fire', 'Flying'],
+    'charmander-gigantamax-charizard': ['Fire', 'Flying'],
+    'bulbasaur-mega-venusaur': ['Grass', 'Poison'],
+    'bulbasaur-gigantamax-venusaur': ['Grass', 'Poison'],
+    'squirtle-mega-blastoise': ['Water'],
+    'squirtle-gigantamax-blastoise': ['Water'],
 });
 
 const getPokemonSkinTypeOverride = (skinId = '') =>
@@ -417,12 +422,21 @@ const applyPokemonTypeSystem = (characters = [], { strict = false } = {}) => {
 
 const getActivePokemonTypes = ({ character = null, unit = null } = {}) => {
     const statuses = Array.isArray(unit?.state?.statuses) ? unit.state.statuses : [];
+    const forcedOverride = statuses
+        .filter(
+            (status) =>
+                (Number(status?.remainingTurns) || 0) > 0 &&
+                Boolean(status?.metadata?.forcePokemonTypeOverride)
+        )
+        .map((status) => normalizePokemonTypes(status?.metadata?.pokemonTypeOverride))
+        .filter((types) => types.length)
+        .pop();
     const activeOverride = statuses
         .filter((status) => (Number(status?.remainingTurns) || 0) > 0)
         .map((status) => normalizePokemonTypes(status?.metadata?.pokemonTypeOverride))
         .filter((types) => types.length)
         .pop();
-    return activeOverride || normalizePokemonTypes(character?.pokemonTypes);
+    return forcedOverride || activeOverride || normalizePokemonTypes(character?.pokemonTypes);
 };
 
 const getPokemonTypeEffectiveness = (attackingType, defendingTypes = []) => {

@@ -2704,6 +2704,111 @@ const normalizeSkinId = (value = '') =>
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '');
 
+const buildStagedPokemonEvolutionSkin = ({
+    skinId,
+    characterId,
+    name,
+    description,
+    baseFormName,
+    evolvedFormName,
+    replacedFormNames = [],
+    baseFacePicture,
+    evolvedFacePicture,
+    pokemonTypes = [],
+    baseSkillImagesBySkillId = {},
+    evolvedSkillImagesBySkillId = {},
+    evolutionStatusIds = [],
+    passiveSkillId = '',
+    passiveSkillImage = '',
+    passiveDescription = '',
+}) => {
+    const normalizePokemonAssetPath = (value) =>
+        typeof value === 'string'
+            ? value.replace('assets/images/PokemonArena/Squirtle/', 'assets/images/PokemonArena/squirtle/')
+            : value;
+    const character = charactersData.find(
+        (entry) => String(entry?.characterId || entry?.id || '').trim().toLowerCase() === characterId
+    );
+    const skillsById = new Map(
+        (Array.isArray(character?.skills) ? character.skills : [])
+            .filter((skill) => typeof skill?.id === 'string' && skill.id)
+            .map((skill) => [skill.id, skill])
+    );
+    const replaceFormNames = (value, replacement) => {
+        let output = typeof value === 'string' ? value : '';
+        replacedFormNames.forEach((formName) => {
+            output = output.replaceAll(formName, replacement);
+        });
+        return output;
+    };
+    const skillImageOverridesBySkillId = {
+        ...Object.fromEntries(
+            Object.entries(baseSkillImagesBySkillId).map(([skillId, assetPath]) => [
+                skillId,
+                normalizePokemonAssetPath(assetPath),
+            ])
+        ),
+        ...Object.fromEntries(
+            Object.entries(evolvedSkillImagesBySkillId).map(([skillId, assetPath]) => [
+                skillId,
+                normalizePokemonAssetPath(assetPath),
+            ])
+        ),
+        ...(passiveSkillId && passiveSkillImage
+            ? { [passiveSkillId]: normalizePokemonAssetPath(passiveSkillImage) }
+            : {}),
+    };
+    const skillOverridesBySkillId = {};
+    Object.keys(baseSkillImagesBySkillId).forEach((skillId) => {
+        const skill = skillsById.get(skillId);
+        if (!skill) return;
+        skillOverridesBySkillId[skillId] = {
+            name: replaceFormNames(skill.name, baseFormName),
+            skilldescription: replaceFormNames(skill.skilldescription || skill.description, baseFormName),
+            description: replaceFormNames(skill.description || skill.skilldescription, baseFormName),
+        };
+    });
+    Object.keys(evolvedSkillImagesBySkillId).forEach((skillId) => {
+        const skill = skillsById.get(skillId);
+        if (!skill) return;
+        skillOverridesBySkillId[skillId] = {
+            name: replaceFormNames(skill.name, evolvedFormName),
+            skilldescription: replaceFormNames(skill.skilldescription || skill.description, evolvedFormName),
+            description: replaceFormNames(skill.description || skill.skilldescription, evolvedFormName),
+        };
+    });
+    if (passiveSkillId) {
+        const passive = skillsById.get(passiveSkillId);
+        skillOverridesBySkillId[passiveSkillId] = {
+            name: `${evolvedFormName} Evolution`,
+            skilldescription:
+                passiveDescription ||
+                replaceFormNames(passive?.skilldescription || passive?.description, evolvedFormName),
+            description:
+                passiveDescription ||
+                replaceFormNames(passive?.description || passive?.skilldescription, evolvedFormName),
+        };
+    }
+    return {
+        skinId,
+        characterId,
+        name,
+        description,
+        unlockPointCost: 750,
+        previewFacePicture: normalizePokemonAssetPath(baseFacePicture),
+        patch: {
+            name: baseFormName,
+            facePicture: normalizePokemonAssetPath(baseFacePicture),
+            ...(pokemonTypes.length ? { pokemonTypes } : {}),
+        },
+        skillImageOverridesBySkillId,
+        skillOverridesBySkillId,
+        statusFacePictureOverridesByStatusId: Object.fromEntries(
+            evolutionStatusIds.map((statusId) => [statusId, normalizePokemonAssetPath(evolvedFacePicture)])
+        ),
+    };
+};
+
 const POKEMON_SKIN_CATALOG = [
     {
         skinId: 'ditto-shiny',
@@ -2877,9 +2982,10 @@ const POKEMON_SKIN_CATALOG = [
         name: 'Charizard',
         description:
             'A legendary Charizard skin for Charmander that branches into Mega Charizard X if Seismic Toss activates the evolution or Mega Charizard Y if Flamethrower or Fire Blast activates the evolution.',
-        unlockPointCost: 1350,
+        unlockPointCost: 750,
         previewFacePicture: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardfp.jpg',
         patch: {
+            name: 'Charizard',
             facePicture: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardfp.jpg',
             pokemonTypes: ['Fire', 'Flying'],
         },
@@ -2981,6 +3087,168 @@ const POKEMON_SKIN_CATALOG = [
                 'assets/images/PokemonArena/Charmander/skins/charizard/charizardYFP.webp',
         },
     },
+    buildStagedPokemonEvolutionSkin({
+        skinId: 'bulbasaur-mega-venusaur',
+        characterId: 'bulbasaur',
+        name: 'Mega Venusaur',
+        description:
+            'Begins battle as Venusaur and becomes Mega Venusaur when its five-Sun evolution activates.',
+        baseFormName: 'Venusaur',
+        evolvedFormName: 'Mega Venusaur',
+        replacedFormNames: ['Bulbasaur', 'Ivysaur'],
+        baseFacePicture: 'assets/images/PokemonArena/Bulbasaur/skins/venusaur/fp.png',
+        evolvedFacePicture: 'assets/images/PokemonArena/Bulbasaur/skins/mega/megafp.png',
+        pokemonTypes: ['Grass', 'Poison'],
+        baseSkillImagesBySkillId: {
+            'bulbasaur-leech-seed': 'assets/images/PokemonArena/Bulbasaur/skins/venusaur/skill1.png',
+            'bulbasaur-vine-whip': 'assets/images/PokemonArena/Bulbasaur/skins/venusaur/skilltwo.png',
+            'bulbasaur-razor-leaf': 'assets/images/PokemonArena/Bulbasaur/skins/venusaur/skill3.png',
+            'bulbasaur-solar-beam': 'assets/images/PokemonArena/Bulbasaur/skins/venusaur/skill4.png',
+        },
+        evolvedSkillImagesBySkillId: {
+            'ivysaur-leech-seed': 'assets/images/PokemonArena/Bulbasaur/skins/mega/megaskill1.png',
+            'ivysaur-vine-whip': 'assets/images/PokemonArena/Bulbasaur/skins/mega/megaskill2.png',
+            'ivysaur-razor-leaf': 'assets/images/PokemonArena/Bulbasaur/skins/mega/megaskill3.png',
+            'ivysaur-solar-beam': 'assets/images/PokemonArena/Bulbasaur/skins/mega/megaskill4.png',
+        },
+        evolutionStatusIds: ['bulbasaur_ivysaur_evolution'],
+        passiveSkillId: 'bulbasaur-passive-evolution-ivysaur',
+        passiveSkillImage: 'assets/images/PokemonArena/Bulbasaur/skins/mega/megapassive.png',
+        passiveDescription:
+            'Venusaur gains Sun normally. At 5 Sun, it evolves into Mega Venusaur, heals 10 health, and all four skills gain their improved effects.',
+    }),
+    buildStagedPokemonEvolutionSkin({
+        skinId: 'bulbasaur-gigantamax-venusaur',
+        characterId: 'bulbasaur',
+        name: 'Gigantamax Venusaur',
+        description:
+            'Begins battle as Venusaur and becomes Gigantamax Venusaur when its five-Sun evolution activates.',
+        baseFormName: 'Venusaur',
+        evolvedFormName: 'Gigantamax Venusaur',
+        replacedFormNames: ['Bulbasaur', 'Ivysaur'],
+        baseFacePicture: 'assets/images/PokemonArena/Bulbasaur/skins/venusaur/fp.png',
+        evolvedFacePicture: 'assets/images/PokemonArena/Bulbasaur/skins/gigantamax/fp.png',
+        pokemonTypes: ['Grass', 'Poison'],
+        baseSkillImagesBySkillId: {
+            'bulbasaur-leech-seed': 'assets/images/PokemonArena/Bulbasaur/skins/venusaur/skill1.png',
+            'bulbasaur-vine-whip': 'assets/images/PokemonArena/Bulbasaur/skins/venusaur/skilltwo.png',
+            'bulbasaur-razor-leaf': 'assets/images/PokemonArena/Bulbasaur/skins/venusaur/skill3.png',
+            'bulbasaur-solar-beam': 'assets/images/PokemonArena/Bulbasaur/skins/venusaur/skill4.png',
+        },
+        evolvedSkillImagesBySkillId: {
+            'ivysaur-leech-seed': 'assets/images/PokemonArena/Bulbasaur/skins/gigantamax/skill1.png',
+            'ivysaur-vine-whip': 'assets/images/PokemonArena/Bulbasaur/skins/gigantamax/skill2.png',
+            'ivysaur-razor-leaf': 'assets/images/PokemonArena/Bulbasaur/skins/gigantamax/skill3.png',
+            'ivysaur-solar-beam': 'assets/images/PokemonArena/Bulbasaur/skins/gigantamax/skill4.png',
+        },
+        evolutionStatusIds: ['bulbasaur_ivysaur_evolution'],
+        passiveSkillId: 'bulbasaur-passive-evolution-ivysaur',
+        passiveSkillImage: 'assets/images/PokemonArena/Bulbasaur/skins/gigantamax/gigantamaxpassive.png',
+        passiveDescription:
+            'Venusaur gains Sun normally. At 5 Sun, it evolves into Gigantamax Venusaur, heals 10 health, and all four skills gain their improved effects.',
+    }),
+    buildStagedPokemonEvolutionSkin({
+        skinId: 'squirtle-mega-blastoise',
+        characterId: 'squirtle',
+        name: 'Mega Blastoise',
+        description:
+            'Begins battle as Blastoise and becomes Mega Blastoise when its three-stack evolution activates.',
+        baseFormName: 'Blastoise',
+        evolvedFormName: 'Mega Blastoise',
+        replacedFormNames: ['Squirtle', 'Wartortle'],
+        baseFacePicture: 'assets/images/PokemonArena/Squirtle/skins/blastoise/fp.png',
+        evolvedFacePicture: 'assets/images/PokemonArena/Squirtle/skins/mega/megafp.png',
+        pokemonTypes: ['Water'],
+        baseSkillImagesBySkillId: {
+            'squirtle-water-gun': 'assets/images/PokemonArena/Squirtle/skins/blastoise/skill1.png',
+            'squirtle-withdraw': 'assets/images/PokemonArena/Squirtle/skins/blastoise/skill2.png',
+            'squirtle-bubble': 'assets/images/PokemonArena/Squirtle/skins/blastoise/skill3.png',
+            'squirtle-rapid-spin': 'assets/images/PokemonArena/Squirtle/skins/blastoise/skill4.png',
+        },
+        evolvedSkillImagesBySkillId: {
+            'wartortle-shell-guard': 'assets/images/PokemonArena/Squirtle/skins/mega/megaskill1.png',
+            'wartortle-hydro-pump': 'assets/images/PokemonArena/Squirtle/skins/mega/megaskill2.jpg',
+            'wartortle-bubblebeam': 'assets/images/PokemonArena/Squirtle/skins/mega/megaskill3.jpg',
+            'wartortle-aqua-spin': 'assets/images/PokemonArena/Squirtle/skins/mega/megaskill4.jpg',
+        },
+        evolutionStatusIds: ['squirtle_wartortle_evolution'],
+        passiveSkillId: 'squirtle-passive-evolution-wartortle',
+        passiveSkillImage: 'assets/images/PokemonArena/Squirtle/skins/blastoise/passive.jpg',
+        passiveDescription:
+            'After Blastoise gains 3 evolution stacks, it evolves into Mega Blastoise, heals 10 health, and all four skills gain their improved effects.',
+    }),
+    buildStagedPokemonEvolutionSkin({
+        skinId: 'squirtle-gigantamax-blastoise',
+        characterId: 'squirtle',
+        name: 'Gigantamax Blastoise',
+        description:
+            'Begins battle as Blastoise and becomes Gigantamax Blastoise when its three-stack evolution activates.',
+        baseFormName: 'Blastoise',
+        evolvedFormName: 'Gigantamax Blastoise',
+        replacedFormNames: ['Squirtle', 'Wartortle'],
+        baseFacePicture: 'assets/images/PokemonArena/Squirtle/skins/blastoise/fp.png',
+        evolvedFacePicture: 'assets/images/PokemonArena/Squirtle/skins/gigantamax/fp.png',
+        pokemonTypes: ['Water'],
+        baseSkillImagesBySkillId: {
+            'squirtle-water-gun': 'assets/images/PokemonArena/Squirtle/skins/blastoise/skill1.png',
+            'squirtle-withdraw': 'assets/images/PokemonArena/Squirtle/skins/blastoise/skill2.png',
+            'squirtle-bubble': 'assets/images/PokemonArena/Squirtle/skins/blastoise/skill3.png',
+            'squirtle-rapid-spin': 'assets/images/PokemonArena/Squirtle/skins/blastoise/skill4.png',
+        },
+        evolvedSkillImagesBySkillId: {
+            'wartortle-shell-guard': 'assets/images/PokemonArena/Squirtle/skins/gigantamax/skill1.png',
+            'wartortle-hydro-pump': 'assets/images/PokemonArena/Squirtle/skins/gigantamax/skill2.png',
+            'wartortle-bubblebeam': 'assets/images/PokemonArena/Squirtle/skins/gigantamax/skill3.png',
+            'wartortle-aqua-spin': 'assets/images/PokemonArena/Squirtle/skins/gigantamax/skill4.png',
+        },
+        evolutionStatusIds: ['squirtle_wartortle_evolution'],
+        passiveSkillId: 'squirtle-passive-evolution-wartortle',
+        passiveSkillImage: 'assets/images/PokemonArena/Squirtle/skins/gigantamax/gigantamaxpassive.png',
+        passiveDescription:
+            'After Blastoise gains 3 evolution stacks, it evolves into Gigantamax Blastoise, heals 10 health, and all four skills gain their improved effects.',
+    }),
+    buildStagedPokemonEvolutionSkin({
+        skinId: 'charmander-gigantamax-charizard',
+        characterId: 'charmander',
+        name: 'Gigantamax Charizard',
+        description:
+            'Begins battle as Charizard and becomes Gigantamax Charizard after critically striking or burning an enemy twice.',
+        baseFormName: 'Charizard',
+        evolvedFormName: 'Gigantamax Charizard',
+        replacedFormNames: ['Charmander', 'Charmeleon', 'Mega Charizard X', 'Mega Charizard Y'],
+        baseFacePicture: 'assets/images/PokemonArena/Charmander/skins/charizard/charizardfp.jpg',
+        evolvedFacePicture: 'assets/images/PokemonArena/Charmander/skins/gigantamax/fp.png',
+        pokemonTypes: ['Fire', 'Flying'],
+        baseSkillImagesBySkillId: {
+            'charmander-ember': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill1.webp',
+            'charmander-scratch': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill2.webp',
+            'charmander-flamethrower': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill3.webp',
+            'charmander-rage': 'assets/images/PokemonArena/Charmander/skins/charizard/charizardskill4.webp',
+        },
+        evolvedSkillImagesBySkillId: {
+            'charmander-fire-punch': 'assets/images/PokemonArena/Charmander/skins/gigantamax/skill1.png',
+            'charmander-dragon-claw': 'assets/images/PokemonArena/Charmander/skins/gigantamax/skill2.png',
+            'charmander-charmeleon-flamethrower': 'assets/images/PokemonArena/Charmander/skins/gigantamax/skill3.png',
+            'charmander-charmeleon-rage': 'assets/images/PokemonArena/Charmander/skins/gigantamax/skill4.png',
+            'charmander-charizard-x-fire-punch': 'assets/images/PokemonArena/Charmander/skins/gigantamax/skill1.png',
+            'charmander-charizard-x-dragon-claw': 'assets/images/PokemonArena/Charmander/skins/gigantamax/skill2.png',
+            'charmander-charizard-x-flamethrower': 'assets/images/PokemonArena/Charmander/skins/gigantamax/skill3.png',
+            'charmander-charizard-x-rage': 'assets/images/PokemonArena/Charmander/skins/gigantamax/skill4.png',
+            'charmander-charizard-y-fire-punch': 'assets/images/PokemonArena/Charmander/skins/gigantamax/skill1.png',
+            'charmander-charizard-y-dragon-claw': 'assets/images/PokemonArena/Charmander/skins/gigantamax/skill2.png',
+            'charmander-charizard-y-flamethrower': 'assets/images/PokemonArena/Charmander/skins/gigantamax/skill3.png',
+            'charmander-charizard-y-rage': 'assets/images/PokemonArena/Charmander/skins/gigantamax/skill4.png',
+        },
+        evolutionStatusIds: [
+            'charmander_charmeleon_evolution',
+            'charmander_charizard_x_evolution_branch',
+            'charmander_charizard_y_evolution_branch',
+        ],
+        passiveSkillId: 'charmander-passive-evolution-charmeleon',
+        passiveSkillImage: 'assets/images/PokemonArena/Charmander/skins/gigantamax/fp.png',
+        passiveDescription:
+            'After Charizard critically strikes or burns an enemy twice, it evolves into Gigantamax Charizard and all four skills gain their improved effects.',
+    }),
 ];
 
 const POKEMON_GEN2_EVOLUTION_SKIN_CATALOG = [

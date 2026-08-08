@@ -558,7 +558,7 @@ test('equipped selection skins use showcase renders and expose both Charizard Me
 
     await page.getByLabel('Select Charmander').click();
     await expect(page.locator('#character-name')).toHaveText('Charizard');
-    await expect(page.locator('#character-portrait')).toHaveAttribute('src', /charizard\.png\.webp$/);
+    await expect(page.locator('#character-portrait')).toHaveAttribute('src', /charizard\.png\.webp\?v=/);
 
     const megaXButton = page.locator('[data-character-form="mega-x"]');
     const megaYButton = page.locator('[data-character-form="mega-y"]');
@@ -567,11 +567,37 @@ test('equipped selection skins use showcase renders and expose both Charizard Me
 
     await megaXButton.click();
     await expect(page.locator('#character-name')).toHaveText('Mega Charizard X');
-    await expect(page.locator('#character-portrait')).toHaveAttribute('src', /megacharizardx\.png\.webp$/);
+    await expect(page.locator('#character-portrait')).toHaveAttribute('src', /megacharizardx\.png\.webp\?v=/);
 
     await megaYButton.click();
     await expect(page.locator('#character-name')).toHaveText('Mega Charizard Y');
-    await expect(page.locator('#character-portrait')).toHaveAttribute('src', /megacharizardy\.png\.webp$/);
+    await expect(page.locator('#character-portrait')).toHaveAttribute('src', /megacharizardy\.png\.webp\?v=/);
+});
+
+test('Nincada new UI tabs expose Ninjask and Shedinja renders and skills', async ({ page }) => {
+    await page.goto(`${harness.baseUrl}/selection.html?layout=experimental&arena=pokemon`);
+    await expect(page.locator('body')).not.toHaveClass(/app-loading-selection/);
+
+    await page.getByLabel('Select Nincada').click();
+    await expect(page.locator('#character-name')).toHaveText('Nincada');
+    await expect(page.locator('#character-portrait')).toHaveAttribute('src', /nincada\.png\.webp\?v=/);
+
+    const ninjaskButton = page.locator('[data-character-form="ninjask"]');
+    const shedinjaButton = page.locator('[data-character-form="shedinja"]');
+    await expect(ninjaskButton).toBeVisible();
+    await expect(shedinjaButton).toBeVisible();
+
+    await ninjaskButton.click();
+    await expect(page.locator('#character-name')).toHaveText('Ninjask');
+    await expect(page.locator('#character-portrait')).toHaveAttribute('src', /ninjask\.png\.webp\?v=/);
+    await expect(page.locator('.skill-images img[alt="Skitter Smack"]')).toBeVisible();
+    await expect(page.locator('.skill-images img[alt="Ability: Speed Boost"]')).toBeVisible();
+
+    await shedinjaButton.click();
+    await expect(page.locator('#character-name')).toHaveText('Shedinja');
+    await expect(page.locator('#character-portrait')).toHaveAttribute('src', /shedinja\.png\.webp\?v=/);
+    await expect(page.locator('.skill-images img[alt="Bug Buzz"]')).toBeVisible();
+    await expect(page.locator('.skill-images img[alt="Ability: Wonder Guard"]')).toBeVisible();
 });
 
 test('Pokemon type badges render in selection and desktop keeps double-click team removal', async ({ page }) => {

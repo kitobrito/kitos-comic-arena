@@ -1354,6 +1354,12 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         squirtle: { name: 'Wartortle', filename: 'Wartortle.webp.webp' },
         zubat: { name: 'Golbat', filename: 'Golbat_Render_01.webp.webp' },
     });
+    const POKEMON_SELECTION_BATTLE_FORM_RENDERS_BY_ID = Object.freeze({
+        nincada: [
+            { id: 'ninjask', label: 'Ninjask', name: 'Ninjask', filename: 'ninjask.png.webp' },
+            { id: 'shedinja', label: 'Shedinja', name: 'Shedinja', filename: 'shedinja.png.webp' },
+        ],
+    });
     const POKEMON_SELECTION_SKIN_RENDER_FORMS_BY_ID = Object.freeze({
         'ditto-shiny': [
             { id: 'base', label: 'Shiny', name: 'Shiny Ditto', filename: 'shinyditto.webp' },
@@ -1409,13 +1415,33 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             { id: 'mega-x', label: 'Mega X', name: 'Mega Charizard X', filename: 'megacharizardx.png.webp' },
             { id: 'mega-y', label: 'Mega Y', name: 'Mega Charizard Y', filename: 'megacharizardy.png.webp' },
         ],
+        'bulbasaur-mega-venusaur': [
+            { id: 'base', label: 'Venusaur', name: 'Venusaur', filename: 'venusaur.webp' },
+            { id: 'evolution', label: 'Mega', name: 'Mega Venusaur', filename: 'megavenusaur.webp' },
+        ],
+        'bulbasaur-gigantamax-venusaur': [
+            { id: 'base', label: 'Venusaur', name: 'Venusaur', filename: 'venusaur.webp' },
+            { id: 'evolution', label: 'Gigantamax', name: 'Gigantamax Venusaur', filename: 'gigantamaxvenusaur.webp' },
+        ],
+        'squirtle-mega-blastoise': [
+            { id: 'base', label: 'Blastoise', name: 'Blastoise', filename: 'blastoise.png.webp' },
+            { id: 'evolution', label: 'Mega', name: 'Mega Blastoise', filename: 'megablastoise.png.webp' },
+        ],
+        'squirtle-gigantamax-blastoise': [
+            { id: 'base', label: 'Blastoise', name: 'Blastoise', filename: 'blastoise.png.webp' },
+            { id: 'evolution', label: 'Gigantamax', name: 'Gigantamax Blastoise', filename: 'gigantamaxblastoise.png.webp' },
+        ],
+        'charmander-gigantamax-charizard': [
+            { id: 'base', label: 'Charizard', name: 'Charizard', filename: 'charizard.png.webp' },
+            { id: 'evolution', label: 'Gigantamax', name: 'Gigantamax Charizard', filename: 'gigantamaxcharizard.png.webp' },
+        ],
         'primeape-annihilape-evolution': [
             { id: 'base', label: 'Evolution', name: 'Annihilape', filename: 'annihilape.jpg.webp' },
         ],
     });
     const getSelectionRenderSource = (filename = '') =>
         filename
-            ? encodeURI(`/assets/images/selection-featured/PokemonArena/BIB/${filename}`)
+            ? `${encodeURI(`/assets/images/selection-featured/PokemonArena/BIB/${filename}`)}?v=kanto-skins-renders-v1`
             : '';
     const getSelectionCharacterId = (character) =>
         String(character?.characterId || character?.id || '').trim().toLowerCase();
@@ -1437,6 +1463,9 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         const characterId = getSelectionCharacterId(character);
         const baseFilename = POKEMON_SELECTION_FEATURED_RENDER_BY_ID[characterId];
         const evolution = POKEMON_SELECTION_EVOLUTION_RENDER_BY_ID[characterId];
+        const battleForms = Array.isArray(POKEMON_SELECTION_BATTLE_FORM_RENDERS_BY_ID[characterId])
+            ? POKEMON_SELECTION_BATTLE_FORM_RENDERS_BY_ID[characterId]
+            : [];
         return [
             baseFilename
                 ? {
@@ -1449,6 +1478,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             evolution
                 ? { id: 'evolution', label: 'Evolution', ...evolution }
                 : null,
+            ...battleForms,
         ].filter(Boolean);
     };
     const getSelectionFeaturedRenderSource = (character) => {
@@ -1781,6 +1811,8 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         if (characterId === 'charmander' && form === 'mega-x') return ['Fire', 'Dragon'];
         if (characterId === 'charmander' && form === 'mega-y') return ['Fire', 'Flying'];
         if (characterId === 'magikarp' && form === 'evolution') return ['Water', 'Flying'];
+        if (characterId === 'nincada' && form === 'ninjask') return ['Bug', 'Flying'];
+        if (characterId === 'nincada' && form === 'shedinja') return ['Bug', 'Ghost'];
         return normalizeVisiblePokemonTypes(character?.pokemonTypes);
     };
 
@@ -17764,10 +17796,31 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         return [...baseSkills, ...evolvedSkills];
     };
 
+    const getSelectionBattleForm = (character, form = 'base') =>
+        (Array.isArray(character?.battleForms) ? character.battleForms : []).find(
+            (entry) => String(entry?.id || '').trim().toLowerCase() === String(form || '').trim().toLowerCase()
+        ) || null;
+
+    const getSelectionVisibleSkillsForForm = (character, form = 'base') => {
+        const battleForm = getSelectionBattleForm(character, form);
+        if (battleForm) {
+            return (Array.isArray(battleForm.skills) ? battleForm.skills : []).filter(
+                (skill) => skill && !Boolean(skill.hiddenFromSelectionViewer)
+            );
+        }
+        return getSelectionVisibleSkills(character);
+    };
+
     const preloadCharacterPreview = (character) => {
         if (!character) return;
         preloadSelectionPreviewImage(character.facePicture);
         getSelectionVisibleSkills(character).forEach((skill) => preloadSelectionPreviewImage(skill.skillimage));
+        (Array.isArray(character?.battleForms) ? character.battleForms : []).forEach((form) => {
+            preloadSelectionPreviewImage(form?.facePicture);
+            getSelectionVisibleSkillsForForm(character, form?.id).forEach((skill) =>
+                preloadSelectionPreviewImage(skill.skillimage)
+            );
+        });
     };
 
     const loadSelectionPreviewImage = (image, source, alt, renderId, fallbackSource = '') => {
@@ -17822,6 +17875,14 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
     const getSelectionSkillRenderForm = (character, skill) => {
         const forms = getSelectionCharacterRenderForms(character);
         const skillId = String(skill?.id || '').trim().toLowerCase();
+        const matchingBattleForm = (Array.isArray(character?.battleForms) ? character.battleForms : []).find(
+            (entry) =>
+                forms.some((form) => form.id === entry?.id) &&
+                (Array.isArray(entry?.skills) ? entry.skills : []).some(
+                    (entrySkill) => String(entrySkill?.id || '').trim().toLowerCase() === skillId
+                )
+        );
+        if (matchingBattleForm?.id) return matchingBattleForm.id;
         if (
             getSelectionCharacterId(character) === 'aegislash' &&
             forms.some((form) => form.id === 'evolution')
@@ -18064,11 +18125,52 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
         setActiveSkillImage(-1);
     };
 
+    const renderSelectionSkillStrip = (character, form = 'base', { showOverview = true } = {}) => {
+        const battleForm = getSelectionBattleForm(character, form);
+        const presentation = battleForm || character;
+        const visibleSkills = getSelectionVisibleSkillsForForm(character, form);
+        if (showOverview) {
+            renderCharacterOverview({
+                ...character,
+                ...presentation,
+                description:
+                    presentation?.description ||
+                    presentation?.descriptionHtml ||
+                    character?.description,
+            });
+        }
+        ensureSkillImageSlots(visibleSkills.length);
+        if (skillImagesContainer) {
+            skillImagesContainer.scrollLeft = 0;
+        }
+        const renderId = selectionPreviewRenderId;
+        visibleSkills.forEach((skill, skillIdx) => {
+            const targetImg = skillImages[skillIdx];
+            if (!targetImg) return;
+            if (skill) {
+                targetImg.onclick = () => handleSkillSelect(skillIdx);
+                loadSelectionPreviewImage(
+                    targetImg,
+                    skill.skillimage || '',
+                    skill.name || `Skill ${skillIdx + 1}`,
+                    renderId
+                );
+            } else {
+                targetImg.onload = null;
+                targetImg.onerror = null;
+                targetImg.src = '';
+                targetImg.alt = `Skill ${skillIdx + 1}`;
+                targetImg.style.visibility = 'hidden';
+                targetImg.onclick = null;
+            }
+        });
+    };
+
     const handleSkillSelect = (skillIndex) => {
         if (currentCharacterIndex === null) return;
         const character = roster[currentCharacterIndex];
-        if (!character || !Array.isArray(character.skills)) return;
-        const visibleSkills = getSelectionVisibleSkills(character);
+        if (!character) return;
+        const visibleSkills = getSelectionVisibleSkillsForForm(character, currentSelectionRenderForm);
         const skill = visibleSkills[skillIndex];
         if (!skill) return;
         if (getSelectionCharacterRenderForms(character).length > 1) {
@@ -18088,35 +18190,7 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             roleEl.style.visibility = 'visible';
         }
         renderSelectionCharacterForm(character, 'base');
-        const renderId = selectionPreviewRenderId;
-        renderCharacterOverview(character);
-        if (Array.isArray(character.skills)) {
-            const visibleSkills = getSelectionVisibleSkills(character);
-            ensureSkillImageSlots(visibleSkills.length);
-            if (skillImagesContainer) {
-                skillImagesContainer.scrollLeft = 0;
-            }
-            visibleSkills.forEach((skill, skillIdx) => {
-                const targetImg = skillImages[skillIdx];
-                if (!targetImg) return;
-                if (skill) {
-                    targetImg.onclick = () => handleSkillSelect(skillIdx);
-                    loadSelectionPreviewImage(
-                        targetImg,
-                        skill.skillimage || '',
-                        skill.name || `Skill ${skillIdx + 1}`,
-                        renderId
-                    );
-                } else {
-                    targetImg.onload = null;
-                    targetImg.onerror = null;
-                    targetImg.src = '';
-                    targetImg.alt = `Skill ${skillIdx + 1}`;
-                    targetImg.style.visibility = 'hidden';
-                    targetImg.onclick = null;
-                }
-            });
-        }
+        renderSelectionSkillStrip(character, 'base');
     };
 
     characterFormButtons.forEach((button) => {
@@ -18124,7 +18198,9 @@ const POKEMON_SELECTION_FEATURED_RENDER_BY_ID = Object.freeze({
             if (currentCharacterIndex === null) return;
             const character = roster[currentCharacterIndex];
             if (!character) return;
-            renderSelectionCharacterForm(character, button.dataset.characterForm || 'base');
+            const form = button.dataset.characterForm || 'base';
+            renderSelectionCharacterForm(character, form);
+            renderSelectionSkillStrip(character, form);
         });
     });
 
